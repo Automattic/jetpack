@@ -182,15 +182,15 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	 *
 	 * @dataProvider provider_invalid_urls
 	 *
-	 * @param string $url               Original URL.
-	 * @param string $validated_url     Expected URL after validation.
+	 * @param string $url       Original URL.
+	 * @param object $assertion Assertion on the result.
 	 */
-	public function test_validate_normalizes_invalid_domain_url( $url, $validated_url ) {
+	public function test_validate_normalizes_invalid_domain_url( $url, $assertion ) {
 		$allowed_hosts = array( 'calendar.google.com' );
 
 		$url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
 
-		$this->assertEquals( $validated_url, $url );
+		$this->assertThat( $url, $assertion );
 	}
 
 	/**
@@ -202,19 +202,22 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		return array(
 			array(
 				'https://calendar.google.com#@evil.com',
-				'https://calendar.google.com/#%40evil.com',
+				$this->equalTo( 'https://calendar.google.com/#%40evil.com' ),
 			),
 			array(
 				'https://foo@evil.com:80@calendar.google.com',
-				'https://calendar.google.com/',
+				$this->equalTo( 'https://calendar.google.com/' ),
 			),
 			array(
 				'https://foo@127.0.0.1 @calendar.google.com',
-				'https://calendar.google.com/',
+				// The fix for https://bugs.php.net/bug.php?id=77423 changed the behavior here.
+				// It's included in PHP 8.0.1, 7.4.14, 7.3.26, and distros might have backported it to
+				// out-of-support versions too, so just expect either option.
+				$this->logicalOr( $this->isFalse(), $this->equalTo( 'https://calendar.google.com/' ) ),
 			),
 			array(
 				'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd',
-				'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd',
+				$this->equalTo( 'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd' ),
 			),
 		);
 	}
