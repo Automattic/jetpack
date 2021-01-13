@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
-import { syncOffsetTime, syncCurrentTime } from '../../shared/components/audio-player/utils';
 
 const DEFAULT_STATE = {
 	players: {},
@@ -44,15 +43,6 @@ const actions = {
 		};
 	},
 
-	playMediaSourceInCurrentTime( id, currentTime ) {
-		return {
-			type: 'SET_MEDIA_PLAYER_STATE_IN_CURRENT_TIME',
-			id,
-			state: STATE_PLAYING,
-			currentTime: syncCurrentTime( currentTime ),
-		};
-	},
-
 	pauseMediaSource( id ) {
 		return {
 			type: 'SET_MEDIA_PLAYER_STATE',
@@ -76,13 +66,21 @@ const actions = {
 		};
 	},
 
-	setMediaSourceOffset( id, currentTime ) {
+	setMediaSourceCurrentTime( id, currentTime ) {
 		return {
-			type: 'SET_MEDIA_PLAYER_OFFSET',
+			type: 'SET_MEDIA_PLAYER_CURRENT_TIME',
 			id,
-			currentTime: syncOffsetTime( currentTime ),
+			currentTime,
 		};
 	},
+
+	setMediaElementDomReference( id, domRefId ) {
+		return {
+			type: 'SET_MEDIA_SOURCE_DOM_REFERENCE',
+			id,
+			domRefId,
+		};
+	}
 };
 
 const selectors = {
@@ -113,11 +111,20 @@ const selectors = {
 	getMediaSourceCurrentTime( state, id ) {
 		if ( ! id ) {
 			const defaultMediaSource = selectors.getDefaultMediaSource( state );
-			return defaultMediaSource?.state;
+			return defaultMediaSource?.currentTime;
 		}
 
 		return state.players?.[ id ]?.currentTime;
-	}
+	},
+
+	getMediaElementDomReference( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.domRefId;
+		}
+
+		return state.players?.[ id ]?.domRefId;
+	},
 };
 
 const storeDefinition = {
@@ -169,20 +176,6 @@ const storeDefinition = {
 				};
 			}
 
-			case 'SET_MEDIA_PLAYER_STATE_IN_CURRENT_TIME': {
-				return {
-					...state,
-					players: {
-						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
-							state: action.state,
-							currentTime: action.currentTime,
-						},
-					},
-				};
-			}
-
 			case 'TOGGLE_MEDIA_PLAYER_STATE': {
 				return {
 					...state,
@@ -198,14 +191,14 @@ const storeDefinition = {
 				};
 			}
 
-			case 'SET_MEDIA_PLAYER_OFFSET': {
+			case 'SET_MEDIA_SOURCE_DOM_REFERENCE': {
 				return {
 					...state,
 					players: {
 						...state.players,
 						[ action.id ]: {
 							...state.players[ action.id ],
-							currentTime: action.currentTime,
+							domRefId: action.domRefId,
 						},
 					},
 				};
