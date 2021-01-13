@@ -178,11 +178,11 @@ export class PodcastPlayer extends Component {
 	};
 
 	handleJump = () => {
-		this.setState( { currentTime: this.state.currentTime - 5 } );
+		this.setState( { currentTime: String( this.state.currentTime - 5 ) } );
 	};
 
 	handleSkip = () => {
-		this.setState( { currentTime: this.state.currentTime + 30 } );
+		this.setState( { currentTime: String( this.state.currentTime + 30 ) } );
 	};
 
 	render() {
