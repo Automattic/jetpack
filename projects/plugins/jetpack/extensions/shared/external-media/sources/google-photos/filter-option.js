@@ -5,8 +5,6 @@ import { __ } from '@wordpress/i18n';
 import {
 	SelectControl,
 	Button,
-	__experimentalNumberControl as BlockEditorNumberControl,
-	TextControl,
 } from '@wordpress/components';
 import { omit } from 'lodash';
 import { useState, Fragment } from '@wordpress/element';
@@ -22,16 +20,7 @@ import {
 	MONTH_SELECT_OPTIONS,
 	CURRENT_YEAR,
 } from '../../constants';
-
-/**
- * This uses the experimental NumberControl from the block editor where available,
- * otherwise it falls back to a standard TextControl, limited to numbers.
- */
-const NumberControl =
-	BlockEditorNumberControl ||
-	function CustomNumberControl( props ) {
-		return <TextControl type="number" inputMode="numeric" { ...props } />;
-	};
+import NumberControl from '../../../components/number-control';
 
 function CategoryOption( { value, updateFilter } ) {
 	return (
