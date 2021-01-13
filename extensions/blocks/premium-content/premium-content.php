@@ -25,7 +25,7 @@ const FEATURE_NAME = 'premium-content/container';
  */
 function register_block() {
 	// Only load this block on WordPress.com
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
 		// Determine required `context` key based on Gutenberg version.
 		$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 		$provides   = $deprecated ? 'providesContext' : 'provides_context';

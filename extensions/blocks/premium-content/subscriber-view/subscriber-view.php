@@ -21,7 +21,7 @@ require_once dirname( __DIR__ ) . '/_inc/access-check.php';
  */
 function register_subscriber_view_block() {
 	// Only load this block on WordPress.com
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
 		// Determine required `context` key based on Gutenberg version.
 		$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 		$uses       = $deprecated ? 'context' : 'uses_context';

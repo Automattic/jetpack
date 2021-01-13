@@ -21,7 +21,7 @@ const LOGIN_BUTTON_NAME = 'premium-content/login-button';
  */
 function register_login_button_block() {
 	// Only load this block on WordPress.com
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
 		Blocks::jetpack_register_block(
 			LOGIN_BUTTON_NAME,
 			array(
