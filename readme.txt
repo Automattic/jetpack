@@ -239,6 +239,15 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
+= 9.3.1 =
+
+* Release date:
+
+**Bug fixes**
+
+* Multisite: avoid Fatals on sites using the WPMUDEV domain mapping plugin.
+* SEO Tools: prevent a PHP notice in some situations involving taxonomy or author pages.
+
 = 9.3 =
 
 * Release date: January 12, 2021
