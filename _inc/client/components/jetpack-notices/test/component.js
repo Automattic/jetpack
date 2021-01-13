@@ -8,6 +8,7 @@ import { expect } from 'chai';
 /**
  * Internal dependencies
  */
+import { DevVersionNotice } from '../index'
 import { PlanConflictWarning } from '../plan-conflict-warning';
 
 describe( 'PlanConflictWarning', () => {
@@ -85,5 +86,31 @@ describe( 'PlanConflictWarning', () => {
 			'Looks like you also purchased the Jetpack Backup (Real-time) product. ' +
 			'Consider removing Jetpack Backup (Real-time).'
 		);
+	} );
+} );
+
+describe( 'DevVersionNotice', () => {
+	it( 'should not render when Jetpack is a dev version and user is a subscriber', () => {
+		const wrapper = shallow( <DevVersionNotice isDevVersion={ true } userIsSubscriber={ true } /> );
+		expect( wrapper.isEmptyRender() ).to.equal( true );
+	} );
+
+	it( 'should not render when Jetpack is not a dev version and user is a subscriber', () => {
+		const wrapper = shallow( <DevVersionNotice isDevVersion={ false } userIsSubscriber={ true } /> );
+		expect( wrapper.isEmptyRender() ).to.equal( true );
+	} );
+
+	it( 'should not render when Jetpack is not a dev version and user is not a subscriber', () => {
+		const wrapper = shallow( <DevVersionNotice isDevVersion={ false } userIsSubscriber={ true } /> );
+		expect( wrapper.isEmptyRender() ).to.equal( true );
+	} );
+
+	it( 'should show notice when Jetpack is a dev version and user is not a subscriber', () => {
+		const wrapper = shallow( <DevVersionNotice isDevVersion={ true } userIsSubscriber={ false } /> );
+		expect( wrapper.prop( 'text' ) ).to.equal(
+			"You are currently running a development version of Jetpack."
+		);
+		expect( wrapper.find( 'SimpleNotice' ).length ).to.equal(1);
+		expect( wrapper.find( 'NoticeAction' ).length ).to.equal(1);
 	} );
 } );
