@@ -576,6 +576,16 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( $menu[75], $tools_menu_item );
 		$this->assertArrayNotHasKey( 'tools.php', $submenu );
 
+		// Contains the following menu items.
+
+		$import_submenu_item = array(
+			'Import',
+			'import',
+			'https://wordpress.com/import/' . static::$domain,
+			'Import',
+		);
+		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
+
 		// NOT contains the following menu items.
 
 		$tools_submenu_item = array(
@@ -584,6 +594,13 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'tools.php',
 		);
 		$this->assertNotContains( $tools_submenu_item, $submenu[ $slug ] );
+
+		$import_submenu_item = array(
+			'Import',
+			'import',
+			'import.php',
+		);
+		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
