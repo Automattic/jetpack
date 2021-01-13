@@ -142,21 +142,26 @@ function AudioPlayer( {
 	//Check current time against prop and potentially jump
 	useEffect( () => {
 		const audio = audioRef.current;
-
 		// If there's no audio component or we're not controlling time with the `currentTime` prop,
 		// then bail early.
 		if ( ! currentTime || ! audio ) {
 			return;
 		}
 
-		// We only want to change the play position if the difference between our current play position
-		// and the prop is greater than 1. We're throttling the time change events to once per second, so
-		// if the floored time has changed by more than a second, we haven't received an event in the past
-		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
-		// wanting to update the position, so we set the audio element's current time as a result.
-		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 1 ) {
-			audio.currentTime = currentTime;
+		// Bail early when not a String.
+		// It accepts only String value types to update the
+		// current time of the audio source.
+		if ( typeof currentTime !== 'string' ) {
+			return;
 		}
+
+		const castCurrentTime = Number( currentTime );
+		// Bail early if it is not a valid number.
+		if ( isNaN( castCurrentTime ) ) {
+			return;
+		}
+
+		audio.currentTime = currentTime;
 	}, [ audioRef, currentTime ] );
 
 	return (

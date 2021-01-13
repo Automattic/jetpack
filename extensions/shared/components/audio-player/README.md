@@ -24,7 +24,26 @@ The URL of the audio file to play. In the case of the podcast player, this is al
 
 #### `currentTime`
 
-Used in conjunction with `onTimeChange` this tracks the current position in the audio file, and can be set to a value in order to jump back and forth.
+Use this property to set the current time of the audio file declaratively.
+It's very important to keep in mind that the variable type needs to be a String in order to propagate the value to the audio element. A very common case is to jump back and forth.
+It was designed this way to avoid a race condition, when the `currentTime` property is connected, from the parent component,
+with the `onTimeChange()` callback.
+
+```es6
+function ParentPlayer() {
+	const [ currentTime, setCurrentTime ] = useState( 0 );
+
+	<AudioPlayer
+		currentTime={ currentTime }
+		onTimeChange={ setCurrentTime }
+	>
+
+	<Button
+		onClick={ () => setCurrentTime( '30' ) }
+	>
+		Set current position to 30s
+	<Button/>
+}
 
 #### `onTimeChange`
 
