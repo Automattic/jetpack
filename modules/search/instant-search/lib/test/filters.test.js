@@ -4,7 +4,12 @@
 /**
  * Internal dependencies
  */
-import { getFilterKeys, getSelectableFilterKeys, getUnselectableFilterKeys } from '../filters';
+import {
+	getFilterKeys,
+	getSelectableFilterKeys,
+	getUnselectableFilterKeys,
+	mapFilterKeyToFilter,
+} from '../filters';
 
 describe( 'getFilterKeys', () => {
 	const DEFAULT_KEYS = [
@@ -89,5 +94,71 @@ describe( 'getUnselectableFilterKeys', () => {
 			'year_post_modified',
 			'year_post_modified_gmt',
 		] );
+	} );
+} );
+
+describe( 'mapFilterKeyToFilter', () => {
+	test( 'handles month-related filter keys', () => {
+		expect( mapFilterKeyToFilter( 'month_post_date' ) ).toEqual( {
+			field: 'post_date',
+			type: 'date_histogram',
+			interval: 'month',
+		} );
+		expect( mapFilterKeyToFilter( 'month_post_date_gmt' ) ).toEqual( {
+			field: 'post_date_gmt',
+			type: 'date_histogram',
+			interval: 'month',
+		} );
+		expect( mapFilterKeyToFilter( 'month_post_modified' ) ).toEqual( {
+			field: 'post_modified',
+			type: 'date_histogram',
+			interval: 'month',
+		} );
+		expect( mapFilterKeyToFilter( 'month_post_modified_gmt' ) ).toEqual( {
+			field: 'post_modified_gmt',
+			type: 'date_histogram',
+			interval: 'month',
+		} );
+	} );
+	test( 'handles year-related filter keys', () => {
+		expect( mapFilterKeyToFilter( 'year_post_date' ) ).toEqual( {
+			field: 'post_date',
+			type: 'date_histogram',
+			interval: 'year',
+		} );
+		expect( mapFilterKeyToFilter( 'year_post_date_gmt' ) ).toEqual( {
+			field: 'post_date_gmt',
+			type: 'date_histogram',
+			interval: 'year',
+		} );
+		expect( mapFilterKeyToFilter( 'year_post_modified' ) ).toEqual( {
+			field: 'post_modified',
+			type: 'date_histogram',
+			interval: 'year',
+		} );
+		expect( mapFilterKeyToFilter( 'year_post_modified_gmt' ) ).toEqual( {
+			field: 'post_modified_gmt',
+			type: 'date_histogram',
+			interval: 'year',
+		} );
+	} );
+	test( 'handles post types filter key', () => {
+		expect( mapFilterKeyToFilter( 'post_types' ) ).toEqual( {
+			type: 'post_type',
+		} );
+	} );
+	test( 'handles taxonomies-related filter keys', () => {
+		expect( mapFilterKeyToFilter( 'page' ) ).toEqual( {
+			type: 'taxonomy',
+			taxonomy: 'page',
+		} );
+		expect( mapFilterKeyToFilter( 'post' ) ).toEqual( {
+			type: 'taxonomy',
+			taxonomy: 'post',
+		} );
+		expect( mapFilterKeyToFilter( 'arcade_reviews' ) ).toEqual( {
+			type: 'taxonomy',
+			taxonomy: 'arcade_reviews',
+		} );
 	} );
 } );

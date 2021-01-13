@@ -247,7 +247,6 @@
 	"modules/search/instant-search/lib/colors.js",
 	"modules/search/instant-search/lib/customize.js",
 	"modules/search/instant-search/lib/dom.js",
-	"modules/search/instant-search/lib/filters.js",
 	"modules/search/instant-search/lib/query-string.js",
 	"modules/search/instant-search/lib/tracks.js",
 	"modules/shortcodes/js/jmpress.js",

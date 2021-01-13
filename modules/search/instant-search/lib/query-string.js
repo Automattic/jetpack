@@ -16,8 +16,17 @@ import {
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
 import { decode } from '../external/query-string-decode';
 
-function getQuery() {
+export function getQuery() {
 	return decode( window.location.search.substring( 1 ), false, false );
+}
+
+/**
+ * Updates the browser's query string.
+ *
+ * @param {object} queryObject - a query object.
+ */
+export function setQuery( queryObject ) {
+	pushQueryString( encode( queryObject ) );
 }
 
 function pushQueryString( queryString, shouldEmitEvent = true ) {
