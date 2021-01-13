@@ -136,11 +136,15 @@ function AudioPlayer( {
 		}
 		//Add time change event listener
 		const audio = audioRef.current;
-		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000 );
+		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000, {
+			leading: true,
+			trailing: false,
+		} );
 		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
+			throttledTimeChange.cancel();
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
 	}, [ audioRef, onTimeChange ] );
