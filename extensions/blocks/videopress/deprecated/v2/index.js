@@ -49,7 +49,7 @@ export default {
 		src: {
 			type: 'string',
 		},
-		classNames: {
+		videoPressClassNames: {
 			type: 'string',
 		},
 		align: {
@@ -59,18 +59,20 @@ export default {
 	support: {
 		reusable: false,
 	},
-	isEligible: ( { className, classNames, guid } ) => {
-		const missingClassNames = classNames === undefined;
+	isEligible: ( { className, videoPressClassNames, guid } ) => {
+		const missingClassNames = videoPressClassNames === undefined;
 		const missingVideoClass = ! className?.indexOf( 'wp-block-video' ) >= 0;
 
 		return guid && ( missingClassNames || missingVideoClass );
 	},
 	migrate: attributes => {
-		const { align, className, classNames } = attributes;
+		const { align, className, videoPressClassNames } = attributes;
 		return {
 			...attributes,
 			className: 'wp-block-video',
-			classNames: classnames( className, classNames, { [ `align${ align }` ]: align } ),
+			videoPressClassNames: classnames( className, videoPressClassNames, {
+				[ `align${ align }` ]: align,
+			} ),
 		};
 	},
 	save,

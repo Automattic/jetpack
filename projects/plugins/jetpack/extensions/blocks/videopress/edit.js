@@ -123,7 +123,9 @@ const VideoPressEdit = CoreVideoEdit =>
 					} ),
 					true
 				);
-				setAttributes( { classNames: sandboxClassnames } ); // We set classNames attribute to be used in ./save.js
+
+				// We set videoPressClassNames attribute to be used in ./save.js
+				setAttributes( { videoPressClassNames: sandboxClassnames } );
 			}
 		}
 
@@ -262,7 +264,16 @@ const VideoPressEdit = CoreVideoEdit =>
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const { autoplay, caption, classNames, controls, loop, muted, poster, preload } = attributes;
+			const {
+				autoplay,
+				caption,
+				videoPressClassNames,
+				controls,
+				loop,
+				muted,
+				poster,
+				preload,
+			} = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -422,9 +433,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper className={ classNames }>
+					<BlockFigureWrapper className={ videoPressClassNames }>
 						<div className="wp-block-embed__wrapper">
-							<SandBox html={ html } scripts={ scripts } type={ classNames } />
+							<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
 						</div>
 
 						{

@@ -20,7 +20,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			muted,
 			poster,
 			preload,
-			classNames,
+			videoPressClassNames,
 		} = {},
 	} = props;
 
@@ -47,7 +47,7 @@ const VideoPressSave = CoreVideoSave => props => {
 	} );
 
 	return (
-		<figure className={ classNames }>
+		<figure className={ videoPressClassNames }>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>

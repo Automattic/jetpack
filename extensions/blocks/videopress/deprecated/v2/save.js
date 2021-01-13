@@ -19,7 +19,7 @@ export default function VideoPressSave( props ) {
 			muted,
 			poster,
 			preload,
-			classNames,
+			videoPressClassNames,
 		} = {},
 	} = props;
 
@@ -37,7 +37,7 @@ export default function VideoPressSave( props ) {
 	} );
 
 	return (
-		<figure className={ classNames }>
+		<figure className={ videoPressClassNames }>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>
