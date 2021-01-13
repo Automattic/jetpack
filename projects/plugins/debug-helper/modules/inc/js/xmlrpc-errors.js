@@ -1,6 +1,6 @@
 /* global jetpack_broken_token_xmlrpc_errors */
 ( function ( $ ) {
-	$( '.verify-error' ).click( function ( ev ) {
+	$( '.verify-error' ).click( function () {
 		const button = this;
 		$( button ).prop( 'disabled', true );
 		const orignialValue = $( button ).val();

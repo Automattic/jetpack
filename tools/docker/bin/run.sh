@@ -90,11 +90,6 @@ for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 	fi
 done
 
-# Symlink debug helper into the wp-content dir since it isn't a plugin. But, it probably should move to /projects/plugins/ in a follow-up. @todo
-if [ ! -e /var/www/html/wp-content/plugins/jetpack-debug-helper ]; then
-	ln -s /usr/local/src/jetpack-monorepo/projects/packages/debug-helper /var/www/html/wp-content/plugins/jetpack-debug-helper
-fi
-
 # Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
 if [ ! -e /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack ]; then
 	ln -s /var/www/html/wp-content/plugins/jetpack /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack

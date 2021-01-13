@@ -52,7 +52,7 @@ class Mocker {
 
 		if ( ! this.canBatch() ) {
 			div.innerHTML = `Batch ${ batchKey } is waiting...`;
-			await new Promise( ( resolve, reject ) => {
+			await new Promise( resolve => {
 				const interval = setInterval( () => {
 					if ( this.canBatch() ) {
 						clearInterval( interval );
@@ -77,7 +77,7 @@ class Mocker {
 			body.success ? 'success' : 'failure (see network log for details)'
 		}`;
 
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( resolve => {
 			--this.runningBatches;
 			resolve( true === body.success );
 		} );
