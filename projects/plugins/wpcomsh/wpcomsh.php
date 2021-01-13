@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.5.7
+ * Version: 2.5.8
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.5.7' );
+define( 'WPCOMSH_VERSION', '2.5.8' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -349,10 +349,10 @@ function wpcomsh_remove_plugin_autoupdates() {
 	if ( ! class_exists( 'Jetpack_Calypsoify' ) ) {
 		return;
 	}
-	remove_action( 'manage_plugins_columns', [ Jetpack_Calypsoify::getInstance(), 'manage_plugins_columns_header' ] );
-	remove_action( 'manage_plugins_custom_column', [ Jetpack_Calypsoify::getInstance(), 'manage_plugins_custom_column' ] );
-	remove_action( 'bulk_actions-plugins', [ Jetpack_Calypsoify::getInstance(), 'bulk_actions_plugins' ] );
-	remove_action( 'handle_bulk_actions-plugins', [ Jetpack_Calypsoify::getInstance(), 'handle_bulk_actions_plugins' ] );
+	remove_action( 'manage_plugins_columns', [ Jetpack_Calypsoify::get_instance(), 'manage_plugins_columns_header' ] );
+	remove_action( 'manage_plugins_custom_column', [ Jetpack_Calypsoify::get_instance(), 'manage_plugins_custom_column' ] );
+	remove_action( 'bulk_actions-plugins', [ Jetpack_Calypsoify::get_instance(), 'bulk_actions_plugins' ] );
+	remove_action( 'handle_bulk_actions-plugins', [ Jetpack_Calypsoify::get_instance(), 'handle_bulk_actions_plugins' ] );
 }
 add_action( 'admin_init', 'wpcomsh_remove_plugin_autoupdates' );
 
