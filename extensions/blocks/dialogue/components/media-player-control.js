@@ -41,13 +41,16 @@ export default function MediaPlayerControl( {
 		setMediaSourceCurrentTime,
 	} = useDispatch( STORE_ID );
 
-	const debouncedMoveTimestamp = useCallback( debounce( function( newCurrentTime, ref ) {
-		ref.currentTime = newCurrentTime;
-		setMediaSourceCurrentTime( mediaId, String( newCurrentTime ) );
-	}, 500 ), [ mediaId ] );
+	const debouncedMoveTimestamp = useCallback(
+		debounce( function( newCurrentTime, ref ) {
+			// ref.currentTime = newCurrentTime;
+			setMediaSourceCurrentTime( mediaId, newCurrentTime );
+			// playMediaSource( mediaId );
+		}, 500 )
+	, [ mediaId ] );
 
 	const moveTimestamp = ( offset ) => {
-		pauseMediaSource( mediaId );
+		// pauseMediaSource( mediaId );
 		const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
 		onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( newCurrentTime ) } );
 		debouncedMoveTimestamp( newCurrentTime, domEl );
@@ -75,8 +78,10 @@ export default function MediaPlayerControl( {
 						return pauseMediaSource( mediaId );
 					}
 					const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp );
-					domEl.currentTime = newCurrentTime;
-					domEl.play();
+					// domEl.currentTime = newCurrentTime;
+					// domEl.play();
+
+					setMediaSourceCurrentTime( mediaId, newCurrentTime );
 					playMediaSource( mediaId );
 				} }
 			/>
