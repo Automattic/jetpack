@@ -115,10 +115,10 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			if ( preview ) {
-				const { align, className } = attributes;
+				const { align } = attributes;
 				const sandboxClassnames = getClassNames(
 					preview.html,
-					classnames( className, 'wp-block-embed', 'is-type-video', 'is-provider-videopress', {
+					classnames( 'wp-block-embed', 'is-type-video', 'is-provider-videopress', {
 						[ `align${ align }` ]: align,
 					} ),
 					true
@@ -425,6 +425,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			const { html, scripts } = preview;
+			const {
+				attributes: { className },
+			} = this.props;
 
 			// Disabled because the overlay div doesn't actually have a role or functionality
 			// as far as the user is concerned. We're just catching the first click so that
@@ -433,7 +436,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper className={ videoPressClassNames }>
+					<BlockFigureWrapper
+						className={ classnames( 'wp-block-video', className, videoPressClassNames ) }
+					>
 						<div className="wp-block-embed__wrapper">
 							<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
 						</div>

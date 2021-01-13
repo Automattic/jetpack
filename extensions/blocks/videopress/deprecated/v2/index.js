@@ -59,17 +59,16 @@ export default {
 	support: {
 		reusable: false,
 	},
-	isEligible: ( { className, videoPressClassNames, guid } ) => {
+	isEligible: ( { videoPressClassNames, guid } ) => {
 		const missingClassNames = videoPressClassNames === undefined;
-		const missingVideoClass = ! className?.indexOf( 'wp-block-video' ) >= 0;
 
-		return guid && ( missingClassNames || missingVideoClass );
+		return guid && missingClassNames;
 	},
 	migrate: attributes => {
 		const { align, className, videoPressClassNames } = attributes;
 		return {
 			...attributes,
-			className: 'wp-block-video',
+			className: '',
 			videoPressClassNames: classnames( className, videoPressClassNames, {
 				[ `align${ align }` ]: align,
 			} ),
