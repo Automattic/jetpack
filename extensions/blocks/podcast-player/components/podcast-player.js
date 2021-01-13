@@ -25,12 +25,12 @@ import Playlist from './playlist';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
-import { syncOffsetTime } from '../../../shared/components/audio-player/utils';
 
 export class PodcastPlayer extends Component {
 	state = {
 		currentTrack: 0,
 		hasUserInteraction: false,
+		currentTime: 0,
 	};
 
 	/**
@@ -162,9 +162,29 @@ export class PodcastPlayer extends Component {
 		this.props.pauseMediaSource( this.props.playerId );
 	};
 
-	handleJump = () => this.props.setMediaSourceOffset( this.props.playerId, -5 );
+	handleOnTimeChange = ( currentTime ) => {
+		// Global state.
+		// this.props.setMediaSourceCurrentTime( this.props.playerId, currentTime );
+		this.setState( { currentTime } );
+	}
 
-	handleSkip = () => this.props.setMediaSourceOffset( this.props.playerId, 30 );
+	handleJump = () => {
+		// Global state.
+		// this.props.setMediaSourceCurrentTime(
+		// 	this.props.playerId,
+		// 	this.props.currentTime - 5
+		// );
+		this.setState( { currentTime: this.state.currentTime - 5 } );
+	};
+
+	handleSkip = () => {
+		// Global state.
+		// this.props.setMediaSourceCurrentTime(
+		// 	this.props.playerId,
+		// 	this.props.currentTime + 30
+		// );
+		this.setState( { currentTime: this.state.currentTime + 30 } );
+	};
 
 	componentDidMount() {
 		const { playerId } = this.props;
@@ -202,7 +222,7 @@ export class PodcastPlayer extends Component {
 			tracks,
 			attributes,
 			playerState,
-			currentTime,
+			// currentTime, // From global state
 		} = this.props;
 
 		const {
@@ -220,7 +240,10 @@ export class PodcastPlayer extends Component {
 			showEpisodeTitle,
 			showEpisodeDescription,
 		} = attributes;
-		const { currentTrack } = this.state;
+		const {
+			currentTrack,
+			currentTime,
+		} = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
@@ -279,6 +302,7 @@ export class PodcastPlayer extends Component {
 					colors={ colors }
 				>
 					<AudioPlayer
+						playerId={ playerId }
 						onJumpBack={ this.handleJump }
 						onSkipForward={ this.handleSkip }
 						trackSource={ this.getTrack( currentTrack ).src }
@@ -287,6 +311,7 @@ export class PodcastPlayer extends Component {
 						onError={ this.handleError }
 						playStatus={ playerState }
 						currentTime={ currentTime }
+						onTimeChange={ this.handleOnTimeChange }
 					/>
 				</Header>
 
@@ -344,11 +369,19 @@ PodcastPlayer.defaultProps = {
 export default compose( [
 	withErrorBoundary,
 	withSelect( ( select, props ) => {
-		const { getMediaPlayerStatus, getMediaSourceCurrentTime } = select( STORE_ID );
+		const { playerId } = props;
+		const {
+			getMediaPlayerStatus,
+			getMediaSourceCurrentTime,
+			getMediaElementDomReference,
+		} = select( STORE_ID );
+
+		const domRef = getMediaElementDomReference( playerId );
 
 		return {
-			playerState: getMediaPlayerStatus( props.playerId ),
-			currentTime: getMediaSourceCurrentTime( props.playerId ),
+			playerState: getMediaPlayerStatus( playerId ),
+			currentTime: getMediaSourceCurrentTime( playerId ),
+			audioDomEl: domRef && document.getElementById( domRef ),
 		};
 	} ),
 	withDispatch( dispatch => {
@@ -360,7 +393,7 @@ export default compose( [
 			pauseMediaSource,
 			toggleMediaSource,
 			errorMediaSourceState,
-			setMediaSourceOffset,
+			setMediaSourceCurrentTime,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
@@ -370,7 +403,7 @@ export default compose( [
 			pauseMediaSource,
 			toggleMediaSource,
 			errorMediaSourceState,
-			setMediaSourceOffset,
+			setMediaSourceCurrentTime,
 		};
 	} ),
 ] )( PodcastPlayer );
