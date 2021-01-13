@@ -9,7 +9,7 @@ import { debounce } from 'lodash';
  * WordPress dependencies
  */
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, useEffect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 
 /**
@@ -38,12 +38,12 @@ export default function MediaPlayerControl( {
 	const {
 		playMediaSource,
 		pauseMediaSource,
-		// setMediaSourceCurrentTime,
+		setMediaSourceCurrentTime,
 	} = useDispatch( STORE_ID );
 
 	const debouncedMoveTimestamp = useCallback( debounce( function( newCurrentTime, ref ) {
 		ref.currentTime = newCurrentTime;
-		// setMediaSourceCurrentTime( mediaId, String( newCurrentTime ) );
+		setMediaSourceCurrentTime( mediaId, String( newCurrentTime ) );
 	}, 500 ), [ mediaId ] );
 
 	const moveTimestamp = ( offset ) => {
