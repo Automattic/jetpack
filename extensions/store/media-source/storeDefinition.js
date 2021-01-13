@@ -191,6 +191,19 @@ const storeDefinition = {
 				};
 			}
 
+			case 'SET_MEDIA_PLAYER_CURRENT_TIME': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							currentTime: action.currentTime,
+						},
+					},
+				};
+			}
+
 			case 'SET_MEDIA_SOURCE_DOM_REFERENCE': {
 				return {
 					...state,
