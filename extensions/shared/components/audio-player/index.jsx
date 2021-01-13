@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { throttle } from 'lodash';
+import { debounce, throttle } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -119,15 +119,15 @@ function AudioPlayer( {
 		// Get the current status of the audio element and the required action to toggle it.
 		const [ audioStatus, action ] =
 			audioRef.current?.paused === false ? [ STATE_PLAYING, pause ] : [ STATE_PAUSED, play ];
-		// const debouncedAction = debounce( action, 100 );
+		const debouncedAction = debounce( action, 100 );
 
 		if ( STATE_ERROR !== playStatus && audioStatus !== playStatus ) {
 			action();
-			// debouncedAction();
+			debouncedAction();
 		}
-		// return () => {
-			// debouncedAction.cancel();
-		// };
+		return () => {
+			debouncedAction.cancel();
+		};
 	}, [ audioRef, playStatus, trackSource ] );
 
 	useEffect( () => {
