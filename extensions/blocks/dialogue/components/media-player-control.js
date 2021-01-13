@@ -5,6 +5,7 @@
  */
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -39,7 +40,7 @@ export default function MediaPlayerControl( {
 		pauseMediaSource,
 	} = useDispatch( STORE_ID );
 
-	const moveTimestamp = ( offset ) => {
+	const moveTimestamp = useCallback( ( offset ) => {
 		const prevPlayerState = playerState;
 		pauseMediaSource( mediaId );
 
@@ -49,7 +50,7 @@ export default function MediaPlayerControl( {
 		if ( prevPlayerState === STATE_PLAYING ) {
 			playMediaSource( mediaId );
 		}
-	};
+	}, [ domEl.currentTime, mediaId, onTimeChange, pauseMediaSource, playMediaSource, playerState, timestamp ] );
 
 	if ( ! mediaId ) {
 		return null;
