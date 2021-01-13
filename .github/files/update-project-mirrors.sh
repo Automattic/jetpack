@@ -141,6 +141,7 @@ for project in projects/packages/* projects/plugins/*; do
 		if git commit --quiet $FORCE_COMMIT --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}" &&
 			{ [[ -z "$CI" ]] || git push origin "$BRANCH"; } # Only do the actual push from the GitHub Action
 		then
+			echo "https://github.com/$GIT_SLUG/commit/$(git rev-parse HEAD)"
 			echo "Completed $GIT_SLUG"
 		else
 			echo "::error::Commit of ${GIT_SLUG} failed"
