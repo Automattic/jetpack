@@ -195,7 +195,6 @@
 	"extensions/shared/components/block-styles-selector/index.js",
 	"extensions/shared/components/upgrade-nudge/index.jsx",
 	"extensions/shared/currencies.js",
-	"extensions/shared/external-media/sources/google-photos/filter-option.js",
 	"extensions/shared/external-media/sources/google-photos/filter-request.js",
 	"extensions/shared/get-jetpack-extension-availability.js",
 	"extensions/shared/get-site-fragment.js",
