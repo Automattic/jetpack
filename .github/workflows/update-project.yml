@@ -8,6 +8,7 @@ on:
       - 'projects/packages/**' # Only when package files are modified.
       - 'projects/plugins/**' # Only when plugin files are modified.
       - '.github/files/update-project-mirrors.sh' # Or when the script itself is.
+      - '.github/files/mirror-.github/**' # Or when the standard .github is.
 
 jobs:
   update_project:

@@ -114,6 +114,9 @@ for project in projects/packages/* projects/plugins/*; do
 	# Delete all files in the target dir except .git
 	find "$CLONE_DIR/." -maxdepth 1 ! \( -name .git -o -name . \) -exec rm -rf {} +
 
+	# Copy standard .github
+	cp -r "$BASE/.github/files/mirror-.github" "$CLONE_DIR/.github"
+
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{
 		# Include unignored files by default.
