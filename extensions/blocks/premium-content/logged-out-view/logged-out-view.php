@@ -20,7 +20,7 @@ require_once dirname( __DIR__ ) . '/_inc/access-check.php';
  * registration if we need to.
  */
 function register_loggedout_view_block() {
-	// Only load this block on WordPress.com
+	// Only load this block on WordPress.com.
 	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
 		// Determine required `context` key based on Gutenberg version.
 		$deprecated = function_exists( 'gutenberg_get_post_from_context' );

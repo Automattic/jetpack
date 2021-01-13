@@ -18,7 +18,7 @@ const BUTTONS_NAME = 'premium-content/buttons';
  * registration if we need to.
  */
 function register_buttons_block() {
-	// Only load this block on WordPress.com
+	// Only load this block on WordPress.com.
 	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
 		Blocks::jetpack_register_block(
 			BUTTONS_NAME,

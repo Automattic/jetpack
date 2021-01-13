@@ -24,7 +24,7 @@ const FEATURE_NAME = 'premium-content/container';
  * registration if we need to.
  */
 function register_block() {
-	// Only load this block on WordPress.com
+	// Only load this block on WordPress.com.
 	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
 		// Determine required `context` key based on Gutenberg version.
 		$deprecated = function_exists( 'gutenberg_get_post_from_context' );
