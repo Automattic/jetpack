@@ -64,4 +64,5 @@ function wpcomsh_hide_color_schemes() {
 		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
 	}
 }
-add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
+// When ready to activate syncing of color scheme to Atomic, uncomment the following line.
+//add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
