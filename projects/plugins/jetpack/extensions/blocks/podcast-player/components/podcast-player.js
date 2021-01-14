@@ -166,7 +166,7 @@ export class PodcastPlayer extends Component {
 	};
 
 	handleTimeChange = currentTime => {
-		this.setState( { currentTime } );
+		this.props.setMediaSourceCurrentTime( this.props.playerId, currentTime );
 	};
 
 	/**
@@ -362,6 +362,7 @@ export default compose( [
 			setDefaultMediaSource,
 			playMediaSource,
 			pauseMediaSource,
+			setMediaSourceCurrentTime,
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
@@ -369,6 +370,7 @@ export default compose( [
 			setDefaultMediaSource,
 			playMediaSource,
 			pauseMediaSource,
+			setMediaSourceCurrentTime,
 		};
 	} ),
 ] )( PodcastPlayer );
