@@ -39,6 +39,13 @@ const actions = {
 		};
 	},
 
+	toggleMediaSource( id ) {
+		return {
+			type: 'TOGGLE_MEDIA_PLAYER_STATE',
+			id,
+		};
+	},
+
 	pauseMediaSource( id ) {
 		return {
 			type: 'SET_MEDIA_PLAYER_STATE',
@@ -144,6 +151,21 @@ const storeDefinition = {
 						[ action.id ]: {
 							...state.players[ action.id ],
 							state: action.state,
+						},
+					},
+				};
+			}
+
+			case 'TOGGLE_MEDIA_PLAYER_STATE': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							state: state.players[ action.id ].state === STATE_PLAYING
+								? STATE_PAUSED
+								: STATE_PLAYING,
 						},
 					},
 				};
