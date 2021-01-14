@@ -214,7 +214,13 @@ export class Footer extends React.Component {
 							className="jp-footer__link"
 							title={ __( 'Jetpack version', 'jetpack' ) }
 						>
-							{ version ? sprintf( __( 'Jetpack version %s', 'jetpack' ), version ) : 'Jetpack' }
+							{ version
+								? sprintf(
+										/* Translators: placeholder is a version number. */
+										__( 'Jetpack version %s', 'jetpack' ),
+										version
+								  )
+								: 'Jetpack' }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
