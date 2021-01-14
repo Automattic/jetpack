@@ -51,11 +51,11 @@ const SearchBox = props => {
 						id={ inputId }
 						className="search-field jetpack-instant-search__box-input"
 						inputmode="search"
-						onInput={ props.onChangeQuery }
+						onInput={ props.onChangeSearch }
 						ref={ inputRef }
 						placeholder={ __( 'Search…', 'jetpack' ) }
 						type="search"
-						value={ props.query }
+						value={ props.searchQuery }
 					/>
 
 					<button className="screen-reader-text assistive-text">

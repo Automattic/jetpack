@@ -48,7 +48,9 @@ export default class SearchFilter extends Component {
 	}
 
 	isChecked( value ) {
-		return this.props.value && this.props.value.includes( value );
+		// If props.value is undefined, this will return undefined.
+		// Typecast so that this method always returns a boolean.
+		return Boolean( this.props.value && this.props.value.includes( value ) );
 	}
 
 	toggleFilter = () => {
