@@ -87,6 +87,9 @@ class Container {
 			$this->get( Version_Selector::class )
 		);
 
+		require_once __DIR__ . '/class-php-autoloader.php';
+		$this->dependencies[ PHP_Autoloader::class ] = new PHP_Autoloader();
+
 		require_once __DIR__ . '/class-manifest-reader.php';
 		$this->dependencies[ Manifest_Reader::class ] = new Manifest_Reader(
 			$this->get( Version_Selector::class )
@@ -100,6 +103,7 @@ class Container {
 
 		require_once __DIR__ . '/class-autoloader-handler.php';
 		$this->dependencies[ Autoloader_Handler::class ] = new Autoloader_Handler(
+			$this->get( PHP_Autoloader::class ),
 			$this->get( Hook_Manager::class ),
 			$this->get( Manifest_Reader::class ),
 			$this->get( Version_Selector::class )
