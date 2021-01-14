@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' ./packages/*/composer.json)
+PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' ./projects/packages/*/composer.json)
 
 EXIT=0
 for FILE in $(git ls-files 'composer.json' '**/composer.json'); do
