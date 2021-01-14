@@ -1,0 +1,972 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "6e80fca42509444bf797adfdfefb338f",
+    "packages": [
+        {
+            "name": "automattic/jetpack-a8c-mc-stats",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/a8c-mc-stats",
+                "reference": "9bfb1aa0f01da872ea8c176b0b38a8bb7b7051df"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-abtest",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/abtest",
+                "reference": "5e403fd81e5c322796ca1407341a81c7e5a65e46"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-error": "@dev"
+            },
+            "require-dev": {
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Provides an interface to the WP.com A/B tests.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-assets",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/assets",
+                "reference": "7efa513121185c90a438ccf235f1b65f634eb62a"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/autoloader",
+                "reference": "e6fd3eacb67a0add0c397463f106396a85b66406"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1 || ^2.0"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/AutoloadGenerator.php"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-backup",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/backup",
+                "reference": "69733464fcefcb51342908dcdd6db6feb285c180"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to assist with backing up Jetpack sites.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-blocks",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/blocks",
+                "reference": "f5127ace65b294802fd6d3ba13de9d8ca4837b27"
+            },
+            "require-dev": {
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-compat",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/compat",
+                "reference": "32e206d3b83a843f65b381ee460573208570af0b"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "classmap": [
+                    "legacy"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Compatibility layer with previous versions of Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-config",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/config",
+                "reference": "2276f5efe5e29fff5c373e9b7a272d7d007005f4"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-connection",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/connection",
+                "reference": "ff4e5605623c0faa6000d9691496f116fee98bd3"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-heartbeat": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-roles": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-tracking": "@dev"
+            },
+            "require-dev": {
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "legacy/load-ixr.php"
+                ],
+                "classmap": [
+                    "legacy",
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything needed to connect to the Jetpack infrastructure",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-constants",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/constants",
+                "reference": "ae159fdb1b045cdf2875ed587782203f5ae52248"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A wrapper for defining constants in a more testable way.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-device-detection",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/device-detection",
+                "reference": "d7b51065dd1f9a69ff7b1f5d78d40f461ece11da"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A way to detect device types based on User-Agent header.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-error",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/error",
+                "reference": "0b871ba15caa7fdb87ec222cdd2f37e0ecc04ecb"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Error - a wrapper around WP_Error.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-heartbeat",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/heartbeat",
+                "reference": "ff91bf284c8b71856d9cf23652c37f0107797455"
+            },
+            "require": {
+                "automattic/jetpack-a8c-mc-stats": "@dev",
+                "automattic/jetpack-options": "@dev"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-jitm",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/jitm",
+                "reference": "c1e3e5049d1e3de1a7343136dbef43f7181a6b40"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-logo": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-partner": "@dev",
+                "automattic/jetpack-redirect": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-tracking": "@dev"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Just in time messages for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-lazy-images",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/lazy-images",
+                "reference": "59413e8615f8d8773bd5d4fdc10a8774ddb87f27"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-licensing",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/licensing",
+                "reference": "977bc8aed9e8eccfd552287094c45f66ca78cf7c"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-options": "@dev"
+            },
+            "require-dev": {
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything needed to manage Jetpack licenses client-side.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/logo",
+                "reference": "c93ff0bb312f32e25fbf71c6555e719297868175"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-options",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/options",
+                "reference": "c369cee23808f673eea3b88a4afa262c21bd7dd3"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "legacy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A wrapper for wp-options to manage specific Jetpack options.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-partner",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/partner",
+                "reference": "0ec7c91d658797b5262d68cb2e91bf40c37ad99c"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Support functions for Jetpack hosting partners.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-redirect",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/redirect",
+                "reference": "e1af6b7f48c45b0f0be0cba55ee9e7d583ee09ce"
+            },
+            "require": {
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-roles",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/roles",
+                "reference": "8fcd9e3f1f5e50e43e52a12d974c968b0ff695a1"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Utilities, related with user roles and capabilities.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-status",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/status",
+                "reference": "672624ca66bb9435c5db9d16ef749c7f7997bddd"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-sync",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/sync",
+                "reference": "c79e43785c0f1b6f0e9f8873bb6e588ecda5f61b"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-roles": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything needed to allow syncing to the WP.com infrastructure.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-terms-of-service",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/terms-of-service",
+                "reference": "d645fa0ba05faebc72a60d5e32e2b5a1944b15db"
+            },
+            "require": {
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything need to manage the terms of service state",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-tracking",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/tracking",
+                "reference": "59f736a60432a39181eaec1173ae1fc17ebc7a29"
+            },
+            "require": {
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-terms-of-service": "@dev"
+            },
+            "require-dev": {
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "legacy",
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tracking for Jetpack",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "nojimage/twitter-text-php",
+            "version": "v3.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nojimage/twitter-text-php.git",
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nojimage/twitter-text-php/zipball/7f466b331cebfdd00e3568acaf45f2e90a39a320",
+                "reference": "7f466b331cebfdd00e3568acaf45f2e90a39a320",
+                "shasum": ""
+            },
+            "require": {
+                "ext-intl": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "phpunit/phpunit": "4.8.*|5.7.*|6.5.*",
+                "symfony/yaml": "^2.6.0|^3.4.0|^4.4.0|^5.0.0",
+                "twitter/twitter-text": "^3.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Twitter\\Text\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Sanford",
+                    "email": "matt@mzsanford.com",
+                    "homepage": "http://mzsanford.com"
+                },
+                {
+                    "name": "Mike Cochrane",
+                    "email": "mikec@mikenz.geek.nz",
+                    "homepage": "http://mikenz.geek.nz"
+                },
+                {
+                    "name": "Nick Pope",
+                    "email": "git@nickpope.me.uk",
+                    "homepage": "http://www.nickpope.me.uk"
+                },
+                {
+                    "name": "Takashi Nojima",
+                    "homepage": "http://php-tips.com"
+                }
+            ],
+            "description": "A library of PHP classes that provide auto-linking and extraction of usernames, lists, hashtags and URLs from tweets.",
+            "homepage": "https://github.com/nojimage/twitter-text-php",
+            "keywords": [
+                "autolink",
+                "extract",
+                "text",
+                "twitter"
+            ],
+            "support": {
+                "issues": "https://github.com/nojimage/twitter-text-php/issues",
+                "source": "https://github.com/nojimage/twitter-text-php/tree/v3.1.1"
+            },
+            "time": "2020-09-30T13:30:59+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "automattic/jetpack-a8c-mc-stats": 20,
+        "automattic/jetpack-abtest": 20,
+        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-backup": 20,
+        "automattic/jetpack-blocks": 20,
+        "automattic/jetpack-compat": 20,
+        "automattic/jetpack-config": 20,
+        "automattic/jetpack-connection": 20,
+        "automattic/jetpack-constants": 20,
+        "automattic/jetpack-device-detection": 20,
+        "automattic/jetpack-error": 20,
+        "automattic/jetpack-heartbeat": 20,
+        "automattic/jetpack-jitm": 20,
+        "automattic/jetpack-lazy-images": 20,
+        "automattic/jetpack-licensing": 20,
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-options": 20,
+        "automattic/jetpack-partner": 20,
+        "automattic/jetpack-redirect": 20,
+        "automattic/jetpack-roles": 20,
+        "automattic/jetpack-status": 20,
+        "automattic/jetpack-sync": 20,
+        "automattic/jetpack-terms-of-service": 20,
+        "automattic/jetpack-tracking": 20
+    },
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "ext-fileinfo": "*",
+        "ext-json": "*",
+        "ext-openssl": "*"
+    },
+    "platform-dev": [],
+    "platform-overrides": {
+        "ext-intl": "0.0.0"
+    },
+    "plugin-api-version": "2.0.0"
+}
