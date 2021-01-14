@@ -74,9 +74,9 @@ const actions = {
 		};
 	},
 
-	moveMediaSourceCurrentTime( id, currentTime ) {
-		return actions.setMediaSourceCurrentTime( id, String( currentTime ) );
-	},
+	// moveMediaSourceCurrentTime( id, currentTime ) {
+	// 	return actions.setMediaSourceCurrentTime( id, String( currentTime ) );
+	// },
 
 	setMediaElementDomReference( id, domRefId ) {
 		return {

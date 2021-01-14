@@ -150,26 +150,26 @@ function AudioPlayer( {
 	}, [ audioRef, onTimeChange ] );
 
 	//Check current time against prop and potentially jump
-	useEffect( () => {
-		const audio = audioRef.current;
+	// useEffect( () => {
+	// 	const audio = audioRef.current;
 
-		// If there's no audio component or we're not controlling time with the `currentTime` prop,
-		// then bail early.
-		if ( ! currentTime || ! audio ) {
-			return;
-		}
+	// 	// If there's no audio component or we're not controlling time with the `currentTime` prop,
+	// 	// then bail early.
+	// 	if ( ! currentTime || ! audio ) {
+	// 		return;
+	// 	}
 
-		if ( typeof currentTime !== 'string' ) {
-			return;
-		}
+	// 	if ( typeof currentTime !== 'string' ) {
+	// 		return;
+	// 	}
 
-		// We only want to change the play position if the difference between our current play position
-		// and the prop is greater than 1. We're throttling the time change events to once per second, so
-		// if the floored time has changed by more than a second, we haven't received an event in the past
-		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
-		// wanting to update the position, so we set the audio element's current time as a result.
-		audio.currentTime = Number( currentTime );
-	}, [ audioRef, currentTime ] );
+	// 	// We only want to change the play position if the difference between our current play position
+	// 	// and the prop is greater than 1. We're throttling the time change events to once per second, so
+	// 	// if the floored time has changed by more than a second, we haven't received an event in the past
+	// 	// two seconds. That's unlikely and so a change of more than a second should be as a result of us
+	// 	// wanting to update the position, so we set the audio element's current time as a result.
+	// 	audio.currentTime = Number( currentTime );
+	// }, [ audioRef, currentTime ] );
 
 	return (
 		<div className="jetpack-audio-player">
