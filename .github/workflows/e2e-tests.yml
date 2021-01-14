@@ -83,17 +83,18 @@ jobs:
       working-directory: projects/plugins/jetpack
       run: yarn test-e2e --testPathIgnorePatterns=updater
 
-    - name: Upload Allure artifacts
-      if: matrix.gutenberg == 'no' && always()
-      continue-on-error: true
-      working-directory: projects/plugins/jetpack
-      env:
-        ALLURE_VERSION: 2.13.5
-        ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
-        GH_TEST_REPORT_TOKEN: ${{ secrets.GH_TEST_REPORT_TOKEN }}
-      run: |
-        curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
-        tar -zxf allure.tgz -C /opt/
-        sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
+    # Disable Allure reports until we'll need it
+    # - name: Upload Allure artifacts
+    #   if: matrix.gutenberg == 'no' && always()
+    #   continue-on-error: true
+    #   working-directory: projects/plugins/jetpack
+    #   env:
+    #     ALLURE_VERSION: 2.13.5
+    #     ALLURE_REPO: "https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline"
+    #     GH_TEST_REPORT_TOKEN: ${{ secrets.GH_TEST_REPORT_TOKEN }}
+    #   run: |
+    #     curl -o allure.tgz -Ls $ALLURE_REPO/$ALLURE_VERSION/allure-commandline-$ALLURE_VERSION.tgz
+    #     tar -zxf allure.tgz -C /opt/
+    #     sudo ln -s /opt/allure-$ALLURE_VERSION/bin/allure /usr/bin/allure
 
-        ./tests/e2e/bin/push-allure-artifacts.sh
+    #     ./tests/e2e/bin/push-allure-artifacts.sh
