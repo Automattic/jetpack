@@ -33,8 +33,6 @@ export class PodcastPlayer extends Component {
 		currentTrack: 0,
 		hasUserInteraction: false,
 		currentTime: 0,
-		skipDuration: 30,
-		rewindDuration: 5,
 	};
 
 	/**
@@ -299,7 +297,7 @@ export class PodcastPlayer extends Component {
 						onPause={ this.handlePause }
 						onError={ this.handleError }
 						playStatus={ this.state.playerState }
-						currentTime={ this.state.currentTime }
+						currentTime	={ this.state.currentTime }
 						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
