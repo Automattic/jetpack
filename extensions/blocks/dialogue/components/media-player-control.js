@@ -19,7 +19,7 @@ import { controlBackFive, controlForwardFive } from '../../../shared/icons';
 import { STATE_PAUSED, STATE_PLAYING, STORE_ID } from '../../../store/media-source/constants';
 
 export default function MediaPlayerControl( {
-	timestamp,
+	time,
 	onTimeChange,
 } ) {
 	const { mediaId, playerState, domEl, currentTime } = useSelect( select => {
@@ -51,8 +51,8 @@ export default function MediaPlayerControl( {
 
 	const moveTimestamp = ( offset ) => {
 		// pauseMediaSource( mediaId );
-		const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp ) + offset;
-		onTimeChange( { timestamp: mejs.Utils.secondsToTimeCode( newCurrentTime ) } );
+		const newCurrentTime = mejs.Utils.timeCodeToSeconds( time ) + offset;
+		onTimeChange( time: mejs.Utils.secondsToTimeCode( newCurrentTime ) );
 		debouncedMoveTimestamp( newCurrentTime, domEl );
 	};
 
@@ -77,7 +77,7 @@ export default function MediaPlayerControl( {
 						domEl.pause();
 						return pauseMediaSource( mediaId );
 					}
-					const newCurrentTime = mejs.Utils.timeCodeToSeconds( timestamp );
+					const newCurrentTime = mejs.Utils.timeCodeToSeconds( time );
 					// domEl.currentTime = newCurrentTime;
 					// domEl.play();
 

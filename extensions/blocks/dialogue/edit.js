@@ -211,7 +211,7 @@ export default function DialogueEdit( {
 			<BlockControls>
 				<MediaPlayerControl
 					timestamp={ timestamp }
-					onTimeChange={ setAttributes }
+					onTimeChange={ ( time ) => setAttributes( { timestamp: time } ) }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
