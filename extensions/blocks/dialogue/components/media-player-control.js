@@ -8,7 +8,7 @@ import { debounce } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 
@@ -22,14 +22,15 @@ export default function MediaPlayerControl( {
 	timestamp,
 	onTimeChange,
 } ) {
-	const { mediaId, playerState, domEl } = useSelect( select => {
-		const { getDefaultMediaSource, getMediaElementDomReference } = select( STORE_ID );
+	const { mediaId, playerState, domEl, currentTime } = useSelect( select => {
+		const { getDefaultMediaSource, getMediaSourceCurrentTime, getMediaElementDomReference } = select( STORE_ID );
 		const mediaSource = getDefaultMediaSource();
 		const domRef = getMediaElementDomReference( mediaId );
 
 		return {
 			mediaId: mediaSource?.id,
 			playerState: mediaSource?.state,
+			currentTime: getMediaSourceCurrentTime( mediaSource?.id ),
 			domEl: domRef && document.getElementById( domRef ),
 		};
 	}, [] );
@@ -88,6 +89,10 @@ export default function MediaPlayerControl( {
 				icon={ controlForwardFive }
 				onClick={ () => moveTimestamp( 5 ) }
 			/>
+
+		<ToolbarButton className="media-player-control__current-time">
+			{ mejs.Utils.secondsToTimeCode( currentTime ) }
+		</ToolbarButton>
 		</ToolbarGroup>
 	);
 }
