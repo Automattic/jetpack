@@ -10,7 +10,7 @@ import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 import { compose } from '@wordpress/compose';
-import { withDispatch } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -32,7 +32,6 @@ export class PodcastPlayer extends Component {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
-		currentTime: 0,
 	};
 
 	/**
@@ -215,7 +214,7 @@ export class PodcastPlayer extends Component {
 	}
 
 	render() {
-		const { playerId, title, link, cover, tracks, attributes } = this.props;
+		const { playerId, title, link, cover, tracks, attributes, currentTime } = this.props;
 		const {
 			itemsToShow,
 			primaryColor,
@@ -297,7 +296,7 @@ export class PodcastPlayer extends Component {
 						onPause={ this.handlePause }
 						onError={ this.handleError }
 						playStatus={ this.state.playerState }
-						currentTime	={ this.state.currentTime }
+						currentTime	={ currentTime }
 						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
@@ -355,6 +354,14 @@ PodcastPlayer.defaultProps = {
 
 export default compose( [
 	withErrorBoundary,
+	withSelect( ( select, props ) => {
+		const { playerId } = props;
+		const { getMediaSourceCurrentTime } = select( STORE_ID );
+
+		return {
+			currentTime: getMediaSourceCurrentTime( playerId ),
+		};
+	} ),
 	withDispatch( dispatch => {
 		const {
 			registerMediaSource,
