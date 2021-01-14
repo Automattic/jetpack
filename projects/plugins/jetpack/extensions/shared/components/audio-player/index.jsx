@@ -11,12 +11,11 @@ import { debounce, throttle } from 'lodash';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
-import { dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR, STORE_ID } from '../../../store/media-source/constants';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
 
 /**
  * Style dependencies
@@ -75,15 +74,7 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		const mediaElement = new MediaElementPlayer( audio, {
-			...meJsSettings,
-			success: function() {
-				dispatch( STORE_ID ).registerMediaSource( audio.id, {
-					status: 'is-paused',
-					timestamp: 0,
-				} );
-			}
-		} );
+		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -115,7 +106,6 @@ function AudioPlayer( {
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
-			dispatch( STORE_ID ).unregisterMediaSource( audio.id );
 		};
 	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
 
