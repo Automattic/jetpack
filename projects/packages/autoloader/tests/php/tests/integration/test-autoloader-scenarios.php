@@ -6,7 +6,7 @@
  */
 
 use Automattic\Jetpack\Autoloader\AutoloadFileWriter;
-use \Automattic\Jetpack\Autoloader\AutoloadGenerator;
+use Automattic\Jetpack\Autoloader\AutoloadGenerator;
 use Jetpack\AutoloaderTestData\Plugin\Test;
 use PHPUnit\Framework\TestCase;
 
