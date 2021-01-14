@@ -29,7 +29,6 @@ import withErrorBoundary from './with-error-boundary';
 
 export class PodcastPlayer extends Component {
 	state = {
-		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
 	};
@@ -63,7 +62,7 @@ export class PodcastPlayer extends Component {
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.setState( { playerState: STATE_PAUSED } );
+			this.props.pauseMediaSource( this.props.playerId );
 		}
 
 		// Load a new track.
@@ -85,7 +84,8 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.setState( { currentTrack: track, playerState: STATE_PLAYING } );
+		this.setState( { currentTrack: track } );
+		this.props.playMediaSource( this.props.playerId );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -144,10 +144,7 @@ export class PodcastPlayer extends Component {
 	 */
 	handlePlay = () => {
 		this.props.playMediaSource( this.props.playerId );
-		this.setState( {
-			playerState: STATE_PLAYING,
-			hasUserInteraction: true,
-		} );
+		this.setState( { hasUserInteraction: true } );
 	};
 
 	/**
@@ -161,7 +158,7 @@ export class PodcastPlayer extends Component {
 		if ( this.state.playerState === STATE_ERROR ) {
 			return;
 		}
-		this.setState( { playerState: STATE_PAUSED } );
+		this.props.pauseMediaSource( this.props.playerId );
 	};
 
 	handleTimeChange = currentTime => {
@@ -220,7 +217,7 @@ export class PodcastPlayer extends Component {
 	}
 
 	render() {
-		const { playerId, title, link, cover, tracks, attributes, currentTime } = this.props;
+		const { playerId, title, link, cover, tracks, attributes, currentTime, playerState } = this.props;
 		const {
 			itemsToShow,
 			primaryColor,
@@ -236,7 +233,7 @@ export class PodcastPlayer extends Component {
 			showEpisodeTitle,
 			showEpisodeDescription,
 		} = attributes;
-		const { playerState, currentTrack } = this.state;
+		const { currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
@@ -301,7 +298,7 @@ export class PodcastPlayer extends Component {
 						onPlay={ this.handlePlay }
 						onPause={ this.handlePause }
 						onError={ this.handleError }
-						playStatus={ this.state.playerState }
+						playStatus={ playerState }
 						currentTime	={ currentTime }
 						onTimeChange={ this.handleTimeChange }
 					/>
@@ -362,10 +359,14 @@ export default compose( [
 	withErrorBoundary,
 	withSelect( ( select, props ) => {
 		const { playerId } = props;
-		const { getMediaSourceCurrentTime } = select( STORE_ID );
+		const {
+			getMediaSourceCurrentTime,
+			getMediaPlayerState,
+		} = select( STORE_ID );
 
 		return {
 			currentTime: getMediaSourceCurrentTime( playerId ),
+			playerState: getMediaPlayerState( playerId ,)
 		};
 	} ),
 	withDispatch( dispatch => {
