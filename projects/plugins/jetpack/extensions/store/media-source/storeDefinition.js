@@ -72,6 +72,15 @@ const selectors = {
 		return state.players[ playerId ];
 	},
 
+	getMediaPlayerState( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.state;
+		}
+
+		return state.players?.[ id ]?.state;
+	},
+
 	getMediaSourceCurrentTime( state, id ) {
 		if ( ! id ) {
 			const defaultMediaSource = selectors.getDefaultMediaSource( state );
