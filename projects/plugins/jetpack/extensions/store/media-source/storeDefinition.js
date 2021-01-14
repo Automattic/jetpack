@@ -46,6 +46,14 @@ const actions = {
 			state: STATE_PAUSED,
 		};
 	},
+
+	setMediaSourceCurrentTime( id, currentTime ) {
+		return {
+			type: 'SET_MEDIA_PLAYER_CURRENT_TIME',
+			id,
+			currentTime,
+		};
+	},
 };
 
 const selectors = {};
@@ -95,6 +103,19 @@ const storeDefinition = {
 						[ action.id ]: {
 							...state.players[ action.id ],
 							state: action.state,
+						},
+					},
+				};
+			}
+
+			case 'SET_MEDIA_PLAYER_CURRENT_TIME': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							currentTime: action.currentTime,
 						},
 					},
 				};
