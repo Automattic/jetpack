@@ -26,6 +26,11 @@ class Test_Autoloader extends TestCase {
 			->getMock();
 		$test_container->replace( Plugin_Locator::class, $plugin_locator );
 
+		$autoloader_handler = $this->getMockBuilder( Autoloader_Handler::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Autoloader_Handler::class, $autoloader_handler );
+
 		$plugins_handler = $this->getMockBuilder( Plugins_Handler::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -36,17 +41,15 @@ class Test_Autoloader extends TestCase {
 			->getMock();
 		$test_container->replace( Latest_Autoloader_Guard::class, $guard );
 
-		$autoloader_handler = $this->getMockBuilder( Autoloader_Handler::class )
-			->disableOriginalConstructor()
-			->getMock();
-		$test_container->replace( Autoloader_Handler::class, $autoloader_handler );
-
 		$plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_cached_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
+		$autoloader_handler->expects( $this->once() )
+			->method( 'is_initializing' )
+			->willReturn( false );
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
@@ -54,7 +57,8 @@ class Test_Autoloader extends TestCase {
 			->method( 'should_stop_init' )
 			->with(
 				TEST_DATA_PATH . '/plugins/dummy_current',
-				array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' )
+				array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' ),
+				false
 			)
 			->willReturn( false );
 		$autoloader_handler->expects( $this->once() )
@@ -75,6 +79,11 @@ class Test_Autoloader extends TestCase {
 			->getMock();
 		$test_container->replace( Plugin_Locator::class, $plugin_locator );
 
+		$autoloader_handler = $this->getMockBuilder( Autoloader_Handler::class )
+			->disableOriginalConstructor()
+			->getMock();
+		$test_container->replace( Autoloader_Handler::class, $autoloader_handler );
+
 		$plugins_handler = $this->getMockBuilder( Plugins_Handler::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -91,6 +100,9 @@ class Test_Autoloader extends TestCase {
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_cached_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
+		$autoloader_handler->expects( $this->once() )
+			->method( 'is_initializing' )
+			->willReturn( false );
 		$plugins_handler->expects( $this->once() )
 			->method( 'get_active_plugins' )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
@@ -98,7 +110,8 @@ class Test_Autoloader extends TestCase {
 			->method( 'should_stop_init' )
 			->with(
 				TEST_DATA_PATH . '/plugins/dummy_current',
-				array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' )
+				array( TEST_DATA_PATH . '/plugins/dummy_current', TEST_DATA_PATH . '/plugins/dummy_newer' ),
+				false
 			)
 			->willReturn( true );
 
