@@ -44,6 +44,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-data.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php';
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-error.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php';
 require_once JETPACK__PLUGIN_DIR . 'class.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.photon.php';
@@ -59,6 +60,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
+jetpack_require_lib( 'class-jetpack-recommendations' );
 jetpack_require_lib( 'class-jetpack-wizard' );
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-wizard-banner.php';
 
