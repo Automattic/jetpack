@@ -10,7 +10,8 @@ import './extended-blocks/core-embed';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
 
-import './store';
+// Register media source store to the centralized data registry.
+import './store/media-source';
 
 import analytics from '../_inc/client/lib/analytics';
 
