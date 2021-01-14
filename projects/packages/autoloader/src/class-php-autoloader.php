@@ -36,12 +36,12 @@ class PHP_Autoloader {
 			// Functions are recorded as strings.
 			if ( is_string( $autoloader ) ) {
 				$namespace_check = $autoloader;
-			} elseif ( is_string( $autoloader[0] ) ) {
+			} elseif ( is_array( $autoloader ) && is_string( $autoloader[0] ) ) {
 				// Static method calls have the class as the first array element.
 				$namespace_check = $autoloader[0];
 			} else {
-				// Object method calls have the object as the first array element.
-				$namespace_check = get_class( $autoloader[0] );
+				// Since the autoloader has only ever been a function or a static method we don't currently need to check anything else.
+				continue;
 			}
 
 			// Check for the namespace without the generated suffix.
