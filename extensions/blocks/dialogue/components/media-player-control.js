@@ -52,7 +52,7 @@ export default function MediaPlayerControl( {
 	const moveTimestamp = ( offset ) => {
 		// pauseMediaSource( mediaId );
 		const newCurrentTime = mejs.Utils.timeCodeToSeconds( time ) + offset;
-		onTimeChange( time: mejs.Utils.secondsToTimeCode( newCurrentTime ) );
+		onTimeChange( mejs.Utils.secondsToTimeCode( newCurrentTime ) );
 		debouncedMoveTimestamp( newCurrentTime, domEl );
 	};
 
