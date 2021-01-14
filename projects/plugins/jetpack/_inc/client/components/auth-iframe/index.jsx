@@ -16,6 +16,7 @@ import {
 	fetchUserConnectionData,
 	authorizeUserInPlaceSuccess,
 	isAuthorizingUserInPlace,
+	hasConnectedOwner,
 } from 'state/connection';
 
 import './style.scss';
@@ -29,6 +30,7 @@ export class AuthIframe extends React.Component {
 		width: PropTypes.string,
 		scrollToIframe: PropTypes.bool,
 		onAuthorized: PropTypes.func,
+		hasConnectedOwner: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -75,7 +77,13 @@ export class AuthIframe extends React.Component {
 	render = () => {
 		// The URL looks like https://jetpack.wordpress.com/jetpack.authorize_iframe/1/. We need to include the trailing
 		// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
-		const src = this.props.connectUrl.replace( 'authorize/', 'authorize_iframe/' );
+		let src = this.props.connectUrl.replace( 'authorize/', 'authorize_iframe/' );
+		let height = this.props.height;
+
+		if ( this.props.hasConnectedOwner ) {
+			src += '&display-tos';
+			height = ( parseInt( height ) + 50 ).toString();
+		}
 
 		return (
 			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
@@ -87,7 +95,7 @@ export class AuthIframe extends React.Component {
 						ref="iframe"
 						title={ this.props.title }
 						width={ this.props.width }
-						height={ this.props.height }
+						height={ height }
 						src={ src }
 					></iframe>
 				) }
@@ -102,6 +110,7 @@ export default connect(
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
 			connectUrl: _getConnectUrl( state ),
 			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
 	dispatch => {
