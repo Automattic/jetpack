@@ -262,14 +262,16 @@ const VideoPressEdit = CoreVideoEdit =>
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
 			const {
+				align,
 				autoplay,
 				caption,
-				videoPressClassNames,
+				className,
 				controls,
 				loop,
 				muted,
 				poster,
 				preload,
+				videoPressClassNames,
 			} = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
@@ -422,9 +424,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			const { html, scripts } = preview;
-			const {
-				attributes: { className, align },
-			} = this.props;
 
 			// Disabled because the overlay div doesn't actually have a role or functionality
 			// as far as the user is concerned. We're just catching the first click so that
