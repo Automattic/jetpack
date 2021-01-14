@@ -65,6 +65,7 @@ class SearchForm extends Component {
 						onChangeQuery={ this.onChangeQuery }
 						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
+						resultFormat={ this.props.resultFormat }
 						shouldRestoreFocus
 						showFilters={ this.state.showFilters }
 						sort={ this.props.sort }

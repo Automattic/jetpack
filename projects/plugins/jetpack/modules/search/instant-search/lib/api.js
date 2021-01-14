@@ -143,6 +143,11 @@ const SORT_QUERY_MAP = new Map( [
 	[ 'relevance', 'score_default' ],
 ] );
 function mapSortToApiValue( sort ) {
+	// Some sorts don't need to be mapped
+	if ( [ 'price_asc', 'price_desc', 'rating_desc' ].includes( sort ) ) {
+		return sort;
+	}
+
 	return SORT_QUERY_MAP.get( sort, 'score_default' );
 }
 
@@ -171,7 +176,12 @@ function generateApiQueryString( {
 
 	switch ( resultFormat ) {
 		case 'product':
-			fields = fields.concat( [ 'wc.price' ] );
+			fields = fields.concat( [
+				'wc.price',
+				'wc.sale_price',
+				'wc.currency_symbol',
+				'wc.currency_position',
+			] );
 	}
 
 	return encode(

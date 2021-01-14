@@ -11,7 +11,15 @@ export const RESULT_FORMAT_MINIMAL = 'minimal';
 export const RESULT_FORMAT_PRODUCT = 'product';
 export const MINUTE_IN_MILLISECONDS = 60 * 1000;
 export const RELEVANCE_SORT_KEY = 'relevance';
-export const VALID_SORT_KEYS = [ 'newest', 'oldest', RELEVANCE_SORT_KEY ];
+// @todo extract this to a function that uses SORT_OPTIONS and PRODUCT_SORT_OPTIONS to avoid duplication
+export const VALID_SORT_KEYS = [
+	'newest',
+	'oldest',
+	RELEVANCE_SORT_KEY,
+	'price_asc',
+	'price_desc',
+	'rating_desc',
+];
 export const VALID_RESULT_FORMAT_KEYS = [
 	RESULT_FORMAT_EXPANDED,
 	RESULT_FORMAT_MINIMAL,
@@ -21,4 +29,9 @@ export const SORT_OPTIONS = new Map( [
 	[ RELEVANCE_SORT_KEY, __( 'Relevance', 'jetpack' ) ],
 	[ 'newest', __( 'Newest', 'jetpack' ) ],
 	[ 'oldest', __( 'Oldest', 'jetpack' ) ],
+] );
+export const PRODUCT_SORT_OPTIONS = new Map( [
+	[ 'price_asc', __( 'Price: low to high', 'jetpack' ) ],
+	[ 'price_desc', __( 'Price: high to low', 'jetpack' ) ],
+	[ 'rating_desc', __( 'Rating', 'jetpack' ) ],
 ] );

@@ -122,6 +122,12 @@ class SearchApp extends Component {
 
 	getSort = () => getSortQuery( this.props.initialSort );
 
+	getResultFormat = () => {
+		// Override the result format from the query string if result_format= is specified
+		const resultFormatQuery = getResultFormatQuery();
+		return resultFormatQuery || this.state.overlayOptions.resultFormat;
+	};
+
 	hasActiveQuery() {
 		return getSearchQuery() !== '' || hasFilter();
 	}
@@ -227,6 +233,7 @@ class SearchApp extends Component {
 			filter,
 			pageHandle,
 			query,
+			resultFormat: this.getResultFormat(),
 			siteId: this.props.options.siteId,
 			sort,
 			postsPerPage: this.props.options.postsPerPage,
@@ -270,8 +277,7 @@ class SearchApp extends Component {
 	};
 
 	render() {
-		// Override the result format from the query string if result_format= is specified
-		const resultFormatQuery = getResultFormatQuery();
+		const resultFormat = this.getResultFormat();
 
 		return createPortal(
 			<Overlay
@@ -299,7 +305,7 @@ class SearchApp extends Component {
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
-					resultFormat={ resultFormatQuery || this.state.overlayOptions.resultFormat }
+					resultFormat={ resultFormat }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }
