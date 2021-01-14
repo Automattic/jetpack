@@ -74,6 +74,7 @@ class DashStatsBottom extends Component {
 							{ '-' === s.bestDay.count
 								? '-'
 								: sprintf(
+										/* Translators: placeholder is a number of views. */
 										_n( '%s View', '%s Views', s.bestDay.count, 'jetpack' ),
 										numberFormat( s.bestDay.count )
 								  ) }
@@ -114,7 +115,7 @@ class DashStatsBottom extends Component {
 						} ) }
 						{ this.props.isLinked &&
 							createInterpolateElement(
-								__( '<button>View more stats on WordPress.com </button>', 'jetpack' ),
+								__( '<button>View more stats on WordPress.com</button>', 'jetpack' ),
 								{
 									button: (
 										<Button

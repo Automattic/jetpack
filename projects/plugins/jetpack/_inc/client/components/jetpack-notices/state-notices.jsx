@@ -117,7 +117,7 @@ class JetpackStateNotices extends React.Component {
 			case 'wpcom_bad_response':
 			case 'wpcom_outage':
 				message = __(
-					'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.',
+					'WordPress.com is currently having problems and is unable to fuel up your Jetpack. Please try again later.',
 					'jetpack'
 				);
 				break;
@@ -126,7 +126,7 @@ class JetpackStateNotices extends React.Component {
 				message = sprintf(
 					/* translators: placeholder is an error code and message. */
 					__(
-						'Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host.',
+						'Jetpack could not contact WordPress.com: %s. This usually means something is incorrectly configured on your web host.',
 						'jetpack'
 					),
 					key
@@ -167,7 +167,7 @@ class JetpackStateNotices extends React.Component {
 					sprintf(
 						/* translators: placeholder is an error code and message. */
 						__(
-							'<s>Your Jetpack has a glitch.</s>  We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
+							'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
 							'jetpack'
 						),
 						key

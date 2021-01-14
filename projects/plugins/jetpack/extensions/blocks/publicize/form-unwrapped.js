@@ -88,6 +88,7 @@ class PublicizeFormUnwrapped extends Component {
 							/>
 							<div className={ characterCountClass }>
 								{ sprintf(
+									/* translators: placeholder is a number. */
 									_n(
 										'%d character remaining',
 										'%d characters remaining',

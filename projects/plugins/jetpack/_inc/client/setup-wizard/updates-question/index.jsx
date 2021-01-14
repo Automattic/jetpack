@@ -57,6 +57,7 @@ let UpdatesQuestion = props => {
 			/>
 			<h1>
 				{ sprintf(
+					/* Translators: placeholder is the name of the site. */
 					__( 'Will %s have blog posts, news, or regular updates?', 'jetpack' ),
 					props.siteTitle
 				) }

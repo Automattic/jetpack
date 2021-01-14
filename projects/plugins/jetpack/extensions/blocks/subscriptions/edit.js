@@ -191,6 +191,7 @@ function SubscriptionEdit( props ) {
 			} else {
 				setSubscriberCountString(
 					sprintf(
+						/* translators: Placeholder is a number of subscribers. */
 						_n( 'Join %s other subscriber', 'Join %s other subscribers', count.count, 'jetpack' ),
 						count.count
 					)

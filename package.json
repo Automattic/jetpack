@@ -93,7 +93,7 @@
 		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
 	},
 	"devDependencies": {
-		"@wordpress/eslint-plugin": "4.0.0",
+		"@wordpress/eslint-plugin": "7.4.0",
 		"babel-eslint": "10.1.0",
 		"commander": "6.2.1",
 		"concurrently": "5.3.0",

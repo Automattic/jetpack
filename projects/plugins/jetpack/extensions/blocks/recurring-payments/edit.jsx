@@ -222,15 +222,28 @@ class MembershipsButtonEdit extends Component {
 	renderAmount = product => {
 		const amount = formatCurrency( parseFloat( product.price ), product.currency );
 		if ( product.interval === '1 month' ) {
-			return sprintf( __( '%s / month', 'jetpack' ), amount );
+			return sprintf(
+				/* translators: placeholder is a price. */
+				__( '%s / month', 'jetpack' ),
+				amount
+			);
 		}
 		if ( product.interval === '1 year' ) {
-			return sprintf( __( '%s / year', 'jetpack' ), amount );
+			return sprintf(
+				/* translators: placeholder is a price. */
+				__( '%s / year', 'jetpack' ),
+				amount
+			);
 		}
 		if ( product.interval === 'one-time' ) {
 			return amount;
 		}
-		return sprintf( __( '%s / %s', 'jetpack' ), amount, product.interval );
+		return sprintf(
+			/* translators: %1$s is a price, %2$s is a period (1 year for example) */
+			__( '%1$s / %2$s', 'jetpack' ),
+			amount,
+			product.interval
+		);
 	};
 
 	renderAddMembershipAmount = forceShowForm => {
@@ -253,7 +266,11 @@ class MembershipsButtonEdit extends Component {
 			minimumTransactionAmountForCurrency( this.state.editedProductCurrency ),
 			this.state.editedProductCurrency
 		);
-		const minimumPriceNote = sprintf( __( 'Minimum allowed price is %s.' ), minPrice );
+		const minimumPriceNote = sprintf(
+			/* translators: placeholder is a price. */
+			__( 'Minimum allowed price is %s.' ),
+			minPrice
+		);
 		return (
 			<div>
 				<div className="membership-button__price-container">
@@ -340,10 +357,17 @@ class MembershipsButtonEdit extends Component {
 	setMembershipAmount = id => {
 		const { innerButtons, updateBlockAttributes, setAttributes } = this.props;
 		const currentPlanId = this.props.attributes.planId;
-		const defaultTextForNewPlan =
-			this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' );
+		const defaultTextForNewPlan = sprintf(
+			/* translators: placeholder is an amount of money. */
+			__( '%s contribution', 'jetpack' ),
+			this.getFormattedPriceByProductId( id )
+		);
 		const defaultTextForCurrentPlan = currentPlanId
-			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
+			? sprintf(
+					/* translators: placeholder is an amount of money. */
+					__( '%s contribution', 'jetpack' ),
+					this.getFormattedPriceByProductId( currentPlanId )
+			  )
 			: undefined;
 
 		if ( innerButtons && innerButtons.length ) {

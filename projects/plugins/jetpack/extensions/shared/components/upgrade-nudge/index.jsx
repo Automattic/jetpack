@@ -20,13 +20,16 @@ import './style.scss';
 
 const getTitle = ( customTitle, planName ) => {
 	if ( customTitle ) {
+		// eslint-disable-next-line @wordpress/valid-sprintf
 		return planName ? sprintf( customTitle.knownPlan, { planName } ) : customTitle.unknownPlan;
 	}
 
 	return planName
-		? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
-				planName,
-		  } )
+		? sprintf(
+				/* translators: Placeholder is the plan name, such as Jetpack Premium. */
+				__( 'Upgrade to %s to use this block on your site.', 'jetpack' ),
+				planName
+		  )
 		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
 };
 

@@ -22,8 +22,7 @@ const TrackError = memo( ( { link, title, colors } ) => (
 					<span className="jetpack-podcast-player--visually-hidden">
 						{ /* Intentional trailing space outside of the translated string. */ }
 						{ `${ sprintf(
-							/* translators: %s is the title of the track. This text is
-							visually hidden from the screen, but available to screen readers. */
+							/* translators: %s is the title of the track. This text is visually hidden from the screen, but available to screen readers. */
 							__( '%s:', 'jetpack' ),
 							title
 						) } ` }

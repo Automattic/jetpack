@@ -163,6 +163,7 @@ export class Lookup extends Component {
 		if ( filteredOptions.length ) {
 			debouncedSpeak(
 				sprintf(
+					/* translators: placeholder is a number. */
 					_n(
 						'%d result found, use up and down arrow keys to navigate.',
 						'%d results found, use up and down arrow keys to navigate.',
