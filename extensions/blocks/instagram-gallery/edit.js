@@ -102,6 +102,7 @@ const InstagramGalleryEdit = props => {
 		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
 			const noticeContent = accountImageTotal
 				? sprintf(
+						/* translators: placeholder is a number. */
 						_n(
 							'There is currently only %s post in your Instagram account.',
 							'There are currently only %s posts in your Instagram account.',

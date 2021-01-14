@@ -19,8 +19,16 @@ export default function Bullet( { isEllipsis, disabled, index, isSelected, progr
 	let label = null;
 	if ( ! isEllipsis ) {
 		label = isSelected
-			? sprintf( __( 'Slide %d, currently selected.', 'jetpack' ), index + 1 )
-			: sprintf( __( 'Slide %d', 'jetpack' ), index + 1 );
+			? sprintf(
+					/* Translators: placeholder is a number */
+					__( 'Slide %d, currently selected.', 'jetpack' ),
+					index + 1
+			  )
+			: sprintf(
+					/* Translators: placeholder is a number */
+					__( 'Slide %d', 'jetpack' ),
+					index + 1
+			  );
 	}
 	return (
 		<Button

@@ -1,7 +1,11 @@
 // .eslintrc.js
 module.exports = {
 	root: true,
-	extends: [ 'plugin:@wordpress/eslint-plugin/recommended', 'plugin:jest/recommended' ],
+	extends: [
+		'plugin:@wordpress/eslint-plugin/recommended',
+		'plugin:@wordpress/eslint-plugin/i18n',
+		'plugin:jest/recommended',
+	],
 	env: {
 		// jest: true,
 		browser: true,

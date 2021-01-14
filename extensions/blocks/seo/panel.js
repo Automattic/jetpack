@@ -25,6 +25,7 @@ class SeoPanel extends Component {
 				/>
 				<div className="jetpack-seo-character-count">
 					{ sprintf(
+						/* translators: Placeholder is a number of characters in a sentence. */
 						_n( '%d character', '%d characters', seoDescription.length, 'jetpack' ),
 						seoDescription.length
 					) }

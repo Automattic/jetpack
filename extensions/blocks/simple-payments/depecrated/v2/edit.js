@@ -214,7 +214,11 @@ class SimplePaymentsEdit extends Component {
 					this.setState( {
 						fieldEmailError:
 							apiErrorKey === 'spay_email'
-								? sprintf( __( '%s is not a valid email address.', 'jetpack' ), email )
+								? sprintf(
+										/* translators: placeholder is an email address. */
+										__( '%s is not a valid email address.', 'jetpack' ),
+										email
+								  )
 								: null,
 						fieldPriceError:
 							apiErrorKey === 'spay_price' ? __( 'Invalid price.', 'jetpack' ) : null,
@@ -301,6 +305,7 @@ class SimplePaymentsEdit extends Component {
 
 			this.setState( {
 				fieldPriceError: sprintf(
+					/* translators: Placeholder is a number of decimals in a number. */
 					_n(
 						'The price cannot have more than %d decimal place.',
 						'The price cannot have more than %d decimal places.',
@@ -341,7 +346,11 @@ class SimplePaymentsEdit extends Component {
 
 		if ( ! emailValidator.validate( email ) ) {
 			this.setState( {
-				fieldEmailError: sprintf( __( '%s is not a valid email address.', 'jetpack' ), email ),
+				fieldEmailError: sprintf(
+					/* translators: placeholder is an email address. */
+					__( '%s is not a valid email address.', 'jetpack' ),
+					email
+				),
 			} );
 			return false;
 		}

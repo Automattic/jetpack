@@ -6,13 +6,15 @@
  * Internal dependencies
  */
 import {
+	clearFilters,
 	makeSearchRequest,
 	recordSuccessfulSearchRequest,
 	recordFailedSearchRequest,
 	setSearchQuery,
 	setSort,
+	setFilter,
 } from '../actions';
-import { hasError, isLoading, response, searchQuery, sort } from '../reducer';
+import { filters, hasError, isLoading, response, searchQuery, sort } from '../reducer';
 
 describe( 'hasError Reducer', () => {
 	test( 'defaults to false', () => {
@@ -112,5 +114,36 @@ describe( 'sort Reducer', () => {
 	test( 'is updated by a set search query action', () => {
 		const state = sort( undefined, setSort( 'newest' ) );
 		expect( state ).toBe( 'newest' );
+	} );
+} );
+
+describe( 'filters Reducer', () => {
+	test( 'defaults to an empty object', () => {
+		const state = filters( undefined, {} );
+		expect( state ).toEqual( {} );
+	} );
+	test( 'is updated by a set filter action with an arrayed value', () => {
+		const state = filters( undefined, setFilter( 'post_types', [ 'post', 'page' ] ) );
+		expect( state ).toEqual( {
+			post_types: [ 'post', 'page' ],
+		} );
+	} );
+	test( 'is updated by a set filter action with a string value', () => {
+		const state = filters( undefined, setFilter( 'post_types', 'post' ) );
+		expect( state ).toEqual( {
+			post_types: [ 'post' ],
+		} );
+	} );
+	test( 'ignores set filter actions with invalid filter names', () => {
+		const state = filters( undefined, setFilter( 'apple', [ 'tart' ] ) );
+		expect( state ).toEqual( {} );
+	} );
+	test( 'ignores set filter actions with unexpected value types', () => {
+		expect( filters( undefined, setFilter( 'post_types', 1 ) ) ).toEqual( {} );
+		expect( filters( undefined, setFilter( 'post_types', {} ) ) ).toEqual( {} );
+	} );
+	test( 'is reset by a clear filters action', () => {
+		const state = filters( { post_types: [ 'post' ] }, clearFilters() );
+		expect( state ).toEqual( {} );
 	} );
 } );
