@@ -89,6 +89,7 @@ class SearchResults extends Component {
 					onChangeSort={ this.props.onChangeSort }
 					overlayTrigger={ this.props.overlayTrigger }
 					response={ this.props.response }
+					resultFormat={ this.props.resultFormat }
 					sort={ this.props.sort }
 					widgets={ this.props.widgets }
 					widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
