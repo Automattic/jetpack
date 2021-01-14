@@ -90,7 +90,6 @@ export class PodcastPlayer extends Component {
 			title,
 			link,
 		} );
-		this.props.playMediaSource( this.props.playerId );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -361,7 +360,11 @@ export default compose( [
 
 		return {
 			currentTime: getMediaSourceCurrentTime( playerId ),
+<<<<<<< HEAD
 			playerState: getMediaPlayerState( playerId )
+=======
+			playerState: getMediaPlayerState( playerId ,)
+>>>>>>> b362217... poscast-player: handle player state globally
 		};
 	} ),
 	withDispatch( dispatch => {
