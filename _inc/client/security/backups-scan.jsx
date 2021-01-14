@@ -177,6 +177,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 						<div>
 							<strong>
 								{ sprintf(
+									/* Translators: placeholder is a number (of threats). */
 									_n( 'Uh oh, %s threat found.', 'Uh oh, %s threats found.', threats, 'jetpack' ),
 									numberFormat( threats )
 								) }
