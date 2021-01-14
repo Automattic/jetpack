@@ -1,6 +1,8 @@
 <?php
 /* HEADER */ // phpcs:ignore
 
+use \Automattic\Jetpack\Autoloader\AutoloadGenerator;
+
 /**
  * This class selects the package version for the autoloader.
  */
@@ -50,6 +52,40 @@ class Autoloader_Handler {
 	}
 
 	/**
+	 * Checks to see whether or not an autoloader is currently in the process of initializing.
+	 *
+	 * @return bool
+	 */
+	public function is_initializing() {
+		// If no version has been set it means that no autoloader has started initializing yet.
+		global $jetpack_autoloader_latest_version;
+		if ( ! isset( $jetpack_autoloader_latest_version ) ) {
+			return false;
+		}
+
+		// When the version is set but the classmap is not it ALWAYS means that this is the
+		// latest autoloader and is being included by an older one.
+		global $jetpack_packages_classmap;
+		if ( empty( $jetpack_packages_classmap ) ) {
+			return true;
+		}
+
+		// Version 2.4.0 added a new global and altered the reset semantics. We need to check
+		// the other global as well since it may also point at initialization.
+		// Note: We don't need to check for the class first because every autoloader that
+		// will set the latest version global requires this class in the classmap.
+		$replacing_version = $jetpack_packages_classmap[ AutoloadGenerator::class ]['version'];
+		if ( version_compare( $replacing_version, '2.4.0.0', '>=' ) ) {
+			global $jetpack_autoloader_loader;
+			if ( ! isset( $jetpack_autoloader_loader ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Activates an autoloader using the given plugins and activates it.
 	 *
 	 * @param string[] $plugins The plugins to initialize the autoloader for.
@@ -92,12 +128,12 @@ class Autoloader_Handler {
 		$jetpack_autoloader_latest_version = null;
 
 		global $jetpack_packages_classmap;
-		$jetpack_packages_classmap = null;
+		$jetpack_packages_classmap = array(); // Must be array to avoid exceptions in old autoloaders!
 
 		global $jetpack_packages_psr4;
-		$jetpack_packages_psr4 = null;
+		$jetpack_packages_psr4 = array(); // Must be array to avoid exceptions in old autoloaders!
 
 		global $jetpack_packages_filemap;
-		$jetpack_packages_filemap = null;
+		$jetpack_packages_filemap = array(); // Must be array to avoid exceptions in old autoloaders!
 	}
 }
