@@ -48,21 +48,30 @@
 // Conversation styles.
 .wp-block-jetpack-conversation.is-style-column {
 	.wp-block-jetpack-dialogue {
-		display: flex;
-		.wp-block-jetpack-dialogue__meta {
-			display: block;
-			align-items: initial;
+		margin: 0 0 1em 0;
+
+		.wp-block-jetpack-dialogue__meta::after {
+			content: ': ';
 		}
 
-		.wp-block-jetpack-dialogue__participant {
-			text-align: right;
-			margin-right: 12px;
+		.wp-block-jetpack-dialogue__timestamp {
+			padding: 6px 0 6px 6px;
+
+			button {
+				padding-right: 0px;
+			}
+
+			&::before {
+				content: ' (';
+			}
+
+			&::after {
+				content: ')';
+			}
 		}
 
-		.components-dropdown,
-		.wp-block-jetpack-dialogue__timestamp-dropdown {
-			text-align: right;
-			display: block;
+		div, p {
+			display: inline;
 		}
 	}
 }
