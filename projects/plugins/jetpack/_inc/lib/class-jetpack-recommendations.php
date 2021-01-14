@@ -10,6 +10,12 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
 /**
+ * Contains utilities related to the Jetpack Recommendations.
+ *
+ * @package Jetpack
+ */
+
+/**
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {

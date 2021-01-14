@@ -1,0 +1,108 @@
+@import '../_inc/client/scss/calypso-colors';
+@import '../_inc/client/scss/mixin_breakpoint';
+
+.jp-recommendations-banner-main {
+  display: grid;
+  grid-template-columns: 55% 45%;
+
+  @include breakpoint( '<660px' ) {
+	grid-template-columns: 100% 0%;
+  }
+
+  min-height: 480px;
+  background: linear-gradient(
+				  120deg,
+				  rgba( 255, 255, 255, 1 ) 0%,
+				  rgba( 255, 255, 255, 1 ) 55%,
+				  rgba( 197, 217, 237, 1 ) 55%
+  );
+  box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
+  border: 1px solid $gray-lighten-20;
+}
+
+.jp-recommendations-banner__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.jp-recommendations-banner__logo {
+  margin: 32px 32px 0 32px;
+
+  @include breakpoint( '<480px' ) {
+	margin: 16px 16px 32px 16px;
+  }
+}
+
+.jp-recommendations-banner__question {
+  font-size: 1.5rem;
+  margin: 32px 32px 0 32px;
+
+  @include breakpoint( '<480px' ) {
+	margin: 0 16px 32px 16px;
+  }
+}
+
+.jp-recommendations-banner__description {
+  margin: 32px 0 24px 32px;
+
+  @include breakpoint( '<660px' ) {
+	margin: 32px 32px 24px 32px;
+  }
+
+  @include breakpoint( '<480px' ) {
+	margin: 0 16px 16px 16px;
+  }
+}
+
+.jp-recommendations-banner__answer {
+  text-align: center;
+  margin: 0 0 32px 32px;
+}
+
+.jp-recommendations-banner__checkboxes {
+  display: grid;
+  gap: 16px;
+  grid-template-rows: auto auto;
+  grid-template-columns: auto auto;
+}
+
+.jp-recommendations-checkbox-answer__container {
+  display: flex;
+  box-sizing: border-box;
+  border: 1px solid #d5d5d5;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.jp-recommendations-answer__checkbox {
+  margin: 16px 8px 16px 16px;
+}
+
+.jp-recommendations-answer__title {
+  width: 100%;
+  padding: 15px 0;
+}
+
+.jp-recommendations-banner__illustration-container {
+  width: 100%;
+  position: relative;
+
+  img {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+  }
+
+  @include breakpoint( '<660px' ) {
+	display: none;
+  }
+}
+
+.jp-recommendations-banner__illustration-background {
+  width: 100%;
+}
+
+.jp-recommendations-banner__illustration-foreground {
+  width: 75%;
+  margin: 10%;
+}
