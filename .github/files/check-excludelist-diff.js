@@ -8,7 +8,7 @@ const spawnSync = require( 'child_process' ).spawnSync;
 
 const res = spawnSync(
 	'git',
-	[ 'diff', 'bin/eslint-excludelist.json', 'bin/phpcs-excludelist.json' ],
+	[ 'diff', 'tools/eslint-excludelist.json', 'tools/phpcs-excludelist.json' ],
 	{
 		stdio: [ null, 'pipe', 'inherit' ],
 		maxBuffer: Infinity,

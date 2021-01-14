@@ -1,0 +1,54 @@
+name: Update a package when it is updated in the monorepo
+on:
+  push:
+    branches:
+      - master # Every time a PR is merged to master
+      - feature/reorg # Also feature/reorg, temporarily
+    paths:
+      - 'projects/packages/**' # Only when package files are modified.
+      - 'projects/plugins/**' # Only when plugin files are modified.
+      - '.github/files/update-project-mirrors.sh' # Or when the script itself is.
+      - '.github/files/mirror-.github/**' # Or when the standard .github is.
+
+jobs:
+  update_project:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer
+          coverage: none
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+
+      - name: Use yarn cache
+        uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: /home/runner/.cache/yarn/v6
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: /home/runner/.composer/cache/files
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Wait for prior instances of the workflow to finish
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Keep Jetpack Projects up to date
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: .github/files/update-project-mirrors.sh
