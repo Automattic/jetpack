@@ -40,3 +40,28 @@ function wpcomsh_rm_masterbar_module_list( $items ) {
 	return $items;
 }
 add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
+
+/**
+ * Prints the calypso page link for changing a color scheme.
+ **/
+function wpcomsh_admin_color_scheme_picker_disabled() {
+	printf(
+		'<a target="_blank" href="%1$s">%2$s</a>',
+		esc_url( 'https://wordpress.com/me/account' ),
+		esc_html( __( 'Set your color scheme on WordPress.com.', 'wpcomsh' ) )
+	);
+}
+
+/**
+ * Hides the "Admin Color Scheme" entry on /wp-admin/profile.php,
+ * and adds an action that prints a calypso page link.
+ *
+ * This code should only run if the use has only the default color schemes ( wp-admin + calypso = 18 ).
+ **/
+function wpcomsh_hide_color_schemes() {
+	if ( 18 === count( $GLOBALS['_wp_admin_css_colors'] ) ) {
+		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
+		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
+	}
+}
+add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
