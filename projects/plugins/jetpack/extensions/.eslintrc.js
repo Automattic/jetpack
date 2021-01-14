@@ -1,5 +1,10 @@
 module.exports = {
-	extends: [ '../.eslintrc.js', 'plugin:@wordpress/eslint-plugin/i18n' ],
+	extends: [
+		'../.eslintrc.js',
+		'plugin:@wordpress/eslint-plugin/i18n',
+		'plugin:jest/recommended',
+	],
+	env: { jest: true },
 	rules: {
 		'react/forbid-elements': [
 			'error',
@@ -30,5 +35,9 @@ module.exports = {
 		// Don't require JSDoc on functions.
 		// Jetpack Extensions are often self-explanatory functional React components.
 		'jsdoc/require-jsdoc': 0,
+		'jsdoc/check-tag-names': [
+			1, // Recommended
+			{ definedTags: [ 'jest-environment' ] },
+		],
 	},
 };
