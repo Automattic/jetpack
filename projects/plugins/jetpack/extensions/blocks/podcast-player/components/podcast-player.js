@@ -179,11 +179,17 @@ export class PodcastPlayer extends Component {
 	};
 
 	handleJump = () => {
-		this.setState( { currentTime: this.state.currentTime - 5 } );
+		this.props.setMediaSourceCurrentTime(
+			this.props.playerId,
+			this.props.currentTime - 5
+		);
 	};
 
 	handleSkip = () => {
-		this.setState( { currentTime: this.state.currentTime + 30 } );
+		this.props.setMediaSourceCurrentTime(
+			this.props.playerId,
+			this.props.currentTime + 30
+		);
 	};
 
 	componentDidMount() {
