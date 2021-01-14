@@ -9,7 +9,7 @@ import { debounce } from 'lodash';
  * WordPress dependencies
  */
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
-import { useSelect, useDispatch, useEffect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 
 /**
