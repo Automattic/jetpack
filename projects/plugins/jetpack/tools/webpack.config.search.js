@@ -14,10 +14,10 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
-		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
+		entry: { search: path.join( __dirname, '../modules/search/instant-search/index.jsx' ) },
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
 		'output-filename': 'jp-search.bundle.js',
-		'output-path': path.join( __dirname, '_inc', 'build', 'instant-search' ),
+		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );
 
@@ -45,7 +45,10 @@ module.exports = {
 			'react-dom/test-utils': 'preact/test-utils',
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
 		},
-		modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
+		modules: [
+			path.resolve( __dirname, '../_inc/client' ),
+			path.resolve( __dirname, '../node_modules' ),
+		],
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
