@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED } from './constants';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
 
 const DEFAULT_STATE = {
 	players: {},
@@ -44,6 +44,14 @@ const actions = {
 			type: 'SET_MEDIA_PLAYER_STATE',
 			id,
 			state: STATE_PAUSED,
+		};
+	},
+
+	errorMediaSource( id ) {
+		return {
+			type: 'SET_MEDIA_PLAYER_STATE',
+			id,
+			state: STATE_ERROR,
 		};
 	},
 
