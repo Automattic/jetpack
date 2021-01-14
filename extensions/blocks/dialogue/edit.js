@@ -210,7 +210,7 @@ export default function DialogueEdit( {
 		<div className={ className }>
 			<BlockControls>
 				<MediaPlayerControl
-					timestamp={ timestamp }
+					time={ timestamp }
 					onTimeChange={ ( time ) => setAttributes( { timestamp: time } ) }
 				/>
 

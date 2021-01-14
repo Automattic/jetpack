@@ -159,14 +159,16 @@ function AudioPlayer( {
 			return;
 		}
 
+		if ( typeof currentTime !== 'string' ) {
+			return;
+		}
+
 		// We only want to change the play position if the difference between our current play position
 		// and the prop is greater than 1. We're throttling the time change events to once per second, so
 		// if the floored time has changed by more than a second, we haven't received an event in the past
 		// two seconds. That's unlikely and so a change of more than a second should be as a result of us
 		// wanting to update the position, so we set the audio element's current time as a result.
-		if ( Math.abs( Math.floor( currentTime - audio.currentTime ) ) > 1 ) {
-			audio.currentTime = currentTime;
-		}
+		audio.currentTime = Number( currentTime );
 	}, [ audioRef, currentTime ] );
 
 	return (

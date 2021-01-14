@@ -74,6 +74,10 @@ const actions = {
 		};
 	},
 
+	moveMediaSourceCurrentTime( id, currentTime ) {
+		return actions.setMediaSourceCurrentTime( id, String( currentTime ) );
+	},
+
 	setMediaElementDomReference( id, domRefId ) {
 		return {
 			type: 'SET_MEDIA_SOURCE_DOM_REFERENCE',

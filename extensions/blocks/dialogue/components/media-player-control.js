@@ -35,13 +35,13 @@ export default function MediaPlayerControl( { time, onTimeChange } ) {
 	const {
 		playMediaSource,
 		pauseMediaSource,
-		setMediaSourceCurrentTime,
+		moveMediaSourceCurrentTime,
 	} = useDispatch( STORE_ID );
 
 	const debouncedMoveTimestamp = useCallback(
 		debounce( function( newCurrentTime, ref ) {
 			// ref.currentTime = newCurrentTime;
-			setMediaSourceCurrentTime( mediaId, newCurrentTime );
+			moveMediaSourceCurrentTime( mediaId, newCurrentTime );
 			// playMediaSource( mediaId );
 		}, 500 )
 	, [ mediaId ] );
@@ -78,7 +78,7 @@ export default function MediaPlayerControl( { time, onTimeChange } ) {
 					// domEl.currentTime = newCurrentTime;
 					// domEl.play();
 
-					setMediaSourceCurrentTime( mediaId, newCurrentTime );
+					moveMediaSourceCurrentTime( mediaId, newCurrentTime );
 					playMediaSource( mediaId );
 				} }
 			/>
