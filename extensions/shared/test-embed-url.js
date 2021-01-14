@@ -12,10 +12,12 @@ import apiFetch from '@wordpress/api-fetch';
  * Test if a URL is accessible and respond with status code < 400.
  *
  * @example
- * const [ isResolvingUrl, setIsResolvingUrl ] = useState();
- * testEmbedUrl( url, setIsResolvingUrl )
- *   .then( () => setAttributes( url ) )
- *   .catch( () => setErrorNotice() );
+ * const Test = props => {
+ *   const [ isResolvingUrl, setIsResolvingUrl ] = useState();
+ *   testEmbedUrl( url, setIsResolvingUrl )
+ *     .then( () => setAttributes( url ) )
+ *     .catch( () => setErrorNotice() );
+ * };
  *
  * @param {string} url - The URL to test.
  * @param {Function} [setIsResolvingUrl=noop] - An optional function to track the resolving state. Typically used to update the calling component's state.

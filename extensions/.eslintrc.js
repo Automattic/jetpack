@@ -1,5 +1,5 @@
 module.exports = {
-	extends: [ '../.eslintrc.js' ],
+	extends: [ '../.eslintrc.js', 'plugin:@wordpress/eslint-plugin/i18n' ],
 	rules: {
 		'react/forbid-elements': [
 			'error',

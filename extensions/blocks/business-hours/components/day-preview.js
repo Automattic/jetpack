@@ -25,7 +25,7 @@ class DayPreview extends Component {
 		return (
 			<span key={ key }>
 				{ sprintf(
-					'%s - %s',
+					'%1$s - %2$s',
 					this.formatTime( interval.opening ),
 					this.formatTime( interval.closing )
 				) }

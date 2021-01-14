@@ -64,9 +64,9 @@ function getPlanUrl() {
 
 				dispatch( 'core/notices' ).createNotice(
 					'success',
-					/* translators: %s is the plan name, such as Jetpack Premium. */
 					planName
 						? sprintf(
+								/* translators: %s is the plan name, such as Jetpack Premium. */
 								__( 'Congratulations! Your site is now on the %s plan.', 'jetpack' ),
 								planName
 						  )

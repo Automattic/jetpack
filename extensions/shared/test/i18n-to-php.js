@@ -20,7 +20,12 @@ describe( 'i18n-to-php', () => {
 	} );
 
 	test( 'renders _n() to its PHP counterpart as expected', () => {
-		expect( renderToStaticMarkup( _n( '%d person', '%d people', 1 + 2, 'text-domain' ) ) ).toBe(
+		expect(
+			renderToStaticMarkup(
+				/* Translators: placeholder is a number of people. */
+				_n( '%d person', '%d people', 1 + 2, 'text-domain' )
+			)
+		).toBe(
 			"<span><?php echo esc_html( _n( '%d person', '%d people', 3, 'text-domain' ) ) ?></span>"
 		);
 	} );
@@ -36,6 +41,7 @@ describe( 'i18n-to-php', () => {
 	test( 'renders _nx() to its PHP counterpart as expected', () => {
 		expect(
 			renderToStaticMarkup(
+				/* Translators: placeholder is a number (group of people). */
 				_nx( '%d group', '%d groups', 2 + 3, 'group of people', 'text-domain' )
 			)
 		).toBe(

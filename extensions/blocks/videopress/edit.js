@@ -327,7 +327,11 @@ const VideoPressEdit = CoreVideoEdit =>
 									/>
 									<p id={ videoPosterDescription } hidden>
 										{ poster
-											? sprintf( __( 'The current poster image url is %s', 'jetpack' ), poster )
+											? sprintf(
+													/* translators: Placeholder is an image URL. */
+													__( 'The current poster image url is %s', 'jetpack' ),
+													poster
+											  )
 											: __( 'There is no poster image currently selected', 'jetpack' ) }
 									</p>
 									{ !! poster && (
