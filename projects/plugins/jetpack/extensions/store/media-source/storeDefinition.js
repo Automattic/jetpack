@@ -56,7 +56,31 @@ const actions = {
 	},
 };
 
-const selectors = {};
+const selectors = {
+	getDefaultMediaSource( state ) {
+		let playerId = null;
+		if ( state.default ) {
+			playerId = state.default;
+		} else if ( Object.keys( state.players ).length ) {
+			playerId = state.players[ Object.keys[ 0 ] ].id;
+		}
+
+		if ( ! playerId ) {
+			return;
+		}
+
+		return state.players[ playerId ];
+	},
+
+	getMediaSourceCurrentTime( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.currentTime;
+		}
+
+		return state.players?.[ id ]?.currentTime;
+	},
+};
 
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
