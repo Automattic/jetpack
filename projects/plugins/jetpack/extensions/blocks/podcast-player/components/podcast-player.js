@@ -56,7 +56,7 @@ export class PodcastPlayer extends Component {
 		// Current track already selected.
 		if ( currentTrack === track ) {
 			this.recordUserInteraction();
-			this.togglePlayPause();
+			this.props.toggleMediaSource( this.props.playerId );
 			return;
 		}
 
@@ -163,16 +163,6 @@ export class PodcastPlayer extends Component {
 
 	handleTimeChange = currentTime => {
 		this.props.setMediaSourceCurrentTime( this.props.playerId, currentTime );
-	};
-
-	/**
-	 * Toggle playing state.
-	 *
-	 * @public
-	 */
-	togglePlayPause = () => {
-		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
-		action();
 	};
 
 	handleJump = () => {
@@ -376,6 +366,7 @@ export default compose( [
 			setDefaultMediaSource,
 			playMediaSource,
 			pauseMediaSource,
+			toggleMediaSource,
 			errorMediaSource,
 			setMediaSourceCurrentTime,
 		} = dispatch( STORE_ID );
@@ -385,6 +376,7 @@ export default compose( [
 			setDefaultMediaSource,
 			playMediaSource,
 			pauseMediaSource,
+			toggleMediaSource,
 			errorMediaSource,
 			setMediaSourceCurrentTime,
 		};
