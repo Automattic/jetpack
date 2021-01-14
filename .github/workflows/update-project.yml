@@ -2,8 +2,7 @@ name: Update a package when it is updated in the monorepo
 on:
   push:
     branches:
-      - master # Every time a PR is merged to master
-      - feature/reorg # Also feature/reorg, temporarily
+      - master # Every time a PR is merged to master.
     paths:
       - 'projects/packages/**' # Only when package files are modified.
       - 'projects/plugins/**' # Only when plugin files are modified.
