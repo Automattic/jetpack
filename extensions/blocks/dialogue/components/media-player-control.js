@@ -18,10 +18,7 @@ import { useCallback } from '@wordpress/element';
 import { controlBackFive, controlForwardFive } from '../../../shared/icons';
 import { STATE_PAUSED, STATE_PLAYING, STORE_ID } from '../../../store/media-source/constants';
 
-export default function MediaPlayerControl( {
-	time,
-	onTimeChange,
-} ) {
+export default function MediaPlayerControl( { time, onTimeChange } ) {
 	const { mediaId, playerState, domEl, currentTime } = useSelect( select => {
 		const { getDefaultMediaSource, getMediaSourceCurrentTime, getMediaElementDomReference } = select( STORE_ID );
 		const mediaSource = getDefaultMediaSource();
