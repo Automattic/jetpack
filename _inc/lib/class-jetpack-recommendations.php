@@ -66,4 +66,67 @@ class Jetpack_Recommendations {
 
 		return $recommendations_enabled;
 	}
+
+	/**
+	 * Initializes the Recommendations step according to the Setup Wizard state, and then clears the
+	 * Setup Wizard state.
+	 */
+	private static function initialize_jetpack_recommendations() {
+		if ( Jetpack_Options::get_option( 'recommendations_step' ) ) {
+			return;
+		}
+
+		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
+		if ( 'completed' === $setup_wizard_status ) {
+			Jetpack_Options::update_option( 'recommendations_step', 'completed' );
+		}
+
+		Jetpack_Options::delete_option( array( 'setup_wizard_questionnaire', 'setup_wizard_status' ) );
+	}
+
+	/**
+	 * Get the data for the recommendations
+	 *
+	 * @return array Recommendations data
+	 */
+	public static function get_recommendations_data() {
+		self::initialize_jetpack_recommendations();
+
+		return Jetpack_Options::get_option( 'recommendations_data', (object) array() );
+	}
+
+	/**
+	 * Update the data for the recommendations
+	 *
+	 * @param WP_REST_Request $data The data.
+	 */
+	public static function update_recommendations_data( $data ) {
+		if ( ! empty( $data ) ) {
+			Jetpack_Options::update_option( 'recommendations_data', $data );
+		}
+	}
+
+	/**
+	 * Get the data for the recommendations
+	 *
+	 * @return array Recommendations data
+	 */
+	public static function get_recommendations_step() {
+		self::initialize_jetpack_recommendations();
+
+		return array(
+			'step' => Jetpack_Options::get_option( 'recommendations_step', 'not-started' ),
+		);
+	}
+
+	/**
+	 * Update the step for the recommendations
+	 *
+	 * @param WP_REST_Request $step The step.
+	 */
+	public static function update_recommendations_step( $step ) {
+		if ( ! empty( $step ) ) {
+			Jetpack_Options::update_option( 'recommendations_step', $step );
+		}
+	}
 }
