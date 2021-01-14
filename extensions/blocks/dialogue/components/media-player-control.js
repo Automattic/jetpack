@@ -23,14 +23,13 @@ export default function MediaPlayerControl( {
 	onTimeChange,
 } ) {
 	const { mediaId, playerState, domEl } = useSelect( select => {
-		const { getDefaultMediaSource, getMediaSourceCurrentTime, getMediaElementDomReference } = select( STORE_ID );
+		const { getDefaultMediaSource, getMediaElementDomReference } = select( STORE_ID );
 		const mediaSource = getDefaultMediaSource();
 		const domRef = getMediaElementDomReference( mediaId );
 
 		return {
 			mediaId: mediaSource?.id,
 			playerState: mediaSource?.state,
-			currentTime: getMediaSourceCurrentTime( mediaSource?.id, true ),
 			domEl: domRef && document.getElementById( domRef ),
 		};
 	}, [] );
