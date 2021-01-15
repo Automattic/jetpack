@@ -33,6 +33,7 @@ import TimestampControl, { TimestampDropdown } from './components/timestamp-cont
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
+import MediaPlayerControl from '../../shared/components/media-player-control';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -177,6 +178,7 @@ export default function DialogueEdit( {
 					/>
 				</ToolbarGroup>
 
+				<MediaPlayerControl />
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
