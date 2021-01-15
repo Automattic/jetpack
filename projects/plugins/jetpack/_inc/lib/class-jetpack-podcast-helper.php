@@ -39,10 +39,10 @@ class Jetpack_Podcast_Helper {
 	 * @return array|WP_Error  The player data or a error object.
 	 */
 	public function get_player_data( $args = array() ) {
-		$guid = isset( $args['guid'] ) && $args['guid'] ? $args['guid'] : '';
+		$guids = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
 
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $this->feed . $guid );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
@@ -54,10 +54,15 @@ class Jetpack_Podcast_Helper {
 				return $rss;
 			}
 
-			// Get single episode by guid or all tracks in feed.
-			if ( $guid ) {
-				$track  = $this->get_track_data( $guid );
-				$tracks = is_wp_error( $track ) ? array() : array( $track );
+			// Get a list of episodes by guid or all tracks in feed.
+			if ( count( $guids ) ) {
+				$tracks = array_map( array( $this, 'get_track_data' ), $guids );
+				$tracks = array_filter(
+					$tracks,
+					function ( $track ) {
+						return ! is_wp_error( $track );
+					}
+				);
 			} else {
 				$tracks = $this->get_track_list();
 			}
