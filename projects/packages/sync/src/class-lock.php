@@ -22,12 +22,14 @@ class Lock {
 
 	/**
 	 * Default Lifetime of the lock.
+	 * This is the expiration value as such we are setting it high to handle cases where there are
+	 * long running requests. Short expiration value leads to concurrent requests and performance issues.
 	 *
 	 * @access public
 	 *
 	 * @var int
 	 */
-	const LOCK_TRANSIENT_EXPIRY = 15; // Seconds.
+	const LOCK_TRANSIENT_EXPIRY = 300; // Seconds.
 
 	/**
 	 * Attempt to lock.
