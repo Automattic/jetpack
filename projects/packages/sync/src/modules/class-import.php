@@ -109,13 +109,13 @@ class Import extends Module {
 			$importer = self::get_calling_importer_class();
 		}
 
+		$importer_name = $this->get_importer_name( $importer );
+
 		// Get $importer from known_importers.
 		$known_importers = Settings::get_setting( 'known_importers' );
-		if ( isset( $known_importers[ $importer ] ) ) {
+		if ( isset( $known_importers[ $importer_name ] ) ) {
 			$importer = $known_importers[ $importer ];
 		}
-
-		$importer_name = $this->get_importer_name( $importer );
 
 		switch ( $sync_action ) {
 			case 'jetpack_sync_import_start':
