@@ -313,21 +313,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests jetpack_parent_file
-	 *
-	 * @covers ::jetpack_parent_file
-	 */
-	public function test_jetpack_parent_file() {
-		$parent_file = 'edit.php';
-		$this->assertSame( $parent_file, static::$admin_menu->jetpack_parent_file( $parent_file ) );
-
-		$this->assertSame(
-			'https://wordpress.com/activity-log/' . static::$domain,
-			static::$admin_menu->jetpack_parent_file( 'jetpack' )
-		);
-	}
-
-	/**
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
