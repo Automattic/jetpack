@@ -31,11 +31,18 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * The result is cached for one hour.
 	 *
+	 * @param array $args {
+	 *    Optional array of arguments.
+	 *    @type string|int $guid  The ID of a specific episode to return rather than a list.
+	 * }
+	 *
 	 * @return array|WP_Error  The player data or a error object.
 	 */
-	public function get_player_data() {
+	public function get_player_data( $args = array() ) {
+		$guid = isset( $args['guid'] ) && $args['guid'] ? $args['guid'] : '';
+
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $this->feed );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed . $guid );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
@@ -47,8 +54,13 @@ class Jetpack_Podcast_Helper {
 				return $rss;
 			}
 
-			// Get tracks.
-			$tracks = $this->get_track_list();
+			// Get single episode by guid or all tracks in feed.
+			if ( $guid ) {
+				$track  = $this->get_track_data( $guid );
+				$tracks = is_wp_error( $track ) ? array() : array( $track );
+			} else {
+				$tracks = $this->get_track_list();
+			}
 
 			if ( empty( $tracks ) ) {
 				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );

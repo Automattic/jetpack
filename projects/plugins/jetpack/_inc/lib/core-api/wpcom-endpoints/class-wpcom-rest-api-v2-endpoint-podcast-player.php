@@ -49,6 +49,12 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 							'validate_callback' => function ( $param ) {
 								return wp_http_validate_url( $param );
 							},
+							'guid'              => array(
+								'description'       => __( 'The unique identifier of a podcast episode', 'jetpack' ),
+								'type'              => 'string',
+								'required'          => 'false',
+								'sanitize_callback' => 'sanitize_text_field',
+							),
 						),
 					),
 					'schema'              => array( $this, 'get_public_item_schema' ),
@@ -64,7 +70,13 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function get_player_data( $request ) {
-		$player_data = ( new Jetpack_Podcast_Helper( $request['url'] ) )->get_player_data();
+		$helper = new Jetpack_Podcast_Helper( $request['url'] );
+
+		if ( isset( $request['guid'] ) ) {
+			$player_data = $helper->get_player_data( array( 'guid' => $request['guid'] ) );
+		} else {
+			$player_data = $helper->get_player_data();
+		}
 
 		if ( is_wp_error( $player_data ) ) {
 			return rest_ensure_response( $player_data );
