@@ -4,8 +4,17 @@ DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
 . "$DIR/includes/normalize-version.sh"
 
-# Retrieving the version from jetpack.php file
-PHP_VERSION=$(head -15 jetpack.php | grep '* Version' | cut -d ':' -f2)
+if [[ ! -f "$1" ]]; then
+	echo "USAGE: $0 <plugin-main-file>" >&2
+	exit 1
+fi
+
+# Retrieving the version from package file
+PHP_VERSION=$(head -15 "$1" | grep '* Version' | cut -d ':' -f2)
+if [[ -z "$PHP_VERSION" ]]; then
+	echo "Failed to find Version header in $1" >&2
+	exit 1
+fi
 
 # Getting a github prefix
 CLOSEST_TAG=$(git describe --tags --abbrev=0)
