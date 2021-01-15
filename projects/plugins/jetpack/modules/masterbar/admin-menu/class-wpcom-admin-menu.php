@@ -217,22 +217,12 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
 
-		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
-	}
-
-	/**
-	 * Filters the parent file of an admin menu sub-menu item.
-	 *
-	 * @param string $parent_file The parent file.
-	 * @return string Updated parent file.
-	 */
-	public function jetpack_parent_file( $parent_file ) {
-		if ( 'jetpack' === $parent_file ) {
-
-			$parent_file = 'https://wordpress.com/activity-log/' . $this->domain;
-		}
-
-		return $parent_file;
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $jetpack_slug ) {
+				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -240,6 +230,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_plugins_menu() {
 		parent::add_plugins_menu();
+
+		$menu_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
 		remove_menu_page( 'plugins.php' );
 		remove_submenu_page( 'plugins.php', 'plugins.php' );
@@ -255,8 +247,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		/* translators: %s: Number of pending plugin updates. */
-		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', 'https://wordpress.com/plugins/' . $this->domain, null, 'dashicons-admin-plugins', 65 );
-		$this->migrate_submenus( 'plugins.php', 'https://wordpress.com/plugins/' . $this->domain );
+		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', $menu_slug, null, 'dashicons-admin-plugins', 65 );
+
+		$this->migrate_submenus( 'plugins.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'jetpack' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -283,7 +282,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug, null, 10 );
 			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
 			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 20 );
+
 			$this->migrate_submenus( 'users.php', $users_slug );
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $users_slug ) {
+					return 'users.php' === $parent_file ? $users_slug : $parent_file;
+				}
+			);
 		} elseif ( $calypso ) {
 			remove_menu_page( 'profile.php' );
 			remove_submenu_page( 'profile.php', 'grofiles-editor' );
@@ -291,7 +297,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 'dashicons-admin-users', 70 );
 			add_submenu_page( $profile_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 5 );
+
 			$this->migrate_submenus( 'profile.php', $profile_slug );
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $profile_slug ) {
+					return 'profile.php' === $parent_file ? $profile_slug : $parent_file;
+				}
+			);
 		}
 	}
 
