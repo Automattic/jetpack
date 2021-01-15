@@ -76,10 +76,13 @@ export default function DialogueEdit( {
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
-	// Pick the previous block atteobutes from the state.
-	const prevBlock = useSelect( select => {
+	const { prevBlock } = useSelect( select => {
+		// Pick the previous block atteobutes from the state.
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		return select( 'core/block-editor' ).getBlock( prevPartClientId );
+
+		return {
+			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+		}
 	}, [] );
 
 	// Block context integration.
