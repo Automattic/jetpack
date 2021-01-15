@@ -4,6 +4,22 @@
 	var recommendationsBanner = $( '#jp-recommendations-banner-main' );
 	// var recommendationsBannerDismiss = $( '.wizard-banner-dismiss' );
 	var recommendationsBannerContinue = $( '#jp-recommendations-banner-continue-button' );
+	var recommendationsBannerForm = $( '#jp-recommendations-banner-form' );
+
+	recommendationsBannerForm.on( 'change', function ( event ) {
+		if (
+			'checkbox' === event.target.type &&
+			event.target.parentElement &&
+			'label' === event.target.parentElement.tagName.toLowerCase()
+		) {
+			var isChecked = $( 'label.checked input[name="' + event.target.name + '"]' ).length > 0;
+			if ( isChecked ) {
+				event.target.parentElement.classList.remove( 'checked' );
+			} else {
+				event.target.parentElement.classList.add( 'checked' );
+			}
+		}
+	} );
 
 	recommendationsBannerContinue.on( 'click', function () {
 		var fieldNames = [ 'personal', 'business', 'store', 'other' ];
@@ -33,30 +49,6 @@
 	//         if ( true !== response.success ) {
 	//             $( wizardBanner ).show();
 	//         }
-	//     } );
-	// } );
-	//
-	// personalButton.on( 'click', function () {
-	//     $.post( jp_banner.ajax_url, {
-	//         personal: true,
-	//         action: 'jetpack_wizard_banner',
-	//         nonce: jp_banner.wizardBannerNonce,
-	//     } );
-	// } );
-	//
-	// businessButton.on( 'click', function () {
-	//     $.post( jp_banner.ajax_url, {
-	//         business: true,
-	//         action: 'jetpack_wizard_banner',
-	//         nonce: jp_banner.wizardBannerNonce,
-	//     } );
-	// } );
-	//
-	// skipLink.on( 'click', function () {
-	//     $.post( jp_banner.ajax_url, {
-	//         skip: true,
-	//         action: 'jetpack_wizard_banner',
-	//         nonce: jp_banner.wizardBannerNonce,
 	//     } );
 	// } );
 } )( jQuery );

@@ -66,21 +66,28 @@
   grid-template-columns: auto auto;
 }
 
-.jp-recommendations-checkbox-answer__container {
+.jp-recommendations-answer__checkbox-label {
   display: flex;
+  align-items: center;
   box-sizing: border-box;
   border: 1px solid #d5d5d5;
   border-radius: 4px;
   cursor: pointer;
-}
 
-.jp-recommendations-answer__checkbox {
-  margin: 16px 8px 16px 16px;
+  &.checked {
+	background: #f8fbff;
+	border: 1px solid $blue-medium;
+  }
+
+  input {
+	margin: 16px 8px 16px 16px;
+  }
 }
 
 .jp-recommendations-answer__title {
   width: 100%;
   padding: 15px 0;
+  text-align: left;
 }
 
 .jp-recommendations-banner__illustration-container {
