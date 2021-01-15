@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
@@ -6,6 +11,7 @@ import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import './style.scss';
 import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
 import { STATE_PAUSED, STATE_PLAYING } from '../../../store/media-source/constants';
 import { convertSecondsToTimeCode } from './utils';
@@ -24,6 +30,7 @@ export default function MediaPlayerControl( {
 	onTimeChange = noop,
 	onToggle = noop,
 } ) {
+	const timeInFormat = convertSecondsToTimeCode( time );
 
 	return (
 		<ToolbarGroup>
@@ -55,8 +62,16 @@ export default function MediaPlayerControl( {
 				/>
 			) }
 			
-			<ToolbarButton className="media-player-control__current-time">
-				{ convertSecondsToTimeCode( time ) }
+			<ToolbarButton>
+				<div
+					className={ classnames( 
+						'media-player-control__current-time', {
+							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
+						}
+					) }
+				>
+					{ timeInFormat }
+				</div>
 			</ToolbarButton>
 		</ToolbarGroup>
 	);

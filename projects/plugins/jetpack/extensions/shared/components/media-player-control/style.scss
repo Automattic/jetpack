@@ -1,0 +1,16 @@
+@import '../../styles/gutenberg-base-styles.scss';
+
+.media-player-control__current-time {
+	height: calc( 100% - 10px );
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0 5px;
+	border: 1px solid $gray-400;
+	border-radius: 5px;
+	min-width: 55px;
+
+	&.has-hour {
+		min-width: 70px;
+	}
+}
