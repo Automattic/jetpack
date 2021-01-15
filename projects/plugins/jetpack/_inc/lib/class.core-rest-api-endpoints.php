@@ -1590,10 +1590,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_user_connection_data() {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
 
+		$connection_owner   = ( new Connection_Manager() )->get_connection_owner();
+		$owner_display_name = false === $connection_owner ? null : $connection_owner->data->display_name;
+
 		$response = array(
-//			'othersLinked'    => Jetpack::get_other_linked_admins(),
 			'currentUser'     => jetpack_current_user_data(),
-			'connectionOwner' => ( new Connection_Manager() )->get_connection_owner()->data->display_name,
+			'connectionOwner' => $owner_display_name,
 		);
 		return rest_ensure_response( $response );
 	}

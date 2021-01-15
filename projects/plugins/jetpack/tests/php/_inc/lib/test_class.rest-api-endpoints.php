@@ -1066,4 +1066,21 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( 'foo', $response->get_data() );
 	}
+
+	/**
+	 * Test fetching user connection data without a connection owner.
+	 *
+	 * @since 9.4
+	 */
+	public function test_get_user_connection_data_without_master_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+		// No master user set.
+		$response = $this->create_and_get_request( 'connection/data' );
+		$this->assertResponseStatus( 200, $response );
+
+		$response_data = $response->get_data();
+		$this->assertNull( $response_data['connectionOwner'] );
+	}
 } // class end
