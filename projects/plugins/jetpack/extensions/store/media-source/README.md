@@ -1,9 +1,9 @@
-Media Source State Tree
-=======================
+Media Source Store
+==================
 
-This subtree takes over registering media sources globally in the editor app context. Initially created with the purpose to put all components together of the anchor.fm integration provides a communication channel allowing controlling, for instance, the audio state from `play` to `stop`, and vice versa.
+This store registers a media-sources tree globally in the editor app context, providing a communication channel that allows controlling the media registered. A simple usage case is controlling the play state of a media through an external component.
 
-## Subtree Identifier
+## Store Name
 
 The identification name of the subtree is `jetpack/media-source`.
 
