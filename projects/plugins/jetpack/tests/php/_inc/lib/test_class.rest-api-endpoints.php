@@ -1075,7 +1075,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	public function test_get_user_connection_data_without_master_user() {
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_configure_modules' );
 		wp_set_current_user( $user->ID );
 		// No master user set.
 		$response = $this->create_and_get_request( 'connection/data' );
