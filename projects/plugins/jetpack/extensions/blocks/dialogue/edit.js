@@ -36,6 +36,7 @@ import {
 	list as defaultParticipants,
 } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import MediaPlayerControl from '../../shared/components/media-player-control';
 
 function getParticipantBySlug( participants, slug ) {
@@ -77,12 +78,27 @@ export default function DialogueEdit( {
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
-	const { prevBlock } = useSelect( select => {
+	const {
+		prevBlock,
+		playerState,
+		playerCurrentTime,
+		isDefaultPlayerReady,
+	} = useSelect( select => {
 		// Pick the previous block atteobutes from the state.
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
 
+		// Media source:
+		const {
+			getMediaSourceCurrentTime,
+			getMediaPlayerState,
+			getDefaultMediaSource,
+		} = select( MEDIA_SOURCE_STORE_ID );
+
 		return {
 			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+			playerState: getMediaPlayerState(),
+			playerCurrentTime: getMediaSourceCurrentTime(),
+			isDefaultPlayerReady: getDefaultMediaSource(),
 		}
 	}, [] );
 
@@ -213,7 +229,12 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
-				<MediaPlayerControl />
+				<MediaPlayerControl
+					state={ playerState }
+					time={ playerCurrentTime }
+					isDisabled={ ! isDefaultPlayerReady }
+				/>
+
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
