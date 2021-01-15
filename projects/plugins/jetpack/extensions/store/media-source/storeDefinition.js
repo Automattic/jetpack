@@ -71,6 +71,8 @@ const actions = {
 	},
 };
 
+actions.updateMediaSourceData = actions.registerMediaSource;
+
 const selectors = {
 	getDefaultMediaSource( state ) {
 		let playerId = null;
