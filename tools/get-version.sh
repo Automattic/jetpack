@@ -16,12 +16,6 @@ if [[ -z "$PHP_VERSION" ]]; then
 	exit 1
 fi
 
-# Getting a github prefix
-CLOSEST_TAG=$(git describe --tags --abbrev=0)
-
-# Getting a git full version with the prefix and stripping away the prefix
-GIT_SUFFIX=$(git describe --tags --long | awk -F "$CLOSEST_TAG" '{ print $2; }')
-
 normalize_version_number "$PHP_VERSION" 3
 
-echo $NORMALIZED_VERSION$GIT_SUFFIX
+echo $NORMALIZED_VERSION
