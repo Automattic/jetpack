@@ -1,13 +1,15 @@
 const participants = [
 	{
 		participantSlug: 'participant-0',
-		participant: 'Oliveira',
+		participant: 'Rosalind',
 		hasBoldStyle: true,
+		hasUppercaseStyle: true,
 	},
 	{
 		participantSlug: 'participant-1',
-		participant: 'la Maga',
-		hasBoldStyle: true,
+		participant: 'Orlando',
+		hasItalicStyle: true,
+		hasUppercaseStyle: true,
 	},
 ];
 
@@ -15,7 +17,7 @@ const template = [
 	{
 		name: 'core/heading',
 		attributes: {
-			content: 'Rayuela (Fragmento)',
+			content: 'Shakespeare text',
 			level: 4,
 		},
 	},
@@ -23,7 +25,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 0 ],
-			content: '¿Qué entendés por snob?',
+			content: 'O, my dear Orlando, how it grieves me to see thee wear thy heart in a scarf!',
 			timestamp: '00:10',
 		},
 	},
@@ -31,7 +33,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 1 ],
-			content: 'Bueno,yo me vine en tercera clase, pero creo que si hubiera venido en segunda Luciana hubiera ido a despedirme.',
+			content: 'It is my arm.',
 			timestamp: '00:15',
 		},
 	},
@@ -39,7 +41,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 0 ],
-			content: 'La mejor definición que he oído nunca.',
+			content: 'I thought thy heart had been wounded with the claws of a lion.',
 			timestamp: '00:32',
 		},
 	},
@@ -47,7 +49,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 1 ],
-			content: 'Y además estaba Rocamadour.',
+			content: 'Wounded it is, but with the eyes of a lady.',
 			timestamp: '00:37',
 		},
 	},
