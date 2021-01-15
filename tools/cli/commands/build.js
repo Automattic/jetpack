@@ -3,6 +3,7 @@
  */
 import child_process from 'child_process';
 import chalk from 'chalk';
+import fs from 'fs';
 import path from 'path';
 
 /**
@@ -19,32 +20,55 @@ const log = console.log;
  *
  * @param {object} options - The argv options.
  */
-export async function build( options ) {
+async function buildRouter(options ) {
 	options = {
 		...options,
-		project: options.project || false,
+		project: options.project || '',
 		targetDirectory: options.targetDirectory || process.cwd(),
 	};
 
-	switch ( options.project ) {
-		case 'plugins/jetpack':
-			log(
-				chalkJetpackGreen(
-					'Hell yeah! It is time to build Jetpack!\n' +
-						'Go ahead and sit back. Relax. This will take a few minutes.'
-				)
-			);
-			child_process.spawnSync( 'yarn', [ 'build' ], {
-				cwd: path.resolve( 'projects/plugins/jetpack' ), // If I can get options.project to work...
-				shell: true,
-				stdio: 'inherit',
-			} );
-			break;
-		case false:
-			log( chalk.red( 'You did not choose a project!' ) );
-			break;
-		default:
-			log( chalk.yellow( 'This project does not have a build step defined.' ) );
+	if ( options.project ) {
+		await fs.readFile( 'projects/' + options.project + '/package.json', "utf8", ( err, data ) => {
+			if ( err ) {
+				log( chalk.yellow( 'This project does not have a package.json file.' ) );
+				return;
+			}
+			try {
+				data = JSON.parse( data );
+			} catch ( parseError ) {
+				log( chalk.red( 'Could not parse package.json. Something is pretty wrong.' ), parseError );
+				return;
+			}
+			build( options.project, data );
+		} );
+	} else {
+		log( chalk.red( 'You did not choose a project!' ) );
+	}
+}
+
+/**
+ * Builds a project.
+ *
+ * @param {string} project - The project.
+ */
+export async function build( project, packageJson ) {
+	const buildDev = packageJson.com_jetpack['build-dev'];
+	const buildProd = packageJson.com_jetpack['build-prod'];
+
+	if ( buildDev ) {
+		log(
+			chalkJetpackGreen(
+				`Hell yeah! It is time to build ${project}!\n` +
+				'Go ahead and sit back. Relax. This will take a few minutes.'
+			)
+		);
+		child_process.spawnSync( 'yarn', [ buildDev ], {
+			cwd: path.resolve( `projects/${project}` ),
+			shell: true,
+			stdio: 'inherit',
+		} );
+	} else {
+		log( chalk.yellow( 'This project does not have a build step defined.' ) );
 	}
 }
 
@@ -55,7 +79,7 @@ export async function build( options ) {
  */
 export async function buildCli( argv ) {
 	argv = await promptForProject( argv );
-	await build( argv );
+	await buildRouter( argv );
 }
 
 /**
