@@ -197,14 +197,15 @@ export default function DialogueEdit( {
 					/>
 				</ToolbarGroup>
 
-				<MediaPlayerControl
-					state={ playerState }
-					time={ playerCurrentTime }
-					isDisabled={ ! defaultMediaSource }
-					skipForwardTime={ false }
-					jumpBackTime={ false }
-					onToggle={ togglePlayer }
-				/>
+				{ defaultMediaSource && (
+					<MediaPlayerControl
+						state={ playerState }
+						time={ playerCurrentTime }
+						skipForwardTime={ false }
+						jumpBackTime={ false }
+						onToggle={ togglePlayer }
+					/>
+				) }
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
