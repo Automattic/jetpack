@@ -422,7 +422,7 @@ class MembershipsButtonEdit extends Component {
 					<BlockControls>
 						<ToolbarGroup>
 							<ToolbarButton
-								icon={ flashIcon }
+								icon={ FlashIcon }
 								onClick={ e => {
 									this.props.autosaveAndRedirect( e, connectURL );
 								} }
