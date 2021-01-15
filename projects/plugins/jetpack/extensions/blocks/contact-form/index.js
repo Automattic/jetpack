@@ -269,7 +269,7 @@ export const childBlocks = [
 			title: __( 'Date Picker', 'jetpack' ),
 			keywords: [
 				__( 'Calendar', 'jetpack' ),
-				__( 'day month year', 'block search term', 'jetpack' ),
+				_x( 'day month year', 'block search term', 'jetpack' ),
 			],
 			description: __( 'The best way to set a date. Add a date picker.', 'jetpack' ),
 			icon: renderMaterialIcon(
