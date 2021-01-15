@@ -16,6 +16,9 @@
 	"bin": {
 		"jetpack": "bin/jetpack"
 	},
+	"scripts": {
+		"test-cli": "mocha tests/**/*.test.js --require esm"
+	},
 	"dependencies": {
 		"chalk": "4.1.0",
 		"esm": "3.2.25",

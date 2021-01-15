@@ -25,6 +25,8 @@ jobs:
         run: |
           yarn install
           yarn test-adminpage-and-extensions-and-search
+          cd tools/cli
+          yarn install
           yarn test-cli
 
 
