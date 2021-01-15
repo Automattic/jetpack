@@ -24,7 +24,7 @@ export const ProgressBar = ( {
 	let firstReachableSlideIndex = 0;
 	let lastReachableSlideIndex = slides.length - 1;
 
-	if ( currentSlideIndex < middleBullet ) {
+	if ( slides.length <= maxBullets || currentSlideIndex < middleBullet ) {
 		currentBulletIndex = currentSlideIndex;
 		lastReachableSlideIndex = bulletCount - 1;
 	} else if ( currentSlideIndex > slides.length - middleBullet ) {
