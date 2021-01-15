@@ -42,25 +42,25 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 						return current_user_can( 'edit_posts' );
 					},
 					'args'                => array(
-						'url' => array(
+						'url'   => array(
 							'description'       => __( 'The Podcast RSS feed URL.', 'jetpack' ),
 							'type'              => 'string',
 							'required'          => 'true',
 							'validate_callback' => function ( $param ) {
 								return wp_http_validate_url( $param );
 							},
-							'guids'             => array(
-								'description'       => __( 'The list of unique identifiers for podcast episodes', 'jetpack' ),
-								'type'              => 'array',
-								'required'          => 'false',
-								'sanitize_callback' => function ( $guids ) {
-									if ( $guids && is_array( $guids ) ) {
-										$guids = array_map( 'sanitize_text_field', $guids );
-									}
+						),
+						'guids' => array(
+							'description'       => __( 'A list of unique identifiers for fetching specific podcast episodes.', 'jetpack' ),
+							'type'              => 'array',
+							'required'          => 'false',
+							'sanitize_callback' => function ( $guids ) {
+								if ( $guids && is_array( $guids ) ) {
+									return array_map( 'sanitize_text_field', $guids );
+								}
 
-									return null;
-								},
-							),
+								return null;
+							},
 						),
 					),
 					'schema'              => array( $this, 'get_public_item_schema' ),
@@ -76,6 +76,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function get_player_data( $request ) {
+		l( $request['guids'] );
 		$helper = new Jetpack_Podcast_Helper( $request['url'] );
 
 		if ( isset( $request['guids'] ) ) {
