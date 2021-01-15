@@ -132,7 +132,7 @@ jobs:
       - name: Push changed projects
         working-directory: monorepo
         env:
-          API_GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
           USER_NAME: matticbot
           BUILD_BASE: ${{ github.workspace }}/build
         run: .github/files/push-all-projects.sh
