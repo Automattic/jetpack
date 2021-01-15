@@ -20,7 +20,7 @@ import {
 	Button,
 } from '@wordpress/components';
 import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
-import { useSelect, dispatch } from '@wordpress/data';
+import { useSelect, useDispatch, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -33,7 +33,7 @@ import TimestampControl, { TimestampDropdown } from './components/timestamp-cont
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
-import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID, STORE_ID } from '../../store/media-source/constants';
 import MediaPlayerControl from '../../shared/components/media-player-control';
 
 function getParticipantBySlug( participants, slug ) {
@@ -77,7 +77,7 @@ export default function DialogueEdit( {
 		prevBlock,
 		playerState,
 		playerCurrentTime,
-		isDefaultPlayerReady,
+		defaultMediaSource,
 	} = useSelect( select => {
 		// Pick the previous block atteobutes from the state.
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
@@ -93,9 +93,12 @@ export default function DialogueEdit( {
 			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
 			playerState: getMediaPlayerState(),
 			playerCurrentTime: getMediaSourceCurrentTime(),
-			isDefaultPlayerReady: getDefaultMediaSource(),
+			defaultMediaSource: getDefaultMediaSource(),
 		}
 	}, [] );
+
+	const { toggleMediaSource } = useDispatch( STORE_ID );
+	const togglePlayer = () => toggleMediaSource( defaultMediaSource.id );
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
@@ -197,9 +200,10 @@ export default function DialogueEdit( {
 				<MediaPlayerControl
 					state={ playerState }
 					time={ playerCurrentTime }
-					isDisabled={ ! isDefaultPlayerReady }
+					isDisabled={ ! defaultMediaSource }
 					skipForwardTime={ false }
 					jumpBackTime={ false }
+					onToggle={ togglePlayer }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
