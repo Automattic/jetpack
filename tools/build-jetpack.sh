@@ -29,6 +29,7 @@ GET_VERSION_SCRIPT="`pwd`/tools/get-version.sh"
 TARGET_BRANCH=${1:-master}
 TARGET_REPO=${2:-"Automattic/jetpack"}
 TARGET_DIR=${3:-"/tmp/jetpack"}
+JETPACK_DIR=${4:-"$TARGET_DIR/projects/plugins/jetpack"}
 
 [ "$1" = "--" ] && shift
 
@@ -40,12 +41,12 @@ fi
 
 git clone \
     --branch $TARGET_BRANCH \
-    --depth 1000 \
+    --depth 1 \
     --no-single-branch \
     git://github.com/$TARGET_REPO.git \
     $TARGET_DIR
 
-cd $TARGET_DIR
+cd $JETPACK_DIR
 
 if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     echo "Changing version of the Jetpack to reflect the latest changes.."
@@ -80,15 +81,17 @@ hash yarn 2>/dev/null || {
     echo >&2 "Please install it following the instructions on https://yarnpkg.com. Aborting.";
     exit 1;
 }
-yarn --cwd $TARGET_DIR cache clean
-yarn --cwd $TARGET_DIR run build-production-concurrently
+yarn --cwd $JETPACK_DIR cache clean
+yarn --cwd $JETPACK_DIR run build-production-concurrently
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore
-for file in $( cat "$TARGET_DIR/.svnignore" 2>/dev/null ); do
+for file in $( cat "$JETPACK_DIR/.svnignore" 2>/dev/null ); do
     if [[ $file == "to-test.md" || $file == "docs/testing/testing-tips.md" ]]; then
         continue
     fi
-    rm -rf $TARGET_DIR/$file
+
+	echo "removing $JETPACK_DIR/$file"
+    rm -rf $JETPACK_DIR/$file
 done
 echo "Done!"
