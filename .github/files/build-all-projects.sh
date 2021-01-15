@@ -44,10 +44,36 @@ for project in projects/packages/* projects/plugins/*; do
 
 	if [[ -f "package.json" ]]; then
 		echo "::group::Building ${GIT_SLUG}"
+
+		# If composer.json contains a reference to the monorepo repo, add one pointing to our production clones just before it.
+		# That allows us to pick up the built version for plugins like Jetpack.
+		# Also save the old contents to restore post-build to help with local testing.
+		OLDJSON=$(<composer.json)
+		JSON=$(jq --arg path "$BUILD_BASE/*/*" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [{ type: "path", url: $path, options: { monorepo: true } }] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
+		if [[ "$JSON" != "$OLDJSON" ]]; then
+			echo "$JSON" > composer.json
+			if [[ -e "composer.lock" ]]; then
+				OLDLOCK=$(<composer.lock)
+				composer update --root-reqs --no-install
+			else
+				OLDLOCK=
+			fi
+		fi
+
 		if yarn install && yarn build-production-concurrently; then
-			echo "::endgroup::"
+			FAIL=false
 		else
-			echo "::endgroup::"
+			FAIL=true
+		fi
+
+		# Restore files to help with local testing.
+		if [[ "$JSON" != "$OLDJSON" ]]; then
+			echo "$OLDJSON" > composer.json
+			[[ -n "$OLDLOCK" ]] && echo "$OLDLOCK" > composer.lock || rm -f composer.lock
+		fi
+
+		echo "::endgroup::"
+		if $FAIL; then
 			echo "::error::Build of ${GIT_SLUG} failed"
 			EXIT=1
 			continue
