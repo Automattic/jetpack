@@ -68,6 +68,7 @@
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
 		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
+		"test-cli": "mocha tools/cli/tests/**/*.test.js --require esm",
 		"test-spelling": "mdspell -n -a -x --en-us **/*.md",
 		"validate-es5": "npx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
 		"version-packages": "bash ./tools/version-packages.sh"
