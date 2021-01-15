@@ -233,6 +233,8 @@ export default function DialogueEdit( {
 					state={ playerState }
 					time={ playerCurrentTime }
 					isDisabled={ ! isDefaultPlayerReady }
+					skipForwardTime={ false }
+					jumpBackTime={ false }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
