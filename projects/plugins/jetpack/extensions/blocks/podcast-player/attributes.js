@@ -17,6 +17,10 @@ export default {
 		type: 'string',
 		validator: isUrl,
 	},
+	guidList: {
+		type: 'array',
+		default: [],
+	},
 	itemsToShow: {
 		type: 'integer',
 		default: 5,

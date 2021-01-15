@@ -28,7 +28,7 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 }
 
 function podcastSection( { episodeTrack } ) {
-	const { image, link } = episodeTrack;
+	const { image, link, guid } = episodeTrack;
 
 	return [
 		'core/columns',
@@ -64,6 +64,7 @@ function podcastSection( { episodeTrack } ) {
 							showCoverArt: false,
 							showEpisodeTitle: false,
 							showEpisodeDescription: false,
+							guidList: guid ? [ guid ] : [],
 						},
 					],
 				],
@@ -98,7 +99,9 @@ function podcastSummarySection( { episodeTrack } ) {
 
 function podcastConversationSection() {
 	const conversationBlockName = 'jetpack/conversation';
-	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockName );
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType(
+		conversationBlockName
+	);
 
 	// Check if `jetpack/conversation` block is register.
 	if ( ! isConversationBlockAvailable ) {

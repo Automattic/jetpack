@@ -54,11 +54,11 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 								'type'              => 'array',
 								'required'          => 'false',
 								'sanitize_callback' => function ( $guids ) {
-									if ( $guids ) {
+									if ( $guids && is_array( $guids ) ) {
 										$guids = array_map( 'sanitize_text_field', $guids );
 									}
 
-									return $guids;
+									return null;
 								},
 							),
 						),
