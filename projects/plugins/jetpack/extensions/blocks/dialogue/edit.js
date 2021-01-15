@@ -232,14 +232,15 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
-				<MediaPlayerControl
-					state={ playerState }
-					time={ playerCurrentTime }
-					isDisabled={ ! defaultMediaSource }
-					skipForwardTime={ false }
-					jumpBackTime={ false }
-					onToggle={ togglePlayer }
-				/>
+				{ defaultMediaSource && (
+					<MediaPlayerControl
+						state={ playerState }
+						time={ playerCurrentTime }
+						skipForwardTime={ false }
+						jumpBackTime={ false }
+						onToggle={ togglePlayer }
+					/>
+				) }
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
