@@ -25,7 +25,7 @@ export async function cli() {
 	// argv = dockerDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
-	argv.showHelpOnFail().demandCommand();
+	argv.showHelpOnFail( true ).demandCommand();
 
 	// Parse the args!
 	argv.argv;

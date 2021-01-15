@@ -3,13 +3,13 @@
  */
 import child_process from 'child_process';
 import chalk from 'chalk';
-// import path from 'path';
+import path from 'path';
 
 /**
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
-// import { promptForProject } from '../helpers/promptForProject.js';
+import { promptForProject } from '../helpers/promptForProject.js';
 
 // eslint-disable-next-line no-console
 const log = console.log;
@@ -35,7 +35,7 @@ export async function build( options ) {
 				)
 			);
 			child_process.spawnSync( 'yarn', [ 'build' ], {
-				// cwd: path.resolve( 'projects/plugins/jetpack' ), // If I can get options.project to work...
+				cwd: path.resolve( 'projects/plugins/jetpack' ), // If I can get options.project to work...
 				shell: true,
 				stdio: 'inherit',
 			} );
@@ -54,7 +54,7 @@ export async function build( options ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function buildCli( argv ) {
-	// argv = await promptForProject( argv );
+	argv = await promptForProject( argv );
 	await build( argv );
 }
 
