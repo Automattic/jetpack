@@ -84,7 +84,14 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
+
 		this.setState( { currentTrack: track } );
+
+		const { title, link } = this.getTrack( track );
+		this.props.updateMediaSourceData( this.props.playerId, { 
+			title,
+			link,
+		} );
 		this.props.playMediaSource( this.props.playerId );
 
 		/*
@@ -362,6 +369,7 @@ export default compose( [
 	withDispatch( dispatch => {
 		const {
 			registerMediaSource,
+			updateMediaSourceData,
 			unregisterMediaSource,
 			setDefaultMediaSource,
 			playMediaSource,
@@ -372,6 +380,7 @@ export default compose( [
 		} = dispatch( STORE_ID );
 		return {
 			registerMediaSource,
+			updateMediaSourceData,
 			unregisterMediaSource,
 			setDefaultMediaSource,
 			playMediaSource,
