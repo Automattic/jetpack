@@ -20,7 +20,7 @@ const log = console.log;
  *
  * @param {object} options - The argv options.
  */
-async function buildRouter(options ) {
+async function buildRouter( options ) {
 	options = {
 		...options,
 		project: options.project || '',
@@ -28,7 +28,7 @@ async function buildRouter(options ) {
 	};
 
 	if ( options.project ) {
-		await fs.readFile( 'projects/' + options.project + '/package.json', "utf8", ( err, data ) => {
+		await fs.readFile( 'projects/' + options.project + '/package.json', 'utf8', ( err, data ) => {
 			if ( err ) {
 				log( chalk.yellow( 'This project does not have a package.json file.' ) );
 				return;
@@ -39,7 +39,7 @@ async function buildRouter(options ) {
 				log( chalk.red( 'Could not parse package.json. Something is pretty wrong.' ), parseError );
 				return;
 			}
-			build( options.project, data );
+			build( options.project, options.production, data );
 		} );
 	} else {
 		log( chalk.red( 'You did not choose a project!' ) );
@@ -50,26 +50,41 @@ async function buildRouter(options ) {
  * Builds a project.
  *
  * @param {string} project - The project.
+ * @param {boolean} production - If a production build should be made.
+ * @param {object} packageJson - The project's package.json file, parsed.
  */
-export async function build( project, packageJson ) {
-	const buildDev = packageJson.com_jetpack['build-dev'];
-	const buildProd = packageJson.com_jetpack['build-prod'];
-
-	if ( buildDev ) {
-		log(
-			chalkJetpackGreen(
-				`Hell yeah! It is time to build ${project}!\n` +
-				'Go ahead and sit back. Relax. This will take a few minutes.'
-			)
-		);
-		child_process.spawnSync( 'yarn', [ buildDev ], {
-			cwd: path.resolve( `projects/${project}` ),
-			shell: true,
-			stdio: 'inherit',
-		} );
-	} else {
+export async function build( project, production, packageJson ) {
+	if ( ! packageJson.com_jetpack ) {
+		// There's no Jetpack-specific data in package.json.
 		log( chalk.yellow( 'This project does not have a build step defined.' ) );
+		return;
 	}
+	const buildDev = packageJson.com_jetpack[ 'build-dev' ];
+	const buildProd = packageJson.com_jetpack[ 'build-prod' ];
+	let command;
+
+	if ( ! buildDev && ! buildProd ) {
+		// If neither build step is defined, abort.
+		log( chalk.yellow( 'This project does not have a build step defined!!' ) );
+		return;
+	} else if ( production && buildProd ) {
+		// If we need a production build and there is a production step, use it.
+		command = buildProd;
+	} else {
+		// If we don't care about production OR there's only a build-dev step defined, let's do it.
+		command = buildDev;
+	}
+	log(
+		chalkJetpackGreen(
+			`Hell yeah! It is time to build ${ project }!\n` +
+			'Go ahead and sit back. Relax. This will take a few minutes.'
+		)
+	);
+	child_process.spawnSync( 'yarn', [ command ], {
+		cwd: path.resolve( `projects/${ project }` ),
+		shell: true,
+		stdio: 'inherit',
+	} );
 }
 
 /**
@@ -94,10 +109,16 @@ export function buildDefine( yargs ) {
 		'build [project]',
 		'Builds a monorepo project',
 		yarg => {
-			yarg.positional( 'project', {
-				describe: 'Project in the form of type/name, e.g. plugins/jetpack',
-				type: 'string',
-			} );
+			yarg
+				.positional( 'project', {
+					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+					type: 'string',
+				} )
+				.option( 'production', {
+					alias: 'p',
+					type: 'boolean',
+					description: 'Build for production.',
+				} );
 		},
 		async argv => {
 			await buildCli( argv );
