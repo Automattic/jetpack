@@ -3,6 +3,8 @@ name: "CodeQL Code Scanning Analysis"
 on:
   push:
     branches: [master, master-built]
+  pull_request:
+    branches: [master, master-built]
   schedule:
     - cron: '0 19 * * 0'
 
