@@ -1,42 +1,11 @@
 {
-	"name": "automattic/jetpack",
-	"description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
+	"name": "automattic/jetpack-monorepo",
+	"description": "Monorepo for the Jetpack ecosystem",
 	"homepage": "https://jetpack.com/",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"support": {
 		"issues": "https://github.com/Automattic/jetpack/issues"
-	},
-	"require": {
-		"ext-fileinfo": "*",
-		"ext-json": "*",
-		"ext-openssl": "*",
-		"automattic/jetpack-a8c-mc-stats": "@dev",
-		"automattic/jetpack-abtest": "@dev",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-backup": "@dev",
-		"automattic/jetpack-blocks": "@dev",
-		"automattic/jetpack-compat": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-device-detection": "@dev",
-		"automattic/jetpack-error": "@dev",
-		"automattic/jetpack-heartbeat": "@dev",
-		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-lazy-images": "@dev",
-		"automattic/jetpack-licensing": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-partner": "@dev",
-		"automattic/jetpack-redirect": "@dev",
-		"automattic/jetpack-roles": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-terms-of-service": "@dev",
-		"automattic/jetpack-tracking": "@dev",
-		"nojimage/twitter-text-php": "3.1.1"
 	},
 	"require-dev": {
 		"automattic/jetpack-codesniffer": "@dev",
@@ -50,7 +19,7 @@
 		],
 		"php:lint": [
 			"printf '\\e[30;43m`composer php:lint` now lints. If you want to run phpcs, use `composer phpcs:lint`.\\e[0m\\n'",
-			"bin/parallel-lint.sh"
+			"tools/parallel-lint.sh"
 		],
 		"phpcs:changed": [
 			"Composer\\Config::disableProcessTimeout",
@@ -64,7 +33,7 @@
 			"phpcbf -p"
 		],
 		"phpcs:fix:required": [
-			"@phpcs:fix --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+			"@phpcs:fix --filter=tools/class-jetpack-phpcs-exclude-filter.php"
 		],
 		"phpcs:lint": [
 			"Composer\\Config::disableProcessTimeout",
@@ -74,7 +43,7 @@
 			"@phpcs:lint --runtime-set ignore_warnings_on_exit 1"
 		],
 		"phpcs:lint:required": [
-			"@phpcs:lint --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+			"@phpcs:lint --filter=tools/class-jetpack-phpcs-exclude-filter.php"
 		],
 		"php:autofix": [
 			"printf '\\e[37;41m`composer php:autofix` is deprecated. Use `composer phpcs:fix` instead.\\e[0m\\n'",
@@ -111,20 +80,12 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "./packages/*"
+			"url": "projects/packages/*"
 		}
 	],
-	"autoload": {
-		"classmap": [
-			"src"
-		]
-	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true,
-		"platform": {
-			"ext-intl": "0.0.0"
-		}
+		"sort-packages": true
 	}
 }

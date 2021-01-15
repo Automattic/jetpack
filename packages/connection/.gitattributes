@@ -1,5 +1,0 @@
-# Files not needed to be distributed in the package.
-.gitattributes   export-ignore
-phpunit.xml.dist export-ignore
-tests/           export-ignore
-docs/            export-ignore
