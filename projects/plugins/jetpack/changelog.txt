@@ -2,6 +2,55 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.3.1 =
+
+* Release date: January 14, 2021
+
+**Bug fixes**
+
+* Multisite: avoid Fatals on sites using the WPMUDEV domain mapping plugin.
+* SEO Tools: prevent a PHP notice in some situations involving taxonomy or author pages.
+
+= 9.3 =
+
+* Release date: January 12, 2021
+* Release post: https://wp.me/p1moTy-sgZ
+
+**Enhancements**
+
+* Autoloader: improve performance by caching known plugins.
+* Instant Search: improve compatibility with IE11.
+* Related Posts: use the semantic time element when displaying dates.
+* Sharing: defer loading of the reCAPTCHA library by default.
+
+**Improved compatibility**
+
+* AMP: avoid PHP notice on sites using legacy versions of the AMP plugin.
+* Dashboard: avoid errors on sites using PHP 8.
+* General: use modern JavaScript best practices for loading scripts.
+* Infinite Scroll: add compatibility for the TwentyTwentyOne theme.
+* Search: improve styling for the TwentyTwenty theme.
+* Synchronization: improve integrity of synchronization between your site and WordPress.com.
+* WordPress.com Toolbar: iterate on the design and functionality of the toolbar to match the toolbar in use on WordPress.com.
+
+**Bug fixes**
+
+* Autoloader: resolve symbolic links in active plugin paths.
+* Autoloader: ensure deactivating plugins aren't cached.
+* Blocks: improve sidebar display in non-fullscreen mode.
+* Content Options: do not output CSS when it is not needed.
+* Instant Search: improve display of tags and categories in search results.
+* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
+* Podcast Player Block: avoid PHP notices in some scenarios.
+* Search: limit number of filters automatically set up.
+* Slideshow Block: ensure that image captions are always shown, regardless of the theme you're using.
+* Subscription Block: display the correct default placeholder and button text strings in the post editor.
+* Subscriptions: fix the behavior of the toggle switches for the comment subscription settings.
+* Twitter Threads: improve how Twitter Cards are generated for embeds in the thread preview.
+* VideoPress: detect aspect ratios rounding to both 1.77 and 1.78 as 16:9.
+* Widgets: avoid JavaScript errors when displaying the Cookies & Consent Widget.
+* WordPress.com REST API: avoid fatal errors in some scenarios, when updating a post's metadata.
+
 = 9.2.1 =
 
 * Release date:  December 10, 2020

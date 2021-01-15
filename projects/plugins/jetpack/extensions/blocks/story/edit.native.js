@@ -177,8 +177,8 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 			<MediaPlaceholder
 				icon={ <BlockIcon icon={ icon } /> }
 				labels={ {
-					title: __( 'Story' ),
-					instructions: __( 'ADD MEDIA' ),
+					title: __( 'Story', 'jetpack' ),
+					instructions: __( 'ADD MEDIA', 'jetpack' ),
 				} }
 				allowedTypes={ [ MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO ] }
 				onFocus={ onFocus }

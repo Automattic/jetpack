@@ -126,7 +126,7 @@ class PinterestEdit extends Component {
 			return (
 				<div className="wp-block-embed is-loading">
 					<Spinner />
-					<p>{ __( 'Embedding…' ) }</p>
+					<p>{ __( 'Embedding…', 'jetpack' ) }</p>
 				</div>
 			);
 		}
