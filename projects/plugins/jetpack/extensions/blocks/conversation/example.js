@@ -23,7 +23,7 @@ const template = [
 	{
 		name: 'core/heading',
 		attributes: {
-			content: 'Shakespeare text',
+			content: __( 'Shakespeare text', 'jetpack' ),
 			level: 4,
 		},
 	},
