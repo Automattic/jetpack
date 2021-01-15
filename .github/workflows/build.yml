@@ -6,8 +6,7 @@ jobs:
     name: Build all projects
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Jetpack
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -40,7 +39,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Build Jetpack
+      - name: Build all projects
         id: build
         run: .github/files/build-all-projects.sh
 
@@ -58,8 +57,7 @@ jobs:
     needs: build
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     steps:
-      - name: Checkout Jetpack
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           path: monorepo
 
@@ -112,8 +110,7 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/master'
     steps:
-      - name: Checkout Jetpack
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
         with:
           path: monorepo
 
