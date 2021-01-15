@@ -25,7 +25,9 @@ jobs:
         run: |
           yarn install
           yarn test-adminpage-and-extensions-and-search
-          cd tools/cli
+      - name: "test cli"
+        working-directory: 'projects/plugins/jetpack/tools/cli'
+        run: |
           yarn install
           yarn test-cli
 
