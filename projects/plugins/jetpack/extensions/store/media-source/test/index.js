@@ -16,7 +16,7 @@ describe( 'save', () => {
 	test( 'Initial State', () => {
 		const store = setup();
 		const got = store.getState();
-		const want = { players: {} };
+		const want = { players: {}, default: null };
 		expect( got ).toEqual( want );
 	} );
 
@@ -25,8 +25,9 @@ describe( 'save', () => {
 		store.dispatch( actions.registerMediaSource( 100, {} ) );
 		const got = store.getState();
 		const want = {
+			default: null,
 			players: {
-				100: { status: 'is-paused', position: 0 },
+				100: { id: 100 },
 			},
 		};
 		expect( got ).toEqual( want );
@@ -37,8 +38,9 @@ describe( 'save', () => {
 		store.dispatch( actions.registerMediaSource( 100, { status: 'playing' } ) );
 		const got = store.getState();
 		const want = {
+			default: null,
 			players: {
-				100: { status: 'playing', position: 0 },
+				100: { id: 100, status: 'playing' },
 			},
 		};
 		expect( got ).toEqual( want );
@@ -54,9 +56,10 @@ describe( 'save', () => {
 		store.dispatch( actions.registerMediaSource( 100, { status: 'stopped', position: 1 } ) );
 		const got = store.getState();
 		const want = {
+			default: null,
 			players: {
-				100: { status: 'stopped', position: 1 },
-				200: { status: 'stopped', position: 2 },
+				100: { id: 100, status: 'stopped', position: 1 },
+				200: { id: 200, status: 'stopped', position: 2 },
 			},
 		};
 		expect( stateAfterOneAction ).toEqual( frozenStateAfterOneAction );
@@ -73,8 +76,9 @@ describe( 'save', () => {
 		store.dispatch( actions.unregisterMediaSource( 100 ) );
 		const got = store.getState();
 		const want = {
+			default: null,
 			players: {
-				200: { status: 'stopped', position: 0 },
+				200: { id: 200, status: 'stopped' },
 			},
 		};
 		expect( stateAfterOneAction ).toEqual( frozenStateAfterOneAction );
