@@ -30,15 +30,15 @@ We encourage using constants defined in the [media source store](./extensions/st
 * Required: No
 
 ### skipForwardTime
-Time value to skip forward when clicking on the forwarding button. `five` seconds as default.
+Time value to skip forward when clicking on the forwarding button. Or, `False` to do not render the button. `five` seconds as default.
 
-* Type: `Number`
+* Type: `?(Number|boolean)`
 * Required: No
 * Default: `5`
 
 
 ### jumpBackTime
-Time value to jump back when clicking on the forwarding button. `five` seconds as default.
+Time value to jump back when clicking on the forwarding button. Or, `False` to do not render the button. `five` seconds as default.
 
 * Type: `Number`
 * Required: No

@@ -27,12 +27,14 @@ export default function MediaPlayerControl( {
 
 	return (
 		<ToolbarGroup>
-			<ToolbarButton
-				icon={ ControlBackFiveIcon }
-				isDisabled={ isDisabled }
-				onClick={ () => onTimeChange( time - jumpBackTime ) }
-			/>
-
+			{ jumpBackTime !== false && (
+				<ToolbarButton
+					icon={ ControlBackFiveIcon }
+					isDisabled={ isDisabled }
+					onClick={ () => onTimeChange( time - jumpBackTime ) }
+				/>
+			) }
+			
 			<ToolbarButton
 				icon={ state === STATE_PAUSED ? playIcon : pauseIcon }
 				isDisabled={ isDisabled }
@@ -44,12 +46,15 @@ export default function MediaPlayerControl( {
 					return onToggle( STATE_PLAYING );
 				} }
 			/>
-			<ToolbarButton
-				icon={ ControlForwardFiveIcon }
-				isDisabled={ isDisabled }
-				onClick={ () => onTimeChange( time + skipForwardTime ) }
-			/>
 
+			{ skipForwardTime && (
+				<ToolbarButton
+					icon={ ControlForwardFiveIcon }
+					isDisabled={ isDisabled }
+					onClick={ () => onTimeChange( time + skipForwardTime ) }
+				/>
+			) }
+			
 			<ToolbarButton className="media-player-control__current-time">
 				{ convertSecondsToTimeCode( time ) }
 			</ToolbarButton>
