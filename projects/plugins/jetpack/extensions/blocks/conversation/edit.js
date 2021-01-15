@@ -135,7 +135,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 						</PanelBody>
 
 						<PanelBody
-							title={ __( 'Timestamps', 'context' ) }
+							title={ __( 'Timestamps', 'jetpack' ) }
 							className={ `${ baseClassName }__timestamps` }
 						>
 							<ToggleControl
