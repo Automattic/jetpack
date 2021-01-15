@@ -52,7 +52,7 @@ export class DevVersionNotice extends React.Component {
 					showDismiss={ false }
 					text={ __( 'You are currently running a development version of Jetpack.', 'jetpack' ) }
 				>
-					<NoticeAction href={ JETPACK_CONTACT_BETA_SUPPORT }>
+					<NoticeAction href={ JETPACK_CONTACT_BETA_SUPPORT } external={ true }>
 						{ __( 'Submit Beta feedback', 'jetpack' ) }
 					</NoticeAction>
 				</SimpleNotice>
