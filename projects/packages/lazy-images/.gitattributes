@@ -1,9 +1,11 @@
 # Files not needed to be distributed in the package.
-.gitattributes      export-ignore
-package.json        export-ignore
-phpunit.xml.dist    export-ignore
-tests/              export-ignore
-webpack.config.js   export-ignore
+.gitattributes    export-ignore
+.github/          export-ignore
+.gitignore        export-ignore
+package.json      export-ignore
+phpunit.xml.dist  export-ignore
+tests/            export-ignore
+webpack.config.js export-ignore
 
 # Files to include in the mirror repo
 /src/js/intersectionobserver-polyfill.min.js  production-include
