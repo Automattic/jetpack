@@ -20,7 +20,7 @@ fi
 CLOSEST_TAG=$(git describe --tags --abbrev=0)
 
 # Getting a git full version with the prefix and stripping away the prefix
-GIT_SUFFIX=$(git describe --tags | awk -F "$CLOSEST_TAG" '{ print $2; }')
+GIT_SUFFIX=$(git describe --tags --long | awk -F "$CLOSEST_TAG" '{ print $2; }')
 
 normalize_version_number "$PHP_VERSION" 3
 
