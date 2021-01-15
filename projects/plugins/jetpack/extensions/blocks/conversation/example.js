@@ -1,3 +1,9 @@
+/**
+ * WordPress dependencies
+ */
+
+ import { __ } from '@wordpress/i18n';
+
 const participants = [
 	{
 		participantSlug: 'participant-0',
@@ -25,7 +31,10 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 0 ],
-			content: 'O, my dear Orlando, how it grieves me to see thee wear thy heart in a scarf!',
+			content: __(
+				'O, my dear Orlando, how it grieves me to see thee wear thy heart in a scarf!',
+				'jetpack'
+			),
 			timestamp: '00:10',
 		},
 	},
@@ -33,7 +42,10 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 1 ],
-			content: 'It is my arm.',
+			content: __(
+				'It is my arm.',
+				'jetpack'
+			),
 			timestamp: '00:15',
 		},
 	},
@@ -41,7 +53,10 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 0 ],
-			content: 'I thought thy heart had been wounded with the claws of a lion.',
+			content: __(
+				'I thought thy heart had been wounded with the claws of a lion.',
+				'jetpack'
+			),
 			timestamp: '00:32',
 		},
 	},
@@ -49,7 +64,10 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 1 ],
-			content: 'Wounded it is, but with the eyes of a lady.',
+			content: __(
+				'Wounded it is, but with the eyes of a lady.',
+				'jetpack'
+			),
 			timestamp: '00:37',
 		},
 	},
