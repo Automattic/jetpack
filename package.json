@@ -62,7 +62,7 @@
 		"lint": "npm-run-all --parallel lint:*",
 		"lint-changed": "tools/eslint-changed.js --ext .js,.jsx --git",
 		"lint-file": "eslint --ext .js,.jsx",
-		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# tools/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('tools/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && yarn lint --max-warnings=0 --ignore-path .eslintignore-required",
+		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# tools/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('tools/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && yarn lint:js --max-warnings=0 --ignore-path .eslintignore-required",
 		"lint:js": "yarn lint-file .",
 		"lint:scss": "stylelint \"**/*.scss\" --syntax scss",
 		"php:autofix": "composer phpcs:fix",
