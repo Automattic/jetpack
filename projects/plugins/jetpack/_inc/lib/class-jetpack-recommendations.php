@@ -119,7 +119,7 @@ class Jetpack_Recommendations {
 	public static function get_recommendations_data() {
 		self::initialize_jetpack_recommendations();
 
-		return Jetpack_Options::get_option( 'recommendations_data', (object) array() );
+		return Jetpack_Options::get_option( 'recommendations_data', array() );
 	}
 
 	/**
