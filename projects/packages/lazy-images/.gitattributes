@@ -1,4 +1,5 @@
 # Files not needed to be distributed in the package.
+.eslintrc.js      export-ignore
 .gitattributes    export-ignore
 .github/          export-ignore
 .gitignore        export-ignore
