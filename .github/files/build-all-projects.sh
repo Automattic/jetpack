@@ -73,6 +73,12 @@ for project in projects/packages/* projects/plugins/*; do
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
 
+	# Remove monorepo repos from composer.json
+	JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
+		echo "$JSON" > "$BUILD_DIR/composer.json"
+	fi
+
 	echo "Build succeeded!"
 	echo "$GIT_SLUG" >> "$BUILD_BASE/projects.txt"
 done
