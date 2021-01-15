@@ -90,6 +90,7 @@ export class PodcastPlayer extends Component {
 			title,
 			link,
 		} );
+		this.props.playMediaSource( this.props.playerId );
 
 		/*
 		 * Read that we're loading the track and its description. This is
