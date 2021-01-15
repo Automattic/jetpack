@@ -124,8 +124,9 @@
 		"node": "^12.18.0",
 		"yarn": "^1.3.2"
 	},
-{"com_jetpack":  {
-  "test": "test"
+{"com_jetpack":  {,
+  "something": "something",
+  "two": "two"
 }
 }
 }
