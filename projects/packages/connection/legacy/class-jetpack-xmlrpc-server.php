@@ -61,6 +61,7 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
 			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
+			'jetpack.disconnectBlog'   => array( $this, 'disconnect_blog' ),
 		);
 
 		if ( class_exists( 'Jetpack' ) ) {
@@ -76,7 +77,6 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.disconnectBlog'  => array( $this, 'disconnect_blog' ),
 					'jetpack.testAPIUserCode' => array( $this, 'test_api_user_code' ),
 				)
 			);
