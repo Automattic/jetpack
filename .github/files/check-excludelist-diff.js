@@ -8,7 +8,7 @@ const spawnSync = require( 'child_process' ).spawnSync;
 
 const res = spawnSync(
 	'git',
-	[ 'diff', 'bin/eslint-excludelist.json', 'bin/phpcs-excludelist.json' ],
+	[ 'diff', 'tools/eslint-excludelist.json', 'tools/phpcs-excludelist.json' ],
 	{
 		stdio: [ null, 'pipe', 'inherit' ],
 		maxBuffer: Infinity,
@@ -20,20 +20,24 @@ if ( res.status ) {
 }
 
 const diff = parseDiff( res.stdout );
-const lines = [];
+let exit = 0;
 diff.forEach( file => {
+	const lines = [];
+	let anyAdded = false;
 	file.chunks.forEach( chunk => {
+		if ( anyAdded ) {
+			return;
+		}
 		chunk.changes.forEach( c => {
 			let x;
 			switch ( c.type ) {
 				case 'add':
-					console.log( "::error::Huh? There shouldn't be any added lines." );
-					process.exit( 1 );
-					break;
+					anyAdded = true;
+					return;
 				case 'del':
 					x = c.content.replace( /^-\s*|,?\s*$/g, '' );
 					lines.push(
-						`::warning file=${ file.to },line=${ c.ln }::Good job! ${ x } no longer has any lint errors, and should be removed from the exclude list.`
+						`::warning file=${ file.to },line=${ c.ln }::Good job! ${ x } no longer has any lint errors,%0Aand should be removed from the exclude list.`
 					);
 					break;
 				case 'normal':
@@ -41,7 +45,15 @@ diff.forEach( file => {
 			}
 		} );
 	} );
+	if ( anyAdded ) {
+		exit = 1;
+		console.log(
+			`::error file=${ file.to }::When checking for fixed exclusions, CI found added lines.%0AThis probably means you didn't maintain binary sort order when editing this file.%0APlease fix.`
+		);
+	} else if ( lines.length ) {
+		exit = 1;
+		console.log( lines.join( '\n' ) );
+	}
 } );
 
-console.log( lines.join( '\n' ) );
-process.exit( lines.length > 0 );
+process.exit( exit );

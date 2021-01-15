@@ -47,7 +47,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 	This would be the easiest and most straight-forward way to start your journey in Jetpack development. Docker offers a containerized install of WordPress with all of its dependencies installed and set up. You just need to start working on the plugin code. 
 	
-	To set up your environment with Docker, follow the [Docker environment for Jetpack Development guide](../docker/README.md).
+	To set up your environment with Docker, follow the [Docker environment for Jetpack Development guide](../tools/docker/README.md).
 
 * ### VVV
 
