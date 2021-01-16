@@ -194,7 +194,7 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function reset_data() {
 		$this->clear_status();
-		( new Lock() )->remove( self::LOCK_NAME );
+		( new Lock() )->remove( self::LOCK_NAME, true );
 	}
 
 	/**

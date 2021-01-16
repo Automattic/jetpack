@@ -60,11 +60,11 @@ class Lock {
 	 *
 	 * @access public
 	 *
-	 * @param string $name            lock name.
-	 * @param float  $lock_expiration lock expiration.
+	 * @param string     $name                 lock name.
+	 * @param bool|float $lock_expiration lock expiration.
 	 */
-	public function remove( $name, $lock_expiration ) {
-		if ( get_option( self::LOCK_PREFIX . $name ) === (string) $lock_expiration ) {
+	public function remove( $name, $lock_expiration = false ) {
+		if ( true === $lock_expiration || get_option( self::LOCK_PREFIX . $name ) === (string) $lock_expiration ) {
 			delete_option( self::LOCK_PREFIX . $name );
 		}
 	}
