@@ -65,7 +65,7 @@
 		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
 	},
 	"dependencies": {
-		"@automattic/calypso-build": "6.1.0",
+		"@automattic/calypso-build": "6.5.0",
 		"@automattic/calypso-color-schemes": "1.0.0",
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/popup-monitor": "1.0.0",
