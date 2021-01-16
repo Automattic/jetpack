@@ -333,7 +333,7 @@ class Full_Sync_Immediately extends Module {
 		$lock            = new Lock();
 		$lock_expiration = $lock->attempt( self::LOCK_NAME );
 
-		if ( false !== $lock_expiration || ! $this->is_started() || $this->get_status()['finished'] ) {
+		if ( false === $lock_expiration || ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
