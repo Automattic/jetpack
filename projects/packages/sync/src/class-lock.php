@@ -44,6 +44,7 @@ class Lock {
 	public function attempt( $name, $expiry = self::LOCK_TRANSIENT_EXPIRY ) {
 		$name        = self::LOCK_PREFIX . $name;
 		$locked_time = get_option( $name );
+
 		if ( $locked_time ) {
 			if ( microtime( true ) < $locked_time ) {
 				return false;
@@ -64,7 +65,7 @@ class Lock {
 	 * @param bool|float $lock_expiration lock expiration.
 	 */
 	public function remove( $name, $lock_expiration = false ) {
-		if ( true === $lock_expiration || get_option( self::LOCK_PREFIX . $name ) === (string) $lock_expiration ) {
+		if ( true === $lock_expiration || get_option( self::LOCK_PREFIX . $name ) === $lock_expiration ) {
 			delete_option( self::LOCK_PREFIX . $name );
 		}
 	}

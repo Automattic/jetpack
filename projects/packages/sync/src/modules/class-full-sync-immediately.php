@@ -330,14 +330,24 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function continue_sending() {
-		$lock            = new Lock();
-		$lock_expiration = $lock->attempt( self::LOCK_NAME );
-
-		if ( false === $lock_expiration || ! $this->is_started() || $this->get_status()['finished'] ) {
+		// Return early if Full Sync is not running.
+		if ( ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
+		// Obtain send Lock.
+		$lock            = new Lock();
+		$lock_expiration = $lock->attempt( self::LOCK_NAME );
+
+		// Return if unable to obtain lock.
+		if ( false === $lock_expiration ) {
+			return;
+		}
+
+		// Send Full Sync actions.
 		$this->send();
+
+		// Remove lock.
 		$lock->remove( self::LOCK_NAME, $lock_expiration );
 	}
 
