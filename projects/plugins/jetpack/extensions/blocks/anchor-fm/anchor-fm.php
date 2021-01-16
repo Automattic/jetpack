@@ -164,3 +164,15 @@ function process_anchor_params() {
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\process_anchor_params' );
+// Populate the available extensions with anchor-fm.
+add_filter(
+	'jetpack_set_available_extensions',
+	function ( $extensions ) {
+		return array_merge(
+			$extensions,
+			array(
+				'anchor-fm',
+			)
+		);
+	}
+);
