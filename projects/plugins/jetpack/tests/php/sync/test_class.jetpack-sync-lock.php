@@ -25,9 +25,9 @@ class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_remove_lock() {
 		$lock = ( new Lock() )->attempt( 'test' );
-		$this->assertNotFalse( ( new Lock() )->attempt( 'test' ) );
+		$this->assertNotFalse( $lock );
 		( new Lock() )->remove( 'test', $lock );
-		$this->assertTrue( ( new Lock() )->attempt( 'test' ) );
+		$this->assertNotFalse( ( new Lock() )->attempt( 'test' ) );
 	}
 
 	/**
