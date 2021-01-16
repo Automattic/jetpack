@@ -64,7 +64,7 @@ class Lock {
 	 * @param float  $lock_expiration lock expiration.
 	 */
 	public function remove( $name, $lock_expiration ) {
-		if ( get_option( self::LOCK_PREFIX . $name ) === $lock_expiration ) {
+		if ( get_option( self::LOCK_PREFIX . $name ) === (string) $lock_expiration ) {
 			delete_option( self::LOCK_PREFIX . $name );
 		}
 	}
