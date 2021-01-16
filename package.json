@@ -68,7 +68,7 @@
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
-		"reformat-files": "concurrently 'yarn:reformat-files:*'",
+		"reformat-files": "yarn concurrently 'yarn:reformat-files:*'",
 		"reformat-files:js": "yarn prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
 		"reformat-files:scss": "yarn lint:scss --fix",
 		"test-spelling": "mdspell -n -a -x --en-us **/*.md",
