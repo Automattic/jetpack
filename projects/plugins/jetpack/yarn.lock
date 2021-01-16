@@ -13685,10 +13685,10 @@ package-hash@^4.0.0:
     lodash.flattendeep "^4.4.0"
     release-zalgo "^1.0.0"
 
-page@1.7.1:
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/page/-/page-1.7.1.tgz#3886c147b895487783759b37e800a11213bc38ed"
-  integrity sha1-OIbBR7iVSHeDdZs36AChEhO8OO0=
+page@1.11.6:
+  version "1.11.6"
+  resolved "https://registry.yarnpkg.com/page/-/page-1.11.6.tgz#5ef4efc7073749b8085ccdaa0dcd7c9e0de12fe3"
+  integrity sha512-P6e2JfzkBrPeFCIPplLP7vDDiU84RUUZMrWdsH4ZBGJ8OosnwFkcUkBHp1DTIjuipLliw9yQn/ZJsXZvarsO+g==
   dependencies:
     path-to-regexp "~1.2.1"
 
