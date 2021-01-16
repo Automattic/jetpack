@@ -49,9 +49,10 @@ class Lock {
 				return false;
 			}
 		}
-		update_option( $name, microtime( true ) + $expiry );
+		$locked_time = microtime( true ) + $expiry;
+		update_option( $name, $locked_time );
 
-		return true;
+		return $locked_time;
 	}
 
 	/**
@@ -59,9 +60,12 @@ class Lock {
 	 *
 	 * @access public
 	 *
-	 * @param string $name lock name.
+	 * @param string $name            lock name.
+	 * @param float  $lock_expiration lock expiration.
 	 */
-	public function remove( $name ) {
-		delete_option( self::LOCK_PREFIX . $name );
+	public function remove( $name, $lock_expiration ) {
+		if ( get_option( self::LOCK_PREFIX . $name ) === $lock_expiration ) {
+			delete_option( self::LOCK_PREFIX . $name );
+		}
 	}
 }

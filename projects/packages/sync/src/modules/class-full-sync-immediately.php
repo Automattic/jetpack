@@ -330,13 +330,15 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function continue_sending() {
-		if ( ! ( new Lock() )->attempt( self::LOCK_NAME ) || ! $this->is_started() || $this->get_status()['finished'] ) {
+		$lock            = new Lock();
+		$lock_expiration = $lock->attempt( self::LOCK_NAME );
+
+		if ( false !== $lock_expiration || ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
 		$this->send();
-
-		( new Lock() )->remove( self::LOCK_NAME );
+		$lock->remove( self::LOCK_NAME, $lock_expiration );
 	}
 
 	/**
