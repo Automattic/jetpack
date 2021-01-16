@@ -45,10 +45,10 @@
     webpack-cli "3.3.10"
     webpack-rtl-plugin "2.0.0"
 
-"@automattic/calypso-color-schemes@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-1.0.0.tgz#17a14e3257bd90b40e960d624cca4353d4d20c34"
-  integrity sha512-W7r4pgcBauLx65oTLbHKV84ScnfEKmW7T/sXkPfByHhuIE7+OpubmiiBsizWatk1I/puUTmj+SDqEOJMOyRdzA==
+"@automattic/calypso-color-schemes@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-2.1.1.tgz#8dfaf3a9dc73a12583fe8d42e1dfc0b5e2978459"
+  integrity sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==
 
 "@automattic/color-studio@2.3.1":
   version "2.3.1"
