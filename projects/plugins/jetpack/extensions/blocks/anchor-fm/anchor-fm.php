@@ -168,7 +168,7 @@ add_action( 'enqueue_block_assets', __NAMESPACE__ . '\process_anchor_params' );
 add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
-		return array_merge(
+		return array_diff(
 			$extensions,
 			array(
 				'anchor-fm',
