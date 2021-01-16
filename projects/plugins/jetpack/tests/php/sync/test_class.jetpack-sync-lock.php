@@ -18,6 +18,7 @@ class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
 	public function test_request_lock_twice() {
 		$this->assertNotFalse( ( new Lock() )->attempt( 'test' ) );
 		$this->assertFalse( ( new Lock() )->attempt( 'test' ) );
+		( new Lock() )->remove( 'test', true );
 	}
 
 	/**
@@ -28,6 +29,7 @@ class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotFalse( $lock );
 		( new Lock() )->remove( 'test', $lock );
 		$this->assertNotFalse( ( new Lock() )->attempt( 'test' ) );
+		( new Lock() )->remove( 'test', true );
 	}
 
 	/**
@@ -36,6 +38,8 @@ class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
 	public function test_two_locks_different_name() {
 		$this->assertNotFalse( ( new Lock() )->attempt( 'test' ) );
 		$this->assertNotFalse( ( new Lock() )->attempt( 'test2' ) );
+		( new Lock() )->remove( 'test', true );
+		( new Lock() )->remove( 'test2', true );
 	}
 
 	/**
@@ -48,5 +52,7 @@ class WP_Test_Jetpack_Sync_Lock extends WP_Test_Jetpack_Sync_Base {
 		( new Lock() )->remove( 'test', $lock );
 		$this->assertFalse( ( new Lock() )->attempt( 'test2' ) );
 		$this->assertNotFalse( ( new Lock() )->attempt( 'test' ) );
+		( new Lock() )->remove( 'test', true );
+		( new Lock() )->remove( 'test2', true );
 	}
 }
