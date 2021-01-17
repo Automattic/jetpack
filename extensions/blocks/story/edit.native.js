@@ -22,6 +22,7 @@ import {
 	requestMediaFilesUploadCancelDialog,
 	mediaUploadSync,
 	mediaSaveSync,
+	mediaFilesBlockReplaceSync,
 	requestMediaFilesEditorLoad,
 } from '@wordpress/react-native-bridge';
 
@@ -50,9 +51,17 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 
 	useEffect( mediaSaveSync, [] );
 
+	// also sync in case we need to replace this block
+	useEffect( () => {
+		mediaFilesBlockReplaceSync( mediaFiles, clientId );
+	}, [ clientId ] );
+
 	function onEditButtonTapped() {
+		// save an attribute so we can identify this edited block later
+		const updatedMediaFiles = getNewMediaFilesWithBlockEditingId( clientId );
+		setAttributes( { mediaFiles: updatedMediaFiles } );
 		// let's open the Story Creator and load this block in there
-		requestMediaFilesEditorLoad( mediaFiles, clientId );
+		requestMediaFilesEditorLoad( updatedMediaFiles, clientId );
 	}
 
 	// upload state handling methods
@@ -118,6 +127,17 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 					return { ...mediaFile, id: mediaId, url: mediaUrl, link: mediaUrl };
 				}
 				return { ...mediaFile };
+			} );
+			return newMediaFiles;
+		}
+		return mediaFiles;
+	}
+
+	function getNewMediaFilesWithBlockEditingId( tmpEditingId ) {
+		if ( tmpEditingId !== undefined ) {
+			const newMediaFiles = mediaFiles.map( mediaFile => {
+				// we need to deep copy because attributes can't be modified in-place
+				return { ...mediaFile, blockEditingId: tmpEditingId };
 			} );
 			return newMediaFiles;
 		}
