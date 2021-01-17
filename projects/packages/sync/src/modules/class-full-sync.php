@@ -175,8 +175,8 @@ class Full_Sync extends Module {
 	 * @param array $configs Full sync configuration for all sync modules.
 	 */
 	public function continue_enqueuing( $configs = null ) {
-		// Return early if nothing queued.
-		if ( $this->get_status_option( 'queue_finished' ) ) {
+		// Return early if not in progress.
+		if ( ! $this->get_status_option( 'started' ) || $this->get_status_option( 'queue_finished' ) ) {
 			return;
 		}
 
