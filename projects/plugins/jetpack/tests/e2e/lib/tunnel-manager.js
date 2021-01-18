@@ -39,7 +39,14 @@ export default class TunnelManager {
 	}
 
 	async newTunnel( tunnelConfig ) {
-		const tunnel = await localtunnel( tunnelConfig );
+		const creationTimeout = new Promise((resolve) => setTimeout(resolve, 10000, 'timeout'));
+		const tunnelPromise = localtunnel( tunnelConfig );
+		const result = await Promise.race([tunnel, creationTimeout])
+		if ( result == 'timeout' ) {
+			throw new Error( 'Localtunnel: timeout creating new tunnel' )
+		}
+		const tunnel = result;
+
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		tunnel.on( 'close', () => {
