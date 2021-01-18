@@ -41,7 +41,7 @@ export default class TunnelManager {
 	async newTunnel( tunnelConfig ) {
 		const creationTimeout = new Promise((resolve) => setTimeout(resolve, 10000, 'timeout'));
 		const tunnelPromise = localtunnel( tunnelConfig );
-		const result = await Promise.race([tunnel, creationTimeout])
+		const result = await Promise.race([tunnelPromise, creationTimeout])
 		if ( result == 'timeout' ) {
 			throw new Error( 'Localtunnel: timeout creating new tunnel' )
 		}
