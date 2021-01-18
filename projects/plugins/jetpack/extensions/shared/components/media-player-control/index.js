@@ -8,7 +8,7 @@ import classnames from 'classnames';
  */
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -77,6 +77,7 @@ export function MediaPlayerControl( {
 					icon={ backFiveIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => setCurrentTime( customTimeToPlay - jumpBackTime ) }
+					label={ __( 'Jump back', 'jetpack' ) }
 				/>
 			) }
 
@@ -84,6 +85,7 @@ export function MediaPlayerControl( {
 				icon={ playerState === STATE_PAUSED ? playIcon : pauseIcon }
 				isDisabled={ isDisabled }
 				onClick={ togglePlayer }
+				label={ __( 'Play', 'jetpack' ) }
 			/>
 
 			{ customTimeToPlay !== false && (
@@ -91,6 +93,7 @@ export function MediaPlayerControl( {
 					icon={ ControlPlayInTimeIcon }
 					isDisabled={ isDisabled }
 					onClick={ playPlayerInCustomTime }
+					label={ __( 'Play in custom time', 'jetpack' ) }
 				/>
 			) }
 
@@ -99,6 +102,7 @@ export function MediaPlayerControl( {
 					icon={ forwardFiveIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => setCurrentTime( customTimeToPlay + skipForwardTime ) }
+					label={ __( 'Skip forward', 'jetpack' ) }
 				/>
 			) }
 
