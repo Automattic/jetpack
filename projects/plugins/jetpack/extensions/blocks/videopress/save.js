@@ -50,6 +50,9 @@ const VideoPressSave = CoreVideoSave => props => {
 		muted,
 		poster,
 		preload,
+		seekbarColor,
+		seekbarPlayedColor,
+		seekbarLoadingColor,
 	} );
 
 	return (
