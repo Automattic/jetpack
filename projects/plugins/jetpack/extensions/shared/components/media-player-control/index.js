@@ -23,7 +23,7 @@ import { convertSecondsToTimeCode } from './utils';
 
 function noop () {}
 
-export default function MediaPlayerControl( {
+export function MediaPlayerControl( {
 	skipForwardTime = 5,
 	jumpBackTime = 5,
 	customTimeToPlay,
@@ -67,7 +67,7 @@ export default function MediaPlayerControl( {
 	}
 
 	return (
-		<ToolbarGroup>
+		<>
 			{ jumpBackTime !== false && (
 				<ToolbarButton
 					icon={ backFiveIcon }
@@ -108,6 +108,14 @@ export default function MediaPlayerControl( {
 			>
 				{ timeInFormat }
 			</div>
+		</>
+	);
+}
+
+export function MediaPlayerToolbarControl( props ) {
+	return (
+		<ToolbarGroup>
+			<MediaPlayerControl { ...props } />
 		</ToolbarGroup>
 	);
 }
