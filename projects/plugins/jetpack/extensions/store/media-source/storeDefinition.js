@@ -17,6 +17,14 @@ const actions = {
 		};
 	},
 
+	updateMediaSourceData( id, data ) {
+		return {
+			type: 'UPDATE_MEDIA_SOURCE_DATA',
+			id,
+			data,
+		};
+	},
+
 	unregisterMediaSource( id ) {
 		return {
 			type: 'UNREGISTER_MEDIA_SOURCE',
@@ -79,8 +87,6 @@ const actions = {
 	}
 };
 
-actions.updateMediaSourceData = actions.registerMediaSource;
-
 const selectors = {
 	getDefaultMediaSource( state ) {
 		let playerId = null;
@@ -137,6 +143,19 @@ const storeDefinition = {
 							id: action.id,
 							...action.mediaSourceState,
 						},
+					},
+				};
+			}
+
+			case 'UPDATE_MEDIA_SOURCE_DATA': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							...action.data,
+						}
 					},
 				};
 			}
