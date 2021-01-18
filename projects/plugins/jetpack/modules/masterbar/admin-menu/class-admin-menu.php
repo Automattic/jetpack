@@ -282,7 +282,7 @@ class Admin_Menu {
 		 */
 		$ptype_menu_position = is_int( $ptype_obj->menu_position ) ? $ptype_obj->menu_position : ++$GLOBALS['_wp_last_object_menu'];
 		$core_menu_positions = array( 59, 60, 65, 70, 75, 80, 85, 99 );
-		while ( isset( $menu[ $ptype_menu_position ] ) || in_array( $ptype_menu_position, $core_menu_positions, true ) ) {
+		while ( isset( $GLOBALS['menu'][ $ptype_menu_position ] ) || in_array( $ptype_menu_position, $core_menu_positions, true ) ) {
 			$ptype_menu_position++;
 		}
 
