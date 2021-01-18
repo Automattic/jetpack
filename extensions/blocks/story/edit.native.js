@@ -57,11 +57,8 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 	}, [ clientId ] );
 
 	function onEditButtonTapped() {
-		// save an attribute so we can identify this edited block later
-		const updatedMediaFiles = getNewMediaFilesWithBlockEditingId( clientId );
-		setAttributes( { mediaFiles: updatedMediaFiles } );
 		// let's open the Story Creator and load this block in there
-		requestMediaFilesEditorLoad( updatedMediaFiles, clientId );
+		requestMediaFilesEditorLoad( mediaFiles, clientId );
 	}
 
 	// upload state handling methods
@@ -127,17 +124,6 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 					return { ...mediaFile, id: mediaId, url: mediaUrl, link: mediaUrl };
 				}
 				return { ...mediaFile };
-			} );
-			return newMediaFiles;
-		}
-		return mediaFiles;
-	}
-
-	function getNewMediaFilesWithBlockEditingId( tmpEditingId ) {
-		if ( tmpEditingId !== undefined ) {
-			const newMediaFiles = mediaFiles.map( mediaFile => {
-				// we need to deep copy because attributes can't be modified in-place
-				return { ...mediaFile, blockEditingId: tmpEditingId };
 			} );
 			return newMediaFiles;
 		}
