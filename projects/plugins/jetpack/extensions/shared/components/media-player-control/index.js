@@ -13,7 +13,11 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import './style.scss';
-import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
+import {
+	ControlBackFiveIcon,
+	ControlForwardFiveIcon,
+	ControlPlayInTimeIcon,
+} from '../../icons';
 import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { convertSecondsToTimeCode } from './utils';
 
@@ -22,6 +26,7 @@ function noop () {}
 export default function MediaPlayerControl( {
 	skipForwardTime = 5,
 	jumpBackTime = 5,
+	customTimeToPlay,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
 	backFiveIcon = ControlBackFiveIcon,
@@ -49,8 +54,17 @@ export default function MediaPlayerControl( {
 	const timeInFormat = convertSecondsToTimeCode( playerCurrentTime );
 	const isDisabled = ! defaultMediaSource;
 
-	const { toggleMediaSource } = useDispatch( STORE_ID );
+	const {
+		toggleMediaSource,
+		playMediaSource,
+		setMediaSourceCurrentTime,
+	} = useDispatch( STORE_ID );
 	const togglePlayer = () => toggleMediaSource( defaultMediaSource.id );
+
+	function playPlayerInCustomTime() {
+		setMediaSourceCurrentTime( defaultMediaSource.id, customTimeToPlay );
+		playMediaSource( defaultMediaSource.id );
+	}
 
 	return (
 		<ToolbarGroup>
@@ -67,6 +81,14 @@ export default function MediaPlayerControl( {
 				isDisabled={ isDisabled }
 				onClick={ togglePlayer }
 			/>
+
+			{ customTimeToPlay !== false && (
+				<ToolbarButton
+					icon={ ControlPlayInTimeIcon }
+					isDisabled={ isDisabled }
+					onClick={ playPlayerInCustomTime }
+				/>
+			) }
 
 			{ skipForwardTime && (
 				<ToolbarButton
