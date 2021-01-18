@@ -16,7 +16,6 @@ import { withDispatch, withSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import {
-	STATE_PLAYING,
 	STATE_ERROR,
 	STATE_PAUSED,
 	STORE_ID,
@@ -84,11 +83,10 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-
 		this.setState( { currentTrack: track } );
 
 		const { title, link } = this.getTrack( track );
-		this.props.updateMediaSourceData( this.props.playerId, { 
+		this.props.updateMediaSourceData( this.props.playerId, {
 			title,
 			link,
 		} );
@@ -363,7 +361,7 @@ export default compose( [
 
 		return {
 			currentTime: getMediaSourceCurrentTime( playerId ),
-			playerState: getMediaPlayerState( playerId ,)
+			playerState: getMediaPlayerState( playerId )
 		};
 	} ),
 	withDispatch( dispatch => {

@@ -1,4 +1,3 @@
-/* global jetpackPodcastPlayers */
 
 /**
  * External dependencies
