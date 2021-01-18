@@ -110,9 +110,12 @@ class Jetpack_Options {
 			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
 			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
 			'first_admin_view',             // (bool)   Set to true the first time the user views the admin. Usually after the initial connection.
-			'setup_wizard_questionnaire',   // (array)  List of user choices from the setup wizard.
-			'setup_wizard_status',          // (string) Status of the setup wizard.
+			'setup_wizard_questionnaire',   // (array)  (DEPRECATED) List of user choices from the setup wizard.
+			'setup_wizard_status',          // (string) (DEPRECATED) Status of the setup wizard.
 			'licensing_error',              // (string) Last error message occurred while attaching licenses that is yet to be surfaced to the user.
+			'recommendations_data',         // (array)  The user choice and other data for the recommendations.
+			'recommendations_enabled',      // (bool)   Whether the recommendations are enabled or not.
+			'recommendations_step',         // (string) The current step of the recommendations.
 		);
 	}
 
