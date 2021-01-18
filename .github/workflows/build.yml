@@ -119,7 +119,11 @@ jobs:
     name: Push to mirror repos
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/master'
+    if: >
+      # Always mirror master
+      github.ref == 'refs/heads/master' ||
+      # Branches matching `*/branch-*` are conditionally mirrored. See .github/files/push-all-projects.sh.
+      contains( github.ref, '/branch-' )
     steps:
       - uses: actions/checkout@v2
         with:
