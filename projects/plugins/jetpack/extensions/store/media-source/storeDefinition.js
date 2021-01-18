@@ -77,6 +77,7 @@ const selectors = {
 	getDefaultMediaSource( state ) {
 		let playerId = null;
 		const keys = Object.keys( state.players );
+
 		if ( state.default ) {
 			playerId = state.default;
 		} else if ( keys?.length ) {
@@ -91,21 +92,19 @@ const selectors = {
 	},
 
 	getMediaPlayerState( state, id ) {
-		if ( ! id ) {
-			const defaultMediaSource = selectors.getDefaultMediaSource( state );
-			return defaultMediaSource?.state;
-		}
+		const defaultMediaSource = id
+			? state.players?.[ id ]
+			: selectors.getDefaultMediaSource( state );
 
-		return state.players?.[ id ]?.state;
+		return defaultMediaSource?.state;
 	},
 
 	getMediaSourceCurrentTime( state, id ) {
-		if ( ! id ) {
-			const defaultMediaSource = selectors.getDefaultMediaSource( state );
-			return defaultMediaSource?.currentTime;
-		}
+		const defaultMediaSource = id
+			? state.players?.[ id ]
+			: selectors.getDefaultMediaSource( state );
 
-		return state.players?.[ id ]?.currentTime;
+		return defaultMediaSource?.currentTime;
 	},
 };
 
