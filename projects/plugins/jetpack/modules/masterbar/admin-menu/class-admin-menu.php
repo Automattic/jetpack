@@ -450,15 +450,12 @@ class Admin_Menu {
 		remove_menu_page( $admin_slug );
 		remove_submenu_page( $admin_slug, $admin_slug );
 		remove_submenu_page( $admin_slug, 'import.php' );
-		remove_submenu_page( $admin_slug, 'export.php' );
 		remove_submenu_page( $admin_slug, 'delete-blog' );
 
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-admin-tools', 75 );
 		add_submenu_page( $menu_slug, esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'https://wordpress.com/import/' . $this->domain, null, 15 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'https://wordpress.com/export/' . $this->domain, null, 20 );
 
 		$this->migrate_submenus( $admin_slug, $menu_slug );
-
 	}
 
 	/**

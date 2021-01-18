@@ -449,8 +449,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$export_submenu_item = array(
 			'Export',
 			'export',
-			'https://wordpress.com/export/' . static::$domain,
-			'Export',
+			'export.php',
 		);
 		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
 
@@ -469,13 +468,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			'import.php',
 		);
 		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
-
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'export.php',
-		);
-		$this->assertNotContains( $export_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
