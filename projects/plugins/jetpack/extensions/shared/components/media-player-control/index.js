@@ -74,17 +74,15 @@ export default function MediaPlayerControl( {
 				/>
 			) }
 
-			<ToolbarButton>
-				<div
-					className={ classnames(
-						'media-player-control__current-time', {
-							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
-						}
-					) }
-				>
-					{ timeInFormat }
-				</div>
-			</ToolbarButton>
+			<div
+				className={ classnames(
+					'media-player-control__current-time', {
+						[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
+					}
+				) }
+			>
+				{ timeInFormat }
+			</div>
 		</ToolbarGroup>
 	);
 }
