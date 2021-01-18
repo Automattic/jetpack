@@ -129,6 +129,15 @@ const selectors = {
 
 		return state.players?.[ id ]?.syncMode;
 	},
+
+	getMediaSourceDuration( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.duration;
+		}
+
+		return state.players?.[ id ]?.duration;
+	},
 };
 
 const storeDefinition = {
