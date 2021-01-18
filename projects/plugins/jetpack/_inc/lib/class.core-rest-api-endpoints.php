@@ -619,6 +619,66 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		register_rest_route(
+			'jetpack/v4',
+			'/recommendations/data',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_data',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_recommendations_data',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+					'args'                => array(
+						'data' => array(
+							'required'          => true,
+							'type'              => 'object',
+							'validate_callback' => __CLASS__ . '::validate_recommendations_data',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/recommendations/step',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_step',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_recommendations_step',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+					'args'                => array(
+						'step' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/recommendations/upsell',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_recommendations_upsell',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+			)
+		);
+
 		/*
 		 * Get and update the last licensing error message.
 		 */
@@ -705,6 +765,87 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Get the data for the recommendations
+	 *
+	 * @return array Recommendations data
+	 */
+	public static function get_recommendations_data() {
+		return Jetpack_Recommendations::get_recommendations_data();
+	}
+
+	/**
+	 * Update the data for the recommendations
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true
+	 */
+	public static function update_recommendations_data( $request ) {
+		$data = $request['data'];
+		Jetpack_Recommendations::update_recommendations_data( $data );
+
+		return true;
+	}
+
+	/**
+	 * Get the data for the recommendations
+	 *
+	 * @return array Recommendations data
+	 */
+	public static function get_recommendations_step() {
+		return Jetpack_Recommendations::get_recommendations_step();
+	}
+
+	/**
+	 * Update the step for the recommendations
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true
+	 */
+	public static function update_recommendations_step( $request ) {
+		$step = $request['step'];
+		Jetpack_Recommendations::update_recommendations_step( $step );
+
+		return true;
+	}
+
+	/**
+	 * Get the upsell for the recommendations
+	 *
+	 * @return string The response from the wpcom upsell endpoint as a JSON object
+	 */
+	public static function get_recommendations_upsell() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
+		}
+
+		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			$request_path,
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	/**
 	 * Validate the answers on the setup wizard questionnaire
 	 *
 	 * @param array           $value Value to check received by request.
@@ -721,6 +862,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		foreach ( $value as $answer_key => $answer ) {
 			if ( is_string( $answer ) ) {
+				$validate = self::validate_string( $answer, $request, $param );
+			} else {
+				$validate = self::validate_boolean( $answer, $request, $param );
+			}
+
+			if ( is_wp_error( $validate ) ) {
+				return $validate;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validate the recommendations data
+	 *
+	 * @param array           $value Value to check received by request.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_recommendations_data( $value, $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			/* translators: Name of a parameter that must be an object */
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
+		}
+
+		foreach ( $value as $answer ) {
+			if ( is_array( $answer ) ) {
+				$validate = self::validate_array_of_strings( $answer, $request, $param );
+			} elseif ( is_string( $answer ) ) {
 				$validate = self::validate_string( $answer, $request, $param );
 			} else {
 				$validate = self::validate_boolean( $answer, $request, $param );
@@ -1590,10 +1763,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_user_connection_data() {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php' );
 
+		$connection_owner   = ( new Connection_Manager() )->get_connection_owner();
+		$owner_display_name = false === $connection_owner ? null : $connection_owner->data->display_name;
+
 		$response = array(
-//			'othersLinked'    => Jetpack::get_other_linked_admins(),
 			'currentUser'     => jetpack_current_user_data(),
-			'connectionOwner' => ( new Connection_Manager() )->get_connection_owner()->data->display_name,
+			'connectionOwner' => $owner_display_name,
 		);
 		return rest_ensure_response( $response );
 	}
@@ -3085,6 +3260,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! is_string( $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
 		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is an array of strings.
+	 *
+	 * @param array           $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to the endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_array_of_strings( $value, $request, $param ) {
+		foreach ( $value as $array_item ) {
+			$validate = self::validate_string( $array_item, $request, $param );
+			if ( is_wp_error( $validate ) ) {
+				return $validate;
+			}
+		}
+
 		return true;
 	}
 

@@ -18,6 +18,7 @@ import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 import { isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
@@ -56,6 +57,42 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	'videoPressNoPlanMediaPlaceholder'
 );
 
+/**
+ * Gutenberg introduced a change that causes a `wp-block-video` class to be
+ * applied to the block via the `blocks.getSaveContent.extraProps` hook. This
+ * results in all prior deprecations being unable to generate what was
+ * previously valid content.
+ *
+ * This filter removes that introduced class so the deprecations can produce
+ * content that matches the originally saved post content and successfully
+ * migrate deprecated blocks to the current version.
+ *
+ * @param   {object} props      - Additional props applied to the save element.
+ * @param   {object} blockType  - Block type definition.
+ * @param   {object} attributes - Block's attributes.
+ * @returns {object}            - Filtered props applied to the save element.
+ */
+const preventBlockClassOnDeprecations = ( props, blockType, attributes ) => {
+	// Skip manipulating the block's className prop if:
+	// - Not a video block
+	// - Is a placeholder video block ( no guid )
+	// - Already has wp-block-video CSS class ( block was added after Gutenberg change )
+	// - Block has been migrated ( previous bug meant videoPressClassNames was undefined )
+	if (
+		blockType.name !== 'core/video' ||
+		! attributes.guid ||
+		attributes.className?.indexOf( 'wp-block-video' ) >= 0 ||
+		attributes.videoPressClassNames
+	) {
+		return props;
+	}
+
+	// Prevent `wp-block-video` class being applied.
+	props.className = props.className.replace( 'wp-block-video', '' ).trim();
+
+	return props;
+};
+
 const addVideoPressSupport = ( settings, name ) => {
 	// Bail if this is not the video block or if the hook has been triggered by a deprecation.
 	if ( 'core/video' !== name || settings.isDeprecation ) {
@@ -74,6 +111,13 @@ const addVideoPressSupport = ( settings, name ) => {
 			withHasWarningIsInteractiveClassNames( `core/video` )
 		);
 	}
+
+	addFilter(
+		'blocks.getSaveContent.extraProps',
+		'jetpack/videopress',
+		preventBlockClassOnDeprecations,
+		20
+	);
 
 	// We customize the video block even if VideoPress it not available so we can support videos that were uploaded to
 	// VideoPress if it was available in the past (i.e. before a plan downgrade).
@@ -120,6 +164,9 @@ const addVideoPressSupport = ( settings, name ) => {
 					default: 'metadata',
 				},
 				src: {
+					type: 'string',
+				},
+				videoPressClassNames: {
 					type: 'string',
 				},
 			},
@@ -172,6 +219,7 @@ const addVideoPressSupport = ( settings, name ) => {
 					supports,
 					isDeprecation: true,
 				},
+				deprecatedV2,
 				deprecatedV1,
 			],
 		};

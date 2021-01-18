@@ -1,26 +1,11 @@
 #!/bin/bash
 
-git_setup()
-{
-  cat <<- EOF > "$HOME/.netrc"
-		machine github.com
-			login matticbot
-			password $GITHUB_TOKEN
-		machine api.github.com
-			login matticbot
-			password $GITHUB_TOKEN
-EOF
-  chmod 600 "$HOME/.netrc"
-
-  git config --global user.email "matticbot@users.noreply.github.com"
-  git config --global user.name "matticbot"
-}
-
 # Halt on error
 set -eo pipefail
 
 if [[ -n "$CI" ]]; then
-	git_setup
+	git config --global user.name "$USER_NAME"
+	git config --global user.email "${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
 fi
 
 if [[ -z "$BUILD_BASE" ]]; then
@@ -55,7 +40,7 @@ while read -r GIT_SLUG; do
 	cd "${CLONE_DIR}"
 
 	# Check if a remote exists for that project.
-	if git ls-remote --exit-code -h "https://github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
+	if git ls-remote --exit-code -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
 		:
 	else
 		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
@@ -65,7 +50,7 @@ while read -r GIT_SLUG; do
 	# Initialize the directory as a git repo, and set the remote
 	echo "::group::Fetching ${GIT_SLUG}"
 	git init -b "$BRANCH" .
-	git remote add origin "https://github.com/${GIT_SLUG}.git"
+	git remote add origin "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git"
 	FORCE_COMMIT=
 	if git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$BRANCH"; then
 		:
