@@ -268,7 +268,7 @@ class MembershipsButtonEdit extends Component {
 		);
 		const minimumPriceNote = sprintf(
 			/* translators: placeholder is a price. */
-			__( 'Minimum allowed price is %s.' ),
+			__( 'Minimum allowed price is %s.', 'jetpack' ),
 			minPrice
 		);
 		return (

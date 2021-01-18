@@ -15,13 +15,14 @@ import { speak } from '@wordpress/a11y';
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
+// MediaElement global settings.
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
@@ -72,7 +73,6 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		// Initialize MediaElement.js.
 		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
 
 		// Add the skip and jump buttons if needed
@@ -130,11 +130,15 @@ function AudioPlayer( {
 		}
 		//Add time change event listener
 		const audio = audioRef.current;
-		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000 );
+		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000, {
+			leading: true,
+			trailing: false,
+		} );
 		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
+			throttledTimeChange.cancel();
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
 	}, [ audioRef, onTimeChange ] );

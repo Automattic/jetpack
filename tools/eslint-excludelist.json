@@ -144,7 +144,6 @@
 	"projects/plugins/jetpack/extensions/blocks/opentable/use-restaurant-search.js",
 	"projects/plugins/jetpack/extensions/blocks/pinterest/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/podcast-player/utils.js",
-	"projects/plugins/jetpack/extensions/blocks/podcast-player/view.js",
 	"projects/plugins/jetpack/extensions/blocks/publicize/connection-verify.js",
 	"projects/plugins/jetpack/extensions/blocks/publicize/form-unwrapped.js",
 	"projects/plugins/jetpack/extensions/blocks/publicize/form.js",
