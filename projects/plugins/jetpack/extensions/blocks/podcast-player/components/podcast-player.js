@@ -184,6 +184,14 @@ export class PodcastPlayer extends Component {
 		);
 	};
 
+	updateMediaData = ( event ) => {
+		this.props.updateMediaSourceData(
+			this.props.playerId, {
+				duration: event.target.duration,
+			}
+		);
+	}
+
 	componentDidMount() {
 		const { playerId } = this.props;
 		if ( ! playerId ) {
@@ -296,6 +304,7 @@ export class PodcastPlayer extends Component {
 						playStatus={ playerState }
 						currentTime	={ currentTime }
 						onTimeChange={ this.handleTimeChange }
+						onMetadataLoaded={ this.updateMediaData }
 					/>
 				</Header>
 
