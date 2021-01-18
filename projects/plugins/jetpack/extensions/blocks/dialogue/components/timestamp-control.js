@@ -110,6 +110,7 @@ export function TimestampControl( { value, className, onChange, shortLabel = fal
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
+					syncMode={ true }
 				/>
 			</div>
 		</div>
