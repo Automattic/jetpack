@@ -111,6 +111,7 @@ export function TimestampControl( { value, className, onChange, shortLabel = fal
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
 					syncMode={ true }
+					progressBar={ true }
 				/>
 			</div>
 		</div>
