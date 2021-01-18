@@ -6,8 +6,8 @@ import { waitAndClick, waitForSelector } from '../../page-helper';
 
 export default class InPlaceAuthorizeFrame extends Page {
 	constructor( page ) {
-		super( page );
-		this.expectedSelector = 'iframe.jp-jetpack-connect__iframe';
+		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
+		super( page, { expectedSelector });
 	}
 
 	static async init( page ) {
