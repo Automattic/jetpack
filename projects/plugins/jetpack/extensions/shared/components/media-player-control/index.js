@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -71,18 +71,30 @@ export function MediaPlayerControl( {
 		toggleMediaSource( defaultMediaSource.id );
 	}
 
+	function setPlayerCurrentTime( time ) {
+		setMediaSourceCurrentTime( defaultMediaSource.id, time );
+	}
+
 	function setSyncMode( enabled ) {
 		setMediaSourceSyncMode( defaultMediaSource.id, enabled );
 	}
 
 	function playPlayerInCustomTime() {
-		setMediaSourceCurrentTime( defaultMediaSource.id, customTimeToPlay );
+		setPlayerCurrentTime( customTimeToPlay );
 		playMediaSource( defaultMediaSource.id );
 	}
 
 	function setCurrentTime( time ) {
 		onTimeChange( time );
 	}
+
+	useEffect( () => {
+		if ( ! syncModeEnabled ) {
+			return;
+		}
+
+		onTimeChange( playerCurrentTime );
+	}, [ syncModeEnabled, playerCurrentTime, onTimeChange ] );
 
 	return (
 		<>
@@ -125,6 +137,7 @@ export function MediaPlayerControl( {
 					icon={ syncModeEnabled ? ControlUnsyncIcon : ControlSyncIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => setSyncMode( ! syncModeEnabled ) }
+					label={ __( 'Keep in-sync mode', 'jetpack' ) }
 				/>
 			) }
 
