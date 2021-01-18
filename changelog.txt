@@ -2,9 +2,17 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.3.2 =
+
+* Release date: January 19, 2021
+
+**Enhancements**
+
+* Synchronization: improvements to the way data is synchronized back to WordPress.com.
+
 = 9.3.1 =
 
-* Release date:
+* Release date: January 14, 2021
 
 **Bug fixes**
 

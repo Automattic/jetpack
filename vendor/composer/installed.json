@@ -865,27 +865,27 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.19.1",
-            "version_normalized": "1.19.1.0",
+            "version": "v1.19.4",
+            "version_normalized": "1.19.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "25f3e1723230922f6a396e1184a2f17a6ec82f72"
+                "reference": "2748a94b6731a1bf757824737f31ee3088ff8871"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/25f3e1723230922f6a396e1184a2f17a6ec82f72",
-                "reference": "25f3e1723230922f6a396e1184a2f17a6ec82f72",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/2748a94b6731a1bf757824737f31ee3088ff8871",
+                "reference": "2748a94b6731a1bf757824737f31ee3088ff8871",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-options": "@dev",
-                "automattic/jetpack-roles": "@dev",
-                "automattic/jetpack-status": "@dev"
+                "automattic/jetpack-connection": "1.22.0",
+                "automattic/jetpack-constants": "1.6.0",
+                "automattic/jetpack-options": "1.10.0",
+                "automattic/jetpack-roles": "1.4.0",
+                "automattic/jetpack-status": "1.7.0"
             },
-            "time": "2020-12-17T15:07:20+00:00",
+            "time": "2021-01-18T17:35:29+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -899,7 +899,7 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-sync/tree/v1.19.1"
+                "source": "https://github.com/Automattic/jetpack-sync/tree/v1.19.4"
             },
             "install-path": "../automattic/jetpack-sync"
         },
