@@ -2,14 +2,15 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { ToolbarGroup, ToolbarButton, RangeControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect, useCallback, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -36,10 +37,12 @@ export function MediaPlayerControl( {
 	backFiveIcon = ControlBackFiveIcon,
 	forwardFiveIcon = ControlForwardFiveIcon,
 	onTimeChange = noop,
+	progressBar = false,
 } ) {
 	const {
 		playerState,
-		playerCurrentTime,
+		mediaCurrentTime,
+		mediaDuration,
 		defaultMediaSource,
 		syncModeEnabled,
 	} = useSelect( select => {
@@ -48,16 +51,22 @@ export function MediaPlayerControl( {
 			getMediaPlayerState,
 			getMediaSourceSyncMode,
 			getDefaultMediaSource,
+			getMediaSourceDuration,
 		} = select( STORE_ID );
 
 		return {
 			playerState: getMediaPlayerState(),
-			playerCurrentTime: getMediaSourceCurrentTime(),
+			mediaCurrentTime: getMediaSourceCurrentTime(),
+			mediaDuration: getMediaSourceDuration(),
 			syncModeEnabled: getMediaSourceSyncMode(),
 			defaultMediaSource: getDefaultMediaSource(),
 		};
 	}, [] );
-	const timeInFormat = convertSecondsToTimeCode( playerCurrentTime );
+
+	const [ progressBarValue, setProgressBarValue ] = useState( 0 );
+	const [ isInSyncBlocked, blockInSync ] = useState( false );
+
+	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
 
 	const {
@@ -71,6 +80,10 @@ export function MediaPlayerControl( {
 		toggleMediaSource( defaultMediaSource.id );
 	}
 
+	function playPlayer() {
+		playMediaSource( defaultMediaSource.id );
+	}
+
 	function setPlayerCurrentTime( time ) {
 		setMediaSourceCurrentTime( defaultMediaSource.id, time );
 	}
@@ -81,7 +94,8 @@ export function MediaPlayerControl( {
 
 	function playPlayerInCustomTime() {
 		setPlayerCurrentTime( customTimeToPlay );
-		playMediaSource( defaultMediaSource.id );
+		setProgressBarValue( customTimeToPlay ); // <- update currebt bar immediately.
+		playPlayer();
 	}
 
 	function setCurrentTime( time ) {
@@ -101,12 +115,22 @@ export function MediaPlayerControl( {
 	 * Syncornize player current time with block property.
 	 */
 	useEffect( () => {
-		if ( ! syncModeEnabled || playerState !== STATE_PLAYING ) {
+		if ( isInSyncBlocked ) {
 			return;
 		}
 
-		onTimeChange( playerCurrentTime );
-	}, [ syncModeEnabled, playerCurrentTime, onTimeChange, playerState ] );
+		if ( playerState !== STATE_PLAYING ) {
+			return;
+		}
+
+		setProgressBarValue( mediaCurrentTime );
+
+		if ( ! syncModeEnabled ) {
+			return;
+		}
+
+		onTimeChange( mediaCurrentTime );
+	}, [ syncModeEnabled, mediaCurrentTime, onTimeChange, playerState, isInSyncBlocked ] );
 
 	return (
 		<>
@@ -163,6 +187,27 @@ export function MediaPlayerControl( {
 			>
 				{ timeInFormat }
 			</div>
+
+			{ progressBar && (
+				<>
+					<div className="break" />
+					<RangeControl
+						value={ progressBarValue }
+						className="media-player-control__progress-bar"
+						min={ 0 }
+						max={ mediaDuration }
+						onChange={ setProgressBarValue }
+						withInputField={ false }
+						disabled={ isDisabled || ! mediaDuration }
+						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+						onMouseDown={ () => blockInSync( true ) }
+						onMouseUp={ () => {
+							setPlayerCurrentTime( progressBarValue );
+							blockInSync( false );
+						} }
+					/>
+				</>
+			) }
 		</>
 	);
 }

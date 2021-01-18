@@ -1,6 +1,5 @@
 @import '../../../shared/styles/gutenberg-base-styles.scss';
 
-
 .media-player-control__current-time {
     display: flex;
     align-items: center;
@@ -17,9 +16,14 @@
 .wp-block-jetpack-dialogue__timestamp-player {
 	display: flex;
     margin-top: 10px;
-	justify-content: center;
+    justify-content: center;
+    flex-wrap: wrap;
 
 	button {
 		padding: 0;
 	}
+}
+
+.media-player-control__progress-bar {
+    width: 100%;    
 }
