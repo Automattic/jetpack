@@ -1,0 +1,34 @@
+@import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/calypso-colors';
+
+.jp-checkbox-answer__container {
+	display: flex;
+
+	box-sizing: border-box;
+	border: 1px solid $gray-lighten-20;
+	border-radius: 4px;
+
+	cursor: pointer;
+
+	&.checked {
+		background: #f8fbff;
+		border: 1px solid $blue-medium;
+	}
+
+	@include breakpoint( '<480px' ) {
+		margin-bottom: 8px;
+	}
+}
+
+.jp-checkbox-answer__title {
+	width: 100%;
+	padding: 15px 0;
+}
+
+.jp-checkbox-answer__checkbox {
+	margin: 16px 8px 16px 16px;
+}
+
+.jp-checkbox-answer__info {
+	padding: 16px 16px 16px 0;
+}

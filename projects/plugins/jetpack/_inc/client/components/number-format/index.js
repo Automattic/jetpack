@@ -33,7 +33,7 @@ export const cleanLocale = locale => {
  *
  * @returns {string} Formatted user locale (e.g. `en-US` or `fr-FR`).
  */
-const getUserLocale = () => {
+export const getUserLocale = () => {
 	const {
 		l10n: { locale },
 	} = __experimentalGetSettings();
