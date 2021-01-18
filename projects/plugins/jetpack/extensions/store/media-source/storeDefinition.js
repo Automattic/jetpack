@@ -69,6 +69,14 @@ const actions = {
 			currentTime,
 		};
 	},
+
+	setMediaSourceSyncMode( id, syncMode ) {
+		return {
+			type: 'SET_MEDIA_PLAYER_SYNC_MODE',
+			id,
+			syncMode,
+		};
+	}
 };
 
 actions.updateMediaSourceData = actions.registerMediaSource;
@@ -105,6 +113,15 @@ const selectors = {
 			: selectors.getDefaultMediaSource( state );
 
 		return defaultMediaSource?.currentTime;
+	},
+
+	getMediaSourceSyncMode( state, id ) {
+		if ( ! id ) {
+			const defaultMediaSource = selectors.getDefaultMediaSource( state );
+			return defaultMediaSource?.syncMode;
+		}
+
+		return state.players?.[ id ]?.syncMode;
 	},
 };
 
@@ -180,6 +197,19 @@ const storeDefinition = {
 						[ action.id ]: {
 							...state.players[ action.id ],
 							currentTime: action.currentTime,
+						},
+					},
+				};
+			}
+
+			case 'SET_MEDIA_PLAYER_SYNC_MODE': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							syncMode: action.syncMode,
 						},
 					},
 				};
