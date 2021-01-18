@@ -36,7 +36,7 @@ import {
 	list as defaultParticipants,
 } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
-import MediaPlayerControl from '../../shared/components/media-player-control';
+import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
@@ -210,7 +210,7 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
-				<MediaPlayerControl
+				<MediaPlayerToolbarControl
 					jumpBackTime={ false }
 					skipForwardTime={ false }
 					customTimeToPlay={ showTimestamp ? convertTimeCodeToSeconds( timestamp ) : false }
