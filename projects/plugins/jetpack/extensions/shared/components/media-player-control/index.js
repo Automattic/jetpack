@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -21,7 +21,7 @@ import {
 	ControlSyncIcon,
 	ControlUnsyncIcon,
 } from '../../icons';
-import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
+import { STATE_PAUSED, STATE_PLAYING, STORE_ID } from '../../../store/media-source/constants';
 import { convertSecondsToTimeCode } from './utils';
 
 function noop () {}
@@ -75,9 +75,9 @@ export function MediaPlayerControl( {
 		setMediaSourceCurrentTime( defaultMediaSource.id, time );
 	}
 
-	function setSyncMode( enabled ) {
+	const setSyncMode = useCallback( ( enabled ) => {
 		setMediaSourceSyncMode( defaultMediaSource.id, enabled );
-	}
+	}, [ defaultMediaSource.id, setMediaSourceSyncMode ] );
 
 	function playPlayerInCustomTime() {
 		setPlayerCurrentTime( customTimeToPlay );
@@ -88,13 +88,25 @@ export function MediaPlayerControl( {
 		onTimeChange( time );
 	}
 
+	/*
+	 * Set sync mode always false.
+	 * It could be annyging for users
+	 * getting the timestamp changing automatically.
+	 */
 	useEffect( () => {
-		if ( ! syncModeEnabled ) {
+		setSyncMode( false );
+	}, [ setSyncMode ] );
+
+	/**
+	 * Syncornize player current time with block property.
+	 */
+	useEffect( () => {
+		if ( ! syncModeEnabled || playerState !== STATE_PLAYING ) {
 			return;
 		}
 
 		onTimeChange( playerCurrentTime );
-	}, [ syncModeEnabled, playerCurrentTime, onTimeChange ] );
+	}, [ syncModeEnabled, playerCurrentTime, onTimeChange, playerState ] );
 
 	return (
 		<>
