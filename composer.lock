@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ecca2b7bdec052bd0e24c8e5bdeb411",
+    "content-hash": "8a67bd39e13b6754f2d19b1bacfbdbf0",
     "packages": [],
     "packages-dev": [
         {
@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "ac27fa3a6634874143014f575b62632e6d04f983"
+                "reference": "03b247d52ab1c05eaf2e99b212c174b952508da4"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -42,6 +42,7 @@
             ],
             "description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
             "transport-options": {
+                "monorepo": true,
                 "relative": true
             }
         },
