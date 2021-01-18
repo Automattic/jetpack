@@ -8,6 +8,8 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
+import { MediaPlayerControl } from '../../../shared/components/media-player-control';
+import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -61,43 +63,51 @@ export function TimestampControl( { value, className, onChange, shortLabel = fal
 	}
 
 	return (
-		<div className={ `${ className }__timestamp-controls` }>
-			<NumberControl
-				className={ `${ className }__timestamp-control__hour` }
-				label={ shortLabel ? __( 'Hour', 'jetpack' ) : __( 'Hour', 'jetpack' ) }
-				value={ smh[ 0 ] }
-				min={ 0 }
-				max={ 23 }
-				onChange={ hour => {
-					onChange( setTimestampValue( { hour }, smh ) );
-				} }
-			/>
+		<div className={ `${ className }__timestamp-container` }>
+			<div className={ `${ className }__timestamp-controls` }>
+				<NumberControl
+					className={ `${ className }__timestamp-control__hour` }
+					label={ shortLabel ? __( 'Hour', 'jetpack' ) : __( 'Hour', 'jetpack' ) }
+					value={ smh[ 0 ] }
+					min={ 0 }
+					max={ 23 }
+					onChange={ hour => {
+						onChange( setTimestampValue( { hour }, smh ) );
+					} }
+				/>
 
-			<NumberControl
-				className={ `${ className }__timestamp-control__minute` }
-				label={
-					shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' )
-				}
-				value={ smh[ 1 ] }
-				min={ 0 }
-				max={ 59 }
-				onChange={ min => {
-					onChange( setTimestampValue( { min }, smh ) );
-				} }
-			/>
+				<NumberControl
+					className={ `${ className }__timestamp-control__minute` }
+					label={
+						shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' )
+					}
+					value={ smh[ 1 ] }
+					min={ 0 }
+					max={ 59 }
+					onChange={ min => {
+						onChange( setTimestampValue( { min }, smh ) );
+					} }
+				/>
 
-			<NumberControl
-				className={ `${ className }__timestamp-control__second` }
-				label={
-					shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' )
-				}
-				value={ smh[ 2 ] }
-				min={ 0 }
-				max={ 59 }
-				onChange={ sec => {
-					onChange( setTimestampValue( { sec }, smh ) );
-				} }
-			/>
+				<NumberControl
+					className={ `${ className }__timestamp-control__second` }
+					label={
+						shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' )
+					}
+					value={ smh[ 2 ] }
+					min={ 0 }
+					max={ 59 }
+					onChange={ sec => {
+						onChange( setTimestampValue( { sec }, smh ) );
+					} }
+				/>
+			</div>
+
+			<div className={ `${ className }__timestamp-player` }>
+				<MediaPlayerControl
+					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
+				/>
+			</div>
 		</div>
 	);
 }
