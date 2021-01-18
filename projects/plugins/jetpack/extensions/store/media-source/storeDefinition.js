@@ -76,10 +76,11 @@ actions.updateMediaSourceData = actions.registerMediaSource;
 const selectors = {
 	getDefaultMediaSource( state ) {
 		let playerId = null;
+		const keys = Object.keys( state.players );
 		if ( state.default ) {
 			playerId = state.default;
-		} else if ( Object.keys( state.players ).length ) {
-			playerId = state.players[ Object.keys[ 0 ] ].id;
+		} else if ( keys?.length ) {
+			playerId = state.players[ keys[ 0 ] ].id;
 		}
 
 		if ( ! playerId ) {
