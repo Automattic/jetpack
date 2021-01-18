@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -17,6 +18,8 @@ import {
 	ControlBackFiveIcon,
 	ControlForwardFiveIcon,
 	ControlPlayInTimeIcon,
+	ControlSyncIcon,
+	ControlUnsyncIcon,
 } from '../../icons';
 import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { convertSecondsToTimeCode } from './utils';
@@ -27,6 +30,7 @@ export function MediaPlayerControl( {
 	skipForwardTime = 5,
 	jumpBackTime = 5,
 	customTimeToPlay,
+	syncMode = false,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
 	backFiveIcon = ControlBackFiveIcon,
@@ -37,20 +41,22 @@ export function MediaPlayerControl( {
 		playerState,
 		playerCurrentTime,
 		defaultMediaSource,
+		syncModeEnabled,
 	} = useSelect( select => {
 		const {
 			getMediaSourceCurrentTime,
 			getMediaPlayerState,
+			getMediaSourceSyncMode,
 			getDefaultMediaSource,
 		} = select( STORE_ID );
 
 		return {
 			playerState: getMediaPlayerState(),
 			playerCurrentTime: getMediaSourceCurrentTime(),
+			syncModeEnabled: getMediaSourceSyncMode(),
 			defaultMediaSource: getDefaultMediaSource(),
 		};
 	}, [] );
-
 	const timeInFormat = convertSecondsToTimeCode( playerCurrentTime );
 	const isDisabled = ! defaultMediaSource;
 
@@ -58,8 +64,16 @@ export function MediaPlayerControl( {
 		toggleMediaSource,
 		playMediaSource,
 		setMediaSourceCurrentTime,
+		setMediaSourceSyncMode,
 	} = useDispatch( STORE_ID );
-	const togglePlayer = () => toggleMediaSource( defaultMediaSource.id );
+
+	function togglePlayer() {
+		toggleMediaSource( defaultMediaSource.id );
+	}
+
+	function setSyncMode( enabled ) {
+		setMediaSourceSyncMode( defaultMediaSource.id, enabled );
+	}
 
 	function playPlayerInCustomTime() {
 		setMediaSourceCurrentTime( defaultMediaSource.id, customTimeToPlay );
@@ -103,6 +117,14 @@ export function MediaPlayerControl( {
 					isDisabled={ isDisabled }
 					onClick={ () => setCurrentTime( customTimeToPlay + skipForwardTime ) }
 					label={ __( 'Skip forward', 'jetpack' ) }
+				/>
+			) }
+
+			{ syncMode && (
+				<ToolbarButton
+					icon={ syncModeEnabled ? ControlUnsyncIcon : ControlSyncIcon }
+					isDisabled={ isDisabled }
+					onClick={ () => setSyncMode( ! syncModeEnabled ) }
 				/>
 			) }
 
