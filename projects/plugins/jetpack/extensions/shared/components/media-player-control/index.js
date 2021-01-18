@@ -66,13 +66,17 @@ export function MediaPlayerControl( {
 		playMediaSource( defaultMediaSource.id );
 	}
 
+	function setCurrentTime( time ) {
+		onTimeChange( time );
+	}
+
 	return (
 		<>
 			{ jumpBackTime !== false && (
 				<ToolbarButton
 					icon={ backFiveIcon }
 					isDisabled={ isDisabled }
-					onClick={ () => onTimeChange( playerCurrentTime - jumpBackTime ) }
+					onClick={ () => setCurrentTime( customTimeToPlay - jumpBackTime ) }
 				/>
 			) }
 
@@ -94,7 +98,7 @@ export function MediaPlayerControl( {
 				<ToolbarButton
 					icon={ forwardFiveIcon }
 					isDisabled={ isDisabled }
-					onClick={ () => onTimeChange( playerCurrentTime + skipForwardTime ) }
+					onClick={ () => setCurrentTime( customTimeToPlay + skipForwardTime ) }
 				/>
 			) }
 
