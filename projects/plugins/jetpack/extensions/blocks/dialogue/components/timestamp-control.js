@@ -9,7 +9,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import NumberControl from '../../../shared/components/number-control';
 import { MediaPlayerControl } from '../../../shared/components/media-player-control';
-import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
+import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -106,6 +106,7 @@ export function TimestampControl( { value, className, onChange, shortLabel = fal
 			<div className={ `${ className }__timestamp-player` }>
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
+					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
 				/>
 			</div>
 		</div>
