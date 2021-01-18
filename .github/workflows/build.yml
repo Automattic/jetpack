@@ -119,7 +119,10 @@ jobs:
     name: Push to mirror repos
     runs-on: ubuntu-latest
     needs: build
+
+    # Keep this in sync with the corresponding condition in cancel-dups.yml.
     if: github.ref == 'refs/heads/master'
+
     steps:
       - uses: actions/checkout@v2
         with:
