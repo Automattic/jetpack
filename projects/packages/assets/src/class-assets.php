@@ -117,7 +117,7 @@ class Assets {
 		if ( ! empty( $file_parts['host'] ) ) {
 			$url = $path;
 		} else {
-			$plugin_path = empty( $package_path ) ? Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) : $package_path;
+			$plugin_path = ( empty( $package_path ) || self::is_forcing_jetpack_path( $package_path ) ) ? Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) : $package_path;
 
 			$url = plugins_url( $path, $plugin_path );
 		}
@@ -221,5 +221,16 @@ class Assets {
 		$static_counter = abs( crc32( basename( $url ) ) % 3 );
 
 		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
+	}
+
+	/**
+	 * Returns `true` if this package is loaded from inside the Jetpack Docker environment.
+	 *
+	 * @param string $package_path Path to the file requesting the asset.
+	 *
+	 * @return bool
+	 */
+	public static function is_forcing_jetpack_path( $package_path ) {
+		return 'on' === strtolower( getenv( 'WP_JETPACK_DOCKER' ) ) && 0 === strpos( $package_path, '/usr/local/src/jetpack-monorepo' );
 	}
 }
