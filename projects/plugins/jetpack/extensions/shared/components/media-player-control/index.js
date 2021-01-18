@@ -14,10 +14,10 @@ import { useSelect, useDispatch } from '@wordpress/data';
  */
 import './style.scss';
 import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
-import { STATE_PAUSED, STATE_PLAYING, STORE_ID } from '../../../store/media-source/constants';
+import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { convertSecondsToTimeCode } from './utils';
 
-function noop () {};
+function noop () {}
 
 export default function MediaPlayerControl( {
 	skipForwardTime = 5,
@@ -41,7 +41,7 @@ export default function MediaPlayerControl( {
 			playerState: getMediaPlayerState(),
 			playerCurrentTime: getMediaSourceCurrentTime(),
 			defaultMediaSource: getDefaultMediaSource(),
-		}
+		};
 	}, [] );
 
 	const timeInFormat = convertSecondsToTimeCode( playerCurrentTime );
@@ -59,7 +59,7 @@ export default function MediaPlayerControl( {
 					onClick={ () => onTimeChange( playerCurrentTime - jumpBackTime ) }
 				/>
 			) }
-			
+
 			<ToolbarButton
 				icon={ playerState === STATE_PAUSED ? playIcon : pauseIcon }
 				isDisabled={ isDisabled }
@@ -73,10 +73,10 @@ export default function MediaPlayerControl( {
 					onClick={ () => onTimeChange( playerCurrentTime + skipForwardTime ) }
 				/>
 			) }
-			
+
 			<ToolbarButton>
 				<div
-					className={ classnames( 
+					className={ classnames(
 						'media-player-control__current-time', {
 							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
 						}
