@@ -24,6 +24,8 @@ export default function MediaPlayerControl( {
 	jumpBackTime = 5,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
+	backFiveIcon = ControlBackFiveIcon,
+	forwardFiveIcon = ControlForwardFiveIcon,
 	onTimeChange = noop,
 } ) {
 	const {
@@ -54,7 +56,7 @@ export default function MediaPlayerControl( {
 		<ToolbarGroup>
 			{ jumpBackTime !== false && (
 				<ToolbarButton
-					icon={ ControlBackFiveIcon }
+					icon={ backFiveIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => onTimeChange( playerCurrentTime - jumpBackTime ) }
 				/>
@@ -68,7 +70,7 @@ export default function MediaPlayerControl( {
 
 			{ skipForwardTime && (
 				<ToolbarButton
-					icon={ ControlForwardFiveIcon }
+					icon={ forwardFiveIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => onTimeChange( playerCurrentTime + skipForwardTime ) }
 				/>
