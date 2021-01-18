@@ -108,10 +108,10 @@
 		if ( clicked_activate ) {
 			return;
 		}
-		if ( element.textContent == JetpackBeta.activate ) {
-			element.parentNode.textContent = JetpackBeta.activating;
+		if ( element.textContent == window.JetpackBeta.activate ) {
+			element.parentNode.textContent = window.JetpackBeta.activating;
 		} else {
-			element.parentNode.textContent = JetpackBeta.updating;
+			element.parentNode.textContent = window.JetpackBeta.updating;
 		}
 
 		const index = parseInt( element.getAttribute( 'data-index' ) );
@@ -212,6 +212,6 @@
 		const eventName = element.getAttribute( 'data-jptracks-name' );
 		const eventProp = element.getAttribute( 'data-jptracks-prop' );
 
-		jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp );
+		window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp );
 	}
 } )();
