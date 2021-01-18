@@ -2,17 +2,11 @@
 /**
  * Utilities related to the Jetpack Recommendations
  *
- * @package jetpack
+ * @package Jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-
-/**
- * Contains utilities related to the Jetpack Recommendations.
- *
- * @package Jetpack
- */
 
 /**
  * Jetpack_Recommendations class
