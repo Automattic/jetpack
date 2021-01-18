@@ -17,9 +17,6 @@
 			"Automattic\\Jetpack\\Autoloader\\": "src"
 		}
 	},
-	"extra": {
-		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin"
-	},
 	"scripts": {
 		"phpunit": [
 			"@composer install",
@@ -29,6 +26,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
 		"mirror-repo": "Automattic/jetpack-autoloader"
 	}
 }
