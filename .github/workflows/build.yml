@@ -43,11 +43,17 @@ jobs:
         id: build
         run: .github/files/build-all-projects.sh
 
+      # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
+      # This is the official workaround: https://github.com/actions/upload-artifact#maintaining-file-permissions-and-case-sensitive-files
+      # It'll also make it faster to upload and download though, so maybe it's a win anyway.
+      - name: Create archive
+        run: tar --owner=0 --group=0 --xz -cvvf build.tar.xz -C "${{ steps.build.outputs.build-base }}" --transform 's,^\.,build,' .
+
       - name: Store build as artifact
         uses: actions/upload-artifact@v2
         with:
           name: jetpack-build
-          path: ${{ steps.build.outputs.build-base }}
+          path: build.tar.xz
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
 
@@ -65,7 +71,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jetpack-build
-          path: build
+      - name: Extract build archive
+        run: tar --xz -xvvf build.tar.xz
 
       # The beta plugin needs the base directory name to be "jetpack-dev"
       - name: Extract Jetpack
@@ -122,7 +129,8 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jetpack-build
-          path: build
+      - name: Extract build archive
+        run: tar --xz -xvvf build.tar.xz
 
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
