@@ -49,11 +49,27 @@
 			const index = 'search-component-tags' === section_id ? tag_index : pr_index;
 
 			if ( ! search_for ) {
-				hide_section();
+				if ( input_area.id === 'search-component-prs' ) {
+					each.call( prs, hide );
+					hide( search_close_link_prs );
+				}
+
+				if ( input_area.id === 'search-component-tags' ) {
+					each.call( tags, hide );
+					hide( search_close_link_tags );
+				}
+
 				return;
 			}
 
-			show( search_close_link_tags );
+			if ( input_area.id === 'search-component-prs' ) {
+				show( search_close_link_prs );
+			}
+
+			if ( input_area.id === 'search-component-tags' ) {
+				show( search_close_link_tags );
+			}
+
 			index.forEach( show_found.bind( this, search_for, section_id ) );
 		} );
 	}
@@ -88,9 +104,18 @@
 	function hide_search_close_link( section ) {
 		hide( section );
 		section.addEventListener( 'click', function ( event ) {
-			hide_section();
-			hide( section );
-			search_input.value = '';
+			if ( section.id === 'search-component-prs-close' ) {
+				each.call( prs, hide );
+				hide( section );
+				search_input_prs.value = '';
+			}
+
+			if ( section.id === 'search-component-tags-close' ) {
+				each.call( tags, hide );
+				hide( section );
+				search_input_tags.value = '';
+			}
+
 			event.preventDefault();
 		} );
 	}
@@ -174,14 +199,6 @@
 		const regExp = new RegExp( word, 'g' );
 		const replace = '<span class="highlight">' + word + '</span>';
 		return phrase.replace( regExp, replace );
-	}
-
-	/**
-	 *
-	 */
-	function hide_section() {
-		each.call( prs, hide );
-		each.call( tags, hide );
 	}
 
 	/**
