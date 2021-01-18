@@ -10,6 +10,7 @@ tools/docker/wordpress/
 !.github/
 
 ### Jetpack
+projects/plugins/jetpack/.size-limit.js
 projects/plugins/jetpack/3rd-party/debug-bar/debug-bar.js
 projects/plugins/jetpack/_inc/blocks
 projects/plugins/jetpack/_inc/build
