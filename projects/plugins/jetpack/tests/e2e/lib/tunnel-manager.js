@@ -1,6 +1,7 @@
 import localtunnel from 'localtunnel';
 import config from 'config';
 import fs from 'fs';
+import axios from 'axios'
 
 import logger from './logger';
 
@@ -42,7 +43,7 @@ export default class TunnelManager {
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		tunnel.on( 'close', () => {
-			logger.info( '!!!!!! TUNNEL is closed for ', url );
+			logger.info( '!!!!!! TUNNEL is closed for ', this.url );
 		} );
 
 		logger.info( `#### CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
@@ -60,18 +61,18 @@ export default class TunnelManager {
 			return tunnelConfig;
 		}
 
-		let urlFromFile;
+		// use already created subdomain if found
 		try {
-			urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
+			const urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
+			if ( urlFromFile && urlFromFile.length > 1 ) {
+				const subdomain = this.getSubdomain( urlFromFile );
+				tunnelConfig.subdomain = subdomain;
+			}
 		} catch ( error ) {
-			logger.info( error );
+			logger.error( error );
 		}
 
-		// use already created subdomain if found
-		if ( urlFromFile && urlFromFile.length > 1 ) {
-			const subdomain = this.getSubdomain( urlFromFile );
-			tunnelConfig.subdomain = subdomain;
-		}
+
 
 		return tunnelConfig;
 	}
@@ -80,9 +81,15 @@ export default class TunnelManager {
 		logger.info( `#### Closing tunnel ${ this.tunnel.url }` );
 
 		this.tunnel.close();
-		await page.goto( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
+		try {
+			const response = await axios.get( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
+			logger.info(response);
+			console.log(response);
+		} catch (error) {
+			logger.error(error);
+		}
 		// wait for tunnel to close properly
-		await new Promise( r => setTimeout( r, 1000 ) );
+		await page.waitForTimeout( 1000 );
 	}
 
 	getSubdomain( url ) {
