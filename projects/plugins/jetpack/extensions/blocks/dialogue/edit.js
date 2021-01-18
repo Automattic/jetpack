@@ -29,7 +29,7 @@ import ParticipantsDropdown, {
 	ParticipantsControl,
 	ParticipantControl,
 } from './components/participants-control';
-import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import {
 	slug as defaultParticipantSlug,

@@ -57,7 +57,7 @@ function setTimestampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
-function Timestamp( { value, className, onChange, shortLabel = false } ) {
+export function TimestampControl( { value, className, onChange, shortLabel = false } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
@@ -105,7 +105,9 @@ function Timestamp( { value, className, onChange, shortLabel = false } ) {
 	);
 }
 
-export function TimestampDropdown( { className, value, onChange, shortLabel } ) {
+export function TimestampDropdown( props ) {
+	const { className, value } = props;
+
 	return (
 		<Dropdown
 			position="bottom right"
@@ -119,17 +121,8 @@ export function TimestampDropdown( { className, value, onChange, shortLabel } ) 
 				);
 			} }
 			renderContent={ () => (
-				<Timestamp
-					className={ className }
-					value={ value }
-					onChange={ onChange }
-					shortLabel={ shortLabel }
-				/>
+				<TimestampControl { ...props } />
 			) }
 		/>
 	);
-}
-
-export default function TimestampControl( { className, value, onChange } ) {
-	return <Timestamp className={ className } value={ value } onChange={ onChange } />;
 }
