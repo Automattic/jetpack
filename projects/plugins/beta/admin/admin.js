@@ -116,7 +116,7 @@
 
 		const index = parseInt( element.getAttribute( 'data-index' ) );
 
-		prs = Array.prototype.filter.call( prs, function ( element, i ) {
+		prs = Array.prototype.filter.call( prs, function ( pr, i ) {
 			return index === i ? false : true;
 		} );
 		disable_activete_branch_links();
