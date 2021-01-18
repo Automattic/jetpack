@@ -37,6 +37,7 @@ import {
 } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
 import MediaPlayerControl from '../../shared/components/media-player-control';
+import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -212,6 +213,7 @@ export default function DialogueEdit( {
 				<MediaPlayerControl
 					jumpBackTime={ false }
 					skipForwardTime={ false }
+					customTimeToPlay={ showTimestamp ? convertTimeCodeToSeconds( timestamp ) : false }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
