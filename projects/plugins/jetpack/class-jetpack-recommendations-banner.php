@@ -67,8 +67,7 @@ class Jetpack_Recommendations_Banner {
 			return false;
 		}
 
-		// Kill if banner has been dismissed.
-		if ( Jetpack_Options::get_option( 'dismissed_recommendations_banner' ) ) {
+		if ( Jetpack_Options::get_option( 'recommendations_banner_dismissed' ) ) {
 			return false;
 		}
 
@@ -164,47 +163,47 @@ class Jetpack_Recommendations_Banner {
 	public function render_banner() {
 		$jetpack_logo = new Jetpack_Logo();
 		?>
-        <div id="jp-recommendations-banner-main" class="jp-recommendations-banner-main">
-            <div class="jp-recommendations-banner__content">
-                <div class="jp-recommendations-banner__logo">
+		<div id="jp-recommendations-banner-main" class="jp-recommendations-banner-main">
+			<div class="jp-recommendations-banner__content">
+				<div class="jp-recommendations-banner__logo">
 					<?php
 					echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					?>
-                </div>
-                <h1 class="jp-recommendations-banner__question">
+				</div>
+				<h1 class="jp-recommendations-banner__question">
 					<?php esc_html_e( 'What type of site is TODO?', 'jetpack' ); ?>
-                </h1>
-                <p class="jp-recommendations-banner__description">
+				</h1>
+				<p class="jp-recommendations-banner__description">
 					<?php esc_html_e( 'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.', 'jetpack' ); ?>
-                </p>
-                <div class="jp-recommendations-banner__answer">
-                    <form id="jp-recommendations-banner-form">
-                        <div class="jp-recommendations-banner__checkboxes">
+				</p>
+				<div class="jp-recommendations-banner__answer">
+					<form id="jp-recommendations-banner-form">
+						<div class="jp-recommendations-banner__checkboxes">
 							<?php $this->render_checkbox( 'personal', __( 'Personal', 'jetpack' ) ); ?>
 							<?php $this->render_checkbox( 'business', __( 'Business', 'jetpack' ) ); ?>
 							<?php $this->render_checkbox( 'store', __( 'Store', 'jetpack' ) ); ?>
 							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
-                        </div>
-                    </form>
-                    <a id="jp-recommendations-banner-continue-button" class="jp-recommendations-banner-continue-button">
+						</div>
+					</form>
+					<a id="jp-recommendations-banner-continue-button" class="jp-recommendations-banner-continue-button">
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
-                    </a>
-                    <div class="jp-recommendations-banner__description">
+					</a>
+					<div class="jp-recommendations-banner__description">
 						<?php esc_html_e( 'All of Jetpack’s great features await you and we’ll recommend some of our favorites.', 'jetpack' ); ?>
-                    </div>
-                </div>
-            </div>
-            <div class="jp-recommendations-banner__illustration-container">
-                <img
-                        src="<?php echo esc_url( plugins_url( 'images/recommendations/background.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
-                        class="jp-recommendations-banner__illustration-background"
-                />
-                <img
-                        src="<?php echo esc_url( plugins_url( 'images/recommendations/site-type-illustration.png', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
-                        class="jp-recommendations-banner__illustration-foreground"
-                />
-            </div>
-        </div>
+					</div>
+				</div>
+			</div>
+			<div class="jp-recommendations-banner__illustration-container">
+				<img
+						src="<?php echo esc_url( plugins_url( 'images/recommendations/background.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
+						class="jp-recommendations-banner__illustration-background"
+				/>
+				<img
+						src="<?php echo esc_url( plugins_url( 'images/recommendations/site-type-illustration.png', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
+						class="jp-recommendations-banner__illustration-foreground"
+				/>
+			</div>
+		</div>
 		<?php
 	}
 
@@ -216,13 +215,13 @@ class Jetpack_Recommendations_Banner {
 	 */
 	private function render_checkbox( $name, $title ) {
 		?>
-        <label for="<?php echo esc_html( $name ); ?>" class="jp-recommendations-answer__checkbox-label">
-            <input id="<?php echo esc_html( $name ); ?>" name="<?php echo esc_html( $name ); ?>" type="checkbox"
-                   tabindex="-1"/>
-            <div class="jp-recommendations-answer__title">
+		<label for="<?php echo esc_html( $name ); ?>" class="jp-recommendations-answer__checkbox-label">
+			<input id="<?php echo esc_html( $name ); ?>" name="<?php echo esc_html( $name ); ?>" type="checkbox"
+					tabindex="-1"/>
+			<div class="jp-recommendations-answer__title">
 				<?php echo esc_html( $title ); ?>
-            </div>
-        </label>
+			</div>
+		</label>
 		<?php
 	}
 }
