@@ -29,7 +29,7 @@ import './editor.scss';
 import ParticipantsDropdown, {
 	ParticipantsControl,
 } from './components/participants-control';
-import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
