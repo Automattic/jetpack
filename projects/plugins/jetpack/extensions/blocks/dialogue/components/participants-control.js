@@ -5,7 +5,6 @@ import {
 	DropdownMenu,
 	MenuGroup,
 	MenuItem,
-	TextControl,
 	SelectControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -28,31 +27,6 @@ function ParticipantsMenu( { participants, className, onSelect, participantSlug 
 	);
 }
 
-export function ParticipantControl( { className, participantValue, onChange } ) {
-	return (
-		<div className={ `${ className }__custom-participant` }>
-			<div className={ `${ className }__text-button-container` }>
-				<TextControl
-					label={ __( 'Custom', 'jetpack' ) }
-					value={ participantValue }
-					onChange={ participant =>
-						onChange( {
-							participantSlug: null,
-							participant,
-						} )
-					}
-					onFocus={ ( { target } ) =>
-						onChange( {
-							participantSlug: null,
-							participant: target?.value,
-						} )
-					}
-				/>
-			</div>
-		</div>
-	);
-}
-
 export function ParticipantsControl( { participants, participantSlug: slug, onSelect } ) {
 	return (
 		<SelectControl
@@ -70,9 +44,7 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 function ParticipantsSelector( {
 	className,
 	participants,
-	participant,
 	onSelect,
-	onChange,
 	participantSlug,
 } ) {
 	return (
@@ -82,12 +54,6 @@ function ParticipantsSelector( {
 				participants={ participants }
 				onSelect={ onSelect }
 				participantSlug={ participantSlug }
-			/>
-
-			<ParticipantControl
-				className={ className }
-				participantValue={ participant }
-				onChange={ onChange }
 			/>
 		</Fragment>
 	);

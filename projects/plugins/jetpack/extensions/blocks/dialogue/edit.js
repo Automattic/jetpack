@@ -28,14 +28,10 @@ import { useSelect, dispatch } from '@wordpress/data';
 import './editor.scss';
 import ParticipantsDropdown, {
 	ParticipantsControl,
-	ParticipantControl,
 } from './components/participants-control';
 import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
-import {
-	slug as defaultParticipantSlug,
-	list as defaultParticipants,
-} from '../conversation/participants.json';
+import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
 
 function getParticipantBySlug( participants, slug ) {
@@ -66,10 +62,8 @@ export default function DialogueEdit( {
 	isSelected,
 } ) {
 	const {
-		participant,
 		participantSlug,
 		timestamp,
-		showTimestamp: showTimestampLocally,
 		content,
 		placeholder,
 	} = attributes;
@@ -92,10 +86,9 @@ export default function DialogueEdit( {
 		? participantsFromContext
 		: defaultParticipants;
 
-	const isCustomParticipant = !! participant && ! participantSlug;
-	const currentParticipantSlug = isCustomParticipant ? defaultParticipantSlug : participantSlug;
+	const currentParticipantSlug = participantSlug;
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
-	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
+	const participantLabel = currentParticipant?.participant;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
@@ -142,56 +135,20 @@ export default function DialogueEdit( {
 		richTextRefCurrent.focus();
 	}, [ isSelected, hasContent, richTextRefCurrent ] );
 
-	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
+	const showTimestamp = showTimestampGlobally;
 
-	/**
-	 * Helper to check if the gven style is set, or not.
-	 * It handles local and global (conversation) level.
-	 *
-	 * @param {string} style - style to check.
-	 * @returns {boolean} True if the style is defined. Otherwise, False.
-	 */
 	function hasStyle( style ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return attributes?.[ style ];
-		}
-
 		return currentParticipant?.[ style ];
 	}
 
-	/**
-	 * Helper to toggle the value of the given style
-	 * It handles local and global (conversation) level.
-	 *
-	 * @param {string} style - style to toggle.
-	 * @returns {void}
-	 */
 	function toggleParticipantStyle( style ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { [ style ]: ! attributes[ style ] } );
-		}
-
 		conversationBridge.updateParticipants( {
 			participantSlug: currentParticipantSlug,
 			[ style ]: ! currentParticipant[ style ],
 		} );
 	}
 
-	/**
-	 * Helper to build the CSS classes for the participant label.
-	 * It handles local and global (conversation) level.
-	 *
-	 * @returns {string} Participant CSS class.
-	 */
 	function getParticipantLabelClass() {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return classnames( `${ baseClassName }__participant`, {
-				[ 'has-bold-style' ]: attributes?.hasBoldStyle,
-				[ 'has-italic-style' ]: attributes?.hasItalicStyle,
-				[ 'has-uppercase-style' ]: attributes?.hasUppercaseStyle,
-			} );
-		}
-
 		return classnames( `${ baseClassName }__participant`, {
 			[ 'has-bold-style' ]: currentParticipant?.hasBoldStyle,
 			[ 'has-italic-style' ]: currentParticipant?.hasItalicStyle,
@@ -200,10 +157,6 @@ export default function DialogueEdit( {
 	}
 
 	function setShowTimestamp( value ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { showTimestamp: value } );
-		}
-
 		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
@@ -239,7 +192,6 @@ export default function DialogueEdit( {
 						participants={ participants }
 						label={ __( 'Participant', 'jetpack' ) }
 						participantSlug={ participantSlug }
-						participant={ participant }
 						onSelect={ setAttributes }
 						onChange={ setAttributes }
 					/>
@@ -255,20 +207,11 @@ export default function DialogueEdit( {
 							participantSlug={ participantSlug || '' }
 							onSelect={ setAttributes }
 						/>
-						<ParticipantControl
-							className={ className }
-							participantValue={ participant }
-							onChange={ setAttributes }
-						/>
 					</PanelBody>
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
-							label={
-								isCustomParticipant
-									? __( 'Show', 'jetpack' )
-									: __( 'Show conversation timestamps', 'jetpack' )
-							}
+							label={ __( 'Show conversation timestamps', 'jetpack' ) }
 							checked={ showTimestamp }
 							onChange={ setShowTimestamp }
 						/>
