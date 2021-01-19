@@ -40,6 +40,13 @@ add_action( 'init', 'Automattic\Jetpack\Extensions\Premium_Content\paywall_initi
  * @return Subscription_Service Service that will handle the premium content subscriptions.
  */
 function subscription_service() {
+	/**
+	 * Filter the Jetpack_Token_Subscription_Service class.
+	 *
+	 * @since 9.4.0
+	 *
+	 * @param null|Jetpack_Token_Subscription_Service $interface Registered Subscription_Service.
+	 */
 	$interface = apply_filters( PAYWALL_FILTER, null );
 	if ( ! $interface instanceof Jetpack_Token_Subscription_Service ) {
 		_doing_it_wrong( __FUNCTION__, 'No Subscription_Service registered for the ' . esc_html( PAYWALL_FILTER ) . ' filter', 'jetpack' );

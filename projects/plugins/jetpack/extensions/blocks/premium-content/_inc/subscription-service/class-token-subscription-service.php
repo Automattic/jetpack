@@ -72,9 +72,28 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		if ( $is_valid_token ) {
 			$subscriptions = (array) $payload['subscriptions'];
 		} elseif ( is_user_logged_in() ) {
-			// If there is no token, but the user is logged in, get current subscriptions and determine if the user has
-			// a valid subscription to match the plan ID.
-			$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
+			/*
+			 * If there is no token, but the user is logged in,
+			 * get current subscriptions and determine if the user has
+			 * a valid subscription to match the plan ID.
+			 */
+
+			/**
+			 * Filter the subscriptions attached to a specific user on a given site.
+			 *
+			 * @since 9.4.0
+			 *
+			 * @param array $subscriptions Array of subscriptions.
+			 * @param int   $user_id The user's ID.
+			 * @param int   $site_id ID of the current site.
+			 */
+			$subscriptions = apply_filters(
+				'earn_get_user_subscriptions_for_site_id',
+				array(),
+				wp_get_current_user()->ID,
+				$this->get_site_id()
+			);
+
 			if ( empty( $subscriptions ) ) {
 				return false;
 			}
