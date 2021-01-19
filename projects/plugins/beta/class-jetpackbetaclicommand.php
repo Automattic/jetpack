@@ -90,7 +90,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			if ( is_wp_error( $result ) ) {
 				return WP_CLI::error( __( 'Error', 'jetpack' ) . $result->get_error_message() );
 			}
-			return WP_CLI::success( __( 'Jetpack is currently on ' . $branch . ' branch', 'jetpack-beta' ) );
+			// translators: $branch is what branch we've switched to.
+			return WP_CLI::success( printf( esc_html__( 'Jetpack is currently on %s branch', 'jetpack-beta' ), esc_html( $branch ) ) );
 		}
 
 		/**
