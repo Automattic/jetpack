@@ -1033,6 +1033,65 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test saving and retrieving the recommendations data.
+	 *
+	 * @since 9.3.0
+	 */
+	public function test_recommendations_data() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+
+		$test_data = array(
+			'param1' => 'val1',
+			'param2' => 'val2',
+		);
+
+		$response = $this->create_and_get_request(
+			'recommendations/data',
+			array(
+				'data' => $test_data,
+			),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+		$this->assertTrue( $response->get_data() );
+
+		$response = $this->create_and_get_request( 'recommendations/data', array(), 'GET' );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( $test_data, $response );
+	}
+
+	/**
+	 * Test saving and retrieving the recommendations step.
+	 *
+	 * @since 9.3.0
+	 */
+	public function test_recommendations_step() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+
+		$test_data = 'step-1';
+
+		$response = $this->create_and_get_request(
+			'recommendations/step',
+			array(
+				'step' => $test_data,
+			),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+		$this->assertTrue( $response->get_data() );
+
+		$response = $this->create_and_get_request( 'recommendations/step', array(), 'GET' );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array( 'step' => $test_data ), $response );
+	}
+
+	/**
 	 * Test saving and retrieving the Setup Wizard questionnaire responses.
 	 *
 	 * @since 9.0.0
@@ -1065,5 +1124,22 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->server->dispatch( $request );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( 'foo', $response->get_data() );
+	}
+
+	/**
+	 * Test fetching user connection data without a connection owner.
+	 *
+	 * @since 9.4
+	 */
+	public function test_get_user_connection_data_without_master_user() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+		// No master user set.
+		$response = $this->create_and_get_request( 'connection/data' );
+		$this->assertResponseStatus( 200, $response );
+
+		$response_data = $response->get_data();
+		$this->assertNull( $response_data['connectionOwner'] );
 	}
 } // class end

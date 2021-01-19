@@ -6942,12 +6942,15 @@ endif;
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$widget_title = sprintf(
-				wp_kses(
-					/* translators: Placeholder is a Jetpack logo. */
-					__( 'Stats <span>by %s</span>', 'jetpack' ),
-					array( 'span' => array() )
-				),
+				/* translators: Placeholder is a Jetpack logo. */
+				__( 'Stats by %s', 'jetpack' ),
 				$jetpack_logo->get_jp_emblem( true )
+			);
+
+			// Wrap title in span so Logo can be properly styled.
+			$widget_title = sprintf(
+				'<span>%s</span>',
+				$widget_title
 			);
 
 			wp_add_dashboard_widget(

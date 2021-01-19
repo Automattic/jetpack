@@ -303,8 +303,11 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_tools_menu( $calypso = true ) {
 		$menu_slug = $calypso ? 'https://wordpress.com/marketing/tools/' . $this->domain : 'tools.php';
 
+		remove_submenu_page( 'tools.php', 'export.php' );
+
 		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
 		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 10 );
+		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'https://wordpress.com/export/' . $this->domain, null, 20 );
 
 		parent::add_tools_menu( $calypso );
 	}

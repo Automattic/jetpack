@@ -10,6 +10,9 @@ import './extended-blocks/core-embed';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
 
+// Register media source store to the centralized data registry.
+import './store/media-source';
+
 import analytics from '../_inc/client/lib/analytics';
 
 // @TODO Please make a shared analytics solution and remove this!

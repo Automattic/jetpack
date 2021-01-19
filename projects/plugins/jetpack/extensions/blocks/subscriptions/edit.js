@@ -303,7 +303,7 @@ function SubscriptionEdit( props ) {
 				) }
 
 				<PanelBody
-					title={ __( 'Text Settings' ) }
+					title={ __( 'Text Settings', 'jetpack' ) }
 					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__textpanel"
 				>
@@ -375,7 +375,7 @@ function SubscriptionEdit( props ) {
 				</PanelBody>
 
 				<PanelBody
-					title={ __( 'Display Settings' ) }
+					title={ __( 'Display Settings', 'jetpack' ) }
 					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__displaypanel"
 				>
