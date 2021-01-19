@@ -31,7 +31,8 @@ export function MediaPlayerControl( {
 	skipForwardTime = 5,
 	jumpBackTime = 5,
 	customTimeToPlay,
-	syncMode = false,
+	syncMode,
+	onSyncModeToggle = noop,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
 	backFiveIcon = ControlBackFiveIcon,
@@ -44,12 +45,10 @@ export function MediaPlayerControl( {
 		mediaCurrentTime,
 		mediaDuration,
 		defaultMediaSource,
-		syncModeEnabled,
 	} = useSelect( select => {
 		const {
 			getMediaSourceCurrentTime,
 			getMediaPlayerState,
-			getMediaSourceSyncMode,
 			getDefaultMediaSource,
 			getMediaSourceDuration,
 		} = select( STORE_ID );
@@ -58,7 +57,6 @@ export function MediaPlayerControl( {
 			playerState: getMediaPlayerState(),
 			mediaCurrentTime: getMediaSourceCurrentTime(),
 			mediaDuration: getMediaSourceDuration(),
-			syncModeEnabled: getMediaSourceSyncMode(),
 			defaultMediaSource: getDefaultMediaSource(),
 		};
 	}, [] );
@@ -73,7 +71,6 @@ export function MediaPlayerControl( {
 		toggleMediaSource,
 		playMediaSource,
 		setMediaSourceCurrentTime,
-		setMediaSourceSyncMode,
 	} = useDispatch( STORE_ID );
 
 	function togglePlayer() {
@@ -88,10 +85,6 @@ export function MediaPlayerControl( {
 		setMediaSourceCurrentTime( defaultMediaSource.id, time );
 	}
 
-	const setSyncMode = useCallback( ( enabled ) => {
-		setMediaSourceSyncMode( defaultMediaSource.id, enabled );
-	}, [ defaultMediaSource.id, setMediaSourceSyncMode ] );
-
 	function playPlayerInCustomTime() {
 		setPlayerCurrentTime( customTimeToPlay );
 		setProgressBarValue( customTimeToPlay ); // <- update currebt bar immediately.
@@ -103,16 +96,7 @@ export function MediaPlayerControl( {
 	}
 
 	/*
-	 * Set sync mode always false.
-	 * It could be annyging for users
-	 * getting the timestamp changing automatically.
-	 */
-	useEffect( () => {
-		setSyncMode( false );
-	}, [ setSyncMode ] );
-
-	/**
-	 * Syncornize player current time with block property.
+	 * Syncornize current-time player with block property.
 	 */
 	useEffect( () => {
 		if ( isInSyncBlocked ) {
@@ -125,12 +109,12 @@ export function MediaPlayerControl( {
 
 		setProgressBarValue( mediaCurrentTime );
 
-		if ( ! syncModeEnabled ) {
+		if ( ! syncMode ) {
 			return;
 		}
 
 		onTimeChange( mediaCurrentTime );
-	}, [ syncModeEnabled, mediaCurrentTime, onTimeChange, playerState, isInSyncBlocked ] );
+	}, [ syncMode, mediaCurrentTime, onTimeChange, playerState, isInSyncBlocked ] );
 
 	return (
 		<>
@@ -168,11 +152,11 @@ export function MediaPlayerControl( {
 				/>
 			) }
 
-			{ syncMode && (
+			{ typeof syncMode !== 'undefined' && (
 				<ToolbarButton
-					icon={ syncModeEnabled ? ControlUnsyncIcon : ControlSyncIcon }
+					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
 					isDisabled={ isDisabled }
-					onClick={ () => setSyncMode( ! syncModeEnabled ) }
+					onClick={ () => onSyncModeToggle( ! syncMode ) }
 					label={ __( 'Keep in-sync mode', 'jetpack' ) }
 				/>
 			) }
