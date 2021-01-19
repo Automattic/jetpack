@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { ToolbarGroup, ToolbarButton, RangeControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useRef, useState } from '@wordpress/element';
+import { useRef, useState, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -60,7 +60,7 @@ export function MediaPlayerControl( {
 		};
 	}, [] );
 
-	const [ progressBarValue, setProgressBarValue ] = useState( 0 );
+	const [ progressBarValue, setProgressBarValue ] = useState( customTimeToPlay );
 	const prevSyncMode = useRef();
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
@@ -94,18 +94,19 @@ export function MediaPlayerControl( {
 		onTimeChange( time );
 	}
 
-	/*
-	 * Syncornize current-time player with block property.
-	 */
-	// useEffect( () => {
-	// 	setProgressBarValue( mediaCurrentTime );
+	// Syncornize current-time player with block property.
+	useEffect( () => {
+		if ( ! syncMode ) {
+			return;
+		}
 
-	// 	if ( ! syncMode ) {
-	// 		return;
-	// 	}
+		if ( playerState !== STATE_PLAYING ) {
+			return;
+		}
 
-	// 	// onTimeChange( mediaCurrentTime );
-	// }, [ syncMode, mediaCurrentTime, onTimeChange, playerState ] );
+		setProgressBarValue( mediaCurrentTime );
+		onTimeChange( mediaCurrentTime );
+	}, [ mediaCurrentTime, onTimeChange, syncMode, playerState ] );
 
 	return (
 		<>
