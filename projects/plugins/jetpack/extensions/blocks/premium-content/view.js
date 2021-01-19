@@ -1,3 +1,9 @@
+
+/**
+ * Internal dependencies
+ */
+import './view.scss';
+
 document.addEventListener( 'DOMContentLoaded', function () {
 	let premiumContentJWTToken = '';
 
