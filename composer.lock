@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "ac27fa3a6634874143014f575b62632e6d04f983"
+                "reference": "f6f6dd8a67119576dfa73fe4d20562725bfd0bbe"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -26,6 +26,9 @@
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "phpcodesniffer-standard",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-codesniffer"
+            },
             "autoload": {
                 "psr-4": {
                     "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
