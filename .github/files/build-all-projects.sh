@@ -33,8 +33,7 @@ for project in projects/packages/* projects/plugins/*; do
 
 	GIT_SLUG=$(jq -r '.extra["mirror-repo"] // ""' composer.json)
 	if [[ -z "$GIT_SLUG" ]]; then
-		echo "::error::Failed to determine project repo name from composer.json"
-		EXIT=1
+		echo "Failed to determine project repo name from composer.json, skipping"
 		continue
 	fi
 	echo "Repo name: $GIT_SLUG"
