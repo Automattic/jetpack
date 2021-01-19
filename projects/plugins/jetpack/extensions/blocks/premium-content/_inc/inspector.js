@@ -59,7 +59,7 @@ export default function Inspector( props ) {
 				</ExternalLink>
 			) }
 			<PanelBody
-				title="Add a new subscription"
+				title={ __( 'Add a new subscription', 'jetpack' ) }
 				initialOpen={ true }
 				className={ `${ className }---settings-add_plan` }
 			>
@@ -77,20 +77,20 @@ export default function Inspector( props ) {
 						<PanelRow className="plan-name">
 							<TextControl
 								id="new-plan-name"
-								label="Name"
+								label={ __( 'Name', 'jetpack' ) }
 								value={ attributes.newPlanName }
 								onChange={ set => setAttributes( { newPlanName: set } ) }
 							/>
 						</PanelRow>
 						<PanelRow className="plan-price">
 							<SelectControl
-								label="Currency"
+								label={ __( 'Currency', 'jetpack' ) }
 								onChange={ set => setAttributes( { newPlanCurrency: set } ) }
 								value={ attributes.newPlanCurrency }
 								options={ CURRENCY_OPTIONS }
 							></SelectControl>
 							<TextControl
-								label="Price"
+								label={ __( 'Price', 'jetpack' ) }
 								value={ attributes.newPlanPrice }
 								onChange={ set => setAttributes( { newPlanPrice: parseFloat( set ) } ) }
 								type="number"
@@ -98,12 +98,12 @@ export default function Inspector( props ) {
 						</PanelRow>
 						<PanelRow className="plan-interval">
 							<SelectControl
-								label="Interval"
+								label={ __( 'Interval', 'jetpack' ) }
 								onChange={ set => setAttributes( { newPlanInterval: set } ) }
 								value={ attributes.newPlanInterval }
 								options={ [
-									{ label: 'Month', value: '1 month' },
-									{ label: 'Year', value: '1 year' },
+									{ label: __( 'Month', 'jetpack' ), value: '1 month' },
+									{ label: __( 'Year', 'jetpack' ), value: '1 year' },
 								] }
 							></SelectControl>
 						</PanelRow>
