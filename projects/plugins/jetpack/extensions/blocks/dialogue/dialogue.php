@@ -48,7 +48,7 @@ function filter_content( $content ) {
 		return '';
 	}
 
-	return wp_kses(
+	return wp_kses_post(
 		$content,
 		array(
 			'small'  => true,
