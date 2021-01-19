@@ -54,10 +54,11 @@ const PublicizeForm = compose( [
 		 *
 		 * @param {object} event Change event data from textarea element.
 		 */
-		messageChange( event ) {
+		messageChange( event, hasEditedShareMessage ) {
 			dispatch( 'core/editor' ).editPost( {
 				meta: {
 					jetpack_publicize_message: event.target.value,
+					jetpack_publicize_hasEditedShareMessage: hasEditedShareMessage,
 				},
 			} );
 		},
