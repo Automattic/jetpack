@@ -17,6 +17,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarButton,
+	Button,
 } from '@wordpress/components';
 import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
@@ -284,19 +285,12 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ baseClassName }__meta` }>
-				<div onFocus={ () => setIsFocusedOnParticipantLabel( true ) }>
-					<ParticipantsDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
-						className={ baseClassName }
-						labelClassName={ getParticipantLabelClass() }
-						participants={ participants }
-						label={ participantLabel }
-						participantSlug={ participantSlug }
-						participant={ participant }
-						onSelect={ setAttributes }
-						onChange={ setAttributes }
-					/>
-				</div>
+				<Button
+					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
+					className={ getParticipantLabelClass() }
+				>
+					{ participantLabel }
+				</Button>
 
 				{ showTimestamp && (
 					<TimestampDropdown

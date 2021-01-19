@@ -94,7 +94,7 @@ function ParticipantsSelector( {
 }
 
 export default function ParticipantsDropdown( props ) {
-	const { label, position = 'bottom left', labelClassName, icon = null } = props;
+	const { label, position = 'bottom', labelClassName, icon = null } = props;
 
 	return (
 		<DropdownMenu
