@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useRef, useCallback } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
