@@ -42,7 +42,7 @@
 		var current = el;
 
 		do {
-			if ( matches( el, sel ) ) {
+			if ( matches( current, sel ) ) {
 				return current;
 			}
 			current = current.parentElement || current.parentNode;
@@ -113,10 +113,10 @@
 
 	// Use this to avoid creating new instances for buttons which already have one.
 	MoreButton.instantiateOrReuse = function ( buttonEl ) {
-		var pane = buttonEl && closest( buttonEl, 'div' ).querySelector( PANE_SELECTOR );
+		var pane = closest( buttonEl, 'div' ).querySelector( PANE_SELECTOR );
 		var paneId = pane && pane.getAttribute( PANE_DATA_ATTR );
 
-		var existingInstance = paneId && MoreButton.instances[ paneId ];
+		var existingInstance = MoreButton.instances[ paneId ];
 		if ( existingInstance ) {
 			return existingInstance;
 		}

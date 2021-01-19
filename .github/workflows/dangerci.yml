@@ -7,6 +7,7 @@ jobs:
   dangerci:
     name: "Danger CI"
     runs-on: ubuntu-latest
+    timeout-minutes: 4  # 2021-01-18: Successful runs seem to take 1-2 minutes
     steps:
       - uses: actions/checkout@v2
 
