@@ -17,7 +17,6 @@ import './style.scss';
 import {
 	ControlBackFiveIcon,
 	ControlForwardFiveIcon,
-	ControlPlayInTimeIcon,
 	ControlSyncIcon,
 	ControlUnsyncIcon,
 } from '../../icons';
@@ -71,16 +70,15 @@ export function MediaPlayerControl( {
 
 	const {
 		toggleMediaSource,
-		playMediaSource,
 		setMediaSourceCurrentTime,
 	} = useDispatch( STORE_ID );
 
 	function togglePlayer() {
+		if ( playerState !== STATE_PLAYING ) {
+			setPlayerCurrentTime( customTimeToPlay ); // <- move player to timestamp.
+			setProgressBarValue( customTimeToPlay ); // <- update progress bar immediately.
+		}
 		toggleMediaSource( defaultMediaSource.id );
-	}
-
-	function playPlayer() {
-		playMediaSource( defaultMediaSource.id );
 	}
 
 	function setPlayerCurrentTime( time ) {
@@ -88,12 +86,6 @@ export function MediaPlayerControl( {
 			mediaDomReference.currentTime = time;
 		}
 		setMediaSourceCurrentTime( defaultMediaSource.id, time );
-	}
-
-	function playPlayerInCustomTime() {
-		setPlayerCurrentTime( customTimeToPlay );
-		setProgressBarValue( customTimeToPlay ); // <- update currebt bar immediately.
-		playPlayer();
 	}
 
 	function setCurrentTime( time ) {
@@ -120,8 +112,6 @@ export function MediaPlayerControl( {
 		onTimeChange( mediaCurrentTime );
 	}, [ mediaCurrentTime, onTimeChange, syncMode, playerState ] );
 
-	const disableCustomPlayButton = isDisabled || syncMode || Math.abs( customTimeToPlay - mediaCurrentTime ) < 1;
-
 	return (
 		<>
 			{ jumpBackTime !== false && (
@@ -139,15 +129,6 @@ export function MediaPlayerControl( {
 				onClick={ togglePlayer }
 				label={ __( 'Play', 'jetpack' ) }
 			/>
-
-			{ customTimeToPlay !== false && (
-				<ToolbarButton
-					icon={ ControlPlayInTimeIcon }
-					isDisabled={ disableCustomPlayButton }
-					onClick={ playPlayerInCustomTime }
-					label={ __( 'Play in custom time', 'jetpack' ) }
-				/>
-			) }
 
 			{ skipForwardTime && (
 				<ToolbarButton
