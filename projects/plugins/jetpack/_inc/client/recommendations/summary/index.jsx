@@ -26,7 +26,7 @@ import {
 	getSiteTypeDisplayName,
 	getSummaryFeatureSlugs,
 	getUpsell,
-	updateRecommendationsStepAction,
+	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 
 /**
