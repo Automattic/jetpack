@@ -1,3 +1,12 @@
+<?php
+/**
+ * Jetpack Beta wp-admin menu tab page contents.
+ *
+ * @package Jetpack Beta
+ */
+
+?>
+
 <div class="jetpack-beta__master-head">
 	<div class="jetpack-beta-container">
 		<a class="jp-masthead__logo-link" href="<?php echo esc_url( Jetpack_Beta_Admin::settings_link() ); ?>">
