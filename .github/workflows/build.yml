@@ -124,6 +124,7 @@ jobs:
 
     # Mirror master and any branch matching "*/branch-*". But note the latter is special cased
     # in .github/files/push-all-projects.sh.
+    # Keep this in sync with the corresponding condition in cancel-dups.yml.
     if: github.ref == 'refs/heads/master' || contains( github.ref, '/branch-' )
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
