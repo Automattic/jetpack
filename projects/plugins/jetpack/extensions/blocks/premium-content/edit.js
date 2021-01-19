@@ -19,7 +19,7 @@ import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
 import Context from './_inc/context';
 import { flashIcon } from '../../shared/icons';
-import { isPriceValid, minimumTransactionAmountForCurrency } from '.';
+import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import './editor.scss';
 
 /**
