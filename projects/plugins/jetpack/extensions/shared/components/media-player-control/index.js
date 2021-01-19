@@ -97,7 +97,7 @@ export function MediaPlayerControl( {
 		}
 	}
 
-	// Syncornize current-time player with block property.
+	// Synchronize current-time player with block property.
 	useEffect( () => {
 		if ( ! syncMode ) {
 			return;
