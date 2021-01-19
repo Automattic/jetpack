@@ -1,8 +1,8 @@
 <?php
 /**
- * Description goes here
+ * Jetpack Beta Tester CLI controls
  *
- * @package I don't know what package this is.
+ * @package Jetpack Beta
  */
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
@@ -26,6 +26,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		 * wp jetpack-beta branch activate stable
 		 * wp jetpack-beta branch activate branch_name
 		 * wp jetpack-beta branch list
+		 *
+		 * @param array $args arguments passed to CLI, per the examples above.
 		 */
 		public function branch( $args ) {
 
@@ -42,7 +44,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			} else {
 				$branch_name = str_replace( '/', '_', $args[1] );
 				$url         = Jetpack_Beta::get_install_url( $branch_name, 'pr' );
-				if ( $url === null ) {
+				if ( null === $url ) {
 					return WP_CLI::error( __( 'Invalid branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack' ) );
 				}
 				return $this->install_jetpack( $branch_name, 'pr' );
@@ -50,7 +52,13 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return WP_CLI::error( __( 'Unrecognized branch version. ', 'jetpack' ) );
 		}
 
+		/**
+		 * Validate that we can switch branches.
+		 *
+		 * @param array $args arguments passed to CLI.
+		 */
 		private function validation_checks( $args ) {
+
 			if ( is_multisite() && ! is_main_site() ) {
 				return WP_CLI::error( __( 'Secondary sites in multisite instalations are not supported', 'jetpack' ) );
 			}
@@ -68,7 +76,14 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			}
 		}
 
+		/**
+		 * Install Jetpack using selected branch.
+		 *
+		 * @param array $branch is the selected branch.
+		 * @param array $section what we're specifically installing (PR, master, stable, etc).
+		 */
 		private function install_jetpack( $branch, $section ) {
+
 			WP_CLI::line( 'Activating ' . $branch . ' branch...' );
 
 			$result = Jetpack_Beta::install_and_activate( $branch, $section );
@@ -78,6 +93,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			return WP_CLI::success( __( 'Jetpack is currently on ' . $branch . ' branch', 'jetpack-beta' ) );
 		}
 
+		/**
+		 * Display list of branches.
+		 */
 		private function branches_list() {
 			$manifest            = Jetpack_Beta::get_beta_manifest();
 			$jetpack_beta_active = get_option( 'jetpack_beta_active' );
@@ -89,7 +107,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			sort( $branches );
 			WP_CLI::line( 'Available branches: ' );
 			foreach ( $branches as $branch ) {
-				WP_CLI::line( $current_branch == $branch ? '* ' . $branch : '  ' . $branch );
+				WP_CLI::line( $current_branch === $branch ? '* ' . $branch : '  ' . $branch );
 			}
 		}
 	}

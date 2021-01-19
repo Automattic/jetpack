@@ -4,7 +4,7 @@
  */
 class Jetpack_Beta_Admin {
 
-	static function init() {
+	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_actions' ), 998 );
 		add_action( 'network_admin_menu', array( __CLASS__, 'add_actions' ), 998 );
 		add_action( 'admin_notices', array( __CLASS__, 'render_banner' ) );
@@ -232,8 +232,8 @@ class Jetpack_Beta_Admin {
 			}
 		</style>
 		<div id="jetpack-beta-tester__start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
-			<h1><?php _e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
-			<p><?php _e( 'Thank you for helping to test Jetpack!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
+			<h1><?php esc_html_e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
+			<p><?php esc_html_e( 'Thank you for helping to test Jetpack!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
 			<p>
 			<?php
 			_e(
