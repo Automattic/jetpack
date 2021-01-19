@@ -20,6 +20,8 @@ class Jetpack_Recommendations {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		self::initialize_jetpack_recommendations();
+
 		$recommendations_enabled = Jetpack_Options::get_option( 'recommendations_enabled', null );
 
 		// If the option is already set, just return the cached value.
@@ -62,8 +64,7 @@ class Jetpack_Recommendations {
 	}
 
 	/**
-	 * Initializes the Recommendations step according to the Setup Wizard state, and then clears the
-	 * Setup Wizard state.
+	 * Initializes the Recommendations step according to the Setup Wizard state.
 	 */
 	private static function initialize_jetpack_recommendations() {
 		if ( Jetpack_Options::get_option( 'recommendations_step' ) ) {
@@ -72,10 +73,9 @@ class Jetpack_Recommendations {
 
 		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
 		if ( 'completed' === $setup_wizard_status ) {
-			Jetpack_Options::update_option( 'recommendations_step', 'completed' );
+			Jetpack_Options::update_option( 'recommendations_enabled', false );
+			Jetpack_Options::update_option( 'recommendations_step', 'setup_wizard_completed' );
 		}
-
-		Jetpack_Options::delete_option( array( 'setup_wizard_questionnaire', 'setup_wizard_status' ) );
 	}
 
 	/**
