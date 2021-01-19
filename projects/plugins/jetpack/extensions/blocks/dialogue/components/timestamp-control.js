@@ -113,7 +113,7 @@ export function TimestampControl( {
 			<div className={ `${ className }__timestamp-player` }>
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
-					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
+					onTimeChange={ onChange }
 					syncMode={ playerSyncMode }
 					onSyncModeToggle={ onPlayerSyncModeToggle }
 					progressBar={ true }

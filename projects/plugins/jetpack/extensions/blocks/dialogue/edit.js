@@ -35,7 +35,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
-import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
+import { convertTimeCodeToSeconds, convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -172,6 +172,10 @@ export default function DialogueEdit( {
 		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
+	function updateTimestampFromMediaPlayerControl( time ) {
+		setAttributes( { timestamp: convertSecondsToTimeCode( time ) } );
+	}
+
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -187,9 +191,8 @@ export default function DialogueEdit( {
 				</ToolbarGroup>
 
 				<MediaPlayerToolbarControl
-					jumpBackTime={ false }
-					skipForwardTime={ false }
-					customTimeToPlay={ showTimestamp ? convertTimeCodeToSeconds( timestamp ) : false }
+					customTimeToPlay={ convertTimeCodeToSeconds( timestamp ) }
+					onTimeChange={ updateTimestampFromMediaPlayerControl }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
@@ -243,7 +246,7 @@ export default function DialogueEdit( {
 							<TimestampControl
 								className={ baseClassName }
 								value={ timestamp }
-								onChange={ newTimestampValue => setAttributes( { timestamp: newTimestampValue } ) }
+								onChange={ updateTimestampFromMediaPlayerControl }
 								playerSyncMode={ playerSyncMode }
 								onPlayerSyncModeToggle={ setPlayerSyncMode }
 							/>
