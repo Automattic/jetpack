@@ -18,6 +18,7 @@ jobs:
   coverage:
     name: "Code coverage"
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # 2021-01-18: Successful runs seem to take ~20 minutes
     services:
       database:
         image: mysql:5.6

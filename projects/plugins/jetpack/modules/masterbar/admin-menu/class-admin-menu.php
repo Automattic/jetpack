@@ -282,7 +282,7 @@ class Admin_Menu {
 		 */
 		$ptype_menu_position = is_int( $ptype_obj->menu_position ) ? $ptype_obj->menu_position : ++$GLOBALS['_wp_last_object_menu'];
 		$core_menu_positions = array( 59, 60, 65, 70, 75, 80, 85, 99 );
-		while ( isset( $menu[ $ptype_menu_position ] ) || in_array( $ptype_menu_position, $core_menu_positions, true ) ) {
+		while ( isset( $GLOBALS['menu'][ $ptype_menu_position ] ) || in_array( $ptype_menu_position, $core_menu_positions, true ) ) {
 			$ptype_menu_position++;
 		}
 
@@ -450,15 +450,12 @@ class Admin_Menu {
 		remove_menu_page( $admin_slug );
 		remove_submenu_page( $admin_slug, $admin_slug );
 		remove_submenu_page( $admin_slug, 'import.php' );
-		remove_submenu_page( $admin_slug, 'export.php' );
 		remove_submenu_page( $admin_slug, 'delete-blog' );
 
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-admin-tools', 75 );
 		add_submenu_page( $menu_slug, esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'https://wordpress.com/import/' . $this->domain, null, 15 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'https://wordpress.com/export/' . $this->domain, null, 20 );
 
 		$this->migrate_submenus( $admin_slug, $menu_slug );
-
 	}
 
 	/**

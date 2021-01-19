@@ -164,12 +164,12 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
 
 		// establish lock.
-		$this->assertTrue( ( new Lock() )->attempt( 'full_sync' ) );
+		$this->assertNotFalse( ( new Lock() )->attempt( 'full_sync' ) );
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
 		$this->assertEquals( $executions, 1 );
 
-		( new Lock() )->remove( 'full_sync' );
+		( new Lock() )->remove( 'full_sync', true );
 	}
 
 	/**

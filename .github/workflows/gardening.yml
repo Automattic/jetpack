@@ -11,6 +11,7 @@ jobs:
     name: "Label PRs"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     steps:
       - uses: actions/labeler@v3
         with:
@@ -19,6 +20,7 @@ jobs:
   #   name: "Review check"
   #   runs-on: ubuntu-latest
   #   if: github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == '[Status] Needs Review'
+  #   timeout-minutes: 1  # 2021-01-18: Successful runs probably take a few seconds
   #   steps:
   #     - name: Comment
   #       uses: actions/github-script@0.8.0
@@ -35,6 +37,7 @@ jobs:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     steps:
       - name: Checkout
         uses: actions/checkout@v2
