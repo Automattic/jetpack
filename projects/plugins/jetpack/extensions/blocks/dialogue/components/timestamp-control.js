@@ -119,6 +119,7 @@ export function TimestampControl( {
 					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
 					syncMode={ playerSyncMode }
 					onSyncModeToggle={ onPlayerSyncModeToggle }
+					progressBar={ true }
 				/>
 			</div>
 		</div>
