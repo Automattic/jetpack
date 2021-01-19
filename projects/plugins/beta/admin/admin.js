@@ -133,7 +133,7 @@
 		if ( clicked_activate ) {
 			return;
 		}
-		if ( element.textContent == window.JetpackBeta.activate ) {
+		if ( element.textContent === window.JetpackBeta.activate ) {
 			element.parentNode.textContent = window.JetpackBeta.activating;
 		} else {
 			element.parentNode.textContent = window.JetpackBeta.updating;
