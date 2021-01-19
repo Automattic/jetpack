@@ -204,9 +204,9 @@ module.exports = function( grunt ) {
     'svg-transform-to-camelcase',
     'svg-to-react',
     'babel',
-    'webfont',
     'svg-transform-add-square',
     'svg-to-pdf',
+    'webfont',
     'clean'
   ]);
 };
