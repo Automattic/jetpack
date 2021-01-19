@@ -18,6 +18,7 @@ jobs:
   coverage:
     name: "Code coverage"
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # 2021-01-18: Successful runs seem to take ~20 minutes
     services:
       database:
         image: mysql:5.6
@@ -73,45 +74,49 @@ jobs:
           ./.github/actions/php-pipeline/setup-env.sh
           yarn install
 
+      - working-directory: projects/plugins/jetpack
+        run: yarn install
+
       - name: Init code climate
         run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
 
-      - name: Adminpage coverage
-        run: yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=coverage/adminpage yarn test-adminpage
+      - name: Jetpack Adminpage coverage
+        working-directory: projects/plugins/jetpack
+        run: yarn nyc --reporter=lcov -x '_inc/**/**/test/*.js' --report-dir=$GITHUB_WORKSPACE/coverage/adminpage yarn test-adminpage
 
-      - name: Extensions coverage
-        run: yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js'
+      - name: Jetpack Extensions coverage
+        working-directory: projects/plugins/jetpack
+        run: yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory=$GITHUB_WORKSPACE/coverage/extensions
 
-      - name: Backend coverage
+      - name: Jetpack Backend coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: phpdbg -qrr $(which phpunit) --coverage-clover $GITHUB_WORKSPACE/coverage/backend/clover.xml
 
-      - name: Legacy full sync coverage
+      - name: Jetpack Legacy full sync coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
           LEGACY_FULL_SYNC: '1'
         run: phpdbg -qrr $(which phpunit) --group=legacy-full-sync --coverage-clover $GITHUB_WORKSPACE/coverage/legacy-sync/clover.xml
 
-      - name: Multisite coverage
+      - name: Jetpack Multisite coverage
         working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         env:
           WP_MULTISITE: '1'
         run: phpdbg -qrr $(which phpunit) -c tests/php.multisite.xml --coverage-clover $GITHUB_WORKSPACE/coverage/multisite/clover.xml
 
       - name: Package coverage
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
-          for PACKAGE in ./packages/*/tests/php; do
+          for PACKAGE in ./projects/packages/*/tests/php; do
             cd "$PACKAGE/../.."
             NAME=$(basename $(pwd))
             echo "::group::Package $NAME"
             composer install
             phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover $GITHUB_WORKSPACE/coverage/package-$NAME/clover.xml
             echo "::endgroup::"
-            cd ../..
+            cd -
           done
 
       - name: Process coverage results

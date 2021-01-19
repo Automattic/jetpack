@@ -14,6 +14,7 @@ jobs:
   changed_files:
     name: detect changed files
     runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     outputs:
       # Whether any PHP files have changed.
       php: ${{ steps.filter.outputs.php == 'true' }}
@@ -66,9 +67,9 @@ jobs:
               - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
-              - 'bin/phpcs-excludelist.json'
+              - 'tools/phpcs-excludelist.json'
               # If other files used by this workflow changed, run it to test those changes.
-              - 'bin/parallel-lint.sh'
+              - 'tools/parallel-lint.sh'
               - '.github/files/php-linting-phpcs.xml'
               - '.github/matchers/phpcs-problem-matcher.json'
               - '.github/matchers/php-lint-problem-matcher.json'
@@ -80,7 +81,7 @@ jobs:
               - '.eslintrc'
               - '**/.eslintrc'
               # If the excludelist changed, run to ensure newly non-excluded files pass.
-              - 'bin/eslint-excludelist.json'
+              - 'tools/eslint-excludelist.json'
             misc_excludelist:
               - 'tools/cleanup-excludelists.sh'
               - '.github/files/check-excludelist-diff.js'
@@ -93,7 +94,7 @@ jobs:
         env:
           PHP_FILES: ${{ steps.filter.outputs.php_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes bin/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
 
       - id: filterJS
@@ -101,7 +102,7 @@ jobs:
         env:
           JS_FILES: ${{ steps.filter.outputs.js_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes bin/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
 
       - id: filterExcludeList
@@ -109,7 +110,7 @@ jobs:
         env:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes bin/phpcs-excludelist.json --slurpfile jsexcludes bin/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
           echo "::set-output name=excluded_files::$EXCLUDED_FILES"
 
       # When the `php_lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
@@ -139,6 +140,7 @@ jobs:
     needs: changed_files
     if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
     continue-on-error: ${{ matrix.experimental }}
+    timeout-minutes: 3  # 2021-01-18: Successful runs seem to take ~1 minute
 
     strategy:
       fail-fast: false
@@ -193,6 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       - uses: actions/checkout@v2
@@ -235,6 +238,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       - uses: actions/checkout@v2
@@ -281,6 +285,7 @@ jobs:
     needs: changed_files
     if: needs.changed_files.outputs.php_excluded_files != '[]'
     continue-on-error: true
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
@@ -333,6 +338,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.js || needs.changed_files.outputs.misc_js
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       - uses: actions/checkout@v2
@@ -362,6 +368,7 @@ jobs:
     needs: changed_files
     if: needs.changed_files.outputs.js_excluded_files != '[]'
     continue-on-error: true
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
@@ -389,6 +396,17 @@ jobs:
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
         run: yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
 
+  ### Checks that copied files (e.g. readme, license) are in sync
+  # Local equivalent: `./tools/check-copied-files.sh`
+  copied_files:
+    name: Copied files are in sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds.
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./tools/check-copied-files.sh
+
   ### Runs tools/cleanup-excludelists.sh and checks for any changes
   # Local equivalent: `tools/cleanup-excludelists.sh`
   check_excludelists:
@@ -396,6 +414,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.excludelist
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~3 minutes. Hopefully this will only ever decrease.
 
     steps:
       - uses: actions/checkout@v2
