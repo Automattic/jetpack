@@ -1629,6 +1629,26 @@ jQuery( document ).ready( function ( $ ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;
 			}
+			// Check if the image is linked so we can disable carousel for custom linked images
+			var parentHref = $( e.target ).parent().attr( 'href' );
+			if ( parentHref ) {
+				var valid = false;
+				if (
+					parentHref.split( '?' )[ 0 ] === $( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ]
+				) {
+					valid = true;
+				}
+
+				// if link points to 'Attachment Page' allow it
+				if ( parentHref === $( e.target ).attr( 'data-permalink' ) ) {
+					valid = true;
+				}
+
+				// links to 'Custom URL' or 'Media File' when flag not set are not valid
+				if ( ! valid ) {
+					return;
+				}
+			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
 			if ( $( e.target ).parent().hasClass( 'gallery-caption' ) ) {
