@@ -119,7 +119,7 @@ export default function DialogueEdit( {
 
 	// Sync Mode.
 	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
-	// Set sync mode always False when mounted
+	// Set sync mode always false when mounted.
 	useEffect( () => {
 		setPlayerSyncMode( false );
 	}, [ isSelected ] );
