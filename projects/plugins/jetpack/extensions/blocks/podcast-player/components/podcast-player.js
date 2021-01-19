@@ -176,8 +176,10 @@ export class PodcastPlayer extends Component {
 
 	updateMediaData = ( event ) => {
 		this.props.updateMediaSourceData(
-			this.props.playerId, {
-				duration: event.target.duration,
+			this.props.playerId,
+			{
+				duration: event.target?.duration,
+				domId: event.target?.id,
 			}
 		);
 	}
