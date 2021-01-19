@@ -16,7 +16,7 @@ let exitCode = 0;
 function loadPhpcsExcludeList() {
 	if ( null === phpcsExcludelist ) {
 		phpcsExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/phpcs-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../phpcs-excludelist.json', 'utf8' )
 		);
 	}
 	return phpcsExcludelist;
@@ -30,7 +30,7 @@ function loadPhpcsExcludeList() {
 function loadEslintExcludeList() {
 	if ( null === eslintExcludelist ) {
 		eslintExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/eslint-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../eslint-excludelist.json', 'utf8' )
 		);
 	}
 	return eslintExcludelist;
@@ -159,7 +159,7 @@ function runEslint( toLintFiles ) {
 
 	// Apply .eslintignore.
 	const ignore = require( 'ignore' )();
-	ignore.add( fs.readFileSync( __dirname + '/../.eslintignore', 'utf8' ) );
+	ignore.add( fs.readFileSync( __dirname + '/../../.eslintignore', 'utf8' ) );
 	toLintFiles = ignore.filter( toLintFiles );
 	if ( ! toLintFiles.length ) {
 		return;
