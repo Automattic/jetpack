@@ -8,6 +8,7 @@ import { hideBin } from 'yargs/helpers';
  * Internal dependencies
  */
 import { buildDefine } from './commands/build';
+import { watchDefine } from "./commands/watch";
 // import { dockerDefine } from "./commands/docker";
 
 /**
@@ -22,6 +23,7 @@ export async function cli() {
 
 	// Adds the commands to the yargs instance.
 	argv = buildDefine( argv );
+	argv = watchDefine( argv );
 	// argv = dockerDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.

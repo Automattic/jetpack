@@ -3,7 +3,6 @@
  */
 import child_process from 'child_process';
 import chalk from 'chalk';
-import fs from 'fs';
 import path from 'path';
 
 /**
@@ -11,6 +10,7 @@ import path from 'path';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
+import { readPackageJson } from "../helpers/readPackageJson";
 
 // eslint-disable-next-line no-console
 const log = console.log;
@@ -24,23 +24,12 @@ async function buildRouter( options ) {
 	options = {
 		...options,
 		project: options.project || '',
-		targetDirectory: options.targetDirectory || process.cwd(),
+		production: options.production || false
 	};
 
 	if ( options.project ) {
-		await fs.readFile( 'projects/' + options.project + '/package.json', 'utf8', ( err, data ) => {
-			if ( err ) {
-				log( chalk.yellow( 'This project does not have a package.json file.' ) );
-				return;
-			}
-			try {
-				data = JSON.parse( data );
-			} catch ( parseError ) {
-				log( chalk.red( 'Could not parse package.json. Something is pretty wrong.' ), parseError );
-				return;
-			}
-			build( options.project, options.production, data );
-		} );
+		const data = await readPackageJson( options.project );
+		( data !== false ) ? await build( options.project, options.production, data ) : false;
 	} else {
 		log( chalk.red( 'You did not choose a project!' ) );
 	}
@@ -65,7 +54,7 @@ export async function build( project, production, packageJson ) {
 
 	if ( ! buildDev && ! buildProd ) {
 		// If neither build step is defined, abort.
-		log( chalk.yellow( 'This project does not have a build step defined!!' ) );
+		log( chalk.yellow( 'This project does not have a build step defined!' ) );
 		return;
 	} else if ( production && buildProd ) {
 		// If we need a production build and there is a production step, use it.

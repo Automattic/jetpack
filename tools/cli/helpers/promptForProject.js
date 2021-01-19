@@ -2,7 +2,11 @@
  * External dependencies
  */
 import inquirer from 'inquirer';
-import { readdirSync } from 'fs';
+
+/**
+ * Internal dependencies
+ */
+import { dirs, projectTypes } from "./projectHelpers";
 
 /**
  * Prompt for project.
@@ -16,11 +20,6 @@ import { readdirSync } from 'fs';
  * @returns {object} argv object with the project property.
  */
 export async function promptForProject( options ) {
-	const dirs = source =>
-		readdirSync( source, { withFileTypes: true } )
-			.filter( dirent => dirent.isDirectory() )
-			.map( dirent => dirent.name );
-
 	const questions = [];
 	let typeAnswer;
 
@@ -29,8 +28,7 @@ export async function promptForProject( options ) {
 			type: 'list',
 			name: 'type',
 			message: 'What type of project are you building today?',
-			choices: [ 'packages', 'plugins' ],
-			// choices: [ 'editor-extensions', 'packages', 'plugins' ], // Swap out line above once there's editor-extensions in place.
+			choices: projectTypes,
 		} );
 		questions.push( {
 			type: 'list',
