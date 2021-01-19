@@ -56,7 +56,14 @@ function setTimestampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
-export function TimestampControl( { value, className, onChange, shortLabel = false } ) {
+export function TimestampControl( {
+	value,
+	className,
+	onChange,
+	shortLabel = false,
+	playerSyncMode,
+	onPlayerSyncModeToggle,
+} ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
@@ -107,8 +114,8 @@ export function TimestampControl( { value, className, onChange, shortLabel = fal
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
-					syncMode={ true }
-					progressBar={ true }
+					syncMode={ playerSyncMode }
+					onSyncModeToggle={ onPlayerSyncModeToggle }
 				/>
 			</div>
 		</div>
