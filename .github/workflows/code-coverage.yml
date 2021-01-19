@@ -39,7 +39,7 @@ jobs:
           php-version: "7.3"
           tools: composer
           coverage: none
-          extensions: mysql, imagick, phpdbg
+          extensions: mysql, imagick
       - uses: actions/setup-node@v2
         with:
           node-version: '12'
