@@ -256,15 +256,6 @@ html {
 	color: #2e4453;
 }
 
-.dops-button.is-disabled,
-.dops-button[disabled],
-.dops-button:disabled {
-	color: #e9eff3;
-	background: white;
-	border-color: #e9eff3;
-	cursor: default;
-}
-
 .dops-button[disabled]:active,
 .dops-button:disabled:active {
 	border-width: 1px 1px 2px;
