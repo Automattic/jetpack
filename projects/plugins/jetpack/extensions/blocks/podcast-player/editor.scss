@@ -23,10 +23,14 @@
 
 // Placeholder styles
 .jetpack-podcast-player__placeholder {
+	.components-placeholder__fieldset form {
+		flex-direction: column;
+	}
 	.components-base-control,
 	.components-base-control__field {
 		display: flex;
 		flex-grow: 1;
+		flex-direction: column;
 	}
 
 	.components-base-control__field {
@@ -35,5 +39,20 @@
 
 	.components-placeholder__learn-more {
 		margin-top: 1em;
+		flex-grow: 1;
+	}
+
+	.components-form-token-field__suggestions-list {
+		margin: 0;
+		padding: 0;
+	}
+	
+	.components-combobox-control {
+		margin-top: 5px;
+	}
+
+	.embed-actions {
+		display: flex;
+		flex-direction: row;
 	}
 }

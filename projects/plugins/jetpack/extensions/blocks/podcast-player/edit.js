@@ -43,6 +43,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
+import EpisodeSelector from './components/episode-selector';
 import { makeCancellable } from './utils';
 import { fetchPodcastFeed } from './api';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
@@ -101,6 +102,8 @@ const PodcastPlayerEdit = ( {
 
 	const fetchFeed = useCallback(
 		( urlToFetch, guid ) => {
+			console.log( 'url', urlToFetch, 'guid', guid );
+			cancellableFetch.current?.cancel();
 			cancellableFetch.current = makeCancellable( fetchPodcastFeed( { url: urlToFetch, guid } ) );
 			cancellableFetch.current.promise.then(
 				response => {
@@ -144,7 +147,7 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 		if ( feedData.tracks ) {
-			if ( ! isEqual( feedData.tracks[ 0 ], singleEpisode ) ) {
+			if ( ! isEqual( feedData.tracks[ 0 ], singleEpisode ) && singleEpisode.guid === feedData.tracks[0].guid ) {
 				setAttributes( { singleEpisode: feedData.tracks[ 0 ] } );
 			}
 		} else {
@@ -210,7 +213,7 @@ const PodcastPlayerEdit = ( {
 			 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
 			 */
 			if ( prependedURL === url ) {
-				fetchFeed( url );
+				fetchFeed( url, episodeGuid );
 			} else {
 				setAttributes( { url: prependedURL } );
 			}
@@ -223,7 +226,7 @@ const PodcastPlayerEdit = ( {
 			setEditedUrl( prependedURL );
 			setIsEditing( false );
 		},
-		[ editedUrl, url, fetchFeed, createErrorNotice, removeAllNotices, setAttributes ]
+		[ editedUrl, url, fetchFeed, createErrorNotice, removeAllNotices, setAttributes, episodeGuid ]
 	);
 
 	if ( isEditing || ( ! url && ! exampleFeedData ) ) {
@@ -244,15 +247,22 @@ const PodcastPlayerEdit = ( {
 						className={ 'components-placeholder__input' }
 						onChange={ setEditedUrl }
 					/>
-					<Button isPrimary type="submit">
-						{ __( 'Embed', 'jetpack' ) }
-					</Button>
+					<EpisodeSelector
+						feedUrl={ editedUrl }
+						episodeDetails={ singleEpisode }
+						onSelected={ episode => setAttributes( { singleEpisode: episode } ) }
+					/>
+					<div className="embed-actions">
+						<div className="components-placeholder__learn-more">
+							<ExternalLink href={ supportUrl }>
+								{ __( 'Learn more about embeds', 'jetpack' ) }
+							</ExternalLink>
+						</div>
+						<Button isPrimary type="submit">
+							{ __( 'Embed', 'jetpack' ) }
+						</Button>
+					</div>
 				</form>
-				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ supportUrl }>
-						{ __( 'Learn more about embeds', 'jetpack' ) }
-					</ExternalLink>
-				</div>
 			</Placeholder>
 		);
 	}
@@ -289,6 +299,7 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
+					{ ! episodeGuid && ( 
 					<RangeControl
 						label={ __( 'Number of items', 'jetpack' ) }
 						value={ itemsToShow }
@@ -297,7 +308,7 @@ const PodcastPlayerEdit = ( {
 						max={ DEFAULT_MAX_ITEMS }
 						required
 					/>
-
+					) }
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }
 						checked={ showCoverArt }
