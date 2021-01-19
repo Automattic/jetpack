@@ -92,6 +92,9 @@ export function MediaPlayerControl( {
 
 	function setCurrentTime( time ) {
 		onTimeChange( time );
+		if ( syncMode ) {
+			setPlayerCurrentTime( time );
+		}
 	}
 
 	// Syncornize current-time player with block property.
