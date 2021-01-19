@@ -11,11 +11,12 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
  * Creates a subscribe/login buttons markup for legacy blocks.
  *
  * @param array  $attributes Block attributes.
- * @param object $block Legacy block.
+ * @param string $content    String containing the block content.
+ * @param object $block      Legacy block.
  *
  * @return string Subscribe/login buttons markup.
  */
-function create_legacy_buttons_markup( $attributes, $block ) {
+function create_legacy_buttons_markup( $attributes, $content, $block ) {
 	$button_styles = array();
 	if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
 		array_push(
@@ -52,7 +53,9 @@ function create_legacy_buttons_markup( $attributes, $block ) {
 			'customTextButtonColor'       => empty( $attributes['customTextButtonColor'] ) ? '' : esc_attr( $attributes['customTextButtonColor'] ),
 			'customBackgroundButtonColor' => empty( $attributes['customBackgroundButtonColor'] ) ? '' : esc_attr( $attributes['customBackgroundButtonColor'] ),
 			'submitButtonText'            => empty( $attributes['subscribeButtonText'] ) ? __( 'Subscribe', 'jetpack' ) : esc_attr( $attributes['subscribeButtonText'] ),
-		)
+		),
+		$content,
+		$block
 	);
 
 	return "<div class='wp-block-premium-content-logged-out-view__buttons'>{$subscribe_button}{$login_button}</div>";

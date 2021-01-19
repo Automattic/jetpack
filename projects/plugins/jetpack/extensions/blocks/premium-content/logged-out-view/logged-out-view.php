@@ -64,7 +64,7 @@ function render_loggedout_view_block( $attributes, $content, $block = null ) {
 	if ( ! empty( $attributes['buttonClasses'] ) ) {
 		require_once '../_inc/legacy-buttons.php';
 
-		$buttons = create_legacy_buttons_markup( $attributes, $block );
+		$buttons = create_legacy_buttons_markup( $attributes, $content, $block );
 		return $content . $buttons;
 	}
 
