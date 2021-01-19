@@ -108,6 +108,8 @@ export function MediaPlayerControl( {
 		onTimeChange( mediaCurrentTime );
 	}, [ mediaCurrentTime, onTimeChange, syncMode, playerState ] );
 
+	const disableCustomPlayButton = isDisabled || syncMode || Math.abs( customTimeToPlay - mediaCurrentTime ) < 1;
+
 	return (
 		<>
 			{ jumpBackTime !== false && (
@@ -129,7 +131,7 @@ export function MediaPlayerControl( {
 			{ customTimeToPlay !== false && (
 				<ToolbarButton
 					icon={ ControlPlayInTimeIcon }
-					isDisabled={ isDisabled }
+					isDisabled={ disableCustomPlayButton }
 					onClick={ playPlayerInCustomTime }
 					label={ __( 'Play in custom time', 'jetpack' ) }
 				/>
