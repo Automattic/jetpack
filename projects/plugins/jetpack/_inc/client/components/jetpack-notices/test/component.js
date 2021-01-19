@@ -110,6 +110,8 @@ describe( 'DevVersionNotice', () => {
 		expect( wrapper.prop( 'text' ) ).to.equal(
 			"You are currently running a development version of Jetpack."
 		);
+		expect( wrapper.find( 'SimpleNotice' ).length ).to.equal(1);
+		expect( wrapper.find( 'NoticeAction' ).length ).to.equal(1);
 	} );
 } );
 
