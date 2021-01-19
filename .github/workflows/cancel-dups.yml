@@ -33,7 +33,7 @@ jobs:
     # Keep the branch part of this condition in sync with the corresponding condition in build.yml
     if: >
       github.event.workflow_run.name == 'Build' && ! (
-        github.event.workflow_run.head_branch == 'master'
+        github.event.workflow_run.head_branch == 'master' || contains( github.event.workflow_run.head_branch, '/branch-' )
       )
 
     steps:

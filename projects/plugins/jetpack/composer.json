@@ -63,6 +63,7 @@
 		}
 	},
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-production"
+		"mirror-repo": "Automattic/jetpack-production",
+		"release-branch-prefix": "jetpack"
 	}
 }
