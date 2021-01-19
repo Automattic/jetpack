@@ -39,7 +39,7 @@ function create_legacy_buttons_markup( $attributes, $block ) {
 
 	$login_button = sprintf(
 		'<div class="wp-block-button"><a role="button" href="%1$s" class="%2$s" style="%3$s">%4$s</a></div>',
-		premium_content_subscription_service()->access_url(),
+		subscription_service()->access_url(),
 		empty( $attributes['buttonClasses'] ) ? 'wp-block-button__link' : esc_attr( $attributes['buttonClasses'] ),
 		esc_attr( $button_styles ),
 		empty( $attributes['loginButtonText'] ) ? __( 'Log In', 'jetpack' ) : $attributes['loginButtonText']
