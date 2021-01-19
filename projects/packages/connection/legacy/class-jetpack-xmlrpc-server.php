@@ -68,6 +68,7 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
 			$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
 			$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
+			$jetpack_methods['jetpack.disconnectBlog']    = array( $this, 'disconnect_blog' );
 		}
 
 		$this->user = $this->login();
@@ -76,7 +77,6 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.disconnectBlog'  => array( $this, 'disconnect_blog' ),
 					'jetpack.testAPIUserCode' => array( $this, 'test_api_user_code' ),
 				)
 			);
