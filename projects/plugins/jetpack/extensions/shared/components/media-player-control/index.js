@@ -44,12 +44,14 @@ export function MediaPlayerControl( {
 		mediaCurrentTime,
 		mediaDuration,
 		defaultMediaSource,
+		mediaDomReference,
 	} = useSelect( select => {
 		const {
 			getMediaSourceCurrentTime,
 			getMediaPlayerState,
 			getDefaultMediaSource,
 			getMediaSourceDuration,
+			getMediaSourceDomReference,
 		} = select( STORE_ID );
 
 		return {
@@ -57,6 +59,7 @@ export function MediaPlayerControl( {
 			mediaCurrentTime: getMediaSourceCurrentTime(),
 			mediaDuration: getMediaSourceDuration(),
 			defaultMediaSource: getDefaultMediaSource(),
+			mediaDomReference: getMediaSourceDomReference(),
 		};
 	}, [] );
 
@@ -81,6 +84,9 @@ export function MediaPlayerControl( {
 	}
 
 	function setPlayerCurrentTime( time ) {
+		if ( mediaDomReference ) {
+			mediaDomReference.currentTime = time;
+		}
 		setMediaSourceCurrentTime( defaultMediaSource.id, time );
 	}
 
@@ -93,6 +99,9 @@ export function MediaPlayerControl( {
 	function setCurrentTime( time ) {
 		onTimeChange( time );
 		if ( syncMode ) {
+			if ( mediaDomReference ) {
+				mediaDomReference.currentTime = time;
+			}
 			setPlayerCurrentTime( time );
 		}
 	}
