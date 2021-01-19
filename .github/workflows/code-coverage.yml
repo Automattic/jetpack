@@ -39,7 +39,7 @@ jobs:
           php-version: "7.3"
           tools: composer
           coverage: none
-          extensions: mysql, imagick
+          extensions: mysql, imagick, phpdbg
       - uses: actions/setup-node@v2
         with:
           node-version: '12'
@@ -54,6 +54,17 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which phpdbg
+          phpdbg --version
+          which composer
+          composer --version
+          which yarn
+          yarn --version
 
       # As suggested here https://github.com/codeclimate/test-reporter/issues/406#issuecomment-578483422
       - name: Set ENV for CodeClimate (pull_request)
