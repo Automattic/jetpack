@@ -563,7 +563,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	var methods = {
 		testForData: function ( gallery ) {
-			gallery = $( gallery ); // make sure we have it as a jQuery object.
+			gallery = $( gallery );
 			return ! ( ! gallery.length || ! gallery.data( 'carousel-extra' ) );
 		},
 
@@ -1624,7 +1624,7 @@ jQuery( document ).ready( function ( $ ) {
 	// register the event listener for starting the gallery
 	$( document.body ).on(
 		'click.jp-carousel',
-		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
+		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
 		function ( e ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;
@@ -1651,10 +1651,12 @@ jQuery( document ).ready( function ( $ ) {
 			e.stopPropagation();
 			$( this ).jp_carousel( 'open', {
 				start_index: $( this )
-					.find( '.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item' )
+					.find(
+						'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item, .wp-block-image'
+					)
 					.index(
 						$( e.target ).parents(
-							'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
+							'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item, .wp-block-image'
 						)
 					),
 			} );
