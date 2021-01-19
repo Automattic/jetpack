@@ -2,7 +2,6 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -10,7 +9,7 @@ import { debounce } from 'lodash';
 import { ToolbarGroup, ToolbarButton, RangeControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useCallback, useState } from '@wordpress/element';
+import { useRef, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -62,7 +61,7 @@ export function MediaPlayerControl( {
 	}, [] );
 
 	const [ progressBarValue, setProgressBarValue ] = useState( 0 );
-	const [ isInSyncBlocked, blockInSync ] = useState( false );
+	const prevSyncMode = useRef();
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
@@ -98,23 +97,15 @@ export function MediaPlayerControl( {
 	/*
 	 * Syncornize current-time player with block property.
 	 */
-	useEffect( () => {
-		if ( isInSyncBlocked ) {
-			return;
-		}
+	// useEffect( () => {
+	// 	setProgressBarValue( mediaCurrentTime );
 
-		if ( playerState !== STATE_PLAYING ) {
-			return;
-		}
+	// 	if ( ! syncMode ) {
+	// 		return;
+	// 	}
 
-		setProgressBarValue( mediaCurrentTime );
-
-		if ( ! syncMode ) {
-			return;
-		}
-
-		onTimeChange( mediaCurrentTime );
-	}, [ syncMode, mediaCurrentTime, onTimeChange, playerState, isInSyncBlocked ] );
+	// 	// onTimeChange( mediaCurrentTime );
+	// }, [ syncMode, mediaCurrentTime, onTimeChange, playerState ] );
 
 	return (
 		<>
@@ -184,10 +175,16 @@ export function MediaPlayerControl( {
 						withInputField={ false }
 						disabled={ isDisabled || ! mediaDuration }
 						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
-						onMouseDown={ () => blockInSync( true ) }
+						onMouseDown={ () => {
+							prevSyncMode.current = syncMode;
+							onSyncModeToggle( false );
+						} }
 						onMouseUp={ () => {
 							setPlayerCurrentTime( progressBarValue );
-							blockInSync( false );
+							if ( prevSyncMode.current ) {
+								onTimeChange( progressBarValue );
+								onSyncModeToggle( prevSyncMode.current );
+							}
 						} }
 					/>
 				</>
