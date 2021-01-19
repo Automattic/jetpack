@@ -85,7 +85,10 @@
 	?>
 	</div>
 
-	<?php if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
+	<?php
+	$to_test = Jetpack_Beta_Admin::to_test_content();
+	if ( $to_test ) {
+		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
@@ -100,7 +103,10 @@
 		</div>
 	<?php } ?>
 
-	<?php if ( $what_changed = Jetpack_Beta::what_changed() ) { ?>
+	<?php
+	$what_changed = Jetpack_Beta::what_changed();
+	if ( $what_changed ) {
+		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
