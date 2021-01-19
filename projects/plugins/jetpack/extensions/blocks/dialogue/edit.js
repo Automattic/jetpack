@@ -117,13 +117,6 @@ export default function DialogueEdit( {
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
-	// Sync Mode.
-	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
-	// Set sync mode always false when mounted.
-	useEffect( () => {
-		setPlayerSyncMode( false );
-	}, [ isSelected ] );
-
 	// Try to focus the RichText component when mounted.
 	const hasContent = content?.length > 0;
 	const richTextRefCurrent = richTextRef?.current;
@@ -244,11 +237,11 @@ export default function DialogueEdit( {
 
 						{ showTimestamp && (
 							<TimestampControl
+								skipForwardTime = { false }
+								jumpBackTime = { false }
 								className={ baseClassName }
 								value={ timestamp }
 								onChange={ updateTimestampFromMediaPlayerControl }
-								playerSyncMode={ playerSyncMode }
-								onPlayerSyncModeToggle={ setPlayerSyncMode }
 							/>
 						) }
 					</PanelBody>
@@ -267,12 +260,10 @@ export default function DialogueEdit( {
 					<TimestampDropdown
 						className={ baseClassName }
 						value={ timestamp }
-						onChange={ newTimestampValue => {
-							setAttributes( { timestamp: newTimestampValue } );
-						} }
+						onChange={ updateTimestampFromMediaPlayerControl }
 						shortLabel={ true }
-						playerSyncMode={ playerSyncMode }
-						onPlayerSyncModeToggle={ setPlayerSyncMode }
+						skipForwardTime = { false }
+						jumpBackTime = { false }
 					/>
 				) }
 			</div>

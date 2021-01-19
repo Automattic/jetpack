@@ -9,7 +9,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import NumberControl from '../../../shared/components/number-control';
 import { MediaPlayerControl } from '../../../shared/components/media-player-control';
-import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
+import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -61,8 +61,8 @@ export function TimestampControl( {
 	className,
 	onChange,
 	shortLabel = false,
-	playerSyncMode,
-	onPlayerSyncModeToggle,
+	skipForwardTime,
+	jumpBackTime,
 } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
@@ -114,9 +114,11 @@ export function TimestampControl( {
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ onChange }
-					syncMode={ playerSyncMode }
-					onSyncModeToggle={ onPlayerSyncModeToggle }
 					progressBar={ true }
+					skipForwardTime= { skipForwardTime }
+					jumpBackTime= { jumpBackTime }
+					currenTimeDisplay={ false }
+					playButton={ false }
 				/>
 			</div>
 		</div>

@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { ToolbarGroup, ToolbarButton, RangeControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useRef, useState, useEffect } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -37,6 +37,8 @@ export function MediaPlayerControl( {
 	forwardFiveIcon = ControlForwardFiveIcon,
 	onTimeChange = noop,
 	progressBar = false,
+	currenTimeDisplay = true,
+	playButton = true,
 } ) {
 	const {
 		playerState,
@@ -63,7 +65,6 @@ export function MediaPlayerControl( {
 	}, [] );
 
 	const [ progressBarValue, setProgressBarValue ] = useState( customTimeToPlay );
-	const prevSyncMode = useRef();
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
@@ -98,20 +99,6 @@ export function MediaPlayerControl( {
 		}
 	}
 
-	// Synchronize current-time player with block property.
-	useEffect( () => {
-		if ( ! syncMode ) {
-			return;
-		}
-
-		if ( playerState !== STATE_PLAYING ) {
-			return;
-		}
-
-		setProgressBarValue( mediaCurrentTime );
-		onTimeChange( mediaCurrentTime );
-	}, [ mediaCurrentTime, onTimeChange, syncMode, playerState ] );
-
 	return (
 		<>
 			{ jumpBackTime !== false && (
@@ -123,12 +110,14 @@ export function MediaPlayerControl( {
 				/>
 			) }
 
-			<ToolbarButton
-				icon={ playerState === STATE_PAUSED ? playIcon : pauseIcon }
-				isDisabled={ isDisabled }
-				onClick={ togglePlayer }
-				label={ __( 'Play', 'jetpack' ) }
-			/>
+			{ playButton && (
+				<ToolbarButton
+					icon={ playerState === STATE_PAUSED ? playIcon : pauseIcon }
+					isDisabled={ isDisabled }
+					onClick={ togglePlayer }
+					label={ __( 'Play', 'jetpack' ) }
+				/>
+			) }
 
 			{ skipForwardTime && (
 				<ToolbarButton
@@ -148,16 +137,18 @@ export function MediaPlayerControl( {
 				/>
 			) }
 
-			<div
-				className={ classnames(
-					'media-player-control__current-time', {
-						'is-disabled': isDisabled,
-						[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
-					}
-				) }
-			>
-				{ timeInFormat }
-			</div>
+			{ currenTimeDisplay && (
+				<div
+					className={ classnames(
+						'media-player-control__current-time', {
+							'is-disabled': isDisabled,
+							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
+						}
+					) }
+				>
+					{ timeInFormat }
+				</div>
+			) }
 
 			{ progressBar && (
 				<>
@@ -171,16 +162,8 @@ export function MediaPlayerControl( {
 						withInputField={ false }
 						disabled={ isDisabled || ! mediaDuration }
 						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
-						onMouseDown={ () => {
-							prevSyncMode.current = syncMode;
-							onSyncModeToggle( false );
-						} }
 						onMouseUp={ () => {
-							setPlayerCurrentTime( progressBarValue );
-							if ( prevSyncMode.current ) {
-								onTimeChange( progressBarValue );
-								onSyncModeToggle( prevSyncMode.current );
-							}
+							onTimeChange( progressBarValue );
 						} }
 					/>
 				</>
