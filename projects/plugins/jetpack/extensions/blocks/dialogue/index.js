@@ -36,11 +36,12 @@ export const settings = {
 			{
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
-				transform: ( { content } ) => {
-					return createBlock( 'jetpack/dialogue', {
+				isMultiBlock: true,
+				transform: ( blocks ) => {
+					return blocks.map( ( { content } ) => createBlock( 'jetpack/dialogue', {
 						...defaultParticipants[ 0 ],
 						content,
-					} );
+					} ) );
 				},
 			},
 		],
