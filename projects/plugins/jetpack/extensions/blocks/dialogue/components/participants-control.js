@@ -11,11 +11,16 @@ import {
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-function ParticipantsMenu( { participants, className, onSelect } ) {
+function ParticipantsMenu( { participants, className, onSelect, participantSlug } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ participants.map( ( { participant, participantSlug } ) => (
-				<MenuItem key={ participantSlug } onClick={ () => onSelect( { participantSlug } ) }>
+			{ participants.map( ( { participant, participantSlug: slug } ) => (
+				<MenuItem
+					key={ slug }
+					onClick={ () => onSelect( { participantSlug: slug } ) }
+					isSelected={ participantSlug === slug }
+					icon={ participantSlug === slug ? 'yes' : null }
+				>
 					{ participant }
 				</MenuItem>
 			) ) }
@@ -62,13 +67,21 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 	);
 }
 
-function ParticipantsSelector( { className, participants, participant, onSelect, onChange } ) {
+function ParticipantsSelector( {
+	className,
+	participants,
+	participant,
+	onSelect,
+	onChange,
+	participantSlug,
+} ) {
 	return (
 		<Fragment>
 			<ParticipantsMenu
 				className={ className }
 				participants={ participants }
 				onSelect={ onSelect }
+				participantSlug={ participantSlug }
 			/>
 
 			<ParticipantControl
@@ -81,7 +94,7 @@ function ParticipantsSelector( { className, participants, participant, onSelect,
 }
 
 export default function ParticipantsDropdown( props ) {
-	const { participantLabel, position = 'bottom left', labelClassName, icon = null } = props;
+	const { label, position = 'bottom left', labelClassName, icon = null } = props;
 
 	return (
 		<DropdownMenu
@@ -90,7 +103,7 @@ export default function ParticipantsDropdown( props ) {
 			} }
 			toggleProps={ {
 				className: labelClassName,
-				children: <span>{ participantLabel }</span>,
+				children: <span>{ label }</span>,
 			} }
 			icon={ icon }
 		>

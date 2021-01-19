@@ -230,6 +230,19 @@ export default function DialogueEdit( {
 						/>
 					</ToolbarGroup>
 				) }
+
+				<ToolbarGroup>
+					<ParticipantsDropdown
+						id={ `dialogue-${ instanceId }-participants-dropdown` }
+						className={ baseClassName }
+						participants={ participants }
+						label={ __( 'Participant', 'jetpack' ) }
+						participantSlug={ participantSlug }
+						participant={ participant }
+						onSelect={ setAttributes }
+						onChange={ setAttributes }
+					/>
+				</ToolbarGroup>
 			</BlockControls>
 
 			<InspectorControls>
@@ -277,7 +290,7 @@ export default function DialogueEdit( {
 						className={ baseClassName }
 						labelClassName={ getParticipantLabelClass() }
 						participants={ participants }
-						participantLabel={ participantLabel }
+						label={ participantLabel }
 						participantSlug={ participantSlug }
 						participant={ participant }
 						onSelect={ setAttributes }
