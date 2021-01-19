@@ -142,7 +142,7 @@ export function MediaPlayerControl( {
 			{ typeof syncMode !== 'undefined' && (
 				<ToolbarButton
 					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
-					isDisabled={ isDisabled }
+					disabled={ isDisabled || ! mediaDuration }
 					onClick={ () => onSyncModeToggle( ! syncMode ) }
 					label={ __( 'Keep in-sync mode', 'jetpack' ) }
 				/>
