@@ -121,6 +121,23 @@ const selectors = {
 
 		return state.players?.[ id ]?.duration;
 	},
+
+	getMediaSourceDomReference( state, id ) {
+		const defaultMediaSource = id
+			? state.players?.[ id ]
+			: selectors.getDefaultMediaSource( state );
+
+		if ( ! defaultMediaSource ) {
+			return;
+		}
+
+		const domId = defaultMediaSource?.domId;
+		if ( ! domId ) {
+			return;
+		}
+
+		return document.getElementById( domId );
+	}
 };
 
 const storeDefinition = {
