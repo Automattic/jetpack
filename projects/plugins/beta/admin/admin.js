@@ -121,15 +121,14 @@
 	}
 
 	// Activate Links
-	each.call( activate_links, function ( element, index ) {
+	each.call( activate_links, function ( element ) {
 		element.addEventListener( 'click', activate_link_click.bind( this, element ) );
 	} );
 
 	/**
 	 * @param element
-	 * @param event
 	 */
-	function activate_link_click( element, event ) {
+	function activate_link_click( element ) {
 		if ( clicked_activate ) {
 			return;
 		}
@@ -153,7 +152,7 @@
 	 *
 	 */
 	function disable_activete_branch_links() {
-		each.call( activate_links, function ( element, index ) {
+		each.call( activate_links, function ( element ) {
 			element.addEventListener( 'click', function ( event ) {
 				event.preventDefault();
 			} );
@@ -163,14 +162,14 @@
 	}
 
 	// Toggle Links
-	each.call( toggle_links, function ( element, index ) {
+	each.call( toggle_links, function ( element ) {
 		element.addEventListener( 'click', toggle_link_click.bind( this, element ) );
 	} );
 	/**
 	 * @param element
 	 * @param event
 	 */
-	function toggle_link_click( element, event ) {
+	function toggle_link_click( element ) {
 		if ( clicked_toggle ) {
 			return;
 		}
