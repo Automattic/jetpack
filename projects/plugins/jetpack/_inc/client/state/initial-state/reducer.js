@@ -472,3 +472,16 @@ export function isSafari( state ) {
 export function doNotUseConnectionIframe( state ) {
 	return !! state.jetpack.initialState.doNotUseConnectionIframe;
 }
+
+/**
+ * Check if the DevPackagesNotice should be displayed. This notice is displayed when a
+ * development version of Jetpack is active but the development versions of the packages
+ * are not being used.
+ *
+ * @param {object} state - Global state tree.
+ *
+ * @returns {boolean} True if the notice should be displayed, else false.
+ */
+export function showDevPackagesNotice( state ) {
+	return !! state.jetpack.initialState.showDevPackagesNotice;
+}

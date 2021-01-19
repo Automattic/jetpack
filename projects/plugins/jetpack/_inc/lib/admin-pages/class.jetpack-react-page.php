@@ -264,6 +264,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				: '',
 			'dismissedNotices'            => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion'                => Jetpack::is_development_version(),
+			'showDevPackagesNotice'       => $this->show_dev_packages_notice(),
 			'currentVersion'              => JETPACK__VERSION,
 			'is_gutenberg_available'      => true,
 			'getModules'                  => $modules,
@@ -477,7 +478,68 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
-}
+
+	/**
+	 * Determines whether a notice that informs the user that development versions of
+	 * packages are not being loaded should be displayed.
+	 *
+	 * @return true if the dev packages notice should be displayed, else false.
+	 */
+	public function show_dev_packages_notice() {
+		global $jetpack_autoloader_loader;
+
+		if ( ! Jetpack::is_development_version() ) {
+			// Jetpack isn't a development version, so it shouldn't have dev packages.
+			return false;
+		}
+
+		if ( ! $jetpack_autoloader_loader ) {
+			// An old autoloader must be running.
+			return true;
+		}
+
+		if ( defined( 'JETPACK_AUTOLOAD_DEV' ) && JETPACK_AUTOLOAD_DEV ) {
+			// We're using dev packages.
+			return false;
+		}
+
+		return $this->classmap_does_not_match_autoloader();
+	}
+
+	/**
+	 * Compares the paths in Jetpack's classmap to the paths in the autoloader's classmap.
+	 *
+	 * @return true if a difference is found, false if they're the same.
+	 */
+	private function classmap_does_not_match_autoloader() {
+		global $jetpack_autoloader_loader;
+
+		$classmap_file = trailingslashit( JETPACK__PLUGIN_DIR ) . 'vendor/composer/jetpack_autoload_classmap.php';
+
+		if ( is_readable( $classmap_file ) ) {
+			$classmap = require $classmap_file;
+
+			if ( ! is_array( $classmap ) ) {
+				return;
+			}
+
+			foreach ( $classmap as $class => $data ) {
+				if ( preg_match( '/^\d+(\.\d+)+$/', $data['version'] ) ) {
+					// This class isn't a dev version, so skip.
+					continue;
+				}
+
+				if ( $data['path'] !== $jetpack_autoloader_loader->find_class_file( $class ) ) {
+					// The autoloader isn't using Jetpack's package class file.
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+} // end class Jetpack_React_Page
 
 /**
  * Gather data about the current user.

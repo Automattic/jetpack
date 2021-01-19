@@ -31,10 +31,11 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
+	showDevPackagesNotice,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import { JETPACK_CONTACT_BETA_SUPPORT, JETPACK_AUTOLOAD_DEV_INFO } from 'constants/urls';
 import JetpackStateNotices from './state-notices';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import NoticeAction from 'components/notice/notice-action.jsx';
@@ -66,6 +67,34 @@ export class DevVersionNotice extends React.Component {
 DevVersionNotice.propTypes = {
 	isDevVersion: PropTypes.bool.isRequired,
 	userIsSubscriber: PropTypes.bool.isRequired,
+};
+
+export class DevPackagesNotice extends React.Component {
+	static displayName = 'DevPackagesNotice';
+
+	render() {
+		if ( this.props.showDevPackagesNotice ) {
+			return (
+				<SimpleNotice
+					showDismiss={ false }
+					text={ __(
+						"You should set the JETPACK_AUTOLOAD_DEV constant to true to ensure that Jetpack's development packages are used.",
+						'jetpack'
+					) }
+				>
+					<NoticeAction href={ JETPACK_AUTOLOAD_DEV_INFO } external={ true }>
+						{ __( 'More info', 'jetpack' ) }
+					</NoticeAction>
+				</SimpleNotice>
+			);
+		}
+
+		return false;
+	}
+}
+
+DevPackagesNotice.propTypes = {
+	showDevPackagesNotice: PropTypes.bool.isRequired,
 };
 
 export class StagingSiteNotice extends React.Component {
@@ -231,6 +260,7 @@ class JetpackNotices extends React.Component {
 					isDevVersion={ this.props.isDevVersion }
 					userIsSubscriber={ this.props.userIsSubscriber }
 				/>
+				<DevPackagesNotice showDevPackagesNotice={ this.props.showDevPackagesNotice } />
 				<OfflineModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteOfflineMode={ this.props.siteOfflineMode }
@@ -289,6 +319,7 @@ export default connect(
 			siteDataErrors: getSiteDataErrors( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
+			showDevPackagesNotice: showDevPackagesNotice( state ),
 		};
 	},
 	dispatch => {

@@ -8,7 +8,7 @@ import { expect } from 'chai';
 /**
  * Internal dependencies
  */
-import { DevVersionNotice } from '../index';
+import { DevPackagesNotice, DevVersionNotice } from '../index';
 import { PlanConflictWarning } from '../plan-conflict-warning';
 
 describe( 'PlanConflictWarning', () => {
@@ -109,6 +109,20 @@ describe( 'DevVersionNotice', () => {
 		const wrapper = shallow( <DevVersionNotice isDevVersion={ true } userIsSubscriber={ false } /> );
 		expect( wrapper.prop( 'text' ) ).to.equal(
 			"You are currently running a development version of Jetpack."
+		);
+	} );
+} );
+
+describe( 'DevPackagesNotice', () => {
+	it( 'should not render when showDevPackagesNotice is false', () => {
+		const wrapper = shallow( <DevPackagesNotice showDevPackagesNotice={ false } /> );
+		expect( wrapper.isEmptyRender() ).to.equal( true );
+	} );
+
+	it( 'should render the DevPackagesNotice when showDevPackagesNotice is true', () => {
+		const wrapper = shallow( <DevPackagesNotice showDevPackagesNotice={ true } /> );
+		expect( wrapper.prop( 'text' ) ).to.equal(
+			"You should set the JETPACK_AUTOLOAD_DEV constant to true to ensure that Jetpack's development packages are used."
 		);
 		expect( wrapper.find( 'SimpleNotice' ).length ).to.equal(1);
 		expect( wrapper.find( 'NoticeAction' ).length ).to.equal(1);
