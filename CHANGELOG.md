@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+#### v2.2.0 (2021-01-19)
+* Included a new icon: Patreon.
+
 #### v2.1.2 (2020-03-12)
 * Built the package with updated dependencies.
 
