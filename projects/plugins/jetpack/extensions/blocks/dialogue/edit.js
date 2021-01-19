@@ -36,6 +36,7 @@ import {
 	list as defaultParticipants,
 } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
@@ -78,9 +79,12 @@ export default function DialogueEdit( {
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
-	const prevBlock = useSelect( select => {
+	const { prevBlock, mediaSource } = useSelect( select => {
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		return select( 'core/block-editor' ).getBlock( prevPartClientId );
+		return {
+			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+			mediaSource: select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
+		};
 	}, [] );
 
 	// Block context integration.
@@ -254,6 +258,12 @@ export default function DialogueEdit( {
 							onChange={ setAttributes }
 						/>
 					</PanelBody>
+
+					{ !! mediaSource?.title && (
+						<PanelBody title={ __( 'Podcast episode', 'jetpack' ) }>
+							<p>{ mediaSource.title }</p>
+						</PanelBody>
+					) }
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
