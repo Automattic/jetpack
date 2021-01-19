@@ -529,11 +529,6 @@ class Admin_Menu {
 		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $options_slug, null, 'dashicons-admin-settings', 80 );
 		add_submenu_page( $options_slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $options_slug, null, 10 );
 
-		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
-		if ( remove_submenu_page( 'options-general.php', 'sharing' ) ) {
-			add_submenu_page( $options_slug, esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
-		}
-
 		$this->migrate_submenus( 'options-general.php', $options_slug );
 		add_filter(
 			'parent_file',

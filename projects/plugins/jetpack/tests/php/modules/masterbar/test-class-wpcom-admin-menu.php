@@ -524,6 +524,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
 		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
+		$this->assertNotContains( 'sharing', $submenu[ $slug ] );
 
 		$general_submenu_item = array(
 			'General',
@@ -534,5 +535,13 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
 
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
+
+		$sharing_submenu_item = array(
+			'Sharing',
+			'publish_posts',
+			'https://wordpress.com/marketing/sharing-buttons/' . static::$domain,
+			'Sharing Settings',
+		);
+		$this->assertContains( $sharing_submenu_item, $submenu[ $slug ] );
 	}
 }
