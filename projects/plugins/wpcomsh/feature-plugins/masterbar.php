@@ -6,8 +6,6 @@
  * @package wpcomsh
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-
 /**
  * Force-enable the Masterbar module
  * If you use a version of Jetpack that supports it,
@@ -80,33 +78,43 @@ function wpcomsh_hide_color_schemes() {
 add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
 
 /**
- * Overrides the Admin color scheme with the Calypso color scheme.
+ * Gets data from the `wpcom.getUser` XMLRPC response and set it as user options. This is hooked
+ * into the `setted_transient` action that is triggered everytime the XMLRPC response is read.
  *
- * @param mixed   $result Value for the user's option.
- * @return string Admin color scheme.
+ * @see https://github.com/Automattic/jetpack/blob/57ca1d524a6f6e446c5a3891d3024c71a6b0684b/projects/packages/connection/src/class-manager.php#L676
+ *
+ * @param string $transient  The name of the transient.
+ * @param mixed  $value      Transient value.
+ * @param int    $expiration Time until expiration in seconds.
  */
-function wpcomsh_use_calypso_color_scheme( $result ) {
-	if ( ! wpcomsh_should_use_calypso_color_scheme() ) {
-		return $result;
+function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $expiration ) {
+	if ( 0 !== strpos( $transient, 'jetpack_connected_user_data_' . get_current_user_id() ) ) {
+		return;
 	}
 
-	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-		return $result;
+	if ( ! $value || ! is_array( $value ) ) {
+		return;
 	}
 
-	$connection_manager = new Connection_Manager();
-	$wpcom_user_data    = $connection_manager->get_connected_user_data();
-	if ( ! $wpcom_user_data ) {
-		return $result;
+	if ( isset( $value['color_scheme'] ) ) {
+		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
 	}
 
-	if ( empty( $wpcom_user_data['color_scheme'] ) ) {
-		return $result;
+	if ( isset( $value['is_probably_a11n'] ) ) {
+		update_user_option( get_current_user_id(), 'wpcom_is_probably_a11n', true );
+	} else {
+		delete_user_option( get_current_user_id(), 'wpcom_is_probably_a11n' );
 	}
 
-	return $wpcom_user_data['color_scheme'];
+	if ( isset( $value['ID'] ) ) {
+		update_user_option( get_current_user_id(), 'wpcom_user_id', $value['ID'] );
+	}
+
+	if ( isset( $value['site_count'] ) ) {
+		update_user_option( get_current_user_id(), 'wpcom_site_count', $value['site_count'] );
+	}
 }
-add_filter( 'get_user_option_admin_color', 'wpcomsh_use_calypso_color_scheme' );
+add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 3 );
 
 /**
  * Enables the nav-unification feature pbAPfg-Ou-p2
@@ -123,20 +131,7 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 		return true;
 	}
 
-	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-		return $should_activate_nav_unification;
-	}
-
-	$connection_manager = new Connection_Manager();
-	$wpcom_user_data    = $connection_manager->get_connected_user_data();
-	if ( ! $wpcom_user_data ) {
-		return $should_activate_nav_unification;
-	  }
-
-	$user_id            = $wpcom_user_data[ 'ID' ];
-	$user_site_count    = $wpcom_user_data[ 'site_count' ];
-	$is_automattician   = $wpcom_user_data[ 'is_probably_a11n' ] ?? null;
-
+	$is_automattician = get_user_option( 'wpcom_is_probably_a11n' );
 	if ( $is_automattician ) {
 		// Loads only for a12s.
 		return true;
@@ -144,6 +139,8 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 
 	// When ready to launch this feature for users, delete the block above and uncomment the following.
 	// Feature should always be available for a12s and for selected customer segments.
+	// $user_id         = get_user_option( 'wpcom_user_id' );
+	// $user_site_count = get_user_option( 'wpcom_site_count' );
 	// if ( $is_automattician || ( 1 === $user_site_count && $user_id % 100 < 5 ) ) {
 	// 	return true;
 	// }
