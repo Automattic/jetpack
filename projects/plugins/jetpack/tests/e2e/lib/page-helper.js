@@ -173,8 +173,9 @@ export async function clickAndWaitForNewPage( page, selector ) {
 	await waitAndClick( page, selector );
 	// const target = await Promise.race( [ newTabTarget, timeoutPromise ] );
 	const target = await newTabTarget;
-	await target.bringToFront();
-	return await target.page();
+	const newPage = await target.page();
+	await newPage.bringToFront();
+	return newPage;
 }
 
 /**
