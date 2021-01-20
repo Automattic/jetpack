@@ -120,6 +120,7 @@ export function TimestampControl( {
 					syncMode={ playerSyncMode }
 					onSyncModeToggle={ onPlayerSyncModeToggle }
 					progressBar={ true }
+					showTimeDisplay={ false }
 				/>
 			</div>
 		</div>
