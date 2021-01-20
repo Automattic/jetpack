@@ -38,6 +38,7 @@ export function MediaPlayerControl( {
 	forwardFiveIcon = ControlForwardFiveIcon,
 	onTimeChange = noop,
 	progressBar = false,
+	showTimeDisplay = true,
 } ) {
 	const {
 		playerState,
@@ -174,16 +175,18 @@ export function MediaPlayerControl( {
 				/>
 			) }
 
-			<div
-				className={ classnames(
-					'media-player-control__current-time', {
-						'is-disabled': isDisabled,
-						[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
-					}
-				) }
-			>
-				{ timeInFormat }
-			</div>
+			{ showTimeDisplay && (
+				<div
+					className={ classnames(
+						'media-player-control__current-time', {
+							'is-disabled': isDisabled,
+							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
+						}
+					) }
+				>
+					{ timeInFormat }
+				</div>
+			) }
 
 			{ progressBar && (
 				<RangeControl
