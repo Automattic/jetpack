@@ -24,6 +24,18 @@ export async function readPackageJson( project, output = true ) {
 		return false;
 	}
 
+	return parseJSON( data, output );
+}
+
+/**
+ * Parses the JSON data or throws an log piece on failure.
+ *
+ * @param {string} data - string of JSON data.
+ * @param {boolean }output - should the console output a message if it can't parse the JSON.
+ *
+ * @returns {boolean|object} JSON Object or false if unable to read.
+ */
+function parseJSON( data, output ) {
 	try {
 		data = JSON.parse( data );
 		return data;
