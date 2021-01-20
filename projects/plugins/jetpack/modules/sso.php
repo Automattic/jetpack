@@ -915,6 +915,11 @@ class Jetpack_SSO {
 	 * @return string            The WordPress.com SSO URL.
 	 */
 	function get_sso_url_or_die( $reauth = false, $args = array() ) {
+		$custom_login_url = $this->get_custom_login_url();
+		if ( $custom_login_url ) {
+			$args['login_url'] = rawurlencode( $custom_login_url );
+		}
+
 		if ( empty( $reauth ) ) {
 			$sso_redirect = $this->build_sso_url( $args );
 		} else {
@@ -1125,6 +1130,30 @@ class Jetpack_SSO {
 	 **/
 	public function get_user_data( $user_id ) {
 		return get_user_meta( $user_id, 'wpcom_user_data', true );
+	}
+
+	/**
+	 * Check if the site has a custom login page URL, and return it.
+	 * If default login page URL is used (`wp-login.php`), `null` will be returned.
+	 *
+	 * @return string|null
+	 */
+	private function get_custom_login_url() {
+		$login_url = wp_login_url();
+
+		if ( 'wp-login.php' === substr( $login_url, 0, -12 ) ) {
+			// No custom URL found.
+			return null;
+		}
+
+		$site_url = trailingslashit( site_url() );
+
+		if ( 0 !== strpos( $login_url, $site_url ) ) {
+			// Something went wrong, we can't properly extract the custom URL.
+			return null;
+		}
+
+		return str_ireplace( $site_url, '', $login_url );
 	}
 }
 
