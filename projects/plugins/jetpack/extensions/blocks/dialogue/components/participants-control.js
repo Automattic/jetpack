@@ -8,15 +8,17 @@ import {
 	SelectControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
 
-function ParticipantsMenu( { participants, className, onSelect, participantSlug } ) {
+function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
 			{ participants.map( ( { participant, participantSlug: slug } ) => (
 				<MenuItem
 					key={ slug }
-					onClick={ () => onSelect( { participantSlug: slug } ) }
+					onClick={ () => {
+						onSelect( { participantSlug: slug } );
+						onClose();
+					} }
 					isSelected={ participantSlug === slug }
 					icon={ participantSlug === slug ? 'yes' : null }
 				>
@@ -41,24 +43,6 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 	);
 }
 
-function ParticipantsSelector( {
-	className,
-	participants,
-	onSelect,
-	participantSlug,
-} ) {
-	return (
-		<Fragment>
-			<ParticipantsMenu
-				className={ className }
-				participants={ participants }
-				onSelect={ onSelect }
-				participantSlug={ participantSlug }
-			/>
-		</Fragment>
-	);
-}
-
 export default function ParticipantsDropdown( props ) {
 	const { label, position = 'bottom', labelClassName, icon = null } = props;
 
@@ -73,7 +57,7 @@ export default function ParticipantsDropdown( props ) {
 			} }
 			icon={ icon }
 		>
-			{ () => <ParticipantsSelector { ...props } /> }
+			{ ( { onClose } ) => <ParticipantsMenu { ...props } onClose={ onClose } /> }
 		</DropdownMenu>
 	);
 }

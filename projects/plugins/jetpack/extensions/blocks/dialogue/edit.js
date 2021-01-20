@@ -193,7 +193,6 @@ export default function DialogueEdit( {
 						label={ __( 'Participant', 'jetpack' ) }
 						participantSlug={ participantSlug }
 						onSelect={ setAttributes }
-						onChange={ setAttributes }
 					/>
 				</ToolbarGroup>
 			</BlockControls>
