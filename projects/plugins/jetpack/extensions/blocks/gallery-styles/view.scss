@@ -57,7 +57,7 @@
 	figure.wp-block-image:not(#individual-image):nth-child( 30n + 7 ),
 	figure.wp-block-image:not(#individual-image):nth-child( 30n + 14 ),
 	figure.wp-block-image:not(#individual-image):nth-child( 30n + 17 ),
-	.figure.wp-block-image:not(#individual-image):nth-child( 30n + 23 ),
+	figure.wp-block-image:not(#individual-image):nth-child( 30n + 23 ),
 	figure.wp-block-image:not(#individual-image):nth-child( 30n + 25 ) {
 		grid-column: auto / span 4;
 		grid-row: auto / span 2;
