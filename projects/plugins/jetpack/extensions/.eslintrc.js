@@ -31,6 +31,9 @@ module.exports = {
 		// Don't require JSDoc on functions.
 		// Jetpack Extensions are often self-explanatory functional React components.
 		'jsdoc/require-jsdoc': 0,
+		'jsdoc/require-description': 0,
+		'jsdoc/require-property-description': 0,
+		'jsdoc/require-param-description': 0,
 		// Enforce the use of the Jetpack textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',

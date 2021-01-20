@@ -15,13 +15,6 @@ import { __ } from '@wordpress/i18n';
 import { registerFormatType, unregisterFormatType } from '@wordpress/rich-text';
 
 const name = 'premium-content/logged-out-view';
-
-/**
- * @typedef {object} Attributes
- * @typedef {import('@wordpress/blocks').BlockConfiguration<Attributes>} BlockConfiguration
- * @type {BlockConfiguration}
- * @property
- */
 const settings = {
 	title: __( 'Logged Out View', 'jetpack' ),
 	description: __( 'The container for all content shown to site visitors who are not subscribers.', 'jetpack' ),

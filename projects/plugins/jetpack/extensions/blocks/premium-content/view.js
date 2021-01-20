@@ -8,7 +8,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	let premiumContentJWTToken = '';
 
 	/**
-	 *
+	 * @typedef globalThis
 	 * @param {globalThis.Event} eventFromIframe - message event that gets emitted in the checkout iframe.
 	 * @listens message
 	 */

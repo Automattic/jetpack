@@ -16,6 +16,8 @@ import { Icon, starFilled } from '@wordpress/icon';
  * @property { string } stripeConnectUrl
  * @property { () => void } onClick
  * @param { Props } props
+ *
+ * @returns {object} Warning component.
  */
 export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
 	<Warning
@@ -57,18 +59,10 @@ export const StripeNudge = ( { autosaveAndRedirect, stripeConnectUrl } ) => (
  * Exports a component with the same props as StripeNudge but omits autosaveAndRedirect
  * due to it being provided here.
  *
- * @type { import('react').ComponentType<Omit<Props, 'autosaveAndRedirect'>> }
+ * @type { import('react').ComponentType }
  */
 export default compose( [
 	withDispatch(
-		/**
-		 * Complicated to define the valid type with JSDoc
-		 *
-		 * @param dispatch
-		 * @param root0
-		 * @param root0.stripeConnectUrl
-		 */
-		// @ts-ignore
 		( dispatch, { stripeConnectUrl } ) => ( {
 			/**
 			 * @param { MouseEvent } event

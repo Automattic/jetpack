@@ -20,6 +20,8 @@ import { MenuItem } from '@wordpress/components';
  * @property { (plan: Plan) => string } formatPrice
  *
  * @param { Props } props
+ *
+ * @returns {object} Information about plan.
  */
 export default function Plan( props ) {
 	const { className, plan, selectedPlan, onSelected, onClose, getPlanDescription } = props;

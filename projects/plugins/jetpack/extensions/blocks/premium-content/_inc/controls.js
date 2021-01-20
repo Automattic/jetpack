@@ -24,6 +24,8 @@ import NewPlan from './new-plan';
  * @property { Plan[] } plans
  *
  * @param { Props } props
+ *
+ * @returns {object} Block controls.
  */
 export default function Controls( props ) {
 	const { selectedPlanId, onSelected, plans, getPlanDescription } = props;

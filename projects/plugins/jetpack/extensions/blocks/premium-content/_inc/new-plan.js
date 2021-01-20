@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * @typedef {{ onClose: () => void}} Props
  * @param {Props} props
+ * @returns {object} Settings to add a new Subscription plan via the block toolbar.
  */
 export default function NewPlan( props ) {
 	return (

@@ -36,17 +36,19 @@ const API_STATE_REQUESTING = 1;
  *
  * @typedef {object} Props
  * @property { PlanAttributes } attributes
- * @property { (attributes: Partial<PlanAttributes>) => void } setAttributes
+ * @property { (attributes: object<PlanAttributes>) => void } setAttributes
  * @property { string } className
  * @property { (attributes: PlanAttributes, onComplete:(isSuccesful: boolean)=>void) => void } savePlan
  * @property { Currency[] } currencies
  * @property { string } siteSlug
  *
  * @param { Props } props
+ *
+ * @returns {object} Toolbar settings for our block.
  */
 export default function Inspector( props ) {
 	const [ apiState, setApiState ] = useState( API_STATE_NOT_REQUESTING );
-	const { attributes, setAttributes, className, savePlan, currencies, siteSlug } = props;
+	const { attributes, setAttributes, className, savePlan, siteSlug } = props;
 
 	return (
 		<InspectorControls>

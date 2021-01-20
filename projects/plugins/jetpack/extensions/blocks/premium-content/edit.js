@@ -172,6 +172,8 @@ function Edit( props ) {
 
 	/**
 	 * @param {Plan} plan - plan whose description will be retrieved
+	 *
+	 * @returns {?string} Plan description with price.
 	 */
 	function getPlanDescription( plan ) {
 		const amount = formatCurrency( parseFloat( plan.price ), plan.currency );
@@ -280,6 +282,7 @@ function Edit( props ) {
 		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
 		// (such as the Recurring Payments block)
 		setTimeout( () => props.selectBlock(), 1000 );
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {

@@ -107,7 +107,7 @@ export default compose( [
 		/**
 		 * Updates the plan on the Recurring Payments block acting as a subscribe button.
 		 *
-		 * @param planId {int} Plan ID.
+		 * @param {number} planId - Plan ID.
 		 */
 		setSubscribeButtonPlan( planId ) {
 			dispatch( 'core/block-editor' ).updateBlockAttributes( props.subscribeButton.clientId, {

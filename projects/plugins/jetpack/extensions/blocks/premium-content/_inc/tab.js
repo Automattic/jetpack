@@ -8,7 +8,8 @@
  * @property { Tab } tab
  * @property { Tab } selectedTab
  * @property { (tab: Tab) => void } onSelected
- * @param { Props } props the props
+ * @param { Props } props - the props
+ * @returns { string } Button HTML.
  */
 export default function Tab( props ) {
 	const { className, tab, label, selectedTab, onSelected } = props;

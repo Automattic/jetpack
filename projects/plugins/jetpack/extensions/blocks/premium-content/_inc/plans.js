@@ -19,6 +19,8 @@ import Plan from './plan';
  * @property { string } className
  *
  * @param {Props} props
+ *
+ * @returns {object} Available plans.
  */
 export default function Plans( props ) {
 	const { plans, selectedPlan, onSelected } = props;
