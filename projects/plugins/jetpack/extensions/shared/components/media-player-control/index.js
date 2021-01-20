@@ -186,7 +186,6 @@ export function MediaPlayerControl( {
 
 			{ progressBar && (
 				<>
-					<div className="break" />
 					<RangeControl
 						value={ readyToPlay ? progressBarValue : 0 }
 						className="media-player-control__progress-bar"
