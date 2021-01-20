@@ -7,7 +7,7 @@
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
- * Text Domain: jetpack
+ * Text Domain: jetpack-beta
  *
  * @package Jetpack Beta
  */

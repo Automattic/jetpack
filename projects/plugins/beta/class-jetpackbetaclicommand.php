@@ -45,11 +45,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 				$branch_name = str_replace( '/', '_', $args[1] );
 				$url         = Jetpack_Beta::get_install_url( $branch_name, 'pr' );
 				if ( null === $url ) {
-					return WP_CLI::error( __( 'Invalid branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack' ) );
+					return WP_CLI::error( __( 'Invalid branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack-beta' ) );
 				}
 				return $this->install_jetpack( $branch_name, 'pr' );
 			}
-			return WP_CLI::error( __( 'Unrecognized branch version. ', 'jetpack' ) );
+			return WP_CLI::error( __( 'Unrecognized branch version. ', 'jetpack-beta' ) );
 		}
 
 		/**
@@ -60,19 +60,19 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		private function validation_checks( $args ) {
 
 			if ( is_multisite() && ! is_main_site() ) {
-				return WP_CLI::error( __( 'Secondary sites in multisite instalations are not supported', 'jetpack' ) );
+				return WP_CLI::error( __( 'Secondary sites in multisite instalations are not supported', 'jetpack-beta' ) );
 			}
 
 			if ( empty( $args ) ) {
-				return WP_CLI::error( __( 'Specify subcommand. "activate" and "list" subcommands are supported', 'jetpack' ) );
+				return WP_CLI::error( __( 'Specify subcommand. "activate" and "list" subcommands are supported', 'jetpack-beta' ) );
 			}
 
 			if ( 'activate' !== $args[0] && 'list' !== $args[0] ) {
-				return WP_CLI::error( __( 'Only "activate" and "list" subcommands are supported', 'jetpack' ) );
+				return WP_CLI::error( __( 'Only "activate" and "list" subcommands are supported', 'jetpack-beta' ) );
 			}
 
 			if ( 'activate' === $args[0] && empty( $args[1] ) ) {
-				return WP_CLI::error( __( 'Specify branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack' ) );
+				return WP_CLI::error( __( 'Specify branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack-beta' ) );
 			}
 		}
 
@@ -88,7 +88,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 			$result = Jetpack_Beta::install_and_activate( $branch, $section );
 			if ( is_wp_error( $result ) ) {
-				return WP_CLI::error( __( 'Error', 'jetpack' ) . $result->get_error_message() );
+				return WP_CLI::error( __( 'Error', 'jetpack-beta' ) . $result->get_error_message() );
 			}
 			// translators: $branch is what branch we've switched to.
 			return WP_CLI::success( printf( esc_html__( 'Jetpack is currently on %s branch', 'jetpack-beta' ), esc_html( $branch ) ) );
