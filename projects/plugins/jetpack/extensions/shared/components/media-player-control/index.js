@@ -64,6 +64,7 @@ export function MediaPlayerControl( {
 	}, [] );
 
 	const [ progressBarValue, setProgressBarValue ] = useState( customTimeToPlay );
+	const [ showProgressBarTooltip, setShowProgressBarTooltip ] = useState( false );
 	const prevSyncMode = useRef();
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
@@ -122,6 +123,7 @@ export function MediaPlayerControl( {
 
 	useEffect( () => {
 		setProgressBarValue( customTimeToPlay );
+		setShowProgressBarTooltip( false );
 	}, [ customTimeToPlay ] );
 
 	const disableCustomPlayButton = isDisabled || syncMode || Math.abs( customTimeToPlay - mediaCurrentTime ) < 1;
@@ -195,12 +197,15 @@ export function MediaPlayerControl( {
 						withInputField={ false }
 						disabled={ isDisabled || ! readyToPlay }
 						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+						showTooltip={ showProgressBarTooltip }
 						onMouseDown={ () => {
 							prevSyncMode.current = syncMode;
+							setShowProgressBarTooltip( true );
 							onSyncModeToggle( false );
 						} }
 						onMouseUp={ () => {
 							onTimeChange( progressBarValue );
+							setShowProgressBarTooltip( false );
 							if ( prevSyncMode.current ) {
 								setPlayerCurrentTime( progressBarValue );
 								onSyncModeToggle( prevSyncMode.current );
