@@ -28,3 +28,11 @@
     width: 100%;
     margin-right: 20px;
 }
+
+.components-panel__body {
+    .media-player-control__current-time {
+        width: 100px;
+        display: inline-block;
+        text-align: center;
+    }
+}
