@@ -43,4 +43,9 @@ module.exports = {
 			{ definedTags: [ 'jest-environment' ] },
 		],
 	},
+	settings: {
+		jsdoc: {
+			mode: 'typescript',
+		},
+	},
 };
