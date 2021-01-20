@@ -197,7 +197,12 @@ class Jetpack_Beta_Admin {
 		return self::render_markdown( $github_info->body );
 	}
 
-	static function render_markdown( $content ) {
+	/**
+	 * Rendering markdown for testing instructions
+	 *
+	 * @param var $content - Content from testing instructions for the branch we're testing.
+	 */
+	public static function render_markdown( $content ) {
 
 		add_filter( 'jetpack_beta_test_content', 'wptexturize' );
 		add_filter( 'jetpack_beta_test_content', 'convert_smilies' );
@@ -230,7 +235,8 @@ class Jetpack_Beta_Admin {
 		return $rendered_html;
 	}
 
-	static function start_notice() {
+	/** Display the body of the start notice on the Jetpack Beta admin page */
+	public static function start_notice() {
 		global $current_screen;
 
 		$is_notice = ( 'plugins' === $current_screen->base ? true : false );
@@ -283,7 +289,16 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
+	/**
+	 * Display branch selection on beta plugin's admin page
+	 *
+	 * @param var $header - header.
+	 * @param var $branch_key - branch_key.
+	 * @param var $branch - branch.
+	 * @param var $section - section.
+	 * @param var $is_last - is_last.
+	 */
+	public static function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
 			$manifest = Jetpack_Beta::get_beta_manifest();
 			if ( empty( $manifest->{$section} ) ) {
