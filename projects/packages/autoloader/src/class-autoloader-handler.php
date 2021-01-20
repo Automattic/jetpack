@@ -75,7 +75,7 @@ class Autoloader_Handler {
 		// Note: We don't need to check for the class first because every autoloader that
 		// will set the latest version global requires this class in the classmap.
 		$replacing_version = $jetpack_packages_classmap[ AutoloadGenerator::class ]['version'];
-		if ( version_compare( $replacing_version, '2.4.0.0', '>=' ) ) {
+		if ( $this->version_selector->is_dev_version( $replacing_version ) || version_compare( $replacing_version, '2.4.0.0', '>=' ) ) {
 			global $jetpack_autoloader_loader;
 			if ( ! isset( $jetpack_autoloader_loader ) ) {
 				return true;
