@@ -20,7 +20,10 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../*"
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
 	"scripts": {

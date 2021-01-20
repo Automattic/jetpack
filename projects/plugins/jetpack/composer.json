@@ -46,7 +46,10 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../../packages/*"
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
 	"autoload": {

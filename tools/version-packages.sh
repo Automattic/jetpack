@@ -53,8 +53,9 @@ if [[ ! -f "$CURRENT_DIR/composer.json" ]]; then
     exit 1;
 fi
 
-# Remove the local repo from composer.json.
-composer config --unset repositories.0
+# Remove the monorepo repo from composer.json.
+JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' composer.json | "$JETPACK_ROOT/tools/prettier" --parser=json-stringify)
+echo "$JSON" > composer.json
 
 # Get the list of package names to update.
 # Works in accordance of `composer show`, and will only act on packages prefixed with `automattic/jetpack-`.
