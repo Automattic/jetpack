@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -90,8 +91,48 @@ function podcastSummarySection( { episodeTrack } ) {
 }
 
 function podcastConversationSection() {
+	const conversationBlockId = 'jetpack/conversation';
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockId );
+
+	// Check if `jetpack/conversation` block is register.
+	if ( ! isConversationBlockAvailable ) {
+		// When it is not, return a fallback core-blocks composition.
+		return [
+			'core/group',
+			{},
+			[
+				[
+					'core/heading',
+					{
+						level: 3,
+						content: 'Transcription',
+						placeholder: __( 'Podcast episode transcription', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+			],
+		];
+	}
+
 	return [
-		'jetpack/conversation',
+		conversationBlockId,
 		{},
 		[
 			[
