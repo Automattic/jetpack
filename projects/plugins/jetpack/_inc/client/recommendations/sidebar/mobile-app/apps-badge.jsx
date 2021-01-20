@@ -12,7 +12,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getUserLocale as getLocaleSlug } from 'components/number-format';
+import { getUserLocale as getLocaleSlug } from 'lib/locale';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 

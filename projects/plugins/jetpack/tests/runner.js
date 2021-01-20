@@ -53,6 +53,11 @@ if ( program.args.length ) {
 					mocha.addFile( file );
 				} );
 				break;
+			case 'lib':
+				glob.sync( '_inc/client/lib/**/test/*.js' ).forEach( file => {
+					mocha.addFile( file );
+				} );
+				break;
 			case 'modules':
 				glob.sync( 'modules/**/test-*.js' ).forEach( file => {
 					mocha.addFile( file );

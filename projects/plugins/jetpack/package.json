@@ -44,6 +44,7 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./tests/e2e/config/local-test.js -out ./tests/e2e/config/encrypted.enc",
 		"test-extensions": "jest extensions",
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
+		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js lib",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
 		"test-search": "yarn concurrently 'yarn test-search-scripts' 'yarn test-search-size'",
 		"test-search-scripts": "jest modules/search",
