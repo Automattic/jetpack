@@ -5,6 +5,11 @@
  * @package Jetpack Beta
  */
 
+// Check that the file is not accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Jetpack_Beta
  */

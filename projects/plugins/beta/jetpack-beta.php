@@ -63,10 +63,10 @@ require_once 'autoupdate-self.php';
 require_once 'class-jetpackbetaclicommand.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 
-set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) );
-
 // The main plugin class file.
 require_once __DIR__ . '/class-jetpack-beta.php';
+
+set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) );
 
 register_activation_hook( __FILE__, array( 'Jetpack_Beta', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
