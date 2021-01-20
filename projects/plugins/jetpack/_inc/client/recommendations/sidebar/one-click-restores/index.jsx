@@ -51,7 +51,7 @@ const OneClickRestoresComponent = props => {
 						{ sprintf(
 							/* translators: placeholder is the name of a backups plan: Daily Backups or Real-time Backups */
 							__(
-								'Get the most out of your %s. One-click restores ensure we’ll be able to easily restore your site, if anything goes wrong.',
+								'Get the most out of your %s. One-click restores ensure you’ll be able to easily restore your site, if anything goes wrong.',
 								'jetpack'
 							),
 							backupsName
