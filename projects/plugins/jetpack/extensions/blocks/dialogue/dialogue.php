@@ -48,16 +48,7 @@ function filter_content( $content ) {
 		return '';
 	}
 
-	return wp_kses(
-		$content,
-		array(
-			'small'  => true,
-			'strong' => true,
-			'b'      => true,
-			'em'     => true,
-			'br'     => true,
-		)
-	);
+	return wp_kses_post( $content );
 }
 
 /**

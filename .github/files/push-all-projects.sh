@@ -39,6 +39,18 @@ while read -r GIT_SLUG; do
 	CLONE_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	cd "${CLONE_DIR}"
 
+	# Release branches are only mirrored to branches where composer.json specifies the matching prefix.
+	if [[ "$BRANCH" =~ /branch- ]]; then
+		PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
+		if [[ -z "$PREFIX" ]]; then
+			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
+			continue
+		elif [[ "${BRANCH%%/branch-*}" != "$PREFIX" ]]; then
+			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` != declared prefix \`$PREFIX\`"
+			continue
+		fi
+	fi
+
 	# Check if a remote exists for that project.
 	if git ls-remote --exit-code -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
 		:

@@ -9,5 +9,8 @@
 		"classmap": [
 			"src/"
 		]
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-config"
 	}
 }

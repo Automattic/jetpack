@@ -41,8 +41,9 @@ class PublicizeFormUnwrapped extends Component {
 
 	onMessageChange = event => {
 		const { messageChange } = this.props;
-		this.setState( { hasEditedShareMessage: true } );
-		messageChange( event );
+		const hasEditedShareMessage = true;
+		this.setState( { hasEditedShareMessage } );
+		messageChange( event, hasEditedShareMessage );
 	};
 
 	render() {
