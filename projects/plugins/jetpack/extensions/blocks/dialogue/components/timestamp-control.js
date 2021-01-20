@@ -5,14 +5,11 @@ import {
 	Dropdown,
 	Button,
 } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../../store/media-source/constants';
-import { ControlPlayInTimeIcon } from '../../../shared/icons';
 import NumberControl from '../../../shared/components/number-control';
 import { MediaPlayerControl } from '../../../shared/components/media-player-control';
 import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
@@ -75,9 +72,6 @@ export function TimestampControl( {
 		smh.unshift( '00' );
 	}
 
-	const { setMediaSourceCurrentTime, playMediaSource } = useDispatch( STORE_ID );
-	const valueInSeconds = convertTimeCodeToSeconds( value );
-
 	return (
 		<div className={ `${ className }__timestamp-container` }>
 			<div className={ `${ className }__timestamp-controls` }>
@@ -117,21 +111,11 @@ export function TimestampControl( {
 						onChange( setTimestampValue( { sec }, smh ) );
 					} }
 				/>
-
-				<Button
-					className={ `${ className }__timestamp-control__play-button` }
-					icon={ ControlPlayInTimeIcon }
-					onClick={ () => {
-						setMediaSourceCurrentTime( null, valueInSeconds );
-						playMediaSource();
-					} }
-					label={ __( 'Play in custom time', 'jetpack' ) }
-				/>
 			</div>
 
 			<div className={ `${ className }__timestamp-player` }>
 				<MediaPlayerControl
-					customTimeToPlay={ valueInSeconds }
+					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
 					syncMode={ playerSyncMode }
 					onSyncModeToggle={ onPlayerSyncModeToggle }
