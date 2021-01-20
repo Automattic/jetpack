@@ -20,6 +20,11 @@ import { PODCAST_FEED } from '../constants';
 import { fetchPodcastFeed } from '../api';
 
 export default function EpisodeSelector( { feedUrl, onSelected, episodeDetails } ) {
+	// If the commbobox control is unavailable, then don't render
+	if ( undefined === ComboboxControl ) {
+		return null;
+	}
+
 	const [ episodeCache, setEpisodeCache ] = useState( {} );
 	const [ isLoading, setIsLoading ] = useState( false );
     const [ options, setOptions ] = useState( [] );
