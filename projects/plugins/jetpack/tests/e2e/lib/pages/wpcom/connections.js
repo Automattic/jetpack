@@ -7,7 +7,6 @@ import {
 	waitAndType,
 	clickAndWaitForNewPage,
 	getAccountCredentials,
-	isEventuallyPresent,
 	waitForSelector,
 } from '../../page-helper';
 
@@ -62,5 +61,6 @@ export default class ConnectionsPage extends Page {
 		await waitAndType( mcPopupPage, mcUsernameSelector, mcLogin );
 		await waitAndType( mcPopupPage, mcPasswordSelector, mcPassword );
 		await waitAndClick( mcPopupPage, mcSubmitSelector );
+		await this.page.bringToFront();
 	}
 }
