@@ -112,7 +112,7 @@ class Jetpack_Beta {
 
 		if ( $updates_completed['action'] == 'update' &&
 		$updates_completed['type'] == 'plugin' &&
-		in_array( JETPACK_DEV_PLUGIN_FILE, $updates_completed['plugins'] ) ) {
+		in_array( JETPACK_DEV_PLUGIN_FILE, $updates_completed['plugins'], true ) ) {
 			list( $branch, $section ) = self::get_branch_and_section_dev();
 			if ( self::should_update_dev_to_master() ) {
 				list( $branch, $section ) = array( 'master', 'master' );
