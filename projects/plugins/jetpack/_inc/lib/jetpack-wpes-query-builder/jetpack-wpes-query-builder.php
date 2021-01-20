@@ -94,7 +94,7 @@ class Jetpack_WPES_Query_Builder {
 	 * @return void
 	 */
 	public function add_weighting_function( $function ) {
-		//check for danger
+		// check for danger.
 		if ( isset( $function['random_score'] ) ) {
 			return $this;
 		}
