@@ -69,6 +69,7 @@ export function MediaPlayerControl( {
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
+	const readyToEdit = typeof mediaDuration !== 'undefined';
 
 	const {
 		toggleMediaSource,
@@ -128,14 +129,12 @@ export function MediaPlayerControl( {
 
 	const disableCustomPlayButton = isDisabled || syncMode || Math.abs( customTimeToPlay - mediaCurrentTime ) < 1;
 
-	const readyToPlay = typeof mediaDuration !== 'undefined';
-
 	return (
 		<>
 			{ jumpBackTime !== false && (
 				<ToolbarButton
 					icon={ backFiveIcon }
-					isDisabled={ isDisabled }
+					disabled={ isDisabled || ! readyToEdit }
 					onClick={ () => setCurrentTime( customTimeToPlay - jumpBackTime ) }
 					label={ __( 'Jump back', 'jetpack' ) }
 				/>
@@ -160,7 +159,7 @@ export function MediaPlayerControl( {
 			{ skipForwardTime && (
 				<ToolbarButton
 					icon={ forwardFiveIcon }
-					isDisabled={ isDisabled }
+					disabled={ isDisabled || ! readyToEdit }
 					onClick={ () => setCurrentTime( customTimeToPlay + skipForwardTime ) }
 					label={ __( 'Skip forward', 'jetpack' ) }
 				/>
@@ -189,13 +188,13 @@ export function MediaPlayerControl( {
 			{ progressBar && (
 				<>
 					<RangeControl
-						value={ readyToPlay ? progressBarValue : 0 }
+						value={ readyToEdit ? progressBarValue : 0 }
 						className="media-player-control__progress-bar"
 						min={ 0 }
-						max={ readyToPlay ? mediaDuration : 100 }
+						max={ readyToEdit ? mediaDuration : 100 }
 						onChange={ setProgressBarValue }
 						withInputField={ false }
-						disabled={ isDisabled || ! readyToPlay }
+						disabled={ isDisabled || ! readyToEdit }
 						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
 						showTooltip={ showProgressBarTooltip }
 						onMouseDown={ () => {
