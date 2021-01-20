@@ -1,0 +1,8 @@
+{
+    "name": "automattic/client-example",
+    "description": "An example plugin that uses Jetpack's packages.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "require": {}
+}
