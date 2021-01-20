@@ -22,7 +22,7 @@ import './style.scss';
 const MobileApp = () => {
 	const features = [
 		__( 'Refined post and page editor', 'jetpack' ),
-		__( 'Manage multiple sites from one dash', 'jetpack' ),
+		__( 'Manage multiple sites from one dashboard', 'jetpack' ),
 		__( 'Multi-site plugin management', 'jetpack' ),
 		__( 'Free stock photo library', 'jetpack' ),
 		__( 'Update your site from any device', 'jetpack' ),
