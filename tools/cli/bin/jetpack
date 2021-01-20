@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+/**
+ * Standardizes the cwd for the process. Allows `jetpack` cli to run correctly from any location in the repo.
+ */
+const process = require( 'process' );
+const path = require( 'path' );
+
+process.chdir( path.join( path.dirname( __dirname ), '../..' ) );
+
 try {
 	// eslint-disable-next-line no-global-assign
 	require = require( 'esm' )( module /*, options*/ );
