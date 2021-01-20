@@ -171,7 +171,7 @@
 			tiledGalleries.findAndSetupNewGalleries();
 		} );
 
-		if ( jQuery ) {
+		if ( typeof jQuery === 'function' ) {
 			jQuery( document ).on( 'page-rendered.wpcom-newdash', function () {
 				tiledGalleries.findAndSetupNewGalleries();
 			} );
