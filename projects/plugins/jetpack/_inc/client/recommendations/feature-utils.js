@@ -149,7 +149,7 @@ export const getStepContent = stepSlug => {
 				progressValue: '99',
 				question: __( 'Would you like Site Accelerator to help your site load faster?', 'jetpack' ),
 				description: __(
-					'Faster sites get better ranking in search engines and help keep visitors on your site longer. <strong>Site Accerator</strong> will automatically optimize your image and files. <ExternalLink>Learn more</ExternalLink>',
+					'Faster sites get better ranking in search engines and help keep visitors on your site longer. <strong>Site Accelerator</strong> will automatically optimize your image and files. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/site-accelerator/',
