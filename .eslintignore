@@ -1,24 +1,34 @@
-*.min.js
-/3rd-party/debug-bar/debug-bar.js
-/_inc/blocks
-/_inc/build
-/_inc/client/**/test/*.js
-/_inc/jetpack-modules.models.js
-/_inc/postmessage.js
-/docker/wordpress-develop/
-/docker/wordpress/
-/modules/custom-css/custom-css/js/core-customizer-css-preview.js
-/modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
-/modules/custom-css/custom-css/js/core-customizer-css.js
-/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
-/packages/*/vendor
-/packages/*/wordpress
+### Root
+tools/docker/wordpress-develop/
+tools/docker/wordpress/
 
-/modules/widgets/search/js/search-widget-admin.js
 /vendor/
 
-# Temporary ignore until Jest is set up
-/extensions/**/test/
+*.min.js
 
-# Temporary ignore until Instant Search is moved into modules
-/_inc/search
+# Ignored by default, but we should check it
+!.github/
+
+### Jetpack
+projects/plugins/jetpack/.size-limit.js
+projects/plugins/jetpack/3rd-party/debug-bar/debug-bar.js
+projects/plugins/jetpack/_inc/blocks
+projects/plugins/jetpack/_inc/build
+projects/plugins/jetpack/_inc/client/**/test/*.js
+projects/plugins/jetpack/_inc/jetpack-modules.models.js
+projects/plugins/jetpack/_inc/postmessage.js
+
+projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css-preview.js
+projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
+projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.js
+projects/plugins/jetpack/modules/widgets/search/js/search-widget-admin.js
+
+projects/plugins/jetpack/vendor/
+
+# Temporary ignore until Jest is set up
+projects/plugins/jetpack/extensions/**/test/
+
+### Packages
+projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
+projects/packages/*/vendor
+projects/packages/*/wordpress

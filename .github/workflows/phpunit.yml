@@ -21,6 +21,7 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
     continue-on-error: ${{ matrix.experimental }}
+    timeout-minutes: 15  # 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
     env:
       WP_BRANCH: ${{ matrix.wp }}
       PHP_VERSION: ${{ matrix.php }}
@@ -28,7 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         # Run tests against current WP in all supported PHP versions.
-        php: [ "5.6", "7.0", "7.2", "7.3", "7.4" ]
+        php: [ "5.6", "7.0", "7.2", "7.3", "7.4", "8.0" ]
         wp: [ "latest" ]
         experimental: [ false ]
 
@@ -40,10 +41,6 @@ jobs:
           - php: "7.4"
             wp: "previous"
             experimental: false
-          # Experimental PHP 8 tests
-          - php: "8.0"
-            wp: "latest"
-            experimental: true
 
     steps:
       - uses: actions/checkout@v2
@@ -89,9 +86,8 @@ jobs:
 
       - name: Package tests
         if: matrix.wp == 'latest'
-        working-directory: /tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/plugins/jetpack
         run: |
-          for PACKAGE in ./packages/*/tests/php; do
+          for PACKAGE in ./projects/packages/*/tests/php; do
             cd "$PACKAGE/../.."
             NAME=$(basename $(pwd))
             echo "::group::Package $NAME"
@@ -99,7 +95,7 @@ jobs:
               composer phpunit
             fi
             echo "::endgroup::"
-            cd ../..
+            cd -
           done
 
       - name: Legacy Full Sync tests
