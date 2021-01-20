@@ -44,6 +44,19 @@ function wpcomsh_rm_masterbar_module_list( $items ) {
 add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
 
 /**
+ * Determines if the color scheme set on Calypso should be used as the Admin color scheme.
+ *
+ * The Calypso color scheme will be used unless there are third party plugins that provide
+ * more color schemes.
+ *
+ * @return bool
+ */
+function wpcomsh_should_use_calypso_color_scheme() {
+	// WP Admin default color scheme + Calypso color schemes = 18.
+	return 18 === count( $GLOBALS['_wp_admin_css_colors'] );
+}
+
+/**
  * Prints the calypso page link for changing a color scheme.
  **/
 function wpcomsh_admin_color_scheme_picker_disabled() {
@@ -57,17 +70,43 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
 /**
  * Hides the "Admin Color Scheme" entry on /wp-admin/profile.php,
  * and adds an action that prints a calypso page link.
- *
- * This code should only run if the use has only the default color schemes ( wp-admin + calypso = 18 ).
  **/
 function wpcomsh_hide_color_schemes() {
-	if ( 18 === count( $GLOBALS['_wp_admin_css_colors'] ) ) {
+	if ( wpcomsh_should_use_calypso_color_scheme() ) {
 		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
 		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
 	}
 }
-// When ready to activate syncing of color scheme to Atomic, uncomment the following line.
-//add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
+add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
+
+/**
+ * Overrides the Admin color scheme with the Calypso color scheme.
+ *
+ * @param mixed   $result Value for the user's option.
+ * @return string Admin color scheme.
+ */
+function wpcomsh_use_calypso_color_scheme( $result ) {
+	if ( ! wpcomsh_should_use_calypso_color_scheme() ) {
+		return $result;
+	}
+
+	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+		return $result;
+	}
+
+	$connection_manager = new Connection_Manager();
+	$wpcom_user_data    = $connection_manager->get_connected_user_data();
+	if ( ! $wpcom_user_data ) {
+		return $result;
+	}
+
+	if ( empty( $wpcom_user_data['color_scheme'] ) ) {
+		return $result;
+	}
+
+	return $wpcom_user_data['color_scheme'];
+}
+add_filter( 'get_user_option_admin_color', 'wpcomsh_use_calypso_color_scheme' );
 
 /**
  * Enables the nav-unification feature pbAPfg-Ou-p2
@@ -99,7 +138,7 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 	$is_automattician   = $wpcom_user_data[ 'is_probably_a11n' ] ?? null;
 
 	if ( $is_automattician ) {
-		// Loads only for a12s.	
+		// Loads only for a12s.
 		return true;
 	}
 
@@ -112,4 +151,4 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 	// Otherwise, keep using the previous value of the filter.
 	return $should_activate_nav_unification;
 }
-add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' ); 
+add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' );
