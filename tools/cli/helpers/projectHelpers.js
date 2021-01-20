@@ -20,10 +20,7 @@ export function allProjects() {
 	let projects = [];
 	projectTypes.forEach( type => {
 		const typeProjects = dirs( './projects/' + type, type + '/' );
-		projects = {
-			...projects,
-			...typeProjects,
-		};
+		projects = projects.concat( typeProjects );
 	} );
 	projects = Object.values( projects );
 	return projects;
