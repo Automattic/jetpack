@@ -122,6 +122,8 @@ export function MediaPlayerControl( {
 
 	const disableCustomPlayButton = isDisabled || syncMode || Math.abs( customTimeToPlay - mediaCurrentTime ) < 1;
 
+	const readyToPlay = typeof mediaDuration !== 'undefined';
+
 	return (
 		<>
 			{ jumpBackTime !== false && (
@@ -182,13 +184,13 @@ export function MediaPlayerControl( {
 				<>
 					<div className="break" />
 					<RangeControl
-						value={ progressBarValue }
+						value={ readyToPlay ? progressBarValue : 0 }
 						className="media-player-control__progress-bar"
 						min={ 0 }
-						max={ mediaDuration }
+						max={ readyToPlay ? mediaDuration : 100 }
 						onChange={ setProgressBarValue }
 						withInputField={ false }
-						disabled={ isDisabled || ! mediaDuration }
+						disabled={ isDisabled || ! readyToPlay }
 						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
 						onMouseDown={ () => {
 							prevSyncMode.current = syncMode;
