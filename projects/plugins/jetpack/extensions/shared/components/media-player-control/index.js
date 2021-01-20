@@ -186,32 +186,30 @@ export function MediaPlayerControl( {
 			</div>
 
 			{ progressBar && (
-				<>
-					<RangeControl
-						value={ readyToEdit ? progressBarValue : 0 }
-						className="media-player-control__progress-bar"
-						min={ 0 }
-						max={ readyToEdit ? mediaDuration : 100 }
-						onChange={ setProgressBarValue }
-						withInputField={ false }
-						disabled={ isDisabled || ! readyToEdit }
-						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
-						showTooltip={ showProgressBarTooltip }
-						onMouseDown={ () => {
-							prevSyncMode.current = syncMode;
-							setShowProgressBarTooltip( true );
-							onSyncModeToggle( false );
-						} }
-						onMouseUp={ () => {
-							onTimeChange( progressBarValue );
-							setShowProgressBarTooltip( false );
-							if ( prevSyncMode.current ) {
-								setPlayerCurrentTime( progressBarValue );
-								onSyncModeToggle( prevSyncMode.current );
-							}
-						} }
-					/>
-				</>
+				<RangeControl
+					value={ readyToEdit ? progressBarValue : 0 }
+					className="media-player-control__progress-bar"
+					min={ 0 }
+					max={ readyToEdit ? mediaDuration : 100 }
+					onChange={ setProgressBarValue }
+					withInputField={ false }
+					disabled={ isDisabled || ! readyToEdit }
+					renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+					showTooltip={ showProgressBarTooltip }
+					onMouseDown={ () => {
+						prevSyncMode.current = syncMode;
+						setShowProgressBarTooltip( true );
+						onSyncModeToggle( false );
+					} }
+					onMouseUp={ () => {
+						onTimeChange( progressBarValue );
+						setShowProgressBarTooltip( false );
+						if ( prevSyncMode.current ) {
+							setPlayerCurrentTime( progressBarValue );
+							onSyncModeToggle( prevSyncMode.current );
+						}
+					} }
+				/>
 			) }
 		</>
 	);
