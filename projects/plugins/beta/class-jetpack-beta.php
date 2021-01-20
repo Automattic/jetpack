@@ -16,42 +16,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Beta {
 
 	/**
-	 * Singleton class instance.
+	 * Singleton Jetpack_Beta class instance.
 	 *
 	 * @var Jetpack_Beta
 	 */
 	protected static $instance = null;
 
 	/**
-	 * WP Options string.
+	 * WP Options string: jetpack_beta_active
 	 *
 	 * @var string
 	 */
 	protected static $option = 'jetpack_beta_active';
 
 	/**
-	 * WP Options string.
+	 * WP Options string: jetpack_beta_dev_currently_installed
 	 *
 	 * @var string
 	 */
 	protected static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
 
 	/**
-	 * WP Options string.
+	 * WP Options string: jp_beta_autoupdate
 	 *
 	 * @var string
 	 */
 	protected static $option_autoupdate = 'jp_beta_autoupdate';
 
 	/**
-	 * WP Options string.
+	 * WP Options string: jp_beta_email_notifications
 	 *
 	 * @var string
 	 */
 	protected static $option_email_notif = 'jp_beta_email_notifications';
 
 	/**
-	 * WP-Cron string.
+	 * WP-Cron string: jetpack_beta_autoupdate_hourly_cron
 	 *
 	 * @var string
 	 */
@@ -61,7 +61,11 @@ class Jetpack_Beta {
 	 * Main Instance
 	 */
 	public static function instance() {
-		return self::$instance = is_null( self::$instance ) ? new self() : self::$instance;
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
 	}
 
 	/**
@@ -115,9 +119,11 @@ class Jetpack_Beta {
 			}
 			update_option( self::$option_dev_installed, array( $branch, $section, self::get_manifest_data( $branch, $section ) ) );
 		}
-
 	}
 
+	/**
+	 * If Jetpack or JP Dev plugin is network activated, update active_plugins option.
+	 */
 	public static function is_network_enabled() {
 		if ( self::is_network_active() ) {
 			add_filter( 'option_active_plugins', array( 'Jetpack_Beta', 'override_active_plugins' ) );
@@ -125,10 +131,12 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * @param $active_plugins
-	 * Make sure that you can't have Jetpack and Jetpack Dev plugins versions loaded
-	 * This filter is only applied if Jetpack is network activated.
-	 * @return array
+	 * This filter is only applied if Jetpack is network activated,
+	 * makes sure that you can't have Jetpack or Jetpack Dev plugins versions loaded.
+	 *
+	 * @param array $active_plugins - Currently activated plugins.
+	 *
+	 * @return array Updated array of active plugins.
 	 */
 	public static function override_active_plugins( $active_plugins ) {
 		$new_active_plugins = array();
@@ -140,6 +148,12 @@ class Jetpack_Beta {
 		return $new_active_plugins;
 	}
 
+	/**
+	 * Actions taken when the Jetpack Beta plugin is deactivated.
+	 *
+	 * @param string $plugin       - Plugin path being deactivated.
+	 * @param bool   $network_wide - Whether the $plugin is being deactivated network wide.
+	 */
 	public function plugin_deactivated( $plugin, $network_wide ) {
 		if ( ! self::is_jetpack_plugin( $plugin ) ) {
 			return;
@@ -148,10 +162,20 @@ class Jetpack_Beta {
 		delete_option( self::$option );
 	}
 
+	/**
+	 * Checks if passed plugin matches JP or JP Dev paths.
+	 *
+	 * @param string $plugin - A plugin path.
+	 */
 	public static function is_jetpack_plugin( $plugin ) {
 		return in_array( $plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ) );
 	}
 
+	/**
+	 * Filter JP Dev plugin action links.
+	 *
+	 * @param array $actions - Array of plugin action links.
+	 */
 	public function remove_activate_dev( $actions ) {
 		if ( is_plugin_active( JETPACK_PLUGIN_FILE ) || self::is_network_active() ) {
 			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
@@ -159,6 +183,11 @@ class Jetpack_Beta {
 		return $actions;
 	}
 
+	/**
+	 * Filter JP Stable plugin action links.
+	 *
+	 * @param array $actions - Array of plugin action links.
+	 */
 	public function remove_activate_stable( $actions ) {
 		if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) || self::is_network_active() ) {
 			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
