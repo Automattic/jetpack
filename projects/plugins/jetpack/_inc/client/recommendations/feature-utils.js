@@ -39,7 +39,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
 				displayName: __( 'Site Accelerator', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: '#/settings?term=image%20optimize',
+				configLink: '#/settings?term=cdn',
 			};
 		case 'woocommerce':
 			return {
