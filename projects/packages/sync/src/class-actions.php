@@ -364,6 +364,9 @@ class Actions {
 		}
 
 		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 15;
+		if ( 'immediate-send' === $queue_id ) {
+			$query_args['timeout'] = 30;
+		}
 
 		/**
 		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.

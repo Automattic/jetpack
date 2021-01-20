@@ -345,10 +345,12 @@ class Full_Sync_Immediately extends Module {
 		}
 
 		// Send Full Sync actions.
-		$this->send();
+		$success = $this->send();
 
 		// Remove lock.
-		$lock->remove( self::LOCK_NAME, $lock_expiration );
+		if ( $success ) {
+			$lock->remove( self::LOCK_NAME, $lock_expiration );
+		}
 	}
 
 	/**
@@ -366,15 +368,19 @@ class Full_Sync_Immediately extends Module {
 
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until );
-			if ( ! $progress[ $module->name() ]['finished'] ) {
+			if ( isset( $progress[ $module->name() ]['error'] ) ) {
+				unset( $progress[ $module->name() ]['error'] );
 				$this->update_status( array( 'progress' => $progress ) );
-
-				return;
+				return false;
+			} elseif ( ! $progress[ $module->name() ]['finished'] ) {
+				$this->update_status( array( 'progress' => $progress ) );
+				return true;
 			}
 		}
 
 		$this->send_full_sync_end();
 		$this->update_status( array( 'progress' => $progress ) );
+		return true;
 	}
 
 	/**
