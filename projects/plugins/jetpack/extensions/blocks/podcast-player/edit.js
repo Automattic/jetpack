@@ -102,7 +102,6 @@ const PodcastPlayerEdit = ( {
 
 	const fetchFeed = useCallback(
 		( urlToFetch, guid ) => {
-			console.log( 'url', urlToFetch, 'guid', guid );
 			cancellableFetch.current?.cancel();
 			cancellableFetch.current = makeCancellable( fetchPodcastFeed( { url: urlToFetch, guid } ) );
 			cancellableFetch.current.promise.then(
@@ -147,7 +146,10 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 		if ( feedData.tracks ) {
-			if ( ! isEqual( feedData.tracks[ 0 ], singleEpisode ) && singleEpisode.guid === feedData.tracks[0].guid ) {
+			if (
+				! isEqual( feedData.tracks[ 0 ], singleEpisode ) &&
+				singleEpisode.guid === feedData.tracks[ 0 ].guid
+			) {
 				setAttributes( { singleEpisode: feedData.tracks[ 0 ] } );
 			}
 		} else {
@@ -299,15 +301,15 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					{ ! episodeGuid && ( 
-					<RangeControl
-						label={ __( 'Number of items', 'jetpack' ) }
-						value={ itemsToShow }
-						onChange={ value => setAttributes( { itemsToShow: value } ) }
-						min={ DEFAULT_MIN_ITEMS }
-						max={ DEFAULT_MAX_ITEMS }
-						required
-					/>
+					{ ! episodeGuid && (
+						<RangeControl
+							label={ __( 'Number of items', 'jetpack' ) }
+							value={ itemsToShow }
+							onChange={ value => setAttributes( { itemsToShow: value } ) }
+							min={ DEFAULT_MIN_ITEMS }
+							max={ DEFAULT_MAX_ITEMS }
+							required
+						/>
 					) }
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }
