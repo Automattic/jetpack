@@ -105,7 +105,7 @@ function podcastConversationSection() {
 					'core/heading',
 					{
 						level: 3,
-						content: 'Transcription',
+						content: __( 'Transcription', 'jetpack' ),
 						placeholder: __( 'Podcast episode transcription', 'jetpack' ),
 					},
 				],
