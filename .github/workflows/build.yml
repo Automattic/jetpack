@@ -92,11 +92,12 @@ jobs:
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          CURRENT_VERSION=$(monorepo/tools/get-version.sh to-upload/jetpack-dev/jetpack.php)-${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)
-          sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' to-upload/jetpack-dev/jetpack.php
-          echo "$CURRENT_VERSION" > to-upload/jetpack-dev/version.txt
+          CURRENT_VERSION=$(monorepo/tools/plugin-version.sh to-upload/jetpack-dev/)-${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)
           echo "Using version $CURRENT_VERSION"
           echo "::set-output name=version::$CURRENT_VERSION"
+          echo "$CURRENT_VERSION" > to-upload/jetpack-dev/version.txt
+          # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
+          sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' to-upload/jetpack-dev/jetpack.php
 
       - name: Upload Jetpack build
         uses: actions/upload-artifact@v2
