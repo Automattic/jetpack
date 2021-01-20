@@ -120,6 +120,10 @@ export function MediaPlayerControl( {
 		onTimeChange( mediaCurrentTime );
 	}, [ mediaCurrentTime, onTimeChange, syncMode, playerState ] );
 
+	useEffect( () => {
+		setProgressBarValue( customTimeToPlay );
+	}, [ customTimeToPlay ] );
+
 	const disableCustomPlayButton = isDisabled || syncMode || Math.abs( customTimeToPlay - mediaCurrentTime ) < 1;
 
 	const readyToPlay = typeof mediaDuration !== 'undefined';
@@ -197,9 +201,9 @@ export function MediaPlayerControl( {
 							onSyncModeToggle( false );
 						} }
 						onMouseUp={ () => {
-							setPlayerCurrentTime( progressBarValue );
+							onTimeChange( progressBarValue );
 							if ( prevSyncMode.current ) {
-								onTimeChange( progressBarValue );
+								setPlayerCurrentTime( progressBarValue );
 								onSyncModeToggle( prevSyncMode.current );
 							}
 						} }
