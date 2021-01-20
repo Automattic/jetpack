@@ -150,7 +150,6 @@ export function getAccountCredentials( accountName ) {
  *
  * @param {page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
- *
  * @return {page} New instance of the opened page.
  */
 export async function clickAndWaitForNewPage( page, selector ) {
@@ -161,19 +160,19 @@ export async function clickAndWaitForNewPage( page, selector ) {
 	// 		reject( 'Timed out in ' + timeout + 'ms.' );
 	// 	}, timeout );
 	// } );
-	// const newTabTarget = new Promise( resolve => {
-	// 	const listener = async target => {
-	// 		if ( target.type() === 'page' ) {
-	// 			browser.removeListener( 'targetcreated', listener );
-	// 			resolve( target );
-	// 		}
-	// 	};
-	// 	browser.addListener( 'targetcreated', listener );
-	// } );
+	const newTabTarget = new Promise( resolve => {
+		const listener = async target => {
+			if ( target.type() === 'page' ) {
+				browser.removeListener( 'targetcreated', listener );
+				resolve( target );
+			}
+		};
+		browser.addListener( 'targetcreated', listener );
+	} );
 
 	await waitAndClick( page, selector );
 	// const target = await Promise.race( [ newTabTarget, timeoutPromise ] );
-	const target = await new Promise( x => browser.once( 'targetcreated', t => x( t.page() ) ) );
+	const target = await newTabTarget;
 	await target.bringToFront();
 	return await target.page();
 }
