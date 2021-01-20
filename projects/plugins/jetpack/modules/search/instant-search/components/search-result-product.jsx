@@ -64,12 +64,12 @@ class SearchResultProduct extends Component {
 					/>
 				</h3>
 
-				{ fields[ 'wc.price' ] && (
+				{ !! fields[ 'wc.price' ] && (
 					<div className="jetpack-instant-search__search-result-product-price">
 						{ fields[ 'wc.price' ].toFixed( 2 ) }
 					</div>
 				) }
-				{ fields[ 'meta._wc_average_rating.double' ] && (
+				{ !! fields[ 'meta._wc_average_rating.double' ] && (
 					<ProductRatings
 						count={ fields[ 'meta._wc_rating_count.long' ] }
 						rating={ fields[ 'meta._wc_average_rating.double' ] }
