@@ -57,7 +57,14 @@ function register_extension() {
 }
 
 function is_spotify_url_valid( $url ) {
+	// Check if URL is empty.
 	if ( empty( $url ) ) {
+		return false;
+	}
+
+	// Check if URL belongs to expected hostname.
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+	if ( $host !== 'open.spotify.com' ) {
 		return false;
 	}
 
@@ -102,7 +109,6 @@ function process_anchor_params() {
 	if ( $insert_spotify_badge ) {
 		$data['spotifyShowUrl'] = $spotify_show_url;
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
-			$insert_spotify_badge = true;
 			update_post_meta( $post->ID, 'jetpack_anchor_spotify_show', $spotify_show_url );
 		}
 	}
@@ -133,7 +139,7 @@ function process_anchor_params() {
 							array(
 								'episodeTrack'    => $track,
 								'spotifyImageUrl' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
-								'spotifyShowUrl'  => $spotify_show_url,
+								'spotifyShowUrl'  => $insert_spotify_badge ? $spotify_show_url : false,
 							),
 						);
 					}
