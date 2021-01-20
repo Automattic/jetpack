@@ -9,6 +9,7 @@ import './shared/external-media';
 import './extended-blocks/core-embed';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
+import './blocks/gallery-styles';
 
 // Register media source store to the centralized data registry.
 import './store/media-source';

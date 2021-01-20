@@ -39,7 +39,8 @@
 		"wordads"
 	],
 	"beta": [
-		"amazon"
+		"amazon",
+		"gallery-styles"
 	],
 	"experimental": [
 		"anchor-fm",
