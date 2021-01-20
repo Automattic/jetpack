@@ -15,20 +15,53 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_Beta {
 
-	protected static $_instance = null;
+	/**
+	 * Singleton class instance.
+	 *
+	 * @var Jetpack_Beta
+	 */
+	protected static $instance = null;
 
-	static $option               = 'jetpack_beta_active';
-	static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
-	static $option_autoupdate    = 'jp_beta_autoupdate';
-	static $option_email_notif   = 'jp_beta_email_notifications';
+	/**
+	 * WP Options string.
+	 *
+	 * @var string
+	 */
+	protected static $option = 'jetpack_beta_active';
 
-	static $auto_update_cron_hook = 'jetpack_beta_autoupdate_hourly_cron';
+	/**
+	 * WP Options string.
+	 *
+	 * @var string
+	 */
+	protected static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
+
+	/**
+	 * WP Options string.
+	 *
+	 * @var string
+	 */
+	protected static $option_autoupdate = 'jp_beta_autoupdate';
+
+	/**
+	 * WP Options string.
+	 *
+	 * @var string
+	 */
+	protected static $option_email_notif = 'jp_beta_email_notifications';
+
+	/**
+	 * WP-Cron string.
+	 *
+	 * @var string
+	 */
+	protected static $auto_update_cron_hook = 'jetpack_beta_autoupdate_hourly_cron';
 
 	/**
 	 * Main Instance
 	 */
 	public static function instance() {
-		return self::$_instance = is_null( self::$_instance ) ? new self() : self::$_instance;
+		return self::$instance = is_null( self::$instance ) ? new self() : self::$instance;
 	}
 
 	/**
