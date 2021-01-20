@@ -114,7 +114,6 @@ export function TimestampControl( {
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ onChange }
-					progressBar={ true }
 					skipForwardTime= { skipForwardTime }
 					jumpBackTime= { jumpBackTime }
 					currenTimeDisplay={ false }
