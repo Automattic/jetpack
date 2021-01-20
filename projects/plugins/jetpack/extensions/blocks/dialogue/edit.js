@@ -163,6 +163,17 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
+				<ToolbarGroup>
+					<ParticipantsDropdown
+						id={ `dialogue-${ instanceId }-participants-dropdown` }
+						className={ baseClassName }
+						participants={ participants }
+						label={ __( 'Participant', 'jetpack' ) }
+						participantSlug={ participantSlug }
+						onSelect={ setAttributes }
+					/>
+				</ToolbarGroup>
+
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
@@ -184,17 +195,6 @@ export default function DialogueEdit( {
 						/>
 					</ToolbarGroup>
 				) }
-
-				<ToolbarGroup>
-					<ParticipantsDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
-						className={ baseClassName }
-						participants={ participants }
-						label={ __( 'Participant', 'jetpack' ) }
-						participantSlug={ participantSlug }
-						onSelect={ setAttributes }
-					/>
-				</ToolbarGroup>
 			</BlockControls>
 
 			<InspectorControls>
