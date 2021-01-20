@@ -50,6 +50,28 @@ export const settings = {
 	save: InnerBlocks.Content,
 	variations,
 	category: 'grow',
+	transforms: {
+		from: [
+			{
+				type: 'shortcode',
+				tag: 'contact-form',
+				attributes: {
+					subject: {
+						type: 'string',
+						shortcode: ( { named: { subject } } ) => {
+							return subject;
+						},
+					},
+					to: {
+						type: 'string',
+						shortcode: ( { named: { to } } ) => {
+							return to;
+						},
+					},
+				}
+			},
+		]
+	},
 	deprecated,
 };
 
