@@ -56,6 +56,14 @@ function register_extension() {
 	);
 }
 
+function is_spotify_url_valid( $url ) {
+	if ( empty( $url ) ) {
+		return false;
+	}
+
+	return true;
+}
+
 /**
  * Checks URL params to determine the Anchor integration action to perform.
  */
@@ -90,8 +98,8 @@ function process_anchor_params() {
 	);
 
 	// add / update Spotify Badge URL.
-	$insert_spotify_badge = false;
-	if ( ! empty( $spotify_show_url ) ) {
+	$insert_spotify_badge = is_spotify_url_valid( $spotify_show_url );
+	if ( $insert_spotify_badge ) {
 		$data['spotifyShowUrl'] = $spotify_show_url;
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $spotify_show_url ) {
 			$insert_spotify_badge = true;
