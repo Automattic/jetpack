@@ -91,8 +91,8 @@ function podcastSummarySection( { episodeTrack } ) {
 }
 
 function podcastConversationSection() {
-	const conversationBlockId = 'jetpack/conversation';
-	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockId );
+	const conversationBlockName = 'jetpack/conversation';
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockName );
 
 	// Check if `jetpack/conversation` block is register.
 	if ( ! isConversationBlockAvailable ) {
@@ -132,7 +132,7 @@ function podcastConversationSection() {
 	}
 
 	return [
-		conversationBlockId,
+		conversationBlockName,
 		{},
 		[
 			[
