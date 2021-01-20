@@ -51,6 +51,15 @@ function filter_content( $content ) {
 	return wp_kses_post( $content );
 }
 
+function convertTimeCodeToSeconds( $time ) {
+    $sec = 0;
+    foreach ( array_reverse(explode(':', $time)) as $k => $v ) {
+		$sec += pow(60, $k) * $v;
+	}
+
+    return $sec;
+}
+
 /**
  * Helper to check dialogue block attributes.
  *
@@ -219,6 +228,10 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 	$css_classname           = Blocks::classes( FEATURE_NAME, $dialogue_attrs );
 	$participant_css_classes = build_participant_css_classes( $participants, $participant_slug, $attrs, $css_classname );
 
+	$timestamp_in_seconds =  $attrs['show_timestamp'] && $attrs['timestamp']
+		? convertTimeCodeToSeconds( $attrs['timestamp'] )
+		: '0';
+
 	// Markup.
 	return '<div class="' . $css_classname . '" >' .
 		'<div class="' . $css_classname . '__meta">' .
@@ -227,7 +240,13 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 			'</div>' .
 			( $attrs['show_timestamp']
 				? '<div class="' . $css_classname . '__timestamp">' .
-					'<a href="#" class="' . $css_classname . '__timestamp_link">' . $attrs['timestamp'] . '</a>' .
+					'<a ' .
+						'href="#" ' .
+						'class="' . $css_classname . '__timestamp_link" ' .
+						'data-timestamp="' . $timestamp_in_seconds . '"' .
+					'>' .
+						$attrs['timestamp'] .
+					'</a>' .
 				'</div>'
 				: ''
 			) .
