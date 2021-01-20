@@ -17,13 +17,14 @@
 		"jetpack": "bin/jetpack"
 	},
 	"scripts": {
-		"test-cli": "mocha tests/**/*.test.js --require esm"
+		"test-cli": "mocha tests/runner.js --require esm"
 	},
 	"dependencies": {
 		"chalk": "4.1.0",
 		"esm": "3.2.25",
 		"inquirer": "7.3.3",
 		"ora": "5.1.0",
+		"process": "0.11.10",
 		"yargs": "16.2.0"
 	},
 	"devDependencies": {

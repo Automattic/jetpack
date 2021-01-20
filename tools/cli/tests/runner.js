@@ -5,6 +5,10 @@
  */
 import Mocha from 'mocha';
 import glob from 'glob';
+import path from 'path';
+import process from 'process';
+
+process.chdir( path.join( path.dirname( __dirname ), '../..' ) );
 
 const mochaRunner = new Mocha();
 
@@ -12,7 +16,7 @@ glob.sync( 'tools/cli/**/*.test.js' ).forEach( file => {
 	mochaRunner.addFile( file );
 } );
 
-mocha.run( function ( failures ) {
+mochaRunner.run( function ( failures ) {
 	process.on( 'exit', function () {
 		process.exit( failures ); //eslint-disable-line no-process-exit
 	} );
