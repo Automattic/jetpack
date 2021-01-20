@@ -39,10 +39,11 @@ class Jetpack_Podcast_Helper {
 	 * @return array|WP_Error  The player data or a error object.
 	 */
 	public function get_player_data( $args = array() ) {
-		$guid = ! empty( $args['guid'] ) ? $args['guid'] : false;
+		$guid  = ! empty( $args['guid'] ) ? $args['guid'] : '';
+		$query = ! empty( $args['query'] ) ? $args['query'] : '';
 
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $this->feed . $guid ? "-$guid" : '' );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed . ":id:$guid:query:$query" );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
@@ -55,11 +56,11 @@ class Jetpack_Podcast_Helper {
 			}
 
 			// Get tracks or a single episode.
-			if ( false !== $guid ) {
+			if ( ! empty( $guid ) ) {
 				$track  = $this->get_track_data( $guid );
 				$tracks = is_wp_error( $track ) ? null : array( $track );
-			} elseif ( ! empty( $args['query'] ) ) {
-				$tracks = $this->search_tracks( $args['query'] );
+			} elseif ( ! empty( $query ) ) {
+				$tracks = $this->search_tracks( $query );
 				$tracks = is_wp_error( $tracks ) ? null : $tracks;
 			} else {
 				$tracks = $this->get_track_list();
