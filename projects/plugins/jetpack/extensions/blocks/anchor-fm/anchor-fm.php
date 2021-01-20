@@ -56,6 +56,13 @@ function register_extension() {
 	);
 }
 
+/**
+ * Checks if the given URL is valid to
+ * be used in the Spotigy badge.
+ *
+ * @param {string} $url - URL to check.
+ * @return {boolean} True is the URL is valid. Otherwise, False.
+ */
 function is_spotify_url_valid( $url ) {
 	// Check if URL is empty.
 	if ( empty( $url ) ) {
@@ -64,7 +71,7 @@ function is_spotify_url_valid( $url ) {
 
 	// Check if URL belongs to expected hostname.
 	$host = wp_parse_url( $url, PHP_URL_HOST );
-	if ( $host !== 'open.spotify.com' ) {
+	if ( 'open.spotify.com' !== $host ) {
 		return false;
 	}
 
