@@ -142,6 +142,8 @@ const selectors = {
 
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
+		const actionId = action.id || state.default;
+
 		switch ( action.type ) {
 			case 'REGISTER_MEDIA_SOURCE': {
 				return {
@@ -195,8 +197,8 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ actionId ]: {
+							...state.players[ actionId ],
 							state: action.state,
 						},
 					},
@@ -208,10 +210,11 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
-							state:
-								state.players[ action.id ].state === STATE_PLAYING ? STATE_PAUSED : STATE_PLAYING,
+						[ actionId ]: {
+							...state.players[ actionId ],
+							state: state.players[ actionId ].state === STATE_PLAYING
+								? STATE_PAUSED
+								: STATE_PLAYING,
 						},
 					},
 				};
@@ -222,8 +225,8 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ actionId ]: {
+							...state.players[ actionId ],
 							currentTime: action.currentTime,
 						},
 					},
