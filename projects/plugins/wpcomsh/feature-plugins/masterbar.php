@@ -6,6 +6,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
  * Force-enable the Masterbar module
  * If you use a version of Jetpack that supports it,
@@ -66,3 +68,48 @@ function wpcomsh_hide_color_schemes() {
 }
 // When ready to activate syncing of color scheme to Atomic, uncomment the following line.
 //add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
+
+/**
+ * Enables the nav-unification feature pbAPfg-Ou-p2
+ * via `jetpack_load_admin_menu_class` filter that lives in Jetpack
+ * https://github.com/Automattic/jetpack/blob/507142b09bae12b58e84c0c2b7d20024563f170d/modules%2Fmasterbar.php#L29
+ *
+ * Should add_filter for all a12s and all api requests for the admin-menu ( eg from calypso ).
+ * Should add_filter depending on the current rollout segment.
+ * CURRENT ROLLOUT SEGMENT: 5% of single site users.
+ */
+function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
+	if ( false !== strpos( $_SERVER['REQUEST_URI'], 'rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) ) {
+		// Loads for all api requests for the admin-menu ( eg from calypso ).
+		return true;
+	}
+
+	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+		return $should_activate_nav_unification;
+	}
+
+	$connection_manager = new Connection_Manager();
+	$wpcom_user_data    = $connection_manager->get_connected_user_data();
+	if ( ! $wpcom_user_data ) {
+		return $should_activate_nav_unification;
+	  }
+
+	$user_id            = $wpcom_user_data[ 'ID' ];
+	$user_site_count    = $wpcom_user_data[ 'site_count' ];
+	$is_automattician   = $wpcom_user_data[ 'is_probably_a11n' ] ?? null;
+
+	if ( $is_automattician ) {
+		// Loads only for a12s.	
+		return true;
+	}
+
+	// When ready to launch this feature for users, delete the block above and uncomment the following.
+	// Feature should always be available for a12s and for selected customer segments.
+	// if ( $is_automattician || ( 1 === $user_site_count && $user_id % 100 < 5 ) ) {
+	// 	return true;
+	// }
+
+	// Otherwise, keep using the previous value of the filter.
+	return $should_activate_nav_unification;
+}
+add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' ); 
