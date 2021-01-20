@@ -11,21 +11,23 @@ import './style.scss';
 const STORE_ID = 'jetpack/media-source';
 
 domReady( function () {
+	// Play podcast by cliking on the timestamp label
 	document.body.addEventListener( 'click', event => {
-		console.log( event?.target.innerText );
 		if ( ! event?.target?.classList?.contains( 'wp-block-jetpack-dialogue__timestamp_link' ) ) {
 			return;
 		}
 
-		const timestamp = mejs.Utils.timeCodeToSeconds( event.target.innerText );
-		const currentMediaSource = select( STORE_ID ).getCurrent();
-		if ( ! currentMediaSource ) {
+		const timestamp = event.target?.dataset?.timestamp;
+		if ( ! timestamp ) {
+			return;
+		}
+		const mediaSource = select( STORE_ID )?.getDefaultMediaSource();
+		if ( ! mediaSource ) {
 			return;
 		}
 
 		event.preventDefault();
-
-		const { playMediaInPosition } = dispatch( STORE_ID );
-		playMediaInPosition( currentMediaSource.id, timestamp );
+		dispatch( STORE_ID ).setMediaSourceCurrentTime( mediaSource.id, timestamp );
+		dispatch( STORE_ID ).playMediaSource( mediaSource.id, timestamp );
 	} );
 } );
