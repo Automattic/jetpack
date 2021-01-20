@@ -4,22 +4,24 @@
  */
 class Jetpack_Beta_Admin {
 
+	/** Initialize admin hooks. */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_actions' ), 998 );
 		add_action( 'network_admin_menu', array( __CLASS__, 'add_actions' ), 998 );
 		add_action( 'admin_notices', array( __CLASS__, 'render_banner' ) );
 	}
 
-	static function add_actions() {
+	/** Attach hooks common to all Jetpack admin pages based on the created (class?). */
+	public static function add_actions() {
 		$hook = self::get_page_hook();
-		// Attach hooks common to all Jetpack admin pages based on the created
 		add_action( "load-$hook", array( __CLASS__, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( __CLASS__, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( __CLASS__, 'admin_scripts' ) );
 		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( __CLASS__, 'admin_plugin_settings_link' ) );
 	}
 
-	static function get_page_hook() {
+	/** Get page hook */
+	public static function get_page_hook() {
 		if ( Jetpack_Beta::is_network_active() && ! is_network_admin() ) {
 			return;
 		}
@@ -43,23 +45,30 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	static function render() {
-		// Always grab the latest version.
+	/** Always grab and render the latest version. */
+	public static function render() {
 		Jetpack_Beta::get_beta_manifest( true );
 		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
 	}
 
-	static function settings_link() {
+	/** Return the beta plugin's settings link. */
+	public static function settings_link() {
 		return admin_url( 'admin.php?page=jetpack-beta' );
 	}
 
-	static function admin_plugin_settings_link( $links ) {
+	/**
+	 * Create the beta plugin's settings link.
+	 *
+	 * @param array $links the link being clicked.
+	 */
+	public static function admin_plugin_settings_link( $links ) {
 		$settings_link = '<a href="' . esc_url( self::settings_link() ) . '">' . __( 'Settings', 'jetpack-beta' ) . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
 	}
 
-	static function admin_page_load() {
+	/** Beta plugin admin page. */
+	public static function admin_page_load() {
 		if ( ! isset( $_GET['_nonce'] ) ) {
 			return;
 		}
@@ -99,7 +108,12 @@ class Jetpack_Beta_Admin {
 		exit();
 	}
 
-	static function is_toggle_action( $option ) {
+	/**
+	 * Toggle options autoupdates and email notifications
+	 *
+	 * @param var $option - Which option is being toggled.
+	 */
+	public static function is_toggle_action( $option ) {
 		return (
 			isset( $_GET['_nonce'] ) &&
 			wp_verify_nonce( $_GET['_nonce'], 'enable_' . $option ) &&
@@ -108,7 +122,8 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	static function render_banner() {
+	/** Render beta plugin banner */
+	public static function render_banner() {
 		global $current_screen;
 
 		if ( 'plugins' !== $current_screen->base ) {
@@ -122,11 +137,13 @@ class Jetpack_Beta_Admin {
 		self::start_notice();
 	}
 
-	static function admin_styles() {
+	/** Enqueue admin styling from admin.css */
+	public static function admin_styles() {
 		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION );
 	}
 
-	static function admin_scripts() {
+	/** Enqueue scripts from admin.js */
+	public static function admin_scripts() {
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION, true );
 		wp_localize_script(
 			'jetpack-admin-js',
@@ -140,7 +157,8 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	static function to_test_content() {
+	/** Determine what we're going to test (pr, master, rc) */
+	public static function to_test_content() {
 		list( $branch, $section ) = Jetpack_Beta::get_branch_and_section();
 		switch ( $section ) {
 			case 'pr':
@@ -152,7 +170,8 @@ class Jetpack_Beta_Admin {
 		return null;
 	}
 
-	static function to_test_file_content() {
+	/** Return testing instructions from branch */
+	public static function to_test_file_content() {
 		$test_file = WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/to-test.md';
 		if ( ! file_exists( $test_file ) ) {
 			return;
@@ -161,7 +180,12 @@ class Jetpack_Beta_Admin {
 		return self::render_markdown( $content );
 	}
 
-	static function to_test_pr_content( $branch_key ) {
+	/**
+	 * Get PR information for what we want to test
+	 *
+	 * @param var $branch_key The branch we're switching to.
+	 * */
+	public static function to_test_pr_content( $branch_key ) {
 		$manifest = Jetpack_Beta::get_beta_manifest();
 		$pr       = isset( $manifest->pr->{$branch_key}->pr ) ? $manifest->pr->{$branch_key}->pr : null;
 
