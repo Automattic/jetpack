@@ -60,5 +60,5 @@ export function isFetchingProducts( state ) {
  * @return {Object}  Products
  */
 export function getProducts( state ) {
-	return get( state.jetpack, [ 'products', 'items' ], {} );
+	return state.jetpack.products.items;
 }
