@@ -40,7 +40,9 @@
 	search_input_listener( search_input_prs );
 	search_input_listener( search_input_tags );
 	/**
-	 * @param input_area
+	 * Attaches keyup event listener to the search inputs.
+	 *
+	 * @param {object} input_area - Search input DOM Element object.
 	 */
 	function search_input_listener( input_area ) {
 		input_area.addEventListener( 'keyup', function ( event ) {
@@ -75,9 +77,11 @@
 	}
 
 	/**
-	 * @param search_for
-	 * @param section
-	 * @param found
+	 * Displays matching search results.
+	 *
+	 * @param {string} search_for - Search input term.
+	 * @param {string} section    - Which search section to display result in (pr/tag).
+	 * @param {object} found      - A matching prs or tags array item from the search.
 	 */
 	function show_found( search_for, section, found ) {
 		const element = found.element;
@@ -95,11 +99,13 @@
 		show( element );
 	}
 
-	// Hiding the search close link
 	hide_search_close_link( search_close_link_prs );
 	hide_search_close_link( search_close_link_tags );
 	/**
-	 * @param section
+	 * Attaches click event listener that controls hiding search results and clearing search inputs.
+	 * Also handles hiding the close search icon when search input is empty.
+	 *
+	 * @param {object} section - DOM Element object for a close search icon.
 	 */
 	function hide_search_close_link( section ) {
 		hide( section );
@@ -120,13 +126,14 @@
 		} );
 	}
 
-	// Activate Links
+	// Attach click event listeners to all of the 'Activate' links.
 	each.call( activate_links, function ( element ) {
 		element.addEventListener( 'click', activate_link_click.bind( this, element ) );
 	} );
-
 	/**
-	 * @param element
+	 * Handles click event for the 'Activate' links.
+	 *
+	 * @param {object} element - The 'Activate' link element being clicked.
 	 */
 	function activate_link_click( element ) {
 		if ( clicked_activate ) {
@@ -143,15 +150,15 @@
 		prs = Array.prototype.filter.call( prs, function ( pr, i ) {
 			return index === i ? false : true;
 		} );
-		disable_activete_branch_links();
+		disable_activate_branch_links();
 		trackEvent( element );
 		clicked_activate = true;
 	}
 
 	/**
-	 *
+	 * Disables the 'Activate' links.
 	 */
-	function disable_activete_branch_links() {
+	function disable_activate_branch_links() {
 		each.call( activate_links, function ( element ) {
 			element.addEventListener( 'click', function ( event ) {
 				event.preventDefault();
@@ -161,13 +168,14 @@
 		} );
 	}
 
-	// Toggle Links
+	// Attaches click event listener to all toggle links.
 	each.call( toggle_links, function ( element ) {
 		element.addEventListener( 'click', toggle_link_click.bind( this, element ) );
 	} );
 	/**
-	 * @param element
-	 * @param event
+	 * Handles click event for one of the toggle links (e.g. Autoupdates switch).
+	 *
+	 * @param {object} element - The toggle link element being clicked.
 	 */
 	function toggle_link_click( element ) {
 		if ( clicked_toggle ) {
@@ -178,9 +186,14 @@
 		trackEvent( element );
 	}
 
-	// Helper functions
+// Helper functions
+
 	/**
-	 * @param search
+	 * Massage search input to match pr/tag 'header'.
+	 *
+	 * @param   {string} search - The raw search input text.
+	 *
+	 * @returns {string} The massaged search string.
 	 */
 	function pr_to_header( search ) {
 		return search
@@ -191,8 +204,12 @@
 	}
 
 	/**
-	 * @param word
-	 * @param phrase
+	 * Highlights text in search results matching the search input text.
+	 *
+	 * @param {string} word   - The search input term.
+	 * @param {string} phrase - The full pr/tag header text.
+	 *
+	 * @returns {string} Search result with span wrapping matching word (search input) for styling.
 	 */
 	function highlight_word( word, phrase ) {
 		const regExp = new RegExp( word, 'g' );
@@ -201,14 +218,18 @@
 	}
 
 	/**
-	 * @param element
+	 * Sets an element to display:none
+	 *
+	 * @param {object} element - DOM Element object.
 	 */
 	function hide( element ) {
 		element.style.display = 'none';
 	}
 
 	/**
-	 * @param element
+	 * Unsets/clears an element's display value.
+	 *
+	 * @param {object} element - DOM Element object.
 	 */
 	function show( element ) {
 		element.style.display = '';
