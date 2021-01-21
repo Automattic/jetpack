@@ -135,7 +135,7 @@ export function MediaPlayerControl( {
 					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
 					disabled={ isDisabled || ! mediaDuration }
 					onClick={ () => onSyncModeToggle( ! syncMode ) }
-					label={ __( 'Keep in-sync mode', 'jetpack' ) }
+					label={ __( 'Sync timestamp', 'jetpack' ) }
 				/>
 			) }
 
