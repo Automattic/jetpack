@@ -227,11 +227,6 @@ class Jetpack_Beta {
 		return $plugins;
 	}
 
-	public function update_jetpack_dev( $plugin ) {
-		$plugin['Name'] = $plugin['Name'] . ' | ' . self::get_jetpack_plugin_pretty_version( true );
-		return $plugin;
-	}
-
 	public function get_plugin_info( $false, $action, $response ) {
 
 		// Check if this call API is for the right plugin
