@@ -11,6 +11,7 @@ let exitCode = 0;
 
 /**
  * Load the phpcs exclude list.
+ *
  * @returns {Array} Files to exclude.
  */
 function loadPhpcsExcludeList() {
@@ -351,9 +352,7 @@ const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirt
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync(
-		`tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }`
-	);
+	execSync( `tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }` );
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 
