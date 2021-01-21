@@ -5,7 +5,7 @@ import axios, { CancelToken } from 'axios';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
-import Cache from 'cache';
+import lru from 'tiny-lru/lib/tiny-lru.esm';
 
 /**
  * Internal dependencies
@@ -17,8 +17,8 @@ let cancelToken = CancelToken.source();
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
-const cache = new Cache( 5 * MINUTE_IN_MILLISECONDS );
-const backupCache = new Cache( 30 * MINUTE_IN_MILLISECONDS );
+const cache = lru( 30, 5 * MINUTE_IN_MILLISECONDS );
+const backupCache = lru( 30, 30 * MINUTE_IN_MILLISECONDS );
 
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
@@ -232,8 +232,8 @@ function errorHandlerFactory( cacheKey ) {
 
 function responseHandlerFactory( cacheKey ) {
 	return function responseHandler( responseJson ) {
-		cache.put( cacheKey, responseJson );
-		backupCache.put( cacheKey, responseJson );
+		cache.set( cacheKey, responseJson );
+		backupCache.set( cacheKey, responseJson );
 		return responseJson;
 	};
 }

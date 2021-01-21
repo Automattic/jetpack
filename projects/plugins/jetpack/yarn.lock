@@ -5606,13 +5606,6 @@ cache-base@^1.0.1:
     union-value "^1.0.0"
     unset-value "^1.0.0"
 
-cache@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/cache/-/cache-2.3.1.tgz#78334a30b2c9daca2d10abbe8f9a0b610ddf91ba"
-  integrity sha512-FR/0U9GMDAq4ERSom2ThoiXz89BlhCSftDOBUgFSBTw0Kh+zBXbDan/DMzh2pP3lDqmOatruG0NqUkeXQqaNKQ==
-  dependencies:
-    ds "^1.4.2"
-
 cacheable-lookup@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/cacheable-lookup/-/cacheable-lookup-2.0.1.tgz#87be64a18b925234875e10a9bb1ebca4adce6b38"
@@ -7399,11 +7392,6 @@ downshift@^4.0.5:
     compute-scroll-into-view "^1.0.9"
     prop-types "^15.7.2"
     react-is "^16.9.0"
-
-ds@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/ds/-/ds-1.4.2.tgz#0857aa213790a4fb3abb365b9cec0e9ba8569393"
-  integrity sha1-CFeqITeQpPs6uzZbnOwOm6hWk5M=
 
 duplexer3@^0.1.4:
   version "0.1.4"
@@ -17342,6 +17330,11 @@ tiny-invariant@^1.0.2:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.1.0.tgz#634c5f8efdc27714b7f386c35e6760991d230875"
   integrity sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==
+
+tiny-lru@7.0.6:
+  version "7.0.6"
+  resolved "https://registry.yarnpkg.com/tiny-lru/-/tiny-lru-7.0.6.tgz#b0c3cdede1e5882aa2d1ae21cb2ceccf2a331f24"
+  integrity sha512-zNYO0Kvgn5rXzWpL0y3RS09sMK67eGaQj9805jlK9G6pSadfriTczzLHFXa/xcW4mIRfmlB9HyQ/+SgL0V1uow==
 
 tiny-warning@^1.0.0, tiny-warning@^1.0.3:
   version "1.0.3"
