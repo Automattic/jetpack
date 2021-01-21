@@ -393,7 +393,7 @@ class Jetpack_Podcast_Helper {
 						'type'        => 'string',
 					),
 					'description_html' => array(
-						'description' => __( 'The episode description, with allowed html tags.', 'jetpack' ),
+						'description' => __( 'The episode description with allowed html tags.', 'jetpack' ),
 						'type'        => 'string',
 					),
 					'title'            => array(
