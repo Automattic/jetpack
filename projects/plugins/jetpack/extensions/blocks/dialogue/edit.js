@@ -186,6 +186,7 @@ export default function DialogueEdit( {
 				<MediaPlayerToolbarControl
 					customTimeToPlay={ convertTimeCodeToSeconds( timestamp ) }
 					onTimeChange={ updateTimestampFromMediaPlayerControl }
+					syncMode={ true }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
