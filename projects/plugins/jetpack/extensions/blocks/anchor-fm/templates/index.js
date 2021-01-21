@@ -27,7 +27,7 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	];
 }
 
-function podcastSection( { episodeTrack, feedUrl } ) {
+function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
 	const { image, guid } = episodeTrack;
 
 	return [
@@ -45,7 +45,7 @@ function podcastSection( { episodeTrack, feedUrl } ) {
 					[
 						'core/image',
 						{
-							url: image ? image : null,
+							url: image ? image : coverImage,
 						},
 					],
 				],
@@ -185,8 +185,14 @@ function podcastConversationSection() {
 /*
  * Template parts
  */
-function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {}, feedUrl } ) {
-	const tpl = [ podcastSection( { episodeTrack, feedUrl } ) ];
+function episodeBasicTemplate( {
+	spotifyShowUrl,
+	spotifyImageUrl,
+	episodeTrack = {},
+	feedUrl,
+	coverImage,
+} ) {
+	const tpl = [ podcastSection( { episodeTrack, feedUrl, coverImage } ) ];
 
 	if ( spotifyShowUrl && spotifyImageUrl ) {
 		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );
