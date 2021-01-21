@@ -146,36 +146,39 @@ class Jetpack_Podcast_Helper {
 	 * @return string Plain text string.
 	 */
 	protected function get_plain_text( $str ) {
-		// Trim string and return if empty.
-		$str = trim( (string) $str );
-		if ( empty( $str ) ) {
-			return '';
-		}
-
-		// Make sure there are no tags.
-		$str = wp_strip_all_tags( $str );
-
-		// Replace all entities with their characters, including all types of quotes.
-		$str = html_entity_decode( $str, ENT_QUOTES );
-
-		return $str;
+		return $this->sanitize_and_decode_text( $str, true );
 	}
 
 	/**
 	 * Formats strings as safe HTML.
 	 *
 	 * @param string $str Input string.
-	 * @return string HTML text string.
+	 * @return string HTML text string safe for post_content.
 	 */
-	protected function get_rich_text( $str ) {
+	protected function get_html_text( $str ) {
+		return $this->sanitize_and_decode_text( $str, false );
+	}
+
+	/**
+	 * Strip unallowed html tags and decode entities.
+	 *
+	 * @param string  $str Input string.
+	 * @param boolean $strip_all_tags Strip all tags, otherwise allow post_content safe tags.
+	 * @return string Sanitized and decoded text.
+	 */
+	protected function sanitize_and_decode_text( $str, $strip_all_tags = true ) {
 		// Trim string and return if empty.
 		$str = trim( (string) $str );
 		if ( empty( $str ) ) {
 			return '';
 		}
 
-		// Make sure HTML is safe.
-		$str = wp_kses_post( $str );
+		if ( $strip_all_tags ) {
+			// Make sure there are no tags.
+			$str = wp_strip_all_tags( $str );
+		} else {
+			$str = wp_kses_post( $str );
+		}
 
 		// Replace all entities with their characters, including all types of quotes.
 		$str = html_entity_decode( $str, ENT_QUOTES );
@@ -239,15 +242,15 @@ class Jetpack_Podcast_Helper {
 
 		// Build track data.
 		$track = array(
-			'id'                 => wp_unique_id( 'podcast-track-' ),
-			'link'               => esc_url( $episode->get_link() ),
-			'src'                => esc_url( $enclosure->link ),
-			'type'               => esc_attr( $enclosure->type ),
-			'description'        => $this->get_plain_text( $episode->get_description() ),
-			'enrich_description' => $this->get_rich_text( $episode->get_description() ),
-			'title'              => $this->get_plain_text( $episode->get_title() ),
-			'image'              => esc_url( $this->get_episode_image_url( $episode ) ),
-			'guid'               => $this->get_plain_text( $episode->get_id() ),
+			'id'               => wp_unique_id( 'podcast-track-' ),
+			'link'             => esc_url( $episode->get_link() ),
+			'src'              => esc_url( $enclosure->link ),
+			'type'             => esc_attr( $enclosure->type ),
+			'description'      => $this->get_plain_text( $episode->get_description() ),
+			'description_html' => $this->get_html_text( $episode->get_description() ),
+			'title'            => $this->get_plain_text( $episode->get_title() ),
+			'image'            => esc_url( $this->get_episode_image_url( $episode ) ),
+			'guid'             => $this->get_plain_text( $episode->get_id() ),
 		);
 
 		if ( empty( $track['title'] ) ) {

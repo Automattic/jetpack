@@ -86,7 +86,7 @@ function podcastSummarySection( { episodeTrack } ) {
 				'core/paragraph',
 				{
 					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.enrich_description,
+					content: episodeTrack.description_html,
 				},
 			],
 		],
@@ -95,7 +95,9 @@ function podcastSummarySection( { episodeTrack } ) {
 
 function podcastConversationSection() {
 	const conversationBlockName = 'jetpack/conversation';
-	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockName );
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType(
+		conversationBlockName
+	);
 
 	// Check if `jetpack/conversation` block is register.
 	if ( ! isConversationBlockAvailable ) {
