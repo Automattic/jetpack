@@ -35,7 +35,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
-import { convertTimeCodeToSeconds, convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -168,8 +168,8 @@ export default function DialogueEdit( {
 		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
-	function updateTimestampFromMediaPlayerControl( time ) {
-		setAttributes( { timestamp: convertSecondsToTimeCode( time ) } );
+	function setTimestamp( time ) {
+		setAttributes( { timestamp: time } );
 	}
 
 	return (
@@ -187,8 +187,7 @@ export default function DialogueEdit( {
 				</ToolbarGroup>
 
 				<MediaPlayerToolbarControl
-					customTimeToPlay={ convertTimeCodeToSeconds( timestamp ) }
-					onTimeChange={ updateTimestampFromMediaPlayerControl }
+					onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
 					syncMode={ playerSyncMode }
 					onSyncModeToggle={ setPlayerSyncMode }
 				/>
@@ -246,7 +245,7 @@ export default function DialogueEdit( {
 								jumpBackTime = { false }
 								className={ baseClassName }
 								value={ timestamp }
-								onChange={ updateTimestampFromMediaPlayerControl }
+								onChange={ setTimestamp }
 								isDisabled={ playerSyncMode }
 							/>
 						) }
@@ -266,7 +265,7 @@ export default function DialogueEdit( {
 					<TimestampDropdown
 						className={ baseClassName }
 						value={ timestamp }
-						onChange={ updateTimestampFromMediaPlayerControl }
+						onChange={ setTimestamp }
 						shortLabel={ true }
 						skipForwardTime = { false }
 						jumpBackTime = { false }
