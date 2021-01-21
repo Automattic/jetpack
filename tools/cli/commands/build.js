@@ -40,28 +40,26 @@ async function buildRouter( options ) {
  * @param {object} composerJson - The project's composer.json file, parsed.
  */
 export async function build( project, production, composerJson ) {
-	const buildDev = composerJson.scripts[ 'build-development' ];
-	const buildProd = composerJson.scripts[ 'build-production' ];
-	let command;
+	const buildDev = composerJson.scripts[ 'build-development' ]
+		? 'composer build-development'
+		: null;
+	const buildProd = composerJson.scripts[ 'build-production' ] ? 'composer build-production' : null;
+	// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
+	const command = production ? buildProd || buildDev : buildDev || buildProd;
 
-	if ( ! buildDev && ! buildProd ) {
+	if ( ! command ) {
 		// If neither build step is defined, abort.
 		console.log( chalk.yellow( 'This project does not have a build step defined.' ) );
 		return;
-	} else if ( production && buildProd ) {
-		// If we need a production build and there is a production step, use it.
-		command = 'build-production';
-	} else {
-		// If we don't care about production OR there's only a build-dev step defined, let's do it.
-		command = 'build-development';
 	}
+
 	console.log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to build ${ project }!\n` +
 				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
-	child_process.spawnSync( 'composer', [ command ], {
+	child_process.spawnSync( command, {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
 		stdio: 'inherit',
