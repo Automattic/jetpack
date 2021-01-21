@@ -29,10 +29,13 @@ import './editor.scss';
 import ParticipantsDropdown, {
 	ParticipantsControl,
 } from './components/participants-control';
-import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
+import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -71,10 +74,12 @@ export default function DialogueEdit( {
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
-	// Pick the previous block atteobutes from the state.
-	const prevBlock = useSelect( select => {
+	const { prevBlock, mediaSource } = useSelect( select => {
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		return select( 'core/block-editor' ).getBlock( prevPartClientId );
+		return {
+			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+			mediaSource: select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
+		};
 	}, [] );
 
 	// Block context integration.
@@ -111,6 +116,9 @@ export default function DialogueEdit( {
 			content: '',
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
+
+	// in-sync mode
+	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
 
 	// Try to focus the RichText component when mounted.
 	const hasContent = content?.length > 0;
@@ -160,6 +168,10 @@ export default function DialogueEdit( {
 		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
+	function setTimestamp( time ) {
+		setAttributes( { timestamp: time } );
+	}
+
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -173,6 +185,12 @@ export default function DialogueEdit( {
 						onSelect={ setAttributes }
 					/>
 				</ToolbarGroup>
+
+				<MediaPlayerToolbarControl
+					onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
+					syncMode={ playerSyncMode }
+					onSyncModeToggle={ setPlayerSyncMode }
+				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
@@ -208,6 +226,12 @@ export default function DialogueEdit( {
 						/>
 					</PanelBody>
 
+					{ !! mediaSource?.title && (
+						<PanelBody title={ __( 'Podcast episode', 'jetpack' ) }>
+							<p>{ mediaSource.title }</p>
+						</PanelBody>
+					) }
+
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Show conversation timestamps', 'jetpack' ) }
@@ -217,9 +241,12 @@ export default function DialogueEdit( {
 
 						{ showTimestamp && (
 							<TimestampControl
+								skipForwardTime = { false }
+								jumpBackTime = { false }
 								className={ baseClassName }
 								value={ timestamp }
-								onChange={ newTimestampValue => setAttributes( { timestamp: newTimestampValue } ) }
+								onChange={ setTimestamp }
+								isDisabled={ playerSyncMode }
 							/>
 						) }
 					</PanelBody>
@@ -238,10 +265,11 @@ export default function DialogueEdit( {
 					<TimestampDropdown
 						className={ baseClassName }
 						value={ timestamp }
-						onChange={ newTimestampValue => {
-							setAttributes( { timestamp: newTimestampValue } );
-						} }
+						onChange={ setTimestamp }
 						shortLabel={ true }
+						skipForwardTime = { false }
+						jumpBackTime = { false }
+						isDisabled={ playerSyncMode }
 					/>
 				) }
 			</div>
