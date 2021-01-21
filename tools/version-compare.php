@@ -5,7 +5,7 @@
  *
  * Usage:
  *
- *     tools/version-compare "VER1" "VER2" "OP"
+ *     tools/version-compare.php "VER1" "VER2" "OP"
  *
  * @see https://www.php.net/version_compare
  * @package Jetpack
