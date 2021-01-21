@@ -1,0 +1,63 @@
+# This is used by the Gardening Action, in the triage job
+"[Status] Needs Package Release":
+  - projects/packages/*
+  - projects/packages/**/*
+
+"[Plugin] Jetpack":
+  - projects/plugins/jetpack/*
+  - projects/plugins/jetpack/**/*
+
+"[Plugin] Beta Plugin":
+  - projects/plugins/beta/*
+  - projects/plugins/beta/**/*
+
+"[Plugin] Debug Helper":
+  - projects/plugins/debug-helper/*
+  - projects/plugins/debug-helper/**/*
+
+"Gutenberg":
+  - projects/editor-extensions/*
+  - projects/editor-extensions/**/*
+
+"Actions":
+  - .github/actions/*
+  - .github/actions/**/*
+  - .github/workflows/*
+  - .github/workflows/**/*
+
+"Docs":
+  - docs/*
+  - docs/**/*
+
+"Docker":
+  - tools/docker/*
+  - tools/docker/**/*
+
+# Jetpack plugin features
+"Calypsoify":
+  - projects/plugins/jetpack/modules/calypsoify/*
+  - projects/plugins/jetpack/modules/calypsoify/**/*
+
+"Carousel":
+  - projects/plugins/jetpack/modules/carousel/*
+  - projects/plugins/jetpack/modules/carousel/**/*
+
+"Comment Likes":
+  - projects/plugins/jetpack/modules/comment-likes/*
+  - projects/plugins/jetpack/modules/comment-likes/**/*
+
+"Comments":
+  - projects/plugins/jetpack/modules/comments/*
+  - projects/plugins/jetpack/modules/comments/**/*
+
+"Contact Form":
+  - projects/plugins/jetpack/modules/contact-form/*
+  - projects/plugins/jetpack/modules/contact-form/**/*
+
+"Custom CSS":
+  - projects/plugins/jetpack/modules/custom-css/*
+  - projects/plugins/jetpack/modules/custom-css/**/*
+
+"Custom Post Types":
+  - projects/plugins/jetpack/modules/custom-post-types/*
+  - projects/plugins/jetpack/modules/custom-post-types/**/*
