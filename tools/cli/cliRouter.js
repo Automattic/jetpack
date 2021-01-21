@@ -8,7 +8,7 @@ import { hideBin } from 'yargs/helpers';
  * Internal dependencies
  */
 import { buildDefine } from './commands/build';
-import { watchDefine } from "./commands/watch";
+import { watchDefine } from './commands/watch';
 // import { dockerDefine } from "./commands/docker";
 
 /**
@@ -34,7 +34,6 @@ export async function cli() {
 
 	// If verbose flag is set, output all of the argv info. Only applies if a command above doesn't execute.
 	if ( argv.v ) {
-		// eslint-disable-next-line no-console
 		console.log( argv );
 	}
 }

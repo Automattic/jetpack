@@ -13,8 +13,6 @@ import { readComposerJson } from '../helpers/readComposerJson';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
 
-// eslint-disable-next-line no-console
-const log = console.log;
 let output = true;
 
 /**
@@ -43,7 +41,6 @@ export function watchDefine( yargs ) {
 		async argv => {
 			await watchCli( argv );
 			if ( argv.v ) {
-				// eslint-disable-next-line no-console
 				console.log( argv );
 			}
 		}
@@ -80,7 +77,7 @@ export async function watchCli( options ) {
 		const data = await readComposerJson( options.project );
 		data !== false ? await watch( options.project, data ) : false;
 	} else {
-		log( chalk.red( 'You did not choose a project!' ) );
+		console.log( chalk.red( 'You did not choose a project!' ) );
 	}
 }
 
@@ -95,7 +92,7 @@ export async function watch( project, packageJson ) {
 	if ( command === false ) {
 		return;
 	}
-	log(
+	console.log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to watch ${ project }!\n` + 'Go forth and write more code.'
 		)
@@ -122,7 +119,9 @@ function hasWatchStep( project, composerJson ) {
 
 	// There's no watch step defined.
 	output
-		? log( chalk.yellow( 'This project does not have a watch step defined in composer.json.' ) )
+		? console.log(
+				chalk.yellow( 'This project does not have a watch step defined in composer.json.' )
+		  )
 		: null;
 	return false;
 }

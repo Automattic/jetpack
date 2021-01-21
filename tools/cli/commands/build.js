@@ -12,9 +12,6 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/readComposerJson';
 
-// eslint-disable-next-line no-console
-const log = console.log;
-
 /**
  * Relays build commands to a particular project.
  *
@@ -31,7 +28,7 @@ async function buildRouter( options ) {
 		const data = await readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
-		log( chalk.red( 'You did not choose a project!' ) );
+		console.log( chalk.red( 'You did not choose a project!' ) );
 	}
 }
 
@@ -49,7 +46,7 @@ export async function build( project, production, composerJson ) {
 
 	if ( ! buildDev && ! buildProd ) {
 		// If neither build step is defined, abort.
-		log( chalk.yellow( 'This project does not have a build step defined.' ) );
+		console.log( chalk.yellow( 'This project does not have a build step defined.' ) );
 		return;
 	} else if ( production && buildProd ) {
 		// If we need a production build and there is a production step, use it.
@@ -58,7 +55,7 @@ export async function build( project, production, composerJson ) {
 		// If we don't care about production OR there's only a build-dev step defined, let's do it.
 		command = 'build-development';
 	}
-	log(
+	console.log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to build ${ project }!\n` +
 				'Go ahead and sit back. Relax. This will take a few minutes.'
@@ -107,7 +104,6 @@ export function buildDefine( yargs ) {
 		async argv => {
 			await buildCli( argv );
 			if ( argv.v ) {
-				// eslint-disable-next-line no-console
 				console.log( argv );
 			}
 		}
