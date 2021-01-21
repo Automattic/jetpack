@@ -17,7 +17,7 @@ export default {
 		type: 'string',
 		validator: isUrl,
 	},
-	guidList: {
+	selectedEpisodes: {
 		type: 'array',
 		default: [],
 	},

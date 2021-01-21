@@ -80,7 +80,7 @@ const PodcastPlayerEdit = ( {
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
 	const {
 		url,
-		guidList,
+		selectedEpisodes,
 		itemsToShow,
 		showCoverArt,
 		showEpisodeTitle,
@@ -155,9 +155,12 @@ const PodcastPlayerEdit = ( {
 
 		// Clean current podcast feed and fetch a new one.
 		setFeedData( {} );
-		fetchFeed( url, guidList );
+		fetchFeed(
+			url,
+			selectedEpisodes.map( episode => episode.guid )
+		);
 		return () => cancellableFetch?.current?.cancel?.();
-	}, [ fetchFeed, removeAllNotices, url, guidList ] );
+	}, [ fetchFeed, removeAllNotices, url, selectedEpisodes ] );
 
 	// Bring back the overlay after block gets deselected.
 	useEffect( () => {
