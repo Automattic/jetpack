@@ -20,6 +20,12 @@ const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 const cache = lru( 30, 5 * MINUTE_IN_MILLISECONDS );
 const backupCache = lru( 30, 30 * MINUTE_IN_MILLISECONDS );
 
+/**
+ * Builds ElasticSerach aggregations for filters defined by search widgets.
+ *
+ * @param {object[]} widgets - an array of widget configuration objects
+ * @returns {object} filter aggregations
+ */
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
 	widgets.forEach( ( { filters: widgetFilters } ) =>
@@ -30,6 +36,12 @@ export function buildFilterAggregations( widgets = [] ) {
 	return aggregation;
 }
 
+/**
+ * Builds ElasticSerach aggregations for a given filter.
+ *
+ * @param {object[]} filter - a filter object from a widget configuration object.
+ * @returns {object} filter aggregations
+ */
 function generateAggregation( filter ) {
 	switch ( filter.type ) {
 		case 'date_histogram': {
@@ -55,6 +67,14 @@ function generateAggregation( filter ) {
 }
 
 const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
+/**
+ * Generates a ElasticSerach date range filter.
+ *
+ * @param {string} fieldName - Name of the field (created, modified, etc).
+ * @param {string} input - Filter value.
+ * @param {string} type - Date range type (year vs month).
+ * @returns {object} date filter.
+ */
 function generateDateRangeFilter( fieldName, input, type ) {
 	let year, month;
 	if ( type === 'year' ) {
@@ -105,6 +125,14 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
+/**
+ * Build an ElasticSerach filter object.
+ *
+ * @param {object} filterQuery - Filter query value object.
+ * @param {object} adminQueryFilter - Manual ElasticSearch query override.
+ * @param {string} excludedPostTypes - Post types excluded via the Customizer.
+ * @returns {object} ElasticSearch filter object.
+ */
 function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 	const filter = { bool: { must: [] } };
 	getFilterKeys()
@@ -142,6 +170,12 @@ const SORT_QUERY_MAP = new Map( [
 	[ 'newest', 'date_desc' ],
 	[ 'relevance', 'score_default' ],
 ] );
+/**
+ * Map sort values to ones compatible with the API.
+ *
+ * @param {string} sort - Sort value.
+ * @returns {string} Mapped sort value.
+ */
 function mapSortToApiValue( sort ) {
 	// Some sorts don't need to be mapped
 	if ( [ 'price_asc', 'price_desc', 'rating_desc' ].includes( sort ) ) {
