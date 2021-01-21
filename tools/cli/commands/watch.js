@@ -63,7 +63,7 @@ export async function watchCli( options ) {
 		output = false;
 		const projects = allProjects();
 		await projects.filter( async project =>
-			hasWatchStep( project, await readPackageJson( project, output ) )
+			getWatchStep( project, await readPackageJson( project, output ) )
 		);
 		projects.forEach( async project => watch( project, await readPackageJson( project, output ) ) );
 		return;
@@ -90,14 +90,10 @@ export async function watchCli( options ) {
  * @param {object} packageJson - The project's package.json file, parsed.
  */
 export async function watch( project, packageJson ) {
-	if ( ! hasWatchStep( project, packageJson ) ) {
+	const command = getWatchStep( project, packageJson );
+	if ( command === false ) {
 		return;
 	}
-	const command =
-		packageJson.com_jetpack && packageJson.com_jetpack.watch
-			? 'yarn ' + packageJson.com_jetpack.watch
-			: packageJson.scripts.watch;
-
 	log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to watch ${ project }!\n` + 'Go forth and write more code.'
@@ -116,15 +112,17 @@ export async function watch( project, packageJson ) {
  * @param {string} project - The project.
  * @param {object} packageJson - The project's package.json file, parsed.
  *
- * @returns {boolean} If the project has a watch step or not.
+ * @returns {string|boolean} If the project has a watch step, the watch command or false.
  */
-function hasWatchStep( project, packageJson ) {
-	if (
-		( packageJson.com_jetpack && packageJson.com_jetpack.watch ) ||
-		( packageJson.scripts && packageJson.scripts.watch )
-	) {
-		return true;
+function getWatchStep( project, packageJson ) {
+	if ( packageJson.com_jetpack && packageJson.com_jetpack.watch ) {
+		return 'yarn ' + packageJson.com_jetpack.watch;
 	}
+
+	if ( packageJson.scripts && packageJson.scripts.watch ) {
+		return packageJson.scripts.watch;
+	}
+
 	// There's no Jetpack-specific data in package.json or no watch command.
 	output ? log( chalk.yellow( 'This project does not have a watch step defined.' ) ) : null;
 	return false;
