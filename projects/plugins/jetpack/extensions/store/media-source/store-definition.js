@@ -182,9 +182,10 @@ const storeDefinition = {
 					delete currentState.sources[ action.id ];
 				}
 
-				// Unset default if it's the case.
+				// Set the first source as default
+				// if it's removing it.
 				if ( action.id === state.default ) {
-					currentState.default = null;
+					currentState.default = Object.keys( state.sources )?.[ 0 ];
 				}
 
 				return currentState;
