@@ -8,8 +8,6 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
-import { MediaPlayerControl } from '../../../shared/components/media-player-control';
-import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -105,17 +103,6 @@ export function TimestampControl( {
 					onChange={ sec => {
 						onChange( setTimestampValue( { sec }, smh ) );
 					} }
-				/>
-			</div>
-
-			<div className={ `${ className }__timestamp-player` }>
-				<MediaPlayerControl
-					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
-					onTimeChange={ onChange }
-					skipForwardTime= { false }
-					jumpBackTime= { false }
-					currenTimeDisplay={ false }
-					playButton={ false }
 				/>
 			</div>
 		</div>
