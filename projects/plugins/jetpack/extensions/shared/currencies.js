@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { CURRENCIES } from '@automattic/format-currency';
+import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
+import { trimEnd } from 'lodash';
 
 /**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
@@ -32,14 +33,41 @@ export const SUPPORTED_CURRENCIES = {
 };
 
 /**
+ * Compute a list of currency value and display labels.
+ *
+ * - `value` is the currency's three character code
+ * - `label` is the user facing representation.
+ *
+ * @typedef {{value: string, label: string}} CurrencyDetails
+ *
+ * @type { CurrencyDetails }
+ */
+export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value => {
+	const { symbol } = getCurrencyDefaults( value );
+	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
+	return { value, label };
+} );
+
+/**
  * Returns the minimum transaction amount for the given currency. If currency is not one of the
  * known types it returns ...
  *
- * @param {string} currency_code three character currency code to get minimum charge for
+ * @param {string} currency_code - three character currency code to get minimum charge for
  * @returns {number} Minimum charge amount for the given currency_code
  */
 export function minimumTransactionAmountForCurrency( currency_code ) {
 	return SUPPORTED_CURRENCIES[ currency_code ];
+}
+
+/**
+ * True if the price is a number and at least the minimum allowed amount.
+ *
+ * @param {string} currency - Currency for the given price.
+ * @param {number} price - Price to check.
+ * @returns {boolean} true if valid price
+ */
+export function isPriceValid( currency, price ) {
+	return ! isNaN( price ) && price >= minimumTransactionAmountForCurrency( currency );
 }
 
 export function parseAmount( amount, currency ) {

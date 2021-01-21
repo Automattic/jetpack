@@ -18,7 +18,11 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { getBlockDefaultClassName, registerBlockStyle, unregisterBlockStyle } from '@wordpress/blocks';
+import {
+	getBlockDefaultClassName,
+	registerBlockStyle,
+	unregisterBlockStyle,
+} from '@wordpress/blocks';
 import { useEffect } from '@wordpress/element';
 
 /**
@@ -249,7 +253,8 @@ function OpenTableEdit( {
 	);
 
 	const editClasses = classnames( className, {
-		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ) && className.indexOf( 'is-style' ) === -1,
+		[ `is-style-${ style }` ]:
+			! isPlaceholder && styleValues.includes( style ) && className.indexOf( 'is-style' ) === -1,
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,

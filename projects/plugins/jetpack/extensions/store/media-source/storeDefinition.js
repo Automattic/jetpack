@@ -119,7 +119,7 @@ const storeDefinition = {
 						[ action.id ]: {
 							id: action.id,
 							...action.mediaSourceState,
-						}
+						},
 					},
 				};
 			}
@@ -165,9 +165,8 @@ const storeDefinition = {
 						...state.players,
 						[ action.id ]: {
 							...state.players[ action.id ],
-							state: state.players[ action.id ].state === STATE_PLAYING
-								? STATE_PAUSED
-								: STATE_PLAYING,
+							state:
+								state.players[ action.id ].state === STATE_PLAYING ? STATE_PAUSED : STATE_PLAYING,
 						},
 					},
 				};

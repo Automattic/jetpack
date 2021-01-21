@@ -134,6 +134,12 @@ class Admin_Menu {
 		}
 
 		$this->migrate_submenus( 'index.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'index.php' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -156,6 +162,12 @@ class Admin_Menu {
 		add_submenu_page( $menu_slug, __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 15 );
 
 		$this->migrate_submenus( 'paid-upgrades.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'paid-upgrades.php' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -180,6 +192,12 @@ class Admin_Menu {
 		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/post/' . $this->domain, null, 10 );
 
 		$this->migrate_submenus( 'edit.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'edit.php' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -197,6 +215,13 @@ class Admin_Menu {
 			remove_menu_page( 'upload.php' );
 			add_menu_page( __( 'Media', 'jetpack' ), __( 'Media', 'jetpack' ), 'upload_files', $menu_slug, null, 'dashicons-admin-media', 10 );
 			$this->migrate_submenus( 'upload.php', $menu_slug );
+
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $menu_slug ) {
+					return 'upload.php' === $parent_file ? $menu_slug : $parent_file;
+				}
+			);
 		}
 	}
 
@@ -220,7 +245,14 @@ class Admin_Menu {
 		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, 'dashicons-admin-page', $ptype_obj->menu_position );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/page/' . $this->domain, null, 10 );
+
 		$this->migrate_submenus( 'edit.php?post_type=page', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'edit.php?post_type=page' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -257,11 +289,12 @@ class Admin_Menu {
 			return;
 		}
 
+		$cpt_slug  = 'edit.php?post_type=' . $post_type;
 		$menu_slug = 'https://wordpress.com/types/' . $post_type . '/' . $this->domain;
 
-		remove_menu_page( 'edit.php?post_type=' . $post_type );
-		remove_submenu_page( 'edit.php?post_type=' . $post_type, 'edit.php?post_type=' . $post_type );
-		remove_submenu_page( 'edit.php?post_type=' . $post_type, 'post-new.php?post_type=' . $post_type );
+		remove_menu_page( $cpt_slug );
+		remove_submenu_page( $cpt_slug, $cpt_slug );
+		remove_submenu_page( $cpt_slug, 'post-new.php?post_type=' . $post_type );
 
 		// Menu icon.
 		$menu_icon = 'dashicons-admin-post';
@@ -289,7 +322,14 @@ class Admin_Menu {
 		add_menu_page( esc_attr( $ptype_obj->labels->menu_name ), $ptype_obj->labels->menu_name, $ptype_obj->cap->edit_posts, $menu_slug, null, $menu_icon, $ptype_menu_position );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->all_items, $ptype_obj->labels->all_items, $ptype_obj->cap->edit_posts, $menu_slug, null, 5 );
 		add_submenu_page( $menu_slug, $ptype_obj->labels->add_new, $ptype_obj->labels->add_new, $ptype_obj->cap->create_posts, 'https://wordpress.com/edit/' . $post_type . '/' . $this->domain, null, 10 );
-		$this->migrate_submenus( 'edit.php?post_type=' . $post_type, $menu_slug );
+		$this->migrate_submenus( $cpt_slug, $menu_slug );
+
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $cpt_slug, $menu_slug ) {
+				return $cpt_slug === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -316,7 +356,14 @@ class Admin_Menu {
 		remove_submenu_page( 'edit-comments.php', 'edit-comments.php' );
 
 		add_menu_page( esc_attr__( 'Comments', 'jetpack' ), $menu_title, 'edit_posts', $menu_slug, null, 'dashicons-admin-comments', 25 );
+
 		$this->migrate_submenus( 'edit-comments.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'edit-comments.php' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -383,21 +430,12 @@ class Admin_Menu {
 		}
 
 		$this->migrate_submenus( 'themes.php', $themes_slug );
-		add_filter( 'parent_file', array( $this, 'appearance_parent_file' ) );
-	}
-
-	/**
-	 * Filters the parent file of an admin menu sub-menu item.
-	 *
-	 * @param string $parent_file The parent file.
-	 * @return string Updated parent file.
-	 */
-	public function appearance_parent_file( $parent_file ) {
-		if ( 'themes.php' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/themes/' . $this->domain;
-		}
-
-		return $parent_file;
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $themes_slug ) {
+				return 'themes.php' === $parent_file ? $themes_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -430,7 +468,14 @@ class Admin_Menu {
 			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug, null, 10 );
 			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
 			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account', null, 20 );
+
 			$this->migrate_submenus( 'users.php', $users_slug );
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $users_slug ) {
+					return 'users.php' === $parent_file ? $users_slug : $parent_file;
+				}
+			);
 		}
 	}
 
@@ -456,6 +501,12 @@ class Admin_Menu {
 		add_submenu_page( $menu_slug, esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'https://wordpress.com/import/' . $this->domain, null, 15 );
 
 		$this->migrate_submenus( $admin_slug, $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'tools.php' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -479,6 +530,12 @@ class Admin_Menu {
 		add_submenu_page( $options_slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $options_slug, null, 10 );
 
 		$this->migrate_submenus( 'options-general.php', $options_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $options_slug ) {
+				return 'options-general.php' === $parent_file ? $options_slug : $parent_file;
+			}
+		);
 	}
 
 	/**

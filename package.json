@@ -66,7 +66,7 @@
 		"php:autofix": "composer phpcs:fix",
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
-		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
+		"reformat-files": "yarn prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
 		"test-spelling": "mdspell -n -a -x --en-us **/*.md",
 		"validate-es5": "npx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
 		"version-packages": "bash ./tools/version-packages.sh"
@@ -108,7 +108,7 @@
 		"eslint-plugin-jsx-a11y": "6.4.1",
 		"eslint-plugin-lodash": "7.1.0",
 		"eslint-plugin-prettier": "3.3.1",
-		"eslint-plugin-react": "7.21.5",
+		"eslint-plugin-react": "7.22.0",
 		"eslint-plugin-wpcalypso": "5.0.0",
 		"glob": "7.1.6",
 		"husky": "4.3.7",

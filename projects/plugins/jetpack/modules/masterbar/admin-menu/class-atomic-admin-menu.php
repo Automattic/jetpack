@@ -200,21 +200,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
 
-		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
-	}
-
-	/**
-	 * Filters the parent file of an admin menu sub-menu item.
-	 *
-	 * @param string $parent_file The parent file.
-	 * @return string Updated parent file.
-	 */
-	public function jetpack_parent_file( $parent_file ) {
-		if ( 'jetpack' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/activity-log/' . $this->domain;
-		}
-
-		return $parent_file;
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $jetpack_slug ) {
+				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
+			}
+		);
 	}
 
 	/**

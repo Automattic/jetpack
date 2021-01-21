@@ -10,6 +10,7 @@
 		padding: 0;
 		line-height: 17px;
 		line-height: var( --global--line-height-body );
+		overflow-wrap: anywhere;
 	}
 
 	.wp-block-jetpack-dialogue__timestamp {
@@ -22,7 +23,6 @@
 }
 
 .wp-block-jetpack-dialogue__participant {
-	white-space: nowrap;
 	padding: 3px 0;
 	height: auto;
 	line-height: 1.2;
@@ -49,9 +49,11 @@
 .wp-block-jetpack-conversation.is-style-column {
 	.wp-block-jetpack-dialogue {
 		display: flex;
+
 		.wp-block-jetpack-dialogue__meta {
 			display: block;
 			align-items: initial;
+			flex: 0 0 20%;
 		}
 
 		.wp-block-jetpack-dialogue__participant {

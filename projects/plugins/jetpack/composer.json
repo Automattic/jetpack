@@ -46,7 +46,10 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../../packages/*"
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
 	"autoload": {
@@ -63,6 +66,7 @@
 		}
 	},
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-production"
+		"mirror-repo": "Automattic/jetpack-production",
+		"release-branch-prefix": "jetpack"
 	}
 }
