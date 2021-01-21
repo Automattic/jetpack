@@ -105,13 +105,19 @@ class Jetpack_Beta {
 		}
 	}
 
+	/**
+	 * Fired when the upgrader process is complete; sets option jetpack_beta_dev_currently_installed
+	 *
+	 * @param WP_Upgrader $upgrader          - An upgrader instance.
+	 * @param array       $updates_completed - Array of bulk item update data.
+	 */
 	public function upgrader_process_complete( $upgrader, $updates_completed ) {
 		if ( ! isset( $updates_completed['plugins'] ) ) {
 			return;
 		}
 
-		if ( $updates_completed['action'] == 'update' &&
-		$updates_completed['type'] == 'plugin' &&
+		if ( 'update' === $updates_completed['action'] &&
+			'plugin' === $updates_completed['type'] &&
 		in_array( JETPACK_DEV_PLUGIN_FILE, $updates_completed['plugins'], true ) ) {
 			list( $branch, $section ) = self::get_branch_and_section_dev();
 			if ( self::should_update_dev_to_master() ) {
@@ -195,10 +201,17 @@ class Jetpack_Beta {
 		return $actions;
 	}
 
+	/**
+	 * Filters plugins to list in the Plugins list table.
+	 *
+	 * @param array $plugins - Array of arrays of plugin data.
+	 *
+	 * @return array Updated array of plugin data.
+	 */
 	public function update_all_plugins( $plugins ) {
-		// WP.com requests away show regular plugin
+		// WP.com requests away show regular plugin.
 		if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
-			// Ensure that Jetpack reports the version it's using on account of the Jetpack Beta plugin to Calypso
+			// Ensure that Jetpack reports the version it's using on account of the Jetpack Beta plugin to Calypso.
 			if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) {
 				$plugins[ JETPACK_PLUGIN_FILE ]['Version'] = $plugins[ JETPACK_DEV_PLUGIN_FILE ]['Version'];
 			}
