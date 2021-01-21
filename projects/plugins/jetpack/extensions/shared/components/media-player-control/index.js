@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { ToolbarGroup, ToolbarButton, RangeControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
@@ -63,7 +63,20 @@ export function MediaPlayerControl( {
 		};
 	}, [] );
 	const [ progressBarValue, setProgressBarValue ] = useState( customTimeToPlay );
+
+	// in-sync mode
 	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
+	useEffect( () => {
+		if ( ! playerSyncMode ) {
+			return;
+		}
+
+		if ( playerState !== STATE_PLAYING ) {
+			return;
+		}
+
+		onTimeChange( mediaCurrentTime );
+	}, [ mediaCurrentTime, onTimeChange, playerState, playerSyncMode ] );
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
@@ -94,7 +107,7 @@ export function MediaPlayerControl( {
 			mediaDomReference.currentTime = time;
 		}
 
-		if ( syncMode ) {
+		if ( playerSyncMode ) {
 			onTimeChange( time );
 		}
 	}
