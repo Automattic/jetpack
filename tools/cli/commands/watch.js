@@ -93,14 +93,17 @@ export async function watch( project, packageJson ) {
 	if ( ! hasWatchStep( project, packageJson ) ) {
 		return;
 	}
-	const command = packageJson.com_jetpack.watch;
+	const command =
+		packageJson.com_jetpack && packageJson.com_jetpack.watch
+			? 'yarn ' + packageJson.com_jetpack.watch
+			: packageJson.scripts.watch;
 
 	log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to watch ${ project }!\n` + 'Go forth and write more code.'
 		)
 	);
-	child_process.spawnSync( 'yarn', [ command ], {
+	child_process.spawnSync( command, {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
 		stdio: 'inherit',
@@ -116,7 +119,10 @@ export async function watch( project, packageJson ) {
  * @returns {boolean} If the project has a watch step or not.
  */
 function hasWatchStep( project, packageJson ) {
-	if ( packageJson.com_jetpack && packageJson.com_jetpack.watch ) {
+	if (
+		( packageJson.com_jetpack && packageJson.com_jetpack.watch ) ||
+		( packageJson.scripts && packageJson.scripts.watch )
+	) {
 		return true;
 	}
 	// There's no Jetpack-specific data in package.json or no watch command.

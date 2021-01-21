@@ -216,7 +216,6 @@
 	},
 	"com_jetpack": {
 		"build-dev": "build-concurrently",
-		"build-prod": "build-production-concurrently",
-	  "watch": "watch"
+		"build-prod": "build-production-concurrently"
 	}
 }
