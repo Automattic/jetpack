@@ -29,6 +29,7 @@ export function MediaPlayerControl( {
 	skipForwardTime = 5,
 	jumpBackTime = 5,
 	syncMode,
+	onSyncModeToggle,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
 	jumpBackIcon = ControlBackFiveIcon,
@@ -59,10 +60,9 @@ export function MediaPlayerControl( {
 			mediaDomReference: getMediaSourceDomReference(),
 		};
 	}, [] );
-	// in-sync mode
-	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
+
 	useEffect( () => {
-		if ( ! playerSyncMode ) {
+		if ( ! syncMode ) {
 			return;
 		}
 
@@ -71,7 +71,7 @@ export function MediaPlayerControl( {
 		}
 
 		onTimeChange( mediaCurrentTime );
-	}, [ mediaCurrentTime, onTimeChange, playerState, playerSyncMode ] );
+	}, [ mediaCurrentTime, onTimeChange, playerState, syncMode ] );
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
@@ -98,7 +98,7 @@ export function MediaPlayerControl( {
 			mediaDomReference.currentTime = time;
 		}
 
-		if ( playerSyncMode ) {
+		if ( syncMode ) {
 			onTimeChange( time );
 		}
 	}
@@ -132,9 +132,9 @@ export function MediaPlayerControl( {
 
 			{ typeof syncMode !== 'undefined' && (
 				<ToolbarButton
-					icon={ playerSyncMode ? ControlUnsyncIcon : ControlSyncIcon }
+					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
 					disabled={ isDisabled || ! mediaDuration }
-					onClick={ () => setPlayerSyncMode( ! playerSyncMode ) }
+					onClick={ () => onSyncModeToggle( ! syncMode ) }
 					label={ __( 'Keep in-sync mode', 'jetpack' ) }
 				/>
 			) }
