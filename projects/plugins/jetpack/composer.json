@@ -39,6 +39,10 @@
 		"nojimage/twitter-text-php": "3.1.1"
 	},
 	"scripts": {
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build-production-concurrently"
+		],
 		"pre-update-cmd": [
 			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
 		]

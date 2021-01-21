@@ -13,10 +13,8 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-js",
-		"build-concurrently": "yarn build",
 		"build-js": "webpack --config ./webpack.config.js",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-js",
-		"build-production-concurrently": "yarn build-production",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production yarn build-js && yarn validate-es5 ./src/",
 		"clean": "true",
 		"distclean": "rm -rf node_modules && yarn clean",
