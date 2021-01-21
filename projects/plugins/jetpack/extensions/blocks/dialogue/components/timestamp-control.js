@@ -80,7 +80,10 @@ export function TimestampControl( {
 			<div className={ `${ className }__timestamp-controls` }>
 				<NumberControl
 					className={ `${ className }__timestamp-control__hour` }
-					label={ shortLabel ? __( 'Hour', 'jetpack' ) : __( 'Hour', 'jetpack' ) }
+					label={	shortLabel
+						? _x( 'Hour', 'hour (short form)', 'jetpack' )
+						: _x( 'Hour', 'hour (long form)', 'jetpack' )
+					}
 					value={ smh[ 0 ] }
 					min={ 0 }
 					max={ 23 }
