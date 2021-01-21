@@ -98,7 +98,7 @@
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<?php echo esc_html( $to_test ); ?>
+				<?php echo wp_kses_post( $to_test ); ?>
 			</div>
 		</div>
 	<?php } ?>
