@@ -8,8 +8,3 @@ registerBlockStyle( 'core/gallery', {
 	name: 'masonry',
 	label: 'Masonry',
 } );
-
-registerBlockStyle( 'core/gallery', {
-	name: 'tiled',
-	label: 'Tiled',
-} );
