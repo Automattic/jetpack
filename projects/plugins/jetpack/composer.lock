@@ -919,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "5a05393567522acc9974d329024cf11f1853abd7"
+                "reference": "0bb0deba61f8c8fb5bd3a15ed412003f17fec02d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
