@@ -71,6 +71,10 @@
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
-		"release-branch-prefix": "jetpack"
+		"release-branch-prefix": "jetpack",
+		"version-constants": {
+			"JETPACK__VERSION": "jetpack.php"
+		},
+		"wp-plugin-name": "jetpack"
 	}
 }
