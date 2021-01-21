@@ -130,15 +130,6 @@ export function MediaPlayerControl( {
 				/>
 			) }
 
-			{ typeof syncMode !== 'undefined' && (
-				<ToolbarButton
-					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
-					disabled={ isDisabled || ! mediaDuration }
-					onClick={ () => onSyncModeToggle( ! syncMode ) }
-					label={ __( 'Sync timestamp', 'jetpack' ) }
-				/>
-			) }
-
 			{ currenTimeDisplay && (
 				<div
 					className={ classnames(
@@ -150,6 +141,15 @@ export function MediaPlayerControl( {
 				>
 					{ timeInFormat }
 				</div>
+			) }
+
+			{ typeof syncMode !== 'undefined' && (
+				<ToolbarButton
+					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
+					disabled={ isDisabled || ! mediaDuration }
+					onClick={ () => onSyncModeToggle( ! syncMode ) }
+					label={ __( 'Sync timestamp', 'jetpack' ) }
+				/>
 			) }
 		</>
 	);
