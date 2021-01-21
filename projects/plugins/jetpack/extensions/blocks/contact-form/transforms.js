@@ -104,6 +104,9 @@ export default {
                 const shortCode = node.textContent;
 
                 if ( shortCode.includes( '[contact-form' ) ) {
+                    blockData.root = {};
+                    blockData.innerBlocks = [];
+
                     blockData.root = transformContactFormShortcode( shortCode );
                 }
 
