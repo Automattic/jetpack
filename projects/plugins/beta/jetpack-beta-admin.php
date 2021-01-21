@@ -67,7 +67,7 @@ class Jetpack_Beta_Admin {
 		return $links;
 	}
 
-	/** Beta plugin admin page. */
+	/** Handles Beta plugin admin page. */
 	public static function admin_page_load() {
 		if ( ! isset( $_GET['_nonce'] ) ) {
 			return;
@@ -109,7 +109,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	/**
-	 * Toggle options autoupdates and email notifications
+	 * Checks if autoupdates and email notifications are toggled.
 	 *
 	 * @param var $option - Which option is being toggled.
 	 */
@@ -290,7 +290,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	/**
-	 * Display branch selection on beta plugin's admin page
+	 * Handles branch selection on beta plugin's admin page
 	 *
 	 * @param var    $header - Title of the branch.
 	 * @param var    $branch_key - Specifies which branch.
@@ -355,13 +355,13 @@ class Jetpack_Beta_Admin {
 	}
 
 	/**
-	 * Display tag for branch we're working on.
+	 * Handles list of available Jetpack tags to select specific Jetpack version number.
 	 *
-	 * @param var  $header - Title of the branch.
-	 * @param var  $tag - Specifies which branch.
-	 * @param var  $url - Contains branch data (title, update date, download link, commit, etc).
-	 * @param var  $section - The kind of branch we're switching to (stable, rc, master, pr).
-	 * @param bool $is_last - last branch in the list.
+	 * @param var  $header - Title of tag.
+	 * @param var  $tag - Jetpack tag (for selecting a specific version of Jetpack).
+	 * @param var  $url - Download link for Jetpack version.
+	 * @param var  $section - The kind of version we're switching to (in this case 'tags').
+	 * @param bool $is_last - last version in the list.
 	 */
 	public static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
 		$is_compact = $is_last ? '' : 'is-compact';
@@ -407,7 +407,13 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function activate_button( $branch, $section ) {
+	/**
+	 * Handles the activation buttons.
+	 *
+	 * @param object $branch - Specifies which branch.
+	 * @param var    $section - The kind of branch we're switching to (stable, rc, master, pr).
+	 */
+	public static function activate_button( $branch, $section ) {
 		if ( is_object( $section ) && $branch === 'master' ) {
 			$section = 'master';
 		}
@@ -432,11 +438,22 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	static function header( $title ) {
+	/**
+	 * Display the branch header
+	 *
+	 * @param var $title - The title of the branch.
+	 */
+	public static function header( $title ) {
 		echo '<header><h2 class="jp-jetpack-connect__container-subtitle">' . esc_html( $title ) . '</h2></header>';
 	}
 
-	static function show_branches( $section, $title = null ) {
+	/**
+	 * Display the branch list
+	 *
+	 * @param var $section - The kind of branch we're switching to (stable, rc, master, pr).
+	 * @param var $title - The title of the branch.
+	 */
+	public static function show_branches( $section, $title = null ) {
 		if ( $title ) {
 			$title .= ': ';
 		}
@@ -458,7 +475,13 @@ class Jetpack_Beta_Admin {
 		echo '</div>';
 	}
 
-	static function show_tags( $section, $title = null ) {
+	/**
+	 * Show list of available Jetpack tags to select specific Jetpack version number.
+	 *
+	 * @param var $section - The kind of version we're switching to (in this case 'tags').
+	 * @param var $title - The name of the Jetpack tag.
+	 */
+	public static function show_tags( $section, $title = null ) {
 		if ( $title ) {
 			$title .= ': ';
 		}
@@ -480,7 +503,8 @@ class Jetpack_Beta_Admin {
 		echo '</div>';
 	}
 
-	static function show_stable_branch() {
+	/** Display the stable branch */
+	public static function show_stable_branch() {
 		$org_data = Jetpack_Beta::get_org_data();
 
 		self::show_branch(
@@ -494,7 +518,8 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	static function show_search_prs() {
+	/** Show search bar for PRs */
+	public static function show_search_prs() {
 		$manifest = Jetpack_Beta::get_beta_manifest();
 		if ( empty( $manifest->pr ) ) {
 			return;
@@ -530,6 +555,7 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
+	/** Show search bar for tags */
 	static function show_search_org_tags() {
 		$org_data = Jetpack_Beta::get_org_data();
 		if ( empty( $org_data->versions ) ) {
@@ -542,7 +568,7 @@ class Jetpack_Beta_Admin {
 					<div class="is-pinned is-open dops-search" role="search">
 						<div aria-controls="search-component" aria-label="<?php esc_attr_e( 'Open Search', 'jetpack-beta' ); ?>" tabindex="-1">
 							<svg class="gridicon gridicons-search dops-search-open__icon" height="24"
-								 viewbox="0 0 24 24" width="24">
+								viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z"></path>
 								</g>
@@ -566,12 +592,14 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function show_toggle_autoupdates() {
+	/** Display autoupdate toggle */
+	public static function show_toggle_autoupdates() {
 		$autoupdate = (bool) Jetpack_Beta::is_set_to_autoupdate();
 		self::show_toggle( __( 'Autoupdates', 'jetpack-beta' ), 'autoupdates', $autoupdate );
 	}
 
-	static function show_toggle_emails() {
+	/** Display email notification toggle */
+	public static function show_toggle_emails() {
 		if ( ! Jetpack_Beta::is_set_to_autoupdate() || defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
 			return;
 		}
@@ -579,7 +607,14 @@ class Jetpack_Beta_Admin {
 		self::show_toggle( __( 'Email Notifications', 'jetpack-beta' ), 'email_notifications', $email_notification );
 	}
 
-	static function show_toggle( $name, $option, $value ) {
+	/**
+	 * Display autoupdate and email notification toggles
+	 *
+	 * @param var  $name - name of toggle.
+	 * @param var  $option - Which toggle (autoupdates, email_notification).
+	 * @param bool $value - If toggle is active or not.
+	 */
+	public static function show_toggle( $name, $option, $value ) {
 		$query = array(
 			'page'    => 'jetpack-beta',
 			'_action' => 'toggle_enable_' . $option,
@@ -600,7 +635,8 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function show_needed_updates() {
+	/** Check if Jetpack versions are up to date */
+	public static function show_needed_updates() {
 		// Jetpack Stable not up to date?
 		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
 		$should_update_dev_version    = Jetpack_Beta::should_update_dev_version();
@@ -645,7 +681,14 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function update_card( $header, $sub_header, $url ) {
+	/**
+	 * Handles card that notifies when there's an update available on a branch.
+	 *
+	 * @param var $header - Title of the branch that's ready for update.
+	 * @param var $sub_header - Detailed information about the update.
+	 * @param var $url - URL where branch can be updated.
+	 */
+	public static function update_card( $header, $sub_header, $url ) {
 		?>
 		<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border" >
@@ -667,6 +710,12 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
+	/**
+	 * Handles update button for branches
+	 *
+	 * @param var $branch - Branch that's ready for update.
+	 * @param var $section - What kind of branch we're updated (master, rc, pr)
+	 */
 	static function update_action_url( $branch, $section ) {
 		$query = array(
 			'page'          => 'jetpack-beta',
