@@ -1,73 +1,124 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 # CAUTION!
 # This script does one thing, which is to revert stable tag in WordPress.org svn to the prior tag.
 # It should only be used in extreme emergency cases.
 
-# Check for requirements. Using `jq` to easily parse json. Is there a simpler way to get the latest tags?
-if [ -z $(command -v jq) ]; then
-	echo "This script requires the jq library."
-	read -p "Do you want to install it on your system with Homebrew? [y/N]" -n 1 -r
-	if [[ $REPLY != "y" && $REPLY != "Y" ]]; then
-		exit 1;
-	else
-		brew install jq 2>/dev/null
-		echo "Done! You can now run the script again to start the revert."
-		exit 1;
-	fi
+BASE=$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd)
+. "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/plugin-functions.sh"
+. "$BASE/tools/includes/proceed_p.sh"
+
+# Instructions
+function usage {
+	cat <<-EOH
+		usage: $0 [options] <plugin>
+
+		This script does one thing, which is to revert stable tag in WordPress.org
+		svn to the prior tag. It should only be used in extreme emergency cases.
+
+		The <plugin> may be either the name of a directory in projects/plugins/,
+		or a path to a plugin directorty or file.
+
+		Options:
+		  --dir <dir>  Use the specified directory for the SVN checkout,
+		               instead of creating a random directory in TMPDIR.
+	EOH
+	exit 1
+}
+
+# Process args.
+ARGS=()
+BUILD_DIR=
+while [[ $# -gt 0 ]]; do
+	arg="$1"
+	shift
+	case $arg in
+		--dir)
+			BUILD_DIR="$1"
+			shift
+			;;
+		--dir=*)
+			BUILD_DIR="${arg#--dir=}"
+			;;
+		--help)
+			usage
+			;;
+		*)
+			ARGS+=( "$arg" )
+			;;
+	esac
+done
+if [[ ${#ARGS[@]} -ne 1 ]]; then
+	usage
 fi
 
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NOCOLOR='\033[0m'
+$INTERACTIVE || die "Input is not a terminal, aborting."
+
+# Check plugin.
+process_plugin_arg "${ARGS[0]}"
+PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
+WPNAME=$(jq -r '.extra["wp-plugin-name"] // ""' "$PLUGIN_DIR/composer.json")
+[[ -n "$WPNAME" ]] || die "Plugin $PLUGIN_NAME has no WordPress.org plugin name. Cannot deploy."
+
+# Check build dir.
+if [[ -z "$BUILD_DIR" ]]; then
+	TMPDIR="${TMPDIR:-/tmp}"
+	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/revert-release.XXXXXXXX")
+elif [[ ! -e "$BUILD_DIR" ]]; then
+	mkdir -p "$BUILD_DIR"
+else
+	if [[ ! -d "$BUILD_DIR" ]]; then
+		proceed_p "$BUILD_DIR already exists, and is not a directory." "Delete it?"
+	elif [[ $(ls -A -- "$BUILD_DIR") ]]; then
+		proceed_p "Directory $BUILD_DIR already exists, and is not empty." "Delete it?"
+	fi
+	rm -rf "$BUILD_DIR"
+	mkdir -p "$BUILD_DIR"
+fi
+cd "$BUILD_DIR"
+DIR=$(pwd)
+
+# Get JSON
+JSON=$(curl -s "http://api.wordpress.org/plugins/info/1.0/$WPNAME.json")
+if ! jq -e '.' <<<"$JSON" &>/dev/null; then
+	die "Failed to retrieve JSON data from http://api.wordpress.org/plugins/info/1.0/$WPNAME.json"
+fi
 
 # Current stable version
-CURRENT_STABLE_VERSION=$(curl -s http://api.wordpress.org/plugins/info/1.0/jetpack.json | jq -r .version)
+CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
 
 # Get all versions, strip anything with alpha characters such as -beta or trunk.
-LAST_STABLE_TAG=$(curl -s http://api.wordpress.org/plugins/info/1.0/jetpack.json | jq -r '.versions | delpaths([paths | select(.[] | test("[A-Za-z]+"; "i"))]) | keys[-2]' )
+LAST_STABLE_TAG=$(jq -r '.versions | delpaths([paths | select(.[] | test("[A-Za-z]+"; "i"))]) | keys[-2]' <<<"$JSON")
 
-echo -e "${RED}CAUTION${NOCOLOR}"
-echo -e "This script does one thing, which is to revert stable tag in WordPress.org svn to the prior tag."
-echo -e "It should only be used in extreme emergency cases."
+red CAUTION
+echo "This script does one thing, which is to revert stable tag in WordPress.org svn to the prior tag."
+echo "It should only be used in extreme emergency cases."
 echo ""
-echo -e "${YELLOW}Current stable tag:${NOCOLOR} ${CURRENT_STABLE_VERSION}"
-echo -e "${YELLOW}Revert to tag:${NOCOLOR} ${LAST_STABLE_TAG}"
-
-read -p "Continue? [y/N]" -n 1 -r
-if [[ $REPLY != "y" && $REPLY != "Y" ]]; then
-    exit 1;
-fi
+yellow "Current stable tag: ${CURRENT_STABLE_VERSION}"
+yellow "Revert to tag: ${LAST_STABLE_TAG}"
+proceed_p "" "Continue?"
 echo ""
 
-JETPACK_SVN_DIR="/tmp/jetpack-revert"
+info "Checking out SVN shallowly to $DIR"
+svn -q checkout "https://plugins.svn.wordpress.org/$WPNAME/" --depth=empty "$DIR"
+success "Done!"
 
-# Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
-rm -rf $JETPACK_SVN_DIR
-
-echo "Checking out SVN shallowly to $JETPACK_SVN_DIR"
-svn -q checkout https://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
-echo "Done!"
-
-cd $JETPACK_SVN_DIR
-
-echo "Checking out SVN trunk to $JETPACK_SVN_DIR/trunk"
+info "Checking out SVN trunk to $DIR/trunk"
 svn -q up trunk
-echo "Done!"
+success "Done!"
 
 # Update trunk to point to the last stable tag.
-echo "Modifying 'Stable tag:' value in trunk readme.txt"
-perl -pi -e "s/Stable tag: .*/Stable tag: $LAST_STABLE_TAG/" trunk/readme.txt
+info "Modifying 'Stable tag:' value in trunk readme.txt"
+sed -i.bak -e "s/Stable tag: .*/Stable tag: $LAST_STABLE_TAG/" trunk/readme.txt
+rm trunk/readme.txt.bak # We need a backup file because macOS requires it.
 echo ""
-echo -e "${YELLOW}The diff you are about to commit:${NOCOLOR}"
+yellow "The diff you are about to commit:"
 svn diff
 
-
 echo ""
-echo -e "${RED}WARNING:${NOCOLOR} "
-read -p "You are about to revert the stable tag for Jetpack via the diff above. Would you like to commit it now? [y/N]" -n 1 -r
-if [[ $REPLY != "y" && $REPLY != "Y" ]]; then
-    exit 1;
-else
-    svn ci -m "Revert stable tag"
-fi
+error "WARNING:"
+proceed_p "You are about to revert the stable tag for Jetpack via the diff above." "Would you like to commit it now?"
+svn ci -m "Revert stable tag"
