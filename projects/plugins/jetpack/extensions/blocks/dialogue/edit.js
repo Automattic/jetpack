@@ -117,6 +117,9 @@ export default function DialogueEdit( {
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
+	// in-sync mode
+	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
+
 	// Try to focus the RichText component when mounted.
 	const hasContent = content?.length > 0;
 	const richTextRefCurrent = richTextRef?.current;
@@ -186,7 +189,8 @@ export default function DialogueEdit( {
 				<MediaPlayerToolbarControl
 					customTimeToPlay={ convertTimeCodeToSeconds( timestamp ) }
 					onTimeChange={ updateTimestampFromMediaPlayerControl }
-					syncMode={ true }
+					syncMode={ playerSyncMode }
+					onSyncModeToggle={ setPlayerSyncMode }
 				/>
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
