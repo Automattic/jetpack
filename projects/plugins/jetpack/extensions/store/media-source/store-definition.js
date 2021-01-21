@@ -142,7 +142,12 @@ const selectors = {
 
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
-		const actionId = action.id || state.default;
+		// Some actions doesn't have defined the source ID
+		// On this case, we try to get safe getting the default ID.
+		// Othewise, it will try to pick the first fro the souces list.
+		const actionId = action.id ||
+			state.default ||
+			Object.keys( state.sources )?.[ 0 ];
 
 		switch ( action.type ) {
 			case 'REGISTER_MEDIA_SOURCE': {
