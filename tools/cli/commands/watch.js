@@ -34,11 +34,10 @@ export function watchDefine( yargs ) {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
 				} )
-				// @todo make this work. :)
 				.option( 'all', {
 					alias: 'a',
 					type: 'boolean',
-					description: 'Watch all projects [DOES NOT YET WORK]',
+					description: 'Watch all projects [BETA]',
 				} );
 		},
 		async argv => {
