@@ -269,6 +269,7 @@ export default function DialogueEdit( {
 						shortLabel={ true }
 						skipForwardTime = { false }
 						jumpBackTime = { false }
+						isDisabled={ playerSyncMode }
 					/>
 				) }
 			</div>
