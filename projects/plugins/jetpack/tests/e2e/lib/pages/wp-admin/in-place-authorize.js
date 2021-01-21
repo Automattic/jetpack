@@ -7,7 +7,7 @@ import { waitAndClick, waitForSelector } from '../../page-helper';
 export default class InPlaceAuthorizeFrame extends Page {
 	constructor( page ) {
 		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
-		super( page, { expectedSelector });
+		super( page, { expectedSelector } );
 	}
 
 	static async init( page ) {
@@ -18,7 +18,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 	}
 
 	async getFrame() {
-		const iframeElement = await waitForSelector( this.page, this.expectedSelector, { timeout: 45000 } );
+		const iframeElement = await waitForSelector( this.page, this.expectedSelector );
 		return await iframeElement.contentFrame();
 	}
 
@@ -30,6 +30,9 @@ export default class InPlaceAuthorizeFrame extends Page {
 	}
 
 	async waitToDisappear() {
-		return await waitForSelector( this.page, this.expectedSelector, { hidden: true } );
+		return await waitForSelector( this.page, this.expectedSelector, {
+			timeout: 45000,
+			hidden: true,
+		} );
 	}
 }

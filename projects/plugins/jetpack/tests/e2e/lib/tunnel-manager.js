@@ -1,7 +1,7 @@
 import localtunnel from 'localtunnel';
 import config from 'config';
 import fs from 'fs';
-import axios from 'axios'
+import axios from 'axios';
 
 import logger from './logger';
 
@@ -39,11 +39,11 @@ export default class TunnelManager {
 	}
 
 	async newTunnel( tunnelConfig ) {
-		const creationTimeout = new Promise((resolve) => setTimeout(resolve, 10000, 'timeout'));
+		const creationTimeout = new Promise( resolve => setTimeout( resolve, 10000, 'timeout' ) );
 		const tunnelPromise = localtunnel( tunnelConfig );
-		const result = await Promise.race([tunnelPromise, creationTimeout])
-		if ( result == 'timeout' ) {
-			throw new Error( 'Localtunnel: timeout creating new tunnel' )
+		const result = await Promise.race( [ tunnelPromise, creationTimeout ] );
+		if ( result === 'timeout' ) {
+			throw new Error( 'Localtunnel: timeout creating new tunnel' );
 		}
 		const tunnel = result;
 
@@ -79,8 +79,6 @@ export default class TunnelManager {
 			logger.error( error );
 		}
 
-
-
 		return tunnelConfig;
 	}
 
@@ -90,9 +88,11 @@ export default class TunnelManager {
 		this.tunnel.close();
 		try {
 			const response = await axios.get( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
-			response && logger.info(response.data);
-		} catch (error) {
-			logger.error(error);
+			if ( response ) {
+				logger.info( response.data );
+			}
+		} catch ( error ) {
+			logger.error( error );
 		}
 		// wait for tunnel to close properly
 		await page.waitForTimeout( 1000 );
