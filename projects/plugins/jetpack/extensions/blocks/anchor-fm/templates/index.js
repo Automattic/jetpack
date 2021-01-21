@@ -37,8 +37,9 @@ function podcastSection( { episodeTrack } ) {
 		},
 		[
 			[
-				'core/column',
-				{ width: '30%' },
+				'core/column', {
+					width: '30%',
+				},
 				[
 					[
 						'core/image',
@@ -49,8 +50,10 @@ function podcastSection( { episodeTrack } ) {
 				],
 			],
 			[
-				'core/column',
-				{ width: '70%' },
+				'core/column', {
+					width: '70%',
+					verticalAlignment: 'center',
+				},
 				[
 					[
 						'jetpack/podcast-player',
