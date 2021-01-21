@@ -247,6 +247,7 @@ export default function DialogueEdit( {
 								className={ baseClassName }
 								value={ timestamp }
 								onChange={ updateTimestampFromMediaPlayerControl }
+								isDisabled={ playerSyncMode }
 							/>
 						) }
 					</PanelBody>

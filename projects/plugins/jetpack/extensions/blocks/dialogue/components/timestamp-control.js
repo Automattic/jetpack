@@ -59,6 +59,7 @@ export function TimestampControl( {
 	className,
 	onChange,
 	shortLabel = false,
+	isDisabled = false,
 } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
@@ -74,9 +75,10 @@ export function TimestampControl( {
 					value={ smh[ 0 ] }
 					min={ 0 }
 					max={ 23 }
-					onChange={ hour => {
-						onChange( setTimestampValue( { hour }, smh ) );
-					} }
+					onChange={ hour => (
+						! isDisabled && onChange( setTimestampValue( { hour }, smh ) )
+					) }
+					disabled={ isDisabled }
 				/>
 
 				<NumberControl
@@ -87,9 +89,10 @@ export function TimestampControl( {
 					value={ smh[ 1 ] }
 					min={ 0 }
 					max={ 59 }
-					onChange={ min => {
-						onChange( setTimestampValue( { min }, smh ) );
-					} }
+					onChange={ min => (
+						! isDisabled && onChange( setTimestampValue( { min }, smh ) )
+					) }
+					disabled={ isDisabled }
 				/>
 
 				<NumberControl
@@ -100,9 +103,10 @@ export function TimestampControl( {
 					value={ smh[ 2 ] }
 					min={ 0 }
 					max={ 59 }
-					onChange={ sec => {
-						onChange( setTimestampValue( { sec }, smh ) );
-					} }
+					onChange={ sec => (
+						! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
+					) }
+					disabled={ isDisabled }
 				/>
 			</div>
 		</div>
