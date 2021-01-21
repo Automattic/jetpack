@@ -121,7 +121,6 @@
 	"projects/plugins/jetpack/_inc/jetpack-wizard-banner.js",
 	"projects/plugins/jetpack/_inc/jquery.jetpack-resize.js",
 	"projects/plugins/jetpack/_inc/lib/debugger/jetpack-debugger-site-health.js",
-	"projects/plugins/jetpack/_inc/lib/tracks/tracks-ajax.js",
 	"projects/plugins/jetpack/_inc/polldaddy-shortcode.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js",
 	"projects/plugins/jetpack/extensions/blocks/calendly/edit.js",
