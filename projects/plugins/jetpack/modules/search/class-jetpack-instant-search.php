@@ -163,6 +163,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
 			'excludedPostTypes'     => $excluded_post_types,
+			'searchResultTarget'    => '_blank',
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,

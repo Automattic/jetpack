@@ -280,6 +280,7 @@ class SearchApp extends Component {
 					response={ this.props.response }
 					resultFormat={ resultFormat }
 					searchQuery={ this.props.searchQuery }
+					searchResultTarget={ this.props.options.searchResultTarget }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }

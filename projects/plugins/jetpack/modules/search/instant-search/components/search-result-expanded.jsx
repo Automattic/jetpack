@@ -25,7 +25,7 @@ export default function SearchResultExpanded( props ) {
 		: fields[ 'image.url.raw' ];
 	return (
 		<li
-			className={ `jetpack-instant-search__result-expanded 
+			className={ `jetpack-instant-search__result-expanded
 			jetpack-instant-search__result-expanded--${ fields.post_type }
 			${ ! firstImage ? 'jetpack-instant-search__result-expanded--no-image' : '' }` }
 		>
@@ -36,7 +36,7 @@ export default function SearchResultExpanded( props ) {
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ props.onClick }
 						rel="noopener noreferrer"
-						target="_blank"
+						target={ this.props.target }
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
@@ -62,7 +62,7 @@ export default function SearchResultExpanded( props ) {
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ props.onClick }
 					rel="noopener noreferrer"
-					target="_blank"
+					target={ this.props.target }
 				>
 					{ firstImage ? (
 						// NOTE: Wouldn't it be amazing if we filled the container's background

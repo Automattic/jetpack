@@ -107,7 +107,7 @@ class SearchResultMinimal extends Component {
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"
-						target="_blank"
+						target={ this.props.target }
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>

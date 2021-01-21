@@ -72,7 +72,7 @@ class SearchResults extends Component {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: `
-							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
+							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark {
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}
@@ -133,6 +133,7 @@ class SearchResults extends Component {
 								railcar={ this.props.isVisible ? result.railcar : null }
 								result={ result }
 								resultFormat={ this.props.resultFormat }
+								target={ this.props.searchResultTarget }
 							/>
 						) ) }
 					</ol>
