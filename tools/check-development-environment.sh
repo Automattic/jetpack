@@ -66,7 +66,7 @@ function docker_containers_are_available {
 }
 
 function docker_images_are_available {
-	docker_is_running && docker image ls | grep jetpack_wordpress >>/dev/null
+	docker_is_running && docker image ls | grep automattic/jetpack-wordpress-dev >>/dev/null
 }
 
 function bash_version_is_proper {
