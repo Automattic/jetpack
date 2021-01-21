@@ -167,7 +167,9 @@ class Jetpack_Podcast_Helper {
 	 * @return SimplePie|WP_Error The RSS object or error.
 	 */
 	public function load_feed() {
+		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 		$rss = fetch_feed( $this->feed );
+		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 		}
@@ -177,6 +179,19 @@ class Jetpack_Podcast_Helper {
 		}
 
 		return $rss;
+	}
+
+	/**
+	 * Action handler to set our podcast specific feed locator class on the SimplePie object.
+	 *
+	 * @param SimplePie $feed The SimplePie object, passed by reference.
+	 */
+	public static function set_podcast_locator( &$feed ) {
+		if ( ! class_exists( 'Jetpack_Podcast_Feed_Locator' ) ) {
+			jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
+		}
+
+		$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' );
 	}
 
 	/**

@@ -2,12 +2,11 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useRef, useCallback } from '@wordpress/element';
+import { useEffect, useCallback } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
 	BlockControls,
-	useBlockProps,
 } from '@wordpress/block-editor';
 import { Panel, PanelBody, ToggleControl, ToolbarGroup } from '@wordpress/components';
 
@@ -29,9 +28,6 @@ const TRANSCRIPTION_TEMPLATE = [
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
 	const { participants = [], showTimestamps, className: classNameAttr } = attributes;
-	const containerRef = useRef();
-
-	const blockProps = useBlockProps( { ref: containerRef, className } );
 
 	// Set initial conversation participants.
 	useEffect( () => {
@@ -105,7 +101,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
-			<div { ...blockProps }>
+			<div className={ className }>
 				<BlockControls>
 					<ToolbarGroup>
 						<ParticipantsDropdown

@@ -150,6 +150,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'mailto:'           => 'mail',
 			'meetup.com'        => 'meetup',
 			'medium.com'        => 'medium',
+			'patreon.com'       => 'patreon',
 			'pinterest.'        => 'pinterest',
 			'getpocket.com'     => 'pocket',
 			'ravelry.com'       => 'ravelry',

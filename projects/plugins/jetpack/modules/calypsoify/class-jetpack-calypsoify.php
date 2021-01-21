@@ -75,33 +75,58 @@ class Jetpack_Calypsoify {
 
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
-			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-			add_action( 'admin_menu', array( $this, 'add_custom_menus' ), 101 );
+
+			if ( $this->should_override_nav() ) {
+				add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
+				add_action( 'admin_menu', array( $this, 'add_custom_menus' ), 101 );
+			}
 		}
+	}
+
+	/**
+	 * Determines whether Calypsoify should override the navigation.
+	 *
+	 * @return bool Whether the navigation should be overridden.
+	 */
+	public function should_override_nav() {
+		if ( ! $this->is_calypsoify_enabled ) {
+			return false;
+		}
+
+		/**
+		 * Filters whether Calypsoify should override the navigation.
+		 *
+		 * @since 9.4.0
+		 *
+		 * @param bool $should_override_nav Should the navigation be overridden? Default to true.
+		 */
+		return apply_filters( 'jetpack_calypsoify_override_nav', true );
 	}
 
 	/**
 	 * Setup functionality within wp-admin via the `admin_init` hook.
 	 */
 	public function setup_admin() {
-		// Masterbar is currently required for this to work properly. Mock the instance of it.
-		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-			$this->mock_masterbar_activation();
-		}
-
 		if ( $this->is_page_gutenberg() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_for_gutenberg' ), 100 );
 			return;
 		}
 
-		add_action( 'admin_init', array( $this, 'check_page' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
-		add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
-		add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
+		if ( $this->should_override_nav() ) {
+			// Masterbar is currently required for this to work properly. Mock the instance of it.
+			if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
+				$this->mock_masterbar_activation();
+			}
 
-		add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
+			add_action( 'admin_init', array( $this, 'check_page' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
+			add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
+			add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
 
-		add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
+			add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
+
+			add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
+		}
 	}
 
 	/**

@@ -48,7 +48,9 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize search query value for the reducer.
 	//
-	store.dispatch( setSearchQuery( queryObject.s, false ) );
+	if ( queryObject.s ) {
+		store.dispatch( setSearchQuery( queryObject.s, false ) );
+	}
 
 	//
 	// Initialize sort value for the reducer.

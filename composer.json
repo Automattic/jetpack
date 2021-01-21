@@ -80,7 +80,10 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "projects/packages/*"
+			"url": "projects/packages/*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
 	"minimum-stability": "dev",

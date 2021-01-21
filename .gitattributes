@@ -11,3 +11,7 @@
 *.woff binary
 *.woff2 binary
 *.zip binary
+
+# We never want .gitkeep in production mirrors. The deploy-to-svn.sh script strips out
+# the kept directories anyway, so there's no point to keeping them in the first place.
+.gitkeep production-exclude

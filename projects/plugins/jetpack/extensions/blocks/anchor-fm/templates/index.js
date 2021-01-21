@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -57,6 +58,9 @@ function podcastSection( { episodeTrack } ) {
 							customPrimaryColor: getIconColor(),
 							hexPrimaryColor: getIconColor(),
 							url: link,
+							showCoverArt: false,
+							showEpisodeTitle: false,
+							showEpisodeDescription: false,
 						},
 					],
 				],
@@ -90,15 +94,55 @@ function podcastSummarySection( { episodeTrack } ) {
 }
 
 function podcastConversationSection() {
+	const conversationBlockName = 'jetpack/conversation';
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockName );
+
+	// Check if `jetpack/conversation` block is register.
+	if ( ! isConversationBlockAvailable ) {
+		// When it is not, return a fallback core-blocks composition.
+		return [
+			'core/group',
+			{},
+			[
+				[
+					'core/heading',
+					{
+						level: 3,
+						content: __( 'Transcription', 'jetpack' ),
+						placeholder: __( 'Podcast episode transcription', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+			],
+		];
+	}
+
 	return [
-		'jetpack/conversation',
+		conversationBlockName,
 		{},
 		[
 			[
 				'core/heading',
 				{
 					level: 3,
-					content: 'Transcription',
+					content: __( 'Transcription', 'jetpack' ),
 					placeholder: __( 'Podcast episode transcription', 'jetpack' ),
 				},
 			],

@@ -9,29 +9,23 @@ import classnames from 'classnames';
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { compose } from '@wordpress/compose';
+import { withDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import {
-	STATE_PLAYING,
-	STATE_ERROR,
-	STATE_PAUSED,
-} from '../../../shared/components/audio-player/constants';
-import Playlist from './playlist';
+import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import AudioPlayer from '../../../shared/components/audio-player';
+import Playlist from './playlist';
 import Header from './header';
 import { getColorsObject } from '../utils';
 import withErrorBoundary from './with-error-boundary';
 
 export class PodcastPlayer extends Component {
 	state = {
-		playerState: STATE_PAUSED,
 		currentTrack: 0,
 		hasUserInteraction: false,
-		currentTime: 0,
-		skipDuration: 30,
-		rewindDuration: 5,
 	};
 
 	/**
@@ -57,13 +51,13 @@ export class PodcastPlayer extends Component {
 		// Current track already selected.
 		if ( currentTrack === track ) {
 			this.recordUserInteraction();
-			this.togglePlayPause();
+			this.props.toggleMediaSource( this.props.playerId );
 			return;
 		}
 
 		// Something else is playing.
 		if ( currentTrack !== -1 ) {
-			this.setState( { playerState: STATE_PAUSED } );
+			this.props.pauseMediaSource( this.props.playerId );
 		}
 
 		// Load a new track.
@@ -85,7 +79,14 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.setState( { currentTrack: track, playerState: STATE_PLAYING } );
+		this.setState( { currentTrack: track } );
+
+		const { title, link } = this.getTrack( track );
+		this.props.updateMediaSourceData( this.props.playerId, {
+			title,
+			link,
+		} );
+		this.props.playMediaSource( this.props.playerId );
 
 		/*
 		 * Read that we're loading the track and its description. This is
@@ -133,7 +134,7 @@ export class PodcastPlayer extends Component {
 		}
 
 		// Otherwise, let's just mark the episode as broken.
-		this.setState( { playerState: STATE_ERROR } );
+		this.props.errorMediaSource( this.props.playerId );
 		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
@@ -143,10 +144,8 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePlay = () => {
-		this.setState( {
-			playerState: STATE_PLAYING,
-			hasUserInteraction: true,
-		} );
+		this.props.playMediaSource( this.props.playerId );
+		this.setState( { hasUserInteraction: true } );
 	};
 
 	/**
@@ -155,37 +154,64 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 */
 	handlePause = () => {
+		this.props.pauseMediaSource( this.props.playerId );
 		// Ignore pauses if we are showing an error.
-		if ( this.state.playerState === STATE_ERROR ) {
+		if ( this.props.playerState === STATE_ERROR ) {
 			return;
 		}
-		this.setState( { playerState: STATE_PAUSED } );
+		this.props.pauseMediaSource( this.props.playerId );
 	};
 
 	handleTimeChange = currentTime => {
-		this.setState( { currentTime } );
-	};
-
-	/**
-	 * Toggle playing state.
-	 *
-	 * @public
-	 */
-	togglePlayPause = () => {
-		const action = this.state.playerState === STATE_PLAYING ? this.handlePause : this.handlePlay;
-		action();
+		this.props.setMediaSourceCurrentTime( this.props.playerId, currentTime );
 	};
 
 	handleJump = () => {
-		this.setState( { currentTime: this.state.currentTime - 5 } );
+		this.props.setMediaSourceCurrentTime( this.props.playerId, this.props.currentTime - 5 );
 	};
 
 	handleSkip = () => {
-		this.setState( { currentTime: this.state.currentTime + 30 } );
+		this.props.setMediaSourceCurrentTime( this.props.playerId, this.props.currentTime + 30 );
 	};
 
+	componentDidMount() {
+		const { playerId } = this.props;
+		if ( ! playerId ) {
+			return;
+		}
+
+		// Register Media source monstly episode data.
+		const track = this.getTrack( this.state.currentTrack ) || {};
+
+		this.props.registerMediaSource( playerId, {
+			title: track.title,
+			link: track.link,
+			state: STATE_PAUSED,
+		} );
+
+		// Set podcast player instance as default.
+		this.props.setDefaultMediaSource( playerId );
+	}
+
+	componentWillUnmount() {
+		if ( ! this.props.playerId ) {
+			return;
+		}
+
+		this.props.unregisterMediaSource( this.props.playerId );
+	}
+
 	render() {
-		const { playerId, title, link, cover, tracks, attributes } = this.props;
+		const {
+			playerId,
+			title,
+			link,
+			cover,
+			tracks,
+			attributes,
+			currentTime,
+			playerState,
+		} = this.props;
 		const {
 			itemsToShow,
 			primaryColor,
@@ -201,7 +227,7 @@ export class PodcastPlayer extends Component {
 			showEpisodeTitle,
 			showEpisodeDescription,
 		} = attributes;
-		const { playerState, currentTrack } = this.state;
+		const { currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
@@ -266,8 +292,8 @@ export class PodcastPlayer extends Component {
 						onPlay={ this.handlePlay }
 						onPause={ this.handlePause }
 						onError={ this.handleError }
-						playStatus={ this.state.playerState }
-						currentTime={ this.state.currentTime }
+						playStatus={ playerState }
+						currentTime={ currentTime }
 						onTimeChange={ this.handleTimeChange }
 					/>
 				</Header>
@@ -323,4 +349,39 @@ PodcastPlayer.defaultProps = {
 	tracks: [],
 };
 
-export default withErrorBoundary( PodcastPlayer );
+export default compose( [
+	withErrorBoundary,
+	withSelect( ( select, props ) => {
+		const { playerId } = props;
+		const { getMediaSourceCurrentTime, getMediaPlayerState } = select( STORE_ID );
+
+		return {
+			currentTime: getMediaSourceCurrentTime( playerId ),
+			playerState: getMediaPlayerState( playerId ),
+		};
+	} ),
+	withDispatch( dispatch => {
+		const {
+			registerMediaSource,
+			updateMediaSourceData,
+			unregisterMediaSource,
+			setDefaultMediaSource,
+			playMediaSource,
+			pauseMediaSource,
+			toggleMediaSource,
+			errorMediaSource,
+			setMediaSourceCurrentTime,
+		} = dispatch( STORE_ID );
+		return {
+			registerMediaSource,
+			updateMediaSourceData,
+			unregisterMediaSource,
+			setDefaultMediaSource,
+			playMediaSource,
+			pauseMediaSource,
+			toggleMediaSource,
+			errorMediaSource,
+			setMediaSourceCurrentTime,
+		};
+	} ),
+] )( PodcastPlayer );

@@ -31,10 +31,9 @@ for project in projects/packages/* projects/plugins/*; do
 		continue
 	fi
 
-	GIT_SLUG=$(jq -r '.extra["mirror-repo"] // ( .name | sub( "^automattic/"; "Automattic/" ) )' composer.json)
+	GIT_SLUG=$(jq -r '.extra["mirror-repo"] // ""' composer.json)
 	if [[ -z "$GIT_SLUG" ]]; then
-		echo "::error::Failed to determine project repo name from composer.json"
-		EXIT=1
+		echo "Failed to determine project repo name from composer.json, skipping"
 		continue
 	fi
 	echo "Repo name: $GIT_SLUG"
@@ -44,10 +43,36 @@ for project in projects/packages/* projects/plugins/*; do
 
 	if [[ -f "package.json" ]]; then
 		echo "::group::Building ${GIT_SLUG}"
+
+		# If composer.json contains a reference to the monorepo repo, add one pointing to our production clones just before it.
+		# That allows us to pick up the built version for plugins like Jetpack.
+		# Also save the old contents to restore post-build to help with local testing.
+		OLDJSON=$(<composer.json)
+		JSON=$(jq --arg path "$BUILD_BASE/*/*" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [{ type: "path", url: $path, options: { monorepo: true } }] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
+		if [[ "$JSON" != "$OLDJSON" ]]; then
+			echo "$JSON" > composer.json
+			if [[ -e "composer.lock" ]]; then
+				OLDLOCK=$(<composer.lock)
+				composer update --root-reqs --no-install
+			else
+				OLDLOCK=
+			fi
+		fi
+
 		if yarn install && yarn build-production-concurrently; then
-			echo "::endgroup::"
+			FAIL=false
 		else
-			echo "::endgroup::"
+			FAIL=true
+		fi
+
+		# Restore files to help with local testing.
+		if [[ "$JSON" != "$OLDJSON" ]]; then
+			echo "$OLDJSON" > composer.json
+			[[ -n "$OLDLOCK" ]] && echo "$OLDLOCK" > composer.lock || rm -f composer.lock
+		fi
+
+		echo "::endgroup::"
+		if $FAIL; then
 			echo "::error::Build of ${GIT_SLUG} failed"
 			EXIT=1
 			continue
@@ -72,6 +97,12 @@ for project in projects/packages/* projects/plugins/*; do
 		git check-attr --stdin production-exclude | sed -n 's/: production-exclude: \(unspecified\|unset\)$//p' |
 		# Copy the resulting list of files into the clone.
 		xargs cp --parents --target-directory="$BUILD_DIR"
+
+	# Remove monorepo repos from composer.json
+	JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
+		echo "$JSON" > "$BUILD_DIR/composer.json"
+	fi
 
 	echo "Build succeeded!"
 	echo "$GIT_SLUG" >> "$BUILD_BASE/projects.txt"
