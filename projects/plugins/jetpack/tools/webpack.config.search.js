@@ -50,6 +50,9 @@ module.exports = {
 			path.resolve( __dirname, '../node_modules' ),
 		],
 	},
+	node: {
+		fs: 'empty',
+	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
 		...baseWebpackConfig.plugins,
