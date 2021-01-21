@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { ToolbarGroup, ToolbarButton, RangeControl } from '@wordpress/components';
+import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
@@ -28,16 +28,13 @@ function noop () {}
 export function MediaPlayerControl( {
 	skipForwardTime = 5,
 	jumpBackTime = 5,
-	customTimeToPlay,
 	syncMode,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
-	backFiveIcon = ControlBackFiveIcon,
-	forwardFiveIcon = ControlForwardFiveIcon,
+	jumpBackIcon = ControlBackFiveIcon,
+	skipForwardIcon = ControlForwardFiveIcon,
 	onTimeChange = noop,
-	progressBar = false,
 	currenTimeDisplay = true,
-	playButton = true,
 } ) {
 	const {
 		playerState,
@@ -62,8 +59,6 @@ export function MediaPlayerControl( {
 			mediaDomReference: getMediaSourceDomReference(),
 		};
 	}, [] );
-	const [ progressBarValue, setProgressBarValue ] = useState( customTimeToPlay );
-
 	// in-sync mode
 	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
 	useEffect( () => {
@@ -112,25 +107,23 @@ export function MediaPlayerControl( {
 		<>
 			{ jumpBackTime !== false && (
 				<ToolbarButton
-					icon={ backFiveIcon }
+					icon={ jumpBackIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => setCurrentTime( mediaCurrentTime - jumpBackTime ) }
 					label={ __( 'Jump back', 'jetpack' ) }
 				/>
 			) }
 
-			{ playButton && (
-				<ToolbarButton
-					icon={ playerState === STATE_PAUSED ? playIcon : pauseIcon }
-					isDisabled={ isDisabled }
-					onClick={ togglePlayer }
-					label={ __( 'Play', 'jetpack' ) }
-				/>
-			) }
+			<ToolbarButton
+				icon={ playerState === STATE_PAUSED ? playIcon : pauseIcon }
+				isDisabled={ isDisabled }
+				onClick={ togglePlayer }
+				label={ __( 'Play', 'jetpack' ) }
+			/>
 
 			{ skipForwardTime && (
 				<ToolbarButton
-					icon={ forwardFiveIcon }
+					icon={ skipForwardIcon }
 					isDisabled={ isDisabled }
 					onClick={ () => setCurrentTime( mediaCurrentTime + skipForwardTime ) }
 					label={ __( 'Skip forward', 'jetpack' ) }
@@ -157,25 +150,6 @@ export function MediaPlayerControl( {
 				>
 					{ timeInFormat }
 				</div>
-			) }
-
-			{ progressBar && (
-				<>
-					<div className="break" />
-					<RangeControl
-						value={ progressBarValue }
-						className="media-player-control__progress-bar"
-						min={ 0 }
-						max={ mediaDuration }
-						onChange={ setProgressBarValue }
-						withInputField={ false }
-						disabled={ isDisabled || ! mediaDuration }
-						renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
-						onMouseUp={ () => {
-							onTimeChange( progressBarValue );
-						} }
-					/>
-				</>
 			) }
 		</>
 	);
