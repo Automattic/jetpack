@@ -71,7 +71,7 @@ if [[ -z "$DIR" ]]; then
 fi
 
 # Remove the monorepo repo from composer.json.
-JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$DIR/composer.json" | "$JETPACK_ROOT/tools/prettier" --parser=json-stringify)
+JSON=$(jq 'if .repositories then .repositories |= map( select( .options.monorepo | not ) ) else . end' "$DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
 echo "$JSON" > "$DIR/composer.json"
 
 # Get the list of package names to update.
