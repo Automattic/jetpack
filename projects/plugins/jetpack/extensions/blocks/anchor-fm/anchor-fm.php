@@ -119,10 +119,13 @@ function process_anchor_params() {
 							),
 						);
 
+						$self_links = $rss->get_links( 'self' );
+
 						// Add insert basic template action.
 						$data['actions'][] = array(
 							'insert-episode-template',
 							array(
+								'feedUrl'         => ! empty( $self_links ) ? esc_url_raw( $self_links[0] ) : $feed,
 								'episodeTrack'    => $track,
 								'spotifyImageUrl' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
 								'spotifyShowUrl'  => $spotify_show_url,
