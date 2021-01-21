@@ -64,7 +64,15 @@ export function TimestampControl( {
 	shortLabel = false,
 	isDisabled = false,
 } ) {
-	const mediaCurrentTime = useSelect( select => select( STORE_ID ).getMediaSourceCurrentTime() );
+	const {
+		mediaCurrentTime,
+		defaultMediaSource,
+	 } = useSelect( select => {
+		 return {
+			mediaCurrentTime: select( STORE_ID ).getMediaSourceCurrentTime(),
+			defaultMediaSource: select( STORE_ID ).getDefaultMediaSource(),
+		};
+	} );
 	const { setMediaSourceCurrentTime, playMediaSource } = useDispatch( STORE_ID );
 
 	const valueInSeconds = convertTimeCodeToSeconds( value );
@@ -129,7 +137,7 @@ export function TimestampControl( {
 						playMediaSource();
 					} }
 					label={ __( 'Playback to timestamp', 'jetpack' ) }
-					disabled={ isDisabled || isPlayButtonDisabled }
+					disabled={ isDisabled || isPlayButtonDisabled || ! defaultMediaSource }
 				/>
 			</div>
 		</div>
