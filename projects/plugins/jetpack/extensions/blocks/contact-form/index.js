@@ -15,6 +15,7 @@ import edit from './edit';
 import defaultAttributes from './attributes';
 import variations from './variations';
 import deprecated from './deprecated';
+import transforms from './transforms';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
@@ -50,28 +51,7 @@ export const settings = {
 	save: InnerBlocks.Content,
 	variations,
 	category: 'grow',
-	transforms: {
-		from: [
-			{
-				type: 'shortcode',
-				tag: 'contact-form',
-				attributes: {
-					subject: {
-						type: 'string',
-						shortcode: ( { named: { subject } } ) => {
-							return subject;
-						},
-					},
-					to: {
-						type: 'string',
-						shortcode: ( { named: { to } } ) => {
-							return to;
-						},
-					},
-				}
-			},
-		]
-	},
+	transforms,
 	deprecated,
 };
 
