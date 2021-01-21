@@ -79,6 +79,10 @@ function die {
 	exit 1
 }
 
+function prompt {
+	yellow "$@"
+}
+
 function red {
 	chalk '31' "$@"
 }

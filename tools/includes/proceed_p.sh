@@ -28,7 +28,7 @@ function proceed_p {
 	[[ -n "$1" ]] && PROMPT="$1 "
 	PROMPT="${PROMPT}${2:-Proceed?} [y/N] "
 	if color_supported; then
-		PROMPT=$(FORCE_COLOR=1 info "$PROMPT")
+		PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
 	fi
 
 	read -n 1 -p "$PROMPT" OK
