@@ -937,7 +937,7 @@ class Masterbar {
 				array(
 					'url'   => $plans_url,
 					'id'    => 'wp-admin-bar-plan-badge',
-					'label' => $plan['product_name_short'],
+					'label' => ! empty( $plan['product_name_short'] ) ? $plan['product_name_short'] : esc_html__( 'Free', 'jetpack' ),
 				)
 			);
 
