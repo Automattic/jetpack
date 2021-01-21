@@ -919,9 +919,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "8e7d2a15d69ee7377b0d10eaf154766c981d91f0"
+                "reference": "0bb0deba61f8c8fb5bd3a15ed412003f17fec02d"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-terms-of-service": "@dev"
