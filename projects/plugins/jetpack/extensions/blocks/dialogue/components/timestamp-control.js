@@ -9,7 +9,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
-import { STORE_ID, STATE_PLAYING } from '../../../store/media-source/constants';
+import { STORE_ID } from '../../../store/media-source/constants';
 import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
