@@ -132,7 +132,8 @@ export function TimestampControl( {
 				<Button
 					className={ `${ className }__timestamp-control__play-button` }
 					icon="controls-play"
-					onClick={ () => {
+					onMouseDown={ ( event ) => {
+						event.preventDefault();
 						setMediaSourceCurrentTime( null, valueInSeconds );
 						playMediaSource();
 					} }
