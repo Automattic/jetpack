@@ -87,10 +87,6 @@ export function MediaPlayerControl( {
 	} = useDispatch( STORE_ID );
 
 	function togglePlayer() {
-		if ( playerState !== STATE_PLAYING ) {
-			setPlayerCurrentTime( customTimeToPlay ); // <- move player to timestamp.
-			setProgressBarValue( customTimeToPlay ); // <- update progress bar immediately.
-		}
 		toggleMediaSource( defaultMediaSource.id );
 	}
 
