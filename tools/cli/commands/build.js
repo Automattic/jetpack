@@ -10,7 +10,7 @@ import path from 'path';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
-import { readPackageJson } from "../helpers/readPackageJson";
+import { readComposerJson } from '../helpers/readComposerJson';
 
 // eslint-disable-next-line no-console
 const log = console.log;
@@ -24,12 +24,12 @@ async function buildRouter( options ) {
 	options = {
 		...options,
 		project: options.project || '',
-		production: options.production || false
+		production: options.production || false,
 	};
 
 	if ( options.project ) {
-		const data = await readPackageJson( options.project );
-		( data !== false ) ? await build( options.project, options.production, data ) : false;
+		const data = await readComposerJson( options.project );
+		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
 		log( chalk.red( 'You did not choose a project!' ) );
 	}
@@ -40,36 +40,31 @@ async function buildRouter( options ) {
  *
  * @param {string} project - The project.
  * @param {boolean} production - If a production build should be made.
- * @param {object} packageJson - The project's package.json file, parsed.
+ * @param {object} composerJson - The project's composer.json file, parsed.
  */
-export async function build( project, production, packageJson ) {
-	if ( ! packageJson.com_jetpack ) {
-		// There's no Jetpack-specific data in package.json.
-		log( chalk.yellow( 'This project does not have a build step defined.' ) );
-		return;
-	}
-	const buildDev = packageJson.com_jetpack[ 'build-dev' ];
-	const buildProd = packageJson.com_jetpack[ 'build-prod' ];
+export async function build( project, production, composerJson ) {
+	const buildDev = composerJson.scripts[ 'build-development' ];
+	const buildProd = composerJson.scripts[ 'build-production' ];
 	let command;
 
 	if ( ! buildDev && ! buildProd ) {
 		// If neither build step is defined, abort.
-		log( chalk.yellow( 'This project does not have a build step defined!' ) );
+		log( chalk.yellow( 'This project does not have a build step defined.' ) );
 		return;
 	} else if ( production && buildProd ) {
 		// If we need a production build and there is a production step, use it.
-		command = buildProd;
+		command = 'build-production';
 	} else {
 		// If we don't care about production OR there's only a build-dev step defined, let's do it.
-		command = buildDev;
+		command = 'build-development';
 	}
 	log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to build ${ project }!\n` +
-			'Go ahead and sit back. Relax. This will take a few minutes.'
+				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
-	child_process.spawnSync( 'yarn', [ command ], {
+	child_process.spawnSync( 'composer', [ command ], {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
 		stdio: 'inherit',

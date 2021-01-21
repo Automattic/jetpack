@@ -9,7 +9,7 @@ import child_process from 'child_process';
  * Internal dependencies
  */
 import { promptForProject } from '../helpers/promptForProject';
-import { readPackageJson } from '../helpers/readPackageJson';
+import { readComposerJson } from '../helpers/readComposerJson';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
 
@@ -62,9 +62,11 @@ export async function watchCli( options ) {
 		output = false;
 		const projects = allProjects();
 		await projects.filter( async project =>
-			getWatchStep( project, await readPackageJson( project, output ) )
+			hasWatchStep( project, await readComposerJson( project, output ) )
 		);
-		projects.forEach( async project => watch( project, await readPackageJson( project, output ) ) );
+		projects.forEach( async project =>
+			watch( project, await readComposerJson( project, output ) )
+		);
 		return;
 	}
 
@@ -75,7 +77,7 @@ export async function watchCli( options ) {
 	};
 
 	if ( options.project ) {
-		const data = await readPackageJson( options.project );
+		const data = await readComposerJson( options.project );
 		data !== false ? await watch( options.project, data ) : false;
 	} else {
 		log( chalk.red( 'You did not choose a project!' ) );
@@ -89,7 +91,7 @@ export async function watchCli( options ) {
  * @param {object} packageJson - The project's package.json file, parsed.
  */
 export async function watch( project, packageJson ) {
-	const command = getWatchStep( project, packageJson );
+	const command = hasWatchStep( project, packageJson );
 	if ( command === false ) {
 		return;
 	}
@@ -98,7 +100,7 @@ export async function watch( project, packageJson ) {
 			`Hell yeah! It is time to watch ${ project }!\n` + 'Go forth and write more code.'
 		)
 	);
-	child_process.spawnSync( command, {
+	child_process.spawnSync( 'composer', [ 'watch' ], {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
 		stdio: 'inherit',
@@ -109,20 +111,18 @@ export async function watch( project, packageJson ) {
  * Does the project have a watch step?
  *
  * @param {string} project - The project.
- * @param {object} packageJson - The project's package.json file, parsed.
+ * @param {object} composerJson - The project's composer.json file, parsed.
  *
- * @returns {string|boolean} If the project has a watch step, the watch command or false.
+ * @returns {boolean} If the project has a watch step, the watch command or false.
  */
-function getWatchStep( project, packageJson ) {
-	if ( packageJson.com_jetpack && packageJson.com_jetpack.watch ) {
-		return 'yarn ' + packageJson.com_jetpack.watch;
+function hasWatchStep( project, composerJson ) {
+	if ( composerJson.scripts && composerJson.scripts.watch ) {
+		return true;
 	}
 
-	if ( packageJson.scripts && packageJson.scripts.watch ) {
-		return packageJson.scripts.watch;
-	}
-
-	// There's no Jetpack-specific data in package.json or no watch command.
-	output ? log( chalk.yellow( 'This project does not have a watch step defined.' ) ) : null;
+	// There's no watch step defined.
+	output
+		? log( chalk.yellow( 'This project does not have a watch step defined in composer.json.' ) )
+		: null;
 	return false;
 }

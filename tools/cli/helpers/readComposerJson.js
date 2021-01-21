@@ -8,19 +8,19 @@ import chalk from 'chalk';
 const log = console.log;
 
 /**
- * Reads the package.json file and returns a parsed JS object.
+ * Reads the composer.json file and returns a parsed JS object.
  *
  * @param {string} project - The project's name.
  * @param {boolean} output - Should an information message be outputted.
  *
  * @returns {object} Package.json as a JS object.
  */
-export async function readPackageJson( project, output = true ) {
+export async function readComposerJson(project, output = true ) {
 	let data;
 	try {
-		data = fs.readFileSync( 'projects/' + project + '/package.json', 'utf8' );
+		data = fs.readFileSync( 'projects/' + project + '/composer.json', 'utf8' );
 	} catch ( err ) {
-		output ? log( chalk.yellow( 'This project does not have a package.json file.' ) ) : null;
+		output ? log( chalk.yellow( 'This project does not have a composer.json file.' ) ) : null;
 		return false;
 	}
 
@@ -41,7 +41,7 @@ function parseJSON( data, output ) {
 		return data;
 	} catch ( parseError ) {
 		output
-			? log( chalk.red( 'Could not parse package.json. Something is pretty wrong.' ), parseError )
+			? log( chalk.red( 'Could not parse composer.json. Something is pretty wrong.' ), parseError )
 			: null;
 		return false;
 	}

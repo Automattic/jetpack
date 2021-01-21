@@ -213,9 +213,5 @@
 	"engines": {
 		"node": "^12.18.0",
 		"yarn": "^1.3.2"
-	},
-	"com_jetpack": {
-		"build-dev": "build-concurrently",
-		"build-prod": "build-production-concurrently"
 	}
 }
