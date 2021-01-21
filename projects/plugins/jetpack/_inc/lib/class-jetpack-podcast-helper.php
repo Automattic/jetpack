@@ -370,29 +370,33 @@ class Jetpack_Podcast_Helper {
 			'items'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'id'          => array(
+					'id'               => array(
 						'description' => __( 'The episode id. Generated per request, not globally unique.', 'jetpack' ),
 						'type'        => 'string',
 					),
-					'link'        => array(
+					'link'             => array(
 						'description' => __( 'The external link for the episode.', 'jetpack' ),
 						'type'        => 'string',
 						'format'      => 'uri',
 					),
-					'src'         => array(
+					'src'              => array(
 						'description' => __( 'The audio file URL of the episode.', 'jetpack' ),
 						'type'        => 'string',
 						'format'      => 'uri',
 					),
-					'type'        => array(
+					'type'             => array(
 						'description' => __( 'The mime type of the episode.', 'jetpack' ),
 						'type'        => 'string',
 					),
-					'description' => array(
+					'description'      => array(
 						'description' => __( 'The episode description, in plaintext.', 'jetpack' ),
 						'type'        => 'string',
 					),
-					'title'       => array(
+					'description_html' => array(
+						'description' => __( 'The episode description, with allowed html tags.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'title'            => array(
 						'description' => __( 'The episode title.', 'jetpack' ),
 						'type'        => 'string',
 					),
