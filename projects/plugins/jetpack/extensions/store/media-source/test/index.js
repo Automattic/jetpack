@@ -17,7 +17,7 @@ describe( 'save', () => {
 	test( 'Initial State', () => {
 		const store = setup();
 		const got = store.getState();
-		const want = { players: {}, default: null };
+		const want = { sources: {}, default: null };
 		expect( got ).toEqual( want );
 	} );
 
@@ -27,7 +27,7 @@ describe( 'save', () => {
 		const got = store.getState();
 		const want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100 },
 			},
 		};
@@ -40,14 +40,14 @@ describe( 'save', () => {
 		const got = store.getState();
 		const want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, status: 'playing' },
 			},
 		};
 		expect( got ).toEqual( want );
 	} );
 
-	test( 'Add two players, then update the first one', () => {
+	test( 'Add two sources, then update the first one', () => {
 		const store = setup();
 		store.dispatch( actions.registerMediaSource( 100, { status: 'playing' } ) );
 		const stateAfterOneAction = store.getState();
@@ -58,7 +58,7 @@ describe( 'save', () => {
 		const got = store.getState();
 		const want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, status: 'stopped', position: 1 },
 				200: { id: 200, status: 'stopped', position: 2 },
 			},
@@ -67,7 +67,7 @@ describe( 'save', () => {
 		expect( got ).toEqual( want );
 	} );
 
-	test( 'Add two players, then delete one', () => {
+	test( 'Add two sources, then delete one', () => {
 		const store = setup();
 		store.dispatch( actions.registerMediaSource( 100, { status: 'playing' } ) );
 		const stateAfterOneAction = store.getState();
@@ -78,7 +78,7 @@ describe( 'save', () => {
 		const got = store.getState();
 		const want = {
 			default: null,
-			players: {
+			sources: {
 				200: { id: 200, status: 'stopped' },
 			},
 		};
@@ -89,7 +89,7 @@ describe( 'save', () => {
 	test( 'Set Default', () => {
 		const store = setup();
 		let got = store.getState();
-		let want = { default: null, players: {} };
+		let want = { default: null, sources: {} };
 		expect( got ).toEqual( want );
 
 		store.dispatch( actions.setDefaultMediaSource( 5 ) );
@@ -97,12 +97,12 @@ describe( 'save', () => {
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
 		got = store.getState();
-		want = { default: 5, players: {} };
+		want = { default: 5, sources: {} };
 		expect( got ).toEqual( want );
 
 		store.dispatch( actions.setDefaultMediaSource( 10 ) );
 		got = store.getState();
-		want = { default: 10, players: {} };
+		want = { default: 10, sources: {} };
 		expect( got ).toEqual( want );
 
 		expect( stateAfterOneAction ).toEqual( frozenStateAfterOneAction );
@@ -111,7 +111,7 @@ describe( 'save', () => {
 	test( 'Error', () => {
 		const store = setup();
 
-		// Create Players
+		// Create sources
 		store.dispatch( actions.registerMediaSource( 100, {} ) );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
@@ -119,7 +119,7 @@ describe( 'save', () => {
 		let got = store.getState();
 		let want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100 },
 			},
 		};
@@ -130,7 +130,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, state: STATE_ERROR },
 			},
 		};
@@ -140,7 +140,7 @@ describe( 'save', () => {
 	test( 'Set Time', () => {
 		const store = setup();
 
-		// Create Players
+		// Create sources
 		store.dispatch( actions.registerMediaSource( 100, {} ) );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
@@ -148,7 +148,7 @@ describe( 'save', () => {
 		let got = store.getState();
 		let want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100 },
 			},
 		};
@@ -158,7 +158,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, currentTime: 1000 },
 			},
 		};
@@ -168,7 +168,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, currentTime: 2000 },
 			},
 		};
@@ -179,7 +179,7 @@ describe( 'save', () => {
 	test( 'Play, Pause, Toggle', () => {
 		const store = setup();
 
-		// Create Players
+		// Create sources
 		store.dispatch( actions.registerMediaSource( 100, {} ) );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
@@ -187,7 +187,7 @@ describe( 'save', () => {
 		let got = store.getState();
 		let want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100 },
 			},
 		};
@@ -198,7 +198,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, state: STATE_PLAYING },
 			},
 		};
@@ -209,7 +209,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, state: STATE_PAUSED },
 			},
 		};
@@ -220,7 +220,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, state: STATE_PLAYING },
 			},
 		};
@@ -231,7 +231,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, state: STATE_PAUSED },
 			},
 		};
@@ -242,7 +242,7 @@ describe( 'save', () => {
 	test( 'Toggle a player with no state', () => {
 		const store = setup();
 
-		// Create Players
+		// Create sources
 		store.dispatch( actions.registerMediaSource( 100, {} ) );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
@@ -250,7 +250,7 @@ describe( 'save', () => {
 		let got = store.getState();
 		let want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100 },
 			},
 		};
@@ -261,7 +261,7 @@ describe( 'save', () => {
 		got = store.getState();
 		want = {
 			default: null,
-			players: {
+			sources: {
 				100: { id: 100, state: STATE_PLAYING },
 			},
 		};
