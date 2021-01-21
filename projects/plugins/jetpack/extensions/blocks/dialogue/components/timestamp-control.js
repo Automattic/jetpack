@@ -61,8 +61,6 @@ export function TimestampControl( {
 	className,
 	onChange,
 	shortLabel = false,
-	skipForwardTime,
-	jumpBackTime,
 } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
@@ -114,8 +112,8 @@ export function TimestampControl( {
 				<MediaPlayerControl
 					customTimeToPlay={ convertTimeCodeToSeconds( value ) }
 					onTimeChange={ onChange }
-					skipForwardTime= { skipForwardTime }
-					jumpBackTime= { jumpBackTime }
+					skipForwardTime= { false }
+					jumpBackTime= { false }
 					currenTimeDisplay={ false }
 					playButton={ false }
 				/>
