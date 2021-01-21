@@ -5,6 +5,8 @@ if [[ ! -t 0 ]]; then
 	INTERACTIVE=false
 fi
 
+. "$(dirname "$BASH_SOURCE[0]")/chalk-lite.sh"
+
 # Ask whether to proceed.
 #
 # Args:
@@ -14,7 +16,7 @@ fi
 # Returns success if "yes", failure if "no" or non-interactive.
 function proceed_p {
 	if ! $INTERACTIVE; then
-		echo "$1 Aborting" >&2
+		error "$1 Aborting"
 		return 42
 	fi
 	local OK
@@ -22,8 +24,14 @@ function proceed_p {
 	# Clear input before prompting
 	while read -r -t 0 OK; do read -r OK; done
 
-	[[ "$1" ]] && M="$1 " || M=""
-	read -n 1 -p "$M${2:-Proceed?} [y/N] " OK
+	local PROMPT
+	[[ -n "$1" ]] && PROMPT="$1 "
+	PROMPT="${PROMPT}${2:-Proceed?} [y/N] "
+	if color_supported; then
+		PROMPT=$(FORCE_COLOR=1 info "$PROMPT")
+	fi
+
+	read -n 1 -p "$PROMPT" OK
 	echo ""
 	[[ "$OK" == "y" || "$OK" == "Y" ]]
 }

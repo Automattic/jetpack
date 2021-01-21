@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if ! declare -f error > /dev/null; then
+	function error {
+		echo "$*" >&2
+	}
+fi
+
 # Determine if the passed file is a WordPress plugin file.
 # Returns success or failure accordingly.
 function is_wp_plugin_file {
@@ -22,11 +28,11 @@ function find_plugin_file {
 		fi
 	done
 	if [[ ${#FILES[@]} -eq 0 ]]; then
-		echo "No plugin file was detected in $PLUGIN_DIR." >&2
+		error "No plugin file was detected in $PLUGIN_DIR."
 		return 1
 	fi
 	if [[ ${#FILES[@]} -gt 1 ]]; then
-		echo "Multiple possible plugin files were detected in $PLUGIN_DIR." >&2
+		error "Multiple possible plugin files were detected in $PLUGIN_DIR."
 		printf " - %s\n" "${FILES[@]}" >&2
 		return 2
 	fi
@@ -46,11 +52,11 @@ function process_plugin_arg {
 		PLUGIN_FILE="$1"
 		PLUGIN_DIR=$(dirname "$1")
 		if ! is_wp_plugin_file "$PLUGIN_FILE"; then
-			echo "File $1 does not appear to be a WordPress plugin file." >&2
+			error "File $1 does not appear to be a WordPress plugin file."
 			return 3
 		fi
 	else
-		echo "Specified plugin $1 is not valid." >&2
+		error "Specified plugin $1 is not valid."
 		return 4
 	fi
 }

@@ -4,6 +4,7 @@ set -eo pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 
@@ -55,12 +56,11 @@ while getopts ":v:n:h" opt; do
 			if [[ $OPTARG == "n" ]]; then
 				NORMALIZE_COUNT=2
 			else
-				echo "Argument -$OPTARG requires a value." >&2
-				exit 1
+				die "Argument -$OPTARG requires a value."
 			fi
 			;;
 		?)
-			echo "Invalid argument: -$OPTARG" >&2
+			error "Invalid argument: -$OPTARG"
 			echo ""
 			usage
 			;;
@@ -71,8 +71,7 @@ shift "$(($OPTIND -1))"
 # If we have a version request set, do that and exit.
 if [[ -n "$NORMALIZE_COUNT" ]]; then
 	if [[ -z "$VERSION_RAW" ]]; then
-		echo "Option -n requires -v." >&2
-		exit 1
+		die "Option -n requires -v."
 	fi
 	normalize_version_number "$VERSION_RAW" "$NORMALIZE_COUNT"
 	echo "$NORMALIZED_VERSION"
@@ -81,8 +80,7 @@ fi
 
 # Determine the plugin
 if [[ -z "$1" ]]; then
-	echo "A plugin must be specified unless -n is used." >&2
-	exit 1
+	die "A plugin must be specified unless -n is used."
 else
 	process_plugin_arg "$1"
 fi
@@ -117,7 +115,7 @@ done
 if [[ -f "$PLUGIN_DIR/composer.json" ]]; then
 	jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$PLUGIN_DIR/composer.json" | while IFS=" " read -r C F; do
 		if [[ ! -f "$PLUGIN_DIR/$F" ]]; then
-			echo "Warning: File $PLUGIN_DIR/$F does not exist, cannot replace version constant $C." >&2
+			warn "Warning: File $PLUGIN_DIR/$F does not exist, cannot replace version constant $C."
 		else
 			CE=$(sed 's/[.\[\]\\*^$\/()+?{}|]/\\&/g' <<<"${C}")
 			VE=$(sed 's/[&\\/]/\\&/g' <<<"${TARGET_VERSION}")
@@ -125,7 +123,7 @@ if [[ -f "$PLUGIN_DIR/composer.json" ]]; then
 			if [[ "$CONTENTS" != "$(<"$PLUGIN_DIR/$F")" ]]; then
 				echo "$CONTENTS" > "$PLUGIN_DIR/$F"
 			else
-				echo "Warning: Did not find version constant $C in $PLUGIN_DIR/$F." >&2
+				warn "Warning: Did not find version constant $C in $PLUGIN_DIR/$F."
 			fi
 		fi
 	done
