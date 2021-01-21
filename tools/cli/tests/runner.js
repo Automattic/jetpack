@@ -8,7 +8,7 @@ import glob from 'glob';
 import path from 'path';
 import process from 'process';
 
-process.chdir( path.join( path.dirname( __dirname ), '../..' ) );
+process.chdir( path.join( __dirname, '../../..' ) );
 
 const mochaRunner = new Mocha();
 

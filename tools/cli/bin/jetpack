@@ -6,7 +6,7 @@
 const process = require( 'process' );
 const path = require( 'path' );
 
-process.chdir( path.join( path.dirname( __dirname ), '../..' ) );
+process.chdir( path.join( __dirname, '../../..' ) );
 
 try {
 	// eslint-disable-next-line no-global-assign
