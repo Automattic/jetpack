@@ -292,11 +292,11 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Display branch selection on beta plugin's admin page
 	 *
-	 * @param var $header - header.
-	 * @param var $branch_key - branch_key.
-	 * @param var $branch - branch.
-	 * @param var $section - section.
-	 * @param var $is_last - is_last.
+	 * @param var    $header - Title of the branch.
+	 * @param var    $branch_key - Specifies which branch.
+	 * @param object $branch - Contains branch data (title, update date, download link, commit, etc).
+	 * @param var    $section - The kind of branch we're switching to (stable, rc, master, pr).
+	 * @param bool   $is_last - last branch in the list.
 	 */
 	public static function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
@@ -328,7 +328,6 @@ class Jetpack_Beta_Admin {
 		} else {
 			$action = self::activate_button( $branch_key, $section );
 		}
-
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
@@ -355,7 +354,16 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
+	/**
+	 * Display tag for branch we're working on.
+	 *
+	 * @param var  $header - Title of the branch.
+	 * @param var  $tag - Specifies which branch.
+	 * @param var  $url - Contains branch data (title, update date, download link, commit, etc).
+	 * @param var  $section - The kind of branch we're switching to (stable, rc, master, pr).
+	 * @param bool $is_last - last branch in the list.
+	 */
+	public static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
 		$is_compact = $is_last ? '' : 'is-compact';
 		if ( isset( $url ) ) {
 			$data_tag = sprintf( 'data-tag="%s"', $tag );
