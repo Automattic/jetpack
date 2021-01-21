@@ -90,12 +90,13 @@ export function MediaPlayerControl( {
 	}
 
 	function setCurrentTime( time ) {
-		onTimeChange( time );
+		setPlayerCurrentTime( time );
+		if ( mediaDomReference ) {
+			mediaDomReference.currentTime = time;
+		}
+
 		if ( syncMode ) {
-			if ( mediaDomReference ) {
-				mediaDomReference.currentTime = time;
-			}
-			setPlayerCurrentTime( time );
+			onTimeChange( time );
 		}
 	}
 
@@ -105,7 +106,7 @@ export function MediaPlayerControl( {
 				<ToolbarButton
 					icon={ backFiveIcon }
 					isDisabled={ isDisabled }
-					onClick={ () => setCurrentTime( customTimeToPlay - jumpBackTime ) }
+					onClick={ () => setCurrentTime( mediaCurrentTime - jumpBackTime ) }
 					label={ __( 'Jump back', 'jetpack' ) }
 				/>
 			) }
@@ -123,7 +124,7 @@ export function MediaPlayerControl( {
 				<ToolbarButton
 					icon={ forwardFiveIcon }
 					isDisabled={ isDisabled }
-					onClick={ () => setCurrentTime( customTimeToPlay + skipForwardTime ) }
+					onClick={ () => setCurrentTime( mediaCurrentTime + skipForwardTime ) }
 					label={ __( 'Skip forward', 'jetpack' ) }
 				/>
 			) }
