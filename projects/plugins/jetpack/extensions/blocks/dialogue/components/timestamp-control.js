@@ -3,11 +3,14 @@
  */
 import { Dropdown, Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
+import { STORE_ID, STATE_PLAYING } from '../../../store/media-source/constants';
+import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -61,6 +64,12 @@ export function TimestampControl( {
 	shortLabel = false,
 	isDisabled = false,
 } ) {
+	const mediaCurrentTime = useSelect( select => select( STORE_ID ).getMediaSourceCurrentTime() );
+	const { setMediaSourceCurrentTime, playMediaSource } = useDispatch( STORE_ID );
+
+	const valueInSeconds = convertTimeCodeToSeconds( value );
+	const isPlayButtonDisabled = Math.abs( valueInSeconds - mediaCurrentTime ) < 1;
+
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
@@ -107,6 +116,17 @@ export function TimestampControl( {
 						! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
 					) }
 					disabled={ isDisabled }
+				/>
+
+				<Button
+					className={ `${ className }__timestamp-control__play-button` }
+					icon="controls-play"
+					onClick={ () => {
+						setMediaSourceCurrentTime( null, valueInSeconds );
+						playMediaSource();
+					} }
+					label={ __( 'Playback to timestamp', 'jetpack' ) }
+					disabled={ isDisabled || isPlayButtonDisabled }
 				/>
 			</div>
 		</div>
