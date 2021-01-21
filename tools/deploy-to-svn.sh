@@ -1,6 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
+
+BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+. "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/plugin-functions.sh"
+. "$BASE/tools/includes/proceed_p.sh"
 
 # Instructions
 function usage {
@@ -23,10 +28,6 @@ function usage {
 	EOH
 	exit 1
 }
-
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
-. "$BASE/tools/includes/plugin-functions.sh"
-. "$BASE/tools/includes/proceed_p.sh"
 
 # Process args.
 ARGS=()
@@ -101,7 +102,7 @@ DIR=$(pwd)
 echo "Using build dir $DIR"
 
 echo "Checking mirror repo"
-git init -q -b tmp .
+git init -q .
 git remote add origin "https://github.com/${MIRROR}.git"
 git remote update
 if [[ "$(git ls-remote --tags origin "$TAG" 2>/dev/null)" ]]; then

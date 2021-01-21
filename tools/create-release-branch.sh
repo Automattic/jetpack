@@ -1,6 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
+
+BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+. "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/normalize-version.sh"
+. "$BASE/tools/includes/plugin-functions.sh"
+. "$BASE/tools/includes/proceed_p.sh"
 
 # Instructions
 function usage {
@@ -16,11 +22,6 @@ function usage {
 	EOH
 	exit 1
 }
-
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
-. "$BASE/tools/includes/normalize-version.sh"
-. "$BASE/tools/includes/plugin-functions.sh"
-. "$BASE/tools/includes/proceed_p.sh"
 
 # Process args.
 ARGS=()

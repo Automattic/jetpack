@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
+
+BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+. "$BASE/tools/includes/check-osx-bash-version.sh"
 
 # This script updates the composer.json file in of whatever directory it is run.
 # It will update any packages prefixed with `automattic/jetpack-` to it's latest stable version.
@@ -38,7 +41,6 @@ function check_dir {
 	fi
 }
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 COMPOSER_ARGS=()
 while [[ $# -gt 0 ]]; do
 	arg="$1"
