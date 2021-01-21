@@ -30,7 +30,6 @@ export function MediaPlayerControl( {
 	jumpBackTime = 5,
 	customTimeToPlay,
 	syncMode,
-	onSyncModeToggle = noop,
 	playIcon = 'controls-play',
 	pauseIcon = 'controls-pause',
 	backFiveIcon = ControlBackFiveIcon,
@@ -63,8 +62,8 @@ export function MediaPlayerControl( {
 			mediaDomReference: getMediaSourceDomReference(),
 		};
 	}, [] );
-
 	const [ progressBarValue, setProgressBarValue ] = useState( customTimeToPlay );
+	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
@@ -131,9 +130,9 @@ export function MediaPlayerControl( {
 
 			{ typeof syncMode !== 'undefined' && (
 				<ToolbarButton
-					icon={ syncMode ? ControlUnsyncIcon : ControlSyncIcon }
+					icon={ playerSyncMode ? ControlUnsyncIcon : ControlSyncIcon }
 					disabled={ isDisabled || ! mediaDuration }
-					onClick={ () => onSyncModeToggle( ! syncMode ) }
+					onClick={ () => setPlayerSyncMode( ! playerSyncMode ) }
 					label={ __( 'Keep in-sync mode', 'jetpack' ) }
 				/>
 			) }
