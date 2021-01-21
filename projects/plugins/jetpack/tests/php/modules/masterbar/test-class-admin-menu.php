@@ -401,7 +401,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// Don't show post types that don't want to be shown.
 		$revision = get_post_type_object( 'revision' );
-		static::$admin_menu->add_custom_post_type_menu( $revision, true );
+		static::$admin_menu->add_custom_post_type_menu( $revision, false );
 
 		$last_item = array_pop( $menu );
 		$this->assertNotSame( 'https://wordpress.com/types/revision/' . static::$domain, $last_item[2] );
@@ -414,7 +414,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				'menu_position' => 2020,
 			)
 		);
-		static::$admin_menu->add_custom_post_type_menu( 'custom_test_type', true );
+		static::$admin_menu->add_custom_post_type_menu( 'custom_test_type', false );
 
 		// Clean up.
 		unregister_post_type( 'custom_test_type' );
