@@ -5,7 +5,7 @@ import { registerStore } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import storeDefinition from '../storeDefinition';
+import storeDefinition from '../store-definition';
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../constants';
 
 const { actions } = storeDefinition;
