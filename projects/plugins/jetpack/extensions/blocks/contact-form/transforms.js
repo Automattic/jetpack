@@ -6,24 +6,19 @@ import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 
 const getAttributeValue = ( tag, att, content ) => {
-	var re = new RegExp( `\\[${tag}[^\\]]* ${att}="([^"]*)"`, 'im' );
-	var result = content.match( re );
-
-    if ( result != null && result.length > 0 ) {
-        return result[ 1] ;
+	const dbqts = content.match( new RegExp( `\\[${tag}[^\\]]* ${att}="([^"]*)"`, 'im' ) );
+    if ( dbqts != null && dbqts.length > 0 ) {
+        return dbqts[ 1 ];
     }
 
-	re = new RegExp( `\\[${tag}[^\\]]* ${att}='([^']*)'`, 'im' );
-	result = content.match( re );
-	if ( result != null && result.length > 0 ) {
-		return result[ 1 ];
+	const sinqts = content.match( new RegExp( `\\[${tag}[^\\]]* ${att}='([^']*)'`, 'im' ) );
+	if ( sinqts != null && sinqts.length > 0 ) {
+		return sinqts[ 1 ];
     }
 
-	re = new RegExp(`\\[${tag}[^\\]]* ${att}=([^\\s]*)\\s`, 'im');
-	result = content.match( re );
-
-    if ( result != null && result.length > 0 ) {
-       return result[ 1 ];
+	const noqts = content.match( new RegExp( `\\[${tag}[^\\]]* ${att}=([^\\s]*)\\s`, 'im' ) );
+    if ( noqts != null && noqts.length > 0 ) {
+       return noqts[ 1 ];
     }
 
 	return false;
@@ -75,6 +70,11 @@ const transformContactFieldShortcode = ( shortcode ) => {
 
     const blockName = getContactFieldBlockName( getAttributeValue( 'contact-field', 'type', shortcode ) );
 
+    // Split block option values into an array.
+    if ( blockAttrs.options ) {
+        blockAttrs.options = blockAttrs.options.split( ',' );
+    }
+
     return createBlock( blockName, pickBy( blockAttrs, identity ) );
 };
 
@@ -87,11 +87,12 @@ export default {
     from: [
         {
             type: 'raw',
+            priority: 1,
             isMatch: ( node ) => {
                 if (
                     node.nodeName === 'P' &&
-                    ( /\[contact-form(\s.*?)?\](?:([^\[]+)?\[\/contact-form\])?/g.test( node.textContent ) ||
-                    /\[contact-field(\s.*?)?\](?:([^\[]+)?\[\/contact-field\])?/g.test( node.textContent ) ||
+                    ( /\[contact-form(\s.*?)?\](?:([^\[]+)?)?/g.test( node.textContent ) ||
+                    /\[contact-field(\s.*?)?\](?:([^\[]+)?)?/g.test( node.textContent ) ||
                     /\[\/contact-form]/g.test( node.textContent ) )
                 ) {
                     return true;
@@ -104,12 +105,10 @@ export default {
 
                 if ( shortCode.includes( '[contact-form' ) ) {
                     blockData.root = transformContactFormShortcode( shortCode );
-                    return;
                 }
 
                 if ( shortCode.includes( '[contact-field' ) ) {
                     blockData.innerBlocks.push( transformContactFieldShortcode( shortCode ) );
-                    return;
                 }
 
                 if ( shortCode.includes( '[/contact-form]' ) ) {
@@ -130,8 +129,7 @@ export default {
                 }
 
                 return false;
-            },
-            priority: 1
+            }
         }
     ]
 };
