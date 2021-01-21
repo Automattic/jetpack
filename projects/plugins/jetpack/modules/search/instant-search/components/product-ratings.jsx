@@ -31,14 +31,21 @@ export default function ProductRatings( { rating = 0, count = 0 } ) {
 					.fill( <Gridicon size={ 16 } icon="star-outline" /> )
 					.fill( <Gridicon size={ 16 } icon="star" />, 0, rating ) }
 			</span>{ ' ' }
-			<span aria-hidden className="jetpack-instant-search__search-result-product-rating-count">
+			<span
+				aria-hidden
+				className="jetpack-instant-search__search-result-product-rating-count"
+				title={ sprintf(
+					_n( '(%s customer review)', '(%s customer reviews)', count, 'jetpack' ),
+					count
+				) }
+			>
 				{ count }
 			</span>
 			<span className="screen-reader-text">
 				{ sprintf(
 					_n(
-						'Average rating of %s out of 5 from %s rating.',
-						'Average rating of %s out of 5 from %s ratings.',
+						'Average rating of %s out of 5 from %s review.',
+						'Average rating of %s out of 5 from %s reviews.',
 						count,
 						'jetpack'
 					),
