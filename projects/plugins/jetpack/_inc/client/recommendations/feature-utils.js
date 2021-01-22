@@ -23,7 +23,7 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 		case 'monitor':
 			return {
 				configureButtonLabel: __( 'Settings', 'jetpack' ),
-				displayName: __( 'Monitor', 'jetpack' ),
+				displayName: __( 'Downtime Monitoring', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
 				configLink: '#/settings?term=monitor',
 			};
@@ -118,15 +118,15 @@ export const getStepContent = stepSlug => {
 			return {
 				progressValue: '50',
 				question: __(
-					'Would you like Monitor to notify you if your site goes offline?',
+					'Would you like Downtime Monitoring to notify you if your site goes offline?',
 					'jetpack'
 				),
 				description: __(
-					'If your site ever goes down, <strong>Monitor</strong> will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
+					'If your site ever goes down, <strong>Downtime Monitoring</strong> will send you an email or push notitification to let you know. <ExternalLink>Learn more</ExternalLink>',
 					'jetpack'
 				),
 				descriptionLink: 'https://jetpack.com/support/monitor/',
-				ctaText: __( 'Enable Monitor', 'jetpack' ),
+				ctaText: __( 'Enable Downtime Monitoring', 'jetpack' ),
 				illustrationPath: '/recommendations/monitor-illustration.svg',
 			};
 		case 'related-posts':
