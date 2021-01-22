@@ -124,6 +124,13 @@ class Container {
 	 * Initializes any of the globals needed by the autoloader.
 	 */
 	private function initialize_globals() {
+		/*
+		 * This global was retired in version 2.9. The value is set to 'false' to maintain
+		 * compatibility with older versions of the autoloader.
+		 */
+		global $jetpack_autoloader_including_latest;
+		$jetpack_autoloader_including_latest = false;
+
 		// Not all plugins can be found using the locator. In cases where a plugin loads the autoloader
 		// but was not discoverable, we will record them in this array to track them as "active".
 		global $jetpack_autoloader_activating_plugins_paths;
