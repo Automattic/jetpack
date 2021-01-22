@@ -42,6 +42,10 @@
 	@include breakpoint( '<480px' ) {
 		margin: 0 16px 16px 16px;
 	}
+
+	.gridicons-external {
+		margin-left: 0.25rem;
+	}
 }
 
 .jp-recommendations-question__answer {
