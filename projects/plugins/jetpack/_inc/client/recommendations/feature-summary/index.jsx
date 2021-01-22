@@ -88,7 +88,14 @@ const FeatureSummaryComponent = props => {
 			) }
 			<div className="jp-recommendations-feature-summary__display-name">{ displayName }</div>
 			<div className="jp-recommendations-feature-summary__actions">
-				<ExternalLink href={ learnMoreLink } onClick={ onLearnMoreClick }>
+				<ExternalLink
+					href={ learnMoreLink }
+					onClick={ onLearnMoreClick }
+					target="_blank"
+					rel="noopener noreferrer"
+					icon={ true }
+					iconSize={ 16 }
+				>
 					{ __( 'Learn more', 'jetpack' ) }
 				</ExternalLink>
 				{ ctaButton }
