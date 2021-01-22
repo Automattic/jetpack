@@ -17,6 +17,14 @@ const actions = {
 		};
 	},
 
+	updateMediaSourceData( id, data ) {
+		return {
+			type: 'UPDATE_MEDIA_SOURCE_DATA',
+			id,
+			data,
+		};
+	},
+
 	unregisterMediaSource( id ) {
 		return {
 			type: 'UNREGISTER_MEDIA_SOURCE',
@@ -71,15 +79,15 @@ const actions = {
 	},
 };
 
-actions.updateMediaSourceData = actions.registerMediaSource;
-
 const selectors = {
 	getDefaultMediaSource( state ) {
 		let playerId = null;
+		const keys = Object.keys( state.players );
+
 		if ( state.default ) {
 			playerId = state.default;
-		} else if ( Object.keys( state.players ).length ) {
-			playerId = state.players[ Object.keys[ 0 ] ].id;
+		} else if ( keys?.length ) {
+			playerId = state.players[ keys[ 0 ] ].id;
 		}
 
 		if ( ! playerId ) {
@@ -90,26 +98,52 @@ const selectors = {
 	},
 
 	getMediaPlayerState( state, id ) {
-		if ( ! id ) {
-			const defaultMediaSource = selectors.getDefaultMediaSource( state );
-			return defaultMediaSource?.state;
-		}
+		const defaultMediaSource = id
+			? state.players?.[ id ]
+			: selectors.getDefaultMediaSource( state );
 
-		return state.players?.[ id ]?.state;
+		return defaultMediaSource?.state;
 	},
 
 	getMediaSourceCurrentTime( state, id ) {
+		const defaultMediaSource = id
+			? state.players?.[ id ]
+			: selectors.getDefaultMediaSource( state );
+
+		return defaultMediaSource?.currentTime;
+	},
+
+	getMediaSourceDuration( state, id ) {
 		if ( ! id ) {
 			const defaultMediaSource = selectors.getDefaultMediaSource( state );
-			return defaultMediaSource?.currentTime;
+			return defaultMediaSource?.duration;
 		}
 
-		return state.players?.[ id ]?.currentTime;
+		return state.players?.[ id ]?.duration;
 	},
+
+	getMediaSourceDomReference( state, id ) {
+		const defaultMediaSource = id
+			? state.players?.[ id ]
+			: selectors.getDefaultMediaSource( state );
+
+		if ( ! defaultMediaSource ) {
+			return;
+		}
+
+		const domId = defaultMediaSource?.domId;
+		if ( ! domId ) {
+			return;
+		}
+
+		return document.getElementById( domId );
+	}
 };
 
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
+		const actionId = action.id || state.default;
+
 		switch ( action.type ) {
 			case 'REGISTER_MEDIA_SOURCE': {
 				return {
@@ -119,6 +153,19 @@ const storeDefinition = {
 						[ action.id ]: {
 							id: action.id,
 							...action.mediaSourceState,
+						},
+					},
+				};
+			}
+
+			case 'UPDATE_MEDIA_SOURCE_DATA': {
+				return {
+					...state,
+					players: {
+						...state.players,
+						[ action.id ]: {
+							...state.players[ action.id ],
+							...action.data,
 						}
 					},
 				};
@@ -150,8 +197,8 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ actionId ]: {
+							...state.players[ actionId ],
 							state: action.state,
 						},
 					},
@@ -163,9 +210,9 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
-							state: state.players[ action.id ].state === STATE_PLAYING
+						[ actionId ]: {
+							...state.players[ actionId ],
+							state: state.players[ actionId ].state === STATE_PLAYING
 								? STATE_PAUSED
 								: STATE_PLAYING,
 						},
@@ -178,8 +225,8 @@ const storeDefinition = {
 					...state,
 					players: {
 						...state.players,
-						[ action.id ]: {
-							...state.players[ action.id ],
+						[ actionId ]: {
+							...state.players[ actionId ],
 							currentTime: action.currentTime,
 						},
 					},

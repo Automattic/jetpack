@@ -15,11 +15,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import {
-	STATE_ERROR,
-	STATE_PAUSED,
-	STORE_ID,
-} from '../../../store/media-source/constants';
+import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import AudioPlayer from '../../../shared/components/audio-player';
 import Playlist from './playlist';
 import Header from './header';
@@ -171,18 +167,22 @@ export class PodcastPlayer extends Component {
 	};
 
 	handleJump = () => {
-		this.props.setMediaSourceCurrentTime(
-			this.props.playerId,
-			this.props.currentTime - 5
-		);
+		this.props.setMediaSourceCurrentTime( this.props.playerId, this.props.currentTime - 5 );
 	};
 
 	handleSkip = () => {
-		this.props.setMediaSourceCurrentTime(
-			this.props.playerId,
-			this.props.currentTime + 30
-		);
+		this.props.setMediaSourceCurrentTime( this.props.playerId, this.props.currentTime + 30 );
 	};
+
+	updateMediaData = ( event ) => {
+		this.props.updateMediaSourceData(
+			this.props.playerId,
+			{
+				duration: event.target?.duration,
+				domId: event.target?.id,
+			}
+		);
+	}
 
 	componentDidMount() {
 		const { playerId } = this.props;
@@ -212,7 +212,16 @@ export class PodcastPlayer extends Component {
 	}
 
 	render() {
-		const { playerId, title, link, cover, tracks, attributes, currentTime, playerState } = this.props;
+		const {
+			playerId,
+			title,
+			link,
+			cover,
+			tracks,
+			attributes,
+			currentTime,
+			playerState,
+		} = this.props;
 		const {
 			itemsToShow,
 			primaryColor,
@@ -294,8 +303,9 @@ export class PodcastPlayer extends Component {
 						onPause={ this.handlePause }
 						onError={ this.handleError }
 						playStatus={ playerState }
-						currentTime	={ currentTime }
+						currentTime={ currentTime }
 						onTimeChange={ this.handleTimeChange }
+						onMetadataLoaded={ this.updateMediaData }
 					/>
 				</Header>
 
@@ -354,14 +364,11 @@ export default compose( [
 	withErrorBoundary,
 	withSelect( ( select, props ) => {
 		const { playerId } = props;
-		const {
-			getMediaSourceCurrentTime,
-			getMediaPlayerState,
-		} = select( STORE_ID );
+		const { getMediaSourceCurrentTime, getMediaPlayerState } = select( STORE_ID );
 
 		return {
 			currentTime: getMediaSourceCurrentTime( playerId ),
-			playerState: getMediaPlayerState( playerId )
+			playerState: getMediaPlayerState( playerId ),
 		};
 	} ),
 	withDispatch( dispatch => {

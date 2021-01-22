@@ -2,10 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	SelectControl,
-	Button,
-} from '@wordpress/components';
+import { SelectControl, Button } from '@wordpress/components';
 import { omit } from 'lodash';
 import { useState, Fragment } from '@wordpress/element';
 

@@ -121,7 +121,6 @@
 	"projects/plugins/jetpack/_inc/jetpack-wizard-banner.js",
 	"projects/plugins/jetpack/_inc/jquery.jetpack-resize.js",
 	"projects/plugins/jetpack/_inc/lib/debugger/jetpack-debugger-site-health.js",
-	"projects/plugins/jetpack/_inc/lib/tracks/tracks-ajax.js",
 	"projects/plugins/jetpack/_inc/polldaddy-shortcode.js",
 	"projects/plugins/jetpack/_inc/twitter-timeline.js",
 	"projects/plugins/jetpack/extensions/blocks/calendly/edit.js",
@@ -158,7 +157,6 @@
 	"projects/plugins/jetpack/extensions/blocks/simple-payments/edit.js",
 	"projects/plugins/jetpack/extensions/blocks/simple-payments/save.js",
 	"projects/plugins/jetpack/extensions/blocks/slideshow/transforms.js",
-	"projects/plugins/jetpack/extensions/blocks/social-previews/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/story/edit.js",
 	"projects/plugins/jetpack/extensions/blocks/story/edit.native.js",
 	"projects/plugins/jetpack/extensions/blocks/story/icon.js",
@@ -261,6 +259,5 @@
 	"projects/plugins/jetpack/tests/e2e/lib/setup-env.js",
 	"projects/plugins/jetpack/tests/e2e/specs/free-blocks.test.js",
 	"projects/plugins/jetpack/tools/builder/react.js",
-	"tools/jetpack-live-branches/jetpack-live-branches.user.js",
-	"tools/pre-commit-hook.js"
+	"tools/jetpack-live-branches/jetpack-live-branches.user.js"
 ]

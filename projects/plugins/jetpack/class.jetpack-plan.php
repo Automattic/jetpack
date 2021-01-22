@@ -62,6 +62,7 @@ class Jetpack_Plan {
 			'supports' => array(
 				'akismet',
 				'recurring-payments',
+				'premium-content/container',
 			),
 		),
 		'premium'  => array(

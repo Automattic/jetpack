@@ -11,12 +11,13 @@ let exitCode = 0;
 
 /**
  * Load the phpcs exclude list.
+ *
  * @returns {Array} Files to exclude.
  */
 function loadPhpcsExcludeList() {
 	if ( null === phpcsExcludelist ) {
 		phpcsExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/phpcs-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../phpcs-excludelist.json', 'utf8' )
 		);
 	}
 	return phpcsExcludelist;
@@ -30,7 +31,7 @@ function loadPhpcsExcludeList() {
 function loadEslintExcludeList() {
 	if ( null === eslintExcludelist ) {
 		eslintExcludelist = JSON.parse(
-			fs.readFileSync( __dirname + '/eslint-excludelist.json', 'utf8' )
+			fs.readFileSync( __dirname + '/../eslint-excludelist.json', 'utf8' )
 		);
 	}
 	return eslintExcludelist;
@@ -159,7 +160,7 @@ function runEslint( toLintFiles ) {
 
 	// Apply .eslintignore.
 	const ignore = require( 'ignore' )();
-	ignore.add( fs.readFileSync( __dirname + '/../.eslintignore', 'utf8' ) );
+	ignore.add( fs.readFileSync( __dirname + '/../../.eslintignore', 'utf8' ) );
 	toLintFiles = ignore.filter( toLintFiles );
 	if ( ! toLintFiles.length ) {
 		return;
@@ -351,9 +352,7 @@ const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirt
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
-	execSync(
-		`./node_modules/.bin/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }`
-	);
+	execSync( `tools/prettier --ignore-path .eslintignore --write ${ toPrettify.join( ' ' ) }` );
 	execSync( `git add ${ toPrettify.join( ' ' ) }` );
 }
 
