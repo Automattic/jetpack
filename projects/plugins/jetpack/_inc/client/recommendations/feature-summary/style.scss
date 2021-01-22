@@ -2,10 +2,11 @@
 
 .jp-recommendations-feature-summary {
 	display: grid;
-	grid-template-columns: auto 215px;
+	grid-template-columns: auto 120px;
+	min-width: 275px;
 
 	&.is-feature-enabled {
-		grid-template-columns: 30px auto 215px;
+		grid-template-columns: 30px auto 120px;
 	}
 
 	border-bottom: 1px solid #e1e1e1;
@@ -44,9 +45,6 @@
 
 .jp-recommendations-feature-summary__actions {
 	padding: 8px;
-	display: grid;
-	grid-template-columns: auto 100px;
-	align-items: center;
 
 	.gridicons-external {
 		margin-left: 0.25rem;

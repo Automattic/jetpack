@@ -86,20 +86,17 @@ const FeatureSummaryComponent = props => {
 					<Gridicon icon="checkmark-circle" size={ 24 } />
 				</div>
 			) }
-			<div className="jp-recommendations-feature-summary__display-name">{ displayName }</div>
-			<div className="jp-recommendations-feature-summary__actions">
+			<div className="jp-recommendations-feature-summary__display-name">
 				<ExternalLink
 					href={ learnMoreLink }
 					onClick={ onLearnMoreClick }
 					target="_blank"
 					rel="noopener noreferrer"
-					icon={ true }
-					iconSize={ 16 }
 				>
-					{ __( 'Learn more', 'jetpack' ) }
+					{ displayName }
 				</ExternalLink>
-				{ ctaButton }
 			</div>
+			<div className="jp-recommendations-feature-summary__actions">{ ctaButton }</div>
 		</div>
 	);
 };
