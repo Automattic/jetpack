@@ -1,12 +1,6 @@
 /**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -16,7 +10,10 @@ import useUpgradeFlow from '../../shared/use-upgrade-flow/index';
 import { Nudge } from '../../shared/components/upgrade-nudge';
 
 export const UPGRADE_NUDGE_TITLE = __( 'Premium Block', 'jetpack' );
-export const UPGRADE_NUDGE_DESCRIPTION = __( 'Upgrade your plan to use this premium block', 'jetpack' );
+export const UPGRADE_NUDGE_DESCRIPTION = __(
+	'Upgrade your plan to use this premium block',
+	'jetpack'
+);
 export const UPGRADE_NUDGE_BUTTON_TEXT = __( 'Upgrade', 'jetpack' );
 
 const UpgradePlanBanner = ( {
