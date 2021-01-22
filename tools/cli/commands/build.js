@@ -70,7 +70,7 @@ export async function build( project, production, composerJson ) {
 				return new Listr( [
 					installProjectTask( project ),
 					{
-						title: chalkJetpackGreen( `Building ${ project }` ),
+						title: `Building ${ project }`,
 						task: () => execa.command( command, { cwd: cwd } ),
 					},
 				] );
