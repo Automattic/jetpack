@@ -43,7 +43,7 @@ class Lock {
 	 */
 	public function attempt( $name, $expiry = self::LOCK_TRANSIENT_EXPIRY ) {
 		$lock_name   = self::LOCK_PREFIX . $name;
-		$locked_time = get_option( $name );
+		$locked_time = get_option( $lock_name );
 
 		if ( $locked_time ) {
 			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
@@ -55,7 +55,6 @@ class Lock {
 
 		$locked_time = microtime( true ) + $expiry;
 		update_option( $lock_name, $locked_time, false );
-
 		return $locked_time;
 	}
 
