@@ -283,14 +283,16 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					<RangeControl
-						label={ __( 'Number of items', 'jetpack' ) }
-						value={ itemsToShow }
-						onChange={ value => setAttributes( { itemsToShow: value } ) }
-						min={ DEFAULT_MIN_ITEMS }
-						max={ DEFAULT_MAX_ITEMS }
-						required
-					/>
+					{ 0 === selectedEpisodes.length && (
+						<RangeControl
+							label={ __( 'Number of items', 'jetpack' ) }
+							value={ itemsToShow }
+							onChange={ value => setAttributes( { itemsToShow: value } ) }
+							min={ DEFAULT_MIN_ITEMS }
+							max={ DEFAULT_MAX_ITEMS }
+							required
+						/>
+					) }
 
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }
