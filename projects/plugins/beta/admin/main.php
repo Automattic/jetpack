@@ -41,8 +41,8 @@
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<p><?php echo esc_html( Jetpack_Beta::get_jetpack_plugin_pretty_version() ); ?>
-					| <?php echo esc_html( Jetpack_Beta::get_jetpack_plugin_version() ); ?></p>
+				<p><?php echo wp_kses_post( Jetpack_Beta::get_jetpack_plugin_pretty_version() ); ?>
+					| <?php echo wp_kses_post( Jetpack_Beta::get_jetpack_plugin_version() ); ?></p>
 			</div>
 		</div>
 		<div class="dops-foldable-card has-expanded-summary dops-card">
