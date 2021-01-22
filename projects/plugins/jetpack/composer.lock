@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd6bccfd532028223f52f22d6cb45efb",
+    "content-hash": "6e9dc94d60987c991771b4298119bcb0",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -546,7 +546,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "78a9a10af3c2c86edcde245a57f68db77261c1c0"
+                "reference": "73e2057b5d03cbd4ee16efc164dfd28ff85a2e5d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -566,6 +566,10 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build-production"
+                ],
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
@@ -919,9 +923,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "8e7d2a15d69ee7377b0d10eaf154766c981d91f0"
+                "reference": "0bb0deba61f8c8fb5bd3a15ed412003f17fec02d"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-terms-of-service": "@dev"

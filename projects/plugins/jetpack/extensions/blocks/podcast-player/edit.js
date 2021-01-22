@@ -80,6 +80,7 @@ const PodcastPlayerEdit = ( {
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
 	const {
 		url,
+		selectedEpisodes,
 		itemsToShow,
 		showCoverArt,
 		showEpisodeTitle,
@@ -97,8 +98,8 @@ const PodcastPlayerEdit = ( {
 	const [ isInteractive, setIsInteractive ] = useState( false );
 
 	const fetchFeed = useCallback(
-		urlToFetch => {
-			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
+		( urlToFetch, guids = [] ) => {
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( { url: urlToFetch, guids } ) );
 
 			cancellableFetch.current.promise.then(
 				response => {
@@ -154,8 +155,12 @@ const PodcastPlayerEdit = ( {
 
 		// Clean current podcast feed and fetch a new one.
 		setFeedData( {} );
-		fetchFeed( url );
-	}, [ fetchFeed, removeAllNotices, url ] );
+		fetchFeed(
+			url,
+			selectedEpisodes.map( episode => episode.guid )
+		);
+		return () => cancellableFetch?.current?.cancel?.();
+	}, [ fetchFeed, removeAllNotices, url, selectedEpisodes ] );
 
 	// Bring back the overlay after block gets deselected.
 	useEffect( () => {

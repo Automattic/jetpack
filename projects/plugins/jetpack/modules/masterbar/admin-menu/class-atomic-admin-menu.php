@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-
 /**
  * Class Atomic_Admin_Menu.
  */
@@ -51,9 +49,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
-
-		if ( empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] < 2 ) {
+		$site_count = get_user_option( 'wpcom_site_count' );
+		if ( ! $site_count || $site_count < 2 ) {
 			return;
 		}
 
@@ -87,8 +84,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_new_site_link() {
 		global $menu;
 
-		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
-		if ( empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] > 1 ) {
+		$site_count = get_user_option( 'wpcom_site_count' );
+		if ( $site_count && $site_count > 1 ) {
 			return;
 		}
 
