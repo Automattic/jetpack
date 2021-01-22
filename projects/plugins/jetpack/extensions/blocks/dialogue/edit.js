@@ -180,9 +180,11 @@ export default function DialogueEdit( {
 					/>
 				</ToolbarGroup>
 
-				<MediaPlayerToolbarControl
-					onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
-				/>
+				{ mediaSource && (
+					<MediaPlayerToolbarControl
+						onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
+					/>
+				) }
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
