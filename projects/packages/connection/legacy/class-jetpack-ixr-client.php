@@ -137,7 +137,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 	 * Retrieve a response header if set.
 	 *
 	 * @param  string $name  header name.
-	 * @return string $value header value.
+	 * @return string|bool Header value if set, false if not set.
 	 */
 	public function get_response_header( $name ) {
 		if ( isset( $this->response_headers[ $name ] ) ) {
