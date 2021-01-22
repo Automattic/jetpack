@@ -71,7 +71,7 @@ class SearchResultProduct extends Component {
 				) }
 				{ !! fields[ 'meta._wc_average_rating.double' ] && (
 					<ProductRatings
-						count={ fields[ 'meta._wc_rating_count.long' ] }
+						count={ fields[ 'meta._wc_review_count.long' ] }
 						rating={ fields[ 'meta._wc_average_rating.double' ] }
 					/>
 				) }

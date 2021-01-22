@@ -178,7 +178,7 @@ function generateApiQueryString( {
 		case 'product':
 			fields = fields.concat( [
 				'meta._wc_average_rating.double',
-				'meta._wc_rating_count.long',
+				'meta._wc_review_count.long',
 				'wc.currency_position',
 				'wc.currency_symbol',
 				'wc.price',
