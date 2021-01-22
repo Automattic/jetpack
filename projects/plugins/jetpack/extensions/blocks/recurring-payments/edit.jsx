@@ -433,6 +433,25 @@ class MembershipsButtonEdit extends Component {
 							</ToolbarGroup>
 						</BlockControls>
 					) }
+
+				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
+					<div className="wp-block-jetpack-recurring-payments">
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Payments', 'jetpack' ) }
+							notices={ notices }
+							instructions={ __(
+								"You'll need to upgrade your plan to use the Payments block.",
+								'jetpack'
+							) }
+						>
+							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+								{ __( 'Upgrade your plan', 'jetpack' ) }
+							</Button>
+							{ this.renderDisclaimer() }
+						</Placeholder>
+					</div>
+				) }
 			</>
 		);
 	};
