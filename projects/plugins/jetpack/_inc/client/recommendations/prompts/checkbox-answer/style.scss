@@ -22,12 +22,14 @@
 }
 
 .jp-checkbox-answer__title {
+	display: flex;
+	align-items: center;
 	width: 100%;
 	padding: 15px 0;
 }
 
 .jp-checkbox-answer__checkbox {
-	margin: 16px 8px 16px 16px;
+	margin: 18px 8px 14px 16px;
 }
 
 .jp-checkbox-answer__info {
