@@ -84,15 +84,14 @@ export default function DialogueEdit( {
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
+	const showTimestamp = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length
 		? participantsFromContext
 		: defaultParticipants;
 
-	const currentParticipantSlug = participantSlug;
-	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
+	const currentParticipant = getParticipantBySlug( participants, participantSlug );
 	const participantLabel = currentParticipant?.participant;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
@@ -140,15 +139,13 @@ export default function DialogueEdit( {
 		richTextRefCurrent.focus();
 	}, [ isSelected, hasContent, richTextRefCurrent ] );
 
-	const showTimestamp = showTimestampGlobally;
-
 	function hasStyle( style ) {
 		return currentParticipant?.[ style ];
 	}
 
 	function toggleParticipantStyle( style ) {
 		conversationBridge.updateParticipants( {
-			participantSlug: currentParticipantSlug,
+			participantSlug,
 			[ style ]: ! currentParticipant[ style ],
 		} );
 	}
