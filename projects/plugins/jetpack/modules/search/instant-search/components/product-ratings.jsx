@@ -35,6 +35,7 @@ export default function ProductRatings( { rating = 0, count = 0 } ) {
 				aria-hidden
 				className="jetpack-instant-search__search-result-product-rating-count"
 				title={ sprintf(
+					/* Translators: the placeholder is the number of product reviews. */
 					_n( '(%s customer review)', '(%s customer reviews)', count, 'jetpack' ),
 					count
 				) }
@@ -43,6 +44,7 @@ export default function ProductRatings( { rating = 0, count = 0 } ) {
 			</span>
 			<span className="screen-reader-text">
 				{ sprintf(
+					/* Translators: the first placeholder is the average product rating out of 5; the second is the number of product reviews. */
 					_n(
 						'Average rating of %s out of 5 from %s review.',
 						'Average rating of %s out of 5 from %s reviews.',
