@@ -98,8 +98,8 @@ const PodcastPlayerEdit = ( {
 	const [ isInteractive, setIsInteractive ] = useState( false );
 
 	const fetchFeed = useCallback(
-		( urlToFetch, guids = [] ) => {
-			cancellableFetch.current = makeCancellable( fetchPodcastFeed( { url: urlToFetch, guids } ) );
+		requestParams => {
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( requestParams ) );
 
 			cancellableFetch.current.promise.then(
 				response => {
@@ -155,10 +155,10 @@ const PodcastPlayerEdit = ( {
 
 		// Clean current podcast feed and fetch a new one.
 		setFeedData( {} );
-		fetchFeed(
+		fetchFeed( {
 			url,
-			selectedEpisodes.map( episode => episode.guid )
-		);
+			guids: selectedEpisodes.map( episode => episode.guid ),
+		} );
 		return () => cancellableFetch?.current?.cancel?.();
 	}, [ fetchFeed, removeAllNotices, url, selectedEpisodes ] );
 
@@ -204,7 +204,7 @@ const PodcastPlayerEdit = ( {
 			 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
 			 */
 			if ( prependedURL === url ) {
-				fetchFeed( url );
+				fetchFeed( { url } );
 			} else {
 				setAttributes( { url: prependedURL } );
 			}
