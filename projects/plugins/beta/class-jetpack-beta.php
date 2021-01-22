@@ -158,9 +158,8 @@ class Jetpack_Beta {
 	 * Actions taken when the Jetpack Beta plugin is deactivated.
 	 *
 	 * @param string $plugin       - Plugin path being deactivated.
-	 * @param bool   $network_wide - Whether the $plugin is being deactivated network wide.
 	 */
-	public function plugin_deactivated( $plugin, $network_wide ) {
+	public function plugin_deactivated( $plugin ) {
 		if ( ! self::is_jetpack_plugin( $plugin ) ) {
 			return;
 		}
@@ -174,7 +173,7 @@ class Jetpack_Beta {
 	 * @param string $plugin - A plugin path.
 	 */
 	public static function is_jetpack_plugin( $plugin ) {
-		return in_array( $plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ) );
+		return in_array( $plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ), true );
 	}
 
 	/**
@@ -285,7 +284,7 @@ class Jetpack_Beta {
 	 */
 	public static function get_plugin_slug() {
 		$installed = self::get_branch_and_section();
-		if ( empty( $installed ) || $installed[1] === 'stable' || $installed[1] === 'tags' ) {
+		if ( empty( $installed ) || 'stable' === $installed[1] || 'tags' === $installed[1] ) {
 			return 'jetpack';
 		}
 		return JETPACK_DEV_PLUGIN_SLUG;
@@ -310,16 +309,16 @@ class Jetpack_Beta {
 	/**
 	 * When Jetpack Beta plugin is deactivated, remove the jetpack-dev plugin directory and cleanup.
 	 */
-	static function remove_dev_plugin() {
+	public static function remove_dev_plugin() {
 		if ( is_multisite() ) {
 			return;
 		}
 
-		// Delete the jetpack dev plugin
+		// Delete the jetpack dev plugin.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		if ( ! WP_Filesystem( $creds ) ) {
-			/* any problems and we exit */
+			// Any problems and we exit.
 			return;
 		}
 		global $wp_filesystem;
@@ -328,7 +327,7 @@ class Jetpack_Beta {
 		}
 
 		$working_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_SLUG;
-		// delete the folder JETPACK_BETA_PLUGIN_FOLDER
+		// Delete the folder JETPACK_BETA_PLUGIN_FOLDER.
 		if ( $wp_filesystem->is_dir( $working_dir ) ) {
 			$wp_filesystem->delete( $working_dir, true );
 		}
@@ -336,12 +335,20 @@ class Jetpack_Beta {
 		delete_option( self::$option_dev_installed );
 	}
 
-	static function admin_url( $query = '?page=jetpack-beta' ) {
+	/**
+	 * Builds URL to the admin area for the current site and specified query param.
+	 *
+	 * @param string $query - Path relative to the admin URL.
+	 */
+	public static function admin_url( $query = '?page=jetpack-beta' ) {
 		return ( self::is_network_active() )
 		? network_admin_url( 'admin.php' . $query )
 		: admin_url( 'admin.php' . $query );
 	}
 
+	/**
+	 * Build the "Jetpack Beta" admin bar menu items.
+	 */
 	public function admin_bar_menu() {
 		global $wp_admin_bar;
 
@@ -362,9 +369,10 @@ class Jetpack_Beta {
 		);
 		$wp_admin_bar->add_node( $args );
 
-		// add a child item to our parent item
+		// Add a child item to our parent item.
 		$args = array(
 			'id'     => 'jetpack-beta_version',
+			// translators: %s: active Jetpack plugin branch/tag.
 			'title'  => sprintf( __( 'Running %s', 'jetpack-beta' ), self::get_jetpack_plugin_pretty_version() ),
 			'parent' => 'jetpack-beta_admin_bar',
 		);
@@ -373,7 +381,7 @@ class Jetpack_Beta {
 
 		if ( self::get_plugin_slug() === JETPACK_DEV_PLUGIN_SLUG ) {
 			// Highlight the menu if you are running the BETA Versions..
-			echo sprintf( '<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: %s; }</style>', JETPACK_GREEN );
+			echo sprintf( '<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: %s; }</style>', esc_attr( JETPACK_GREEN ) );
 		}
 
 		$args = array(
