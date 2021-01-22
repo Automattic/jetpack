@@ -19,9 +19,23 @@ export const projectTypes = [ 'packages', 'plugins' ];
 export function allProjects() {
 	let projects = [];
 	projectTypes.forEach( type => {
-		const typeProjects = dirs( './projects/' + type, type + '/' );
+		const typeProjects = allProjectsByType( type );
 		projects = projects.concat( typeProjects );
 	} );
 	projects = Object.values( projects );
 	return projects;
+}
+
+/**
+ * Returns an array of projects by the given type.
+ *
+ * @param {string} type - The project type. Must be one of projectTypes
+ *
+ * @returns {Error|Array} - Array of projects on success, error if an unknown type is passed.
+ */
+export function allProjectsByType( type ) {
+	if ( ! projectTypes.includes( type ) ) {
+		return new Error( 'Must be an accepted project type.' );
+	}
+	return dirs( './projects/' + type, type + '/' );
 }
