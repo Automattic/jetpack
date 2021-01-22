@@ -72,7 +72,11 @@
 	transition-property: background-image,background-color;
 	transition-duration: .2s;
 	width: 32px;
+}
 
+#adminmenu .toplevel_page_site-card .wp-menu-image img {
+	height: auto;
+	max-width: 100%;
 }
 
 #adminmenu a.toplevel_page_site-card:hover,
