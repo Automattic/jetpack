@@ -1,10 +1,9 @@
 /**
  * External dependencies
  */
-import child_process from 'child_process';
 import chalk from 'chalk';
 import path from 'path';
-import Listr from "listr";
+import Listr from 'listr';
 import execa from 'execa';
 
 /**
@@ -20,30 +19,33 @@ import { readComposerJson, readPackageJson } from '../helpers/readJson';
  * @param {string} project - The project.
  */
 export async function install( project ) {
-	const cwd = path.resolve( `projects/${project}` );
+	const cwd = path.resolve( `projects/${ project }` );
 	const installs = new Listr( [
 		{
-			title: `Installing ${project}`,
+			title: `Installing ${ project }`,
 			task: () => {
-				return new Listr([{
-						title: 'Installing Composer Dependencies',
-						enabled: () => { return Boolean( readComposerJson( project, false ) ); },
-						task: () => execa.command( 'composer install', { cwd: cwd } )
-					},
+				return new Listr(
+					[
 						{
-							title: 'Installing Yarn Dependencies',
-							enabled: () => { return Boolean( readPackageJson( project, false ) ); },
-							task: () => execa.command( 'yarn install', { cwd: cwd } )
-						}
-
-					], { concurrent: true }
-
+							title: chalkJetpackGreen( 'Installing Composer Dependencies' ),
+							enabled: () => {
+								return Boolean( readComposerJson( project, false ) );
+							},
+							task: () => execa.command( 'composer install', { cwd: cwd } ),
+						},
+						{
+							title: chalkJetpackGreen( 'Installing Yarn Dependencies' ),
+							enabled: () => {
+								return Boolean( readPackageJson( project, false ) );
+							},
+							task: () => execa.command( 'yarn install', { cwd: cwd } ),
+						},
+					],
+					{ concurrent: true }
 				);
-			}
-		}
-
-		]
-	);
+			},
+		},
+	] );
 
 	installs.run().catch( err => {
 		console.error( err );
@@ -59,7 +61,7 @@ export async function installCli( argv ) {
 	argv = await promptForProject( argv );
 	argv = {
 		...argv,
-		project: argv.project || ''
+		project: argv.project || '',
 	};
 
 	if ( argv.project ) {
@@ -81,11 +83,10 @@ export function installDefine( yargs ) {
 		'install [project]',
 		'Installs a monorepo project',
 		yarg => {
-			yarg
-				.positional( 'project', {
-					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
-					type: 'string',
-				} );
+			yarg.positional( 'project', {
+				describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+				type: 'string',
+			} );
 		},
 		async argv => {
 			await installCli( argv );
