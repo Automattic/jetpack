@@ -416,23 +416,23 @@ class MembershipsButtonEdit extends Component {
 
 		return (
 			<>
-			{ ! this.hasUpgradeNudge &&
-				! this.state.shouldUpgrade &&
-				connected === API_STATE_NOTCONNECTED && (
-					<BlockControls>
-						<ToolbarGroup>
-							<ToolbarButton
-								icon={ FlashIcon }
-								onClick={ e => {
-									this.props.autosaveAndRedirect( e, connectURL );
-								} }
-								className="connect-stripe components-tab-button"
-							>
-								{ __( 'Connect Stripe', 'jetpack' ) }
-							</ToolbarButton>
-						</ToolbarGroup>
-					</BlockControls>
-				) }
+				{ ! this.hasUpgradeNudge &&
+					! this.state.shouldUpgrade &&
+					connected === API_STATE_NOTCONNECTED && (
+						<BlockControls>
+							<ToolbarGroup>
+								<ToolbarButton
+									icon={ flashIcon }
+									onClick={ e => {
+										this.props.autosaveAndRedirect( e, connectURL );
+									} }
+									className="connect-stripe components-tab-button"
+								>
+									{ __( 'Connect Stripe', 'jetpack' ) }
+								</ToolbarButton>
+							</ToolbarGroup>
+						</BlockControls>
+					) }
 			</>
 		);
 	};
