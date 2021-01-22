@@ -28,6 +28,10 @@ function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 	global $wp_plugin_paths;
 	static $monorepo, $packages;
 
+	if ( ! class_exists( 'Jetpack' ) ) {
+		return $url;
+	}
+
 	if ( ! isset( $monorepo ) ) {
 		// Determine the path to the monorepo based on the path to Jetpack.
 		$monorepo = dirname( dirname( dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_DIR' ) ) ) ) . '/';
