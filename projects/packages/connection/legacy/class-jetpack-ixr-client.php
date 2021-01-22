@@ -141,7 +141,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 	 */
 	public function get_response_header( $name ) {
 		if ( isset( $this->response_headers[ $name ] ) ) {
-			return $this->response_headers( $name );
+			return $this->response_headers[ $name ];
 		}
 		return false;
 	}
