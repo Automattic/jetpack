@@ -77,6 +77,7 @@ const ProductCardUpsell = props => {
 					</span>
 				</div>
 				<Button
+					className="jp-recommendations-product-card-upsell__cta-button"
 					primary
 					href={ upgradeUrl }
 					onClick={ onUpsellClick }
