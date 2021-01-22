@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
@@ -333,6 +334,16 @@ class Full_Sync_Immediately extends Module {
 		// Return early if Full Sync is not running.
 		if ( ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
+		}
+
+		// Return early if we've gotten a retry-after header response.
+		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . 'immediate-send' );
+		if ( $retry_time ) {
+			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			if ( microtime( true ) > $retry_time ) {
+				delete_option( Actions::RETRY_AFTER_PREFIX . 'immediate-send' );
+			}
+			return false;
 		}
 
 		// Obtain send Lock.
