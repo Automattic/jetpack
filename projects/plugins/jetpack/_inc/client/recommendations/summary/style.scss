@@ -31,7 +31,7 @@
 
 .jp-recommendations-summary__sidebar {
 	background: #e9eff5;
-	box-shadow: -1px 0px 0px #b4b9be;
+	border-left: 1px solid #d5d5d5;
 	padding: 24px;
 
 	@include breakpoint( '<660px' ) {
