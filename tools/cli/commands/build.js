@@ -10,7 +10,7 @@ import path from 'path';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/readComposerJson';
+import { readComposerJson } from '../helpers/readJson';
 
 /**
  * Relays build commands to a particular project.
@@ -25,7 +25,7 @@ async function buildRouter( options ) {
 	};
 
 	if ( options.project ) {
-		const data = await readComposerJson( options.project );
+		const data = readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
 		console.log( chalk.red( 'You did not choose a project!' ) );
