@@ -227,10 +227,17 @@ class Jetpack_Beta {
 		return $plugins;
 	}
 
+	/**
+	 * Filter WordPress.org Plugins API results.
+	 *
+	 * @param false|object|array $false    - The result object or array. Default false.
+	 * @param string             $action   - The type of information being requested from the Plugin Installation API.
+	 * @param object             $response - Plugin API arguments.
+	 */
 	public function get_plugin_info( $false, $action, $response ) {
 
-		// Check if this call API is for the right plugin
-		if ( ! isset( $response->slug ) || $response->slug != JETPACK_DEV_PLUGIN_SLUG ) {
+		// Check if this call API is for the right plugin.
+		if ( ! isset( $response->slug ) || JETPACK_DEV_PLUGIN_SLUG !== $response->slug ) {
 			return false;
 		}
 		$update_date  = null;
@@ -240,7 +247,7 @@ class Jetpack_Beta {
 			$update_date  = $dev_data[2]->update_date;
 			$download_zip = $dev_data[2]->download_url;
 		}
-		// Update tags
+		// Update tags.
 		$response->slug          = JETPACK_DEV_PLUGIN_SLUG;
 		$response->plugin        = JETPACK_DEV_PLUGIN_SLUG;
 		$response->name          = 'Jetpack | ' . self::get_jetpack_plugin_pretty_version( true );
@@ -254,21 +261,28 @@ class Jetpack_Beta {
 		$response->download_link = $download_zip;
 		return $response;
 	}
+
 	/**
-	 * Run on activation to flush update cache
+	 * Run on activation to flush update cache.
 	 */
 	public static function activate() {
-		// don't do anyting funnly
+		// Don't do anyting funnly.
 		if ( defined( 'DOING_CRON' ) ) {
 			return;
 		}
 		delete_site_transient( 'update_plugins' );
 	}
 
+	/**
+	 * Returns active Jetpack plugin file partial path string (jetpack/jetpack.php|jetpack-dev/jetpack.php).
+	 */
 	public static function get_plugin_file() {
 		return self::get_plugin_slug() . '/jetpack.php';
 	}
 
+	/**
+	 * Returns active plugin slug string (jetpack|jetpack-dev).
+	 */
 	public static function get_plugin_slug() {
 		$installed = self::get_branch_and_section();
 		if ( empty( $installed ) || $installed[1] === 'stable' || $installed[1] === 'tags' ) {
@@ -277,8 +291,11 @@ class Jetpack_Beta {
 		return JETPACK_DEV_PLUGIN_SLUG;
 	}
 
+	/**
+	 * Handler ran for Jetpack Beta plugin deactivation hook.
+	 */
 	public static function deactivate() {
-		// don't do anyting funnly
+		// Don't do anyting funnly.
 		if ( defined( 'DOING_CRON' ) ) {
 			return;
 		}
@@ -290,6 +307,9 @@ class Jetpack_Beta {
 		delete_option( self::$option );
 	}
 
+	/**
+	 * When Jetpack Beta plugin is deactivated, remove the jetpack-dev plugin directory and cleanup.
+	 */
 	static function remove_dev_plugin() {
 		if ( is_multisite() ) {
 			return;
