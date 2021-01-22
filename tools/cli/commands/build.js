@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import child_process from 'child_process';
 import chalk from 'chalk';
 import path from 'path';
+import execa from 'execa';
+import Listr from 'listr';
 
 /**
  * Internal dependencies
@@ -46,6 +47,7 @@ export async function build( project, production, composerJson ) {
 	const buildProd = composerJson.scripts[ 'build-production' ] ? 'composer build-production' : null;
 	// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
 	const command = production ? buildProd || buildDev : buildDev || buildProd;
+	const cwd = path.resolve( `projects/${ project }` );
 
 	if ( ! command ) {
 		// If neither build step is defined, abort.
@@ -59,10 +61,27 @@ export async function build( project, production, composerJson ) {
 				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
-	child_process.spawnSync( command, {
-		cwd: path.resolve( `projects/${ project }` ),
-		shell: true,
-		stdio: 'inherit',
+
+	const builder = new Listr( [
+		{
+			title: `Building ${ project }`,
+			task: () => {
+				return new Listr( [
+					{
+						title: chalkJetpackGreen( `Installing ${ project }` ),
+						task: () => execa.command( `jetpack install ${ project }`, { cwd: cwd } ),
+					},
+					{
+						title: chalkJetpackGreen( `Building ${ project }` ),
+						task: () => execa.command( command, { cwd: cwd } ),
+					},
+				] );
+			},
+		},
+	] );
+
+	builder.run().catch( err => {
+		console.error( err );
 	} );
 }
 
