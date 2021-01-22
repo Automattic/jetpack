@@ -3,6 +3,10 @@
 .jp-recommendations-question__content {
 	display: flex;
 	flex-direction: column;
+
+	@include breakpoint( '>660px' ) {
+		padding-right: 48px;
+	}
 }
 
 .jp-recommendations-question__progress-bar {
