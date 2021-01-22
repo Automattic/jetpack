@@ -14,9 +14,16 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
-		entry: { search: path.join( __dirname, '../modules/search/instant-search/index.jsx' ) },
+		entry: {
+			main: path.join( __dirname, '../modules/search/instant-search/index.jsx' ),
+			'ie11-polyfill-loader': path.join(
+				__dirname,
+				'../modules/search/instant-search/ie11-polyfill.js'
+			),
+			'ie11-polyfill-payload': [ 'core-js', 'regenerator-runtime/runtime' ],
+		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
-		'output-filename': 'jp-search.bundle.js',
+		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );
