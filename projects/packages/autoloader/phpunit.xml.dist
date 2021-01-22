@@ -6,6 +6,9 @@
 		<testsuite name="integration">
 			<directory suffix="Test.php">tests/php/tests/integration</directory>
 		</testsuite>
+		<testsuite name="acceptance">
+			<directory suffix="Test.php">tests/php/tests/acceptance</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">

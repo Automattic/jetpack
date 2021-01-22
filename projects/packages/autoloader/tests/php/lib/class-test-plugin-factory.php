@@ -21,9 +21,21 @@ class Test_Plugin_Factory {
 	const TESTING_NAMESPACE = 'Automattic\\Jetpack\\AutoloaderTesting\\';
 
 	/**
+	 * The string representation of the current autoloader.
+	 */
+	const CURRENT = 'current';
+
+	/**
 	 * A constant for the autoloader version of a current plugin.
 	 */
 	const VERSION_CURRENT = '1000.0.0.0';
+
+	/**
+	 * Indicates whether or not the plugin is an mu-plugin.
+	 *
+	 * @var bool
+	 */
+	private $is_mu_plugin;
 
 	/**
 	 * The slug of the plugin we're creating.
@@ -63,39 +75,43 @@ class Test_Plugin_Factory {
 	/**
 	 * Constructor.
 	 *
-	 * @param string   $slug      The slug of the plugin.
-	 * @param string[] $autoloads The composer autoloads for the plugin.
+	 * @param bool     $is_mu_plugin Indicates whether or not the plugin is an mu-plugin.
+	 * @param string   $slug         The slug of the plugin.
+	 * @param string[] $autoloads    The composer autoloads for the plugin.
 	 */
-	private function __construct( $slug, $autoloads ) {
-		$this->slug      = $slug;
-		$this->autoloads = $autoloads;
+	private function __construct( $is_mu_plugin, $slug, $autoloads ) {
+		$this->is_mu_plugin = $is_mu_plugin;
+		$this->slug         = $slug;
+		$this->autoloads    = $autoloads;
 	}
 
 	/**
 	 * Creates a new factory for the plugin and returns it.
 	 *
-	 * @param string   $slug      The slug of the plugin we're building.
-	 * @param string[] $autoloads The composer autoloads for the plugin we're building.
+	 * @param bool     $is_mu_plugin Indicates whether or not the plugin is an mu-plugin.
+	 * @param string   $slug         The slug of the plugin we're building.
+	 * @param string[] $autoloads    The composer autoloads for the plugin we're building.
 	 * @return Test_Plugin_Factory
 	 * @throws \InvalidArgumentException When the slug is invalid.
 	 */
-	public static function create( $slug, $autoloads ) {
+	public static function create( $is_mu_plugin, $slug, $autoloads ) {
 		if ( false !== strpos( $slug, ' ' ) ) {
 			throw new \InvalidArgumentException( 'Plugin slugs may not have spaces.' );
 		}
 
 		$slug = strtolower( preg_replace( '/[^A-Za-z0-9\-_]/', '', $slug ) );
 
-		return new Test_Plugin_Factory( $slug, $autoloads );
+		return new Test_Plugin_Factory( $is_mu_plugin, $slug, $autoloads );
 	}
 
 	/**
 	 * Creates a new factory configured for a generic test plugin and returns it.
 	 *
-	 * @param string $version The version of the autoloader we want the plugin to use.
+	 * @param bool   $is_mu_plugin Indicates whether or not the plugin is an mu-plugin.
+	 * @param string $version      The version of the autoloader we want the plugin to use.
 	 * @return Test_Plugin_Factory
 	 */
-	public static function create_test_plugin( $version ) {
+	public static function create_test_plugin( $is_mu_plugin, $version ) {
 		// We will use a global to detect when a file has been loaded by the autoloader.
 		global $jetpack_autoloader_testing_loaded_files;
 		if ( ! isset( $jetpack_autoloader_testing_loaded_files ) ) {
@@ -103,11 +119,16 @@ class Test_Plugin_Factory {
 		}
 
 		$file_version = $version;
-		if ( 'current' === $version ) {
+		if ( self::CURRENT === $version ) {
 			$file_version      = self::VERSION_CURRENT;
 			$namespace_version = 'Current';
 		} else {
 			$namespace_version = 'v' . str_replace( '.', '_', $version );
+		}
+
+		// Avoid namespace collisions between plugins & mu-plugins.
+		if ( $is_mu_plugin ) {
+			$namespace_version .= 'mu';
 		}
 
 		// We need to define all of the autoloads that the files contained within will utilize.
@@ -119,7 +140,7 @@ class Test_Plugin_Factory {
 			'files'    => array( 'functions.php' ),
 		);
 
-		return self::create( str_replace( '.', '_', $version ), $autoloads )
+		return self::create( $is_mu_plugin, str_replace( '.', '_', $version ), $autoloads )
 			->with_class( 'classmap', 'Classmap_Test_Class', "\tconst VERSION = '$file_version';" )
 			->with_class( 'psr-4', self::TESTING_NAMESPACE . 'SharedTestClass', "\tconst VERSION = '$file_version';" )
 			->with_class( 'psr-4', self::TESTING_NAMESPACE . "$namespace_version\\UniqueTestClass", '' )
@@ -238,13 +259,17 @@ class Test_Plugin_Factory {
 	}
 
 	/**
-	 * Brings the plugin to life and returns the absolute path to the main plugin file.
+	 * Brings the plugin to life and returns the absolute path to the plugin directory.
 	 *
 	 * @return string
 	 * @throws \RuntimeException When the factory fails to initialize composer.
 	 */
 	public function make() {
-		$plugin_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $this->slug;
+		if ( $this->is_mu_plugin ) {
+			$plugin_dir = WPMU_PLUGIN_DIR . DIRECTORY_SEPARATOR . $this->slug;
+		} else {
+			$plugin_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $this->slug;
+		}
 
 		$plugin_file     = "<?php\n/**\n * Plugin Name: {$this->slug}\n */\n";
 		$composer_config = $this->build_composer_config();
@@ -309,7 +334,7 @@ class Test_Plugin_Factory {
 	 * @return bool
 	 */
 	private function is_using_local_package() {
-		return 'current' === $this->autoloader_version;
+		return self::CURRENT === $this->autoloader_version;
 	}
 
 	/**
@@ -408,6 +433,23 @@ class Test_Plugin_Factory {
 		foreach ( $this->files as $path => $content ) {
 			$factory_checksum['files'][ $path ] = hash( 'crc32', $content );
 		}
+
+		// When we're using the local package it is important that we also include the autoloader files in the checksum
+		// since they would indicate a change in the package that warrants rebuilding the autoloader as well.
+		if ( $this->is_using_local_package() ) {
+			$factory_checksum['autoloader-files'] = array();
+
+			$src_dir          = TEST_PACKAGE_DIR . DIRECTORY_SEPARATOR . 'src';
+			$autoloader_files = scandir( $src_dir );
+			foreach ( $autoloader_files as $file ) {
+				if ( '.' === $file || '..' === $file ) {
+					continue;
+				}
+
+				$factory_checksum['autoloader-files'][ $file ] = hash_file( 'crc32', $src_dir . DIRECTORY_SEPARATOR . $file );
+			}
+		}
+
 		$composer_config['extra']['test-plugin-checksum'] = $factory_checksum;
 
 		// Retrieve the checksum from the existing plugin so that we can detect whether or not the plugin has changed.

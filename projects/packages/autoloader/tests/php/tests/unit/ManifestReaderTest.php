@@ -43,7 +43,7 @@ class ManifestReaderTest extends TestCase {
 	 * @beforeClass
 	 */
 	public static function set_up_before_class() {
-		self::$older_plugin_dir = Test_Plugin_Factory::create_test_plugin( self::OLDER_VERSION )->make();
+		self::$older_plugin_dir = Test_Plugin_Factory::create_test_plugin( false, self::OLDER_VERSION )->make();
 	}
 
 	/**

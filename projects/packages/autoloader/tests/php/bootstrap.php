@@ -32,7 +32,7 @@ require_once __DIR__ . '/lib/class-acceptance-test-case.php';
 // As a Composer plugin the autoloader takes the contents of the `src` directory and generates an autoloader specific to each plugin.
 // In order to more effectively test the package we need to test it within that context since that is how it will be executed.
 // To that end we need to create a plugin that can be used for testing the autoloader.
-define( 'TEST_PLUGIN_DIR', Test_Plugin_Factory::create_test_plugin( 'current' )->make() );
+define( 'TEST_PLUGIN_DIR', Test_Plugin_Factory::create_test_plugin( false, Test_Plugin_Factory::CURRENT )->make() );
 
 // Since we're going to be testing the generated autoloader files we need to
 // register an autoloader that can load them.
