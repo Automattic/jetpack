@@ -54,8 +54,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_assets() {
 		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
-		$script_relative_path = '_inc/build/instant-search/jp-search-main.bundle.js';
-		$style_relative_path  = '_inc/build/instant-search/jp-search-main.bundle.css';
+		$script_relative_path   = '_inc/build/instant-search/jp-search-main.bundle.js';
+		$style_relative_path    = '_inc/build/instant-search/jp-search-main.bundle.css';
 		if (
 			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
 			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ||
@@ -144,7 +144,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.js';
-		$polyfill_path    = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
+		$polyfill_path          = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
 
 		$options = array(
 			'overlayOptions'        => array(
