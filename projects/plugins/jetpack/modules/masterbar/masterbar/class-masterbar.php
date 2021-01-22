@@ -821,7 +821,7 @@ class Masterbar {
 				'parent' => 'root-default',
 				'id'     => 'blog',
 				'title'  => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
-				'href'   => '#',
+				'href'   => 'https://wordpress.com/sites/' . $this->primary_site_url,
 				'meta'   => array(
 					'class' => 'my-sites mb-trackable',
 				),

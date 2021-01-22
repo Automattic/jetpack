@@ -86,6 +86,7 @@
 
 #adminmenu .toplevel_page_site-card.has-site-icon img {
 	padding: 0;
+	max-width: 100%;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
