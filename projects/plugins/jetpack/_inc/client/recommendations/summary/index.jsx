@@ -84,7 +84,7 @@ const SummaryComponent = props => {
 
 	return (
 		<div className="jp-recommendations-summary">
-			<div>
+			<div className="jp-recommendations-summary__content">
 				<div className="jp-recommendations-summary__configuration">
 					<h1>
 						{ sprintf(
