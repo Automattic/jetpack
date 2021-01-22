@@ -38,8 +38,16 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "anchor-fm", "conversation", "dialogue" ],
-	"experimental": [ "seo" ],
+	"beta": [
+		"amazon",
+		"conversation",
+		"dialogue"
+	],
+	"experimental": [
+		"anchor-fm",
+		"seo",
+		"premium-content"
+	],
 	"no-post-editor": [
 		"business-hours",
 		"button",

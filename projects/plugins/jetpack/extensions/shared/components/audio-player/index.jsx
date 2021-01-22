@@ -11,19 +11,18 @@ import { debounce, throttle } from 'lodash';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
-import { dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
-import { STORE_ID } from '../../../store/media-source';
+import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from '../../../store/media-source/constants';
 
 /**
  * Style dependencies
  */
 import './style.scss';
 
+// MediaElement global settings.
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 function createJumpButton( containerClass, label, clickHandler ) {
@@ -49,6 +48,7 @@ function AudioPlayer( {
 	onJumpBack,
 	currentTime,
 	playStatus = STATE_PAUSED,
+	onMetadataLoaded,
 } ) {
 	const audioRef = useRef();
 
@@ -74,15 +74,7 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		const mediaElement = new MediaElementPlayer( audio, {
-			...meJsSettings,
-			success: function() {
-				dispatch( STORE_ID ).registerMediaSource( audio.id, {
-					status: 'is-paused',
-					timestamp: 0,
-				} );
-			}
-		} );
+		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -107,6 +99,7 @@ function AudioPlayer( {
 		onPlay && audio.addEventListener( 'play', onPlay );
 		onPause && audio.addEventListener( 'pause', onPause );
 		onError && audio.addEventListener( 'error', onError );
+		onMetadataLoaded && audio.addEventListener( 'loadedmetadata', onMetadataLoaded );
 
 		return () => {
 			// Cleanup.
@@ -114,9 +107,9 @@ function AudioPlayer( {
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
-			dispatch( STORE_ID ).unregisterMediaSource( audio.id );
+			onMetadataLoaded && audio.removeEventListener( 'loadedmetadata', onMetadataLoaded );
 		};
-	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
+	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward, onMetadataLoaded ] );
 
 	// If we get lots of events from clicking on the progress bar in the MediaElement
 	// then we can get stuck in a loop. We can so by debouncing here we wait until the
@@ -140,11 +133,15 @@ function AudioPlayer( {
 		}
 		//Add time change event listener
 		const audio = audioRef.current;
-		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000 );
+		const throttledTimeChange = throttle( time => onTimeChange( time ), 1000, {
+			leading: true,
+			trailing: false,
+		} );
 		const onTimeUpdate = e => throttledTimeChange( e.target.currentTime );
 		onTimeChange && audio?.addEventListener( 'timeupdate', onTimeUpdate );
 
 		return () => {
+			throttledTimeChange.cancel();
 			audio?.removeEventListener( 'timeupdate', onTimeUpdate );
 		};
 	}, [ audioRef, onTimeChange ] );

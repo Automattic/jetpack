@@ -12,7 +12,7 @@ for FILE in $(git ls-files 'composer.lock' '**/composer.lock'); do
 	composer update --root-reqs
 	echo "::endgroup::"
 	if ! git diff --exit-code composer.lock; then
-		echo "::error file=$FILE::$FILE is not up to date!"
+		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`composer update --root-reqs\` in the appropriate directory."
 		EXIT=1
 	fi
 	cd "$OLDPWD"

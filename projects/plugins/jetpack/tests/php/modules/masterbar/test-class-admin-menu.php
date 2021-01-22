@@ -645,14 +645,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
 
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'https://wordpress.com/export/' . static::$domain,
-			'Export',
-		);
-		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
-
 		// NOT contains the following menu items.
 
 		$tools_submenu_item = array(
@@ -668,13 +660,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'import.php',
 		);
 		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
-
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'export.php',
-		);
-		$this->assertNotContains( $export_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**

@@ -17,6 +17,10 @@
 		]
 	},
 	"scripts": {
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build-production"
+		],
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
@@ -26,9 +30,15 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../*"
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-lazy-images"
+	}
 }

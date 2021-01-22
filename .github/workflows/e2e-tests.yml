@@ -13,6 +13,7 @@ jobs:
   e2e-tests:
     name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
     runs-on: ubuntu-latest
+    timeout-minutes: 20  # 2021-01-18: Successful runs seem to take 9-12 minutes
     strategy:
       fail-fast: false
       matrix:

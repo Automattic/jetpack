@@ -30,5 +30,6 @@
 	<!-- Ignore built files -->
 	<exclude-pattern>/projects/plugins/jetpack/_inc/blocks/*</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/_inc/build/*</exclude-pattern>
+	<exclude-pattern>/projects/plugins/jetpack/modules/photon-cdn/jetpack-manifest.php</exclude-pattern>
 
 </ruleset>
