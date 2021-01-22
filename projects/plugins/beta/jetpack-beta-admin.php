@@ -1,6 +1,10 @@
 <?php
 /**
  * Class Jetpack_Beta_Admin
+ *
+ * Handles the Jetpack Admin functions.
+ *
+ * @package Jetpack Beta
  */
 class Jetpack_Beta_Admin {
 
@@ -11,7 +15,7 @@ class Jetpack_Beta_Admin {
 		add_action( 'admin_notices', array( __CLASS__, 'render_banner' ) );
 	}
 
-	/** Attach hooks common to all Jetpack admin pages based on the created (class?). */
+	/** Attach hooks common to all Jetpack admin pages. */
 	public static function add_actions() {
 		$hook = self::get_page_hook();
 		add_action( "load-$hook", array( __CLASS__, 'admin_page_load' ) );
@@ -170,13 +174,15 @@ class Jetpack_Beta_Admin {
 		return null;
 	}
 
-	/** Return testing instructions from branch */
+	/** Return testing instructions for release candidate branch */
 	public static function to_test_file_content() {
 		$test_file = WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/to-test.md';
 		if ( ! file_exists( $test_file ) ) {
 			return;
 		}
-		$content = file_get_contents( $test_file );
+		WP_Filesystem();
+		global $wp_filesystem;
+		$content = $wp_filesystem->get_contents( $test_file );
 		return self::render_markdown( $content );
 	}
 
