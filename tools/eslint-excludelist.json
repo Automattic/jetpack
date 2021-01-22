@@ -190,7 +190,6 @@
 	"projects/plugins/jetpack/extensions/shared/block-icons.js",
 	"projects/plugins/jetpack/extensions/shared/block-styles.js",
 	"projects/plugins/jetpack/extensions/shared/components/block-styles-selector/index.js",
-	"projects/plugins/jetpack/extensions/shared/components/upgrade-nudge/index.jsx",
 	"projects/plugins/jetpack/extensions/shared/currencies.js",
 	"projects/plugins/jetpack/extensions/shared/external-media/sources/google-photos/filter-request.js",
 	"projects/plugins/jetpack/extensions/shared/get-jetpack-extension-availability.js",
