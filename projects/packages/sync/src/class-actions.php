@@ -412,10 +412,10 @@ class Actions {
 		$retry_after = $rpc->getResponse_header( 'Retry-After' );
 		if ( false !== $retry_after ) {
 			if ( (int) $retry_after > 0 ) {
-				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + (int) $retry_after );
+				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + (int) $retry_after, false );
 			} else {
 				// if unexpected value default to 3 minutes.
-				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 180 );
+				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 180, false );
 			}
 		}
 

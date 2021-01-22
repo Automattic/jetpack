@@ -54,7 +54,7 @@ class Lock {
 		}
 
 		$locked_time = microtime( true ) + $expiry;
-		update_option( $lock_name, $locked_time );
+		update_option( $lock_name, $locked_time, false );
 
 		return $locked_time;
 	}
