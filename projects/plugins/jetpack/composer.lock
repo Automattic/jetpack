@@ -850,11 +850,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "04ffdbcbfaf365588ecb2551d2f220a2dac605a8"
+                "reference": "3056168c1d1a7bc9a8e4b5829cbd62ad54e37573"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-heartbeat": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev"

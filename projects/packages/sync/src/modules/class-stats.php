@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Heartbeat;
+
 /**
  * Class to handle sync for stats.
  */
@@ -61,6 +63,6 @@ class Stats extends Module {
 	 * @return array Stats data.
 	 */
 	public function add_stats() {
-		return array( \Jetpack::get_stat_data( false, false ) );
+		return array( Heartbeat::generate_stats_array() );
 	}
 }
