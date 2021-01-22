@@ -3,6 +3,8 @@ name: "CodeQL Code Scanning Analysis"
 on:
   push:
     branches: [master, master-built]
+  pull_request:
+    branches: [master, master-built]
   schedule:
     - cron: '0 19 * * 0'
 
@@ -10,6 +12,7 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 7  # 2021-01-18: Successful runs seem to take 3-5 minutes
 
     strategy:
       fail-fast: false

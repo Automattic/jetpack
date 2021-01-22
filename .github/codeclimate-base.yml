@@ -51,7 +51,6 @@ exclude_patterns:
   - ".phpcs.config.xml"
   - "**.json"
   - "**.svnignore"
-  - "**.travis.yml"
   - "**.gitignore"
   - "**.eslintrc.js"
   - "**.editorconfig"

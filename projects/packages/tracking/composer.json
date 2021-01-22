@@ -1,0 +1,41 @@
+{
+	"name": "automattic/jetpack-tracking",
+	"description": "Tracking for Jetpack",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-terms-of-service": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "0.2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"legacy",
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"scripts": {
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-tracking"
+	}
+}

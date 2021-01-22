@@ -1,9 +1,0 @@
-/**
- * Related Posts
- */
-
-.entry-content #jp-relatedposts {
-	max-width: var(--responsive--aligndefault-width);
-	margin-left: auto;
-	margin-right: auto;
-}

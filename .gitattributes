@@ -1,0 +1,17 @@
+# Have git convert crlf to lf for all text files by default.
+* text=auto
+
+# Flag some file extensions as binary. Git should already DTRT, but just in case.
+*.enc binary
+*.eot binary
+*.gif binary
+*.jpg binary
+*.png binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+
+# We never want .gitkeep in production mirrors. The deploy-to-svn.sh script strips out
+# the kept directories anyway, so there's no point to keeping them in the first place.
+.gitkeep production-exclude

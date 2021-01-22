@@ -1,0 +1,27 @@
+
+.wp-block-jetpack-dialogue__timestamp-controls {
+	display: flex;
+
+	.components-number-control {
+		min-width: 60px;
+	}
+}
+
+.wp-block-jetpack-dialogue__timestamp-control__hour,
+.wp-block-jetpack-dialogue__timestamp-control__minute {
+	margin-right: 5px;
+}
+
+
+.wp-block-jetpack-dialogue__timestamp-control__play-button {
+	align-self: flex-end;
+	margin-left: 10px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-content .wp-block-jetpack-dialogue__timestamp-container {
+	min-width: 290px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-dropdown {
+	min-width: 90px;
+}

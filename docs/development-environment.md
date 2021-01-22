@@ -47,7 +47,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 	This would be the easiest and most straight-forward way to start your journey in Jetpack development. Docker offers a containerized install of WordPress with all of its dependencies installed and set up. You just need to start working on the plugin code. 
 	
-	To set up your environment with Docker, follow the [Docker environment for Jetpack Development guide](../docker/README.md).
+	To set up your environment with Docker, follow the [Docker environment for Jetpack Development guide](../tools/docker/README.md).
 
 * ### VVV
 
@@ -333,7 +333,7 @@ To execute them in your local environment, you can use the following commands.
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
 
-- You can find [Code Sniffer rules for WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#installation) here. Once you've installed these rulesets, you can [follow the instructions here](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#how-to-use) to configure your IDE.
+- Jetpack's custom Code Sniffer ruleset is located at `./projects/packages/codesniffer/Jetpack/ruleset.xml`. You can use this path to set up Jetpack's custom ruleset in your IDE.
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
 
 ## Linting
