@@ -409,7 +409,7 @@ class Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		// Adhere to Retry-After headers.
-		$retry_after = $rpc->getResponse_header( 'Retry-After' );
+		$retry_after = $rpc->get_response_header( 'Retry-After' );
 		if ( false !== $retry_after ) {
 			if ( (int) $retry_after > 0 ) {
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + (int) $retry_after, false );
