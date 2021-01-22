@@ -12,6 +12,7 @@ import Listr from 'listr';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/readJson';
+import { installProjectTask } from './install';
 
 /**
  * Relays build commands to a particular project.
@@ -67,10 +68,7 @@ export async function build( project, production, composerJson ) {
 			title: `Building ${ project }`,
 			task: () => {
 				return new Listr( [
-					{
-						title: chalkJetpackGreen( `Installing ${ project }` ),
-						task: () => execa.command( `jetpack install ${ project }`, { cwd: cwd } ),
-					},
+					installProjectTask( project ),
 					{
 						title: chalkJetpackGreen( `Building ${ project }` ),
 						task: () => execa.command( command, { cwd: cwd } ),

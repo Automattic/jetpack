@@ -20,7 +20,7 @@ import { readComposerJson, readPackageJson } from '../helpers/readJson';
  * @param {string} project - The project.
  * @param {boolean} root - If the monorepo should be installed via --root arg.
  */
-export async function install( project, root ) {
+export async function install( project, root = false ) {
 	// Special hack for installing just the monorepo.
 	if ( project === 'monorepo' ) {
 		project = '';
@@ -46,7 +46,7 @@ export async function install( project, root ) {
  *
  * @returns {object} - The project install task per Listr format.
  */
-function installProjectTask( project, root = false ) {
+export function installProjectTask( project, root = false ) {
 	// This should never happen. Hard exit to avoid errors in consuming code.
 	if ( ! project && ! root ) {
 		console.error( 'You cannot create an install task for nothing.' );
