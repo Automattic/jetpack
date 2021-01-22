@@ -17,6 +17,10 @@
 		]
 	},
 	"scripts": {
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build-production"
+		],
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"

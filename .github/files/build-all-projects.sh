@@ -41,7 +41,7 @@ for project in projects/packages/* projects/plugins/*; do
 	## clone, delete files in the clone, and copy (new) files over
 	# this handles file deletions, additions, and changes seamlessly
 
-	if [[ -f "package.json" ]]; then
+	if jq -e '.scripts["build-production"]' composer.json &>/dev/null; then
 		echo "::group::Building ${GIT_SLUG}"
 
 		# If composer.json contains a reference to the monorepo repo, add one pointing to our production clones just before it.
@@ -59,7 +59,7 @@ for project in projects/packages/* projects/plugins/*; do
 			fi
 		fi
 
-		if yarn install && yarn build-production-concurrently; then
+		if composer run-script --timeout=0 build-production; then
 			FAIL=false
 		else
 			FAIL=true

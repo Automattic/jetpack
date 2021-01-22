@@ -40,11 +40,11 @@
 	],
 	"beta": [
 		"amazon",
-		"anchor-fm",
 		"conversation",
 		"dialogue"
 	],
 	"experimental": [
+		"anchor-fm",
 		"seo",
 		"premium-content"
 	],

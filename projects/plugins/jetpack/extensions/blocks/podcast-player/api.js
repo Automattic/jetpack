@@ -9,12 +9,12 @@ import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
-export const fetchPodcastFeed = async url => {
+export const fetchPodcastFeed = async ( { url, guids } ) => {
 	// First try calling our endpoint for Podcast parsing.
 	let feedData, feedError;
 	try {
 		feedData = await apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/podcast-player', { url } ),
+			path: addQueryArgs( '/wpcom/v2/podcast-player', { url, guids } ),
 		} );
 	} catch ( err ) {
 		// We are not rethrowing the error just yet so we can try the embed too.

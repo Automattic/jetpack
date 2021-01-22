@@ -23,7 +23,7 @@
 		"build-production-concurrently": "yarn distclean && yarn install --production=false && yarn concurrently 'yarn build-production-php' 'yarn build-production-packages' 'yarn build-production-jetpack-concurrently'",
 		"build-production-jetpack": "cd projects/plugins/jetpack && yarn build-production",
 		"build-production-jetpack-concurrently": "cd projects/plugins/jetpack && yarn build-production-concurrently",
-		"build-production-packages": "(cd projects/packages/lazy-images && yarn build-production)",
+		"build-production-packages": "(cd projects/packages/lazy-images && yarn build-production) && yarn validate-es5 -- ./projects/packages/tracking/",
 		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 composer install -o --no-dev --classmap-authoritative --prefer-dist",
 		"clean": "yarn clean-jetpack && yarn clean-composer",
 		"clean-composer": "rm -rf vendor/",
@@ -73,10 +73,10 @@
 	},
 	"husky": {
 		"hooks": {
-			"pre-commit": "node tools/pre-commit-hook.js",
-			"prepare-commit-msg": "node tools/prepare-commit-msg.js",
-			"post-checkout": "./tools/post-merge-checkout-hook.sh",
-			"post-merge": "./tools/post-merge-checkout-hook.sh"
+			"pre-commit": "node tools/git-hooks/pre-commit-hook.js",
+			"prepare-commit-msg": "node tools/git-hooks/prepare-commit-msg.js",
+			"post-checkout": "./tools/git-hooks/post-merge-checkout-hook.sh",
+			"post-merge": "./tools/git-hooks/post-merge-checkout-hook.sh"
 		}
 	},
 	"browserslist": [

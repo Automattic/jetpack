@@ -17,6 +17,7 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarButton,
+	Button,
 } from '@wordpress/components';
 import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
@@ -27,15 +28,14 @@ import { useSelect, dispatch } from '@wordpress/data';
 import './editor.scss';
 import ParticipantsDropdown, {
 	ParticipantsControl,
-	ParticipantControl,
 } from './components/participants-control';
-import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
-import {
-	slug as defaultParticipantSlug,
-	list as defaultParticipants,
-} from '../conversation/participants.json';
+import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
+import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
 	const participant = find(
@@ -65,10 +65,8 @@ export default function DialogueEdit( {
 	isSelected,
 } ) {
 	const {
-		participant,
 		participantSlug,
 		timestamp,
-		showTimestamp: showTimestampLocally,
 		content,
 		placeholder,
 	} = attributes;
@@ -76,10 +74,12 @@ export default function DialogueEdit( {
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
-	// Pick the previous block atteobutes from the state.
-	const prevBlock = useSelect( select => {
+	const { prevBlock, mediaSource } = useSelect( select => {
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		return select( 'core/block-editor' ).getBlock( prevPartClientId );
+		return {
+			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+			mediaSource: select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
+		};
 	}, [] );
 
 	// Block context integration.
@@ -91,10 +91,9 @@ export default function DialogueEdit( {
 		? participantsFromContext
 		: defaultParticipants;
 
-	const isCustomParticipant = !! participant && ! participantSlug;
-	const currentParticipantSlug = isCustomParticipant ? defaultParticipantSlug : participantSlug;
+	const currentParticipantSlug = participantSlug;
 	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
-	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
+	const participantLabel = currentParticipant?.participant;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
@@ -117,6 +116,9 @@ export default function DialogueEdit( {
 			content: '',
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
+
+	// in-sync mode
+	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
 
 	// Try to focus the RichText component when mounted.
 	const hasContent = content?.length > 0;
@@ -141,56 +143,20 @@ export default function DialogueEdit( {
 		richTextRefCurrent.focus();
 	}, [ isSelected, hasContent, richTextRefCurrent ] );
 
-	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
+	const showTimestamp = showTimestampGlobally;
 
-	/**
-	 * Helper to check if the gven style is set, or not.
-	 * It handles local and global (conversation) level.
-	 *
-	 * @param {string} style - style to check.
-	 * @returns {boolean} True if the style is defined. Otherwise, False.
-	 */
 	function hasStyle( style ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return attributes?.[ style ];
-		}
-
 		return currentParticipant?.[ style ];
 	}
 
-	/**
-	 * Helper to toggle the value of the given style
-	 * It handles local and global (conversation) level.
-	 *
-	 * @param {string} style - style to toggle.
-	 * @returns {void}
-	 */
 	function toggleParticipantStyle( style ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { [ style ]: ! attributes[ style ] } );
-		}
-
 		conversationBridge.updateParticipants( {
 			participantSlug: currentParticipantSlug,
 			[ style ]: ! currentParticipant[ style ],
 		} );
 	}
 
-	/**
-	 * Helper to build the CSS classes for the participant label.
-	 * It handles local and global (conversation) level.
-	 *
-	 * @returns {string} Participant CSS class.
-	 */
 	function getParticipantLabelClass() {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return classnames( `${ baseClassName }__participant`, {
-				[ 'has-bold-style' ]: attributes?.hasBoldStyle,
-				[ 'has-italic-style' ]: attributes?.hasItalicStyle,
-				[ 'has-uppercase-style' ]: attributes?.hasUppercaseStyle,
-			} );
-		}
-
 		return classnames( `${ baseClassName }__participant`, {
 			[ 'has-bold-style' ]: currentParticipant?.hasBoldStyle,
 			[ 'has-italic-style' ]: currentParticipant?.hasItalicStyle,
@@ -199,16 +165,33 @@ export default function DialogueEdit( {
 	}
 
 	function setShowTimestamp( value ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { showTimestamp: value } );
-		}
-
 		conversationBridge.setAttributes( { showTimestamps: value } );
+	}
+
+	function setTimestamp( time ) {
+		setAttributes( { timestamp: time } );
 	}
 
 	return (
 		<div className={ className }>
 			<BlockControls>
+				<ToolbarGroup>
+					<ParticipantsDropdown
+						id={ `dialogue-${ instanceId }-participants-dropdown` }
+						className={ baseClassName }
+						participants={ participants }
+						label={ __( 'Participant', 'jetpack' ) }
+						participantSlug={ participantSlug }
+						onSelect={ setAttributes }
+					/>
+				</ToolbarGroup>
+
+				<MediaPlayerToolbarControl
+					onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
+					syncMode={ playerSyncMode }
+					onSyncModeToggle={ setPlayerSyncMode }
+				/>
+
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
@@ -241,29 +224,29 @@ export default function DialogueEdit( {
 							participantSlug={ participantSlug || '' }
 							onSelect={ setAttributes }
 						/>
-						<ParticipantControl
-							className={ className }
-							participantValue={ participant }
-							onChange={ setAttributes }
-						/>
 					</PanelBody>
+
+					{ !! mediaSource?.title && (
+						<PanelBody title={ __( 'Podcast episode', 'jetpack' ) }>
+							<p>{ mediaSource.title }</p>
+						</PanelBody>
+					) }
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
-							label={
-								isCustomParticipant
-									? __( 'Show', 'jetpack' )
-									: __( 'Show conversation timestamps', 'jetpack' )
-							}
+							label={ __( 'Show conversation timestamps', 'jetpack' ) }
 							checked={ showTimestamp }
 							onChange={ setShowTimestamp }
 						/>
 
 						{ showTimestamp && (
 							<TimestampControl
+								skipForwardTime = { false }
+								jumpBackTime = { false }
 								className={ baseClassName }
 								value={ timestamp }
-								onChange={ newTimestampValue => setAttributes( { timestamp: newTimestampValue } ) }
+								onChange={ setTimestamp }
+								isDisabled={ playerSyncMode }
 							/>
 						) }
 					</PanelBody>
@@ -271,28 +254,22 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ baseClassName }__meta` }>
-				<div onFocus={ () => setIsFocusedOnParticipantLabel( true ) }>
-					<ParticipantsDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
-						className={ baseClassName }
-						labelClassName={ getParticipantLabelClass() }
-						participants={ participants }
-						participantLabel={ participantLabel }
-						participantSlug={ participantSlug }
-						participant={ participant }
-						onSelect={ setAttributes }
-						onChange={ setAttributes }
-					/>
-				</div>
+				<Button
+					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
+					className={ getParticipantLabelClass() }
+				>
+					{ participantLabel }
+				</Button>
 
 				{ showTimestamp && (
 					<TimestampDropdown
 						className={ baseClassName }
 						value={ timestamp }
-						onChange={ newTimestampValue => {
-							setAttributes( { timestamp: newTimestampValue } );
-						} }
+						onChange={ setTimestamp }
 						shortLabel={ true }
+						skipForwardTime = { false }
+						jumpBackTime = { false }
+						isDisabled={ playerSyncMode }
 					/>
 				) }
 			</div>

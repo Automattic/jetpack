@@ -136,7 +136,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 0, $menu );
 
 		// Give user a second site.
-		set_transient( 'jetpack_connected_user_data_' . static::$user_id, array( 'site_count' => 2 ) );
+		update_user_option( static::$user_id, 'wpcom_site_count', 2 );
 
 		static::$admin_menu->add_browse_sites_link();
 
@@ -151,7 +151,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertSame( $menu[0], $browse_sites_menu_item );
 
-		delete_transient( 'jetpack_connected_user_data_' . static::$user_id );
+		delete_user_option( static::$user_id, 'wpcom_site_count' );
 	}
 
 	/**
@@ -163,7 +163,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		global $menu;
 
 		// Set jetpack user data.
-		set_transient( 'jetpack_connected_user_data_' . static::$user_id, array( 'site_count' => 1 ) );
+		update_user_option( static::$user_id, 'wpcom_site_count', 1 );
 
 		static::$admin_menu->add_new_site_link();
 
@@ -178,7 +178,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
 
-		delete_transient( 'jetpack_connected_user_data_' . static::$user_id );
+		delete_user_option( static::$user_id, 'wpcom_site_count' );
 	}
 
 	/**
