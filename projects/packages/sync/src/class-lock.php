@@ -42,37 +42,21 @@ class Lock {
 	 * @return boolean True if succeeded, false otherwise.
 	 */
 	public function attempt( $name, $expiry = self::LOCK_TRANSIENT_EXPIRY ) {
-
-		global $wpdb;
-		$name = self::LOCK_PREFIX . $name;
-
-		// Options API is explicitly bypassed. This is because with high concurrency request to the
-		// site multiple processes would pass checks and send concurrent data to WP.
-
-		$row         = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
-		$locked_time = false;
-		if ( is_object( $row ) ) {
-			$locked_time = $row->option_value;
-		}
+		$lock_name   = self::LOCK_PREFIX . $name;
+		$locked_time = get_option( $name );
 
 		if ( $locked_time ) {
-			if ( microtime( true ) < $locked_time ) {
-				return false;
-			} else {
-				// If expired delete but don't send. That will occurr in new request to avoid race conditions.
-				$wpdb->delete( $wpdb->options, array( 'option_name' => $name ) );
-				return false;
+			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			if ( microtime( true ) > $locked_time ) {
+				delete_option( $lock_name );
 			}
-		}
-		$locked_time = microtime( true ) + $expiry;
-		$result      = $wpdb->query( $wpdb->prepare( "INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload` ) VALUES (%s, %s, %s)", $name, maybe_serialize( $locked_time ), 'no' ) );
-
-		if ( 1 !== $result ) {
-			// Insert failed - concurrent requests.
 			return false;
-		} else {
-			return $locked_time;
 		}
+
+		$locked_time = microtime( true ) + $expiry;
+		update_option( $lock_name, $locked_time );
+
+		return $locked_time;
 	}
 
 	/**
@@ -84,18 +68,11 @@ class Lock {
 	 * @param bool|float $lock_expiration lock expiration.
 	 */
 	public function remove( $name, $lock_expiration = false ) {
-		global $wpdb;
-
-		$name       = self::LOCK_PREFIX . $name;
-		$row        = $wpdb->get_row( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1", $name ) );
-		$lock_value = false;
-		if ( is_object( $row ) ) {
-			$lock_value = $row->option_value;
-		}
+		$lock_name = self::LOCK_PREFIX . $name;
 
 		// Only remove lock if current value matches our lock.
-		if ( true === $lock_expiration || (string) $lock_value === (string) $lock_expiration ) {
-			$wpdb->delete( $wpdb->options, array( 'option_name' => $name ) );
+		if ( true === $lock_expiration || (string) get_option( $lock_name ) === (string) $lock_expiration ) {
+			delete_option( $lock_name );
 		}
 	}
 }
