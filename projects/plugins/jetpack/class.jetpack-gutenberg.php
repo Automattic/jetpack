@@ -927,6 +927,25 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Determines whether a preview of the block with an upgrade nudge should
+	 * be displayed for admins on the site frontend.
+	 *
+	 * @since 8.4.0
+	 *
+	 * @param string $slug The slug for the block.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_frontend_preview( $slug ) {
+		$availability = self::get_availability();
+		return (
+			isset( $availability[ $slug ]['details']['required_plan'] )
+			&& current_user_can( 'manage_options' )
+			&& ! is_feed()
+		);
+	}
+
+	/**
 	 * Output an UpgradeNudge Component on the frontend of a site.
 	 *
 	 * @since 8.4.0
@@ -936,17 +955,6 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function upgrade_nudge( $plan ) {
-		if (
-			! current_user_can( 'manage_options' )
-			/** This filter is documented in class.jetpack-gutenberg.php */
-			|| ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
-			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-			|| ! apply_filters( 'jetpack_show_promotions', true )
-			|| is_feed()
-		) {
-			return;
-		}
-
 		jetpack_require_lib( 'components' );
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
@@ -1061,6 +1069,13 @@ class Jetpack_Gutenberg {
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+			}
+
+			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
+			if ( self::should_show_frontend_preview( $bare_slug ) ) {
+				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
+				$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
+				return $upgrade_nudge . $block_preview;
 			}
 
 			return null;
