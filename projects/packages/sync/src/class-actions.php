@@ -20,7 +20,7 @@ use Automattic\Jetpack\Status;
 class Actions {
 
 	/**
-	 * Name of the retrt-after option prefix
+	 * Name of the retry-after option prefix
 	 *
 	 * @access public
 	 *
