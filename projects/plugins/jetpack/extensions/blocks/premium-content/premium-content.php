@@ -84,9 +84,9 @@ function render_block( $attributes, $content ) {
  */
 function render_stripe_nudge() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		jetpack_require_lib( 'memberships' );
+		\jetpack_require_lib( 'memberships' );
 		$blog_id  = get_current_blog_id();
-		$settings = (array) get_memberships_settings_for_site( $blog_id );
+		$settings = (array) \get_memberships_settings_for_site( $blog_id );
 
 		return stripe_nudge(
 			$settings['connect_url'],
@@ -118,7 +118,7 @@ function render_stripe_nudge() {
  * @return string Final content to render.
  */
 function stripe_nudge( $checkout_url, $description, $button_text ) {
-	jetpack_require_lib( 'components' );
+	\jetpack_require_lib( 'components' );
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
 			'checkoutUrl' => $checkout_url,
