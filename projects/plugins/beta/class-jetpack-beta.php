@@ -839,7 +839,10 @@ class Jetpack_Beta {
 		return $cache;
 	}
 
-	static function delete_all_transiants() {
+	/**
+	 * Delete set transients when plugin is deactivated.
+	 */
+	public static function delete_all_transiants() {
 		$prefix = 'jetpack_beta_';
 
 		delete_site_transient( $prefix . 'org_data' );
@@ -849,15 +852,20 @@ class Jetpack_Beta {
 
 	}
 
-	static function install_and_activate( $branch, $section ) {
-
-		// Clean up previous version of the beta plugin
+	/**
+	 * Install & activate JP for the given branch/section.
+	 *
+	 * @param string $branch  - Branch.
+	 * @param string $section - Section.
+	 */
+	public static function install_and_activate( $branch, $section ) {
+		// Cleanup previous version of the beta plugin.
 		if ( file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack-pressable-beta' ) ) {
-			// Delete the jetpack dev plugin
+			// Delete the Jetpack dev plugin.
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 			if ( ! WP_Filesystem( $creds ) ) {
-				/* any problems and we exit */
+				// Any problems and we exit.
 				return new WP_error( 'Filesystem Problem' );
 			}
 			global $wp_filesystem;
@@ -866,11 +874,11 @@ class Jetpack_Beta {
 			}
 
 			$working_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack-pressable-beta';
-			// delete the folder JETPACK_BETA_PLUGIN_FOLDER
+			// Delete the folder `JETPACK_BETA_PLUGIN_FOLDER`.
 			if ( $wp_filesystem->is_dir( $working_dir ) ) {
 				$wp_filesystem->delete( $working_dir, true );
 			}
-			// Deactivate the plugin
+			// Deactivate the plugin.
 			self::replace_active_plugin( 'jetpack-pressable-beta/jetpack.php' );
 		}
 
@@ -894,30 +902,46 @@ class Jetpack_Beta {
 			$section
 		);
 		self::update_option( $branch, $section );
-		return;
 	}
 
-	static function update_plugin( $branch, $section ) {
+	/**
+	 * Update to the latest version.
+	 *
+	 * @param string $branch  - Branch.
+	 * @param string $section - Section.
+	 */
+	public static function update_plugin( $branch, $section ) {
 		self::proceed_to_install(
 			self::get_install_url( $branch, $section ),
 			self::get_plugin_slug( $section ),
 			$section
 		);
 
-		if ( $section !== 'stable' ) {
+		if ( 'stable' !== $section ) {
 			update_option( self::$option_dev_installed, array( $branch, $section, self::get_manifest_data( $branch, $section ) ) );
 		}
-		return;
 	}
 
-	static function update_option( $branch, $section ) {
+	/**
+	 * Helper function to update installed version option.
+	 *
+	 * @param string $branch  - Branch.
+	 * @param string $section - Section.
+	 */
+	public static function update_option( $branch, $section ) {
 		if ( 'stable' !== $section ) {
 			update_option( self::$option_dev_installed, array( $branch, $section, self::get_manifest_data( $branch, $section ) ) );
 		}
 		update_option( self::$option, array( $branch, $section ) );
 	}
 
-	static function get_manifest_data( $branch, $section ) {
+	/**
+	 * Return manifest info for specififed branch/section.
+	 *
+	 * @param string $branch  - Branch.
+	 * @param string $section - Section.
+	 */
+	public static function get_manifest_data( $branch, $section ) {
 		$installed             = get_option( self::$option_dev_installed );
 		$current_manifest_data = isset( $installed[2] ) ? $installed[2] : false;
 
@@ -942,7 +966,14 @@ class Jetpack_Beta {
 		return $current_manifest_data;
 	}
 
-	static function proceed_to_install_and_activate( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
+	/**
+	 * Install specified plugin version.
+	 *
+	 * @param string $url           - Url for plugin version.
+	 * @param string $plugin_folder - Path JP or JP Dev plugin folder.
+	 * @param string $section       - Section.
+	 */
+	public static function proceed_to_install_and_activate( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 		self::proceed_to_install( $url, $plugin_folder, $section );
 
 		if ( 'stable' === $section || 'tags' === $section ) {
@@ -952,18 +983,26 @@ class Jetpack_Beta {
 		}
 	}
 
-	static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
+	/**
+	 * Download plugin files.
+	 *
+	 * @param string $url           - Url for plugin version.
+	 * @param string $plugin_folder - Path JP or JP Dev plugin folder.
+	 * @param string $section       - Section.
+	 */
+	public static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 		$temp_path = download_url( $url );
 
 		if ( is_wp_error( $temp_path ) ) {
-			wp_die( sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $url, $temp_path->get_error_message() ) );
+			// translators: %1$s: download url, %2$s: error message.
+			wp_die( wp_kses_post( sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $url, $temp_path->get_error_message() ) ) );
 		}
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		/* initialize the API */
 		if ( ! WP_Filesystem( $creds ) ) {
 			/* any problems and we exit */
-			wp_die( __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
+			wp_die( esc_html( __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) ) );
 		}
 
 		global $wp_filesystem;
@@ -976,11 +1015,15 @@ class Jetpack_Beta {
 		$result = unzip_file( $temp_path, $plugin_path );
 
 		if ( is_wp_error( $result ) ) {
-			wp_die( sprintf( __( 'Error Unziping file: Error: %1$s', 'jetpack-beta' ), $result->get_error_message() ) );
+			// translators: %1$s: error message.
+			wp_die( esc_html( sprintf( __( 'Error Unziping file: Error: %1$s', 'jetpack-beta' ), $result->get_error_message() ) ) );
 		}
 	}
 
-	static function is_network_active() {
+	/**
+	 * Check if plugin is network activated.
+	 */
+	public static function is_network_active() {
 		if ( ! is_multisite() ) {
 			return false;
 		}
@@ -996,7 +1039,14 @@ class Jetpack_Beta {
 		return false;
 	}
 
-	static function replace_active_plugin( $current_plugin, $replace_with_plugin = null, $force_activate = false ) {
+	/**
+	 * Swap plugin files.
+	 *
+	 * @param string $current_plugin      - Current plugin path.
+	 * @param string $replace_with_plugin - Plugin path to replace with.
+	 * @param bool   $force_activate      - Whether to force activate plguin.
+	 */
+	public static function replace_active_plugin( $current_plugin, $replace_with_plugin = null, $force_activate = false ) {
 		if ( self::is_network_active() ) {
 			$new_active_plugins     = array();
 			$network_active_plugins = get_site_option( 'active_sitewide_plugins' );
@@ -1019,23 +1069,28 @@ class Jetpack_Beta {
 			}
 		}
 
-		if ( $force_activate && ! in_array( $replace_with_plugin, $new_active_plugins ) ) {
+		if ( $force_activate && ! in_array( $replace_with_plugin, $new_active_plugins, true ) ) {
 			$new_active_plugins[] = $replace_with_plugin;
 		}
 		update_option( 'active_plugins', $new_active_plugins );
 	}
 
-	static function should_update_stable_version() {
-		// Pressable Jetpack version is manage via Pressable
+	/**
+	 * Check if `stable` should be updated.
+	 *
+	 * @return bool
+	 */
+	public static function should_update_stable_version() {
+		// Pressable Jetpack version is manage via Pressable.
 		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 			return false;
 		}
-		// Check if we are Jetpack plugin is installed via git
+		// Check if we are Jetpack plugin is installed via git.
 		if ( file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack/.git' ) ) {
 			return false;
 		}
 
-		// Check if running a tag directly from svn
+		// Check if running a tag directly from svn.
 		if ( self::is_on_tag() ) {
 			return false;
 		}
@@ -1058,7 +1113,7 @@ class Jetpack_Beta {
 	 *
 	 * @return bool
 	 */
-	static function should_update_dev_to_master() {
+	public static function should_update_dev_to_master() {
 		list( $branch, $section ) = self::get_branch_and_section_dev();
 
 		if ( false === $branch || 'master' === $section || 'rc' === $section || 'tags' === $section ) {
@@ -1068,31 +1123,46 @@ class Jetpack_Beta {
 		return ! isset( $manifest->{$section}->{$branch} );
 	}
 
-	static function is_set_to_autoupdate() {
-		return get_option( 'jp_beta_autoupdate', false );
+	/**
+	 * Get WP Option: jp_beta_autoupdate
+	 */
+	public static function is_set_to_autoupdate() {
+		return get_option( self::$option_autoupdate, false );
 	}
 
-	static function is_set_to_email_notifications() {
-		return get_option( 'jp_beta_email_notifications', true );
+	/**
+	 * Get WP Option: jp_beta_email_notifications
+	 */
+	public static function is_set_to_email_notifications() {
+		return get_option( self::$option_email_notif, true );
 	}
 
-	static function clear_autoupdate_cron() {
+	/**
+	 * Clear scheduled WP-Cron jobs on plugin deactivation.
+	 */
+	public static function clear_autoupdate_cron() {
 		if ( ! is_main_site() ) {
 			return;
 		}
 		wp_clear_scheduled_hook( self::$auto_update_cron_hook );
 
-		if ( function_exists( 'wp_unschedule_hook' ) ) { // new in WP 4.9
+		if ( function_exists( 'wp_unschedule_hook' ) ) { // New in WP `4.9`.
 			wp_unschedule_hook( self::$auto_update_cron_hook );
 		}
 	}
 
-	static function schedule_hourly_autoupdate() {
+	/**
+	 * Schedule plugin update jobs.
+	 */
+	public static function schedule_hourly_autoupdate() {
 		wp_clear_scheduled_hook( self::$auto_update_cron_hook );
 		wp_schedule_event( time(), 'hourly', self::$auto_update_cron_hook );
 	}
 
-	static function maybe_schedule_autoupdate() {
+	/**
+	 * Determine if plugin update jobs should be scheduled.
+	 */
+	public static function maybe_schedule_autoupdate() {
 		if ( ! self::is_set_to_autoupdate() ) {
 			return;
 		}
@@ -1106,8 +1176,14 @@ class Jetpack_Beta {
 		}
 	}
 
-	static function what_changed() {
-		if ( $commit = self::get_version_commit() ) {
+	/**
+	 * Get "What changed" info for display.
+	 *
+	 * @return string|false
+	 */
+	public static function what_changed() {
+		$commit = self::get_version_commit();
+		if ( $commit ) {
 			$html        = '';
 			$commit_data = self::get_commit_data_from_github( $commit );
 			if ( isset( $commit_data->commit->message ) ) {
@@ -1120,7 +1196,8 @@ class Jetpack_Beta {
 			}
 			if ( ! empty( $commit_data->files ) ) {
 				$html .= "\n\n";
-				$html .= sprintf( _n( 'One file changed ', '%d files changed', count( $commit_data->files ), 'jetpack-beta' ), count( $commit_data->files ) );
+				// translators: %d: number of files changed.
+				$html .= sprintf( _n( '%d file changed ', '%d files changed', count( $commit_data->files ), 'jetpack-beta' ) );
 				$html .= "\n";
 				foreach ( $commit_data->files as $file ) {
 					$added_deleted_changed = array();
@@ -1141,7 +1218,12 @@ class Jetpack_Beta {
 		return false;
 	}
 
-	static function get_version_commit() {
+	/**
+	 * Get version commit if available.
+	 *
+	 * @return string|false
+	 */
+	public static function get_version_commit() {
 		$split_version = explode( '-', self::get_jetpack_plugin_version() );
 		if ( isset( $split_version[3] ) ) {
 			return $split_version[3];
@@ -1149,11 +1231,19 @@ class Jetpack_Beta {
 		return false;
 	}
 
-	static function get_commit_data_from_github( $commit ) {
+	/**
+	 * Fetch commit data from GitHub.
+	 *
+	 * @param string $commit - The commit to fetch.
+	 */
+	public static function get_commit_data_from_github( $commit ) {
 		return self::get_remote_data( JETPACK_GITHUB_API_URL . 'commits/' . $commit, 'github_commits_' . $commit );
 	}
 
-	static function run_autoupdate() {
+	/**
+	 * The jetpack_beta_autoupdate_hourly_cron job.
+	 */
+	public static function run_autoupdate() {
 		if ( ! self::is_set_to_autoupdate() ) {
 			return;
 		}
@@ -1167,7 +1257,7 @@ class Jetpack_Beta {
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		wp_clean_plugins_cache();
 		ob_start();
-		wp_update_plugins(); // Check for Plugin updates
+		wp_update_plugins(); // Check for Plugin updates.
 		ob_end_clean();
 		$plugins = array();
 		if (
@@ -1176,7 +1266,7 @@ class Jetpack_Beta {
 		) {
 			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_files' ), 10, 2 );
 
-			// If response is false, don't alter the transient
+			// If response is false, don't alter the transient.
 			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
 		}
 		$autupdate = Jetpack_Beta_Autoupdate_Self::instance();
@@ -1188,7 +1278,7 @@ class Jetpack_Beta {
 			return;
 		}
 
-		// unhook this functions that output things before we send our response header.
+		// Unhook this functions that output things before we send our response header.
 		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
@@ -1198,7 +1288,7 @@ class Jetpack_Beta {
 		$upgrader = new Plugin_Upgrader( $skin );
 		$upgrader->init();
 		// This avoids the plugin to be deactivated.
-		// Using bulk upgrade puts the site into maintenance mode during the upgrades
+		// Using bulk upgrade puts the site into maintenance mode during the upgrades.
 		$result = $upgrader->bulk_upgrade( $plugins );
 		$errors = $upgrader->skin->get_errors();
 		$log    = $upgrader->skin->get_upgrade_messages();
@@ -1213,10 +1303,10 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * Builds and sends an email about succesfull plugin autoupdate
+	 * Builds and sends an email about succesfull plugin autoupdate.
 	 *
-	 * @param Array  $plugins List of plugins that were updated.
-	 * @param String $log upgrade message from core's plugin upgrader.
+	 * @param Array  $plugins - List of plugins that were updated.
+	 * @param String $log     - Upgrade message from core's plugin upgrader.
 	 */
 	private static function send_autoupdate_email( $plugins, $log ) {
 		$admin_email = get_site_option( 'admin_email' );
@@ -1233,16 +1323,19 @@ class Jetpack_Beta {
 		$bloginfo_name = get_bloginfo( 'name' );
 		$site_title    = ! empty( $bloginfo_name ) ? get_bloginfo( 'name' ) : get_site_url();
 		$what_updated  = 'Jetpack Beta Tester Plugin';
-		$subject       = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
+		// translators: %s: The site title.
+		$subject = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
 
 		if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins, true ) ) {
 			$subject = sprintf(
+				// translators: %1$s: site title, %2$s: pretty plugin version (eg 9.3).
 				__( '[%1$s] Autoupdated Jetpack %2$s ', 'jetpack-beta' ),
 				$site_title,
 				self::get_jetpack_plugin_pretty_version()
 			);
 
 			$what_updated = sprintf(
+				// translators: $1$s: pretty plugin version, $2$s: raw plugin version (eg 9.3.2-beta).
 				__( 'Jetpack %1$s (%2$s)', 'jetpack-beta' ),
 				self::get_jetpack_plugin_pretty_version(),
 				self::get_jetpack_plugin_version()
@@ -1250,12 +1343,14 @@ class Jetpack_Beta {
 
 			if ( count( $plugins ) > 1 ) {
 				$subject = sprintf(
+					// translators: %1$s: site title, %2$s: pretty plugin version.
 					__( '[%1$s] Autoupdated Jetpack %2$s and the Jetpack Beta Tester', 'jetpack-beta' ),
 					$site_title,
 					self::get_jetpack_plugin_pretty_version()
 				);
 
 				$what_updated = sprintf(
+					// translators: $1$s: pretty plugin version, $2$s: raw plugin version.
 					__( 'Jetpack %1$s (%2$s) and the Jetpack Beta Tester', 'jetpack-beta' ),
 					self::get_jetpack_plugin_pretty_version(),
 					self::get_jetpack_plugin_version()
@@ -1263,7 +1358,8 @@ class Jetpack_Beta {
 			}
 		}
 
-		$message  = sprintf(
+		$message = sprintf(
+			// translators: %1$s: site url, $2$s: text of what has updated.
 			__( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ),
 			home_url(),
 			$what_updated
@@ -1291,14 +1387,14 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * This checks intends to fix errors in our build server when jetpack
+	 * This checks intends to fix errors in our build server when Jetpack.
 	 *
-	 * @param $source
-	 * @param $remote_source
+	 * @param string $source        - Source path.
+	 * @param string $remote_source - Remote path.
 	 *
 	 * @return WP_Error
 	 */
-	static function check_for_main_files( $source, $remote_source ) {
+	public static function check_for_main_files( $source, $remote_source ) {
 		if ( $source === $remote_source . '/jetpack-dev/' ) {
 			if ( ! file_exists( $source . 'jetpack.php' ) ) {
 				return new WP_Error( 'plugin_file_does_not_exist', __( 'Main Plugin File does not exist', 'jetpack-beta' ) );
@@ -1320,19 +1416,19 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * Checks if a dir is empty
+	 * Checks if a dir is empty.
 	 *
-	 * @param [type] $dir The absolute directory path to check
+	 * @param [type] $dir The absolute directory path to check.
 	 * @return boolean
 	 */
-	static function is_dir_empty( $dir ) {
-		return ( count( scandir( $dir ) ) == 2 );
+	public static function is_dir_empty( $dir ) {
+		return ( count( scandir( $dir ) ) === 2 );
 	}
 
 	/**
-	 * Callback function to include Jetpack beta options into Jetpack sync whitelist
+	 * Callback function to include Jetpack beta options into Jetpack sync whitelist.
 	 *
-	 * @param Array $whitelist List of whitelisted options to sync
+	 * @param Array $whitelist List of whitelisted options to sync.
 	 */
 	public function add_to_options_whitelist( $whitelist ) {
 		$whitelist[] = self::$option;
@@ -1345,12 +1441,12 @@ class Jetpack_Beta {
 	/**
 	 * Custom error handler to intercept errors and log them using Jetpack's own logger.
 	 *
-	 * @param int    $errno error code.
-	 * @param string $errstr error message.
-	 * @param string $errfile file name where the error happened.
-	 * @param int    $errline line in the code.
+	 * @param int    $errno   - Error code.
+	 * @param string $errstr  - Error message.
+	 * @param string $errfile - File name where the error happened.
+	 * @param int    $errline - Line in the code.
 	 *
-	 * @return bool whether to make the default handler handle the error as well.
+	 * @return bool Whether to make the default handler handle the error as well.
 	 */
 	public static function custom_error_handler( $errno, $errstr, $errfile, $errline ) {
 
