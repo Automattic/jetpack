@@ -12,7 +12,7 @@ import Listr from 'listr';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/readJson';
-import { installProjectTask } from './install';
+import { installProjectTask } from '../helpers/tasks/installProjectTask';
 
 /**
  * Relays build commands to a particular project.
