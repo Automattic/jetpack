@@ -16,13 +16,13 @@ const log = console.log;
  *
  * @returns {object} JS object of the json data.
  */
-function readJson(project, packageManager, output ) {
+function readJson( project, packageManager, output ) {
 	const file = packageManager + '.json';
 	let data;
 	try {
-		data = fs.readFileSync( `projects/${project}/${file}`, 'utf8' );
+		data = fs.readFileSync( `projects/${ project }/${ file }`, 'utf8' );
 	} catch ( err ) {
-		output ? log( chalk.yellow( `This project does not have a ${file} file.` ) ) : null;
+		output ? log( chalk.yellow( `This project does not have a ${ file } file.` ) ) : null;
 		return false;
 	}
 
@@ -37,7 +37,7 @@ function readJson(project, packageManager, output ) {
  *
  * @returns {object} Composer.json as a JS object.
  */
-export function readComposerJson(project, output = true ) {
+export function readComposerJson( project, output = true ) {
 	return readJson( project, 'composer', output );
 }
 
@@ -49,7 +49,7 @@ export function readComposerJson(project, output = true ) {
  *
  * @returns {object} Package.json as a JS object.
  */
-export function readPackageJson(project, output = true ) {
+export function readPackageJson( project, output = true ) {
 	return readJson( project, 'package', output );
 }
 
