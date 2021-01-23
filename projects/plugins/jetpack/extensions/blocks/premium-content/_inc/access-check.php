@@ -14,7 +14,7 @@ require __DIR__ . '/subscription-service/include.php';
  *
  * @return bool Whether the memberships module is set up.
  */
-function pre_render_checks() {
+function membership_checks() {
 	// If Jetpack is not yet configured, don't show anything ...
 	if ( ! class_exists( '\Jetpack_Memberships' ) ) {
 		return false;
@@ -27,6 +27,40 @@ function pre_render_checks() {
 }
 
 /**
+ * Determines if the site has a plan that supports the
+ * Premium Content block.
+ *
+ * @return bool
+ */
+function required_plan_checks() {
+	$availability = \Jetpack_Gutenberg::get_availability();
+	$slug         = 'premium-content/container';
+	return ( isset( $availability[ $slug ] ) && $availability[ $slug ]['available'] );
+}
+
+/**
+ * Determines if the block should be rendered. Returns true
+ * if the block passes all required checks, or if the user is
+ * an editor.
+ *
+ * @return bool Whether the block should be rendered.
+ */
+function pre_render_checks() {
+	return ( current_user_can_edit() || membership_checks() );
+}
+
+/**
+ * Determines whether the current user can edit.
+ *
+ * @return bool Whether the user can edit.
+ */
+function current_user_can_edit() {
+	$user = wp_get_current_user();
+
+	return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+}
+
+/**
  * Determines if the current user can view the protected content of the given block.
  *
  * @param array  $attributes Block attributes.
@@ -35,13 +69,11 @@ function pre_render_checks() {
  * @return bool Whether the use can view the content.
  */
 function current_visitor_can_access( $attributes, $block ) {
-	$user = wp_get_current_user();
-
 	/**
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
 	 */
-	if ( 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() ) ) {
+	if ( current_user_can_edit() ) {
 		return true;
 	}
 

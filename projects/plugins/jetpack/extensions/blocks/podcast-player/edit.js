@@ -80,6 +80,7 @@ const PodcastPlayerEdit = ( {
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
 	const {
 		url,
+		selectedEpisodes,
 		itemsToShow,
 		showCoverArt,
 		showEpisodeTitle,
@@ -97,8 +98,8 @@ const PodcastPlayerEdit = ( {
 	const [ isInteractive, setIsInteractive ] = useState( false );
 
 	const fetchFeed = useCallback(
-		urlToFetch => {
-			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
+		requestParams => {
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( requestParams ) );
 
 			cancellableFetch.current.promise.then(
 				response => {
@@ -154,8 +155,12 @@ const PodcastPlayerEdit = ( {
 
 		// Clean current podcast feed and fetch a new one.
 		setFeedData( {} );
-		fetchFeed( url );
-	}, [ fetchFeed, removeAllNotices, url ] );
+		fetchFeed( {
+			url,
+			guids: selectedEpisodes.map( episode => episode.guid ),
+		} );
+		return () => cancellableFetch?.current?.cancel?.();
+	}, [ fetchFeed, removeAllNotices, url, selectedEpisodes ] );
 
 	// Bring back the overlay after block gets deselected.
 	useEffect( () => {
@@ -199,7 +204,7 @@ const PodcastPlayerEdit = ( {
 			 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
 			 */
 			if ( prependedURL === url ) {
-				fetchFeed( url );
+				fetchFeed( { url } );
 			} else {
 				setAttributes( { url: prependedURL } );
 			}
@@ -278,14 +283,16 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					<RangeControl
-						label={ __( 'Number of items', 'jetpack' ) }
-						value={ itemsToShow }
-						onChange={ value => setAttributes( { itemsToShow: value } ) }
-						min={ DEFAULT_MIN_ITEMS }
-						max={ DEFAULT_MAX_ITEMS }
-						required
-					/>
+					{ 0 === selectedEpisodes.length && (
+						<RangeControl
+							label={ __( 'Number of items', 'jetpack' ) }
+							value={ itemsToShow }
+							onChange={ value => setAttributes( { itemsToShow: value } ) }
+							min={ DEFAULT_MIN_ITEMS }
+							max={ DEFAULT_MAX_ITEMS }
+							required
+						/>
+					) }
 
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }

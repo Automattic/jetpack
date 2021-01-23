@@ -8,7 +8,7 @@ import {
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { Panel, PanelBody, ToggleControl, ToolbarGroup } from '@wordpress/components';
+import { Panel, PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -112,6 +112,15 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 							onDelete={ deleteParticipant }
 							onAdd={ addNewParticipant }
 						/>
+					</ToolbarGroup>
+
+					<ToolbarGroup>
+						<ToolbarButton
+							isActive={ showTimestamps }
+							onClick={ () => setAttributes( { showTimestamps: ! showTimestamps } ) }
+						>
+							{ __( 'Timestamps', 'jetpack' ) }
+						</ToolbarButton>
 					</ToolbarGroup>
 				</BlockControls>
 
