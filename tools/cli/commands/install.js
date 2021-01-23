@@ -74,7 +74,15 @@ function installProjectTask( project, root = false ) {
 						enabled: () => {
 							return yarnEnabled;
 						},
-						task: () => execa.command( 'yarn install', { cwd: cwd } ),
+						task: () =>
+							execa
+								.command( 'yarn check --integrity', { cwd: cwd } )
+								.catch( () =>
+									execa.command(
+										'yarn install --check-files --production=false --frozen-lockfile',
+										{ cwd: cwd }
+									)
+								),
 					},
 				],
 				{ concurrent: true }
