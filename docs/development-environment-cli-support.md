@@ -8,6 +8,15 @@ tools/check-development-environment.sh
 
 ## Topics
 
+### Command is available: jetpack
+
+The Jetpack CLI is used for management of monorepo projects.
+
+Install via
+```sh
+yarn install
+```
+
 ### Command is available: git
 
 You need GIT for contributing to Jetpack.

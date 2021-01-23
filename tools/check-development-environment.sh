@@ -135,6 +135,7 @@ main() {
 	assert is_git_dir
 	assert repo_origin_scheme_is_git
 	assert repo_is_up_to_date
+	assert command_is_available jetpack
 
 	# Clean terminal colors
 	echo $white
