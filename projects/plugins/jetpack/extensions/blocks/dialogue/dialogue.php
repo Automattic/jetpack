@@ -51,13 +51,19 @@ function filter_content( $content ) {
 	return wp_kses_post( $content );
 }
 
-function convertTimeCodeToSeconds( $time ) {
-    $sec = 0;
-    foreach ( array_reverse(explode(':', $time)) as $k => $v ) {
-		$sec += pow(60, $k) * $v;
+/**
+ * Helper function to convert the given time value
+ * in a time code string with the `HH:MM:SS` shape.
+ *
+ * @param {integer} $time - Time, in seconds, to convert.
+ * @return {string} Time converted in HH:MM:SS.
+ */
+function convert_time_code_to_seconds( $time ) {
+	$sec = 0;
+	foreach ( array_reverse( explode( ':', $time ) ) as $k => $v ) {
+		$sec += pow( 60, $k ) * $v;
 	}
-
-    return $sec;
+	return $sec;
 }
 
 /**
@@ -228,8 +234,8 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 	$css_classname           = Blocks::classes( FEATURE_NAME, $dialogue_attrs );
 	$participant_css_classes = build_participant_css_classes( $participants, $participant_slug, $attrs, $css_classname );
 
-	$timestamp_in_seconds =  $attrs['show_timestamp'] && $attrs['timestamp']
-		? convertTimeCodeToSeconds( $attrs['timestamp'] )
+	$timestamp_in_seconds = $attrs['show_timestamp'] && $attrs['timestamp']
+		? convert_time_code_to_seconds( $attrs['timestamp'] )
 		: '0';
 
 	// Markup.
