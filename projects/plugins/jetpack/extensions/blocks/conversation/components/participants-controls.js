@@ -73,7 +73,7 @@ export default function ParticipantsDropdown( props ) {
 			toggleProps={ {
 				children: <span>{ props.label }</span>,
 			} }
-			icon="microphone"
+			icon={ null }
 		>
 			{ () => <ParticipantsSelector { ...props } /> }
 		</DropdownMenu>

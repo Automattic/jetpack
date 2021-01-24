@@ -8,21 +8,18 @@ tools/check-development-environment.sh
 
 ## Topics
 
-### Command is available: git
+### Command is available: jetpack
 
-You need GIT for contributing to Jetpack.
+The Jetpack CLI is used for management of monorepo projects.
 
-### Command is available: n
+Install via
+```sh
+yarn install
+```
 
-**n** is a node version manager. Similar and alternative to **nvm**.
+### Bash version is proper
 
-### Command is available: php
-
-PHP is needed all around the build process for Jetpack bundles.
-
-### Command is available: phpunit
-
-PHPUnit is the tool that helps us run unit tests for Jetpack.
+Several scripts require bash 4 or later. If you're on Mac OS X, you likely have an old version and can install an upgraded version with `brew install bash`.
 
 ### Command is available: docker
 
@@ -36,6 +33,26 @@ The command `docker-compose` comes with the Docker app in most environments nowa
 
 This command is needed for leveraging the multiple docker containers that encompass the Jetpack Docker Development Environment.
 
+### Command is available: git
+
+You need GIT for contributing to Jetpack.
+
+### Command is available: jq
+
+Several scripts use `jq` for processing JSON data. If it's not available from your OS vendor, see [its website](https://stedolan.github.io/jq/).
+
+### Command is available: n
+
+**n** is a node version manager. Similar and alternative to **nvm**.
+
+### Command is available: php
+
+PHP is needed all around the build process for Jetpack bundles.
+
+### Command is available: phpunit
+
+PHPUnit is the tool that helps us run unit tests for Jetpack.
+
 ### Docker images are available
 
 The containers for the Jetpack docker images are created when you ran `yarn docker:up`.
@@ -48,7 +65,7 @@ The containers for the Jetpack docker containers are created when you ran `yarn 
 
 If you are using the Jetpack Docker Image, make sure you run `yarn docker:up`.
 
-### Docker Is running
+### Docker is running
 
 Make sure the Docker Daemon is running.
 

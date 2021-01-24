@@ -5,7 +5,7 @@ import { createReduxStore, registerStore, register } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import storeDefinition from './storeDefinition';
+import storeDefinition from './store-definition';
 import { STORE_ID } from './constants';
 
 // Register the store, considering the API changes.
