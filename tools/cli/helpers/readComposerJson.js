@@ -15,7 +15,7 @@ const log = console.log;
  *
  * @returns {object} Package.json as a JS object.
  */
-export async function readComposerJson(project, output = true ) {
+export async function readComposerJson( project, output = true ) {
 	let data;
 	try {
 		data = fs.readFileSync( 'projects/' + project + '/composer.json', 'utf8' );
