@@ -1,6 +1,6 @@
 ## Jetpack Monorepo Overview
 
-Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fix in with our tooling.
+Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
 
 ### Layout
 
@@ -12,12 +12,14 @@ Projects are divided into WordPress plugins, Composer packages, and Gutenberg ed
 
 Tooling that's applicable to the monorepo as a whole, including tooling for generically handling projects, lives in `tools/`.
 
+WordPress, being a part of the Docker environment, gets installed into the directory `tools/docker/wordpress`, with non-monorepo plugins stored in `tools/docker/wordpress/wp-content/plugins`.
+
 Documentation that's applicable to the monorepo as a whole lives in `docs/`.
 
 All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specifc to any one project.
 
-* Actual actions live in `.github/actions/`. If it doesn't have a `action.yml` file, it shouldn't be in there.
-* Pattern matchers (not associated with an action), go in `.github/matchers/`.
+* Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
+* Pattern matchers (not associated with an action) go in `.github/matchers/`.
 * Other files specific to actions, including scripts used with `run:`, go in `.github/files/`.
 
 ### Compatibility
@@ -32,10 +34,10 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 
 ### Project structure
 
-We use `composer.json` to hold metadata about projects. Much of out generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
+We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
 
 * `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
-* `.version`: If present, updated by `tools/plugin-version.sh`.
+* `.version`: If present, updated by `tools/plugin-version.sh`. This should not be included on Composer packages that will be served through Packagist.
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-production`: If your project requires a build step, this must run the necessary commands.
 * `.scripts.phpunit`: Packages must either set this to run PHPUnit tests, or must include a file `tests/php/ci-can-run.sh` that exits with a failure status.
@@ -46,7 +48,7 @@ We use `composer.json` to hold metadata about projects. Much of out generic tool
     ```php
     define( 'CONSTANT', 'version' );
     ```
-* `.extra.wp-plugin-name`: Specify the WordPress.org plugin name, for use by scripts that deploy the plugin to WordPress.org.
+* `.extra.wp-plugin-name`: Specify the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -76,4 +78,4 @@ If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extr
 
 * `tools/create-release-branch.sh` will help you create the correctly named release branch, and will automatically update version numbers and versions of monorepo packages for you. The GitHub Action will then mirror this branch to your plugin's mirror repo.
 * `tools/deploy-to-svn.sh` will prepare a temporary directory with the content of the mirror repo branch that is ready to be pushed to WordPress.org SVN.
-* `tools/revert-release.sh` will prepare a temporary directory that updates the "Stable version" tag in `readme.txt` set to the previous version, in case an emergency rollback is required.
+* `tools/revert-release.sh` will prepare a temporary directory that updates the "Stable version" tag in `readme.txt` to the previous version, in case an emergency rollback is required.
