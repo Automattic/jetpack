@@ -537,18 +537,18 @@ class Jetpack_Beta_Admin {
 					<div class="is-pinned is-open dops-search" role="search">
 						<div aria-controls="search-component" aria-label="<?php esc_attr_e( 'Open Search', 'jetpack-beta' ); ?>" tabindex="-1">
 							<svg class="gridicon gridicons-search dops-search-open__icon" height="24"
-								 viewbox="0 0 24 24" width="24">
+								viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z"></path>
 								</g>
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-prs"
-							   placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+							placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-prs-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>"
-							  tabindex="0">
+							tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
-								 viewbox="0 0 24 24" width="24">
+								viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
 								</g>
@@ -581,11 +581,11 @@ class Jetpack_Beta_Admin {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component-tags"
-							   placeholder="<?php esc_attr_e( 'Search for a Jetpack tag', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+							placeholder="<?php esc_attr_e( 'Search for a Jetpack tag', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-tags-close" aria-label="<?php esc_attr_e( 'Close Search', 'jetpack-beta' ); ?>"
-							  tabindex="0">
+							tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
-								 viewbox="0 0 24 24" width="24">
+								viewbox="0 0 24 24" width="24">
 								<g>
 									<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path>
 								</g>
