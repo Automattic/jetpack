@@ -969,7 +969,7 @@ class Jetpack_Beta {
 	 * @param string $plugin_folder - Path JP or JP Dev plugin folder.
 	 * @param string $section       - Section.
 	 */
-	public static function proceed_to_install_and_activate( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
+	public static function proceed_to_install_and_activate( $url, $plugin_folder, $section ) {
 		self::proceed_to_install( $url, $plugin_folder, $section );
 
 		if ( 'stable' === $section || 'tags' === $section ) {
@@ -986,7 +986,7 @@ class Jetpack_Beta {
 	 * @param string $plugin_folder - Path JP or JP Dev plugin folder.
 	 * @param string $section       - Section.
 	 */
-	public static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
+	public static function proceed_to_install( $url, $plugin_folder, $section ) {
 		$temp_path = download_url( $url );
 
 		if ( is_wp_error( $temp_path ) ) {
