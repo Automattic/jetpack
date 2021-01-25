@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
+import { createBlocksFromInnerBlocksTemplate, rawHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
@@ -76,6 +76,7 @@ function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
 }
 
 function podcastSummarySection( { episodeTrack } ) {
+	const summaryBlocks = rawHandler( { HTML: episodeTrack.description_html } );
 	return [
 		'core/group',
 		{},
@@ -88,13 +89,7 @@ function podcastSummarySection( { episodeTrack } ) {
 					placeholder: __( 'Podcast episode title', 'jetpack' ),
 				},
 			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description_html,
-				},
-			],
+			...summaryBlocks,
 		],
 	];
 }
