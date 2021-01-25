@@ -75,8 +75,10 @@ export default function DialogueEdit( {
 
 	const { prevBlock, mediaSource } = useSelect( select => {
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
+		const previousBlock = select( 'core/block-editor' ).getBlock( prevPartClientId );
+
 		return {
-			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+			prevBlock: previousBlock?.name === blockName ? previousBlock : null,
 			mediaSource: select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
 		};
 	}, [] );
@@ -99,8 +101,15 @@ export default function DialogueEdit( {
 	// Set initial attributes according to the context.
 	useEffect( () => {
 		// Bail when block already has an slug,
-		// or participant doesn't exist.
-		if ( participantSlug || ! participants?.length || ! conversationBridge ) {
+		// or when there is not a dialogue pre block.
+		// or when there are not particpants,
+		// or there is not conversation bridge.
+		if (
+			participantSlug ||
+			! prevBlock ||
+			! participants?.length ||
+			! conversationBridge
+		) {
 			return;
 		}
 
