@@ -308,6 +308,10 @@ class Test_Plugin_Factory {
 			throw new \RuntimeException( 'Unable to execute the `composer` command for tests.' );
 		}
 
+		if ( isset( $this->autoloader_version ) && ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload_packages.php' ) ) {
+			throw new \RuntimeException( 'Failed to install the autoloader.' );
+		}
+
 		// Local autoloaders require using the branch but we may not want to treat it as a developer build.
 		if ( $this->is_using_local_package() ) {
 			$manifest_dir = $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
