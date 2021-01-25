@@ -1,5 +1,5 @@
 ---
-name:  Plugin - Jetpack Debug Tools
+name: Plugin - Jetpack Debug Tools
 about: Create an issue report focused on the Jetpack Debug Tools plugin
 title: 'Debug Plugin: ADD_YOUR_TITLE_HERE'
 labels: '[Plugin] Debug Helper, [Type] Bug'
