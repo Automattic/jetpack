@@ -424,11 +424,11 @@ class Jetpack_Beta_Admin {
 	 * @param var    $section - The kind of branch we're switching to (stable, rc, master, pr).
 	 */
 	public static function activate_button( $branch, $section ) {
-		if ( is_object( $section ) && $branch === 'master' ) {
+		if ( is_object( $section ) && 'master' === $branch ) {
 			$section = 'master';
 		}
 
-		if ( is_object( $section ) && $branch === 'rc' ) {
+		if ( is_object( $section ) && 'rc' === $branch ) {
 			$section = 'rc';
 		}
 		$query = array(
