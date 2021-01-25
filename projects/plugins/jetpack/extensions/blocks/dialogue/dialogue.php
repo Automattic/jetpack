@@ -216,7 +216,7 @@ function render_block( $attrs, $block_content, $block ) {
 	// Class list includes custom classes defined in block settings.
 	$block_class_list = Blocks::classes( FEATURE_NAME, $attrs );
 	// Only the generated class name for the block, without custom classes.
-	$block_class = $block_class_list ? explode( ' ', $block_class_list )[0] : '';
+	$block_class = explode( ' ', $block_class_list )[0];
 
 	$markup = sprintf(
 		'<div class="%1$s"><div class="%2$s__meta"><div class="%3$s">%4$s</div>',
