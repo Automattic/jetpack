@@ -9,6 +9,8 @@ import { hideBin } from 'yargs/helpers';
  */
 import { buildDefine } from './commands/build';
 import { watchDefine } from './commands/watch';
+import { cliDefine } from './commands/cli';
+
 // import { dockerDefine } from "./commands/docker";
 
 /**
@@ -22,6 +24,7 @@ export async function cli() {
 	let argv = yargs( hideBin( process.argv ) );
 
 	// Adds the commands to the yargs instance.
+	argv = cliDefine( argv );
 	argv = buildDefine( argv );
 	argv = watchDefine( argv );
 	// argv = dockerDefine( argv );
