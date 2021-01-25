@@ -98,8 +98,8 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a specific track from the supplied feed URL.
 	 *
-	 * @param string $guid    The GUID of the track.
-	 * @return {array|WP_Error}  The track object or an error object.
+	 * @param string $guid     The GUID of the track.
+	 * @return array|WP_Error  The track object or an error object.
 	 */
 	public function get_track_data( $guid ) {
 		// Try loading track data from the cache.
@@ -125,8 +125,8 @@ class Jetpack_Podcast_Helper {
 
 			if ( false === $track_data ) {
 				return new WP_Error( 'no_track', __( 'The track was not found.', 'jetpack' ) );
-
 			}
+
 			// Cache for 1 hour.
 			set_transient( $transient_key, $track_data, HOUR_IN_SECONDS );
 		}
