@@ -1,8 +1,17 @@
+<?php
+/**
+ * Jetpack Beta wp-admin menu tab page contents.
+ *
+ * @package Jetpack Beta
+ */
+
+?>
+
 <div class="jetpack-beta__master-head">
 	<div class="jetpack-beta-container">
 		<a class="jp-masthead__logo-link" href="<?php echo esc_url( Jetpack_Beta_Admin::settings_link() ); ?>">
 			<svg className="jetpack-beta-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">
-				<path fill="<?php echo JETPACK_GREEN; ?>" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z" />
+				<path fill="<?php echo esc_attr( JETPACK_GREEN ); ?>" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z" />
 				<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
 				<path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z" />
 				<path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z" />
@@ -27,20 +36,20 @@
 				<span class="dops-foldable-card__secondary">
 					<?php Jetpack_Beta_Admin::show_toggle_emails(); ?>
 					<?php if ( ! Jetpack_Beta::is_on_tag() ) : ?>
-					<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+						<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
 					<?php endif; ?>
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<p><?php echo Jetpack_Beta::get_jetpack_plugin_pretty_version(); ?>
-					| <?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?></p>
+				<p><?php echo wp_kses_post( Jetpack_Beta::get_jetpack_plugin_pretty_version() ); ?>
+					| <?php echo wp_kses_post( Jetpack_Beta::get_jetpack_plugin_version() ); ?></p>
 			</div>
 		</div>
 		<div class="dops-foldable-card has-expanded-summary dops-card">
 			<div class="dops-foldable-card__header has-border">
 			<span class="dops-foldable-card__main">
 				<div class="dops-foldable-card__header-text">
-					<div class="dops-foldable-card__header-text"><?php _e( 'Found a bug?', 'jetpack-beta' ); ?></div>
+					<div class="dops-foldable-card__header-text"><?php esc_html_e( 'Found a bug?', 'jetpack-beta' ); ?></div>
 				</div>
 			</span>
 			<span class="dops-foldable-card__secondary" >
@@ -52,22 +61,23 @@
 						data-jptracks-name="jetpack_beta_submit_report"
 						data-jptracks-prop="<?php echo esc_attr( Jetpack_Beta::get_jetpack_plugin_version() ); ?>"
 					>
-						<?php _e( 'Report it!', 'jetpack-beta' ); ?>
+						<?php esc_html_e( 'Report it!', 'jetpack-beta' ); ?>
 					</a>
 				</span>
 			</span>
 			</div>
 		</div>
 
-	<?php } else {
+		<?php
+	} else {
 		Jetpack_Beta_Admin::start_notice();
 	}
 	?>
 	<div class="jetpack-beta__wrap">
 	<?php
 		Jetpack_Beta_Admin::show_stable_branch();
-		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate' ), 'rc', null, 'rc' );
-		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
+		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate', 'jetpack-beta' ), 'rc', null, 'rc' );
+		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge', 'jetpack-beta' ), 'master', null, 'master' );
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
 		Jetpack_Beta_Admin::show_search_org_tags();
@@ -75,32 +85,38 @@
 	?>
 	</div>
 
-	<?php if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
+	<?php
+	$to_test = Jetpack_Beta_Admin::to_test_content();
+	if ( $to_test ) {
+		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
-						<div class="dops-foldable-card__header-text"><?php _e( 'To Test', 'jetpack-beta' ); ?></div>
+						<div class="dops-foldable-card__header-text"><?php esc_html_e( 'To Test', 'jetpack-beta' ); ?></div>
 					</div>
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<?php echo $to_test ; ?>
+				<?php echo wp_kses_post( $to_test ); ?>
 			</div>
 		</div>
 	<?php } ?>
 
-	<?php if ( $what_changed = Jetpack_Beta::what_changed()  ) { ?>
+	<?php
+	$what_changed = Jetpack_Beta::what_changed();
+	if ( $what_changed ) {
+		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
-						<div class="dops-foldable-card__header-text"><?php _e( 'What changed', 'jetpack-beta' ); ?></div>
+						<div class="dops-foldable-card__header-text"><?php esc_html_e( 'What changed', 'jetpack-beta' ); ?></div>
 					</div>
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<?php echo Jetpack_Beta_Admin::render_markdown( $what_changed ); ?>
+				<?php echo esc_html( Jetpack_Beta_Admin::render_markdown( $what_changed ) ); ?>
 			</div>
 		</div>
 	<?php } ?>
