@@ -346,6 +346,24 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the `get_custom_login_url()` helper.
+	 */
+	public function test_get_custom_login_url() {
+		$login_url_default = Jetpack_SSO_Helpers::get_custom_login_url();
+
+		$custom_url_expected = 'test-login-url/';
+
+		$custom_url_filter = function ( $login_url ) use ( $custom_url_expected ) {
+			return str_replace( 'wp-login.php', $custom_url_expected, $login_url );
+		};
+		add_filter( 'login_url', $custom_url_filter );
+		$login_url_custom = Jetpack_SSO_Helpers::get_custom_login_url();
+
+		static::assertNull( $login_url_default );
+		static::assertEquals( $custom_url_expected, $login_url_custom );
+	}
+
+	/**
 	 * Return string '1'.
 	 *
 	 * @return string
