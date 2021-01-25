@@ -378,11 +378,11 @@ class Jetpack_Beta_Admin {
 			$data_tag = sprintf( 'data-tag="%s"', $tag );
 		}
 
-		$className                                = 'tag-card';
+		$class_name                               = 'tag-card';
 		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
 		if ( $current_branch === $tag && $current_section === $section ) {
-			$action    = __( 'Active', 'jetpack-beta' );
-			$className = 'tag-card-active';
+			$action     = __( 'Active', 'jetpack-beta' );
+			$class_name = 'tag-card-active';
 		} else {
 			$action = self::activate_button( $tag, $section );
 		}
@@ -390,7 +390,7 @@ class Jetpack_Beta_Admin {
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
-		<div <?php echo wp_kses_post( $data_tag ); ?> " class="dops-foldable-card <?php echo esc_attr( $className ); ?> has-expanded-summary dops-card <?php echo esc_attr( $is_compact ); ?>">
+		<div <?php echo wp_kses_post( $data_tag ); ?> " class="dops-foldable-card <?php echo esc_attr( $class_name ); ?> has-expanded-summary dops-card <?php echo esc_attr( $is_compact ); ?>">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
