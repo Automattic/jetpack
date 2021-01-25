@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require.extensions[ '.svg' ] = () => 1;
 
 require( '@babel/register' );
 
