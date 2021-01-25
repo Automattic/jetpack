@@ -26,7 +26,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 All projects should be compatible with PHP versions WordPress supports. That's currently PHP 5.6 to 8.0.
 
-We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the standards enforced by these tools.
+We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
 * Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
 * As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the monorepo.
@@ -48,7 +48,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
     ```php
     define( 'CONSTANT', 'version' );
     ```
-* `.extra.wp-plugin-name`: Specify the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
+* `.extra.wp-plugin-name`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
