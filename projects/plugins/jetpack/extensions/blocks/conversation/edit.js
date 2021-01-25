@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect, useCallback, useMemo } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -27,7 +27,7 @@ const TRANSCRIPTION_TEMPLATE = [
 ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
-	const { participants = [], showTimestamps, className: classNameAttr } = attributes;
+	const { participants = [], showTimestamps } = attributes;
 
 	// Set initial conversation participants.
 	useEffect( () => {
@@ -54,9 +54,11 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
+	const setBlockAttributes = useCallback( setAttributes, [] );
+
 	// Context bridge.
-	const contextProvision = {
-		setAttributes,
+	const contextProvision = useMemo( () => ( {
+		setAttributes: setBlockAttributes,
 		updateParticipants,
 		getParticipantIndex: slug => participants.map( part => part.participantSlug ).indexOf( slug ),
 		getNextParticipantIndex: ( slug, offset = 0 ) =>
@@ -66,9 +68,8 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 
 		attributes: {
 			showTimestamps,
-			classNameAttr,
 		},
-	};
+	} ), [ participants, setBlockAttributes, showTimestamps, updateParticipants ] );
 
 	function deleteParticipant( deletedParticipantSlug ) {
 		setAttributes( {
