@@ -72,10 +72,6 @@ class Jetpack_Beta {
 	 * Constructor
 	 */
 	public function __construct() {
-		if ( isset( $_GET['delete'] ) ) {
-			delete_site_transient( 'update_plugins' );
-		}
-
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'maybe_plugins_update_transient' ) );
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
 
@@ -1467,7 +1463,7 @@ class Jetpack_Beta {
 		 * AND lets us determine whether the current error is included in the current error
 		 * reporting level
 		 */
-		if ( ! ( error_reporting() & $errno ) ) {
+		if ( ! ( error_reporting() & $errno ) ) { // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_error_reporting,WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting
 
 			// If this error is not being reported in the current settings, stop reporting here by returning true.
 			return true;
