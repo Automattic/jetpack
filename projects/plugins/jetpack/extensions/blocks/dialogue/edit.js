@@ -243,6 +243,7 @@ export default function DialogueEdit( {
 			<div className={ `${ baseClassName }__meta` }>
 				<Button
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
+					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
 					className={ getParticipantLabelClass() }
 				>
 					{ participantLabel }
