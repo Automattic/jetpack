@@ -27,7 +27,7 @@ const TRANSCRIPTION_TEMPLATE = [
 ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
-	const { participants = [], showTimestamps, className: classNameAttr } = attributes;
+	const { participants = [], showTimestamps } = attributes;
 
 	// Set initial conversation participants.
 	useEffect( () => {

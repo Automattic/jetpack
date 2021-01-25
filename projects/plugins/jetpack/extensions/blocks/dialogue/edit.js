@@ -19,7 +19,7 @@ import {
 	ToolbarButton,
 	Button,
 } from '@wordpress/components';
-import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
+import { useContext, useState, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
 /**
