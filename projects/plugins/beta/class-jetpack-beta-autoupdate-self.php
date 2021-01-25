@@ -59,6 +59,7 @@ class Jetpack_Beta_Autoupdate_Self {
 
 	}
 
+	/** Set update arguments */
 	public function set_update_args() {
 		$plugin_data                  = $this->get_plugin_data();
 		$this->config['plugin_name']  = $plugin_data['Name'];
@@ -71,6 +72,7 @@ class Jetpack_Beta_Autoupdate_Self {
 		$this->config['zip_url']      = 'https://github.com/Automattic/jetpack-beta/zipball/' . $this->config['new_version'];
 	}
 
+	/** Check for latest pre-release plugin every six hours and update */
 	public function get_latest_prerelease() {
 		$tagged_version = get_site_transient( self::TRANSIENT_NAME );
 		if ( $this->overrule_transients() || empty( $tagged_version ) ) {
@@ -97,10 +99,12 @@ class Jetpack_Beta_Autoupdate_Self {
 		return $tagged_version;
 	}
 
+	/** Override transients to force update */
 	public function overrule_transients() {
 		return ( defined( 'Jetpack_Beta_FORCE_UPDATE' ) && Jetpack_Beta_FORCE_UPDATE );
 	}
 
+	/** Get update data from Github */
 	public function get_github_data() {
 		if ( ! empty( $this->github_data ) ) {
 			$github_data = $this->github_data;
@@ -121,20 +125,24 @@ class Jetpack_Beta_Autoupdate_Self {
 		return $github_data;
 	}
 
+	/** Get date of update in GMT*/
 	public function get_date() {
 		$_date = $this->get_github_data();
-		return ! empty( $_date->updated_at ) ? date( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
+		return ! empty( $_date->updated_at ) ? gmdate( 'Y-m-d', strtotime( $_date->updated_at ) ) : false;
 	}
 
+	/** Get latest update's description */
 	public function get_description() {
 		$_description = $this->get_github_data();
 		return ! empty( $_description->description ) ? $_description->description : false;
 	}
 
+	/** Get plugin update data */
 	public function get_plugin_data() {
 		return get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
 	}
 
+	/** Check if there's a newer version */
 	public function has_never_version() {
 		if ( ! isset( $this->config['new_version'] ) ) {
 			$this->set_update_args();
@@ -143,6 +151,11 @@ class Jetpack_Beta_Autoupdate_Self {
 
 	}
 
+	/**
+	 * Check the latest transient data and update if necessary.
+	 *
+	 * @param var $transient - the transient we're checking.
+	 */
 	public function api_check( $transient ) {
 		// Check if the transient contains the 'checked' information.
 		// If not, just return its value without hacking it.
@@ -167,6 +180,13 @@ class Jetpack_Beta_Autoupdate_Self {
 		return $transient;
 	}
 
+	/**
+	 * Get latest plugin information
+	 *
+	 * @param var $false - result from plugins_api.
+	 * @param var $action - The type of information being requested from the Plugin Installation API.
+	 * @param obj $response - the response from plugins_api.
+	 */
 	public function get_plugin_info( $false, $action, $response ) {
 		// Check if this call API is for the right plugin.
 		if ( ! isset( $response->slug ) || $response->slug !== $this->config['slug'] ) {
@@ -190,6 +210,12 @@ class Jetpack_Beta_Autoupdate_Self {
 		return $response;
 	}
 
+	/**
+	 * Updates the source file location for the upgrade package.
+	 *
+	 * @param var $source - File source location..
+	 * @param var $remote_source - Remote file source location.
+	 */
 	public function upgrader_source_selection( $source, $remote_source ) {
 		global $wp_filesystem;
 		if ( strstr( $source, '/Automattic-jetpack-beta-' ) ) {
