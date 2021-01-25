@@ -7,7 +7,6 @@ import {
 	waitAndType,
 	clickAndWaitForNewPage,
 	getAccountCredentials,
-	isEventuallyPresent,
 	waitForSelector,
 } from '../../page-helper';
 
@@ -26,15 +25,6 @@ export default class ConnectionsPage extends Page {
 
 		await waitForSelector( this.page, loadingIndicatorSelector );
 		await waitAndClick( this.page, mailchimpExpandSelector );
-
-		// If user account is already connected to Mailchimp, we don't really need to connect it once again
-		// TODO: It's actually a default state, since connections are shared between sites. So we could get rid of chunk entirely
-		const isConnectedAlready = await isEventuallyPresent( this.page, marketingSelectSelector, {
-			timeout: 10000,
-		} );
-		if ( ! isConnectedAlready ) {
-			await this.connectMailchimp();
-		}
 
 		// WPCOM Connections page
 		await this.page.waitForXPath( mcOptionXpathSelector );
@@ -62,5 +52,6 @@ export default class ConnectionsPage extends Page {
 		await waitAndType( mcPopupPage, mcUsernameSelector, mcLogin );
 		await waitAndType( mcPopupPage, mcPasswordSelector, mcPassword );
 		await waitAndClick( mcPopupPage, mcSubmitSelector );
+		await this.page.bringToFront();
 	}
 }
