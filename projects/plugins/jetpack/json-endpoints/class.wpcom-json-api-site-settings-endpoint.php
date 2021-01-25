@@ -665,7 +665,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'cloudflare_analytics':
 					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^[a-fA-F0-9]+$/i', $value['code'] ) ) {
-						return new WP_Error( 'invalid_code', 'Invalid Cloudflare Analytics ID' );
+						return new WP_Error( 'invalid_code', __( 'Invalid Cloudflare Analytics ID', 'jetpack' ) );
 					}
 
 					if ( update_option( $key, $value ) ) {
