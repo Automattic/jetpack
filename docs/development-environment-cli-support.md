@@ -17,7 +17,8 @@ Install via
 yarn install
 ```
 
-In some instances, this will not work depending on permissions, etc. If `jetpack` is still available, you can run `yarn jetpack` from the repo root only.
+In some instances, this will not work depending on permissions, etc. You may need to add `~/.yarn/bin` to your system's PATH. 
+If `jetpack` is still not available, you can run `yarn jetpack` from the repo root only.
 
 `jetpack`, when installed, will work from anywhere within the repo.
 
