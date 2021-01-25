@@ -76,22 +76,31 @@ function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
 }
 
 function podcastSummarySection( { episodeTrack } ) {
-	const summaryBlocks = pasteHandler( { HTML: episodeTrack.description_html, mode: 'BLOCKS' } );
-	return [
-		'core/group',
-		{},
+	const sectionBlocks = [
 		[
-			[
-				'core/heading',
-				{
-					level: 3,
-					content: 'Summary',
-					placeholder: __( 'Podcast episode title', 'jetpack' ),
-				},
-			],
-			...summaryBlocks,
+			'core/heading',
+			{
+				level: 3,
+				content: 'Summary',
+				placeholder: __( 'Podcast episode title', 'jetpack' ),
+			},
 		],
 	];
+
+	const summaryBlocks = pasteHandler( { HTML: episodeTrack.description_html, mode: 'BLOCKS' } );
+
+	if ( summaryBlocks.length ) {
+		sectionBlocks.push( ...summaryBlocks );
+	} else {
+		sectionBlocks.push( [
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			},
+		] );
+	}
+
+	return [ 'core/group', {}, sectionBlocks ];
 }
 
 function podcastConversationSection() {
