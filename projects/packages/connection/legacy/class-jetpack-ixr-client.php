@@ -143,6 +143,10 @@ class Jetpack_IXR_Client extends IXR_Client {
 		if ( isset( $this->response_headers[ $name ] ) ) {
 			return $this->response_headers[ $name ];
 		}
+		// case-insensitive header names: http://www.ietf.org/rfc/rfc2616.txt.
+		if ( isset( $this->response_headers[ strtolower( $name ) ] ) ) {
+			return $this->response_headers[ strtolower( $name ) ];
+		}
 		return false;
 	}
 }
