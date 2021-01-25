@@ -1,6 +1,10 @@
 # Changelog
 
-## 2.4.4 -- January 5, 2020
+## 2.4.5 -- January 25, 2021
+
+- Resolves a conflict between stable and beta Jetpack versions with the autoloader.
+
+## 2.4.4 -- January 5, 2021
 
 - Avoids PHP notice for an unset array key if an option is not set.
 - Updates the color to match the latest per the [Jetpack color guidelines](https://color-studio.blog).
