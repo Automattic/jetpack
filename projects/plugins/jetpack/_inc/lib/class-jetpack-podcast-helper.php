@@ -98,10 +98,10 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a specific track from the supplied feed URL.
 	 *
-	 * @param {string=} $guid    The GUID of the track. Omit or pass a falsey value to get the most recent track.
+	 * @param string $guid    The GUID of the track.
 	 * @return {array|WP_Error}  The track object or an error object.
 	 */
-	public function get_track_data( $guid = null ) {
+	public function get_track_data( $guid ) {
 		// Try loading track data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( "$this->feed::$guid" );
 		$track_data    = get_transient( $transient_key );
@@ -117,7 +117,7 @@ class Jetpack_Podcast_Helper {
 
 			// Loop over all tracks to find the one.
 			foreach ( $rss->get_items() as $track ) {
-				if ( empty( $guid ) || $guid === $track->get_id() ) {
+				if ( $guid === $track->get_id() ) {
 					$track_data = $this->setup_tracks_callback( $track );
 					break;
 				}
@@ -125,9 +125,7 @@ class Jetpack_Podcast_Helper {
 
 			if ( false === $track_data ) {
 				return new WP_Error( 'no_track', __( 'The track was not found.', 'jetpack' ) );
-			} elseif ( empty( $guid ) ) {
-				// Update the transient key if we have a track and no GUID was passed in.
-				$transient_key = 'jetpack_podcast_' . md5( "$this->feed::" . $track_data['guid'] );
+
 			}
 			// Cache for 1 hour.
 			set_transient( $transient_key, $track_data, HOUR_IN_SECONDS );
