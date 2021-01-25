@@ -38,16 +38,10 @@ import { MediaPlayerToolbarControl } from '../../shared/components/media-player-
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
-	const participant = find(
+	return find(
 		participants,
 		contextParticipant => contextParticipant.participantSlug === slug
 	);
-	if ( participant ) {
-		return participant;
-	}
-
-	// Fallback participant. First one in the list.
-	return participants?.[ 0 ];
 }
 
 const blockName = 'jetpack/dialogue';
@@ -123,6 +117,23 @@ export default function DialogueEdit( {
 			content: '',
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
+
+	// Update participant slug in case
+	// the participant is removed globally.
+	// from the Conversation block.
+	useEffect( () => {
+		if ( ! participants?.length ) {
+			return;
+		}
+
+		// Check if the participant has been removed from Conversation.
+		if ( currentParticipant ) {
+			return;
+		}
+
+		// Set first participant as default.
+		setAttributes( { participantSlug: participants[ 0 ].participantSlug } );
+	}, [ participants, currentParticipant, setAttributes ] );
 
 	function hasStyle( style ) {
 		return currentParticipant?.[ style ];
