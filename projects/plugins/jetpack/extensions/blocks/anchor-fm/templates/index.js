@@ -92,7 +92,7 @@ function podcastSummarySection( { episodeTrack } ) {
 				'core/paragraph',
 				{
 					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description,
+					content: episodeTrack.description_html,
 				},
 			],
 		],
