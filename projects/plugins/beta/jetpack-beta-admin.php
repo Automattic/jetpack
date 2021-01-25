@@ -1,11 +1,11 @@
 <?php
 /**
- * Class Jetpack_Beta_Admin
- *
  * Handles the Jetpack Admin functions.
  *
  * @package Jetpack Beta
  */
+
+/** Class Jetpack_Beta_Admin */
 class Jetpack_Beta_Admin {
 
 	/** Initialize admin hooks. */
@@ -288,7 +288,7 @@ class Jetpack_Beta_Admin {
 			?>
 			</p>
 			<?php if ( $is_notice ) { ?>
-			<a href="<?php echo esc_url( Jetpack_Beta::admin_url() ); ?>"><?php _e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
+			<a href="<?php echo esc_url( Jetpack_Beta::admin_url() ); ?>"><?php esc_html_e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
 
 		</div>
@@ -562,7 +562,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	/** Show search bar for tags */
-	static function show_search_org_tags() {
+	public static function show_search_org_tags() {
 		$org_data = Jetpack_Beta::get_org_data();
 		if ( empty( $org_data->versions ) ) {
 			return;
@@ -720,9 +720,9 @@ class Jetpack_Beta_Admin {
 	 * Handles update button for branches
 	 *
 	 * @param var $branch - Branch that's ready for update.
-	 * @param var $section - What kind of branch we're updated (master, rc, pr)
+	 * @param var $section - What kind of branch we're updated (master, rc, pr).
 	 */
-	static function update_action_url( $branch, $section ) {
+	public static function update_action_url( $branch, $section ) {
 		$query = array(
 			'page'          => 'jetpack-beta',
 			'update-branch' => $branch,
