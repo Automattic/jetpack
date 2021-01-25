@@ -3,7 +3,7 @@
  */
 import { createBlocksFromInnerBlocksTemplate, pasteHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { _x, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -81,7 +81,7 @@ function podcastSummarySection( { episodeTrack } ) {
 			'core/heading',
 			{
 				level: 3,
-				content: 'Summary',
+				content: _x( 'Summary', 'noun: summary of a podcast episode', 'jetpack' ),
 				placeholder: __( 'Podcast episode title', 'jetpack' ),
 			},
 		],
