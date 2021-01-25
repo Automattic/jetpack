@@ -98,8 +98,8 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a specific track from the supplied feed URL.
 	 *
-	 * @param string $guid     The GUID of the track. Omit or pass a falsey value to get the most recent track.
-	 * @return array|WP_Error  The track object or an error object.
+	 * @param {string=} $guid    The GUID of the track. Omit or pass a falsey value to get the most recent track.
+	 * @return {array|WP_Error}  The track object or an error object.
 	 */
 	public function get_track_data( $guid = null ) {
 		// Try loading track data from the cache.
