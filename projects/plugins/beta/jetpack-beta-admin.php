@@ -282,6 +282,7 @@ class Jetpack_Beta_Admin {
 			<p>
 			<?php
 			printf(
+				// Translators: link to Jetack master testing doc in github.
 				__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
 				esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
 			);
@@ -317,11 +318,13 @@ class Jetpack_Beta_Admin {
 		$more_info  = '';
 		$pr         = '';
 		if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
-			$pr        = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
+			$pr = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
+			// translators: Translates the `More info` link.
 			$more_info = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%1$s">more info #%2$s</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ), $branch->pr );
 		}
 
 		$update_time = ( isset( $branch->update_date )
+			// translators: %s is how long ago the branch was updated.
 			? sprintf( __( 'last updated %s ago', 'jetpack-beta' ), human_time_diff( strtotime( $branch->update_date ) ) )
 			: ''
 		);
@@ -395,6 +398,7 @@ class Jetpack_Beta_Admin {
 						<div class="dops-foldable-card__subheader">
 						<?php
 						sprintf(
+							// Translators: Which release is being selected.
 							__( 'Public release (%1$s) <a href="https://plugins.trac.wordpress.org/browser/jetpack/tags/%2$s" target="_blank" rel="">available on WordPress.org</a>', 'jetpack-beta' ),
 							esc_html( $tag ),
 							esc_attr( $tag )
