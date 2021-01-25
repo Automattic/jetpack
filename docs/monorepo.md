@@ -48,7 +48,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
     ```php
     define( 'CONSTANT', 'version' );
     ```
-* `.extra.wp-plugin-name`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
+* `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -74,7 +74,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 
 ### Plugin release tooling
 
-If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extra.wp-plugin-name` in your plugin's `composer.json`, we have tooling to make releasing to WordPress.org easier.
+If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extra.wp-plugin-slug` in your plugin's `composer.json`, we have tooling to make releasing to WordPress.org easier.
 
 * `tools/create-release-branch.sh` will help you create the correctly named release branch, and will automatically update version numbers and versions of monorepo packages for you. The GitHub Action will then mirror this branch to your plugin's mirror repo.
 * `tools/deploy-to-svn.sh` will prepare a temporary directory with the content of the mirror repo branch that is ready to be pushed to WordPress.org SVN.
