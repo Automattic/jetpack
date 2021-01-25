@@ -34,10 +34,8 @@ class Jetpack_Beta_Autoupdate_Self {
 			'api_url'            => 'https://api.github.com/repos/Automattic/jetpack-beta',
 			'github_url'         => 'https://github.com/Automattic/jetpack-beta',
 			'requires'           => '4.7',
-			'tested'             => '4.7'
+			'tested'             => '4.7',
 		);
-
-
 
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
@@ -46,15 +44,15 @@ class Jetpack_Beta_Autoupdate_Self {
 	}
 
 	public function set_update_args() {
-		$plugin_data                    = $this->get_plugin_data();
-		$this->config[ 'plugin_name' ]  = $plugin_data['Name'];
-		$this->config[ 'version' ]      = $plugin_data['Version'];
-		$this->config[ 'author' ]       = $plugin_data['Author'];
-		$this->config[ 'homepage' ]     = $plugin_data['PluginURI'];
-		$this->config[ 'new_version' ]  = $this->get_latest_prerelease();
-		$this->config[ 'last_updated' ] = $this->get_date();
-		$this->config[ 'description' ]  = $this->get_description();
-		$this->config[ 'zip_url' ]      = 'https://github.com/Automattic/jetpack-beta/zipball/' . $this->config[ 'new_version' ];
+		$plugin_data                  = $this->get_plugin_data();
+		$this->config['plugin_name']  = $plugin_data['Name'];
+		$this->config['version']      = $plugin_data['Version'];
+		$this->config['author']       = $plugin_data['Author'];
+		$this->config['homepage']     = $plugin_data['PluginURI'];
+		$this->config['new_version']  = $this->get_latest_prerelease();
+		$this->config['last_updated'] = $this->get_date();
+		$this->config['description']  = $this->get_description();
+		$this->config['zip_url']      = 'https://github.com/Automattic/jetpack-beta/zipball/' . $this->config['new_version'];
 	}
 
 	public function get_latest_prerelease() {
@@ -77,7 +75,7 @@ class Jetpack_Beta_Autoupdate_Self {
 			}
 			// refresh every 6 hours
 			if ( ! empty( $tagged_version ) ) {
-				set_site_transient( self::TRANSIENT_NAME, $tagged_version, 60*60*6 );
+				set_site_transient( self::TRANSIENT_NAME, $tagged_version, 60 * 60 * 6 );
 			}
 		}
 		return $tagged_version;
@@ -99,7 +97,7 @@ class Jetpack_Beta_Autoupdate_Self {
 				}
 				$github_data = json_decode( $github_data['body'] );
 				// refresh every 6 hours
-				set_site_transient( md5( $this->config['slug'] ) . '_github_data', $github_data, 60*60*6 );
+				set_site_transient( md5( $this->config['slug'] ) . '_github_data', $github_data, 60 * 60 * 6 );
 			}
 			// Store the data in this class instance for future calls
 			$this->github_data = $github_data;
@@ -116,7 +114,6 @@ class Jetpack_Beta_Autoupdate_Self {
 		$_description = $this->get_github_data();
 		return ! empty( $_description->description ) ? $_description->description : false;
 	}
-
 
 	public function get_plugin_data() {
 		return get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
@@ -140,7 +137,7 @@ class Jetpack_Beta_Autoupdate_Self {
 		delete_site_transient( self::TRANSIENT_NAME );
 
 		if ( $this->has_never_version() ) {
-			$response              = new stdClass;
+			$response              = new stdClass();
 			$response->plugin      = $this->config['slug'];
 			$response->new_version = $this->config['new_version'];
 			$response->slug        = $this->config['slug'];
@@ -180,7 +177,7 @@ class Jetpack_Beta_Autoupdate_Self {
 	public function upgrader_source_selection( $source, $remote_source, $upgrader ) {
 		global $wp_filesystem;
 		if ( strstr( $source, '/Automattic-jetpack-beta-' ) ) {
-			$corrected_source = trailingslashit( $remote_source ) . trailingslashit( $this->config[ 'proper_folder_name' ] );
+			$corrected_source = trailingslashit( $remote_source ) . trailingslashit( $this->config['proper_folder_name'] );
 			if ( $wp_filesystem->move( $source, $corrected_source, true ) ) {
 				return $corrected_source;
 			} else {
