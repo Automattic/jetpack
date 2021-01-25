@@ -115,7 +115,7 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Checks if autoupdates and email notifications are toggled.
 	 *
-	 * @param var $option - Which option is being toggled.
+	 * @param string $option - Which option is being toggled.
 	 */
 	public static function is_toggle_action( $option ) {
 		return (
@@ -189,7 +189,7 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Get PR information for what we want to test
 	 *
-	 * @param var $branch_key The branch we're switching to.
+	 * @param string $branch_key The branch we're switching to.
 	 * */
 	public static function to_test_pr_content( $branch_key ) {
 		$manifest = Jetpack_Beta::get_beta_manifest();
@@ -206,7 +206,7 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Rendering markdown for testing instructions
 	 *
-	 * @param var $content - Content from testing instructions for the branch we're testing.
+	 * @param string $content - Content from testing instructions for the branch we're testing.
 	 */
 	public static function render_markdown( $content ) {
 
@@ -285,7 +285,7 @@ class Jetpack_Beta_Admin {
 			<?php
 			echo wp_kses_post(
 				printf(
-					// Translators: link to Jetack master testing doc in github.
+					// Translators: link to Jetack master testing doc in Github.
 					__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
 					esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
 				)
@@ -303,11 +303,11 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Handles branch selection on beta plugin's admin page
 	 *
-	 * @param var    $header - Title of the branch.
-	 * @param var    $branch_key - Specifies which branch.
-	 * @param object $branch - Contains branch data (title, update date, download link, commit, etc).
-	 * @param var    $section - The kind of branch we're switching to (stable, rc, master, pr).
-	 * @param bool   $is_last - last branch in the list.
+	 * @param string $header Title of the branch.
+	 * @param string $branch_key Specifies which branch.
+	 * @param object $branch Contains branch data (title, update date, download link, commit, etc).
+	 * @param string $section The kind of branch we're switching to (stable, rc, master, pr).
+	 * @param bool   $is_last Last branch in the list.
 	 */
 	public static function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
@@ -370,11 +370,11 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Handles list of available Jetpack tags to select specific Jetpack version number.
 	 *
-	 * @param var  $header - Title of tag.
-	 * @param var  $tag - Jetpack tag (for selecting a specific version of Jetpack).
-	 * @param var  $url - Download link for Jetpack version.
-	 * @param var  $section - The kind of version we're switching to (in this case 'tags').
-	 * @param bool $is_last - last version in the list.
+	 * @param string $header Title of tag.
+	 * @param string $tag Jetpack tag (for selecting a specific version of Jetpack).
+	 * @param string $url Download link for Jetpack version.
+	 * @param string $section The kind of version we're switching to (in this case 'tags').
+	 * @param bool   $is_last last version in the list.
 	 */
 	public static function show_tag( $header, $tag, $url = null, $section = null, $is_last = false ) {
 		$is_compact = $is_last ? '' : 'is-compact';
@@ -424,8 +424,8 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Handles the activation buttons.
 	 *
-	 * @param object $branch - Specifies which branch.
-	 * @param var    $section - The kind of branch we're switching to (stable, rc, master, pr).
+	 * @param object $branch specifies which branch.
+	 * @param string $section The kind of branch we're switching to (stable, rc, master, pr).
 	 */
 	public static function activate_button( $branch, $section ) {
 		if ( is_object( $section ) && 'master' === $branch ) {
@@ -455,7 +455,7 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Display the branch header
 	 *
-	 * @param var $title - The title of the branch.
+	 * @param string $title - The title of the branch.
 	 */
 	public static function header( $title ) {
 		echo '<header><h2 class="jp-jetpack-connect__container-subtitle">' . esc_html( $title ) . '</h2></header>';
@@ -464,8 +464,8 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Display the branch list
 	 *
-	 * @param var $section - The kind of branch we're switching to (stable, rc, master, pr).
-	 * @param var $title - The title of the branch.
+	 * @param string $section - The kind of branch we're switching to (stable, rc, master, pr).
+	 * @param string $title - The title of the branch.
 	 */
 	public static function show_branches( $section, $title = null ) {
 		if ( $title ) {
@@ -492,8 +492,8 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Show list of available Jetpack tags to select specific Jetpack version number.
 	 *
-	 * @param var $section - The kind of version we're switching to (in this case 'tags').
-	 * @param var $title - The name of the Jetpack tag.
+	 * @param string $section - The kind of version we're switching to (in this case 'tags').
+	 * @param string $title - The name of the Jetpack tag.
 	 */
 	public static function show_tags( $section, $title = null ) {
 		if ( $title ) {
@@ -624,9 +624,9 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Display autoupdate and email notification toggles
 	 *
-	 * @param var  $name - name of toggle.
-	 * @param var  $option - Which toggle (autoupdates, email_notification).
-	 * @param bool $value - If toggle is active or not.
+	 * @param string $name name of toggle.
+	 * @param string $option Which toggle (autoupdates, email_notification).
+	 * @param bool   $value If toggle is active or not.
 	 */
 	public static function show_toggle( $name, $option, $value ) {
 		$query = array(
@@ -698,9 +698,9 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Handles card that notifies when there's an update available on a branch.
 	 *
-	 * @param var $header - Title of the branch that's ready for update.
-	 * @param var $sub_header - Detailed information about the update.
-	 * @param var $url - URL where branch can be updated.
+	 * @param string $header - Title of the branch that's ready for update.
+	 * @param string $sub_header - Detailed information about the update.
+	 * @param string $url - URL where branch can be updated.
 	 */
 	public static function update_card( $header, $sub_header, $url ) {
 		?>
@@ -727,8 +727,8 @@ class Jetpack_Beta_Admin {
 	/**
 	 * Handles update button for branches
 	 *
-	 * @param var $branch - Branch that's ready for update.
-	 * @param var $section - What kind of branch we're updated (master, rc, pr).
+	 * @param string $branch - Branch that's ready for update.
+	 * @param string $section - What kind of branch we're updated (master, rc, pr).
 	 */
 	public static function update_action_url( $branch, $section ) {
 		$query = array(

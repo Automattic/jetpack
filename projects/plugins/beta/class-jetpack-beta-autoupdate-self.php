@@ -154,7 +154,7 @@ class Jetpack_Beta_Autoupdate_Self {
 	/**
 	 * Check the latest transient data and update if necessary.
 	 *
-	 * @param var $transient - the transient we're checking.
+	 * @param string $transient - the transient we're checking.
 	 */
 	public function api_check( $transient ) {
 		// Check if the transient contains the 'checked' information.
@@ -183,9 +183,9 @@ class Jetpack_Beta_Autoupdate_Self {
 	/**
 	 * Get latest plugin information
 	 *
-	 * @param var $false - result from plugins_api.
-	 * @param var $action - The type of information being requested from the Plugin Installation API.
-	 * @param obj $response - the response from plugins_api.
+	 * @param string $false Result from plugins_api.
+	 * @param string $action The type of information being requested from the Plugin Installation API.
+	 * @param object $response The response from plugins_api.
 	 */
 	public function get_plugin_info( $false, $action, $response ) {
 		// Check if this call API is for the right plugin.
@@ -213,8 +213,8 @@ class Jetpack_Beta_Autoupdate_Self {
 	/**
 	 * Updates the source file location for the upgrade package.
 	 *
-	 * @param var $source - File source location..
-	 * @param var $remote_source - Remote file source location.
+	 * @param string $source - File source location..
+	 * @param string $remote_source - Remote file source location.
 	 */
 	public function upgrader_source_selection( $source, $remote_source ) {
 		global $wp_filesystem;
