@@ -66,7 +66,7 @@ add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 // The main plugin class file.
 require_once __DIR__ . '/class-jetpack-beta.php';
 
-set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) );
+set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 
 register_activation_hook( __FILE__, array( 'Jetpack_Beta', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
