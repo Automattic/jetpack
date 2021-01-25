@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
