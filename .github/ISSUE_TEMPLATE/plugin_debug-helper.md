@@ -1,13 +1,14 @@
 ---
-name: Bug report
-about: Create a report for Jetpack to help us improve
-labels: '[Type] Bug'
+name: Plugin - Jetpack Debug Tools
+about: Create an issue report focused on the Jetpack Debug Tools plugin
+title: 'Debug Plugin: ADD_YOUR_TITLE_HERE'
+labels: '[Plugin] Debug Helper, [Type] Bug'
 assignees: ''
 
 ---
 
-<!-- Thanks for contributing to Jetpack!
-Pick a clear title ("Sharing: add new Facebook button") and proceed. -->
+<!-- Thanks for contributing!
+Pick a clear title (e.g. "Debug Plugin: Missing error constants") and proceed. -->
 
 #### Steps to reproduce the issue
 
@@ -22,8 +23,8 @@ Pick a clear title ("Sharing: add new Facebook button") and proceed. -->
 #### What happened instead
 
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+#### Screenshots
+<!-- If applicable, add screenshots to help explain the issue. -->
 
 <!--
 PLEASE NOTE
