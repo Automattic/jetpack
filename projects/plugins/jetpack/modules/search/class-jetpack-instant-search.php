@@ -53,11 +53,20 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-		$style_relative_path  = '_inc/build/instant-search/jp-search.bundle.css';
-		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) || ! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
+		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
+		$script_relative_path   = '_inc/build/instant-search/jp-search-main.bundle.js';
+		$style_relative_path    = '_inc/build/instant-search/jp-search-main.bundle.css';
+		if (
+			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
+			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ||
+			! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path )
+		) {
 			return;
 		}
+
+		$polyfill_version = Jetpack_Search_Helpers::get_asset_version( $polyfill_relative_path );
+		$polyfill_path    = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
+		wp_enqueue_script( 'jetpack-instant-search-ie11', $polyfill_path, array(), $polyfill_version, true );
 
 		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
@@ -134,6 +143,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
+		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.js';
+		$polyfill_path          = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -183,6 +195,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
+		wp_add_inline_script( 'jetpack-instant-search-ie11', 'var JetpackInstantSearchIe11PolyfillPath=decodeURIComponent("' . rawurlencode( $polyfill_path ) . '");', 'before' );
 	}
 
 	/**
