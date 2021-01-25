@@ -340,22 +340,22 @@ class Jetpack_Beta_Admin {
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
-		<div <?php echo $pr; ?> " class="dops-foldable-card <?php echo esc_attr( $branch_class ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
+		<div <?php echo esc_attr( $pr ); ?> " class="dops-foldable-card <?php echo esc_attr( $branch_class ); ?> has-expanded-summary dops-card <?php echo esc_attr( $is_compact ); ?>">
 			<div class="dops-foldable-card__header has-border" >
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
 						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
 						<div class="dops-foldable-card__subheader">
 						<?php
-							echo $more_info;
-							echo $update_time;
+							echo wp_kses_post( $more_info );
+							echo wp_kses_post( $update_time );
 						?>
 						</div>
 					</div>
 				</span>
 				<span class="dops-foldable-card__secondary">
 					<span class="dops-foldable-card__summary">
-						<?php echo $action; ?>
+						<?php echo wp_kses_post( $action ); ?>
 					</span>
 				</span>
 			</div>
@@ -390,7 +390,7 @@ class Jetpack_Beta_Admin {
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
-		<div <?php echo $data_tag; ?> " class="dops-foldable-card <?php echo esc_attr( $className ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
+		<div <?php echo wp_kses_post( $data_tag ); ?> " class="dops-foldable-card <?php echo esc_attr( $className ); ?> has-expanded-summary dops-card <?php echo esc_attr( $is_compact ); ?>">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
@@ -409,7 +409,7 @@ class Jetpack_Beta_Admin {
 				</span>
 				<span class="dops-foldable-card__secondary">
 					<span class="dops-foldable-card__summary">
-						<?php echo $action; ?>
+						<?php echo wp_kses_post( $action ); ?>
 					</span>
 				</span>
 			</div>
@@ -712,7 +712,7 @@ class Jetpack_Beta_Admin {
 					<span class="dops-foldable-card__summary">
 						<a
 							href="<?php echo esc_url( $url ); ?>"
-							class="is-primary jp-form-button activate-branch dops-button is-compact"><?php _e( 'Update', 'jetpack-beta' ); ?></a>
+							class="is-primary jp-form-button activate-branch dops-button is-compact"><?php esc_html_e( 'Update', 'jetpack-beta' ); ?></a>
 					</span>
 				</span>
 			</div>
