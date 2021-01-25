@@ -932,14 +932,13 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 8.4.0
 	 *
-	 * @param string $slug The slug for the block.
+	 * @param array $availability_for_block The availability for the block.
 	 *
 	 * @return bool
 	 */
-	public static function should_show_frontend_preview( $slug ) {
-		$availability = self::get_availability();
+	public static function should_show_frontend_preview( $availability_for_block ) {
 		return (
-			isset( $availability[ $slug ]['details']['required_plan'] )
+			isset( $availability_for_block['details']['required_plan'] )
 			&& current_user_can( 'manage_options' )
 			&& ! is_feed()
 		);
@@ -1072,7 +1071,10 @@ class Jetpack_Gutenberg {
 			}
 
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
-			if ( self::should_show_frontend_preview( $bare_slug ) ) {
+			if (
+				isset( $availability[ $bare_slug ] ) &&
+				self::should_show_frontend_preview( $availability[ $bare_slug ] )
+			) {
 				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 				$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
 				return $upgrade_nudge . $block_preview;
