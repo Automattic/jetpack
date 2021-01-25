@@ -120,7 +120,7 @@ main() {
 	output "\n\nTools used by scripts"
 	output   "\n=====================\n\n"
 
-	assert modern_version_of_bash
+	assert bash_version_is_proper
 	assert command_is_available jq
 
 	output "\n\nDocker Development Environment"
