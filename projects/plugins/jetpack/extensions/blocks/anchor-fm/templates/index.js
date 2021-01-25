@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { createBlocksFromInnerBlocksTemplate, rawHandler } from '@wordpress/blocks';
+import { createBlocksFromInnerBlocksTemplate, pasteHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
@@ -76,7 +76,7 @@ function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
 }
 
 function podcastSummarySection( { episodeTrack } ) {
-	const summaryBlocks = rawHandler( { HTML: episodeTrack.description_html } );
+	const summaryBlocks = pasteHandler( { HTML: episodeTrack.description_html, mode: 'BLOCKS' } );
 	return [
 		'core/group',
 		{},
