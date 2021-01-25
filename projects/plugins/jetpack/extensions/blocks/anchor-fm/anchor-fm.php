@@ -80,9 +80,9 @@ function process_anchor_params() {
 	}
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
-	$podcast_id       = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
-	$episode_id       = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
-	$spotify_show_url = isset( $_GET['spotify_show_url'] ) ? wp_unslash( $_GET['spotify_show_url'] ) : null;
+	$podcast_id  = isset( $_GET['anchor_podcast'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_podcast'] ) ) : null;
+	$episode_id  = isset( $_GET['anchor_episode'] ) ? sanitize_text_field( wp_unslash( $_GET['anchor_episode'] ) ) : null;
+	$spotify_url = isset( $_GET['spotify_url'] ) ? wp_unslash( $_GET['spotify_url'] ) : null;
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	$data = array(
@@ -90,7 +90,7 @@ function process_anchor_params() {
 	);
 
 	// add / update Spotify Badge URL.
-	$valid_spotify_url = \Jetpack_Gutenberg::validate_block_embed_url( $spotify_show_url, array( 'open.spotify.com' ) );
+	$valid_spotify_url = \Jetpack_Gutenberg::validate_block_embed_url( $spotify_url, array( 'open.spotify.com' ) );
 	if ( $valid_spotify_url ) {
 		$data['spotifyShowUrl'] = $valid_spotify_url;
 		if ( get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) !== $valid_spotify_url ) {
