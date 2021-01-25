@@ -1,5 +1,11 @@
 <?php
+/**
+ * Primary class file for the Jetpack Beta plugin.
+ *
+ * @package Jetpack Beta
+ */
 
+// Check that the file is not accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -66,14 +72,14 @@ class Jetpack_Beta_Autoupdate_Self {
 			$tagged_version = false;
 			if ( is_array( $releases ) ) {
 				foreach ( $releases as $release ) {
-					// Since 2.2, So that we don't have to maker the Jetpack Beta 2.0.3 as prerelease
+					// Since 2.2, so that we don't have to maker the Jetpack Beta 2.0.3 as prerelease.
 					if ( ! $release->prerelease ) {
 						$tagged_version = $release->tag_name;
 						break;
 					}
 				}
 			}
-			// refresh every 6 hours
+			// Refresh every 6 hours.
 			if ( ! empty( $tagged_version ) ) {
 				set_site_transient( self::TRANSIENT_NAME, $tagged_version, 60 * 60 * 6 );
 			}
@@ -96,10 +102,10 @@ class Jetpack_Beta_Autoupdate_Self {
 					return false;
 				}
 				$github_data = json_decode( $github_data['body'] );
-				// refresh every 6 hours
+				// Refresh every 6 hours.
 				set_site_transient( md5( $this->config['slug'] ) . '_github_data', $github_data, 60 * 60 * 6 );
 			}
-			// Store the data in this class instance for future calls
+			// Store the data in this class instance for future calls.
 			$this->github_data = $github_data;
 		}
 		return $github_data;
@@ -128,12 +134,12 @@ class Jetpack_Beta_Autoupdate_Self {
 	}
 
 	public function api_check( $transient ) {
-		// Check if the transient contains the 'checked' information
-		// If not, just return its value without hacking it
+		// Check if the transient contains the 'checked' information.
+		// If not, just return its value without hacking it.
 		if ( ! isset( $transient->no_update ) ) {
 			return $transient;
 		}
-		// get the latest version
+		// Get the latest version.
 		delete_site_transient( self::TRANSIENT_NAME );
 
 		if ( $this->has_never_version() ) {
@@ -143,7 +149,7 @@ class Jetpack_Beta_Autoupdate_Self {
 			$response->slug        = $this->config['slug'];
 			$response->url         = $this->config['github_url'];
 			$response->package     = $this->config['zip_url'];
-			// If response is false, don't alter the transient
+			// If response is false, don't alter the transient.
 			if ( false !== $response ) {
 				$transient->response[ $this->config['plugin_file'] ] = $response;
 			}
@@ -152,11 +158,11 @@ class Jetpack_Beta_Autoupdate_Self {
 	}
 
 	public function get_plugin_info( $false, $action, $response ) {
-		// Check if this call API is for the right plugin
+		// Check if this call API is for the right plugin.
 		if ( ! isset( $response->slug ) || $response->slug != $this->config['slug'] ) {
 			return false;
 		}
-		// Update tags
+		// Update tags.
 		$this->set_update_args();
 		$response->slug          = $this->config['slug'];
 		$response->plugin        = $this->config['slug'];
