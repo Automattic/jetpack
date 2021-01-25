@@ -27,8 +27,8 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	];
 }
 
-function podcastSection( { episodeTrack } ) {
-	const { image, link } = episodeTrack;
+function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
+	const { image, guid } = episodeTrack;
 
 	return [
 		'core/columns',
@@ -37,20 +37,22 @@ function podcastSection( { episodeTrack } ) {
 		},
 		[
 			[
-				'core/column', {
+				'core/column',
+				{
 					width: '30%',
 				},
 				[
 					[
 						'core/image',
 						{
-							url: image ? image : null,
+							url: image ? image : coverImage,
 						},
 					],
 				],
 			],
 			[
-				'core/column', {
+				'core/column',
+				{
 					width: '70%',
 					verticalAlignment: 'center',
 				},
@@ -60,7 +62,8 @@ function podcastSection( { episodeTrack } ) {
 						{
 							customPrimaryColor: getIconColor(),
 							hexPrimaryColor: getIconColor(),
-							url: link,
+							url: feedUrl,
+							selectedEpisodes: guid ? [ { guid } ] : [],
 							showCoverArt: false,
 							showEpisodeTitle: false,
 							showEpisodeDescription: false,
@@ -89,7 +92,7 @@ function podcastSummarySection( { episodeTrack } ) {
 				'core/paragraph',
 				{
 					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description,
+					content: episodeTrack.description_html,
 				},
 			],
 		],
@@ -98,7 +101,9 @@ function podcastSummarySection( { episodeTrack } ) {
 
 function podcastConversationSection() {
 	const conversationBlockName = 'jetpack/conversation';
-	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType( conversationBlockName );
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType(
+		conversationBlockName
+	);
 
 	// Check if `jetpack/conversation` block is register.
 	if ( ! isConversationBlockAvailable ) {
@@ -180,8 +185,14 @@ function podcastConversationSection() {
 /*
  * Template parts
  */
-function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {} } ) {
-	const tpl = [ podcastSection( { episodeTrack } ) ];
+function episodeBasicTemplate( {
+	spotifyShowUrl,
+	spotifyImageUrl,
+	episodeTrack = {},
+	feedUrl,
+	coverImage,
+} ) {
+	const tpl = [ podcastSection( { episodeTrack, feedUrl, coverImage } ) ];
 
 	if ( spotifyShowUrl && spotifyImageUrl ) {
 		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );

@@ -91,7 +91,6 @@ class Invocations extends PersistentList {
 		$ast = $traverser->traverse( $ast );
 
 		$traverser         = new NodeTraverser();
-		$invocations       = new Invocations();
 		$invocation_finder = new Invocations\Visitor( $file_path_relative, $this );
 		$traverser->addVisitor( $invocation_finder );
 		$ast = $traverser->traverse( $ast );

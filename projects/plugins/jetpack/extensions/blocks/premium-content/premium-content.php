@@ -64,6 +64,66 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
+	if (
+		! membership_checks()
+		// Only display Stripe nudge if Upgrade nudge isn't displaying.
+		&& required_plan_checks()
+	) {
+		$stripe_nudge = render_stripe_nudge();
+		return $stripe_nudge . $content;
+	}
+
 	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 	return $content;
+}
+
+/**
+ * Server-side rendering for the stripe connection nudge.
+ *
+ * @return string Final content to render.
+ */
+function render_stripe_nudge() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		\jetpack_require_lib( 'memberships' );
+		$blog_id  = get_current_blog_id();
+		$settings = (array) \get_memberships_settings_for_site( $blog_id );
+
+		return stripe_nudge(
+			$settings['connect_url'],
+			__( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
+			__( 'Connect', 'jetpack' )
+		);
+	} elseif ( jetpack_is_atomic_site() ) {
+		// On Atomic sites, the Stripe connection url is not easily available
+		// server-side, so we redirect them to the post in the editor in order
+		// to connect.
+		return stripe_nudge(
+			get_edit_post_link( get_the_ID() ),
+			__( 'Connect to Stripe in the editor to use this block on your site.', 'jetpack' ),
+			__( 'Edit post', 'jetpack' )
+		);
+	}
+
+	// The Premium Content block is not supported on Jetpack sites.
+	return '';
+}
+
+/**
+ * Render the stripe nudge.
+ *
+ * @param string $checkout_url Url for the CTA.
+ * @param string $description  Text of the nudge.
+ * @param string $button_text  Text of the button.
+ *
+ * @return string Final content to render.
+ */
+function stripe_nudge( $checkout_url, $description, $button_text ) {
+	\jetpack_require_lib( 'components' );
+	return \Jetpack_Components::render_frontend_nudge(
+		array(
+			'checkoutUrl' => $checkout_url,
+			'description' => $description,
+			'buttonText'  => $button_text,
+		)
+	);
 }

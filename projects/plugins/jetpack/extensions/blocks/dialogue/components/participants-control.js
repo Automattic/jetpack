@@ -7,6 +7,7 @@ import {
 	MenuItem,
 	SelectControl,
 } from '@wordpress/components';
+import { check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
@@ -20,7 +21,7 @@ function ParticipantsMenu( { participants, className, onSelect, participantSlug,
 						onClose();
 					} }
 					isSelected={ participantSlug === slug }
-					icon={ participantSlug === slug ? 'yes' : null }
+					icon={ participantSlug === slug ? check : null }
 				>
 					{ participant }
 				</MenuItem>

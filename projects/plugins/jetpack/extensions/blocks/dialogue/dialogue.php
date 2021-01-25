@@ -37,18 +37,18 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Helper function to filter dialogue content,
- * in order to provide a safe markup.
+ * Helper function to convert the given time value
+ * in a time code string with the `HH:MM:SS` shape.
  *
- * @param string $content Dialogue content.
- * @return string Safe dialgue content markup.
+ * @param {integer} $time - Time, in seconds, to convert.
+ * @return {string} Time converted in HH:MM:SS.
  */
-function filter_content( $content ) {
-	if ( empty( $content ) ) {
-		return '';
+function convert_time_code_to_seconds( $time ) {
+	$sec = 0;
+	foreach ( array_reverse( explode( ':', $time ) ) as $k => $v ) {
+		$sec += pow( 60, $k ) * $v;
 	}
-
-	return wp_kses_post( $content );
+	return $sec;
 }
 
 /**
@@ -64,7 +64,6 @@ function check_dialogue_attrs( $attrs, $block ) {
 		'label'          => isset( $attrs['participant'] ) ? $attrs['participant'] : null,
 		'timestamp'      => isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00',
 		'show_timestamp' => isset( $block->context['jetpack/conversation-showTimestamps'] ),
-		'content'        => ! empty( $attrs['content'] ) ? filter_content( $attrs['content'] ) : '',
 	);
 }
 /**
@@ -130,7 +129,7 @@ function get_participant_name( $participants, $slug, $attrs ) {
 	$participant = get_current_participant( $participants, $slug );
 
 	return isset( $participant['participant'] )
-		? esc_attr( $participant['participant'] )
+		? $participant['participant']
 		: $attrs['label'];
 }
 
@@ -191,13 +190,13 @@ function build_participant_css_classes( $participants, $slug, $attrs, $css_class
 /**
  * Dialogue block registration/dependency declaration.
  *
- * @param array  $dialogue_attrs Array containing the Dialogue block attributes.
+ * @param array  $attrs         Array containing the Dialogue block attributes.
  * @param string $block_content String containing the Dialogue block content.
- * @param object $block Block object data.
+ * @param object $block         Block object data.
  *
  * @return string
  */
-function render_block( $dialogue_attrs, $block_content, $block ) {
+function render_block( $attrs, $block_content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	// Pick up conversation data from context.
@@ -208,30 +207,35 @@ function render_block( $dialogue_attrs, $block_content, $block ) {
 	);
 
 	// Dialogue Attributes.
-	$attrs = check_dialogue_attrs( $dialogue_attrs, $block );
+	$sanitized_attrs = check_dialogue_attrs( $attrs, $block );
 
 	// Conversation/Dialogue data.
 	$participants     = get_participantes_list( $block, $default_participants );
-	$participant_slug = get_participant_slug( $attrs, $block, $default_participants );
-	$participant_name = get_participant_name( $participants, $participant_slug, $attrs );
+	$participant_slug = get_participant_slug( $sanitized_attrs, $block, $default_participants );
+	$participant_name = get_participant_name( $participants, $participant_slug, $sanitized_attrs );
+	$css_classname    = Blocks::classes( FEATURE_NAME, $attrs );
 
-	// CSS classes and inline styles.
-	$css_classname           = Blocks::classes( FEATURE_NAME, $dialogue_attrs );
-	$participant_css_classes = build_participant_css_classes( $participants, $participant_slug, $attrs, $css_classname );
+	$markup = sprintf(
+		'<div class="%1$s"><div class="%1$s__meta"><div class="%2$s">%3$s</div>',
+		esc_attr( $css_classname ),
+		esc_attr( build_participant_css_classes( $participants, $participant_slug, $sanitized_attrs, $css_classname ) ),
+		esc_html( $participant_name )
+	);
 
-	// Markup.
-	return '<div class="' . $css_classname . '" >' .
-		'<div class="' . $css_classname . '__meta">' .
-			'<div class="' . $participant_css_classes . '">' .
-				$participant_name .
-			'</div>' .
-			( $attrs['show_timestamp']
-				? '<div class="' . $css_classname . '__timestamp">' .
-					$attrs['timestamp'] .
-				'</div>'
-				: ''
-			) .
-		'</div>' .
-		'<p>' . $attrs['content'] . '</p>' .
-	'</div>';
+	// Display timestamp if we have info about it.
+	if ( $sanitized_attrs['show_timestamp'] ) {
+		$markup .= sprintf(
+			'<div class="%1$s__timestamp"><a href="#" class="%1$s__timestamp_link" data-timestamp="%2$s">%3$s</a></div>',
+			esc_attr( $css_classname ),
+			convert_time_code_to_seconds( $sanitized_attrs['timestamp'] ),
+			esc_attr( $sanitized_attrs['timestamp'] )
+		);
+	}
+
+	$markup .= sprintf(
+		'</div><div>%s</div></div>',
+		! empty( $attrs['content'] ) ? wp_kses_post( $attrs['content'] ) : ''
+	);
+
+	return $markup;
 }

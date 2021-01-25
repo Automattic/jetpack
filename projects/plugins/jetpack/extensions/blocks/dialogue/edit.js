@@ -84,15 +84,14 @@ export default function DialogueEdit( {
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
+	const showTimestamp = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length
 		? participantsFromContext
 		: defaultParticipants;
 
-	const currentParticipantSlug = participantSlug;
-	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
+	const currentParticipant = getParticipantBySlug( participants, participantSlug );
 	const participantLabel = currentParticipant?.participant;
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
@@ -117,9 +116,6 @@ export default function DialogueEdit( {
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
-	// in-sync mode
-	const [ playerSyncMode, setPlayerSyncMode ] = useState( false );
-
 	// Try to focus the RichText component when mounted.
 	const hasContent = content?.length > 0;
 	const richTextRefCurrent = richTextRef?.current;
@@ -143,15 +139,13 @@ export default function DialogueEdit( {
 		richTextRefCurrent.focus();
 	}, [ isSelected, hasContent, richTextRefCurrent ] );
 
-	const showTimestamp = showTimestampGlobally;
-
 	function hasStyle( style ) {
 		return currentParticipant?.[ style ];
 	}
 
 	function toggleParticipantStyle( style ) {
 		conversationBridge.updateParticipants( {
-			participantSlug: currentParticipantSlug,
+			participantSlug,
 			[ style ]: ! currentParticipant[ style ],
 		} );
 	}
@@ -186,11 +180,11 @@ export default function DialogueEdit( {
 					/>
 				</ToolbarGroup>
 
-				<MediaPlayerToolbarControl
-					onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
-					syncMode={ playerSyncMode }
-					onSyncModeToggle={ setPlayerSyncMode }
-				/>
+				{ mediaSource && (
+					<MediaPlayerToolbarControl
+						onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
+					/>
+				) }
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
@@ -241,12 +235,9 @@ export default function DialogueEdit( {
 
 						{ showTimestamp && (
 							<TimestampControl
-								skipForwardTime = { false }
-								jumpBackTime = { false }
 								className={ baseClassName }
 								value={ timestamp }
 								onChange={ setTimestamp }
-								isDisabled={ playerSyncMode }
 							/>
 						) }
 					</PanelBody>
@@ -267,9 +258,6 @@ export default function DialogueEdit( {
 						value={ timestamp }
 						onChange={ setTimestamp }
 						shortLabel={ true }
-						skipForwardTime = { false }
-						jumpBackTime = { false }
-						isDisabled={ playerSyncMode }
 					/>
 				) }
 			</div>

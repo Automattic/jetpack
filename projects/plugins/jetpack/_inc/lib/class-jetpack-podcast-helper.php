@@ -31,11 +31,18 @@ class Jetpack_Podcast_Helper {
 	 *
 	 * The result is cached for one hour.
 	 *
+	 * @param array $args {
+	 *    Optional array of arguments.
+	 *    @type string|int $guid  The ID of a specific episode to return rather than a list.
+	 * }
+	 *
 	 * @return array|WP_Error  The player data or a error object.
 	 */
-	public function get_player_data() {
+	public function get_player_data( $args = array() ) {
+		$guids = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
+
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $this->feed );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
@@ -47,8 +54,18 @@ class Jetpack_Podcast_Helper {
 				return $rss;
 			}
 
-			// Get tracks.
-			$tracks = $this->get_track_list();
+			// Get a list of episodes by guid or all tracks in feed.
+			if ( count( $guids ) ) {
+				$tracks = array_map( array( $this, 'get_track_data' ), $guids );
+				$tracks = array_filter(
+					$tracks,
+					function ( $track ) {
+						return ! is_wp_error( $track );
+					}
+				);
+			} else {
+				$tracks = $this->get_track_list();
+			}
 
 			if ( empty( $tracks ) ) {
 				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
@@ -146,14 +163,39 @@ class Jetpack_Podcast_Helper {
 	 * @return string Plain text string.
 	 */
 	protected function get_plain_text( $str ) {
+		return $this->sanitize_and_decode_text( $str, true );
+	}
+
+	/**
+	 * Formats strings as safe HTML.
+	 *
+	 * @param string $str Input string.
+	 * @return string HTML text string safe for post_content.
+	 */
+	protected function get_html_text( $str ) {
+		return $this->sanitize_and_decode_text( $str, false );
+	}
+
+	/**
+	 * Strip unallowed html tags and decode entities.
+	 *
+	 * @param string  $str Input string.
+	 * @param boolean $strip_all_tags Strip all tags, otherwise allow post_content safe tags.
+	 * @return string Sanitized and decoded text.
+	 */
+	protected function sanitize_and_decode_text( $str, $strip_all_tags = true ) {
 		// Trim string and return if empty.
 		$str = trim( (string) $str );
 		if ( empty( $str ) ) {
 			return '';
 		}
 
-		// Make sure there are no tags.
-		$str = wp_strip_all_tags( $str );
+		if ( $strip_all_tags ) {
+			// Make sure there are no tags.
+			$str = wp_strip_all_tags( $str );
+		} else {
+			$str = wp_kses_post( $str );
+		}
 
 		// Replace all entities with their characters, including all types of quotes.
 		$str = html_entity_decode( $str, ENT_QUOTES );
@@ -217,14 +259,15 @@ class Jetpack_Podcast_Helper {
 
 		// Build track data.
 		$track = array(
-			'id'          => wp_unique_id( 'podcast-track-' ),
-			'link'        => esc_url( $episode->get_link() ),
-			'src'         => esc_url( $enclosure->link ),
-			'type'        => esc_attr( $enclosure->type ),
-			'description' => $this->get_plain_text( $episode->get_description() ),
-			'title'       => $this->get_plain_text( $episode->get_title() ),
-			'image'       => esc_url( $this->get_episode_image_url( $episode ) ),
-			'guid'        => $this->get_plain_text( $episode->get_id() ),
+			'id'               => wp_unique_id( 'podcast-track-' ),
+			'link'             => esc_url( $episode->get_link() ),
+			'src'              => esc_url( $enclosure->link ),
+			'type'             => esc_attr( $enclosure->type ),
+			'description'      => $this->get_plain_text( $episode->get_description() ),
+			'description_html' => $this->get_html_text( $episode->get_description() ),
+			'title'            => $this->get_plain_text( $episode->get_title() ),
+			'image'            => esc_url( $this->get_episode_image_url( $episode ) ),
+			'guid'             => $this->get_plain_text( $episode->get_id() ),
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -327,29 +370,33 @@ class Jetpack_Podcast_Helper {
 			'items'       => array(
 				'type'       => 'object',
 				'properties' => array(
-					'id'          => array(
+					'id'               => array(
 						'description' => __( 'The episode id. Generated per request, not globally unique.', 'jetpack' ),
 						'type'        => 'string',
 					),
-					'link'        => array(
+					'link'             => array(
 						'description' => __( 'The external link for the episode.', 'jetpack' ),
 						'type'        => 'string',
 						'format'      => 'uri',
 					),
-					'src'         => array(
+					'src'              => array(
 						'description' => __( 'The audio file URL of the episode.', 'jetpack' ),
 						'type'        => 'string',
 						'format'      => 'uri',
 					),
-					'type'        => array(
+					'type'             => array(
 						'description' => __( 'The mime type of the episode.', 'jetpack' ),
 						'type'        => 'string',
 					),
-					'description' => array(
+					'description'      => array(
 						'description' => __( 'The episode description, in plaintext.', 'jetpack' ),
 						'type'        => 'string',
 					),
-					'title'       => array(
+					'description_html' => array(
+						'description' => __( 'The episode description with allowed html tags.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'title'            => array(
 						'description' => __( 'The episode title.', 'jetpack' ),
 						'type'        => 'string',
 					),

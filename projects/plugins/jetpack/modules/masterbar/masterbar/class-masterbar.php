@@ -441,12 +441,17 @@ class Masterbar {
 				'parent' => 'root-default',
 				'id'     => 'newdash',
 				'title'  => esc_html__( 'Reader', 'jetpack' ),
-				'href'   => '#',
+				'href'   => 'https://wordpress.com/read',
 				'meta'   => array(
 					'class' => 'mb-trackable',
 				),
 			)
 		);
+
+		/** This filter is documented in modules/masterbar.php */
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+			return;
+		}
 
 		$wp_admin_bar->add_menu(
 			array(
@@ -606,12 +611,17 @@ class Masterbar {
 				'id'     => 'my-account',
 				'parent' => 'top-secondary',
 				'title'  => $avatar . '<span class="ab-text">' . esc_html__( 'Me', 'jetpack' ) . '</span>',
-				'href'   => '#',
+				'href'   => 'https://wordpress.com/me',
 				'meta'   => array(
 					'class' => $class,
 				),
 			)
 		);
+
+		/** This filter is documented in modules/masterbar.php */
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+			return;
+		}
 
 		$id = 'user-actions';
 		$wp_admin_bar->add_group(
@@ -821,12 +831,17 @@ class Masterbar {
 				'parent' => 'root-default',
 				'id'     => 'blog',
 				'title'  => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
-				'href'   => '#',
+				'href'   => 'https://wordpress.com/sites/' . $this->primary_site_url,
 				'meta'   => array(
 					'class' => 'my-sites mb-trackable',
 				),
 			)
 		);
+
+		/** This filter is documented in modules/masterbar.php */
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+			return;
+		}
 
 		if ( $this->user_site_count > 1 ) {
 			$wp_admin_bar->add_menu(
@@ -937,7 +952,7 @@ class Masterbar {
 				array(
 					'url'   => $plans_url,
 					'id'    => 'wp-admin-bar-plan-badge',
-					'label' => $plan['product_name_short'],
+					'label' => ! empty( $plan['product_name_short'] ) ? $plan['product_name_short'] : esc_html__( 'Free', 'jetpack' ),
 				)
 			);
 
