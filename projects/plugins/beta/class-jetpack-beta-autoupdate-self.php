@@ -14,7 +14,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Allow the Jetpack Beta to autoupdate itself.
  */
 class Jetpack_Beta_Autoupdate_Self {
-	protected static $_instance = null;
+
+	/**
+	 * Singleton Jetpack_Beta class instance.
+	 *
+	 * @var Jetpack_Beta_Autoupdate_Self
+	 */
+	protected static $instance = null;
 
 	const TRANSIENT_NAME = 'JETPACK_BETA_LATEST_TAG';
 
@@ -22,14 +28,18 @@ class Jetpack_Beta_Autoupdate_Self {
 	 * Main Instance
 	 */
 	public static function instance() {
-		return self::$_instance = is_null( self::$_instance ) ? new self() : self::$_instance;
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
 	}
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		if ( ! empty( self::$_instance ) ) {
+		if ( ! empty( self::$instance ) ) {
 			return;
 		}
 
@@ -96,7 +106,7 @@ class Jetpack_Beta_Autoupdate_Self {
 			$github_data = $this->github_data;
 		} else {
 			$github_data = get_site_transient( md5( $this->config['slug'] ) . '_github_data' );
-			if ( $this->overrule_transients() || ( ! isset( $github_data ) || ! $github_data || '' == $github_data ) ) {
+			if ( $this->overrule_transients() || ( ! isset( $github_data ) || ! $github_data || '' === $github_data ) ) {
 				$github_data = wp_remote_get( $this->config['api_url'] );
 				if ( is_wp_error( $github_data ) ) {
 					return false;
@@ -159,7 +169,7 @@ class Jetpack_Beta_Autoupdate_Self {
 
 	public function get_plugin_info( $false, $action, $response ) {
 		// Check if this call API is for the right plugin.
-		if ( ! isset( $response->slug ) || $response->slug != $this->config['slug'] ) {
+		if ( ! isset( $response->slug ) || $response->slug !== $this->config['slug'] ) {
 			return false;
 		}
 		// Update tags.
@@ -180,7 +190,7 @@ class Jetpack_Beta_Autoupdate_Self {
 		return $response;
 	}
 
-	public function upgrader_source_selection( $source, $remote_source, $upgrader ) {
+	public function upgrader_source_selection( $source, $remote_source ) {
 		global $wp_filesystem;
 		if ( strstr( $source, '/Automattic-jetpack-beta-' ) ) {
 			$corrected_source = trailingslashit( $remote_source ) . trailingslashit( $this->config['proper_folder_name'] );
