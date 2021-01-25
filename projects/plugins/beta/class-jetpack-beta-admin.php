@@ -272,19 +272,23 @@ class Jetpack_Beta_Admin {
 			<p><?php esc_html_e( 'Thank you for helping to test Jetpack!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
 			<p>
 			<?php
-			_e(
-				'When you select a Jetpack branch to test, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
-			When you are finished testing, you can switch back to the current version of Jetpack by selecting <em>Latest Stable</em>.',
-				'jetpack-beta'
+			echo wp_kses_post(
+				__(
+					'When you select a Jetpack branch to test, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
+					When you are finished testing, you can switch back to the current version of Jetpack by selecting <em>Latest Stable</em>.',
+					'jetpack-beta'
+				)
 			);
 			?>
 				</p>
 			<p>
 			<?php
-			printf(
-				// Translators: link to Jetack master testing doc in github.
-				__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
-				esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
+			echo wp_kses_post(
+				printf(
+					// Translators: link to Jetack master testing doc in github.
+					__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
+					esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
+				)
 			);
 			?>
 			</p>
