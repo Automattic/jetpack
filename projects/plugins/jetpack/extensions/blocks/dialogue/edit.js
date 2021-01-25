@@ -62,7 +62,6 @@ export default function DialogueEdit( {
 	context,
 	onReplace,
 	mergeBlocks,
-	isSelected,
 } ) {
 	const {
 		participantSlug,
@@ -115,29 +114,6 @@ export default function DialogueEdit( {
 			content: '',
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
-
-	// Try to focus the RichText component when mounted.
-	const hasContent = content?.length > 0;
-	const richTextRefCurrent = richTextRef?.current;
-	useLayoutEffect( () => {
-		// Bail if component is not selected.
-		if ( ! isSelected ) {
-			return;
-		}
-
-		// Bail if context reference is not valid.
-		if ( ! richTextRefCurrent ) {
-			return;
-		}
-
-		// Bail if context is not empty.
-		if ( hasContent ) {
-			return;
-		}
-
-		// Focus the rich text component
-		richTextRefCurrent.focus();
-	}, [ isSelected, hasContent, richTextRefCurrent ] );
 
 	function hasStyle( style ) {
 		return currentParticipant?.[ style ];
