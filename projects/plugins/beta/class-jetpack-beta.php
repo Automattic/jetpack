@@ -1047,6 +1047,9 @@ class Jetpack_Beta {
 	 * @param bool   $force_activate      - Whether to force activate plguin.
 	 */
 	public static function replace_active_plugin( $current_plugin, $replace_with_plugin = null, $force_activate = false ) {
+		// The autoloader sets the cache in a shutdown hook. Clear it after the autoloader sets it.
+		add_action( 'shutdown', array( __CLASS__, 'clear_autoloader_plugin_cache' ), 99 );
+
 		if ( self::is_network_active() ) {
 			$new_active_plugins     = array();
 			$network_active_plugins = get_site_option( 'active_sitewide_plugins' );
@@ -1472,5 +1475,12 @@ class Jetpack_Beta {
 
 		// Returning false makes the error go through the standard error handler as well.
 		return false;
+	}
+
+	/**
+	 * Clears the autoloader transient.
+	 */
+	public static function clear_autoloader_plugin_cache() {
+		delete_transient( 'jetpack_autoloader_plugin_paths' );
 	}
 }
