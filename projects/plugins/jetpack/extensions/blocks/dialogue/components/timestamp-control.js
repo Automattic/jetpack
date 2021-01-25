@@ -3,14 +3,11 @@
  */
 import { Dropdown, Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
-import { STORE_ID } from '../../../store/media-source/constants';
-import { convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -64,65 +61,50 @@ export function TimestampControl( {
 	shortLabel = false,
 	isDisabled = false,
 } ) {
-	const mediaCurrentTime = useSelect( select => select( STORE_ID ).getMediaSourceCurrentTime() );
-	const { setMediaSourceCurrentTime, playMediaSource } = useDispatch( STORE_ID );
-
-	const valueInSeconds = convertTimeCodeToSeconds( value );
-	const isPlayButtonDisabled = Math.abs( valueInSeconds - mediaCurrentTime ) < 1;
-
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
 	}
 
 	return (
-		<div className={ `${ className }__timestamp-container` }>
-			<div className={ `${ className }__timestamp-controls` }>
-				<NumberControl
-					className={ `${ className }__timestamp-control__hour` }
-					label={ shortLabel ? __( 'Hour', 'jetpack' ) : __( 'Hour', 'jetpack' ) }
-					value={ smh[ 0 ] }
-					min={ 0 }
-					max={ 23 }
-					onChange={ hour => ! isDisabled && onChange( setTimestampValue( { hour }, smh ) ) }
-					disabled={ isDisabled }
-				/>
+		<div className={ `${ className }__timestamp-controls` }>
+			<NumberControl
+				className={ `${ className }__timestamp-control__hour` }
+				label={
+					shortLabel
+						? _x( 'Hour', 'hour (short form)', 'jetpack' )
+						: _x( 'Hour', 'hour (long form)', 'jetpack' )
+				}
+				value={ smh[ 0 ] }
+				min={ 0 }
+				max={ 23 }
+				onChange={ hour => ! isDisabled && onChange( setTimestampValue( { hour }, smh ) ) }
+				disabled={ isDisabled }
+			/>
 
-				<NumberControl
-					className={ `${ className }__timestamp-control__minute` }
-					label={
-						shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' )
-					}
-					value={ smh[ 1 ] }
-					min={ 0 }
-					max={ 59 }
-					onChange={ min => ! isDisabled && onChange( setTimestampValue( { min }, smh ) ) }
-					disabled={ isDisabled }
-				/>
+			<NumberControl
+				className={ `${ className }__timestamp-control__minute` }
+				label={
+					shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' )
+				}
+				value={ smh[ 1 ] }
+				min={ 0 }
+				max={ 59 }
+				onChange={ min => ! isDisabled && onChange( setTimestampValue( { min }, smh ) ) }
+				disabled={ isDisabled }
+			/>
 
-				<NumberControl
-					className={ `${ className }__timestamp-control__second` }
-					label={
-						shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' )
-					}
-					value={ smh[ 2 ] }
-					min={ 0 }
-					max={ 59 }
-					onChange={ sec => ! isDisabled && onChange( setTimestampValue( { sec }, smh ) ) }
-					disabled={ isDisabled }
-				/>
-
-				<Button
-					className={ `${ className }__timestamp-control__play-button` }
-					icon="controls-play"
-					onClick={ () => {
-						setMediaSourceCurrentTime( null, valueInSeconds );
-						playMediaSource();
-					} }
-					label={ __( 'Playback to timestamp', 'jetpack' ) }
-					disabled={ isDisabled || isPlayButtonDisabled }
-				/>
-			</div>
+			<NumberControl
+				className={ `${ className }__timestamp-control__second` }
+				label={
+					shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' )
+				}
+				value={ smh[ 2 ] }
+				min={ 0 }
+				max={ 59 }
+				onChange={ sec => ! isDisabled && onChange( setTimestampValue( { sec }, smh ) ) }
+				disabled={ isDisabled }
+			/>
 		</div>
 	);
 }

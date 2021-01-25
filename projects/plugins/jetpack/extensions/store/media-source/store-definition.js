@@ -4,7 +4,7 @@
 import { STATE_PLAYING, STATE_PAUSED, STATE_ERROR } from './constants';
 
 const DEFAULT_STATE = {
-	players: {},
+	sources: {},
 	default: null,
 };
 
@@ -82,24 +82,24 @@ const actions = {
 const selectors = {
 	getDefaultMediaSource( state ) {
 		let playerId = null;
-		const keys = Object.keys( state.players );
+		const keys = Object.keys( state.sources );
 
 		if ( state.default ) {
 			playerId = state.default;
 		} else if ( keys?.length ) {
-			playerId = state.players[ keys[ 0 ] ].id;
+			playerId = state.sources[ keys[ 0 ] ].id;
 		}
 
 		if ( ! playerId ) {
 			return;
 		}
 
-		return state.players[ playerId ];
+		return state.sources[ playerId ];
 	},
 
 	getMediaPlayerState( state, id ) {
 		const defaultMediaSource = id
-			? state.players?.[ id ]
+			? state.sources?.[ id ]
 			: selectors.getDefaultMediaSource( state );
 
 		return defaultMediaSource?.state;
@@ -107,7 +107,7 @@ const selectors = {
 
 	getMediaSourceCurrentTime( state, id ) {
 		const defaultMediaSource = id
-			? state.players?.[ id ]
+			? state.sources?.[ id ]
 			: selectors.getDefaultMediaSource( state );
 
 		return defaultMediaSource?.currentTime;
@@ -119,12 +119,12 @@ const selectors = {
 			return defaultMediaSource?.duration;
 		}
 
-		return state.players?.[ id ]?.duration;
+		return state.sources?.[ id ]?.duration;
 	},
 
 	getMediaSourceDomReference( state, id ) {
 		const defaultMediaSource = id
-			? state.players?.[ id ]
+			? state.sources?.[ id ]
 			: selectors.getDefaultMediaSource( state );
 
 		if ( ! defaultMediaSource ) {
@@ -137,19 +137,24 @@ const selectors = {
 		}
 
 		return document.getElementById( domId );
-	},
+	}
 };
 
 const storeDefinition = {
 	reducer( state = DEFAULT_STATE, action ) {
-		const actionId = action.id || state.default;
+		// Some actions doesn't have defined the source ID
+		// On this case, we try to get safe getting the default ID.
+		// Othewise, it will try to pick the first fro the souces list.
+		const actionId = action.id ||
+			state.default ||
+			Object.keys( state.sources )?.[ 0 ];
 
 		switch ( action.type ) {
 			case 'REGISTER_MEDIA_SOURCE': {
 				return {
 					...state,
-					players: {
-						...state.players,
+					sources: {
+						...state.sources,
 						[ action.id ]: {
 							id: action.id,
 							...action.mediaSourceState,
@@ -161,25 +166,26 @@ const storeDefinition = {
 			case 'UPDATE_MEDIA_SOURCE_DATA': {
 				return {
 					...state,
-					players: {
-						...state.players,
+					sources: {
+						...state.sources,
 						[ action.id ]: {
-							...state.players[ action.id ],
+							...state.sources[ action.id ],
 							...action.data,
-						},
+						}
 					},
 				};
 			}
 
 			case 'UNREGISTER_MEDIA_SOURCE': {
 				const currentState = Object.assign( {}, state );
-				if ( currentState.players[ action.id ] ) {
-					delete currentState.players[ action.id ];
+				if ( currentState.sources[ action.id ] ) {
+					delete currentState.sources[ action.id ];
 				}
 
-				// Unset default if it's the case.
+				// Set the first source as default
+				// if it's removing it.
 				if ( action.id === state.default ) {
-					currentState.default = null;
+					currentState.default = Object.keys( state.sources )?.[ 0 ];
 				}
 
 				return currentState;
@@ -195,10 +201,10 @@ const storeDefinition = {
 			case 'SET_MEDIA_PLAYER_STATE': {
 				return {
 					...state,
-					players: {
-						...state.players,
+					sources: {
+						...state.sources,
 						[ actionId ]: {
-							...state.players[ actionId ],
+							...state.sources[ actionId ],
 							state: action.state,
 						},
 					},
@@ -208,12 +214,13 @@ const storeDefinition = {
 			case 'TOGGLE_MEDIA_PLAYER_STATE': {
 				return {
 					...state,
-					players: {
-						...state.players,
+					sources: {
+						...state.sources,
 						[ actionId ]: {
-							...state.players[ actionId ],
-							state:
-								state.players[ actionId ].state === STATE_PLAYING ? STATE_PAUSED : STATE_PLAYING,
+							...state.sources[ actionId ],
+							state: state.sources[ actionId ].state === STATE_PLAYING
+								? STATE_PAUSED
+								: STATE_PLAYING,
 						},
 					},
 				};
@@ -222,10 +229,10 @@ const storeDefinition = {
 			case 'SET_MEDIA_PLAYER_CURRENT_TIME': {
 				return {
 					...state,
-					players: {
-						...state.players,
+					sources: {
+						...state.sources,
 						[ actionId ]: {
-							...state.players[ actionId ],
+							...state.sources[ actionId ],
 							currentTime: action.currentTime,
 						},
 					},

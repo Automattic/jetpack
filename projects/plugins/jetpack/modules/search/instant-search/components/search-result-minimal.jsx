@@ -100,10 +100,10 @@ class SearchResultMinimal extends Component {
 
 		return (
 			<li className="jetpack-instant-search__search-result-minimal">
-				<h3 className="jetpack-instant-search__search-result-title">
+				<h3 className="jetpack-instant-search__search-result-minimal-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
-						className="jetpack-instant-search__search-result-minimal-title"
+						className="jetpack-instant-search__search-result-minimal-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"

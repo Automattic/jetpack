@@ -4,6 +4,7 @@ set -eo pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/proceed_p.sh"
@@ -43,7 +44,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if $INTERACTIVE && [[ ! -t 0 ]]; then
-	echo "Input is not a terminal, forcing --non-interactive."
+	debug "Input is not a terminal, forcing --non-interactive."
 	INTERACTIVE=false
 fi
 if [[ ${#ARGS[@]} -ne 2 ]]; then
@@ -52,29 +53,26 @@ fi
 process_plugin_arg "${ARGS[0]}"
 normalize_version_number "${ARGS[1]}"
 
-echo "Checking if the plugin is releasable..."
+info "Checking if the plugin is releasable..."
 PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
 PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$PLUGIN_DIR/composer.json")
 MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
 if [[ -z "$PREFIX" ]]; then
-	echo "Plugin $PLUGIN_NAME does not have a release branch prefix defined in composer.json. Aborting." >&2
-	exit 1
+	die "Plugin $PLUGIN_NAME does not have a release branch prefix defined in composer.json. Aborting."
 fi
 
 # Check the version.
 if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
-	echo "\"$NORMALIZED_VERSION\" does not appear to be a valid version number." >&2
-	exit 1
+	die "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 fi
 CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN_DIR")
 if "$BASE/tools/version-compare.php" "$CUR_VERSION" "$NORMALIZED_VERSION" '>='; then
 	proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
 fi
 
-echo "Checking working directory status..."
+info "Checking working directory status..."
 if [[ "$(git status --porcelain)" ]]; then
-	echo "Working directory is not clean. Aborting." >&2
-	exit 1
+	die "Working directory is not clean. Aborting."
 fi
 
 # Make sure we're on latest master, or at least that the user is fine with it.
@@ -88,7 +86,7 @@ if [[ "$(git rev-parse --abbrev-ref HEAD)" != "master" ]]; then
 fi
 COMMITS="$(git log HEAD.. --oneline)"
 if [[ -n "$COMMITS" ]]; then
-	echo "The current branch is behind $(git rev-parse --abbrev-ref --symbolic-full-name @{u})."
+	info "The current branch is behind $(git rev-parse --abbrev-ref --symbolic-full-name @{u})."
 	echo "$COMMITS"
 	if proceed_p "" "Pull?"; then
 		git pull
@@ -100,34 +98,33 @@ fi
 # See if the release branch already exists.
 BRANCH="$PREFIX/branch-${NORMALIZED_VERSION%%-*}"
 if [[ "$(git ls-remote --heads origin "$BRANCH")" ]]; then
-	echo "Release branch $BRANCH has already been pushed. Aborting." >&2
-	exit 1
+	die "Release branch $BRANCH has already been pushed. Aborting."
 elif [[ "$(git branch --list "$BRANCH")" ]]; then
 	proceed_p "Release branch $BRANCH already exists locally, but has not been pushed." "Delete it?"
 	git branch -D "$BRANCH"
 fi
 
 BASE_REF="$(git rev-parse --abbrev-ref HEAD)"
-echo "Creating release branch $BRANCH based on $BASE_REF..."
+info "Creating release branch $BRANCH based on $BASE_REF..."
 git checkout -b "$BRANCH"
 
-echo "Updating version numbers..."
+info "Updating version numbers..."
 "$BASE/tools/plugin-version.sh" -v "$NORMALIZED_VERSION" "$PLUGIN_DIR"
 if [[ "$(git status --porcelain)" ]]; then
 	git commit -am "Updated $PLUGIN_NAME version to $NORMALIZED_VERSION"
 else
-	echo "No version numbers needed updating."
+	debug "No version numbers needed updating."
 fi
 
-echo "Versioning packages..."
+info "Versioning packages..."
 "$BASE/tools/version-packages.sh" "$PLUGIN_DIR"
 if [[ "$(git status --porcelain)" ]]; then
 	git commit -am "Updated package versions for $PLUGIN_NAME"
 else
-	echo "No packages needed versioning."
+	debug "No packages needed versioning."
 fi
 
-cat <<-EOM
+info <<-EOM
 Release branch $BRANCH created! When ready, push to GitHub with
 
   git push -u origin "$BRANCH"

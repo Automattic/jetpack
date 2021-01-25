@@ -34,7 +34,28 @@ class Visitor extends NodeVisitorAbstract {
 			if ( $node->name instanceof Node\Expr\Variable ) {
 				$function_name = '$' . Utils::maybe_stringify( $node->name->name );
 			} elseif ( $node->name instanceof Node\Expr\ArrayDimFetch ) {
-				$function_name = '$' . Utils::maybe_stringify( $node->name->var->name ) . '[' . Utils::maybe_stringify( $node->name->dim->value ) . ']';
+				$dimension = false;
+				if ( isset( $node->name->dim->value ) ) {
+					$dimension = $node->name->dim->value;
+				} elseif ( isset( $node->name->dim->name ) ) {
+					$dimension = $node->name->dim->name;
+				} else {
+					trigger_error( 'Unable to find the array dimension name' ); // phpcs:ignore
+				}
+				$function_name = '$' . Utils::maybe_stringify( $node->name->var->name ) . '[' . Utils::maybe_stringify( $dimension ) . ']';
+			} elseif ( $node->name instanceof Node\Expr\Closure ) {
+				$function_name = 'Anonymous Closure';
+			} elseif ( $node->name instanceof Node\Expr\New_ ) {
+				$this->enterNode( $node->name );
+				$function_name = 'new ' . Utils::node_to_class_name( $node->name->class );
+			} elseif ( $node->name instanceof Node\Expr\PropertyFetch ) {
+				$function_name = $node->name->var->name . '->' . $node->name->name->name;
+			} elseif ( $node->name instanceof Node\Expr\FuncCall ) {
+				$this->enterNode( $node->name );
+				$function_name = $node->name->name;
+			} elseif ( $node->name instanceof Node\Expr\MethodCall ) {
+				$this->enterNode( $node->name );
+				$function_name = $node->name->var->name . '->' . $node->name->name->name;
 			} else {
 				$function_name = implode( '\\', $node->name->parts );
 			}

@@ -27,8 +27,8 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	];
 }
 
-function podcastSection( { episodeTrack } ) {
-	const { image, link, guid } = episodeTrack;
+function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
+	const { image, guid } = episodeTrack;
 
 	return [
 		'core/columns',
@@ -45,7 +45,7 @@ function podcastSection( { episodeTrack } ) {
 					[
 						'core/image',
 						{
-							url: image ? image : null,
+							url: image ? image : coverImage,
 						},
 					],
 				],
@@ -62,7 +62,7 @@ function podcastSection( { episodeTrack } ) {
 						{
 							customPrimaryColor: getIconColor(),
 							hexPrimaryColor: getIconColor(),
-							url: link,
+							url: feedUrl,
 							selectedEpisodes: guid ? [ { guid } ] : [],
 							showCoverArt: false,
 							showEpisodeTitle: false,
@@ -92,7 +92,7 @@ function podcastSummarySection( { episodeTrack } ) {
 				'core/paragraph',
 				{
 					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description,
+					content: episodeTrack.description_html,
 				},
 			],
 		],
@@ -185,8 +185,14 @@ function podcastConversationSection() {
 /*
  * Template parts
  */
-function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {} } ) {
-	const tpl = [ podcastSection( { episodeTrack } ) ];
+function episodeBasicTemplate( {
+	spotifyShowUrl,
+	spotifyImageUrl,
+	episodeTrack = {},
+	feedUrl,
+	coverImage,
+} ) {
+	const tpl = [ podcastSection( { episodeTrack, feedUrl, coverImage } ) ];
 
 	if ( spotifyShowUrl && spotifyImageUrl ) {
 		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );
