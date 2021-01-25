@@ -105,34 +105,32 @@ function process_anchor_params() {
 		if ( ! \is_wp_error( $rss ) ) {
 			update_post_meta( $post->ID, 'jetpack_anchor_podcast', $podcast_id );
 
-			if ( ! empty( $episode_id ) ) {
-				$track = $podcast_helper->get_track_data( $episode_id );
-				if ( ! \is_wp_error( $track ) ) {
-					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
+			$track = $podcast_helper->get_track_data( $episode_id );
+			if ( ! \is_wp_error( $track ) ) {
+				update_post_meta( $post->ID, 'jetpack_anchor_episode', $track['guid'] );
 
-					if ( 'post-new.php' === $GLOBALS['pagenow'] ) {
-						$data['actions'][] = array(
-							'set-episode-title',
-							array(
-								'title' => $track['title'],
-							),
-						);
+				if ( 'post-new.php' === $GLOBALS['pagenow'] ) {
+					$data['actions'][] = array(
+						'set-episode-title',
+						array(
+							'title' => $track['title'],
+						),
+					);
 
-						$self_links = $rss->get_links( 'self' );
-						$cover      = $rss->get_image_url();
+					$self_links = $rss->get_links( 'self' );
+					$cover      = $rss->get_image_url();
 
-						// Add insert basic template action.
-						$data['actions'][] = array(
-							'insert-episode-template',
-							array(
-								'feedUrl'         => ! empty( $self_links ) ? esc_url_raw( $self_links[0] ) : $feed,
-								'coverImage'      => ! empty( $cover ) ? esc_url( $cover ) : null,
-								'episodeTrack'    => $track,
-								'spotifyImageUrl' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
-								'spotifyShowUrl'  => esc_url_raw( $valid_spotify_url ),
-							),
-						);
-					}
+					// Add insert basic template action.
+					$data['actions'][] = array(
+						'insert-episode-template',
+						array(
+							'feedUrl'         => ! empty( $self_links ) ? esc_url_raw( $self_links[0] ) : $feed,
+							'coverImage'      => ! empty( $cover ) ? esc_url( $cover ) : null,
+							'episodeTrack'    => $track,
+							'spotifyImageUrl' => Assets::staticize_subdomain( 'https://wordpress.com/i/spotify-badge.svg' ),
+							'spotifyShowUrl'  => esc_url_raw( $valid_spotify_url ),
+						),
+					);
 				}
 			}
 		}
