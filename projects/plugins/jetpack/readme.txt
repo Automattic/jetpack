@@ -246,6 +246,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Enhancements**
 
+* Dashboard: add new Recommendations page to help you get started with recommended features of Jetpack.
 * Dashboard: change the development notice link to an external link.
 * Podcast Player Block: add skip back/forward buttons.
 * Podcast Player Block: improve RSS feed detection.
