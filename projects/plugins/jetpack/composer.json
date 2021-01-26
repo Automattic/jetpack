@@ -11,31 +11,31 @@
 		"ext-fileinfo": "*",
 		"ext-json": "*",
 		"ext-openssl": "*",
-		"automattic/jetpack-a8c-mc-stats": "@dev",
-		"automattic/jetpack-abtest": "@dev",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-backup": "@dev",
-		"automattic/jetpack-blocks": "@dev",
-		"automattic/jetpack-compat": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-device-detection": "@dev",
-		"automattic/jetpack-error": "@dev",
-		"automattic/jetpack-heartbeat": "@dev",
-		"automattic/jetpack-jitm": "@dev",
-		"automattic/jetpack-lazy-images": "@dev",
-		"automattic/jetpack-licensing": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-partner": "@dev",
-		"automattic/jetpack-redirect": "@dev",
-		"automattic/jetpack-roles": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-terms-of-service": "@dev",
-		"automattic/jetpack-tracking": "@dev",
+		"automattic/jetpack-a8c-mc-stats": "^1.4",
+		"automattic/jetpack-abtest": "^1.9",
+		"automattic/jetpack-assets": "^1.11",
+		"automattic/jetpack-autoloader": "^2.9",
+		"automattic/jetpack-backup": "^1.0",
+		"automattic/jetpack-blocks": "^1.2",
+		"automattic/jetpack-compat": "^1.6",
+		"automattic/jetpack-config": "^1.4",
+		"automattic/jetpack-connection": "^1.23",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-device-detection": "^1.3",
+		"automattic/jetpack-error": "^1.3",
+		"automattic/jetpack-heartbeat": "^1.3",
+		"automattic/jetpack-jitm": "^1.13",
+		"automattic/jetpack-lazy-images": "^1.4",
+		"automattic/jetpack-licensing": "^1.3",
+		"automattic/jetpack-logo": "^1.5",
+		"automattic/jetpack-options": "^1.11",
+		"automattic/jetpack-partner": "^1.4",
+		"automattic/jetpack-redirect": "^1.5",
+		"automattic/jetpack-roles": "^1.4",
+		"automattic/jetpack-status": "^1.7",
+		"automattic/jetpack-sync": "^1.20",
+		"automattic/jetpack-terms-of-service": "^1.9",
+		"automattic/jetpack-tracking": "^1.13",
 		"nojimage/twitter-text-php": "3.1.1"
 	},
 	"scripts": {
@@ -47,15 +47,7 @@
 			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"autoload": {
 		"classmap": [
 			"src"
