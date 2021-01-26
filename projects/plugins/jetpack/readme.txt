@@ -266,6 +266,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Bug fixes**
 
+* Autoloader: resolve inconsistencies when including a cache supporting autoloader from one without cache support.
 * Contact Form: prevent post status transition actions from firing twice when the post status is changed.
 * Crowdsignal: avoid issues when using a Crowdsignal shortcode in the block editor.
 * Jetpack Video Block: avoid block validation errors when editing existing content.
