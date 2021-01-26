@@ -259,6 +259,8 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Contact Form: prevent post status transition actions from firing twice when the post status is changed.
 * Crowdsignal: avoid issues when using a Crowdsignal shortcode in the block editor.
+* Jetpack Video Block: avoid block validation errors when editing existing content.
+* Jetpack Video Block: add missing alignment classes.
 * Stats: update dashboard widget to respect new dashboard widget markup.
 * WordPress.com REST API: fix PHP notice when fetching user connection data without a connection owner.
 
