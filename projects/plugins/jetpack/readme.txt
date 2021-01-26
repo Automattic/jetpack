@@ -259,6 +259,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Improved compatibility**
 
 * Form Block: avoid display issues when submitting a form within an AMP view.
+* Secure Sign On: support custom login page plugins such as WPS Hide Login.
 * Tiled Gallery Block: add additional CSS classes to improve compatibility with the Core Gallery block.
 
 **Bug fixes**
