@@ -39,7 +39,7 @@ async function getNextValidMilestone( octokit, owner, repo ) {
 		// Find a milestone which name is a version number
 		// and it's due dates is earliest in a future
 		const nextMilestone = response.data
-			.filter( m => m.title.match( /\d\.\d/ ) )
+			.filter( m => m.title.match( /(jetpack)\/\d\.\d/ ) ) // Matches "jetpack/X.Y"
 			.sort( ( m1, m2 ) => parseFloat( m1.title ) - parseFloat( m2.title ) )
 			.find( milestone => milestone.due_on && moment( milestone.due_on ) > moment() );
 
