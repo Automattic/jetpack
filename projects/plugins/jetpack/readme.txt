@@ -258,6 +258,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
+* Form Block: avoid display issues when submitting a form within an AMP view.
 * Tiled Gallery Block: add additional CSS classes to improve compatibility with the Core Gallery block.
 
 **Bug fixes**
