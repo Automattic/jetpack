@@ -246,6 +246,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Enhancements**
 
+* Dashboard: change the development notice link to an external link.
 * Podcast Player Block: add skip back/forward buttons.
 * Sharing: remove jQuery dependency to improve performance of the sharing buttons.
 * Sharing: improve performance of the Email Sharing button by lazy-loading the Google reCAPTCHA when necessary.
