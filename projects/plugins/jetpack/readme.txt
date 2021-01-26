@@ -250,6 +250,8 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Podcast Player Block: add skip back/forward buttons.
 * Sharing: remove jQuery dependency to improve performance of the sharing buttons.
 * Sharing: improve performance of the Email Sharing button by lazy-loading the Google reCAPTCHA when necessary.
+* Social Menu: add Patreon icon.
+* Widgets: add Patreon icon to Social Icons Widget.
 
 **Improved compatibility**
 
