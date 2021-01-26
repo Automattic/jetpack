@@ -7,7 +7,7 @@
  * Author URI: https://automattic.com/
  * Text Domain: jetpack
  *
- * @package Jetpack.
+ * @package automattic/jetpack.
  */
 
 // These are the plugins we don't want to update or delete.

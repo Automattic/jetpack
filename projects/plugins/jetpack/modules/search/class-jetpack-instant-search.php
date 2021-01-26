@@ -3,7 +3,7 @@
  * Jetpack Search: Instant Front-End Search and Filtering
  *
  * @since 8.3.0
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**

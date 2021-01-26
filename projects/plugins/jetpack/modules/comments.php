@@ -10,7 +10,7 @@
  * Feature: Engagement
  * Additional Search Queries: comments, comment, facebook, twitter, google+, social
  *
- * @package Jetpack.
+ * @package automattic/jetpack.
  */
 
 use Automattic\Jetpack\Assets;

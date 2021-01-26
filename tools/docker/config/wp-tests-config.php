@@ -2,7 +2,7 @@
 /**
  * A wp-config for testing.
  *
- * @package Jetpack.
+ * @package automattic/jetpack.
  */
 
 /* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */

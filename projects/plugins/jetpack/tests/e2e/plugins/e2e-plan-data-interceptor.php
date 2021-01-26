@@ -6,7 +6,7 @@
  * Version: 1.0.0
  * Text Domain: jetpack
  *
- * @package jetpack-test-plugin-e2e-plan-data
+ * @package automattic/jetpack-test-plugin-e2e-plan-data
  */
 
 add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 1, 3 );

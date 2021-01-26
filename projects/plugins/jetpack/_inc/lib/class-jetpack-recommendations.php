@@ -2,7 +2,7 @@
 /**
  * Utilities related to the Jetpack Recommendations
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;

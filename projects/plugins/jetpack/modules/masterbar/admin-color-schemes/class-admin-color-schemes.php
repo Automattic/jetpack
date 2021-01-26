@@ -2,7 +2,7 @@
 /**
  * Unifies admin color scheme selection across WP.com sites.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;

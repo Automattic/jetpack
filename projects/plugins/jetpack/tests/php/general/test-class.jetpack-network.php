@@ -2,7 +2,7 @@
 /**
  * Tests the Jetpack_Network class.
  *
- * @package Jetpack.
+ * @package automattic/jetpack.
  */
 
 if ( is_multisite() ) :

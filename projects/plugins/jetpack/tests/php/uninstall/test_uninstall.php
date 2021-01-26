@@ -2,7 +2,7 @@
 /**
  * Tests the uninstall functionality.
  *
- * @package Jetpack.
+ * @package automattic/jetpack.
  */
 
 /**

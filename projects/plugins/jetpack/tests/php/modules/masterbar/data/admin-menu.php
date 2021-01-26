@@ -2,7 +2,7 @@
 /**
  * Fixture data for admin menu tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

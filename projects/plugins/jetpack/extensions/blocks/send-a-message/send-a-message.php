@@ -2,7 +2,7 @@
 /**
  * Send a Message Block.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Send_A_Message;

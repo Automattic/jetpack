@@ -2,7 +2,7 @@
 /**
  * Tests for WPcom_Admin_Menu class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu;
