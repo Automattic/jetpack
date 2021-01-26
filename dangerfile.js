@@ -63,9 +63,12 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 }
 
 // Add note about E2E dashboard.
+// Disabled per https://github.com/Automattic/jetpack/pull/18342
+/*
 const dashboardUrl = `https://jetpack-e2e-dashboard.herokuapp.com/pr-${ pr.number }`;
 const msg = `E2E results is available here (for debugging purposes): [${ dashboardUrl }](${ dashboardUrl })`;
 markdown( '\n\n' + msg );
+*/
 
 /**
  * Adds release and code freeze dates according to x.x milestone due date
