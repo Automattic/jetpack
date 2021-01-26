@@ -13,6 +13,7 @@
 In anticipation of further changes to the Podcast Player Block and its integration with other Jetpack blocks, we've made a number of changes to the Podcast Player block. Here is what you can try:
 
 - Insert a new block, and add a podcast
+- Try adding different podcast URLs: an RSS feed URL, or the URL of page with one or more podcasts in it.
 - You should now see skip back / forward buttons that you can use in the editor and on the frontend.
 
 #### Payments Block
