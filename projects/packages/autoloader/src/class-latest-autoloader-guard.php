@@ -54,6 +54,12 @@ class Latest_Autoloader_Guard {
 	public function should_stop_init( $current_plugin, $plugins, $was_included_by_autoloader ) {
 		global $jetpack_autoloader_latest_version;
 
+		/*
+		 * This is a legacy variable. It's not used in the current logic, but required
+		 * for compatibility with older versions of the autoloader.
+		 */
+		global $jetpack_autoloader_including_latest;
+
 		// We need to reset the autoloader when the plugins change because
 		// that means the autoloader was generated with a different list.
 		if ( $this->plugins_handler->have_plugins_changed( $plugins ) ) {
@@ -69,7 +75,9 @@ class Latest_Autoloader_Guard {
 
 		$latest_plugin = $this->autoloader_locator->find_latest_autoloader( $plugins, $jetpack_autoloader_latest_version );
 		if ( isset( $latest_plugin ) && $latest_plugin !== $current_plugin ) {
+			$jetpack_autoloader_including_latest = true;
 			require $this->autoloader_locator->get_autoloader_path( $latest_plugin );
+			$jetpack_autoloader_including_latest = false;
 			return true;
 		}
 
