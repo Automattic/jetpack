@@ -27,8 +27,8 @@ class Jetpack_Recommendations {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// Shortcircuit early if we are in offline mode.
-		if ( ( new Status() )->is_offline_mode() ) {
+		// Shortcircuit early if Jetpack is not active or we are in offline mode.
+		if ( ! Jetpack::is_active() || ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 
