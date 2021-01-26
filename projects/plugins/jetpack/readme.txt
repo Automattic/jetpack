@@ -252,6 +252,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Sharing: remove jQuery dependency to improve performance of the sharing buttons.
 * Sharing: improve performance of the Email Sharing button by lazy-loading the Google reCAPTCHA when necessary.
 * Social Menu: add Patreon icon.
+* Synchronization with WordPress.com: improve the validation of field names when calculating checksums on tables.
 * Widgets: add Patreon icon to Social Icons Widget.
 
 **Improved compatibility**
