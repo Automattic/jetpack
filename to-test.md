@@ -15,6 +15,14 @@ In anticipation of further changes to the Podcast Player Block and its integrati
 - Insert a new block, and add a podcast
 - You should now see skip back / forward buttons that you can use in the editor and on the frontend.
 
+#### Payments Block
+
+We've made a number of changes to the Payments block in order to be able to implement the Premium Content Block (which uses the Payments block button). You'll want to make sure the Payments block still works:
+
+- Try adding a block on a free site, and follow the upgrade prompts.
+- Try adding a block on a site with a plan, and follow the prompt to connect to Stripe.
+- Try using the block.
+
 ### Sharing
 
 In this release, we've removed the jQuery dependency of the Sharing buttons. To test this out, we would recommend the following:
