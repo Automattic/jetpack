@@ -177,7 +177,7 @@ class Jetpack_Recommendations_Banner {
 					<?php esc_html_e( 'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.', 'jetpack' ); ?>
 				</p>
 				<div class="jp-recommendations-banner__answer">
-					<form id="jp-recommendations-banner-form">
+					<form id="jp-recommendations-banner__form" class="jp-recommendations-banner__form">
 						<div class="jp-recommendations-banner__checkboxes">
 							<?php $this->render_checkbox( 'personal', __( 'Personal', 'jetpack' ) ); ?>
 							<?php $this->render_checkbox( 'business', __( 'Business', 'jetpack' ) ); ?>
@@ -185,7 +185,7 @@ class Jetpack_Recommendations_Banner {
 							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
 						</div>
 					</form>
-					<a id="jp-recommendations-banner-continue-button" class="jp-recommendations-banner-continue-button">
+					<a id="jp-recommendations-banner__continue-button" class="jp-recommendations-banner__continue-button">
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
 					</a>
 					<div class="jp-recommendations-banner__description">

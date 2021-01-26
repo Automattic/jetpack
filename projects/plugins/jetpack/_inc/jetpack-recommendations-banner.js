@@ -3,8 +3,8 @@
 ( function ( $ ) {
 	var recommendationsBanner = $( '#jp-recommendations-banner-main' );
 	// var recommendationsBannerDismiss = $( '.wizard-banner-dismiss' );
-	var recommendationsBannerContinue = $( '#jp-recommendations-banner-continue-button' );
-	var recommendationsBannerForm = $( '#jp-recommendations-banner-form' );
+	var recommendationsBannerContinue = $( '#jp-recommendations-banner__continue-button' );
+	var recommendationsBannerForm = $( '#jp-recommendations-banner__form' );
 
 	recommendationsBannerForm.on( 'change', function ( event ) {
 		if (

@@ -90,6 +90,29 @@
   text-align: left;
 }
 
+.jp-recommendations-banner__form {
+  margin-bottom: 16px;
+}
+
+.jp-recommendations-banner__continue-button {
+  background: #007cba;
+  border-color: #007cba;
+  color: white;
+  border-style: solid;
+  border-width: 1px;
+  cursor: pointer;
+  display: inline-block;
+  margin: 0;
+  outline: 0;
+  overflow: hidden;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  vertical-align: top;
+  box-sizing: border-box;
+  border-radius: 3px;
+  padding: 7px 14px 9px;
+}
+
 .jp-recommendations-banner__illustration-container {
   width: 100%;
   position: relative;
