@@ -256,6 +256,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Bug fixes**
 
 * Contact Form: prevent post status transition actions from firing twice when the post status is changed.
+* Crowdsignal: avoid issues when using a Crowdsignal shortcode in the block editor.
 
 --------
 
