@@ -269,6 +269,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Stats: update dashboard widget to respect new dashboard widget markup.
 * Subcriptions Block: avoid errors when displayed within a Disabled context, such as a block or pattern preview.
 * Synchronization with WordPress.com: avoid PHP warnings.
+* Synchronization with WordPress.com: fix potential PHP notices when making XMLRPC requests.
 * WordPress.com REST API: fix PHP notice when fetching user connection data without a connection owner.
 
 --------
