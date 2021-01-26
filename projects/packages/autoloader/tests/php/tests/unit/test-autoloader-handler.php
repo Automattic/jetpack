@@ -16,6 +16,13 @@ use PHPUnit\Framework\TestCase;
 class Test_Autoloader_Handler extends TestCase {
 
 	/**
+	 * The php autoloader mock;
+	 *
+	 * @var PHP_Autoloader|\PHPUnit\Framework\MockObject\MockObject
+	 */
+	private $php_autoloader;
+
+	/**
 	 * The hook manager mock;
 	 *
 	 * @var Hook_Manager|\PHPUnit\Framework\MockObject\MockObject
@@ -42,6 +49,9 @@ class Test_Autoloader_Handler extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		$this->php_autoloader     = $this->getMockBuilder( PHP_Autoloader::class )
+			->disableOriginalConstructor()
+			->getMock();
 		$this->hook_manager       = $this->getMockBuilder( Hook_Manager::class )
 			->disableOriginalConstructor()
 			->getMock();
@@ -52,6 +62,7 @@ class Test_Autoloader_Handler extends TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$this->autoloader_handler = new Autoloader_Handler(
+			$this->php_autoloader,
 			$this->hook_manager,
 			$this->manifest_reader,
 			$version_selector
@@ -59,9 +70,9 @@ class Test_Autoloader_Handler extends TestCase {
 	}
 
 	/**
-	 * Tests that the handler is able to creates the autoloader successfully.
+	 * Tests that the handler is able to activate the autoloader successfully.
 	 */
-	public function test_create_autoloader() {
+	public function test_activates_autoloader() {
 		$plugins = array( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
 		$this->manifest_reader->expects( $this->exactly( 3 ) )
@@ -71,11 +82,10 @@ class Test_Autoloader_Handler extends TestCase {
 				array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
 				array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
 			);
+		$this->php_autoloader->expects( $this->once() )
+			->method( 'register_autoloader' );
 
-		$this->autoloader_handler->create_autoloader( $plugins );
-
-		global $jetpack_autoloader_loader;
-		$this->assertInstanceOf( Version_Loader::class, $jetpack_autoloader_loader );
+		$this->autoloader_handler->activate_autoloader( $plugins );
 	}
 
 	/**
@@ -87,12 +97,11 @@ class Test_Autoloader_Handler extends TestCase {
 
 		$jetpack_autoloader_loader         = 'test';
 		$jetpack_autoloader_latest_version = 'test';
+		$this->php_autoloader->expects( $this->once() )
+			->method( 'unregister_autoloader' );
 		$this->hook_manager->expects( $this->once() )
 			->method( 'reset' );
 
 		$this->autoloader_handler->reset_autoloader();
-
-		$this->assertNull( $jetpack_autoloader_loader );
-		$this->assertNull( $jetpack_autoloader_latest_version );
 	}
 }

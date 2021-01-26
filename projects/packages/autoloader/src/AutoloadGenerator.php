@@ -137,6 +137,7 @@ class AutoloadGenerator {
 	 * Packages of equal weight retain the original order
 	 *
 	 * @param  array $packageMap The package map.
+	 *
 	 * @return array
 	 */
 	protected function sortPackageMap( array $packageMap ) {

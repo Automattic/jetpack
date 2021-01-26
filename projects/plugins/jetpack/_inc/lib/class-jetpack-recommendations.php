@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
 
 /**
  * Jetpack_Recommendations class
@@ -20,6 +21,11 @@ class Jetpack_Recommendations {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		// Shortcircuit early if we are in offline mode.
+		if ( ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
 		self::initialize_jetpack_recommendations();
 
 		$recommendations_enabled = Jetpack_Options::get_option( 'recommendations_enabled', null );

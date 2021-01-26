@@ -105,10 +105,18 @@ function process_anchor_params() {
 		if ( ! \is_wp_error( $rss ) ) {
 			update_post_meta( $post->ID, 'jetpack_anchor_podcast', $podcast_id );
 
+			// If we haven't got an episode ID, try and get the latest episode.
+			if ( empty( $episode_id ) && $rss->get_item_quantity() ) {
+				$latest_episode = $rss->get_item( 0 );
+				if ( $latest_episode ) {
+					$episode_id = $latest_episode->get_id();
+				}
+			}
+
 			if ( ! empty( $episode_id ) ) {
 				$track = $podcast_helper->get_track_data( $episode_id );
 				if ( ! \is_wp_error( $track ) ) {
-					update_post_meta( $post->ID, 'jetpack_anchor_episode', $episode_id );
+					update_post_meta( $post->ID, 'jetpack_anchor_episode', $track['guid'] );
 
 					if ( 'post-new.php' === $GLOBALS['pagenow'] ) {
 						$data['actions'][] = array(

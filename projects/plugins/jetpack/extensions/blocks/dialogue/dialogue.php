@@ -213,12 +213,16 @@ function render_block( $attrs, $block_content, $block ) {
 	$participants     = get_participantes_list( $block, $default_participants );
 	$participant_slug = get_participant_slug( $sanitized_attrs, $block, $default_participants );
 	$participant_name = get_participant_name( $participants, $participant_slug, $sanitized_attrs );
-	$css_classname    = Blocks::classes( FEATURE_NAME, $attrs );
+	// Class list includes custom classes defined in block settings.
+	$block_class_list = Blocks::classes( FEATURE_NAME, $attrs );
+	// Only the generated class name for the block, without custom classes.
+	$block_class = explode( ' ', $block_class_list )[0];
 
 	$markup = sprintf(
-		'<div class="%1$s"><div class="%1$s__meta"><div class="%2$s">%3$s</div>',
-		esc_attr( $css_classname ),
-		esc_attr( build_participant_css_classes( $participants, $participant_slug, $sanitized_attrs, $css_classname ) ),
+		'<div class="%1$s"><div class="%2$s__meta"><div class="%3$s">%4$s</div>',
+		esc_attr( $block_class_list ),
+		esc_attr( $block_class ),
+		esc_attr( build_participant_css_classes( $participants, $participant_slug, $sanitized_attrs, $block_class ) ),
 		esc_html( $participant_name )
 	);
 
@@ -226,7 +230,7 @@ function render_block( $attrs, $block_content, $block ) {
 	if ( $sanitized_attrs['show_timestamp'] ) {
 		$markup .= sprintf(
 			'<div class="%1$s__timestamp"><a href="#" class="%1$s__timestamp_link" data-timestamp="%2$s">%3$s</a></div>',
-			esc_attr( $css_classname ),
+			esc_attr( $block_class ),
 			convert_time_code_to_seconds( $sanitized_attrs['timestamp'] ),
 			esc_attr( $sanitized_attrs['timestamp'] )
 		);
