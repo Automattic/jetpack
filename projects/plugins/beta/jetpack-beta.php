@@ -73,3 +73,4 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
 
 add_action( 'init', array( 'Jetpack_Beta', 'instance' ) );
 add_action( 'muplugins_loaded', array( 'Jetpack_Beta', 'is_network_enabled' ) );
+Jetpack_Beta::tamper_with_jetpack_constants();

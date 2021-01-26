@@ -99,6 +99,8 @@ class Jetpack_Beta {
 			self::maybe_schedule_autoupdate();
 			Jetpack_Beta_Admin::init();
 		}
+
+		self::add_jetpack_constants_option_page();
 	}
 
 	/**
@@ -1415,7 +1417,92 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * Checks if a dir is empty.
+	 * Adds Jetpack Constants page for easy editing of Jetpack Constants :)
+	 */
+	public function add_jetpack_constants_option_page() {
+		if ( ! class_exists( 'RationalOptionPages' ) ) {
+			require 'lib/RationalOptionPages.php';
+		}
+
+		$jetpack_sandbox_domain = defined( 'JETPACK__SANDBOX_DOMAIN' ) ? JETPACK__SANDBOX_DOMAIN : '';
+
+		$options_page = array(
+			'jetpack_constants' => array(
+				'page_title'  => __( 'Jetpack Constants', 'jetpack-beta' ),
+				'menu_title'  => __( 'Jetpack Constants', 'jetpack-beta' ),
+				'menu_slug'   => 'jetpack_constants_settings',
+				'parent_slug' => 'options-general.php',
+				'sections'    => array(
+					'jetpack_tweaks' => array(
+						'title'  => __( 'Common Constants', 'jetpack-beta' ),
+						'text'   => '<p>' . __( 'Configure some defaults constants used by Jetpack to help in beta testing.', 'jetpack-beta' ) . '</p>',
+						'fields' => array(
+							'jetpack_sandbox_domain'   => array(
+								'id'          => 'jetpack_sandbox_domain',
+								'title'       => __( 'JETPACK__SANDBOX_DOMAIN', 'jetpack-beta' ),
+								'text'        => sprintf(
+								/* translators: %s is an URL. */
+									esc_html__( "The domain of a WordPress.com Sandbox to which you wish to send all of Jetpack's remote requests. Must be a ___.wordpress.com subdomain with DNS permanently pointed to a WordPress.com sandbox. Current value for JETPACK__SANDBOX_DOMAIN: %s", 'jetpack-beta' ),
+									'<code>' . esc_html( $jetpack_sandbox_domain ) . '</code>'
+								),
+								'placeholder' => esc_attr( $jetpack_sandbox_domain ),
+							),
+							'jetpack_beta_blocks'      => array(
+								'id'    => 'jetpack_beta_blocks',
+								'title' => __( 'JETPACK_BETA_BLOCKS', 'jetpack-beta' ),
+								'text'  =>
+									esc_html__( 'Check to enable Jetpack blocks for Gutenberg that are on Beta stage of development', 'jetpack-beta' ),
+								'type'  => 'checkbox',
+							),
+							'jetpack_protect_api_host' => array(
+								'id'          => 'jetpack_protect_api_host',
+								'title'       => __( 'JETPACK_PROTECT__API_HOST', 'jetpack-beta' ),
+								'text'        => sprintf(
+									/* translators: %s is an URL. */
+									esc_html__( "Base URL for API requests to Jetpack Protect's REST API. Current value for JETPACK_PROTECT__API_HOST: %s", 'jetpack-beta' ),
+									'<code>' . esc_html( JETPACK_PROTECT__API_HOST ) . '</code>'
+								),
+								'placeholder' => esc_attr( JETPACK_PROTECT__API_HOST ),
+							),
+						),
+					),
+				),
+			),
+		);
+		new RationalOptionPages( $options_page );
+	}
+
+	/**
+	 * Gets an option associated with a testing constant.
+	 *
+	 * @param string           $slug Constant name.
+	 * @param bool|null|string $default Default value.
+	 *
+	 * @return mixed|null
+	 */
+	public static function constant_get_option( $slug, $default = null ) {
+		$options = get_option( 'jetpack_constants', array() );
+		return isset( $options[ $slug ] ) ? $options[ $slug ] : $default;
+	}
+
+	/**
+	 * Updates the Jetpack constants used for testing.
+	 */
+	public static function tamper_with_jetpack_constants() {
+		if ( ! defined( 'JETPACK__SANDBOX_DOMAIN' ) && self::constant_get_option( 'jetpack_sandbox_domain', '' ) ) {
+			define( 'JETPACK__SANDBOX_DOMAIN', self::constant_get_option( 'jetpack_sandbox_domain', '' ) );
+		}
+
+		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) && self::constant_get_option( 'jetpack_protect_api_host', '' ) ) {
+			define( 'JETPACK_PROTECT__API_HOST', self::constant_get_option( 'jetpack_protect_api_host', '' ) );
+		}
+		if ( ! defined( 'JETPACK_BETA_BLOCKS' ) && self::constant_get_option( 'jetpack_beta_blocks', '' ) ) {
+			define( 'JETPACK_BETA_BLOCKS', self::constant_get_option( 'jetpack_beta_blocks', '' ) ? true : false );
+		}
+	}
+
+	/**
+	 * Checks if a dir is empty
 	 *
 	 * @param [type] $dir The absolute directory path to check.
 	 * @return boolean
