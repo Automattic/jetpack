@@ -62,12 +62,10 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 	setReleaseDates();
 }
 
-// Add note about E2E dashboard
-if ( process.env.TRAVIS_PULL_REQUEST ) {
-	const dashboardUrl = `https://jetpack-e2e-dashboard.herokuapp.com/pr-${ process.env.TRAVIS_PULL_REQUEST }`;
-	const msg = `E2E results is available here (for debugging purposes): [${ dashboardUrl }](${ dashboardUrl })`;
-	markdown( '\n\n' + msg );
-}
+// Add note about E2E dashboard.
+const dashboardUrl = `https://jetpack-e2e-dashboard.herokuapp.com/pr-${ pr.number }`;
+const msg = `E2E results is available here (for debugging purposes): [${ dashboardUrl }](${ dashboardUrl })`;
+markdown( '\n\n' + msg );
 
 /**
  * Adds release and code freeze dates according to x.x milestone due date
