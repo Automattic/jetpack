@@ -261,6 +261,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Crowdsignal: avoid issues when using a Crowdsignal shortcode in the block editor.
 * Jetpack Video Block: avoid block validation errors when editing existing content.
 * Jetpack Video Block: add missing alignment classes.
+* Publicize: allow clearing Publicize custom message if a post title has been set.
 * Stats: update dashboard widget to respect new dashboard widget markup.
 * WordPress.com REST API: fix PHP notice when fetching user connection data without a connection owner.
 
