@@ -21,6 +21,10 @@ const config = {
 			test: './modules/search/instant-search',
 			presets: [ require.resolve( './modules/search/instant-search/babel.config.js' ) ],
 		},
+		{
+			test: './modules/search/instant-search',
+			presets: [ require.resolve( './modules/search/instant-search/babel.config.js' ) ],
+		},
 	],
 	env: {
 		test: {

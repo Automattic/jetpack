@@ -199,6 +199,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
+	 * Passes options to the polyfill loader script.
+	 */
+	protected function inject_polyfill_js_options( $polyfill_payload_path ) {
+		wp_add_inline_script( 'jetpack-instant-search-ie11', 'var JetpackInstantSearchIe11PolyfillPath=decodeURIComponent("' . rawurlencode( $polyfill_payload_path ) . '");', 'before' );
+	}
+
+	/**
 	 * Registers a widget sidebar for Instant Search.
 	 */
 	public function register_jetpack_instant_sidebar() {
