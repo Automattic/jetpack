@@ -267,6 +267,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Jetpack Video Block: add missing alignment classes.
 * Publicize: allow clearing Publicize custom message if a post title has been set.
 * Stats: update dashboard widget to respect new dashboard widget markup.
+* Synchronization with WordPress.com: avoid PHP warnings.
 * WordPress.com REST API: fix PHP notice when fetching user connection data without a connection owner.
 
 --------
