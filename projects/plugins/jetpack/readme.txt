@@ -255,7 +255,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
-*
+* Tiled Gallery Block: add additional CSS classes to improve compatibility with the Core Gallery block.
 
 **Bug fixes**
 
