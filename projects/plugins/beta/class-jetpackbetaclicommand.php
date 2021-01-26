@@ -2,7 +2,7 @@
 /**
  * Jetpack Beta Tester CLI controls
  *
- * @package Jetpack Beta
+ * @package automattic/jetpack-beta
  */
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
