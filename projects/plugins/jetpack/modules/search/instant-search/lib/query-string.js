@@ -45,6 +45,17 @@ export function getResultFormatQuery() {
 	return query.result_format;
 }
 
+/**
+ * Check for a parameter named 's' in the query string.
+ *
+ * @returns {boolean} Has 's' in the query string
+ */
+export function hasSearchQueryStringKey() {
+	const query = getQuery();
+
+	return 's' in query;
+}
+
 export function restorePreviousHref( initialHref, callback ) {
 	if ( history.pushState ) {
 		window.history.pushState( null, null, initialHref );

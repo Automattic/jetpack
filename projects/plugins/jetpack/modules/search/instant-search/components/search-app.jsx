@@ -16,7 +16,11 @@ import { connect } from 'react-redux';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
-import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
+import {
+	getResultFormatQuery,
+	hasSearchQueryStringKey,
+	restorePreviousHref,
+} from '../lib/query-string';
 import {
 	initializeQueryValues,
 	makeSearchRequest,
@@ -144,7 +148,7 @@ class SearchApp extends Component {
 	};
 
 	hasActiveQuery() {
-		return this.props.searchQuery !== '' || this.props.hasFilters;
+		return this.props.searchQuery !== '' || this.props.hasFilters || hasSearchQueryStringKey();
 	}
 
 	handleBrowserHistoryNavigation = () => {
