@@ -247,6 +247,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Enhancements**
 
 * Podcast Player Block: add skip back/forward buttons.
+* Sharing: remove jQuery dependency to improve performance of the sharing buttons.
 
 **Improved compatibility**
 

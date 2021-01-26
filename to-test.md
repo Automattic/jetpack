@@ -15,5 +15,13 @@ In anticipation of further changes to the Podcast Player Block and its integrati
 - Insert a new block, and add a podcast
 - You should now see skip back / forward buttons that you can use in the editor and on the frontend.
 
+### Sharing
+
+In this release, we've removed the jQuery dependency of the Sharing buttons. To test this out, we would recommend the following:
+
+- Add multiple buttons to your site, including the Email sharing button, and hide some behind the "More" button.
+- Try using the different button styles
+- Ensure that the buttons work well.
+
 
 **Thank you for all your help!**
