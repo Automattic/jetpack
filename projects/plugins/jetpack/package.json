@@ -44,6 +44,7 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./tests/e2e/config/local-test.js -out ./tests/e2e/config/encrypted.enc",
 		"test-extensions": "jest extensions",
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
+		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js lib",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
 		"test-search": "yarn concurrently 'yarn test-search-scripts' 'yarn test-search-size'",
 		"test-search-scripts": "jest modules/search",
@@ -66,7 +67,8 @@
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.1.0",
-		"@automattic/calypso-color-schemes": "1.0.0",
+		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",

@@ -288,7 +288,7 @@ export const getSidebarCardSlug = state => {
 		return 'one-click-restores';
 	}
 
-	if ( 'active' === rewindState ) {
+	if ( [ 'active', 'provisioning' ].includes( rewindState ) ) {
 		return 'manage-security';
 	}
 
