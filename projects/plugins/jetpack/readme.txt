@@ -254,6 +254,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Social Menu: add Patreon icon.
 * Synchronization with WordPress.com: improve the validation of field names when calculating checksums on tables.
 * Widgets: add Patreon icon to Social Icons Widget.
+* WordPress.com REST API: add new Cloudflare Analytics field option.
 
 **Improved compatibility**
 
