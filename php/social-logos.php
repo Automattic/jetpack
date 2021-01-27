@@ -130,6 +130,12 @@ function get_social_logo( $social_logo ) {
 		case 'telegram':
 			$svg = '<svg class="social-logo social-logo-telegram" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.08 14.757s-.25.625-.936.325l-2.541-1.949-1.63 1.486s-.127.096-.266.036c0 0-.12-.011-.27-.486-.15-.475-.911-2.972-.911-2.972L6 12.349s-.387-.137-.425-.438c-.037-.3.437-.462.437-.462l10.03-3.934s.824-.362.824.238l-1.786 9.004z"/></g></svg>';
 			break;
+		case 'tiktok-alt':
+			$svg = '<svg class="social-logo social-logo-tiktok-alt" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path fill-rule="evenodd" clip-rule="evenodd" d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm9.584 3h-2.052l.019 8.128a1.73 1.73 0 11-1.215-1.65v-2.084h-.533a3.804 3.804 0 103.803 3.803l-.022-4.207c1.268.968 2.85.869 2.85.869V8.82C14.47 8.636 14.584 6 14.584 6z"/></g></svg>';
+			break;
+		case 'tiktok':
+			$svg = '<svg class="social-logo social-logo-tiktok" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M12.22 2h3.42s-.19 4.394 4.75 4.702v3.396s-2.636.166-4.75-1.448l.037 7.011a6.338 6.338 0 11-6.34-6.338h.89v3.472a2.882 2.882 0 102.024 2.752L12.22 2z"/></g></svg>';
+			break;
 		case 'tumblr-alt':
 			$svg = '<svg class="social-logo social-logo-tumblr-alt" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M16.749 17.396c-.357.17-1.041.319-1.551.332-1.539.041-1.837-1.081-1.85-1.896V9.847h3.861v-2.91h-3.847V2.039h-2.817c-.046 0-.127.041-.138.144-.165 1.499-.867 4.13-3.783 5.181v2.484h1.945v6.282c0 2.151 1.587 5.206 5.775 5.135 1.413-.024 2.982-.616 3.329-1.126l-.924-2.743z"/></g></svg>';
 			break;
