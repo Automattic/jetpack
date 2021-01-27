@@ -145,6 +145,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'/feed/'            => 'feed',
 			'flickr.com'        => 'flickr',
 			'foursquare.com'    => 'foursquare',
+			'ghost.org'         => 'ghost',
 			'goodreads.com'     => 'goodreads',
 			'google.com'        => 'google',
 			'github.com'        => 'github',

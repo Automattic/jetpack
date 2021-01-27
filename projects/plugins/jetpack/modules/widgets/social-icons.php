@@ -521,6 +521,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Foursquare',
 			),
 			array(
+				'url'   => array( 'ghost.org' ),
+				'icon'  => 'ghost',
+				'label' => 'Ghost',
+			),
+			array(
 				'url'   => array( 'goodreads.com' ),
 				'icon'  => 'goodreads',
 				'label' => 'Goodreads',
