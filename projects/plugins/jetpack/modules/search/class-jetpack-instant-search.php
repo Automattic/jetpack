@@ -53,9 +53,20 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
 	public function load_assets() {
-		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
-		$script_relative_path   = '_inc/build/instant-search/jp-search-main.bundle.js';
-		$style_relative_path    = '_inc/build/instant-search/jp-search-main.bundle.css';
+		$this->load_assets_with_parameters( '', JETPACK__PLUGIN_FILE );
+	}
+
+	/**
+	 * Loads assets according to parameters provided.
+	 *
+	 * @param string $path_prefix - Prefix for assets' relative paths.
+	 * @param string $plugin_base_path - Base path for use in plugins_url.
+	 */
+	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
+		$polyfill_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
+		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
+		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.css';
+
 		if (
 			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
 			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ||
@@ -65,18 +76,23 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		$polyfill_version = Jetpack_Search_Helpers::get_asset_version( $polyfill_relative_path );
-		$polyfill_path    = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
+		$polyfill_path    = plugins_url( $polyfill_relative_path, $plugin_base_path );
 		wp_enqueue_script( 'jetpack-instant-search-ie11', $polyfill_path, array(), $polyfill_version, true );
+		$polyfill_payload_path = plugins_url(
+			$path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.js',
+			$plugin_base_path
+		);
+		$this->inject_polyfill_js_options( $polyfill_payload_path );
 
 		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
-		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+		$script_path    = plugins_url( $script_relative_path, $plugin_base_path );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
 		$style_version = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
-		$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+		$style_path    = plugins_url( $style_relative_path, $plugin_base_path );
 		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
 
@@ -143,9 +159,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
-		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.js';
-		$polyfill_path          = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
-
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -195,7 +208,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
-		wp_add_inline_script( 'jetpack-instant-search-ie11', 'var JetpackInstantSearchIe11PolyfillPath=decodeURIComponent("' . rawurlencode( $polyfill_path ) . '");', 'before' );
+	}
+
+	/**
+	 * Passes options to the polyfill loader script.
+	 *
+	 * @param string $polyfill_payload_path - Absolute path to the IE11 polyfill payload.
+	 */
+	protected function inject_polyfill_js_options( $polyfill_payload_path ) {
+		wp_add_inline_script( 'jetpack-instant-search-ie11', 'var JetpackInstantSearchIe11PolyfillPath=decodeURIComponent("' . rawurlencode( $polyfill_payload_path ) . '");', 'before' );
 	}
 
 	/**

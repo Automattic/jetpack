@@ -97,6 +97,7 @@
 		"component-uid": "0.0.2",
 		"cookie": "0.4.1",
 		"copy-webpack-plugin": "5.1.2",
+		"core-js": "3.8.3",
 		"create-react-class": "15.6.3",
 		"debug": "4.3.1",
 		"email-validator": "2.0.4",
