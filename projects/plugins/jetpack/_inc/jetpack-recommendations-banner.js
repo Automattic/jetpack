@@ -2,9 +2,9 @@
 
 ( function ( $ ) {
 	var recommendationsBanner = $( '#jp-recommendations-banner-main' );
-	// var recommendationsBannerDismiss = $( '.wizard-banner-dismiss' );
-	var recommendationsBannerContinue = $( '#jp-recommendations-banner__continue-button' );
 	var recommendationsBannerForm = $( '#jp-recommendations-banner__form' );
+	var recommendationsBannerContinue = $( '#jp-recommendations-banner__continue-button' );
+	var recommendationsBannerDismiss = $( '#jp-recommendations-banner__notice-dismiss' );
 
 	recommendationsBannerForm.on( 'change', function ( event ) {
 		if (
@@ -32,6 +32,22 @@
 			action: 'jetpack_recommendations_banner',
 			nonce: jp_banner.nonce,
 			...formData,
+		} );
+	} );
+
+	recommendationsBannerDismiss.on( 'click', function () {
+		$( recommendationsBanner ).hide();
+
+		var data = {
+			action: 'jetpack_recommendations_banner',
+			nonce: jp_banner.nonce,
+			dismissBanner: true,
+		};
+
+		$.post( jp_banner.ajax_url, data, function ( response ) {
+			if ( true !== response.success ) {
+				$( recommendationsBanner ).show();
+			}
 		} );
 	} );
 
