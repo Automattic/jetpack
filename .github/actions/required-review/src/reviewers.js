@@ -12,33 +12,28 @@ async function fetchReviewers() {
 	const owner = github.context.payload.repository.owner.login;
 	const repo = github.context.payload.repository.name;
 	const pr = github.context.payload.pull_request.number;
-	const per_page = 100;
 
 	const reviewers = {};
-	let page = 0;
-	let res;
-	do {
-		try {
-			res = await octokit.pulls.listReviews( {
-				owner: owner,
-				repo: repo,
-				pull_number: pr,
-				per_page: per_page,
-				page: ++page,
-			} );
+	try {
+		for await ( const res of octokit.paginate.iterator( octokit.pulls.listReviews, {
+			owner: owner,
+			repo: repo,
+			pull_number: pr,
+			per_page: 100,
+		} ) ) {
 			res.data.forEach( review => {
 				if ( review.state === 'APPROVED' ) {
 					reviewers[ review.user.login ] = true;
 				}
 			} );
-		} catch ( error ) {
-			throw new WError(
-				`Failed to query ${ owner }/${ repo } PR #${ pr } reviewers from GitHub`,
-				error,
-				{}
-			);
 		}
-	} while ( res.data.length === per_page );
+	} catch ( error ) {
+		throw new WError(
+			`Failed to query ${ owner }/${ repo } PR #${ pr } reviewers from GitHub`,
+			error,
+			{}
+		);
+	}
 
 	return Object.keys( reviewers ).sort();
 }

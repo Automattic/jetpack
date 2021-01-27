@@ -12,34 +12,29 @@ async function fetchPaths() {
 	const owner = github.context.payload.repository.owner.login;
 	const repo = github.context.payload.repository.name;
 	const pr = github.context.payload.pull_request.number;
-	const per_page = 100;
 
 	const paths = {};
-	let page = 0;
-	let res;
-	do {
-		try {
-			res = await octokit.pulls.listFiles( {
-				owner: owner,
-				repo: repo,
-				pull_number: pr,
-				per_page: per_page,
-				page: ++page,
-			} );
+	try {
+		for await ( const res of octokit.paginate.iterator( octokit.pulls.listFiles, {
+			owner: owner,
+			repo: repo,
+			pull_number: pr,
+			per_page: 100,
+		} ) ) {
 			res.data.forEach( file => {
 				paths[ file.filename ] = true;
 				if ( file.previous_filename ) {
 					paths[ file.previous_filename ] = true;
 				}
 			} );
-		} catch ( error ) {
-			throw new WError(
-				`Failed to query ${ owner }/${ repo } PR #${ pr } files from GitHub`,
-				error,
-				{}
-			);
 		}
-	} while ( res.data.length === per_page );
+	} catch ( error ) {
+		throw new WError(
+			`Failed to query ${ owner }/${ repo } PR #${ pr } files from GitHub`,
+			error,
+			{}
+		);
+	}
 
 	return Object.keys( paths ).sort();
 }
