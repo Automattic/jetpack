@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           cd .github/actions/required-review
+          yarn install
           yarn build
 
       - name: Check for required review approval
