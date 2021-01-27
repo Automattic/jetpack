@@ -25,6 +25,7 @@ const RecommendationsComponent = props => {
 	switch ( step ) {
 		case 'not-started':
 		case 'site-type-question':
+		case 'setup-wizard-completed':
 			redirectPath = '/site-type';
 			break;
 		case 'woocommerce':
