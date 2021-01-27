@@ -130,6 +130,8 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'itunes.com'        => 'apple',
 			'bandcamp.com'      => 'bandcamp',
 			'behance.net'       => 'behance',
+			'blogger.com'       => 'blogger',
+			'blogspot.com'      => 'blogger',
 			'codepen.io'        => 'codepen',
 			'deviantart.com'    => 'deviantart',
 			'discord.gg'        => 'discord',

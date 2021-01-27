@@ -458,6 +458,14 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Behance',
 			),
 			array(
+				'url'   => array(
+					'blogger.com',
+					'blogspot.com',
+				),
+				'icon'  => 'blogger',
+				'label' => 'Blogger',
+			),
+			array(
 				'url'   => array( 'codepen.io' ),
 				'icon'  => 'codepen',
 				'label' => 'CodePen',
