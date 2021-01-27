@@ -159,11 +159,24 @@ class SearchApp extends Component {
 
 	handleInput = debounce( event => {
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
-		if ( event.inputType.includes( 'format' ) || event.target.value === '' ) {
+		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
+		if ( event.inputType?.includes( 'format' ) ) {
 			return;
 		}
-		this.props.setSearchQuery( event.target.value );
 
+		// If user presses enter, propagate the query value and immediately show the results.
+		if ( event.key === 'Enter' ) {
+			this.props.setSearchQuery( event.target.value );
+			this.showResults();
+			return;
+		}
+
+		// Don't spawn the results overlay if the new inputted value is an empty string.
+		if ( event.target.value === '' ) {
+			return;
+		}
+
+		this.props.setSearchQuery( event.target.value );
 		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
 			this.showResults();
 		}
