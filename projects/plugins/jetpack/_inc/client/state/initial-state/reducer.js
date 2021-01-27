@@ -344,11 +344,11 @@ export function getPartnerSubsidiaryId( state ) {
 /**
  * Return an upgrade URL
  *
- * @param {object} state Global state tree
- * @param {string} source Context where this URL is clicked.
- * @param {string} userId Current user id.
- * @param {boolean} planDuration Add plan duration to the URL.
- * @param {boolean} linkToLanding The link leads to a static landing page, so non-linked users will need to skip the connection flow for now.
+ * @param {object} state - Global state tree
+ * @param {string} source - Context where this URL is clicked.
+ * @param {string} userId - Current user id.
+ * @param {boolean} planDuration - Add plan duration to the URL.
+ * @param {boolean} linkToLanding - The link leads to a static landing page, so non-linked users will need to skip the connection flow for now.
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
@@ -377,7 +377,7 @@ export const getUpgradeUrl = (
 
 	const url = `https://jetpack.com/redirect/?${ queryString }`;
 
-	if ( isCurrentUserLinked( state ) ) {
+	if ( isCurrentUserLinked( state ) || landingUnlinked ) {
 		return url;
 	}
 

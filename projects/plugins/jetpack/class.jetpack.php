@@ -4211,9 +4211,9 @@ p {
 
 					$redirect_url = self::admin_url(
 						array(
-							'page'         => 'jetpack',
-							'action'       => 'authorize_redirect',
-							'dest_url'     => rawurlencode( $dest_url ),
+							'page'     => 'jetpack',
+							'action'   => 'authorize_redirect',
+							'dest_url' => rawurlencode( $dest_url ),
 						)
 					);
 
