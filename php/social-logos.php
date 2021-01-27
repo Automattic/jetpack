@@ -88,6 +88,9 @@ function get_social_logo( $social_logo ) {
 		case 'mail':
 			$svg = '<svg class="social-logo social-logo-mail" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.236l-8 4.882-8-4.882V6h16v2.236z"/></g></svg>';
 			break;
+		case 'medium-alt':
+			$svg = '<svg class="social-logo social-logo-medium-alt" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M7.423 6c3.27 0 5.922 2.686 5.922 6s-2.651 6-5.922 6S1.5 15.313 1.5 12s2.652-6 5.923-6zm9.458.351c1.635 0 2.961 2.53 2.961 5.65 0 3.118-1.325 5.648-2.96 5.648-1.636 0-2.962-2.53-2.962-5.649s1.325-5.649 2.96-5.649zm4.577.589c.576 0 1.042 2.265 1.042 5.06 0 2.794-.466 5.06-1.042 5.06-.575 0-1.04-2.265-1.04-5.06 0-2.794.465-5.06 1.04-5.06z" fill-rule="nonzero"/></g></svg>';
+			break;
 		case 'medium':
 			$svg = '<svg class="social-logo social-logo-medium" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M3 3v18h18V3H3zm15 4.26l-1 .93a.28.28 0 00-.11.27v6.8a.27.27 0 00.11.27l.94.93v.2h-4.75v-.2l1-1c.09-.1.09-.12.09-.27V9.74l-2.71 6.9h-.37L8 9.74v4.62a.67.67 0 00.17.54l1.27 1.54v.2H5.86v-.2l1.27-1.54a.64.64 0 00.17-.54V9a.5.5 0 00-.16-.4L6 7.26v-.2h3.52L12.23 13l2.38-5.94H18v.2z"/></g></svg>';
 			break;
