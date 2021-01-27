@@ -84,6 +84,14 @@ class Jetpack_Gutenberg {
 	private static $availability = array();
 
 	/**
+	 * A cached array of the fully processed availability data. Keeps track of
+	 * reasons why an extension is unavailable or missing.
+	 *
+	 * @var array Extensions availability information.
+	 */
+	private static $cached_availability = null;
+
+	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
 	 * optionally fall back to that.
@@ -320,8 +328,9 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions   = array();
-		self::$availability = array();
+		self::$extensions          = array();
+		self::$availability        = array();
+		self::$cached_availability = null;
 	}
 
 	/**
@@ -425,6 +434,20 @@ class Jetpack_Gutenberg {
 	 */
 	public static function is_available( $extension ) {
 		return isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ];
+	}
+
+	/**
+	 * Get the availability of each block / plugin, or return the cached availability
+	 * if it has already been calculated. Avoids re-registering extensions when not
+	 * necessary.
+	 *
+	 * @return array A list of block and plugins and their availability status.
+	 */
+	public static function get_cached_availability() {
+		if ( null === self::$cached_availability ) {
+			self::$cached_availability = self::get_availability();
+		}
+		return self::$cached_availability;
 	}
 
 	/**
@@ -1064,7 +1087,7 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
 		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
-			$availability = self::get_availability();
+			$availability = self::get_cached_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
