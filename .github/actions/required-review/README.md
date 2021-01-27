@@ -7,7 +7,10 @@ accepted the PR, setting a status check accordingly.
 
 ```yaml
 name: Required review check
-on: pull_request_review
+on:
+  pull_request_review:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
 
 jobs:
   check:
