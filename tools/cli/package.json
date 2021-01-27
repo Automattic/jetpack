@@ -17,7 +17,7 @@
 		"jetpack": "bin/jetpack"
 	},
 	"scripts": {
-		"test-cli": "mocha tests/runner.js --require esm",
+		"test": "mocha tests/runner.js --require esm",
 		"postinstall": "node bin/jetpack cli init"
 	},
 	"dependencies": {

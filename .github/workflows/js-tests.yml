@@ -30,7 +30,7 @@ jobs:
         working-directory: 'tools/cli'
         run: |
           yarn install
-          yarn test-cli
+          yarn test
 
 
   build:
