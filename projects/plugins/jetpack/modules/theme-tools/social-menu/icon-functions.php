@@ -174,6 +174,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'vimeo.com'         => 'vimeo',
 			'vk.com'            => 'vk',
 			'whatsapp.com'      => 'whatsapp',
+			'woocommerce.com'   => 'woocommerce',
 			'wordpress.org'     => 'wordpress',
 			'wordpress.com'     => 'wordpress',
 			'yelp.com'          => 'yelp',

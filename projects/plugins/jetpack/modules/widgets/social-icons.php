@@ -666,6 +666,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'WhatsApp',
 			),
 			array(
+				'url'   => array( 'woocommerce.com' ),
+				'icon'  => 'woocommerce',
+				'label' => 'WooCommerce',
+			),
+			array(
 				'url'   => array( 'wordpress.com', 'wordpress.org' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
