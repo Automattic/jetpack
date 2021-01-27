@@ -636,7 +636,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Telegram',
 			),
 			array(
-				'url'   => array( 'tiktok.com', 't.me' ),
+				'url'   => array( 'tiktok.com' ),
 				'icon'  => 'tiktok',
 				'label' => 'TikTok',
 			),
