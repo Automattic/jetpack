@@ -9,6 +9,7 @@ const { context, getOctokit } = require( '@actions/github' );
  */
 const assignIssues = require( './tasks/assign-issues' );
 const addMilestone = require( './tasks/add-milestone' );
+const checkDescription = require( './tasks/check-description' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 
@@ -21,6 +22,11 @@ const automations = [
 	{
 		event: 'push',
 		task: addMilestone,
+	},
+	{
+		event: 'pull_request',
+		action: [ 'opened', 'synchronize', 'edited', 'labeled' ],
+		task: checkDescription,
 	},
 ];
 
