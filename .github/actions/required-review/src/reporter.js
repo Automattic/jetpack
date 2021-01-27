@@ -20,7 +20,7 @@ async function status( state, description ) {
 	const req = {
 		owner: owner,
 		repo: repo,
-		sha1: github.context.payload.pull_request.head.sha,
+		sha: github.context.payload.pull_request.head.sha,
 		state: state,
 		target_url: `https://github.com/${ owner }/${ repo }/runs/${ github.context.runId }`,
 		description: description,
