@@ -150,10 +150,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changed projects
-        working-directory: monorepo
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-          USER_NAME: matticbot
-          BUILD_BASE: ${{ github.workspace }}/build
-        run: .github/files/push-all-projects.sh
+        uses: ./projects/github-actions/push-to-mirrors
+        with:
+          release-branch-infix: /branch-
+          source-directory: ${{ github.workspace }}/monorepo
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          username: matticbot
+          working-directory: ${{ github.workspace }}/build
         timeout-minutes: 5  # 2021-01-18: Successful runs seem to take about half a minute.

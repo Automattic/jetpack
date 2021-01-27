@@ -16,8 +16,8 @@ echo "::endgroup::"
 
 EXIT=0
 
-touch "$BUILD_BASE/projects.txt"
-for project in projects/packages/* projects/plugins/*; do
+touch "$BUILD_BASE/mirrors.txt"
+for project in projects/packages/* projects/plugins/* projects/github-actions/*; do
 	PROJECT_DIR="${BASE}/${project}"
 	[[ -d "$PROJECT_DIR" ]] || continue # We are only interested in directories (i.e. projects)
 
@@ -105,7 +105,7 @@ for project in projects/packages/* projects/plugins/*; do
 	fi
 
 	echo "Build succeeded!"
-	echo "$GIT_SLUG" >> "$BUILD_BASE/projects.txt"
+	echo "$GIT_SLUG" >> "$BUILD_BASE/mirrors.txt"
 done
 
 exit $EXIT
