@@ -13,7 +13,8 @@ inputs:
     default: Required review
   token:
     description: GitHub Access Token.
-    required: true
+    required: false
+    default: ${{ github.token }}
 runs:
   using: node12
   main: dist/index.js
