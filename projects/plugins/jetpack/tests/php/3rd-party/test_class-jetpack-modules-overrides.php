@@ -2,7 +2,7 @@
 /**
  * Tests the Module Override functionality.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

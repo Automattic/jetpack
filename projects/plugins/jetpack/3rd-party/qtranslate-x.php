@@ -2,7 +2,7 @@
 /**
  * 3rd party integration for qTranslate.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

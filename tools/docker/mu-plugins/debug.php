@@ -7,7 +7,7 @@
  * Author URI: https://automattic.com/
  * Text Domain: jetpack
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 // phpcs:disable WordPress.PHP.DevelopmentFunctions

@@ -2,7 +2,7 @@
 /**
  * CCPA Do Not Sell Widget
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

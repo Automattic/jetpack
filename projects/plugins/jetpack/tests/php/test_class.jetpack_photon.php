@@ -2,7 +2,7 @@
 /**
  * Tests for Jetpack's Photon class.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r

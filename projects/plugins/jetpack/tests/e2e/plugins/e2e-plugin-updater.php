@@ -6,7 +6,7 @@
  * Version: 1.0.0
  * Text Domain: jetpack
  *
- * @package automattic/jetpack-test-plugin-e2e-plugin-updater
+ * @package automattic/jetpack
  */
 
 add_filter( 'site_transient_update_plugins', 'e2e_set_jetpack_update', 10, 1 );

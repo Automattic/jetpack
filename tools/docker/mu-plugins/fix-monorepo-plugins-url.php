@@ -7,7 +7,7 @@
  * Author URI: https://automattic.com/
  * Text Domain: jetpack
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;

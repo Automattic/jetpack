@@ -2,7 +2,7 @@
 /**
  * Amazon Network.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 // stub.

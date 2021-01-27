@@ -2,7 +2,7 @@
 /**
  * Loading the various functions used for Jetpack Debugging.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /* Jetpack Connection Testing Framework */

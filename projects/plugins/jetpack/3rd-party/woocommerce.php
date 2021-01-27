@@ -2,7 +2,7 @@
 /**
  * This file contains compatibility functions for WooCommerce to improve Jetpack feature support.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 add_action( 'woocommerce_init', 'jetpack_woocommerce_integration' );

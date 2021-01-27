@@ -2,7 +2,7 @@
 /**
  * Only load these if WPML plugin is installed and active.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

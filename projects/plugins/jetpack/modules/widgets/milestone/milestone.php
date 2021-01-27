@@ -2,7 +2,7 @@
 /**
  * Milestone Widget Loader.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

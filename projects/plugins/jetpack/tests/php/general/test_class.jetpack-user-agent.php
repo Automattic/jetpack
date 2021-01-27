@@ -2,7 +2,7 @@
 /**
  * Tests for Jetpack's legacy User Agent class.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

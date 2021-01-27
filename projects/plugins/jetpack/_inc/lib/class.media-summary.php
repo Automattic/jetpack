@@ -2,7 +2,7 @@
 /**
  * Provides media summary of a post.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

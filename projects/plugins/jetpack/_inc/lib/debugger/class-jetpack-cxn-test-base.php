@@ -2,7 +2,7 @@
 /**
  * Base class for Jetpack's debugging tests.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Status;

@@ -2,7 +2,7 @@
 /**
  * Special cases for overriding modules.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 /**

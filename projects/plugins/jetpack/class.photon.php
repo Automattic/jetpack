@@ -2,7 +2,7 @@
 /**
  * Class for photon functionality.
  *
- * @package automattic/jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
