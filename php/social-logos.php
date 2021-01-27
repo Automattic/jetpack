@@ -89,7 +89,7 @@ function get_social_logo( $social_logo ) {
 			$svg = '<svg class="social-logo social-logo-mail" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.236l-8 4.882-8-4.882V6h16v2.236z"/></g></svg>';
 			break;
 		case 'medium':
-			$svg = '<svg class="social-logo social-logo-medium" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20.962 7.257l-5.457 8.867-3.923-6.375 3.126-5.08a.621.621 0 01.79-.225l5.43 2.715.006.003.011.008a.067.067 0 01.017.087zM9.86 8.592v5.783l5.14 2.57-5.14-8.353zm5.912 8.739l4.231 2.115c.551.275.997.083.997-.43V8.835l-5.228 8.496zM8.968 7.178L3.665 4.527a.608.608 0 00-.27-.071c-.232 0-.395.18-.395.482v11.45a.99.99 0 00.498.806l4.671 2.335c.12.06.234.088.337.088.29 0 .494-.225.494-.602V7.231a.058.058 0 00-.032-.053z"/></g></svg>';
+			$svg = '<svg class="social-logo social-logo-medium" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M3 3v18h18V3H3zm15 4.26l-1 .93a.28.28 0 00-.11.27v6.8a.27.27 0 00.11.27l.94.93v.2h-4.75v-.2l1-1c.09-.1.09-.12.09-.27V9.74l-2.71 6.9h-.37L8 9.74v4.62a.67.67 0 00.17.54l1.27 1.54v.2H5.86v-.2l1.27-1.54a.64.64 0 00.17-.54V9a.5.5 0 00-.16-.4L6 7.26v-.2h3.52L12.23 13l2.38-5.94H18v.2z"/></g></svg>';
 			break;
 		case 'patreon':
 			$svg = '<svg class="social-logo social-logo-patreon" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path fill-rule="evenodd" clip-rule="evenodd" d="M13.975 5a5.05 5.05 0 00-5.041 5.046c0 2.774 2.261 5.03 5.04 5.03A5.034 5.034 0 0019 10.047C19 7.264 16.746 5 13.975 5zM5 18.44h2.461V5H5v13.44z"/></g></svg>';
