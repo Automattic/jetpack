@@ -4,9 +4,6 @@
 import fs from 'fs';
 import chalk from 'chalk';
 
-// eslint-disable-next-line no-console
-const log = console.log;
-
 /**
  * Reads the composer.json file and returns a parsed JS object.
  *
@@ -20,7 +17,9 @@ export async function readComposerJson( project, output = true ) {
 	try {
 		data = fs.readFileSync( 'projects/' + project + '/composer.json', 'utf8' );
 	} catch ( err ) {
-		output ? log( chalk.yellow( 'This project does not have a composer.json file.' ) ) : null;
+		output
+			? console.warn( chalk.yellow( 'This project does not have a composer.json file.' ) )
+			: null;
 		return false;
 	}
 
@@ -41,7 +40,10 @@ function parseJSON( data, output ) {
 		return data;
 	} catch ( parseError ) {
 		output
-			? log( chalk.red( 'Could not parse composer.json. Something is pretty wrong.' ), parseError )
+			? console.error(
+					chalk.red( 'Could not parse composer.json. Something is pretty wrong.' ),
+					parseError
+			  )
 			: null;
 		return false;
 	}

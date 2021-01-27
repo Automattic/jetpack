@@ -28,7 +28,7 @@ async function buildRouter( options ) {
 		const data = await readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
-		console.log( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a project!' ) );
 	}
 }
 
@@ -49,7 +49,7 @@ export async function build( project, production, composerJson ) {
 
 	if ( ! command ) {
 		// If neither build step is defined, abort.
-		console.log( chalk.yellow( 'This project does not have a build step defined.' ) );
+		console.warn( chalk.yellow( 'This project does not have a build step defined.' ) );
 		return;
 	}
 
