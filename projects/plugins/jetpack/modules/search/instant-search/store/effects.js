@@ -96,11 +96,7 @@ function updateSearchQueryString( action ) {
 	}
 
 	const queryObject = getQuery();
-	if ( action.query === '' ) {
-		delete queryObject.s;
-	} else {
-		queryObject.s = action.query;
-	}
+	queryObject.s = action.query;
 	setQuery( queryObject );
 }
 

@@ -207,6 +207,7 @@ class SearchApp extends Component {
 
 	handleOverlayTriggerClick = event => {
 		event.stopImmediatePropagation();
+		this.props.setSearchQuery( '' );
 		this.showResults();
 	};
 
