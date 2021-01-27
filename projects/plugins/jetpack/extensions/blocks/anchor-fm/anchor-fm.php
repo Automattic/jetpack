@@ -141,6 +141,15 @@ function process_anchor_params() {
 							),
 						);
 					}
+				} else {
+					$data['actions'][] = array(
+						'create-error-notice',
+						array(
+							'podcast_id'  => $podcast_id,
+							'episode_id'  => $episode_id,
+							'spotify_url' => $spotify_url,
+						),
+					);
 				}
 			}
 		}
