@@ -501,6 +501,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Etsy',
 			),
 			array(
+				'url'   => array( 'eventbrite.com' ),
+				'icon'  => 'eventbrite',
+				'label' => 'Eventbrite',
+			),
+			array(
 				'url'   => array( 'facebook.com' ),
 				'icon'  => 'facebook',
 				'label' => 'Facebook',

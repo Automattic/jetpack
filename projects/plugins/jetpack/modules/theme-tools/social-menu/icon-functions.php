@@ -140,6 +140,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'dribbble.com'      => 'dribbble',
 			'dropbox.com'       => 'dropbox',
 			'etsy.com'          => 'etsy',
+			'eventbrite.com'    => 'eventbrite',
 			'facebook.com'      => 'facebook',
 			'/feed/'            => 'feed',
 			'flickr.com'        => 'flickr',
