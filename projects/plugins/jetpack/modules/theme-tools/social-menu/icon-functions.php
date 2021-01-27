@@ -168,6 +168,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'stackoverflow.com' => 'stackoverflow',
 			'stumbleupon.com'   => 'stumbleupon',
 			'telegram.me'       => 'telegram',
+			'tiktok.com'        => 'tiktok',
 			'tumblr.com'        => 'tumblr',
 			'twitch.tv'         => 'twitch',
 			'twitter.com'       => 'twitter',
