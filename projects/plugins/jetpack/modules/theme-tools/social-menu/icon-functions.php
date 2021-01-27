@@ -173,6 +173,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'twitter.com'       => 'twitter',
 			'vimeo.com'         => 'vimeo',
 			'vk.com'            => 'vk',
+			'whatsapp.com'      => 'whatsapp',
 			'wordpress.org'     => 'wordpress',
 			'wordpress.com'     => 'wordpress',
 			'yelp.com'          => 'yelp',

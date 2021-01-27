@@ -661,6 +661,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'VK',
 			),
 			array(
+				'url'   => array( 'whatsapp.com' ),
+				'icon'  => 'whatsapp',
+				'label' => 'WhatsApp',
+			),
+			array(
 				'url'   => array( 'wordpress.com', 'wordpress.org' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
