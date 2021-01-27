@@ -88,8 +88,11 @@ function get_social_logo( $social_logo ) {
 		case 'mail':
 			$svg = '<svg class="social-logo social-logo-mail" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4.236l-8 4.882-8-4.882V6h16v2.236z"/></g></svg>';
 			break;
+		case 'medium-alt':
+			$svg = '<svg class="social-logo social-logo-medium-alt" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M7.423 6c3.27 0 5.922 2.686 5.922 6s-2.651 6-5.922 6S1.5 15.313 1.5 12s2.652-6 5.923-6zm9.458.351c1.635 0 2.961 2.53 2.961 5.65 0 3.118-1.325 5.648-2.96 5.648-1.636 0-2.962-2.53-2.962-5.649s1.325-5.649 2.96-5.649zm4.577.589c.576 0 1.042 2.265 1.042 5.06 0 2.794-.466 5.06-1.042 5.06-.575 0-1.04-2.265-1.04-5.06 0-2.794.465-5.06 1.04-5.06z" fill-rule="nonzero"/></g></svg>';
+			break;
 		case 'medium':
-			$svg = '<svg class="social-logo social-logo-medium" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20.962 7.257l-5.457 8.867-3.923-6.375 3.126-5.08a.621.621 0 01.79-.225l5.43 2.715.006.003.011.008a.067.067 0 01.017.087zM9.86 8.592v5.783l5.14 2.57-5.14-8.353zm5.912 8.739l4.231 2.115c.551.275.997.083.997-.43V8.835l-5.228 8.496zM8.968 7.178L3.665 4.527a.608.608 0 00-.27-.071c-.232 0-.395.18-.395.482v11.45a.99.99 0 00.498.806l4.671 2.335c.12.06.234.088.337.088.29 0 .494-.225.494-.602V7.231a.058.058 0 00-.032-.053z"/></g></svg>';
+			$svg = '<svg class="social-logo social-logo-medium" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M3 3v18h18V3H3zm15 4.26l-1 .93a.28.28 0 00-.11.27v6.8a.27.27 0 00.11.27l.94.93v.2h-4.75v-.2l1-1c.09-.1.09-.12.09-.27V9.74l-2.71 6.9h-.37L8 9.74v4.62a.67.67 0 00.17.54l1.27 1.54v.2H5.86v-.2l1.27-1.54a.64.64 0 00.17-.54V9a.5.5 0 00-.16-.4L6 7.26v-.2h3.52L12.23 13l2.38-5.94H18v.2z"/></g></svg>';
 			break;
 		case 'patreon':
 			$svg = '<svg class="social-logo social-logo-patreon" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path fill-rule="evenodd" clip-rule="evenodd" d="M13.975 5a5.05 5.05 0 00-5.041 5.046c0 2.774 2.261 5.03 5.04 5.03A5.034 5.034 0 0019 10.047C19 7.264 16.746 5 13.975 5zM5 18.44h2.461V5H5v13.44z"/></g></svg>';
@@ -129,6 +132,12 @@ function get_social_logo( $social_logo ) {
 			break;
 		case 'telegram':
 			$svg = '<svg class="social-logo social-logo-telegram" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.08 14.757s-.25.625-.936.325l-2.541-1.949-1.63 1.486s-.127.096-.266.036c0 0-.12-.011-.27-.486-.15-.475-.911-2.972-.911-2.972L6 12.349s-.387-.137-.425-.438c-.037-.3.437-.462.437-.462l10.03-3.934s.824-.362.824.238l-1.786 9.004z"/></g></svg>';
+			break;
+		case 'tiktok-alt':
+			$svg = '<svg class="social-logo social-logo-tiktok-alt" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path fill-rule="evenodd" clip-rule="evenodd" d="M5 3a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2H5zm9.584 3h-2.052l.019 8.128a1.73 1.73 0 11-1.215-1.65v-2.084h-.533a3.804 3.804 0 103.803 3.803l-.022-4.207c1.268.968 2.85.869 2.85.869V8.82C14.47 8.636 14.584 6 14.584 6z"/></g></svg>';
+			break;
+		case 'tiktok':
+			$svg = '<svg class="social-logo social-logo-tiktok" height="24" width="24" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g><path d="M12.22 2h3.42s-.19 4.394 4.75 4.702v3.396s-2.636.166-4.75-1.448l.037 7.011a6.338 6.338 0 11-6.34-6.338h.89v3.472a2.882 2.882 0 102.024 2.752L12.22 2z"/></g></svg>';
 			break;
 		case 'tumblr-alt':
 			$svg = '<svg class="social-logo social-logo-tumblr-alt" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M16.749 17.396c-.357.17-1.041.319-1.551.332-1.539.041-1.837-1.081-1.85-1.896V9.847h3.861v-2.91h-3.847V2.039h-2.817c-.046 0-.127.041-.138.144-.165 1.499-.867 4.13-3.783 5.181v2.484h1.945v6.282c0 2.151 1.587 5.206 5.775 5.135 1.413-.024 2.982-.616 3.329-1.126l-.924-2.743z"/></g></svg>';

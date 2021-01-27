@@ -1,7 +1,11 @@
 _The versioning refers to the React component build._
 
+#### v2.3.0 (2021-01-27)
+* New icons: `medium-alt`, `tiktok`, and `tiktok-alt`.
+* Updated icon: `medium`.
+
 #### v2.2.0 (2021-01-19)
-* Included a new icon: Patreon.
+* New icon: `patreon`.
 
 #### v2.1.2 (2020-03-12)
 * Built the package with updated dependencies.

@@ -41,6 +41,7 @@ export default class SocialLogos extends PureComponent {
 				<SocialLogo icon="instagram" size={ 48 } onClick={ this.handleClick.bind( this, 'instagram' ) } />
 				<SocialLogo icon="linkedin" size={ 48 } onClick={ this.handleClick.bind( this, 'linkedin' ) } />
 				<SocialLogo icon="mail" size={ 48 } onClick={ this.handleClick.bind( this, 'mail' ) } />
+				<SocialLogo icon="medium-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'medium-alt' ) } />
 				<SocialLogo icon="medium" size={ 48 } onClick={ this.handleClick.bind( this, 'medium' ) } />
 				<SocialLogo icon="patreon" size={ 48 } onClick={ this.handleClick.bind( this, 'patreon' ) } />
 				<SocialLogo icon="pinterest-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'pinterest-alt' ) } />
@@ -55,6 +56,8 @@ export default class SocialLogos extends PureComponent {
 				<SocialLogo icon="squarespace" size={ 48 } onClick={ this.handleClick.bind( this, 'squarespace' ) } />
 				<SocialLogo icon="stumbleupon" size={ 48 } onClick={ this.handleClick.bind( this, 'stumbleupon' ) } />
 				<SocialLogo icon="telegram" size={ 48 } onClick={ this.handleClick.bind( this, 'telegram' ) } />
+				<SocialLogo icon="tiktok-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'tiktok-alt' ) } />
+				<SocialLogo icon="tiktok" size={ 48 } onClick={ this.handleClick.bind( this, 'tiktok' ) } />
 				<SocialLogo icon="tumblr-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'tumblr-alt' ) } />
 				<SocialLogo icon="tumblr" size={ 48 } onClick={ this.handleClick.bind( this, 'tumblr' ) } />
 				<SocialLogo icon="twitch" size={ 48 } onClick={ this.handleClick.bind( this, 'twitch' ) } />
