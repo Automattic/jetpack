@@ -43,6 +43,14 @@
 			"Composer\\Config::disableProcessTimeout",
 			"yarn build-production-concurrently"
 		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn watch"
+		],
 		"pre-update-cmd": [
 			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
 		]

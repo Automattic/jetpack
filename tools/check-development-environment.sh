@@ -140,6 +140,7 @@ main() {
 	assert is_git_dir
 	assert repo_origin_scheme_is_git
 	assert repo_is_up_to_date
+	check command_is_available jetpack
 }
 
 ## Run main only if not source by another file
