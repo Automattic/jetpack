@@ -58,6 +58,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
 	 * Loads assets according to parameters provided.
+	 *
+	 * @param string $path_prefix - Prefix for assets' relative paths.
+	 * @param string $plugin_base_path - Base path for use in plugins_url.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		$polyfill_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
@@ -156,9 +159,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
-		$polyfill_relative_path = '_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.js';
-		$polyfill_path          = plugins_url( $polyfill_relative_path, JETPACK__PLUGIN_FILE );
-
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -212,6 +212,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
 	 * Passes options to the polyfill loader script.
+	 *
+	 * @param string $polyfill_payload_path - Absolute path to the IE11 polyfill payload.
 	 */
 	protected function inject_polyfill_js_options( $polyfill_payload_path ) {
 		wp_add_inline_script( 'jetpack-instant-search-ie11', 'var JetpackInstantSearchIe11PolyfillPath=decodeURIComponent("' . rawurlencode( $polyfill_payload_path ) . '");', 'before' );
