@@ -87,9 +87,9 @@ async function main() {
 			}
 		}
 		if ( ok ) {
-			reporter.status( reporter.STATE_SUCCESS, 'All required reviews have been provided!' );
+			await reporter.status( reporter.STATE_SUCCESS, 'All required reviews have been provided!' );
 		} else {
-			reporter.status(
+			await reporter.status(
 				reporter.STATE_PENDING,
 				reviewers.length ? 'Awaiting more reviews...' : 'Awaiting reviews...'
 			);
