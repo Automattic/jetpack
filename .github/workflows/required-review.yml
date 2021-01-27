@@ -17,4 +17,5 @@ jobs:
       - name: Check for required review approval
         uses: ./.github/actions/required-review
         with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
           requirements-file: .github/files/required-review.yaml
