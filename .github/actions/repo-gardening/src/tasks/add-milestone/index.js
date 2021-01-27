@@ -4,6 +4,7 @@
 const debug = require( '../../debug' );
 const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
+const getLabels = require( '../../get-labels' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -38,8 +39,25 @@ async function addMilestone( payload, octokit ) {
 		return;
 	}
 
+	const labels = await getLabels( octokit, owner, repo, prNumber );
+
+	// Find out what plugin we need to worry about.
+	// We default to the Jetpack plugin for now.
+	let plugin;
+	labels.map( label => {
+		if ( label.includes( '[Plugin] Jetpack' ) ) {
+			plugin = 'jetpack';
+		}
+
+		if ( label.includes( '[Plugin] Beta Plugin' ) ) {
+			plugin = 'beta';
+		}
+
+		plugin = 'jetpack';
+	} );
+
 	// Get next valid milestone.
-	const nextMilestone = await getNextValidMilestone( octokit, owner, repo );
+	const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
 
 	if ( ! nextMilestone ) {
 		throw new Error( 'Could not find a valid milestone' );
