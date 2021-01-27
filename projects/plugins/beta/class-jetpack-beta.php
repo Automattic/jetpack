@@ -2,7 +2,7 @@
 /**
  * Primary class file for the Jetpack Beta plugin.
  *
- * @package Jetpack Beta
+ * @package automattic/jetpack-beta
  */
 
 // Check that the file is not accessed directly.
