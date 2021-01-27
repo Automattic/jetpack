@@ -9,7 +9,7 @@ jobs:
     steps:
       # Checkout and build the action
       - uses: actions/checkout@v2
-      - runs: |
+      - run: |
           cd .github/actions/required-review
           yarn build
 
