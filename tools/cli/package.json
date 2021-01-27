@@ -18,7 +18,7 @@
 	},
 	"scripts": {
 		"test-cli": "mocha tests/runner.js --require esm",
-		"postinstall": "bin/jetpack cli init"
+		"postinstall": "node bin/jetpack cli init"
 	},
 	"dependencies": {
 		"chalk": "4.1.0",
