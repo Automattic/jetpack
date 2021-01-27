@@ -75,7 +75,8 @@
 		"sort-packages": true,
 		"platform": {
 			"ext-intl": "0.0.0"
-		}
+		},
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3cjetpack"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
