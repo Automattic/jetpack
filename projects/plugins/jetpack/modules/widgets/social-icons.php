@@ -681,6 +681,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Yelp',
 			),
 			array(
+				'url'   => array( 'xanga.com' ),
+				'icon'  => 'xanga',
+				'label' => 'Xanga',
+			),
+			array(
 				'url'   => array( 'youtube.com' ),
 				'icon'  => 'youtube',
 				'label' => 'YouTube',
