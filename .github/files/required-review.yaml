@@ -1,19 +1,15 @@
 # Crew needs to review changes to the monorepo itself.
 - name: Monorepo itself
   paths:
-   # Magic: Match all files, but not directories to prevent pruning.
-   - '*'
-   - '!*/'
-   # Then we can un-match files under /projects/.
-   - '!/projects/**'
+   - '!projects/**'
   teams:
    - jetpack-crew
 
 # Crew reviews the Jetpack plugin and all packages.
 - name: Jetpack and packages
   paths:
-   - '/projects/packages/'
-   - '/projects/plugins/jetpack/'
+   - 'projects/packages/**'
+   - 'projects/plugins/jetpack/**'
   teams:
    - jetpack-crew
 

@@ -78,12 +78,12 @@ The requirements consist of an array of requirement objects. A requirement objec
   from every team (but if a person is a member of multiple teams, they can satisfy multiple
   requirements). When it's `any-of`, one review from any team is needed.
 
-Paths are matched using the same syntax as for `.gitignore`, `.eslintignore`, and the like.
+Paths are matched using the [picomatch](https://www.npmjs.com/package/picomatch#globbing-features) library.
 
 Every requirement object that applies must have appropriate reviews, it's not "first match". Thus,
 using the example below, a PR touching file at docs/foo.css would need reviews satisfying both
 the "Docs" and "Front end" review requirements. If you wanted to avoid that, you might add
-`!*.css` to the first's paths or `!docs/` to the second's.
+`!**.css` to the first's paths or `!docs/**` to the second's.
 
 ### Example
 
@@ -91,7 +91,7 @@ the "Docs" and "Front end" review requirements. If you wanted to avoid that, you
 # Documentation must be reviewed by the documentation team.
 - name: Docs
   paths:
-   - 'docs/'
+   - 'docs/**'
   teams:
    - documentation
 
@@ -99,8 +99,8 @@ the "Docs" and "Front end" review requirements. If you wanted to avoid that, you
 # OR by a member of the maintenance team.
 - name: Front end
   paths:
-   - '*.jsx'
-   - '*.css'
+   - '**.jsx'
+   - '**.css'
   teams:
    - all-of:
       - front-end

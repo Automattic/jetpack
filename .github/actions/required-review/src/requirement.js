@@ -1,7 +1,7 @@
 const assert = require( 'assert' );
 const core = require( '@actions/core' );
 const { SError } = require( 'error' );
-const ignore = require( 'ignore' );
+const picomatch = require( 'picomatch' );
 
 const fetchTeamMembers = require( './team-members.js' );
 
@@ -116,7 +116,7 @@ class Requirement {
 	 * Constructor.
 	 *
 	 * @param {object} config - Object config
-	 * @param {string[]|string} config.paths - Paths this requirement applies to. Either an array of `.gitignore`-style patterns, or the string "unmatched".
+	 * @param {string[]|string} config.paths - Paths this requirement applies to. Either an array of picomatch globs, or the string "unmatched".
 	 * @param {Array} config.teams - Team reviews requirements.
 	 */
 	constructor( config ) {
@@ -128,9 +128,7 @@ class Requirement {
 			Array.isArray( config.paths ) &&
 			config.paths.every( v => typeof v === 'string' )
 		) {
-			// ignore's own filtering wants to exclude files, while we want to include them.
-			const f = ignore().add( config.paths ).createFilter();
-			this.pathsFilter = p => ! f( p );
+			this.pathsFilter = picomatch( config.paths, { dot: true } );
 		} else {
 			throw new RequirementError( 'Paths must be an array of strings, or the string "unmatched".', {
 				config: config,
