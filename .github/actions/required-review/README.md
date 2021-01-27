@@ -35,8 +35,8 @@ This action is intended to be triggered by the `pull_request_review` event.
 - uses: Automattic/action-required-review
   with:
     # Specify the requirements as a YAML string. See below for the format of this string.
-	# The easiest way to generate this is probably to write your YAML, then put the `|`
-	# after the key to make it a string.
+    # The easiest way to generate this is probably to write your YAML, then put the `|`
+    # after the key to make it a string.
     requirements: |
       - name: Docs
         paths:
