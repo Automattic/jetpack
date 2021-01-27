@@ -1630,8 +1630,10 @@ jQuery( document ).ready( function ( $ ) {
 				return;
 			}
 			// Check if the image is linked so we can disable carousel for custom linked images
+			// Only run for gallery blocks, not galleries created in Classic block - images from Classic
+			// block galleries do not have 'data-permalink' defined and can't have custom links.
 			var parentHref = $( e.target ).parent().attr( 'href' );
-			if ( parentHref ) {
+			if ( parentHref && $( e.target ).attr( 'data-permalink' ) ) {
 				var valid = false;
 				if (
 					parentHref.split( '?' )[ 0 ] === $( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ]
