@@ -10,7 +10,7 @@ import {
 	RadioControl,
 	MenuItem,
 } from '@wordpress/components';
-import { check } from '@wordpress/icons';
+import { check, people } from '@wordpress/icons';
 import { useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 
@@ -160,7 +160,6 @@ export function ParticipantsEditDropdown( props ) {
 		label,
 		position = 'bottom',
 		labelClassName,
-		icon = null,
 		editMode = true,
 		onFocus,
 	} = props;
@@ -170,17 +169,20 @@ export function ParticipantsEditDropdown( props ) {
 			popoverProps={ {
 				position,
 			} }
-			toggleProps={ {
-				className: labelClassName,
-				children: editMode
-					? <span>{ label }</span>
-					: <Button
-						className={ labelClassName }
-						onClick={ onFocus }
-						onFocus={ onFocus }
-					>{ label }</Button>,
-			} }
-			icon={ icon }
+			toggleProps={ label
+				? {
+					className: labelClassName,
+					children: editMode
+						? <span>{ label }</span>
+						: <Button
+							className={ labelClassName }
+							onClick={ onFocus }
+							onFocus={ onFocus }
+						>{ label }</Button>,
+				}
+				: false
+			}
+			icon={ label ? null : people }
 		>
 			{ editMode
 				? ( { onClose } ) => <ParticipantsEditMenu { ...props } onClose={ onClose } />

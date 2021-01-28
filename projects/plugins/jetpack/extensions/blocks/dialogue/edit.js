@@ -172,7 +172,6 @@ export default function DialogueEdit( {
 						id={ `dialogue-${ instanceId }-participants-dropdown` }
 						className={ baseClassName }
 						participants={ participants }
-						label={ __( 'Participant', 'jetpack' ) }
 						participantSlug={ participantSlug }
 						onParticipantSelect={ setAttributes }
 						onParticipantAdd={ ( value ) => {
@@ -221,10 +220,8 @@ export default function DialogueEdit( {
 				<Panel>
 					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
 						<ParticipantsEditMenu
-							id={ `dialogue-${ instanceId }-participants-dropdown` }
 							className={ baseClassName }
 							participants={ participants }
-							label={ __( 'Participant', 'jetpack' ) }
 							participantSlug={ participantSlug }
 							onParticipantSelect={ setAttributes }
 							onParticipantAdd={ ( value ) => {
