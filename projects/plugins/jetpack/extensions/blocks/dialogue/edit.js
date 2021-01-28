@@ -177,6 +177,12 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
+				{ mediaSource && (
+					<MediaPlayerToolbarControl
+						onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
+					/>
+				) }
+
 				<ToolbarGroup>
 					<ParticipantsEditDropdown
 						id={ `dialogue-${ instanceId }-participants-dropdown` }
@@ -189,12 +195,6 @@ export default function DialogueEdit( {
 						onParticipantDelete={ deleteConversationParticipant }
 					/>
 				</ToolbarGroup>
-
-				{ mediaSource && (
-					<MediaPlayerToolbarControl
-						onTimeChange={ ( time ) => setTimestamp( convertSecondsToTimeCode( time ) ) }
-					/>
-				) }
 
 				{ currentParticipant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
