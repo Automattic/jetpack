@@ -655,6 +655,7 @@ class Jetpack_Beta_Admin {
 		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
 		$should_update_dev_version    = Jetpack_Beta::should_update_dev_version();
 		$should_update_dev_to_master  = Jetpack_Beta::should_update_dev_to_master();
+		$check_if_docker              = self::check_docker();
 
 		if ( ! $should_update_stable_version
 			&& ! $should_update_dev_version
@@ -666,7 +667,7 @@ class Jetpack_Beta_Admin {
 			<h2><?php esc_html_e( 'Some updates are required', 'jetpack-beta' ); ?></h2>
 		<?php
 
-		if ( $should_update_stable_version ) {
+		if ( $should_update_stable_version && ! $check_if_docker ) {
 			self::update_card(
 				__( 'Latest Stable', 'jetpack-beta' ),
 				__( 'Needs an update', 'jetpack-beta' ),
@@ -695,6 +696,12 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
+	/** Checks if we're running the plugin in a Docker instance */
+	public static function check_docker() {
+		if ( defined( 'JETPACK_DOCKER_ENV' ) && JETPACK_DOCKER_ENV ) {
+			return true;
+		}
+	}
 	/**
 	 * Handles card that notifies when there's an update available on a branch.
 	 *
