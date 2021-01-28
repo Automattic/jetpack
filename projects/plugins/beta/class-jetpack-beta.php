@@ -1245,7 +1245,7 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * The jetpack_beta_autoupdate_hourly_cron job.
+	 * The jetpack_beta_autoupdate_hourly_cron job - does not update Stable.
 	 */
 	public static function run_autoupdate() {
 		if ( ! self::is_set_to_autoupdate() ) {

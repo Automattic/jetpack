@@ -629,7 +629,6 @@ class Jetpack_Beta_Admin {
 	 * @param bool   $value If toggle is active or not.
 	 */
 	public static function show_toggle( $name, $option, $value ) {
-
 		$query = array(
 			'page'    => 'jetpack-beta',
 			'_action' => 'toggle_enable_' . $option,
