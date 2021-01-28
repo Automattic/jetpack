@@ -13,10 +13,18 @@ import {
 import { check, people } from '@wordpress/icons';
 import { useState, useEffect } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
-
 import { __ } from '@wordpress/i18n';
 
-function ParticipantEditItem( { value, onChange, onSelect, onDelete, onClose, disabled } ) {
+const participantNotDefinedLabel = __( 'Not defined', 'jetpack' );
+
+function ParticipantEditItem( {
+	value,
+	onChange,
+	onSelect,
+	onDelete,
+	onClose = () => {},
+	disabled,
+} ) {
 	const [ participant, setParticipant ] = useState( value );
 	useEffect( () => setParticipant( value ), [ value ] );
 
@@ -35,6 +43,7 @@ function ParticipantEditItem( { value, onChange, onSelect, onDelete, onClose, di
 						onClose();
 					}
 				} }
+				placeholder={ participantNotDefinedLabel }
 			/>
 
 			<Button
@@ -63,6 +72,7 @@ function ParticipantAddItem( { onAdd, className } ) {
 						onAdd( participant );
 					}
 				} }
+				placeholder={ __( 'New participant', 'jetpack' ) }
 			/>
 
 			<Button
@@ -88,7 +98,7 @@ export function ParticipantsEditMenu( {
 	onParticipantAdd,
 	onParticipantChange,
 	onParticipantDelete,
-	onClose,
+	onClose = () => {},
 } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants` }>
@@ -145,7 +155,7 @@ export function ParticipantsMenu( { participants, className, onSelect, participa
 					isSelected={ participantSlug === slug }
 					icon={ participantSlug === slug ? check : null }
 				>
-					{ participant }
+					{ participant || participantNotDefinedLabel }
 				</MenuItem>
 			) ) }
 		</MenuGroup>
@@ -186,6 +196,31 @@ function ParticipantsEditDropdown( props ) {
 	);
 }
 
+function dropdownToggleProps( { label, className, onFocus } ) {
+	if ( label === false ) {
+		return {};
+	}
+
+	if ( label ) {
+		return {
+			className,
+			children:
+				<Button
+					className={ className }
+					onClick={ onFocus }
+					onFocus={ onFocus }
+				>
+					{ label }
+				</Button>
+		};
+	}
+
+	return {
+		className,
+		children: <span>{ participantNotDefinedLabel }</span>,
+	};
+}
+
 export function ParticipantsDropdown( props ) {
 	const { labelClassName, onFocus, label } = props;
 	const className = label?.length
@@ -195,20 +230,7 @@ export function ParticipantsDropdown( props ) {
 	return (
 		<ParticipantsEditDropdown
 			{ ...props }
-			toggleProps={ label
-				? {
-					className,
-					children:
-						<Button
-							className={ className }
-							onClick={ onFocus }
-							onFocus={ onFocus }
-						>
-							{ label || __( 'Not defined', 'jetpack' ) }
-						</Button>
-				}
-				: {}
-			}
+			toggleProps={ dropdownToggleProps( { label, className, onFocus } ) }
 		/>
 	);
 }

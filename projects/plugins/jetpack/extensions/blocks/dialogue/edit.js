@@ -172,7 +172,7 @@ export default function DialogueEdit( {
 						className={ baseClassName }
 						labelClassName={ getParticipantLabelClass() }
 						participants={ participants }
-						label={ null }
+						label={ false }
 						participantSlug={ participantSlug }
 						onSelect={ setAttributes }
 						editMode={ false }
