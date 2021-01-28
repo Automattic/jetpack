@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { find } from 'lodash';
-import classnames from 'classnames';
+import { find, isEqual } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -77,8 +76,7 @@ export default function DialogueEdit( {
 		? participantsFromContext
 		: defaultParticipants;
 
-	const currentParticipant = getParticipantBySlug( participants, participant?.slug );
-	const participantLabel = currentParticipant?.label;
+	const conversationParticipant = getParticipantBySlug( participants, participant?.slug );
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
@@ -104,6 +102,13 @@ export default function DialogueEdit( {
 		} );
 	}, [ participant, participants, prevBlock, setAttributes, conversationBridge ] );
 
+	// Update dialog participant with conversation participant changes
+	useEffect( () => {
+		if ( ! isEqual( conversationParticipant, participant ) ) {
+			setAttributes( { participant: conversationParticipant } );
+		}
+	}, [ conversationParticipant, participant, setAttributes ] );
+
 	// Update participant slug in case
 	// the participant is removed globally.
 	// from the Conversation block.
@@ -113,16 +118,16 @@ export default function DialogueEdit( {
 		}
 
 		// Check if the participant has been removed from Conversation.
-		if ( currentParticipant ) {
+		if ( conversationParticipant ) {
 			return;
 		}
 
 		// Set first participant as default.
 		setAttributes( { participant: participants[ 0 ] } );
-	}, [ participants, currentParticipant, setAttributes ] );
+	}, [ participants, conversationParticipant, setAttributes ] );
 
 	function hasStyle( style ) {
-		return currentParticipant?.[ style ];
+		return participant?.[ style ];
 	}
 
 	function toggleParticipantStyle( style ) {
@@ -160,7 +165,7 @@ export default function DialogueEdit( {
 					/>
 				) }
 
-				{ currentParticipant && isFocusedOnParticipantLabel && (
+				{ participant && isFocusedOnParticipantLabel && (
 					<ToolbarGroup>
 						<ToolbarButton
 							icon="editor-bold"
@@ -224,7 +229,7 @@ export default function DialogueEdit( {
 					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
 					className={ getParticipantLabelClass( baseClassName, participant ) }
 				>
-					{ participantLabel }
+					{ participant?.label }
 				</Button>
 
 				{ showTimestamp && (
