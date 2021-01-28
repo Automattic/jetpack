@@ -45,21 +45,14 @@ class Latest_Autoloader_Guard {
 	 * has the side-effect of actually loading the latest autoloader in the event that this
 	 * is not it.
 	 *
-	 * @param string   $current_plugin The current plugin we're checking.
-	 * @param string[] $plugins        The active plugins to check for autoloaders in.
+	 * @param string   $current_plugin             The current plugin we're checking.
+	 * @param string[] $plugins                    The active plugins to check for autoloaders in.
+	 * @param bool     $was_included_by_autoloader Indicates whether or not this autoloader was included by another.
 	 *
 	 * @return bool True if we should stop initialization, otherwise false.
 	 */
-	public function should_stop_init( $current_plugin, $plugins ) {
-		global $jetpack_autoloader_including_latest;
+	public function should_stop_init( $current_plugin, $plugins, $was_included_by_autoloader ) {
 		global $jetpack_autoloader_latest_version;
-
-		// When we're being included from an older autoloader we need to
-		// reset the latest version so that the new autoloader can look
-		// for the latest autoloader again.
-		if ( $jetpack_autoloader_including_latest ) {
-			$jetpack_autoloader_latest_version = null;
-		}
 
 		// We need to reset the autoloader when the plugins change because
 		// that means the autoloader was generated with a different list.
@@ -67,16 +60,16 @@ class Latest_Autoloader_Guard {
 			$this->autoloader_handler->reset_autoloader();
 		}
 
-		// Don't bother initializing the autoloader if it already has been.
-		if ( isset( $jetpack_autoloader_latest_version ) ) {
+		// When the latest autoloader has already been found we don't need to search for it again.
+		// We should take care however because this will also trigger if the autoloader has been
+		// included by an older one.
+		if ( isset( $jetpack_autoloader_latest_version ) && ! $was_included_by_autoloader ) {
 			return true;
 		}
 
 		$latest_plugin = $this->autoloader_locator->find_latest_autoloader( $plugins, $jetpack_autoloader_latest_version );
 		if ( isset( $latest_plugin ) && $latest_plugin !== $current_plugin ) {
-			$jetpack_autoloader_including_latest = true;
 			require $this->autoloader_locator->get_autoloader_path( $latest_plugin );
-			$jetpack_autoloader_including_latest = false;
 			return true;
 		}
 

@@ -71,15 +71,15 @@ TAG="${ARGS[1]}"
 process_plugin_arg "${ARGS[0]}"
 PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
 MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
-WPNAME=$(jq -r '.extra["wp-plugin-name"] // ""' "$PLUGIN_DIR/composer.json")
+WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 FAIL=false
 if [[ -z "$MIRROR" ]]; then
 	FAIL=true
 	error "Plugin $PLUGIN_NAME has no mirror repo. Cannot deploy."
 fi
-if [[ -z "$WPNAME" ]]; then
+if [[ -z "$WPSLUG" ]]; then
 	FAIL=true
-	error "Plugin $PLUGIN_NAME has no WordPress.org plugin name. Cannot deploy."
+	error "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot deploy." >&2
 fi
 $FAIL && exit 1
 
@@ -115,7 +115,7 @@ else
 fi
 
 info "Checking out SVN shallowly to $DIR"
-svn -q checkout "https://plugins.svn.wordpress.org/$WPNAME/" --depth=empty "$DIR"
+svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
 success "Done!"
 
 info "Checking out SVN trunk to $DIR/trunk"

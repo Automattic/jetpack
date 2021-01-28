@@ -60,8 +60,8 @@ $INTERACTIVE || die "Input is not a terminal, aborting."
 # Check plugin.
 process_plugin_arg "${ARGS[0]}"
 PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
-WPNAME=$(jq -r '.extra["wp-plugin-name"] // ""' "$PLUGIN_DIR/composer.json")
-[[ -n "$WPNAME" ]] || die "Plugin $PLUGIN_NAME has no WordPress.org plugin name. Cannot deploy."
+WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
+[[ -n "$WPSLUG" ]] || die "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot deploy."
 
 # Check build dir.
 if [[ -z "$BUILD_DIR" ]]; then
@@ -82,9 +82,9 @@ cd "$BUILD_DIR"
 DIR=$(pwd)
 
 # Get JSON
-JSON=$(curl -s "http://api.wordpress.org/plugins/info/1.0/$WPNAME.json")
+JSON=$(curl -s "http://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
 if ! jq -e '.' <<<"$JSON" &>/dev/null; then
-	die "Failed to retrieve JSON data from http://api.wordpress.org/plugins/info/1.0/$WPNAME.json"
+	die "Failed to retrieve JSON data from http://api.wordpress.org/plugins/info/1.0/$WPSLUG.json"
 fi
 
 # Current stable version
@@ -103,7 +103,7 @@ proceed_p "" "Continue?"
 echo ""
 
 info "Checking out SVN shallowly to $DIR"
-svn -q checkout "https://plugins.svn.wordpress.org/$WPNAME/" --depth=empty "$DIR"
+svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
 success "Done!"
 
 info "Checking out SVN trunk to $DIR/trunk"

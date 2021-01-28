@@ -68,7 +68,7 @@ export default {
 	attributes: {
 		participants,
 		showTimestamps: true,
-		className: 'is-style-column',
+		className: 'is-style-row',
 	},
 	innerBlocks: template,
 };

@@ -75,7 +75,7 @@ export async function watchCli( options ) {
 		const data = readComposerJson( options.project );
 		data !== false ? await watch( options.project, data ) : false;
 	} else {
-		console.log( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a project!' ) );
 	}
 }
 
@@ -117,7 +117,7 @@ function hasWatchStep( project, composerJson ) {
 
 	// There's no watch step defined.
 	output
-		? console.log(
+		? console.warn(
 				chalk.yellow( 'This project does not have a watch step defined in composer.json.' )
 		  )
 		: null;

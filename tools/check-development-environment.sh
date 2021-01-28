@@ -120,7 +120,7 @@ main() {
 	output "\n\nTools used by scripts"
 	output   "\n=====================\n\n"
 
-	assert modern_version_of_bash
+	assert bash_version_is_proper
 	assert command_is_available jq
 
 	output "\n\nDocker Development Environment"
@@ -140,7 +140,7 @@ main() {
 	assert is_git_dir
 	assert repo_origin_scheme_is_git
 	assert repo_is_up_to_date
-	assert command_is_available jetpack
+	check command_is_available jetpack
 }
 
 ## Run main only if not source by another file

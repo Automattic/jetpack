@@ -1,9 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
+import { createBlocksFromInnerBlocksTemplate, pasteHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { _x, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -76,27 +76,31 @@ function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
 }
 
 function podcastSummarySection( { episodeTrack } ) {
-	return [
-		'core/group',
-		{},
+	const sectionBlocks = [
 		[
-			[
-				'core/heading',
-				{
-					level: 3,
-					content: 'Summary',
-					placeholder: __( 'Podcast episode title', 'jetpack' ),
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description,
-				},
-			],
+			'core/heading',
+			{
+				level: 3,
+				content: _x( 'Summary', 'noun: summary of a podcast episode', 'jetpack' ),
+				placeholder: __( 'Podcast episode title', 'jetpack' ),
+			},
 		],
 	];
+
+	const summaryBlocks = pasteHandler( { HTML: episodeTrack.description_html, mode: 'BLOCKS' } );
+
+	if ( summaryBlocks.length ) {
+		sectionBlocks.push( ...summaryBlocks );
+	} else {
+		sectionBlocks.push( [
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			},
+		] );
+	}
+
+	return [ 'core/group', {}, sectionBlocks ];
 }
 
 function podcastConversationSection() {

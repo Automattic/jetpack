@@ -10,6 +10,7 @@ import { hideBin } from 'yargs/helpers';
 import { buildDefine } from './commands/build';
 import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
+import { cliDefine } from './commands/cli';
 
 // import { dockerDefine } from "./commands/docker";
 
@@ -23,11 +24,15 @@ export async function cli() {
 	// Sets up the yargs instance.
 	let argv = yargs( hideBin( process.argv ) );
 
-	// Adds the commands to the yargs instance.
+	/*
+	 * Adds the commands to the yargs instance. Help text will list commands in the order they are included here.
+	 * Let's keep it alphabetical.
+	 */
 	argv = buildDefine( argv );
-	argv = watchDefine( argv );
-	argv = installDefine( argv );
+	argv = cliDefine( argv );
 	// argv = dockerDefine( argv );
+	argv = installDefine( argv );
+	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
 	argv.showHelpOnFail( true ).demandCommand();

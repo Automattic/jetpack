@@ -17,6 +17,11 @@ Install via
 yarn install
 ```
 
+In some instances, this will not work depending on permissions, etc. You may need to add `~/.yarn/bin` to your system's PATH. 
+If `jetpack` is still not available, you can run `yarn jetpack` from the repo root only.
+
+`jetpack`, when installed, will work from anywhere within the repo.
+
 ### Bash version is proper
 
 Several scripts require bash 4 or later. If you're on Mac OS X, you likely have an old version and can install an upgraded version with `brew install bash`.

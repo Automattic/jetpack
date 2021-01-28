@@ -2,6 +2,46 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.4 =
+
+* Release date: February 2, 2021
+* Release post: https://wp.me/p1moTy-tOv
+
+**Enhancements**
+
+* Dashboard: add new Recommendations page to help you get started with recommended features of Jetpack.
+* Dashboard: change the development notice link to an external link.
+* Podcast Player Block: add skip back/forward buttons.
+* Podcast Player Block: improve RSS feed detection.
+* Sharing: remove jQuery dependency to improve performance of the sharing buttons.
+* Sharing: improve performance of the Email Sharing button by lazy-loading the Google reCAPTCHA when necessary.
+* Social Menu: add Patreon icon.
+* Synchronization with WordPress.com: improve the validation of field names when calculating checksums on tables.
+* Synchronization Performance: reduce concurrency of requests by implementation of Retry-After for concurrent requests.
+* Widgets: add Patreon icon to Social Icons Widget.
+* WordPress.com REST API: add new Cloudflare Analytics field option.
+
+**Improved compatibility**
+
+* Form Block: avoid display issues when submitting a form within an AMP view.
+* Instant Search: improve support for older browsers such as Internet Explorer 11.
+* Secure Sign On: support custom login page plugins such as WPS Hide Login.
+* Tiled Gallery Block: add additional CSS classes to improve compatibility with the Core Gallery block.
+
+**Bug fixes**
+
+* Autoloader: resolve inconsistencies when including a cache supporting autoloader from one without cache support.
+* Contact Form: prevent post status transition actions from firing twice when the post status is changed.
+* Crowdsignal: avoid issues when using a Crowdsignal shortcode in the block editor.
+* Jetpack Video Block: avoid block validation errors when editing existing content.
+* Jetpack Video Block: add missing alignment classes.
+* Publicize: allow clearing Publicize custom message if a post title has been set.
+* Stats: update dashboard widget to respect new dashboard widget markup.
+* Subcriptions Block: avoid errors when displayed within a Disabled context, such as a block or pattern preview.
+* Synchronization with WordPress.com: avoid PHP warnings.
+* Synchronization with WordPress.com: fix potential PHP notices when making XMLRPC requests.
+* WordPress.com REST API: fix PHP notice when fetching user connection data without a connection owner.
+
 = 9.3.1 =
 
 * Release date: January 14, 2021

@@ -404,6 +404,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
 						'wga'                              => $this->get_google_analytics(),
+						'cloudflare_analytics'             => get_option( 'cloudflare_analytics' ),
 						'disabled_likes'                   => (bool) get_option( 'disabled_likes' ),
 						'disabled_reblogs'                 => (bool) get_option( 'disabled_reblogs' ),
 						'jetpack_comment_likes_enabled'    => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
@@ -487,7 +488,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 			}
 		}
-
 		return $response;
 
 	}
@@ -660,6 +660,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( $is_wpcom ) {
 						$business_plugins = WPCOM_Business_Plugins::instance();
 						$business_plugins->activate_plugin( 'wp-google-analytics' );
+					}
+					break;
+
+				case 'cloudflare_analytics':
+					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^[a-fA-F0-9]+$/i', $value['code'] ) ) {
+						return new WP_Error( 'invalid_code', __( 'Invalid Cloudflare Analytics ID', 'jetpack' ) );
+					}
+
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
 					}
 					break;
 

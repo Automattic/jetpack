@@ -167,26 +167,6 @@ if ( ! function_exists( 'get_transient' ) ) {
 
 		return true;
 	}
-
-	/**
-	 * Checks to see whether or not the test transient has been set to a specific value.
-	 *
-	 * @param string $transient  The transient to check.
-	 * @param mixed  $value      The value to find.
-	 * @param int    $expiration The expiration value, 0 for roever.
-	 * @return bool True if the transient is set, otherwise false.
-	 */
-	function test_has_transient( $transient, $value, $expiration = 0 ) {
-		global $test_transients;
-
-		if ( ! isset( $test_transients[ $transient ] ) ) {
-			return false;
-		}
-
-		$transient = $test_transients[ $transient ];
-
-		return $value === $transient['value'] && $expiration === $transient['expiration'];
-	}
 }
 
 if ( ! function_exists( 'wp_normalize_path' ) ) {
