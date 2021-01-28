@@ -19,6 +19,13 @@
 
 .jp-recommendations-summary__content {
 	background: $white;
+
+	&.isLoading {
+		min-height: 730px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 }
 
 .jp-recommendations-summary__configuration {
@@ -39,6 +46,13 @@
 
 	@include breakpoint( '<660px' ) {
 		padding: 0;
+	}
+
+	&.isLoading {
+		min-height: 430px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 }
 

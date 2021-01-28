@@ -60,6 +60,14 @@ export function isFetchingPluginsData( state ) {
 }
 
 /**
+ * Returns the site plugins data
+ * @param {Object} state Global state tree
+ */
+export function getPluginsData( state ) {
+	return state.jetpack.pluginsData.items;
+}
+
+/**
  * Returns whether the plugin is active or not.
  * @param  {Object}  state  Global state tree
  * @param  {String}  plugin Slug of plugin to check.
