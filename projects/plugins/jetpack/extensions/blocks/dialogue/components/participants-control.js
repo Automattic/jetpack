@@ -72,7 +72,7 @@ function ParticipantAddItem( { value, onAdd, className } ) {
 	);
 }
 
-function ParticipantsMenu( {
+export function ParticipantsMenu( {
 	participants,
 	className,
 	participantSlug,

@@ -27,7 +27,7 @@ import { useSelect, dispatch } from '@wordpress/data';
  */
 import './editor.scss';
 import ParticipantsDropdown, {
-	ParticipantsControl,
+	ParticipantsMenu,
 } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
@@ -218,11 +218,23 @@ export default function DialogueEdit( {
 			<InspectorControls>
 				<Panel>
 					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
-						<ParticipantsControl
+						<ParticipantsMenu
+							id={ `dialogue-${ instanceId }-participants-dropdown` }
 							className={ baseClassName }
 							participants={ participants }
-							participantSlug={ participantSlug || '' }
-							onSelect={ setAttributes }
+							label={ __( 'Participant', 'jetpack' ) }
+							participantSlug={ participantSlug }
+							onParticipantSelect={ setAttributes }
+							onParticipantAdd={ ( value ) => {
+								const { participantSlug: slug } = conversationBridge.addNewParticipant( value );
+								setTimeout( () => setAttributes( { participantSlug: slug } ), 100 );
+							} }
+							onParticipantChange={ conversationBridge.updateParticipants }
+							onParticipantDelete={ ( value ) => {
+								const prevParticipantSlug = conversationBridge.getPrevParticipantSlug( participantSlug );
+								setAttributes( { participantSlug: prevParticipantSlug } );
+								conversationBridge.deleteParticipant( value );
+							} }
 						/>
 					</PanelBody>
 
