@@ -4,7 +4,7 @@
  *
  * @since 8.6.1
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Story;

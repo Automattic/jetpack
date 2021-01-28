@@ -2,7 +2,7 @@
 /**
  * WP.com Admin Menu file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;

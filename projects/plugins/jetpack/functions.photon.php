@@ -7,7 +7,7 @@ use Automattic\Jetpack\Status;
  *
  * Some are used outside of the Photon module being active, so intentionally not within the module.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**

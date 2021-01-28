@@ -15,7 +15,7 @@
  * [crowdsignal poll=9541291 type=slider]
  * [crowdsignal rating=8755352]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;

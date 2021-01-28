@@ -4,7 +4,7 @@
  *
  * @since 7.3.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {

@@ -11,7 +11,7 @@
  * Requires at least: 5.5
  * Requires PHP: 5.6
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.5' );

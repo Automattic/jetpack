@@ -2,7 +2,7 @@
 /**
  * The Image Sizes library.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 jetpack_require_lib( 'class.jetpack-photon-image' );

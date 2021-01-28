@@ -2,7 +2,7 @@
 /**
  * SVG icons related functions and filters
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) :

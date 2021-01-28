@@ -6,7 +6,7 @@
  * maintaining the constraints.
  *
  * @since 4.8.0
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -3,7 +3,7 @@
  * VR Viewer Shortcode
  * converts [vr] shortcode to an iframe viewer hosted on vr.me.sh
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

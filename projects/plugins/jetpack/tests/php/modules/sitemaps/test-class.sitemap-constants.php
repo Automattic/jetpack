@@ -2,7 +2,7 @@
 /**
  * Tests for the sitemap constants.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 4.7.0
  */
 

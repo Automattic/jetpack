@@ -2,7 +2,7 @@
 /**
  * Mapbox API helper.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**
