@@ -425,7 +425,7 @@ class Admin_Menu {
 		}
 
 		// Register menu for the Custom CSS Jetpack module, but don't add it as a menu item.
-		$GLOBALS['_registered_pages'][ 'admin_page_editcss'] = true;
+		$GLOBALS['_registered_pages']['admin_page_editcss'] = true;
 
 		$this->migrate_submenus( 'themes.php', $themes_slug );
 		add_filter(
