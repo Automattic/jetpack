@@ -98,15 +98,16 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a specific track from the supplied feed URL.
 	 *
-	 * @param string $guid        The GUID of the track.
+	 * @param string $guid          The GUID of the track.
 	 * @param bool   $force_refresh Whether to force a refresh.
-	 * @return array|WP_Error     The track object or an error object.
+	 * @return array|WP_Error       The track object or an error object.
 	 */
 	public function get_track_data( $guid, $force_refresh = false ) {
 		// Try loading track data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( "$this->feed::$guid" );
 		$track_data    = get_transient( $transient_key );
 
+		// Clear the cache if force_refresh param is set.
 		if ( true === $force_refresh ) {
 			delete_transient( $track_data );
 		}

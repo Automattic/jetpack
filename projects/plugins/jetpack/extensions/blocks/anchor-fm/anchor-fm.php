@@ -142,12 +142,18 @@ function process_anchor_params() {
 						);
 					}
 				} else {
-					$data['actions'][] = array(
-						'create-error-notice',
+					$retry_url         = add_query_arg(
 						array(
-							'podcast_id'  => $podcast_id,
-							'episode_id'  => $episode_id,
-							'spotify_url' => $spotify_url,
+							'anchor_podcast' => $podcast_id,
+							'anchor_episode' => $episode_id,
+							'spotify_url'    => $spotify_url,
+						),
+						admin_url( 'post-new.php' )
+					);
+					$data['actions'][] = array(
+						'create-episode-error-notice',
+						array(
+							'retry_url' => $retry_url,
 						),
 					);
 				}

@@ -86,7 +86,7 @@ function showPostPublishOutboundLink() {
 	} );
 }
 
-function createEpisodeErrorNotice() {
+function createEpisodeErrorNotice( params ) {
 	dispatch( 'core/notices' ).createNotice(
 		'error',
 		__(
@@ -96,9 +96,7 @@ function createEpisodeErrorNotice() {
 		{
 			actions: [
 				{
-					onClick() {
-						// TODO: force a podcast refresh
-					},
+					url: params.retry_url,
 					label: __( 'Retry', 'jetpack' ),
 				},
 			],
@@ -127,8 +125,8 @@ function initAnchor() {
 			case 'set-episode-title':
 				setEpisodeTitle( actionParams );
 				break;
-			case 'create-error-notice':
-				createEpisodeErrorNotice();
+			case 'create-episode-error-notice':
+				createEpisodeErrorNotice( actionParams );
 				break;
 		}
 	} );
