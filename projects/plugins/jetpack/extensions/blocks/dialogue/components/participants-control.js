@@ -18,10 +18,7 @@ import { __ } from '@wordpress/i18n';
 
 function ParticipantEditItem( { value, onChange, onSelect, onDelete, disabled } ) {
 	const [ participant, setParticipant ] = useState( value );
-
-	useEffect( () => {
-		setParticipant( value );
-	}, [ value ] );
+	useEffect( () => setParticipant( value ), [ value ] );
 
 	return (
 		<>
