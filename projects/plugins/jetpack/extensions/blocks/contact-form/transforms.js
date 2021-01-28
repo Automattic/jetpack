@@ -7,17 +7,17 @@ import { __ } from '@wordpress/i18n';
 
 const getAttributeValue = ( tag, att, content ) => {
 	const doubleQuotes = content.match( new RegExp( `\\[${ tag }[^\\]]* ${ att }="([^"]*)"`, 'im' ) );
-	if ( doubleQuotes != null && doubleQuotes.length > 0 ) {
+	if ( doubleQuotes && doubleQuotes.length ) {
 		return doubleQuotes[ 1 ];
 	}
 
 	const singleQuotes = content.match( new RegExp( `\\[${ tag }[^\\]]* ${ att }='([^']*)'`, 'im' ) );
-	if ( singleQuotes != null && singleQuotes.length > 0 ) {
+	if ( singleQuotes && singleQuotes.length ) {
 		return singleQuotes[ 1 ];
 	}
 
 	const noQuotes = content.match( new RegExp( `\\[${ tag }[^\\]]* ${ att }=([^\\s]*)\\s`, 'im' ) );
-	if ( noQuotes != null && noQuotes.length > 0 ) {
+	if ( noQuotes && noQuotes.length ) {
 		return noQuotes[ 1 ];
 	}
 
