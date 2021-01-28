@@ -11,7 +11,7 @@ import {
 	MenuItem,
 } from '@wordpress/components';
 import { check, people } from '@wordpress/icons';
-import { useState, useEffect } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
@@ -20,32 +20,17 @@ const participantNotDefinedLabel = __( 'Not defined', 'jetpack' );
 
 function ParticipantEditItem( {
 	value,
-	onChange,
 	onSelect,
 	onDelete,
-	onClose = () => {},
 	disabled,
 } ) {
-	const [ participant, setParticipant ] = useState( value );
-	useEffect( () => setParticipant( value ), [ value ] );
-
 	return (
 		<>
-			<TextControl
-				value={ participant }
-				onChange={ ( newValue ) => {
-					setParticipant( newValue );
-					onChange( newValue );
-				} }
-				onKeyDown={ ( ev ) => {
-					if ( ev.keyCode === ENTER ) {
-						ev.preventDefault();
-						onSelect();
-						onClose();
-					}
-				} }
-				placeholder={ participantNotDefinedLabel }
-			/>
+			<Button
+				onClick={ onSelect }
+			>
+				{ value }
+			</Button>
 
 			<Button
 				disabled={ disabled }
@@ -116,14 +101,14 @@ export function ParticipantsEditMenu( {
 			/>
 
 			<div className={ `${ className }__participants-selector__container` }>
-				{ participants.map( ( { participant, participantSlug: slug } ) => (
+				{ participants.map( ( { participantPlain, participantSlug: slug } ) => (
 					<div
 						className={ `${ className }__participants-selector__participant` }
 						key={ slug }
 					>
 						<ParticipantEditItem
 							disabled={ participants.length < 2 }
-							value={ participant }
+							value={ participantPlain }
 							onChange={ ( value ) => onParticipantChange( {
 								participantSlug: slug,
 								participant: value,
@@ -146,7 +131,7 @@ export function ParticipantsEditMenu( {
 export function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ participants.map( ( { participant, participantSlug: slug } ) => (
+			{ participants.map( ( { participantPlain, participantSlug: slug } ) => (
 				<MenuItem
 					key={ slug }
 					onClick={ () => {
@@ -156,7 +141,7 @@ export function ParticipantsMenu( { participants, className, onSelect, participa
 					isSelected={ participantSlug === slug }
 					icon={ participantSlug === slug ? check : null }
 				>
-					{ participant || participantNotDefinedLabel }
+					{ participantPlain || participantNotDefinedLabel }
 				</MenuItem>
 			) ) }
 		</MenuGroup>
@@ -244,7 +229,7 @@ export function ParticipantControl( {
 		<RichText
 			tagName="div"
 			value={ label }
-			formattingControls={ [ 'bold', 'italic' ] }
+			formattingControls={ [ 'bold', 'italic', 'text-color' ] }
 			onChange={ onChange }
 			placeholder={ __( 'Participant', 'jetpack' ) }
 			keepPlaceholderOnFocus={ true }
