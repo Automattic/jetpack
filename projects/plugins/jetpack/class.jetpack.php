@@ -4205,7 +4205,12 @@ p {
 					}
 
 					if ( self::is_active() && self::is_user_connected() ) {
+						// The user is either already connected, or finished the connection process.
 						wp_safe_redirect( $dest_url );
+						exit;
+					} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						// The user decided not to proceed with setting up the connection.
+						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
 						exit;
 					}
 
@@ -4214,6 +4219,7 @@ p {
 							'page'     => 'jetpack',
 							'action'   => 'authorize_redirect',
 							'dest_url' => rawurlencode( $dest_url ),
+							'done'     => '1',
 						)
 					);
 
