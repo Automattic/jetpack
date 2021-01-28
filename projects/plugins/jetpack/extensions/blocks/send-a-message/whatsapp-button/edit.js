@@ -60,12 +60,20 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		<div className={ getBlockClassNames() }>
 			{ ToolbarGroup && (
 				<BlockControls>
-					<WhatsAppButtonSettings context="toolbar" setAttributes={ setAttributes } attributes />
+					<WhatsAppButtonSettings
+						context="toolbar"
+						setAttributes={ setAttributes }
+						attributes={ attributes }
+					/>
 				</BlockControls>
 			) }
 
 			<InspectorControls>
-				<WhatsAppButtonSettings context="inspector" setAttributes={ setAttributes } attributes />
+				<WhatsAppButtonSettings
+					context="inspector"
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+				/>
 			</InspectorControls>
 
 			<RichText
