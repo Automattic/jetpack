@@ -94,9 +94,15 @@ function createEpisodeErrorNotice( params ) {
 			'jetpack'
 		),
 		{
+			id: 'episode-error-notice',
 			actions: [
 				{
-					url: params.retry_url,
+					onClick() {
+						window.location.href = params.retry_url;
+					},
+					onKeyDown() {
+						window.location.href = params.retry_url;
+					},
 					label: __( 'Retry', 'jetpack' ),
 				},
 			],
