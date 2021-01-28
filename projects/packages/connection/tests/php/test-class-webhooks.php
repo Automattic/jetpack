@@ -8,8 +8,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use phpmock\Mock;
-use phpmock\MockBuilder;
+use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
@@ -36,28 +35,13 @@ class Test_Webhooks extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( 'check_admin_referer' )
-				->setFunction(
-					function () {
-						return true;
-					}
-				);
-		$this->check_admin_referer = $builder->build();
-		$this->check_admin_referer->enable();
-
-		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
-				->setName( 'wp_safe_redirect' )
-				->setFunction(
-					function ( $redirect ) {
-						$this->redirect_stack[] = $redirect;
-						return true;
-					}
-				);
-		$this->wp_safe_redirect = $builder->build();
-		$this->wp_safe_redirect->enable();
+		Monkey\Functions\when( 'check_admin_referer' )->justReturn( true );
+		Monkey\Functions\when( 'wp_safe_redirect' )->alias(
+			function ( $redirect ) {
+				$this->redirect_stack[] = $redirect;
+				return true;
+			}
+		);
 	}
 
 	/**
@@ -66,7 +50,7 @@ class Test_Webhooks extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
-		Mock::disableAll();
+		Monkey\tearDown();
 		$this->redirect_stack = array();
 	}
 
