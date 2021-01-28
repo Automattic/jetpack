@@ -657,7 +657,16 @@ class Jetpack_Beta_Admin {
 		$should_update_dev_to_master  = Jetpack_Beta::should_update_dev_to_master();
 		$check_if_docker              = self::check_docker();
 
+		// Return if there are no updates available.
 		if ( ! $should_update_stable_version
+			&& ! $should_update_dev_version
+			&& ! $should_update_dev_to_master ) {
+			return;
+		}
+
+		// Return if the only update is "Stable" and we're in a Docker instance.
+		if ( $should_update_stable_version
+			&& $check_if_docker
 			&& ! $should_update_dev_version
 			&& ! $should_update_dev_to_master ) {
 			return;
@@ -667,6 +676,7 @@ class Jetpack_Beta_Admin {
 			<h2><?php esc_html_e( 'Some updates are required', 'jetpack-beta' ); ?></h2>
 		<?php
 
+		// Show Stable update card if we're not in a docker instance.
 		if ( $should_update_stable_version && ! $check_if_docker ) {
 			self::update_card(
 				__( 'Latest Stable', 'jetpack-beta' ),
