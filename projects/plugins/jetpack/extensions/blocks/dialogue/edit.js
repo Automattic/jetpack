@@ -25,7 +25,7 @@ import { useSelect, dispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import './editor.scss';
-import { ParticipantsEditMenu, ParticipantsDropdown } from './components/participants-control';
+import { ParticipantsEditMenu, ParticipantsDropdown, ParticipantControl } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
@@ -53,6 +53,7 @@ export default function DialogueEdit( {
 	context,
 	onReplace,
 	mergeBlocks,
+	isSelected,
 } ) {
 	const {
 		participantSlug,
@@ -61,6 +62,7 @@ export default function DialogueEdit( {
 		placeholder,
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
+
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	const { prevBlock, mediaSource } = useSelect( select => {
@@ -83,7 +85,9 @@ export default function DialogueEdit( {
 		: defaultParticipants;
 
 	const currentParticipant = getParticipantBySlug( participants, participantSlug );
-	const participantLabel = currentParticipant?.participant;
+
+	// const participantLabel = currentParticipant?.participant;
+	const [ participantLabel, setParticipantLabel ] = useState( currentParticipant?.participant );
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
@@ -130,6 +134,26 @@ export default function DialogueEdit( {
 		// Set first participant as default.
 		setAttributes( { participantSlug: participants[ 0 ].participantSlug } );
 	}, [ participants, currentParticipant, setAttributes ] );
+
+	/*
+	 * Update the participant label of all
+	 * other Dialogue blocks, following the current Dialogue block.
+	 */
+	useEffect( () => {
+		if ( ! currentParticipant ) {
+			return;
+		}
+
+		if ( participantSlug !== currentParticipant.participantSlug ) {
+			return;
+		}
+
+		if ( isSelected ) {
+			return;
+		}
+
+		setParticipantLabel( currentParticipant.participant );
+	}, [ currentParticipant, participantSlug, isSelected ] );
 
 	function hasStyle( style ) {
 		return currentParticipant?.[ style ];
@@ -241,7 +265,7 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ baseClassName }__meta` }>
-				<ParticipantsDropdown
+				{/* <ParticipantsDropdown
 					className={ baseClassName }
 					labelClassName={ getParticipantLabelClass() }
 					participants={ participants }
@@ -254,6 +278,17 @@ export default function DialogueEdit( {
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
 					editMode={ true }
 					icon={ null }
+				/> */}
+
+				<ParticipantControl
+					label={ participantLabel }
+					onChange={ ( value ) => {
+						setParticipantLabel( value );
+						conversationBridge.updateParticipants( {
+							participantSlug,
+							participant: value,
+						} );
+					} }
 				/>
 
 				{ showTimestamp && (
@@ -324,8 +359,8 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				isSelected={ ! isFocusedOnParticipantLabel }
-				onFocus={ () => setIsFocusedOnParticipantLabel( false ) }
+				// isSelected={ ! isFocusedOnParticipantLabel }
+				// onFocus={ () => setIsFocusedOnParticipantLabel( false ) }
 			/>
 		</div>
 	);
