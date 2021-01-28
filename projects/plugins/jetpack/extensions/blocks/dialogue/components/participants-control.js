@@ -16,7 +16,7 @@ import { ENTER } from '@wordpress/keycodes';
 
 import { __ } from '@wordpress/i18n';
 
-function ParticipantEditItem( { value, onChange, onSelect, onDelete, disabled } ) {
+function ParticipantEditItem( { value, onChange, onSelect, onDelete, onClose, disabled } ) {
 	const [ participant, setParticipant ] = useState( value );
 	useEffect( () => setParticipant( value ), [ value ] );
 
@@ -28,10 +28,11 @@ function ParticipantEditItem( { value, onChange, onSelect, onDelete, disabled } 
 					setParticipant( newValue );
 					onChange( newValue );
 				} }
-				onClick={ ev => ev.stopPropagation() }
-				onKeyDown={ ( { keyCode } ) => {
-					if ( keyCode === ENTER ) {
+				onKeyDown={ ( ev ) => {
+					if ( ev.keyCode === ENTER ) {
+						ev.preventDefault();
 						onSelect();
+						onClose();
 					}
 				} }
 			/>
@@ -87,6 +88,7 @@ export function ParticipantsEditMenu( {
 	onParticipantAdd,
 	onParticipantChange,
 	onParticipantDelete,
+	onClose,
 } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants` }>
@@ -96,7 +98,10 @@ export function ParticipantsEditMenu( {
 					value: slug,
 				} ) ) }
 				selected={ participantSlug }
-				onChange={ ( slug ) => onParticipantSelect( { participantSlug: slug } ) }
+				onChange={ ( slug ) => {
+					onParticipantSelect( { participantSlug: slug } );
+					onClose();
+				} }
 			/>
 
 			<div className={ `${ className }__participants-selector__container` }>
@@ -114,6 +119,7 @@ export function ParticipantsEditMenu( {
 							} ) }
 							onSelect={ () => onParticipantSelect( { participantSlug: slug } ) }
 							onDelete={ () => onParticipantDelete( slug ) }
+							onClose={ onClose }
 						/>
 					</div>
 				) ) }
