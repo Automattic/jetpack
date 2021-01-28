@@ -97,7 +97,6 @@ class Admin_Menu {
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 
-		$this->add_my_home_menu( $wp_admin );
 		$this->add_stats_menu();
 		$this->add_upgrades_menu();
 		$this->add_posts_menu( $wp_admin );
@@ -107,10 +106,11 @@ class Admin_Menu {
 		$this->add_portfolio_menu( $wp_admin );
 		$this->add_comments_menu( $wp_admin );
 		$this->add_appearance_menu( $wp_admin );
-		$this->add_plugins_menu();
+		$this->add_plugins_menu( $wp_admin );
 		$this->add_users_menu( $wp_admin );
 		$this->add_tools_menu( $wp_admin );
 		$this->add_options_menu( $wp_admin );
+		$this->add_jetpack_menu();
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -444,9 +444,37 @@ class Admin_Menu {
 
 	/**
 	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_plugins_menu() {
+	public function add_plugins_menu( $wp_admin = false ) {
+		$menu_slug = $wp_admin ? 'plugins.php' : 'https://wordpress.com/plugins/' . $this->domain;
+
+		remove_menu_page( 'plugins.php' );
+		remove_submenu_page( 'plugins.php', 'plugins.php' );
+		remove_submenu_page( 'plugins.php', 'plugin-install.php' );
 		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+
+		$count = '';
+		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
+			$update_data = wp_get_update_data();
+			$count       = sprintf(
+				'<span class="update-plugins count-%s"><span class="plugin-count">%s</span></span>',
+				$update_data['counts']['plugins'],
+				number_format_i18n( $update_data['counts']['plugins'] )
+			);
+		}
+
+		/* translators: %s: Number of pending plugin updates. */
+		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', $menu_slug, null, 'dashicons-admin-plugins', 65 );
+
+		$this->migrate_submenus( 'plugins.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'jetpack' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -561,6 +589,43 @@ class Admin_Menu {
 			}
 			unset( $submenu[ $old_slug ] );
 		}
+	}
+
+	/**
+	 * Adds Jetpack menu.
+	 */
+	public function add_jetpack_menu() {
+		global $menu;
+
+		$position = 50;
+		while ( isset( $menu[ $position ] ) ) {
+			$position++;
+		}
+
+		// TODO: Replace with proper SVG data url.
+		$jetpack_icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 32 32' %3E%3Cpath fill='%23a0a5aa' d='M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z'%3E%3C/path%3E%3Cpolygon fill='%23fff' points='15,19 7,19 15,3 '%3E%3C/polygon%3E%3Cpolygon fill='%23fff' points='17,29 17,13 25,13 '%3E%3C/polygon%3E%3C/svg%3E";
+		$jetpack_slug = 'https://wordpress.com/activity-log/' . $this->domain;
+
+		$this->add_admin_menu_separator( $position++, 'manage_options' );
+		add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', $jetpack_slug, null, $jetpack_icon, $position );
+
+		// Maintain id for jQuery selector.
+		$menu[ $position ][5] = 'toplevel_page_jetpack'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		remove_menu_page( 'jetpack' );
+		remove_submenu_page( 'jetpack', 'stats' );
+
+		$this->migrate_submenus( 'jetpack', $jetpack_slug );
+
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
+
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $jetpack_slug ) {
+				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
