@@ -91,6 +91,7 @@ class SearchApp extends Component {
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
+			input.addEventListener( 'keydown', this.handleKeydown );
 			input.addEventListener( 'input', this.handleInput );
 		} );
 
@@ -108,6 +109,7 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
+			input.removeEventListener( 'keydown', this.handleKeydown );
 			input.removeEventListener( 'input', this.handleInput );
 		} );
 
@@ -157,22 +159,18 @@ class SearchApp extends Component {
 		this.handleInput.flush();
 	};
 
-	handleInput = debounce( event => {
-		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
-		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
-		if ( event.inputType?.includes( 'format' ) ) {
-			return;
-		}
-
+	handleKeydown = event => {
 		// If user presses enter, propagate the query value and immediately show the results.
 		if ( event.key === 'Enter' ) {
 			this.props.setSearchQuery( event.target.value );
 			this.showResults();
-			return;
 		}
+	};
 
-		// Don't spawn the results overlay if the new inputted value is an empty string.
-		if ( event.target.value === '' ) {
+	handleInput = debounce( event => {
+		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
+		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
+		if ( event.inputType?.includes( 'format' ) || event.target.value === '' ) {
 			return;
 		}
 
