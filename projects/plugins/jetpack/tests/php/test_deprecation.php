@@ -87,12 +87,14 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	 */
 	function test_deprecated_lib( $lib, $functions = array() ) {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-		set_error_handler( '__return_null', E_ALL );
+		/*
+		set_error_handler( '__return_null' );
 		try {
 			jetpack_require_lib( $lib );
 		} finally {
 			restore_error_handler();
 		}
+		*/
 		foreach ( $functions as $function ) {
 			$this->assertTrue( function_exists( $function ) );
 		}
