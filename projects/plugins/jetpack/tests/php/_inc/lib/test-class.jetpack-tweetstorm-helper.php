@@ -2,7 +2,7 @@
 /**
  * Tweetstorm testing.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -131,6 +131,7 @@ export const getStep = state => {
 };
 
 const stepToNextStep = {
+	'setup-wizard-completed': 'site-type-question',
 	'not-started': 'site-type-question',
 	'site-type-question': 'woocommerce',
 	woocommerce: 'monitor',

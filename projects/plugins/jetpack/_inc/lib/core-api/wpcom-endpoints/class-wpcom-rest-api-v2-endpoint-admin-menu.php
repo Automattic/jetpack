@@ -2,7 +2,7 @@
 /**
  * REST API endpoint for admin menus.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 9.1.0
  */
 

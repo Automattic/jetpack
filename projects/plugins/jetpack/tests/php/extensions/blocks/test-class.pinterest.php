@@ -2,7 +2,7 @@
 /**
  * Pinterest Block tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Extensions\Pinterest;

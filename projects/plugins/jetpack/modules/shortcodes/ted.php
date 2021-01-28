@@ -10,7 +10,7 @@
  * [ted id="http://www.ted.com/talks/view/id/210" lang="en"]
  * [ted id=1539 lang=fr width=560 height=315]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/view/id/.+!i', 'https://www.ted.com/talks/oembed.json', true );

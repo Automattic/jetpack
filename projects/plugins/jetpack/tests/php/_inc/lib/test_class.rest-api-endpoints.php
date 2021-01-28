@@ -3,7 +3,7 @@
  * Class for REST API endpoints testing.
  *
  * @since 4.4.0
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;

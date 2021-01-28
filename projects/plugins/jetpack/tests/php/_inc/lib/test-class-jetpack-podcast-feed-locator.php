@@ -2,7 +2,7 @@
 /**
  * Podcast Feed Locator unit tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 // phpcs:ignoreFile Squiz.Commenting.FunctionComment.Missing

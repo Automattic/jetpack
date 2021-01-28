@@ -7,7 +7,7 @@ use Automattic\Jetpack\Extensions\Slideshow;
  * Slideshow shortcode.
  * Adds a new "slideshow" gallery type when adding a gallery using the classic editor.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

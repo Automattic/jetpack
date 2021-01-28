@@ -2,7 +2,7 @@
 /**
  * Tests for Atomic_Admin_Menu class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu;
