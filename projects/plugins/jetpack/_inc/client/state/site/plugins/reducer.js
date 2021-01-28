@@ -62,6 +62,7 @@ export function isFetchingPluginsData( state ) {
 /**
  * Returns the site plugins data
  * @param {Object} state Global state tree
+ * @return {Boolean} The plugins data
  */
 export function getPluginsData( state ) {
 	return state.jetpack.pluginsData.items;
