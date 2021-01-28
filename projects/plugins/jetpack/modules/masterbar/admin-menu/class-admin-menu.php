@@ -424,6 +424,9 @@ class Admin_Menu {
 			add_submenu_page( $themes_slug, esc_attr__( 'Menus', 'jetpack' ), __( 'Menus', 'jetpack' ), 'customize', esc_url( $customize_menu_url ), null, 20 );
 		}
 
+		// Register menu for the Custom CSS Jetpack module, but don't add it as a menu item.
+		$GLOBALS['_registered_pages']['admin_page_editcss'] = true; // phpcs:ignore
+
 		$this->migrate_submenus( 'themes.php', $themes_slug );
 		add_filter(
 			'parent_file',
