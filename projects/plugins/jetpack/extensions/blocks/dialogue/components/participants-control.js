@@ -8,7 +8,9 @@ import {
 	SelectControl,
 	TextControl,
 	RadioControl,
+	MenuItem,
 } from '@wordpress/components';
+import { check } from '@wordpress/icons';
 import { useState } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 
@@ -119,6 +121,26 @@ export function ParticipantsEditMenu( {
 	);
 }
 
+export function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
+	return (
+		<MenuGroup className={ `${ className }__participants-selector` }>
+			{ participants.map( ( { participant, participantSlug: slug } ) => (
+				<MenuItem
+					key={ slug }
+					onClick={ () => {
+						onSelect( { participantSlug: slug } );
+						onClose();
+					} }
+					isSelected={ participantSlug === slug }
+					icon={ participantSlug === slug ? check : null }
+				>
+					{ participant }
+				</MenuItem>
+			) ) }
+		</MenuGroup>
+	);
+}
+
 export function ParticipantsControl( { participants, participantSlug: slug, onSelect } ) {
 	return (
 		<SelectControl
@@ -134,7 +156,14 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 }
 
 export function ParticipantsEditDropdown( props ) {
-	const { label, position = 'bottom', labelClassName, icon = null } = props;
+	const {
+		label,
+		position = 'bottom',
+		labelClassName,
+		icon = null,
+		editMode = true,
+		onFocus,
+	} = props;
 
 	return (
 		<DropdownMenu
@@ -143,11 +172,26 @@ export function ParticipantsEditDropdown( props ) {
 			} }
 			toggleProps={ {
 				className: labelClassName,
-				children: <span>{ label }</span>,
+				children: editMode
+					? <span>{ label }</span>
+					: <Button
+						className={ labelClassName }
+						onClick={ onFocus }
+						onFocus={ onFocus }
+					>{ label }</Button>,
 			} }
 			icon={ icon }
 		>
-			{ ( { onClose } ) => <ParticipantsEditMenu { ...props } onClose={ onClose } /> }
+			{ editMode
+				? ( { onClose } ) => <ParticipantsEditMenu { ...props } onClose={ onClose } />
+				: ( { onClose } ) => <ParticipantsMenu { ...props } onClose={ onClose } />
+			}
 		</DropdownMenu>
+	);
+}
+
+export function ParticipantsDropdown( props ) {
+	return (
+		<ParticipantsEditDropdown { ...props } editMode={ false } />
 	);
 }

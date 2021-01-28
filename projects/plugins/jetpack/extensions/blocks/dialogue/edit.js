@@ -29,6 +29,7 @@ import './editor.scss';
 import {
 	ParticipantsEditDropdown,
 	ParticipantsEditMenu,
+	ParticipantsDropdown,
 } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
@@ -264,13 +265,14 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ baseClassName }__meta` }>
-				<Button
+				<ParticipantsDropdown
+					labelClassName={ getParticipantLabelClass() }
+					participants={ participants }
+					label={ participantLabel }
+					participantSlug={ participantSlug }
+					onSelect={ setAttributes }
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
-					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
-					className={ getParticipantLabelClass() }
-				>
-					{ participantLabel }
-				</Button>
+				/>
 
 				{ showTimestamp && (
 					<TimestampDropdown
