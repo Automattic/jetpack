@@ -50,7 +50,7 @@ export async function installCli( argv ) {
 	if ( argv.project || argv.root ) {
 		await install( argv.project, argv.root );
 	} else {
-		console.log( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a project!' ) );
 	}
 }
 
