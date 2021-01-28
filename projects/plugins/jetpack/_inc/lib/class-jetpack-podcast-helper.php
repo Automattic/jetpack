@@ -98,13 +98,18 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Gets a specific track from the supplied feed URL.
 	 *
-	 * @param string $guid     The GUID of the track.
-	 * @return array|WP_Error  The track object or an error object.
+	 * @param string $guid        The GUID of the track.
+	 * @param bool   $force_refresh Whether to force a refresh.
+	 * @return array|WP_Error     The track object or an error object.
 	 */
-	public function get_track_data( $guid ) {
+	public function get_track_data( $guid, $force_refresh = false ) {
 		// Try loading track data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( "$this->feed::$guid" );
 		$track_data    = get_transient( $transient_key );
+
+		if ( true === $force_refresh ) {
+			delete_transient( $track_data );
+		}
 
 		// Fetch data if we don't have any cached.
 		if ( false === $track_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
@@ -210,8 +215,10 @@ class Jetpack_Podcast_Helper {
 	 */
 	public function load_feed() {
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
+		add_action( 'wp_feed_options', array( __CLASS__, 'disable_simplepie_caching' ) );
 		$rss = fetch_feed( $this->feed );
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
+		remove_action( 'wp_feed_options', array( __CLASS__, 'disable_simplepie_caching' ) );
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 		}
@@ -234,6 +241,16 @@ class Jetpack_Podcast_Helper {
 		}
 
 		$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' );
+	}
+
+	/**
+	 * Action handler to disable caching on the SimplePie object.
+	 *
+	 * @param SimplePie $feed The SimplePie object, passed by reference.
+	 * @return void
+	 */
+	public static function disable_simplepie_caching( &$feed ) {
+		$feed->enable_cache( false );
 	}
 
 	/**

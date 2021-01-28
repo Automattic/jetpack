@@ -114,7 +114,7 @@ function process_anchor_params() {
 			}
 
 			if ( ! empty( $episode_id ) ) {
-				$track = $podcast_helper->get_track_data( $episode_id );
+				$track = $podcast_helper->get_track_data( $episode_id, true );
 				if ( ! \is_wp_error( $track ) ) {
 					update_post_meta( $post->ID, 'jetpack_anchor_episode', $track['guid'] );
 
