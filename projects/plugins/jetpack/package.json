@@ -158,7 +158,7 @@
 		"@babel/preset-typescript": "7.12.7",
 		"@size-limit/preset-app": "4.9.1",
 		"@slack/web-api": "5.15.0",
-		"@testing-library/jest-dom": "5.11.6",
+		"@testing-library/jest-dom": "5.11.9",
 		"@testing-library/preact": "2.0.1",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
