@@ -23,6 +23,8 @@ const getNextValidMilestone = require( '../../get-next-valid-milestone' );
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
+	let isUnverified = false;
+
 	for await ( const response of octokit.paginate.iterator( octokit.pulls.listCommits, {
 		owner: owner.login,
 		repo,
@@ -30,12 +32,12 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
 	} ) ) {
 		response.data.map( commit => {
 			if ( commit.commit.message.includes( '[not verified]' ) ) {
-				return true;
+				isUnverified = true;
 			}
 		} );
 	}
 
-	return false;
+	return isUnverified;
 }
 
 /**
@@ -50,16 +52,17 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
+	let hasStatus = false;
 
 	// We're really only interested in status labels
 	labels.map( label => {
 		if ( label.includes( '[Status]' ) ) {
 			debug( `check-description: this label (${ label }) includes the word Status` );
-			return true;
+			hasStatus = true;
 		}
 	} );
 
-	return false;
+	return hasStatus;
 }
 
 /**
