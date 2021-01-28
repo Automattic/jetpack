@@ -197,7 +197,7 @@
 		"mocha": "8.2.1",
 		"mockery": "2.1.0",
 		"nock": "13.0.5",
-		"node-wp-i18n": "1.2.3",
+		"node-wp-i18n": "1.2.4",
 		"nyc": "15.1.0",
 		"prettier": "npm:wp-prettier@2.0.5",
 		"puppeteer": "5.5.0",
