@@ -108,7 +108,7 @@ class Admin_Menu {
 		$this->add_appearance_menu( $wp_admin );
 		$this->add_plugins_menu( $wp_admin );
 		$this->add_users_menu( $wp_admin );
-		$this->add_tools_menu( $wp_admin );
+		$this->add_tools_menu();
 		$this->add_options_menu( $wp_admin );
 		$this->add_jetpack_menu();
 
@@ -128,11 +128,11 @@ class Admin_Menu {
 		remove_menu_page( 'index.php' );
 		remove_submenu_page( 'index.php', 'index.php' );
 
-		add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'read', $menu_slug, null, 'dashicons-admin-home', 2 );
+		add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-admin-home', 2 );
 
 		// Only add submenu when there are other submenu items.
 		if ( ! empty( $submenu['index.php'] ) ) {
-			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'read', $menu_slug, null, 1 );
+			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'manage_options', $menu_slug, null, 1 );
 		}
 
 		$this->migrate_submenus( 'index.php', $menu_slug );
@@ -514,25 +514,29 @@ class Admin_Menu {
 	/**
 	 * Adds Tools menu.
 	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
-			return;
-		}
-
+	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {
 		$admin_slug = 'tools.php';
 		$menu_slug  = 'https://wordpress.com/marketing/tools/' . $this->domain;
 
 		remove_menu_page( $admin_slug );
 		remove_submenu_page( $admin_slug, $admin_slug );
-		remove_submenu_page( $admin_slug, 'import.php' );
 		remove_submenu_page( $admin_slug, 'delete-blog' );
+		remove_submenu_page( $admin_slug, 'import.php' );
+		remove_submenu_page( $admin_slug, 'export.php' );
 
-		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-admin-tools', 75 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'https://wordpress.com/import/' . $this->domain, null, 15 );
+		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', $menu_slug, null, 'dashicons-admin-tools', 75 );
+		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', $menu_slug );
+		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
+		add_submenu_page( $menu_slug, esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', $wp_admin_import ? 'import.php' : 'https://wordpress.com/import/' . $this->domain );
+		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', $wp_admin_export ? 'export.php' : 'https://wordpress.com/export/' . $this->domain );
 
 		$this->migrate_submenus( $admin_slug, $menu_slug );
+
+		add_submenu_page( $menu_slug, esc_attr__( 'Other tools', 'jetpack' ), __( 'Other tools', 'jetpack' ), 'manage_options', 'tools.php' );
+
 		add_filter(
 			'parent_file',
 			function ( $parent_file ) use ( $menu_slug ) {
@@ -617,8 +621,10 @@ class Admin_Menu {
 
 		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 0 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 1 );
+		/* translators: Jetpack sidebar menu item. */
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'read', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 2 );
 
 		add_filter(
 			'parent_file',

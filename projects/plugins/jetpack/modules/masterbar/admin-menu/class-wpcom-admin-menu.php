@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Status;
 
+require_once __DIR__ . '/class-admin-menu.php';
+
 /**
  * Class WPcom_Admin_Menu.
  */
@@ -255,18 +257,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Adds Tools menu.
 	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $wp_admin = false ) {
-		$menu_slug = $wp_admin ? 'tools.php' : 'https://wordpress.com/marketing/tools/' . $this->domain;
+	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$wp_admin = $this->should_link_to_wp_admin();
 
-		remove_submenu_page( 'tools.php', 'export.php' );
-
-		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 10 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'https://wordpress.com/export/' . $this->domain, null, 20 );
-
-		parent::add_tools_menu( $wp_admin );
+		// Export on Simple sites is always handled on Calypso.
+		parent::add_tools_menu( $wp_admin, false );
 	}
 
 	/**
