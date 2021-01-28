@@ -26,8 +26,9 @@ import { useSelect, dispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, {
-	ParticipantsMenu,
+import {
+	ParticipantsEditDropdown,
+	ParticipantsEditMenu,
 } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
@@ -166,7 +167,7 @@ export default function DialogueEdit( {
 		<div className={ className }>
 			<BlockControls>
 				<ToolbarGroup>
-					<ParticipantsDropdown
+					<ParticipantsEditDropdown
 						id={ `dialogue-${ instanceId }-participants-dropdown` }
 						className={ baseClassName }
 						participants={ participants }
@@ -218,7 +219,7 @@ export default function DialogueEdit( {
 			<InspectorControls>
 				<Panel>
 					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
-						<ParticipantsMenu
+						<ParticipantsEditMenu
 							id={ `dialogue-${ instanceId }-participants-dropdown` }
 							className={ baseClassName }
 							participants={ participants }

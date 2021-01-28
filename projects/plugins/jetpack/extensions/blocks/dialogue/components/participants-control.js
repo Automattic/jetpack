@@ -72,7 +72,7 @@ function ParticipantAddItem( { value, onAdd, className } ) {
 	);
 }
 
-export function ParticipantsMenu( {
+export function ParticipantsEditMenu( {
 	participants,
 	className,
 	participantSlug,
@@ -133,7 +133,7 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 	);
 }
 
-export default function ParticipantsDropdown( props ) {
+export function ParticipantsEditDropdown( props ) {
 	const { label, position = 'bottom', labelClassName, icon = null } = props;
 
 	return (
@@ -147,7 +147,7 @@ export default function ParticipantsDropdown( props ) {
 			} }
 			icon={ icon }
 		>
-			{ ( { onClose } ) => <ParticipantsMenu { ...props } onClose={ onClose } /> }
+			{ ( { onClose } ) => <ParticipantsEditMenu { ...props } onClose={ onClose } /> }
 		</DropdownMenu>
 	);
 }
