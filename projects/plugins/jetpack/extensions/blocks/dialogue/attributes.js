@@ -11,5 +11,7 @@ export default {
 	},
 	content: {
 		type: 'string',
+		source: 'html',
+		selector: '.wp-block-jetpack-dialogue__content',
 	},
 };
