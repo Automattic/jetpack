@@ -32,10 +32,10 @@ class Test_Webhooks extends TestCase {
 	 * Setting up the testing environment.
 	 *
 	 * @throws \phpmock\MockEnabledException The mock exception.
+	 *
+	 * @before
 	 */
-	public function setUp() {
-		parent::setUp();
-
+	public function set_up() {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( 'check_admin_referer' )
@@ -62,10 +62,10 @@ class Test_Webhooks extends TestCase {
 
 	/**
 	 * Reverting the testing environment to its original state.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
-		parent::tearDown();
-
+	public function tear_down() {
 		Mock::disableAll();
 		$this->redirect_stack = array();
 	}
