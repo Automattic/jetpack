@@ -45,8 +45,8 @@ function ParticipantEditItem( { value, onChange, onSelect, onDelete, disabled } 
 	);
 }
 
-function ParticipantAddItem( { value, onAdd, className } ) {
-	const [ participant, setParticipant ] = useState( value );
+function ParticipantAddItem( { onAdd, className } ) {
+	const [ participant, setParticipant ] = useState( '' );
 
 	return (
 		<div className={ className }>
@@ -66,7 +66,11 @@ function ParticipantAddItem( { value, onAdd, className } ) {
 
 			<Button
 				icon="plus"
+				disabled={ ! participant?.length }
 				onClick={ () => {
+					if ( ! participant?.length ) {
+						return;
+					}
 					setParticipant( '' );
 					onAdd( participant );
 				} }
