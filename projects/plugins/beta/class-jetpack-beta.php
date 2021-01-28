@@ -1094,6 +1094,11 @@ class Jetpack_Beta {
 			return false;
 		}
 
+		// Check if running in a docker instance.
+		if ( defined( 'JETPACK_DOCKER_ENV' ) && JETPACK_DOCKER_ENV ) {
+			return false;
+		}
+
 		$updates = get_site_transient( 'update_plugins' );
 
 		if ( isset( $updates->response, $updates->response[ JETPACK_PLUGIN_FILE ] ) ) {

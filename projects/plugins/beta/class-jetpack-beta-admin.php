@@ -629,6 +629,7 @@ class Jetpack_Beta_Admin {
 	 * @param bool   $value If toggle is active or not.
 	 */
 	public static function show_toggle( $name, $option, $value ) {
+
 		$query = array(
 			'page'    => 'jetpack-beta',
 			'_action' => 'toggle_enable_' . $option,
@@ -649,13 +650,11 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	/** Check if Jetpack versions are up to date */
+	/** Check if Jetpack and branch versions are up to date */
 	public static function show_needed_updates() {
-		// Jetpack Stable not up to date?
 		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
 		$should_update_dev_version    = Jetpack_Beta::should_update_dev_version();
 		$should_update_dev_to_master  = Jetpack_Beta::should_update_dev_to_master();
-		$check_if_docker              = self::check_docker();
 
 		// Return if there are no updates available.
 		if ( ! $should_update_stable_version
@@ -664,20 +663,13 @@ class Jetpack_Beta_Admin {
 			return;
 		}
 
-		// Return if the only update is "Stable" and we're in a Docker instance.
-		if ( $should_update_stable_version
-			&& $check_if_docker
-			&& ! $should_update_dev_version
-			&& ! $should_update_dev_to_master ) {
-			return;
-		}
 		?>
 		<div class="jetpack-beta__wrap jetpack-beta__update-needed">
 			<h2><?php esc_html_e( 'Some updates are required', 'jetpack-beta' ); ?></h2>
 		<?php
 
-		// Show Stable update card if we're not in a docker instance.
-		if ( $should_update_stable_version && ! $check_if_docker ) {
+		// Stable up to date?
+		if ( $should_update_stable_version ) {
 			self::update_card(
 				__( 'Latest Stable', 'jetpack-beta' ),
 				__( 'Needs an update', 'jetpack-beta' ),
@@ -706,12 +698,6 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	/** Checks if we're running the plugin in a Docker instance */
-	public static function check_docker() {
-		if ( defined( 'JETPACK_DOCKER_ENV' ) && JETPACK_DOCKER_ENV ) {
-			return true;
-		}
-	}
 	/**
 	 * Handles card that notifies when there's an update available on a branch.
 	 *
