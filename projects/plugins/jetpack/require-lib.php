@@ -38,7 +38,7 @@ function jetpack_require_lib( $slug ) {
 		return;
 	}
 
-	$basename = basename( $slug );
+	$basename  = basename( $slug );
 	$file_name = "$lib_dir/$slug/$basename.php";
 	require_once $file_name;
 }
