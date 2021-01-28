@@ -9,6 +9,7 @@ import classnames from 'classnames';
  */
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
+import { create, getTextContent } from '@wordpress/rich-text';
 import { createBlock } from '@wordpress/blocks';
 
 import {
@@ -16,7 +17,6 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
-	ToolbarButton,
 } from '@wordpress/components';
 import { useContext, useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
@@ -29,7 +29,6 @@ import { ParticipantsEditMenu, ParticipantsDropdown, ParticipantControl } from '
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
-import { formatUppercase } from '../../shared/icons';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
@@ -48,7 +47,6 @@ export default function DialogueEdit( {
 	className,
 	attributes,
 	setAttributes,
-	instanceId,
 	clientId,
 	context,
 	onReplace,
@@ -61,8 +59,6 @@ export default function DialogueEdit( {
 		content,
 		placeholder,
 	} = attributes;
-	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
-
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	const { prevBlock, mediaSource } = useSelect( select => {
@@ -155,17 +151,6 @@ export default function DialogueEdit( {
 		setParticipantLabel( currentParticipant.participant );
 	}, [ currentParticipant, participantSlug, isSelected ] );
 
-	function hasStyle( style ) {
-		return currentParticipant?.[ style ];
-	}
-
-	function toggleParticipantStyle( style ) {
-		conversationBridge.updateParticipants( {
-			participantSlug,
-			[ style ]: ! currentParticipant[ style ],
-		} );
-	}
-
 	function getParticipantLabelClass() {
 		return classnames( `${ baseClassName }__participant`, {
 			[ 'has-bold-style' ]: currentParticipant?.hasBoldStyle,
@@ -202,28 +187,6 @@ export default function DialogueEdit( {
 						editMode={ false }
 					/>
 				</ToolbarGroup>
-
-				{ currentParticipant && isFocusedOnParticipantLabel && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon="editor-bold"
-							isPressed={ hasStyle( 'hasBoldStyle' ) }
-							onClick={ () => toggleParticipantStyle( 'hasBoldStyle' ) }
-						/>
-
-						<ToolbarButton
-							icon="editor-italic"
-							isPressed={ hasStyle( 'hasItalicStyle' ) }
-							onClick={ () => toggleParticipantStyle( 'hasItalicStyle' ) }
-						/>
-
-						<ToolbarButton
-							icon={ formatUppercase }
-							isPressed={ hasStyle( 'hasUppercaseStyle' ) }
-							onClick={ () => toggleParticipantStyle( 'hasUppercaseStyle' ) }
-						/>
-					</ToolbarGroup>
-				) }
 			</BlockControls>
 
 			<InspectorControls>
@@ -284,9 +247,11 @@ export default function DialogueEdit( {
 					label={ participantLabel }
 					onChange={ ( value ) => {
 						setParticipantLabel( value );
+						const participantPlain = getTextContent( create( { html: value } ) );
 						conversationBridge.updateParticipants( {
 							participantSlug,
 							participant: value,
+							participantPlain,
 						} );
 					} }
 				/>
