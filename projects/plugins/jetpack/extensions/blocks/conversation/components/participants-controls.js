@@ -37,6 +37,7 @@ function ParticipantsLabelControl( { className, participants, onChange, onDelete
 					/>
 
 					<Button
+						disabled={ participants.length < 2 }
 						className={ `${ className }__remove-participant` }
 						label={ __( 'Remove participant', 'jetpack' ) }
 						onClick={ () => onDelete( participantSlug ) }

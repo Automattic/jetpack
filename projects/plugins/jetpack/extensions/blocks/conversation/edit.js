@@ -54,49 +54,65 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
-	const setBlockAttributes = useCallback( setAttributes, [] );
-
-	// Context bridge.
-	const contextProvision = useMemo( () => ( {
-		setAttributes: setBlockAttributes,
-		updateParticipants,
-		getParticipantIndex: slug => participants.map( part => part.participantSlug ).indexOf( slug ),
-		getNextParticipantIndex: ( slug, offset = 0 ) =>
-			( contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
-		getNextParticipantSlug: ( slug, offset = 0 ) =>
-			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
-
-		attributes: {
-			showTimestamps,
-		},
-	} ), [ participants, setBlockAttributes, showTimestamps, updateParticipants ] );
-
-	function deleteParticipant( deletedParticipantSlug ) {
+	const deleteParticipant = useCallback( function ( deletedParticipantSlug ) {
 		setAttributes( {
 			participants: participants.filter(
 				( { participantSlug } ) => participantSlug !== deletedParticipantSlug
 			),
 		} );
-	}
+	}, [ participants, setAttributes ] );
 
-	function addNewParticipant( newSpakerValue ) {
+	const addNewParticipant = useCallback( function( newSpakerValue ) {
 		const newParticipantSlug = participants.length
 			? participants[ participants.length - 1 ].participantSlug.replace(
 					/(\d+)/,
 					n => Number( n ) + 1
 			  )
 			: 'speaker-0';
+
+		const newParticipant = {
+			participant: newSpakerValue,
+			participantSlug: newParticipantSlug,
+			hasBoldStyle: true,
+		};
+
 		setAttributes( {
 			participants: [
 				...participants,
-				{
-					participant: newSpakerValue,
-					participantSlug: newParticipantSlug,
-					hasBoldStyle: true,
-				},
+				newParticipant,
 			],
 		} );
-	}
+
+		return newParticipant;
+	}, [ participants, setAttributes ] );
+
+	const setBlockAttributes = useCallback( setAttributes, [] );
+
+	// Context bridge.
+	const contextProvision = useMemo( () => ( {
+		setAttributes: setBlockAttributes,
+		addNewParticipant,
+		updateParticipants,
+		deleteParticipant,
+		getParticipantIndex: slug => participants.map( part => part.participantSlug ).indexOf( slug ),
+		getNextParticipantIndex: ( slug, offset = 0 ) =>
+			( contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
+		getNextParticipantSlug: ( slug, offset = 0 ) =>
+			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
+		getPrevParticipantSlug: ( slug, offset = -2 ) =>
+			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
+
+		attributes: {
+			showTimestamps,
+		},
+	} ), [
+		deleteParticipant,
+		participants,
+		setBlockAttributes,
+		showTimestamps,
+		updateParticipants,
+		addNewParticipant,
+	] );
 
 	const baseClassName = 'wp-block-jetpack-conversation';
 

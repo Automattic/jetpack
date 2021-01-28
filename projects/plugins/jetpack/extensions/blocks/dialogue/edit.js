@@ -172,7 +172,17 @@ export default function DialogueEdit( {
 						participants={ participants }
 						label={ __( 'Participant', 'jetpack' ) }
 						participantSlug={ participantSlug }
-						onSelect={ setAttributes }
+						onParticipantSelect={ setAttributes }
+						onParticipantAdd={ ( value ) => {
+							const { participantSlug: slug } = conversationBridge.addNewParticipant( value );
+							setTimeout( () => setAttributes( { participantSlug: slug } ), 100 );
+						} }
+						onParticipantChange={ conversationBridge.updateParticipants }
+						onParticipantDelete={ ( value ) => {
+							const prevParticipantSlug = conversationBridge.getPrevParticipantSlug( participantSlug );
+							setAttributes( { participantSlug: prevParticipantSlug } );
+							conversationBridge.deleteParticipant( value );
+						} }
 					/>
 				</ToolbarGroup>
 

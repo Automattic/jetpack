@@ -2,30 +2,119 @@
  * WordPress dependencies
  */
 import {
+	Button,
 	DropdownMenu,
 	MenuGroup,
-	MenuItem,
 	SelectControl,
+	TextControl,
+	RadioControl,
 } from '@wordpress/components';
-import { check } from '@wordpress/icons';
+import { useState } from '@wordpress/element';
+import { ENTER } from '@wordpress/keycodes';
+
 import { __ } from '@wordpress/i18n';
 
-function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
+function ParticipantEditItem( { value, onChange, onSelect, onDelete, disabled } ) {
+	const [ participant, setParticipant ] = useState( value );
+
 	return (
-		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ participants.map( ( { participant, participantSlug: slug } ) => (
-				<MenuItem
-					key={ slug }
-					onClick={ () => {
-						onSelect( { participantSlug: slug } );
-						onClose();
-					} }
-					isSelected={ participantSlug === slug }
-					icon={ participantSlug === slug ? check : null }
-				>
-					{ participant }
-				</MenuItem>
-			) ) }
+		<>
+			<TextControl
+				value={ participant }
+				onChange={ ( newValue ) => {
+					setParticipant( newValue );
+					onChange( newValue );
+				} }
+				onClick={ ev => ev.stopPropagation() }
+				onKeyDown={ ( { keyCode } ) => {
+					if ( keyCode === ENTER ) {
+						onSelect();
+					}
+				} }
+			/>
+
+			<Button
+				disabled={ disabled }
+				icon="trash"
+				onClick={ () => onDelete() }
+			/>
+		</>
+	);
+}
+
+function ParticipantAddItem( { value, onAdd, className } ) {
+	const [ participant, setParticipant ] = useState( value );
+
+	return (
+		<div className={ className }>
+			<TextControl
+				value={ participant }
+				onChange={ ( newValue ) => {
+					setParticipant( newValue );
+				} }
+				onClick={ ev => ev.stopPropagation() }
+				onKeyDown={ ( { keyCode } ) => {
+					if ( keyCode === ENTER ) {
+						setParticipant( '' );
+						onAdd( participant );
+					}
+				} }
+			/>
+
+			<Button
+				icon="plus"
+				onClick={ () => {
+					setParticipant( '' );
+					onAdd( participant );
+				} }
+			/>
+		</div>
+	);
+}
+
+function ParticipantsMenu( {
+	participants,
+	className,
+	participantSlug,
+	onParticipantSelect,
+	onParticipantAdd,
+	onParticipantChange,
+	onParticipantDelete,
+} ) {
+	return (
+		<MenuGroup className={ `${ className }__participants` }>
+			<RadioControl
+				className={ `${ className }__participants-selector` }
+				options={ participants.map( ( { participantSlug: slug } ) => ( {
+					value: slug,
+				} ) ) }
+				selected={ participantSlug }
+				onChange={ ( slug ) => onParticipantSelect( { participantSlug: slug } ) }
+			/>
+
+			<div className={ `${ className }__participants-selector__container` }>
+				{ participants.map( ( { participant, participantSlug: slug } ) => (
+					<div
+						className={ `${ className }__participants-selector__participant` }
+						key={ slug }
+					>
+						<ParticipantEditItem
+							disabled={ participants.length < 2 }
+							value={ participant }
+							onChange={ ( value ) => onParticipantChange( {
+								participantSlug: slug,
+								participant: value,
+							} ) }
+							onSelect={ () => onParticipantSelect( { participantSlug: slug } ) }
+							onDelete={ () => onParticipantDelete( slug ) }
+						/>
+					</div>
+				) ) }
+				<ParticipantAddItem
+					className={ `${ className }__participants-selector__participant` }
+					onAdd={ onParticipantAdd }
+				/>
+			</div>
 		</MenuGroup>
 	);
 }
