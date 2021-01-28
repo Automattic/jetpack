@@ -156,20 +156,15 @@ export function ParticipantsControl( { participants, participantSlug: slug, onSe
 	);
 }
 
-export function ParticipantsEditDropdown( props ) {
+function ParticipantsEditDropdown( props ) {
 	const {
-		label,
-		position = 'bottom',
 		editMode = true,
 		icon = people,
-		toggleProps = <span>{ label }</span>
+		toggleProps = {},
 	} = props;
 
 	return (
 		<DropdownMenu
-			popoverProps={ {
-				position,
-			} }
 			toggleProps={ toggleProps }
 			icon={ icon }
 		>
@@ -190,19 +185,20 @@ export function ParticipantsDropdown( props ) {
 	return (
 		<ParticipantsEditDropdown
 			{ ...props }
-			editMode={ false }
-			icon={ null }
-			toggleProps={ {
-				className,
-				children:
-					<Button
-						className={ className }
-						onClick={ onFocus }
-						onFocus={ onFocus }
-					>
-						{ label || __( 'Not defined', 'jetpack' ) }
-					</Button>
-			} }
+			toggleProps={ label
+				? {
+					className,
+					children:
+						<Button
+							className={ className }
+							onClick={ onFocus }
+							onFocus={ onFocus }
+						>
+							{ label || __( 'Not defined', 'jetpack' ) }
+						</Button>
+				}
+				: {}
+			}
 		/>
 	);
 }

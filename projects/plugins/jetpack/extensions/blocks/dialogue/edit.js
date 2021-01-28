@@ -18,18 +18,14 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 } from '@wordpress/components';
-import { useContext, useState, useEffect, useRef } from '@wordpress/element';
+import { useContext, useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
-import {
-	ParticipantsEditDropdown,
-	ParticipantsEditMenu,
-	ParticipantsDropdown,
-} from './components/participants-control';
+import { ParticipantsEditMenu, ParticipantsDropdown } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
@@ -65,7 +61,6 @@ export default function DialogueEdit( {
 		placeholder,
 	} = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
-	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	const { prevBlock, mediaSource } = useSelect( select => {
@@ -173,15 +168,14 @@ export default function DialogueEdit( {
 				) }
 
 				<ToolbarGroup>
-					<ParticipantsEditDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
+					<ParticipantsDropdown
 						className={ baseClassName }
+						labelClassName={ getParticipantLabelClass() }
 						participants={ participants }
+						label={ null }
 						participantSlug={ participantSlug }
-						onParticipantSelect={ setAttributes }
-						onParticipantAdd={ conversationBridge.addNewParticipant }
-						onParticipantChange={ conversationBridge.updateParticipants }
-						onParticipantDelete={ conversationBridge.deleteParticipant }
+						onSelect={ setAttributes }
+						editMode={ false }
 					/>
 				</ToolbarGroup>
 
@@ -248,12 +242,18 @@ export default function DialogueEdit( {
 
 			<div className={ `${ baseClassName }__meta` }>
 				<ParticipantsDropdown
+					className={ baseClassName }
 					labelClassName={ getParticipantLabelClass() }
 					participants={ participants }
 					label={ participantLabel }
 					participantSlug={ participantSlug }
-					onSelect={ setAttributes }
+					onParticipantSelect={ setAttributes }
+					onParticipantAdd={ conversationBridge.addNewParticipant }
+					onParticipantChange={ conversationBridge.updateParticipants }
+					onParticipantDelete={ conversationBridge.deleteParticipant }
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
+					editMode={ true }
+					icon={ null }
 				/>
 
 				{ showTimestamp && (
@@ -267,7 +267,6 @@ export default function DialogueEdit( {
 			</div>
 
 			<RichText
-				ref={ richTextRef }
 				identifier="content"
 				tagName="p"
 				className={ `${ baseClassName }__content` }
