@@ -11,13 +11,17 @@ import {
 	MenuItem,
 } from '@wordpress/components';
 import { check, people } from '@wordpress/icons';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 
 import { __ } from '@wordpress/i18n';
 
 function ParticipantEditItem( { value, onChange, onSelect, onDelete, disabled } ) {
 	const [ participant, setParticipant ] = useState( value );
+
+	useEffect( () => {
+		setParticipant( value );
+	}, [ value ] );
 
 	return (
 		<>

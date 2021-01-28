@@ -17,7 +17,6 @@ import {
 	ToggleControl,
 	ToolbarGroup,
 	ToolbarButton,
-	Button,
 } from '@wordpress/components';
 import { useContext, useState, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
