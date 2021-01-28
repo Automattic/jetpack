@@ -1,3 +1,5 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
 .wp-block-jetpack-dialogue {
 	.wp-block-jetpack-dialogue__meta {
 		display: flex;
@@ -39,6 +41,10 @@
 
 	&.has-uppercase-style {
 		text-transform: uppercase;
+	}
+
+	&.is-undefined {
+		color: $gray-600;
 	}
 }
 

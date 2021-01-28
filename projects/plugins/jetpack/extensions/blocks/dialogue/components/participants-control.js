@@ -159,9 +159,9 @@ export function ParticipantsEditDropdown( props ) {
 	const {
 		label,
 		position = 'bottom',
-		labelClassName,
 		editMode = true,
-		onFocus,
+		icon = people,
+		toggleProps = <span>{ label }</span>
 	} = props;
 
 	return (
@@ -169,20 +169,8 @@ export function ParticipantsEditDropdown( props ) {
 			popoverProps={ {
 				position,
 			} }
-			toggleProps={ label
-				? {
-					className: labelClassName,
-					children: editMode
-						? <span>{ label }</span>
-						: <Button
-							className={ labelClassName }
-							onClick={ onFocus }
-							onFocus={ onFocus }
-						>{ label }</Button>,
-				}
-				: false
-			}
-			icon={ label ? null : people }
+			toggleProps={ toggleProps }
+			icon={ icon }
 		>
 			{ editMode
 				? ( { onClose } ) => <ParticipantsEditMenu { ...props } onClose={ onClose } />
@@ -193,7 +181,27 @@ export function ParticipantsEditDropdown( props ) {
 }
 
 export function ParticipantsDropdown( props ) {
+	const { labelClassName, onFocus, label } = props;
+	const className = label?.length
+		? labelClassName
+		: 'wp-block-jetpack-dialogue__participant is-undefined';
+
 	return (
-		<ParticipantsEditDropdown { ...props } editMode={ false } />
+		<ParticipantsEditDropdown
+			{ ...props }
+			editMode={ false }
+			icon={ null }
+			toggleProps={ {
+				className,
+				children:
+					<Button
+						className={ className }
+						onClick={ onFocus }
+						onFocus={ onFocus }
+					>
+						{ label || __( 'Not defined', 'jetpack' ) }
+					</Button>
+			} }
+		/>
 	);
 }
