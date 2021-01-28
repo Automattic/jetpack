@@ -2,18 +2,18 @@
 	"slug": "participant-0",
 	"list": [
 		{
-			"participantSlug": "participant-0",
-			"participant": "Participant 1",
+			"slug": "participant-0",
+			"label": "Participant 1",
 			"hasBoldStyle": true
 		},
 		{
-			"participantSlug": "participant-1",
-			"participant": "Participant 2",
+			"slug": "participant-1",
+			"label": "Participant 2",
 			"hasBoldStyle": true
 		},
 		{
-			"participantSlug": "participant-2",
-			"participant": "Participant 3",
+			"slug": "participant-2",
+			"label": "Participant 3",
 			"hasBoldStyle": true
 		}
 	]

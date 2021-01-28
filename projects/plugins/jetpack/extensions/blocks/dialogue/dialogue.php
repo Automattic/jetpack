@@ -60,8 +60,8 @@ function convert_time_code_to_seconds( $time ) {
  */
 function check_dialogue_attrs( $attrs, $block ) {
 	return array(
-		'slug'           => isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null,
-		'label'          => isset( $attrs['participant'] ) ? $attrs['participant'] : null,
+		'slug'           => isset( $attrs['participant']['slug'] ) ? $attrs['participant']['slug'] : null,
+		'label'          => isset( $attrs['participant']['label'] ) ? $attrs['participant']['label'] : null,
 		'timestamp'      => isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00',
 		'show_timestamp' => isset( $block->context['jetpack/conversation-showTimestamps'] ),
 	);
@@ -108,7 +108,7 @@ function get_current_participant( $participants, $slug ) {
 	// Participant names map.
 	$participant_names_map = array();
 	foreach ( $participants as $participant ) {
-		$participant_names_map[ $participant['participantSlug'] ] = $participant;
+		$participant_names_map[ $participant['slug'] ] = $participant;
 	}
 
 	return isset( $participant_names_map[ $slug ] )
@@ -128,8 +128,8 @@ function get_participant_name( $participants, $slug, $attrs ) {
 	// Try to pick up participant data from context.
 	$participant = get_current_participant( $participants, $slug );
 
-	return isset( $participant['participant'] )
-		? $participant['participant']
+	return isset( $participant['label'] )
+		? $participant['label']
 		: $attrs['label'];
 }
 

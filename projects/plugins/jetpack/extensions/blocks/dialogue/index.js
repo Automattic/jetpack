@@ -37,11 +37,13 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: ( blocks ) => {
-					return blocks.map( ( { content } ) => createBlock( 'jetpack/dialogue', {
-						...defaultParticipants[ 0 ],
-						content,
-					} ) );
+				transform: blocks => {
+					return blocks.map( ( { content } ) =>
+						createBlock( 'jetpack/dialogue', {
+							participant: defaultParticipants[ 0 ],
+							content,
+						} )
+					);
 				},
 			},
 		],

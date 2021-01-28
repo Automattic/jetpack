@@ -1,6 +1,6 @@
 export default {
-	participantSlug: {
-		type: 'string',
+	participant: {
+		type: 'object',
 	},
 	timestamp: {
 		type: 'string',
