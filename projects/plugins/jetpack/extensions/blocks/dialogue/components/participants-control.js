@@ -14,6 +14,7 @@ import { check, people } from '@wordpress/icons';
 import { useState, useEffect } from '@wordpress/element';
 import { ENTER } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
+import { RichText } from '@wordpress/block-editor';
 
 const participantNotDefinedLabel = __( 'Not defined', 'jetpack' );
 
@@ -231,6 +232,24 @@ export function ParticipantsDropdown( props ) {
 		<ParticipantsEditDropdown
 			{ ...props }
 			toggleProps={ dropdownToggleProps( { label, className, onFocus } ) }
+		/>
+	);
+}
+
+export function ParticipantControl( {
+	label,
+	onChange = () => {},
+} ) {
+	return (
+		<RichText
+			tagName="div"
+			value={ label }
+			formattingControls={ [ 'bold', 'italic' ] }
+			onChange={ onChange }
+			placeholder={ __( 'Participant', 'jetpack' ) }
+			keepPlaceholderOnFocus={ true }
+			onSplit={ () => {} }
+			onReplace={ () => {} }
 		/>
 	);
 }
