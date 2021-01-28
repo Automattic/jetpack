@@ -28,6 +28,7 @@ import { useSelect, dispatch } from '@wordpress/data';
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsControl } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
+import { getParticipantLabelClass } from './utils';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
@@ -126,16 +127,8 @@ export default function DialogueEdit( {
 
 	function toggleParticipantStyle( style ) {
 		conversationBridge.updateParticipants( {
-			participant,
-			[ style ]: ! currentParticipant[ style ],
-		} );
-	}
-
-	function getParticipantLabelClass() {
-		return classnames( `${ baseClassName }__participant`, {
-			[ 'has-bold-style' ]: currentParticipant?.hasBoldStyle,
-			[ 'has-italic-style' ]: currentParticipant?.hasItalicStyle,
-			[ 'has-uppercase-style' ]: currentParticipant?.hasUppercaseStyle,
+			...participant,
+			[ style ]: ! participant[ style ],
 		} );
 	}
 
@@ -229,7 +222,7 @@ export default function DialogueEdit( {
 				<Button
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
 					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
-					className={ getParticipantLabelClass() }
+					className={ getParticipantLabelClass( baseClassName, participant ) }
 				>
 					{ participantLabel }
 				</Button>
