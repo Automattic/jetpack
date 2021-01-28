@@ -163,17 +163,6 @@ export default function DialogueEdit( {
 		setAttributes( { timestamp: time } );
 	}
 
-	function addConversationParticipant( value ) {
-		const { participantSlug: slug } = conversationBridge.addNewParticipant( value );
-		setTimeout( () => setAttributes( { participantSlug: slug } ), 100 );
-	}
-
-	function deleteConversationParticipant( value ) {
-		const prevParticipantSlug = conversationBridge.getPrevParticipantSlug( participantSlug );
-		setAttributes( { participantSlug: prevParticipantSlug } );
-		conversationBridge.deleteParticipant( value );
-	}
-
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -190,9 +179,9 @@ export default function DialogueEdit( {
 						participants={ participants }
 						participantSlug={ participantSlug }
 						onParticipantSelect={ setAttributes }
-						onParticipantAdd={ addConversationParticipant }
+						onParticipantAdd={ conversationBridge.addNewParticipant }
 						onParticipantChange={ conversationBridge.updateParticipants }
-						onParticipantDelete={ deleteConversationParticipant }
+						onParticipantDelete={ conversationBridge.deleteParticipant }
 					/>
 				</ToolbarGroup>
 
@@ -227,9 +216,9 @@ export default function DialogueEdit( {
 							participants={ participants }
 							participantSlug={ participantSlug }
 							onParticipantSelect={ setAttributes }
-							onParticipantAdd={ addConversationParticipant }
+							onParticipantAdd={ conversationBridge.addNewParticipant }
 							onParticipantChange={ conversationBridge.updateParticipants }
-							onParticipantDelete={ deleteConversationParticipant }
+							onParticipantDelete={ conversationBridge.deleteParticipant }
 						/>
 					</PanelBody>
 
