@@ -261,10 +261,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$wp_admin = $this->should_link_to_wp_admin();
-
 		// Export on Simple sites is always handled on Calypso.
-		parent::add_tools_menu( $wp_admin, false );
+		parent::add_tools_menu( $wp_admin_import, false );
 	}
 
 	/**
