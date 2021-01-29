@@ -361,8 +361,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds Appearance menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param string $customize_slug. Whether customizer links should point to Calypso or wp-admin.
 	 */
-	public function add_appearance_menu( $wp_admin = false, $customize_slug = '' ) {
+	public function add_appearance_menu( $wp_admin = false, $customize_slug ) {
 		$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 		parent::add_appearance_menu( $wp_admin, $customize_slug );
 	}
