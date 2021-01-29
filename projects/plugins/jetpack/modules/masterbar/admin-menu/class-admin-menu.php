@@ -99,7 +99,7 @@ class Admin_Menu {
 		$this->add_testimonials_menu( $wp_admin );
 		$this->add_portfolio_menu( $wp_admin );
 		$this->add_comments_menu( $wp_admin );
-		$this->add_appearance_menu( $wp_admin );
+		$this->add_appearance_menu( $wp_admin, '' );
 		$this->add_plugins_menu();
 		$this->add_users_menu( $wp_admin );
 		$this->add_tools_menu( $wp_admin );

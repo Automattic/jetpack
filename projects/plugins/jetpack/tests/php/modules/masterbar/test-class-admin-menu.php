@@ -491,8 +491,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
-
-		static::$admin_menu->add_appearance_menu( false );
+		$customize_slug = 'customize.php';
+		static::$admin_menu->add_appearance_menu( false, $customize_slug );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
 
@@ -520,15 +520,16 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$customize_submenu_item = array(
 			'Customize',
 			'customize',
-			'https://wordpress.com/customize/' . static::$domain,
+			$customize_slug,
 			'Customize',
 		);
+
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 
 		$widgets_submenu_item = array(
 			'Widgets',
 			'customize',
-			'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets',
+			$customize_slug . '?autofocus%5Bpanel%5D=widgets',
 			'Widgets',
 		);
 		$this->assertContains( $widgets_submenu_item, $submenu[ $slug ] );
@@ -536,7 +537,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$menus_submenu_item = array(
 			'Menus',
 			'customize',
-			'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus',
+			$customize_slug . '?autofocus%5Bpanel%5D=nav_menus',
 			'Menus',
 		);
 		$this->assertContains( $menus_submenu_item, $submenu[ $slug ] );
