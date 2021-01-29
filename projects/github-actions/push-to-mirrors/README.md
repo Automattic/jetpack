@@ -41,9 +41,6 @@ This action is intended to be triggered by a `push` event.
     # `source-directory` to fetch the message used for the commit.
     commit-message:
 
-    # Infix identifying release branches. See below for details.
-    release-branch-infix:
-
     # Directory containing a checkout of the monorepo revision being mirrored.
     # Used to fetch certain git metadata for the mirror commits.
     source-directory: ${{ github.workspace }}
@@ -96,20 +93,3 @@ are required in a built mirror.
 
 The action itself will create another file in the working directory, `changes.diff`, containing
 a diff of all changes that were pushed.
-
-## Release branches
-
-You probably want a release branch for a particular project mirrored to only that project, but not
-to every other project in the monorepo. If you name these branches appropriately and set a little
-metadata in each project, this action can handle that determination for you.
-
-Release branches are assumed to be formatted as `${prefix}${infix}${version}`. Each project in the
-monorepo has its own prefix, while the infix is shared by all projects. For example, a release
-branch "jetpack/branch-9.4" might have prefix "jetpack", infix "/branch-", and version "9.4".
-
-There are a few things you need to do to take advantage of this feature:
-
-1. Set `release-branch-infix` in the action to the infix you will be using. Also be sure the
-   workflow will run for pushes to matching branches.
-2. In each project, execute `composer config extra.release-branch-prefix some-prefix` with an
-   appropriate prefix or otherwise add it to the project's composer.json.

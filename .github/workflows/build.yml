@@ -144,6 +144,13 @@ jobs:
         run: tar --xz -xvvf build.tar.xz
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
+        timeout-minutes: 1  # 2021-01-29: Guessing a successful run should only take a few seconds
+
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
         env:

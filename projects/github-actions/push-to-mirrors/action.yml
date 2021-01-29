@@ -6,13 +6,6 @@ inputs:
       Commit message to use for the mirror commits. If omitted, it will be read
       from the monorepo checkout pointed at by `source-directory`.
     required: false
-  release-branch-infix:
-    description: >
-      Infix identifying release branches. If the branch being mirrored contains
-      this infix, only those mirrors that contain a composer.json with the extra
-      field `release-branch-prefix` set to the value before the infix will be
-      mirrored.
-    required: false
   source-directory:
     description: >
       Directory containing a checkout of the commit being mirrored. Only used
@@ -47,7 +40,6 @@ runs:
       API_TOKEN_GITHUB: ${{ inputs.token }}
       BUILD_BASE: ${{ inputs.working-directory }}
       COMMIT_MESSAGE: ${{ inputs.commit-message }}
-      RELEASE_BRANCH_INFIX: ${{ inputs.release-branch-infix }}
       SOURCE_DIR: ${{ inputs.source-directory }}
       USER_EMAIL: ${{ inputs.user-email }}
       USER_NAME: ${{ inputs.username }}

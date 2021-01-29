@@ -16,7 +16,6 @@
 # - GITHUB_REPOSITORY: GH repository, used in the commit message if `COMMIT_MESSAGE` is not specified.
 # - GITHUB_RUN_ID: GH Actions run ID, used in the commit message if `COMMIT_MESSAGE` is not specified.
 # - GITHUB_SHA: Head SHA1 from which to fetch the commit message for the commit being mirrored. HEAD will be assumed if not specified.
-# - RELEASE_BRANCH_INFIX: Infix to identify release branches. Defaults to "/branch-".
 # - SOURCE_DIR: Source directory, used when `COMMIT_MESSAGE` is not specified.
 # - USER_NAME: Git user name to use when making the commit to the mirror repo.
 # - USER_EMAIL: Email address to use when making the commit to the mirror repo. Defaults to "$USER_NAME@users.noreply.github.com"
@@ -59,27 +58,12 @@ fi
 
 EXIT=0
 while read -r GIT_SLUG; do
-	EMPTY=false
 	printf "\n\n\e[7m Mirror: %s \e[0m\n" "$GIT_SLUG"
 	CLONE_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	cd "${CLONE_DIR}"
 
-	# Release branches are only mirrored to branches where composer.json specifies the matching prefix.
-	if [[ -n "$RELEASE_BRANCH_INFIX" && -f "composer.json" && "$BRANCH" =~ $RELEASE_BRANCH_INFIX ]]; then
-		PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
-		if [[ -z "$PREFIX" ]]; then
-			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
-			continue
-		elif [[ "${BRANCH%%${RELEASE_BRANCH_INFIX}*}" != "$PREFIX" ]]; then
-			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%${RELEASE_BRANCH_INFIX}*}\` != declared prefix \`$PREFIX\`"
-			continue
-		fi
-	fi
-
 	# Check if a remote exists for that mirror.
-	if git ls-remote --exit-code -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
-		:
-	else
+	if ! git ls-remote --exit-code -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
 		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
 		continue
 	fi
