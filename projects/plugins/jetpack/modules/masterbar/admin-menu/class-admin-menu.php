@@ -105,10 +105,20 @@ class Admin_Menu {
 		$this->add_testimonials_menu( $wp_admin );
 		$this->add_portfolio_menu( $wp_admin );
 		$this->add_comments_menu( $wp_admin );
-		$this->add_appearance_menu( $wp_admin, $wp_admin );
+
+		// Whether Customize/Themes links should point to Calypso (false) or wp-admin (true).
+		$wp_admin_customize = $wp_admin;
+		$wp_admin_themes    = $wp_admin;
+		$this->add_appearance_menu( $wp_admin_customize, $wp_admin_themes );
+
 		$this->add_plugins_menu( $wp_admin );
 		$this->add_users_menu( $wp_admin );
-		$this->add_tools_menu( $wp_admin, $wp_admin );
+
+		// Whether Import/Export links should point to Calypso (false) or wp-admin (true).
+		$wp_admin_import = $wp_admin;
+		$wp_admin_export = $wp_admin;
+		$this->add_tools_menu( $wp_admin_import, $wp_admin_export );
+
 		$this->add_options_menu( $wp_admin );
 		$this->add_jetpack_menu();
 
