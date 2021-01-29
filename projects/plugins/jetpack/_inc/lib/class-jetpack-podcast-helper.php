@@ -247,6 +247,9 @@ class Jetpack_Podcast_Helper {
 	/**
 	 * Action handler to reset the SimplePie cache for the podcast feed.
 	 *
+	 * Note this only resets the cache for the specified url. If the feed locator finds the podcast feed
+	 * within the markup of the that url, that feed itself may still be cached.
+	 *
 	 * @param SimplePie $feed The SimplePie object, passed by reference.
 	 * @return void
 	 */
