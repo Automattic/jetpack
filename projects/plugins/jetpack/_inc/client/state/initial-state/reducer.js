@@ -348,43 +348,25 @@ export function getPartnerSubsidiaryId( state ) {
  * @param {string} source - Context where this URL is clicked.
  * @param {string} userId - Current user id.
  * @param {boolean} planDuration - Add plan duration to the URL.
- * @param {boolean} linkToLanding - The link leads to a static landing page, so non-linked users will need to skip the connection flow for now.
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
-export const getUpgradeUrl = (
-	state,
-	source,
-	userId = '',
-	planDuration = false,
-	linkToLanding = false
-) => {
+export const getUpgradeUrl = ( state, source, userId = '', planDuration = false ) => {
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
-	const landingUnlinked = linkToLanding && ! isCurrentUserLinked( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
-	const queryString =
+	return (
+		'https://jetpack.com/redirect/?' +
 		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
 		( uid ? `&u=${ uid }` : '' ) +
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
-		( landingUnlinked ? '&unlinked=1' : '' );
-
-	const url = `https://jetpack.com/redirect/?${ queryString }`;
-
-	if ( isCurrentUserLinked( state ) || landingUnlinked ) {
-		return url;
-	}
-
-	return (
-		getSiteAdminUrl( state ) +
-		'?page=jetpack&action=authorize_redirect&dest_url=' +
-		encodeURIComponent( url )
+		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' )
 	);
 };
 
