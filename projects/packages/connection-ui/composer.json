@@ -14,9 +14,22 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../*"
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
+	"scripts": {
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build"
+		]
+	},
 	"minimum-stability": "dev",
 	"prefer-stable": true
 }
