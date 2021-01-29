@@ -417,8 +417,16 @@ class Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-			$actor['ip']         = jetpack_protect_get_ip();
+			$ip = false;
+			if ( function_exists( 'jetpack_protect_get_ip' ) ) {
+				$ip = jetpack_protect_get_ip();
+			} else {
+				if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+					require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+					$ip = jetpack_protect_get_ip();
+				}
+			}
+			$actor['ip']         = $ip;
 			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
 		}
 
