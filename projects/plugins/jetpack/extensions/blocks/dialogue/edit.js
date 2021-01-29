@@ -27,7 +27,7 @@ import { useSelect, dispatch } from '@wordpress/data';
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsControl } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
-import { getParticipantLabelClass } from './utils';
+import { BASE_CLASS_NAME, getParticipantLabelClass } from './utils';
 import ConversationContext from '../conversation/components/context';
 import { list as defaultParticipants } from '../conversation/participants.json';
 import { formatUppercase } from '../../shared/icons';
@@ -55,7 +55,6 @@ export default function DialogueEdit( {
 	const { content, participant, placeholder, showTimestamp, timestamp } = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 	const richTextRef = useRef();
-	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	const { prevBlock, mediaSource } = useSelect( select => {
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
@@ -156,7 +155,7 @@ export default function DialogueEdit( {
 				<ToolbarGroup>
 					<ParticipantsDropdown
 						id={ `dialogue-${ instanceId }-participants-dropdown` }
-						className={ baseClassName }
+						className={ BASE_CLASS_NAME }
 						participants={ participants }
 						label={ __( 'Participant', 'jetpack' ) }
 						participantSlug={ participant?.slug }
@@ -197,7 +196,7 @@ export default function DialogueEdit( {
 				<Panel>
 					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
 						<ParticipantsControl
-							className={ baseClassName }
+							className={ BASE_CLASS_NAME }
 							participants={ participants }
 							participantSlug={ participant?.slug || '' }
 							onSelect={ setAttributes }
@@ -219,7 +218,7 @@ export default function DialogueEdit( {
 
 						{ showTimestamp && (
 							<TimestampControl
-								className={ baseClassName }
+								className={ BASE_CLASS_NAME }
 								value={ timestamp }
 								onChange={ setTimestamp }
 							/>
@@ -228,18 +227,18 @@ export default function DialogueEdit( {
 				</Panel>
 			</InspectorControls>
 
-			<div className={ `${ baseClassName }__meta` }>
+			<div className={ `${ BASE_CLASS_NAME }__meta` }>
 				<Button
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
 					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
-					className={ getParticipantLabelClass( baseClassName, participant ) }
+					className={ getParticipantLabelClass( BASE_CLASS_NAME, participant ) }
 				>
 					{ participant?.label }
 				</Button>
 
 				{ showTimestamp && (
 					<TimestampDropdown
-						className={ baseClassName }
+						className={ BASE_CLASS_NAME }
 						value={ timestamp }
 						onChange={ setTimestamp }
 						shortLabel={ true }
@@ -251,7 +250,7 @@ export default function DialogueEdit( {
 				ref={ richTextRef }
 				identifier="content"
 				tagName="p"
-				className={ `${ baseClassName }__content` }
+				className={ `${ BASE_CLASS_NAME }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
 				onMerge={ mergeBlocks }

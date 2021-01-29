@@ -6,7 +6,7 @@ import { RichText } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
-import { getParticipantLabelClass } from './utils';
+import { BASE_CLASS_NAME, getParticipantLabelClass } from './utils';
 
 function convertTimeCodeToSeconds( timeCode ) {
 	const timeParts = timeCode.split( ':' );
@@ -19,18 +19,17 @@ function convertTimeCodeToSeconds( timeCode ) {
 
 export default function save( { attributes } ) {
 	const { content, participant, showTimestamp, timestamp } = attributes;
-	const baseClassName = 'wp-block-jetpack-dialogue';
 
 	return (
-		<div className={ baseClassName }>
-			<div className={ `${ baseClassName }__meta` }>
-				<div className={ getParticipantLabelClass( baseClassName, participant ) }>
+		<div>
+			<div className={ `${ BASE_CLASS_NAME }__meta` }>
+				<div className={ getParticipantLabelClass( BASE_CLASS_NAME, participant ) }>
 					{ participant.label }
 				</div>
 				{ showTimestamp && (
-					<div className={ `${ baseClassName }__timestamp` }>
+					<div className={ `${ BASE_CLASS_NAME }__timestamp` }>
 						<a
-							className={ `${ baseClassName }__timestamp_link` }
+							className={ `${ BASE_CLASS_NAME }__timestamp_link` }
 							href="#"
 							data-timestamp={ convertTimeCodeToSeconds( timestamp ) }
 						>
@@ -39,7 +38,11 @@ export default function save( { attributes } ) {
 					</div>
 				) }
 			</div>
-			<RichText.Content className={ `${ baseClassName }__content` } tagName="p" value={ content } />
+			<RichText.Content
+				className={ `${ BASE_CLASS_NAME }__content` }
+				tagName="p"
+				value={ content }
+			/>
 		</div>
 	);
 }
