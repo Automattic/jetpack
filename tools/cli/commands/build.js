@@ -25,7 +25,7 @@ async function buildRouter( options ) {
 	};
 
 	if ( options.project ) {
-		const data = await readComposerJson( options.project, true );
+		const data = await readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );
