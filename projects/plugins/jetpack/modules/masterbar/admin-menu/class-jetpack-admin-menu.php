@@ -41,7 +41,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Import/Export on Atomic sites is always handled on WP Admin.
-		parent::add_tools_menu( false, false );
+		// Import/Export on Jetpack sites is always handled on WP Admin.
+		parent::add_tools_menu( true, true );
 	}
 }

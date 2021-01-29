@@ -293,6 +293,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
 		static::$admin_menu->add_tools_menu( false, false );
 
+		// Check Export menu always links to WP Admin.
 		$export_submenu_item = array(
 			'Export',
 			'export',
@@ -324,6 +325,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_plugins_menu() {
 		global $menu;
 
+		static::$admin_menu->add_plugins_menu( false );
+
+		// Check Plugins menu always links to WP Admin.
 		$this->assertContains( 'plugins.php', $menu[65] );
 	}
 }

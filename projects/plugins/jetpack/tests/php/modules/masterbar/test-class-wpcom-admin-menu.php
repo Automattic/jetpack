@@ -248,30 +248,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_upgrades_menu
 	 */
 	public function test_add_wpcom_upgrades_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
-
-		$slug = 'https://wordpress.com/plans/' . static::$domain;
-
-		$upgrades_menu_item = array(
-			'Upgrades',
-			'manage_options',
-			$slug,
-			'Upgrades',
-			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'dashicons-cart',
-		);
-		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
-
-		$plans_submenu_item = array(
-			'Plans',
-			'manage_options',
-			$slug,
-			'Plans',
-		);
-		$this->assertContains( $plans_submenu_item, $submenu[ $slug ] );
 
 		$domains_submenu_item = array(
 			'Domains',
@@ -279,15 +258,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'https://wordpress.com/domains/manage/' . static::$domain,
 			'Domains',
 		);
-		$this->assertContains( $domains_submenu_item, $submenu[ $slug ] );
-
-		$purchases_submenu_item = array(
-			'Purchases',
-			'manage_options',
-			'https://wordpress.com/purchases/subscriptions/' . static::$domain,
-			'Purchases',
-		);
-		$this->assertContains( $purchases_submenu_item, $submenu[ $slug ] );
+		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/plans/' . static::$domain ] );
 	}
 
 	/**
@@ -383,50 +354,12 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( false );
+		static::$admin_menu->add_tools_menu( false, true );
 
-		$tools_menu_item = array(
-			'Tools',
-			'manage_options',
-			$slug,
-			'Tools',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-tools',
-		);
-
-		$this->assertSame( $menu[75], $tools_menu_item );
-		$this->assertArrayNotHasKey( 'tools.php', $submenu );
-
-		// Contains the following menu items.
-
-		$marketing_submenu_item = array(
-			'Marketing',
-			'manage_options',
-			'https://wordpress.com/marketing/tools/' . static::$domain,
-			'Marketing',
-		);
-		$this->assertContains( $marketing_submenu_item, $submenu[ $slug ] );
-
-		$earn_submenu_item = array(
-			'Earn',
-			'manage_options',
-			'https://wordpress.com/earn/' . static::$domain,
-			'Earn',
-		);
-		$this->assertContains( $earn_submenu_item, $submenu[ $slug ] );
-
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'https://wordpress.com/import/' . static::$domain,
-			'Import',
-		);
-		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
-
+		// Check Export menu item always links to Calypso.
 		$export_submenu_item = array(
 			'Export',
 			'export',
@@ -434,29 +367,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'Export',
 		);
 		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
-
-		// NOT contains the following menu items.
-
-		$tools_submenu_item = array(
-			'Available Tools',
-			'edit_posts',
-			'tools.php',
-		);
-		$this->assertNotContains( $tools_submenu_item, $submenu[ $slug ] );
-
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'import.php',
-		);
-		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
-
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'export.php',
-		);
-		$this->assertNotContains( $export_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
@@ -469,18 +379,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
 		static::$admin_menu->add_options_menu( false );
-
-		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
-		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
-		$this->assertNotContains( 'sharing', $submenu[ $slug ] );
-
-		$general_submenu_item = array(
-			'General',
-			'manage_options',
-			$slug,
-			'General',
-		);
-		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
 
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
 
