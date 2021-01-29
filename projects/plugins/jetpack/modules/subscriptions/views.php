@@ -318,7 +318,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			>
 				<?php
 				if ( ! $show_only_email_and_button ) {
-					echo esc_html( $subscribe_text );
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo wpautop( $subscribe_text );
 				}
 				if ( $show_subscribers_total && $subscribers_total ) {
 					?>
@@ -366,6 +367,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							? esc_attr( $email_field_styles )
 							: 'width: 95%; padding: 1px 10px'
 						),
+						// phpcs:ignore WordPress.WP.I18n.MissingArgDomain
 						esc_attr__( 'Enter your email address', 'jetpack' ),
 						esc_attr( $email_field_id )
 					);
