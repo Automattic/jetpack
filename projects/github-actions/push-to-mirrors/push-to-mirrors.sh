@@ -30,8 +30,10 @@ fi
 
 if [[ -z "$BUILD_BASE" ]]; then
 	echo "::error::BUILD_BASE must be set"
+	exit 1
 elif [[ ! -d "$BUILD_BASE" ]]; then
 	echo "::error::$BUILD_BASE does not exist or is not a directory"
+	exit 1
 fi
 
 if [[ -z "$COMMIT_MESSAGE" ]]; then
@@ -43,14 +45,15 @@ COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.co
 if [[ "$GITHUB_REF" =~ ^refs/heads/ ]]; then
 	BRANCH=${GITHUB_REF#refs/heads/}
 else
-	echo "Could not determine branch name from $GITHUB_REF"
+	echo "::error::Could not determine branch name from $GITHUB_REF"
 	exit 1
 fi
 
 if [[ ! -f "$BUILD_BASE/mirrors.txt" ]]; then
 	echo "::error::File $BUILD_BASE/mirrors.txt does not exist or is not a file"
+	exit 1
 elif [[ ! -s "$BUILD_BASE/mirrors.txt" ]]; then
-	echo "No mirrors were successfully built. Skipping."
+	echo "Nothing to do, $BUILD_BASE/mirrors.txt is empty."
 	exit 0
 fi
 
