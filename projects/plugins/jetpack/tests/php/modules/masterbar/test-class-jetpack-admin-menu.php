@@ -90,22 +90,6 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
-	 */
-	public function test_get_instance() {
-		$instance = Jetpack_Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( Jetpack_Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
-	}
-
-	/**
 	 * Tests add_jetpack_menu
 	 *
 	 * @covers ::add_jetpack_menu
