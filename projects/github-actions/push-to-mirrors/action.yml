@@ -40,6 +40,7 @@ runs:
       API_TOKEN_GITHUB: ${{ inputs.token }}
       BUILD_BASE: ${{ inputs.working-directory }}
       COMMIT_MESSAGE: ${{ inputs.commit-message }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       SOURCE_DIR: ${{ inputs.source-directory }}
       USER_EMAIL: ${{ inputs.user-email }}
       USER_NAME: ${{ inputs.username }}

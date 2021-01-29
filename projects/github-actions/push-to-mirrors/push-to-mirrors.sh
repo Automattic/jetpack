@@ -77,16 +77,14 @@ while read -r GIT_SLUG; do
 	git remote add origin "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git"
 	FORCE_COMMIT=
 	if git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$BRANCH"; then
-		:
-	elif [[ "$BRANCH" != "master" ]] && git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin master; then
+		git reset --soft FETCH_HEAD
+	elif [[ -n "$DEFAULT_BRANCH" ]] && git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$DEFAULT_BRANCH"; then
 		FORCE_COMMIT=--allow-empty
+		git reset --soft FETCH_HEAD
 	else
-		echo "::endgroup::"
-		echo "::error::Fetching of ${GIT_SLUG} failed"
-		EXIT=1
-		continue
+		echo "Failed to find a branch to branch from, just creating an empty one."
+		FORCE_COMMIT=--allow-empty
 	fi
-	git reset --soft FETCH_HEAD
 	git add -Af
 	echo "::endgroup::"
 
