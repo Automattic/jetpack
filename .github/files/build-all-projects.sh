@@ -70,7 +70,7 @@ for project in projects/packages/* projects/plugins/*; do
 	fi
 	# Need to remove the "projects/" from the string since the CLI only looks for {type}/{project-name}.
 	SLUG=$(echo "$project" | cut -c 10-)
-	if jetpack build "${SLUG}"; then
+	if jetpack build "${SLUG}" --production; then
 		FAIL=false
 	else
 		FAIL=true
