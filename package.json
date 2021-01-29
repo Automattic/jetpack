@@ -28,6 +28,8 @@
 		"clean": "yarn clean-jetpack && yarn clean-composer",
 		"clean-composer": "rm -rf vendor/",
 		"clean-jetpack": "cd projects/plugins/jetpack && yarn clean",
+		"cli-link": "node tools/cli/bin/jetpack cli link",
+		"cli-unlink": "node tools/cli/bin/jetpack cli unlink",
 		"distclean": "rm -rf node_modules && yarn clean-composer && yarn distclean-jetpack",
 		"distclean-jetpack": "cd projects/plugins/jetpack && yarn distclean",
 		"docker:build": "docker run -it --rm -v \"${PWD}:/usr/src/app\" -w /usr/src/app \"node:$(cat .nvmrc)\" yarn build",
