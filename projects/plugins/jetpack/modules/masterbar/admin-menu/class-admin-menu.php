@@ -365,7 +365,7 @@ class Admin_Menu {
 	 * Adds Appearance menu.
 	 *
 	 * @param Bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param String $customize_slug. Whether customizer links should point to Calypso or wp-admin.
+	 * @param String $customize_slug Whether customizer links should point to Calypso or wp-admin.
 	 */
 	public function add_appearance_menu( $wp_admin = false, $customize_slug ) {
 		$user_can_customize = current_user_can( 'customize' );
