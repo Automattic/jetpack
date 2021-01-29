@@ -110,6 +110,7 @@ class Jetpack_Podcast_Helper {
 		// Clear the cache if force_refresh param is set.
 		if ( true === $force_refresh ) {
 			delete_transient( $track_data );
+			add_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		}
 
 		// Fetch data if we don't have any cached.
@@ -137,6 +138,7 @@ class Jetpack_Podcast_Helper {
 			set_transient( $transient_key, $track_data, HOUR_IN_SECONDS );
 		}
 
+		remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
 		return $track_data;
 	}
 
@@ -216,10 +218,8 @@ class Jetpack_Podcast_Helper {
 	 */
 	public function load_feed() {
 		add_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		add_action( 'wp_feed_options', array( __CLASS__, 'disable_simplepie_caching' ) );
 		$rss = fetch_feed( $this->feed );
 		remove_action( 'wp_feed_options', array( __CLASS__, 'set_podcast_locator' ) );
-		remove_action( 'wp_feed_options', array( __CLASS__, 'disable_simplepie_caching' ) );
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 		}
@@ -245,13 +245,19 @@ class Jetpack_Podcast_Helper {
 	}
 
 	/**
-	 * Action handler to disable caching on the SimplePie object.
+	 * Action handler to reset the SimplePie cache for the podcast feed.
 	 *
 	 * @param SimplePie $feed The SimplePie object, passed by reference.
 	 * @return void
 	 */
-	public static function disable_simplepie_caching( &$feed ) {
-		$feed->enable_cache( false );
+	public static function reset_simplepie_cache( &$feed ) {
+		// Retrieve the cache object for a feed url. Based on:
+		// https://github.com/WordPress/WordPress/blob/fd1c2cb4011845ceb7244a062b09b2506082b1c9/wp-includes/class-simplepie.php#L1412.
+		$cache = $feed->registry->call( 'Cache', 'get_handler', array( $feed->cache_location, call_user_func( $feed->cache_name_function, $feed->url ), 'spc' ) );
+
+		if ( method_exists( $cache, 'unlink' ) ) {
+			$cache->unlink();
+		}
 	}
 
 	/**
