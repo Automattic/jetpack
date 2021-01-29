@@ -19,7 +19,7 @@ import {
 	ToolbarButton,
 	Button,
 } from '@wordpress/components';
-import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
+import { useContext, useState, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
 /**
@@ -38,16 +38,10 @@ import { MediaPlayerToolbarControl } from '../../shared/components/media-player-
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
 
 function getParticipantBySlug( participants, slug ) {
-	const participant = find(
+	return find(
 		participants,
 		contextParticipant => contextParticipant.participantSlug === slug
 	);
-	if ( participant ) {
-		return participant;
-	}
-
-	// Fallback participant. First one in the list.
-	return participants?.[ 0 ];
 }
 
 const blockName = 'jetpack/dialogue';
@@ -62,7 +56,6 @@ export default function DialogueEdit( {
 	context,
 	onReplace,
 	mergeBlocks,
-	isSelected,
 } ) {
 	const {
 		participantSlug,
@@ -76,8 +69,10 @@ export default function DialogueEdit( {
 
 	const { prevBlock, mediaSource } = useSelect( select => {
 		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
+		const previousBlock = select( 'core/block-editor' ).getBlock( prevPartClientId );
+
 		return {
-			prevBlock: select( 'core/block-editor' ).getBlock( prevPartClientId ),
+			prevBlock: previousBlock?.name === blockName ? previousBlock : null,
 			mediaSource: select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
 		};
 	}, [] );
@@ -100,8 +95,15 @@ export default function DialogueEdit( {
 	// Set initial attributes according to the context.
 	useEffect( () => {
 		// Bail when block already has an slug,
-		// or participant doesn't exist.
-		if ( participantSlug || ! participants?.length || ! conversationBridge ) {
+		// or when there is not a dialogue pre block.
+		// or when there are not particpants,
+		// or there is not conversation bridge.
+		if (
+			participantSlug ||
+			! prevBlock ||
+			! participants?.length ||
+			! conversationBridge
+		) {
 			return;
 		}
 
@@ -116,28 +118,22 @@ export default function DialogueEdit( {
 		} );
 	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
 
-	// Try to focus the RichText component when mounted.
-	const hasContent = content?.length > 0;
-	const richTextRefCurrent = richTextRef?.current;
-	useLayoutEffect( () => {
-		// Bail if component is not selected.
-		if ( ! isSelected ) {
+	// Update participant slug in case
+	// the participant is removed globally.
+	// from the Conversation block.
+	useEffect( () => {
+		if ( ! participants?.length ) {
 			return;
 		}
 
-		// Bail if context reference is not valid.
-		if ( ! richTextRefCurrent ) {
+		// Check if the participant has been removed from Conversation.
+		if ( currentParticipant ) {
 			return;
 		}
 
-		// Bail if context is not empty.
-		if ( hasContent ) {
-			return;
-		}
-
-		// Focus the rich text component
-		richTextRefCurrent.focus();
-	}, [ isSelected, hasContent, richTextRefCurrent ] );
+		// Set first participant as default.
+		setAttributes( { participantSlug: participants[ 0 ].participantSlug } );
+	}, [ participants, currentParticipant, setAttributes ] );
 
 	function hasStyle( style ) {
 		return currentParticipant?.[ style ];
@@ -247,6 +243,7 @@ export default function DialogueEdit( {
 			<div className={ `${ baseClassName }__meta` }>
 				<Button
 					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
+					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
 					className={ getParticipantLabelClass() }
 				>
 					{ participantLabel }

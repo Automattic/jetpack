@@ -5,7 +5,7 @@
  * This file contains the code that converts HTML embeds into shortcodes
  * for when the user copy/pastes in HTML.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );

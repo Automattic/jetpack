@@ -30,6 +30,9 @@ export default class InPlaceAuthorizeFrame extends Page {
 	}
 
 	async waitToDisappear() {
-		return await waitForSelector( this.page, this.expectedSelector, { hidden: true } );
+		return await waitForSelector( this.page, this.expectedSelector, {
+			timeout: 45000,
+			hidden: true,
+		} );
 	}
 }

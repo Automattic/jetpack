@@ -4,7 +4,7 @@
 	position: relative;
 	display: flex;
 	z-index: 10;
-	max-width: 1080px;
+	max-width: $overlay-max-width;
 	margin: 0 auto;
 	padding: 0.125em 0;
 	text-align: left;
@@ -47,16 +47,16 @@
 	}
 
 	@include break-small() {
-		padding: 0.125em 2em;
+		padding: 0.125em $overlay-padding-horizontal;
 	}
 }
 
 .jetpack-instant-search__search-results-primary {
-	flex: 5;
+	flex: $primary-section-flex-grow;
 	margin-bottom: 6em;
 
 	@include break-medium() {
-		margin-right: 4em;
+		margin-right: $primary-secondary-separator-width;
 		.jetpack-instant-search__overlay--no-sidebar & {
 			margin-right: 0;
 		}
@@ -69,7 +69,7 @@
 	@include break-medium() {
 		position: static;
 		display: block;
-		flex: 2;
+		flex: $secondary-section-flex-grow;
 		width: auto;
 		background: none;
 		border: 0;
@@ -161,6 +161,6 @@
 	}
 
 	&:focus {
-    	outline: 1px dotted;
-    }
+		outline: 1px dotted;
+	}
 }

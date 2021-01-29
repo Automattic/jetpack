@@ -2,7 +2,7 @@
 /**
  * List of /site core REST API endpoints used in Jetpack's dashboard.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;

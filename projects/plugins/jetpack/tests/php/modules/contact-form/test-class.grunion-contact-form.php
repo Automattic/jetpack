@@ -2,7 +2,7 @@
 /**
  * Unit Tests for Grunion_Contact_Form.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );

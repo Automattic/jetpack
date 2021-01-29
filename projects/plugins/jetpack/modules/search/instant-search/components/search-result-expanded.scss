@@ -24,6 +24,10 @@ $min-height: 190px;
 		line-height: 1.1;
 		margin: 0;
 		width: 100%;
+		max-width: calc(
+			#{$primary-section-ratio} * ( #{$overlay-max-width} - #{$primary-secondary-separator-width + $overlay-padding-horizontal} )
+		);
+		overflow-wrap: break-word;
 	}
 }
 .jetpack-instant-search__result-expanded__path {

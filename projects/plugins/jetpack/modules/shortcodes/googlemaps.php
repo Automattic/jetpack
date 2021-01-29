@@ -7,7 +7,7 @@
  * [googlemaps https://maps.google.com/maps?f=q&hl=en&geocode=&q=San+Francisco,+CA&sll=43.469466,-83.998504&sspn=0.01115,0.025942&g=San+Francisco,+CA&ie=UTF8&z=12&iwloc=addr&ll=37.808156,-122.402458&output=embed&s=AARTsJp56EajYksz3JXgNCwT3LJnGsqqAQ&w=425&h=350]
  * [googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&w=640&h=480]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -7,7 +7,7 @@
  * in the sitemaps.
  *
  * @since 4.8.0
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /* Ensure sitemap constants are available. */

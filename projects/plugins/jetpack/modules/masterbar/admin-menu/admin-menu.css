@@ -72,7 +72,11 @@
 	transition-property: background-image,background-color;
 	transition-duration: .2s;
 	width: 32px;
+}
 
+#adminmenu .toplevel_page_site-card .wp-menu-image img {
+	height: auto;
+	max-width: 100%;
 }
 
 #adminmenu a.toplevel_page_site-card:hover,
@@ -86,6 +90,7 @@
 
 #adminmenu .toplevel_page_site-card.has-site-icon img {
 	padding: 0;
+	max-width: 100%;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
@@ -275,4 +280,32 @@
 
 #wpadminbar #wp-admin-bar-menu-toggle {
 	display: none;
+}
+
+@media screen and (max-width: 782px) {
+	#wp-toolbar > ul > li {
+		display: block;
+	}
+
+	#wpadminbar .ab-top-menu > li > .ab-item {
+		box-sizing: border-box;
+		line-height: 32px;
+	}
+
+	#wpadminbar #wp-admin-bar-ab-new-post > .ab-item {
+		box-sizing: inherit;
+	}
+
+	#wpadminbar #wp-admin-bar-my-account > .ab-item {
+		padding: 7px 15px;
+		width: auto;
+	}
+
+	#wpadminbar .quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
+		display: block;
+		right: auto;
+		left: auto;
+		position: static;
+		margin-top: 3px;
+	}
 }

@@ -2,7 +2,7 @@
 /**
  * Tests for WPcom_Admin_Menu class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu;
@@ -300,7 +300,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		add_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-		static::$admin_menu->add_plugins_menu( static::$domain );
+		static::$admin_menu->add_plugins_menu();
 		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
 
 		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
@@ -354,7 +354,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
 		$menu = array();
 
-		static::$admin_menu->add_users_menu( true );
+		static::$admin_menu->add_users_menu( false );
 
 		$profile_menu_item = array(
 			'My Profile',
@@ -380,7 +380,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( static::$user_id );
 		$menu = static::$menu_data;
 
-		static::$admin_menu->add_users_menu( static::$domain );
+		static::$admin_menu->add_users_menu( false );
 
 		$slug = 'https://wordpress.com/people/team/' . static::$domain;
 
@@ -438,7 +438,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( static::$domain );
+		static::$admin_menu->add_tools_menu( false );
 
 		$tools_menu_item = array(
 			'Tools',
@@ -520,7 +520,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( static::$domain );
+		static::$admin_menu->add_options_menu( false );
 
 		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
 		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );

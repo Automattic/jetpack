@@ -18,7 +18,7 @@
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production yarn build-js && yarn validate-es5 ./src/",
 		"clean": "true",
 		"distclean": "rm -rf node_modules && yarn clean",
-		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files --production=false --frozen-lockfile",
+		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"validate-es5": "eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore"
 	},
 	"devDependencies": {

@@ -2,7 +2,7 @@
 /**
  * Handles VaultPress->Rewind transition by deactivating VaultPress when needed.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Redirect;

@@ -2,7 +2,7 @@
 /**
  * Subscriptions Block.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;

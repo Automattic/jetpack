@@ -1,6 +1,7 @@
 import localtunnel from 'localtunnel';
 import config from 'config';
 import fs from 'fs';
+import axios from 'axios';
 
 import logger from './logger';
 
@@ -38,11 +39,18 @@ export default class TunnelManager {
 	}
 
 	async newTunnel( tunnelConfig ) {
-		const tunnel = await localtunnel( tunnelConfig );
+		const creationTimeout = new Promise( resolve => setTimeout( resolve, 10000, 'timeout' ) );
+		const tunnelPromise = localtunnel( tunnelConfig );
+		const result = await Promise.race( [ tunnelPromise, creationTimeout ] );
+		if ( result === 'timeout' ) {
+			throw new Error( 'Localtunnel: timeout creating new tunnel' );
+		}
+		const tunnel = result;
+
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		tunnel.on( 'close', () => {
-			logger.info( '!!!!!! TUNNEL is closed for ', url );
+			logger.info( '!!!!!! TUNNEL is closed for ', this.url );
 		} );
 
 		logger.info( `#### CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
@@ -60,17 +68,15 @@ export default class TunnelManager {
 			return tunnelConfig;
 		}
 
-		let urlFromFile;
-		try {
-			urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
-		} catch ( error ) {
-			logger.info( error );
-		}
-
 		// use already created subdomain if found
-		if ( urlFromFile && urlFromFile.length > 1 ) {
-			const subdomain = this.getSubdomain( urlFromFile );
-			tunnelConfig.subdomain = subdomain;
+		try {
+			const urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
+			if ( urlFromFile && urlFromFile.length > 1 ) {
+				const subdomain = this.getSubdomain( urlFromFile );
+				tunnelConfig.subdomain = subdomain;
+			}
+		} catch ( error ) {
+			logger.error( error );
 		}
 
 		return tunnelConfig;
@@ -80,9 +86,16 @@ export default class TunnelManager {
 		logger.info( `#### Closing tunnel ${ this.tunnel.url }` );
 
 		this.tunnel.close();
-		await page.goto( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
+		try {
+			const response = await axios.get( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
+			if ( response ) {
+				logger.info( response.data );
+			}
+		} catch ( error ) {
+			logger.error( error );
+		}
 		// wait for tunnel to close properly
-		await new Promise( r => setTimeout( r, 1000 ) );
+		await page.waitForTimeout( 1000 );
 	}
 
 	getSubdomain( url ) {

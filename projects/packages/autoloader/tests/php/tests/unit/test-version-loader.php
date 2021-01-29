@@ -5,8 +5,8 @@
  * @package automattic/jetpack-autoloader
  */
 
-use \Jetpack\AutoloaderTestData\Plugin\Psr4\Test as Psr4Test;
-use \Jetpack\AutoloaderTestData\Plugin\Test;
+use Jetpack\AutoloaderTestData\Plugin\Psr4\Test as Psr4Test;
+use Jetpack\AutoloaderTestData\Plugin\Test;
 use PHPUnit\Framework\TestCase;
 
 /**

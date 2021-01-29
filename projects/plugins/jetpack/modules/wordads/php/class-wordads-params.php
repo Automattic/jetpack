@@ -2,7 +2,7 @@
 /**
  * WordAds Param Class file.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Status;

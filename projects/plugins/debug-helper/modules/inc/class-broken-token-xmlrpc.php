@@ -2,7 +2,7 @@
 /**
  * XMLRPC Brokeness.
  *
- * @package Jetpack.
+ * @package automattic/jetpack-debug-helper.
  */
 
 use Automattic\Jetpack\Connection\Error_Handler;

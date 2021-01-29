@@ -3,7 +3,7 @@
  * The fallback buffer for users with no XML support.
  *
  * @since 5.3.0
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

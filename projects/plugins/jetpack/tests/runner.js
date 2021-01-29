@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require.extensions[ '.svg' ] = () => 1;
 
 require( '@babel/register' );
 
@@ -50,6 +51,11 @@ if ( program.args.length ) {
 				mocha.addFile( '_inc/client/test/main.js' );
 
 				glob.sync( '_inc/client/**/test/component.js' ).forEach( file => {
+					mocha.addFile( file );
+				} );
+				break;
+			case 'lib':
+				glob.sync( '_inc/client/lib/**/test/*.js' ).forEach( file => {
 					mocha.addFile( file );
 				} );
 				break;
