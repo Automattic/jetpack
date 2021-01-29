@@ -291,57 +291,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu, $submenu;
-
-		add_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-		static::$admin_menu->add_plugins_menu();
-		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-
-		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
-		$label = is_multisite() ? 'Plugins ' : 'Plugins <span class="update-plugins count-0"><span class="plugin-count">0</span></span>';
-
-		$plugins_menu_item = array(
-			$label,
-			'activate_plugins',
-			$slug,
-			'Plugins',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-plugins',
-		);
-
-		$this->assertEquals( $plugins_menu_item, $menu[65] );
-		$this->assertArrayNotHasKey( 'plugins.php', $submenu );
-
-		$editor_submenu_item = array(
-			'Plugin Editor',
-			'edit_plugins',
-			'plugin-editor.php',
-		);
-		$this->assertNotContains( $editor_submenu_item, $submenu[ $slug ] );
-	}
-
-	/**
-	 * Filters the returned array of update data for plugins, themes, and WordPress core.
-	 */
-	public function mock_update_data() {
-		return array(
-			'counts' => array(
-				'plugins'      => 0,
-				'themes'       => 0,
-				'translations' => 0,
-				'wordpress'    => 0,
-			),
-			'title'  => '',
-		);
-	}
-
-	/**
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu

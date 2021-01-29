@@ -134,7 +134,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, 3, '3.86682', 4, 5, 10, 15, 20, 25, 59, 60, 65, 70, 75, 80 ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 50, 51, 59, 60, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -173,7 +173,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$my_home_menu_item = array(
 			'My Home',
-			'read',
+			'manage_options',
 			$slug,
 			'My Home',
 			'menu-top toplevel_page_' . $slug,
@@ -185,7 +185,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		// Has My Home submenu item when there are other submenu items.
 		$my_home_submenu_item = array(
 			'My Home',
-			'read',
+			'manage_options',
 			$slug,
 			'My Home',
 		);
@@ -491,7 +491,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
 		$customize_slug = 'customize.php';
-		static::$admin_menu->add_appearance_menu( false );
+		static::$admin_menu->add_appearance_menu( false, false );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
 
@@ -540,6 +540,51 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'Menus',
 		);
 		$this->assertContains( $menus_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $menu, $submenu;
+
+		add_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
+		static::$admin_menu->add_plugins_menu( false );
+		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
+
+		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
+		$label = is_multisite() ? 'Plugins ' : 'Plugins <span class="update-plugins count-0"><span class="plugin-count">0</span></span>';
+
+		$plugins_menu_item = array(
+			$label,
+			'activate_plugins',
+			$slug,
+			'Plugins',
+			'menu-top toplevel_page_' . $slug,
+			'toplevel_page_' . $slug,
+			'dashicons-admin-plugins',
+		);
+
+		$this->assertEquals( $plugins_menu_item, $menu[65] );
+		$this->assertEmpty( $submenu['plugins.php'] );
+		$this->assertArrayNotHasKey( $slug, $submenu );
+	}
+
+	/**
+	 * Filters the returned array of update data for plugins, themes, and WordPress core.
+	 */
+	public function mock_update_data() {
+		return array(
+			'counts' => array(
+				'plugins'      => 0,
+				'themes'       => 0,
+				'translations' => 0,
+				'wordpress'    => 0,
+			),
+			'title'  => '',
+		);
 	}
 
 	/**
@@ -620,11 +665,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( false );
+		static::$admin_menu->add_tools_menu( false, false );
 
 		$tools_menu_item = array(
 			'Tools',
-			'manage_options',
+			'publish_posts',
 			$slug,
 			'Tools',
 			'menu-top toplevel_page_' . $slug,
@@ -637,6 +682,22 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// Contains the following menu items.
 
+		$marketing_submenu_item = array(
+			'Marketing',
+			'publish_posts',
+			'https://wordpress.com/marketing/tools/' . static::$domain,
+			'Marketing',
+		);
+		$this->assertContains( $marketing_submenu_item, $submenu[ $slug ] );
+
+		$earn_submenu_item = array(
+			'Earn',
+			'manage_options',
+			'https://wordpress.com/earn/' . static::$domain,
+			'Earn',
+		);
+		$this->assertContains( $earn_submenu_item, $submenu[ $slug ] );
+
 		$import_submenu_item = array(
 			'Import',
 			'import',
@@ -645,14 +706,23 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
 
-		// NOT contains the following menu items.
-
-		$tools_submenu_item = array(
-			'Available Tools',
-			'edit_posts',
-			'tools.php',
+		$export_submenu_item = array(
+			'Export',
+			'export',
+			'https://wordpress.com/export/' . static::$domain,
+			'Export',
 		);
-		$this->assertNotContains( $tools_submenu_item, $submenu[ $slug ] );
+		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
+
+		$other_tools_submenu_item = array(
+			'Other tools',
+			'manage_options',
+			'tools.php',
+			'Other tools',
+		);
+		$this->assertContains( $other_tools_submenu_item, $submenu[ $slug ] );
+
+		// NOT contains the following menu items.
 
 		$import_submenu_item = array(
 			'Import',
@@ -660,6 +730,13 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'import.php',
 		);
 		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
+
+		$export_submenu_item = array(
+			'Export',
+			'export',
+			'export.php',
+		);
+		$this->assertNotContains( $export_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
@@ -683,6 +760,69 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'General',
 		);
 		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_jetpack_menu
+	 *
+	 * @covers ::add_jetpack_menu
+	 */
+	public function add_jetpack_menu() {
+		global $menu, $submenu;
+
+		$slug = 'https://wordpress.com/activity-log/' . static::$domain;
+		static::$admin_menu->add_jetpack_menu();
+
+		// TODO: Replace with proper SVG data url.
+		$jetpack_icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 32 32' %3E%3Cpath fill='%23a0a5aa' d='M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z'%3E%3C/path%3E%3Cpolygon fill='%23fff' points='15,19 7,19 15,3 '%3E%3C/polygon%3E%3Cpolygon fill='%23fff' points='17,29 17,13 25,13 '%3E%3C/polygon%3E%3C/svg%3E";
+
+		$jetpack_menu_item = array(
+			'Jetpack',
+			'manage_options',
+			$slug,
+			'Jetpack',
+			'menu-top toplevel_page_' . $slug,
+			'toplevel_page_' . $slug,
+			$jetpack_icon,
+		);
+
+		$this->assertSame( $menu[50], $jetpack_menu_item );
+		$this->assertArrayNotHasKey( 'jetpack', $submenu );
+
+		// Contains the following menu items.
+
+		$activity_log_submenu_item = array(
+			'Activity Log',
+			'manage_options',
+			'https://wordpress.com/activity-log/' . static::$domain,
+			'Activity Log',
+		);
+		$this->assertContains( $activity_log_submenu_item, $submenu[ $slug ] );
+
+		$backup_submenu_item = array(
+			'Backup',
+			'manage_options',
+			'https://wordpress.com/backup/' . static::$domain,
+			'Backup',
+		);
+		$this->assertContains( $backup_submenu_item, $submenu[ $slug ] );
+
+		$search_submenu_item = array(
+			'Search',
+			'read',
+			'https://wordpress.com/jetpack-search/' . static::$domain,
+			'Search',
+		);
+		$this->assertContains( $search_submenu_item, $submenu[ $slug ] );
+
+		// NOT contains the following menu items.
+
+		$stats_submenu_item = array(
+			'Stats',
+			'manage_options',
+			'stats',
+		);
+		$this->assertNotContains( $stats_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
