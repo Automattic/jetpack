@@ -69,7 +69,7 @@ for project in projects/packages/* projects/plugins/*; do
 		fi
 	fi
 	# Need to remove the "projects/" from the string since the CLI only looks for {type}/{project-name}.
-	SLUG=$(echo "$project" | cut -c 10-)
+	SLUG="${project#projects/}"
 	if jetpack build "${SLUG}" --production; then
 		FAIL=false
 	else
