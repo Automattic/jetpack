@@ -21,7 +21,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::rest_api_init();
 
 		// Get domain for requested site.
-		$this->domain = ( new Status() )->get_site_suffix();
+		$this->domain          = ( new Status() )->get_site_suffix();
+		$this->$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 	}
 
 	/**
@@ -355,16 +356,5 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Adds Appearance menu.
-	 *
-	 * @param String $customize_slug Whether customizer links should point to Calypso or wp-admin.
-	 * @param Bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_appearance_menu( $customize_slug, $wp_admin = false ) {
-		$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
-		parent::add_appearance_menu( $customize_slug, $wp_admin );
 	}
 }

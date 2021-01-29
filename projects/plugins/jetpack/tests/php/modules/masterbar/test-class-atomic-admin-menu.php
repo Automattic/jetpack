@@ -41,6 +41,13 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public static $domain;
 
 	/**
+	 * The customizer default link.
+	 *
+	 * @var string
+	 */
+	public static $customize_slug;
+
+	/**
 	 * Whether this testsuite is run on WP.com.
 	 *
 	 * @var bool
@@ -68,6 +75,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain  = ( new Status() )->get_site_suffix();
+		static::$customize_slug = 'customize.php';
 		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
 		static::$menu_data    = get_menu_fixture();

@@ -40,6 +40,13 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public static $domain;
 
 	/**
+	 * The customizer default link.
+	 *
+	 * @var string
+	 */
+	public static $customize_slug;
+
+	/**
 	 * Admin menu instance.
 	 *
 	 * @var Admin_Menu
@@ -60,6 +67,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain  = ( new Status() )->get_site_suffix();
+		static::$customize_slug = 'customize.php';
 		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
 		static::$menu_data    = get_menu_fixture();
@@ -492,7 +500,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
 		$customize_slug = 'customize.php';
-		static::$admin_menu->add_appearance_menu( $customize_slug, false );
+		static::$admin_menu->add_appearance_menu( false );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
 
