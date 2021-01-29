@@ -8,13 +8,21 @@ import { RichText } from '@wordpress/block-editor';
  */
 import { BASE_CLASS_NAME, getParticipantLabelClass } from './utils';
 
+/**
+ * Convert a time code string into seconds.
+ *
+ * @param {string} timeCode - like `01:10:59`.
+ * @returns {number} Number of seconds.
+ */
 function convertTimeCodeToSeconds( timeCode ) {
 	const timeParts = timeCode.split( ':' );
 
-	return timeParts.reduce(
-		( seconds, timePart, index ) => seconds + Math.pow( 60, index ) * parseInt( timePart ),
-		0
-	);
+	return timeParts
+		.reverse()
+		.reduce(
+			( seconds, timePart, index ) => seconds + Math.pow( 60, index ) * parseInt( timePart ),
+			0
+		);
 }
 
 export default function save( { attributes } ) {
