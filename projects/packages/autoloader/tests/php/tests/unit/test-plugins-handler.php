@@ -71,21 +71,15 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_current' ) );
-		$this->plugin_locator->expects( $this->exactly( 2 ) )
+		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
-			->withConsecutive(
-				array( array( 'activate', 'activate-selected' ) ),
-				array( array( 'deactivate', 'deactivate-selected' ) )
-			)
-			->willReturnOnConsecutiveCalls(
-				array( TEST_DATA_PATH . '/plugins/dummy_dev' ),
-				array()
-			);
+			->with( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
-		$plugin_paths = $this->plugins_handler->get_active_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins( true, true );
 
 		$this->assertEquals(
 			array(
@@ -116,21 +110,15 @@ class Test_Plugins_Handler extends TestCase {
 				array( TEST_DATA_PATH . '/plugins/dummy_current' ),
 				array( TEST_DATA_PATH . '/plugins/dummy_newer' )
 			);
-		$this->plugin_locator->expects( $this->exactly( 2 ) )
+		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
-			->withConsecutive(
-				array( array( 'activate', 'activate-selected' ) ),
-				array( array( 'deactivate', 'deactivate-selected' ) )
-			)
-			->willReturnOnConsecutiveCalls(
-				array( TEST_DATA_PATH . '/plugins/dummy_dev' ),
-				array()
-			);
+			->with( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_dev' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins' );
 
-		$plugin_paths = $this->plugins_handler->get_active_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins( true, true );
 
 		$this->assertEquals(
 			array(
@@ -152,21 +140,15 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array() );
-		$this->plugin_locator->expects( $this->exactly( 2 ) )
+		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
-			->withConsecutive(
-				array( array( 'activate', 'activate-selected' ) ),
-				array( array( 'deactivate', 'deactivate-selected' ) )
-			)
-			->willReturnOnConsecutiveCalls(
-				array(),
-				array()
-			);
+			->with( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) )
+			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
-		$plugin_paths = $this->plugins_handler->get_active_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins( true, true );
 
 		$this->assertEquals(
 			array(
@@ -181,31 +163,22 @@ class Test_Plugins_Handler extends TestCase {
 
 	/**
 	 * Tests that the current plugin is ignored when it isn't an active plugin but the
-	 * autoloader isn't being included from a plugin file.
+	 * autoloader was asked to ignore them.
 	 */
-	public function test_gets_active_plugins_ignores_unknown_plugins_when_including_latest() {
-		global $jetpack_autoloader_including_latest;
-		$jetpack_autoloader_including_latest = true;
-
+	public function test_gets_active_plugins_ignores_unknown_plugins_when_desired() {
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array() );
-		$this->plugin_locator->expects( $this->exactly( 2 ) )
+		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
-			->withConsecutive(
-				array( array( 'activate', 'activate-selected' ) ),
-				array( array( 'deactivate', 'deactivate-selected' ) )
-			)
-			->willReturnOnConsecutiveCalls(
-				array(),
-				array()
-			);
+			->with( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) )
+			->willReturn( array() );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_newer' );
 
-		$plugin_paths = $this->plugins_handler->get_active_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins( true, false );
 
 		$this->assertEmpty( $plugin_paths );
 
@@ -223,21 +196,15 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_using_option' )
 			->with( 'active_plugins', false )
 			->willReturn( array() );
-		$this->plugin_locator->expects( $this->exactly( 2 ) )
+		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_using_request_action' )
-			->withConsecutive(
-				array( array( 'activate', 'activate-selected' ) ),
-				array( array( 'deactivate', 'deactivate-selected' ) )
-			)
-			->willReturnOnConsecutiveCalls(
-				array(),
-				array( TEST_DATA_PATH . '/plugins/dummy_newer' )
-			);
+			->with( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) )
+			->willReturn( array( TEST_DATA_PATH . '/plugins/dummy_newer' ) );
 		$this->plugin_locator->expects( $this->once() )
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
 
-		$plugin_paths = $this->plugins_handler->get_active_plugins();
+		$plugin_paths = $this->plugins_handler->get_active_plugins( true, true );
 
 		$this->assertEquals(
 			array(
@@ -261,7 +228,7 @@ class Test_Plugins_Handler extends TestCase {
 		$this->plugin_locator->expects( $this->exactly( 2 ) )
 			->method( 'find_using_request_action' )
 			->withConsecutive(
-				array( array( 'activate', 'activate-selected' ) ),
+				array( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) ),
 				array( array( 'deactivate', 'deactivate-selected' ) )
 			)
 			->willReturnOnConsecutiveCalls(
@@ -276,7 +243,7 @@ class Test_Plugins_Handler extends TestCase {
 			->method( 'find_current_plugin' )
 			->willReturn( TEST_DATA_PATH . '/plugins/dummy_current' );
 
-		$plugin_paths = $this->plugins_handler->get_active_plugins( false );
+		$plugin_paths = $this->plugins_handler->get_active_plugins( false, true );
 
 		$this->assertEmpty( $plugin_paths );
 	}
@@ -318,7 +285,7 @@ class Test_Plugins_Handler extends TestCase {
 		global $jetpack_autoloader_cached_plugin_paths;
 
 		$plugins = array();
-		$this->assertFalse( $this->plugins_handler->have_plugins_changed( $plugins ) );
+		$this->assertTrue( $this->plugins_handler->have_plugins_changed( $plugins ) );
 		$this->assertSame( $plugins, $jetpack_autoloader_cached_plugin_paths );
 		$this->assertFalse( $this->plugins_handler->have_plugins_changed( $plugins ) );
 

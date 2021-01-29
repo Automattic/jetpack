@@ -38,12 +38,13 @@ class Plugins_Handler {
 	/**
 	 * Gets all of the active plugins we can find.
 	 *
-	 * @param bool $include_deactivating When true, plugins deactivating this request will be considered active. Default true.
+	 * @param bool $include_deactivating When true, plugins deactivating this request will be considered active.
+	 * @param bool $record_unknown When true, the current plugin will be marked as active and recorded when unknown.
+	 *
 	 * @return string[]
 	 */
-	public function get_active_plugins( $include_deactivating = true ) {
+	public function get_active_plugins( $include_deactivating, $record_unknown ) {
 		global $jetpack_autoloader_activating_plugins_paths;
-		global $jetpack_autoloader_including_latest;
 
 		// We're going to build a unique list of plugins from a few different sources
 		// to find all of our "active" plugins. While we need to return an integer
@@ -74,20 +75,10 @@ class Plugins_Handler {
 			}
 		}
 
-		// These actions contain plugins that are being activated during this request.
-		$plugins = $this->plugin_locator->find_using_request_action( array( 'activate', 'activate-selected' ) );
+		// These actions contain plugins that are being activated/deactivated during this request.
+		$plugins = $this->plugin_locator->find_using_request_action( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) );
 		foreach ( $plugins as $path ) {
 			$active_plugins[ $path ] = $path;
-		}
-
-		// While it's true that the deactivating plugins are more than likely already in the active list
-		// at this point, we should make sure in order to avoid any strange misbehavior.
-		if ( $include_deactivating ) {
-			// These actions contain plugins that are being deactivated during this request.
-			$plugins = $this->plugin_locator->find_using_request_action( array( 'deactivate', 'deactivate-selected' ) );
-			foreach ( $plugins as $path ) {
-				$active_plugins[ $path ] = $path;
-			}
 		}
 
 		// When the current plugin isn't considered "active" there's a problem.
@@ -98,7 +89,7 @@ class Plugins_Handler {
 		// of causing a reset because the active plugins list has
 		// been changed since it was saved in the global.
 		$current_plugin = $this->plugin_locator->find_current_plugin();
-		if ( ! in_array( $current_plugin, $active_plugins, true ) && ! $jetpack_autoloader_including_latest ) {
+		if ( $record_unknown && ! in_array( $current_plugin, $active_plugins, true ) ) {
 			$active_plugins[ $current_plugin ]             = $current_plugin;
 			$jetpack_autoloader_activating_plugins_paths[] = $current_plugin;
 		}
@@ -154,12 +145,6 @@ class Plugins_Handler {
 	 */
 	public function have_plugins_changed( $plugins ) {
 		global $jetpack_autoloader_cached_plugin_paths;
-
-		// When no autoloader has executed there is nothing to have changed.
-		if ( ! isset( $jetpack_autoloader_cached_plugin_paths ) ) {
-			$jetpack_autoloader_cached_plugin_paths = $plugins;
-			return false;
-		}
 
 		if ( $jetpack_autoloader_cached_plugin_paths !== $plugins ) {
 			$jetpack_autoloader_cached_plugin_paths = $plugins;

@@ -3,7 +3,7 @@ name: JS tests
 on:
   pull_request:
   push:
-    branches: [master, master-stable, 'branch-*']
+    branches: [master, '*/branch-*']
 
 jobs:
   js-tests:
@@ -26,6 +26,11 @@ jobs:
         run: |
           yarn install
           yarn test-adminpage-and-extensions-and-search
+      - name: "test cli"
+        working-directory: 'tools/cli'
+        run: |
+          yarn install
+          yarn test
 
 
   build:

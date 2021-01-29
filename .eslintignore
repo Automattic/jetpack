@@ -8,6 +8,7 @@ tools/docker/wordpress/
 
 # Ignored by default, but we should check it
 !.github/
+.github/actions/required-review/dist/
 
 ### Jetpack
 projects/plugins/jetpack/.size-limit.js

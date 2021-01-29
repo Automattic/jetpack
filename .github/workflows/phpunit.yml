@@ -3,7 +3,7 @@ name: PHPUnit tests
 on:
   pull_request:
   push:
-    branches: [master, master-stable, 'branch-*']
+    branches: [master, '*/branch-*']
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"

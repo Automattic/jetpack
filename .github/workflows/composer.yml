@@ -48,3 +48,4 @@ jobs:
         run: |
           jq --version
       - run: .github/files/check-monorepo-package-versions.sh
+      - run: .github/files/check-monorepo-package-repos.sh

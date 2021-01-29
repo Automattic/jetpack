@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
- import { __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 const participants = [
 	{
@@ -42,10 +42,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 1 ],
-			content: __(
-				'It is my arm.',
-				'jetpack'
-			),
+			content: __( 'It is my arm.', 'jetpack' ),
 			timestamp: '00:15',
 		},
 	},
@@ -53,10 +50,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 0 ],
-			content: __(
-				'I thought thy heart had been wounded with the claws of a lion.',
-				'jetpack'
-			),
+			content: __( 'I thought thy heart had been wounded with the claws of a lion.', 'jetpack' ),
 			timestamp: '00:32',
 		},
 	},
@@ -64,10 +58,7 @@ const template = [
 		name: 'jetpack/dialogue',
 		attributes: {
 			...participants[ 1 ],
-			content: __(
-				'Wounded it is, but with the eyes of a lady.',
-				'jetpack'
-			),
+			content: __( 'Wounded it is, but with the eyes of a lady.', 'jetpack' ),
 			timestamp: '00:37',
 		},
 	},
@@ -77,7 +68,7 @@ export default {
 	attributes: {
 		participants,
 		showTimestamps: true,
-		className: 'is-style-column',
+		className: 'is-style-row',
 	},
 	innerBlocks: template,
 };

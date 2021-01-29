@@ -30,6 +30,9 @@ class Tracking {
 		// For tracking stuff via js/ajax.
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );
 
+		// Universal ajax callback for all tracking events triggered via js.
+		add_action( 'wp_ajax_jetpack_tracks', array( $this->tracking, 'ajax_tracks' ) );
+
 		add_action( 'jetpack_activate_module', array( $this, 'jetpack_activate_module' ), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( $this, 'jetpack_deactivate_module' ), 1, 1 );
 		add_action( 'jetpack_user_authorized', array( $this, 'jetpack_user_authorized' ) );
@@ -42,9 +45,6 @@ class Tracking {
 		add_action( 'jetpack_verify_secrets_begin', array( $this, 'jetpack_verify_secrets_begin' ), 10, 2 );
 		add_action( 'jetpack_verify_secrets_success', array( $this, 'jetpack_verify_secrets_success' ), 10, 2 );
 		add_action( 'jetpack_verify_secrets_fail', array( $this, 'jetpack_verify_secrets_fail' ), 10, 3 );
-
-		// Universal ajax callback for all tracking events triggered via js.
-		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'wp_ajax_jetpack_tracks' ) );
 
 		add_action( 'jetpack_verify_api_authorization_request_error_double_encode', array( $this, 'jetpack_verify_api_authorization_request_error_double_encode' ) );
 		add_action( 'jetpack_connection_register_fail', array( $this, 'jetpack_connection_register_fail' ), 10, 2 );
@@ -222,34 +222,5 @@ class Tracking {
 	 */
 	function jetpack_verify_api_authorization_request_error_double_encode() {
 		$this->tracking->record_user_event( 'error_double_encode' );
-	}
-
-	/**
-	 * Universal method for for all tracking events triggered via the JavaScript client.
-	 *
-	 * @access public
-	 */
-	function wp_ajax_jetpack_tracks() {
-		// Check for nonce
-		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
-			wp_die( 'Permissions check failed.' );
-		}
-
-		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] ) ) {
-			wp_die( 'No valid event name or type.' );
-		}
-
-		$tracks_data = array();
-		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
-			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
-				$tracks_data = $_REQUEST['tracksEventProp'];
-			} else {
-				$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
-			}
-		}
-
-		$this->tracking->record_user_event( $_REQUEST['tracksEventName'], $tracks_data );
-		wp_send_json_success();
-		wp_die();
 	}
 }

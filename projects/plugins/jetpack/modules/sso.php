@@ -915,6 +915,11 @@ class Jetpack_SSO {
 	 * @return string            The WordPress.com SSO URL.
 	 */
 	function get_sso_url_or_die( $reauth = false, $args = array() ) {
+		$custom_login_url = Jetpack_SSO_Helpers::get_custom_login_url();
+		if ( $custom_login_url ) {
+			$args['login_url'] = rawurlencode( $custom_login_url );
+		}
+
 		if ( empty( $reauth ) ) {
 			$sso_redirect = $this->build_sso_url( $args );
 		} else {

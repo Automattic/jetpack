@@ -67,10 +67,9 @@ export class Masthead extends React.Component {
 			) : (
 				''
 			),
-			isDashboardView = includes(
-				[ '/', '/dashboard', '/my-plan', '/plans' ],
-				this.props.location.pathname
-			),
+			isDashboardView =
+				includes( [ '/', '/dashboard', '/my-plan', '/plans' ], this.props.location.pathname ) ||
+				this.props.location.pathname.includes( '/recommendations' ),
 			isStatic = '' === this.props.location.pathname;
 
 		const hideNav = this.props.location.pathname.startsWith( '/setup' );

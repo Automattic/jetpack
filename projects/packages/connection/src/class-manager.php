@@ -2428,7 +2428,7 @@ class Manager {
 	 * @return array the same array, since this method doesn't add or remove anything.
 	 */
 	public function xmlrpc_methods( $methods ) {
-		$this->raw_post_data = $GLOBALS['HTTP_RAW_POST_DATA'];
+		$this->raw_post_data = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
 		return $methods;
 	}
 

@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Autoloader\AutoloadFileWriter;
+use Automattic\Jetpack\Autoloader\AutoloadGenerator;
 use Jetpack\AutoloaderTestData\Plugin\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -130,6 +131,22 @@ class Test_Autoloader_Scenarios extends TestCase {
 		$this->load_autoloader( 'plugin_v2_2_0' );
 
 		$this->assertFalse( $this->autoloader_reset );
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_current', 'plugin_v2_2_0' ) );
+	}
+
+	/**
+	 * Tests that the autoloader is reset when an older V2 is initialized before the latest is known.
+	 */
+	public function test_autoloader_replaces_older_v2_when_unknown() {
+		$this->activate_plugin( 'plugin_v2_2_0' );
+
+		$this->load_autoloader( 'plugin_v2_2_0' );
+		$this->load_autoloader( 'plugin_current' );
+
+		$this->assertTrue( $this->autoloader_reset );
 		$this->assertAutoloaderVersion( '2.6.0.0' );
 
 		$this->shutdown_autoloader( true );
@@ -282,6 +299,68 @@ class Test_Autoloader_Scenarios extends TestCase {
 	}
 
 	/**
+	 * Tests that the autoloader does not cache the latest plugin when the cache caused it
+	 * to be used while the plugin was deactivated.
+	 */
+	public function test_autoloader_does_not_cache_latest_plugin_when_deactivated() {
+		$this->cache_plugins( array( 'plugin_newer' ) );
+
+		// Don't activate the newer plugin because we want the autoloader to be used but not have it be cached.
+		$this->activate_plugin( 'plugin_current' );
+
+		$this->load_autoloader( 'plugin_current' );
+
+		$this->shutdown_autoloader( true );
+
+		$this->assertAutoloaderVersion( '2.7.0.0' );
+		$this->assertAutoloaderCache( array( 'plugin_current' ) );
+	}
+
+	/**
+	 * Tests that the autoloader appropriately handles multiple replacements when discovering
+	 * unknown plugins where each is newer than the
+	 */
+	public function test_autoloader_consecutive_unknown_replacements() {
+		$this->load_autoloader( 'plugin_v2_2_0' );
+		$this->load_autoloader( 'plugin_v2_4_0' );
+		$this->load_autoloader( 'plugin_current' );
+
+		$this->assertTrue( $this->autoloader_reset );
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		$this->assertAutoloaderCache( array( 'plugin_v2_2_0', 'plugin_v2_4_0', 'plugin_current' ) );
+	}
+
+	/**
+	 * Tests that the autoloader operates correctly when an unknown plugin is included from the cache
+	 * but multiple unknown resets have resulted in an ambiguous initialization check.
+	 */
+	public function test_autoloader_with_ambiguous_initialization_check() {
+		// When including from another autoloader the latest version contains the new autoloader's version.
+		global $jetpack_autoloader_latest_version;
+		$jetpack_autoloader_latest_version = '2.6.0.0';
+		// Make sure the classmap is not empty to simulate the reset semantics of older autoloaders.
+		global $jetpack_packages_classmap;
+		$jetpack_packages_classmap = array(
+			AutoloadGenerator::class => array(
+				'version' => '2.4.0.0',
+				'path'    => '',
+			),
+		);
+
+		// The state we've set above simulates what the global state looks like when an older autoloader is
+		// including a newer one. This is not an inclusion from a plugin so it shouldn't be recorded as active.
+		$this->load_autoloader( 'plugin_current' );
+
+		$this->assertAutoloaderVersion( '2.6.0.0' );
+
+		$this->shutdown_autoloader( true );
+		// The cache should be empty because plugin_current was never loaded by a plugin.
+		$this->assertAutoloaderCache( array() );
+	}
+
+	/**
 	 * Generates a new autoloader from the current source files for the "plugin_current" plugin.
 	 *
 	 * @param string $plugin The plugin to generate the autoloader for.
@@ -323,6 +402,31 @@ class Test_Autoloader_Scenarios extends TestCase {
 		}
 
 		$active_plugins[] = $folder . '/' . $plugin . '.php';
+
+		add_test_option( 'active_plugins', $active_plugins );
+	}
+
+	/**
+	 * "Deactivate" a plugin so that the autoloader can't detect it.
+	 *
+	 * @param string $plugin The plugin we want to deactivate.
+	 * @param string $folder The folder that the plugin is in. If empty this will default to $plugin.
+	 */
+	private function deactivate_plugin( $plugin, $folder = '' ) {
+		$active_plugins = get_option( 'active_plugins' );
+		if ( ! $active_plugins ) {
+			$active_plugins = array();
+		}
+		if ( empty( $folder ) ) {
+			$folder = $plugin;
+		}
+
+		$key = array_search( $folder . '/' . $plugin . '.php', $active_plugins, true );
+		if ( false === $key ) {
+			return;
+		}
+
+		array_splice( $active_plugins, $key, 1 );
 
 		add_test_option( 'active_plugins', $active_plugins );
 	}
@@ -404,9 +508,12 @@ class Test_Autoloader_Scenarios extends TestCase {
 		// The cached plugins are always sorted!
 		sort( $paths );
 
-		$this->assertTrue(
-			test_has_transient( Plugins_Handler::TRANSIENT_KEY, $paths ),
-			'The autoloader cache does not match'
-		);
+		// Change "false" to an empty array so that the check is easily understood.
+		$transient = get_transient( Plugins_Handler::TRANSIENT_KEY );
+		if ( empty( $transient ) ) {
+			$transient = array();
+		}
+
+		$this->assertEquals( $paths, $transient, 'The autoloader cache does not match' );
 	}
 }

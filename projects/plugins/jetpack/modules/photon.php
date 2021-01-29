@@ -11,7 +11,7 @@
  * Feature: Recommended, Appearance
  * Additional Search Queries: photon, photo cdn, image cdn, speed, compression, resize, responsive images, responsive, content distribution network, optimize, page speed, image optimize, photon jetpack
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 \Automattic\Jetpack\Assets::add_resource_hint(

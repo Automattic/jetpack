@@ -2,7 +2,7 @@
 /**
  * Podcast Header Title template.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;

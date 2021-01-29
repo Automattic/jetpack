@@ -14,9 +14,16 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
-		entry: { search: path.join( __dirname, '../modules/search/instant-search/index.jsx' ) },
+		entry: {
+			main: path.join( __dirname, '../modules/search/instant-search/index.jsx' ),
+			'ie11-polyfill-loader': path.join(
+				__dirname,
+				'../modules/search/instant-search/ie11-polyfill.js'
+			),
+			'ie11-polyfill-payload': [ 'core-js', 'regenerator-runtime/runtime' ],
+		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
-		'output-filename': 'jp-search.bundle.js',
+		'output-filename': 'jp-search-[name].bundle.js',
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );
@@ -35,8 +42,13 @@ function requestToExternal( request ) {
 	return defaultRequestToExternal( request );
 }
 
+const moduleConfig = { ...baseWebpackConfig.module };
+// NOTE: tiny-lru publishes non-ES5 as a browser target. It's necessary to let babel-loader transpile this module.
+moduleConfig.rules[ 0 ].exclude = /[\\/]node_modules[\\/](?!(tiny-lru)[\\/])/;
+
 module.exports = {
 	...baseWebpackConfig,
+	module: moduleConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
 		alias: {
@@ -49,6 +61,9 @@ module.exports = {
 			path.resolve( __dirname, '../_inc/client' ),
 			path.resolve( __dirname, '../node_modules' ),
 		],
+	},
+	node: {
+		fs: 'empty',
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [

@@ -458,6 +458,14 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Behance',
 			),
 			array(
+				'url'   => array(
+					'blogger.com',
+					'blogspot.com',
+				),
+				'icon'  => 'blogger',
+				'label' => 'Blogger',
+			),
+			array(
 				'url'   => array( 'codepen.io' ),
 				'icon'  => 'codepen',
 				'label' => 'CodePen',
@@ -493,6 +501,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Etsy',
 			),
 			array(
+				'url'   => array( 'eventbrite.com' ),
+				'icon'  => 'eventbrite',
+				'label' => 'Eventbrite',
+			),
+			array(
 				'url'   => array( 'facebook.com' ),
 				'icon'  => 'facebook',
 				'label' => 'Facebook',
@@ -506,6 +519,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'foursquare.com' ),
 				'icon'  => 'foursquare',
 				'label' => 'Foursquare',
+			),
+			array(
+				'url'   => array( 'ghost.org' ),
+				'icon'  => 'ghost',
+				'label' => 'Ghost',
 			),
 			array(
 				'url'   => array( 'goodreads.com' ),
@@ -618,6 +636,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Telegram',
 			),
 			array(
+				'url'   => array( 'tiktok.com' ),
+				'icon'  => 'tiktok',
+				'label' => 'TikTok',
+			),
+			array(
 				'url'   => array( 'tumblr.com' ),
 				'icon'  => 'tumblr',
 				'label' => 'Tumblr',
@@ -643,6 +666,16 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'VK',
 			),
 			array(
+				'url'   => array( 'whatsapp.com' ),
+				'icon'  => 'whatsapp',
+				'label' => 'WhatsApp',
+			),
+			array(
+				'url'   => array( 'woocommerce.com' ),
+				'icon'  => 'woocommerce',
+				'label' => 'WooCommerce',
+			),
+			array(
 				'url'   => array( 'wordpress.com', 'wordpress.org' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
@@ -651,6 +684,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'yelp.com' ),
 				'icon'  => 'yelp',
 				'label' => 'Yelp',
+			),
+			array(
+				'url'   => array( 'xanga.com' ),
+				'icon'  => 'xanga',
+				'label' => 'Xanga',
 			),
 			array(
 				'url'   => array( 'youtube.com' ),

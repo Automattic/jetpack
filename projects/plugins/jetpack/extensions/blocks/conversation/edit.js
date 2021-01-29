@@ -2,13 +2,13 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useCallback } from '@wordpress/element';
+import { useEffect, useCallback, useMemo } from '@wordpress/element';
 import {
 	InnerBlocks,
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { Panel, PanelBody, ToggleControl, ToolbarGroup } from '@wordpress/components';
+import { Panel, PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -27,7 +27,7 @@ const TRANSCRIPTION_TEMPLATE = [
 ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
-	const { participants = [], showTimestamps, className: classNameAttr } = attributes;
+	const { participants = [], showTimestamps } = attributes;
 
 	// Set initial conversation participants.
 	useEffect( () => {
@@ -54,9 +54,11 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
+	const setBlockAttributes = useCallback( setAttributes, [] );
+
 	// Context bridge.
-	const contextProvision = {
-		setAttributes,
+	const contextProvision = useMemo( () => ( {
+		setAttributes: setBlockAttributes,
 		updateParticipants,
 		getParticipantIndex: slug => participants.map( part => part.participantSlug ).indexOf( slug ),
 		getNextParticipantIndex: ( slug, offset = 0 ) =>
@@ -66,9 +68,8 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 
 		attributes: {
 			showTimestamps,
-			classNameAttr,
 		},
-	};
+	} ), [ participants, setBlockAttributes, showTimestamps, updateParticipants ] );
 
 	function deleteParticipant( deletedParticipantSlug ) {
 		setAttributes( {
@@ -112,6 +113,15 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 							onDelete={ deleteParticipant }
 							onAdd={ addNewParticipant }
 						/>
+					</ToolbarGroup>
+
+					<ToolbarGroup>
+						<ToolbarButton
+							isActive={ showTimestamps }
+							onClick={ () => setAttributes( { showTimestamps: ! showTimestamps } ) }
+						>
+							{ __( 'Timestamps', 'jetpack' ) }
+						</ToolbarButton>
 					</ToolbarGroup>
 				</BlockControls>
 

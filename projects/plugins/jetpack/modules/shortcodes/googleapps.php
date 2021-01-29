@@ -33,7 +33,7 @@
  * Generic
  * <iframe src="https://docs.google.com/file/d/0B0SIdZW7iu-zX1RWREJpMXVHZVU/preview" width="640" height="480"></iframe>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_filter( 'pre_kses', 'googleapps_embed_to_shortcode' );

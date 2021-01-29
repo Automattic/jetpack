@@ -10,7 +10,7 @@
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar, colorschemes
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;

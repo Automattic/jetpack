@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _n } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -110,10 +110,25 @@ class JetpackTerminationDialogFeatures extends Component {
 
 	render() {
 		const { isDevVersion, purpose, siteBenefits, connectedPlugins } = this.props;
-
 		const siteBenefitCount = siteBenefits.length;
-
 		const jetpackSupportURl = isDevVersion ? JETPACK_CONTACT_BETA_SUPPORT : JETPACK_CONTACT_SUPPORT;
+
+		const connectedPluginsTitle =
+			1 === connectedPlugins.length
+				? __(
+						'The Jetpack Connection is also used by another plugin, and it will lose connection.',
+						'jetpack'
+				  )
+				: sprintf(
+						/* translators: placeholder is a number. */
+						_n(
+							'The Jetpack Connection is also used by %d other plugin, and it will lose connection.',
+							'The Jetpack Connection is also used by %d other plugins, and they will lose connection.',
+							connectedPlugins.length,
+							'jetpack'
+						),
+						connectedPlugins.length
+				  );
 
 		return (
 			<Card className="jetpack-termination-dialog__features">
@@ -164,14 +179,7 @@ class JetpackTerminationDialogFeatures extends Component {
 				) }
 				{ connectedPlugins.length > 0 && (
 					<div className="jetpack-termination-dialog__generic-info">
-						<h2>
-							{ _n(
-								'The Jetpack Connection is also used by another plugin, and it will lose connection.',
-								'The Jetpack Connection is also used by other plugins, and they will lose connection.',
-								connectedPlugins.length,
-								'jetpack'
-							) }
-						</h2>
+						<h2>{ connectedPluginsTitle }</h2>
 						{ this.renderConnectedPlugins( connectedPlugins ) }
 					</div>
 				) }

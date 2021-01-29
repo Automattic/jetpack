@@ -9,7 +9,7 @@
  *
  * add_theme_support( 'jetpack-devicepx' );
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**
