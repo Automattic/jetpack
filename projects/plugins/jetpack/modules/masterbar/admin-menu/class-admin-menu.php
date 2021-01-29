@@ -366,10 +366,9 @@ class Admin_Menu {
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_appearance_menu( $wp_admin = false ) {
+	public function add_appearance_menu( $wp_admin = false, $customize_slug ) {
 		$user_can_customize = current_user_can( 'customize' );
 		$appearance_cap     = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
-		$customize_slug     = $wp_admin ? 'customize.php' : 'https://wordpress.com/customize/' . $this->domain;
 		$themes_slug        = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
 		$customize_url      = add_query_arg( 'return', urlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore
 		remove_menu_page( 'themes.php' );
