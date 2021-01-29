@@ -30,7 +30,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::rest_api_init();
 
 		// Get domain for requested site.
-		$this->domain = ( new Status() )->get_site_suffix();
+		$this->domain          = ( new Status() )->get_site_suffix();
+		$this->$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 	}
 
 	/**
