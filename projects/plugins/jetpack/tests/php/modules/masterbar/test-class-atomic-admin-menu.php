@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
 require_jetpack_file( 'modules/masterbar/admin-menu/class-atomic-admin-menu.php' );
 require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
 

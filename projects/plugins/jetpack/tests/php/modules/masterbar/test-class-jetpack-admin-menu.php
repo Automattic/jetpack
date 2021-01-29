@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
 require_jetpack_file( 'modules/masterbar/admin-menu/class-jetpack-admin-menu.php' );
 require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
 
@@ -160,7 +159,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_appearance_menu
 	 */
-	public function add_appearance_menu() {
+	public function test_add_appearance_menu() {
 		global $submenu;
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
