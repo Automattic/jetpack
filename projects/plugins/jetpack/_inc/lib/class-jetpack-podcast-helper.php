@@ -256,7 +256,7 @@ class Jetpack_Podcast_Helper {
 	public static function reset_simplepie_cache( &$feed ) {
 		// Retrieve the cache object for a feed url. Based on:
 		// https://github.com/WordPress/WordPress/blob/fd1c2cb4011845ceb7244a062b09b2506082b1c9/wp-includes/class-simplepie.php#L1412.
-		$cache = $feed->registry->call( 'Cache', 'get_handler', array( $feed->cache_location, call_user_func( $feed->cache_name_function, $feed->url ), 'spc' ) );
+		$cache = $feed->registry->call( 'Cache', 'get_handler', array( $feed->cache_location, call_user_func( $feed->cache_name_function, $feed->feed_url ), 'spc' ) );
 
 		if ( method_exists( $cache, 'unlink' ) ) {
 			$cache->unlink();
