@@ -318,7 +318,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			>
 				<?php
 				if ( ! $show_only_email_and_button ) {
-					echo wpautop( $subscribe_text );
+					echo esc_html( $subscribe_text );
 				}
 				if ( $show_subscribers_total && $subscribers_total ) {
 					?>
@@ -366,7 +366,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							? esc_attr( $email_field_styles )
 							: 'width: 95%; padding: 1px 10px'
 						),
-						esc_attr__( 'Enter your email address' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- This is only used on WordPress.com.
+						esc_attr__( 'Enter your email address', 'jetpack' ),
 						esc_attr( $email_field_id )
 					);
 					?>
