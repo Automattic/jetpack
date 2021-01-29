@@ -53,4 +53,8 @@ describe( 'projectHelpers', function () {
 		// Confirms the type/project style.
 		chai.expect( allProjects() ).to.contain( 'packages/abtest' );
 	} );
+	it( 'allProjects should contain prefixed github-actions', function () {
+		// Confirms the type/project style.
+		chai.expect( allProjects() ).to.contain( 'github-actions/push-to-mirrors' );
+	} );
 } );
