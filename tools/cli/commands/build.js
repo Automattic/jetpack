@@ -25,7 +25,7 @@ async function buildRouter( options ) {
 	};
 
 	if ( options.project ) {
-		const data = await readComposerJson( options.project );
+		const data = await readComposerJson( options.project, true );
 		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );
@@ -40,12 +40,18 @@ async function buildRouter( options ) {
  * @param {object} composerJson - The project's composer.json file, parsed.
  */
 export async function build( project, production, composerJson ) {
-	const buildDev = composerJson.scripts[ 'build-development' ]
-		? 'composer build-development'
-		: null;
-	const buildProd = composerJson.scripts[ 'build-production' ] ? 'composer build-production' : null;
-	// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
-	const command = production ? buildProd || buildDev : buildDev || buildProd;
+	let command = false;
+
+	if ( composerJson.scripts ) {
+		const buildDev = composerJson.scripts[ 'build-development' ]
+			? 'composer build-development'
+			: null;
+		const buildProd = composerJson.scripts[ 'build-production' ]
+			? 'composer build-production'
+			: null;
+		// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
+		command = production ? buildProd || buildDev : buildDev || buildProd;
+	}
 
 	if ( ! command ) {
 		// If neither build step is defined, abort.
