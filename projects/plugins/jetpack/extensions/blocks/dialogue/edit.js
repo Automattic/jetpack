@@ -52,7 +52,7 @@ export default function DialogueEdit( {
 	onReplace,
 	mergeBlocks,
 } ) {
-	const { participant, timestamp, content, placeholder } = attributes;
+	const { content, participant, placeholder, showTimestamp, timestamp } = attributes;
 	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 	const richTextRef = useRef();
 	const baseClassName = 'wp-block-jetpack-dialogue';
@@ -69,7 +69,7 @@ export default function DialogueEdit( {
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showTimestamp = context[ 'jetpack/conversation-showTimestamps' ];
+	const showConversationTimestamps = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length
@@ -102,12 +102,17 @@ export default function DialogueEdit( {
 		} );
 	}, [ participant, participants, prevBlock, setAttributes, conversationBridge ] );
 
-	// Update dialog participant with conversation participant changes
+	// Update dialog participant with conversation participant changes.
 	useEffect( () => {
 		if ( ! isEqual( conversationParticipant, participant ) ) {
 			setAttributes( { participant: conversationParticipant } );
 		}
 	}, [ conversationParticipant, participant, setAttributes ] );
+
+	// Update dialogue timestamp setting from parent conversation.
+	useEffect( () => {
+		setAttributes( { showTimestamp: showConversationTimestamps } );
+	}, [ showConversationTimestamps, setAttributes ] );
 
 	// Update participant slug in case
 	// the participant is removed globally.
@@ -137,7 +142,7 @@ export default function DialogueEdit( {
 		} );
 	}
 
-	function setShowTimestamp( value ) {
+	function setShowConversationTimestamps( value ) {
 		conversationBridge.setAttributes( { showTimestamps: value } );
 	}
 
@@ -209,7 +214,7 @@ export default function DialogueEdit( {
 						<ToggleControl
 							label={ __( 'Show conversation timestamps', 'jetpack' ) }
 							checked={ showTimestamp }
-							onChange={ setShowTimestamp }
+							onChange={ setShowConversationTimestamps }
 						/>
 
 						{ showTimestamp && (

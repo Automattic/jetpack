@@ -6,6 +6,10 @@ export default {
 		type: 'string',
 		default: '00:00',
 	},
+	showTimestamp: {
+		type: 'boolean',
+		default: false,
+	},
 	placeholder: {
 		type: 'string',
 	},

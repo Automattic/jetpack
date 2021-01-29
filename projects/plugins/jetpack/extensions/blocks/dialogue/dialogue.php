@@ -196,8 +196,10 @@ function build_participant_css_classes( $participants, $slug, $attrs, $css_class
  *
  * @return string
  */
-function render_block( $attrs, $block_content, $block ) {
+function render_block( $attrs, $content, $block ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+	return $content;
 
 	// Pick up conversation data from context.
 	$default_participants = json_decode(
