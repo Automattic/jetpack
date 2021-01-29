@@ -99,7 +99,7 @@ class Admin_Menu {
 		$this->add_testimonials_menu( $wp_admin );
 		$this->add_portfolio_menu( $wp_admin );
 		$this->add_comments_menu( $wp_admin );
-		$this->add_appearance_menu( $wp_admin, '' );
+		$this->add_appearance_menu( '', $wp_admin );
 		$this->add_plugins_menu();
 		$this->add_users_menu( $wp_admin );
 		$this->add_tools_menu( $wp_admin );
@@ -364,10 +364,10 @@ class Admin_Menu {
 	/**
 	 * Adds Appearance menu.
 	 *
-	 * @param Bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 * @param String $customize_slug Whether customizer links should point to Calypso or wp-admin.
+	 * @param Bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_appearance_menu( $wp_admin = false, $customize_slug ) {
+	public function add_appearance_menu( $customize_slug, $wp_admin = false ) {
 		$user_can_customize = current_user_can( 'customize' );
 		$appearance_cap     = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
 		$themes_slug        = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
