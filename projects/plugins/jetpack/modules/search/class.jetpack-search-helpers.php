@@ -179,7 +179,7 @@ class Jetpack_Search_Helpers {
 				}
 
 				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
-				$key = sprintf( '%s_%d', $type, count( $filters ) );
+				$key  = sprintf( '%s_%d', $type, count( $filters ) );
 
 				$filters[ $key ] = $widget_filter;
 			}
