@@ -23,6 +23,9 @@
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
+		"test-php": [
+			"@composer phpunit"
+		],
 		"core-calls": [
 			"Automattic\\Jetpack\\Analyzer\\CoreCalls::callback"
 		],

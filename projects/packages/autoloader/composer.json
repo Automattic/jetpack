@@ -21,6 +21,9 @@
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
 		]
 	},
 	"minimum-stability": "dev",
