@@ -269,30 +269,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_upgrades_menu
 	 */
 	public function test_add_wpcom_upgrades_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
-
-		$slug = 'https://wordpress.com/plans/' . static::$domain;
-
-		$upgrades_menu_item = array(
-			'Upgrades',
-			'manage_options',
-			$slug,
-			'Upgrades',
-			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'dashicons-cart',
-		);
-		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
-
-		$plans_submenu_item = array(
-			'Plans',
-			'manage_options',
-			$slug,
-			'Plans',
-		);
-		$this->assertContains( $plans_submenu_item, $submenu[ $slug ] );
 
 		$domains_submenu_item = array(
 			'Domains',
@@ -300,84 +279,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			'https://wordpress.com/domains/manage/' . static::$domain,
 			'Domains',
 		);
-		$this->assertContains( $domains_submenu_item, $submenu[ $slug ] );
-
-		$purchases_submenu_item = array(
-			'Purchases',
-			'manage_options',
-			'https://wordpress.com/purchases/subscriptions/' . static::$domain,
-			'Purchases',
-		);
-		$this->assertContains( $purchases_submenu_item, $submenu[ $slug ] );
-	}
-
-	/**
-	 * Tests add_users_menu
-	 *
-	 * @covers ::add_users_menu
-	 */
-	public function test_add_users_menu() {
-		global $menu, $submenu;
-
-		// Current user can't list users.
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
-		$menu = array();
-
-		static::$admin_menu->add_users_menu( false );
-
-		$this->assertEmpty( $menu );
-
-		// Reset.
-		wp_set_current_user( static::$user_id );
-		$menu = static::$menu_data;
-
-		static::$admin_menu->add_users_menu( false );
-
-		$slug = 'https://wordpress.com/people/team/' . static::$domain;
-
-		$users_menu_item = array(
-			'Users',
-			'list_users',
-			$slug,
-			'Users',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $users_menu_item );
-		$this->assertEmpty( $submenu['users.php'] );
-
-		$all_people_submenu_item = array(
-			'All People',
-			'list_users',
-			$slug,
-			'All People',
-		);
-		$this->assertContains( $all_people_submenu_item, $submenu[ $slug ] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'promote_users',
-			'https://wordpress.com/people/new/' . static::$domain,
-			'Add New',
-		);
-		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
-
-		$profile_submenu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-		);
-		$this->assertContains( $profile_submenu_item, $submenu[ $slug ] );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu[ $slug ] );
+		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/plans/' . static::$domain ] );
 	}
 
 	/**
@@ -386,72 +288,18 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( false );
-
-		$tools_menu_item = array(
-			'Tools',
-			'manage_options',
-			$slug,
-			'Tools',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-tools',
-		);
-
-		$this->assertSame( $menu[75], $tools_menu_item );
-		$this->assertArrayNotHasKey( 'tools.php', $submenu );
-
-		// Contains the following menu items.
-
-		$marketing_submenu_item = array(
-			'Marketing',
-			'manage_options',
-			'https://wordpress.com/marketing/tools/' . static::$domain,
-			'Marketing',
-		);
-		$this->assertContains( $marketing_submenu_item, $submenu[ $slug ] );
-
-		$earn_submenu_item = array(
-			'Earn',
-			'manage_options',
-			'https://wordpress.com/earn/' . static::$domain,
-			'Earn',
-		);
-		$this->assertContains( $earn_submenu_item, $submenu[ $slug ] );
-
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'https://wordpress.com/import/' . static::$domain,
-			'Import',
-		);
-		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
+		static::$admin_menu->add_tools_menu( false, false );
 
 		$export_submenu_item = array(
 			'Export',
 			'export',
 			'export.php',
+			'Export',
 		);
 		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
-
-		// NOT contains the following menu items.
-
-		$tools_submenu_item = array(
-			'Available Tools',
-			'edit_posts',
-			'tools.php',
-		);
-		$this->assertNotContains( $tools_submenu_item, $submenu[ $slug ] );
-
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'import.php',
-		);
-		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
@@ -465,17 +313,17 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
 		static::$admin_menu->add_options_menu( false );
 
-		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
-		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
-
-		$general_submenu_item = array(
-			'General',
-			'manage_options',
-			$slug,
-			'General',
-		);
-		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
-
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
+	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $menu;
+
+		$this->assertContains( 'plugins.php', $menu[65] );
 	}
 }
