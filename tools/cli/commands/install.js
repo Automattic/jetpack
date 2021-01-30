@@ -9,16 +9,18 @@ import Listr from 'listr';
  */
 import { promptForProject } from '../helpers/promptForProject.js';
 import { installProjectTask } from '../helpers/tasks/installProjectTask';
+import { allProjects } from '../helpers/projectHelpers';
 
 /**
  * Installs a project.
  *
  * @param {string} project - The project.
  * @param {boolean} root - If the monorepo should be installed via --root arg.
+ * @param {boolean} all -- If everything should be installed.
  */
-export async function install( project, root = false ) {
+export async function install( project, root = false, all = false ) {
 	// Special hack for installing just the monorepo.
-	if ( project === 'monorepo' ) {
+	if ( project === 'monorepo' || all ) {
 		project = '';
 		root = true;
 	}
@@ -26,6 +28,12 @@ export async function install( project, root = false ) {
 	const tasks = [];
 	root ? tasks.push( installProjectTask( project, root ) ) : null;
 	project ? tasks.push( installProjectTask( project ) ) : null;
+
+	if ( all ) {
+		allProjects().forEach( item => {
+			tasks.push( installProjectTask( item ) );
+		} );
+	}
 
 	const installs = new Listr( tasks, { concurrent: true } );
 
@@ -40,15 +48,19 @@ export async function install( project, root = false ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function installCli( argv ) {
-	argv = await promptForProject( argv );
 	argv = {
 		...argv,
 		project: argv.project || '',
 		root: argv.root || false,
+		all: argv.all || false,
 	};
 
-	if ( argv.project || argv.root ) {
-		await install( argv.project, argv.root );
+	if ( ! argv.root && ! argv.all ) {
+		argv = await promptForProject( argv );
+	}
+
+	if ( argv.project || argv.root || argv.all ) {
+		await install( argv.project, argv.root, argv.all );
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );
 	}
@@ -75,6 +87,11 @@ export function installDefine( yargs ) {
 					alias: 'r',
 					type: 'boolean',
 					description: 'Install the monorepo dependencies',
+				} )
+				.option( 'all', {
+					alias: 'a',
+					type: 'boolean',
+					description: 'Installs everything',
 				} );
 		},
 		async argv => {
