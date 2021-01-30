@@ -160,7 +160,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changed projects
-        uses: ./projects/github-actions/push-to-mirrors
+        uses: ${{ github.workspace }}/monorepo/projects/github-actions/push-to-mirrors
         with:
           release-branch-infix: /branch-
           source-directory: ${{ github.workspace }}/monorepo
