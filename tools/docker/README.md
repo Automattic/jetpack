@@ -69,6 +69,7 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 * `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
 * `PORT_SMTP`: (default=`25`) The port on your host machine connected to the MailDev container's SMTP server.
 * `PORT_SFTP`: (default=`1022`) The port on your host machine connected to the SFTP container's SFTP server.
+* `POST_DB`: (default=`3306`) The port on your host machine connected to the MySQL database container.
 
 ### Container Environments
 

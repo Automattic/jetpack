@@ -17,6 +17,8 @@ services:
       - ./logs/mysql:/var/log/mysql
       - ./config/mysql.conf:/etc/mysql/conf.d/docker.cnf
     restart: always
+    ports:
+      - "${PORT_DB:-3306}:3306"
     env_file:
       - default.env
       - .env
