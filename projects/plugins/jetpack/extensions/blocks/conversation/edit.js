@@ -9,6 +9,7 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { Panel, PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { create, getTextContent } from '@wordpress/rich-text';
 
 /**
  * Internal dependencies
@@ -45,9 +46,11 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 					if ( participant.participantSlug !== updatedParticipant.participantSlug ) {
 						return participant;
 					}
+
 					return {
 						...participant,
 						...updatedParticipant,
+						participantPlain: getTextContent( create( { html: participant.participant } ) ),
 					};
 				} ),
 			} ),
@@ -62,6 +65,11 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 	}, [ participants, setAttributes ] );
 
+	const getParticipantByValue = useCallback( function ( participantValue ) {
+		const part = participants.filter( ( { participant } ) => ( participant.toLowerCase() === participantValue.toLowerCase() ) );
+		return part?.length ? part[ 0 ] : null;
+	}, [ participants ] );
+
 	const addNewParticipant = useCallback( function( newSpakerValue ) {
 		const newParticipantSlug = participants.length
 			? participants[ participants.length - 1 ].participantSlug.replace(
@@ -70,9 +78,18 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			  )
 			: 'speaker-0';
 
+		const participantPlain = getTextContent( create( { html: newSpakerValue } ) );
+
+		// We don't want to duplicate participants.
+		const participantExist = getParticipantByValue( participantPlain );
+		if ( participantExist ) {
+			return;
+		}
+
 		const newParticipant = {
 			participant: newSpakerValue,
 			participantSlug: newParticipantSlug,
+			participantPlain,
 			hasBoldStyle: true,
 		};
 
@@ -84,7 +101,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 
 		return newParticipant;
-	}, [ participants, setAttributes ] );
+	}, [getParticipantByValue, participants, setAttributes] );
 
 	const setBlockAttributes = useCallback( setAttributes, [] );
 
@@ -102,6 +119,8 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		getPrevParticipantSlug: ( slug, offset = -2 ) =>
 			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
 
+		getParticipantByValue,
+
 		attributes: {
 			showTimestamps,
 		},
@@ -112,6 +131,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		showTimestamps,
 		updateParticipants,
 		addNewParticipant,
+		getParticipantByValue,
 	] );
 
 	const baseClassName = 'wp-block-jetpack-conversation';

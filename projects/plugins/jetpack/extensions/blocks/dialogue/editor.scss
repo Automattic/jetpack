@@ -29,10 +29,6 @@
 .wp-block-jetpack-dialogue__participants {
 	display: flex;
 
-	> div {
-		display: flex;
-	}
-
 	.wp-block-jetpack-dialogue__participants-selector {
 		display: inline-flex;
 
@@ -49,14 +45,17 @@
 		display: inline-flex;
 		align-items: center;
 		height: 40px;
-
-		.components-base-control,
-		.components-base-control__field {
-			margin-bottom: 0;
-		}
+		width: 100%;
 
 		.components-button {
 			margin-left: 8px;
+
+			&.add-participant {
+				flex-grow: 2;
+				margin:0
+			};
 		}
 	}
 }
+
+

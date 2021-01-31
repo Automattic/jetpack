@@ -61,7 +61,7 @@ function convert_time_code_to_seconds( $time ) {
 function check_dialogue_attrs( $attrs, $block ) {
 	return array(
 		'slug'           => isset( $attrs['participantSlug'] ) ? $attrs['participantSlug'] : null,
-		'label'          => isset( $attrs['participant'] ) ? $attrs['participant'] : null,
+		'label'          => isset( $attrs['participant'] ) ? wp_kses_post( $attrs['participant'] ) : null,
 		'timestamp'      => isset( $attrs['timestamp'] ) ? esc_attr( $attrs['timestamp'] ) : '00:00',
 		'show_timestamp' => isset( $block->context['jetpack/conversation-showTimestamps'] ),
 	);

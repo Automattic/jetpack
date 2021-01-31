@@ -1,4 +1,7 @@
 export default {
+	participant: {
+		type: 'string',
+	},
 	participantSlug: {
 		type: 'string',
 	},

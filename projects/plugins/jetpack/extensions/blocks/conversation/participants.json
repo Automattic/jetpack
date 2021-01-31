@@ -3,18 +3,18 @@
 	"list": [
 		{
 			"participantSlug": "participant-0",
-			"participant": "Participant 1",
-			"hasBoldStyle": true
+			"participant": "Speaker 1",
+			"participantPlain": "Speaker"
 		},
 		{
 			"participantSlug": "participant-1",
-			"participant": "Participant 2",
-			"hasBoldStyle": true
+			"participant": "Speaker 2",
+			"participantPlain": "Speaker"
 		},
 		{
 			"participantSlug": "participant-2",
-			"participant": "Participant 3",
-			"hasBoldStyle": true
+			"participant": "Speaker 3",
+			"participantPlain": "Speaker"
 		}
 	]
 }

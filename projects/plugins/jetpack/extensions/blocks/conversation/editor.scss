@@ -8,13 +8,6 @@ $participant-height: 30px;
 }
 
 .wp-block-jetpack-conversation__participant {
-	display: flex;
-
-	.components-base-control {
-		margin-bottom: 5px;
-		flex-grow: 2;
-	}
-
 	.components-button {
 		height: $participant-height;
 		line-height: $participant-height;
