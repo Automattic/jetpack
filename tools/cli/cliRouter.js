@@ -13,8 +13,7 @@ import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
 import { changelogDefine } from './commands/changelog';
-
-// import { dockerDefine } from "./commands/docker";
+import { dockerDefine } from './commands/docker';
 
 /**
  * The main CLI router function.
@@ -33,7 +32,7 @@ export async function cli() {
 	argv = buildDefine( argv );
 	argv = changelogDefine( argv );
 	argv = cliDefine( argv );
-	// argv = dockerDefine( argv );
+	argv = dockerDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
 	argv = watchDefine( argv );
