@@ -53,6 +53,7 @@ function AudioPlayer( {
 	preload = 'metadata',
 } ) {
 	const audioRef = useRef();
+	const containerRef = useRef();
 
 	/**
 	 * Play current audio.
@@ -74,16 +75,37 @@ function AudioPlayer( {
 		speak( __( 'Paused', 'jetpack' ), 'assertive' );
 	};
 
+	// Hacky patch to MediaElementPlayer to avoid the null reference error that can happen as the
+	// player is mounted and unmounted.
 	useEffect( () => {
-		const audio = audioRef.current;
+		if ( ! MediaElementPlayer.prototype._setResponsiveMode ) {
+			MediaElementPlayer.prototype._setResponsiveMode =
+				MediaElementPlayer.prototype.setResponsiveMode;
+			MediaElementPlayer.prototype.setResponsiveMode = function () {
+				const t = this;
+				if ( t.getElement( t.container ).parentNode ) {
+					t._setResponsiveMode();
+				}
+			};
+		}
+	}, [] );
+
+	useEffect( () => {
+		const container = containerRef.current;
+		const audioEl = document.createElement( 'audio' );
+		audioEl.src = trackSource;
 
 		// Pre load audio meta data.
-		audio.preload = preload;
+		audioEl.preload = preload;
 
-		const mediaElement = new MediaElementPlayer( audio, {
+		// Insert player into the DOM.
+		container.appendChild( audioEl );
+		const mediaElement = new MediaElementPlayer( audioEl, {
 			...meJsSettings,
 			success: () => loadWhenReady && audio?.load()
 		} );
+		audioRef.current = mediaElement.domNode;
+		const audio = audioRef.current;
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -112,14 +134,13 @@ function AudioPlayer( {
 
 		return () => {
 			// Cleanup.
-			mediaElement.remove();
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
 			onMetadataLoaded && audio.removeEventListener( 'loadedmetadata', onMetadataLoaded );
+			mediaElement.remove();
 		};
 	}, [
-		audioRef,
 		onPlay,
 		onPause,
 		onError,
@@ -128,6 +149,7 @@ function AudioPlayer( {
 		onMetadataLoaded,
 		loadWhenReady,
 		preload,
+		trackSource,
 	] );
 
 	// If we get lots of events from clicking on the progress bar in the MediaElement
@@ -185,12 +207,7 @@ function AudioPlayer( {
 		}
 	}, [ audioRef, currentTime ] );
 
-	return (
-		<div className="jetpack-audio-player">
-			{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
-			<audio src={ trackSource } ref={ audioRef }></audio>
-		</div>
-	);
+	return <div className="jetpack-audio-player" ref={ containerRef } />;
 }
 
 export default AudioPlayer;
