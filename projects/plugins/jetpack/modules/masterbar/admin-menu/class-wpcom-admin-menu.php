@@ -20,7 +20,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	protected function __construct() {
 		parent::__construct();
 
-		$this->$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 	}
 
 	/**
@@ -31,7 +31,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Get domain for requested site.
 		$this->domain          = ( new Status() )->get_site_suffix();
-		$this->$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 	}
 
 	/**
