@@ -471,7 +471,7 @@ class Manager {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
-		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
+		if ( ! ( new Nonce_Handler() )->add( $timestamp, $nonce ) ) {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
