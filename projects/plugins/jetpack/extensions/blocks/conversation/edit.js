@@ -72,17 +72,11 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		() => ( {
 			setAttributes: setBlockAttributes,
 			updateParticipants,
-			getParticipantIndex: slug => participants.map( part => part.slug ).indexOf( slug ),
-			getNextParticipantIndex: ( slug, offset = 0 ) =>
-				( contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
-			getNextParticipant: ( slug, offset = 0 ) =>
-				participants[ contextProvision.getNextParticipantIndex( slug, offset ) ],
-
 			attributes: {
 				showTimestamps,
 			},
 		} ),
-		[ participants, setBlockAttributes, showTimestamps, updateParticipants ]
+		[ setBlockAttributes, showTimestamps, updateParticipants ]
 	);
 
 	function deleteParticipant( deletedParticipantSlug ) {
@@ -101,7 +95,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 				{
 					label: newSpakerValue,
 					slug: newParticipantSlug,
-					hasBoldStyle: true,
 				},
 			],
 		} );
