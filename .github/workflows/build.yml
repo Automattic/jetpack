@@ -149,6 +149,7 @@ jobs:
 
       - name: Filter mirror list for release branch
         if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
         env:
           BUILD_BASE: ${{ github.workspace }}/build
         run: .github/files/filter-mirrors-for-release-branch.sh
@@ -160,9 +161,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changed projects
-        uses: ${{ github.workspace }}/monorepo/projects/github-actions/push-to-mirrors
+        uses: ./monorepo/projects/github-actions/push-to-mirrors
         with:
-          release-branch-infix: /branch-
           source-directory: ${{ github.workspace }}/monorepo
           token: ${{ secrets.API_TOKEN_GITHUB }}
           username: matticbot
