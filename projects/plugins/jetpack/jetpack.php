@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Jetpack Test 2 by WordPress.com
+ * Plugin Name: Jetpack Test 5 by WordPress.com
  * Plugin URI: https://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
