@@ -28,7 +28,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 *
 	 * @param WP_REST_Response $response Response from the endpoint.
 	 */
-	public function rest_api_init( $response  ) {
+	public function rest_api_init( $response ) {
 		parent::rest_api_init( $response );
 
 		// Get domain for requested site.
