@@ -25,7 +25,6 @@ import {
 	writeBlockFixtureSerializedHTML,
 	setFixturesDir,
 } from './block-fixture-utils';
-import { forEach } from 'core-js/fn/array';
 
 /* eslint-disable no-console */
 console.warn = jest.fn();
