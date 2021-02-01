@@ -5,7 +5,7 @@ import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/com
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState, Fragment } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
 import {
 	__experimentalUseFocusOutside as useFocusOutside,
 } from '@wordpress/compose';
@@ -200,7 +200,7 @@ export function ParticipantsRichControl( {
 	}, [ participants ] );
 
 	return (
-		<Fragment { ...focusOutsideProps }>
+		<div { ...focusOutsideProps }>
 			<RichText
 				tagName="div"
 				value={ value }
@@ -226,6 +226,6 @@ export function ParticipantsRichControl( {
 				} }
 				autocompleters={ addAutocomplete ? autocompleter : [] }
 			/>
-		</Fragment>
+		</div>
 	);
 }
