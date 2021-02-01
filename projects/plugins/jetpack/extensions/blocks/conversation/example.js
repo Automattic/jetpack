@@ -6,16 +6,12 @@ import { __ } from '@wordpress/i18n';
 
 const participants = [
 	{
-		slug: 'participant-0',
-		label: 'Rosalind',
-		hasBoldStyle: true,
-		hasUppercaseStyle: true,
+		participantSlug: 'participant-0',
+		participantLabel: 'Rosalind',
 	},
 	{
-		slug: 'participant-1',
-		label: 'Orlando',
-		hasItalicStyle: true,
-		hasUppercaseStyle: true,
+		participantSlug: 'participant-1',
+		participantLabel: 'Orlando',
 	},
 ];
 

@@ -6,7 +6,7 @@ import { RichText } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
-import { BASE_CLASS_NAME, getParticipantLabelClass } from './utils';
+import { BASE_CLASS_NAME } from './utils';
 
 /**
  * Convert a time code string into seconds.
@@ -26,13 +26,13 @@ function convertTimeCodeToSeconds( timeCode ) {
 }
 
 export default function save( { attributes } ) {
-	const { content, participant, showTimestamp, timestamp } = attributes;
+	const { content, participantLabel, showTimestamp, timestamp } = attributes;
 
 	return (
 		<div>
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
-				<div className={ getParticipantLabelClass( BASE_CLASS_NAME, participant ) }>
-					{ participant.label }
+				<div className={ `${ BASE_CLASS_NAME }__participant` }>
+					{ participantLabel }
 				</div>
 				{ showTimestamp && (
 					<div className={ `${ BASE_CLASS_NAME }__timestamp` }>

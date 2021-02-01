@@ -23,9 +23,18 @@ import { list as defaultParticipants } from './participants.json';
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
-	[ 'jetpack/dialogue', { participant: defaultParticipants[ 0 ] } ],
-	[ 'jetpack/dialogue', { participant: defaultParticipants[ 1 ] } ],
-	[ 'jetpack/dialogue', { participant: defaultParticipants[ 2 ] } ],
+	[ 'jetpack/dialogue', {
+		participantLabel: defaultParticipants[ 0 ].label,
+		participantSlug: defaultParticipants[ 0 ].slug,
+	} ],
+	[ 'jetpack/dialogue', {
+		participantLabel: defaultParticipants[ 1 ].label,
+		participantSlug: defaultParticipants[ 1 ].slug,
+	} ],
+	[ 'jetpack/dialogue', {
+		participantLabel: defaultParticipants[ 2 ].label,
+		participantSlug: defaultParticipants[ 2 ].slug,
+	} ],
 ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
