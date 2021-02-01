@@ -26,6 +26,10 @@ class Jetpack_Recommendations {
 			return false;
 		}
 
+		if ( jetpack_is_atomic_site() ) {
+			return false;
+		}
+
 		self::initialize_jetpack_recommendations();
 
 		return true;
