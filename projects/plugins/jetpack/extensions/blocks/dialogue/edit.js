@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { find, isEqual } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -15,16 +10,15 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
-	Button,
 } from '@wordpress/components';
-import { useContext, useState, useEffect, useRef } from '@wordpress/element';
+import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, { ParticipantsControl } from './components/participants-control';
+import ParticipantsDropdown, { ParticipantsControl, ParticipantsRichControl } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
@@ -32,11 +26,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getNextParticipant } from '../conversation/utils';
-
-function getParticipantBySlug( participants, slug ) {
-	return find( participants, contextParticipant => contextParticipant.slug === slug );
-}
+import { getNextParticipant, getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -54,12 +44,12 @@ export default function DialogueEdit( {
 	const {
 		content,
 		participantLabel,
+		participantValue,
+		participantSlug,
 		placeholder,
 		showTimestamp,
 		timestamp,
-		participantSlug,
 	} = attributes;
-	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
 	const richTextRef = useRef();
 
 	const { prevBlock, mediaSource } = useSelect( select => {
@@ -108,13 +98,20 @@ export default function DialogueEdit( {
 		} );
 	}, [ participantLabel, participants, prevBlock, setAttributes, conversationBridge ] );
 
-	// Update dialog participant with conversation participant changes.
+	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		if ( conversationParticipant?.slug !== participantSlug ) {
+		if ( ! conversationParticipant ) {
 			return;
 		}
 
-		setAttributes( { participantLabel: conversationParticipant.label } );
+		if ( conversationParticipant.slug !== participantSlug ) {
+			return;
+		}
+
+		setAttributes( {
+			participantLabel: conversationParticipant.label,
+			participantValue: conversationParticipant.value,
+		} );
 	}, [ conversationParticipant, participantSlug, setAttributes ] );
 
 	// Update dialogue timestamp setting from parent conversation.
@@ -204,13 +201,46 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
-				<Button
-					onFocus={ () => setIsFocusedOnParticipantLabel( true ) }
-					onClick={ () => setIsFocusedOnParticipantLabel( true ) }
-					className={ `${ BASE_CLASS_NAME }__participant` }
-				>
-					{ participantLabel }
-				</Button>
+				<ParticipantsRichControl
+					label={ participantLabel }
+					value={ participantValue }
+					participant={ conversationParticipant }
+					participants={ participants }
+
+					onParticipantChange={ ( updatedParticipant ) => {
+						setAttributes( { participantValue: updatedParticipant } );
+					} }
+
+					onSelect={ ( { slug, label, value } ) => {
+						setAttributes( {
+							participantLabel: label,
+							participantValue: value,
+							participantSlug: slug,
+						} );
+					} }
+
+					onClean = { () => {
+						setAttributes( { participantSlug: null } );
+					} }
+
+					onAdd={ ( newValue ) => {
+						if ( ! newValue?.length ) {
+							return;
+						}
+						const newParticipant = conversationBridge.addNewParticipant( newValue );
+						if ( ! newParticipant ) {
+							return;
+						}
+
+						setAttributes( {
+							participantValue: newParticipant.value,
+							participantLabel: newParticipant.label,
+							participantSlug: newParticipant.slug,
+						} );
+					} }
+
+					onUpdate={ conversationBridge.updateParticipants }
+				/>
 
 				{ showTimestamp && (
 					<TimestampDropdown
@@ -265,7 +295,7 @@ export default function DialogueEdit( {
 					// with the next participant slug.
 
 					// Pick up the next participant slug.
-					const { slug, label } = getNextParticipant(
+					const { slug, label, value } = getNextParticipant(
 						attributes.participantSlug,
 						participants
 					);
@@ -274,6 +304,7 @@ export default function DialogueEdit( {
 					blocks[ 1 ].attributes = {
 						participantLabel: label,
 						participantSlug: slug,
+						participantValue: value,
 						timestamp: attributes.timestamp, // <- keep same timestamp value.
 					};
 
@@ -282,8 +313,6 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				isSelected={ ! isFocusedOnParticipantLabel }
-				onFocus={ () => setIsFocusedOnParticipantLabel( false ) }
 			/>
 		</div>
 	);

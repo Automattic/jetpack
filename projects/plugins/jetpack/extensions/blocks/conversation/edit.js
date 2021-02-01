@@ -18,6 +18,7 @@ import {
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
+import { getParticipantPlainText } from './utils';
 
 import { list as defaultParticipants } from './participants.json';
 
@@ -25,14 +26,17 @@ const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
 	[ 'jetpack/dialogue', {
 		participantLabel: defaultParticipants[ 0 ].label,
+		participantValue: `<strong>${ defaultParticipants[ 0 ].label }</strong>`,
 		participantSlug: defaultParticipants[ 0 ].slug,
 	} ],
 	[ 'jetpack/dialogue', {
 		participantLabel: defaultParticipants[ 1 ].label,
+		participantValue: `<strong>${ defaultParticipants[ 1 ].label }</strong>`,
 		participantSlug: defaultParticipants[ 1 ].slug,
 	} ],
 	[ 'jetpack/dialogue', {
 		participantLabel: defaultParticipants[ 2 ].label,
+		participantValue: `<strong>${ defaultParticipants[ 2 ].label }</strong>`,
 		participantSlug: defaultParticipants[ 2 ].slug,
 	} ],
 ];
@@ -50,7 +54,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	}, [ participants, setAttributes ] );
 
 	const updateParticipants = useCallback(
-		updatedParticipant =>
+		updatedParticipant => {
 			setAttributes( {
 				participants: participants.map( participant => {
 					if ( participant.slug !== updatedParticipant.slug ) {
@@ -61,9 +65,31 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 						...updatedParticipant,
 					};
 				} ),
-			} ),
+			} );
+		},
 		[ setAttributes, participants ]
 	);
+
+	const addNewParticipant = useCallback( function( newSpakerValue ) {
+		const newParticipantSlug = participants.length
+			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
+			: 'speaker-0';
+
+		const newParticipant = {
+			label: getParticipantPlainText( newSpakerValue ),
+			slug: newParticipantSlug,
+			value: newSpakerValue
+		};
+
+		setAttributes( {
+			participants: [
+				...participants,
+				newParticipant,
+			],
+		} );
+
+		return newParticipant;
+	}, [ participants, setAttributes ] );
 
 	const setBlockAttributes = useCallback( setAttributes, [] );
 
@@ -72,31 +98,22 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		() => ( {
 			setAttributes: setBlockAttributes,
 			updateParticipants,
+			addNewParticipant,
 			attributes: {
 				showTimestamps,
 			},
 		} ),
-		[ setBlockAttributes, showTimestamps, updateParticipants ]
+		[
+			addNewParticipant,
+			setBlockAttributes,
+			showTimestamps,
+			updateParticipants,
+		]
 	);
 
 	function deleteParticipant( deletedParticipantSlug ) {
 		setAttributes( {
 			participants: participants.filter( ( { slug } ) => slug !== deletedParticipantSlug ),
-		} );
-	}
-
-	function addNewParticipant( newSpakerValue ) {
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
-		setAttributes( {
-			participants: [
-				...participants,
-				{
-					label: newSpakerValue,
-					slug: newParticipantSlug,
-				},
-			],
 		} );
 	}
 

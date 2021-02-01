@@ -1,4 +1,9 @@
 
+/**
+ * WordPress dependencies
+ */
+import { create, getTextContent } from '@wordpress/rich-text';
+
 export function getParticipantIndex ( slug, participants ) {
 	return participants.map( part => part.slug ).indexOf( slug );
 }
@@ -9,4 +14,18 @@ export function getNextParticipantIndex ( slug, participants, offset = 0 ) {
 
 export function getNextParticipant ( slug, participants, offset = 0 ) {
 	return participants[ getNextParticipantIndex( slug, participants, offset ) ];
+}
+
+export function getParticipantBySlug( participants, participantSlug ) {
+	const part = participants.filter( ( { slug } ) => ( slug === participantSlug ) );
+	return part?.length ? part[ 0 ] : null;
+}
+
+export function getParticipantByValue ( participants, participantLabel ) {
+	const part = participants.filter( ( { label } ) => ( label.toLowerCase() === participantLabel.toLowerCase() ) );
+	return part?.length ? part[ 0 ] : null;
+}
+
+export function getParticipantPlainText( html ) {
+	return getTextContent( create( { html } ) );
 }
