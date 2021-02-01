@@ -149,10 +149,8 @@ export default function DialogueEdit( {
 			<BlockControls>
 				<ToolbarGroup>
 					<ParticipantsDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
 						className={ BASE_CLASS_NAME }
 						participants={ participants }
-						label={ __( 'Participant', 'jetpack' ) }
 						participantSlug={ participantSlug }
 						onSelect={ setAttributes }
 					/>
