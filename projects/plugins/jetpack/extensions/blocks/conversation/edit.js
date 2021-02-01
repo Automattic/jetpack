@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { InnerBlocks, InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	Panel,
@@ -20,38 +20,14 @@ import ParticipantsDropdown, { ParticipantsSelector } from './components/partici
 import TranscriptionContext from './components/context';
 import { getParticipantPlainText } from './utils';
 
-import { list as defaultParticipants } from './participants.json';
-
 const TRANSCRIPTION_TEMPLATE = [
-	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
-	[ 'jetpack/dialogue', {
-		participantLabel: defaultParticipants[ 0 ].label,
-		participantValue: `<strong>${ defaultParticipants[ 0 ].label }</strong>`,
-		participantSlug: defaultParticipants[ 0 ].slug,
-	} ],
-	[ 'jetpack/dialogue', {
-		participantLabel: defaultParticipants[ 1 ].label,
-		participantValue: `<strong>${ defaultParticipants[ 1 ].label }</strong>`,
-		participantSlug: defaultParticipants[ 1 ].slug,
-	} ],
-	[ 'jetpack/dialogue', {
-		participantLabel: defaultParticipants[ 2 ].label,
-		participantValue: `<strong>${ defaultParticipants[ 2 ].label }</strong>`,
-		participantSlug: defaultParticipants[ 2 ].slug,
-	} ],
+	[ 'jetpack/dialogue' ],
+	[ 'jetpack/dialogue' ],
+	[ 'jetpack/dialogue' ],
 ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
 	const { participants = [], showTimestamps } = attributes;
-
-	// Set initial conversation participants.
-	useEffect( () => {
-		if ( participants?.length ) {
-			return;
-		}
-
-		setAttributes( { participants: defaultParticipants } );
-	}, [ participants, setAttributes ] );
 
 	const updateParticipants = useCallback(
 		updatedParticipant => {
