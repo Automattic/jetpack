@@ -1,6 +1,9 @@
 export default {
-	participant: {
-		type: 'object',
+	participantLabel: {
+		type: 'string',
+	},
+	participantSlug: {
+		type: 'string',
 	},
 	timestamp: {
 		type: 'string',

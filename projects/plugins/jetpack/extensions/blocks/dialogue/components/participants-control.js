@@ -12,7 +12,7 @@ function ParticipantsMenu( { participants, className, onSelect, participantSlug,
 				<MenuItem
 					key={ slug }
 					onClick={ () => {
-						onSelect( { participant: participants.find( p => p.slug === slug ) } );
+						onSelect( { participantSlug: slug } );
 						onClose();
 					} }
 					isSelected={ participantSlug === slug }
@@ -34,7 +34,7 @@ export function ParticipantsControl( { participants, participantSlug, onSelect }
 				label,
 				value,
 			} ) ) }
-			onChange={ slug => onSelect( { participant: participants.find( p => p.slug === slug ) } ) }
+			onChange={ slug => onSelect( { participantSlug: slug } ) }
 		/>
 	);
 }
