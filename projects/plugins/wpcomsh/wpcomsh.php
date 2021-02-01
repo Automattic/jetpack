@@ -1291,6 +1291,8 @@ add_filter(
 			$extensions,
 			array(
 				'anchor-fm',
+				'conversation',
+				'dialogue',
 			)
 		);
 	}
