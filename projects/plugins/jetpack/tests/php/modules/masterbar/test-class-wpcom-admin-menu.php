@@ -67,9 +67,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$domain  = ( new Status() )->get_site_suffix();
-		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
-
+		static::$domain       = ( new Status() )->get_site_suffix();
+		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$menu_data    = get_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
