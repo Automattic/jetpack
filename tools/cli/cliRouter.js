@@ -33,10 +33,10 @@ export async function cli() {
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
-	argv.showHelpOnFail( true ).demandCommand();
+	argv.showHelpOnFail( true ).demandCommand().version( false );
 
 	// Parse the args!
-	argv.argv;
+	argv.parse();
 
 	// If verbose flag is set, output all of the argv info. Only applies if a command above doesn't execute.
 	if ( argv.v ) {
