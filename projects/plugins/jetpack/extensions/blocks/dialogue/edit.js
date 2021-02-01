@@ -25,7 +25,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getNextParticipant, getParticipantBySlug } from '../conversation/utils';
+import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -34,8 +34,6 @@ export default function DialogueEdit( {
 	className,
 	attributes,
 	setAttributes,
-	instanceId,
-	clientId,
 	context,
 	onReplace,
 	mergeBlocks,
@@ -51,15 +49,9 @@ export default function DialogueEdit( {
 	} = attributes;
 	const richTextRef = useRef();
 
-	const { prevBlock, mediaSource } = useSelect( select => {
-		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		const previousBlock = select( 'core/block-editor' ).getBlock( prevPartClientId );
-
-		return {
-			prevBlock: previousBlock?.name === blockName ? previousBlock : null,
-			mediaSource: select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
-		};
-	}, [] );
+	const mediaSource = useSelect( select => (
+		select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource()
+	), [] );
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
@@ -74,28 +66,6 @@ export default function DialogueEdit( {
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
-
-	// Set initial attributes according to the context.
-	useEffect( () => {
-		// Bail when block already has an slug,
-		// or when there is not a dialogue pre block.
-		// or when there are not particpants,
-		// or there is not conversation bridge.
-		if ( participantLabel || ! prevBlock || ! participants?.length || ! conversationBridge ) {
-			return;
-		}
-
-		const nextParticipant = getNextParticipant(
-			prevBlock?.attributes?.participantSlug,
-			participants
-		);
-
-		setAttributes( {
-			participantLabel: nextParticipant.label,
-			participantSlug: nextParticipant.slug,
-			content: '',
-		} );
-	}, [ participantLabel, participants, prevBlock, setAttributes, conversationBridge ] );
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
@@ -117,23 +87,6 @@ export default function DialogueEdit( {
 	useEffect( () => {
 		setAttributes( { showTimestamp: showConversationTimestamps } );
 	}, [ showConversationTimestamps, setAttributes ] );
-
-	// Update participant slug in case
-	// the participant is removed globally.
-	// from the Conversation block.
-	useEffect( () => {
-		if ( ! participants?.length ) {
-			return;
-		}
-
-		// Check if the participant has been removed from Conversation.
-		if ( conversationParticipant ) {
-			return;
-		}
-
-		// Set first participant as default.
-		setAttributes( { participant: participants[ 0 ] } );
-	}, [ participants, conversationParticipant, setAttributes ] );
 
 	function setShowConversationTimestamps( value ) {
 		conversationBridge.setAttributes( { showTimestamps: value } );
@@ -287,21 +240,8 @@ export default function DialogueEdit( {
 						return onReplace( [ blocks[ 0 ] ], ...args );
 					}
 
-					// When creating a new dialogue block in a `conversation` context,
-					// try to assign the dialogue participant
-					// with the next participant slug.
-
-					// Pick up the next participant slug.
-					const { slug, label, value } = getNextParticipant(
-						attributes.participantSlug,
-						participants
-					);
-
 					// Update new block attributes.
 					blocks[ 1 ].attributes = {
-						participantLabel: label,
-						participantSlug: slug,
-						participantValue: value,
 						timestamp: attributes.timestamp, // <- keep same timestamp value.
 					};
 
