@@ -491,7 +491,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
 		$customize_slug = 'customize.php';
-		static::$admin_menu->add_appearance_menu( false, false );
+		static::$admin_menu->add_appearance_menu( false );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
 

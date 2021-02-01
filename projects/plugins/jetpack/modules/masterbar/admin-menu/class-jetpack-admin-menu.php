@@ -35,17 +35,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Appearance menu.
-	 *
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_appearance_menu( $wp_admin_customize = false, $wp_admin_themes = false ) {
-		// Customize on Jetpack sites is always handled on WP Admin.
-		parent::add_appearance_menu( true, $wp_admin_themes );
-	}
-
-	/**
 	 * Adds Tools menu.
 	 *
 	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).

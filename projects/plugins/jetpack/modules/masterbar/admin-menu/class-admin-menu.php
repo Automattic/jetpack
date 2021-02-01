@@ -105,12 +105,7 @@ class Admin_Menu {
 		$this->add_testimonials_menu( $wp_admin );
 		$this->add_portfolio_menu( $wp_admin );
 		$this->add_comments_menu( $wp_admin );
-
-		// Whether Customize/Themes links should point to Calypso (false) or wp-admin (true).
-		$wp_admin_customize = $wp_admin;
-		$wp_admin_themes    = $wp_admin;
-		$this->add_appearance_menu( $wp_admin_customize, $wp_admin_themes );
-
+		$this->add_appearance_menu( $wp_admin );
 		$this->add_plugins_menu( $wp_admin );
 		$this->add_users_menu( $wp_admin );
 
@@ -381,13 +376,12 @@ class Admin_Menu {
 	/**
 	 * Adds Appearance menu.
 	 *
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_appearance_menu( $wp_admin_customize = false, $wp_admin_themes = false ) {
+	public function add_appearance_menu( $wp_admin = false ) {
 		$user_can_customize = current_user_can( 'customize' );
 		$appearance_cap     = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
-		$themes_slug        = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+		$themes_slug        = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
 		$customize_url      = add_query_arg( 'return', urlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore
 		remove_menu_page( 'themes.php' );
 		remove_submenu_page( 'themes.php', 'themes.php' );

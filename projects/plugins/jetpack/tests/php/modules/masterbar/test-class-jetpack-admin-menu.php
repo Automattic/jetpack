@@ -139,27 +139,6 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_appearance_menu
-	 *
-	 * @covers ::add_appearance_menu
-	 */
-	public function test_add_appearance_menu() {
-		global $submenu;
-
-		$slug = 'https://wordpress.com/themes/' . static::$domain;
-		static::$admin_menu->add_appearance_menu( false, false );
-
-		// Check Customize menu always links to WP Admin.
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'customize.php',
-			'Customize',
-		);
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
-	}
-
-	/**
 	 * Tests add_wp_admin_menu
 	 *
 	 * @covers ::add_wp_admin_menu
