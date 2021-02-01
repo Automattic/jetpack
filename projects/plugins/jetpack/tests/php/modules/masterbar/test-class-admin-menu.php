@@ -40,13 +40,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public static $domain;
 
 	/**
-	 * The customizer default link.
-	 *
-	 * @var string
-	 */
-	public static $customize_slug;
-
-	/**
 	 * Admin menu instance.
 	 *
 	 * @var Admin_Menu

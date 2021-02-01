@@ -41,13 +41,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public static $domain;
 
 	/**
-	 * The customizer default link.
-	 *
-	 * @var string
-	 */
-	public static $customize_slug;
-
-	/**
 	 * Whether this testsuite is run on WP.com.
 	 *
 	 * @var bool
