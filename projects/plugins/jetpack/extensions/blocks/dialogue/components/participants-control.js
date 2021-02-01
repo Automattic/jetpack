@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
-import { check } from '@wordpress/icons';
+import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { useMemo, useState } from '@wordpress/element';
@@ -57,18 +57,12 @@ export function ParticipantsControl( { participants, participantSlug, onSelect }
 }
 
 export default function ParticipantsDropdown( props ) {
-	const { label, position = 'bottom', labelClassName, icon = null } = props;
-
 	return (
 		<DropdownMenu
 			popoverProps={ {
-				position,
+				position: 'bottom',
 			} }
-			toggleProps={ {
-				className: labelClassName,
-				children: <span>{ label }</span>,
-			} }
-			icon={ icon }
+			icon={ people }
 		>
 			{ ( { onClose } ) => <ParticipantsMenu { ...props } onClose={ onClose } /> }
 		</DropdownMenu>
