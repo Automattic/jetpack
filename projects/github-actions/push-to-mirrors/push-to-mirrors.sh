@@ -66,7 +66,7 @@ while read -r GIT_SLUG; do
 	cd "${CLONE_DIR}"
 
 	# Check if a remote exists for that mirror.
-	if ! git ls-remote --exit-code -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
+	if ! git ls-remote -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
 		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
 		continue
 	fi
@@ -93,7 +93,7 @@ while read -r GIT_SLUG; do
 		if git commit --quiet $FORCE_COMMIT --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}" &&
 			{ [[ -z "$CI" ]] || git push origin "$BRANCH"; } # Only do the actual push from the GitHub Action
 		then
-			git diff HEAD~..HEAD --src-prefix="a/$GIT_SLUG/" --dst-prefix="b/$GIT_SLUG/" >> "$BUILD_BASE/changes.diff"
+			git show --pretty= --src-prefix="a/$GIT_SLUG/" --dst-prefix="b/$GIT_SLUG/" >> "$BUILD_BASE/changes.diff"
 			echo "https://github.com/$GIT_SLUG/commit/$(git rev-parse HEAD)"
 			echo "Completed $GIT_SLUG"
 		else
