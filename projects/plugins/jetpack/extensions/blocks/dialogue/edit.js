@@ -38,6 +38,7 @@ export default function DialogueEdit( {
 	context,
 	onReplace,
 	mergeBlocks,
+	isSelected,
 } ) {
 	const {
 		content,
@@ -68,7 +69,7 @@ export default function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounce( setAttributes, 200 );
+	const debounceSetDialoguesAttrs = useDebounce( setAttributes, 100 );
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
@@ -80,11 +81,16 @@ export default function DialogueEdit( {
 			return;
 		}
 
+		// Do not update current Dialogue block.
+		if ( isSelected ) {
+			return;
+		}
+
 		debounceSetDialoguesAttrs( {
 			participantLabel: conversationParticipant.label,
 			participantValue: conversationParticipant.value,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, participantSlug ] );
+	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, participantSlug ] );
 
 	// Update dialogue timestamp setting from parent conversation.
 	useEffect( () => {
