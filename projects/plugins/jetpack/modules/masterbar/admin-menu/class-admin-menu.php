@@ -49,7 +49,7 @@ class Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
+		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11, 3 );
 
 		$this->domain = ( new Status() )->get_site_suffix();
 	}
@@ -72,8 +72,10 @@ class Admin_Menu {
 	/**
 	 * Sets up class properties for REST API requests.
 	 */
-	public function rest_api_init() {
+	public function rest_api_init( $response, $handler, $request ) {
 		$this->is_api_request = true;
+
+		return $response;
 	}
 
 	/**
