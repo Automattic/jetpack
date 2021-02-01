@@ -32,6 +32,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
+import { getNextParticipant } from '../conversation/utils';
 
 function getParticipantBySlug( participants, slug ) {
 	return find( participants, contextParticipant => contextParticipant.slug === slug );
@@ -95,8 +96,9 @@ export default function DialogueEdit( {
 			return;
 		}
 
-		const nextParticipant = conversationBridge.getNextParticipant(
-			prevBlock?.attributes?.participantSlug
+		const nextParticipant = getNextParticipant(
+			prevBlock?.attributes?.participantSlug,
+			participants
 		);
 
 		setAttributes( {
@@ -263,15 +265,16 @@ export default function DialogueEdit( {
 					// with the next participant slug.
 
 					// Pick up the next participant slug.
-					const nextParticipant = conversationBridge.getNextParticipant(
-						attributes.participantSlug
+					const { slug, label } = getNextParticipant(
+						attributes.participantSlug,
+						participants
 					);
 
 					// Update new block attributes.
 					blocks[ 1 ].attributes = {
-						...blocks[ 1 ].attributes,
-						participant: nextParticipant,
-						timestamp: attributes.timestamp,
+						participantLabel: label,
+						participantSlug: slug,
+						timestamp: attributes.timestamp, // <- keep same timestamp value.
 					};
 
 					onReplace( blocks, ...args );
