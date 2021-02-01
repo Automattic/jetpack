@@ -15,4 +15,5 @@ module.exports = {
 	},
 	coverageDirectory: 'coverage/extensions',
 	setupFiles: [ '<rootDir>/tests/jest-globals.js' ],
+	testPathIgnorePatterns: [ 'node_modules', 'extensions/shared/test/block-fixtures.js' ],
 };

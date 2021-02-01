@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { registerBlockType, setCategories, getCategories } from '@wordpress/blocks';
+import { registerBlockType, setCategories } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -10,9 +10,8 @@ import { settings } from '../';
 import { settings as parentSettings } from '../../';
 import runBlockFixtureTests from '../../../../shared/test/block-fixtures';
 
+// Need to add a valid category or block registration fails
 setCategories( [
-	...getCategories().filter( ( { slug } ) => slug !== 'test' ),
-	// Add a Test block category
 	{
 		slug: 'test',
 		title: 'Test',

@@ -1,8 +1,10 @@
 /**
  * External dependencies
  */
-import { omit, startsWith, get } from 'lodash';
+import { omit, uniq } from 'lodash';
 import { format } from 'util';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * WordPress dependencies
@@ -10,48 +12,26 @@ import { format } from 'util';
 import { parse, serialize } from '@wordpress/blocks';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
 
-/**
- * Internal dependencies
- */
-import {
-	getAvailableBlockFixturesBasenames,
-	blockNameToFixtureBasename,
-	getBlockFixtureHTML,
-	getBlockFixtureJSON,
-	getBlockFixtureParsedJSON,
-	getBlockFixtureSerializedHTML,
-	writeBlockFixtureParsedJSON,
-	writeBlockFixtureJSON,
-	writeBlockFixtureSerializedHTML,
-	setFixturesDir,
-} from './block-fixture-utils';
-
 /* eslint-disable no-console */
 console.warn = jest.fn();
 console.error = jest.fn();
 console.info = jest.fn();
 /* eslint-enable no-console */
 
-function normalizeParsedBlocks( blocks ) {
-	return blocks.map( ( block, index ) => {
-		// Clone and remove React-instance-specific stuff; also, attribute
-		// values that equal `undefined` will be removed. Validation issues
-		// add too much noise so they get removed as well.
-		block = JSON.parse( JSON.stringify( omit( block, 'validationIssues' ) ) );
+let FIXTURES_DIR;
 
-		// Change client IDs to a predictable value
-		block.clientId = '_clientId_' + index;
-
-		// Recurse to normalize inner blocks
-		block.innerBlocks = normalizeParsedBlocks( block.innerBlocks );
-
-		return block;
-	} );
-}
-
+/* eslint-disable jest/no-export */
 export default function runBlockFixtureTests( blockName, settings, fixturesPath ) {
 	setFixturesDir( fixturesPath );
 	const blockBasenames = getAvailableBlockFixturesBasenames();
+
+	if ( process.env.REGENERATE_FIXTURES ) {
+		const fullPath = `${ fixturesPath }/fixtures`;
+		const regex = /[.]json|serialized\.html$/;
+		fs.readdirSync( fullPath )
+			.filter( file => regex.test( file ) )
+			.forEach( file => fs.unlinkSync( `${ fullPath }/${ file }` ) );
+	}
 
 	describe( 'Test block content parsing', () => {
 		blockBasenames.forEach( basename => {
@@ -181,10 +161,111 @@ export default function runBlockFixtureTests( blockName, settings, fixturesPath 
 						);
 					}
 				} );
+				expect( errors.length ).toEqual( 0 );
 				if ( errors.length ) {
 					throw new Error( 'Problem(s) with fixture files:\n\n' + errors.join( '\n' ) );
 				}
 			} );
 		}
 	} );
+}
+/* eslint-disable jest/no-export */
+
+function normalizeParsedBlocks( blocks ) {
+	return blocks.map( ( block, index ) => {
+		// Clone and remove React-instance-specific stuff; also, attribute
+		// values that equal `undefined` will be removed. Validation issues
+		// add too much noise so they get removed as well.
+		block = JSON.parse( JSON.stringify( omit( block, 'validationIssues' ) ) );
+
+		// Change client IDs to a predictable value
+		block.clientId = '_clientId_' + index;
+
+		// Recurse to normalize inner blocks
+		block.innerBlocks = normalizeParsedBlocks( block.innerBlocks );
+
+		return block;
+	} );
+}
+
+function readFixtureFile( fixturesDir, filename ) {
+	try {
+		return fs.readFileSync( path.join( fixturesDir, filename ), 'utf8' );
+	} catch ( err ) {
+		return null;
+	}
+}
+
+function writeFixtureFile( fixturesDir, filename, content ) {
+	fs.writeFileSync( path.join( fixturesDir, filename ), content );
+}
+
+function setFixturesDir( fixturePath ) {
+	FIXTURES_DIR = path.join( fixturePath, 'fixtures' );
+}
+function blockNameToFixtureBasename( blockName ) {
+	return blockName.replace( /\//g, '__' );
+}
+
+function getAvailableBlockFixturesBasenames() {
+	// We expect 4 different types of files for each fixture:
+	//  - fixture.html            : original content
+	//  - fixture.parsed.json     : parser output
+	//  - fixture.json            : blocks structure
+	//  - fixture.serialized.html : re-serialized content
+	// Get the "base" name for each fixture first.
+	return uniq(
+		fs
+			.readdirSync( FIXTURES_DIR )
+			.filter( f => /(\.html|\.json)$/.test( f ) )
+			.map( f => f.replace( /\..+$/, '' ) )
+	);
+}
+
+function getBlockFixtureHTML( basename ) {
+	const filename = `${ basename }.html`;
+	return {
+		filename,
+		file: readFixtureFile( FIXTURES_DIR, filename ),
+	};
+}
+
+function getBlockFixtureJSON( basename ) {
+	const filename = `${ basename }.json`;
+	return {
+		filename,
+		file: readFixtureFile( FIXTURES_DIR, filename ),
+	};
+}
+
+function getBlockFixtureParsedJSON( basename ) {
+	const filename = `${ basename }.parsed.json`;
+	return {
+		filename,
+		file: readFixtureFile( FIXTURES_DIR, filename ),
+	};
+}
+
+function getBlockFixtureSerializedHTML( basename ) {
+	const filename = `${ basename }.serialized.html`;
+	return {
+		filename,
+		file: readFixtureFile( FIXTURES_DIR, filename ),
+	};
+}
+
+function writeBlockFixtureHTML( basename, fixture ) {
+	writeFixtureFile( FIXTURES_DIR, `${ basename }.html`, fixture );
+}
+
+function writeBlockFixtureJSON( basename, fixture ) {
+	writeFixtureFile( FIXTURES_DIR, `${ basename }.json`, fixture );
+}
+
+function writeBlockFixtureParsedJSON( basename, fixture ) {
+	writeFixtureFile( FIXTURES_DIR, `${ basename }.parsed.json`, fixture );
+}
+
+function writeBlockFixtureSerializedHTML( basename, fixture ) {
+	writeFixtureFile( FIXTURES_DIR, `${ basename }.serialized.html`, fixture );
 }
