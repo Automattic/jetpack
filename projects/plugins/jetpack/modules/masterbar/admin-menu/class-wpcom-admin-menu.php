@@ -25,9 +25,11 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Sets up class properties for REST API requests.
+	 *
+	 * @param WP_REST_Response $response Response from the endpoint.
 	 */
-	public function rest_api_init( $response, $handler, $request ) {
-		parent::rest_api_init( $response, $handler, $request );
+	public function rest_api_init( $response  ) {
+		parent::rest_api_init( $response );
 
 		// Get domain for requested site.
 		$this->domain         = ( new Status() )->get_site_suffix();
