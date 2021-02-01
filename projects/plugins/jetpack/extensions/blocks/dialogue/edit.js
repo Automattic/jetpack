@@ -9,7 +9,6 @@ import {
 	Panel,
 	PanelBody,
 	ToggleControl,
-	ToolbarGroup,
 } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
@@ -19,7 +18,7 @@ import { useDebounce } from '@wordpress/compose';
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, { ParticipantsControl, ParticipantsRichControl } from './components/participants-control';
+import { ParticipantsControl, ParticipantsRichControl } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
@@ -109,15 +108,6 @@ export default function DialogueEdit( {
 	return (
 		<div className={ className }>
 			<BlockControls>
-				<ToolbarGroup>
-					<ParticipantsDropdown
-						className={ BASE_CLASS_NAME }
-						participants={ participants }
-						participantSlug={ participantSlug }
-						onSelect={ setAttributes }
-					/>
-				</ToolbarGroup>
-
 				{ mediaSource && (
 					<MediaPlayerToolbarControl
 						onTimeChange={ time => setTimestamp( convertSecondsToTimeCode( time ) ) }
