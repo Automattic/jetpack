@@ -13,6 +13,7 @@ import {
 } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
+import { useDebounce } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -68,6 +69,8 @@ export default function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
+	const debounceSetDialoguesAttrs = useDebounce( setAttributes, 200 );
+
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
 		if ( ! conversationParticipant ) {
@@ -78,11 +81,11 @@ export default function DialogueEdit( {
 			return;
 		}
 
-		setAttributes( {
+		debounceSetDialoguesAttrs( {
 			participantLabel: conversationParticipant.label,
 			participantValue: conversationParticipant.value,
 		} );
-	}, [ conversationParticipant, participantSlug, setAttributes ] );
+	}, [ conversationParticipant, debounceSetDialoguesAttrs, participantSlug ] );
 
 	// Update dialogue timestamp setting from parent conversation.
 	useEffect( () => {
