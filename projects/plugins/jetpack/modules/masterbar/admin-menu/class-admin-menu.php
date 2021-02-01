@@ -654,15 +654,14 @@ class Admin_Menu {
 	 */
 	public function add_admin_menu_separator( $position, $cap = 'read' ) {
 		global $menu;
-		static $uid = 3;
 
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $position ] = array(
-			'',                               // Menu title (ignored).
-			$cap,                             // Required capability.
-			'separator-custom-' . ( ++$uid ), // URL or file (ignored, but must be unique).
-			'',                               // Page title (ignored).
-			'wp-menu-separator',              // CSS class. Identifies this item as a separator.
+			'',                                   // Menu title (ignored).
+			$cap,                                 // Required capability.
+			'separator-custom-' . wp_unique_id(), // URL or file (ignored, but must be unique).
+			'',                                   // Page title (ignored).
+			'wp-menu-separator',                  // CSS class. Identifies this item as a separator.
 		);
 		ksort( $menu );
 	}

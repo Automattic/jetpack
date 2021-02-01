@@ -158,4 +158,26 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 	}
+
+	/**
+	 * Tests add_wp_admin_menu
+	 *
+	 * @covers ::add_wp_admin_menu
+	 */
+	public function test_add_wp_admin_menu() {
+		global $menu;
+
+		static::$admin_menu->add_wp_admin_menu();
+
+		$wp_admin_menu_item = array(
+			'WP Admin',
+			'read',
+			'index.php',
+			'WP Admin',
+			'menu-top toplevel_page_index',
+			'toplevel_page_index',
+			'dashicons-wordpress-alt',
+		);
+		$this->assertSame( end( $menu ), $wp_admin_menu_item );
+	}
 }
