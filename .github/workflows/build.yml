@@ -163,7 +163,6 @@ jobs:
       - name: Push changed projects
         uses: ./monorepo/projects/github-actions/push-to-mirrors
         with:
-          release-branch-infix: /branch-
           source-directory: ${{ github.workspace }}/monorepo
           token: ${{ secrets.API_TOKEN_GITHUB }}
           username: matticbot
