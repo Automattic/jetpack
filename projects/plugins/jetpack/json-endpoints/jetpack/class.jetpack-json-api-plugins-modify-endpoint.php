@@ -327,6 +327,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
+			// Rely on WP_Automatic_Updater class to check if a plugin item should be updated.
+			$wp_automatic_updater = new WP_Automatic_Updater();
+			if ( ! $wp_automatic_updater->should_update( 'plugin', $plugin, WP_PLUGIN_DIR ) ) {
+				continue;
+			}
+
 			/**
 			 * Pre-upgrade action
 			 *
