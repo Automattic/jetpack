@@ -88,7 +88,7 @@ describe( 'Inspector settings', () => {
 	} );
 } );
 
-describe( 'Toolabr settings', () => {
+describe( 'Toolbar settings', () => {
 	const props = { ...defaultProps, context: 'toolbar' };
 
 	test( 'loads and displays settings button in toolbar with settings not visible', () => {
