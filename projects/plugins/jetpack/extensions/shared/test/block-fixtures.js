@@ -9,7 +9,7 @@ import path from 'path';
 /**
  * WordPress dependencies
  */
-import { parse, serialize } from '@wordpress/blocks';
+import { parse, serialize, registerBlockType, setCategories } from '@wordpress/blocks';
 import { parse as grammarParse } from '@wordpress/block-serialization-default-parser';
 
 /* eslint-disable no-console */
@@ -21,9 +21,12 @@ console.info = jest.fn();
 let FIXTURES_DIR;
 
 /* eslint-disable jest/no-export */
-export default function runBlockFixtureTests( blockName, settings, fixturesPath ) {
+export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) {
+	registerBlocks( blocks );
 	setFixturesDir( fixturesPath );
+
 	const blockBasenames = getAvailableBlockFixturesBasenames();
+	const settings = blocks[ 0 ].settings;
 
 	if ( process.env.REGENERATE_FIXTURES ) {
 		const fullPath = `${ fixturesPath }/fixtures`;
@@ -170,6 +173,19 @@ export default function runBlockFixtureTests( blockName, settings, fixturesPath 
 	} );
 }
 /* eslint-disable jest/no-export */
+
+function registerBlocks( blocks ) {
+	// Need to add a valid category or block registration fails
+	setCategories( [
+		{
+			slug: 'test',
+			title: 'Test',
+		},
+	] );
+	blocks.forEach( block => {
+		registerBlockType( block.name, { ...block.settings, category: 'test' } );
+	} );
+}
 
 function normalizeParsedBlocks( blocks ) {
 	return blocks.map( ( block, index ) => {
