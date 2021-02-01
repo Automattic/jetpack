@@ -406,6 +406,7 @@ class Jetpack_Beta {
 	 * @param object $transient - Plugin update data.
 	 */
 	public function maybe_plugins_update_transient( $transient ) {
+		do_action( 'qm/debug', $transient );
 		if ( ! isset( $transient->no_update ) ) {
 			return $transient;
 		}
