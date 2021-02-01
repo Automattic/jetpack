@@ -30,6 +30,8 @@ export const settings = {
 	keywords: [
 		_x( 'Conversation', 'block search term', 'jetpack' ),
 		__( 'transcription', 'jetpack' ),
+		__( 'dialog', 'jetpack' ),
+		__( 'dialogue', 'jetpack' ),
 	],
 	supports: {
 		align: true,
