@@ -21,4 +21,4 @@ setCategories( [
 
 registerBlockType( 'jetpack/whatsapp-button', { ...settings, category: 'test' } );
 registerBlockType( 'jetpack/send-a-message', { ...parentSettings, category: 'test' } );
-runBlockFixtureTests( 'jetpack/whatsapp-button', __dirname );
+runBlockFixtureTests( 'jetpack/whatsapp-button', settings, __dirname );
