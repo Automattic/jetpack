@@ -5,7 +5,7 @@ import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/com
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo, useState, Fragment } from '@wordpress/element';
 import {
 	__experimentalUseFocusOutside as useFocusOutside,
 } from '@wordpress/compose';
@@ -14,6 +14,11 @@ import {
  * Internal dependencies
  */
 import { getParticipantByValue, getParticipantPlainText } from '../../conversation/utils';
+
+// Fallback for `useFocusOutside` hook.
+const useFocusOutsideWithFallback = typeof useFocusOutside !== 'undefined'
+	? useFocusOutside
+	: () => {};
 
 function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
 	return (
@@ -152,7 +157,7 @@ export function ParticipantsRichControl( {
 		addOrAddParticipant();
 	}
 
-	const focusOutsideProps = useFocusOutside( onFocusOutsideHandler );
+	const focusOutsideProps = useFocusOutsideWithFallback( onFocusOutsideHandler );
 
 	/**
 	 * Funcion handler when user types participant value.
@@ -195,7 +200,7 @@ export function ParticipantsRichControl( {
 	}, [ participants ] );
 
 	return (
-		<div { ...focusOutsideProps }>
+		<Fragment { ...focusOutsideProps }>
 			<RichText
 				tagName="div"
 				value={ value }
@@ -221,6 +226,6 @@ export function ParticipantsRichControl( {
 				} }
 				autocompleters={ addAutocomplete ? autocompleter : [] }
 			/>
-		</div>
+		</Fragment>
 	);
 }
