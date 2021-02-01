@@ -452,6 +452,10 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * @return string $description Cleaned up description string.
  */
 function jetpack_og_get_description( $description = '', $data = null ) {
+	// Filter the content to ensure premium (subscriber-only) content is not
+	// included in the meta tags.
+	$description = apply_filters( 'the_content', $description );
+
 	// Remove tags such as <style or <script.
 	$description = wp_strip_all_tags( $description );
 
