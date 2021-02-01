@@ -126,16 +126,7 @@ export function ParticipantsRichControl( {
 } ) {
 	const [ addAutocomplete, setAddAutocomplete ] = useState( true );
 
-	/*
-	 * Handle when on focus out.
-	 * Add or Select a participant.
-	 */
-	function onFocusOutsideHandler() {
-		// Clean current participant when content is empty.
-		if ( ! value?.length ) {
-			return;
-		}
-
+	function addOrAddParticipant() {
 		// Before to update the participant,
 		// Let's check the participant doesn't exist.
 		const participantLabel = getParticipantPlainText( value );
@@ -146,6 +137,19 @@ export function ParticipantsRichControl( {
 		}
 
 		onAdd( value );
+	}
+
+	/*
+	 * Handle when on focus out.
+	 * Add or Select a participant.
+	 */
+	function onFocusOutsideHandler() {
+		// Clean current participant when content is empty.
+		if ( ! value?.length ) {
+			return;
+		}
+
+		addOrAddParticipant();
 	}
 
 	const focusOutsideProps = useFocusOutside( onFocusOutsideHandler );
@@ -198,13 +202,15 @@ export function ParticipantsRichControl( {
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
-					// It handleds replacing the block content
-					// by selecting a participant from the autocomplete.
 					const replacedParticipant = replaceValue?.[ 0 ];
 					if ( ! replacedParticipant ) {
+						// Here, it adds or selects participant.
+						addOrAddParticipant( value );
 						return;
 					}
 
+					// It handleds replacing the block content
+					// by selecting a participant from the autocomplete.
 					const { value: newValue } = replacedParticipant;
 					onParticipantChange( newValue );
 					setAddAutocomplete( false );
