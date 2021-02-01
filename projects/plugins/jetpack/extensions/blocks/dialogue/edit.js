@@ -327,7 +327,7 @@ export default function DialogueEdit( {
 
 					// Detect if the block content is empty.
 					// If so, keep only one paragraph block,
-					// in order to avoid duplicated blocks.
+					// in order to avoid creating two blocks.
 					if (
 						blocks[ 0 ]?.name === blockNameFallback &&
 						blocks[ 1 ]?.name === blockNameFallback &&
