@@ -170,6 +170,9 @@ export default function DialogueEdit( {
 							participantValue: value,
 							participantSlug: slug,
 						} );
+
+						// Focus on block content.
+						richTextRef?.current?.focus();
 					} }
 
 					onClean = { () => {
@@ -184,6 +187,9 @@ export default function DialogueEdit( {
 						if ( ! newParticipant ) {
 							return;
 						}
+
+						// Focus on block content.
+						richTextRef?.current?.focus();
 
 						setAttributes( {
 							participantValue: newParticipant.value,
