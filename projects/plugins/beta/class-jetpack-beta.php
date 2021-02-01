@@ -878,6 +878,8 @@ class Jetpack_Beta {
 			self::replace_active_plugin( 'jetpack-pressable-beta/jetpack.php' );
 		}
 
+		self::update_autoload_dev_constant( $section );
+
 		if ( 'stable' === $section &&
 		file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
@@ -1478,5 +1480,25 @@ class Jetpack_Beta {
 	 */
 	public static function clear_autoloader_plugin_cache() {
 		delete_transient( 'jetpack_autoloader_plugin_paths' );
+	}
+
+	/**
+	 * Sets the 'jetpack_autoload_dev' option when a Jetpack version is activated:
+	 *   - Sets the option to true when a development version of Jetpack is activated.
+	 *   - Sets the option to false when the stable or release candidate version is  activated.
+	 *
+	 * This option is used to set the JETPACK_AUTOLOAD_DEV constant in jetpack-beta.php. The constant
+	 * is used by the Jetpack autoloader to determine whether stable or development versions of
+	 * packages should be preferred.
+	 *
+	 * @param string $section The section value for the activating Jetpack version.
+	 */
+	public static function update_autoload_dev_constant( $section ) {
+		if ( in_array( $section, array( 'stable', 'rc' ), true ) ) {
+				// The stable and rc versions use stable package versions.
+				update_option( 'jetpack_autoload_dev', false );
+		} else {
+				update_option( 'jetpack_autoload_dev', true );
+		}
 	}
 }
