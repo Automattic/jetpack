@@ -9,7 +9,6 @@ import {
 	recordFailedSearchRequest,
 	recordSuccessfulSearchRequest,
 	setFilter,
-	setSearchParamPresent,
 	setSearchQuery,
 	setSort,
 } from './actions';
@@ -49,9 +48,7 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize search query value for the reducer.
 	//
-	store.dispatch( setSearchParamPresent( 's' in queryObject ) );
-
-	if ( queryObject.s ) {
+	if ( 's' in queryObject ) {
 		store.dispatch( setSearchQuery( queryObject.s, false ) );
 	}
 
@@ -99,7 +96,13 @@ function updateSearchQueryString( action ) {
 	}
 
 	const queryObject = getQuery();
-	queryObject.s = action.query;
+
+	if ( action.query !== null ) {
+		queryObject.s = action.query;
+	} else {
+		delete queryObject.s;
+	}
+
 	setQuery( queryObject );
 }
 

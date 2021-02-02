@@ -16,16 +16,11 @@ import { connect } from 'react-redux';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
-import {
-	getResultFormatQuery,
-	hasSearchQueryStringKey,
-	restorePreviousHref,
-} from '../lib/query-string';
+import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
-	setSearchParamPresent,
 	setSearchQuery,
 	setSort,
 } from '../store/actions';
@@ -39,7 +34,6 @@ import {
 	hasFilters,
 	hasNextPage,
 	isLoading,
-	isSearchParamPresent,
 } from '../store/selectors';
 import { bindCustomizerChanges } from '../lib/customize';
 import './search-app.scss';
@@ -151,9 +145,7 @@ class SearchApp extends Component {
 	};
 
 	hasActiveQuery() {
-		return (
-			this.props.searchQuery !== '' || this.props.hasFilters || this.props.isSearchParamPresent
-		);
+		return this.props.searchQuery !== null || this.props.hasFilters;
 	}
 
 	handleBrowserHistoryNavigation = () => {
@@ -235,15 +227,13 @@ class SearchApp extends Component {
 		restorePreviousHref( this.props.initialHref, () => {
 			this.setState( { showResults: false } );
 		} );
+		this.props.setSearchQuery( null );
 	};
 
 	onChangeQueryString = () => {
 		this.getResults();
 
-		// Store whether we have the ?s= param in the query string
-		this.props.setSearchParamPresent( hasSearchQueryStringKey() );
-
-		if ( this.hasActiveQuery() && ! this.state.showResults ) {
+		if ( this.props.searchQuery !== null && ! this.state.showResults ) {
 			this.showResults();
 		}
 
@@ -321,7 +311,7 @@ export default connect(
 		hasFilters: hasFilters( state ),
 		hasNextPage: hasNextPage( state ),
 		isLoading: isLoading( state ),
-		isSearchParamPresent: isSearchParamPresent( state ),
+
 		response: getResponse( state ),
 		searchQuery: getSearchQuery( state ),
 		sort: getSort( state ),
@@ -331,7 +321,7 @@ export default connect(
 		initializeQueryValues,
 		makeSearchRequest,
 		setFilter,
-		setSearchParamPresent,
+
 		setSearchQuery,
 		setSort,
 	}

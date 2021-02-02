@@ -59,20 +59,6 @@ export function initializeQueryValues( { defaultSort } ) {
 }
 
 /**
- * Returns an action object used to set whether a search param is present in the URL.
- *
- * @param {boolean} isSearchParamPresent - Is the search param present? (?s=).
- *
- * @returns {object} Action object.
- */
-export function setSearchParamPresent( isSearchParamPresent ) {
-	return {
-		type: 'SET_SEARCH_PARAM_PRESENT',
-		isSearchParamPresent,
-	};
-}
-
-/**
  * Returns an action object used to set a search query value.
  *
  * @param {string} query - Inputted user query.
