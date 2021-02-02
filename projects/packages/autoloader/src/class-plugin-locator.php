@@ -124,15 +124,17 @@ class Plugin_Locator {
 		$path_constants = array( WP_PLUGIN_DIR, WPMU_PLUGIN_DIR );
 
 		$plugin_paths = array();
-		foreach ( $plugins as $key => $value ) {
-			$path = $this->path_processor->find_directory_with_autoloader( $key, $path_constants );
-			if ( $path ) {
-				$plugin_paths[] = $path;
-			}
+		if ( is_array( $plugins ) && ! empty( $plugins ) ) {
+			foreach ( $plugins as $key => $value ) {
+				$path = $this->path_processor->find_directory_with_autoloader( $key, $path_constants );
+				if ( $path ) {
+					$plugin_paths[] = $path;
+				}
 
-			$path = $this->path_processor->find_directory_with_autoloader( $value, $path_constants );
-			if ( $path ) {
-				$plugin_paths[] = $path;
+				$path = $this->path_processor->find_directory_with_autoloader( $value, $path_constants );
+				if ( $path ) {
+					$plugin_paths[] = $path;
+				}
 			}
 		}
 
