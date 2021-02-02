@@ -74,7 +74,7 @@ class Webhooks {
 
 			return;
 		}
-		do_action( 'jetpack_client_authore_processing' );
+		do_action( 'jetpack_client_authorize_processing' );
 
 		$data              = stripslashes_deep( $_GET );
 		$data['auth_type'] = 'client';

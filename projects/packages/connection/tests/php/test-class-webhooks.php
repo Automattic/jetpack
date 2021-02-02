@@ -69,12 +69,21 @@ class Test_Webhooks extends TestCase {
 		};
 		add_action( 'jetpack_client_authorize_error', $error_handler );
 
+		$processing_started = false;
+		$processing_handler = function () use ( &$processing_started ) {
+			$processing_started = true;
+		};
+		add_action( 'jetpack_client_authorize_processing', $processing_handler );
+
 		$webhooks->handle_authorize();
 
 		remove_action( 'jetpack_client_authorize_error', $error_handler );
+		remove_action( 'jetpack_client_authorize_processing', $processing_handler );
 
 		static::assertInstanceOf( WP_Error::class, $error_result );
 		static::assertEquals( array( '/wp-admin/' ), $this->redirect_stack );
+
+		static::assertTrue( $processing_started, 'The `jetpack_client_authorize_processing` hook was not executed.' );
 	}
 
 	/**
