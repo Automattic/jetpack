@@ -208,7 +208,10 @@ export function ParticipantsRichControl( {
 		return [ refreshAutocompleter( participants ) ];
 	}, [ participants ] );
 
-	useEffect( () => setIsAddingNewParticipant( ! participant ), [ participant ] );
+	useEffect( () => {
+		setIsAddingNewParticipant( ! participant );
+		setAddAutocomplete( ! participant );
+	}, [ participant ] );
 
 	return (
 		<div
