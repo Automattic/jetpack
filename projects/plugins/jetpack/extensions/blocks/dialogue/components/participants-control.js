@@ -13,7 +13,7 @@ import {
 /**
  * Internal dependencies
  */
-import { getParticipantByValue, getParticipantPlainText } from '../../conversation/utils';
+import { getParticipantByLabel, getParticipantPlainText } from '../../conversation/utils';
 
 // Fallback for `useFocusOutside` hook.
 const useFocusOutsideWithFallback = typeof useFocusOutside !== 'undefined'
@@ -135,7 +135,7 @@ export function ParticipantsRichControl( {
 		// Before to update the participant,
 		// Let's check the participant doesn't exist.
 		const participantLabel = getParticipantPlainText( value );
-		const existingParticipant = getParticipantByValue( participants, participantLabel );
+		const existingParticipant = getParticipantByLabel( participants, participantLabel );
 		if ( existingParticipant ) {
 			setAddAutocomplete( false );
 			return onSelect( existingParticipant );

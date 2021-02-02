@@ -18,7 +18,7 @@ import {
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantPlainText, getParticipantByValue } from './utils';
+import { getParticipantPlainText, getParticipantByLabel } from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -46,7 +46,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		const label = getParticipantPlainText( newSpakerValue );
 
 		// Check if the speaker label has been already added.
-		const existingParticipant = getParticipantByValue( participants, label );
+		const existingParticipant = getParticipantByLabel( participants, label );
 		if ( existingParticipant ) {
 			return existingParticipant;
 		}
