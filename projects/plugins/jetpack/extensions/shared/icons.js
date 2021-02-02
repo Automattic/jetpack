@@ -192,6 +192,34 @@ export const DialogueIcon = {
 	),
 };
 
+export const TranscriptIcon = {
+	foreground: getIconColor(),
+	src: (
+		<SVG viewBox="0 0 24 24">
+			<Rect x="0" fill="none" width="24" height="24" />
+			<G>
+				<Path d="M11.1114 8H20.0002M11.1113 15H20.0002" stroke="#00101C" stroke-width="1.5" />
+				<Path d="M4 10V6L8 8L4 10Z" fill="#1E1E1E" />
+				<Path d="M4 17V13L8 15L4 17Z" fill="#1E1E1E" />
+			</G>
+		</SVG>
+	),
+};
+
+export const TranscriptSpeakerIcon = {
+	foreground: getIconColor(),
+	src: (
+		<SVG viewBox="0 0 24 24">
+			<Rect x="0" fill="none" width="24" height="24" />
+			<G>
+				<Path d="M4 12V4L11 8L4 12Z" fill="#1E1E1E" />
+				<Path d="M4 14.5H20V16H4V14.5Z" fill="#1E1E1E" />
+				<Path d="M4 18.5H13V20H4V18.5Z" fill="#1E1E1E" />
+			</G>
+		</SVG>
+	),
+};
+
 export const formatUppercase = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Path d="M2.5 7.5V4.5H15.5V7.5H10.5V19.5H7.5V7.5H2.5ZM12.5 9.5H21.5V12.5H18.5V19.5H15.5V12.5H12.5V9.5Z" />
