@@ -47,6 +47,11 @@
 			"Composer\\Config::disableProcessTimeout",
 			"yarn build-concurrently"
 		],
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn install",
+			"yarn concurrently 'yarn:test-adminpage' 'yarn:test-extensions' 'yarn:test-search'"
+		],
 		"test-php": [
 			"Composer\\Config::disableProcessTimeout",
 			"@composer install",
