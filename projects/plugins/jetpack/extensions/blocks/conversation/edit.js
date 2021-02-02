@@ -116,9 +116,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 							<ParticipantsSelector
 								className={ baseClassName }
 								participants={ participants }
-								onChange={ updateParticipants }
 								onDelete={ deleteParticipant }
-								onAdd={ addNewParticipant }
 							/>
 						</PanelBody>
 
