@@ -1,11 +1,16 @@
 /**
+ * External dependencies
+ */
+import classNames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo, useState, useEffect } from '@wordpress/element';
 import {
 	__experimentalUseFocusOutside as useFocusOutside,
 } from '@wordpress/compose';
@@ -109,6 +114,7 @@ function refreshAutocompleter( participants ) {
  * Control to edit Dialogue participant globally.
  *
  * @param {object}   prop                     - ParticipantRichControl component.
+ * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.value               - Dialogue participant value. Usually HTML. Local level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
  * @param {object}   prop.participant         - Participant object. Gloanl level.
@@ -120,6 +126,7 @@ function refreshAutocompleter( participants ) {
  * @returns {Function} React component function.
  */
 export function ParticipantsRichControl( {
+	className,
 	value,
 	participants,
 	participant,
@@ -130,6 +137,7 @@ export function ParticipantsRichControl( {
 	onClean,
 } ) {
 	const [ addAutocomplete, setAddAutocomplete ] = useState( true );
+	const [ isAddingNewParticipant, setIsAddingNewParticipant ] = useState( false );
 
 	function addOrSelectParticipant() {
 		// Before to update the participant,
@@ -173,6 +181,8 @@ export function ParticipantsRichControl( {
 		// Force hiding autocompleter when more than word.
 		setAddAutocomplete( newValue.split( ' ' ).length === 1 );
 
+		setIsAddingNewParticipant( ! newValue?.length || ! getParticipantByValue( participants, newValue ) );
+
 		// If the new value is empty,
 		// activate autocomplete, and emit on-clean
 		// to clean the current participant.
@@ -198,8 +208,15 @@ export function ParticipantsRichControl( {
 		return [ refreshAutocompleter( participants ) ];
 	}, [ participants ] );
 
+	useEffect( () => setIsAddingNewParticipant( ! participant ), [ participant ] );
+
 	return (
-		<div { ...focusOutsideProps }>
+		<div
+			className={ classNames( className, {
+				'is-adding-new-participant': isAddingNewParticipant,
+			} ) }
+			{ ...focusOutsideProps }
+		>
 			<RichText
 				tagName="div"
 				value={ value }

@@ -151,6 +151,7 @@ export default function DialogueEdit( {
 
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
 				<ParticipantsRichControl
+					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ participantLabel }
 					value={ participantValue }
 					participant={ conversationParticipant }
