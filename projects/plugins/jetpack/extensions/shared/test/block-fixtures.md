@@ -64,7 +64,7 @@ yarn fixtures:generate `path\to\block\test\validate.js`
 For all blocks:
 
 ```sh
-yarn fixtures:generate `path\to\block\test\validate.js`
+yarn fixtures:generate
 ```
 
 When using this command, please be sure to manually verify that the
