@@ -240,7 +240,12 @@ export function ParticipantsRichControl( {
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
+					if ( ! value?.length ) {
+						return;
+					}
+
 					const replacedParticipant = replaceValue?.[ 0 ];
+
 					if ( ! replacedParticipant ) {
 						// Here, it adds or selects participant.
 						addOrSelectParticipant( value );
