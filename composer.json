@@ -1,0 +1,11 @@
+{
+    "name": "automattic/wp-super-cache",
+    "description": "Very fast caching plugin for WordPress.",
+    "type": "wordpress-plugin",
+    "require-dev": {
+        "automattic/jetpack-codesniffer": "^2.1"
+    },
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "stable",
+    "require": {}
+}

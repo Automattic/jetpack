@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<!-- Load configuration. -->
+	<config name="minimum_supported_wp_version" value="3.1" />
+   	<config name="testVersion" value="5.2.4-"/>
+
+   <!-- Check all PHP files in directory tree by default. -->
+    <arg name="extensions" value="php"/>
+    <file>.</file>
+
+    <!-- Show sniff codes in all reports -->
+    <arg value="s"/>
+
+    <arg name="colors"/>
+
+    <!-- Ignore git, in case someone created a branch ending in ".php" or something -->
+    <exclude-pattern>/.git/*</exclude-pattern>
+
+    <!-- Ignore external libraries -->
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/vendor/*</exclude-pattern>
+
+	<!-- Default ruleset. -->
+	<rule ref="Jetpack" />
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-super-cache"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="wp-super-cache" />
+		</properties>
+	</rule>
+
+</ruleset>
