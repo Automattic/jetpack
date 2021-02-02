@@ -225,7 +225,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		}
 		$stats_menu_item = array(
 			$menu_title,
-			'edit_posts',
+			'view_stats',
 			'https://wordpress.com/stats/day/' . static::$domain,
 			'Stats',
 			'menu-top toplevel_page_https://wordpress.com/stats/day/' . static::$domain,

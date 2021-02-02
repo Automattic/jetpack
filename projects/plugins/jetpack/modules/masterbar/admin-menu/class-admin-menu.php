@@ -154,7 +154,7 @@ class Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-		add_menu_page( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'edit_posts', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
+		add_menu_page( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
 	/**
