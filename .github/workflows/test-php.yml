@@ -141,7 +141,7 @@ jobs:
 
             if ! jq --argjson changed "$CHANGED" --arg p "$SLUG" -ne '$changed[$p] // false' > /dev/null; then
               echo "Skipping $SLUG, no changes in it or its dependencies"
-            elif ! jq '.scripts["test-php"] || false' "$P" > /dev/null; then
+            elif ! jq -e '.scripts["test-php"] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
             else
               echo "::group::Running tests for $SLUG"

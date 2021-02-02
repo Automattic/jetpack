@@ -129,7 +129,7 @@ jobs:
               DIR="/tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/$SLUG"
             fi
 
-            if ! jq '.scripts["test-coverage"] || false' "$P" > /dev/null; then
+            if ! jq -e '.scripts["test-coverage"] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
             else
               echo "::group::Running tests for $SLUG"
