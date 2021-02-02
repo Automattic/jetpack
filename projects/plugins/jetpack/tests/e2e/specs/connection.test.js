@@ -17,7 +17,6 @@ describe( 'Connection', () => {
 			'wp option delete jetpack_active_plan',
 			'wp option delete jetpack_private_options',
 			'wp option delete jetpack_sync_error_idc'
-			// 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false'
 		);
 		await page.reload();
 		await page.reload();
@@ -27,7 +26,6 @@ describe( 'Connection', () => {
 		await execWpCommand(
 			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
 		);
-		// await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
 	} );
 
 	it( 'In-place', async () => {
