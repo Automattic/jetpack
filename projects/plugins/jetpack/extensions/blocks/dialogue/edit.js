@@ -250,6 +250,13 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
+				onFocus={ () => {
+					// Provably, we should add a new participant from here.
+					// onFocusOutside is not supported by some Gutenberg versions.
+					// Take a look at <ParticipantsRichControl /> to get more info.
+					// addNewParticipant will take over to add, or not, the participant.
+					conversationBridge.addNewParticipant( participantValue );
+				} }
 			/>
 		</div>
 	);
