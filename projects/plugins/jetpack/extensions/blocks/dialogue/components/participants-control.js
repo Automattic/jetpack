@@ -131,7 +131,7 @@ export function ParticipantsRichControl( {
 } ) {
 	const [ addAutocomplete, setAddAutocomplete ] = useState( true );
 
-	function addOrAddParticipant() {
+	function addOrSelectParticipant() {
 		// Before to update the participant,
 		// Let's check the participant doesn't exist.
 		const participantLabel = getParticipantPlainText( value );
@@ -154,7 +154,7 @@ export function ParticipantsRichControl( {
 			return;
 		}
 
-		addOrAddParticipant();
+		addOrSelectParticipant();
 	}
 
 	const focusOutsideProps = useFocusOutsideWithFallback( onFocusOutsideHandler );
@@ -213,7 +213,7 @@ export function ParticipantsRichControl( {
 					const replacedParticipant = replaceValue?.[ 0 ];
 					if ( ! replacedParticipant ) {
 						// Here, it adds or selects participant.
-						addOrAddParticipant( value );
+						addOrSelectParticipant( value );
 						return;
 					}
 
