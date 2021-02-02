@@ -328,7 +328,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment() {
 		// Create a mock attachment.
-		$attachment_id = $this->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
 		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
@@ -345,7 +345,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment_attr() {
 		// Create a mock attachment.
-		$attachment_id = $this->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
 		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
