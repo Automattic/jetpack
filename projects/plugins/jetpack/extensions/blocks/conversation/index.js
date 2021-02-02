@@ -32,6 +32,7 @@ export const settings = {
 		__( 'transcription', 'jetpack' ),
 		__( 'dialog', 'jetpack' ),
 		__( 'dialogue', 'jetpack' ),
+		__( 'speaker', 'jetpack' ),
 	],
 	supports: {
 		align: true,
