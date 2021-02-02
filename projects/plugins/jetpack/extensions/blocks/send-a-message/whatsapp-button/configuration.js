@@ -29,7 +29,7 @@ const WHATSAPP_GREEN = '#25D366';
 const WHATSAPP_DARK = '#465B64';
 const WHATSAPP_LIGHT = '#F4F4F4';
 
-export default function WhatsAppButtonSettings( { attributes, setAttributes, context } ) {
+export default function WhatsAppButtonConfiguration( { attributes, setAttributes, context } ) {
 	const { countryCode, phoneNumber, firstMessage, openInNewTab, backgroundColor } = attributes;
 
 	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
