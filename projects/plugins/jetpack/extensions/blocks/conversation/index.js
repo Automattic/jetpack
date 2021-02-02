@@ -6,7 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import { ConversationIcon as icon } from '../../shared/icons';
+import { TranscriptIcon as icon } from '../../shared/icons';
 
 /**
  * Local dependencies

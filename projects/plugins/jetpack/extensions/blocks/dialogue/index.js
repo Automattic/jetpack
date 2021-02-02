@@ -10,7 +10,7 @@ import { createBlock } from '@wordpress/blocks';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
-import { DialogueIcon as icon } from '../../shared/icons';
+import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
 import { list as defaultParticipants } from '../conversation/participants.json';
 
 /**
