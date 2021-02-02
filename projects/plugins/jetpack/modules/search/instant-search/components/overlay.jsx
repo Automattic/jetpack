@@ -12,17 +12,20 @@ import { useEffect } from 'preact/hooks';
  */
 import './overlay.scss';
 
-const closeOnEscapeKey = callback => event => {
-	event.key === 'Escape' && callback();
+const callOnEscapeKey = callback => event => {
+	// IE11 uses 'Esc'
+	( event.key === 'Escape' || event.key === 'Esc' ) && callback();
 };
 
 const Overlay = props => {
 	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible, opacity } = props;
+
+	const closeWithEscape = callOnEscapeKey( closeOverlay );
 	useEffect( () => {
-		window.addEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
+		window.addEventListener( 'keydown', closeWithEscape );
 		return () => {
 			// Cleanup after event
-			window.removeEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
+			window.removeEventListener( 'keydown', closeWithEscape );
 		};
 	}, [] );
 
