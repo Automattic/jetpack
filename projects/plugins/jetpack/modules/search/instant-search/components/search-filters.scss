@@ -1,3 +1,21 @@
+@import '../lib/style-helpers.scss';
+
+.jetpack-instant-search__filters {
+	position: relative;
+
+	> div {
+		margin-top: 1em;
+	}
+}
+
+.jetpack-instant-search__filters-title {
+	content: 'Filter options';
+	font-weight: 700;
+	color: $studio-wordpress-blue-100;
+	display: block;
+	line-height: 1.3;
+}
+
 .jetpack-instant-search__filter-list {
 	margin-bottom: 10px;
 	text-align: left;
@@ -21,4 +39,37 @@
 .jetpack-instant-search__clear-filters-link {
 	display: block;
 	margin-bottom: 1em;
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 0;
+	line-height: 1.3;
+}
+
+.jetpack-instant-search__filter-sub-heading {
+	color: $studio-gray-50;
+	font-size: inherit;
+	margin: 0;
+	padding: 0;
+}
+
+.jetpack-instant-search__filter-list {
+	margin: 0;
+
+	> div {
+		display: flex;
+		align-items: flex-start;
+		margin-top: 8px;
+	}
+
+	.jetpack-instant-search__filter-list-input {
+		margin-top: 4px;
+		width: 14px;
+		height: 14px;
+	}
+
+	.jetpack-instant-search__filter-list-label {
+		margin-left: 8px;
+		line-height: 1.5;
+	}
 }

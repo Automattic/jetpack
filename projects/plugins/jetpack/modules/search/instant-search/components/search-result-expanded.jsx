@@ -25,14 +25,17 @@ export default function SearchResultExpanded( props ) {
 		: fields[ 'image.url.raw' ];
 	return (
 		<li
-			className={ `jetpack-instant-search__result-expanded 
-			jetpack-instant-search__result-expanded--${ fields.post_type }
-			${ ! firstImage ? 'jetpack-instant-search__result-expanded--no-image' : '' }` }
+			className={ [
+				'jetpack-instant-search__result',
+				'jetpack-instant-search__result-expanded',
+				`jetpack-instant-search__result-expanded--${ fields.post_type }`,
+				! firstImage ? 'jetpack-instant-search__result-expanded--no-image' : '',
+			].join( ' ' ) }
 		>
 			<div className="jetpack-instant-search__result-expanded__copy-container">
-				<h3 className="jetpack-instant-search__result-expanded__title">
+				<h3 className="jetpack-instant-search__result-title jetpack-instant-search__result-expanded__title">
 					<a
-						className="jetpack-instant-search__result-expanded__title-link"
+						className="jetpack-instant-search__result-title-link jetpack-instant-search__result-expanded__title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ props.onClick }
 						rel="noopener noreferrer"

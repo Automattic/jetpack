@@ -1,5 +1,5 @@
 @import '../lib/style-helpers';
-$min-height: 190px;
+$image-square-size: 128px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
 	display: flex;
@@ -10,9 +10,8 @@ $min-height: 190px;
 .jetpack-instant-search__result-expanded {
 	display: flex;
 	flex-flow: column wrap;
-	margin: 2em 0;
 
-	@include break-small() {
+	@include break-small-up() {
 		flex-flow: row nowrap;
 	}
 
@@ -21,8 +20,6 @@ $min-height: 190px;
 	}
 
 	.jetpack-instant-search__result-expanded__title {
-		line-height: 1.1;
-		margin: 0;
 		width: 100%;
 		max-width: calc(
 			#{$primary-section-ratio} * ( #{$overlay-max-width} - #{$primary-secondary-separator-width + $overlay-padding-horizontal} )
@@ -30,14 +27,17 @@ $min-height: 190px;
 		overflow-wrap: break-word;
 	}
 }
+
 .jetpack-instant-search__result-expanded__path {
-	margin: 0.5em 0;
+	color: $studio-gray-50;
+	font-size: 0.9375em;
+	margin: 0 0 0.4em;
 }
 
 .jetpack-instant-search__result-expanded__copy-container {
-	@include break-small() {
-		min-height: $min-height;
-		width: 70%;
+	@include break-small-up() {
+		min-height: $image-square-size;
+		width: 100%;
 	}
 
 	.jetpack-instant-search__result-expanded--no-image & {
@@ -46,25 +46,27 @@ $min-height: 190px;
 }
 
 .jetpack-instant-search__result-expanded__content {
-	font-size: 0.9em;
+	font-size: 0.9375em;
+	color: $studio-wordpress-blue-100;
 }
 
 .jetpack-instant-search__result-expanded__image-container {
-	margin-top: 0.5em;
+	margin: 0;
+	width: 128px;
 
-	@include break-small() {
-		margin-top: 0;
-		margin-left: 1em;
-		width: 30%;
+	@include break-small-down() {
+		margin-right: 1em;
+		order: -1;
 	}
 
 	.jetpack-instant-search__result-expanded--no-image & {
 		display: none;
 	}
 }
+
 .jetpack-instant-search__result-expanded__image {
-	min-height: $min-height;
-	width: 100%;
+	min-height: $image-square-size;
+	width: $image-square-size;
 	border-radius: 5px;
 }
 .jetpack-instant-search__result-expanded__image {
@@ -72,7 +74,7 @@ $min-height: 190px;
 	background-position: center;
 	background-repeat: no-repeat;
 
-	@include break-small() {
+	@include break-small-up() {
 		background-size: cover;
 	}
 }

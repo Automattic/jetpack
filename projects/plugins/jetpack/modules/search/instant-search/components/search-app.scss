@@ -1,3 +1,18 @@
+@import '../lib/style-helpers.scss';
+
+.jetpack-instant-search {
+	a {
+		color: $studio-wordpress-blue-100;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			color: $studio-blue-70;
+			text-decoration: underline;
+		}
+	}
+}
+
 .jetpack-search-filters-widget__filter-list {
 	list-style-type: none;
 }

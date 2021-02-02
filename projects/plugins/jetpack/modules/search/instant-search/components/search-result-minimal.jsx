@@ -99,11 +99,11 @@ class SearchResultMinimal extends Component {
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 
 		return (
-			<li className="jetpack-instant-search__search-result-minimal">
-				<h3 className="jetpack-instant-search__search-result-minimal-title">
+			<li className="jetpack-instant-search__result jetpack-instant-search__search-result-minimal">
+				<h3 className="jetpack-instant-search__result-title jetpack-instant-search__search-result-minimal-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
-						className="jetpack-instant-search__search-result-minimal-title-link"
+						className="jetpack-instant-search__result-title-link jetpack-instant-search__search-result-minimal-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"

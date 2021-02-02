@@ -27,12 +27,13 @@ const Overlay = props => {
 			// Cleanup after event
 			window.removeEventListener( 'keydown', closeWithEscape );
 		};
-	}, [] );
+	}, [ closeOverlay ] );
 
 	return (
 		<div
 			aria-labelledby="jetpack-instant-search__overlay-title"
 			className={ [
+				'jetpack-instant-search',
 				'jetpack-instant-search__overlay',
 				hasOverlayWidgets ? '' : 'jetpack-instant-search__overlay--no-sidebar',
 				isVisible ? '' : 'is-hidden',

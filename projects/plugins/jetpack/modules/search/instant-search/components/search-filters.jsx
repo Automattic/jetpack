@@ -62,6 +62,7 @@ class SearchFilters extends Component {
 		const aggregations = this.props.results?.aggregations;
 		return (
 			<div className="jetpack-instant-search__filters">
+				<div className="jetpack-instant-search__filters-title">Filter options</div>
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
 					<a
 						class="jetpack-instant-search__clear-filters-link"

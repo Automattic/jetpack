@@ -5,92 +5,74 @@
 	display: flex;
 	z-index: 10;
 	max-width: $overlay-max-width;
+	min-height: 226px;
 	margin: 0 auto;
-	padding: 0.125em 0;
+	padding: 0;
 	text-align: left;
+	background: $studio-white;
+	border-radius: 3px;
 
 	mark {
-		padding: 0;
-		font-weight: inherit;
-	}
-
-	.jetpack-instant-search__overlay--light & {
-		color: inherit;
-
-		mark {
-			background-color: #ffc;
-		}
-
-		.jetpack-instant-search__overlay-close svg {
-			fill: #000;
-		}
-
-		.jetpack-instant-search__overlay-close:focus {
-			outline-color: #000;
-		}
-	}
-
-	.jetpack-instant-search__overlay--dark & {
-		color: #fff;
-
-		mark {
-			background-color: #324e85;
-		}
-
-		.jetpack-instant-search__overlay-close svg {
-			fill: #fff;
-		}
-
-		.jetpack-instant-search__overlay-close:focus {
-			outline-color: #fff;
-		}
-	}
-
-	@include break-small() {
-		padding: 0.125em $overlay-padding-horizontal;
+		color: $studio-wordpress-blue-100;
+		background: $mark-background-default;
+		padding: 3px 2px;
 	}
 }
 
 .jetpack-instant-search__search-results-primary {
 	flex: $primary-section-flex-grow;
-	margin-bottom: 6em;
+	margin: 0;
+	max-width: calc( 100% - #{$sidebar-width} );
+	width: 100%;
 
-	@include break-medium() {
-		margin-right: $primary-secondary-separator-width;
-		.jetpack-instant-search__overlay--no-sidebar & {
-			margin-right: 0;
-		}
+	@include break-large-down() {
+		max-width: 100%;
 	}
 }
 
 .jetpack-instant-search__search-results-secondary {
 	display: none;
 
-	@include break-medium() {
-		position: static;
-		display: block;
-		flex: $secondary-section-flex-grow;
-		width: auto;
+	@include break-large-up() {
 		background: none;
-		border: 0;
+		border-left: 1px solid $studio-wordpress-blue-0;
 		border-radius: 0;
+		bottom: 0;
 		box-shadow: none;
+		color: $studio-wordpress-blue-100;
+		display: block;
+		flex: none;
+		padding: 0 32px;
+		position: static;
+		width: $sidebar-width;
+
 		.jetpack-instant-search__overlay--no-sidebar & {
 			display: none;
 		}
 	}
 }
 
-.jetpack-instant-search__search-results-title {
-	font-size: 1em;
-	font-weight: bold;
-}
-
 .jetpack-instant-search__search-results-title,
 .jetpack-instant-search__search-results-unused-query {
-	overflow: hidden;
-	margin: 0 0 2em 0;
+	color: $studio-wordpress-blue-100;
+	display: inline-flex;
+	font-size: 1em;
+	font-weight: 700;
+	font-weight: bold;
+	line-height: 1.3;
+
+	margin: 0.5em $results-margin-lg 1.5em;
 	padding: 0;
+
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+	}
+	@include break-large-down() {
+		margin-left: $results-margin-md;
+	}
+	@include break-large-up() {
+		margin-top: 32px;
+	}
 }
 
 .jetpack-instant-search__result-comments {
@@ -108,9 +90,20 @@
 }
 
 .jetpack-instant-search__search-results-list {
+	color: $studio-wordpress-blue-100;
 	list-style: none;
-	margin: 0;
+	margin-left: $results-margin-lg;
+	margin-right: $results-margin-lg;
 	padding: 0;
+
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
+	}
+	@include break-large-down() {
+		margin-left: $results-margin-md;
+		margin-right: $results-margin-md;
+	}
 
 	// Accessibility improvement for VoiceOVer
 	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
@@ -123,44 +116,44 @@
 }
 
 .jetpack-instant-search__search-results-search-form {
-	position: relative;
-	margin-bottom: 1em;
 	font-size: 0.8em;
-
-	.jetpack-instant-search__sort-select {
-		font-size: 0.9em;
-	}
+	margin: 0;
+	position: relative;
+	top: 0;
+	width: 100%;
 }
 
 .jetpack-instant-search__overlay-close {
+	align-items: center;
 	appearance: none;
 	background: none;
 	border: none;
+	cursor: pointer;
 	display: flex;
-	align-items: center;
+	height: 60px;
 	justify-content: center;
-	position: fixed;
-	top: 0;
-	right: 0;
-	z-index: 20;
-	width: 40px;
-	height: 40px;
+	line-height: 1;
 	margin: 0;
 	padding: 0;
-	line-height: 1;
-	cursor: pointer;
 	text-decoration: none;
+	width: 60px;
+	z-index: 20;
 
-	@include break-medium() {
-		position: absolute;
-		top: -$overlay-vertical-padding;
-		right: 8px;
-		width: 64px;
-		height: 64px;
-		padding: 20px;
-	}
+	position: absolute;
+	right: 0;
+	top: 0;
 
 	&:focus {
 		outline: 1px dotted;
 	}
+
+	svg.gridicon {
+		fill: $studio-gray-50;
+	}
+}
+
+.jetpack-instant-search__search-pagination {
+	margin: 50px;
+	display: block;
+	flex: none;
 }
