@@ -76,7 +76,7 @@ export async function build( project, production, composerJson ) {
 					installProjectTask( project ),
 					{
 						title: `Building ${ project }`,
-						task: () => execa.command( command, { cwd: cwd } ),
+						task: () => execa.command( command, { cwd: path.resolve( `projects/${ project }` ) } ),
 					},
 				] );
 			},
