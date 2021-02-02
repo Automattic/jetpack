@@ -254,7 +254,12 @@ export default function DialogueEdit( {
 					// onFocusOutside is not supported by some Gutenberg versions.
 					// Take a look at <ParticipantsRichControl /> to get more info.
 					// addNewParticipant will take over to add, or not, the participant.
-					conversationBridge.addNewParticipant( participantValue );
+					const { value, label, slug } = conversationBridge.addNewParticipant( participantValue );
+					setAttributes( {
+						participantValue: value,
+						participantLabel: label,
+						participantSlug: slug,
+					} );
 				} }
 			/>
 		</div>
