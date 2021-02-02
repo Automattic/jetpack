@@ -31,6 +31,7 @@ export const settings = {
 		_x( 'conversation', 'block search term', 'jetpack' ),
 		_x( 'transcription', 'block search term', 'jetpack' ),
 		_x( 'dialogue', 'block search term', 'jetpack' ),
+		_x( 'speaker', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,
