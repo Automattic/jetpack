@@ -129,7 +129,7 @@ If a project contains PHP or JavaScript tests, it should also define `.scripts.t
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired, as long as the files themselves are named appropriately. Supported formats are:
 
 * clover: Name files to end in `clover.xml`.
-* lcov: Name files to end in `lcov.info`.
+* lcov: Name files to end in `lcov.info`. Remove any `lcov-report` directories.
 
 For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
