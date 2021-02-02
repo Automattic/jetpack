@@ -1,8 +1,22 @@
-$break-small: 600px;
-$break-medium: 768px;
-$grid-size-large: 16px;
+//
+// Variables
+//
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 
-$overlay-vertical-padding: 4em;
+// Breakpoints
+$break-sm: 576px;
+$break-md: 768px;
+$break-lg: 992px;
+$break-xl: 1200px;
+
+// Side margins for search results container
+$results-margin-sm: 20px;
+$results-margin-md: 40px;
+$results-margin-lg: 56px;
+
+$sidebar-width: 320px;
+
+$grid-size-large: 16px;
 
 $overlay-max-width: 1080px;
 $overlay-padding-horizontal: 2em;
@@ -12,16 +26,41 @@ $secondary-section-flex-grow: 2;
 $secondary-section-ratio: 2/7;
 $primary-secondary-separator-width: 4em;
 
-@mixin break-small() {
-	@media ( min-width: #{ ( $break-small ) } ) {
+// Custom colors
+$mark-background-default: #ffc;
+
+//
+// Mixins
+//
+@mixin break-small-up() {
+	@media ( min-width: #{ ( $break-sm ) } ) {
+		@content;
+	}
+}
+@mixin break-small-down() {
+	@media ( max-width: #{ ( $break-sm - .02px ) } ) {
 		@content;
 	}
 }
 
-@mixin break-medium() {
-	@media ( min-width: #{ ( $break-medium ) } ) {
+@mixin break-medium-up() {
+	@media ( min-width: #{ ( $break-md ) } ) {
+		@content;
+	}
+}
+@mixin break-medium-down() {
+	@media ( max-width: #{ ( $break-md - .02px ) } ) {
 		@content;
 	}
 }
 
-@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@mixin break-large-up() {
+	@media ( min-width: #{ ( $break-lg ) } ) {
+		@content;
+	}
+}
+@mixin break-large-down() {
+	@media ( max-width: #{ ( $break-lg - .02px ) } ) {
+		@content;
+	}
+}
