@@ -5,11 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
-import {
-	Panel,
-	PanelBody,
-	ToggleControl,
-} from '@wordpress/components';
+import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
 import { useContext, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
@@ -50,9 +46,10 @@ export default function DialogueEdit( {
 		timestamp,
 	} = attributes;
 
-	const mediaSource = useSelect( select => (
-		select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource()
-	), [] );
+	const mediaSource = useSelect(
+		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
+		[]
+	);
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
@@ -156,11 +153,9 @@ export default function DialogueEdit( {
 					value={ participantValue }
 					participant={ conversationParticipant }
 					participants={ participants }
-
-					onParticipantChange={ ( updatedParticipant ) => {
+					onParticipantChange={ updatedParticipant => {
 						setAttributes( { participantValue: updatedParticipant } );
 					} }
-
 					onSelect={ ( { slug, label, value } ) => {
 						setAttributes( {
 							participantLabel: label,
@@ -168,12 +163,10 @@ export default function DialogueEdit( {
 							participantSlug: slug,
 						} );
 					} }
-
-					onClean = { () => {
+					onClean={ () => {
 						setAttributes( { participantSlug: null } );
 					} }
-
-					onAdd={ ( newValue ) => {
+					onAdd={ newValue => {
 						if ( ! newValue?.length ) {
 							return;
 						}
@@ -188,7 +181,6 @@ export default function DialogueEdit( {
 							participantSlug: newParticipant.slug,
 						} );
 					} }
-
 					onUpdate={ conversationBridge.updateParticipants }
 				/>
 

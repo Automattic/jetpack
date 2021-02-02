@@ -42,32 +42,32 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
-	const addNewParticipant = useCallback( function( newSpeakerValue ) {
-		// Check if the speaker label has been already added.
-		const existingParticipant = getParticipantByValue( participants, newSpeakerValue );
-		if ( existingParticipant ) {
-			return existingParticipant;
-		}
+	const addNewParticipant = useCallback(
+		function ( newSpeakerValue ) {
+			// Check if the speaker label has been already added.
+			const existingParticipant = getParticipantByValue( participants, newSpeakerValue );
+			if ( existingParticipant ) {
+				return existingParticipant;
+			}
 
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
+			const newParticipantSlug = participants.length
+				? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
+				: 'speaker-0';
 
-		const newParticipant = {
-			slug: newParticipantSlug,
-			label: getParticipantPlainText( newSpeakerValue ),
-			value: newSpeakerValue,
-		};
+			const newParticipant = {
+				slug: newParticipantSlug,
+				label: getParticipantPlainText( newSpeakerValue ),
+				value: newSpeakerValue,
+			};
 
-		setAttributes( {
-			participants: [
-				...participants,
-				newParticipant,
-			],
-		} );
+			setAttributes( {
+				participants: [ ...participants, newParticipant ],
+			} );
 
-		return newParticipant;
-	}, [ participants, setAttributes ] );
+			return newParticipant;
+		},
+		[ participants, setAttributes ]
+	);
 
 	const setBlockAttributes = useCallback( setAttributes, [] );
 
@@ -81,12 +81,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 				showTimestamps,
 			},
 		} ),
-		[
-			addNewParticipant,
-			setBlockAttributes,
-			showTimestamps,
-			updateParticipants,
-		]
+		[ addNewParticipant, setBlockAttributes, showTimestamps, updateParticipants ]
 	);
 
 	function deleteParticipant( deletedParticipantSlug ) {

@@ -11,9 +11,7 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { useMemo, useState, useEffect, useReducer } from '@wordpress/element';
-import {
-	__experimentalUseFocusOutside as useFocusOutside,
-} from '@wordpress/compose';
+import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -21,18 +19,22 @@ import {
 import { getParticipantByValue, getParticipantPlainText } from '../../conversation/utils';
 
 // Fallback for `useFocusOutside` hook.
-const useFocusOutsideWithFallback = typeof useFocusOutside !== 'undefined'
-	? useFocusOutside
-	: () => {};
+const useFocusOutsideWithFallback =
+	typeof useFocusOutside !== 'undefined' ? useFocusOutside : () => {};
 
 function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
 			{ participants.map( ( { value, slug } ) => {
-				// eslint-disable-next-line react/no-danger
-				const optionValue = <span dangerouslySetInnerHTML={ {
-					__html: value,
-				} } />;
+				/* eslint-disable react/no-danger */
+				const optionValue = (
+					<span
+						dangerouslySetInnerHTML={ {
+							__html: value,
+						} }
+					/>
+					/* eslint-enable react/no-danger */
+				);
 
 				return (
 					<MenuItem
@@ -91,10 +93,13 @@ function refreshAutocompleter( participants ) {
 		triggerPrefix: '',
 		options: participants,
 		getOptionLabel: ( { value } ) => (
-			// eslint-disable-next-line react/no-danger
-			<span dangerouslySetInnerHTML={ {
-				__html: value,
-			} } />
+			/* eslint-disable react/no-danger */
+			<span
+				dangerouslySetInnerHTML={ {
+					__html: value,
+				} }
+			/>
+			/* eslint-enable react/no-danger */
 		),
 
 		getOptionKeywords: option => [ option.label ],
@@ -110,7 +115,7 @@ function refreshAutocompleter( participants ) {
 	};
 }
 
-const counterReducer = ( state ) => state + 1;
+const counterReducer = state => state + 1;
 
 /**
  * Control to edit Dialogue participant globally.
@@ -140,10 +145,7 @@ export function ParticipantsRichControl( {
 } ) {
 	const [ showAutocomplete, setAddAutocomplete ] = useState( true );
 	const [ isAddingNewParticipant, setIsAddingNewParticipant ] = useState( false );
-	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer(
-		counterReducer,
-		0
-	);
+	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer( counterReducer, 0 );
 
 	function addOrSelectParticipant() {
 		setAddAutocomplete( false );
@@ -187,7 +189,9 @@ export function ParticipantsRichControl( {
 		onParticipantChange( newValue );
 
 		// Update when adding a new participant while typing.
-		setIsAddingNewParticipant( ! newValue?.length || ! getParticipantByValue( participants, newValue ) );
+		setIsAddingNewParticipant(
+			! newValue?.length || ! getParticipantByValue( participants, newValue )
+		);
 
 		// If the new value is empty,
 		// activate autocomplete, and emit on-clean
@@ -239,7 +243,7 @@ export function ParticipantsRichControl( {
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
-				onReplace={ ( replaceValue ) => {
+				onReplace={ replaceValue => {
 					if ( ! value?.length ) {
 						return;
 					}
