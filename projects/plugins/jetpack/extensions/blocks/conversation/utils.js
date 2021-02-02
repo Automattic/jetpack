@@ -26,6 +26,12 @@ export function getParticipantByLabel ( participants, participantLabel ) {
 	return part?.length ? part[ 0 ] : null;
 }
 
+export function getParticipantByValue ( participants, value ) {
+	const participantLabel = getParticipantPlainText( value );
+	const part = participants.filter( ( { label } ) => ( label.toLowerCase() === participantLabel.toLowerCase() ) );
+	return part?.length ? part[ 0 ] : null;
+}
+
 export function getParticipantPlainText( html ) {
 	return getTextContent( create( { html } ) );
 }
