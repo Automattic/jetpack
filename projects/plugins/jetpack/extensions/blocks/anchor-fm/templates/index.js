@@ -162,7 +162,7 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participant: { slug: 'participant-0' },
+					participantSlug: 'participant-0',
 					hasBoldStyle: true,
 				},
 			],
@@ -170,7 +170,7 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participant: { slug: 'participant-1' },
+					participantSlug: 'participant-1',
 					hasBoldStyle: true,
 				},
 			],
@@ -178,7 +178,7 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participant: { slug: 'participant-2' },
+					participantSlug: 'participant-2',
 					hasBoldStyle: true,
 				},
 			],
