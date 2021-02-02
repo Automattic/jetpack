@@ -42,13 +42,18 @@ async function buildRouter( options ) {
  * @param {object} composerJson - The project's composer.json file, parsed.
  */
 export async function build( project, production, composerJson ) {
-	const buildDev = composerJson.scripts[ 'build-development' ]
-		? 'composer build-development'
-		: null;
-	const buildProd = composerJson.scripts[ 'build-production' ] ? 'composer build-production' : null;
-	// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
-	const command = production ? buildProd || buildDev : buildDev || buildProd;
-	const cwd = path.resolve( `projects/${ project }` );
+	let command = false;
+
+	if ( composerJson.scripts ) {
+		const buildDev = composerJson.scripts[ 'build-development' ]
+			? 'composer build-development'
+			: null;
+		const buildProd = composerJson.scripts[ 'build-production' ]
+			? 'composer build-production'
+			: null;
+		// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
+		command = production ? buildProd || buildDev : buildDev || buildProd;
+	}
 
 	if ( ! command ) {
 		// If neither build step is defined, abort.

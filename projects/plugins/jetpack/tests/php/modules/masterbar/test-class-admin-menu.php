@@ -59,9 +59,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$domain  = ( new Status() )->get_site_suffix();
-		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
-
+		static::$domain       = ( new Status() )->get_site_suffix();
+		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$menu_data    = get_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
@@ -491,7 +490,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
-
+		$customize_slug = 'customize.php';
 		static::$admin_menu->add_appearance_menu( false );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
@@ -520,15 +519,16 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$customize_submenu_item = array(
 			'Customize',
 			'customize',
-			'https://wordpress.com/customize/' . static::$domain,
+			$customize_slug,
 			'Customize',
 		);
+
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 
 		$widgets_submenu_item = array(
 			'Widgets',
 			'customize',
-			'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets',
+			$customize_slug . '?autofocus%5Bpanel%5D=widgets',
 			'Widgets',
 		);
 		$this->assertContains( $widgets_submenu_item, $submenu[ $slug ] );
@@ -536,7 +536,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$menus_submenu_item = array(
 			'Menus',
 			'customize',
-			'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus',
+			$customize_slug . '?autofocus%5Bpanel%5D=nav_menus',
 			'Menus',
 		);
 		$this->assertContains( $menus_submenu_item, $submenu[ $slug ] );
