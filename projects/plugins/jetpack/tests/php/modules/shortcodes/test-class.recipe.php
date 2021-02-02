@@ -165,14 +165,8 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_valid_attachment() {
 		// Create a mock attachment.
-		$attachment_id = $this->_make_attachment(
-			array(
-				'file'  => 'example.jpg',
-				'url'   => 'http://example.com/wp-content/uploads/example.jpg',
-				'type'  => 'image/jpeg',
-				'error' => false,
-			)
-		);
+		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
 		$content = '[recipe image="' . $attachment_id . '"]';
@@ -185,12 +179,12 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
 		) {
 			$this->assertContains(
-				'<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />',
+				'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" loading="lazy" itemprop="image" />',
 				$shortcode_content
 			);
 		} else {
 			$this->assertContains(
-				'<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />',
+				'src="' . $url . '" class="jetpack-recipe-image u-photo photo" alt="" itemprop="image" />',
 				$shortcode_content
 			);
 		}
@@ -334,20 +328,14 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment() {
 		// Create a mock attachment.
-		$attachment_id = $this->_make_attachment(
-			array(
-				'file'  => 'example.jpg',
-				'url'   => 'http://example.com/wp-content/uploads/example.jpg',
-				'type'  => 'image/jpeg',
-				'error' => false,
-			)
-		);
+		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
 		$content = '[recipe-image ' . $attachment_id . ']';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
+		$this->assertContains( 'src="' . $url . '" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
 	}
 
 	/**
@@ -357,20 +345,14 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment_attr() {
 		// Create a mock attachment.
-		$attachment_id = $this->_make_attachment(
-			array(
-				'file'  => 'example.jpg',
-				'url'   => 'http://example.com/wp-content/uploads/example.jpg',
-				'type'  => 'image/jpeg',
-				'error' => false,
-			)
-		);
+		$attachment_id = $this->factory->attachment->create_upload_object( __DIR__ . '/../../files/jetpack.jpg' );
+		$url           = wp_get_attachment_url( $attachment_id );
 
 		// Get shortcode with new attachment.
 		$content = '[recipe-image image="' . $attachment_id . '"]';
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertContains( '<img src="http://example.org/wp-content/uploads/example.jpg" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
+		$this->assertContains( 'src="' . $url . '" class="jetpack-recipe-image u-photo photo"', $shortcode_content );
 	}
 
 	/**
