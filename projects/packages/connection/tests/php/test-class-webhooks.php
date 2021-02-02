@@ -12,6 +12,8 @@ use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 use WP_Error;
 
+// phpcs:disable WordPress.Security.NonceVerification.Recommended
+
 /**
  * Unit tests for the Connection Webhooks class.
  *
@@ -52,6 +54,7 @@ class Test_Webhooks extends TestCase {
 	public function tear_down() {
 		Monkey\tearDown();
 		$this->redirect_stack = array();
+		unset( $_GET['handler'], $_GET['action'] );
 	}
 
 	/**
@@ -115,4 +118,36 @@ class Test_Webhooks extends TestCase {
 		static::assertEquals( array( '/wp-admin/?something' ), $this->redirect_stack );
 	}
 
+	/**
+	 * Unit test for the `Webhooks::controller()` method.
+	 *
+	 * @covers \Automattic\Jetpack\Connection\Webhooks::controller
+	 */
+	public function test_controller() {
+		$webhooks = $this->getMockBuilder( Webhooks::class )
+			->setConstructorArgs( array( new Manager() ) )
+			->setMethods( array( 'do_exit', 'handle_authorize' ) )
+			->getMock();
+
+		$controller_skipped = $webhooks->controller();
+
+		$webhooks->expects( $this->exactly( 2 ) )
+			->method( 'do_exit' );
+
+		$webhooks->expects( $this->once() )
+			->method( 'handle_authorize' );
+
+		$_GET['handler'] = 'jetpack-connection-webhooks';
+		$_GET['action']  = 'invalid-action';
+
+		// `do_exit` gets called for the first time.
+		$webhooks->controller();
+
+		$_GET['action'] = 'authorize';
+
+		// `do_exit` gets called for the second time, and `handle_authorize` - for the first and only time.
+		$webhooks->controller();
+
+		static::assertNull( $controller_skipped );
+	}
 }

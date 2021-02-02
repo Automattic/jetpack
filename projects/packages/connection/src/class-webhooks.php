@@ -61,7 +61,7 @@ class Webhooks {
 				break;
 		}
 
-		exit;
+		$this->do_exit();
 	}
 
 	/**
@@ -115,5 +115,12 @@ class Webhooks {
 		$redirect          = wp_validate_redirect( $redirect ) ? $redirect : $fallback_redirect;
 
 		wp_safe_redirect( $redirect );
+	}
+
+	/**
+	 * The `exit` is wrapped into a method so we could mock it.
+	 */
+	protected function do_exit() {
+		exit;
 	}
 }
