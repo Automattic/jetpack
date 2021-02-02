@@ -42,9 +42,9 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
-	const addNewParticipant = useCallback( function( newSpakerValue ) {
+	const addNewParticipant = useCallback( function( newSpeakerValue ) {
 		// Check if the speaker label has been already added.
-		const existingParticipant = getParticipantByValue( participants, newSpakerValue );
+		const existingParticipant = getParticipantByValue( participants, newSpeakerValue );
 		if ( existingParticipant ) {
 			return existingParticipant;
 		}
@@ -55,8 +55,8 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 
 		const newParticipant = {
 			slug: newParticipantSlug,
-			label: getParticipantPlainText( newSpakerValue ),
-			value: newSpakerValue,
+			label: getParticipantPlainText( newSpeakerValue ),
+			value: newSpeakerValue,
 		};
 
 		setAttributes( {
