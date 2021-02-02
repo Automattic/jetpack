@@ -69,13 +69,12 @@ class SearchApp extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		if (
-			prevProps.isSearchParamPresent !== this.props.isSearchParamPresent ||
-			prevProps.searchQuery !== this.props.searchQuery ||
-			prevProps.sort !== this.props.sort ||
-			prevProps.filters !== this.props.filters
-		) {
-			this.onChangeQueryString();
+		if ( prevProps.searchQuery !== this.props.searchQuery ) {
+			this.onChangeSearchQuery();
+		}
+
+		if ( prevProps.sort !== this.props.sort || prevProps.filters !== this.props.filters ) {
+			this.onChangeSortOrFilters();
 		}
 	}
 
@@ -220,17 +219,22 @@ class SearchApp extends Component {
 	showResults = () => {
 		this.setState( { showResults: true } );
 		this.preventBodyScroll();
+
+		// If we've arrived via a filter or sort only, make sure the search query is set
+		if ( this.props.searchQuery === null ) {
+			this.props.setSearchQuery( '' );
+		}
 	};
 
 	hideResults = () => {
 		this.restoreBodyScroll();
 		restorePreviousHref( this.props.initialHref, () => {
 			this.setState( { showResults: false } );
+			this.props.setSearchQuery( null );
 		} );
-		this.props.setSearchQuery( null );
 	};
 
-	onChangeQueryString = () => {
+	onChangeSearchQuery = () => {
 		this.getResults();
 
 		if ( this.props.searchQuery !== null && ! this.state.showResults ) {
@@ -240,6 +244,14 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = this.props.searchQuery;
 		} );
+	};
+
+	onChangeSortOrFilters = () => {
+		this.getResults();
+
+		if ( this.hasActiveQuery() && ! this.state.showResults ) {
+			this.showResults();
+		}
 	};
 
 	loadNextPage = () => {
@@ -311,7 +323,6 @@ export default connect(
 		hasFilters: hasFilters( state ),
 		hasNextPage: hasNextPage( state ),
 		isLoading: isLoading( state ),
-
 		response: getResponse( state ),
 		searchQuery: getSearchQuery( state ),
 		sort: getSort( state ),
@@ -321,7 +332,6 @@ export default connect(
 		initializeQueryValues,
 		makeSearchRequest,
 		setFilter,
-
 		setSearchQuery,
 		setSort,
 	}
