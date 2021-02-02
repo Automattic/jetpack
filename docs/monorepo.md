@@ -116,6 +116,8 @@ If your tests generate any artifacts that might be useful for debugging, you may
 
 #### E2E tests
 
+**This is not implemented yet!**
+
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
 If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
