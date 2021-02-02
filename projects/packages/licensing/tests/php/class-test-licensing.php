@@ -206,7 +206,7 @@ class Test_Licensing extends BaseTestCase {
 
 		$result = $licensing->attach_licenses( $licenses );
 
-		$this->assertSame( 2, count( $result ) );
+		$this->assertCount( 2, $result );
 		$this->assertInstanceOf( WP_Error::class, $result[0] );
 		$this->assertSame( 1, $result[0]->get_error_code() );
 		$this->assertSame( 'Expected error message', $result[0]->get_error_message() );

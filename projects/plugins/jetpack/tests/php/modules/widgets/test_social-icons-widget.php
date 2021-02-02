@@ -44,8 +44,8 @@ class WP_Test_Social_Icons_Widget extends WP_UnitTestCase {
 		$this->social_icon_widget->widget( $args, $instance );
 		$output_string = ob_get_clean();
 
-		$this->assertNotFalse( strpos( $output_string, 'target="_blank"' ), 'The expected attribute target="_blank" is missing.' );
-		$this->assertNotFalse( strpos( $output_string, 'rel="noopener noreferrer"' ), 'The expected attribute rel="noopener noreferrer" is missing.' );
+		$this->assertStringContainsString( 'target="_blank"', $output_string, 'The expected attribute target="_blank" is missing.' );
+		$this->assertStringContainsString( 'rel="noopener noreferrer"', $output_string, 'The expected attribute rel="noopener noreferrer" is missing.' );
 	}
 
 	/**
@@ -75,7 +75,7 @@ class WP_Test_Social_Icons_Widget extends WP_UnitTestCase {
 		$this->social_icon_widget->widget( $args, $instance );
 		$output_string = ob_get_clean();
 
-		$this->assertNotFalse( strpos( $output_string, 'target="_self"' ), 'The expected attribute target="_self" is missing.' );
-		$this->assertFalse( strpos( $output_string, 'rel="noopener noreferrer"' ), 'The attribute rel="noopener noreferrer should not be present.' );
+		$this->assertStringContainsString( 'target="_self"', $output_string, 'The expected attribute target="_self" is missing.' );
+		$this->assertStringNotContainsString( 'rel="noopener noreferrer"', $output_string, 'The attribute rel="noopener noreferrer should not be present.' );
 	}
 }
