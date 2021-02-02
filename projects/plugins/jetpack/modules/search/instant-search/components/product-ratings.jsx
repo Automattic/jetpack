@@ -25,15 +25,15 @@ import './product-ratings.scss';
  */
 export default function ProductRatings( { rating = 0, count = 0 } ) {
 	return (
-		<div className="jetpack-instant-search__search-result-product-rating">
-			<span aria-hidden className="jetpack-instant-search__search-result-product-rating-stars">
+		<div className="jetpack-instant-search__result-product-rating">
+			<span aria-hidden className="jetpack-instant-search__result-product-rating-stars">
 				{ Array( 5 )
 					.fill( <Gridicon size={ 16 } icon="star-outline" /> )
 					.fill( <Gridicon size={ 16 } icon="star" />, 0, rating ) }
 			</span>{ ' ' }
 			<span
 				aria-hidden
-				className="jetpack-instant-search__search-result-product-rating-count"
+				className="jetpack-instant-search__result-product-rating-count"
 				title={ sprintf(
 					/* Translators: the placeholder is the number of product reviews. */
 					_n( '(%s customer review)', '(%s customer reviews)', count, 'jetpack' ),

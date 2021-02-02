@@ -1,11 +1,11 @@
 @import '../lib/style-helpers';
 
-.jetpack-instant-search__search-result-minimal {
+.jetpack-instant-search__result-minimal {
 	padding: 0.125em 0;
 	position: relative;
 }
 
-.jetpack-instant-search__search-result-minimal-title {
+.jetpack-instant-search__result-minimal-title {
 	clear: none;
 	margin: 0;
 
@@ -19,8 +19,8 @@
 	}
 }
 
-.jetpack-instant-search__search-result-minimal-tags,
-.jetpack-instant-search__search-result-minimal-cats {
+.jetpack-instant-search__result-minimal-tags,
+.jetpack-instant-search__result-minimal-cats {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -29,8 +29,8 @@
 	padding: 0;
 }
 
-.jetpack-instant-search__search-result-minimal-tag,
-.jetpack-instant-search__search-result-minimal-cat {
+.jetpack-instant-search__result-minimal-tag,
+.jetpack-instant-search__result-minimal-cat {
 	margin: 0 0.75em 0 0;
 
 	.gridicon {
@@ -38,10 +38,10 @@
 	}
 }
 
-.jetpack-instant-search__search-result-minimal-tag .gridicon {
+.jetpack-instant-search__result-minimal-tag .gridicon {
 	vertical-align: middle;
 }
 
-.jetpack-instant-search__search-result-minimal-content {
+.jetpack-instant-search__result-minimal-content {
 	word-break: break-word;
 }

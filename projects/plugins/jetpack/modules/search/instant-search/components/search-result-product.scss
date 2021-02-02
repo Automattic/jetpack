@@ -1,12 +1,12 @@
 @import '../lib/style-helpers';
 
-.jetpack-instant-search__search-results-list.is-format-product {
+.jetpack-instant-search__results-list.is-format-product {
 	display: flex;
 	flex-wrap: wrap;
 	padding: 0;
 }
 
-.jetpack-instant-search__result.jetpack-instant-search__search-result-product {
+.jetpack-instant-search__result.jetpack-instant-search__result-product {
 	margin: 0 $grid-size-large $grid-size-large 0;
 	display: flex;
 	flex-direction: column;
@@ -30,7 +30,7 @@
 	}
 }
 
-.jetpack-instant-search__search-result-product-img {
+.jetpack-instant-search__result-product-img {
 	margin: 0.5em 0.5em 0.5em 0;
 	max-width: 100%;
 }
