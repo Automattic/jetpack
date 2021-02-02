@@ -20,11 +20,7 @@ import ParticipantsDropdown, { ParticipantsSelector } from './components/partici
 import TranscriptionContext from './components/context';
 import { getParticipantPlainText } from './utils';
 
-const TRANSCRIPTION_TEMPLATE = [
-	[ 'jetpack/dialogue' ],
-	[ 'jetpack/dialogue' ],
-	[ 'jetpack/dialogue' ],
-];
+const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
 	const { participants = [], showTimestamps } = attributes;
