@@ -10,7 +10,7 @@ import {
 	PanelBody,
 	ToggleControl,
 } from '@wordpress/components';
-import { useContext, useEffect, useRef } from '@wordpress/element';
+import { useContext, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
 
@@ -49,7 +49,6 @@ export default function DialogueEdit( {
 		showTimestamp,
 		timestamp,
 	} = attributes;
-	const richTextRef = useRef();
 
 	const mediaSource = useSelect( select => (
 		select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource()
@@ -204,7 +203,6 @@ export default function DialogueEdit( {
 			</div>
 
 			<RichText
-				ref={ richTextRef }
 				identifier="content"
 				tagName="p"
 				className={ `${ BASE_CLASS_NAME }__content` }
