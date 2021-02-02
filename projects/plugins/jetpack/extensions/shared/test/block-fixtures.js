@@ -270,10 +270,6 @@ function getBlockFixtureSerializedHTML( basename ) {
 	};
 }
 
-function writeBlockFixtureHTML( basename, fixture ) {
-	writeFixtureFile( FIXTURES_DIR, `${ basename }.html`, fixture );
-}
-
 function writeBlockFixtureJSON( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.json`, fixture );
 }
