@@ -4,13 +4,16 @@
  * External dependencies
  */
 import { Component, h } from 'preact';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Gridicon from './gridicon';
 import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
+import SearchSort from './search-sort';
 import './search-form.scss';
 
 const noop = event => event.preventDefault();
@@ -52,25 +55,50 @@ class SearchForm extends Component {
 	render() {
 		return (
 			<form autocomplete="off" onSubmit={ noop } role="search" className={ this.props.className }>
-				<div className="jetpack-instant-search__search-form">
+				<div className="jetpack-instant-search__form">
 					<SearchBox
-						enableFilters={ this.state.widgets.length > 0 }
-						enableSort={ this.props.enableSort }
 						isVisible={ this.props.isVisible }
-						onChangeSearch={ this.onChangeSearch }
-						onChangeSort={ this.onChangeSort }
-						resultFormat={ this.props.resultFormat }
+						onChange={ this.onChangeSearch }
 						shouldRestoreFocus
-						showFilters={ this.state.showFilters }
 						searchQuery={ this.props.searchQuery }
-						sort={ this.props.sort }
-						toggleFilters={ this.toggleFilters }
 					/>
+
+					<div className="jetpack-instant-search__form-controls">
+						{ this.state.widgets.length > 0 && (
+							<div
+								role="button"
+								onClick={ this.toggleFilters }
+								onKeyDown={ this.toggleFilters }
+								tabIndex="0"
+								className="jetpack-instant-search__box-filter-button"
+							>
+								{ __( 'Filters', 'jetpack' ) }
+								<Gridicon
+									icon="chevron-down"
+									size={ 16 }
+									alt="Show search filters"
+									aria-hidden="true"
+								/>
+								<span className="screen-reader-text assistive-text">
+									{ this.state.showFilters
+										? __( 'Hide filters', 'jetpack' )
+										: __( 'Show filters', 'jetpack' ) }
+								</span>
+							</div>
+						) }
+						{ this.props.enableSort && (
+							<SearchSort
+								onChange={ this.onChangeSort }
+								resultFormat={ this.props.resultFormat }
+								value={ this.props.sort }
+							/>
+						) }
+					</div>
 				</div>
+
 				{ /* TODO: Remove this section entirely and use SearchSidebar to show mobile version of filters. */ }
 				{ this.state.widgets.length > 0 && this.state.showFilters && (
-					<div className="jetpack-instant-search__search-form-filters">
-						<div className="jetpack-instant-search__search-form-filters-arrow" />
+					<div className="jetpack-instant-search__form-filters">
 						{ this.state.widgets.map( ( widget, index ) => (
 							<SearchFilters
 								filters={ this.props.filters }

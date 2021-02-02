@@ -13,7 +13,6 @@ import uniqueId from 'lodash/uniqueId';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
-import SearchSort from './search-sort';
 import './search-box.scss';
 
 let initiallyFocusedElement = null;
@@ -51,7 +50,7 @@ const SearchBox = props => {
 						id={ inputId }
 						className="search-field jetpack-instant-search__box-input"
 						inputmode="search"
-						onInput={ props.onChangeSearch }
+						onInput={ props.onChange }
 						ref={ inputRef }
 						placeholder={ __( 'Search…', 'jetpack' ) }
 						type="search"
@@ -62,38 +61,6 @@ const SearchBox = props => {
 						{ __( 'Search', 'jetpack' ) }
 					</button>
 				</label>
-			</div>
-
-			<div className="jetpack-instant-search__box-filter-area">
-				{ props.enableFilters && (
-					<div
-						role="button"
-						onClick={ props.toggleFilters }
-						onKeyDown={ props.toggleFilters }
-						tabIndex="0"
-						className="jetpack-instant-search__box-filter-button"
-					>
-						{ __( 'Filters', 'jetpack' ) }
-						<Gridicon
-							icon="chevron-down"
-							size={ 16 }
-							alt="Show search filters"
-							aria-hidden="true"
-						/>
-						<span className="screen-reader-text assistive-text">
-							{ props.showFilters
-								? __( 'Hide filters', 'jetpack' )
-								: __( 'Show filters', 'jetpack' ) }
-						</span>
-					</div>
-				) }
-				{ props.enableSort && (
-					<SearchSort
-						onChange={ props.onChangeSort }
-						resultFormat={ props.resultFormat }
-						value={ props.sort }
-					/>
-				) }
 			</div>
 		</Fragment>
 	);

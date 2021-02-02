@@ -1,15 +1,87 @@
 @import '../lib/style-helpers';
-$arrow-height: 10px;
 
-.jetpack-instant-search__search-form-filters {
+.jetpack-instant-search__form-controls {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	right: $results-margin-lg;
+	line-height: 1.3;
+	margin-top: 16px;
+
+	@include break-large-down() {
+		position: relative;
+		left: 0;
+		right: 0;
+
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-between;
+	}
+	@include break-large-up() {
+		margin-top: 32px;
+	}
+}
+
+.jetpack-instant-search__box-filter-button {
+	align-items: center;
+	border: 0;
+	color: $studio-gray-50;
+	cursor: pointer;
+	display: flex;
+	font-size: 12px;
+	margin-right: 6px;
+	padding: 8px;
+	text-decoration: none;
+	transition: background-color 0.25s ease-in-out;
+
+	@include break-small-up() {
+		padding: 10px 14px;
+		font-size: 13px;
+		margin-right: 16px;
+	}
+
+	@include break-large-up() {
+		display: none;
+	}
+
+	@include break-medium-down() {
+		margin-right: $results-margin-sm;
+	}
+
+	@include break-large-down() {
+		margin-right: $results-margin-md;
+	}
+
+	&:hover,
+	&:focus {
+		color: $studio-wordpress-blue-100;
+	}
+
+	.gridicon {
+		margin-left: 4px;
+	}
+}
+
+.jetpack-instant-search__form-filters {
 	position: absolute;
 	top: 96px;
-	left: 0;
-	z-index: 10;
-	width: 100%;
-	margin: 12px 0 32px;
-	padding: 16px 24px;
+	right: 40px;
+	left: 40px;
+
+	background: $studio-white;
 	border-radius: 6px;
+	border: 1px solid rgba( 0, 0, 0, 0.1 );
+	box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
+	color: $studio-wordpress-blue-100;
+	margin: 16px 0 32px;
+	min-width: 360px;
+	padding: 16px 24px;
+	width: auto;
+	z-index: 10;
+
+	@include break-large-up() {
+		display: none;
+	}
 
 	.jetpack-instant-search__jetpack-colophon {
 		margin-bottom: 1em;
@@ -17,71 +89,5 @@ $arrow-height: 10px;
 
 	.jetpack-instant-search__jetpack-colophon-text {
 		font-size: 0.8em;
-	}
-
-	.jetpack-instant-search__overlay--light & {
-		background: #fff;
-		border: 1px solid rgba( 0, 0, 0, 0.1 );
-		box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
-	}
-
-	.jetpack-instant-search__overlay--dark & {
-		background: #222;
-		border: 1px solid rgba( 140, 140, 140, 0.1 );
-		box-shadow: 0 2px 3px rgba( 140, 140, 140, 0.1 );
-	}
-
-	@include break-small() {
-		width: auto;
-		min-width: 360px;
-	}
-
-	@include break-medium() {
-		display: none;
-	}
-}
-
-.jetpack-instant-search__search-form-filters-arrow {
-	position: absolute;
-	top: ( $arrow-height + 1px ) * -1;
-	left: 52px;
-	width: $arrow-height * 2;
-	height: $arrow-height;
-
-	&:before,
-	&:after {
-		content: '';
-		position: absolute;
-		border-color: transparent;
-		border-style: solid;
-		border-width: 0 $arrow-height $arrow-height $arrow-height;
-	}
-
-	&:before {
-		top: 0;
-
-		.jetpack-instant-search__overlay--light & {
-			border-bottom-color: rgba( 0, 0, 0, 0.1 );
-		}
-
-		.jetpack-instant-search__overlay--dark & {
-			border-bottom-color: rgba( 140, 140, 140, 0.25 );
-		}
-	}
-
-	&:after {
-		top: 1px;
-
-		.jetpack-instant-search__overlay--light & {
-			border-bottom-color: #fff;
-		}
-
-		.jetpack-instant-search__overlay--dark & {
-			border-bottom-color: #222;
-		}
-	}
-
-	@include break-medium() {
-		display: none;
 	}
 }

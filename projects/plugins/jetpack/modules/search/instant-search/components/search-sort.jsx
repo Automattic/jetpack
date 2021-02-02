@@ -11,6 +11,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { getSortOptions } from '../lib/sort';
 
+import './search-sort.scss';
+
 export default class SearchSort extends Component {
 	handleKeyPress = event => {
 		if ( this.props.value !== event.currentTarget.value && event.key === 'Enter' ) {
@@ -63,11 +65,11 @@ export default class SearchSort extends Component {
 		}
 
 		return (
-			<div className="jetpack-instant-search__box-filter-order">
+			<div className="jetpack-instant-search__sort">
 				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack' ) }</div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<a
-						class={ `jetpack-instant-search__box-filter-option ${
+						class={ `jetpack-instant-search__sort-option ${
 							this.props.value === sortKey ? 'is-selected' : ''
 						}` }
 						data-value={ sortKey }
