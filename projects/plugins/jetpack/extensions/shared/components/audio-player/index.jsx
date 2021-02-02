@@ -53,7 +53,6 @@ function AudioPlayer( {
 	preload = 'metadata',
 } ) {
 	const audioRef = useRef();
-	const containerRef = useRef();
 
 	/**
 	 * Play current audio.
@@ -91,21 +90,16 @@ function AudioPlayer( {
 	}, [] );
 
 	useEffect( () => {
-		const container = containerRef.current;
-		const audioEl = document.createElement( 'audio' );
-		audioEl.src = trackSource;
+		const audio = audioRef.current;
 
 		// Pre load audio meta data.
-		audioEl.preload = preload;
+		audio.preload = preload;
 
 		// Insert player into the DOM.
-		container.appendChild( audioEl );
-		const mediaElement = new MediaElementPlayer( audioEl, {
+		const mediaElement = new MediaElementPlayer( audio, {
 			...meJsSettings,
 			success: () => loadWhenReady && audio?.load()
 		} );
-		audioRef.current = mediaElement.domNode;
-		const audio = audioRef.current;
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -134,11 +128,11 @@ function AudioPlayer( {
 
 		return () => {
 			// Cleanup.
+			mediaElement.remove();
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
 			onMetadataLoaded && audio.removeEventListener( 'loadedmetadata', onMetadataLoaded );
-			mediaElement.remove();
 		};
 	}, [
 		onPlay,
@@ -149,7 +143,6 @@ function AudioPlayer( {
 		onMetadataLoaded,
 		loadWhenReady,
 		preload,
-		trackSource,
 	] );
 
 	// If we get lots of events from clicking on the progress bar in the MediaElement
@@ -207,7 +200,12 @@ function AudioPlayer( {
 		}
 	}, [ audioRef, currentTime ] );
 
-	return <div className="jetpack-audio-player" ref={ containerRef } />;
+	return (
+		<div className="jetpack-audio-player">
+			{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
+			<audio src={ trackSource } ref={ audioRef }></audio>
+		</div>
+	);
 }
 
 export default AudioPlayer;
