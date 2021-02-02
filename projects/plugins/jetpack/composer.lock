@@ -274,10 +274,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
-                "reference": "81d55cb3ae0ac5bab767a3696344169885d3a900"
-            },
-            "require-dev": {
-                "yoast/phpunit-polyfills": "0.2.0"
+                "reference": "0ac86e06361b15c167f16216653793d907f03dd3"
             },
             "type": "library",
             "extra": {
@@ -289,19 +286,6 @@
                 ],
                 "classmap": [
                     "legacy"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -530,14 +514,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/heartbeat",
-                "reference": "9f35b8379adabd516c0e86b892df04562fc7b827"
+                "reference": "4e9b456637a8d09e39fccb3580049147ace84e40"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-options": "@dev"
-            },
-            "require-dev": {
-                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
@@ -546,19 +527,6 @@
             "autoload": {
                 "classmap": [
                     "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "@composer install",
-                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
                 ]
             },
             "license": [
