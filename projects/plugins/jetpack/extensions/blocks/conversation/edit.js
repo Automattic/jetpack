@@ -3,20 +3,18 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from '@wordpress/element';
-import { InnerBlocks, InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Panel,
 	PanelBody,
 	ToggleControl,
-	ToolbarButton,
-	ToolbarGroup,
 } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
+import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
 import { getParticipantByLabel } from './utils';
 
@@ -109,28 +107,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
 			<div className={ className }>
-				<BlockControls>
-					<ToolbarGroup>
-						<ParticipantsDropdown
-							className={ baseClassName }
-							participants={ participants }
-							label={ __( 'Participants', 'jetpack' ) }
-							onChange={ updateParticipants }
-							onDelete={ deleteParticipant }
-							onAdd={ addNewParticipant }
-						/>
-					</ToolbarGroup>
-
-					<ToolbarGroup>
-						<ToolbarButton
-							isActive={ showTimestamps }
-							onClick={ () => setAttributes( { showTimestamps: ! showTimestamps } ) }
-						>
-							{ __( 'Timestamps', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				</BlockControls>
-
 				<InspectorControls>
 					<Panel>
 						<PanelBody

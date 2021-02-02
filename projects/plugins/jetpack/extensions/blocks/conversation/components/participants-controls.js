@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { DropdownMenu, TextControl, Button } from '@wordpress/components';
+import { TextControl, Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
@@ -64,19 +64,5 @@ export function ParticipantsSelector( { participants, className, onChange, onDel
 
 			<AddParticipantButton className={ className } onAdd={ onAdd } participants={ participants } />
 		</Fragment>
-	);
-}
-
-export default function ParticipantsDropdown( props ) {
-	return (
-		<DropdownMenu
-			popoverProps={ { position: 'bottom' } }
-			toggleProps={ {
-				children: <span>{ props.label }</span>,
-			} }
-			icon={ null }
-		>
-			{ () => <ParticipantsSelector { ...props } /> }
-		</DropdownMenu>
 	);
 }
