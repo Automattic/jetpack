@@ -10,7 +10,7 @@ import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/com
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState, useEffect } from '@wordpress/element';
+import { useMemo, useState, useEffect, useReducer } from '@wordpress/element';
 import {
 	__experimentalUseFocusOutside as useFocusOutside,
 } from '@wordpress/compose';
@@ -110,6 +110,8 @@ function refreshAutocompleter( participants ) {
 	};
 }
 
+const counterReducer = ( state ) => state + 1;
+
 /**
  * Control to edit Dialogue participant globally.
  *
@@ -136,11 +138,16 @@ export function ParticipantsRichControl( {
 	onAdd,
 	onClean,
 } ) {
-	const [ addAutocomplete, setAddAutocomplete ] = useState( true );
+	const [ showAutocomplete, setAddAutocomplete ] = useState( true );
 	const [ isAddingNewParticipant, setIsAddingNewParticipant ] = useState( false );
+	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer(
+		counterReducer,
+		0
+	);
 
 	function addOrSelectParticipant() {
 		setAddAutocomplete( false );
+		triggerRefreshAutocomplete();
 
 		// Before to update the participant,
 		// Let's check the participant doesn't exist.
@@ -204,8 +211,12 @@ export function ParticipantsRichControl( {
 	}
 
 	const autocompleter = useMemo( () => {
+		if ( ! showAutocomplete ) {
+			return [];
+		}
+
 		return [ refreshAutocompleter( participants ) ];
-	}, [ participants ] );
+	}, [ participants, showAutocomplete ] );
 
 	useEffect( () => {
 		setIsAddingNewParticipant( ! participant );
@@ -220,6 +231,7 @@ export function ParticipantsRichControl( {
 			{ ...focusOutsideProps }
 		>
 			<RichText
+				key={ reRenderingKey }
 				tagName="div"
 				value={ value }
 				formattingControls={ [ 'bold', 'italic', 'text-color' ] }
@@ -242,7 +254,7 @@ export function ParticipantsRichControl( {
 					setAddAutocomplete( false );
 					onSelect( replacedParticipant );
 				} }
-				autocompleters={ addAutocomplete ? autocompleter : [] }
+				autocompleters={ autocompleter }
 			/>
 		</div>
 	);
