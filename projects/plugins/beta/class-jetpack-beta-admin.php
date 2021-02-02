@@ -2,7 +2,7 @@
 /**
  * Handles the Jetpack Admin functions.
  *
- * @package Jetpack Beta
+ * @package automattic/jetpack-beta
  */
 
 /** Class Jetpack_Beta_Admin */

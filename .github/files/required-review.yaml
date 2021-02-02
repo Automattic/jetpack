@@ -1,0 +1,22 @@
+# Crew needs to review changes to the monorepo itself.
+- name: Monorepo itself
+  paths:
+   - '!projects/**'
+  teams:
+   - jetpack-crew
+
+# Crew reviews the Jetpack plugin and all packages.
+- name: Jetpack and packages
+  paths:
+   - 'projects/packages/**'
+   - 'projects/plugins/jetpack/**'
+  teams:
+   - jetpack-crew
+
+# Crew reviews everything that hasn't been specifically assigned above.
+# This needs to be last.
+- name: Default to Crew
+  paths: unmatched
+  teams:
+   - jetpack-crew
+

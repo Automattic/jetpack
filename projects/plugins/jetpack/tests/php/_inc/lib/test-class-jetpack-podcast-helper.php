@@ -2,7 +2,7 @@
 /**
  * Podcast Helper unit tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 jetpack_require_lib( 'class-jetpack-podcast-helper' );

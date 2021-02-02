@@ -5,15 +5,18 @@
 # Current directory must be within the repo being mirrored from, so the commit message can be read.
 #
 # Required:
-# - BUILD_BASE: Path to the build directory, which contains "projects.txt" and directories for each repo to mirror to.
+# - BUILD_BASE: Path to the build directory, which contains "mirrors.txt" and directories for each repo to mirror to.
 # - GITHUB_ACTOR: GitHub username for the commit being mirrored.
 # - GITHUB_REF: Git ref being mirrored from, e.g. "refs/heads/master". Must begin with "refs/heads/".
 #
 # Other:
 # - API_TOKEN_GITHUB: Personal access token to use when accessing GitHub.
 # - CI: If unset or empty, the commits will be prepared but the actual push will not happen.
-# - GITHUB_RUN_ID: GH Actions run ID, used in the commit message.
+# - COMMIT_MESSAGE: Commit message to use for the mirror commits. Will be read from HEAD in `SOURCE_DIR` if not specified.
+# - GITHUB_REPOSITORY: GH repository, used in the commit message if `COMMIT_MESSAGE` is not specified.
+# - GITHUB_RUN_ID: GH Actions run ID, used in the commit message if `COMMIT_MESSAGE` is not specified.
 # - GITHUB_SHA: Head SHA1 from which to fetch the commit message for the commit being mirrored. HEAD will be assumed if not specified.
+# - SOURCE_DIR: Source directory, used when `COMMIT_MESSAGE` is not specified.
 # - USER_NAME: Git user name to use when making the commit to the mirror repo.
 # - USER_EMAIL: Email address to use when making the commit to the mirror repo. Defaults to "$USER_NAME@users.noreply.github.com"
 
@@ -27,25 +30,30 @@ fi
 
 if [[ -z "$BUILD_BASE" ]]; then
 	echo "::error::BUILD_BASE must be set"
+	exit 1
 elif [[ ! -d "$BUILD_BASE" ]]; then
 	echo "::error::$BUILD_BASE does not exist or is not a directory"
+	exit 1
 fi
 
-MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
-COMMIT_MESSAGE=$( echo "${MONOREPO_COMMIT_MESSAGE}\n\nCommitted via a GitHub action: https://github.com/automattic/jetpack/runs/${GITHUB_RUN_ID}" )
+if [[ -z "$COMMIT_MESSAGE" ]]; then
+	MONOREPO_COMMIT_MESSAGE=$(cd "${SOURCE_DIR:-.}" && git show -s --format=%B $GITHUB_SHA)
+	COMMIT_MESSAGE=$( printf "%s\n\nCommitted via a GitHub action: https://github.com/%s/actions/runs/%s\n" "$MONOREPO_COMMIT_MESSAGE" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" )
+fi
 COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
 if [[ "$GITHUB_REF" =~ ^refs/heads/ ]]; then
 	BRANCH=${GITHUB_REF#refs/heads/}
 else
-	echo "Could not determine branch name from $GITHUB_REF"
+	echo "::error::Could not determine branch name from $GITHUB_REF"
 	exit 1
 fi
 
-if [[ ! -f "$BUILD_BASE/projects.txt" ]]; then
-	echo "::error::File $BUILD_BASE/projects.txt does not exist or is not a file"
-elif [[ ! -s "$BUILD_BASE/projects.txt" ]]; then
-	echo "No projects were successfully built. Skipping."
+if [[ ! -f "$BUILD_BASE/mirrors.txt" ]]; then
+	echo "::error::File $BUILD_BASE/mirrors.txt does not exist or is not a file"
+	exit 1
+elif [[ ! -s "$BUILD_BASE/mirrors.txt" ]]; then
+	echo "Nothing to do, $BUILD_BASE/mirrors.txt is empty."
 	exit 0
 fi
 
@@ -53,27 +61,12 @@ fi
 
 EXIT=0
 while read -r GIT_SLUG; do
-	EMPTY=false
-	printf "\n\n\e[7m Project: %s \e[0m\n" "$GIT_SLUG"
+	printf "\n\n\e[7m Mirror: %s \e[0m\n" "$GIT_SLUG"
 	CLONE_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	cd "${CLONE_DIR}"
 
-	# Release branches are only mirrored to branches where composer.json specifies the matching prefix.
-	if [[ "$BRANCH" =~ /branch- ]]; then
-		PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
-		if [[ -z "$PREFIX" ]]; then
-			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
-			continue
-		elif [[ "${BRANCH%%/branch-*}" != "$PREFIX" ]]; then
-			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` != declared prefix \`$PREFIX\`"
-			continue
-		fi
-	fi
-
-	# Check if a remote exists for that project.
-	if git ls-remote --exit-code -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
-		:
-	else
+	# Check if a remote exists for that mirror.
+	if ! git ls-remote -h "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git" >/dev/null 2>&1; then
 		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
 		continue
 	fi
@@ -84,31 +77,23 @@ while read -r GIT_SLUG; do
 	git remote add origin "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git"
 	FORCE_COMMIT=
 	if git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$BRANCH"; then
-		:
-	elif [[ "$BRANCH" != "master" ]] && git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin master; then
+		git reset --soft FETCH_HEAD
+	elif [[ -n "$DEFAULT_BRANCH" ]] && git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$DEFAULT_BRANCH"; then
 		FORCE_COMMIT=--allow-empty
+		git reset --soft FETCH_HEAD
 	else
-		echo "::endgroup::"
-		echo "::error::Fetching of ${GIT_SLUG} failed"
-		EXIT=1
-		continue
+		echo "Failed to find a branch to branch from, just creating an empty one."
+		FORCE_COMMIT=--allow-empty
 	fi
-	git reset --soft FETCH_HEAD
 	git add -Af
 	echo "::endgroup::"
-
-	if [[ ! -f "composer.json" ]]; then
-		echo "::error::Changes to ${GIT_SLUG} remove essential parts of the package. They will not be committed."
-		EXIT=1
-		continue
-	fi
 
 	if [[ -n "$FORCE_COMMIT" || -n "$(git status --porcelain)" ]]; then
 		echo "Committing to $GIT_SLUG"
 		if git commit --quiet $FORCE_COMMIT --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}" &&
 			{ [[ -z "$CI" ]] || git push origin "$BRANCH"; } # Only do the actual push from the GitHub Action
 		then
-			git show --src-prefix="a/$GIT_SLUG/" --dst-prefix="b/$GIT_SLUG/" >> "$BUILD_BASE/changes.diff"
+			git show --pretty= --src-prefix="a/$GIT_SLUG/" --dst-prefix="b/$GIT_SLUG/" >> "$BUILD_BASE/changes.diff"
 			echo "https://github.com/$GIT_SLUG/commit/$(git rev-parse HEAD)"
 			echo "Completed $GIT_SLUG"
 		else
@@ -118,6 +103,6 @@ while read -r GIT_SLUG; do
 	else
 		echo "No changes, skipping $GIT_SLUG"
 	fi
-done < "$BUILD_BASE/projects.txt"
+done < "$BUILD_BASE/mirrors.txt"
 
 exit $EXIT

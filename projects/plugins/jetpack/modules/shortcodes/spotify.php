@@ -5,7 +5,7 @@
  * Usage:
  * [spotify id="spotify:track:4bz7uB4edifWKJXSDxwHcs" width="400" height="100"]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( ! shortcode_exists( 'spotify' ) ) {

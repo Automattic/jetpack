@@ -1,0 +1,20 @@
+name: Required review
+description: Check that a PR has reviews from required teams.
+inputs:
+  requirements:
+    description: Requirements, as a string containing YAML.
+    required: false
+  requirements-file:
+    description: Requirements file.
+    required: false
+  status:
+    description: Status context.
+    required: false
+    default: Required review
+  token:
+    description: GitHub Access Token.
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: node12
+  main: dist/index.js

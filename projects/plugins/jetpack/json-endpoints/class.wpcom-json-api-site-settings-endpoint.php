@@ -2,7 +2,7 @@
 /**
  * Manage settings via the WordPress.com REST API.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
