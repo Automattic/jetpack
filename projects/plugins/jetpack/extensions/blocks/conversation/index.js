@@ -15,6 +15,7 @@ import './extend';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
+import example from './example';
 
 export const name = 'conversation';
 export const title = __( 'Conversation', 'jetpack' );
@@ -27,13 +28,15 @@ export const settings = {
 	icon,
 	category: 'layout',
 	keywords: [
-		_x( 'Conversation', 'block search term', 'jetpack' ),
-		__( 'transcription', 'jetpack' ),
+		_x( 'conversation', 'block search term', 'jetpack' ),
+		_x( 'transcription', 'block search term', 'jetpack' ),
+		_x( 'dialogue', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,
 	},
 	attributes,
+	example,
 	styles: [
 		{ name: 'row', label: __( 'Row', 'jetpack' ), isDefault: true },
 		{ name: 'column', label: __( 'Column', 'jetpack' ) },

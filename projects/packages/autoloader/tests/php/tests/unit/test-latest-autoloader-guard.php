@@ -75,7 +75,28 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		$this->assertTrue(
 			$this->guard->should_stop_init(
 				TEST_DATA_PATH . '/plugins/plugin_current',
-				array()
+				array(),
+				false
+			)
+		);
+	}
+
+	/**
+	 * Tests that the guard allows initialization when the autoloader has been initialized but we've been deliberately included by it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_should_allow_init_when_including_latest() {
+		// Mark it as already initialized so we can make sure it overrides it.
+		global $jetpack_autoloader_latest_version;
+		$jetpack_autoloader_latest_version = '2.0.0.0';
+
+		$this->assertFalse(
+			$this->guard->should_stop_init(
+				TEST_DATA_PATH . '/plugins/plugin_current',
+				array(),
+				true
 			)
 		);
 	}
@@ -95,7 +116,8 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		$this->assertTrue(
 			$this->guard->should_stop_init(
 				TEST_DATA_PATH . '/plugins/dummy_newer',
-				array()
+				array(),
+				false
 			)
 		);
 	}
@@ -113,7 +135,8 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		$this->assertFalse(
 			$this->guard->should_stop_init(
 				TEST_DATA_PATH . '/plugins/plugin_current',
-				array()
+				array(),
+				false
 			)
 		);
 	}
@@ -132,7 +155,8 @@ class Test_Latest_Autoloader_Guard extends TestCase {
 		$this->assertFalse(
 			$this->guard->should_stop_init(
 				TEST_DATA_PATH . '/plugins/plugin_current',
-				array()
+				array(),
+				false
 			)
 		);
 	}

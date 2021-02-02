@@ -10,7 +10,7 @@
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar, colorschemes
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
@@ -40,4 +40,7 @@ if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
 	} else {
 		Admin_Menu::get_instance();
 	}
+
+	// Ensures Calypsoify does not modify the navigation.
+	add_filter( 'jetpack_calypsoify_override_nav', '__return_false' );
 }

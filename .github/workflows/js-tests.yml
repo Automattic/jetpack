@@ -3,12 +3,13 @@ name: JS tests
 on:
   pull_request:
   push:
-    branches: [master, master-stable, 'branch-*']
+    branches: [master, '*/branch-*']
 
 jobs:
   js-tests:
     name: "test dashboard, extensions and search"
     runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~2 minutes
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -25,11 +26,17 @@ jobs:
         run: |
           yarn install
           yarn test-adminpage-and-extensions-and-search
+      - name: "test cli"
+        working-directory: 'tools/cli'
+        run: |
+          yarn install
+          yarn test
 
 
   build:
     name: "Build dashboard & extensions"
     runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~3 minutes
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

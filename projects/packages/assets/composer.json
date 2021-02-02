@@ -24,9 +24,15 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../*"
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-assets"
+	}
 }

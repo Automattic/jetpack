@@ -4,7 +4,7 @@
  * Allow new block editor posts to be composed on WordPress.com.
  * This is auto-loaded as of Jetpack v7.4 for sites connected to WordPress.com only.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -2,12 +2,10 @@
 /**
  * Atomic Admin Menu file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
-
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Class Atomic_Admin_Menu.
@@ -51,9 +49,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
-
-		if ( empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] < 2 ) {
+		$site_count = get_user_option( 'wpcom_site_count' );
+		if ( ! $site_count || $site_count < 2 ) {
 			return;
 		}
 
@@ -87,8 +84,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_new_site_link() {
 		global $menu;
 
-		$wpcom_user_data = ( new Connection_Manager() )->get_connected_user_data();
-		if ( empty( $wpcom_user_data['site_count'] ) || $wpcom_user_data['site_count'] > 1 ) {
+		$site_count = get_user_option( 'wpcom_site_count' );
+		if ( $site_count && $site_count > 1 ) {
 			return;
 		}
 
@@ -200,45 +197,36 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
 
-		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
-	}
-
-	/**
-	 * Filters the parent file of an admin menu sub-menu item.
-	 *
-	 * @param string $parent_file The parent file.
-	 * @return string Updated parent file.
-	 */
-	public function jetpack_parent_file( $parent_file ) {
-		if ( 'jetpack' === $parent_file ) {
-			$parent_file = 'https://wordpress.com/activity-log/' . $this->domain;
-		}
-
-		return $parent_file;
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $jetpack_slug ) {
+				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
 	 * Adds Tools menu.
 	 *
-	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $calypso = true ) {
-		$menu_slug = $calypso ? 'https://wordpress.com/marketing/tools/' . $this->domain : 'tools.php';
+	public function add_tools_menu( $wp_admin = false ) {
+		$menu_slug = $wp_admin ? 'tools.php' : 'https://wordpress.com/marketing/tools/' . $this->domain;
 
 		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
 		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 10 );
 
-		parent::add_tools_menu( $calypso );
+		parent::add_tools_menu( $wp_admin );
 	}
 
 	/**
 	 * Adds Settings menu.
 	 *
-	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $calypso = true ) {
+	public function add_options_menu( $wp_admin = false ) {
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
-		parent::add_options_menu( $calypso );
+		parent::add_options_menu( $wp_admin );
 	}
 }

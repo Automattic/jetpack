@@ -2,7 +2,7 @@
 /**
  * Extend the REST API functionality for VideoPress users.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

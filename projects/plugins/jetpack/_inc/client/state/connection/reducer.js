@@ -267,6 +267,16 @@ export function isConnectionOwner( state ) {
 }
 
 /**
+ * Returns true if the site has a connected owner.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {boolean} true if the site has an owner connected, false otherwise
+ */
+export function hasConnectedOwner( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'hasConnectedOwner' ], false );
+}
+
+/**
  * Checks if the site is currently in offline mode.
  *
  * @param  {Object}  state Global state tree

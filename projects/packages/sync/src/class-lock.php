@@ -22,12 +22,14 @@ class Lock {
 
 	/**
 	 * Default Lifetime of the lock.
+	 * This is the expiration value as such we are setting it high to handle cases where there are
+	 * long running requests. Short expiration value leads to concurrent requests and performance issues.
 	 *
 	 * @access public
 	 *
 	 * @var int
 	 */
-	const LOCK_TRANSIENT_EXPIRY = 15; // Seconds.
+	const LOCK_TRANSIENT_EXPIRY = 180; // Seconds.
 
 	/**
 	 * Attempt to lock.
@@ -40,16 +42,20 @@ class Lock {
 	 * @return boolean True if succeeded, false otherwise.
 	 */
 	public function attempt( $name, $expiry = self::LOCK_TRANSIENT_EXPIRY ) {
-		$name        = self::LOCK_PREFIX . $name;
-		$locked_time = get_option( $name );
-		if ( $locked_time ) {
-			if ( microtime( true ) < $locked_time ) {
-				return false;
-			}
-		}
-		update_option( $name, microtime( true ) + $expiry );
+		$lock_name   = self::LOCK_PREFIX . $name;
+		$locked_time = get_option( $lock_name );
 
-		return true;
+		if ( $locked_time ) {
+			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			if ( microtime( true ) > $locked_time ) {
+				delete_option( $lock_name );
+			}
+			return false;
+		}
+
+		$locked_time = microtime( true ) + $expiry;
+		update_option( $lock_name, $locked_time, false );
+		return $locked_time;
 	}
 
 	/**
@@ -57,9 +63,15 @@ class Lock {
 	 *
 	 * @access public
 	 *
-	 * @param string $name lock name.
+	 * @param string     $name                 lock name.
+	 * @param bool|float $lock_expiration lock expiration.
 	 */
-	public function remove( $name ) {
-		delete_option( self::LOCK_PREFIX . $name );
+	public function remove( $name, $lock_expiration = false ) {
+		$lock_name = self::LOCK_PREFIX . $name;
+
+		// Only remove lock if current value matches our lock.
+		if ( true === $lock_expiration || (string) get_option( $lock_name ) === (string) $lock_expiration ) {
+			delete_option( $lock_name );
+		}
 	}
 }

@@ -11,7 +11,8 @@
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"scripts"
 		]
 	},
 	"scripts": {
@@ -21,8 +22,17 @@
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"core-calls": [
+			"Automattic\\Jetpack\\Analyzer\\CoreCalls::callback"
+		],
+		"core-definitions": [
+			"Automattic\\Jetpack\\Analyzer\\CoreDefinitions::callback"
 		]
 	},
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-analyzer"
+	}
 }

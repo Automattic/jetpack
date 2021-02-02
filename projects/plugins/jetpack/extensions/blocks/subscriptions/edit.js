@@ -56,14 +56,14 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const buttonBackgroundColorValue = buttonBackgroundColor && buttonBackgroundColor.color;
 	const textColorValue = textColor && textColor.color;
 
-	const buttonNode = node.querySelector( '[contenteditable="true"]' );
+	const buttonNode = node.querySelector( '.wp-block-jetpack-subscriptions__button' );
 
 	return {
 		fallbackButtonBackgroundColor:
 			buttonBackgroundColorValue || ! node
 				? undefined
-				: getComputedStyle( buttonNode ).backgroundColor,
-		fallbackTextColor: textColorValue || ! node ? undefined : getComputedStyle( buttonNode ).color,
+				: buttonNode && getComputedStyle( buttonNode ).backgroundColor,
+		fallbackTextColor: textColorValue || ! node ? undefined : buttonNode && getComputedStyle( buttonNode ).color,
 	};
 } );
 
@@ -303,7 +303,7 @@ function SubscriptionEdit( props ) {
 				) }
 
 				<PanelBody
-					title={ __( 'Text Settings' ) }
+					title={ __( 'Text Settings', 'jetpack' ) }
 					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__textpanel"
 				>
@@ -375,7 +375,7 @@ function SubscriptionEdit( props ) {
 				</PanelBody>
 
 				<PanelBody
-					title={ __( 'Display Settings' ) }
+					title={ __( 'Display Settings', 'jetpack' ) }
 					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__displaypanel"
 				>

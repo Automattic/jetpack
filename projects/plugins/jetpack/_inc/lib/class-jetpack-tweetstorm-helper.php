@@ -2,7 +2,7 @@
 /**
  * Tweetstorm block and API helper.
  *
- * @package jetpack
+ * @package automattic/jetpack
  * @since 8.7.0
  */
 

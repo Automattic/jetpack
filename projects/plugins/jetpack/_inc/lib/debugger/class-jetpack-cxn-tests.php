@@ -2,7 +2,7 @@
 /**
  * Collection of tests to run on the Jetpack connection locally.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;

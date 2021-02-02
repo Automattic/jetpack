@@ -2,7 +2,7 @@
 /**
  * Tests for WPcom_Admin_Menu class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu;
@@ -67,9 +67,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$domain  = ( new Status() )->get_site_suffix();
-		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
-
+		static::$domain       = ( new Status() )->get_site_suffix();
+		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$menu_data    = get_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
@@ -292,21 +291,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests jetpack_parent_file
-	 *
-	 * @covers ::jetpack_parent_file
-	 */
-	public function test_jetpack_parent_file() {
-		$parent_file = 'edit.php';
-		$this->assertSame( $parent_file, static::$admin_menu->jetpack_parent_file( $parent_file ) );
-
-		$this->assertSame(
-			'https://wordpress.com/activity-log/' . static::$domain,
-			static::$admin_menu->jetpack_parent_file( 'jetpack' )
-		);
-	}
-
-	/**
 	 * Tests add_plugins_menu
 	 *
 	 * @covers ::add_plugins_menu
@@ -315,7 +299,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		add_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
-		static::$admin_menu->add_plugins_menu( static::$domain );
+		static::$admin_menu->add_plugins_menu();
 		remove_filter( 'wp_get_update_data', array( $this, 'mock_update_data' ) );
 
 		$slug  = 'https://wordpress.com/plugins/' . static::$domain;
@@ -369,7 +353,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
 		$menu = array();
 
-		static::$admin_menu->add_users_menu( true );
+		static::$admin_menu->add_users_menu( false );
 
 		$profile_menu_item = array(
 			'My Profile',
@@ -395,7 +379,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		wp_set_current_user( static::$user_id );
 		$menu = static::$menu_data;
 
-		static::$admin_menu->add_users_menu( static::$domain );
+		static::$admin_menu->add_users_menu( false );
 
 		$slug = 'https://wordpress.com/people/team/' . static::$domain;
 
@@ -453,7 +437,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( static::$domain );
+		static::$admin_menu->add_tools_menu( false );
 
 		$tools_menu_item = array(
 			'Tools',
@@ -535,10 +519,11 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( static::$domain );
+		static::$admin_menu->add_options_menu( false );
 
 		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
 		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
+		$this->assertNotContains( 'sharing', $submenu[ $slug ] );
 
 		$general_submenu_item = array(
 			'General',
@@ -549,5 +534,13 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
 
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
+
+		$sharing_submenu_item = array(
+			'Sharing',
+			'publish_posts',
+			'https://wordpress.com/marketing/sharing-buttons/' . static::$domain,
+			'Sharing Settings',
+		);
+		$this->assertContains( $sharing_submenu_item, $submenu[ $slug ] );
 	}
 }

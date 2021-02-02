@@ -70,7 +70,7 @@ const ConvertToAudio = () => {
 			</p>
 			<p>{ __( 'Let your readers listen to your post.', 'jetpack' ) }</p>
 			<div role="link" tabIndex={ 0 } onClick={ handleClick } onKeyDown={ handleClick }>
-				<a href="https://anchor.fm/wordpress" target="_top">
+				<a href="https://anchor.fm/wordpressdotcom" target="_top">
 					{ __( 'Create a podcast episode', 'jetpack' ) }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
 				</a>

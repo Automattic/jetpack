@@ -2,7 +2,7 @@
 /**
  * WP.com Admin Menu file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
@@ -15,13 +15,23 @@ use Automattic\Jetpack\Status;
 class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
+	 * WPcom_Admin_Menu constructor.
+	 */
+	protected function __construct() {
+		parent::__construct();
+
+		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+	}
+
+	/**
 	 * Sets up class properties for REST API requests.
 	 */
 	public function rest_api_init() {
 		parent::rest_api_init();
 
 		// Get domain for requested site.
-		$this->domain = ( new Status() )->get_site_suffix();
+		$this->domain         = ( new Status() )->get_site_suffix();
+		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 	}
 
 	/**
@@ -217,22 +227,12 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
 		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
 
-		add_filter( 'parent_file', array( $this, 'jetpack_parent_file' ) );
-	}
-
-	/**
-	 * Filters the parent file of an admin menu sub-menu item.
-	 *
-	 * @param string $parent_file The parent file.
-	 * @return string Updated parent file.
-	 */
-	public function jetpack_parent_file( $parent_file ) {
-		if ( 'jetpack' === $parent_file ) {
-
-			$parent_file = 'https://wordpress.com/activity-log/' . $this->domain;
-		}
-
-		return $parent_file;
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $jetpack_slug ) {
+				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
@@ -240,6 +240,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_plugins_menu() {
 		parent::add_plugins_menu();
+
+		$menu_slug = 'https://wordpress.com/plugins/' . $this->domain;
 
 		remove_menu_page( 'plugins.php' );
 		remove_submenu_page( 'plugins.php', 'plugins.php' );
@@ -255,20 +257,27 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		/* translators: %s: Number of pending plugin updates. */
-		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', 'https://wordpress.com/plugins/' . $this->domain, null, 'dashicons-admin-plugins', 65 );
-		$this->migrate_submenus( 'plugins.php', 'https://wordpress.com/plugins/' . $this->domain );
+		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', $menu_slug, null, 'dashicons-admin-plugins', 65 );
+
+		$this->migrate_submenus( 'plugins.php', $menu_slug );
+		add_filter(
+			'parent_file',
+			function ( $parent_file ) use ( $menu_slug ) {
+				return 'jetpack' === $parent_file ? $menu_slug : $parent_file;
+			}
+		);
 	}
 
 	/**
 	 * Adds Users menu.
 	 *
-	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $calypso = true ) {
-		$users_slug   = $calypso ? 'https://wordpress.com/people/team/' . $this->domain : 'users.php';
+	public function add_users_menu( $wp_admin = false ) {
+		$users_slug   = $wp_admin ? 'users.php' : 'https://wordpress.com/people/team/' . $this->domain;
 		$add_new_slug = 'https://wordpress.com/people/new/' . $this->domain;
-		$profile_slug = $calypso ? 'https://wordpress.com/me' : 'grofiles-editor';
-		$account_slug = $calypso ? 'https://wordpress.com/me/account' : 'grofiles-user-settings';
+		$profile_slug = $wp_admin ? 'grofiles-editor' : 'https://wordpress.com/me';
+		$account_slug = $wp_admin ? 'grofiles-user-settings' : 'https://wordpress.com/me/account';
 
 		if ( current_user_can( 'list_users' ) ) {
 			remove_menu_page( 'users.php' );
@@ -283,40 +292,78 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug, null, 10 );
 			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
 			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 20 );
+
 			$this->migrate_submenus( 'users.php', $users_slug );
-		} elseif ( $calypso ) {
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $users_slug ) {
+					return 'users.php' === $parent_file ? $users_slug : $parent_file;
+				}
+			);
+		} elseif ( ! $wp_admin ) {
 			remove_menu_page( 'profile.php' );
 			remove_submenu_page( 'profile.php', 'grofiles-editor' );
 			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
 
 			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 'dashicons-admin-users', 70 );
 			add_submenu_page( $profile_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 5 );
+
 			$this->migrate_submenus( 'profile.php', $profile_slug );
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $profile_slug ) {
+					return 'profile.php' === $parent_file ? $profile_slug : $parent_file;
+				}
+			);
 		}
 	}
 
 	/**
 	 * Adds Tools menu.
 	 *
-	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $calypso = true ) {
-		$menu_slug = $calypso ? 'https://wordpress.com/marketing/tools/' . $this->domain : 'tools.php';
+	public function add_tools_menu( $wp_admin = false ) {
+		$menu_slug = $wp_admin ? 'tools.php' : 'https://wordpress.com/marketing/tools/' . $this->domain;
+
+		remove_submenu_page( 'tools.php', 'export.php' );
 
 		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
 		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 10 );
+		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'https://wordpress.com/export/' . $this->domain, null, 20 );
 
-		parent::add_tools_menu( $calypso );
+		parent::add_tools_menu( $wp_admin );
 	}
 
 	/**
 	 * Adds Settings menu.
 	 *
-	 * @param bool $calypso Optional. Whether links should point to Calypso or wp-admin. Default true (Calypso).
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $calypso = true ) {
+	public function add_options_menu( $wp_admin = false ) {
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
-		parent::add_options_menu( $calypso );
+		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
+		if ( remove_submenu_page( 'options-general.php', 'sharing' ) ) {
+			add_options_page( esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
+		}
+
+		parent::add_options_menu( $wp_admin );
+	}
+
+	/**
+	 * Whether to use wp-admin pages rather than Calypso.
+	 *
+	 * @return bool
+	 */
+	public function should_link_to_wp_admin() {
+		$result = false; // Calypso.
+
+		$user_attribute = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+		if ( ! empty( $user_attribute['linkDestination'] ) ) {
+			$result = $user_attribute['linkDestination'];
+		}
+
+		return $result;
 	}
 }

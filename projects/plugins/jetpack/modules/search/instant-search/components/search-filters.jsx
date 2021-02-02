@@ -5,26 +5,23 @@
  */
 import { h, Component } from 'preact';
 import { __ } from '@wordpress/i18n';
-// NOTE: We only import the get package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import get from 'lodash/get';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import SearchFilter from './search-filter';
-import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/query-string';
 import { mapFilterToFilterKey, mapFilterToType } from '../lib/filters';
+import { clearFilters, setFilter } from '../store/actions';
 import './search-filters.scss';
 
-export default class SearchFilters extends Component {
+class SearchFilters extends Component {
 	static defaultProps = {
 		showClearFiltersButton: true,
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
-		setFilterQuery( filterName, filterValue );
+		this.props.setFilter( filterName, filterValue );
 		this.props.onChange && this.props.onChange();
 	};
 
@@ -35,19 +32,13 @@ export default class SearchFilters extends Component {
 			event.type === 'click' ||
 			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
 		) {
-			clearFiltersFromQuery();
+			this.props.clearFilters();
 			this.props.onChange && this.props.onChange();
 		}
 	};
 
 	hasActiveFilters() {
-		return Object.keys( this.getFilters() )
-			.map( key => this.getFilters()[ key ] )
-			.some( value => Array.isArray( value ) && value.length );
-	}
-
-	getFilters() {
-		return getFilterQuery();
+		return Object.keys( this.props.filters ).length > 0;
 	}
 
 	renderFilterComponent = ( { configuration, results } ) =>
@@ -59,7 +50,7 @@ export default class SearchFilters extends Component {
 				onChange={ this.onChangeFilter }
 				postTypes={ this.props.postTypes }
 				type={ mapFilterToType( configuration ) }
-				value={ this.getFilters()[ mapFilterToFilterKey( configuration ) ] }
+				value={ this.props.filters[ mapFilterToFilterKey( configuration ) ] }
 			/>
 		);
 
@@ -68,7 +59,7 @@ export default class SearchFilters extends Component {
 			return null;
 		}
 
-		const aggregations = get( this.props.results, 'aggregations' );
+		const aggregations = this.props.results?.aggregations;
 		return (
 			<div className="jetpack-instant-search__filters">
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
@@ -83,8 +74,8 @@ export default class SearchFilters extends Component {
 						{ __( 'Clear filters', 'jetpack' ) }
 					</a>
 				) }
-				{ get( this.props.widget, 'filters' )
-					.map( configuration =>
+				{ this.props.widget?.filters
+					?.map( configuration =>
 						aggregations
 							? { configuration, results: aggregations[ configuration.filter_id ] }
 							: null
@@ -99,3 +90,5 @@ export default class SearchFilters extends Component {
 		);
 	}
 }
+
+export default connect( null, { clearFilters, setFilter } )( SearchFilters );

@@ -2,7 +2,7 @@
 /**
  * Filter for PHPCS to exclude files in bin/phpcs-excludelist.json.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use PHP_CodeSniffer\Filters\Filter;

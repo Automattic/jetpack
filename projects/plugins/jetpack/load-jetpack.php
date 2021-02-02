@@ -2,7 +2,7 @@
 /**
  * Load all Jetpack files that do not get loaded via the autoloader.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -59,6 +59,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
+jetpack_require_lib( 'class-jetpack-recommendations' );
 jetpack_require_lib( 'class-jetpack-wizard' );
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-wizard-banner.php';
 

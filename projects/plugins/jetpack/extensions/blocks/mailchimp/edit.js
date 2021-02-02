@@ -216,13 +216,13 @@ class MailchimpSubscribeEdit extends Component {
 				<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
 					<TextControl
 						label={ __( 'Signup Field Tag', 'jetpack' ) }
-						placeholder={ __( 'SIGNUP' ) }
+						placeholder={ __( 'SIGNUP', 'jetpack' ) }
 						value={ signupFieldTag }
 						onChange={ value => setAttributes( { signupFieldTag: value } ) }
 					/>
 					<TextControl
 						label={ __( 'Signup Field Value', 'jetpack' ) }
-						placeholder={ __( 'website' ) }
+						placeholder={ __( 'website', 'jetpack' ) }
 						value={ signupFieldValue }
 						onChange={ value => setAttributes( { signupFieldValue: value } ) }
 					/>

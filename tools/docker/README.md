@@ -20,7 +20,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 * [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
-* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than what is noted in the [development environment documentation](../docs/development-environment.md#minimum-required-versions): `yarn --version`
+* [Yarn](https://yarnpkg.com/) — please make sure your version is higher than what is noted in the [development environment documentation](../../docs/development-environment.md#minimum-required-versions): `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
 Install prerequisites; you will need to open up Docker to install its dependencies.
@@ -49,7 +49,7 @@ You should establish a tunnel to your localhost with Ngrok or [other similar ser
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
-You should follow [Jetpack’s development documentation](../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
+You should follow [Jetpack’s development documentation](../../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
 
 ## Good to know
 

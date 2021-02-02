@@ -2,8 +2,6 @@
  * External dependencies
  */
 import { Path, Rect, SVG, G } from '@wordpress/components';
-import { getCurrencyDefaults } from '@automattic/format-currency';
-import { trimEnd } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -17,7 +15,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
-import { SUPPORTED_CURRENCIES, minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import { isPriceValid } from '../../shared/currencies';
 import './editor.scss';
 
 export const name = 'recurring-payments';
@@ -67,33 +65,6 @@ export const settings = {
 	},
 	deprecated: [ deprecatedV1 ],
 };
-
-/**
- * Compute a list of currency value and display labels.
- *
- * - `value` is the currency's three character code
- * - `label` is the user facing representation.
- *
- * @typedef {{value: string, label: string}} CurrencyDetails
- *
- * @type Array<CurrencyDetails>
- */
-export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value => {
-	const { symbol } = getCurrencyDefaults( value );
-	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
-	return { value, label };
-} );
-
-/**
- * True if the price is a number and at least the minimum allowed amount.
- *
- * @param {string} currency Currency for the given price.
- * @param {number} price Price to check.
- * @return {boolean} true if valid price
- */
-export function isPriceValid( currency, price ) {
-	return ! isNaN( price ) && price >= minimumTransactionAmountForCurrency( currency );
-}
 
 /**
  * Removes products with prices below their minimums.

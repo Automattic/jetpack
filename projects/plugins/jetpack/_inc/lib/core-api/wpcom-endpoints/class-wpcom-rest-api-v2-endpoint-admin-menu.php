@@ -2,7 +2,7 @@
 /**
  * REST API endpoint for admin menus.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 9.1.0
  */
 
@@ -76,7 +76,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// All globals need to be declared for menu items to properly register.
-		global $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $admin_page_hooks, $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		// Make an attempt to not have the menu order altered.
 		add_filter( 'custom_menu_order', '__return_false', 99999 );

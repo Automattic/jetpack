@@ -111,7 +111,7 @@ class Import extends Module {
 
 		// Get $importer from known_importers.
 		$known_importers = Settings::get_setting( 'known_importers' );
-		if ( isset( $known_importers[ $importer ] ) ) {
+		if ( is_string( $importer ) && isset( $known_importers[ $importer ] ) ) {
 			$importer = $known_importers[ $importer ];
 		}
 

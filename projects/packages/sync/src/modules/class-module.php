@@ -346,6 +346,7 @@ SQL
 			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
 
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
+				$status['error'] = true;
 				return $status;
 			}
 			// The $ids are ordered in descending order.

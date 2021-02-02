@@ -18,6 +18,7 @@ import getJetpackData from './get-jetpack-data';
 export default function getJetpackExtensionAvailability( name ) {
 	const data = getJetpackData();
 	const available = get( data, [ 'available_blocks', name, 'available' ], false );
+
 	const unavailableReason = get(
 		data,
 		[ 'available_blocks', name, 'unavailable_reason' ],

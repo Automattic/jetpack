@@ -1,13 +1,19 @@
+@import '../lib/style-helpers';
+
 .jetpack-instant-search__search-result-minimal {
 	padding: 0.125em 0;
 	margin: 2em 0;
 	position: relative;
 }
 
-.jetpack-instant-search__search-result-title {
+.jetpack-instant-search__search-result-minimal-title {
 	clear: none;
 	margin: 0;
-	overflow: hidden;
+
+	max-width: calc(
+		#{$primary-section-ratio} * ( #{$overlay-max-width} - #{$primary-secondary-separator-width + $overlay-padding-horizontal} )
+	);
+	overflow-wrap: break-word;
 
 	.gridicon {
 		margin-right: 8px;
@@ -36,7 +42,6 @@
 .jetpack-instant-search__search-result-minimal-tag .gridicon {
 	vertical-align: middle;
 }
-
 
 .jetpack-instant-search__search-result-minimal-content {
 	word-break: break-word;

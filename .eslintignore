@@ -8,8 +8,10 @@ tools/docker/wordpress/
 
 # Ignored by default, but we should check it
 !.github/
+.github/actions/required-review/dist/
 
 ### Jetpack
+projects/plugins/jetpack/.size-limit.js
 projects/plugins/jetpack/3rd-party/debug-bar/debug-bar.js
 projects/plugins/jetpack/_inc/blocks
 projects/plugins/jetpack/_inc/build
