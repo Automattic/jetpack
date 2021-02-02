@@ -129,15 +129,16 @@ class Admin_Menu {
 		global $submenu;
 
 		$menu_slug = $wp_admin ? 'index.php' : 'https://wordpress.com/home/' . $this->domain;
+		$cap       = $wp_admin ? 'read' : 'manage_options'; // Calypso's My Home is only available for admins.
 
 		remove_menu_page( 'index.php' );
 		remove_submenu_page( 'index.php', 'index.php' );
 
-		add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-admin-home', 2 );
+		add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), $cap, $menu_slug, null, 'dashicons-admin-home', 2 );
 
 		// Only add submenu when there are other submenu items.
 		if ( ! empty( $submenu['index.php'] ) ) {
-			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), 'manage_options', $menu_slug, null, 1 );
+			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), $cap, $menu_slug, null, 1 );
 		}
 
 		$this->migrate_submenus( 'index.php', $menu_slug );
