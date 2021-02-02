@@ -54,5 +54,8 @@
 	.embed-actions {
 		display: flex;
 		flex-direction: row;
+		@media screen and (max-width: 360px) {
+			flex-direction: column-reverse;
+		}
 	}
 }
