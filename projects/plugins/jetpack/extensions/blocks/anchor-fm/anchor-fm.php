@@ -146,7 +146,7 @@ function process_anchor_params() {
 						array(
 							'anchor_podcast' => $podcast_id,
 							'anchor_episode' => $episode_id,
-							'spotify_url'    => $spotify_url,
+							'spotify_url'    => $valid_spotify_url ? $spotify_url : false,
 						),
 						admin_url( 'post-new.php' )
 					);
