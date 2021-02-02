@@ -1084,6 +1084,12 @@ class Jetpack_Beta {
 		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 			return false;
 		}
+
+		// Check if running in a docker instance.
+		if ( defined( 'JETPACK_DOCKER_ENV' ) && JETPACK_DOCKER_ENV ) {
+			return false;
+		}
+
 		// Check if we are Jetpack plugin is installed via git.
 		if ( file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack/.git' ) ) {
 			return false;
@@ -1091,11 +1097,6 @@ class Jetpack_Beta {
 
 		// Check if running a tag directly from svn.
 		if ( self::is_on_tag() ) {
-			return false;
-		}
-
-		// Check if running in a docker instance.
-		if ( defined( 'JETPACK_DOCKER_ENV' ) && JETPACK_DOCKER_ENV ) {
 			return false;
 		}
 
