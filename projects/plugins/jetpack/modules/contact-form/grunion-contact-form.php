@@ -4,7 +4,7 @@
  * Add a contact form to any post, page or text widget.
  * Emails will be sent to the post's author by default, or any email address you choose.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;

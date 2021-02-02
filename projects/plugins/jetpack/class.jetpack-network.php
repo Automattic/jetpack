@@ -2,7 +2,7 @@
 /**
  * Jetpack Network Manager class file.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;

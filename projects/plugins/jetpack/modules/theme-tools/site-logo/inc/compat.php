@@ -4,7 +4,7 @@
  * These should never be used in themes; instead, use the template tags in functions.php.
  * See: https://github.com/Automattic/jetpack/pull/956
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( ! function_exists( 'the_site_logo' ) ) :

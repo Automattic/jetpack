@@ -9,7 +9,7 @@ module.exports = () => ( {
 		[
 			require.resolve( '@babel/preset-env' ),
 			{
-				corejs: 3.6,
+				corejs: '3.8.3',
 				ignoreBrowserslistConfig: true,
 				modules: false,
 				targets,

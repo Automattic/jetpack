@@ -5,7 +5,7 @@
  *
  * @since 9.2.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Web_Stories;

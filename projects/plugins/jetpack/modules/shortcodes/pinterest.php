@@ -7,7 +7,7 @@
  * Example URL: https://pinterest.com/pin/129056345550241149/
  * Second Example URL: https://uk.pinterest.com/annsawesomepins/travel/
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 wp_embed_register_handler(

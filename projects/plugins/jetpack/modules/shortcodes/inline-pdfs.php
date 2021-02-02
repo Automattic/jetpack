@@ -5,7 +5,7 @@
  * Takes a plain-text PDF URL (*.pdf), and attempts to embed it directly
  * in the post instead of leaving it as a bare link.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 wp_embed_register_handler( 'inline-pdfs', '#https?://[^<]*\.pdf$#i', 'jetpack_inline_pdf_embed_handler' );

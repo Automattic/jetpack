@@ -1,0 +1,48 @@
+<?php
+/**
+ * A dummy file to test the MediaWiki.PHPUnit imports into the Jetpack phpcs standard.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+/**
+ * A dummy test class.
+ */
+class Dummy_Test extends TestCase {
+
+	/**
+	 * A bogus test
+	 */
+	public function test_bogus() {
+		global $u;
+
+		// MediaWiki.PHPUnit.AssertCount.
+		$this->assertEquals( 1, count( $u->var ) );
+		$this->assertSame( 3, count( $u->var ) );
+
+		// MediaWiki.PHPUnit.AssertEquals.
+		$this->assertEquals( null, $u->var );
+		$this->assertEquals( true, $u->var );
+		$this->assertEquals( false, $u->var );
+		$this->assertEquals( 0, $u->var );
+		$this->assertEquals( 0.0, $u->var );
+		$this->assertEquals( 1, $u->var );
+		$this->assertEquals( 1.0, $u->var );
+		$this->assertEquals( '0', $u->var );
+		$this->assertEquals( '123.45', $u->var );
+
+		// MediaWiki.PHPUnit.AssertionOrder.
+		$this->assertEquals( $u->var, 1 );
+		$this->assertSame( $u->var, 1 );
+
+		// MediaWiki.PHPUnit.SpecificAssertions.
+		$this->assertTrue( array_key_exists( 'foo', $u->var ) );
+		$this->assertFalse( array_key_exists( 'foo', $u->var ) );
+		$this->assertTrue( in_array( 'foo', $u->var, true ) );
+		$this->assertFalse( in_array( 'foo', $u->var, true ) );
+		$this->assertFalse( strpos( $u->var, 'foo' ) );
+		$this->assertNotFalse( strpos( $u->var, 'foo' ) );
+		$this->assertIsInt( strpos( $u->var, 'foo' ) );
+	}
+
+}
