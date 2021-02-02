@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
@@ -91,13 +92,14 @@ class Masterbar {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->user_id = get_current_user_id();
+		$this->user_id      = get_current_user_id();
+		$connection_manager = new Connection_Manager( 'jetpack' );
 
-		if ( ! Jetpack::is_user_connected( $this->user_id ) ) {
+		if ( ! $connection_manager->is_user_connected( $this->user_id ) ) {
 			return;
 		}
 
-		$this->user_data       = Jetpack::get_connected_user_data( $this->user_id );
+		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
 		$this->user_login      = $this->user_data['login'];
 		$this->user_email      = $this->user_data['email'];
 		$this->display_name    = $this->user_data['display_name'];

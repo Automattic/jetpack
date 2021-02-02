@@ -1781,6 +1781,7 @@ class Jetpack {
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
 	 */
 	public static function is_user_connected( $user_id = false ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\Jetpack\Connection\Manager\is_user_connected' );
 		return self::connection()->is_user_connected( $user_id );
 	}
 
@@ -1788,6 +1789,7 @@ class Jetpack {
 	 * Get the wpcom user data of the current|specified connected user.
 	 */
 	public static function get_connected_user_data( $user_id = null ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\Jetpack\Connection\Manager\get_connected_user_data' );
 		return self::connection()->get_connected_user_data( $user_id );
 	}
 
@@ -5486,7 +5488,7 @@ endif;
 	}
 
 	/**
-	 * Authenticates XML-RPC and other requests from the Jetpack Server.
+	 * Authenticates Xget_connected_user_dataML-RPC and other requests from the Jetpack Server.
 	 *
 	 * @deprecated since 7.7.0
 	 * @see Automattic\Jetpack\Connection\Manager::authenticate_jetpack()
