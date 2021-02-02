@@ -71,12 +71,18 @@ function get_changed_projects() {
 
 	$event = getenv( 'GITHUB_EVENT_NAME' );
 	if ( 'pull_request' === $event ) {
-		$base = getenv( 'GITHUB_BASE_REF' );
-		$head = getenv( 'GITHUB_HEAD_REF' );
-		if ( ! $base || ! $head ) {
-			fprintf( STDERR, "Missing GITHUB_HEAD_REF and/or GITHUB_BASE_REF for pull_request event\n" );
+		$event_path = getenv( 'GITHUB_EVENT_PATH' );
+		if ( ! $event_path || ! file_exists( $event_path ) ) {
+			fprintf( STDERR, "Missing GITHUB_EVENT_PATH for pull_request event\n" );
 			exit( 1 );
 		}
+		$event = json_decode( file_get_contents( $event_path ) );
+		if ( ! isset( $event->pull_request->base->sha ) || ! isset( $event->pull_request->head->sha ) ) {
+			fprintf( STDERR, "Missing pull_request data in GITHUB_EVENT_PATH file\n" );
+			exit( 1 );
+		}
+		$base = $event->pull_request->base->sha;
+		$head = $event->pull_request->head->sha;
 	} elseif ( 'push' === $event ) {
 		return get_all_projects();
 	} else {

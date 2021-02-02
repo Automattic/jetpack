@@ -163,7 +163,7 @@ jobs:
         # Default for `if` is `success()`, we want this to run always.
         if: always()
         run: |
-          find artifacts -type d -empty -delete
+          [[ -d artifacts ]] && find artifacts -type d -empty -delete
           if [[ -d artifacts ]]; then
             echo "::set-output name=any::true"
           else
