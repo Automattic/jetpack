@@ -96,9 +96,9 @@ describe( 'response Reducer', () => {
 } );
 
 describe( 'searchQuery Reducer', () => {
-	test( 'defaults to an empty string', () => {
+	test( 'defaults to null', () => {
 		const state = searchQuery( undefined, {} );
-		expect( state ).toBe( '' );
+		expect( state ).toBe( null );
 	} );
 	test( 'is updated by a set search query action', () => {
 		const state = searchQuery( undefined, setSearchQuery( 'Some new query' ) );
