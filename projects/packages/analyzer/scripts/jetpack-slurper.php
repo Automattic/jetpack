@@ -30,8 +30,6 @@
 
 require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
-$base_path = dirname( dirname( dirname( __DIR__ ) ) );
-
 $jetpack_new_path = '/path/to/new/jetpack';
 $jetpack_old_path = '/path/to/old/jetpack';
 $slurper_path     = '/path/to/slurper/plugins';

@@ -81,7 +81,6 @@ echo $dependencies->declaration_summary();
 echo "\n*** Summary of dependencies by external file\n";
 echo $dependencies->external_file_summary();
 
-
 echo "\n*** List of warnings\n";
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();
 $warnings->generate( $invocations, $differences );
