@@ -1,5 +1,8 @@
 #!/bin/bash
 
+[[ -d coverage ]] && find coverage -type d -empty -delete
+[[ -d coverage ]] || exit 0
+
 ## Codecov.io
 bash <(curl -s https://codecov.io/bash) -s ./coverage || echo 'Codecov failed to upload'
 
@@ -36,8 +39,10 @@ while IFS= read -r FILE; do
 	esac
 done < <(find coverage -type f)
 
-# Sum all coverage parts into a single coverage/codeclimate.json
-./cc-test-reporter sum-coverage -p "${#FILES[@]}" "${FILES[@]}"
+if [[ "${#FILES[@]}" -gt 0 ]]; then
+	# Sum all coverage parts into a single coverage/codeclimate.json
+	./cc-test-reporter sum-coverage -p "${#FILES[@]}" "${FILES[@]}"
 
-# Upload coverage/codeclimate.json
-./cc-test-reporter upload-coverage
+	# Upload coverage/codeclimate.json
+	./cc-test-reporter upload-coverage
+fi
