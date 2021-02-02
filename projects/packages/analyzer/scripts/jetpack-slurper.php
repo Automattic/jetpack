@@ -28,7 +28,7 @@
  * affected by the changes.
  */
 
-require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
+require dirname( __DIR__ ) . '/vendor/autoload.php';
 
 $jetpack_new_path = '/path/to/new/jetpack';
 $jetpack_old_path = '/path/to/old/jetpack';
