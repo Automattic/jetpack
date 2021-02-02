@@ -140,11 +140,12 @@ export function ParticipantsRichControl( {
 	const [ isAddingNewParticipant, setIsAddingNewParticipant ] = useState( false );
 
 	function addOrSelectParticipant() {
+		setAddAutocomplete( false );
+
 		// Before to update the participant,
 		// Let's check the participant doesn't exist.
 		const existingParticipant = getParticipantByValue( participants, value );
 		if ( existingParticipant ) {
-			setAddAutocomplete( false );
 			return onSelect( existingParticipant );
 		}
 
@@ -158,7 +159,7 @@ export function ParticipantsRichControl( {
 	function onFocusOutsideHandler() {
 		// Clean current participant when content is empty.
 		if ( ! value?.length ) {
-			return;
+			return setAddAutocomplete( false );
 		}
 
 		addOrSelectParticipant();
@@ -181,6 +182,7 @@ export function ParticipantsRichControl( {
 		// Force hiding autocompleter when more than word.
 		setAddAutocomplete( newValue.split( ' ' ).length === 1 );
 
+		// Update when adding a new participant while typing.
 		setIsAddingNewParticipant( ! newValue?.length || ! getParticipantByValue( participants, newValue ) );
 
 		// If the new value is empty,
