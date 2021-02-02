@@ -138,7 +138,10 @@ class Jetpack_Podcast_Helper {
 			set_transient( $transient_key, $track_data, HOUR_IN_SECONDS );
 		}
 
-		remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
+		if ( true === $force_refresh ) {
+			remove_action( 'wp_feed_options', array( __CLASS__, 'reset_simplepie_cache' ) );
+		}
+
 		return $track_data;
 	}
 
