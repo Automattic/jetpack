@@ -8,7 +8,6 @@ require_jetpack_file( 'modules/widgets/social-icons.php' );
  * @covers Jetpack_Widget_Social_Icons
  */
 class WP_Test_Social_Icons_Widget extends WP_UnitTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
 	 * This method is called before each test.
