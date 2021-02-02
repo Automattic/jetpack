@@ -114,9 +114,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
 		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertSame( 'separator-custom-5', $menu[10][2] );
+		$this->assertContains( 'separator-custom-', $menu[10][2] );
 		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertSame( 'separator-custom-4', $menu[15][2] );
+		$this->assertContains( 'separator-custom-', $menu[15][2] );
 
 		// Restore filtered $menu.
 		$menu = $temp_menu;
