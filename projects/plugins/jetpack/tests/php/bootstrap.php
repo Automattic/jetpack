@@ -15,6 +15,7 @@
  *	}
  */
 define( 'TESTING_IN_JETPACK', true );
+define( 'WP_RUN_CORE_TESTS', true );
 
 // Support for:
 // 1. `WP_DEVELOP_DIR` environment variable
