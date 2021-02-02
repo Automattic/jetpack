@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { find, isEqual } from 'lodash';
+import { find } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -10,13 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
-import {
-	Panel,
-	PanelBody,
-	ToggleControl,
-	ToolbarGroup,
-	Button,
-} from '@wordpress/components';
+import { Panel, PanelBody, ToggleControl, ToolbarGroup, Button } from '@wordpress/components';
 import { useContext, useState, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 
@@ -112,7 +106,7 @@ export default function DialogueEdit( {
 			return;
 		}
 
-		setAttributes( { participantLabel: conversationParticipant.label } );
+		setAttributes( { participantLabel: conversationParticipant?.label } );
 	}, [ conversationParticipant, participantSlug, setAttributes ] );
 
 	// Update dialogue timestamp setting from parent conversation.
