@@ -179,9 +179,6 @@ export function ParticipantsRichControl( {
 		// Always update the participant value (block attribute).
 		onParticipantChange( newValue );
 
-		// Force hiding autocompleter when more than word.
-		setAddAutocomplete( newValue.split( ' ' ).length === 1 );
-
 		// Update when adding a new participant while typing.
 		setIsAddingNewParticipant( ! newValue?.length || ! getParticipantByValue( participants, newValue ) );
 
