@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "9d886f3be0164897cb1aa67ed7b8a8ad6dfc6006"
+                "reference": "839764b7e577c4886bfa9053649a3d15c84fc4ef"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -30,6 +30,9 @@
                 "mirror-repo": "Automattic/jetpack-codesniffer"
             },
             "autoload": {
+                "classmap": [
+                    "hacks/"
+                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
                 }
