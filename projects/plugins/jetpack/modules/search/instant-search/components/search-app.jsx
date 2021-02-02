@@ -25,6 +25,7 @@ import {
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
+	setSearchParamPresent,
 	setSearchQuery,
 	setSort,
 } from '../store/actions';
@@ -38,6 +39,7 @@ import {
 	hasFilters,
 	hasNextPage,
 	isLoading,
+	isSearchParamPresent,
 } from '../store/selectors';
 import { bindCustomizerChanges } from '../lib/customize';
 import './search-app.scss';
@@ -74,6 +76,7 @@ class SearchApp extends Component {
 
 	componentDidUpdate( prevProps ) {
 		if (
+			prevProps.isSearchParamPresent !== this.props.isSearchParamPresent ||
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
 			prevProps.filters !== this.props.filters
@@ -148,7 +151,9 @@ class SearchApp extends Component {
 	};
 
 	hasActiveQuery() {
-		return this.props.searchQuery !== '' || this.props.hasFilters || hasSearchQueryStringKey();
+		return (
+			this.props.searchQuery !== '' || this.props.hasFilters || this.props.isSearchParamPresent
+		);
 	}
 
 	handleBrowserHistoryNavigation = () => {
@@ -235,6 +240,9 @@ class SearchApp extends Component {
 	onChangeQueryString = () => {
 		this.getResults();
 
+		// Store whether we have the ?s= param in the query string
+		this.props.setSearchParamPresent( hasSearchQueryStringKey() );
+
 		if ( this.hasActiveQuery() && ! this.state.showResults ) {
 			this.showResults();
 		}
@@ -313,10 +321,18 @@ export default connect(
 		hasFilters: hasFilters( state ),
 		hasNextPage: hasNextPage( state ),
 		isLoading: isLoading( state ),
+		isSearchParamPresent: isSearchParamPresent( state ),
 		response: getResponse( state ),
 		searchQuery: getSearchQuery( state ),
 		sort: getSort( state ),
 		widgetOutsideOverlay: getWidgetOutsideOverlay( state ),
 	} ),
-	{ initializeQueryValues, makeSearchRequest, setFilter, setSearchQuery, setSort }
+	{
+		initializeQueryValues,
+		makeSearchRequest,
+		setFilter,
+		setSearchParamPresent,
+		setSearchQuery,
+		setSort,
+	}
 )( SearchApp );

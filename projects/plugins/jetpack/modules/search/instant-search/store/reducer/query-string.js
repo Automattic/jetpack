@@ -5,6 +5,23 @@ import { VALID_SORT_KEYS } from '../../lib/constants';
 import { getFilterKeys } from '../../lib/filters';
 
 /**
+ * Reducer for keeping track of whether the search param is present (?s=)
+ *
+ * @param {object} state - Current state.
+ * @param {object} action - Dispatched action.
+ *
+ * @returns {object} Updated state.
+ */
+export function isSearchParamPresent( state = false, action ) {
+	switch ( action.type ) {
+		case 'SET_SEARCH_PARAM_PRESENT':
+			return action.isSearchParamPresent;
+	}
+
+	return state;
+}
+
+/**
  * Reducer for keeping track of the user's inputted search query
  *
  * @param {object} state - Current state.

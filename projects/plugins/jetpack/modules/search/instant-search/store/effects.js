@@ -9,6 +9,7 @@ import {
 	recordFailedSearchRequest,
 	recordSuccessfulSearchRequest,
 	setFilter,
+	setSearchParamPresent,
 	setSearchQuery,
 	setSort,
 } from './actions';
@@ -48,6 +49,8 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize search query value for the reducer.
 	//
+	store.dispatch( setSearchParamPresent( 's' in queryObject ) );
+
 	if ( queryObject.s ) {
 		store.dispatch( setSearchQuery( queryObject.s, false ) );
 	}

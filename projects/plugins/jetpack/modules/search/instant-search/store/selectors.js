@@ -44,6 +44,16 @@ export function isLoading( state ) {
 }
 
 /**
+ * Check if the search param is present (?s=)
+ *
+ * @param {object} state - Current state.
+ * @returns {boolean} isPresent - True if the search param is present.
+ */
+export function isSearchParamPresent( state ) {
+	return state.isSearchParamPresent;
+}
+
+/**
  * Get the search query.
  *
  * @param {object} state - Current state.
