@@ -11,7 +11,7 @@ import { BlockControls, InspectorControls, RichText } from '@wordpress/block-edi
  * Internal dependencies
  */
 import { countryCodes } from '../shared/countrycodes.js';
-import WhatsAppButtonSettings from './settings';
+import WhatsAppButtonConfiguration from './configuration';
 import './view.scss';
 
 export default function WhatsAppButtonEdit( { attributes, setAttributes, className, clientId } ) {
@@ -60,7 +60,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		<div className={ getBlockClassNames() }>
 			{ ToolbarGroup && (
 				<BlockControls>
-					<WhatsAppButtonSettings
+					<WhatsAppButtonConfiguration
 						context="toolbar"
 						setAttributes={ setAttributes }
 						attributes={ attributes }
@@ -69,7 +69,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 			) }
 
 			<InspectorControls>
-				<WhatsAppButtonSettings
+				<WhatsAppButtonConfiguration
 					context="inspector"
 					setAttributes={ setAttributes }
 					attributes={ attributes }
