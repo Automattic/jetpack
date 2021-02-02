@@ -1353,7 +1353,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'description' => $media_item->post_content,
 			'alt'         => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
 			'icon'        => wp_mime_type_icon( $media_item->ID ),
-			'size'        => size_format( filesize( get_attached_file( $media_item->ID ) ), 2 ),
+			'size'        => size_format( filesize( $attachment_file ), 2 ),
 			'thumbnails'  => array(),
 		);
 
