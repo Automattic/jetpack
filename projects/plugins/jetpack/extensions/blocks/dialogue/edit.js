@@ -194,8 +194,12 @@ export default function DialogueEdit( {
 						focusOnContent( forceFucus );
 					} }
 
-					onClean = { () => {
-						setAttributes( { participantSlug: null } );
+					onClean={ () => {
+						setAttributes( {
+							participantSlug: null,
+							participantLabel: '',
+							participantValue: '',
+						} );
 					} }
 
 					onAdd={ ( newValue, forceFucus ) => {
@@ -283,22 +287,26 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				onFocus={ () => {
+				onFocus={ ( event ) => {
 					if ( ! participantValue ) {
 						triggerRefreshAutocomplete();
 						return;
 					}
 
+					event.preventDefault();
+
 					// Provably, we should add a new participant from here.
 					// onFocusOutside is not supported by some Gutenberg versions.
 					// Take a look at <ParticipantsRichControl /> to get more info.
 					// addNewParticipant will take over to add, or not, the participant.
-					const { value, label, slug } = conversationBridge.addNewParticipant( participantValue );
-					setAttributes( {
-						participantValue: value,
-						participantLabel: label,
-						participantSlug: slug,
-					} );
+					const participantAdded = conversationBridge.addNewParticipant( participantValue );
+					if ( participantAdded ) {
+						setAttributes( {
+							participantValue: participantAdded.value,
+							participantLabel: participantAdded.label,
+							participantSlug: participantAdded.slug,
+						} );
+					}
 
 					triggerRefreshAutocomplete();
 				} }

@@ -143,10 +143,10 @@ export function ParticipantsRichControl( {
 	const [ showAutocomplete, setAddAutocomplete ] = useState( true );
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
-	function onActionHandler() {
+	function onActionHandler( forceFocus ) {
 		switch ( editingMode ) {
 			case EDIT_MODE_ADDING: {
-				return onAdd( value, ! useFocusOutsideIsAvailable );
+				return onAdd( value, ! useFocusOutsideIsAvailable || forceFocus );
 			}
 
 			case EDIT_MODE_EDITING: {
@@ -154,7 +154,7 @@ export function ParticipantsRichControl( {
 					slug: participant.slug,
 					label: getParticipantPlainText( value ), // <- store plain participant value.
 					value,
-				}, ! useFocusOutsideIsAvailable );
+				}, ! useFocusOutsideIsAvailable || forceFocus );
 			}
 		}
 
@@ -182,9 +182,18 @@ export function ParticipantsRichControl( {
 	 * dependeing on the previous values.
 	 *
 	 * @param {string} newValue - New participant value.
-	 * @returns {null} Null.
+	 * @returns {null} Null
 	 */
 	function onChangeHandler( newValue ) {
+		// If the new value is empty,
+		// activate autocomplete, and emit onClean(),
+		// to clean the current participant.
+		if ( ! newValue?.length ) {
+			setEditingMode( EDIT_MODE_ADDING );
+			setAddAutocomplete( true );
+			return onClean();
+		}
+
 		// Always update the participant value (block attribute).
 		onParticipantChange( newValue );
 
@@ -194,7 +203,7 @@ export function ParticipantsRichControl( {
 		// and current conversation participant
 		// tied to this Dialogue block.
 		if ( participant ) {
-			if ( participantByNewValue ) {
+			if ( participant.value === newValue ) {
 				setEditingMode( EDIT_MODE_SELECTING );
 			} else {
 				setEditingMode( EDIT_MODE_EDITING );
@@ -203,15 +212,6 @@ export function ParticipantsRichControl( {
 			setEditingMode( EDIT_MODE_SELECTING );
 		} else {
 			setEditingMode( EDIT_MODE_ADDING );
-		}
-
-		// If the new value is empty,
-		// activate autocomplete, and emit onClean(),
-		// to clean the current participant.
-		if ( ! newValue?.length ) {
-			setEditingMode( EDIT_MODE_ADDING );
-			setAddAutocomplete( true );
-			return onClean();
 		}
 	}
 
@@ -256,7 +256,7 @@ export function ParticipantsRichControl( {
 						onParticipantChange( newValue );
 						setAddAutocomplete( false );
 						setEditingMode( EDIT_MODE_SELECTING );
-						return onSelect( replacedParticipant, true );
+						return onSelect( replacedParticipant );
 					}
 
 					if ( ! value?.length ) {
@@ -266,10 +266,15 @@ export function ParticipantsRichControl( {
 					// Handling participant selection,
 					// by typing `ENTER` KEY.
 					const participantExists = getParticipantByValue( participants, value );
+					const hasFormatChanges = participant?.value !== value;
 					if ( participantExists ) {
+						if ( hasFormatChanges ) {
+							setEditingMode( EDIT_MODE_EDITING );
+							return onActionHandler();
+						}
+
 						// Here, it adds or selects participant.
 						setEditingMode( EDIT_MODE_SELECTING );
-						onParticipantChange( participantExists );
 						return onSelect( participantExists, true );
 					}
 
