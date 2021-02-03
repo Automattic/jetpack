@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a67bd39e13b6754f2d19b1bacfbdbf0",
+    "content-hash": "ae37d53f8c27feb5a55bbaf55f69b2c6",
     "packages": [],
     "packages-dev": [
         {
@@ -562,16 +562,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.6.0",
+            "version": "v2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "45c6dcd64da45c2e54e173791f7a91737db106f2"
+                "reference": "3a29de78291cf1ec71b23fd4553a968c13620519"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/45c6dcd64da45c2e54e173791f7a91737db106f2",
-                "reference": "45c6dcd64da45c2e54e173791f7a91737db106f2",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/3a29de78291cf1ec71b23fd4553a968c13620519",
+                "reference": "3a29de78291cf1ec71b23fd4553a968c13620519",
                 "shasum": ""
             },
             "require": {
@@ -613,9 +613,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.6.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.7.0"
             },
-            "time": "2021-01-04T18:43:32+00:00"
+            "time": "2021-01-29T17:25:46+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

@@ -40,6 +40,13 @@ export default class JetpackPage extends Page {
 		return await isEventuallyVisible( this.page, connectionInfo, 5000 );
 	}
 
+	async forceVariation( variation = 'original' ) {
+		return await this.page.evaluate(
+			forceVariation => ( jpConnect.forceVariation = forceVariation ),
+			variation
+		);
+	}
+
 	async isPlan( plan ) {
 		switch ( plan ) {
 			case 'free':
