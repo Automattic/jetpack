@@ -54,7 +54,6 @@ class JSON_Deflate_Array_Codec implements Codec_Interface {
 	 * @return false|string
 	 */
 	protected function json_serialize( $any ) {
-		// This prevents fatal error when updating pre 6.0 via the cli command.
 		return wp_json_encode( Functions::json_wrap( $any ) );
 	}
 
