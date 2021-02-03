@@ -27,7 +27,7 @@ const Overlay = props => {
 			// Cleanup after event
 			window.removeEventListener( 'keydown', closeWithEscape );
 		};
-	}, [ closeOverlay ] );
+	}, [ closeWithEscape ] );
 
 	return (
 		<div
