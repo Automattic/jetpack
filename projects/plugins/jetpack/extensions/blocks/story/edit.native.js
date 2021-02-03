@@ -54,6 +54,7 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 	// also sync in case we need to replace this block
 	useEffect( () => {
 		mediaFilesBlockReplaceSync( mediaFiles, clientId );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ clientId ] );
 
 	function onEditButtonTapped() {
