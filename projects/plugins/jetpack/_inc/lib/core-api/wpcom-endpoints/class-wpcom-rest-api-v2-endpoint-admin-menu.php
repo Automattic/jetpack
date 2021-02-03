@@ -346,7 +346,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// Truncate the title before the first HTML tag to avoid returning any unexpected HTML
-		if ( $title != strip_tags( $title ) ) {
+		if ( $title !== strip_tags( $title ) ) {
 			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
 		}
 

@@ -418,12 +418,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_update_data
-	 * @covers ::parse_update_count
+	 * @covers ::parse_markup_data
 	 */
-	public function test_parse_update_count( $menu_item, $expected ) {
+	public function test_parse_markup_data( $menu_item, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
-		$prepare_menu_item_url = $class->getMethod( 'parse_update_count' );
+		$prepare_menu_item_url = $class->getMethod( 'parse_markup_data' );
 		$prepare_menu_item_url->setAccessible( true );
 
 		$this->assertSame(
