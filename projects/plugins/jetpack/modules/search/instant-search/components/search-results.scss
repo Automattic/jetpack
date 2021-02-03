@@ -1,19 +1,25 @@
 @import '../lib/style-helpers';
 
 .jetpack-instant-search__results {
-	position: relative;
+	align-content: baseline;
+	background: $studio-white;
+	border-radius: 3px;
 	display: flex;
-	z-index: 10;
-	min-height: 226px;
+	flex-flow: row wrap;
+	min-height: 100%;
 	margin: 0 auto;
 	max-width: $modal-max-width;
 	padding: 0;
+	position: relative;
 	text-align: left;
-	background: $studio-white;
-	border-radius: 3px;
+	z-index: 10;
 
 	@include break-small-down() {
 		border-radius: 0;
+	}
+
+	@include break-large-up() {
+		max-width: $modal-max-width-lg;
 	}
 
 	mark {
