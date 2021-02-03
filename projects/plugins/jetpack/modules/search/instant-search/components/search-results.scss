@@ -4,9 +4,9 @@
 	position: relative;
 	display: flex;
 	z-index: 10;
-	max-width: $overlay-max-width;
 	min-height: 226px;
 	margin: 0 auto;
+	max-width: $modal-max-width;
 	padding: 0;
 	text-align: left;
 	background: $studio-white;
