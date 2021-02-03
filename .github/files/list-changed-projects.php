@@ -62,7 +62,6 @@ function get_all_projects() {
 
 /**
  * Fetch the list of changed projects.
- * `
  *
  * @return string[]
  */
