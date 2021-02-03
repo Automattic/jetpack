@@ -302,32 +302,8 @@ class Test_Plugin_Factory {
 			json_encode( $composer_config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES )
 		);
 
-		// We're assuming composer is installed and hope failures are distinct!
-		exec( 'composer install -d ' . escapeshellarg( $plugin_dir ) . ' 2>&1' );
-		if ( ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
-			throw new \RuntimeException( 'Unable to execute the `composer` command for tests.' );
-		}
-
-		if ( isset( $this->autoloader_version ) && ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload_packages.php' ) ) {
-			throw new \RuntimeException( 'Failed to install the autoloader.' );
-		}
-
-		// Local autoloaders require using the branch but we may not want to treat it as a developer build.
-		if ( $this->is_using_local_package() ) {
-			$manifest_dir = $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
-			$manifests    = array( 'jetpack_autoload_classmap.php', 'jetpack_autoload_psr4.php', 'jetpack_autoload_psr0.php', 'jetpack_autoload_filemap.php' );
-			foreach ( $manifests as $manifest ) {
-				$manifest = $manifest_dir . $manifest;
-				if ( ! is_file( $manifest ) ) {
-					continue;
-				}
-
-				$content = file_get_contents( $manifest );
-				// Use a sufficiently large version so that the local package will always be the latest autoloader.
-				$content = str_replace( 'dev-master', self::VERSION_CURRENT, $content );
-				file_put_contents( $manifest, $content );
-			}
-		}
+		// Now that our plugin folder is ready let's install it.
+		$this->execute_composer( $plugin_dir );
 
 		return $plugin_dir;
 	}
@@ -371,6 +347,92 @@ class Test_Plugin_Factory {
 		}
 
 		return $composer_config;
+	}
+
+	/**
+	 * Downloads the appropriate version of Composer and executes an install in the plugin directory.
+	 *
+	 * @param string $plugin_dir The plugin directory we want to execute Composer in.
+	 * @throws \RuntimeException When Composer fails to execute.
+	 */
+	private function execute_composer( $plugin_dir ) {
+		// Due to changes in the autoloader over time we cannot assume that whatever version of composer
+		// the developer has installed is compatible. To address these differences we will download a
+		// composer package that is compatible based on ranges of autoloader versions.
+		$composer_versions = array(
+			'2.0.9'   => array(
+				'min'    => '2.6.0',
+				'url'    => 'https://getcomposer.org/download/2.0.9/composer.phar',
+				'sha256' => '24faa5bc807e399f32e9a21a33fbb5b0686df9c8850efabe2c047c2ccfb9f9cc',
+			),
+			// Version 2.0.6 of Composer changed a base class we used to inherit in a way that throws fatals.
+			'2.0.5'   => array(
+				'min'    => '2.0.0',
+				'url'    => 'https://getcomposer.org/download/2.0.5/composer.phar',
+				'sha256' => 'e786d1d997efc1eb463d7447394b6ad17a144afcf8e505a3ce3cb0f60c3302f9',
+			),
+			// Version 2.x support was not added until the 2.x version of the autoloader.
+			'1.10.20' => array(
+				'min'    => '1.0.0',
+				'url'    => 'https://getcomposer.org/download/1.10.20/composer.phar',
+				'sha256' => 'e70b1024c194e07db02275dd26ed511ce620ede45c1e237b3ef51d5f8171348d',
+			),
+		);
+		// Make sure that we're iterating from the oldest Composer version to the newest.
+		uksort( $composer_versions, 'version_compare' );
+
+		// When we're not installing the autoloader we can just use the latest version.
+		if ( ! isset( $this->autoloader_version ) ) {
+			$selected = '2.0.9';
+		} else {
+			// Find the latest version of Composer that is compatible with our autoloader.
+			$version  = self::CURRENT === $this->autoloader_version ? self::VERSION_CURRENT : $this->autoloader_version;
+			$selected = null;
+			foreach ( $composer_versions as $composer_version => $data ) {
+				if ( version_compare( $version, $data['min'], '<' ) ) {
+					break;
+				}
+
+				$selected = $composer_version;
+			}
+		}
+
+		// Download the selected version of Composer if we haven't already done so.
+		$composer_bin = TEST_TEMP_BIN_DIR . DIRECTORY_SEPARATOR . 'composer_' . str_replace( '.', '_', $selected ) . '.phar';
+		if ( ! file_exists( $composer_bin ) ) {
+			$data    = $composer_versions[ $selected ];
+			$content = file_get_contents( $data['url'] );
+			if ( hash( 'sha256', $content ) !== $data['sha256'] ) {
+				throw new \RuntimeException( 'The Composer file downloaded has a different SHA256 than expected.' );
+			}
+			file_put_contents( $composer_bin, $content );
+		}
+
+		// We can finally execute Composer now that we're ready.
+		exec( 'php ' . escapeshellarg( $composer_bin ) . ' install -d ' . escapeshellarg( $plugin_dir ) . ' 2>&1' );
+		if ( ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php' ) ) {
+			throw new \RuntimeException( 'Unable to execute the `' . $composer_bin . '` archive for tests.' );
+		}
+		if ( isset( $this->autoloader_version ) && ! is_file( $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload_packages.php' ) ) {
+			throw new \RuntimeException( 'Failed to install the autoloader.' );
+		}
+
+		// Local autoloaders require using the branch but we may not want to treat it as a developer build.
+		if ( $this->is_using_local_package() ) {
+			$manifest_dir = $plugin_dir . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'composer' . DIRECTORY_SEPARATOR;
+			$manifests    = array( 'jetpack_autoload_classmap.php', 'jetpack_autoload_psr4.php', 'jetpack_autoload_psr0.php', 'jetpack_autoload_filemap.php' );
+			foreach ( $manifests as $manifest ) {
+				$manifest = $manifest_dir . $manifest;
+				if ( ! is_file( $manifest ) ) {
+					continue;
+				}
+
+				$content = file_get_contents( $manifest );
+				// Use a sufficiently large version so that the local package will always be the latest autoloader.
+				$content = str_replace( 'dev-master', self::VERSION_CURRENT, $content );
+				file_put_contents( $manifest, $content );
+			}
+		}
 	}
 
 	/**

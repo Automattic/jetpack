@@ -12,14 +12,20 @@ define( 'TEST_DIR', str_replace( '\\', '/', __DIR__ ) );
 define( 'TEST_PACKAGE_DIR', dirname( dirname( TEST_DIR ) ) );
 define( 'TEST_TEMP_DIR', __DIR__ . DIRECTORY_SEPARATOR . 'tmp' );
 
-// Since many of our tests rely on a WordPress directory structure we will simulate it.
 // phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+
+// We need a bin directory to execute Composer files from.
+define( 'TEST_TEMP_BIN_DIR', TEST_TEMP_DIR . DIRECTORY_SEPARATOR . 'bin' );
+@mkdir( TEST_TEMP_BIN_DIR, 0777, true );
+
+// Since many of our tests rely on a WordPress directory structure we will simulate it.
 define( 'WP_CONTENT_DIR', TEST_TEMP_DIR . DIRECTORY_SEPARATOR . 'wp-content' );
 @mkdir( WP_CONTENT_DIR, 0777, true );
 define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'plugins' );
 @mkdir( WP_PLUGIN_DIR, 0777, true );
 define( 'WPMU_PLUGIN_DIR', WP_CONTENT_DIR . DIRECTORY_SEPARATOR . 'mu-plugins' );
 @mkdir( WPMU_PLUGIN_DIR, 0777, true );
+
 // phpcs:enable WordPress.PHP.NoSilencedErrors.Discouraged
 
 // Load all of the test dependencies.
