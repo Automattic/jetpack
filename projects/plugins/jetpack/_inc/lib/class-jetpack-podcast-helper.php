@@ -2,7 +2,7 @@
 /**
  * Helper to massage Podcast data to be used in the Podcast block.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**

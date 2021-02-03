@@ -2,7 +2,7 @@
 /**
  * Premium Content Logged Out View Child Block.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;

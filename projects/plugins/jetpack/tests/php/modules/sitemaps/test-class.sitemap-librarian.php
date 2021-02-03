@@ -2,7 +2,7 @@
 /**
  * Tests for the Jetpack_Sitemap_Librarian class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 4.7.0
  */
 

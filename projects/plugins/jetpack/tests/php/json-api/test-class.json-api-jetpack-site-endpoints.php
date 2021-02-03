@@ -2,7 +2,7 @@
 /**
  * Jetpack `site/%s` endpoint unit tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 require_jetpack_file( 'class.json-api-endpoints.php' );

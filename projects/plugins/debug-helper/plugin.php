@@ -6,7 +6,7 @@
  * Version: 1.0
  * Text Domain: jetpack
  *
- * @package Jetpack.
+ * @package automattic/jetpack-debug-helper.
  */
 
 namespace Automattic\Jetpack\Debug_Helper;

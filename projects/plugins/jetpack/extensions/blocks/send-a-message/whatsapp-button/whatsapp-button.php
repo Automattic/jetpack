@@ -2,7 +2,7 @@
 /**
  * WhatsApp Button Block.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\WhatsApp_Button;

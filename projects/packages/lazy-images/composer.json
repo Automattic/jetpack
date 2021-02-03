@@ -21,6 +21,10 @@
 			"Composer\\Config::disableProcessTimeout",
 			"yarn build-production"
 		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build-concurrently"
+		],
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"

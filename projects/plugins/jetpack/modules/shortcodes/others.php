@@ -6,7 +6,7 @@
  * as these embeds are considered safe to use on any site
  * (and may end up embedded in Core in the future).
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
