@@ -36,11 +36,12 @@ runs:
           echo "::endgroup::"
         done
     - name: "Check out new head"
-      if: inputs.checkout
       shell: bash
       run: |
-        echo "/usr/bin/git checkout ${{ inputs.head }}"
-        /usr/bin/git checkout ${{ inputs.head }}
+        if [[ "${{ inputs.checkout }}" == "true" ]]; then
+          echo "/usr/bin/git checkout ${{ inputs.head }}"
+          /usr/bin/git checkout ${{ inputs.head }}
+        fi
     - name: "Output"
       id: end
       shell: bash
