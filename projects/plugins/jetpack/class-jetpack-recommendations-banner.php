@@ -201,7 +201,7 @@ class Jetpack_Recommendations_Banner {
                        class="jp-recommendations-banner__continue-button">
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
                     </a>
-                    <div class="jp-recommendations-banner__description">
+                    <div class="jp-recommendations-banner__continue-description">
 						<?php esc_html_e( 'All of Jetpack’s great features await you and we’ll recommend some of our favorites.', 'jetpack' ); ?>
                     </div>
                 </div>
