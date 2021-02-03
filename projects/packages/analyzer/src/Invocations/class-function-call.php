@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack\Analyzer\Invocations;
 
-use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 use Automattic\Jetpack\Analyzer\Declarations\Function_;
+use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 
 /**
  * Invocations of a function
