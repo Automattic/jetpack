@@ -208,7 +208,7 @@ class Jetpack_Recommendations_Banner {
                         class="jp-recommendations-banner__illustration-background"
                 />
                 <img
-                        src="<?php echo esc_url( plugins_url( 'images/recommendations/site-type-illustration.png', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
+                        src="<?php echo esc_url( plugins_url( 'images/recommendations/site-type-illustration.jpg', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
                         class="jp-recommendations-banner__illustration-foreground"
                 />
             </div>
