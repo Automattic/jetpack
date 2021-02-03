@@ -184,7 +184,6 @@ export default function DialogueEdit( {
 					} }
 
 					onSelect={ ( { slug, label, value }, forceFucus ) => {
-						// let's focus to content when it's possible.
 						setAttributes( {
 							participantLabel: label,
 							participantValue: value,
@@ -203,7 +202,6 @@ export default function DialogueEdit( {
 					} }
 
 					onAdd={ ( newValue, forceFucus ) => {
-						// let's focus to content when it's possible.
 						triggerRefreshAutocomplete();
 
 						if ( ! newValue?.length ) {
@@ -298,21 +296,38 @@ export default function DialogueEdit( {
 					// Provably, we should add a new participant from here.
 					// onFocusOutside is not supported by some Gutenberg versions.
 					// Take a look at <ParticipantsRichControl /> to get more info.
-					// addNewParticipant will take over to add, or not, the participant.
 					const participantExists = getParticipantByValue( participants, participantValue );
 					const hasFormatChanges = conversationParticipant?.value !== participantValue;
+
+					// If participant exists ...
 					if ( participantExists ) {
+						// and there are formats differences...
 						if ( hasFormatChanges ) {
+							// updates the participant,
 							return conversationBridge.updateParticipants( {
 								...conversationParticipant,
 								value: participantValue,
 							} );
 						}
 
+						// Otherwise, simply update the dialogue participant.
 						setAttributes( {
 							participantValue: participantExists.value,
 							participantLabel: participantExists.label,
 							participantSlug: participantExists.slug,
+						} );
+					} else {
+						// But, if it doens't exist let's create a new one...
+						const newParticipant = conversationBridge.addNewParticipant( participantValue );
+						if ( ! newParticipant ) {
+							return;
+						}
+
+						// ... and update the dialogue with these new values.
+						setAttributes( {
+							participantValue: newParticipant.value,
+							participantLabel: newParticipant.label,
+							participantSlug: newParticipant.slug,
 						} );
 					}
 
