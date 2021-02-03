@@ -1,0 +1,3 @@
+/dist/**         production-include
+/.gitattributes  production-exclude
+/.gitignore      production-exclude
