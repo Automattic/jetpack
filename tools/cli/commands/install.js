@@ -3,6 +3,8 @@
  */
 import chalk from 'chalk';
 import Listr from 'listr';
+import VerboseRenderer from 'listr-verbose-renderer';
+import UpdateRenderer from 'listr-update-renderer';
 
 /**
  * Internal dependencies
@@ -10,32 +12,35 @@ import Listr from 'listr';
 import { promptForProject } from '../helpers/promptForProject.js';
 import { installProjectTask } from '../helpers/tasks/installProjectTask';
 import { allProjects } from '../helpers/projectHelpers';
+import { normalizeInstallArgv } from '../helpers/normalizeArgv';
 
 /**
  * Installs a project.
  *
- * @param {string} project - The project.
- * @param {boolean} root - If the monorepo should be installed via --root arg.
- * @param {boolean} all -- If everything should be installed.
+ * @param {object} argv - Passthrough of the argv to include project, root, etc options.
  */
-export async function install( project, root = false, all = false ) {
-	// Special hack for installing just the monorepo.
-	if ( project === 'monorepo' || all ) {
-		project = '';
-		root = true;
-	}
+export async function install( argv ) {
+	argv = normalizeInstallArgv( argv );
 
-	const tasks = [];
-	root ? tasks.push( installProjectTask( project, root ) ) : null;
-	project ? tasks.push( installProjectTask( project ) ) : null;
+	const tasks = addRootInstallTask( argv );
 
-	if ( all ) {
+	argv.root ? tasks.push( installProjectTask( argv ) ) : null;
+	argv.root = false;
+	argv.project ? tasks.push( installProjectTask( argv ) ) : null;
+
+	if ( argv.all ) {
 		allProjects().forEach( item => {
-			tasks.push( installProjectTask( item ) );
+			argv.project = item;
+			tasks.push( installProjectTask( argv ) );
 		} );
 	}
 
-	const installs = new Listr( tasks, { concurrent: true } );
+	const opts = {
+		concurrent: ! argv.v,
+		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+	};
+
+	const installs = new Listr( tasks, opts );
 
 	installs.run().catch( err => {
 		console.error( err );
@@ -48,19 +53,14 @@ export async function install( project, root = false, all = false ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function installCli( argv ) {
-	argv = {
-		...argv,
-		project: argv.project || '',
-		root: argv.root || false,
-		all: argv.all || false,
-	};
+	argv = normalizeInstallArgv( argv );
 
 	if ( ! argv.root && ! argv.all ) {
 		argv = await promptForProject( argv );
 	}
 
 	if ( argv.project || argv.root || argv.all ) {
-		await install( argv.project, argv.root, argv.all );
+		await install( argv );
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );
 	}
@@ -103,4 +103,16 @@ export function installDefine( yargs ) {
 	);
 
 	return yargs;
+}
+
+/**
+ * Conditionally add the root install task
+ *
+ * @param {object} argv - The argv object
+ *
+ * @returns {object} An array of either the root install task or empty.
+ */
+function addRootInstallTask( argv ) {
+	normalizeInstallArgv( argv );
+	return [];
 }
