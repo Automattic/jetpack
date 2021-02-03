@@ -6,7 +6,7 @@ import { InspectorControls, RichText, BlockControls } from '@wordpress/block-edi
 import { createBlock } from '@wordpress/blocks';
 
 import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
-import { useContext, useEffect } from '@wordpress/element';
+import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
 
@@ -50,6 +50,8 @@ export default function DialogueEdit( {
 		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
 		[]
 	);
+
+	const contentRef = useRef();
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
@@ -157,6 +159,9 @@ export default function DialogueEdit( {
 						setAttributes( { participantValue: updatedParticipant } );
 					} }
 					onSelect={ ( { slug, label, value } ) => {
+						// let's focus to content when it's possible.
+						contentRef?.current?.focus();
+
 						setAttributes( {
 							participantLabel: label,
 							participantValue: value,
@@ -167,9 +172,9 @@ export default function DialogueEdit( {
 						setAttributes( { participantSlug: null } );
 					} }
 					onAdd={ newValue => {
-						if ( ! newValue?.length ) {
-							return;
-						}
+						// let's focus to content when it's possible.
+						contentRef?.current?.focus();
+
 						const newParticipant = conversationBridge.addNewParticipant( newValue );
 						if ( ! newParticipant ) {
 							return;
@@ -195,6 +200,7 @@ export default function DialogueEdit( {
 			</div>
 
 			<RichText
+				ref={ contentRef }
 				identifier="content"
 				tagName="p"
 				className={ `${ BASE_CLASS_NAME }__content` }
