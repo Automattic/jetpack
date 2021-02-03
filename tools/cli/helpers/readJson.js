@@ -23,7 +23,7 @@ function readJson( project, packageManager, output ) {
 		data = fs.readFileSync( `projects/${ project }/${ file }`, 'utf8' );
 	} catch ( err ) {
 		output ? log( chalk.yellow( `This project does not have a ${ file } file.` ) ) : null;
-		return false;
+		return undefined;
 	}
 
 	return parseJSON( data, output );
@@ -59,7 +59,7 @@ export function readPackageJson( project, output = true ) {
  * @param {string} data - string of JSON data.
  * @param {boolean }output - should the console output a message if it can't parse the JSON.
  *
- * @returns {boolean|object} JSON Object or false if unable to read.
+ * @returns {object|undefined} JSON Object or undefined if unable to read.
  */
 function parseJSON( data, output ) {
 	try {
@@ -67,8 +67,8 @@ function parseJSON( data, output ) {
 		return data;
 	} catch ( parseError ) {
 		output
-			? log( chalk.red( 'Could not parse composer.json. Something is pretty wrong.' ), parseError )
+			? log( chalk.red( 'Could not parse JSON. Something is pretty wrong.' ), parseError )
 			: null;
-		return false;
+		return undefined;
 	}
 }

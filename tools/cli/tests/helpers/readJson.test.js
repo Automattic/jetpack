@@ -25,6 +25,6 @@ describe( 'readPackageJson', function () {
 		chai.expect( readPackageJson( 'plugins/jetpack', false ) ).to.be.an( 'object' );
 	} );
 	it( 'packages/abtest should not have data', function () {
-		chai.expect( readPackageJson( 'packages/abtest', false ) ).to.equal( false );
+		chai.expect( readPackageJson( 'packages/abtest', false ) ).to.equal( undefined );
 	} );
 } );
