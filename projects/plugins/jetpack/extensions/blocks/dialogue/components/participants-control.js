@@ -287,7 +287,7 @@ export function ParticipantsRichControl( {
 
 					// From here, it will add a new participant.
 					setEditingMode( EDIT_MODE_ADDING );
-					onActionHandler();
+					onActionHandler( true );
 				} }
 				autocompleters={ autocompleter }
 			/>
