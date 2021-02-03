@@ -1084,6 +1084,12 @@ class Jetpack_Beta {
 		if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
 			return false;
 		}
+
+		// Check if running in a docker instance.
+		if ( defined( 'JETPACK_DOCKER_ENV' ) && JETPACK_DOCKER_ENV ) {
+			return false;
+		}
+
 		// Check if we are Jetpack plugin is installed via git.
 		if ( file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack/.git' ) ) {
 			return false;
@@ -1240,7 +1246,7 @@ class Jetpack_Beta {
 	}
 
 	/**
-	 * The jetpack_beta_autoupdate_hourly_cron job.
+	 * The jetpack_beta_autoupdate_hourly_cron job - does not update Stable.
 	 */
 	public static function run_autoupdate() {
 		if ( ! self::is_set_to_autoupdate() ) {
