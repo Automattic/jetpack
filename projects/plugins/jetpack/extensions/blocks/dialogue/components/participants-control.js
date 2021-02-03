@@ -148,6 +148,10 @@ export function ParticipantsRichControl( {
 	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer( counterReducer, 0 );
 
 	function addOrSelectParticipant() {
+		if ( ! value?.length ) {
+			return;
+		}
+
 		setAddAutocomplete( false );
 		triggerRefreshAutocomplete();
 
