@@ -79,25 +79,6 @@ class SearchResults extends Component {
 						`,
 					} }
 				/>
-				<SearchForm
-					className="jetpack-instant-search__results-search-form"
-					enableSort={ this.props.enableSort }
-					filters={ this.props.filters }
-					isLoading={ this.props.isLoading }
-					isVisible={ this.props.isVisible }
-					locale={ this.props.locale }
-					postTypes={ this.props.postTypes }
-					onChangeSearch={ this.props.onChangeSearch }
-					onChangeSort={ this.props.onChangeSort }
-					overlayTrigger={ this.props.overlayTrigger }
-					response={ this.props.response }
-					resultFormat={ this.props.resultFormat }
-					searchQuery={ this.props.searchQuery }
-					sort={ this.props.sort }
-					widgets={ this.props.widgets }
-					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
-				/>
-
 				<div className="jetpack-instant-search__results-title">{ this.getSearchTitle() }</div>
 
 				{ hasResults && hasCorrectedQuery && (
@@ -191,6 +172,24 @@ class SearchResults extends Component {
 				>
 					<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 				</button>
+				<SearchForm
+					className="jetpack-instant-search__results-search-form"
+					enableSort={ this.props.enableSort }
+					filters={ this.props.filters }
+					isLoading={ this.props.isLoading }
+					isVisible={ this.props.isVisible }
+					locale={ this.props.locale }
+					postTypes={ this.props.postTypes }
+					onChangeSearch={ this.props.onChangeSearch }
+					onChangeSort={ this.props.onChangeSort }
+					overlayTrigger={ this.props.overlayTrigger }
+					response={ this.props.response }
+					resultFormat={ this.props.resultFormat }
+					searchQuery={ this.props.searchQuery }
+					sort={ this.props.sort }
+					widgets={ this.props.widgets }
+					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+				/>
 				<div className="jetpack-instant-search__results-primary">
 					{ this.renderPrimarySection() }
 				</div>
