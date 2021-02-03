@@ -2,7 +2,7 @@
 /**
  * WP Site Health functionality temporarily stored in this file until all of Jetpack is PHP 5.3+
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Sync\Modules;

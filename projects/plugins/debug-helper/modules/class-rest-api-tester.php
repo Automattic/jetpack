@@ -2,7 +2,7 @@
 /**
  * REST API Tester file contains the class `REST_API_Tester` that tests REST API endpoints.
  *
- * @package Jetpack
+ * @package automattic/jetpack-debug-helper
  */
 
 namespace Automattic\Jetpack\Debug_Helper;

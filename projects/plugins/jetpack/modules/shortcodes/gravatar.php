@@ -7,7 +7,7 @@
  * [gravatar email="user@example.org" size="48"]
  * [gravatar_profile who="user@example.org"]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_shortcode( 'gravatar', 'jetpack_gravatar_shortcode' );

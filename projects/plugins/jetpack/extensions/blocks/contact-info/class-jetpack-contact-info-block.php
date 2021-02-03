@@ -2,7 +2,7 @@
 /**
  * Class Jetpack_Contact_Info_Block
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

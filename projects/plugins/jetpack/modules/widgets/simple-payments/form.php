@@ -2,7 +2,7 @@
 /**
  * Display the Pay with PayPal Form.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 ?>

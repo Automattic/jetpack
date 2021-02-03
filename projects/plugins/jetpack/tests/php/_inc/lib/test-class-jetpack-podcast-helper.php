@@ -2,7 +2,7 @@
 /**
  * Podcast Helper unit tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 jetpack_require_lib( 'class-jetpack-podcast-helper' );
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 			->method( 'load_feed' )
 			->will( $this->returnValue( new WP_Error( 'feed_error', 'Feed error.' ) ) );
 
-		$error = $podcast_helper->get_track_data( '' );
+		$error = $podcast_helper->get_track_data( 'invalid_id' );
 		$this->assertWPError( $error );
 		$this->assertSame( $error->get_error_code(), 'feed_error' );
 		$this->assertSame( $error->get_error_message(), 'Feed error.' );
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 			);
 
 		// Can't find an episode.
-		$error = $podcast_helper->get_track_data( '' );
+		$error = $podcast_helper->get_track_data( 'invalid_id' );
 		$this->assertWPError( $error );
 		$this->assertSame( $error->get_error_code(), 'no_track' );
 		$this->assertSame( $error->get_error_message(), 'The track was not found.' );

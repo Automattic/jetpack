@@ -7,9 +7,10 @@
 
 namespace Automattic\Jetpack\Analyzer\Differences;
 
-use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
 use Automattic\Jetpack\Analyzer\Invocations\Static_Const;
-use Automattic\Jetpack\Analyzer\Warnings\Warning; // TODO - subclasses?
+use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
+use Automattic\Jetpack\Analyzer\Warnings\Warning;
+// TODO - subclasses?
 
 /**
  * Class Class_Const_Moved
@@ -39,7 +40,6 @@ class Class_Const_Moved extends PersistentListItem implements Invocation_Warner 
 		$this->old_declaration = $old_declaration;
 		$this->new_declaration = $new_declaration;
 	}
-
 
 	/**
 	 * Return array of declaration items.

@@ -275,7 +275,7 @@ jobs:
           echo "::remove-matcher owner=phpcs"
 
   ### Runs phpcs-changed on PHP files listed in phpcs-excludelist.json.
-  # Local equivalent: `composer phpcs:changed -- --git-branch=<base> <files...>`
+  # Local equivalent: `composer phpcs:changed -- --git-base=<base> <files...>`
   # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
@@ -327,7 +327,7 @@ jobs:
           FILES: ${{ needs.changed_files.outputs.php_excluded_files }}
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
-          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]') |
+          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-base=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]') |
             jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | map(tostring) | join("")'
           echo "::remove-matcher owner=phpcs"
 
@@ -358,7 +358,7 @@ jobs:
       - run: yarn lint-required
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
-  # Local equivalent: `yarn lint-changed --git-branch=<base>`
+  # Local equivalent: `yarn lint-changed --git-base=<base>`
   # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `yarn lint-changed`
@@ -394,7 +394,7 @@ jobs:
       - name: Run eslint-changed
         env:
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
-        run: yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
+        run: yarn lint-changed --git-base=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
 
   ### Checks that copied files (e.g. readme, license) are in sync
   # Local equivalent: `./tools/check-copied-files.sh`

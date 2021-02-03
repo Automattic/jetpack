@@ -2,7 +2,7 @@
 /**
  * REST API endpoint for parsing Tweetstorms out of block content.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 9.0.0
  */
 

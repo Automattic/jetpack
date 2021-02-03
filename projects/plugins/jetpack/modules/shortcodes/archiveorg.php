@@ -9,7 +9,7 @@
 
  * <iframe src="http://archive.org/embed/Experime1940&autoplay=1&poster=http://archive.org/images/map.png" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

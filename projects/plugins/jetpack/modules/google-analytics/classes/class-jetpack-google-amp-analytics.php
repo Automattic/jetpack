@@ -2,7 +2,7 @@
 /**
  * Add support for Google Analytics e-commerce events for AMP pages.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

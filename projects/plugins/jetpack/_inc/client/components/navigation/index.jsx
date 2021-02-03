@@ -19,6 +19,7 @@ import NavItem from 'components/section-nav/item';
 import SectionNav from 'components/section-nav';
 import {
 	getSiteRawUrl,
+	showRecommendations,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 } from 'state/initial-state';
@@ -41,6 +42,10 @@ export class Navigation extends React.Component {
 
 	trackPlansClick = () => {
 		this.trackNavClick( 'plans' );
+	};
+
+	trackRecommendationsClick = () => {
+		this.trackNavClick( 'recommendations' );
 	};
 
 	render() {
@@ -73,6 +78,15 @@ export class Navigation extends React.Component {
 							selected={ this.props.location.pathname === '/plans' }
 						>
 							{ _x( 'Plans', 'Navigation item.', 'jetpack' ) }
+						</NavItem>
+					) }
+					{ this.props.showRecommendations && (
+						<NavItem
+							path="#/recommendations"
+							onClick={ this.trackRecommendationsClick }
+							selected={ this.props.location.pathname.startsWith( '/recommendations' ) }
+						>
+							{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 				</NavTabs>
@@ -111,6 +125,7 @@ export default connect( state => {
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		isLinked: isCurrentUserLinked( state ),
+		showRecommendations: showRecommendations( state ),
 		siteUrl: getSiteRawUrl( state ),
 	};
 } )( withRouter( Navigation ) );

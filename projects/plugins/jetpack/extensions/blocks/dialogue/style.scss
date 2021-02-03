@@ -1,4 +1,9 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
 .wp-block-jetpack-dialogue {
+	margin-top: 20px;
+	margin-bottom: 20px;
+
 	.wp-block-jetpack-dialogue__meta {
 		display: flex;
 		flex-direction: row;
@@ -48,25 +53,25 @@
 }
 
 // Conversation styles.
-.wp-block-jetpack-conversation.is-style-column {
-	.wp-block-jetpack-dialogue {
-		display: flex;
+@include break-small {
+	.wp-block-jetpack-conversation.is-style-column {
+		.wp-block-jetpack-dialogue {
+			display: flex;
 
-		.wp-block-jetpack-dialogue__meta {
-			display: block;
-			align-items: initial;
-			flex: 0 0 20%;
-		}
+			.wp-block-jetpack-dialogue__meta {
+				display: block;
+				flex: 0 0 25%;
+				text-align: right;
+			}
 
-		.wp-block-jetpack-dialogue__participant {
-			text-align: right;
-			margin-right: 12px;
-		}
+			.wp-block-jetpack-dialogue__participant {
+				margin-right: 12px;
+			}
 
-		.components-dropdown,
-		.wp-block-jetpack-dialogue__timestamp-dropdown {
-			text-align: right;
-			display: block;
+			.components-dropdown,
+			.wp-block-jetpack-dialogue__timestamp-dropdown {
+				display: block;
+			}
 		}
 	}
 }
