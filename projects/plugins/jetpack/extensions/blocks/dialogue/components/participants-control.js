@@ -146,6 +146,10 @@ export function ParticipantsRichControl( {
 	);
 
 	function addOrSelectParticipant() {
+		if ( ! value?.length ) {
+			return;
+		}
+
 		setAddAutocomplete( false );
 		triggerRefreshAutocomplete();
 
