@@ -39,6 +39,7 @@
 
 .jp-recommendations-banner__question {
 	font-size: 1.5rem;
+	line-height: 1.4;
 	margin: 32px 32px 0 32px;
 
 	@include breakpoint( '<480px' ) {
