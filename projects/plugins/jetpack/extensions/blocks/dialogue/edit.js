@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
-import { useContext, useEffect, useRef } from '@wordpress/element';
+import { useContext, useEffect, useRef, useReducer } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
 
@@ -25,6 +25,8 @@ import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
+
+const speakersControlReducer = state => state + 1;
 
 export default function DialogueEdit( {
 	className,
@@ -48,6 +50,12 @@ export default function DialogueEdit( {
 	const mediaSource = useSelect( select => (
 		select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource()
 	), [] );
+
+	// we use a reducer to force re-rendering the ParticipantsRichControl,
+	// passing the `reRenderingKey` as property of the component.
+	// It's required when we want to update the options in the autocomplete,
+	// or when we need to hide it.
+	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer( speakersControlReducer, 0 );
 
 	const contentRef = useRef();
 
@@ -153,7 +161,7 @@ export default function DialogueEdit( {
 					value={ participantValue }
 					participant={ conversationParticipant }
 					participants={ participants }
-
+					reRenderingKey={ `re-render-key${ reRenderingKey }` }
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { participantValue: updatedParticipant } );
 					} }
@@ -176,6 +184,7 @@ export default function DialogueEdit( {
 					onAdd={ ( newValue ) => {
 						// let's focus to content when it's possible.
 						contentRef?.current?.focus();
+						triggerRefreshAutocomplete();
 
 						if ( ! newValue?.length ) {
 							return;
@@ -265,6 +274,8 @@ export default function DialogueEdit( {
 						participantLabel: label,
 						participantSlug: slug,
 					} );
+
+					triggerRefreshAutocomplete();
 				} }
 			/>
 		</div>

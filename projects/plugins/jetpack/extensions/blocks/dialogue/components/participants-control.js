@@ -10,10 +10,9 @@ import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/com
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState, useEffect, useReducer } from '@wordpress/element';
-import {
-	__experimentalUseFocusOutside as useFocusOutside,
-} from '@wordpress/compose';
+
+import { useMemo, useState, useEffect } from '@wordpress/element';
+import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -110,8 +109,6 @@ function refreshAutocompleter( participants ) {
 	};
 }
 
-const counterReducer = ( state ) => state + 1;
-
 /**
  * Control to edit Dialogue participant globally.
  *
@@ -119,6 +116,7 @@ const counterReducer = ( state ) => state + 1;
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.value               - Dialogue participant value. Usually HTML. Local level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
+ * @param {string}   prop.reRenderingKey      - Custom property to for a re-render in the rich text component.
  * @param {object}   prop.participant         - Participant object. Gloanl level.
  * @param {Function} prop.onParticipantChange - Use this callback to update participant, value locally.
  * @param {Function} prop.onUpdate            - Use this value to update the participant but globaly.
@@ -132,6 +130,7 @@ export function ParticipantsRichControl( {
 	value,
 	participants,
 	participant,
+	reRenderingKey,
 	onParticipantChange,
 	onUpdate = () => {},
 	onSelect,
@@ -140,10 +139,6 @@ export function ParticipantsRichControl( {
 } ) {
 	const [ showAutocomplete, setAddAutocomplete ] = useState( true );
 	const [ isAddingNewParticipant, setIsAddingNewParticipant ] = useState( false );
-	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer(
-		counterReducer,
-		0
-	);
 
 	function addOrSelectParticipant() {
 		if ( ! value?.length ) {
@@ -151,7 +146,6 @@ export function ParticipantsRichControl( {
 		}
 
 		setAddAutocomplete( false );
-		triggerRefreshAutocomplete();
 
 		// Before to update the participant,
 		// Let's check the participant doesn't exist.
