@@ -19,7 +19,8 @@ jobs:
       - uses: actions/checkout@v2
       - id: create-matrix
         run: |
-          echo "::set-output name=matrix::$(.github/files/generate-ci-matrix.php)"
+          MATRIX="$(.github/files/generate-ci-matrix.php)"
+          echo "::set-output name=matrix::$MATRIX"
 
   run-tests:
     name: ${{ matrix.name }}
