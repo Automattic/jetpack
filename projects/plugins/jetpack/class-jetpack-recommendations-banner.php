@@ -170,6 +170,7 @@ class Jetpack_Recommendations_Banner {
 	 */
 	public function render_banner() {
 		$jetpack_logo = new Jetpack_Logo();
+		$site_name    = get_bloginfo( 'name' );
 		?>
         <div id="jp-recommendations-banner-main" class="jp-recommendations-banner-main">
             <div class="jp-recommendations-banner__content">
@@ -179,7 +180,10 @@ class Jetpack_Recommendations_Banner {
 					?>
                 </div>
                 <h1 class="jp-recommendations-banner__question">
-					<?php esc_html_e( 'What type of site is TODO?', 'jetpack' ); ?>
+					<?php
+					/* translators: placeholder is the name of the website */
+					echo sprintf( esc_html__( 'What type of site is %s?', 'jetpack' ), $site_name );
+					?>
                 </h1>
                 <p class="jp-recommendations-banner__description">
 					<?php esc_html_e( 'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.', 'jetpack' ); ?>
