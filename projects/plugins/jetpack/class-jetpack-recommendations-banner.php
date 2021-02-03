@@ -103,23 +103,37 @@ class Jetpack_Recommendations_Banner {
 
 		$data = Jetpack_Recommendations::get_recommendations_data();
 
+		$tracking_answers = array();
+
 		if ( isset( $_REQUEST['personal'] ) && is_string( $_REQUEST['personal'] ) ) {
-			$data['site-type-personal'] = 'true' === $_REQUEST['personal'] ? true : false;
+			$value                        = 'true' === $_REQUEST['personal'] ? true : false;
+			$data['site-type-personal']   = $value;
+			$tracking_answers['personal'] = $value;
 		}
 
 		if ( isset( $_REQUEST['business'] ) && is_string( $_REQUEST['business'] ) ) {
-			$data['site-type-business'] = 'true' === $_REQUEST['business'] ? true : false;
+			$value                        = 'true' === $_REQUEST['business'] ? true : false;
+			$data['site-type-business']   = $value;
+			$tracking_answers['business'] = $value;
 		}
 
 		if ( isset( $_REQUEST['store'] ) && is_string( $_REQUEST['store'] ) ) {
-			$data['site-type-store'] = 'true' === $_REQUEST['store'] ? true : false;
+			$value                     = 'true' === $_REQUEST['store'] ? true : false;
+			$data['site-type-store']   = $value;
+			$tracking_answers['store'] = $value;
 		}
 
 		if ( isset( $_REQUEST['other'] ) && is_string( $_REQUEST['other'] ) ) {
-			$data['site-type-other'] = 'true' === $_REQUEST['other'] ? true : false;
+			$value                     = 'true' === $_REQUEST['other'] ? true : false;
+			$data['site-type-other']   = $value;
+			$tracking_answers['other'] = $value;
 		}
 
 		Jetpack_Recommendations::update_recommendations_data( $data );
+		Jetpack_Options::update_option( 'recommendations_step', 'banner-completed' );
+
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'recommendations_banner_completed', $tracking_answers );
 
 		wp_send_json_success();
 		wp_die();

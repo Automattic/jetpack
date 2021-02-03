@@ -132,6 +132,7 @@ export const getStep = state => {
 
 const stepToNextStep = {
 	'setup-wizard-completed': 'site-type-question',
+	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
 	'site-type-question': 'woocommerce',
 	woocommerce: 'monitor',
@@ -175,6 +176,8 @@ export const isFeatureActive = ( state, featureSlug ) => {
 
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
+		case 'setup-wizard-completed':
+		case 'banner-completed':
 		case 'not-started':
 			return false;
 		case 'site-type-question':
