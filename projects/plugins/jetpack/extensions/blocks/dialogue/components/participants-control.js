@@ -147,7 +147,6 @@ export function ParticipantsRichControl( {
 	onAdd,
 	onClean,
 } ) {
-	const [ showAutocomplete, setAddAutocomplete ] = useState( true );
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
 	function onActionHandler( forceFocus ) {
@@ -164,24 +163,9 @@ export function ParticipantsRichControl( {
 				}, ! useFocusOutsideIsAvailable || forceFocus );
 			}
 		}
-
-		setAddAutocomplete( false );
 	}
 
-	/*
-	 * Handle when on focus out.
-	 * Add or Select a participant.
-	 */
-	function onFocusOutsideHandler() {
-		// Clean current participant when content is empty.
-		if ( ! value?.length ) {
-			return setAddAutocomplete( false );
-		}
-
-		onActionHandler();
-	}
-
-	const focusOutsideProps = useFocusOutsideWithFallback( onFocusOutsideHandler );
+	const focusOutsideProps = useFocusOutsideWithFallback( onActionHandler );
 
 	/**
 	 * Funcion handler when user types participant value.
@@ -197,7 +181,6 @@ export function ParticipantsRichControl( {
 		// to clean the current participant.
 		if ( ! newValue?.length ) {
 			setEditingMode( EDIT_MODE_ADDING );
-			setAddAutocomplete( true );
 			return onClean();
 		}
 
@@ -224,16 +207,15 @@ export function ParticipantsRichControl( {
 
 	// Keep autocomplete options udated.
 	const autocompleter = useMemo( () => {
-		if ( ! showAutocomplete ) {
+		if ( editingMode !== EDIT_MODE_ADDING ) {
 			return [];
 		}
 
 		return [ refreshAutocompleter( participants ) ];
-	}, [ participants, showAutocomplete ] );
+	}, [ participants, editingMode ] );
 
 	useEffect( () => {
 		setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-		setAddAutocomplete( ! participant );
 	}, [ participant ] );
 
 	return (
@@ -261,7 +243,6 @@ export function ParticipantsRichControl( {
 					if ( replacedParticipant ) {
 						const { value: newValue } = replacedParticipant;
 						onParticipantChange( newValue );
-						setAddAutocomplete( false );
 						setEditingMode( EDIT_MODE_SELECTING );
 						return onSelect( replacedParticipant );
 					}
@@ -273,16 +254,17 @@ export function ParticipantsRichControl( {
 					// Handling participant selection,
 					// by typing `ENTER` KEY.
 					const participantExists = getParticipantByValue( participants, value );
-					const hasFormatChanges = participant?.value !== value;
 					if ( participantExists ) {
-						if ( hasFormatChanges ) {
+						if ( ! participant ) {
+							setEditingMode( EDIT_MODE_SELECTING );
+							return onSelect( participantExists, true );
+						}
+
+						// Update participant format.
+						if ( participant?.value !== value ) {
 							setEditingMode( EDIT_MODE_EDITING );
 							return onActionHandler();
 						}
-
-						// Here, it adds or selects participant.
-						setEditingMode( EDIT_MODE_SELECTING );
-						return onSelect( participantExists, true );
 					}
 
 					// From here, it will add a new participant.

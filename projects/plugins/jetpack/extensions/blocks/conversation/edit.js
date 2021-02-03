@@ -43,7 +43,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 
 	const addNewParticipant = useCallback(
-		function ( newSpeakerValue ) {
+		function ( newSpeakerValue = '' ) {
 			const sanitizedSpeakerValue = newSpeakerValue.trim();
 			// Do not add speakers with empty names.
 			if ( ! sanitizedSpeakerValue?.length ) {
