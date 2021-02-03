@@ -12,13 +12,18 @@
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $infrastructure_files = array(
 	'.github/files/list-changed-projects.php',
+	'.github/files/generate-ci-matrix.php',
 	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
 	'.github/php-version',
-	'.github/workflows/test-coverage.yml',
-	'.github/workflows/test-js.yml',
-	'.github/workflows/test-php.yml',
+	'.github/workflows/tests.yml',
 	'.nvmrc',
+);
+
+// Globs that should be ignored. Supports `*`, `**`, and `?`.
+// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+$ignore_globs = array(
+	'**.md',
 );
 
 chdir( __DIR__ . '/../../' );
@@ -50,7 +55,7 @@ function get_all_projects() {
 	static $cache = null;
 
 	if ( null === $cache ) {
-		$cache = array();
+		$cache = array( 'monorepo' );
 		foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
 			$cache[] = substr( $file, 9, -14 );
 		}
@@ -66,7 +71,14 @@ function get_all_projects() {
  * @return string[]
  */
 function get_changed_projects() {
-	global $infrastructure_files;
+	global $infrastructure_files, $ignore_globs;
+
+	// Code coverage probably needs to run all tests to avoid confusing metrics.
+	// @todo Determine if that's actually true.
+	if ( 'test-coverage' === getenv( 'TEST_SCRIPT' ) ) {
+		debug( 'TEST_SCRIPT is test-coverage, considering all projects changed.' );
+		return get_all_projects();
+	}
 
 	$event = getenv( 'GITHUB_EVENT_NAME' );
 	if ( 'pull_request' === $event ) {
@@ -82,7 +94,9 @@ function get_changed_projects() {
 		}
 		$base = $event->pull_request->base->sha;
 		$head = $event->pull_request->head->sha;
+		debug( 'GITHUB_EVENT_NAME is pull_request, checking diff from %s...%s.', $base, $head );
 	} elseif ( 'push' === $event ) {
+		debug( 'GITHUB_EVENT_NAME is push, considering all projects changed.' );
 		return get_all_projects();
 	} else {
 		fprintf( STDERR, "Unsupported GITHUB_EVENT_NAME \"%s\"\n", $event );
@@ -100,6 +114,36 @@ function get_changed_projects() {
 	}
 	fclose( $pipes[0] );
 
+	// PHP doesn't seem to have something that'll correctly handle `**`, so munge to a regex.
+	$ignore_regexes = array();
+	foreach ( $ignore_globs as $glob ) {
+		$re = '!^';
+		for ( $i = 0, $l = strlen( $glob ); $i < $l; $i++ ) {
+			$c = $glob[ $i ];
+			switch ( $c ) {
+				case '\\':
+					$re .= preg_quote( $glob[ ++$i ], '!' );
+					break;
+				case '*':
+					if ( '*' === $glob[ $i + 1 ] ) {
+						$i++;
+						$re .= '.*';
+					} else {
+						$re .= '[^/]*';
+					}
+					break;
+				case '?':
+					$re .= '[^/]';
+					break;
+				default:
+					$re .= preg_quote( $c, '!' );
+					break;
+			}
+		}
+		$re                     .= '$!';
+		$ignore_regexes[ $glob ] = $re;
+	}
+
 	$projects = array();
 	// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 	while ( ( $line = fgets( $pipes[1] ) ) ) {
@@ -108,13 +152,21 @@ function get_changed_projects() {
 			debug( 'PR touches infrastructure file %s, considering all projects changed.', $line );
 			return get_all_projects();
 		}
+		foreach ( $ignore_regexes as $glob => $re ) {
+			if ( preg_match( $re, $line ) ) {
+				debug( 'PR touches file %s, but ignoring due to match with `%s`.', $line, $glob );
+				continue 2;
+			}
+		}
 		$parts = explode( '/', $line, 4 );
 		if ( count( $parts ) === 4 && 'projects' === $parts[0] ) {
 			$slug = "{$parts[1]}/{$parts[2]}";
-			if ( empty( $projects[ $slug ] ) ) {
-				debug( 'PR touches file %s, marking %s as changed.', $line, $slug );
-				$projects[ $slug ] = true;
-			}
+		} else {
+			$slug = 'monorepo';
+		}
+		if ( empty( $projects[ $slug ] ) ) {
+			debug( 'PR touches file %s, marking %s as changed.', $line, $slug );
+			$projects[ $slug ] = true;
 		}
 	}
 	fclose( $pipes[1] );
@@ -129,6 +181,17 @@ function get_changed_projects() {
 }
 
 /**
+ * Get the path to a file in a project.
+ *
+ * @param string $project The project slug to check.
+ * @param string $path Path components to check.
+ * @return string
+ */
+function project_path( $project, $path ) {
+	return 'monorepo' === $project ? $path : "projects/$project/$path";
+}
+
+/**
  * Check whether any of a project's extra dependencies have changed.
  *
  * Dependencies declared in composer.json `.extra.dependencies`.
@@ -138,7 +201,7 @@ function get_changed_projects() {
  * @return bool
  */
 function check_extra_deps( $project, $changed ) {
-	$json = json_decode( file_get_contents( "projects/$project/composer.json" ), true );
+	$json = json_decode( file_get_contents( project_path( $project, 'composer.json' ) ), true );
 	if ( isset( $json['extra']['dependencies'] ) ) {
 		foreach ( $json['extra']['dependencies'] as $dep ) {
 			if ( ! empty( $changed[ $dep ] ) ) {
@@ -164,7 +227,7 @@ function check_composer_deps( $project, $changed ) {
 		$package_map = array();
 		foreach ( get_all_projects() as $p ) {
 			if ( substr( $p, 0, 9 ) === 'packages/' ) {
-				$json = json_decode( file_get_contents( "projects/$p/composer.json" ), true );
+				$json = json_decode( file_get_contents( project_path( $p, 'composer.json' ) ), true );
 				if ( isset( $json['name'] ) ) {
 					$package_map[ $json['name'] ] = $p;
 				}
@@ -172,7 +235,7 @@ function check_composer_deps( $project, $changed ) {
 		}
 	}
 
-	$json = json_decode( file_get_contents( "projects/$project/composer.json" ), true );
+	$json = json_decode( file_get_contents( project_path( $project, 'composer.json' ) ), true );
 	$deps = array_merge(
 		isset( $json['require'] ) ? $json['require'] : array(),
 		isset( $json['require-dev'] ) ? $json['require-dev'] : array()

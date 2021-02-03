@@ -61,6 +61,9 @@
 			"printf '\\e[37;41m`composer php:requirelist` is deprecated. Use `composer phpcs:lint:required` and/or `composer phpcs:fix:required` instead.\\e[0m\\n'",
 			"@phpcs:fix:required",
 			"@phpcs:lint:required"
+		],
+		"test-js": [
+			"cd tools/cli && yarn install && yarn test"
 		]
 	},
 	"scripts-descriptions": {

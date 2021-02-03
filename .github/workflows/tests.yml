@@ -1,4 +1,4 @@
-name: PHP tests
+name: Tests
 
 on:
   pull_request:
@@ -9,9 +9,22 @@ env:
   COMPOSER_ROOT_VERSION: "dev-master"
 
 jobs:
-  run-tests:
-    name: "PHP tests: PHP ${{ matrix.php }} WP ${{ matrix.wp }}"
+  create-matrix:
+    name: "Determine tests matrix"
     runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    outputs:
+      matrix: ${{ steps.create-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: create-matrix
+        runs: |
+          echo "::set-output name=matrix::$(.github/files/generate-ci-matrix.php)"
+
+  run-tests:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    needs: create-matrix
     services:
       database:
         image: mysql:5.6
@@ -21,51 +34,32 @@ jobs:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
     continue-on-error: ${{ matrix.experimental }}
-    timeout-minutes: 15  # 2021-01-18: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 master run, ~5.5-6 for 7.x and 8.0.
+    timeout-minutes: ${{ matrix.timeout }}
     env:
+      TEST_SCRIPT: ${{ matrix.script }}
       WP_BRANCH: ${{ matrix.wp }}
       PHP_VERSION: ${{ matrix.php }}
+      NODE_VERSION: ${{ matrix.node }}
     strategy:
       fail-fast: false
       matrix:
-        # Run tests against current WP in all supported PHP versions.
-        php: [ "5.6", "7.0", "7.2", "7.3", "7.4", "8.0" ]
-        wp: [ "latest" ]
-        experimental: [ false ]
-
-        include:
-          # Run tests against WP previous and master in one PHP version.
-          - php: "default"
-            wp: "master"
-            experimental: false
-          - php: "default"
-            wp: "previous"
-            experimental: false
+        include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          # codecov.io requires a fetch depth > 1.
+          fetch-depth: 2
 
       # For pull requests, list-changed-projects.php needs the merge base.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/deepen-to-merge-base
 
-      - name: Read desired PHP and Node versions
-        id: versions
-        run: |
-          if [[ "$PHP_VERSION" == "default" ]]; then
-            PHP_VERSION="$(<.github/php-version)"
-            echo "PHP_VERSION=$PHP_VERSION" >> $GITHUB_ENV
-          fi
-          echo "::set-output name=php::${PHP_VERSION}"
-          NODE_VERSION="$(<.nvmrc)"
-          echo "NODE_VERSION=$NODE_VERSION" >> $GITHUB_ENV
-          echo "::set-output name=node::${NODE_VERSION}"
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ steps.versions.outputs.php }}
+          php-version: ${{ matrix.php }}
           tools: composer
           extensions: mysql, imagick
           coverage: none
@@ -73,7 +67,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: ${{ steps.versions.outputs.node }}
+          node-version: ${{ matrix.node }}
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -96,6 +90,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Init CodeClimate for code coverage
+        if: matrix.script == 'test-coverage'
+        env:
+          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+        run: |
+          # As suggested here https://github.com/codeclimate/test-reporter/issues/406#issuecomment-578483422
+          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
+            echo "GIT_BRANCH=$GITHUB_REF" >> $GITHUB_ENV
+            echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
+          else
+            git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
+            echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
+            echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
+          fi
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+
       - name: Detect changed projects
         id: changed
         run: |
@@ -105,7 +117,7 @@ jobs:
           echo "::set-output name=any-plugins::${ANY_PLUGINS}"
 
       - name: Setup WordPress environment for plugin tests
-        if: steps.changed.outputs.any-plugins == 'true'
+        if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 
       - name: Tool versions
@@ -127,28 +139,40 @@ jobs:
         run: |
           EXIT=0
           mkdir artifacts
-          for P in projects/*/*/composer.json; do
-            DIR="${P%/composer.json}"
-            SLUG="${DIR#projects/}"
+          [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
+          for P in composer.json projects/*/*/composer.json; do
+            if [[ "$P" == "composer.json" ]]; then
+              DIR="."
+              SLUG="monorepo"
+            else
+              DIR="${P%/composer.json}"
+              SLUG="${DIR#projects/}"
+            fi
 
             if [[ "${SLUG%%/*}" == "plugins" ]]; then
               # Plugins run from the WordPress checkout, not the monorepo checkout.
-              DIR="/tmp/wordpress-${{ env.WP_BRANCH }}/src/wp-content/$SLUG"
-            elif [[ "$WP_BRANCH" != 'latest' ]]; then
+              if [[ "$WP_BRANCH" != 'none' ]]; then
+                DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
+              fi
+            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' ]]; then
               echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
               continue
             fi
 
             if ! jq --argjson changed "$CHANGED" --arg p "$SLUG" -ne '$changed[$p] // false' > /dev/null; then
               echo "Skipping $SLUG, no changes in it or its dependencies"
-            elif ! jq -e '.scripts["test-php"] // false' "$P" > /dev/null; then
+            elif ! jq --arg script "$TEST_SCRIPT" -e '.scripts[$script] // false' "$P" > /dev/null; then
               echo "Skipping $SLUG, no test script is defined in composer.json"
             else
               echo "::group::Running tests for $SLUG"
               mkdir -p "artifacts/$SLUG"
               export ARTIFACTS_DIR="$GITHUB_WORKSPACE/artifacts/$SLUG"
+              if [[ "$TEST_SCRIPT" == "test-coverage" ]]; then
+                mkdir -p "coverage/$SLUG"
+                export COVERAGE_DIR="$GITHUB_WORKSPACE/coverage/$SLUG"
+              fi
               FAIL=false
-              if ! composer run --timeout=0 --working-dir="$DIR" test-php; then
+              if ! composer run --timeout=0 --working-dir="$DIR" "$TEST_SCRIPT"; then
                 FAIL=true
                 EXIT=1
               fi
@@ -157,6 +181,12 @@ jobs:
             fi
           done
           exit $EXIT
+
+      - name: Process coverage results
+        if: matrix.script == 'test-coverage'
+        env:
+          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+        run: .github/files/process-coverage.sh
 
       - name: Check for artifacts
         id: check-artifacts
@@ -169,11 +199,10 @@ jobs:
           else
             echo "::set-output name=any::false"
           fi
-
       - name: Upload artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
+          name: ${{ matrix.artifact }}
           path: artifacts
           retention-days: 7
