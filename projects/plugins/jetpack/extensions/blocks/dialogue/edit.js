@@ -111,6 +111,23 @@ export default function DialogueEdit( {
 		setAttributes( { timestamp: time } );
 	}
 
+	/**
+	 * Make focus in the content component.
+	 * It also deals with a race condition
+	 * when setting the participantSlug attribute
+	 * and onFocus() callback.
+	 *
+	 * @param {boolean} force - Defines if effectively make the focus in the content.
+	 */
+	function focusOnContent( force ) {
+		if ( ! force ) {
+			return;
+		}
+
+		// contentRef?.current?.focus();
+		setTimeout( () => contentRef?.current?.focus(), 100 );
+	}
+
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -167,26 +184,26 @@ export default function DialogueEdit( {
 					onParticipantChange={ updatedParticipant => {
 						setAttributes( { participantValue: updatedParticipant } );
 					} }
-					onSelect={ ( { slug, label, value } ) => {
+					onSelect={ ( { slug, label, value }, forceFucus ) => {
 						// let's focus to content when it's possible.
-						contentRef?.current?.focus();
-
 						setAttributes( {
 							participantLabel: label,
 							participantValue: value,
 							participantSlug: slug,
 						} );
+
+						focusOnContent( forceFucus );
 					} }
 					onClean={ () => {
 						setAttributes( { participantSlug: null } );
 					} }
-					onAdd={ newValue => {
+					onAdd={ ( newValue, forceFucus ) => {
 						// let's focus to content when it's possible.
-						contentRef?.current?.focus();
 						triggerRefreshAutocomplete();
 
 						const newParticipant = conversationBridge.addNewParticipant( newValue );
 						if ( ! newParticipant ) {
+							focusOnContent( forceFucus );
 							return;
 						}
 
@@ -195,8 +212,12 @@ export default function DialogueEdit( {
 							participantLabel: newParticipant.label,
 							participantSlug: newParticipant.slug,
 						} );
+						focusOnContent( forceFucus );
 					} }
-					onUpdate={ conversationBridge.updateParticipants }
+					onUpdate={ ( participant, forceFucus ) => {
+						conversationBridge.updateParticipants( participant );
+						focusOnContent( forceFucus );
+					} }
 				/>
 
 				{ showTimestamp && (
@@ -258,6 +279,11 @@ export default function DialogueEdit( {
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onFocus={ () => {
+					if ( ! participantValue ) {
+						triggerRefreshAutocomplete();
+						return;
+					}
+
 					// Provably, we should add a new participant from here.
 					// onFocusOutside is not supported by some Gutenberg versions.
 					// Take a look at <ParticipantsRichControl /> to get more info.

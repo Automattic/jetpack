@@ -18,9 +18,13 @@ import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/com
  */
 import { getParticipantByValue, getParticipantPlainText } from '../../conversation/utils';
 
+const EDIT_MODE_ADDING = 'is-adding';
+const EDIT_MODE_SELECTING = 'is-selecting';
+const EDIT_MODE_EDITING = 'is-editing';
+
 // Fallback for `useFocusOutside` hook.
-const useFocusOutsideWithFallback =
-	typeof useFocusOutside !== 'undefined' ? useFocusOutside : () => {};
+const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
+const useFocusOutsideWithFallback = useFocusOutsideIsAvailable ? useFocusOutside : () => {};
 
 function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
 	return (
@@ -144,23 +148,24 @@ export function ParticipantsRichControl( {
 	onClean,
 } ) {
 	const [ showAutocomplete, setAddAutocomplete ] = useState( true );
-	const [ isAddingNewParticipant, setIsAddingNewParticipant ] = useState( false );
+	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
-	function addOrSelectParticipant() {
-		if ( ! value?.length ) {
-			return;
+	function onActionHandler() {
+		switch ( editingMode ) {
+			case EDIT_MODE_ADDING: {
+				return onAdd( value, ! useFocusOutsideIsAvailable );
+			}
+
+			case EDIT_MODE_EDITING: {
+				return onUpdate( {
+					slug: participant.slug,
+					label: getParticipantPlainText( value ), // <- store plain participant value.
+					value,
+				}, ! useFocusOutsideIsAvailable );
+			}
 		}
 
 		setAddAutocomplete( false );
-
-		// Before to update the participant,
-		// Let's check the participant doesn't exist.
-		const existingParticipant = getParticipantByValue( participants, value );
-		if ( existingParticipant ) {
-			return onSelect( existingParticipant );
-		}
-
-		onAdd( value );
 	}
 
 	/*
@@ -173,7 +178,7 @@ export function ParticipantsRichControl( {
 			return setAddAutocomplete( false );
 		}
 
-		addOrSelectParticipant();
+		onActionHandler();
 	}
 
 	const focusOutsideProps = useFocusOutsideWithFallback( onFocusOutsideHandler );
@@ -190,32 +195,34 @@ export function ParticipantsRichControl( {
 		// Always update the participant value (block attribute).
 		onParticipantChange( newValue );
 
-		// Update when adding a new participant while typing.
-		setIsAddingNewParticipant(
-			! newValue?.length || ! getParticipantByValue( participants, newValue )
-		);
+		const participantByNewValue = getParticipantByValue( participants, newValue );
+
+		// Set editing mode depending on participant value,
+		// and current conversation participant
+		// tied to this Dialogue block.
+		if ( participant ) {
+			if ( participantByNewValue ) {
+				setEditingMode( EDIT_MODE_SELECTING );
+			} else {
+				setEditingMode( EDIT_MODE_EDITING );
+			}
+		} else if ( participantByNewValue ) {
+			setEditingMode( EDIT_MODE_SELECTING );
+		} else {
+			setEditingMode( EDIT_MODE_ADDING );
+		}
 
 		// If the new value is empty,
-		// activate autocomplete, and emit on-clean
+		// activate autocomplete, and emit onClean(),
 		// to clean the current participant.
 		if ( ! newValue?.length ) {
+			setEditingMode( EDIT_MODE_ADDING );
 			setAddAutocomplete( true );
 			return onClean();
 		}
-
-		// if there is not a current participant,
-		// there is not nothing to update.
-		if ( ! participant ) {
-			return;
-		}
-
-		onUpdate( {
-			slug: participant.slug,
-			label: getParticipantPlainText( newValue ), // <- store plain participant value.
-			value: newValue,
-		} );
 	}
 
+	// Keep autocomplete options udated.
 	const autocompleter = useMemo( () => {
 		if ( ! showAutocomplete ) {
 			return [];
@@ -225,14 +232,16 @@ export function ParticipantsRichControl( {
 	}, [ participants, showAutocomplete ] );
 
 	useEffect( () => {
-		setIsAddingNewParticipant( ! participant );
+		setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 		setAddAutocomplete( ! participant );
 	}, [ participant ] );
 
 	return (
 		<div
 			className={ classNames( className, {
-				'is-adding-new-participant': isAddingNewParticipant,
+				'is-adding-participant': editingMode === EDIT_MODE_ADDING,
+				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
+				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
 			} ) }
 			{ ...focusOutsideProps }
 		>
@@ -245,25 +254,35 @@ export function ParticipantsRichControl( {
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
-				onReplace={ replaceValue => {
+				onReplace={ ( replaceValue ) => {
+					const replacedParticipant = replaceValue?.[ 0 ];
+					// Handling participant selection,
+					// by picking them from the autocomplete options.
+					if ( replacedParticipant ) {
+						const { value: newValue } = replacedParticipant;
+						onParticipantChange( newValue );
+						setAddAutocomplete( false );
+						setEditingMode( EDIT_MODE_SELECTING );
+						return onSelect( replacedParticipant, true );
+					}
+
 					if ( ! value?.length ) {
 						return;
 					}
 
-					const replacedParticipant = replaceValue?.[ 0 ];
-
-					if ( ! replacedParticipant ) {
+					// Handling participant selection,
+					// by typing `ENTER` KEY.
+					const participantExists = getParticipantByValue( participants, value );
+					if ( participantExists ) {
 						// Here, it adds or selects participant.
-						addOrSelectParticipant( value );
-						return;
+						setEditingMode( EDIT_MODE_SELECTING );
+						onParticipantChange( participantExists );
+						return onSelect( participantExists, true );
 					}
 
-					// It handleds replacing the block content
-					// by selecting a participant from the autocomplete.
-					const { value: newValue } = replacedParticipant;
-					onParticipantChange( newValue );
-					setAddAutocomplete( false );
-					onSelect( replacedParticipant );
+					// From here, it will add a new participant.
+					setEditingMode( EDIT_MODE_ADDING );
+					onActionHandler();
 				} }
 				autocompleters={ autocompleter }
 			/>
