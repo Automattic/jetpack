@@ -12,6 +12,10 @@
 	background: $studio-white;
 	border-radius: 3px;
 
+	@include break-small-down() {
+		border-radius: 0;
+	}
+
 	mark {
 		color: $studio-wordpress-blue-100;
 		background: $mark-background-default;
