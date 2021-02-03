@@ -9,7 +9,7 @@ $image-square-size: 128px;
 
 .jetpack-instant-search__result-expanded {
 	display: flex;
-	flex-flow: column wrap;
+	flex-flow: column;
 
 	@include break-small-up() {
 		flex-flow: row nowrap;
@@ -51,12 +51,13 @@ $image-square-size: 128px;
 }
 
 .jetpack-instant-search__result-expanded__image-container {
-	margin: 0;
-	width: 128px;
+	margin-left: 1em;
+	width: $image-square-size;
 
 	@include break-small-down() {
-		margin-right: 1em;
+		margin: 0 auto 0.5em auto;
 		order: -1;
+		width: 2 * $image-square-size;
 	}
 
 	.jetpack-instant-search__result-expanded--no-image & {
@@ -68,6 +69,12 @@ $image-square-size: 128px;
 	min-height: $image-square-size;
 	width: $image-square-size;
 	border-radius: 5px;
+
+	// Image is shown above text content in mobile view, make bigger
+	@include break-small-down() {
+		min-height: 2 * $image-square-size;
+		width: 2 * $image-square-size;
+	}
 }
 .jetpack-instant-search__result-expanded__image {
 	background-size: contain;
