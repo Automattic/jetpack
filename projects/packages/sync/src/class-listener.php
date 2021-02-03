@@ -417,7 +417,7 @@ class Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			$ip = false;
+			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 			if ( function_exists( 'jetpack_protect_get_ip' ) ) {
 				$ip = jetpack_protect_get_ip();
 			} else {
