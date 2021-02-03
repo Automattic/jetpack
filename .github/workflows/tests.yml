@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: create-matrix
-        runs: |
+        run: |
           echo "::set-output name=matrix::$(.github/files/generate-ci-matrix.php)"
 
   run-tests:
