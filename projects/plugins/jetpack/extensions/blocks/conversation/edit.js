@@ -44,7 +44,12 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 
 	const addNewParticipant = useCallback(
 		function ( newSpeakerValue ) {
-			// Check if the speaker label has been already added.
+			// Do not add speakers with empty names.
+			if ( ! newSpeakerValue?.length ) {
+				return;
+			}
+
+			// Do not add a new participant with the same label.
 			const existingParticipant = getParticipantByValue( participants, newSpeakerValue );
 			if ( existingParticipant ) {
 				return existingParticipant;
