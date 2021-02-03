@@ -326,7 +326,7 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
 function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 	_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\Jetpack\Sync\Functions' );
 
-	return Functions::json_wrap( $$any, $seen_nodes );
+	return Functions::json_wrap( $any, $seen_nodes );
 }
 
 /**
