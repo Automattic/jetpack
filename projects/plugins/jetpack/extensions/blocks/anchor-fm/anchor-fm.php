@@ -144,16 +144,16 @@ function process_anchor_params() {
 				} else {
 					$retry_url         = add_query_arg(
 						array(
-							'anchor_podcast' => $podcast_id,
 							'anchor_episode' => $episode_id,
-							'spotify_url'    => $valid_spotify_url ? $spotify_url : false,
+							'anchor_podcast' => $podcast_id,
+							'spotify_url'    => $valid_spotify_url ? rawurlencode( $spotify_url ) : false,
 						),
 						admin_url( 'post-new.php' )
 					);
 					$data['actions'][] = array(
 						'create-episode-error-notice',
 						array(
-							'retry_url' => $retry_url,
+							'retry_url' => esc_url_raw( $retry_url ),
 						),
 					);
 				}
