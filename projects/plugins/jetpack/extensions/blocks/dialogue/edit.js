@@ -21,7 +21,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug } from '../conversation/utils';
+import { getParticipantBySlug, getParticipantByValue } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -299,12 +299,20 @@ export default function DialogueEdit( {
 					// onFocusOutside is not supported by some Gutenberg versions.
 					// Take a look at <ParticipantsRichControl /> to get more info.
 					// addNewParticipant will take over to add, or not, the participant.
-					const participantAdded = conversationBridge.addNewParticipant( participantValue );
-					if ( participantAdded ) {
+					const participantExists = getParticipantByValue( participants, participantValue );
+					const hasFormatChanges = conversationParticipant?.value !== participantValue;
+					if ( participantExists ) {
+						if ( hasFormatChanges ) {
+							return conversationBridge.updateParticipants( {
+								...conversationParticipant,
+								value: participantValue,
+							} );
+						}
+
 						setAttributes( {
-							participantValue: participantAdded.value,
-							participantLabel: participantAdded.label,
-							participantSlug: participantAdded.slug,
+							participantValue: participantExists.value,
+							participantLabel: participantExists.label,
+							participantSlug: participantExists.slug,
 						} );
 					}
 
