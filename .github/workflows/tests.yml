@@ -53,9 +53,12 @@ jobs:
           fetch-depth: 2
 
       # For pull requests, list-changed-projects.php needs the merge base.
+      # But it doesn't have to be checked out, and codecov.io requires it not be.
       - name: Deepen to merge base
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/deepen-to-merge-base
+        with:
+          checkout: false
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
