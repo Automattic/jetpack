@@ -72,6 +72,8 @@ describe( 'projectHelpers', function () {
 		chai.expect( allProjectsByType( 'packages' ) ).to.contain( 'packages/abtest' );
 	} );
 	it( 'allProjectsByType should include a known GitHub action', function () {
-		chai.expect( allProjectsByType( 'github-action' ) ).to.contain( 'github-action/push-to-mirrors' );
+		chai
+			.expect( allProjectsByType( 'github-actions' ) )
+			.to.contain( 'github-actions/push-to-mirrors' );
 	} );
 } );
