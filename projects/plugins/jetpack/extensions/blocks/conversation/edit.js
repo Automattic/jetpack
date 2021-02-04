@@ -63,7 +63,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			const newParticipant = {
 				slug: newParticipantSlug,
 				label: sanitizedSpeakerLabel,
-				hasBoldStyle: true,
 			};
 
 			setAttributes( {

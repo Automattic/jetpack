@@ -209,6 +209,7 @@ export function SpeakerEditControl( {
 	return (
 		<div
 			className={ classNames( className, {
+				'has-bold-style': true,
 				'is-adding-participant': editingMode === EDIT_MODE_ADDING,
 				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
 				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
