@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.6.3
+ * Version: 2.6.4
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.6.3' );
+define( 'WPCOMSH_VERSION', '2.6.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -22,80 +22,80 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 	}
 }
 
-require_once 'constants.php';
-require_once 'functions.php';
-require_once 'i18n.php';
+require_once __DIR__ . '/constants.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/i18n.php';
 
-require_once 'class.atomic-plan-manager.php';
+require_once __DIR__ . '/class.atomic-plan-manager.php';
 add_action( 'muplugins_loaded', array( 'Atomic_Plan_Manager', 'init' ) );
 
-require_once 'plugin-hotfixes.php';
+require_once __DIR__ . '/plugin-hotfixes.php';
 
-require_once 'footer-credit/footer-credit.php';
-require_once 'storefront/storefront.php';
-require_once 'custom-colors/colors.php';
+require_once __DIR__ . '/footer-credit/footer-credit.php';
+require_once __DIR__ . '/storefront/storefront.php';
+require_once __DIR__ . '/custom-colors/colors.php';
 
 // Interoperability with the core WordPress data privacy functionality (See also "GDPR")
-require_once 'privacy/participating-plugins.php';
+require_once __DIR__ . '/privacy/participating-plugins.php';
 
 // Functionality to make sites private and only accessible to members with appropriate capabilities
-require_once 'private-site/private-site.php';
+require_once __DIR__ . '/private-site/private-site.php';
 
 // Updates customizer Save/Publish labels to avoid confusion on launching vs saving changes on a site.
-require_once 'customizer-fixes/customizer-fixes.php';
+require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
-require_once 'class.wpcomsh-log.php';
-require_once 'safeguard/plugins.php';
-require_once 'logo-tool/logo-tool.php';
-require_once 'jetpack-token-error-header/jetpack-token-header-error.php';
+require_once __DIR__ . '/class.wpcomsh-log.php';
+require_once __DIR__ . '/safeguard/plugins.php';
+require_once __DIR__ . '/logo-tool/logo-tool.php';
+require_once __DIR__ . '/jetpack-token-error-header/jetpack-token-header-error.php';
 
 /**
  * WP.com Widgets (in alphabetical order)
  */
-require_once 'widgets/aboutme.php';
-require_once 'widgets/author-grid.php';
-require_once 'widgets/freshly-pressed.php';
-require_once 'widgets/gravatar.php';
-require_once 'widgets/i-voted.php';
-require_once 'widgets/music-player.php';
-require_once 'widgets/posts-i-like.php';
-require_once 'widgets/recent-comments-widget.php';
-require_once 'widgets/reservations.php';
+require_once __DIR__ . '/widgets/aboutme.php';
+require_once __DIR__ . '/widgets/author-grid.php';
+require_once __DIR__ . '/widgets/freshly-pressed.php';
+require_once __DIR__ . '/widgets/gravatar.php';
+require_once __DIR__ . '/widgets/i-voted.php';
+require_once __DIR__ . '/widgets/music-player.php';
+require_once __DIR__ . '/widgets/posts-i-like.php';
+require_once __DIR__ . '/widgets/recent-comments-widget.php';
+require_once __DIR__ . '/widgets/reservations.php';
 
 // WP.com Category Cloud widget
-require_once 'widgets/category-cloud.php';
+require_once __DIR__ . '/widgets/category-cloud.php';
 // Override core tag cloud widget to add a settable `limit` parameter
-require_once 'widgets/tag-cloud-widget.php';
+require_once __DIR__ . '/widgets/tag-cloud-widget.php';
 
-require_once 'widgets/tlkio/tlkio.php';
-require_once 'widgets/top-clicks.php';
-require_once 'widgets/top-rated.php';
-require_once 'widgets/twitter.php';
+require_once __DIR__ . '/widgets/tlkio/tlkio.php';
+require_once __DIR__ . '/widgets/top-clicks.php';
+require_once __DIR__ . '/widgets/top-rated.php';
+require_once __DIR__ . '/widgets/twitter.php';
 
 // autoload composer sourced plugins
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // REST API
-require_once 'endpoints/rest-api.php';
+require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugin overrides
-require_once 'feature-plugins/full-site-editing.php';
-require_once 'feature-plugins/gutenberg-mods.php';
-require_once 'feature-plugins/coblocks-mods.php';
-require_once 'feature-plugins/autosave-revision.php';
-require_once 'feature-plugins/seo.php';
-require_once 'feature-plugins/masterbar.php';
+require_once __DIR__ . '/feature-plugins/full-site-editing.php';
+require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
+require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
+require_once __DIR__ . '/feature-plugins/autosave-revision.php';
+require_once __DIR__ . '/feature-plugins/seo.php';
+require_once __DIR__ . '/feature-plugins/masterbar.php';
 
 // wp-admin Notices
-require_once 'notices/plan-notices.php';
+require_once __DIR__ . '/notices/plan-notices.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
+	require_once __DIR__ . '/class.cli-commands.php';
 }
 
-require_once 'wpcom-migration-helpers/site-migration-helpers.php';
+require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
 
-require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
+require_once __DIR__ . '/class.jetpack-plugin-compatibility.php';
 
 const WPCOM_CORE_ATOMIC_PLUGINS = [
 	'jetpack/jetpack.php',
