@@ -320,18 +320,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		return $url;
 	}
 
-	/**
+/**
 	 * Parses the update count from a given menu item title and removes the associated markup.
-	 * Also remove unexpected markup from the title.
 	 *
 	 * "Plugin" and "Updates" menu items have a count badge when there are updates available.
 	 * This method parses that information and adds it to the response.
 	 *
-	 * @param string $title Title to parse.
+	 * @param array $item containing title to parse.
 	 * @return array
 	 */
-	private function parse_markup_data( $title ) {
-		$item = array();
+	private function parse_count_data( $item ) {
+		$title = $item['title'];
 
 		if ( false !== strpos( $title, 'count-' ) ) {
 			preg_match( '/class="(.+\s)?count-(\d*)/', $title, $matches );
@@ -340,15 +339,38 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( $count > 0 ) {
 				$item['count'] = $count;
 			}
-
-			// Remove count badge HTML from title.
-			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
 		}
 
-		// Truncate the title before the first HTML tag to avoid returning any unexpected HTML.
-		if ( wp_strip_all_tags( $title ) !== $title ) {
-			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
+		return $item;
+	}
+
+	/**
+	 * Removes unexpected markup from the title.
+	 *
+	 * @param string $title Title to parse.
+	 * @return string
+	 */
+	private function sanitize_title( $title ) {
+		if ( $title != strip_tags( $title ) ) {
+			$title = trim( substr( $title, 0, strpos( $title, '<' ) ) );
 		}
+
+		return $title;
+	}
+
+	/**
+	 * Parses data from the markup in titles and sanitizes titles from unexpected markup.
+	 *
+	 * @param string $title Title to parse.
+	 * @return array
+	 */
+	private function parse_markup_data( $title ) {
+		$item = array();
+		$item['title'] = $title;
+
+		$item = $this->parse_count_data( $item );
+		// It's important we sanitize the title after parsing data to remove the markup.
+		$item['title'] = $this->sanitize_title( $item['title'] );
 
 		return $item;
 	}
