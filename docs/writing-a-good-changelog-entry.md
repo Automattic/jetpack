@@ -32,4 +32,4 @@ Some good examples:
 * General: ensure Jetpack's full compatibility with the upcoming WordPress 5.6 release.
 * General: update Jetpack's minimum required WordPress version to 5.5, in anticipation of the upcoming WordPress 5.6 release.
 
-You can find many more examples by looking through [changelog.txt](../changelog.txt).
+You can find many more examples by looking through Jetpack's [CHANGELOG.md](../projects/plugins/jetpack/CHANGELOG.md).
