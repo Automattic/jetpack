@@ -9,6 +9,7 @@ import { h } from 'preact';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import './search-result-comments.scss';
 
 const SearchResultComments = ( { comments, iconSize = 18 } ) => {
 	if ( ! comments ) {
