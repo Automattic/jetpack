@@ -99,6 +99,9 @@ class Jetpack_Beta {
 			self::maybe_schedule_autoupdate();
 			Jetpack_Beta_Admin::init();
 		}
+
+		$current_version = $this->get_branch_and_section();
+		self::update_autoload_dev_constant( $current_version[1] );
 	}
 
 	/**
@@ -1502,9 +1505,9 @@ class Jetpack_Beta {
 	public static function update_autoload_dev_constant( $section ) {
 		if ( in_array( $section, array( 'stable', 'rc' ), true ) ) {
 				// The stable and rc versions use stable package versions.
-				update_option( 'jetpack_autoload_dev', false );
+				update_option( 'jetpack_autoload_dev', 0 );
 		} else {
-				update_option( 'jetpack_autoload_dev', true );
+				update_option( 'jetpack_autoload_dev', 1 );
 		}
 	}
 }
