@@ -26,31 +26,26 @@ const EDIT_MODE_EDITING = 'is-editing';
 const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
 const useFocusOutsideWithFallback = useFocusOutsideIsAvailable ? useFocusOutside : () => {};
 
-function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
+function ParticipantsMenu( { participants, className, onSelect, slug, onClose } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ participants.map( ( { value, slug } ) => {
+			{ participants.map( ( { label, slug: speakerSlug } ) => {
 				/* eslint-disable react/no-danger */
-				const optionValue = (
-					<span
-						dangerouslySetInnerHTML={ {
-							__html: value,
-						} }
-					/>
-					/* eslint-enable react/no-danger */
+				const optionLabel = (
+					<span>{ label }</span>
 				);
 
 				return (
 					<MenuItem
 						key={ slug }
 						onClick={ () => {
-							onSelect( { participantSlug: slug } );
+							onSelect( { slug: speakerSlug } );
 							onClose();
 						} }
-						isSelected={ participantSlug === slug }
-						icon={ participantSlug === slug ? check : null }
+						isSelected={ slug === speakerSlug }
+						icon={ slug === speakerSlug ? check : null }
 					>
-						{ optionValue }
+						{ optionLabel }
 					</MenuItem>
 				);
 			} ) }
@@ -58,16 +53,16 @@ function ParticipantsMenu( { participants, className, onSelect, participantSlug,
 	);
 }
 
-export function ParticipantsControl( { participants, participantSlug, onSelect } ) {
+export function ParticipantsControl( { participants, slug, onSelect } ) {
 	return (
 		<SelectControl
 			label={ __( 'Participant name', 'jetpack' ) }
-			value={ participantSlug }
+			value={ slug }
 			options={ participants.map( ( { slug: value, label } ) => ( {
 				label,
 				value,
 			} ) ) }
-			onChange={ slug => onSelect( { participantSlug: slug } ) }
+			onChange={ participantSlug => onSelect( { slug: participantSlug } ) }
 		/>
 	);
 }
@@ -129,7 +124,7 @@ function refreshAutocompleter( participants ) {
  * @param {Function} prop.onClean             - Use this callback to disassociate the Dialogue with a participant.
  * @returns {Function} React component function.
  */
-export function ParticipantsRichControl( {
+export function SpeakerEditControl( {
 	className,
 	label,
 	participants,
@@ -161,15 +156,15 @@ export function ParticipantsRichControl( {
 	const focusOutsideProps = useFocusOutsideWithFallback( onActionHandler );
 
 	/**
-	 * Funcion handler when user types participant value.
-	 * It can add a new participan, or add a new one,
+	 * Funcion handler when user types participant label.
+	 * It can edit a new participant, or add a new one,
 	 * dependeing on the previous values.
 	 *
-	 * @param {string} newLabel - New participant value.
+	 * @param {string} newLabel - New participant label.
 	 * @returns {null} Null
 	 */
 	function onChangeHandler( newLabel ) {
-		// If the new value is empty,
+		// If the new label is empty,
 		// activate autocomplete, and emit onClean(),
 		// to clean the current participant.
 		if ( ! newLabel?.length ) {
@@ -177,7 +172,7 @@ export function ParticipantsRichControl( {
 			return onClean();
 		}
 
-		// Always update the participant value (block attribute).
+		// Always update the participant label (block attribute).
 		onParticipantChange( newLabel );
 
 		const participantByNewLabel = getParticipantByLabel( participants, newLabel );
@@ -186,7 +181,7 @@ export function ParticipantsRichControl( {
 		// and current conversation participant
 		// tied to this Dialogue block.
 		if ( participant ) {
-			if ( participant.value === newLabel ) {
+			if ( participant.label === newLabel ) {
 				setEditingMode( EDIT_MODE_SELECTING );
 			} else {
 				setEditingMode( EDIT_MODE_EDITING );
@@ -250,16 +245,19 @@ export function ParticipantsRichControl( {
 					// by typing `ENTER` KEY.
 					const participantExists = getParticipantByLabel( participants, label );
 					if ( participantExists ) {
-						if ( ! participant ) {
+						if (
+							! participant ||
+							participant.label === label
+						) {
 							setEditingMode( EDIT_MODE_SELECTING );
 							return onSelect( participantExists, true );
 						}
 
-						// // Update participant format.
-						// if ( participant?.value !== label ) {
-						// 	setEditingMode( EDIT_MODE_EDITING );
-						// 	return onActionHandler();
-						// }
+						// Update participant format.
+						if ( participant?.label !== label ) {
+							setEditingMode( EDIT_MODE_EDITING );
+							return onActionHandler();
+						}
 					}
 
 					// From here, it will add a new participant.

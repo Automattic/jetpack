@@ -10,13 +10,13 @@ import { BASE_CLASS_NAME } from './utils';
 import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
 export default function save( { attributes } ) {
-	const { content, participantLabel, showTimestamp, timestamp } = attributes;
+	const { content, label, showTimestamp, timestamp } = attributes;
 
 	return (
 		<div>
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
 				<div className={ `${ BASE_CLASS_NAME }__participant` }>
-					{ participantLabel }
+					{ label }
 				</div>
 				{ showTimestamp && (
 					<div className={ `${ BASE_CLASS_NAME }__timestamp` }>

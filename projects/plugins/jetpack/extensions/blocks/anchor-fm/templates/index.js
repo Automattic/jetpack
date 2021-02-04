@@ -153,14 +153,17 @@ function podcastConversationSection() {
 				{
 					slug: 'participant-0',
 					label: __( 'Speaker 1', 'jetpack' ),
+					hasBoldStyle: true,
 				},
 				{
 					slug: 'participant-1',
 					label: __( 'Speaker 2', 'jetpack' ),
+					hasBoldStyle: true,
 				},
 				{
 					slug: 'participant-2',
 					label: __( 'Speaker 3', 'jetpack' ),
+					hasBoldStyle: true,
 				},
 			],
 		},
@@ -177,21 +180,21 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-0',
+					slug: 'participant-0',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-1',
+					slug: 'participant-1',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-2',
+					slug: 'participant-2',
 				},
 			],
 		],

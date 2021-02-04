@@ -4,17 +4,17 @@
 		{
 			"slug": "participant-0",
 			"label": "Speaker 1",
-			"value": "<strong>Speaker 1</strong>"
+			"hasBoldStyle": true
 		},
 		{
 			"slug": "participant-1",
 			"label": "Speaker 2",
-			"value": "<strong>Speaker 2</strong>"
+			"hasBoldStyle": true
 		},
 		{
 			"slug": "participant-2",
 			"label": "Speaker 3",
-			"value": "<strong>Speaker 3</strong>"
+			"hasBoldStyle": true
 		}
 	]
 }
