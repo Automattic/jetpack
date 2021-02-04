@@ -546,7 +546,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "51a9969efc414701d52311aff2d8ec29e4fdab20"
+                "reference": "3e04f1f262ed0b764a2fcb9b85e8b59e3d5ef37c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -572,7 +572,7 @@
                 ],
                 "build-development": [
                     "Composer\\Config::disableProcessTimeout",
-                    "yarn build-concurrently"
+                    "yarn build"
                 ],
                 "phpunit": [
                     "@composer install",
