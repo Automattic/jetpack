@@ -91,10 +91,6 @@ export default function DialogueEdit( {
 		setAttributes( { showTimestamp: showConversationTimestamps } );
 	}, [ showConversationTimestamps, setAttributes ] );
 
-	function setShowConversationTimestamps( value ) {
-		conversationBridge.setAttributes( { showTimestamps: value } );
-	}
-
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
 	}
@@ -130,7 +126,7 @@ export default function DialogueEdit( {
 						<ToggleControl
 							label={ __( 'Show conversation timestamps', 'jetpack' ) }
 							checked={ showTimestamp }
-							onChange={ setShowConversationTimestamps }
+							onChange={ ( show ) => setAttributes( { showTimestamp: show } ) }
 						/>
 
 						{ showTimestamp && (
