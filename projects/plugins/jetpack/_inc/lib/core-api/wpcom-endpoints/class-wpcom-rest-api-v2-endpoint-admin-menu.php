@@ -347,15 +347,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	/**
 	 * Removes unexpected markup from the title.
 	 *
-	 * @param string $title Title to parse.
-	 * @return string
+	 * @param array $item containing title to parse.
+	 * @return array
 	 */
-	private function sanitize_title( $title ) {
-		if ( $title != strip_tags( $title ) ) {
-			$title = trim( substr( $title, 0, strpos( $title, '<' ) ) );
+	private function sanitize_title( $item ) {
+		$title = $item['title'];
+
+		if ( wp_strip_all_tags( $title ) !== $title ) {
+			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
 		}
 
-		return $title;
+		return $item;
 	}
 
 	/**
@@ -370,7 +372,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 		$item = $this->parse_count_data( $item );
 		// It's important we sanitize the title after parsing data to remove the markup.
-		$item['title'] = $this->sanitize_title( $item['title'] );
+		$item = $this->sanitize_title( $item );
 
 		return $item;
 	}

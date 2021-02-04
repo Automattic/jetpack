@@ -441,7 +441,9 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		return array(
 			array(
 				'No Updates here',
-				array(),
+				array(
+					'title' => 'No Updates here',
+				),
 			),
 			array(
 				'Zero updates <span class="update-plugins count-0"><span class="update-count">0</span></span>',
@@ -452,15 +454,15 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
 				array(
-					'count' => 5,
 					'title' => 'Finally some updates',
+					'count' => 5,
 				),
 			),
 			array(
 				'Plugin updates <span class="update-plugins count-5"><span class="plugin-count">5</span></span>',
 				array(
-					'count' => 5,
 					'title' => 'Plugin updates',
+					'count' => 5,
 				),
 			),
 			array(
