@@ -1,0 +1,21 @@
+//
+// Variables
+//
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+
+// Breakpoints
+$break-sm: 576px;
+$break-md: 768px;
+$break-lg: 992px;
+$break-xl: 1200px;
+
+// Side margins for search results container
+$results-margin-sm: 20px;
+$results-margin-md: 40px;
+$results-margin-lg: 56px;
+
+// Sidebar-related
+$sidebar-width: 320px;
+
+// Colors
+$mark-background-default: #ffc;

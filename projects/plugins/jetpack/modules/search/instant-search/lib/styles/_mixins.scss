@@ -1,0 +1,37 @@
+@import './variables';
+
+//
+// Mixins
+//
+@mixin break-small-up() {
+	@media ( min-width: #{ ( $break-sm ) } ) {
+		@content;
+	}
+}
+@mixin break-small-down() {
+	@media ( max-width: #{ ( $break-sm - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-medium-up() {
+	@media ( min-width: #{ ( $break-md ) } ) {
+		@content;
+	}
+}
+@mixin break-medium-down() {
+	@media ( max-width: #{ ( $break-md - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-large-up() {
+	@media ( min-width: #{ ( $break-lg ) } ) {
+		@content;
+	}
+}
+@mixin break-large-down() {
+	@media ( max-width: #{ ( $break-lg - .02px ) } ) {
+		@content;
+	}
+}

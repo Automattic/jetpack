@@ -1,4 +1,6 @@
-@import '../lib/style-helpers';
+@import '../lib/styles/_helper.scss';
+
+$grid-size-large: 16px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
 	display: flex;

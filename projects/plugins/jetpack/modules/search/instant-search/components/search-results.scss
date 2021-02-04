@@ -1,4 +1,7 @@
-@import '../lib/style-helpers';
+@import '../lib/styles/_helper.scss';
+
+$modal-max-width: 1080px;
+$modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results {
 	align-content: baseline;
@@ -70,7 +73,6 @@
 }
 
 .jetpack-instant-search__search-results-primary {
-	flex: $primary-section-flex-grow;
 	margin: 0;
 	max-width: calc( 100% - #{$sidebar-width} );
 	width: 100%;
