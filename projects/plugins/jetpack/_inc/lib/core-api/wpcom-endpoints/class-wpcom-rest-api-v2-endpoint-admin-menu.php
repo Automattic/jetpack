@@ -320,7 +320,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		return $url;
 	}
 
-/**
+	/**
 	 * Parses the update count from a given menu item title and removes the associated markup.
 	 *
 	 * "Plugin" and "Updates" menu items have a count badge when there are updates available.
