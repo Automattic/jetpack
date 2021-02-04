@@ -22,18 +22,20 @@ import { normalizeInstallArgv } from '../helpers/normalizeArgv';
 export async function install( argv ) {
 	argv = normalizeInstallArgv( argv );
 
-	const tasks = addRootInstallTask( argv );
-
-	argv.root ? tasks.push( installProjectTask( argv ) ) : null;
-	argv.root = false;
-	argv.project ? tasks.push( installProjectTask( argv ) ) : null;
-
+	let tasks = [];
 	if ( argv.all ) {
 		allProjects().forEach( item => {
 			argv.project = item;
 			tasks.push( installProjectTask( argv ) );
 		} );
+		// Reset.
+		argv.root = true;
+		argv.project = '';
 	}
+
+	tasks = addRootInstallTask( argv, tasks );
+
+	argv.project ? tasks.push( installProjectTask( argv ) ) : null;
 
 	const opts = {
 		concurrent: ! argv.v,
@@ -109,10 +111,12 @@ export function installDefine( yargs ) {
  * Conditionally add the root install task
  *
  * @param {object} argv - The argv object
+ * @param {object} tasks - The tasks object
  *
  * @returns {object} An array of either the root install task or empty.
  */
-function addRootInstallTask( argv ) {
+function addRootInstallTask( argv, tasks ) {
 	normalizeInstallArgv( argv );
-	return [];
+	argv.root ? tasks.push( installProjectTask( argv ) ) : null;
+	return tasks;
 }
