@@ -32,7 +32,6 @@ jobs:
           yarn install
           yarn test
 
-
   build:
     name: "Build dashboard & extensions"
     runs-on: ubuntu-latest
