@@ -303,6 +303,7 @@ class Jetpack_Beta {
 		add_action( 'shutdown', array( __CLASS__, 'switch_active' ), 5 );
 		add_action( 'shutdown', array( __CLASS__, 'remove_dev_plugin' ), 20 );
 		delete_option( self::$option );
+		delete_option( 'jetpack_autoload_dev' );
 	}
 
 	/**
