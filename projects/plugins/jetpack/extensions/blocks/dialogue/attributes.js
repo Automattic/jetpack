@@ -2,9 +2,6 @@ export default {
 	participantLabel: {
 		type: 'string',
 	},
-	participantValue: {
-		type: 'html',
-	},
 	participantSlug: {
 		type: 'string',
 	},

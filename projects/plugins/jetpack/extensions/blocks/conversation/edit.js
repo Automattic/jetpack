@@ -18,7 +18,7 @@ import {
 import './editor.scss';
 import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantPlainText, getParticipantByValue } from './utils';
+import { getParticipantByLabel } from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -43,15 +43,15 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 
 	const addNewParticipant = useCallback(
-		function ( newSpeakerValue = '' ) {
-			const sanitizedSpeakerValue = newSpeakerValue.trim();
+		function ( newSpeakerLabel = '' ) {
+			const sanitizedSpeakerLabel = newSpeakerLabel.trim();
 			// Do not add speakers with empty names.
-			if ( ! sanitizedSpeakerValue?.length ) {
+			if ( ! sanitizedSpeakerLabel?.length ) {
 				return;
 			}
 
 			// Do not add a new participant with the same label.
-			const existingParticipant = getParticipantByValue( participants, sanitizedSpeakerValue );
+			const existingParticipant = getParticipantByLabel( participants, sanitizedSpeakerLabel );
 			if ( existingParticipant ) {
 				return existingParticipant;
 			}
@@ -62,8 +62,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 
 			const newParticipant = {
 				slug: newParticipantSlug,
-				label: getParticipantPlainText( sanitizedSpeakerValue ),
-				value: sanitizedSpeakerValue,
+				label: sanitizedSpeakerLabel,
 			};
 
 			setAttributes( {
