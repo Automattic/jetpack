@@ -72,17 +72,19 @@ class SearchResults extends Component {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: `
-							.jetpack-instant-search__results .jetpack-instant-search__results-primary mark { 
+							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}
 						`,
 					} }
 				/>
-				<div className="jetpack-instant-search__results-title">{ this.getSearchTitle() }</div>
+				<div className="jetpack-instant-search__search-results-title">
+					{ this.getSearchTitle() }
+				</div>
 
 				{ hasResults && hasCorrectedQuery && (
-					<p className="jetpack-instant-search__results-unused-query">
+					<p className="jetpack-instant-search__search-results-unused-query">
 						{ sprintf( __( 'No results for "%s"', 'jetpack' ), searchQuery ) }
 					</p>
 				) }
@@ -101,7 +103,7 @@ class SearchResults extends Component {
 				) }
 				{ hasResults && ! this.props.hasError && (
 					<ol
-						className={ `jetpack-instant-search__results-list is-format-${ this.props.resultFormat }` }
+						className={ `jetpack-instant-search__search-results-list is-format-${ this.props.resultFormat }` }
 					>
 						{ results.map( ( result, index ) => (
 							<SearchResult
@@ -161,7 +163,7 @@ class SearchResults extends Component {
 			<main
 				aria-hidden={ this.props.isLoading === true }
 				aria-live="polite"
-				className="jetpack-instant-search__results"
+				className="jetpack-instant-search__search-results"
 			>
 				<button
 					className="jetpack-instant-search__overlay-close"
@@ -173,7 +175,7 @@ class SearchResults extends Component {
 					<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
 				</button>
 				<SearchForm
-					className="jetpack-instant-search__results-search-form"
+					className="jetpack-instant-search__search-results-search-form"
 					enableSort={ this.props.enableSort }
 					filters={ this.props.filters }
 					isLoading={ this.props.isLoading }
@@ -190,10 +192,10 @@ class SearchResults extends Component {
 					widgets={ this.props.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
 				/>
-				<div className="jetpack-instant-search__results-primary">
+				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>
-				<div className="jetpack-instant-search__results-secondary">
+				<div className="jetpack-instant-search__search-results-secondary">
 					{ this.renderSecondarySection() }
 				</div>
 			</main>

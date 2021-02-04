@@ -1,6 +1,6 @@
 @import '../lib/style-helpers';
 
-.jetpack-instant-search__results {
+.jetpack-instant-search__search-results {
 	align-content: baseline;
 	background: $studio-white;
 	border-radius: 3px;
@@ -29,7 +29,7 @@
 	}
 }
 
-.jetpack-instant-search__results-primary {
+.jetpack-instant-search__search-results-primary {
 	flex: $primary-section-flex-grow;
 	margin: 0;
 	max-width: calc( 100% - #{$sidebar-width} );
@@ -40,7 +40,7 @@
 	}
 }
 
-.jetpack-instant-search__results-secondary {
+.jetpack-instant-search__search-results-secondary {
 	display: none;
 
 	@include break-large-up() {
@@ -62,8 +62,8 @@
 	}
 }
 
-.jetpack-instant-search__results-title,
-.jetpack-instant-search__results-unused-query {
+.jetpack-instant-search__search-results-title,
+.jetpack-instant-search__search-results-unused-query {
 	color: $studio-wordpress-blue-100;
 	display: inline-flex;
 	font-size: 1em;
@@ -85,7 +85,7 @@
 	}
 }
 
-.jetpack-instant-search__results-list {
+.jetpack-instant-search__search-results-list {
 	color: $studio-wordpress-blue-100;
 	list-style: none;
 	margin-left: $results-margin-lg;
@@ -111,7 +111,7 @@
 	}
 }
 
-.jetpack-instant-search__results-search-form {
+.jetpack-instant-search__search-results-search-form {
 	font-size: 0.8em;
 	margin: 0;
 	position: relative;

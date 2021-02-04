@@ -36,7 +36,7 @@ class SearchResultProduct extends Component {
 				: __( 'No title', 'jetpack' );
 
 		return (
-			<li className="jetpack-instant-search__result jetpack-instant-search__result-product">
+			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
 				<a
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ this.props.onClick }
@@ -46,17 +46,17 @@ class SearchResultProduct extends Component {
 					{ firstImage ? (
 						<PhotonImage
 							alt=""
-							className="jetpack-instant-search__result-product-img"
+							className="jetpack-instant-search__search-result-product-img"
 							isPrivateSite={ this.props.isPrivateSite }
 							src={ `//${ firstImage }` }
 						/>
 					) : (
-						<div className="jetpack-instant-search__result-product-img"></div>
+						<div className="jetpack-instant-search__search-result-product-img"></div>
 					) }
 				</a>
-				<h3 className="jetpack-instant-search__result-title jetpack-instant-search__result-product-title">
+				<h3 className="jetpack-instant-search__search-result-title jetpack-instant-search__search-result-product-title">
 					<a
-						className="jetpack-instant-search__result-title-link"
+						className="jetpack-instant-search__search-result-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"
@@ -81,7 +81,7 @@ class SearchResultProduct extends Component {
 					/>
 				) }
 				<div
-					className="jetpack-instant-search__result-product-content"
+					className="jetpack-instant-search__search-result-product-content"
 					//eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: highlight.content.join( ' ... ' ),

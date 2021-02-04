@@ -1,13 +1,13 @@
 @import '../lib/style-helpers';
 $image-square-size: 128px;
 
-.jetpack-instant-search__results-list.is-format-product {
+.jetpack-instant-search__search-results-list.is-format-product {
 	display: flex;
 	flex-wrap: wrap;
 	padding: 0;
 }
 
-.jetpack-instant-search__result-expanded {
+.jetpack-instant-search__search-result-expanded {
 	display: flex;
 	flex-flow: column;
 
@@ -19,18 +19,18 @@ $image-square-size: 128px;
 		margin-right: 0;
 	}
 
-	.jetpack-instant-search__result-expanded__title {
+	.jetpack-instant-search__search-result-expanded__title {
 		width: 100%;
 	}
 }
 
-.jetpack-instant-search__result-expanded__path {
+.jetpack-instant-search__search-result-expanded__path {
 	color: $studio-gray-50;
 	font-size: 0.9375em;
 	margin: 0 0 0.4em;
 }
 
-.jetpack-instant-search__result-expanded__copy-container {
+.jetpack-instant-search__search-result-expanded__copy-container {
 	max-width: 100%;
 
 	@include break-small-up() {
@@ -38,17 +38,17 @@ $image-square-size: 128px;
 		width: 100%;
 	}
 
-	.jetpack-instant-search__result-expanded--no-image & {
+	.jetpack-instant-search__search-result-expanded--no-image & {
 		width: initial;
 	}
 }
 
-.jetpack-instant-search__result-expanded__content {
+.jetpack-instant-search__search-result-expanded__content {
 	font-size: 0.9375em;
 	color: $studio-wordpress-blue-100;
 }
 
-.jetpack-instant-search__result-expanded__image-container {
+.jetpack-instant-search__search-result-expanded__image-container {
 	margin-left: 1em;
 	width: $image-square-size;
 
@@ -58,12 +58,12 @@ $image-square-size: 128px;
 		width: 2 * $image-square-size;
 	}
 
-	.jetpack-instant-search__result-expanded--no-image & {
+	.jetpack-instant-search__search-result-expanded--no-image & {
 		display: none;
 	}
 }
 
-.jetpack-instant-search__result-expanded__image {
+.jetpack-instant-search__search-result-expanded__image {
 	min-height: $image-square-size;
 	width: $image-square-size;
 	border-radius: 5px;
@@ -74,7 +74,7 @@ $image-square-size: 128px;
 		width: 2 * $image-square-size;
 	}
 }
-.jetpack-instant-search__result-expanded__image {
+.jetpack-instant-search__search-result-expanded__image {
 	background-size: contain;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -84,6 +84,6 @@ $image-square-size: 128px;
 	}
 }
 
-.jetpack-instant-search__result-expanded__img {
+.jetpack-instant-search__search-result-expanded__img {
 	margin: 0.5em 0.5em 0.5em 0;
 }

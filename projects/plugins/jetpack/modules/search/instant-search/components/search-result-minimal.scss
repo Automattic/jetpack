@@ -1,6 +1,6 @@
 @import '../lib/style-helpers';
 
-.jetpack-instant-search__result-title.jetpack-instant-search__result-minimal-title {
+.jetpack-instant-search__search-result-title.jetpack-instant-search__search-result-minimal-title {
 	margin-bottom: 0.4em;
 
 	.gridicon {
@@ -8,14 +8,14 @@
 	}
 }
 
-.jetpack-instant-search__result-minimal-cats-and-tags {
+.jetpack-instant-search__search-result-minimal-cats-and-tags {
 	display: flex;
 	flex-flow: row wrap;
 	font-size: 0.9375em;
 }
 
-.jetpack-instant-search__result-minimal-tags,
-.jetpack-instant-search__result-minimal-cats {
+.jetpack-instant-search__search-result-minimal-tags,
+.jetpack-instant-search__search-result-minimal-cats {
 	display: flex;
 	flex-flow: row wrap;
 	list-style-type: none;
@@ -23,8 +23,8 @@
 	padding: 0;
 }
 
-.jetpack-instant-search__result-minimal-tag,
-.jetpack-instant-search__result-minimal-cat {
+.jetpack-instant-search__search-result-minimal-tag,
+.jetpack-instant-search__search-result-minimal-cat {
 	margin: 0 0.75em 0 0;
 
 	.gridicon {
@@ -32,13 +32,13 @@
 	}
 }
 
-.jetpack-instant-search__result-minimal-tag-text,
-.jetpack-instant-search__result-minimal-cat-text,
-.jetpack-instant-search__result-minimal-tag .gridicon,
-.jetpack-instant-search__result-minimal-cat .gridicon {
+.jetpack-instant-search__search-result-minimal-tag-text,
+.jetpack-instant-search__search-result-minimal-cat-text,
+.jetpack-instant-search__search-result-minimal-tag .gridicon,
+.jetpack-instant-search__search-result-minimal-cat .gridicon {
 	vertical-align: middle;
 }
 
-.jetpack-instant-search__result-minimal-content {
+.jetpack-instant-search__search-result-minimal-content {
 	word-break: break-word;
 }

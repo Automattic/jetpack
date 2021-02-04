@@ -53,25 +53,29 @@ class SearchResultMinimal extends Component {
 		const cats = this.getCategories();
 		const noTags = tags.length === 0 && cats.length === 0;
 		return (
-			<div className="jetpack-instant-search__result-minimal-content">
+			<div className="jetpack-instant-search__search-result-minimal-content">
 				{ noTags && <PathBreadcrumbs url={ this.props.result.fields[ 'permalink.url.raw' ] } /> }
-				<div className="jetpack-instant-search__result-minimal-cats-and-tags">
+				<div className="jetpack-instant-search__search-result-minimal-cats-and-tags">
 					{ tags.length !== 0 && (
-						<ul className="jetpack-instant-search__result-minimal-tags">
+						<ul className="jetpack-instant-search__search-result-minimal-tags">
 							{ tags.map( tag => (
-								<li className="jetpack-instant-search__result-minimal-tag">
+								<li className="jetpack-instant-search__search-result-minimal-tag">
 									<Gridicon icon="tag" size={ this.getIconSize() } />
-									<span className="jetpack-instant-search__result-minimal-tag-text">{ tag }</span>
+									<span className="jetpack-instant-search__search-result-minimal-tag-text">
+										{ tag }
+									</span>
 								</li>
 							) ) }
 						</ul>
 					) }
 					{ cats.length !== 0 && (
-						<ul className="jetpack-instant-search__result-minimal-cats">
+						<ul className="jetpack-instant-search__search-result-minimal-cats">
 							{ cats.map( cat => (
-								<li className="jetpack-instant-search__result-minimal-cat">
+								<li className="jetpack-instant-search__search-result-minimal-cat">
 									<Gridicon icon="folder" size={ this.getIconSize() } />
-									<span className="jetpack-instant-search__result-minimal-cat-text">{ cat }</span>
+									<span className="jetpack-instant-search__search-result-minimal-cat-text">
+										{ cat }
+									</span>
 								</li>
 							) ) }
 						</ul>
@@ -84,7 +88,7 @@ class SearchResultMinimal extends Component {
 	renderMatchingContent() {
 		return (
 			<div
-				className="jetpack-instant-search__result-minimal-content"
+				className="jetpack-instant-search__search-result-minimal-content"
 				//eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={ {
 					__html: this.props.result.highlight.content.join( ' ... ' ),
@@ -101,11 +105,11 @@ class SearchResultMinimal extends Component {
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 
 		return (
-			<li className="jetpack-instant-search__result jetpack-instant-search__result-minimal">
-				<h3 className="jetpack-instant-search__result-title jetpack-instant-search__result-minimal-title">
+			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-minimal">
+				<h3 className="jetpack-instant-search__search-result-title jetpack-instant-search__search-result-minimal-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
-						className="jetpack-instant-search__result-title-link jetpack-instant-search__result-minimal-title-link"
+						className="jetpack-instant-search__search-result-title-link jetpack-instant-search__search-result-minimal-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
 						rel="noopener noreferrer"
