@@ -897,7 +897,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'start':
 				if ( ! Actions::sync_allowed() ) {
-					if ( ! Settings::get_setting( 'disable' ) ) {
+					if ( Settings::get_setting( 'disable' ) ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
 						return;
 					}
