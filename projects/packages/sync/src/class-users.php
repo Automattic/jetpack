@@ -36,7 +36,7 @@ class Users {
 	 */
 	public static function init() {
 		$connection = new Jetpack_Connection();
-		if ( $connection->is_active() ) {
+		if ( $connection->has_connected_user() ) {
 			// Kick off synchronization of user role when it changes.
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}
