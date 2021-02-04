@@ -416,8 +416,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.excludelist
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~3 minutes. Hopefully this will only ever decrease.
-
+    timeout-minutes: 10  # 2021-02-04: Canceling out at 5 minutes due to now installing all composer/yarn deps to ensure valid linting.
     steps:
       - uses: actions/checkout@v2
 
