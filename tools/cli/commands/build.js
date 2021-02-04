@@ -42,7 +42,7 @@ async function buildRouter( options ) {
  * @param {object} composerJson - The project's composer.json file, parsed.
  */
 export async function build( project, production, composerJson ) {
-	let command = false;
+	let command = '';
 
 	if ( composerJson.scripts ) {
 		const buildDev = composerJson.scripts[ 'build-development' ]
@@ -73,7 +73,7 @@ export async function build( project, production, composerJson ) {
 			title: `Building ${ project }`,
 			task: () => {
 				return new Listr( [
-					installProjectTask( project ),
+					installProjectTask( { project: project } ),
 					{
 						title: `Building ${ project }`,
 						task: () => execa.command( command, { cwd: path.resolve( `projects/${ project }` ) } ),
