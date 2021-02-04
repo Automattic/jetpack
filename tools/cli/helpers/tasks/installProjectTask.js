@@ -36,6 +36,20 @@ export function installProjectTask( argv ) {
 	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
+	const command = ( pkgMgr, verbose ) =>
+		verbose
+			? execa.commandSync( `${ pkgMgr } install`, { cwd: cwd, stdio: 'inherit' } )
+			: execa.command( `${ pkgMgr } install`, { cwd: cwd } );
+
+	const task = ( pkgMgr, enabled ) => {
+		return {
+			title: chalkJetpackGreen( `Installing ${ pkgMgr } Dependencies` ),
+			enabled: () => {
+				return enabled;
+			},
+			task: () => command( pkgMgr.toLowerCase(), argv.v ),
+		};
+	};
 	const opts = {
 		concurrent: ! argv.v,
 		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
@@ -44,31 +58,9 @@ export function installProjectTask( argv ) {
 	return {
 		title: chalk.yellow( `Installing ${ argv.project }` ),
 		task: () => {
-			return new Listr(
-				[
-					{
-						title: chalkJetpackGreen( 'Installing Composer Dependencies' ),
-						enabled: () => {
-							return composerEnabled;
-						},
-						task: () =>
-							argv.v
-								? execa.commandSync( 'composer install', { cwd: cwd, stdio: 'inherit' } )
-								: execa.command( 'composer install', { cwd: cwd } ),
-					},
-					{
-						title: chalkJetpackGreen( 'Installing Yarn Dependencies' ),
-						enabled: () => {
-							return yarnEnabled;
-						},
-						task: () =>
-							argv.v
-								? execa.commandSync( 'yarn install', { cwd: cwd, stdio: 'inherit' } )
-								: execa.command( 'yarn install', { cwd: cwd } ),
-					},
-				],
-				{ opts }
-			);
+			return new Listr( [ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ], {
+				opts,
+			} );
 		},
 	};
 }
