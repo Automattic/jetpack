@@ -134,7 +134,7 @@ class Jetpack_Recommendations_Banner {
 		Jetpack_Options::update_option( 'recommendations_step', 'banner-completed' );
 
 		$tracking = new Tracking();
-		$tracking->record_user_event( 'recommendations_banner_completed', $tracking_answers );
+		$tracking->record_user_event( 'jetpack_recommendations_banner_completed', $tracking_answers );
 
 		wp_send_json_success();
 		wp_die();
