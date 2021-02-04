@@ -24,6 +24,7 @@ $infrastructure_files = array(
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $ignore_globs = array(
 	'**.md',
+	'**.txt',
 );
 
 chdir( __DIR__ . '/../../' );
