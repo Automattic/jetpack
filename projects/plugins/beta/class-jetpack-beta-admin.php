@@ -649,23 +649,25 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	/** Check if Jetpack versions are up to date */
+	/** Check if Jetpack and branch versions are up to date */
 	public static function show_needed_updates() {
-		// Jetpack Stable not up to date?
 		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
 		$should_update_dev_version    = Jetpack_Beta::should_update_dev_version();
 		$should_update_dev_to_master  = Jetpack_Beta::should_update_dev_to_master();
 
+		// Return if there are no updates available.
 		if ( ! $should_update_stable_version
 			&& ! $should_update_dev_version
 			&& ! $should_update_dev_to_master ) {
 			return;
 		}
+
 		?>
 		<div class="jetpack-beta__wrap jetpack-beta__update-needed">
 			<h2><?php esc_html_e( 'Some updates are required', 'jetpack-beta' ); ?></h2>
 		<?php
 
+		// Stable up to date?
 		if ( $should_update_stable_version ) {
 			self::update_card(
 				__( 'Latest Stable', 'jetpack-beta' ),
