@@ -135,3 +135,52 @@ export function TimestampDropdown( props ) {
 		/>
 	);
 }
+
+export function TimestampEditControl( {
+	className,
+	isSelected,
+	show,
+	value,
+
+	onToggle,
+} ) {
+	function TimestampLabel() {
+		return (
+			<div className={ `${ className }__timestamp-label` }>
+				{ value }
+			</div>
+		);
+	}
+
+	if ( ! isSelected ) {
+		if ( ! show ) {
+			return null;
+		}
+
+		return <TimestampLabel />;
+	}
+
+	function ToggleButton( { label } ) {
+		return (
+			<Button
+				className={ `${ className }__timestamp-button` }
+				isSmall
+				isSecondary
+				onClick={ () => onToggle( ! show ) }
+			>
+				{ label }
+			</Button>
+		);
+	}
+
+	if ( ! show ) {
+		return <ToggleButton label={ __( 'Add timestamp', 'jetpack' ) } />;
+	}
+
+	return (
+		<>
+			<TimestampLabel />
+			<ToggleButton label={ __( 'Remove', 'jetpack' ) } />
+		</>
+	);
+}

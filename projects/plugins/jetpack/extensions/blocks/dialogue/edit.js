@@ -14,7 +14,7 @@ import { useDebounce } from '@wordpress/compose';
  */
 import './editor.scss';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
-import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
@@ -169,14 +169,14 @@ export default function DialogueEdit( {
 					} }
 				/>
 
-				{ showTimestamp && (
-					<TimestampDropdown
-						className={ BASE_CLASS_NAME }
-						value={ timestamp }
-						onChange={ setTimestamp }
-						shortLabel={ true }
-					/>
-				) }
+				<TimestampEditControl
+					className={ BASE_CLASS_NAME }
+					show={ showTimestamp }
+					isSelected={ isSelected }
+					value={ timestamp }
+					onChange={ setTimestamp }
+					onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
+				/>
 			</div>
 
 			<RichText
