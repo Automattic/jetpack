@@ -21,6 +21,10 @@
 	border: 1px solid $gray-lighten-20;
 
 	margin: 3rem 1.25rem 1.25rem 0;
+
+	@include breakpoint( '<960px' ) {
+		margin: 4rem 1.25rem 1.25rem 0;
+	}
 }
 
 .jp-recommendations-banner__content {
