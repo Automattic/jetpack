@@ -26,6 +26,11 @@ class Jetpack_Recommendations {
 			return false;
 		}
 
+		// No recommendations for Atomic sites, they already get onboarded in Calypso.
+		if ( jetpack_is_atomic_site() ) {
+			return false;
+		}
+
 		self::initialize_jetpack_recommendations();
 
 		return true;

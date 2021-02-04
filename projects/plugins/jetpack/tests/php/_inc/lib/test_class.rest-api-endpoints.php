@@ -329,6 +329,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	public function test_admin_user_unlink_permission() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
 		$this->load_rest_endpoints_direct();
 
@@ -672,6 +673,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	public function test_unlink_user() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user();
@@ -714,6 +716,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 8.8.0
 	 */
 	public function test_unlink_user_cache_data_removal() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user();
@@ -966,6 +969,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 7.7.0 No longer need to be master user to update.
 	 */
 	public function test_change_owner() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
@@ -1132,6 +1136,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 9.4
 	 */
 	public function test_get_user_connection_data_without_master_user() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
+		$this->setExpectedDeprecated( 'Jetpack::get_connected_user_data' );
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		wp_set_current_user( $user->ID );

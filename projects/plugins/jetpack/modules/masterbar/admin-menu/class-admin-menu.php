@@ -35,6 +35,13 @@ class Admin_Menu {
 	protected $domain;
 
 	/**
+	 * The customizer default link.
+	 *
+	 * @var string
+	 */
+	protected $customize_slug = 'customize.php';
+
+	/**
 	 * Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -42,7 +49,7 @@ class Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
+		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
 		$this->domain = ( new Status() )->get_site_suffix();
 	}
@@ -64,9 +71,13 @@ class Admin_Menu {
 
 	/**
 	 * Sets up class properties for REST API requests.
+	 *
+	 * @param WP_REST_Response $response Response from the endpoint.
 	 */
-	public function rest_api_init() {
+	public function rest_api_init( $response ) {
 		$this->is_api_request = true;
+
+		return $response;
 	}
 
 	/**
@@ -369,7 +380,6 @@ class Admin_Menu {
 	public function add_appearance_menu( $wp_admin = false ) {
 		$user_can_customize = current_user_can( 'customize' );
 		$appearance_cap     = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
-		$customize_slug     = $wp_admin ? 'customize.php' : 'https://wordpress.com/customize/' . $this->domain;
 		$themes_slug        = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
 		$customize_url      = add_query_arg( 'return', urlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore
 		remove_menu_page( 'themes.php' );
@@ -381,7 +391,7 @@ class Admin_Menu {
 
 		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), $appearance_cap, $themes_slug, null, 'dashicons-admin-appearance', 60 );
 		add_submenu_page( $themes_slug, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', $themes_slug, null, 5 );
-		add_submenu_page( $themes_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_slug, null, 10 );
+		add_submenu_page( $themes_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $this->customize_slug, null, 10 );
 
 		// Maintain id as JS selector.
 		$GLOBALS['menu'][60][5] = 'menu-appearance'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -394,7 +404,7 @@ class Admin_Menu {
 			$customize_header_url = admin_url( 'themes.php?page=custom-header' );
 			remove_submenu_page( 'themes.php', esc_url( $customize_header_url ) );
 
-			$customize_header_url = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $customize_slug );
+			$customize_header_url = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $this->customize_slug );
 			add_submenu_page( $themes_slug, __( 'Header', 'jetpack' ), __( 'Header', 'jetpack' ), 'customize', esc_url( $customize_header_url ), null, 15 );
 		}
 
@@ -406,21 +416,21 @@ class Admin_Menu {
 			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
 			remove_submenu_page( 'themes.php', esc_url( $customize_background_url ) );
 
-			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_slug );
+			$customize_background_url = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $this->customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Background', 'jetpack' ), __( 'Background', 'jetpack' ), 'customize', esc_url( $customize_background_url ), null, 20 );
 		}
 
 		if ( current_theme_supports( 'widgets' ) ) {
 			remove_submenu_page( 'themes.php', 'widgets.php' );
 
-			$customize_menu_url = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_slug );
+			$customize_menu_url = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $this->customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Widgets', 'jetpack' ), __( 'Widgets', 'jetpack' ), 'customize', esc_url( $customize_menu_url ), null, 20 );
 		}
 
 		if ( current_theme_supports( 'menus' ) || current_theme_supports( 'widgets' ) ) {
 			remove_submenu_page( 'themes.php', 'nav-menus.php' );
 
-			$customize_menu_url = add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_slug );
+			$customize_menu_url = add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $this->customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Menus', 'jetpack' ), __( 'Menus', 'jetpack' ), 'customize', esc_url( $customize_menu_url ), null, 20 );
 		}
 

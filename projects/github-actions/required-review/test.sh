@@ -8,8 +8,8 @@ set -eo pipefail
 
 BASE="$(cd "$(dirname "$BASH_SOURCE[0]")/../../.." && pwd)"
 
-cd "$BASE/.github/actions/required-review"
-yarn build
+cd "$BASE/projects/github-actions/required-review"
+composer build-development
 
 ENV=()
 function addenv {
@@ -18,7 +18,7 @@ function addenv {
 
 eval "$(
 	# Read defaults from action.yml
-	node -e 'console.log( JSON.stringify( require( "js-yaml" ).load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/.github/actions/required-review/action.yml" |
+	node -e 'console.log( JSON.stringify( require( "js-yaml" ).load( require( "fs" ).readFileSync( process.argv[1] ) ) ) );' "$BASE/projects/github-actions/required-review/action.yml" |
 		jq -r '.inputs | to_entries | .[] | select( .key != "token" and .value.default ) | [ "addenv INPUT_", ( .key | ascii_upcase | sub( " "; "_" ) ), " ", @sh "\(.value.default)" ] | join( "" )';
 
 	# Read values from .github/workflows/required-review.yml
@@ -53,4 +53,4 @@ cd "$BASE"
 echo '----'
 env -i -- "${ENV[@]}"
 echo '----'
-env -i -- "${ENV[@]}" node .github/actions/required-review/dist/index.js
+env -i -- "${ENV[@]}" node projects/github-actions/required-review/dist/index.js

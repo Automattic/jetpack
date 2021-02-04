@@ -15,13 +15,27 @@ use Automattic\Jetpack\Status;
 class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * Sets up class properties for REST API requests.
+	 * WPcom_Admin_Menu constructor.
 	 */
-	public function rest_api_init() {
-		parent::rest_api_init();
+	protected function __construct() {
+		parent::__construct();
+
+		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+	}
+
+	/**
+	 * Sets up class properties for REST API requests.
+	 *
+	 * @param WP_REST_Response $response Response from the endpoint.
+	 */
+	public function rest_api_init( $response ) {
+		parent::rest_api_init( $response );
 
 		// Get domain for requested site.
-		$this->domain = ( new Status() )->get_site_suffix();
+		$this->domain         = ( new Status() )->get_site_suffix();
+		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+
+		return $response;
 	}
 
 	/**
