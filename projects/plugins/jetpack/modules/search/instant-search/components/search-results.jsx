@@ -24,6 +24,33 @@ import { getConstrastingColor } from '../lib/colors';
 import './search-results.scss';
 
 class SearchResults extends Component {
+	state = {
+		shouldShowMobileSecondary: false,
+	};
+
+	toggleMobileSecondary = event => {
+		if (
+			event.type === 'click' ||
+			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
+		) {
+			// Prevent page scroll from pressing spacebar
+			if ( event.key === ' ' ) {
+				event.preventDefault();
+			}
+			this.setState( state => ( {
+				shouldShowMobileSecondary: ! state.shouldShowMobileSecondary,
+			} ) );
+		}
+	};
+
+	hasAnyWidgets() {
+		let widgets = [ ...this.props.widgets ];
+		if ( this.props.widgetOutsideOverlay?.filters?.length > 0 ) {
+			widgets = [ this.props.widgetOutsideOverlay, ...widgets ];
+		}
+		return widgets;
+	}
+
 	getSearchTitle() {
 		const { total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = this.props.query !== '';
@@ -191,11 +218,43 @@ class SearchResults extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
-				/>
+				>
+					{ this.hasAnyWidgets() && (
+						<div
+							role="button"
+							onClick={ this.toggleMobileSecondary }
+							onKeyDown={ this.toggleMobileSecondary }
+							tabIndex="0"
+							className="jetpack-instant-search__results-filter-button"
+						>
+							{ __( 'Filters', 'jetpack' ) }
+							<Gridicon
+								icon="chevron-down"
+								size={ 16 }
+								alt={ __( 'Show search filters', 'jetpack' ) }
+								aria-hidden="true"
+							/>
+							<span className="screen-reader-text assistive-text">
+								{ this.state.shouldShowMobileSecondary
+									? __( 'Hide filters', 'jetpack' )
+									: __( 'Show filters', 'jetpack' ) }
+							</span>
+						</div>
+					) }
+				</SearchForm>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>
-				<div className="jetpack-instant-search__search-results-secondary">
+				<div
+					className={ [
+						'jetpack-instant-search__search-results-secondary',
+						`${
+							this.state.shouldShowMobileSecondary
+								? 'jetpack-instant-search__search-results-secondary--show-as-modal'
+								: ''
+						} `,
+					].join( ' ' ) }
+				>
 					{ this.renderSecondarySection() }
 				</div>
 			</main>
