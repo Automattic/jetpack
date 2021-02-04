@@ -10,7 +10,7 @@
  * Feature: Writing
  * Additional Search Queries: post by email, email
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

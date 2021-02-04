@@ -265,6 +265,20 @@ class Test_Plugins_Handler extends TestCase {
 	}
 
 	/**
+	 * Tests that an empty array is returned when the cache contains invalid data.
+	 */
+	public function test_gets_cached_plugins_handles_invalid_data() {
+		set_transient( Plugins_Handler::TRANSIENT_KEY, 'invalid' );
+
+		$this->path_processor->expects( $this->never() )->method( 'untokenize_path_constants' );
+
+		$plugin_paths = $this->plugins_handler->get_cached_plugins();
+
+		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertEmpty( $plugin_paths );
+	}
+
+	/**
 	 * Tests that the plugins are updated when they have changed.
 	 */
 	public function test_updates_cache_writes_plugins() {

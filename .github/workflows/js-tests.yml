@@ -26,7 +26,11 @@ jobs:
         run: |
           yarn install
           yarn test-adminpage-and-extensions-and-search
-
+      - name: "test cli"
+        working-directory: 'tools/cli'
+        run: |
+          yarn install
+          yarn test
 
   build:
     name: "Build dashboard & extensions"

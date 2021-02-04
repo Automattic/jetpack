@@ -4,7 +4,7 @@
  *
  * @since 8.6.1
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Story;
@@ -48,7 +48,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 			}
 			$attachment_id = $media_file['id'];
 			if ( 'image' === $media_file['type'] ) {
-				$image = wp_get_attachment_image_src( $attachment_id, EMBED_SIZE, false );
+				$image = wp_get_attachment_image_src( $attachment_id, 'full', false );
 				if ( ! $image ) {
 					return $media_file;
 				}

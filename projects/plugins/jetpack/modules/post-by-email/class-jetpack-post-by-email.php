@@ -2,7 +2,7 @@
 /**
  * Class Jetpack_Post_By_Email
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;

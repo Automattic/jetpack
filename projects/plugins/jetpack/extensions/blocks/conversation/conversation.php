@@ -4,7 +4,7 @@
  *
  * @since 9.3.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Conversation;

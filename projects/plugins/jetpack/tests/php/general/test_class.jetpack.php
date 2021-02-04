@@ -305,6 +305,7 @@ EXPECTED;
 	}
 
 	public function test_get_other_linked_admins_one_admin_returns_false() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 		delete_transient( 'jetpack_other_linked_admins' );
 		$other_admins = Jetpack::get_other_linked_admins();
 		$this->assertFalse( $other_admins );
@@ -312,6 +313,7 @@ EXPECTED;
 	}
 
 	public function test_get_other_linked_admins_more_than_one_not_false() {
+		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 		delete_transient( 'jetpack_other_linked_admins' );
 		$master_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );

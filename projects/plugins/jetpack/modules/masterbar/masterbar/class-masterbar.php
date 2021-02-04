@@ -2,7 +2,7 @@
 /**
  * Masterbar file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
@@ -19,7 +19,6 @@ use Jetpack;
 use Jetpack_AMP_Support;
 use Jetpack_Plan;
 use WP_Admin_Bar;
-use WP_User;
 
 /**
  * Provides custom admin bar instead of the default WordPress admin bar.
@@ -93,23 +92,40 @@ class Masterbar {
 	 * Constructor
 	 */
 	public function __construct() {
+		$this->user_id      = get_current_user_id();
+		$connection_manager = new Connection_Manager( 'jetpack' );
+
+		if ( ! $connection_manager->is_user_connected( $this->user_id ) ) {
+			return;
+		}
+
+		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
+		$this->user_login      = $this->user_data['login'];
+		$this->user_email      = $this->user_data['email'];
+		$this->display_name    = $this->user_data['display_name'];
+		$this->user_site_count = $this->user_data['site_count'];
+
+		// Store part of the connected user data as user options so it can be used
+		// by other files of the masterbar module without making another XMLRPC
+		// request. Although `get_connected_user_data` tries to save the data for
+		// future uses on a transient, the data is not guaranteed to be cached.
+		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
+			update_user_option( get_current_user_id(), 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] );
+		}
+
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
-		// Post logout on the site, also log the user out of WordPress.com.
-		add_filter( 'logout_redirect', array( $this, 'maybe_logout_user_from_wpcom' ), 10, 3 );
+		if ( ! empty( $this->user_data['ID'] ) ) {
+			// Post logout on the site, also log the user out of WordPress.com.
+			add_filter( 'logout_redirect', array( $this, 'maybe_logout_user_from_wpcom' ) );
+		}
 	}
 
 	/**
 	 * Initialize our masterbar.
 	 */
 	public function init() {
-		$this->locale  = $this->get_locale();
-		$this->user_id = get_current_user_id();
-
-		// Limit the masterbar to be shown only to connected Jetpack users.
-		if ( ! Jetpack::is_user_connected( $this->user_id ) ) {
-			return;
-		}
+		$this->locale = $this->get_locale();
 
 		// Don't show the masterbar on WordPress mobile apps.
 		if ( User_Agent_Info::is_mobile_app() ) {
@@ -146,12 +162,6 @@ class Masterbar {
 			add_filter( 'show_admin_bar', '__return_true' );
 		}
 
-		$this->user_data       = Jetpack::get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
-
 		// Used to build menu links that point directly to Calypso.
 		$this->primary_site_slug = ( new Status() )->get_site_suffix();
 
@@ -180,11 +190,9 @@ class Masterbar {
 	/**
 	 * Log out from WordPress.com when logging out of the local site.
 	 *
-	 * @param string  $redirect_to           The redirect destination URL.
-	 * @param string  $requested_redirect_to The requested redirect destination URL passed as a parameter.
-	 * @param WP_User $user                  The WP_User object for the user that's logging out.
+	 * @param string $redirect_to The redirect destination URL.
 	 */
-	public function maybe_logout_user_from_wpcom( $redirect_to, $requested_redirect_to, $user ) {
+	public function maybe_logout_user_from_wpcom( $redirect_to ) {
 		/**
 		 * Whether we should sign out from wpcom too when signing out from the masterbar.
 		 *
@@ -199,26 +207,17 @@ class Masterbar {
 			&& 'masterbar' === $_GET['context'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& $masterbar_should_logout_from_wpcom
 		) {
-			/*
-			 * Get the associated WordPress.com User ID, if the user is connected.
+			/**
+			 * Hook into the log out event happening from the Masterbar.
+			 *
+			 * @since 5.1.0
+			 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
+			 *
+			 * @module masterbar
+			 *
+			 * @param int $wpcom_user_id WordPress.com User ID.
 			 */
-			$connection_manager = new Connection_Manager();
-			if ( $connection_manager->is_user_connected( $user->ID ) ) {
-				$wpcom_user_data = $connection_manager->get_connected_user_data( $user->ID );
-				if ( ! empty( $wpcom_user_data['ID'] ) ) {
-					/**
-					 * Hook into the log out event happening from the Masterbar.
-					 *
-					 * @since 5.1.0
-					 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
-					 *
-					 * @module masterbar
-					 *
-					 * @param int $wpcom_user_id WordPress.com User ID.
-					 */
-					do_action( 'wp_masterbar_logout', $wpcom_user_data['ID'] );
-				}
-			}
+			do_action( 'wp_masterbar_logout', $this->user_data['ID'] );
 		}
 
 		return $redirect_to;

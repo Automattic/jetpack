@@ -15,7 +15,7 @@
  * Gist ID with username: [gist jeherve/57cc50246aab776e110060926a2face2]
  * Gist private ID with username: [gist xknown/fc5891af153e2cf365c9]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 wp_embed_register_handler( 'github-gist', '#https?://gist\.github\.com/([a-zA-Z0-9/]+)(\#file\-[a-zA-Z0-9\_\-]+)?#', 'github_gist_embed_handler' );

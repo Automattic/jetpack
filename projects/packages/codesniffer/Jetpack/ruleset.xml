@@ -13,12 +13,15 @@
 	<rule ref="MediaWiki.Classes.UnsortedUseStatements" />
 	<rule ref="MediaWiki.Classes.UnusedUseStatement" />
 	<rule ref="MediaWiki.ExtraCharacters.ParenthesesAroundKeyword" />
+	<rule ref="MediaWiki.PHPUnit.AssertCount" />
+	<rule ref="MediaWiki.PHPUnit.AssertEquals" />
+	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
+	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
 	<rule ref="MediaWiki.Usage.DirUsage" />
 	<rule ref="MediaWiki.Usage.DoubleNotOperator" />
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
 	<rule ref="MediaWiki.Usage.NestedFunctions" />
-	<rule ref="MediaWiki.Usage.PHPUnitAssertEquals" />
 	<rule ref="MediaWiki.Usage.PlusStringConcat" />
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
