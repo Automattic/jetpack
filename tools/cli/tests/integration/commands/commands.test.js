@@ -18,4 +18,7 @@ describe( 'verify commands are available', function () {
 	it( 'watch command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack watch [project]' );
 	} );
+	it( 'install command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack install [project]' );
+	} );
 } );
