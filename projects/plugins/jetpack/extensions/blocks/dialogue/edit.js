@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
-import { useContext, useEffect, useRef, useReducer } from '@wordpress/element';
+import { useContext, useEffect, useRef, useReducer, useState } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
 
@@ -45,10 +45,12 @@ export default function DialogueEdit( {
 		showTimestamp,
 		timestamp,
 	} = attributes;
+	const [ isContentIsSelected, setIsContentSelected ] = useState( false );
 
-	const mediaSource = useSelect( select => (
-		select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource()
-	), [] );
+	const mediaSource = useSelect(
+		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
+		[]
+	);
 
 	// we use a reducer to force re-rendering the SpeakerEditControl,
 	// passing the `reRenderingKey` as property of the component.
@@ -120,7 +122,6 @@ export default function DialogueEdit( {
 			return;
 		}
 
-		// contentRef?.current?.focus();
 		setTimeout( () => contentRef?.current?.focus(), 100 );
 	}
 
@@ -204,6 +205,7 @@ export default function DialogueEdit( {
 						conversationBridge.updateParticipants( participant );
 						focusOnContent( forceFucus );
 					} }
+					onFocus={ () => setIsContentSelected( false ) }
 				/>
 
 				{ showTimestamp && (
@@ -264,7 +266,10 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
+				isSelected={ isContentIsSelected }
 				onFocus={ ( event ) => {
+					setIsContentSelected( true );
+
 					if ( ! label ) {
 						triggerRefreshAutocomplete();
 						return;
