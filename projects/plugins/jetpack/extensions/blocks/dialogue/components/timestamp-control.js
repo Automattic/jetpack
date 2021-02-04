@@ -1,14 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { Dropdown, Button } from '@wordpress/components';
+import { Dropdown, Button, RangeControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
-import { convertSecondsToTimeCode } from '../../../shared/components/media-player-control/utils';
+import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -61,6 +61,8 @@ export function TimestampControl( {
 	onChange,
 	shortLabel = false,
 	isDisabled = false,
+	mediaSource,
+	duration,
 } ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
@@ -68,50 +70,65 @@ export function TimestampControl( {
 	}
 
 	return (
-		<div className={ `${ className }__timestamp-controls` }>
-			<NumberControl
-				className={ `${ className }__timestamp-control__hour` }
-				label={	shortLabel
-					? _x( 'Hour', 'hour (short form)', 'jetpack' )
-					: _x( 'Hour', 'hour (long form)', 'jetpack' )
-				}
-				value={ smh[ 0 ] }
-				min={ 0 }
-				max={ 23 }
-				onChange={ hour => (
-					! isDisabled && onChange( setTimestampValue( { hour }, smh ) )
-				) }
-				disabled={ isDisabled }
-			/>
+		<>
+			<div className={ `${ className }__timestamp-controls` }>
+				<NumberControl
+					className={ `${ className }__timestamp-control__hour` }
+					label={	shortLabel
+						? _x( 'Hour', 'hour (short form)', 'jetpack' )
+						: _x( 'Hour', 'hour (long form)', 'jetpack' )
+					}
+					value={ smh[ 0 ] }
+					min={ 0 }
+					max={ 23 }
+					onChange={ hour => (
+						! isDisabled && onChange( setTimestampValue( { hour }, smh ) )
+					) }
+					disabled={ isDisabled }
+				/>
 
-			<NumberControl
-				className={ `${ className }__timestamp-control__minute` }
-				label={
-					shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' )
-				}
-				value={ smh[ 1 ] }
-				min={ 0 }
-				max={ 59 }
-				onChange={ min => (
-					! isDisabled && onChange( setTimestampValue( { min }, smh ) )
-				) }
-				disabled={ isDisabled }
-			/>
+				<NumberControl
+					className={ `${ className }__timestamp-control__minute` }
+					label={
+						shortLabel ? _x( 'Min', 'Short for Minute', 'jetpack' ) : __( 'Minute', 'jetpack' )
+					}
+					value={ smh[ 1 ] }
+					min={ 0 }
+					max={ 59 }
+					onChange={ min => (
+						! isDisabled && onChange( setTimestampValue( { min }, smh ) )
+					) }
+					disabled={ isDisabled }
+				/>
 
-			<NumberControl
-				className={ `${ className }__timestamp-control__second` }
-				label={
-					shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' )
-				}
-				value={ smh[ 2 ] }
-				min={ 0 }
-				max={ 59 }
-				onChange={ sec => (
-					! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
-				) }
-				disabled={ isDisabled }
-			/>
-		</div>
+				<NumberControl
+					className={ `${ className }__timestamp-control__second` }
+					label={
+						shortLabel ? _x( 'Sec', 'Short for Second', 'jetpack' ) : __( 'Second', 'jetpack' )
+					}
+					value={ smh[ 2 ] }
+					min={ 0 }
+					max={ 59 }
+					onChange={ sec => (
+						! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
+					) }
+					disabled={ isDisabled }
+				/>
+			</div>
+
+			{ mediaSource && (
+				<RangeControl
+					disabled={ typeof duration === 'undefined' }
+					value={ convertTimeCodeToSeconds( value ) }
+					className={ `${ className }__timestamp-range-control` }
+					min={ 0 }
+					max={ duration }
+					onChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
+					withInputField={ false }
+					renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+				/>
+			) }
+		</>
 	);
 }
 

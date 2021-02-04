@@ -43,15 +43,17 @@ export default function DialogueEdit( {
 		timestamp,
 	} = attributes;
 
-	const { mediaSource, mediaCurrentTime } = useSelect( select => {
+	const { mediaSource, mediaCurrentTime, mediaDuration } = useSelect( select => {
 		const {
 			getDefaultMediaSource,
 			getMediaSourceCurrentTime,
+			getMediaSourceDuration,
 		} = select( MEDIA_SOURCE_STORE_ID );
 
 		return {
 			mediaSource: getDefaultMediaSource(),
 			mediaCurrentTime: getMediaSourceCurrentTime(),
+			mediaDuration: getMediaSourceDuration(),
 		};
 	}, [] );
 
@@ -135,6 +137,8 @@ export default function DialogueEdit( {
 								className={ BASE_CLASS_NAME }
 								value={ timestamp }
 								onChange={ setTimestamp }
+								mediaSource={ mediaSource }
+								duration={ mediaDuration }
 							/>
 						) }
 					</PanelBody>
