@@ -546,6 +546,9 @@ class Jetpack_Beta {
 		$option = (array) self::get_option();
 		if ( false === $option[0] ) {
 			// See if the Jetpack plugin is enabled.
+			if ( ! function_exists( 'is_plugin_active' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
 			if ( is_plugin_active( JETPACK_PLUGIN_FILE ) ) {
 				return array( 'stable', 'stable' );
 			}
