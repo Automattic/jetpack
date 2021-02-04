@@ -21,10 +21,6 @@ $image-square-size: 128px;
 
 	.jetpack-instant-search__result-expanded__title {
 		width: 100%;
-		max-width: calc(
-			#{$primary-section-ratio} * ( #{$modal-max-width} - #{$primary-secondary-separator-width + $overlay-padding-horizontal} )
-		);
-		overflow-wrap: break-word;
 	}
 }
 
@@ -35,6 +31,8 @@ $image-square-size: 128px;
 }
 
 .jetpack-instant-search__result-expanded__copy-container {
+	max-width: 100%;
+
 	@include break-small-up() {
 		min-height: $image-square-size;
 		width: 100%;

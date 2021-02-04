@@ -1,11 +1,6 @@
 @import '../lib/style-helpers';
 
 .jetpack-instant-search__result-title.jetpack-instant-search__result-minimal-title {
-	clear: none;
-	max-width: calc(
-		#{$primary-section-ratio} * ( #{$modal-max-width} - #{$primary-secondary-separator-width + $overlay-padding-horizontal} )
-	);
-	overflow-wrap: break-word;
 	margin-bottom: 0.4em;
 
 	.gridicon {
