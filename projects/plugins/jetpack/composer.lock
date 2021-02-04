@@ -354,12 +354,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "a9e658b9b554138f7ab015e86161f29cc5035c0e"
+                "reference": "90d23c4d4d1d528179fc5bd0a1a2dc52ca45253b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
             },
             "type": "library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-connection-ui"
+            },
             "autoload": {
                 "classmap": [
                     "src/"

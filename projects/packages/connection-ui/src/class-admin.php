@@ -38,8 +38,8 @@ class Admin {
 	public function register_submenu_page() {
 		add_submenu_page(
 			'tools.php',
-			'Connection Manager',
-			'Connection Manager',
+			__( 'Connection Manager', 'jetpack' ),
+			__( 'Connection Manager', 'jetpack' ),
 			'manage_options',
 			'wpcom-connection-manager',
 			array( $this, 'render_ui' ),
