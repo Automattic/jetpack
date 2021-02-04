@@ -17,7 +17,7 @@ import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/com
 /**
  * Internal dependencies
  */
-import { getParticipantByValue, getParticipantPlainText } from '../../conversation/utils';
+import { getParticipantByLabel } from '../../conversation/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -92,16 +92,14 @@ function refreshAutocompleter( participants ) {
 		name: 'jetpack/conversation-participants',
 		triggerPrefix: '',
 		options: participants,
-		getOptionLabel: ( { value } ) => (
-			// eslint-disable-next-line react/no-danger
-			<span dangerouslySetInnerHTML={ {
-				__html: value,
-			} } />
+
+		getOptionLabel: ( { label } ) => (
+			<span>{ label }</span>
 		),
 
-		getOptionKeywords: option => [ option.label ],
+		getOptionKeywords: ( { label } ) => [ label ],
 
-		getOptionCompletion: option => ( {
+		getOptionCompletion: ( option ) => ( {
 			action: 'replace',
 			value: option,
 		} ),
@@ -117,12 +115,12 @@ function refreshAutocompleter( participants ) {
  *
  * @param {object}   prop                     - ParticipantRichControl component.
  * @param {string}   prop.className           - Component CSS class.
- * @param {string}   prop.value               - Dialogue participant value. Usually HTML. Local level.
+ * @param {string}   prop.label               - Dialogue participant value. Local level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
  * @param {string}   prop.reRenderingKey      - Custom property to for a re-render in the rich text component.
  * @param {object}   prop.participant         - Participant object. Gloanl level.
- * @param {Function} prop.onParticipantChange - Use this callback to update participant, value locally.
- * @param {Function} prop.onUpdate            - Use this value to update the participant but globaly.
+ * @param {Function} prop.onParticipantChange - Use this callback to update participant label, locally.
+ * @param {Function} prop.onUpdate            - Use this callback to update the participant, but globaly.
  * @param {Function} prop.onSelect            - Callback triggered when a particpant is selectd from the list.
  * @param {Function} prop.onAdd               - Callback used to add a new participant.
  * @param {Function} prop.onClean             - Use this callback to disassociate the Dialogue with a participant.
@@ -130,7 +128,7 @@ function refreshAutocompleter( participants ) {
  */
 export function ParticipantsRichControl( {
 	className,
-	value,
+	label,
 	participants,
 	participant,
 	reRenderingKey,
@@ -145,14 +143,13 @@ export function ParticipantsRichControl( {
 	function onActionHandler( forceFocus ) {
 		switch ( editingMode ) {
 			case EDIT_MODE_ADDING: {
-				return onAdd( value, ! useFocusOutsideIsAvailable || forceFocus );
+				return onAdd( label, ! useFocusOutsideIsAvailable || forceFocus );
 			}
 
 			case EDIT_MODE_EDITING: {
 				return onUpdate( {
 					slug: participant.slug,
-					label: getParticipantPlainText( value ), // <- store plain participant value.
-					value,
+					label,
 				}, ! useFocusOutsideIsAvailable || forceFocus );
 			}
 		}
@@ -165,33 +162,33 @@ export function ParticipantsRichControl( {
 	 * It can add a new participan, or add a new one,
 	 * dependeing on the previous values.
 	 *
-	 * @param {string} newValue - New participant value.
+	 * @param {string} newLabel - New participant value.
 	 * @returns {null} Null
 	 */
-	function onChangeHandler( newValue ) {
+	function onChangeHandler( newLabel ) {
 		// If the new value is empty,
 		// activate autocomplete, and emit onClean(),
 		// to clean the current participant.
-		if ( ! newValue?.length ) {
+		if ( ! newLabel?.length ) {
 			setEditingMode( EDIT_MODE_ADDING );
 			return onClean();
 		}
 
 		// Always update the participant value (block attribute).
-		onParticipantChange( newValue );
+		onParticipantChange( newLabel );
 
-		const participantByNewValue = getParticipantByValue( participants, newValue );
+		const participantByNewLabel = getParticipantByLabel( participants, newLabel );
 
-		// Set editing mode depending on participant value,
+		// Set editing mode depending on participant label,
 		// and current conversation participant
 		// tied to this Dialogue block.
 		if ( participant ) {
-			if ( participant.value === newValue ) {
+			if ( participant.value === newLabel ) {
 				setEditingMode( EDIT_MODE_SELECTING );
 			} else {
 				setEditingMode( EDIT_MODE_EDITING );
 			}
-		} else if ( participantByNewValue ) {
+		} else if ( participantByNewLabel ) {
 			setEditingMode( EDIT_MODE_SELECTING );
 		} else {
 			setEditingMode( EDIT_MODE_ADDING );
@@ -223,7 +220,7 @@ export function ParticipantsRichControl( {
 			<RichText
 				key={ reRenderingKey }
 				tagName="div"
-				value={ value }
+				value={ label }
 				formattingControls={ [] }
 				withoutInteractiveFormatting={ false }
 				onChange={ onChangeHandler }
@@ -235,30 +232,31 @@ export function ParticipantsRichControl( {
 					// Handling participant selection,
 					// by picking them from the autocomplete options.
 					if ( replacedParticipant ) {
-						const { value: newValue } = replacedParticipant;
-						onParticipantChange( newValue );
+						const { label: newLabel } = replacedParticipant;
+
+						onParticipantChange( newLabel );
 						setEditingMode( EDIT_MODE_SELECTING );
 						return onSelect( replacedParticipant );
 					}
 
-					if ( ! value?.length ) {
+					if ( ! label?.length ) {
 						return;
 					}
 
 					// Handling participant selection,
 					// by typing `ENTER` KEY.
-					const participantExists = getParticipantByValue( participants, value );
+					const participantExists = getParticipantByLabel( participants, label );
 					if ( participantExists ) {
 						if ( ! participant ) {
 							setEditingMode( EDIT_MODE_SELECTING );
 							return onSelect( participantExists, true );
 						}
 
-						// Update participant format.
-						if ( participant?.value !== value ) {
-							setEditingMode( EDIT_MODE_EDITING );
-							return onActionHandler();
-						}
+						// // Update participant format.
+						// if ( participant?.value !== label ) {
+						// 	setEditingMode( EDIT_MODE_EDITING );
+						// 	return onActionHandler();
+						// }
 					}
 
 					// From here, it will add a new participant.

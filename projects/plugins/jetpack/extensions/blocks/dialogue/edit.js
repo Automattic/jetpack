@@ -21,7 +21,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug, getParticipantByValue } from '../conversation/utils';
+import { getParticipantBySlug, getParticipantByLabel } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -40,7 +40,6 @@ export default function DialogueEdit( {
 	const {
 		content,
 		participantLabel,
-		participantValue,
 		participantSlug,
 		placeholder,
 		showTimestamp,
@@ -92,7 +91,6 @@ export default function DialogueEdit( {
 
 		debounceSetDialoguesAttrs( {
 			participantLabel: conversationParticipant.label,
-			participantValue: conversationParticipant.value,
 		} );
 	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, participantSlug ] );
 
@@ -175,18 +173,15 @@ export default function DialogueEdit( {
 				<ParticipantsRichControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ participantLabel }
-					value={ participantValue }
 					participant={ conversationParticipant }
 					participants={ participants }
 					reRenderingKey={ `re-render-key${ reRenderingKey }` }
 					onParticipantChange={ ( updatedParticipant ) => {
-						setAttributes( { participantValue: updatedParticipant } );
+						setAttributes( { participantLabel: updatedParticipant } );
 					} }
-
-					onSelect={ ( { slug, label, value }, forceFucus ) => {
+					onSelect={ ( { slug, label }, forceFucus ) => {
 						setAttributes( {
 							participantLabel: label,
-							participantValue: value,
 							participantSlug: slug,
 						} );
 
@@ -197,25 +192,19 @@ export default function DialogueEdit( {
 						setAttributes( {
 							participantSlug: null,
 							participantLabel: '',
-							participantValue: '',
 						} );
 					} }
 
-					onAdd={ ( newValue, forceFucus ) => {
+					onAdd={ ( newLabel, forceFucus ) => {
 						triggerRefreshAutocomplete();
 
-						if ( ! newValue?.length ) {
-							return;
-						}
-
-						const newParticipant = conversationBridge.addNewParticipant( newValue );
+						const newParticipant = conversationBridge.addNewParticipant( newLabel );
 						if ( ! newParticipant ) {
 							focusOnContent( forceFucus );
 							return;
 						}
 
 						setAttributes( {
-							participantValue: newParticipant.value,
 							participantLabel: newParticipant.label,
 							participantSlug: newParticipant.slug,
 						} );
@@ -286,7 +275,7 @@ export default function DialogueEdit( {
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onFocus={ ( event ) => {
-					if ( ! participantValue ) {
+					if ( ! participantLabel ) {
 						triggerRefreshAutocomplete();
 						return;
 					}
@@ -296,36 +285,23 @@ export default function DialogueEdit( {
 					// Provably, we should add a new participant from here.
 					// onFocusOutside is not supported by some Gutenberg versions.
 					// Take a look at <ParticipantsRichControl /> to get more info.
-					const participantExists = getParticipantByValue( participants, participantValue );
-					const hasFormatChanges = conversationParticipant?.value !== participantValue;
+					const participantExists = getParticipantByLabel( participants, participantLabel );
 
-					// If participant exists ...
+					// If participant exists let's update it.
 					if ( participantExists ) {
-						// and there are formats differences...
-						if ( hasFormatChanges ) {
-							// updates the participant,
-							return conversationBridge.updateParticipants( {
-								...conversationParticipant,
-								value: participantValue,
-							} );
-						}
-
-						// Otherwise, simply update the dialogue participant.
 						setAttributes( {
-							participantValue: participantExists.value,
 							participantLabel: participantExists.label,
 							participantSlug: participantExists.slug,
 						} );
 					} else {
-						// But, if it doens't exist let's create a new one...
-						const newParticipant = conversationBridge.addNewParticipant( participantValue );
+						// Otherwise, let's create a new one...
+						const newParticipant = conversationBridge.addNewParticipant( participantLabel );
 						if ( ! newParticipant ) {
 							return;
 						}
 
 						// ... and update the dialogue with these new values.
 						setAttributes( {
-							participantValue: newParticipant.value,
 							participantLabel: newParticipant.label,
 							participantSlug: newParticipant.slug,
 						} );
