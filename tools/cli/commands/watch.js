@@ -67,8 +67,8 @@ export async function watchCli( options ) {
 
 	options = await promptForProject( options );
 	options = {
+		project: '',
 		...options,
-		project: options.project || '',
 	};
 
 	if ( options.project ) {

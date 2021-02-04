@@ -21,9 +21,9 @@ import { installProjectTask } from '../helpers/tasks/installProjectTask';
  */
 async function buildRouter( options ) {
 	options = {
+		project: '',
+		production: false,
 		...options,
-		project: options.project || '',
-		production: options.production || false,
 	};
 
 	if ( options.project ) {
