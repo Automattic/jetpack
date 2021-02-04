@@ -111,9 +111,9 @@ export function installDefine( yargs ) {
  * Conditionally add the root install task
  *
  * @param {object} argv - The argv object
- * @param {object} tasks - The tasks object
+ * @param {Array} tasks - The tasks array
  *
- * @returns {object} An array of either the root install task or empty.
+ * @returns {Array} The tasks array
  */
 function addRootInstallTask( argv, tasks ) {
 	normalizeInstallArgv( argv );
