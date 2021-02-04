@@ -43,10 +43,17 @@ export default function DialogueEdit( {
 		timestamp,
 	} = attributes;
 
-	const mediaSource = useSelect(
-		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
-		[]
-	);
+	const { mediaSource, mediaCurrentTime } = useSelect( select => {
+		const {
+			getDefaultMediaSource,
+			getMediaSourceCurrentTime,
+		} = select( MEDIA_SOURCE_STORE_ID );
+
+		return {
+			mediaSource: getDefaultMediaSource(),
+			mediaCurrentTime: getMediaSourceCurrentTime(),
+		};
+	}, [] );
 
 	const contentRef = useRef();
 
@@ -164,6 +171,7 @@ export default function DialogueEdit( {
 					show={ showTimestamp }
 					isSelected={ isSelected }
 					value={ timestamp }
+					mediaCurrentTime={ mediaCurrentTime }
 					onChange={ setTimestamp }
 					onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
 				/>

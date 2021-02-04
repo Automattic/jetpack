@@ -8,6 +8,7 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
+import { convertSecondsToTimeCode } from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -141,7 +142,9 @@ export function TimestampEditControl( {
 	isSelected,
 	show,
 	value,
+	mediaCurrentTime = 0,
 
+	onChange,
 	onToggle,
 } ) {
 	function TimestampLabel() {
@@ -166,7 +169,12 @@ export function TimestampEditControl( {
 				className={ `${ className }__timestamp-button` }
 				isSmall
 				isSecondary
-				onClick={ () => onToggle( ! show ) }
+				onClick={ () => {
+					onToggle( ! show );
+					if ( ! show ) {
+						onChange( convertSecondsToTimeCode( mediaCurrentTime ) );
+					}
+				} }
 			>
 				{ label }
 			</Button>
