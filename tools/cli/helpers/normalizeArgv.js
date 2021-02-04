@@ -7,10 +7,12 @@
  */
 export function normalizeInstallArgv( argv ) {
 	return {
+		// Defaults.
+		project: '',
+		root: false,
+		all: false,
+		v: false,
+		// Override from `argv`.
 		...argv,
-		project: argv.project || '',
-		root: argv.root || false,
-		all: argv.all || false,
-		v: argv.v || false,
 	};
 }
