@@ -181,8 +181,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		$autoupdate = $this->plugin_has_autoupdates_enabled( $plugin_file );
-		$plugin['autoupdate']      = $autoupdate;
+		$plugin['plugin']     = $plugin_file;
+		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
+		$plugin['autoupdate'] = $autoupdate;
 
 		$autoupdate_translation = $this->plugin_has_translations_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
