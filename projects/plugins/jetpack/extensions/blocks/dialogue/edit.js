@@ -13,7 +13,7 @@ import { useDebounce } from '@wordpress/compose';
  * Internal dependencies
  */
 import './editor.scss';
-import { ParticipantsControl, ParticipantsRichControl } from './components/participants-control';
+import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
@@ -39,8 +39,8 @@ export default function DialogueEdit( {
 } ) {
 	const {
 		content,
-		participantLabel,
-		participantSlug,
+		label,
+		slug,
 		placeholder,
 		showTimestamp,
 		timestamp,
@@ -50,7 +50,7 @@ export default function DialogueEdit( {
 		select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource()
 	), [] );
 
-	// we use a reducer to force re-rendering the ParticipantsRichControl,
+	// we use a reducer to force re-rendering the SpeakerEditControl,
 	// passing the `reRenderingKey` as property of the component.
 	// It's required when we want to update the options in the autocomplete,
 	// or when we need to hide it.
@@ -67,7 +67,7 @@ export default function DialogueEdit( {
 		? participantsFromContext
 		: defaultParticipants;
 
-	const conversationParticipant = getParticipantBySlug( participants, participantSlug );
+	const conversationParticipant = getParticipantBySlug( participants, slug );
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
@@ -80,7 +80,7 @@ export default function DialogueEdit( {
 			return;
 		}
 
-		if ( conversationParticipant.slug !== participantSlug ) {
+		if ( conversationParticipant.slug !== slug ) {
 			return;
 		}
 
@@ -90,9 +90,9 @@ export default function DialogueEdit( {
 		}
 
 		debounceSetDialoguesAttrs( {
-			participantLabel: conversationParticipant.label,
+			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, participantSlug ] );
+	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
 
 	// Update dialogue timestamp setting from parent conversation.
 	useEffect( () => {
@@ -110,7 +110,7 @@ export default function DialogueEdit( {
 	/**
 	 * Make focus in the content component.
 	 * It also deals with a race condition
-	 * when setting the participantSlug attribute
+	 * when setting the slug attribute
 	 * and onFocus() callback.
 	 *
 	 * @param {boolean} force - Defines if effectively make the focus in the content.
@@ -140,7 +140,7 @@ export default function DialogueEdit( {
 						<ParticipantsControl
 							className={ BASE_CLASS_NAME }
 							participants={ participants }
-							participantSlug={ participantSlug || '' }
+							slug={ slug || '' }
 							onSelect={ setAttributes }
 						/>
 					</PanelBody>
@@ -170,29 +170,22 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
-				<ParticipantsRichControl
+				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
-					label={ participantLabel }
+					label={ label }
 					participant={ conversationParticipant }
 					participants={ participants }
 					reRenderingKey={ `re-render-key${ reRenderingKey }` }
 					onParticipantChange={ ( updatedParticipant ) => {
-						setAttributes( { participantLabel: updatedParticipant } );
+						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ ( { slug, label }, forceFucus ) => {
-						setAttributes( {
-							participantLabel: label,
-							participantSlug: slug,
-						} );
-
+					onSelect={ ( selectedParticipant, forceFucus ) => {
+						setAttributes( selectedParticipant );
 						focusOnContent( forceFucus );
 					} }
 
 					onClean={ () => {
-						setAttributes( {
-							participantSlug: null,
-							participantLabel: '',
-						} );
+						setAttributes( { slug: null, label: '' } );
 					} }
 
 					onAdd={ ( newLabel, forceFucus ) => {
@@ -204,10 +197,7 @@ export default function DialogueEdit( {
 							return;
 						}
 
-						setAttributes( {
-							participantLabel: newParticipant.label,
-							participantSlug: newParticipant.slug,
-						} );
+						setAttributes( newParticipant );
 						focusOnContent( forceFucus );
 					} }
 					onUpdate={ ( participant, forceFucus ) => {
@@ -275,7 +265,7 @@ export default function DialogueEdit( {
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onFocus={ ( event ) => {
-					if ( ! participantLabel ) {
+					if ( ! label ) {
 						triggerRefreshAutocomplete();
 						return;
 					}
@@ -284,27 +274,21 @@ export default function DialogueEdit( {
 
 					// Provably, we should add a new participant from here.
 					// onFocusOutside is not supported by some Gutenberg versions.
-					// Take a look at <ParticipantsRichControl /> to get more info.
-					const participantExists = getParticipantByLabel( participants, participantLabel );
+					// Take a look at <SpeakerEditControl /> to get more info.
+					const participantExists = getParticipantByLabel( participants, label );
 
 					// If participant exists let's update it.
 					if ( participantExists ) {
-						setAttributes( {
-							participantLabel: participantExists.label,
-							participantSlug: participantExists.slug,
-						} );
+						setAttributes( participantExists );
 					} else {
 						// Otherwise, let's create a new one...
-						const newParticipant = conversationBridge.addNewParticipant( participantLabel );
+						const newParticipant = conversationBridge.addNewParticipant( label );
 						if ( ! newParticipant ) {
 							return;
 						}
 
 						// ... and update the dialogue with these new values.
-						setAttributes( {
-							participantLabel: newParticipant.label,
-							participantSlug: newParticipant.slug,
-						} );
+						setAttributes( newParticipant );
 					}
 
 					triggerRefreshAutocomplete();

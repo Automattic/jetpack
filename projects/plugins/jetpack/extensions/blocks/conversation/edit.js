@@ -42,6 +42,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
+<<<<<<< HEAD
 	const addNewParticipant = useCallback( function( newSpeakerLabel ) {
 		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
 		// Do not add speakers with empty names.
@@ -63,6 +64,31 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			slug: newParticipantSlug,
 			label: sanitizedSpeakerLabel,
 		};
+=======
+	const addNewParticipant = useCallback(
+		function ( newSpeakerLabel = '' ) {
+			const sanitizedSpeakerLabel = newSpeakerLabel.trim();
+			// Do not add speakers with empty names.
+			if ( ! sanitizedSpeakerLabel?.length ) {
+				return;
+			}
+
+			// Do not add a new participant with the same label.
+			const existingParticipant = getParticipantByLabel( participants, sanitizedSpeakerLabel );
+			if ( existingParticipant ) {
+				return existingParticipant;
+			}
+
+			const newParticipantSlug = participants.length
+				? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
+				: 'speaker-0';
+
+			const newParticipant = {
+				slug: newParticipantSlug,
+				label: sanitizedSpeakerLabel,
+				hasBoldStyle: true,
+			};
+>>>>>>> 5b937f7... dialogue: janitorual - tidying
 
 		setAttributes( {
 			participants: [
