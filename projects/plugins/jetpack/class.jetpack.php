@@ -4192,7 +4192,8 @@ p {
 							$domains[] = 'jetpack.com';
 							$domains[] = 'jetpack.wordpress.com';
 							$domains[] = 'wordpress.com';
-							return $domains;
+							$domains[] = wp_parse_url( static::get_calypso_host(), PHP_URL_HOST ); // May differ from `wordpress.com`.
+							return array_unique( $domains );
 						}
 					);
 
