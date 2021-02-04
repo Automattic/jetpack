@@ -1,4 +1,7 @@
 export default {
+	participantLabel: {
+		type: 'string',
+	},
 	participantSlug: {
 		type: 'string',
 	},
@@ -6,10 +9,16 @@ export default {
 		type: 'string',
 		default: '00:00',
 	},
+	showTimestamp: {
+		type: 'boolean',
+		default: false,
+	},
 	placeholder: {
 		type: 'string',
 	},
 	content: {
 		type: 'string',
+		source: 'html',
+		selector: '.wp-block-jetpack-dialogue__content',
 	},
 };
