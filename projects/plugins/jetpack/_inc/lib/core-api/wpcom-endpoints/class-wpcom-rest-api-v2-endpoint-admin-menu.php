@@ -353,7 +353,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function sanitize_title( $item ) {
 		$title = $item['title'];
 
-		if ( wp_strip_all_tags( $title ) !== $title ) {
+		if ( wp_strip_all_tags( $title ) !== trim( $title ) ) {
 			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
 		}
 
