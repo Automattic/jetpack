@@ -367,8 +367,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array
 	 */
 	private function parse_markup_data( $title ) {
-		$item = array();
-		$item['title'] = $title;
+		$item = array(
+			'title' => $title,
+		);
 
 		$item = $this->parse_count_data( $item );
 		// It's important we sanitize the title after parsing data to remove the markup.
