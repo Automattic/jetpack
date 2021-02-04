@@ -2,12 +2,12 @@
 
 .jetpack-instant-search {
 	a {
-		color: $studio-wordpress-blue-100;
+		color: $color-link;
 		text-decoration: none;
 
 		&:hover,
 		&:focus {
-			color: $studio-blue-70;
+			color: $color-link-alt;
 			text-decoration: underline;
 		}
 	}

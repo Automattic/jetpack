@@ -26,8 +26,8 @@ $modal-max-width-lg: 95%;
 	}
 
 	mark {
-		color: $studio-wordpress-blue-100;
-		background: $mark-background-default;
+		color: $color-text;
+		background: $color-mark-background-default;
 		padding: 3px 2px;
 	}
 }
@@ -35,7 +35,7 @@ $modal-max-width-lg: 95%;
 .jetpack-instant-search__results-filter-button {
 	align-items: center;
 	border: 0;
-	color: $studio-gray-50;
+	color: $color-text-lighter;
 	cursor: pointer;
 	display: flex;
 	font-size: 12px;
@@ -64,7 +64,7 @@ $modal-max-width-lg: 95%;
 
 	&:hover,
 	&:focus {
-		color: $studio-wordpress-blue-100;
+		color: $color-text;
 	}
 
 	.gridicon {
@@ -84,14 +84,14 @@ $modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results-secondary {
 	display: none;
+	color: $color-text;
 
 	@include break-large-up() {
 		background: none;
-		border-left: 1px solid $studio-wordpress-blue-0;
+		border-left: 1px solid $color-layout-borders;
 		border-radius: 0;
 		bottom: 0;
 		box-shadow: none;
-		color: $studio-wordpress-blue-100;
 		display: block;
 		flex: none;
 		padding: 0 32px;
@@ -114,7 +114,6 @@ $modal-max-width-lg: 95%;
 			border-radius: 6px;
 			border: 1px solid rgba( 0, 0, 0, 0.1 );
 			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
-			color: $studio-wordpress-blue-100;
 			display: block;
 			margin: 16px 0 32px;
 			min-width: 360px;
@@ -141,7 +140,7 @@ $modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results-title,
 .jetpack-instant-search__search-results-unused-query {
-	color: $studio-wordpress-blue-100;
+	color: $color-text;
 	display: inline-flex;
 	font-size: 1em;
 	font-weight: 700;
@@ -163,7 +162,7 @@ $modal-max-width-lg: 95%;
 }
 
 .jetpack-instant-search__search-results-list {
-	color: $studio-wordpress-blue-100;
+	color: $color-text;
 	list-style: none;
 	margin-left: $results-margin-lg;
 	margin-right: $results-margin-lg;
@@ -221,7 +220,7 @@ $modal-max-width-lg: 95%;
 	}
 
 	svg.gridicon {
-		fill: $studio-gray-50;
+		fill: $color-text-lighter;
 	}
 }
 

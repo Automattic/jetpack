@@ -2,7 +2,7 @@
 
 .jetpack-instant-search__box {
 	position: relative;
-	border-bottom: 1px solid $studio-wordpress-blue-0;
+	border-bottom: 1px solid $color-layout-borders;
 }
 
 .jetpack-instant-search__box-label {
@@ -16,8 +16,8 @@ input.jetpack-instant-search__box-input.search-field {
 	appearance: none;
 	background: $studio-white;
 	border: 0;
-	box-shadow: 0;
-	color: $studio-wordpress-blue-100;
+	box-shadow: none;
+	color: $color-text-light;
 	font-size: 18px;
 	height: 60px;
 	line-height: 1;
@@ -28,7 +28,7 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&:hover,
 	&:focus {
-		color: $studio-gray-100;
+		color: $color-text;
 	}
 
 	&.search-field {
@@ -50,7 +50,7 @@ input.jetpack-instant-search__box-input.search-field {
 	width: 60px;
 
 	svg {
-		fill: $studio-gray;
+		fill: $color-text-lighter;
 	}
 }
 
