@@ -8,14 +8,10 @@ const participants = [
 	{
 		slug: 'participant-0',
 		label: 'Rosalind',
-		hasBoldStyle: true,
-		hasUppercaseStyle: true,
 	},
 	{
 		slug: 'participant-1',
 		label: 'Orlando',
-		hasBoldStyle: true,
-		hasUppercaseStyle: true,
 	},
 ];
 

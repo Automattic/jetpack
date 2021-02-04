@@ -15,7 +15,7 @@ export default function save( { attributes } ) {
 	return (
 		<div>
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
-				<div className={ `${ BASE_CLASS_NAME }__participant` }>
+				<div className={ `${ BASE_CLASS_NAME }__participant has-bold-style` }>
 					{ label }
 				</div>
 				{ showTimestamp && (

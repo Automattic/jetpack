@@ -153,17 +153,14 @@ function podcastConversationSection() {
 				{
 					slug: 'participant-0',
 					label: __( 'Speaker 1', 'jetpack' ),
-					hasBoldStyle: true,
 				},
 				{
 					slug: 'participant-1',
 					label: __( 'Speaker 2', 'jetpack' ),
-					hasBoldStyle: true,
 				},
 				{
 					slug: 'participant-2',
 					label: __( 'Speaker 3', 'jetpack' ),
-					hasBoldStyle: true,
 				},
 			],
 		},

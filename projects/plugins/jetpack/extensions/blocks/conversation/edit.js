@@ -86,7 +86,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			const newParticipant = {
 				slug: newParticipantSlug,
 				label: sanitizedSpeakerLabel,
-				hasBoldStyle: true,
 			};
 >>>>>>> 5b937f7... dialogue: janitorual - tidying
 
