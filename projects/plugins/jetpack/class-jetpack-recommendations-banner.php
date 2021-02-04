@@ -96,8 +96,11 @@ class Jetpack_Recommendations_Banner {
 			wp_die();
 		}
 
+		$tracking = new Tracking();
+
 		if ( isset( $_REQUEST['dismissBanner'] ) && 'true' === $_REQUEST['dismissBanner'] ) {
 			Jetpack_Options::update_option( 'recommendations_banner_dismissed', 1 );
+			$tracking->record_user_event( 'recommendations_banner_dismissed' );
 			wp_send_json_success();
 			wp_die();
 		}
@@ -133,8 +136,7 @@ class Jetpack_Recommendations_Banner {
 		Jetpack_Recommendations::update_recommendations_data( $data );
 		Jetpack_Options::update_option( 'recommendations_step', 'banner-completed' );
 
-		$tracking = new Tracking();
-		$tracking->record_user_event( 'recommendations_banner_completed', $tracking_answers );
+		$tracking->record_user_event( 'recommendations_banner_answered', $tracking_answers );
 
 		wp_send_json_success();
 		wp_die();
