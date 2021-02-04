@@ -17,7 +17,6 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { getStep, isRecommendationsDataLoaded } from 'state/recommendations';
-import { isEmpty } from 'lodash';
 import { LoadingCard } from './sidebar/loading-card';
 
 const RecommendationsComponent = props => {

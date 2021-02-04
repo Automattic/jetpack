@@ -36,7 +36,6 @@ const mergeArrays = ( x, y ) => {
 const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
-			return assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_UPDATE:
 			return assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION: {
