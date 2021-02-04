@@ -20,7 +20,7 @@ let output = true;
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the build commands defined.
+ * @returns {object} Yargs with the watch commands defined.
  */
 export function watchDefine( yargs ) {
 	yargs.command(
