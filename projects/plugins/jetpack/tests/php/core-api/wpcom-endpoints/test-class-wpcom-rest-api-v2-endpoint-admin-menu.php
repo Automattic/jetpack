@@ -466,9 +466,9 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'Unexpected markup <span class="unexpected-classname">badge name</span>',
 				array(
-					'title' => 'Unexpected markup'
-				)
-			)
+					'title' => 'Unexpected markup',
+				),
+			),
 		);
 	}
 }
