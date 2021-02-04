@@ -231,7 +231,8 @@ export function ParticipantsRichControl( {
 				key={ reRenderingKey }
 				tagName="div"
 				value={ value }
-				formattingControls={ [ 'bold', 'italic', 'text-color' ] }
+				formattingControls={ [] }
+				withoutInteractiveFormatting={ false }
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
