@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Jetpack_Recommendations_Banner
@@ -158,8 +159,9 @@ class Jetpack_Recommendations_Banner {
 			'jetpack-recommendations-banner-js',
 			'jp_banner',
 			array(
-				'ajax_url' => admin_url( 'admin-ajax.php' ),
-				'nonce'    => wp_create_nonce( 'jp-recommendations-banner-nonce' ),
+				'nonce'               => wp_create_nonce( 'jp-recommendations-banner-nonce' ),
+				'ajax_url'            => admin_url( 'admin-ajax.php' ),
+				'recommendations_url' => admin_url( 'admin.php?page=jetpack#/recommendations' ),
 			)
 		);
 	}

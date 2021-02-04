@@ -32,6 +32,10 @@
 			action: 'jetpack_recommendations_banner',
 			nonce: jp_banner.nonce,
 			...formData,
+		}, function( response ) {
+			if (true === response.success) {
+				window.location.assign( jp_banner.recommendations_url );
+			}
 		} );
 	} );
 
