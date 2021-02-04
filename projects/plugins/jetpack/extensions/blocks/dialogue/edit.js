@@ -52,7 +52,6 @@ export default function DialogueEdit( {
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showConversationTimestamps = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length
@@ -85,11 +84,6 @@ export default function DialogueEdit( {
 			label: conversationParticipant.label,
 		} );
 	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
-
-	// Update dialogue timestamp setting from parent conversation.
-	useEffect( () => {
-		setAttributes( { showTimestamp: showConversationTimestamps } );
-	}, [ showConversationTimestamps, setAttributes ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
