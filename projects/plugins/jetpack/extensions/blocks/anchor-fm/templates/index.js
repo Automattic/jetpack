@@ -27,49 +27,24 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	];
 }
 
-function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
-	const { image, guid } = episodeTrack;
+function podcastSection( { episodeTrack, feedUrl } ) {
+	const { guid } = episodeTrack;
 
 	return [
-		'core/columns',
-		{
-			align: 'wide',
-		},
+		'core/group',
+		{},
 		[
 			[
-				'core/column',
+				'jetpack/podcast-player',
 				{
-					width: '30%',
+					customPrimaryColor: getIconColor(),
+					hexPrimaryColor: getIconColor(),
+					url: feedUrl,
+					selectedEpisodes: guid ? [ { guid } ] : [],
+					showCoverArt: false,
+					showEpisodeTitle: false,
+					showEpisodeDescription: false,
 				},
-				[
-					[
-						'core/image',
-						{
-							url: image ? image : coverImage,
-						},
-					],
-				],
-			],
-			[
-				'core/column',
-				{
-					width: '70%',
-					verticalAlignment: 'center',
-				},
-				[
-					[
-						'jetpack/podcast-player',
-						{
-							customPrimaryColor: getIconColor(),
-							hexPrimaryColor: getIconColor(),
-							url: feedUrl,
-							selectedEpisodes: guid ? [ { guid } ] : [],
-							showCoverArt: false,
-							showEpisodeTitle: false,
-							showEpisodeDescription: false,
-						},
-					],
-				],
 			],
 		],
 	];
@@ -201,14 +176,8 @@ function podcastConversationSection() {
 /*
  * Template parts
  */
-function episodeBasicTemplate( {
-	spotifyShowUrl,
-	spotifyImageUrl,
-	episodeTrack = {},
-	feedUrl,
-	coverImage,
-} ) {
-	const tpl = [ podcastSection( { episodeTrack, feedUrl, coverImage } ) ];
+function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {}, feedUrl } ) {
+	const tpl = [ podcastSection( { episodeTrack, feedUrl } ) ];
 
 	if ( spotifyShowUrl && spotifyImageUrl ) {
 		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );
