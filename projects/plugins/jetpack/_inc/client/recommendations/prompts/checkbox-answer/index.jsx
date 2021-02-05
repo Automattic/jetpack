@@ -30,7 +30,7 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 
 	const onPopoverClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_popover_click', {
-			type: answerKey.replace( '-', '_' ),
+			type: answerKey.replace( /-/g, '_' ),
 		} );
 	}, [ answerKey ] );
 
