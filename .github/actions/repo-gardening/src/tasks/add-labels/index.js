@@ -79,14 +79,14 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 	files.map( file => {
 		// Plugins.
 		const plugin = file.match( /^projects\/plugins\/(?<plugin>\w*)\// );
-		const pluginName = plugin?.groups?.plugin;
+		const pluginName = plugin && plugin.groups.plugin;
 		if ( pluginName ) {
 			keywords.add( `[Plugin] ${ cleanName( pluginName ) }` );
 		}
 
 		// Packages.
 		const packages = file.match( /^projects\/packages\/(?<package>\w*)\// );
-		const packageName = packages?.groups?.package;
+		const packageName = packages && packages.groups.package;
 		if ( packageName ) {
 			keywords.add( `[Package] ${ cleanName( packageName ) }` );
 			keywords.add( `[Status] Needs Package Release` );
@@ -96,11 +96,11 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		const module = file.match(
 			/^projects\/plugins\/jetpack\/?(?<test>tests\/php\/)?modules\/(?<module>[a-zA-Z-]*)\//
 		);
-		const moduleName = module?.groups?.module;
+		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
 			keywords.add( `${ cleanName( moduleName ) }` );
 		}
-		if ( module?.groups?.test ) {
+		if ( module && module.groups.test ) {
 			keywords.add( 'Unit Tests' );
 		}
 
@@ -110,7 +110,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		);
 		if ( actions !== null ) {
 			keywords.add( 'Actions' );
-			const actionName = actions?.groups?.action;
+			const actionName = actions && actions.groups.action;
 			if ( actionName ) {
 				keywords.add( `[Actions] ${ cleanName( actionName ) }` );
 			}
@@ -126,7 +126,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		const blocks = file.match(
 			/^(?:projects\/plugins\/jetpack\/extensions\/blocks\/|projects\/editor-extensions\/)(?<block>[a-zA-Z-]*)\//
 		);
-		const blockName = blocks?.groups?.block;
+		const blockName = blocks && blocks.groups.block;
 		if ( blockName ) {
 			keywords.add( `[Block] ${ cleanName( blockName ) }` );
 		}
