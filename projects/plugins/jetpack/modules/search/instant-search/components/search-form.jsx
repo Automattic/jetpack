@@ -21,7 +21,7 @@ class SearchForm extends Component {
 	render() {
 		return (
 			<form autocomplete="off" onSubmit={ noop } role="search" className={ this.props.className }>
-				<div className="jetpack-instant-search__form">
+				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						isVisible={ this.props.isVisible }
 						onChange={ this.onChangeSearch }
@@ -29,7 +29,7 @@ class SearchForm extends Component {
 						searchQuery={ this.props.searchQuery }
 					/>
 
-					<div className="jetpack-instant-search__form-controls">
+					<div className="jetpack-instant-search__search-form-controls">
 						{ this.props.children }
 						{ this.props.enableSort && (
 							<SearchSort
