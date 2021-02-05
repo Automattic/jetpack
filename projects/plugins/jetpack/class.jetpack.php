@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
@@ -779,8 +780,12 @@ class Jetpack {
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ) );
 
+		add_action( 'jetpack_client_authorize_error', array( Jetpack_Client_Server::class, 'client_authorize_error' ) );
+		add_filter( 'jetpack_client_authorize_already_authorized_url', array( Jetpack_Client_Server::class, 'client_authorize_already_authorized_url' ) );
+		add_action( 'jetpack_client_authorize_processing', array( Jetpack_Client_Server::class, 'client_authorize_processing' ) );
+		add_filter( 'jetpack_client_authorize_fallback_url', array( Jetpack_Client_Server::class, 'client_authorize_fallback_url' ) );
+
 		// Filters for the Manager::get_token() urls and request body.
-		add_filter( 'jetpack_token_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
@@ -4163,14 +4168,8 @@ p {
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
 				case 'authorize':
-					if ( self::is_active() && self::is_user_connected() ) {
-						self::state( 'message', 'already_authorized' );
-						wp_safe_redirect( self::admin_url() );
-						exit;
-					}
-					self::log( 'authorize' );
-					$client_server = new Jetpack_Client_Server();
-					$client_server->client_authorize();
+					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );
+					( new Connection_Webhooks( $this->connection_manager ) )->handle_authorize();
 					exit;
 				case 'register':
 					if ( ! current_user_can( 'jetpack_connect' ) ) {
@@ -4770,7 +4769,6 @@ endif;
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-		add_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
 		if ( $iframe ) {
 			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
@@ -4781,7 +4779,6 @@ endif;
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-		remove_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
 		if ( $iframe ) {
 			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
@@ -4840,8 +4837,12 @@ endif;
 	 *
 	 * @param String $processing_url the default redirect URL used by the package.
 	 * @return String the modified URL.
+	 *
+	 * @deprecated since Jetpack 9.5.0
 	 */
 	public static function filter_connect_processing_url( $processing_url ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.5' );
+
 		$processing_url = admin_url( 'admin.php?page=jetpack' ); // Making PHPCS happy.
 		return $processing_url;
 	}

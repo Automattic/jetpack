@@ -303,7 +303,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e40b1ec7bcd963cb361c09753223dcbfdea7bf0e"
+                "reference": "cd28c668ebab19f60c5efdc57b63fac10cf0d725"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -315,6 +315,7 @@
             },
             "require-dev": {
                 "automattic/wordbless": "@dev",
+                "brain/monkey": "^2.6",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
