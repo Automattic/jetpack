@@ -17,7 +17,6 @@ import { ParticipantsControl, SpeakerEditControl } from './components/participan
 import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
-import { list as defaultParticipants } from '../conversation/participants.json';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
@@ -67,7 +66,7 @@ export default function DialogueEdit( {
 	// Participants list.
 	const participants = participantsFromContext?.length
 		? participantsFromContext
-		: defaultParticipants;
+		: [];
 
 	const conversationParticipant = getParticipantBySlug( participants, slug );
 
@@ -176,6 +175,7 @@ export default function DialogueEdit( {
 					label={ label }
 					participant={ conversationParticipant }
 					participants={ participants }
+					isSelected={ isSelected }
 					reRenderingKey={ `re-render-key${ reRenderingKey }` }
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { label: updatedParticipant } );

@@ -11,24 +11,19 @@ import {
 	MenuGroup,
 	MenuItem,
 	SelectControl,
-	Dropdown,
-	ComboboxControl
+	Popover,
+	ComboboxControl,
+	withFocusOutside
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useState, Component, useRef } from '@wordpress/element';
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 
-// import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
-
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel } from '../../conversation/utils';
-
-// Fallback for `useFocusOutside` hook.
-// const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
-// const useFocusOutsideWithFallback = useFocusOutsideIsAvailable ? useFocusOutside : () => {};
+import { getParticipantByLabel, getParticipantBySlug } from '../../conversation/utils';
 
 const ENTER_KEY = 'Enter';
 const ESCAPE_KEY = 'Escape';
@@ -87,6 +82,18 @@ export default function ParticipantsDropdown( props ) {
 	);
 }
 
+const DetectOutside = withFocusOutside(
+	class extends Component {
+		handleFocusOutside( event ) {
+			this.props.onFocusOutside( event );
+		}
+
+		render() {
+			return this.props.children;
+		}
+	}
+);
+
 const SpeakerSelect = ( {
 	className,
 	value,
@@ -96,11 +103,6 @@ const SpeakerSelect = ( {
 	onAdd,
 } ) => {
 	const [ newSpeakerLabel, setNewSpeakerLabel ] = useState( '' );
-	const removeAssignmentSpeaker = {
-		value: undefined,
-		label: __( 'Remove speaker', 'jetpack' ),
-	};
-
 	return (
 		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
 		<div
@@ -123,9 +125,7 @@ const SpeakerSelect = ( {
 			<ComboboxControl
 				className={ `${ className }__speaker-combobox` }
 				value={ value }
-				options={
-					value ? [ removeAssignmentSpeaker, ...options ] : options
-				}
+				options={ options }
 				onChange={ onSelect }
 				onFilterValueChange={ setNewSpeakerLabel }
 			/>
@@ -161,93 +161,111 @@ export function SpeakerEditControl( {
 	onClean,
 	onFocus,
 } ) {
+	const [ showPopover, setShowPopover ] = useState( false );
+	const speakerRef = useRef();
+	const speakerValue = {
+		value: participant?.slug,
+		label: participant?.label,
+	};
+
+	// Adjust options array.
+	const options = participants.map( ( part ) => ( {
+		value: part.slug,
+		label: part.label,
+	} ) );
+
+	const onFocusOutside = () => {
+		setShowPopover( false );
+	};
+
 	return (
-		<div
-			className={ classNames( className, {
-				'has-bold-style': true,
-			} ) }
-		>
-			<Dropdown
-				className={ className }
-				renderToggle={ ( { onToggle, isOpen } ) => {
-					return (
-						<RichText
-							tagName="div"
-							value={ label }
-							formattingControls={ [] }
-							withoutInteractiveFormatting={ false }
-							onChange={ ( value ) => {
-								onParticipantChange( value );
+		<DetectOutside onFocusOutside={ onFocusOutside }>
+			<div
+				className={ classNames( className, {
+					'has-bold-style': true,
+				} ) }
+			>
+				<RichText
+					ref={ speakerRef }
+					tagName="div"
+					value={ label }
+					formattingControls={ [] }
+					withoutInteractiveFormatting={ false }
+					onChange={ ( value ) => {
+						onParticipantChange( value );
 
-								if ( ! value?.length ) {
-									if ( ! isOpen ) {
-										onToggle();
-									}
-									return onClean();
-								}
-							} }
-							placeholder={ __( 'Speaker', 'jetpack' ) }
-							keepPlaceholderOnFocus={ true }
-							onSplit={ () => {} }
-							onReplace={ ( replaceValue ) => {
-								const replacedParticipant = replaceValue?.[ 0 ];
-								// Handling participant selection,
-								// by picking them from the autocomplete options.
-								if ( replacedParticipant ) {
-									const { label: newLabel } = replacedParticipant;
+						if ( ! value?.length ) {
+							setShowPopover( true );
+							return onClean();
+						}
+					} }
+					placeholder={ __( 'Speaker', 'jetpack' ) }
+					keepPlaceholderOnFocus={ true }
+					onSplit={ () => {} }
+					onReplace={ ( replaceValue ) => {
+						setShowPopover( false );
 
-									onParticipantChange( newLabel );
-									// setEditingMode( EDIT_MODE_SELECTING );
-									return onSelect( replacedParticipant );
-								}
+						const replacedParticipant = replaceValue?.[ 0 ];
+						// Handling participant selection,
+						// by picking them from the autocomplete options.
+						if ( replacedParticipant ) {
+							const { label: newLabel } = replacedParticipant;
+							onParticipantChange( newLabel );
+							return onSelect( replacedParticipant );
+						}
 
-								if ( ! label?.length ) {
-									return;
-								}
+						if ( ! label?.length ) {
+							return;
+						}
 
-								// Update speaker label.
-								if ( participant && participant.label !== label ) {
-									return onUpdate( {
-										...participant,
-										label,
-									} );
-								}
+						// Update speaker label.
+						if ( participant && participant.label !== label ) {
+							return onUpdate( {
+								...participant,
+								label,
+							} );
+						}
 
-								const participantExists = getParticipantByLabel( participants, label );
-								if ( participantExists ) {
-									return onSelect( participantExists, true );
-								}
+						const participantExists = getParticipantByLabel( participants, label );
+						if ( participantExists ) {
+							return onSelect( participantExists, true );
+						}
 
-								onAdd( label );
-							} }
-							onFocus={ onFocus }
-						/>
-					);
-				} }
-				renderContent={ ( { onClose } ) => {
-					const speakerValue = {
-						value: participant?.slug,
-						label: participant?.label,
-					};
+						onAdd( label, true );
+					} }
+					onFocus={ ( event ) => {
+						onFocus( event );
 
-					// Adjust options array.
-					const options = participants.map( ( part ) => ( {
-						value: part.slug,
-						label: part.label,
-					} ) );
+						// Do not show popover when speaker no empty.
+						if ( label?.length ) {
+							return;
+						}
 
-					return (
+						setShowPopover( ! showPopover );
+					} }
+				/>
+
+				{ ( showPopover && participants?.length >= 1 ) && (
+					<Popover>
 						<SpeakerSelect
 							className={ className }
 							value={ speakerValue }
 							options={ options }
-							onSelect={ console.log }
-							onCancel={ onClose }
-							onAdd={ console.log }
+							onAdd={ ( value ) => {
+								setShowPopover( false );
+								onAdd( value, true );
+							} }
+							onSelect={ ( slug ) => {
+								onSelect( getParticipantBySlug( participants, slug ) );
+								setShowPopover( false );
+							} }
+							onCancel={ () => {
+								setShowPopover( false );
+							} }
 						/>
-					);
-				} }
-			/>
-		</div>
+					</Popover>
+				) }
+			</div>
+		</DetectOutside>
 	);
 }
