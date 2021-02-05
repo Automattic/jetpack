@@ -1,2 +1,6 @@
 /config/local-*
 /reports
+/output
+plan-data.json
+e2e_tunnels.txt
+jetpack-private-options.txt
