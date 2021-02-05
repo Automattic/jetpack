@@ -54,11 +54,7 @@ class JSON_Deflate_Array_Codec implements Codec_Interface {
 	 * @return false|string
 	 */
 	protected function json_serialize( $any ) {
-		if ( function_exists( 'jetpack_json_wrap' ) ) {
-			return wp_json_encode( jetpack_json_wrap( $any ) );
-		}
-		// This prevents fatal error when updating pre 6.0 via the cli command.
-		return wp_json_encode( $this->json_wrap( $any ) );
+		return wp_json_encode( Functions::json_wrap( $any ) );
 	}
 
 	/**
@@ -69,43 +65,6 @@ class JSON_Deflate_Array_Codec implements Codec_Interface {
 	 */
 	protected function json_unserialize( $str ) {
 		return $this->json_unwrap( json_decode( $str, true ) );
-	}
-
-	/**
-	 * Wraps JSON
-	 *
-	 * @param object|array $any Wrapping value.
-	 * @param array        $seen_nodes Seen nodes.
-	 * @return array
-	 */
-	private function json_wrap( &$any, $seen_nodes = array() ) {
-		if ( is_object( $any ) ) {
-			$input        = get_object_vars( $any );
-			$input['__o'] = 1;
-		} else {
-			$input = &$any;
-		}
-
-		if ( is_array( $input ) ) {
-			$seen_nodes[] = &$any;
-
-			$return = array();
-
-			foreach ( $input as $k => &$v ) {
-				if ( ( is_array( $v ) || is_object( $v ) ) ) {
-					if ( in_array( $v, $seen_nodes, true ) ) {
-						continue;
-					}
-					$return[ $k ] = $this->json_wrap( $v, $seen_nodes );
-				} else {
-					$return[ $k ] = $v;
-				}
-			}
-
-			return $return;
-		}
-
-		return $any;
 	}
 
 	/**

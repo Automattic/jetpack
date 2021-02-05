@@ -6,7 +6,7 @@ import chai from 'chai';
 /**
  * Internal dependencies
  */
-import { readComposerJson, readPackageJson } from '../../helpers/readJson';
+import { readComposerJson, readPackageJson } from '../../../helpers/readJson';
 
 describe( 'readComposerJson', function () {
 	it( 'should be a function', function () {

@@ -6,7 +6,12 @@ import chai from 'chai';
 /**
  * Internal dependencies
  */
-import { dirs, projectTypes, allProjects, allProjectsByType } from '../../helpers/projectHelpers';
+import {
+	dirs,
+	projectTypes,
+	allProjects,
+	allProjectsByType,
+} from '../../../helpers/projectHelpers';
 
 describe( 'projectHelpers', function () {
 	// Begins tests for dirs.
