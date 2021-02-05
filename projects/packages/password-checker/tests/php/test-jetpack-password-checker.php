@@ -24,6 +24,7 @@ class Jetpack_Password_Checker_Test extends TestCase {
 			define( 'JETPACK__VERSION', '7.5' );
 		}
 		Monkey\setUp();
+		Monkey\Functions\stubs( array( '__' => null ) );
 	}
 
 	/**
@@ -36,18 +37,15 @@ class Jetpack_Password_Checker_Test extends TestCase {
 	}
 
 	/**
-	 * Test add and get_current_status methods
+	 * Test the password checker.
 	 */
 	public function test_password() {
 		$password_checker = new Jetpack_Password_Checker( null );
 
+		$test_results = $password_checker->test( '123', true );
+		$this->assertFalse( $test_results['passed'] );
+
 		$test_results = $password_checker->test( 'password', true );
-
-		// If the password passes tests, we don't do anything.
-		if ( empty( $test_results['test_results']['failed'] ) ) {
-			return true;
-		}
-
-		return $test_results;
+		$this->assertTrue( $test_results['passed'] );
 	}
 }
