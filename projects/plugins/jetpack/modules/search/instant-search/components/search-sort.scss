@@ -1,6 +1,6 @@
 @import '../lib/styles/_helper.scss';
 
-.jetpack-instant-search__sort {
+.jetpack-instant-search__search-sort {
 	display: flex;
 	font-size: 13px;
 	transition: background-color 0.25s ease-in-out;
@@ -17,11 +17,11 @@
 	}
 }
 
-.jetpack-instant-search__sort-select {
+.jetpack-instant-search__search-sort-select {
 	font-size: 0.9em;
 }
 
-.jetpack-instant-search__sort-option {
+.jetpack-instant-search__search-sort-option {
 	cursor: pointer;
 	padding: 0 2px 0 2px;
 	color: $color-text-lighter;
@@ -34,8 +34,8 @@
 		color: $color-text-lighter;
 	}
 
-	.jetpack-instant-search__sort &:focus,
-	.jetpack-instant-search__sort &:hover {
+	.jetpack-instant-search__search-sort &:focus,
+	.jetpack-instant-search__search-sort &:hover {
 		text-decoration: none;
 	}
 
