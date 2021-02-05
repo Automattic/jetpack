@@ -125,23 +125,15 @@ export default function DialogueEdit( {
 						</PanelBody>
 					) }
 
-					{ mediaSource && (
+					{ mediaSource && showTimestamp && (
 						<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
-							<ToggleControl
-								label={ __( 'Show conversation timestamps', 'jetpack' ) }
-								checked={ showTimestamp }
-								onChange={ ( show ) => setAttributes( { showTimestamp: show } ) }
+							<TimestampControl
+								className={ BASE_CLASS_NAME }
+								value={ timestamp }
+								onChange={ setTimestamp }
+								mediaSource={ mediaSource }
+								duration={ mediaDuration }
 							/>
-
-							{ showTimestamp && (
-								<TimestampControl
-									className={ BASE_CLASS_NAME }
-									value={ timestamp }
-									onChange={ setTimestamp }
-									mediaSource={ mediaSource }
-									duration={ mediaDuration }
-								/>
-							) }
 						</PanelBody>
 					) }
 				</Panel>
