@@ -418,12 +418,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_update_data
-	 * @covers ::parse_update_count
+	 * @covers ::parse_markup_data
 	 */
-	public function test_parse_update_count( $menu_item, $expected ) {
+	public function test_parse_markup_data( $menu_item, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
-		$prepare_menu_item_url = $class->getMethod( 'parse_update_count' );
+		$prepare_menu_item_url = $class->getMethod( 'parse_markup_data' );
 		$prepare_menu_item_url->setAccessible( true );
 
 		$this->assertSame(
@@ -441,7 +441,9 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		return array(
 			array(
 				'No Updates here',
-				array(),
+				array(
+					'title' => 'No Updates here',
+				),
 			),
 			array(
 				'Zero updates <span class="update-plugins count-0"><span class="update-count">0</span></span>',
@@ -452,15 +454,21 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
 				array(
-					'count' => 5,
 					'title' => 'Finally some updates',
+					'count' => 5,
 				),
 			),
 			array(
 				'Plugin updates <span class="update-plugins count-5"><span class="plugin-count">5</span></span>',
 				array(
-					'count' => 5,
 					'title' => 'Plugin updates',
+					'count' => 5,
+				),
+			),
+			array(
+				'Unexpected markup <span class="unexpected-classname">badge name</span>',
+				array(
+					'title' => 'Unexpected markup',
 				),
 			),
 		);

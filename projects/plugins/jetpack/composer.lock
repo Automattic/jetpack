@@ -329,7 +329,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "1dd2fbc9ddd1016c1d416506b6dc9f81687a929b"
+                "reference": "8253432d4cc1822d032f0610f693c005a7a4744e"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -341,6 +341,7 @@
             },
             "require-dev": {
                 "automattic/wordbless": "@dev",
+                "brain/monkey": "^2.6",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
@@ -598,7 +599,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "d1ffdaed1ca6a1f7377e3fdaa429609e7c68c45f"
+                "reference": "461fb76de84ade36d76fc66d64197f46ee9eaf52"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -624,7 +625,7 @@
                 ],
                 "build-development": [
                     "Composer\\Config::disableProcessTimeout",
-                    "yarn build-concurrently"
+                    "yarn build"
                 ],
                 "phpunit": [
                     "@composer install",

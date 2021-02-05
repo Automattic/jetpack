@@ -23,7 +23,7 @@
 		],
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-concurrently"
+			"yarn build"
 		],
 		"phpunit": [
 			"@composer install",
