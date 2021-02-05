@@ -279,7 +279,7 @@ class Jetpack_Deprecated {
 	 */
 	public function verify_xml_rpc_signature() {
 		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::verify_xml_rpc_signature' );
-		return self::connection()->verify_xml_rpc_signature();
+		return Jetpack::connection()->verify_xml_rpc_signature();
 	}
 
 	/**
@@ -434,7 +434,7 @@ class Jetpack_Deprecated {
 	 */
 	public static function get_assumed_site_creation_date() {
 		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Connection\\Manager' );
-		return self::connection()->get_assumed_site_creation_date();
+		return Jetpack::connection()->get_assumed_site_creation_date();
 	}
 
 	/**
