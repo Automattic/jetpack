@@ -6,7 +6,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -14,12 +13,10 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
@@ -47,7 +44,14 @@ jetpack_do_activate (bool)
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
-class Jetpack {
+/**
+ * Class Jetpack
+ *
+ * Everything. Too much. A bucket for Jetpack functions before namespacing was a thing.
+ *
+ * Extends Jetpack_Deprecated, which is another bucket for things that used to be here.
+ */
+class Jetpack extends Jetpack_Deprecated {
 	public $xmlrpc_server = null;
 
 	/**
@@ -108,24 +112,6 @@ class Jetpack {
 		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
 		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
-	);
-
-	/**
-	 * Map of roles we care about, and their corresponding minimum capabilities.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::$capability_translations instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @var array
-	 */
-	public static $capability_translations = array(
-		'administrator' => 'manage_options',
-		'editor'        => 'edit_others_posts',
-		'author'        => 'publish_posts',
-		'contributor'   => 'edit_posts',
-		'subscriber'    => 'read',
 	);
 
 	/**
@@ -901,53 +887,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Sets up the XMLRPC request handlers.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::setup_xmlrpc_handlers()
-	 *
-	 * @param array                 $request_params Incoming request parameters.
-	 * @param Boolean               $is_active      Whether the connection is currently active.
-	 * @param Boolean               $is_signed      Whether the signature check has been successful.
-	 * @param Jetpack_XMLRPC_Server $xmlrpc_server  (optional) An instance of the server to use instead of instantiating a new one.
-	 */
-	public function setup_xmlrpc_handlers(
-		$request_params,
-		$is_active,
-		$is_signed,
-		Jetpack_XMLRPC_Server $xmlrpc_server = null
-	) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::setup_xmlrpc_handlers' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->setup_xmlrpc_handlers(
-			$request_params,
-			$is_active,
-			$is_signed,
-			$xmlrpc_server
-		);
-	}
-
-	/**
-	 * Initialize REST API registration connector.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::initialize_rest_api_registration_connector()
-	 */
-	public function initialize_rest_api_registration_connector() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::initialize_rest_api_registration_connector' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$this->connection_manager->initialize_rest_api_registration_connector();
-	}
-
-	/**
 	 * This is ported over from the manage module, which has been deprecated and baked in here.
 	 *
 	 * @param $domains
@@ -1053,56 +992,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Removes all XML-RPC methods that are not `jetpack.*`.
-	 * Only used in our alternate XML-RPC endpoint, where we want to
-	 * ensure that Core and other plugins' methods are not exposed.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::remove_non_jetpack_xmlrpc_methods()
-	 *
-	 * @param array $methods A list of registered WordPress XMLRPC methods.
-	 * @return array Filtered $methods
-	 */
-	public function remove_non_jetpack_xmlrpc_methods( $methods ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::remove_non_jetpack_xmlrpc_methods' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->remove_non_jetpack_xmlrpc_methods( $methods );
-	}
-
-	/**
-	 * Since a lot of hosts use a hammer approach to "protecting" WordPress sites,
-	 * and just blanket block all requests to /xmlrpc.php, or apply other overly-sensitive
-	 * security/firewall policies, we provide our own alternate XML RPC API endpoint
-	 * which is accessible via a different URI. Most of the below is copied directly
-	 * from /xmlrpc.php so that we're replicating it as closely as possible.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::alternate_xmlrpc()
-	 */
-	public function alternate_xmlrpc() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::alternate_xmlrpc' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$this->connection_manager->alternate_xmlrpc();
-	}
-
-	/**
-	 * The callback for the JITM ajax requests.
-	 *
-	 * @deprecated since 7.9.0
-	 */
-	function jetpack_jitm_ajax_callback() {
-		_deprecated_function( __METHOD__, 'jetpack-7.9' );
-	}
-
-	/**
 	 * If there are any stats that need to be pushed, but haven't been, push them now.
 	 */
 	function push_stats() {
@@ -1153,22 +1042,6 @@ class Jetpack {
 				break;
 		}
 		return $caps;
-	}
-
-	/**
-	 * Require a Jetpack authentication.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::require_jetpack_authentication()
-	 */
-	public function require_jetpack_authentication() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::require_jetpack_authentication' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		$this->connection_manager->require_jetpack_authentication();
 	}
 
 	/**
@@ -1480,22 +1353,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Trigger an update to the main_network_site when we update the siteurl of a site.
-	 *
-	 * @return null
-	 */
-	function update_jetpack_main_network_site_option() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-	}
-	/**
-	 * Triggered after a user updates the network settings via Network Settings Admin Page
-	 */
-	function update_jetpack_network_settings() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-		// Only sync this info for the main network site.
-	}
-
-	/**
 	 * Get back if the current site is single user site.
 	 *
 	 * @return bool
@@ -1536,48 +1393,6 @@ class Jetpack {
 		return 0;
 	}
 
-	/**
-	 * Finds out if a site is using a version control system.
-	 *
-	 * @return string ( '1' | '0' )
-	 **/
-	public static function is_version_controlled() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Functions::is_version_controlled' );
-		return (string) (int) Functions::is_version_controlled();
-	}
-
-	/**
-	 * Determines whether the current theme supports featured images or not.
-	 *
-	 * @return string ( '1' | '0' )
-	 */
-	public static function featured_images_enabled() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-		return current_theme_supports( 'post-thumbnails' ) ? '1' : '0';
-	}
-
-	/**
-	 * Wrapper for core's get_avatar_url().  This one is deprecated.
-	 *
-	 * @deprecated 4.7 use get_avatar_url instead.
-	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
-	 * @param int               $size Size of the avatar image
-	 * @param string            $default URL to a default image to use if no avatar is available
-	 * @param bool              $force_display Whether to force it to return an avatar even if show_avatars is disabled
-	 *
-	 * @return array
-	 */
-	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.7', 'get_avatar_url' );
-		return get_avatar_url(
-			$id_or_email,
-			array(
-				'size'          => $size,
-				'default'       => $default,
-				'force_default' => $force_display,
-			)
-		);
-	}
 // phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
 	/**
 	 * jetpack_updates is saved in the following schema:
@@ -1621,15 +1436,6 @@ class Jetpack {
 		return $update_details;
 	}
 
-	public static function refresh_update_data() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-
-	}
-
-	public static function refresh_theme_data() {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-	}
-
 	/**
 	 * Is Jetpack active?
 	 * The method only checks if there's an existing token for the master user. It doesn't validate the token.
@@ -1638,40 +1444,6 @@ class Jetpack {
 	 */
 	public static function is_active() {
 		return self::connection()->is_active();
-	}
-
-	/**
-	 * Make an API call to WordPress.com for plan status
-	 *
-	 * @deprecated 7.2.0 Use Jetpack_Plan::refresh_from_wpcom.
-	 *
-	 * @return bool True if plan is updated, false if no update
-	 */
-	public static function refresh_active_plan_from_wpcom() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2.0', 'Jetpack_Plan::refresh_from_wpcom' );
-		return Jetpack_Plan::refresh_from_wpcom();
-	}
-
-	/**
-	 * Get the plan that this Jetpack site is currently using
-	 *
-	 * @deprecated 7.2.0 Use Jetpack_Plan::get.
-	 * @return array Active Jetpack plan details.
-	 */
-	public static function get_active_plan() {
-		_deprecated_function( __METHOD__, 'jetpack-7.2.0', 'Jetpack_Plan::get' );
-		return Jetpack_Plan::get();
-	}
-
-	/**
-	 * Determine whether the active plan supports a particular feature
-	 *
-	 * @deprecated 7.2.0 Use Jetpack_Plan::supports.
-	 * @return bool True if plan supports feature, false if not.
-	 */
-	public static function active_plan_supports( $feature ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.2.0', 'Jetpack_Plan::supports' );
-		return Jetpack_Plan::supports( $feature );
 	}
 
 	/**
@@ -1783,22 +1555,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
-	 */
-	public static function is_user_connected( $user_id = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Manager\\is_user_connected' );
-		return self::connection()->is_user_connected( $user_id );
-	}
-
-	/**
-	 * Get the wpcom user data of the current|specified connected user.
-	 */
-	public static function get_connected_user_data( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Manager\\get_connected_user_data' );
-		return self::connection()->get_connected_user_data( $user_id );
-	}
-
-	/**
 	 * Get the wpcom email of the current|specified connected user.
 	 */
 	public static function get_connected_user_email( $user_id = null ) {
@@ -1830,18 +1586,6 @@ class Jetpack {
 	}
 
 	/**
-	 * Whether the current user is the connection owner.
-	 *
-	 * @deprecated since 7.7
-	 *
-	 * @return bool Whether the current user is the connection owner.
-	 */
-	public function current_user_is_connection_owner() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::is_connection_owner' );
-		return self::connection()->is_connection_owner();
-	}
-
-	/**
 	 * Gets current user IP address.
 	 *
 	 * @param  bool $check_all_headers Check all headers? Default is `false`.
@@ -1867,14 +1611,6 @@ class Jetpack {
 		}
 
 		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-	}
-
-	/**
-	 * Synchronize connected user role changes
-	 */
-	function user_role_change( $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.2', 'Users::user_role_change()' );
-		Users::user_role_change( $user_id );
 	}
 
 	/**
@@ -2151,17 +1887,6 @@ class Jetpack {
 		}
 	}
 
-	/**
-	 * Allows plugins to submit security reports.
-	 *
-	 * @param string $type         Report type (login_form, backup, file_scanning, spam)
-	 * @param string $plugin_file  Plugin __FILE__, so that we can pull plugin data
-	 * @param array  $args         See definitions above
-	 */
-	public static function submit_security_report( $type = '', $plugin_file = '', $args = array() ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-4.2', null );
-	}
-
 	/* Jetpack Options API */
 
 	public static function get_option_names( $type = 'compact' ) {
@@ -2176,56 +1901,6 @@ class Jetpack {
 	 */
 	public static function get_option( $name, $default = false ) {
 		return Jetpack_Options::get_option( $name, $default );
-	}
-
-	/**
-	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
-	 *
-	 * @deprecated 3.4 use Jetpack_Options::update_option() instead.
-	 * @param string $name  Option name
-	 * @param mixed  $value Option value
-	 */
-	public static function update_option( $name, $value ) {
-		_deprecated_function( __METHOD__, 'jetpack-3.4', 'Jetpack_Options::update_option()' );
-		return Jetpack_Options::update_option( $name, $value );
-	}
-
-	/**
-	 * Updates the multiple given options.  Updates jetpack_options and/or jetpack_$name as appropriate.
-	 *
-	 * @deprecated 3.4 use Jetpack_Options::update_options() instead.
-	 * @param array $array array( option name => option value, ... )
-	 */
-	public static function update_options( $array ) {
-		_deprecated_function( __METHOD__, 'jetpack-3.4', 'Jetpack_Options::update_options()' );
-		return Jetpack_Options::update_options( $array );
-	}
-
-	/**
-	 * Deletes the given option.  May be passed multiple option names as an array.
-	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
-	 *
-	 * @deprecated 3.4 use Jetpack_Options::delete_option() instead.
-	 * @param string|array $names
-	 */
-	public static function delete_option( $names ) {
-		_deprecated_function( __METHOD__, 'jetpack-3.4', 'Jetpack_Options::delete_option()' );
-		return Jetpack_Options::delete_option( $names );
-	}
-
-	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::update_user_token() instead.
-	 *
-	 * Enters a user token into the user_tokens option
-	 *
-	 * @param int    $user_id The user id.
-	 * @param string $token The user token.
-	 * @param bool   $is_master_user Whether the user is the master user.
-	 * @return bool
-	 */
-	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::update_user_token' );
-		return Connection_Utils::update_user_token( $user_id, $token, $is_master_user );
 	}
 
 	/**
@@ -3053,10 +2728,6 @@ class Jetpack {
 		return true;
 	}
 
-	function activate_module_actions( $module ) {
-		_deprecated_function( __METHOD__, 'jetpack-4.2' );
-	}
-
 	public static function deactivate_module( $module ) {
 		/**
 		 * Fires when a module is deactivated.
@@ -3334,20 +3005,6 @@ p {
 		// Delete all the sync related data. Since it could be taking up space.
 		Sender::get_instance()->uninstall();
 
-	}
-
-	/**
-	 * Unlinks the current user from the linked WordPress.com user.
-	 *
-	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Manager::disconnect_user()
-	 *
-	 * @param Integer $user_id the user identifier.
-	 * @return Boolean Whether the disconnection of the user was successful.
-	 */
-	public static function unlink_user( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::disconnect_user' );
-		return Connection_Manager::disconnect_user( $user_id );
 	}
 
 	/**
@@ -4618,78 +4275,6 @@ endif;
 	}
 
 	/**
-	 * Get the role of the current user.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_current_user_to_role() instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return string|boolean Current user's role, false if not enough capabilities for any of the roles.
-	 */
-	public static function translate_current_user_to_role() {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-
-		$roles = new Roles();
-		return $roles->translate_current_user_to_role();
-	}
-
-	/**
-	 * Get the role of a particular user.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_user_to_role() instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param \WP_User $user User object.
-	 * @return string|boolean User's role, false if not enough capabilities for any of the roles.
-	 */
-	public static function translate_user_to_role( $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-
-		$roles = new Roles();
-		return $roles->translate_user_to_role( $user );
-	}
-
-	/**
-	 * Get the minimum capability for a role.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_role_to_cap() instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param string $role Role name.
-	 * @return string|boolean Capability, false if role isn't mapped to any capabilities.
-	 */
-	public static function translate_role_to_cap( $role ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-
-		$roles = new Roles();
-		return $roles->translate_role_to_cap( $role );
-	}
-
-	/**
-	 * Sign a user role with the master access token.
-	 * If not specified, will default to the current user.
-	 *
-	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Manager::sign_role()
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param string $role    User role.
-	 * @param int    $user_id ID of the user.
-	 * @return string Signed user role.
-	 */
-	public static function sign_role( $role, $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::sign_role' );
-		return self::connection()->sign_role( $role, $user_id );
-	}
-
-	/**
 	 * Builds a URL to the Jetpack connection auth page
 	 *
 	 * @since 3.9.5
@@ -4832,22 +4417,6 @@ endif;
 	}
 
 	/**
-	 * Filters the URL that will process the connection data. It can be different from the URL
-	 * that we send the user to after everything is done.
-	 *
-	 * @param String $processing_url the default redirect URL used by the package.
-	 * @return String the modified URL.
-	 *
-	 * @deprecated since Jetpack 9.5.0
-	 */
-	public static function filter_connect_processing_url( $processing_url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5' );
-
-		$processing_url = admin_url( 'admin.php?page=jetpack' ); // Making PHPCS happy.
-		return $processing_url;
-	}
-
-	/**
 	 * Filters the redirection URL that is used for connect requests. The redirect
 	 * URL should return the user back to the Jetpack console.
 	 *
@@ -4942,22 +4511,6 @@ endif;
 		self::state( 'message', 'reconnection_completed' );
 	}
 
-	/**
-	 * Get our assumed site creation date.
-	 * Calculated based on the earlier date of either:
-	 * - Earliest admin user registration date.
-	 * - Earliest date of post of any post type.
-	 *
-	 * @since 7.2.0
-	 * @deprecated since 7.8.0
-	 *
-	 * @return string Assumed site creation date and time.
-	 */
-	public static function get_assumed_site_creation_date() {
-		_deprecated_function( __METHOD__, 'jetpack-7.8', 'Automattic\\Jetpack\\Connection\\Manager' );
-		return self::connection()->get_assumed_site_creation_date();
-	}
-
 	public static function apply_activation_source_to_args( &$args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
 
@@ -5024,29 +4577,6 @@ endif;
 	}
 
 	/* Client API */
-
-	/**
-	 * Returns the requested Jetpack API URL
-	 *
-	 * @deprecated since 7.7
-	 * @return string
-	 */
-	public static function api_url( $relative_url ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::api_url' );
-		$connection = self::connection();
-		return $connection->api_url( $relative_url );
-	}
-
-	/**
-	 * @deprecated 8.0
-	 *
-	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
-	 * But we no longer fix "bad hosts" anyway, outbound HTTPS is required for Jetpack to function.
-	 */
-	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0' );
-		return $url;
-	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
 		// Default to a blog token.
@@ -5236,17 +4766,6 @@ endif;
 	}
 
 	/**
-	 * Returns the Jetpack XML-RPC API
-	 *
-	 * @deprecated 8.0 Use Connection_Manager instead.
-	 * @return string
-	 */
-	public static function xmlrpc_api_url() {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_api_url()' );
-		return self::connection()->xmlrpc_api_url();
-	}
-
-	/**
 	 * Returns the connection manager object.
 	 *
 	 * @return Automattic\Jetpack\Connection\Manager
@@ -5292,30 +4811,6 @@ endif;
 	}
 
 	/**
-	 * @deprecated 7.5 Use Connection_Manager instead.
-	 *
-	 * @param $action
-	 * @param $user_id
-	 */
-	public static function delete_secrets( $action, $user_id ) {
-		return self::connection()->delete_secrets( $action, $user_id );
-	}
-
-	/**
-	 * Builds the timeout limit for queries talking with the wpcom servers.
-	 *
-	 * Based on local php max_execution_time in php.ini
-	 *
-	 * @since 2.6
-	 * @return int
-	 * @deprecated
-	 **/
-	public function get_remote_query_timeout_limit() {
-		_deprecated_function( __METHOD__, 'jetpack-5.4' );
-		return self::get_max_execution_time();
-	}
-
-	/**
 	 * Builds the timeout limit for queries talking with the wpcom servers.
 	 *
 	 * Based on local php max_execution_time in php.ini
@@ -5326,7 +4821,7 @@ endif;
 	public static function get_max_execution_time() {
 		$timeout = (int) ini_get( 'max_execution_time' );
 
-		// Ensure exec time set in php.ini
+		// Ensure exec time set in php.ini.
 		if ( ! $timeout ) {
 			$timeout = 30;
 		}
@@ -5345,18 +4840,6 @@ endif;
 			set_time_limit( $timeout );
 		}
 		return $timeout;
-	}
-
-	/**
-	 * Takes the response from the Jetpack register new site endpoint and
-	 * verifies it worked properly.
-	 *
-	 * @since 2.6
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::validate_remote_register_response()
-	 **/
-	public function validate_remote_register_response() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::validate_remote_register_response' );
 	}
 
 	/**
@@ -5439,178 +4922,6 @@ endif;
 	}
 
 	/* Client Server API */
-
-	/**
-	 * Loads the Jetpack XML-RPC client.
-	 * No longer necessary, as the XML-RPC client will be automagically loaded.
-	 *
-	 * @deprecated since 7.7.0
-	 */
-	public static function load_xml_rpc_client() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7' );
-	}
-
-	/**
-	 * Resets the saved authentication state in between testing requests.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Connection\Rest_Authentication::reset_saved_auth_state()
-	 */
-	public function reset_saved_auth_state() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::reset_saved_auth_state' );
-		Connection_Rest_Authentication::init()->reset_saved_auth_state();
-	}
-
-	/**
-	 * Verifies the signature of the current request.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::verify_xml_rpc_signature()
-	 *
-	 * @return false|array
-	 */
-	public function verify_xml_rpc_signature() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::verify_xml_rpc_signature' );
-		return self::connection()->verify_xml_rpc_signature();
-	}
-
-	/**
-	 * Verifies the signature of the current request.
-	 *
-	 * This function has side effects and should not be used. Instead,
-	 * use the memoized version `->verify_xml_rpc_signature()`.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::internal_verify_xml_rpc_signature()
-	 * @internal
-	 */
-	private function internal_verify_xml_rpc_signature() {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::internal_verify_xml_rpc_signature' );
-	}
-
-	/**
-	 * Authenticates XML-RPC and other requests from the Jetpack Server.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::authenticate_jetpack()
-	 *
-	 * @param \WP_User|mixed $user     User object if authenticated.
-	 * @param string         $username Username.
-	 * @param string         $password Password string.
-	 * @return \WP_User|mixed Authenticated user or error.
-	 */
-	public function authenticate_jetpack( $user, $username, $password ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::authenticate_jetpack' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->authenticate_jetpack( $user, $username, $password );
-	}
-
-	/**
-	 * Authenticates requests from Jetpack server to WP REST API endpoints.
-	 * Uses the existing XMLRPC request signing implementation.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authenticate()
-	 */
-	function wp_rest_authenticate( $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenticate' );
-		return Connection_Rest_Authentication::init()->wp_rest_authenticate( $user );
-	}
-
-	/**
-	 * Report authentication status to the WP REST API.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authentication_errors()
-	 *
-	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
-	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
-	 */
-	public function wp_rest_authentication_errors( $value ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenication_errors' );
-		return Connection_Rest_Authentication::init()->wp_rest_authentication_errors( $value );
-	}
-
-	/**
-	 * In some setups, $HTTP_RAW_POST_DATA can be emptied during some IXR_Server paths since it is passed by reference to various methods.
-	 * Capture it here so we can verify the signature later.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::xmlrpc_methods()
-	 *
-	 * @param array $methods XMLRPC methods.
-	 * @return array XMLRPC methods, with the $HTTP_RAW_POST_DATA one.
-	 */
-	public function xmlrpc_methods( $methods ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_methods' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->xmlrpc_methods( $methods );
-	}
-
-	/**
-	 * Register additional public XMLRPC methods.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::public_xmlrpc_methods()
-	 *
-	 * @param array $methods Public XMLRPC methods.
-	 * @return array Public XMLRPC methods, with the getOptions one.
-	 */
-	public function public_xmlrpc_methods( $methods ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::public_xmlrpc_methods' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->public_xmlrpc_methods( $methods );
-	}
-
-	/**
-	 * Handles a getOptions XMLRPC method call.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::jetpack_getOptions()
-	 *
-	 * @param array $args method call arguments.
-	 * @return array an amended XMLRPC server options array.
-	 */
-	public function jetpack_getOptions( $args ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::jetpack_getOptions' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->jetpack_getOptions( $args );
-	}
-
-	/**
-	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::xmlrpc_options()
-	 *
-	 * @param array $options Standard Core options.
-	 * @return array Amended options.
-	 */
-	public function xmlrpc_options( $options ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::xmlrpc_options' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->xmlrpc_options( $options );
-	}
 
 	/**
 	 * State is passed via cookies from one request to the next, but never to subsequent requests.
@@ -5785,18 +5096,6 @@ endif;
 				$clients[0]->query();
 			}
 		}
-	}
-
-	/**
-	 * Serve a WordPress.com static resource via a randomized wp.com subdomain.
-	 *
-	 * @deprecated 9.3.0 Use Assets::staticize_subdomain.
-	 *
-	 * @param string $url WordPress.com static resource URL.
-	 */
-	public static function staticize_subdomain( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.3.0', 'Automattic\Jetpack\Assets::staticize_subdomain' );
-		return Assets::staticize_subdomain( $url );
 	}
 
 	/* JSON API Authorization */
@@ -6065,19 +5364,6 @@ endif;
 		}
 
 		return Jetpack_Options::get_option( 'sync_error_idc' );
-	}
-
-	/**
-	 * Checks whether the home and siteurl specifically are allowed.
-	 * Written so that we don't have re-check $key and $value params every time
-	 * we want to check if this site is allowed, for example in footer.php
-	 *
-	 * @since  3.8.0
-	 * @return bool True = already allowed False = not on the allowed list.
-	 */
-	public static function is_staging_site() {
-		_deprecated_function( 'Jetpack::is_staging_site', 'jetpack-8.1', '/Automattic/Jetpack/Status->is_staging_site' );
-		return ( new Status() )->is_staging_site();
 	}
 
 	/**
@@ -6797,14 +6083,6 @@ endif;
 	}
 
 	/**
-	 * @deprecated
-	 * @see Automattic\Jetpack\Assets\add_aync_script
-	 */
-	public function script_add_async( $tag, $handle, $src ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.6.0' );
-	}
-
-	/*
 	 * Check the heartbeat data
 	 *
 	 * Organizes the heartbeat data by severity.  For example, if the site
@@ -6826,7 +6104,7 @@ endif;
 
 		foreach ( $raw_data as $stat => $value ) {
 
-			// Check jetpack version
+			// Check jetpack version.
 			if ( 'version' == $stat ) {
 				if ( version_compare( $value, JETPACK__VERSION, '<' ) ) {
 					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__VERSION;
@@ -6834,7 +6112,7 @@ endif;
 				}
 			}
 
-			// Check WP version
+			// Check WP version.
 			if ( 'wp-version' == $stat ) {
 				if ( version_compare( $value, JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__MINIMUM_WP_VERSION;
@@ -6842,7 +6120,7 @@ endif;
 				}
 			}
 
-			// Check PHP version
+			// Check PHP version.
 			if ( 'php-version' == $stat ) {
 				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
 					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__MINIMUM_PHP_VERSION;
@@ -6850,7 +6128,7 @@ endif;
 				}
 			}
 
-			// Check ID crisis
+			// Check ID crisis.
 			if ( 'identitycrisis' == $stat ) {
 				if ( 'yes' == $value ) {
 					$bad[ $stat ] = $value;
@@ -6858,7 +6136,7 @@ endif;
 				}
 			}
 
-			// The rest are good :)
+			// The rest are good :).
 			$good[ $stat ] = $value;
 		}
 
@@ -6871,7 +6149,7 @@ endif;
 		return $filtered_data;
 	}
 
-	/*
+	/**
 	 * This method is used to organize all options that can be reset
 	 * without disconnecting Jetpack.
 	 *
@@ -6885,35 +6163,9 @@ endif;
 		return Jetpack_Options::get_options_for_reset();
 	}
 
-	/*
-	 * Strip http:// or https:// from a url, replaces forward slash with ::,
-	 * so we can bring them directly to their site in calypso.
-	 *
-	 * @deprecated 9.2.0 Use Automattic\Jetpack\Status::get_site_suffix
-	 *
-	 * @param string | url
-	 * @return string | url without the guff
-	 */
-	public static function build_raw_urls( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
-
-		return ( new Status() )->get_site_suffix( $url );
-	}
-
 	/**
-	 * Stores and prints out domains to prefetch for page speed optimization.
-	 *
-	 * @deprecated 8.8.0 Use Jetpack::add_resource_hints.
-	 *
-	 * @param string|array $urls URLs to hint.
+	 * Sets up the JP Dashboard widgets
 	 */
-	public static function dns_prefetch( $urls = null ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Automattic\Jetpack\Assets::add_resource_hint' );
-		if ( $urls ) {
-			Assets::add_resource_hint( $urls );
-		}
-	}
-
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
@@ -6954,10 +6206,12 @@ endif;
 	}
 
 	/**
-	 * @param mixed $result Value for the user's option
+	 * Get the meta box order for the dashboard
+	 *
+	 * @param mixed $sorted Value for the user's option.
 	 * @return mixed
 	 */
-	function get_user_option_meta_box_order_dashboard( $sorted ) {
+	public function get_user_option_meta_box_order_dashboard( $sorted ) {
 		if ( ! is_array( $sorted ) ) {
 			return $sorted;
 		}
@@ -6972,7 +6226,7 @@ endif;
 			$key       = array_search( 'dashboard_stats', $ids_array );
 
 			if ( false !== $key ) {
-				// If we've found that exact value in the option (and not `google_dashboard_stats` for example)
+				// If we've found that exact value in the option (and not `google_dashboard_stats` for example).
 				$ids_array[ $key ]      = 'jetpack_summary_widget';
 				$sorted[ $box_context ] = implode( ',', $ids_array );
 				// We've found it, stop searching, and just return.
@@ -6983,6 +6237,9 @@ endif;
 		return $sorted;
 	}
 
+	/**
+	 * Fires when the dashboard is loaded.
+	 */
 	public static function dashboard_widget() {
 		/**
 		 * Fires when the dashboard is loaded.
@@ -6992,6 +6249,9 @@ endif;
 		do_action( 'jetpack_dashboard_widget' );
 	}
 
+	/**
+	 * Displays dashboard widget footer
+	 */
 	public static function dashboard_widget_footer() {
 		?>
 		<footer>
@@ -7061,18 +6321,26 @@ endif;
 		<?php
 	}
 
-	/*
+	/**
 	 * Adds a "blank" column in the user admin table to display indication of user connection.
+	 *
+	 * @param array $columns User list table columns.
 	 */
-	function jetpack_icon_user_connected( $columns ) {
+	public function jetpack_icon_user_connected( $columns ) {
 		$columns['user_jetpack'] = '';
 		return $columns;
 	}
 
-	/*
+	/**
 	 * Show Jetpack icon if the user is linked.
+	 *
+	 * @param string     $val Icon.
+	 * @param string     $col Column on users table.
+	 * @param string|int $user_id User ID.
+	 *
+	 * @return string
 	 */
-	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
+	public function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
 		if ( 'user_jetpack' == $col && self::is_user_connected( $user_id ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$emblem_html  = sprintf(
@@ -7086,10 +6354,10 @@ endif;
 		return $val;
 	}
 
-	/*
+	/**
 	 * Style the Jetpack user column
 	 */
-	function jetpack_user_col_style() {
+	public function jetpack_user_col_style() {
 		global $current_screen;
 		if ( ! empty( $current_screen->base ) && 'users' == $current_screen->base ) {
 			?>
@@ -7157,15 +6425,6 @@ endif;
 	}
 
 	/**
-	 * @deprecated
-	 *
-	 * @see Automattic\Jetpack\Sync\Modules\Users::is_function_in_backtrace
-	 */
-	public static function is_function_in_backtrace() {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-	}
-
-	/**
 	 * Given a minified path, and a non-minified path, will return
 	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
 	 *
@@ -7174,8 +6433,9 @@ endif;
 	 *
 	 * @since 5.6.0
 	 *
-	 * @param string $min_path
-	 * @param string $non_min_path
+	 * @param string $min_path Minimized path.
+	 * @param string $non_min_path Source path.
+	 *
 	 * @return string The URL to the file
 	 */
 	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
@@ -7271,7 +6531,9 @@ endif;
 			? array( 'sso' )
 			: array();
 
-		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+		$active_modules = Jetpack_Options::get_option( 'active_modules' );
+
+		if ( $active_modules ) {
 			self::delete_active_modules();
 
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
@@ -7279,7 +6541,7 @@ endif;
 			self::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages );
 		}
 
-		// Since this is a fresh connection, be sure to clear out IDC options
+		// Since this is a fresh connection, be sure to clear out IDC options.
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $send_state_messages ) {
@@ -7303,31 +6565,6 @@ endif;
 		return self::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
 	}
 
-	/*
-	 * Deprecated manage functions
-	 */
-	function prepare_manage_jetpack_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-	function manage_activate_screen() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-	function admin_jetpack_manage_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-	function opt_out_jetpack_manage_url() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-	function opt_in_jetpack_manage_url() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-	function opt_in_jetpack_manage_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-	function can_display_jetpack_manage_notice() {
-		_deprecated_function( __METHOD__, 'jetpack-7.3' );
-	}
-
 	/**
 	 * Clean leftoveruser meta.
 	 *
@@ -7339,7 +6576,7 @@ endif;
 	 */
 	public static function user_meta_cleanup( $user_id ) {
 		$meta_keys = array(
-			// AtD removed from Jetpack 7.3
+			// AtD removed from Jetpack 7.3.
 			'AtD_options',
 			'AtD_check_when',
 			'AtD_guess_lang',
@@ -7351,23 +6588,6 @@ endif;
 				delete_user_meta( $user_id, $meta_key );
 			}
 		}
-	}
-
-	/**
-	 * Checks if a Jetpack site is both active and not in offline mode.
-	 *
-	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
-	 *
-	 * @deprecated 8.8.0
-	 *
-	 * @return bool True if Jetpack is active and not in offline mode.
-	 */
-	public static function is_active_and_not_development_mode() {
-		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Jetpack::is_active_and_not_offline_mode' );
-		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
-			return false;
-		}
-		return true;
 	}
 
 	/**
