@@ -9,6 +9,7 @@ import { hideBin } from 'yargs/helpers';
  */
 import { buildDefine } from './commands/build';
 import { watchDefine } from './commands/watch';
+import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
 
 // import { dockerDefine } from "./commands/docker";
@@ -30,13 +31,14 @@ export async function cli() {
 	argv = buildDefine( argv );
 	argv = cliDefine( argv );
 	// argv = dockerDefine( argv );
+	argv = installDefine( argv );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
-	argv.showHelpOnFail( true ).demandCommand();
+	argv.showHelpOnFail( true ).demandCommand().version( false );
 
 	// Parse the args!
-	argv.argv;
+	argv.parse();
 
 	// If verbose flag is set, output all of the argv info. Only applies if a command above doesn't execute.
 	if ( argv.v ) {

@@ -2,7 +2,7 @@
 /**
  * 3rd Party integration for Debug Bar.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

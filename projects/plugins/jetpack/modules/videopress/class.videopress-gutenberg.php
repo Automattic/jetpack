@@ -2,7 +2,7 @@
 /**
  * Block Editor functionality for VideoPress users.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;

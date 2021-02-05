@@ -142,7 +142,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://jetpack.com/support/related-posts/',
 				ctaText: __( 'Enable Related Posts', 'jetpack' ),
-				illustrationPath: '/recommendations/related-posts-illustration.png',
+				illustrationPath: '/recommendations/related-posts-illustration.jpg',
 			};
 		case 'site-accelerator':
 			return {
@@ -166,7 +166,7 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
-				illustrationPath: '/recommendations/woocommerce-illustration.png',
+				illustrationPath: '/recommendations/woocommerce-illustration.jpg',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;

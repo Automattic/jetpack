@@ -148,7 +148,22 @@ function podcastConversationSection() {
 
 	return [
 		conversationBlockName,
-		{},
+		{
+			participants: [
+				{
+					slug: 'participant-0',
+					label: __( 'Speaker 1', 'jetpack' ),
+				},
+				{
+					slug: 'participant-1',
+					label: __( 'Speaker 2', 'jetpack' ),
+				},
+				{
+					slug: 'participant-2',
+					label: __( 'Speaker 3', 'jetpack' ),
+				},
+			],
+		},
 		[
 			[
 				'core/heading',
@@ -163,7 +178,6 @@ function podcastConversationSection() {
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
 					participantSlug: 'participant-0',
-					hasBoldStyle: true,
 				},
 			],
 			[
@@ -171,7 +185,6 @@ function podcastConversationSection() {
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
 					participantSlug: 'participant-1',
-					hasBoldStyle: true,
 				},
 			],
 			[
@@ -179,7 +192,6 @@ function podcastConversationSection() {
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
 					participantSlug: 'participant-2',
-					hasBoldStyle: true,
 				},
 			],
 		],

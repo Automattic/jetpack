@@ -2,7 +2,7 @@
 /**
  * Beaverbuilder Compatibility.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Third_Party;

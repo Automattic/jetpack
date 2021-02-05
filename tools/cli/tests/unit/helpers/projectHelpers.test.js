@@ -6,7 +6,12 @@ import chai from 'chai';
 /**
  * Internal dependencies
  */
-import { dirs, projectTypes, allProjects } from '../../helpers/projectHelpers';
+import {
+	dirs,
+	projectTypes,
+	allProjects,
+	allProjectsByType,
+} from '../../../helpers/projectHelpers';
 
 describe( 'projectHelpers', function () {
 	// Begins tests for dirs.
@@ -18,7 +23,7 @@ describe( 'projectHelpers', function () {
 	} );
 	it( 'dirs should output number of subfolders for the given path', function () {
 		// The repo-root projects dir.
-		chai.expect( dirs( 'projects' ) ).to.have.lengthOf( 3 );
+		chai.expect( dirs( 'projects' ) ).to.have.lengthOf( 4 );
 	} );
 	it( 'dirs should output a subfolder of given path', function () {
 		chai.expect( dirs( 'projects/plugins' ) ).to.have.contains( 'jetpack' );
@@ -52,5 +57,28 @@ describe( 'projectHelpers', function () {
 	it( 'allProjects should contain prefixed packages', function () {
 		// Confirms the type/project style.
 		chai.expect( allProjects() ).to.contain( 'packages/abtest' );
+	} );
+	it( 'allProjects should contain prefixed github-actions', function () {
+		// Confirms the type/project style.
+		chai.expect( allProjects() ).to.contain( 'github-actions/push-to-mirrors' );
+	} );
+
+	// Begin tests for allProjectsByType.
+	it( 'allProjectsByType should be a function', function () {
+		chai.expect( allProjectsByType ).to.be.a( 'function' );
+	} );
+	it( 'allProjectsByType should return an array for a valid type', function () {
+		chai.expect( allProjectsByType( 'plugins' ) ).to.be.an( 'array' );
+	} );
+	it( 'allProjectsByType should include a known plugin', function () {
+		chai.expect( allProjectsByType( 'plugins' ) ).to.contain( 'plugins/jetpack' );
+	} );
+	it( 'allProjectsByType should include a known package', function () {
+		chai.expect( allProjectsByType( 'packages' ) ).to.contain( 'packages/abtest' );
+	} );
+	it( 'allProjectsByType should include a known GitHub action', function () {
+		chai
+			.expect( allProjectsByType( 'github-actions' ) )
+			.to.contain( 'github-actions/push-to-mirrors' );
 	} );
 } );

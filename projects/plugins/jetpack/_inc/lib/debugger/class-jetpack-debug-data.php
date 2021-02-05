@@ -2,7 +2,7 @@
 /**
  * Jetpack Debug Data for the Site Health sections.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;

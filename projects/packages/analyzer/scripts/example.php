@@ -15,7 +15,7 @@
  * phpcs:disable Squiz.PHP.CommentedOutCode.Found
  */
 
-require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
+require dirname( __DIR__ ) . '/vendor/autoload.php';
 
 $base_path          = dirname( dirname( dirname( __DIR__ ) ) );
 $external_base_path = dirname( __DIR__ ) . '/data';
@@ -80,7 +80,6 @@ echo $dependencies->declaration_summary();
 
 echo "\n*** Summary of dependencies by external file\n";
 echo $dependencies->external_file_summary();
-
 
 echo "\n*** List of warnings\n";
 $warnings = new Automattic\Jetpack\Analyzer\Warnings();

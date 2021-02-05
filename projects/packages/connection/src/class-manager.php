@@ -130,6 +130,7 @@ class Manager {
 		Heartbeat::init();
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
+		Webhooks::init( $manager );
 	}
 
 	/**
@@ -768,7 +769,7 @@ class Manager {
 		}
 
 		// Using wp_redirect intentionally because we're redirecting outside.
-		wp_redirect( $this->get_authorization_url( $user ) ); // phpcs:ignore WordPress.Security.SafeRedirect
+		wp_redirect( $this->get_authorization_url( $user, $redirect_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect
 		exit();
 	}
 
@@ -1866,6 +1867,7 @@ class Manager {
 			? $data['redirect_uri']
 			: add_query_arg(
 				array(
+					'handler'  => 'jetpack-connection-webhooks',
 					'action'   => 'authorize',
 					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
 					'redirect' => $redirect ? rawurlencode( $redirect ) : false,
@@ -1898,7 +1900,6 @@ class Manager {
 				'Accept' => 'application/json',
 			),
 		);
-
 		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
 		$response = Client::_wp_remote_request( $this->api_url( 'token' ), $args );
 		remove_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
@@ -2035,9 +2036,10 @@ class Manager {
 				'client_id'     => \Jetpack_Options::get_option( 'id' ),
 				'redirect_uri'  => add_query_arg(
 					array(
+						'handler'  => 'jetpack-connection-webhooks',
 						'action'   => 'authorize',
 						'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-						'redirect' => rawurlencode( $redirect ),
+						'redirect' => $redirect ? rawurlencode( $redirect ) : false,
 					),
 					esc_url( $processing_url )
 				),
@@ -2789,5 +2791,4 @@ class Manager {
 		}
 		return $stats;
 	}
-
 }

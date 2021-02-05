@@ -3,6 +3,7 @@
  */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { isEmpty } from 'lodash';
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -28,6 +29,8 @@ import {
 	getUpsell,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
+import { getSettings } from 'state/settings';
+import { getPluginsData } from 'state/site/plugins';
 
 /**
  * Style dependencies
@@ -36,7 +39,8 @@ import './style.scss';
 
 const SummaryComponent = props => {
 	const {
-		isFetchingData,
+		isFetchingMainData,
+		isFetchingSidebarData,
 		sidebarCardSlug,
 		siteTypeDisplayName,
 		summaryFeatureSlugs,
@@ -53,8 +57,75 @@ const SummaryComponent = props => {
 		updateRecommendationsStep( 'summary' );
 	}, [ updateRecommendationsStep ] );
 
+	const mainContent = isFetchingMainData ? (
+		<LoadingCard />
+	) : (
+		<>
+			<div className="jp-recommendations-summary__configuration">
+				<h1>
+					{ sprintf(
+						/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
+						__(
+							'Nice work! Let’s ensure the features you enabled are configured for your %s.',
+							'jetpack'
+						),
+						siteTypeDisplayName
+					) }
+				</h1>
+				<h2>{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
+				<div>
+					{ summaryFeatureSlugs.selected.length > 0 ? (
+						summaryFeatureSlugs.selected.map( slug => <FeatureSummary featureSlug={ slug } /> )
+					) : (
+						<p>
+							<em>
+								{ __(
+									'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
+									'jetpack'
+								) }
+							</em>
+						</p>
+					) }
+				</div>
+				{ summaryFeatureSlugs.skipped.length > 0 && (
+					<>
+						<h2>{ __( 'Recommendations skipped', 'jetpack' ) }</h2>
+						<div>
+							{ summaryFeatureSlugs.skipped.map( slug => (
+								<FeatureSummary featureSlug={ slug } />
+							) ) }
+						</div>
+					</>
+				) }
+			</div>
+			<div className="jp-recommendations-summary__more-features">
+				<Gridicon icon="info-outline" size={ 28 } />
+				<p>
+					{ createInterpolateElement(
+						__(
+							'Curious what else Jetpack has to offer? <ExternalLink>View all Jetpack features</ExternalLink>',
+							'jetpack'
+						),
+						{
+							ExternalLink: (
+								<ExternalLink
+									href="https://jetpack.com/features/comparison/"
+									target="_blank"
+									rel="noopener noreferrer"
+									onClick={ onLearnMoreClick }
+									icon={ true }
+									iconSize={ 16 }
+								/>
+							),
+						}
+					) }
+				</p>
+			</div>
+		</>
+	);
+
 	let sidebarCard;
-	if ( isFetchingData ) {
+	if ( isFetchingSidebarData ) {
 		sidebarCard = <LoadingCard />;
 	} else {
 		switch ( sidebarCardSlug ) {
@@ -84,80 +155,35 @@ const SummaryComponent = props => {
 
 	return (
 		<div className="jp-recommendations-summary">
-			<div className="jp-recommendations-summary__content">
-				<div className="jp-recommendations-summary__configuration">
-					<h1>
-						{ sprintf(
-							/* translators: placeholder indicates the type of site, such as "personal site" or "store" */
-							__(
-								'Nice work! Let’s ensure the features you enabled are configured for your %s.',
-								'jetpack'
-							),
-							siteTypeDisplayName
-						) }
-					</h1>
-					<h2>{ __( 'Recommendations enabled', 'jetpack' ) }</h2>
-					<div>
-						{ summaryFeatureSlugs.selected.length > 0 ? (
-							summaryFeatureSlugs.selected.map( slug => <FeatureSummary featureSlug={ slug } /> )
-						) : (
-							<p>
-								<em>
-									{ __(
-										'You didn’t enable any recommended features. To get the most out of Jetpack, enable some recommendations or explore all Jetpack features.',
-										'jetpack'
-									) }
-								</em>
-							</p>
-						) }
-					</div>
-					{ summaryFeatureSlugs.skipped.length > 0 && (
-						<>
-							<h2>{ __( 'Recommendations skipped', 'jetpack' ) }</h2>
-							<div>
-								{ summaryFeatureSlugs.skipped.map( slug => (
-									<FeatureSummary featureSlug={ slug } />
-								) ) }
-							</div>
-						</>
-					) }
-				</div>
-				<div className="jp-recommendations-summary__more-features">
-					<Gridicon icon="info-outline" size={ 28 } />
-					<p>
-						{ createInterpolateElement(
-							__(
-								'Curious what else Jetpack has to offer? <ExternalLink>View all Jetpack features</ExternalLink>',
-								'jetpack'
-							),
-							{
-								ExternalLink: (
-									<ExternalLink
-										href="https://jetpack.com/features/comparison/"
-										target="_blank"
-										rel="noopener noreferrer"
-										onClick={ onLearnMoreClick }
-										icon={ true }
-										iconSize={ 16 }
-									/>
-								),
-							}
-						) }
-					</p>
-				</div>
+			<div
+				className={ classNames( 'jp-recommendations-summary__content', {
+					isLoading: isFetchingMainData,
+				} ) }
+			>
+				{ mainContent }
 			</div>
-			<div className="jp-recommendations-summary__sidebar">{ sidebarCard }</div>
+			<div
+				className={ classNames( 'jp-recommendations-summary__sidebar', {
+					isLoading: isFetchingSidebarData,
+				} ) }
+			>
+				{ sidebarCard }
+			</div>
 		</div>
 	);
 };
 
 const Summary = connect(
 	state => {
+		const pluginsData = getPluginsData( state );
+		const settings = getSettings( state );
 		const upsell = getUpsell( state );
-		const isFetchingData = isEmpty( upsell );
+		const isFetchingMainData = isEmpty( settings ) || isEmpty( pluginsData );
+		const isFetchingSidebarData = isEmpty( upsell );
 
 		return {
-			isFetchingData,
+			isFetchingMainData,
+			isFetchingSidebarData,
 			sidebarCardSlug: getSidebarCardSlug( state ),
 			siteTypeDisplayName: getSiteTypeDisplayName( state ),
 			summaryFeatureSlugs: getSummaryFeatureSlugs( state ),

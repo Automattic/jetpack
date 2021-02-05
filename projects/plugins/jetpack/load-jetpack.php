@@ -2,7 +2,7 @@
 /**
  * Load all Jetpack files that do not get loaded via the autoloader.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
