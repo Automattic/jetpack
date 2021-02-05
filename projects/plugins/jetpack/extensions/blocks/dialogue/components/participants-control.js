@@ -139,24 +139,24 @@ export function SpeakerEditControl( {
 	onClean,
 	onFocus,
 } ) {
-	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
+	// const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
-	function onActionHandler( forceFocus ) {
-		switch ( editingMode ) {
-			case EDIT_MODE_ADDING: {
-				return onAdd( label, ! useFocusOutsideIsAvailable || forceFocus );
-			}
+	// function onActionHandler( forceFocus ) {
+	// 	switch ( editingMode ) {
+	// 		case EDIT_MODE_ADDING: {
+	// 			return onAdd( label, ! useFocusOutsideIsAvailable || forceFocus );
+	// 		}
 
-			case EDIT_MODE_EDITING: {
-				return onUpdate( {
-					slug: participant.slug,
-					label,
-				}, ! useFocusOutsideIsAvailable || forceFocus );
-			}
-		}
-	}
+	// 		case EDIT_MODE_EDITING: {
+	// 			return onUpdate( {
+	// 				slug: participant.slug,
+	// 				label,
+	// 			}, ! useFocusOutsideIsAvailable || forceFocus );
+	// 		}
+	// 	}
+	// }
 
-	const focusOutsideProps = useFocusOutsideWithFallback( onActionHandler );
+	// const focusOutsideProps = useFocusOutsideWithFallback( onActionHandler );
 
 	/**
 	 * Funcion handler when user types participant label.
@@ -171,53 +171,53 @@ export function SpeakerEditControl( {
 		// activate autocomplete, and emit onClean(),
 		// to clean the current participant.
 		if ( ! newLabel?.length ) {
-			setEditingMode( EDIT_MODE_ADDING );
+			// setEditingMode( EDIT_MODE_ADDING );
 			return onClean();
 		}
 
 		// Always update the participant label (block attribute).
 		onParticipantChange( newLabel );
 
-		const participantByNewLabel = getParticipantByLabel( participants, newLabel );
+		// const participantByNewLabel = getParticipantByLabel( participants, newLabel );
 
 		// Set editing mode depending on participant label,
 		// and current conversation participant
 		// tied to this Dialogue block.
-		if ( participant ) {
-			if ( participant.label === newLabel ) {
-				setEditingMode( EDIT_MODE_SELECTING );
-			} else {
-				setEditingMode( EDIT_MODE_EDITING );
-			}
-		} else if ( participantByNewLabel ) {
-			setEditingMode( EDIT_MODE_SELECTING );
-		} else {
-			setEditingMode( EDIT_MODE_ADDING );
-		}
+		// if ( participant ) {
+		// 	if ( participant.label === newLabel ) {
+		// 		setEditingMode( EDIT_MODE_SELECTING );
+		// 	} else {
+		// 		setEditingMode( EDIT_MODE_EDITING );
+		// 	}
+		// } else if ( participantByNewLabel ) {
+		// 	setEditingMode( EDIT_MODE_SELECTING );
+		// } else {
+		// 	setEditingMode( EDIT_MODE_ADDING );
+		// }
 	}
 
-	// Keep autocomplete options udated.
-	const autocompleter = useMemo( () => {
-		if ( editingMode !== EDIT_MODE_ADDING ) {
-			return [];
-		}
+	// // Keep autocomplete options udated.
+	// const autocompleter = useMemo( () => {
+	// 	if ( editingMode !== EDIT_MODE_ADDING ) {
+	// 		return [];
+	// 	}
 
-		return [ refreshAutocompleter( participants ) ];
-	}, [ participants, editingMode ] );
+	// 	return [ refreshAutocompleter( participants ) ];
+	// }, [ participants, editingMode ] );
 
-	useEffect( () => {
-		setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-	}, [ participant ] );
+	// useEffect( () => {
+	// 	setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
+	// }, [ participant ] );
 
 	return (
 		<div
 			className={ classNames( className, {
 				'has-bold-style': true,
-				'is-adding-participant': editingMode === EDIT_MODE_ADDING,
-				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
-				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
+				// 'is-adding-participant': editingMode === EDIT_MODE_ADDING,
+				// 'is-editing-participant': editingMode === EDIT_MODE_EDITING,
+				// 'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
 			} ) }
-			{ ...focusOutsideProps }
+			// { ...focusOutsideProps }
 		>
 			<RichText
 				key={ reRenderingKey }
@@ -231,13 +231,18 @@ export function SpeakerEditControl( {
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
 					const replacedParticipant = replaceValue?.[ 0 ];
+					console.log( 'replacedParticipant: ', replacedParticipant );
+					console.log( 'label: ', label );
+					console.log( 'participant: ', participant );
+					console.log( '- - - -' );
+
 					// Handling participant selection,
 					// by picking them from the autocomplete options.
 					if ( replacedParticipant ) {
 						const { label: newLabel } = replacedParticipant;
 
 						onParticipantChange( newLabel );
-						setEditingMode( EDIT_MODE_SELECTING );
+						// setEditingMode( EDIT_MODE_SELECTING );
 						return onSelect( replacedParticipant );
 					}
 
@@ -245,30 +250,39 @@ export function SpeakerEditControl( {
 						return;
 					}
 
+					// Update speaker label.
+					if ( participant && participant.label !== label ) {
+						return onUpdate( {
+							...participant,
+							label,
+						} );
+					}
+
 					// Handling participant selection,
 					// by typing `ENTER` KEY.
 					const participantExists = getParticipantByLabel( participants, label );
 					if ( participantExists ) {
-						if (
-							! participant ||
-							participant.label === label
-						) {
-							setEditingMode( EDIT_MODE_SELECTING );
-							return onSelect( participantExists, true );
-						}
-
-						// Update participant format.
-						if ( participant?.label !== label ) {
-							setEditingMode( EDIT_MODE_EDITING );
-							return onActionHandler();
-						}
+						return onSelect( participantExists, true );
 					}
+						// if (
+						// 	! participant ||
+						// 	participant.label === label
+						// ) {
+							// setEditingMode( EDIT_MODE_SELECTING );
+						// }
+
+					// 	// Update participant format.
+					// 	if ( participant?.label !== label ) {
+					// 		console.log( 'UPDATE !!' );
+					// 		// setEditingMode( EDIT_MODE_EDITING );
+					// 	}
+					// }
 
 					// From here, it will add a new participant.
-					setEditingMode( EDIT_MODE_ADDING );
-					onActionHandler( true );
+					// setEditingMode( EDIT_MODE_ADDING );
+					onAdd( label );
 				} }
-				autocompleters={ autocompleter }
+				// autocompleters={ autocompleter }
 				onFocus={ onFocus }
 			/>
 		</div>
