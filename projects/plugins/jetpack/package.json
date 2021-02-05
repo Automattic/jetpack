@@ -37,7 +37,6 @@
 		"distclean": "rm -rf node_modules && yarn clean",
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"test-adminpage": "yarn test-client && yarn test-gui",
-		"test-adminpage-and-extensions-and-search": "yarn concurrently 'yarn test-adminpage' 'yarn test-extensions' 'yarn test-search'",
 		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./tests/e2e/config/encrypted.enc -out ./tests/e2e/config/local-test.js",
 		"test-e2e": "NODE_CONFIG_DIR='./tests/e2e/config' NODE_CONFIG_ENV=test jest --config ./tests/e2e/jest.config.js --runInBand --verbose",
