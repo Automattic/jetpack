@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "449f87ab2325cfb78fcab17e5c744e42",
+    "content-hash": "f495dd577fdf3354e6786b5e5770a526",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -377,6 +377,45 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-connection-ui",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/connection-ui",
+                "reference": "90d23c4d4d1d528179fc5bd0a1a2dc52ca45253b"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev"
+            },
+            "type": "library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-connection-ui"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Connection UI",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -1163,6 +1202,7 @@
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
+        "automattic/jetpack-connection-ui": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,

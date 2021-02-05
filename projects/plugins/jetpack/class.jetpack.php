@@ -829,6 +829,18 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
+
+			/**
+			 * Filter to activate Jetpack Connection UI.
+			 * INTERNAL USE ONLY.
+			 *
+			 * @since 9.5.0
+			 *
+			 * @param bool false Whether to activate the Connection UI.
+			 */
+			if ( apply_filters( 'jetpack_connection_ui_active', false ) ) {
+				Automattic\Jetpack\ConnectionUI\Admin::init();
+			}
 		}
 
 		/*
