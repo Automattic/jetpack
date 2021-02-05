@@ -220,12 +220,11 @@ export function SpeakerEditControl( {
 
 								onAdd( label );
 							} }
-							// autocompleters={ autocompleter }
 							onFocus={ onFocus }
 						/>
 					);
 				} }
-				renderContent={ () => {
+				renderContent={ ( { onClose } ) => {
 					const speakerValue = {
 						value: participant?.slug,
 						label: participant?.label,
@@ -243,7 +242,7 @@ export function SpeakerEditControl( {
 							value={ speakerValue }
 							options={ options }
 							onSelect={ console.log }
-							onCancel={ console.log }
+							onCancel={ onClose }
 							onAdd={ console.log }
 						/>
 					);
