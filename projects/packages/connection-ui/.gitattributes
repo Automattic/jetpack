@@ -1,15 +1,13 @@
 # Files not needed to be distributed in the package.
 .gitattributes    export-ignore
 package.json      export-ignore
-yarn.lock         export-ignore
 webpack.config.js export-ignore
 gulpfile.babel.js export-ignore
-.babelrc          exclude-ignore
+.babelrc          export-ignore
 
 # Files to include in the mirror repo
 /build/index.asset.php  production-include
 /build/index.js         production-include
-/build/index.js.map     production-include
 
 # Files to exclude from the mirror repo
 .gitignore        production-exclude
