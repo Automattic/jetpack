@@ -15,7 +15,7 @@ import {
 	ComboboxControl,
 	withFocusOutside
 } from '@wordpress/components';
-import { useState, Component, useRef } from '@wordpress/element';
+import { useState, Component } from '@wordpress/element';
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
@@ -162,7 +162,6 @@ export function SpeakerEditControl( {
 	onFocus,
 } ) {
 	const [ showPopover, setShowPopover ] = useState( false );
-	const speakerRef = useRef();
 	const speakerValue = {
 		value: participant?.slug,
 		label: participant?.label,
@@ -186,7 +185,6 @@ export function SpeakerEditControl( {
 				} ) }
 			>
 				<RichText
-					ref={ speakerRef }
 					tagName="div"
 					value={ label }
 					formattingControls={ [] }
