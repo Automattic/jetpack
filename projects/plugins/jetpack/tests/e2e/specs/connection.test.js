@@ -6,6 +6,8 @@ import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
+import path from 'path';
+import config from 'config';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
@@ -24,7 +26,10 @@ describe( 'Connection', () => {
 
 	afterAll( async () => {
 		await execWpCommand(
-			`'wp option update jetpack_private_options --format=json < ${path.resolve( config.get( 'configDir' ), 'jetpack-private-options.txt' )}'`
+			`'wp option update jetpack_private_options --format=json < ${ path.resolve(
+				config.get( 'configDir' ),
+				'jetpack-private-options.txt'
+			) }'`
 		);
 	} );
 
