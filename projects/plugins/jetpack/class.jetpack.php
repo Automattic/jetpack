@@ -5333,7 +5333,7 @@ endif;
 	/**
 	 * Pings the WordPress.com Mirror Site for the specified options.
 	 *
-	 * @param string|array $option_names The option names to request from the WordPress.com Mirror Site
+	 * @param string|array $option_names The option names to request from the WordPress.com Mirror Site.
 	 *
 	 * @return array An associative array of the option values as stored in the WordPress.com Mirror Site
 	 */
@@ -5410,7 +5410,7 @@ endif;
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
 		if ( ! $is_valid && $sync_error ) {
-			// Since the option exists, and did not validate, delete it
+			// Since the option exists, and did not validate, delete it.
 			Jetpack_Options::delete_option( 'sync_error_idc' );
 		}
 
@@ -5424,16 +5424,17 @@ endif;
 	 *  - Adds a trailing slash
 	 *
 	 * @since 4.4.0
-	 * @param string $url
+	 * @param string $url URL to normalize.
 	 * @return WP_Error|string
 	 */
 	public static function normalize_url_protocol_agnostic( $url ) {
 		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
 		if ( ! $parsed_url || empty( $parsed_url['host'] ) || empty( $parsed_url['path'] ) ) {
+			/* translators: %s is an URL. */
 			return new WP_Error( 'cannot_parse_url', sprintf( esc_html__( 'Cannot parse URL %s', 'jetpack' ), $url ) );
 		}
 
-		// Strip www and protocols
+		// Strip www and protocols.
 		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
 		return $url;
 	}
@@ -5444,7 +5445,7 @@ endif;
 	 * @since 4.4.0
 	 * @since 5.4.0 Add transient since home/siteurl retrieved directly from DB
 	 *
-	 * @param array $response
+	 * @param array $response Response array.
 	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
@@ -5559,9 +5560,9 @@ endif;
 	 *
 	 * Attached to `style_loader_src` filter.
 	 *
-	 * @param string $tag The tag that would link to the external asset.
+	 * @param string $src The tag that would link to the external asset.
 	 * @param string $handle The registered handle of the script in question.
-	 * @param string $href The url of the asset in question.
+	 * @return string $href The url of the asset in question.
 	 */
 	public static function set_suffix_on_min( $src, $handle ) {
 		if ( false === strpos( $src, '.min.css' ) ) {
@@ -5603,11 +5604,11 @@ endif;
 
 		if ( preg_match( '# href=\'([^\']+)\' #i', $tag, $matches ) ) {
 			$href = $matches[1];
-			// Strip off query string
+			// Strip off query string.
 			if ( $pos = strpos( $href, '?' ) ) {
 				$href = substr( $href, 0, $pos );
 			}
-			// Strip off fragment
+			// Strip off fragment.
 			if ( $pos = strpos( $href, '#' ) ) {
 				$href = substr( $href, 0, $pos );
 			}
@@ -5650,11 +5651,11 @@ endif;
 	 * Data passed in with the $data parameter will be available in the
 	 * template file as $data['value']
 	 *
-	 * @param string $template - Template file to load
-	 * @param array  $data - Any data to pass along to the template
+	 * @param string $template Template file to load.
+	 *
 	 * @return boolean - If template file was found
 	 **/
-	public function load_view( $template, $data = array() ) {
+	public function load_view( $template ) {
 		$views_dir = JETPACK__PLUGIN_DIR . 'views/';
 
 		if ( file_exists( $views_dir . $template ) ) {
@@ -5824,7 +5825,7 @@ endif;
 				'replacement' => 'jetpack_widget_authors_params',
 				'version'     => 'jetpack-7.7.0',
 			),
-			// Removed in Jetpack 7.9.0
+			// Removed in Jetpack 7.9.0.
 			'jetpack_pwa_manifest'                         => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.9.0',
@@ -5937,8 +5938,8 @@ endif;
 	 *  - Absolute URLs             `http://domain.com/feh.png`
 	 *  - Domain root relative URLs `/feh.png`
 	 *
-	 * @param $css string: The raw CSS -- should be read in directly from the file.
-	 * @param $css_file_url : The URL that the file can be accessed at, for calculating paths from.
+	 * @param string $css The raw CSS -- should be read in directly from the file.
+	 * @param string $css_file_url The URL that the file can be accessed at, for calculating paths from.
 	 *
 	 * @return mixed|string
 	 */
@@ -6011,8 +6012,10 @@ endif;
 	 *
 	 * add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 	 *
+	 * @param bool $travis_test If this is a CI test.
+	 *
 	 * @since 3.2
-	 **/
+	 */
 	public function implode_frontend_css( $travis_test = false ) {
 		$do_implode = true;
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
@@ -6033,19 +6036,19 @@ endif;
 		 */
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
 
-		// Do not use the imploded file when default behavior was altered through the filter
+		// Do not use the imploded file when default behavior was altered through the filter.
 		if ( ! $do_implode ) {
 			return;
 		}
 
-		// We do not want to use the imploded file in dev mode, or if not connected
+		// We do not want to use the imploded file in dev mode, or if not connected.
 		if ( ( new Status() )->is_offline_mode() || ! self::is_active() ) {
 			if ( ! $travis_test ) {
 				return;
 			}
 		}
 
-		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
+		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen.
 		if ( get_option( 'sharedaddy_disable_resources' ) ) {
 			return;
 		}
