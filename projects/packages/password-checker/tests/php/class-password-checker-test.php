@@ -5,36 +5,14 @@
  * @package automattic/jetpack-password-checker
  */
 
-use Automattic\Jetpack\Password_Checker;
-use Brain\Monkey;
-use PHPUnit\Framework\TestCase;
+namespace Automattic\Jetpack;
+
+use WorDBless\BaseTestCase;
 
 /**
  * Test Password_Checker class
  */
-class Password_Checker_Test extends TestCase {
-
-	/**
-	 * Sets up the test.
-	 *
-	 * @before
-	 */
-	public function set_up() {
-		if ( ! defined( 'JETPACK__VERSION' ) ) {
-			define( 'JETPACK__VERSION', '7.5' );
-		}
-		Monkey\setUp();
-		Monkey\Functions\stubs( array( '__' => null ) );
-	}
-
-	/**
-	 * Tears down the test.
-	 *
-	 * @after
-	 */
-	public function tear_down() {
-		Monkey\tearDown();
-	}
+class Password_Checker_Test extends BaseTestCase {
 
 	/**
 	 * Test the password checker.
