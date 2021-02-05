@@ -85,7 +85,7 @@ export async function clickAndWaitForNewPage( page, selector ) {
 		browser.addListener( 'targetcreated', listener );
 	} );
 
-	await waitAndClick( page, selector );
+	await page.click( selector );
 	const target = await newTabTarget;
 	const newPage = await target.page();
 	await newPage.bringToFront();

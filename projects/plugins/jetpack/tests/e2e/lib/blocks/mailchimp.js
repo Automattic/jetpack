@@ -31,10 +31,10 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
-		const formSelector = await waitForSelector( this.page, setupFormSelector );
+		const formSelector = await this.page.waitForSelector( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
+		const loginTab = await this.page.clickAndWaitForNewPage( setupFormSelector );
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );

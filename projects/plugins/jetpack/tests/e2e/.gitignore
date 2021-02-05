@@ -1,3 +1,5 @@
 /config/local-*
+plan-data.json
+e2e_tunnels.txt
 /reports
 /output

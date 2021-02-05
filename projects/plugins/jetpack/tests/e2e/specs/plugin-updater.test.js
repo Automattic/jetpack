@@ -8,6 +8,7 @@ import {
 	prepareUpdaterTest,
 	getTunnelSiteUrl,
 	resetWordpressInstall,
+	execMultipleWpCommands,
 } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';

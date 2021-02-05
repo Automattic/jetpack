@@ -5,8 +5,7 @@ import Page from '../page';
 /**
  * WordPress dependencies
  */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitForSelector, scrollIntoView } from '../../page-helper';
+import { searchForBlock } from '@wordpress/e2e-test-utils';
 import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
@@ -57,7 +56,7 @@ export default class BlockEditorPage extends Page {
 		await page.click( '.editor-post-publish-button' );
 		await page.waitForTimeout( 500 );
 
-		await waitForSelector( this.page, '.components-snackbar' );
+		await this.page.waitForSelector( '.components-snackbar' );
 		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 	}
 

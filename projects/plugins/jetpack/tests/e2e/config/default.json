@@ -13,5 +13,6 @@
 		"cardCountryCode": "TR",
 		"cardPostCode": "4000"
 	},
-	"testOutputDir": "./tests/e2e/output"
+	"testOutputDir": "./tests/e2e/output",
+	"configDir": "./tests/e2e/config"
 }

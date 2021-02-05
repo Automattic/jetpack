@@ -17,7 +17,7 @@ import {
 	loginToWpSite,
 } from './flows/jetpack-connect';
 import TunnelManager from './tunnel-manager';
-import { saveVideo } from 'playwright-video';
+// import { saveVideo } from 'playwright-video';
 import config from 'config';
 import path from 'path';
 
@@ -197,7 +197,7 @@ async function maybePreConnect() {
 
 	if ( status !== 'already_connected' ) {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-		fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
+		fs.writeFileSync( path.resolve( config.get( 'configDir' ), 'jetpack-private-options.txt' ), result.trim() );
 	}
 }
 

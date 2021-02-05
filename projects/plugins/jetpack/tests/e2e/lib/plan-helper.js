@@ -7,6 +7,8 @@ import fs from 'fs';
  */
 import { getTunnelSiteUrl, execWpCommand } from './utils-helper';
 import logger from './logger';
+import config from 'config';
+import path from 'path';
 
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
@@ -14,9 +16,15 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
 
-	fs.writeFileSync( 'plan-data.json', JSON.stringify( planData ) );
+	fs.writeFileSync(
+		path.resolve( config.get( 'configDir' ), 'plan-data.json' ),
+		JSON.stringify( planData )
+	);
 
-	const cmd = `wp option update ${ planDataOption } < plan-data.json`;
+	const cmd = `wp option update ${ planDataOption } < ${ path.resolve(
+		config.get( 'configDir' ),
+		'plan-data.json'
+	) }`;
 	await execWpCommand( cmd );
 }
 
