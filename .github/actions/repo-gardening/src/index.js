@@ -9,7 +9,7 @@ const { context, getOctokit } = require( '@actions/github' );
  */
 const assignIssues = require( './tasks/assign-issues' );
 const addMilestone = require( './tasks/add-milestone' );
-const addLabels = require( './add-labels' );
+const addLabels = require( './tasks/add-labels' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 
