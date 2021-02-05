@@ -242,7 +242,7 @@ div.jp-carousel-buttons a:hover {
 	padding:0.35em 0 0;
 	position: absolute;
 	text-align: right;
-	width: 90%;
+	width: calc( 100vw - 25px );
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
@@ -1129,7 +1129,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	 	font-weight: 800 !important;
 		font-size: 26px !important;
 		position: fixed !important;
-		top: -10px;
+		top: 0;
 	}
 
 	.jp-carousel-slide img {
