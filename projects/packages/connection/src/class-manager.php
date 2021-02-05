@@ -1,6 +1,7 @@
 <?php
 /**
  * The Jetpack Connection manager class file.
+ * A change
  *
  * @package automattic/jetpack-connection
  */
