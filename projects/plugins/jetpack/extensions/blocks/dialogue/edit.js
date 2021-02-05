@@ -125,23 +125,25 @@ export default function DialogueEdit( {
 						</PanelBody>
 					) }
 
-					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Show conversation timestamps', 'jetpack' ) }
-							checked={ showTimestamp }
-							onChange={ ( show ) => setAttributes( { showTimestamp: show } ) }
-						/>
-
-						{ showTimestamp && (
-							<TimestampControl
-								className={ BASE_CLASS_NAME }
-								value={ timestamp }
-								onChange={ setTimestamp }
-								mediaSource={ mediaSource }
-								duration={ mediaDuration }
+					{ mediaSource && (
+						<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
+							<ToggleControl
+								label={ __( 'Show conversation timestamps', 'jetpack' ) }
+								checked={ showTimestamp }
+								onChange={ ( show ) => setAttributes( { showTimestamp: show } ) }
 							/>
-						) }
-					</PanelBody>
+
+							{ showTimestamp && (
+								<TimestampControl
+									className={ BASE_CLASS_NAME }
+									value={ timestamp }
+									onChange={ setTimestamp }
+									mediaSource={ mediaSource }
+									duration={ mediaDuration }
+								/>
+							) }
+						</PanelBody>
+					) }
 				</Panel>
 			</InspectorControls>
 
@@ -170,15 +172,17 @@ export default function DialogueEdit( {
 					} }
 				/>
 
-				<TimestampEditControl
-					className={ BASE_CLASS_NAME }
-					show={ showTimestamp }
-					isSelected={ isSelected }
-					value={ timestamp }
-					mediaCurrentTime={ mediaCurrentTime }
-					onChange={ setTimestamp }
-					onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
-				/>
+				{ mediaSource && (
+					<TimestampEditControl
+						className={ BASE_CLASS_NAME }
+						show={ showTimestamp }
+						isSelected={ isSelected }
+						value={ timestamp }
+						mediaCurrentTime={ mediaCurrentTime }
+						onChange={ setTimestamp }
+						onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
+					/>
+				) }
 			</div>
 
 			<RichText

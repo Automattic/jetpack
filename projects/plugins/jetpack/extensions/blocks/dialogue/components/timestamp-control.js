@@ -61,7 +61,6 @@ export function TimestampControl( {
 	onChange,
 	shortLabel = false,
 	isDisabled = false,
-	mediaSource,
 	duration,
 } ) {
 	const smh = value.split( ':' );
@@ -116,18 +115,16 @@ export function TimestampControl( {
 				/>
 			</div>
 
-			{ mediaSource && (
-				<RangeControl
-					disabled={ typeof duration === 'undefined' }
-					value={ convertTimeCodeToSeconds( value ) }
-					className={ `${ className }__timestamp-range-control` }
-					min={ 0 }
-					max={ duration }
-					onChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
-					withInputField={ false }
-					renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
-				/>
-			) }
+			<RangeControl
+				disabled={ typeof duration === 'undefined' }
+				value={ convertTimeCodeToSeconds( value ) }
+				className={ `${ className }__timestamp-range-control` }
+				min={ 0 }
+				max={ duration }
+				onChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
+				withInputField={ false }
+				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+			/>
 		</>
 	);
 }
