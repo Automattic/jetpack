@@ -92,6 +92,11 @@ class Jetpack_Podcast_Helper {
 			if ( $episode_options ) {
 				$player_data['options'] = array();
 				foreach ( $rss->get_items() as $episode ) {
+					$enclosure = $this->get_audio_enclosure( $episode );
+					// If the episode doesn't have playable audio, then don't include it.
+					if ( is_wp_error( $enclosure ) ) {
+						continue;
+					}
 					$player_data['options'][] = array(
 						'label' => $this->get_plain_text( $episode->get_title() ),
 						'value' => $episode->get_id(),
