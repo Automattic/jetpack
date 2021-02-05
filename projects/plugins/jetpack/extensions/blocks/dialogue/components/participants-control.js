@@ -6,7 +6,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, SelectControl, Dropdown } from '@wordpress/components';
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
@@ -82,7 +82,7 @@ export default function ParticipantsDropdown( props ) {
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.label               - Dialogue participant value. Local level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
- * @param {string}   prop.reRenderingKey      - Custom property to for a re-render in the rich text component.
+ * @param {string}   prop.isSelected          -
  * @param {object}   prop.participant         - Participant object. Gloanl level.
  * @param {Function} prop.onParticipantChange - Use this callback to update participant label, locally.
  * @param {Function} prop.onUpdate            - Use this callback to update the participant, but globaly.
@@ -97,7 +97,6 @@ export function SpeakerEditControl( {
 	label,
 	participants,
 	participant,
-	reRenderingKey,
 	onParticipantChange,
 	onUpdate = () => {},
 	onSelect,
@@ -118,51 +117,63 @@ export function SpeakerEditControl( {
 			className={ classNames( className, {
 				'has-bold-style': true,
 			} ) }
-			// { ...focusOutsideProps }
 		>
-			<RichText
-				key={ reRenderingKey }
-				tagName="div"
-				value={ label }
-				formattingControls={ [] }
-				withoutInteractiveFormatting={ false }
-				onChange={ onChangeHandler }
-				placeholder={ __( 'Speaker', 'jetpack' ) }
-				keepPlaceholderOnFocus={ true }
-				onSplit={ () => {} }
-				onReplace={ ( replaceValue ) => {
-					const replacedParticipant = replaceValue?.[ 0 ];
-					// Handling participant selection,
-					// by picking them from the autocomplete options.
-					if ( replacedParticipant ) {
-						const { label: newLabel } = replacedParticipant;
+			<Dropdown
+				className={ className }
+				renderToggle={ () => {
+					return (
+						<RichText
+							tagName="div"
+							value={ label }
+							formattingControls={ [] }
+							withoutInteractiveFormatting={ false }
+							onChange={ ( value ) => {
+								onChangeHandler( value );
+							} }
+							placeholder={ __( 'Speaker', 'jetpack' ) }
+							keepPlaceholderOnFocus={ true }
+							onSplit={ () => {} }
+							onReplace={ ( replaceValue ) => {
+								const replacedParticipant = replaceValue?.[ 0 ];
+								// Handling participant selection,
+								// by picking them from the autocomplete options.
+								if ( replacedParticipant ) {
+									const { label: newLabel } = replacedParticipant;
 
-						onParticipantChange( newLabel );
-						// setEditingMode( EDIT_MODE_SELECTING );
-						return onSelect( replacedParticipant );
-					}
+									onParticipantChange( newLabel );
+									// setEditingMode( EDIT_MODE_SELECTING );
+									return onSelect( replacedParticipant );
+								}
 
-					if ( ! label?.length ) {
-						return;
-					}
+								if ( ! label?.length ) {
+									return;
+								}
 
-					// Update speaker label.
-					if ( participant && participant.label !== label ) {
-						return onUpdate( {
-							...participant,
-							label,
-						} );
-					}
+								// Update speaker label.
+								if ( participant && participant.label !== label ) {
+									return onUpdate( {
+										...participant,
+										label,
+									} );
+								}
 
-					const participantExists = getParticipantByLabel( participants, label );
-					if ( participantExists ) {
-						return onSelect( participantExists, true );
-					}
+								const participantExists = getParticipantByLabel( participants, label );
+								if ( participantExists ) {
+									return onSelect( participantExists, true );
+								}
 
-					onAdd( label );
+								onAdd( label );
+							} }
+							// autocompleters={ autocompleter }
+							onFocus={ onFocus }
+						/>
+					);
 				} }
-				// autocompleters={ autocompleter }
-				onFocus={ onFocus }
+				renderContent={ () => {
+					return (
+						<div>Testing...</div>
+					);
+				} }
 			/>
 		</div>
 	);
