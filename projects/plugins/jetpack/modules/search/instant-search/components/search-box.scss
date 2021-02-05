@@ -28,6 +28,7 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&:hover,
 	&:focus {
+		background: $studio-white; // necessary to override theme styles
 		color: $color-text;
 	}
 
