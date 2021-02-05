@@ -1137,7 +1137,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_get_user_connection_data_without_master_user() {
 		$this->setExpectedDeprecated( 'Jetpack_Deprecated::is_user_connected' );
-		$this->setExpectedDeprecated( 'Jetpack::get_connected_user_data' );
+		$this->setExpectedDeprecated( 'Jetpack_Deprecated::get_connected_user_data' );
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		wp_set_current_user( $user->ID );
