@@ -182,7 +182,7 @@ export function TimestampEditControl( {
 			<Button
 				className={ `${ className }__timestamp-button` }
 				isSmall
-				isSecondary
+				isTertiary
 				onClick={ () => {
 					onToggle( ! show );
 					if ( ! show ) {
