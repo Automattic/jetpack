@@ -11,21 +11,16 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 
-import { useMemo, useState, useEffect } from '@wordpress/element';
-import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
+// import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import { getParticipantByLabel } from '../../conversation/utils';
 
-const EDIT_MODE_ADDING = 'is-adding';
-const EDIT_MODE_SELECTING = 'is-selecting';
-const EDIT_MODE_EDITING = 'is-editing';
-
 // Fallback for `useFocusOutside` hook.
-const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
-const useFocusOutsideWithFallback = useFocusOutsideIsAvailable ? useFocusOutside : () => {};
+// const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
+// const useFocusOutsideWithFallback = useFocusOutsideIsAvailable ? useFocusOutside : () => {};
 
 function ParticipantsMenu( { participants, className, onSelect, slug, onClose } ) {
 	return (
@@ -81,35 +76,6 @@ export default function ParticipantsDropdown( props ) {
 }
 
 /**
- * Participants Autocompleter.
- *
- * @param {Array} participants - Conversation participants list.
- * @returns {object} Participants autocompleter.
- */
-function refreshAutocompleter( participants ) {
-	return {
-		name: 'jetpack/conversation-participants',
-		triggerPrefix: '',
-		options: participants,
-
-		getOptionLabel: ( { label } ) => (
-			<span>{ label }</span>
-		),
-
-		getOptionKeywords: ( { label } ) => [ label ],
-
-		getOptionCompletion: ( option ) => ( {
-			action: 'replace',
-			value: option,
-		} ),
-
-		popoverProps: {
-			position: 'bottom',
-		},
-	};
-}
-
-/**
  * Control to edit Dialogue participant globally.
  *
  * @param {object}   prop                     - ParticipantRichControl component.
@@ -139,83 +105,18 @@ export function SpeakerEditControl( {
 	onClean,
 	onFocus,
 } ) {
-	// const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-
-	// function onActionHandler( forceFocus ) {
-	// 	switch ( editingMode ) {
-	// 		case EDIT_MODE_ADDING: {
-	// 			return onAdd( label, ! useFocusOutsideIsAvailable || forceFocus );
-	// 		}
-
-	// 		case EDIT_MODE_EDITING: {
-	// 			return onUpdate( {
-	// 				slug: participant.slug,
-	// 				label,
-	// 			}, ! useFocusOutsideIsAvailable || forceFocus );
-	// 		}
-	// 	}
-	// }
-
-	// const focusOutsideProps = useFocusOutsideWithFallback( onActionHandler );
-
-	/**
-	 * Funcion handler when user types participant label.
-	 * It can edit a new participant, or add a new one,
-	 * dependeing on the previous values.
-	 *
-	 * @param {string} newLabel - New participant label.
-	 * @returns {null} Null
-	 */
 	function onChangeHandler( newLabel ) {
-		// If the new label is empty,
-		// activate autocomplete, and emit onClean(),
-		// to clean the current participant.
 		if ( ! newLabel?.length ) {
-			// setEditingMode( EDIT_MODE_ADDING );
 			return onClean();
 		}
 
-		// Always update the participant label (block attribute).
 		onParticipantChange( newLabel );
-
-		// const participantByNewLabel = getParticipantByLabel( participants, newLabel );
-
-		// Set editing mode depending on participant label,
-		// and current conversation participant
-		// tied to this Dialogue block.
-		// if ( participant ) {
-		// 	if ( participant.label === newLabel ) {
-		// 		setEditingMode( EDIT_MODE_SELECTING );
-		// 	} else {
-		// 		setEditingMode( EDIT_MODE_EDITING );
-		// 	}
-		// } else if ( participantByNewLabel ) {
-		// 	setEditingMode( EDIT_MODE_SELECTING );
-		// } else {
-		// 	setEditingMode( EDIT_MODE_ADDING );
-		// }
 	}
-
-	// // Keep autocomplete options udated.
-	// const autocompleter = useMemo( () => {
-	// 	if ( editingMode !== EDIT_MODE_ADDING ) {
-	// 		return [];
-	// 	}
-
-	// 	return [ refreshAutocompleter( participants ) ];
-	// }, [ participants, editingMode ] );
-
-	// useEffect( () => {
-	// 	setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-	// }, [ participant ] );
 
 	return (
 		<div
 			className={ classNames( className, {
 				'has-bold-style': true,
-				// 'is-adding-participant': editingMode === EDIT_MODE_ADDING,
-				// 'is-editing-participant': editingMode === EDIT_MODE_EDITING,
-				// 'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
 			} ) }
 			// { ...focusOutsideProps }
 		>
@@ -231,11 +132,6 @@ export function SpeakerEditControl( {
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
 					const replacedParticipant = replaceValue?.[ 0 ];
-					console.log( 'replacedParticipant: ', replacedParticipant );
-					console.log( 'label: ', label );
-					console.log( 'participant: ', participant );
-					console.log( '- - - -' );
-
 					// Handling participant selection,
 					// by picking them from the autocomplete options.
 					if ( replacedParticipant ) {
@@ -258,28 +154,11 @@ export function SpeakerEditControl( {
 						} );
 					}
 
-					// Handling participant selection,
-					// by typing `ENTER` KEY.
 					const participantExists = getParticipantByLabel( participants, label );
 					if ( participantExists ) {
 						return onSelect( participantExists, true );
 					}
-						// if (
-						// 	! participant ||
-						// 	participant.label === label
-						// ) {
-							// setEditingMode( EDIT_MODE_SELECTING );
-						// }
 
-					// 	// Update participant format.
-					// 	if ( participant?.label !== label ) {
-					// 		console.log( 'UPDATE !!' );
-					// 		// setEditingMode( EDIT_MODE_EDITING );
-					// 	}
-					// }
-
-					// From here, it will add a new participant.
-					// setEditingMode( EDIT_MODE_ADDING );
 					onAdd( label );
 				} }
 				// autocompleters={ autocompleter }
