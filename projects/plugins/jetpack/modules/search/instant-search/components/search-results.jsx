@@ -146,7 +146,7 @@ class SearchResults extends Component {
 					</ol>
 				) }
 				{ hasResults && this.props.hasNextPage && (
-					<div className="jetpack-instant-search__pagination">
+					<div className="jetpack-instant-search__search-results-pagination">
 						<ScrollButton
 							enableLoadOnScroll={ this.props.enableLoadOnScroll }
 							isLoading={ this.props.isLoading }
@@ -225,7 +225,7 @@ class SearchResults extends Component {
 							onClick={ this.toggleMobileSecondary }
 							onKeyDown={ this.toggleMobileSecondary }
 							tabIndex="0"
-							className="jetpack-instant-search__results-filter-button"
+							className="jetpack-instant-search__search-results-filter-button"
 						>
 							{ __( 'Filters', 'jetpack' ) }
 							<Gridicon
