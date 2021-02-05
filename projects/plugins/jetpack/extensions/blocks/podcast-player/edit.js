@@ -69,6 +69,7 @@ const actions = {
 	CLEAR_FEED: 'CLEAR_FEED',
 	MAKE_INTERACTIVE: 'MAKE_INTERACTIVE',
 	PREVENT_INTERACTIONS: 'PREVENT_INTERACTIONS',
+	START_FETCH: 'START_FETCH',
 };
 
 const podcastPlayerReducer = ( state, action ) => {
@@ -92,6 +93,7 @@ const podcastPlayerReducer = ( state, action ) => {
 			return {
 				...state,
 				isEditing: true,
+				isLoading: false,
 			};
 		case actions.FINISH_EDITING:
 			return {
@@ -102,6 +104,7 @@ const podcastPlayerReducer = ( state, action ) => {
 		case actions.FEED_RECEIVED:
 			return {
 				...state,
+				isLoading: false,
 				feedData: action.payload,
 			};
 		case actions.CLEAR_FEED:
@@ -118,6 +121,11 @@ const podcastPlayerReducer = ( state, action ) => {
 			return {
 				...state,
 				isInteractive: false,
+			};
+		case actions.START_FETCH:
+			return {
+				...state,
+				isLoading: true,
 			};
 		default:
 			return { ...state };
@@ -161,6 +169,7 @@ const PodcastPlayerEdit = ( {
 	const [ state, dispatch ] = useReducer( podcastPlayerReducer, {
 		editedUrl: url || '',
 		isEditing: false,
+		isLoading: false,
 		feedData: exampleFeedData || {},
 		isInteractive: false,
 		selectedGuid: selectedEpisodes[ 0 ]?.guid,
@@ -168,6 +177,7 @@ const PodcastPlayerEdit = ( {
 
 	const fetchFeed = useCallback(
 		debounce( requestParams => {
+			dispatch( { type: actions.START_FETCH } );
 			cancellableFetch.current?.cancel();
 			cancellableFetch.current = makeCancellable(
 				fetchPodcastFeed( { ...requestParams, fetchEpisodeOptions: true } )
@@ -217,6 +227,14 @@ const PodcastPlayerEdit = ( {
 		};
 	}, [] );
 
+	// Set attributes based on state
+	useEffect( () => {
+		setAttributes( {
+			itemsToShow: state.selectedGuid ? 1 : itemsToShow,
+			selectedEpisodes: state.selectedGuid ? [ { guid: state.selectedGuid } ] : [],
+		} );
+	}, [ state.selectedGuid, itemsToShow, setAttributes ] );
+
 	// Load RSS feed initially and when the attributes change.
 	useEffect( () => {
 		// Don't do anything if no url is set.
@@ -224,15 +242,12 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Clean current podcast feed and fetch a new one.
-		dispatch( { type: actions.CLEAR_FEED } );
-
 		fetchFeed( {
 			url,
-			guids: selectedEpisodes.map( episode => episode.guid ),
+			guids: state.selectedGuid ? [ state.selectedGuid ] : [],
 		} );
 		return () => cancellableFetch?.current?.cancel?.();
-	}, [ fetchFeed, url, selectedEpisodes ] );
+	}, [ fetchFeed, url, state.selectedGuid ] );
 
 	// Bring back the overlay after block gets deselected.
 	if ( ! isSelected && state.isInteractive ) {
@@ -290,11 +305,6 @@ const PodcastPlayerEdit = ( {
 		dispatch( { type: actions.FINISH_EDITING, payload: prependedURL } );
 	};
 
-	const onUrlEdited = newUrl => {
-		dispatch( { type: actions.EDIT_URL, payload: newUrl } );
-		fetchFeed( { url: newUrl, guids: [] } );
-	};
-
 	if ( state.isEditing || ( ! url && ! exampleFeedData ) ) {
 		return (
 			<Placeholder
@@ -311,43 +321,35 @@ const PodcastPlayerEdit = ( {
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 						value={ state.editedUrl }
 						className={ 'components-placeholder__input' }
-						onChange={ onUrlEdited }
+						onChange={ editedUrl => dispatch( { type: actions.EDIT_URL, payload: editedUrl } ) }
 					/>
-					{ ComboboxControl && (
-						<ComboboxControl
-							value={ state.selectedGuid }
-							onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
-							options={ state.feedData.options || [] }
-							label={ __( 'Select an episode (optional)', 'jetpack' ) }
-							onFilterValueChange={ noop }
-						/>
-					) }
-					<div className="embed-actions">
-						<div className="components-placeholder__learn-more">
-							<ExternalLink href={ supportUrl }>
-								{ __( 'Learn more about embeds', 'jetpack' ) }
-							</ExternalLink>
-						</div>
-						<Button isPrimary type="submit">
-							{ __( 'Embed', 'jetpack' ) }
-						</Button>
-					</div>
+					<Button isPrimary type="submit">
+						{ __( 'Embed', 'jetpack' ) }
+					</Button>
 				</form>
+				<div className="components-placeholder__learn-more">
+					<ExternalLink href={ supportUrl }>
+						{ __( 'Learn more about embeds', 'jetpack' ) }
+					</ExternalLink>
+				</div>
 			</Placeholder>
 		);
 	}
 
-	// Loading state for fetching the feed.
-	if ( ! state.feedData.tracks || ! state.feedData.tracks.length ) {
-		return (
-			<Placeholder
-				icon={ <BlockIcon icon={ queueMusic } /> }
-				label={ __( 'Podcast Player', 'jetpack' ) }
-				instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
-			>
-				<Spinner />
-			</Placeholder>
-		);
+	const loadingPlaceholder = (
+		<Placeholder
+			icon={ <BlockIcon icon={ queueMusic } /> }
+			label={ __( 'Podcast Player', 'jetpack' ) }
+			instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
+		>
+			<Spinner />
+		</Placeholder>
+	);
+	//
+	// With no tracks data, this is either the first load or the URL has changed
+	// and we need the data to refresh before displaying the other controls.
+	if ( ! state.feedData.tracks?.length ) {
+		return loadingPlaceholder;
 	}
 
 	const createColorChangeHandler = ( colorAttr, handler ) => color => {
@@ -369,7 +371,7 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					{ 0 === selectedEpisodes.length && (
+					{ ( ComboboxControl || 0 === selectedEpisodes.length ) && (
 						<RangeControl
 							label={ __( 'Number of items', 'jetpack' ) }
 							value={ itemsToShow }
@@ -379,7 +381,16 @@ const PodcastPlayerEdit = ( {
 							required
 						/>
 					) }
-
+					{ ComboboxControl && (
+						<ComboboxControl
+							className="jetpack-podcast-player__episode-selector"
+							value={ state.selectedGuid }
+							onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
+							options={ state.feedData.options || [] }
+							label={ __( 'Episode', 'jetpack' ) }
+							onFilterValueChange={ noop }
+						/>
+					) }
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }
 						checked={ showCoverArt }
@@ -428,30 +439,34 @@ const PodcastPlayerEdit = ( {
 				</PanelColorSettings>
 			</InspectorControls>
 
-			<div id={ playerId } className={ className }>
-				<PodcastPlayer
-					playerId={ playerId }
-					attributes={ validatedAttributes }
-					tracks={ state.feedData.tracks }
-					cover={ state.feedData.cover }
-					title={ state.feedData.title }
-					link={ state.feedData.link }
-				/>
-				{ /*
-				 * Disabled because the overlay div doesn't actually have a role or
-				 * functionality as far as the user is concerned. We're just catching
-				 * the first click so that the block can be selected without
-				 * interacting with the embed preview that the overlay covers.
-				 */ }
-				{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
-				{ ! state.isInteractive && (
-					<div
-						className="jetpack-podcast-player__interactive-overlay"
-						onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
+			{ state.isLoading ? (
+				loadingPlaceholder
+			) : (
+				<div id={ playerId } className={ className }>
+					<PodcastPlayer
+						playerId={ playerId }
+						attributes={ validatedAttributes }
+						tracks={ state.feedData.tracks }
+						cover={ state.feedData.cover }
+						title={ state.feedData.title }
+						link={ state.feedData.link }
 					/>
-				) }
-				{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
-			</div>
+					{ /*
+					 * Disabled because the overlay div doesn't actually have a role or
+					 * functionality as far as the user is concerned. We're just catching
+					 * the first click so that the block can be selected without
+					 * interacting with the embed preview that the overlay covers.
+					 */ }
+					{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
+					{ ! state.isInteractive && (
+						<div
+							className="jetpack-podcast-player__interactive-overlay"
+							onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
+						/>
+					) }
+					{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
+				</div>
+			) }
 		</>
 	);
 };
