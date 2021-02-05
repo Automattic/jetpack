@@ -1,18 +1,18 @@
 <?php
 /**
- * Tests the Jetpack_Password_Checker package.
+ * Tests the Password_Checker package.
  *
  * @package automattic/jetpack-password-checker
  */
 
-use Automattic\Jetpack\Jetpack_Password_Checker;
+use Automattic\Jetpack\Password_Checker;
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Test Jetpack_Password_Checker class
+ * Test Password_Checker class
  */
-class Jetpack_Password_Checker_Test extends TestCase {
+class Password_Checker_Test extends TestCase {
 
 	/**
 	 * Sets up the test.
@@ -40,7 +40,7 @@ class Jetpack_Password_Checker_Test extends TestCase {
 	 * Test the password checker.
 	 */
 	public function test_password() {
-		$password_checker = new Jetpack_Password_Checker( null );
+		$password_checker = new Password_Checker( null );
 
 		$test_results = $password_checker->test( '123', true );
 		$this->assertFalse( $test_results['passed'] );

@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack Password Checker package.
+ * Password Checker package.
  *
  * @package  automattic/jetpack-password-checker
  */
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Checks passwords strength.
  */
-class Jetpack_Password_Checker {
+class Password_Checker {
 
 	/**
 	 * Minimum entropy bits a password should contain. 36 bits of entropy is considered

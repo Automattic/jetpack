@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-password-checker",
-	"description": "Jetpack Password Checker.",
+	"description": "Password Checker.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
