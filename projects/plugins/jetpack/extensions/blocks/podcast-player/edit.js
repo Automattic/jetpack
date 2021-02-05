@@ -271,13 +271,14 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
+		dispatch( { type: actions.CLEAR_FEED } );
+
 		/*
 		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
 		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
 		 */
 		if ( prependedURL === url ) {
 			// Reset the feedData, so that we display the spinner.
-			dispatch( { type: actions.CLEAR_FEED } );
 			fetchFeed( {
 				url,
 				guids: selectedEpisodes[ 0 ]?.guid ? [ selectedEpisodes[ 0 ].guid ] : [],
@@ -433,34 +434,35 @@ const PodcastPlayerEdit = ( {
 				</PanelColorSettings>
 			</InspectorControls>
 
-			{ state.isLoading ? (
-				loadingPlaceholder
-			) : (
-				<div id={ playerId } className={ className }>
-					<PodcastPlayer
-						playerId={ playerId }
-						attributes={ validatedAttributes }
-						tracks={ state.feedData.tracks }
-						cover={ state.feedData.cover }
-						title={ state.feedData.title }
-						link={ state.feedData.link }
+			<div id={ playerId } className={ className }>
+				<PodcastPlayer
+					playerId={ playerId }
+					attributes={ validatedAttributes }
+					tracks={ state.feedData.tracks }
+					cover={ state.feedData.cover }
+					title={ state.feedData.title }
+					link={ state.feedData.link }
+				/>
+				{ /*
+				 * Disabled because the overlay div doesn't actually have a role or
+				 * functionality as far as the user is concerned. We're just catching
+				 * the first click so that the block can be selected without
+				 * interacting with the embed preview that the overlay covers.
+				 */ }
+				{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
+				{ ! state.isInteractive && ! state.isLoading && (
+					<div
+						className="jetpack-podcast-player__interactive-overlay"
+						onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
 					/>
-					{ /*
-					 * Disabled because the overlay div doesn't actually have a role or
-					 * functionality as far as the user is concerned. We're just catching
-					 * the first click so that the block can be selected without
-					 * interacting with the embed preview that the overlay covers.
-					 */ }
-					{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
-					{ ! state.isInteractive && (
-						<div
-							className="jetpack-podcast-player__interactive-overlay"
-							onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
-						/>
-					) }
-					{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
-				</div>
-			) }
+				) }
+				{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
+				{ state.isLoading && (
+					<div className="jetpack-podcast-player__loading-overlay">
+						<Spinner />
+					</div>
+				) }
+			</div>
 		</>
 	);
 };
