@@ -15,7 +15,7 @@ import Notice from './notice';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
 import SearchResult from './search-result';
-import SearchSidebar from './search-sidebar';
+import SearchSidebar from './sidebar';
 import { getConstrastingColor } from '../lib/colors';
 
 /**
