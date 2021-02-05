@@ -78,16 +78,6 @@ const podcastPlayerReducer = ( state, action ) => {
 			return {
 				...state,
 				editedUrl: action.payload,
-				selectedGuid: null,
-				feedData: {
-					...state.feedData,
-					options: null,
-				},
-			};
-		case actions.SELECT_EPISODE:
-			return {
-				...state,
-				selectedGuid: action.payload,
 			};
 		case actions.START_EDITING:
 			return {
@@ -168,12 +158,13 @@ const PodcastPlayerEdit = ( {
 	const cancellableFetch = useRef();
 	const [ state, dispatch ] = useReducer( podcastPlayerReducer, {
 		editedUrl: url || '',
-		isEditing: false,
+		isEditing: ! url && ! exampleFeedData,
 		isLoading: false,
 		feedData: exampleFeedData || {},
 		isInteractive: false,
-		selectedGuid: selectedEpisodes[ 0 ]?.guid,
 	} );
+
+	const selectedGuid = selectedEpisodes[ 0 ]?.guid;
 
 	const fetchFeed = useCallback(
 		debounce( requestParams => {
@@ -227,13 +218,12 @@ const PodcastPlayerEdit = ( {
 		};
 	}, [] );
 
-	// Set attributes based on state
+	// Make sure itemsToShow is 1 when we have a selected episode
 	useEffect( () => {
-		setAttributes( {
-			itemsToShow: state.selectedGuid ? 1 : itemsToShow,
-			selectedEpisodes: state.selectedGuid ? [ { guid: state.selectedGuid } ] : [],
-		} );
-	}, [ state.selectedGuid, itemsToShow, setAttributes ] );
+		if ( selectedGuid && 1 !== itemsToShow ) {
+			setAttributes( { itemsToShow: 1 } );
+		}
+	}, [ selectedGuid, itemsToShow, setAttributes ] );
 
 	// Load RSS feed initially and when the attributes change.
 	useEffect( () => {
@@ -244,10 +234,10 @@ const PodcastPlayerEdit = ( {
 
 		fetchFeed( {
 			url,
-			guids: state.selectedGuid ? [ state.selectedGuid ] : [],
+			guids: selectedGuid ? [ selectedGuid ] : [],
 		} );
 		return () => cancellableFetch?.current?.cancel?.();
-	}, [ fetchFeed, url, state.selectedGuid ] );
+	}, [ fetchFeed, url, selectedGuid ] );
 
 	// Bring back the overlay after block gets deselected.
 	if ( ! isSelected && state.isInteractive ) {
@@ -285,14 +275,18 @@ const PodcastPlayerEdit = ( {
 		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
 		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
 		 */
-		if ( prependedURL === url && state.selectedGuid === selectedEpisodes[ 0 ]?.guid ) {
+		if ( prependedURL === url ) {
 			// Reset the feedData, so that we display the spinner.
 			dispatch( { type: actions.CLEAR_FEED } );
-			fetchFeed( { url, guids: state.selectedGuid ? [ state.selectedGuid ] : [] } );
+			fetchFeed( {
+				url,
+				guids: selectedEpisodes[ 0 ]?.guid ? [ selectedEpisodes[ 0 ].guid ] : [],
+			} );
 		} else {
 			const attrs = {
 				url: prependedURL,
-				selectedEpisodes: state.selectedGuid ? [ { guid: state.selectedGuid } ] : [],
+				selectedEpisodes: [],
+				itemsToShow: 5,
 			};
 			setAttributes( attrs );
 		}
@@ -305,7 +299,7 @@ const PodcastPlayerEdit = ( {
 		dispatch( { type: actions.FINISH_EDITING, payload: prependedURL } );
 	};
 
-	if ( state.isEditing || ( ! url && ! exampleFeedData ) ) {
+	if ( state.isEditing ) {
 		return (
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }
@@ -375,7 +369,7 @@ const PodcastPlayerEdit = ( {
 						<RangeControl
 							label={ __( 'Number of items', 'jetpack' ) }
 							value={ itemsToShow }
-							onChange={ value => setAttributes( { itemsToShow: value } ) }
+							onChange={ value => setAttributes( { itemsToShow: selectedGuid ? 1 : value } ) }
 							min={ DEFAULT_MIN_ITEMS }
 							max={ DEFAULT_MAX_ITEMS }
 							required
@@ -384,8 +378,8 @@ const PodcastPlayerEdit = ( {
 					{ ComboboxControl && (
 						<ComboboxControl
 							className="jetpack-podcast-player__episode-selector"
-							value={ state.selectedGuid }
-							onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
+							value={ selectedGuid }
+							onChange={ guid => setAttributes( { selectedEpisodes: guid ? [ { guid } ] : [] } ) }
 							options={ state.feedData.options || [] }
 							label={ __( 'Episode', 'jetpack' ) }
 							onFilterValueChange={ noop }
