@@ -122,7 +122,7 @@ export function TimestampControl( {
 				min={ 0 }
 				max={ duration }
 				onChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
-				withInputField={ false }
+				withInputField={ true }
 				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
 			/>
 		</>
@@ -160,12 +160,17 @@ export function TimestampEditControl( {
 
 	onChange,
 	onToggle,
+	onPlayback,
 } ) {
-	function TimestampLabel() {
+	function TimestampButton() {
 		return (
-			<div className={ `${ className }__timestamp-label` }>
+			<Button
+				className={ `${ className }__timestamp-label` }
+				isTertiary
+				onClick={ () => onPlayback( convertTimeCodeToSeconds( value ) ) }
+			>
 				{ value }
-			</div>
+			</Button>
 		);
 	}
 
@@ -174,7 +179,7 @@ export function TimestampEditControl( {
 			return null;
 		}
 
-		return <TimestampLabel />;
+		return <TimestampButton />;
 	}
 
 	function ToggleButton( { label } ) {
@@ -201,7 +206,7 @@ export function TimestampEditControl( {
 
 	return (
 		<>
-			<TimestampLabel />
+			<TimestampButton />
 			<ToggleButton label={ __( 'Remove', 'jetpack' ) } />
 		</>
 	);

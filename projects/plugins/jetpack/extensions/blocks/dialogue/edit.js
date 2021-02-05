@@ -4,9 +4,9 @@
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
-import { useSelect, dispatch } from '@wordpress/data';
+import { dispatch, useSelect, useDispatch } from '@wordpress/data';
+import { Panel, PanelBody } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 
 /**
@@ -43,20 +43,23 @@ export default function DialogueEdit( {
 		timestamp,
 	} = attributes;
 
-	const { mediaSource, mediaCurrentTime, mediaDuration } = useSelect( select => {
+	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference } = useSelect( select => {
 		const {
 			getDefaultMediaSource,
 			getMediaSourceCurrentTime,
 			getMediaSourceDuration,
+			getMediaSourceDomReference,
 		} = select( MEDIA_SOURCE_STORE_ID );
 
 		return {
 			mediaSource: getDefaultMediaSource(),
 			mediaCurrentTime: getMediaSourceCurrentTime(),
 			mediaDuration: getMediaSourceDuration(),
+			mediaDomReference: getMediaSourceDomReference(),
 		};
 	}, [] );
 
+	const { playMediaSource, setMediaSourceCurrentTime } = useDispatch( MEDIA_SOURCE_STORE_ID );
 	const contentRef = useRef();
 
 	// Block context integration.
@@ -96,6 +99,14 @@ export default function DialogueEdit( {
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
+	}
+
+	function audioPlayback( time ) {
+		if ( mediaDomReference ) {
+			mediaDomReference.currentTime = time;
+		}
+		setMediaSourceCurrentTime( time );
+		playMediaSource();
 	}
 
 	return (
@@ -173,6 +184,7 @@ export default function DialogueEdit( {
 						mediaCurrentTime={ mediaCurrentTime }
 						onChange={ setTimestamp }
 						onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
+						onPlayback={ audioPlayback }
 					/>
 				) }
 			</div>
