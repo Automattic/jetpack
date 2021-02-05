@@ -108,22 +108,6 @@ export default function DialogueEdit( {
 		setAttributes( { timestamp: time } );
 	}
 
-	/**
-	 * Make focus in the content component.
-	 * It also deals with a race condition
-	 * when setting the slug attribute
-	 * and onFocus() callback.
-	 *
-	 * @param {boolean} force - Defines if effectively make the focus in the content.
-	 */
-	function focusOnContent( force ) {
-		if ( ! force ) {
-			return;
-		}
-
-		setTimeout( () => contentRef?.current?.focus(), 100 );
-	}
-
 	return (
 		<div className={ className }>
 			<BlockControls>
@@ -180,30 +164,26 @@ export default function DialogueEdit( {
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ ( selectedParticipant, forceFucus ) => {
+					onSelect={ ( selectedParticipant ) => {
 						setAttributes( selectedParticipant );
-						focusOnContent( forceFucus );
 					} }
 
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
 					} }
 
-					onAdd={ ( newLabel, forceFucus ) => {
+					onAdd={ ( newLabel ) => {
 						triggerRefreshAutocomplete();
 
 						const newParticipant = conversationBridge.addNewParticipant( newLabel );
 						if ( ! newParticipant ) {
-							focusOnContent( forceFucus );
 							return;
 						}
 
 						setAttributes( newParticipant );
-						focusOnContent( forceFucus );
 					} }
-					onUpdate={ ( participant, forceFucus ) => {
+					onUpdate={ ( participant ) => {
 						conversationBridge.updateParticipants( participant );
-						focusOnContent( forceFucus );
 					} }
 					onFocus={ () => setIsContentSelected( false ) }
 				/>

@@ -13,7 +13,8 @@ import {
 	SelectControl,
 	Popover,
 	ComboboxControl,
-	withFocusOutside
+	withFocusOutside,
+	Button
 } from '@wordpress/components';
 import { useState, Component } from '@wordpress/element';
 import { check, people } from '@wordpress/icons';
@@ -181,69 +182,18 @@ export function SpeakerEditControl( {
 		<DetectOutside onFocusOutside={ onFocusOutside }>
 			<div
 				className={ classNames( className, {
-					'has-bold-style': true,
+					'has-bold-style': participant,
 				} ) }
 			>
-				<RichText
-					tagName="div"
-					value={ label }
-					formattingControls={ [] }
-					withoutInteractiveFormatting={ false }
-					onChange={ ( value ) => {
-						onParticipantChange( value );
+				<Button
+					isTertiary
+					onClick={ () => setShowPopover( ! showPopover ) }
+					isLink={ ! participant }
+				>
+					{ label || __( 'Speaker', 'jetpack' ) }
+				</Button>
 
-						if ( ! value?.length ) {
-							setShowPopover( true );
-							return onClean();
-						}
-					} }
-					placeholder={ __( 'Speaker', 'jetpack' ) }
-					keepPlaceholderOnFocus={ true }
-					onSplit={ () => {} }
-					onReplace={ ( replaceValue ) => {
-						setShowPopover( false );
-
-						const replacedParticipant = replaceValue?.[ 0 ];
-						// Handling participant selection,
-						// by picking them from the autocomplete options.
-						if ( replacedParticipant ) {
-							const { label: newLabel } = replacedParticipant;
-							onParticipantChange( newLabel );
-							return onSelect( replacedParticipant );
-						}
-
-						if ( ! label?.length ) {
-							return;
-						}
-
-						// Update speaker label.
-						if ( participant && participant.label !== label ) {
-							return onUpdate( {
-								...participant,
-								label,
-							} );
-						}
-
-						const participantExists = getParticipantByLabel( participants, label );
-						if ( participantExists ) {
-							return onSelect( participantExists, true );
-						}
-
-						onAdd( label, true );
-					} }
-					onFocus={ ( event ) => {
-						onFocus( event );
-
-						// Do not show popover when speaker no empty.
-						if ( label?.length ) {
-							return;
-						}
-
-						setShowPopover( ! showPopover );
-					} }
-				/>
-
-				{ ( showPopover && participants?.length >= 1 ) && (
+				{ showPopover && (
 					<Popover>
 						<SpeakerSelect
 							className={ className }
