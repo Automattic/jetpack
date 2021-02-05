@@ -27,6 +27,21 @@ export function allProjects() {
 }
 
 /**
+ * Checks if a project name already is valid to use (if it doesn't already exist and isn't blank)
+ *
+ * @param {string} dir - the directory we're checking.
+ * @param {string} newName - the name of the new project we're checking.
+ *
+ * @returns {boolean} - return true if we're newName matches an existing project name.
+ */
+export function checkNameValid( dir, newName ) {
+	const existingNames = dirs( './projects/' + dir );
+	if ( existingNames.includes( newName ) || newName.length === 0 ) {
+		return true;
+	}
+}
+
+/**
  * Returns an array of projects by the given type.
  *
  * @param {string} type - The project type. Must be one of projectTypes
