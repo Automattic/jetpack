@@ -279,8 +279,14 @@ export function SpeakerEditControl( {
 						return;
 					}
 
+					const currentParticipantExists = getParticipantByLabel( participants, label );
+
 					// Update speaker label.
 					if ( participant && participant.label !== label ) {
+						if ( currentParticipantExists ) {
+							return onSelect( currentParticipantExists, true );
+						}
+
 						setEditingMode( EDIT_MODE_EDITING );
 						transcriptRef?.current?.focus();
 						return onActionHandler( {
@@ -290,12 +296,11 @@ export function SpeakerEditControl( {
 					}
 
 					// Select the speaker but from the current label value.
-					const participantExists = getParticipantByLabel( participants, label );
-						if ( participantExists ) {
-							setEditingMode( EDIT_MODE_SELECTING );
-							transcriptRef?.current?.focus();
-							return onSelect( participantExists, true );
-						}
+					if ( currentParticipantExists ) {
+						setEditingMode( EDIT_MODE_SELECTING );
+						transcriptRef?.current?.focus();
+						return onSelect( currentParticipantExists, true );
+					}
 
 					// Add a new speaker.
 					onActionHandler( true );
