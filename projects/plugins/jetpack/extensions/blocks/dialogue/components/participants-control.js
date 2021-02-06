@@ -264,6 +264,8 @@ export function SpeakerEditControl( {
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
+					setTimeout( () => transcriptRef?.current?.focus(), 10 );
+
 					const replacedParticipant = replaceValue?.[ 0 ];
 					// Handling participant selection,
 					// by picking them from the autocomplete options.
@@ -271,7 +273,6 @@ export function SpeakerEditControl( {
 						const { label: newLabel } = replacedParticipant;
 						onParticipantChange( newLabel );
 						setEditingMode( EDIT_MODE_SELECTING );
-						transcriptRef?.current?.focus();
 						return onSelect( replacedParticipant );
 					}
 
@@ -288,7 +289,6 @@ export function SpeakerEditControl( {
 						}
 
 						setEditingMode( EDIT_MODE_EDITING );
-						transcriptRef?.current?.focus();
 						return onActionHandler( {
 							...participant,
 							label,
@@ -298,13 +298,11 @@ export function SpeakerEditControl( {
 					// Select the speaker but from the current label value.
 					if ( currentParticipantExists ) {
 						setEditingMode( EDIT_MODE_SELECTING );
-						transcriptRef?.current?.focus();
 						return onSelect( currentParticipantExists, true );
 					}
 
 					// Add a new speaker.
 					onActionHandler( true );
-					setTimeout( () => transcriptRef?.current?.focus(), 100 );
 					return setEditingMode( EDIT_MODE_ADDING );
 				} }
 				autocompleters={ autocompleter }
