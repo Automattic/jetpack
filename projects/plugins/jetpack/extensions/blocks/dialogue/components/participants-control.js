@@ -137,8 +137,8 @@ function refreshAutocompleter( participants ) {
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.label               - Dialogue participant value. Local level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
- * @param {string}   prop.reRenderingKey      - Custom property to for a re-render in the rich text component.
  * @param {object}   prop.participant         - Participant object. Gloanl level.
+ * @param {string}   prop.reRenderingKey      - Custom property to for a re-render in the rich text component.
  * @param {Function} prop.onParticipantChange - Use this callback to update participant label, locally.
  * @param {Function} prop.onUpdate            - Use this callback to update the participant, but globaly.
  * @param {Function} prop.onSelect            - Callback triggered when a particpant is selectd from the list.
@@ -170,7 +170,7 @@ export function SpeakerEditControl( {
 
 			case EDIT_MODE_EDITING: {
 				return onUpdate( {
-					slug: participant.slug,
+					...participant,
 					label,
 				}, ! useFocusOutsideIsAvailable || forceFocus );
 			}
@@ -254,7 +254,6 @@ export function SpeakerEditControl( {
 					// by picking them from the autocomplete options.
 					if ( replacedParticipant ) {
 						const { label: newLabel } = replacedParticipant;
-
 						onParticipantChange( newLabel );
 						setEditingMode( EDIT_MODE_SELECTING );
 						return onSelect( replacedParticipant );
@@ -264,28 +263,24 @@ export function SpeakerEditControl( {
 						return;
 					}
 
-					// Handling participant selection,
-					// by typing `ENTER` KEY.
+					// Update speaker label.
+					if ( participant && participant.label !== label ) {
+						setEditingMode( EDIT_MODE_EDITING );
+						return onActionHandler( {
+							...participant,
+							label,
+						} );
+					}
+
 					const participantExists = getParticipantByLabel( participants, label );
-					if ( participantExists ) {
-						if (
-							! participant ||
-							participant.label === label
-						) {
+						if ( participantExists ) {
 							setEditingMode( EDIT_MODE_SELECTING );
 							return onSelect( participantExists, true );
 						}
 
-						// Update participant format.
-						if ( participant?.label !== label ) {
-							setEditingMode( EDIT_MODE_EDITING );
-							return onActionHandler();
-						}
-					}
-
 					// From here, it will add a new participant.
 					setEditingMode( EDIT_MODE_ADDING );
-					onActionHandler( true );
+					return onActionHandler( true );
 				} }
 				autocompleters={ autocompleter }
 				onFocus={ onFocus }
