@@ -20,7 +20,7 @@ import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug, getParticipantByLabel } from '../conversation/utils';
+import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -241,37 +241,7 @@ export default function DialogueEdit( {
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				isSelected={ isContentIsSelected }
-				onFocus={ ( event ) => {
-					setIsContentSelected( true );
-
-					if ( ! label ) {
-						triggerRefreshAutocomplete();
-						return;
-					}
-
-					event.preventDefault();
-
-					// Provably, we should add a new participant from here.
-					// onFocusOutside is not supported by some Gutenberg versions.
-					// Take a look at <SpeakerEditControl /> to get more info.
-					const participantExists = getParticipantByLabel( participants, label );
-
-					// If participant exists let's update it.
-					if ( participantExists ) {
-						setAttributes( participantExists );
-					} else {
-						// Otherwise, let's create a new one...
-						const newParticipant = conversationBridge.addNewParticipant( label );
-						if ( ! newParticipant ) {
-							return;
-						}
-
-						// ... and update the dialogue with these new values.
-						setAttributes( newParticipant );
-					}
-
-					triggerRefreshAutocomplete();
-				} }
+				onFocus={ () => setIsContentSelected( true ) }
 			/>
 		</div>
 	);
