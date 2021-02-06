@@ -6,12 +6,18 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
+import {
+	DropdownMenu,
+	MenuGroup,
+	MenuItem,
+	SelectControl,
+	withFocusOutside,
+} from '@wordpress/components';
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 
-import { useMemo, useState, useEffect } from '@wordpress/element';
+import { useMemo, useState, useEffect, Component } from '@wordpress/element';
 import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
 
 /**
@@ -25,7 +31,6 @@ const EDIT_MODE_EDITING = 'is-editing';
 
 // Fallback for `useFocusOutside` hook.
 const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
-const useFocusOutsideWithFallback = useFocusOutsideIsAvailable ? useFocusOutside : () => {};
 
 function ParticipantsMenu( { participants, className, onSelect, slug, onClose } ) {
 	return (
@@ -79,6 +84,18 @@ export default function ParticipantsDropdown( props ) {
 		</DropdownMenu>
 	);
 }
+
+const DetectOutside = withFocusOutside(
+	class extends Component {
+		handleFocusOutside( event ) {
+			this.props.onFocusOutside( event );
+		}
+
+		render() {
+			return this.props.children;
+		}
+	}
+);
 
 /**
  * Participants Autocompleter.
@@ -156,8 +173,6 @@ export function SpeakerEditControl( {
 		}
 	}
 
-	const focusOutsideProps = useFocusOutsideWithFallback( onActionHandler );
-
 	/**
 	 * Funcion handler when user types participant label.
 	 * It can edit a new participant, or add a new one,
@@ -210,14 +225,14 @@ export function SpeakerEditControl( {
 	}, [ participant ] );
 
 	return (
-		<div
+		<DetectOutside
 			className={ classNames( className, {
 				'has-bold-style': true,
 				'is-adding-participant': editingMode === EDIT_MODE_ADDING,
 				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
 				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
 			} ) }
-			{ ...focusOutsideProps }
+			onFocusOutside={ onActionHandler }
 		>
 			<RichText
 				key={ reRenderingKey }
@@ -271,6 +286,6 @@ export function SpeakerEditControl( {
 				autocompleters={ autocompleter }
 				onFocus={ onFocus }
 			/>
-		</div>
+		</DetectOutside>
 	);
 }
