@@ -151,6 +151,7 @@ export default function DialogueEdit( {
 					label={ label }
 					participant={ conversationParticipant }
 					participants={ participants }
+					transcriptRef={ contentRef }
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { label: updatedParticipant } );
 					} }

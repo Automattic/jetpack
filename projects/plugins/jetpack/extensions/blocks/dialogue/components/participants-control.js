@@ -144,8 +144,9 @@ function refreshAutocompleter( participants ) {
  * @param {object}   prop                     - ParticipantRichControl component.
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.label               - Dialogue participant value. Local level.
- * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
  * @param {object}   prop.participant         - Participant object. Gloanl level.
+ * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
+ * @param {object}   prop.transcriptRef       - Reference to the transcript DOM element (DialogueEdit content).
  * @param {Function} prop.onParticipantChange - Use this callback to update participant label, locally.
  * @param {Function} prop.onUpdate            - Use this callback to update the participant, but globaly.
  * @param {Function} prop.onSelect            - Callback triggered when a particpant is selectd from the list.
@@ -157,8 +158,9 @@ function refreshAutocompleter( participants ) {
 export function SpeakerEditControl( {
 	className,
 	label,
-	participants,
 	participant,
+	participants,
+	transcriptRef,
 	onParticipantChange,
 	onUpdate = () => {},
 	onSelect,
@@ -269,6 +271,7 @@ export function SpeakerEditControl( {
 						const { label: newLabel } = replacedParticipant;
 						onParticipantChange( newLabel );
 						setEditingMode( EDIT_MODE_SELECTING );
+						transcriptRef?.current?.focus();
 						return onSelect( replacedParticipant );
 					}
 
@@ -279,21 +282,25 @@ export function SpeakerEditControl( {
 					// Update speaker label.
 					if ( participant && participant.label !== label ) {
 						setEditingMode( EDIT_MODE_EDITING );
+						transcriptRef?.current?.focus();
 						return onActionHandler( {
 							...participant,
 							label,
 						} );
 					}
 
+					// Select the speaker but from the current label value.
 					const participantExists = getParticipantByLabel( participants, label );
 						if ( participantExists ) {
 							setEditingMode( EDIT_MODE_SELECTING );
+							transcriptRef?.current?.focus();
 							return onSelect( participantExists, true );
 						}
 
-					// From here, it will add a new participant.
-					setEditingMode( EDIT_MODE_ADDING );
-					return onActionHandler( true );
+					// Add a new speaker.
+					onActionHandler( true );
+					setTimeout( () => transcriptRef?.current?.focus(), 100 );
+					return setEditingMode( EDIT_MODE_ADDING );
 				} }
 				autocompleters={ autocompleter }
 				onFocus={ onFocus }
