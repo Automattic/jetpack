@@ -17,7 +17,13 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 
-import { useMemo, useState, useEffect, Component } from '@wordpress/element';
+import {
+	useMemo,
+	useState,
+	useEffect,
+	Component,
+	useReducer,
+} from '@wordpress/element';
 import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
 
 /**
@@ -85,6 +91,8 @@ export default function ParticipantsDropdown( props ) {
 	);
 }
 
+const speakersControlReducer = state => state + 1;
+
 const DetectOutside = withFocusOutside(
 	class extends Component {
 		handleFocusOutside( event ) {
@@ -138,7 +146,6 @@ function refreshAutocompleter( participants ) {
  * @param {string}   prop.label               - Dialogue participant value. Local level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
  * @param {object}   prop.participant         - Participant object. Gloanl level.
- * @param {string}   prop.reRenderingKey      - Custom property to for a re-render in the rich text component.
  * @param {Function} prop.onParticipantChange - Use this callback to update participant label, locally.
  * @param {Function} prop.onUpdate            - Use this callback to update the participant, but globaly.
  * @param {Function} prop.onSelect            - Callback triggered when a particpant is selectd from the list.
@@ -152,7 +159,6 @@ export function SpeakerEditControl( {
 	label,
 	participants,
 	participant,
-	reRenderingKey,
 	onParticipantChange,
 	onUpdate = () => {},
 	onSelect,
@@ -162,9 +168,16 @@ export function SpeakerEditControl( {
 } ) {
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
+	// we use a reducer to force re-rendering the SpeakerEditControl,
+	// passing the `reRenderingKey` as property of the component.
+	// It's required when we want to update the options in the autocomplete,
+	// or when we need to hide it.
+	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer( speakersControlReducer, 0 );
+
 	function onActionHandler( forceFocus ) {
 		switch ( editingMode ) {
 			case EDIT_MODE_ADDING: {
+				triggerRefreshAutocomplete();
 				return onAdd( label, ! useFocusOutsideIsAvailable || forceFocus );
 			}
 
@@ -239,7 +252,7 @@ export function SpeakerEditControl( {
 			onFocusOutside={ onActionHandler }
 		>
 			<RichText
-				key={ reRenderingKey }
+				key={ `re-render-key${ reRenderingKey }` }
 				tagName="div"
 				value={ label }
 				formattingControls={ [] }
