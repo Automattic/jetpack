@@ -43,6 +43,10 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 
 	const addNewParticipant = useCallback( function( newSpeakerLabel ) {
+		if ( ! newSpeakerLabel ) {
+			return;
+		}
+
 		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
 		// Do not add speakers with empty names.
 		if ( ! sanitizedSpeakerLabel?.length ) {
