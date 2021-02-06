@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
-import { useContext, useEffect, useRef, useState } from '@wordpress/element';
+import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
 
@@ -42,7 +42,6 @@ export default function DialogueEdit( {
 		showTimestamp,
 		timestamp,
 	} = attributes;
-	const [ isContentIsSelected, setIsContentSelected ] = useState( false );
 
 	const mediaSource = useSelect(
 		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
@@ -168,7 +167,6 @@ export default function DialogueEdit( {
 					onUpdate={ ( participant ) => {
 						conversationBridge.updateParticipants( participant );
 					} }
-					onFocus={ () => setIsContentSelected( false ) }
 				/>
 
 				{ showTimestamp && (
@@ -229,9 +227,7 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				isSelected={ isContentIsSelected }
-				onFocus={ () => setIsContentSelected( true ) }
-				/>
+			/>
 		</div>
 	);
 }

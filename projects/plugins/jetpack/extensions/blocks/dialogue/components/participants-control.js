@@ -152,7 +152,6 @@ function refreshAutocompleter( participants ) {
  * @param {Function} prop.onSelect            - Callback triggered when a particpant is selectd from the list.
  * @param {Function} prop.onAdd               - Callback used to add a new participant.
  * @param {Function} prop.onClean             - Use this callback to disassociate the Dialogue with a participant.
- * @param {Function} prop.onFocus             - onFocus callback RichText callback.
  * @returns {Function} React component function.
  */
 export function SpeakerEditControl( {
@@ -166,7 +165,6 @@ export function SpeakerEditControl( {
 	onSelect,
 	onAdd,
 	onClean,
-	onFocus,
 } ) {
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
@@ -306,7 +304,6 @@ export function SpeakerEditControl( {
 					return setEditingMode( EDIT_MODE_ADDING );
 				} }
 				autocompleters={ autocompleter }
-				onFocus={ onFocus }
 			/>
 		</DetectOutside>
 	);
