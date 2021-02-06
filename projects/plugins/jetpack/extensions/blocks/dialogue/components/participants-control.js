@@ -92,7 +92,11 @@ const DetectOutside = withFocusOutside(
 		}
 
 		render() {
-			return this.props.children;
+			return (
+				<div className={ this.props.className }>
+					{ this.props.children }
+				</div>
+			);
 		}
 	}
 );
@@ -227,7 +231,7 @@ export function SpeakerEditControl( {
 	return (
 		<DetectOutside
 			className={ classNames( className, {
-				'has-bold-style': true,
+				'has-bold-style': label?.length,
 				'is-adding-participant': editingMode === EDIT_MODE_ADDING,
 				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
 				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
