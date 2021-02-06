@@ -24,7 +24,6 @@ import {
 	Component,
 	useReducer,
 } from '@wordpress/element';
-import { __experimentalUseFocusOutside as useFocusOutside } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -34,9 +33,6 @@ import { getParticipantByLabel } from '../../conversation/utils';
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
 const EDIT_MODE_EDITING = 'is-editing';
-
-// Fallback for `useFocusOutside` hook.
-const useFocusOutsideIsAvailable = typeof useFocusOutside !== 'undefined';
 
 function ParticipantsMenu( { participants, className, onSelect, slug, onClose } ) {
 	return (
@@ -174,18 +170,18 @@ export function SpeakerEditControl( {
 	// or when we need to hide it.
 	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer( speakersControlReducer, 0 );
 
-	function onActionHandler( forceFocus ) {
+	function onActionHandler() {
 		switch ( editingMode ) {
 			case EDIT_MODE_ADDING: {
 				triggerRefreshAutocomplete();
-				return onAdd( label, ! useFocusOutsideIsAvailable || forceFocus );
+				return onAdd( label );
 			}
 
 			case EDIT_MODE_EDITING: {
 				return onUpdate( {
 					...participant,
 					label,
-				}, ! useFocusOutsideIsAvailable || forceFocus );
+				} );
 			}
 		}
 	}
