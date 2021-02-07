@@ -6,7 +6,7 @@ import inquirer from 'inquirer';
 /**
  * Internal dependencies
  */
-import { dirs, projectTypes } from "./projectHelpers";
+import { dirs, projectTypes } from './projectHelpers';
 
 /**
  * Prompt for project.
@@ -27,13 +27,13 @@ export async function promptForProject( options ) {
 		typeAnswer = await inquirer.prompt( {
 			type: 'list',
 			name: 'type',
-			message: 'What type of project are you building today?',
+			message: 'What type of project are you working on today?',
 			choices: projectTypes,
 		} );
 		questions.push( {
 			type: 'list',
 			name: 'project',
-			message: 'Please choose which project to build',
+			message: 'Please choose which project',
 			choices: dirs( './projects/' + typeAnswer.type ),
 		} );
 	}

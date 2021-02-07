@@ -2,11 +2,6 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-use PhpParser\ParserFactory;
-use PhpParser\NodeTraverser;
-use PhpParser\NodeDumper;
-use PhpParser\NodeVisitor\NameResolver;
-
 class Differences extends PersistentList {
 
 	private function slashit( $path ) {

@@ -17,10 +17,11 @@ domReady( function () {
 			return;
 		}
 
-		const timestamp = event.target?.dataset?.timestamp;
+		const timestamp = event.target?.href?.split( '#' )?.[ 1 ];
 		if ( ! timestamp ) {
 			return;
 		}
+
 		const mediaSource = select( STORE_ID )?.getDefaultMediaSource();
 		if ( ! mediaSource ) {
 			return;

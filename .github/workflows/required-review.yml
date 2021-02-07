@@ -14,12 +14,11 @@ jobs:
       # Checkout and build the action
       - uses: actions/checkout@v2
       - run: |
-          cd .github/actions/required-review
-          yarn install
-          yarn build
+          cd projects/github-actions/required-review
+          composer build-development
 
       - name: Check for required review approval
-        uses: ./.github/actions/required-review
+        uses: ./projects/github-actions/required-review
         with:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           requirements-file: .github/files/required-review.yaml

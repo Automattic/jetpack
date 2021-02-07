@@ -23,5 +23,8 @@ if ( empty( $_SERVER['PHP_SELF'] ) ) {
 	$_SERVER['PHP_SELF'] = '';
 }
 
+// Preloading the file to reconcile Brain\Monkey with Wordbless.
+require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+
 \WorDBless\Load::load();
 require_once ABSPATH . WPINC . '/class-IXR.php';
