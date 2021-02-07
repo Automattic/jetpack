@@ -164,7 +164,7 @@ class Test_Plugin_Factory {
 	/**
 	 * Adds a class file to the plugin being built.
 	 *
-	 * @param string $autoload_type The type of autoloading to name the fule for. 'classmap', 'psr-4', 'psr-0' are options.
+	 * @param string $autoload_type The type of autoloading to name the file for. 'classmap', 'psr-4', 'psr-0' are options.
 	 * @param string $fqn           The fully qualified name for the class.
 	 * @param string $content       The content of the class.
 	 * @return $this
