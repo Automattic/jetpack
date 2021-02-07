@@ -28,7 +28,7 @@ import {
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel } from '../../conversation/utils';
+import { getParticipantByLabel, getParticipantBySlug } from '../../conversation/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -69,7 +69,10 @@ export function ParticipantsControl( { participants, slug, onSelect } ) {
 				label,
 				value,
 			} ) ) }
-			onChange={ participantSlug => onSelect( { slug: participantSlug } ) }
+			onChange={ participantSlug => onSelect( getParticipantBySlug(
+				participants,
+				participantSlug
+			) ) }
 		/>
 	);
 }
