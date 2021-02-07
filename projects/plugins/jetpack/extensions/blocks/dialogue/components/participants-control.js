@@ -276,12 +276,7 @@ export function SpeakerEditControl( {
 
 					const currentParticipantExists = getParticipantByLabel( participants, label );
 
-					// Update speaker label.
 					if ( participant && participant.label !== label ) {
-						if ( currentParticipantExists ) {
-							return onSelect( currentParticipantExists, true );
-						}
-
 						setEditingMode( EDIT_MODE_EDITING );
 						return onActionHandler( {
 							...participant,
