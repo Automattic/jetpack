@@ -44,10 +44,10 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: blocks => {
+				transform: ( blocks ) => {
 					return blocks.map( ( { content, label } ) =>
 						createBlock( 'core/paragraph', {
-							content: ( label.length ? `<strong>${ label }</strong>: ` : '' ) + content,
+							content: ( label?.length ? `<strong>${ label }</strong>: ` : '' ) + content,
 						} )
 					);
 				},
@@ -58,7 +58,7 @@ export const settings = {
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: blocks => {
+				transform: ( blocks ) => {
 					return blocks.map( ( { content } ) =>
 						createBlock( 'jetpack/dialogue', {
 							participant: defaultParticipants[ 0 ],
