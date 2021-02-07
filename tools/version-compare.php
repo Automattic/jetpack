@@ -8,7 +8,7 @@
  *     tools/version-compare.php "VER1" "VER2" "OP"
  *
  * @see https://www.php.net/version_compare
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 array_shift( $argv );

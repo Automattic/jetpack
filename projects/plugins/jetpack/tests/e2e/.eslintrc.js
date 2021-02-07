@@ -18,6 +18,7 @@ module.exports = {
 		jestPuppeteer: true,
 		reporter: true,
 		jasmine: true,
+		jpConnect: true,
 	},
 	settings: {
 		jest: {

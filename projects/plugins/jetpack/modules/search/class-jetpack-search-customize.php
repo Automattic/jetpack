@@ -2,7 +2,7 @@
 /**
  * Jetpack Search Overlay Customization
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 // Exit if file is accessed directly.

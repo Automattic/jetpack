@@ -2,7 +2,7 @@
 /**
  * Script to build modules/photon-cdn/jetpack-manifest.php
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_proc_open, PHPCompatibility.ParameterValues.NewProcOpenCmdArray.Found, WordPress.WP.AlternativeFunctions

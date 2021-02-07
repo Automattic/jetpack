@@ -2,7 +2,7 @@
 /**
  * OpenTable Block tests.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Extensions\OpenTable;

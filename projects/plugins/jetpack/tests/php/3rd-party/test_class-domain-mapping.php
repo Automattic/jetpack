@@ -2,7 +2,7 @@
 /**
  * Tests for the 3rd-party domain mapping plugin integration.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
@@ -17,7 +17,7 @@ require_once JETPACK__PLUGIN_DIR . '3rd-party/class-domain-mapping.php';
  *
  * Extend with a public constructor so we can test.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 class MockDomainMapping extends Domain_Mapping {
 	/**
@@ -30,7 +30,7 @@ class MockDomainMapping extends Domain_Mapping {
 /**
  * Class WP_Test_Domain_Mapping
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 class WP_Test_Domain_Mapping extends \WP_UnitTestCase {
 	/**

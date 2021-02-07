@@ -12,6 +12,7 @@ import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
+import '@wordpress/notices';
 
 /**
  * Internal dependencies
@@ -70,7 +71,7 @@ const ConvertToAudio = () => {
 			</p>
 			<p>{ __( 'Let your readers listen to your post.', 'jetpack' ) }</p>
 			<div role="link" tabIndex={ 0 } onClick={ handleClick } onKeyDown={ handleClick }>
-				<a href="https://anchor.fm/wordpress" target="_top">
+				<a href="https://anchor.fm/wordpressdotcom" target="_top">
 					{ __( 'Create a podcast episode', 'jetpack' ) }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
 				</a>
@@ -83,6 +84,30 @@ function showPostPublishOutboundLink() {
 	registerPlugin( 'anchor-post-publish-outbound-link', {
 		render: ConvertToAudio,
 	} );
+}
+
+function createEpisodeErrorNotice( params ) {
+	dispatch( 'core/notices' ).createNotice(
+		'error',
+		__(
+			"We couldn't find that episode in your feed. If you just published the episode, please try creating the post again in a few minutes.",
+			'jetpack'
+		),
+		{
+			id: 'episode-error-notice',
+			actions: [
+				{
+					onClick() {
+						window.location.href = params.retry_url;
+					},
+					onKeyDown() {
+						window.location.href = params.retry_url;
+					},
+					label: __( 'Retry', 'jetpack' ),
+				},
+			],
+		}
+	);
 }
 
 function initAnchor() {
@@ -105,6 +130,9 @@ function initAnchor() {
 				break;
 			case 'set-episode-title':
 				setEpisodeTitle( actionParams );
+				break;
+			case 'create-episode-error-notice':
+				createEpisodeErrorNotice( actionParams );
 				break;
 		}
 	} );

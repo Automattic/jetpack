@@ -28,8 +28,9 @@ export const settings = {
 	icon,
 	category: 'layout',
 	keywords: [
-		_x( 'Conversation', 'block search term', 'jetpack' ),
-		__( 'transcription', 'jetpack' ),
+		_x( 'conversation', 'block search term', 'jetpack' ),
+		_x( 'transcription', 'block search term', 'jetpack' ),
+		_x( 'dialogue', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,

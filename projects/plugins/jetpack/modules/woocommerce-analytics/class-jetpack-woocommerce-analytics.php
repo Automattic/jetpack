@@ -2,7 +2,7 @@
 /**
  * Jetpack_WooCommerce_Analytics is ported from the Jetpack_Google_Analytics code.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
