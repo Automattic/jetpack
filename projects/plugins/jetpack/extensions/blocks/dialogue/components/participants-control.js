@@ -16,7 +16,7 @@ import {
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-
+import { create, getTextContent } from '@wordpress/rich-text';
 import {
 	useMemo,
 	useState,
@@ -174,7 +174,7 @@ export function SpeakerEditControl( {
 		switch ( editingMode ) {
 			case EDIT_MODE_ADDING: {
 				triggerRefreshAutocomplete();
-				return onAdd( label );
+				return onAdd( getTextContent( create( { html: label } ) ) );
 			}
 
 			case EDIT_MODE_EDITING: {
@@ -252,7 +252,7 @@ export function SpeakerEditControl( {
 				tagName="div"
 				value={ label }
 				formattingControls={ [] }
-				withoutInteractiveFormatting={ false }
+				withoutInteractiveFormatting={ true }
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
