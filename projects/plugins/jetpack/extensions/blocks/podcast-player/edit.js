@@ -70,6 +70,7 @@ const actions = {
 	MAKE_INTERACTIVE: 'MAKE_INTERACTIVE',
 	PREVENT_INTERACTIONS: 'PREVENT_INTERACTIONS',
 	START_FETCH: 'START_FETCH',
+	CHECK_URL: 'CHECK_URL',
 };
 
 const podcastPlayerReducer = ( state, action ) => {
@@ -117,6 +118,18 @@ const podcastPlayerReducer = ( state, action ) => {
 				...state,
 				isLoading: true,
 			};
+		case actions.SELECT_EPISODE:
+			return {
+				...state,
+				selectedGuid: action.payload,
+			};
+		case actions.CHECK_URL:
+			return {
+				...state,
+				selectedGuid: null,
+				feedData: {},
+				checkUrl: action.payload,
+			};
 		default:
 			return { ...state };
 	}
@@ -156,15 +169,15 @@ const PodcastPlayerEdit = ( {
 
 	// State.
 	const cancellableFetch = useRef();
-	const [ state, dispatch ] = useReducer( podcastPlayerReducer, {
+	const [ { selectedGuid, checkUrl, ...state }, dispatch ] = useReducer( podcastPlayerReducer, {
 		editedUrl: url || '',
 		isEditing: ! url && ! exampleFeedData,
 		isLoading: false,
 		feedData: exampleFeedData || {},
 		isInteractive: false,
+		selectedGuid: selectedEpisodes[ 0 ]?.guid,
+		checkUrl: url || '',
 	} );
-
-	const selectedGuid = selectedEpisodes[ 0 ]?.guid;
 
 	const fetchFeed = useCallback(
 		debounce( requestParams => {
@@ -185,6 +198,10 @@ const PodcastPlayerEdit = ( {
 					// Check what type of response we got and act accordingly.
 					switch ( response?.type ) {
 						case PODCAST_FEED:
+							setAttributes( {
+								url: requestParams.url,
+								selectedEpisodes: requestParams.guids.map( guid => ( { guid } ) ),
+							} );
 							return dispatch( { type: actions.FEED_RECEIVED, payload: response.data } );
 						case EMBED_BLOCK:
 							return replaceWithEmbedBlock();
@@ -209,7 +226,7 @@ const PodcastPlayerEdit = ( {
 				}
 			);
 		}, 300 ),
-		[ replaceWithEmbedBlock, createErrorNotice, removeAllNotices ]
+		[ replaceWithEmbedBlock, createErrorNotice, removeAllNotices, setAttributes ]
 	);
 
 	useEffect( () => {
@@ -218,6 +235,21 @@ const PodcastPlayerEdit = ( {
 		};
 	}, [] );
 
+	// Load RSS feed initially and when the feed or selected episode changes.
+	useEffect( () => {
+		// Don't do anything if no url is set.
+		if ( '' === checkUrl ) {
+			return;
+		}
+
+		fetchFeed( {
+			url: checkUrl,
+			guids: selectedGuid ? [ selectedGuid ] : [],
+		} );
+
+		return () => cancellableFetch?.current?.cancel?.();
+	}, [ fetchFeed, checkUrl, selectedGuid ] );
+
 	// Make sure itemsToShow is 1 when we have a selected episode
 	useEffect( () => {
 		if ( selectedGuid && 1 !== itemsToShow ) {
@@ -225,24 +257,12 @@ const PodcastPlayerEdit = ( {
 		}
 	}, [ selectedGuid, itemsToShow, setAttributes ] );
 
-	// Load RSS feed initially and when the attributes change.
-	useEffect( () => {
-		// Don't do anything if no url is set.
-		if ( ! url ) {
-			return;
-		}
-
-		fetchFeed( {
-			url,
-			guids: selectedGuid ? [ selectedGuid ] : [],
-		} );
-		return () => cancellableFetch?.current?.cancel?.();
-	}, [ fetchFeed, url, selectedGuid ] );
-
 	// Bring back the overlay after block gets deselected.
-	if ( ! isSelected && state.isInteractive ) {
-		dispatch( { type: actions.PREVENT_INTERACTIONS } );
-	}
+	useEffect( () => {
+		if ( ! isSelected && state.isInteractive ) {
+			dispatch( { type: actions.PREVENT_INTERACTIONS } );
+		}
+	}, [ isSelected, state.isInteractive ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed is valid. If so, set the
@@ -254,7 +274,7 @@ const PodcastPlayerEdit = ( {
 	const checkPodcastLink = event => {
 		event.preventDefault();
 
-		if ( ! state.editedUrl ) {
+		if ( '' === state.editedUrl ) {
 			return;
 		}
 
@@ -271,25 +291,19 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		dispatch( { type: actions.CLEAR_FEED } );
-
 		/*
 		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
 		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
 		 */
-		if ( prependedURL === url ) {
+		if ( prependedURL === checkUrl ) {
 			// Reset the feedData, so that we display the spinner.
+			dispatch( { type: actions.CLEAR_FEED } );
 			fetchFeed( {
-				url,
+				url: checkUrl,
 				guids: selectedEpisodes[ 0 ]?.guid ? [ selectedEpisodes[ 0 ].guid ] : [],
 			} );
 		} else {
-			const attrs = {
-				url: prependedURL,
-				selectedEpisodes: [],
-				itemsToShow: 5,
-			};
-			setAttributes( attrs );
+			dispatch( { type: actions.CHECK_URL, payload: prependedURL } );
 		}
 
 		/*
@@ -380,7 +394,7 @@ const PodcastPlayerEdit = ( {
 						<ComboboxControl
 							className="jetpack-podcast-player__episode-selector"
 							value={ selectedGuid }
-							onChange={ guid => setAttributes( { selectedEpisodes: guid ? [ { guid } ] : [] } ) }
+							onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
 							options={ state.feedData.options || [] }
 							label={ __( 'Episode', 'jetpack' ) }
 							onFilterValueChange={ noop }
