@@ -132,21 +132,6 @@ export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
 
-export const getStep = state => {
-	const step =
-		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
-			? getInitialRecommendationsStep( state )
-			: state.jetpack.recommendations.step;
-
-	// These steps are special cases set on the server. There is technically no
-	// UI to display for them so the next eligible step is returned instead.
-	if ( [ 'setup-wizard-completed', 'banner-completed' ].includes( step ) ) {
-		return getNextEligibleStep( state, step );
-	}
-
-	return step;
-};
-
 const stepToNextStep = {
 	'setup-wizard-completed': 'summary',
 	'banner-completed': 'woocommerce',
@@ -213,6 +198,21 @@ const getNextEligibleStep = ( state, step ) => {
 		nextStep = stepToNextStep[ nextStep ];
 	}
 	return nextStep;
+};
+
+export const getStep = state => {
+	const step =
+		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
+			? getInitialRecommendationsStep( state )
+			: state.jetpack.recommendations.step;
+
+	// These steps are special cases set on the server. There is technically no
+	// UI to display for them so the next eligible step is returned instead.
+	if ( [ 'setup-wizard-completed', 'banner-completed' ].includes( step ) ) {
+		return getNextEligibleStep( state, step );
+	}
+
+	return step;
 };
 
 export const getNextRoute = state => {
