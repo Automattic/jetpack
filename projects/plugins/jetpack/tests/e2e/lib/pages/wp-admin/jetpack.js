@@ -48,6 +48,8 @@ export default class JetpackPage extends WpPage {
 	}
 
 	async forceVariation( variation = 'original' ) {
+		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
+		await waitForSelector( this.page, connectButtonSelector );
 		return await this.page.evaluate(
 			forceVariation => ( jpConnect.forceVariation = forceVariation ),
 			variation
