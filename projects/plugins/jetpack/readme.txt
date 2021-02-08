@@ -246,6 +246,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Bug fixes**
 
 * Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
+* Dashboard: improve performance by reducing excessive API calls.
 
 = 9.4 =
 
