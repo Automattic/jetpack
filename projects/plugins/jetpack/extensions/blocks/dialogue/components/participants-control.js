@@ -17,13 +17,7 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { create, getTextContent } from '@wordpress/rich-text';
-import {
-	useMemo,
-	useState,
-	useEffect,
-	Component,
-	useReducer,
-} from '@wordpress/element';
+import { useMemo, useState, useEffect, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -89,8 +83,6 @@ export default function ParticipantsDropdown( props ) {
 		</DropdownMenu>
 	);
 }
-
-const speakersControlReducer = state => state + 1;
 
 const DetectOutside = withFocusOutside(
 	class extends Component {
@@ -167,16 +159,9 @@ export function SpeakerEditControl( {
 } ) {
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 
-	// we use a reducer to force re-rendering the SpeakerEditControl,
-	// passing the `reRenderingKey` as property of the component.
-	// It's required when we want to update the options in the autocomplete,
-	// or when we need to hide it.
-	const [ reRenderingKey, triggerRefreshAutocomplete ] = useReducer( speakersControlReducer, 0 );
-
 	function onActionHandler() {
 		switch ( editingMode ) {
 			case EDIT_MODE_ADDING: {
-				triggerRefreshAutocomplete();
 				return onAdd( getTextContent( create( { html: label } ) ) );
 			}
 
@@ -251,7 +236,6 @@ export function SpeakerEditControl( {
 			onFocusOutside={ onActionHandler }
 		>
 			<RichText
-				key={ `re-render-key${ reRenderingKey }` }
 				tagName="div"
 				value={ label }
 				formattingControls={ [] }
