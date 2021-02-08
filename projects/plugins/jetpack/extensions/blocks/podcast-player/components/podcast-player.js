@@ -65,6 +65,42 @@ export class PodcastPlayer extends Component {
 	};
 
 	/**
+	 * Load the audio track into the player
+	 *
+	 * @private
+	 * @param {number} track - The track number
+	 * @returns {boolean} Whether loading of the track was successful
+	 */
+	loadTrack = track => {
+		const trackData = this.getTrack( track );
+		if ( ! trackData ) {
+			return false;
+		}
+
+		if ( this.state.currentTrack !== track ) {
+			this.setState( { currentTrack: track } );
+		}
+
+		const { title, link, description } = trackData;
+		this.props.updateMediaSourceData( this.props.playerId, {
+			title,
+			link,
+		} );
+
+		/*
+		 * Read that we're loading the track and its description. This is
+		 * dismissible via ctrl on VoiceOver.
+		 */
+		speak(
+			/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]". */
+			`${ sprintf( __( 'Loading: %s', 'jetpack' ), title ) } ${ description }`,
+			'assertive'
+		);
+
+		return true;
+	};
+
+	/**
 	 * Load audio from the track, start playing.
 	 *
 	 * @private
@@ -74,29 +110,11 @@ export class PodcastPlayer extends Component {
 		// Record that user has interacted.
 		this.recordUserInteraction();
 
-		const trackData = this.getTrack( track );
-		if ( ! trackData ) {
+		if ( ! this.loadTrack( track ) ) {
 			return;
 		}
 
-		this.setState( { currentTrack: track } );
-
-		const { title, link } = this.getTrack( track );
-		this.props.updateMediaSourceData( this.props.playerId, {
-			title,
-			link,
-		} );
 		this.props.playMediaSource( this.props.playerId );
-
-		/*
-		 * Read that we're loading the track and its description. This is
-		 * dismissible via ctrl on VoiceOver.
-		 */
-		speak(
-			/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]". */
-			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
-			'assertive'
-		);
 	};
 
 	/**
@@ -181,9 +199,9 @@ export class PodcastPlayer extends Component {
 		} );
 	};
 
-	registerPlayer( trackIndex ) {
+	registerPlayer() {
 		// Register Media source monstly episode data.
-		const track = this.getTrack( trackIndex ) || {};
+		const track = this.getTrack( this.state.currentTrack ) || {};
 		const { playerId } = this.props;
 
 		this.props.registerMediaSource( playerId, {
@@ -194,10 +212,6 @@ export class PodcastPlayer extends Component {
 
 		// Set podcast player instance as default.
 		this.props.setDefaultMediaSource( playerId );
-
-		if ( this.state.currentTrack !== trackIndex ) {
-			this.setState( trackIndex );
-		}
 	}
 
 	componentDidMount() {
@@ -205,7 +219,7 @@ export class PodcastPlayer extends Component {
 			return;
 		}
 
-		this.registerPlayer( this.state.currentTrack );
+		this.registerPlayer();
 	}
 
 	componentWillUnmount() {
@@ -224,8 +238,20 @@ export class PodcastPlayer extends Component {
 		// This equality check is a bit rough. It relies on the guids being unique for example, but
 		// it should be fine for our requirements.
 		if ( guids.length !== prevGuids.size || ! guids.every( guid => prevGuids.has( guid ) ) ) {
-			this.registerPlayer( 0 );
+			this.loadTrack( 0 );
 		}
+	}
+
+	static getDerivedStateFromProps( props, state ) {
+		// There might be a better way, but this is to avoid renders breaking when the current
+		// track is set to an index higher than the number of tracks we've received.
+		if ( props.tracks.length <= state.currentTrack ) {
+			return {
+				...state,
+				currentTrack: 0,
+			};
+		}
+		return null;
 	}
 
 	render() {
