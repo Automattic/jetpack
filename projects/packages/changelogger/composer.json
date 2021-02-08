@@ -1,0 +1,46 @@
+{
+	"name": "automattic/jetpack-changelogger",
+	"description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"symfony/console": "^3.4 | ^5.2",
+		"symfony/process": "^3.4 | ^5.2",
+		"wikimedia/at-ease": "^1.2 | ^2.0"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "0.2.0",
+		"wikimedia/testing-access-wrapper": "1.0.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Changelogger\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/src"
+		}
+	},
+	"bin": [
+		"bin/changelogger"
+	],
+	"scripts": {
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-changelogger"
+	}
+}
