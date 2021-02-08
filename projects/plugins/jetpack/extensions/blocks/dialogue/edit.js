@@ -64,7 +64,7 @@ export default function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounce( setAttributes, 100 );
+	const debounceSetDialoguesAttrs = useDebounce( setAttributes, 250 );
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
