@@ -31,22 +31,16 @@ function podcastSection( { episodeTrack, feedUrl } ) {
 	const { guid } = episodeTrack;
 
 	return [
-		'core/group',
-		{},
-		[
-			[
-				'jetpack/podcast-player',
-				{
-					customPrimaryColor: getIconColor(),
-					hexPrimaryColor: getIconColor(),
-					url: feedUrl,
-					selectedEpisodes: guid ? [ { guid } ] : [],
-					showCoverArt: false,
-					showEpisodeTitle: false,
-					showEpisodeDescription: false,
-				},
-			],
-		],
+		'jetpack/podcast-player',
+		{
+			customPrimaryColor: getIconColor(),
+			hexPrimaryColor: getIconColor(),
+			url: feedUrl,
+			selectedEpisodes: guid ? [ { guid } ] : [],
+			showCoverArt: false,
+			showEpisodeTitle: false,
+			showEpisodeDescription: false,
+		},
 	];
 }
 
