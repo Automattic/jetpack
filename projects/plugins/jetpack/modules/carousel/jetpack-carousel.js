@@ -299,8 +299,17 @@ jQuery( document ).ready( function ( $ ) {
 					if ( target.is( gallery ) || target.parents().add( target ).is( close_hint ) ) {
 						if ( ! window.matchMedia( '(max-device-width: 760px)' ).matches ) {
 							container.jp_carousel( 'close' );
-						} else if ( target.parents().add( target ).is( close_hint ) ) {
-							container.jp_carousel( 'close' );
+						} else {
+							if ( target.parents().add( target ).is( close_hint ) ) {
+								container.jp_carousel( 'close' );
+							}
+
+							if ( e.pageX <= 70 ) {
+								container.jp_carousel( 'previous' );
+							}
+							if ( $( window ).width() - e.pageX <= 70 ) {
+								container.jp_carousel( 'next' );
+							}
 						}
 					} else if ( target.hasClass( 'jp-carousel-commentlink' ) ) {
 						e.preventDefault();
