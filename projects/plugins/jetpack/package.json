@@ -195,7 +195,7 @@
 		"markdown-spellcheck": "1.3.1",
 		"mocha": "8.2.1",
 		"mockery": "2.1.0",
-		"nock": "13.0.5",
+		"nock": "13.0.7",
 		"node-wp-i18n": "1.2.4",
 		"nyc": "15.1.0",
 		"prettier": "npm:wp-prettier@2.0.5",
