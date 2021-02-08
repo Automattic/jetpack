@@ -1,6 +1,7 @@
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
+import { clickAndWaitForNewPage } from '../page-helper';
 
 export default class MailchimpBlock {
 	constructor( blockId, page ) {
@@ -31,10 +32,10 @@ export default class MailchimpBlock {
 		const formSelector = await this.page.waitForSelector( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const loginTab = await this.page.clickAndWaitForNewPage( setupFormSelector );
+		const wpComTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
 
 		if ( ! isLoggedIn ) {
-			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
+			await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
 		}
 
 		// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
@@ -46,23 +47,24 @@ export default class MailchimpBlock {
 		while ( ! loaded ) {
 			try {
 				count++;
-				await ConnectionsPage.init( loginTab );
+				await ConnectionsPage.init( wpComTab );
 				loaded = true;
 			} catch ( e ) {
 				logger.info(
 					'ConnectionsPage is not available yet. Attempt: ' + count,
 					' URL: ' + connectionsUrl
 				);
-				await loginTab.goto( connectionsUrl, { timeout: 120000 } );
+				await wpComTab.goto( connectionsUrl, { timeout: 120000 } );
 				if ( count > 9 ) {
 					throw new Error( 'ConnectionsPage is not available is not available after 10th attempt' );
 				}
 			}
 		}
 
-		await loginTab.reload( { waitUntil: 'domcontentloaded' } );
+		await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
 
-		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
+		const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
+		await wpComConnectionsPage.selectMailchimpList();
 
 		await this.page.bringToFront();
 		const reCheckSelector = this.getSelector( 'button.is-link' );

@@ -72,19 +72,12 @@ export function getAccountCredentials( accountName ) {
  * @return {page} New instance of the opened page.
  */
 export async function clickAndWaitForNewPage( page, selector ) {
-	const newTabTarget = new Promise( resolve => {
-		const listener = async target => {
-			if ( target.type() === 'page' ) {
-				browser.removeListener( 'targetcreated', listener );
-				resolve( target );
-			}
-		};
-		browser.addListener( 'targetcreated', listener );
-	} );
+	const [ newPage ] = await Promise.all( [
+		context.waitForEvent( 'page' ),
+		page.click( selector ), // Opens in a new tab
+	] );
 
-	await page.click( selector );
-	const target = await newTabTarget;
-	const newPage = await target.page();
+	await newPage.waitForLoadState();
 	await newPage.bringToFront();
 	return newPage;
 }

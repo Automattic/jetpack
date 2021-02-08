@@ -12,17 +12,18 @@ export default class ConnectionsPage extends Page {
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
 		const loadingIndicatorSelector = '.foldable-card__summary button:not([disabled])';
-		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand svg[height="24"]';
+		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand';
 		const marketingSelectSelector = '.mailchimp select';
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
 		await this.page.waitForSelector( loadingIndicatorSelector );
-		await page.click( mailchimpExpandSelector );
+
+		await this.page.click( mailchimpExpandSelector );
 
 		// WPCOM Connections page
 		await this.page.waitForSelector( mcOptionXpathSelector, { state: 'attached' } );
-		await page.selectOption( marketingSelectSelector, { label: mailchimpList } );
+		await this.page.selectOption( marketingSelectSelector, { label: mailchimpList } );
 		await this.page.waitForSelector( successNoticeSelector );
 		await this.page.close();
 	}
@@ -30,7 +31,7 @@ export default class ConnectionsPage extends Page {
 	async connectMailchimp() {
 		const mailchimpConnectSelector =
 			'div.mailchimp .foldable-card__summary-expanded button:not([disabled])';
-		const mcPopupPage = await clickAndWaitForNewPage( mailchimpConnectSelector );
+		const mcPopupPage = await clickAndWaitForNewPage( this.page, mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page
 		const [ mcLogin, mcPassword ] = getAccountCredentials( 'mailchimpLogin' );
