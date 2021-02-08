@@ -242,6 +242,21 @@ class Jetpack_Search {
 	}
 
 	/**
+	 * Does this site support Instant Search?
+	 *
+	 * @since 9.5
+	 * @return bool Supports Jetpack Instant Search
+	 */
+	public static function is_instant_enabled() {
+		// Disable Instant Search for Newspack sites due to AMP incompatibility.
+		if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newspack', get_current_blog_id() ) ) {
+			return false;
+		}
+
+		return Jetpack_Search_Options::is_instant_enabled();
+	}
+
+	/**
 	 * Does this site have a VIP index
 	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
 	 *
