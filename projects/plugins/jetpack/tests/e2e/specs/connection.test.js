@@ -75,7 +75,7 @@ describe( 'Connection', () => {
 		} );
 	} );
 
-	it( 'In-place upgrading a plan from premium to professional', async () => {
+	it( 'In-place upgrading a plan from Security Daily to Complete', async () => {
 		await step( 'Can set a sandbox cookie', async () => {
 			await ( await Sidebar.init( page ) ).setSandboxModeForPayments( cookie );
 			await ( await Sidebar.init( page ) ).setSandboxModeForPayments(
@@ -111,7 +111,7 @@ describe( 'Connection', () => {
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 		} );
 
-		await step( 'Can assert that site has a Professional plan', async () => {
+		await step( 'Can assert that site has a Complete plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
 			expect( await jetpackPage.isPlan( 'complete' ) ).toBeTruthy();
 		} );
