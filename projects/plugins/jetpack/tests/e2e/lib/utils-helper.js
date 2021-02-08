@@ -71,7 +71,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
  *
- * @param {page} page Puppeteer page object
+ * @param {page} page Playwright page object
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
@@ -86,7 +86,7 @@ export async function activateModule( page, module ) {
 	}
 
 	await page.waitForTimeout( 1000 );
-	await page.reload( { waitFor: 'networkidle0' } );
+	await page.reload( { waitUntil: 'domcontentloaded' } );
 
 	return true;
 }

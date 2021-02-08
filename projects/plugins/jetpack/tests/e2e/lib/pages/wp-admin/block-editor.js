@@ -2,16 +2,12 @@
  * Internal dependencies
  */
 import Page from '../page';
-/**
- * WordPress dependencies
- */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getTunnelSiteUrl } from '../../utils-helper';
+import { searchForBlock } from '@wordpress/e2e-test-utils';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.block-editor';
+		const expectedSelector = '#editor';
 		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelector, url } );
 	}
@@ -36,42 +32,39 @@ export default class BlockEditorPage extends Page {
 
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
-		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		await scrollIntoView( this.page, blockIconSelector );
-
-		await waitAndClick( this.page, blockIconSelector );
-		const blockInfo = await this.getInsertedBlock();
-		return blockInfo;
+		await page.click( `.editor-block-list-item-jetpack-${ blockName }` );
+		return await this.getInsertedBlock( blockName );
 	}
 
-	async getInsertedBlock() {
-		const blocks = await getAllBlocks();
-		return blocks[ blocks.length - 1 ];
+	async getInsertedBlock( blockName ) {
+		return ( await page.waitForSelector( `div[data-type='jetpack/${ blockName }']` ) ).getAttribute(
+			'data-block'
+		);
 	}
 
 	async publishPost() {
-		await waitAndClick( this.page, '.editor-post-publish-panel__toggle' );
+		await page.click( '.editor-post-publish-panel__toggle' );
 
 		// Disable reason: Wait for the animation to complete, since otherwise the
 		// click attempt may occur at the wrong point.
 		// Also, for some reason post-publish bar wont show up it we click to fast :/
 		await page.waitForTimeout( 1000 );
 
-		await waitAndClick( this.page, '.editor-post-publish-button' );
+		await page.click( '.editor-post-publish-button' );
 		await page.waitForTimeout( 500 );
 
-		await waitForSelector( this.page, '.components-snackbar' );
-		return await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
+		await this.page.waitForSelector( '.components-snackbar' );
+		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 	}
 
 	async viewPost() {
-		await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
-		await waitAndClick( this.page, '.post-publish-panel__postpublish-buttons a' );
+		await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
+		await page.click( '.post-publish-panel__postpublish-buttons a' );
 	}
 
 	async focus() {
 		await this.page.focus( '.editor-post-title__input' );
-		await waitAndClick( this.page, '.editor-post-title__input' );
+		await page.click( '.editor-post-title__input' );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
@@ -82,7 +75,7 @@ export default class BlockEditorPage extends Page {
 		let count = 0;
 		while ( count < 20 && ! block ) {
 			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitFor: 'networkidle0' } );
+			await this.reload( { waitUntil: 'domcontentloaded' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
 		}

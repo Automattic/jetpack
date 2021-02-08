@@ -2,13 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import {
-	waitAndClick,
-	waitAndType,
-	clickAndWaitForNewPage,
-	getAccountCredentials,
-	waitForSelector,
-} from '../../page-helper';
+import { clickAndWaitForNewPage, getAccountCredentials } from '../../page-helper';
 
 export default class ConnectionsPage extends Page {
 	constructor( page ) {
@@ -23,24 +17,20 @@ export default class ConnectionsPage extends Page {
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
-		await waitForSelector( this.page, loadingIndicatorSelector );
-		await waitAndClick( this.page, mailchimpExpandSelector );
+		await this.page.waitForSelector( loadingIndicatorSelector );
+		await page.click( mailchimpExpandSelector );
 
 		// WPCOM Connections page
-		await this.page.waitForXPath( mcOptionXpathSelector );
-
-		const optionHandle = ( await this.page.$x( mcOptionXpathSelector ) )[ 0 ];
-		const optionValue = await ( await optionHandle.getProperty( 'value' ) ).jsonValue();
-		await this.page.select( marketingSelectSelector, optionValue );
-
-		await this.page.waitForXPath( successNoticeSelector );
+		await this.page.waitForSelector( mcOptionXpathSelector, { state: 'attached' } );
+		await page.selectOption( marketingSelectSelector, { label: mailchimpList } );
+		await this.page.waitForSelector( successNoticeSelector );
 		await this.page.close();
 	}
 
 	async connectMailchimp() {
 		const mailchimpConnectSelector =
 			'div.mailchimp .foldable-card__summary-expanded button:not([disabled])';
-		const mcPopupPage = await clickAndWaitForNewPage( this.page, mailchimpConnectSelector );
+		const mcPopupPage = await clickAndWaitForNewPage( mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page
 		const [ mcLogin, mcPassword ] = getAccountCredentials( 'mailchimpLogin' );
@@ -49,9 +39,9 @@ export default class ConnectionsPage extends Page {
 		const mcPasswordSelector = '#login #password';
 		const mcSubmitSelector = "#login input[type='submit']";
 
-		await waitAndType( mcPopupPage, mcUsernameSelector, mcLogin );
-		await waitAndType( mcPopupPage, mcPasswordSelector, mcPassword );
-		await waitAndClick( mcPopupPage, mcSubmitSelector );
+		await mcPopupPage.type( mcUsernameSelector, mcLogin );
+		await mcPopupPage.type( mcPasswordSelector, mcPassword );
+		await mcPopupPage.type( mcSubmitSelector );
 		await this.page.bringToFront();
 	}
 }

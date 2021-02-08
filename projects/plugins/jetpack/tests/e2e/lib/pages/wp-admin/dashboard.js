@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible, waitAndClick } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class DashboardPage extends Page {
@@ -19,6 +19,6 @@ export default class DashboardPage extends Page {
 
 	async connect() {
 		const selector = ".jp-wpcom-connect__container a[href*='register']";
-		return await waitAndClick( this.page, selector );
+		return await page.click( selector );
 	}
 }

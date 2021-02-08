@@ -1,17 +1,12 @@
-/**
- * Internal dependencies
- */
-import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
 
 export default class MailchimpBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = MailchimpBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -33,10 +28,10 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
-		const formSelector = await waitForSelector( this.page, setupFormSelector );
+		const formSelector = await this.page.waitForSelector( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
+		const loginTab = await this.page.clickAndWaitForNewPage( setupFormSelector );
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
@@ -65,13 +60,13 @@ export default class MailchimpBlock {
 			}
 		}
 
-		await loginTab.reload( { waitFor: 'networkidle0' } );
+		await loginTab.reload( { waitUntil: 'domcontentloaded' } );
 
 		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 
 		await this.page.bringToFront();
 		const reCheckSelector = this.getSelector( 'button.is-link' );
-		await waitAndClick( this.page, reCheckSelector );
+		await page.click( reCheckSelector );
 	}
 
 	getSelector( selector ) {
@@ -81,7 +76,7 @@ export default class MailchimpBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Puppeteer page instance
+	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.wp-block-jetpack-mailchimp';
@@ -89,9 +84,9 @@ export default class MailchimpBlock {
 		const submitSelector = containerSelector + " button[type='submit']";
 		const consentSelector = containerSelector + ' #wp-block-jetpack-mailchimp_consent-text';
 
-		await waitForSelector( page, containerSelector );
-		await waitForSelector( page, emailSelector );
-		await waitForSelector( page, submitSelector );
-		await waitForSelector( page, consentSelector );
+		await page.waitForSelector( containerSelector );
+		await page.waitForSelector( emailSelector );
+		await page.waitForSelector( submitSelector );
+		await page.waitForSelector( consentSelector );
 	}
 }

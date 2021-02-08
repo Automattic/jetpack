@@ -15,16 +15,11 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const siteUrl = getTunnelSiteUrl();
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
+	const planDatafilePath = path.resolve( config.get( 'configDir' ), 'plan-data.txt' );
 
-	fs.writeFileSync(
-		path.resolve( config.get( 'configDir' ), 'plan-data.txt' ),
-		JSON.stringify( planData )
-	);
+	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption } < ${ path.resolve(
-		config.get( 'configDir' ),
-		'plan-data.txt'
-	) }`;
+	const cmd = `wp option update ${ planDataOption } < ${ planDatafilePath }`;
 	await execWpCommand( cmd );
 }
 
