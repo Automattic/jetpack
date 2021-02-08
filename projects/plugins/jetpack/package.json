@@ -37,6 +37,7 @@
 		"distclean": "rm -rf node_modules && yarn clean",
 		"fixtures:regenerate": "REGENERATE_FIXTURES=y GENERATE_MISSING_FIXTURES=y yarn jest",
 		"fixtures:generate": "GENERATE_MISSING_FIXTURES=y yarn jest",
+		"fixtures:test": "jest validate.js",
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"test-adminpage": "yarn test-client && yarn test-gui",
 		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js",
