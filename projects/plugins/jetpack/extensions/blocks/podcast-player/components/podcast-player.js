@@ -174,24 +174,17 @@ export class PodcastPlayer extends Component {
 		this.props.setMediaSourceCurrentTime( this.props.playerId, this.props.currentTime + 30 );
 	};
 
-	updateMediaData = ( event ) => {
-		this.props.updateMediaSourceData(
-			this.props.playerId,
-			{
-				duration: event.target?.duration,
-				domId: event.target?.id,
-			}
-		);
-	}
+	updateMediaData = event => {
+		this.props.updateMediaSourceData( this.props.playerId, {
+			duration: event.target?.duration,
+			domId: event.target?.id,
+		} );
+	};
 
-	componentDidMount() {
-		const { playerId } = this.props;
-		if ( ! playerId ) {
-			return;
-		}
-
+	registerPlayer( trackIndex ) {
 		// Register Media source monstly episode data.
-		const track = this.getTrack( this.state.currentTrack ) || {};
+		const track = this.getTrack( trackIndex ) || {};
+		const { playerId } = this.props;
 
 		this.props.registerMediaSource( playerId, {
 			title: track.title,
@@ -201,6 +194,18 @@ export class PodcastPlayer extends Component {
 
 		// Set podcast player instance as default.
 		this.props.setDefaultMediaSource( playerId );
+
+		if ( this.state.currentTrack !== trackIndex ) {
+			this.setState( trackIndex );
+		}
+	}
+
+	componentDidMount() {
+		if ( ! this.props.playerId ) {
+			return;
+		}
+
+		this.registerPlayer( this.state.currentTrack );
 	}
 
 	componentWillUnmount() {
@@ -209,6 +214,18 @@ export class PodcastPlayer extends Component {
 		}
 
 		this.props.unregisterMediaSource( this.props.playerId );
+	}
+
+	componentDidUpdate( prevProps ) {
+		const trackGuids = tracks => ( tracks?.length ? tracks.map( track => track.guid ) : [] );
+		const guids = trackGuids( this.props.tracks );
+		const prevGuids = new Set( trackGuids( prevProps.tracks ) );
+
+		// This equality check is a bit rough. It relies on the guids being unique for example, but
+		// it should be fine for our requirements.
+		if ( guids.length !== prevGuids.size || ! guids.every( guid => prevGuids.has( guid ) ) ) {
+			this.registerPlayer( 0 );
+		}
 	}
 
 	render() {
