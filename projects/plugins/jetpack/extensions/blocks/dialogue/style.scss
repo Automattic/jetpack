@@ -77,3 +77,10 @@
 		}
 	}
 }
+
+// Hide timestams by CSS when no media source.
+body.no-media-source {
+	.wp-block-jetpack-dialogue__timestamp-label {
+		display: none;
+	}
+}
