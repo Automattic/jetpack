@@ -32,14 +32,7 @@ new Admin_Color_Schemes();
  * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
  */
 if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-	require_once __DIR__ . '/masterbar/admin-menu/class-admin-menu.php';
-
-	if ( jetpack_is_atomic_site() ) {
-		require_once __DIR__ . '/masterbar/admin-menu/class-atomic-admin-menu.php';
-		Atomic_Admin_Menu::get_instance();
-	} else {
-		Admin_Menu::get_instance();
-	}
+	require_once __DIR__ . '/masterbar/admin-menu/load.php';
 
 	// Ensures Calypsoify does not modify the navigation.
 	add_filter( 'jetpack_calypsoify_override_nav', '__return_false' );
