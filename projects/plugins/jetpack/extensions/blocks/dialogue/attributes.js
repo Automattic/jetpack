@@ -1,6 +1,15 @@
+/**
+ * Internal dependencies
+ */
+import colorValidator from '../../shared/colorValidator';
+
 export default {
 	label: {
 		type: 'string',
+	},
+	labelTextColor: {
+		type: 'string',
+		validator: colorValidator,
 	},
 	slug: {
 		type: 'string',

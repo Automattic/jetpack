@@ -8,12 +8,18 @@ import { useMemoOne } from 'use-memo-one';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
+import {
+	InspectorControls,
+	RichText,
+	BlockControls,
+	withColors,
+	PanelColorSettings,
+ } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
-import { useDebounce } from '@wordpress/compose';
+import { useDebounce, compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -39,7 +45,7 @@ const useDebounceWithFallback = useDebounce
 		return debounced;
 	};
 
-export default function DialogueEdit( {
+function DialogueEdit( {
 	className,
 	attributes,
 	setAttributes,
@@ -47,6 +53,9 @@ export default function DialogueEdit( {
 	onReplace,
 	mergeBlocks,
 	isSelected,
+
+	labelTextColor,
+	setLabelTextColor,
 } ) {
 	const {
 		content,
@@ -139,6 +148,17 @@ export default function DialogueEdit( {
 							<p>{ mediaSource.title }</p>
 						</PanelBody>
 					) }
+
+					<PanelColorSettings
+						title={ __( 'Color Settings', 'jetpack' ) }
+						colorSettings={ [
+							{
+								value: labelTextColor.color,
+								onChange: setLabelTextColor,
+								label: __( 'Label Color', 'jetpack' ),
+							},
+						] }
+					/>
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
@@ -245,3 +265,9 @@ export default function DialogueEdit( {
 		</div>
 	);
 }
+
+export default compose( [
+	withColors(
+		{ labelTextColor: 'color' },
+	),
+] )( DialogueEdit );
