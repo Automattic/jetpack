@@ -57,12 +57,12 @@ export async function promptForGenerate( options ) {
 	let tries = 0;
 
 	// Get project type if not passed as an option.
-	if ( ! options.project || options.project.length === 0 ) {
+	if ( ! options.type || options.type.length === 0 ) {
 		typeAnswer = await promptForType();
 	}
 
 	// Get the appropriate list of project prompts based on type
-	const questions = getQuestions( options.project || typeAnswer.type );
+	const questions = getQuestions( options.type || typeAnswer.type );
 	if ( ! questions ) {
 		return new Error( "Sorry! That's not supported yet!" );
 	}
@@ -73,7 +73,7 @@ export async function promptForGenerate( options ) {
 	}
 
 	// Prompt repeatedly if the project name is already used or blank
-	while ( checkNameValid( options.project || typeAnswer.type, options.name || nameAnswer.name ) ) {
+	while ( checkNameValid( options.type || typeAnswer.type, options.name || nameAnswer.name ) ) {
 		if ( tries >= 3 ) {
 			console.error(
 				chalk.bgRed(
@@ -97,7 +97,7 @@ export async function promptForGenerate( options ) {
 
 	return {
 		...options,
-		project: options.project || typeAnswer.type,
+		type: options.type || typeAnswer.type,
 		name: options.name || nameAnswer.name,
 		...finalAnswers,
 	};

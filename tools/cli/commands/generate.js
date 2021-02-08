@@ -47,12 +47,12 @@ export async function generateCli( argv ) {
  */
 export function generateDefine( yargs ) {
 	yargs.command(
-		'generate [project]',
+		'generate [type]',
 		'Creates a new project',
 		yarg => {
 			yarg
-				.positional( 'project', {
-					describe: 'Project being worked on, e.g. package, plugin, etc',
+				.positional( 'type', {
+					describe: 'Type of project being worked on, e.g. package, plugin, etc',
 					type: 'string',
 				} )
 				.options( 'name', {

@@ -27,10 +27,8 @@ export function normalizeInstallArgv( argv ) {
 export function normalizeGenerateArgv( argv ) {
 	return {
 		// Defaults.
-		project: '',
-		root: false,
-		all: false,
-		v: false,
+		type: '',
+		name: '',
 		// Override from `argv`.
 		...argv,
 	};
