@@ -27,7 +27,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		updatedParticipant => {
 			setAttributes( {
 				participants: participants.map( participant => {
-					if ( participant.slug !== updatedParticipant.slug ) {
+					if ( ! updatedParticipant || participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
 
