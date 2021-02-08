@@ -24,14 +24,14 @@ function AddParticipantButton( { className, onAdd, participants = [] } ) {
 function ParticipantsLabelControl( { className, participants, onChange, onDelete } ) {
 	return (
 		<div className={ `${ className }__participant-control` }>
-			{ participants.map( ( { participant, participantSlug } ) => (
-				<div key={ `${ participantSlug }-key` } className={ `${ className }__participant` }>
+			{ participants.map( ( { label, slug } ) => (
+				<div key={ `${ slug }-key` } className={ `${ className }__participant` }>
 					<TextControl
-						value={ participant }
-						onChange={ participantEditedValue =>
+						value={ label }
+						onChange={ value =>
 							onChange( {
-								participantSlug,
-								participant: participantEditedValue,
+								slug,
+								label: value,
 							} )
 						}
 					/>
@@ -39,7 +39,7 @@ function ParticipantsLabelControl( { className, participants, onChange, onDelete
 					<Button
 						className={ `${ className }__remove-participant` }
 						label={ __( 'Remove participant', 'jetpack' ) }
-						onClick={ () => onDelete( participantSlug ) }
+						onClick={ () => onDelete( slug ) }
 						isTertiary
 						isSmall
 					>

@@ -70,7 +70,7 @@ export default class BlockEditorPage extends Page {
 	}
 
 	async focus() {
-		await this.page.focus( this.expectedSelector );
+		await this.page.focus( '.editor-post-title__input' );
 		await waitAndClick( this.page, '.editor-post-title__input' );
 	}
 

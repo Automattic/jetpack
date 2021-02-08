@@ -1,16 +1,18 @@
 /**
  * External dependencies
  */
-import child_process from 'child_process';
 import chalk from 'chalk';
 import path from 'path';
+import execa from 'execa';
+import Listr from 'listr';
 
 /**
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/readComposerJson';
+import { readComposerJson } from '../helpers/readJson';
+import { installProjectTask } from '../helpers/tasks/installProjectTask';
 
 /**
  * Relays build commands to a particular project.
@@ -19,13 +21,13 @@ import { readComposerJson } from '../helpers/readComposerJson';
  */
 async function buildRouter( options ) {
 	options = {
+		project: '',
+		production: false,
 		...options,
-		project: options.project || '',
-		production: options.production || false,
 	};
 
 	if ( options.project ) {
-		const data = await readComposerJson( options.project );
+		const data = readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data ) : false;
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );
@@ -40,12 +42,18 @@ async function buildRouter( options ) {
  * @param {object} composerJson - The project's composer.json file, parsed.
  */
 export async function build( project, production, composerJson ) {
-	const buildDev = composerJson.scripts[ 'build-development' ]
-		? 'composer build-development'
-		: null;
-	const buildProd = composerJson.scripts[ 'build-production' ] ? 'composer build-production' : null;
-	// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
-	const command = production ? buildProd || buildDev : buildDev || buildProd;
+	let command = '';
+
+	if ( composerJson.scripts ) {
+		const buildDev = composerJson.scripts[ 'build-development' ]
+			? 'composer build-development'
+			: null;
+		const buildProd = composerJson.scripts[ 'build-production' ]
+			? 'composer build-production'
+			: null;
+		// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
+		command = production ? buildProd || buildDev : buildDev || buildProd;
+	}
 
 	if ( ! command ) {
 		// If neither build step is defined, abort.
@@ -59,10 +67,24 @@ export async function build( project, production, composerJson ) {
 				'Go ahead and sit back. Relax. This will take a few minutes.'
 		)
 	);
-	child_process.spawnSync( command, {
-		cwd: path.resolve( `projects/${ project }` ),
-		shell: true,
-		stdio: 'inherit',
+
+	const builder = new Listr( [
+		{
+			title: `Building ${ project }`,
+			task: () => {
+				return new Listr( [
+					installProjectTask( { project: project } ),
+					{
+						title: `Building ${ project }`,
+						task: () => execa.command( command, { cwd: path.resolve( `projects/${ project }` ) } ),
+					},
+				] );
+			},
+		},
+	] );
+
+	builder.run().catch( err => {
+		console.error( err );
 	} );
 }
 

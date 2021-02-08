@@ -147,16 +147,24 @@ jobs:
         run: tar --xz -xvvf build.tar.xz
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
+        timeout-minutes: 1  # 2021-01-29: Guessing a successful run should only take a few seconds
+
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changed projects
-        working-directory: monorepo
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-          USER_NAME: matticbot
-          BUILD_BASE: ${{ github.workspace }}/build
-        run: .github/files/push-all-projects.sh
+        uses: ./monorepo/projects/github-actions/push-to-mirrors
+        with:
+          source-directory: ${{ github.workspace }}/monorepo
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          username: matticbot
+          working-directory: ${{ github.workspace }}/build
         timeout-minutes: 5  # 2021-01-18: Successful runs seem to take about half a minute.

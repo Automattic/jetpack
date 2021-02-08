@@ -177,6 +177,23 @@ class Test_Plugin_Locator extends TestCase {
 	}
 
 	/**
+	 * Tests that it does not give errors or warnings when the option contains unexpected data.
+	 */
+	public function test_using_option_handles_invalid_data() {
+		add_test_option(
+			'test_plugin_paths',
+			'invalid'
+		);
+
+		$this->path_processor->expects( $this->never() )->method( 'find_directory_with_autoloader' );
+
+		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths' );
+
+		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertEmpty( $plugin_paths );
+	}
+
+	/**
 	 * Tests that plugins in request parameters are not discovered if a nonce is not set.
 	 */
 	public function test_using_request_action_returns_nothing_without_nonce() {

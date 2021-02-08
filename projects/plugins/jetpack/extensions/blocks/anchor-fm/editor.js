@@ -12,6 +12,7 @@ import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
+import '@wordpress/notices';
 
 /**
  * Internal dependencies
@@ -85,6 +86,30 @@ function showPostPublishOutboundLink() {
 	} );
 }
 
+function createEpisodeErrorNotice( params ) {
+	dispatch( 'core/notices' ).createNotice(
+		'error',
+		__(
+			"We couldn't find that episode in your feed. If you just published the episode, please try creating the post again in a few minutes.",
+			'jetpack'
+		),
+		{
+			id: 'episode-error-notice',
+			actions: [
+				{
+					onClick() {
+						window.location.href = params.retry_url;
+					},
+					onKeyDown() {
+						window.location.href = params.retry_url;
+					},
+					label: __( 'Retry', 'jetpack' ),
+				},
+			],
+		}
+	);
+}
+
 function initAnchor() {
 	const data = window.Jetpack_AnchorFm;
 	if ( typeof data !== 'object' ) {
@@ -105,6 +130,9 @@ function initAnchor() {
 				break;
 			case 'set-episode-title':
 				setEpisodeTitle( actionParams );
+				break;
+			case 'create-episode-error-notice':
+				createEpisodeErrorNotice( actionParams );
 				break;
 		}
 	} );
