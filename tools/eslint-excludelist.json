@@ -234,7 +234,6 @@
 	"projects/plugins/jetpack/modules/widgets/milestone/admin.js",
 	"projects/plugins/jetpack/modules/widgets/simple-payments/customizer.js",
 	"projects/plugins/jetpack/modules/wpgroho.js",
-	"projects/plugins/jetpack/tests/e2e/lib/flows/jetpack-connect.js",
 	"projects/plugins/jetpack/tests/e2e/lib/setup-env.js",
 	"projects/plugins/jetpack/tests/e2e/specs/free-blocks.test.js",
 	"projects/plugins/jetpack/tools/builder/react.js",

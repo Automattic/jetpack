@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 		// The sitemap xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_xsl() );
 
-		$this->assertNotEquals( false, $result );
+		$this->assertNotFalse( $result );
 	}
 
 	/**
@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 		// The sitemap index xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::sitemap_index_xsl() );
 
-		$this->assertNotEquals( false, $result );
+		$this->assertNotFalse( $result );
 	}
 
 	/**
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 		// The image sitemap xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::image_sitemap_xsl() );
 
-		$this->assertNotEquals( false, $result );
+		$this->assertNotFalse( $result );
 	}
 
 	/**
@@ -122,7 +122,7 @@ class WP_Test_Jetpack_Sitemap_Stylist extends WP_UnitTestCase {
 		// The news sitemap xsl.
 		$result = simplexml_load_string( Jetpack_Sitemap_Stylist::news_sitemap_xsl() );
 
-		$this->assertNotEquals( false, $result );
+		$this->assertNotFalse( $result );
 	}
 
 	/**

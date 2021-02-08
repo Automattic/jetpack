@@ -1,19 +1,14 @@
 /**
  * WordPress dependencies
  */
-import {
-	DropdownMenu,
-	MenuGroup,
-	MenuItem,
-	SelectControl,
-} from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { check } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 function ParticipantsMenu( { participants, className, onSelect, participantSlug, onClose } ) {
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
-			{ participants.map( ( { participant, participantSlug: slug } ) => (
+			{ participants.map( ( { label, slug } ) => (
 				<MenuItem
 					key={ slug }
 					onClick={ () => {
@@ -23,23 +18,23 @@ function ParticipantsMenu( { participants, className, onSelect, participantSlug,
 					isSelected={ participantSlug === slug }
 					icon={ participantSlug === slug ? check : null }
 				>
-					{ participant }
+					{ label }
 				</MenuItem>
 			) ) }
 		</MenuGroup>
 	);
 }
 
-export function ParticipantsControl( { participants, participantSlug: slug, onSelect } ) {
+export function ParticipantsControl( { participants, participantSlug, onSelect } ) {
 	return (
 		<SelectControl
 			label={ __( 'Participant name', 'jetpack' ) }
-			value={ slug }
-			options={ participants.map( ( { participantSlug: value, participant: label } ) => ( {
+			value={ participantSlug }
+			options={ participants.map( ( { slug: value, label } ) => ( {
 				label,
 				value,
 			} ) ) }
-			onChange={ participantSlug => onSelect( { participantSlug } ) }
+			onChange={ slug => onSelect( { participantSlug: slug } ) }
 		/>
 	);
 }

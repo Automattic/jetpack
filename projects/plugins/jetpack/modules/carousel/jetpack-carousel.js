@@ -1629,23 +1629,19 @@ jQuery( document ).ready( function ( $ ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;
 			}
-			// Check if the image is linked so we can disable carousel for custom linked images
-			var parentHref = $( e.target ).parent().attr( 'href' );
-			if ( parentHref ) {
-				var valid = false;
+
+			// If Gallery is made up of individual Image blocks check for custom link before
+			// loading carousel.
+			if ( $( e.target ).parents().eq( 1 ).hasClass( 'wp-block-image' ) ) {
+				var parentHref = $( e.target ).parent().attr( 'href' );
+
+				// If the link does not point to the attachment or media file then assume Image has
+				// a custom link so don't load the carousel.
 				if (
-					parentHref.split( '?' )[ 0 ] === $( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ]
+					parentHref.split( '?' )[ 0 ] !==
+						$( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== $( e.target ).attr( 'data-permalink' )
 				) {
-					valid = true;
-				}
-
-				// if link points to 'Attachment Page' allow it
-				if ( parentHref === $( e.target ).attr( 'data-permalink' ) ) {
-					valid = true;
-				}
-
-				// links to 'Custom URL' or 'Media File' when flag not set are not valid
-				if ( ! valid ) {
 					return;
 				}
 			}

@@ -13,7 +13,7 @@ import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
 import { execWpCommand } from './utils-helper';
 import {
-	connectThroughWPAdminIfNeeded,
+	connectThroughWPAdmin,
 	loginToWpcomIfNeeded,
 	loginToWpSite,
 } from './flows/jetpack-connect';
@@ -157,7 +157,7 @@ async function maybePreConnect() {
 		return;
 	}
 
-	const status = await connectThroughWPAdminIfNeeded( { wpcomUser, mockPlanData, plan } );
+	const status = await connectThroughWPAdmin( { mockPlanData, plan } );
 
 	if ( status !== 'already_connected' ) {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );

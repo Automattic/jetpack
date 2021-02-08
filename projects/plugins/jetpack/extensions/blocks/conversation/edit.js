@@ -3,12 +3,14 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useEffect, useCallback, useMemo } from '@wordpress/element';
+import { InnerBlocks, InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
-	InnerBlocks,
-	InspectorControls,
-	BlockControls,
-} from '@wordpress/block-editor';
-import { Panel, PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+	Panel,
+	PanelBody,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
+} from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -21,9 +23,18 @@ import { list as defaultParticipants } from './participants.json';
 
 const TRANSCRIPTION_TEMPLATE = [
 	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
-	[ 'jetpack/dialogue', defaultParticipants[ 0 ] ],
-	[ 'jetpack/dialogue', defaultParticipants[ 1 ] ],
-	[ 'jetpack/dialogue', defaultParticipants[ 2 ] ],
+	[ 'jetpack/dialogue', {
+		participantLabel: defaultParticipants[ 0 ].label,
+		participantSlug: defaultParticipants[ 0 ].slug,
+	} ],
+	[ 'jetpack/dialogue', {
+		participantLabel: defaultParticipants[ 1 ].label,
+		participantSlug: defaultParticipants[ 1 ].slug,
+	} ],
+	[ 'jetpack/dialogue', {
+		participantLabel: defaultParticipants[ 2 ].label,
+		participantSlug: defaultParticipants[ 2 ].slug,
+	} ],
 ];
 
 function ConversationEdit( { className, attributes, setAttributes } ) {
@@ -42,7 +53,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		updatedParticipant =>
 			setAttributes( {
 				participants: participants.map( participant => {
-					if ( participant.participantSlug !== updatedParticipant.participantSlug ) {
+					if ( participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
 					return {
@@ -57,41 +68,39 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	const setBlockAttributes = useCallback( setAttributes, [] );
 
 	// Context bridge.
-	const contextProvision = useMemo( () => ( {
-		setAttributes: setBlockAttributes,
-		updateParticipants,
-		getParticipantIndex: slug => participants.map( part => part.participantSlug ).indexOf( slug ),
-		getNextParticipantIndex: ( slug, offset = 0 ) =>
-			( contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
-		getNextParticipantSlug: ( slug, offset = 0 ) =>
-			participants[ contextProvision.getNextParticipantIndex( slug, offset ) ]?.participantSlug,
+	const contextProvision = useMemo(
+		() => ( {
+			setAttributes: setBlockAttributes,
+			updateParticipants,
+			getParticipantIndex: slug => participants.map( part => part.slug ).indexOf( slug ),
+			getNextParticipantIndex: ( slug, offset = 0 ) =>
+				( contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
+			getNextParticipant: ( slug, offset = 0 ) =>
+				participants[ contextProvision.getNextParticipantIndex( slug, offset ) ],
 
-		attributes: {
-			showTimestamps,
-		},
-	} ), [ participants, setBlockAttributes, showTimestamps, updateParticipants ] );
+			attributes: {
+				showTimestamps,
+			},
+		} ),
+		[ participants, setBlockAttributes, showTimestamps, updateParticipants ]
+	);
 
 	function deleteParticipant( deletedParticipantSlug ) {
 		setAttributes( {
-			participants: participants.filter(
-				( { participantSlug } ) => participantSlug !== deletedParticipantSlug
-			),
+			participants: participants.filter( ( { slug } ) => slug !== deletedParticipantSlug ),
 		} );
 	}
 
 	function addNewParticipant( newSpakerValue ) {
 		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].participantSlug.replace(
-					/(\d+)/,
-					n => Number( n ) + 1
-			  )
+			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
 			: 'speaker-0';
 		setAttributes( {
 			participants: [
 				...participants,
 				{
-					participant: newSpakerValue,
-					participantSlug: newParticipantSlug,
+					label: newSpakerValue,
+					slug: newParticipantSlug,
 					hasBoldStyle: true,
 				},
 			],
