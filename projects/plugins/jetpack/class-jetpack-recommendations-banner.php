@@ -248,13 +248,13 @@ class Jetpack_Recommendations_Banner {
 	 */
 	private function render_checkbox( $name, $title ) {
 		?>
-		<label for="<?php echo esc_html( $name ); ?>" class="jp-recommendations-answer__checkbox-label">
-			<input id="<?php echo esc_html( $name ); ?>" name="<?php echo esc_html( $name ); ?>" type="checkbox"
-					tabindex="-1"/>
-			<div class="jp-recommendations-answer__title">
+        <label for="<?php echo esc_html( $name ); ?>" class="jp-recommendations-answer__checkbox-label">
+            <input id="<?php echo esc_html( $name ); ?>" name="<?php echo esc_html( $name ); ?>" type="checkbox"
+                   tabindex="-1"/>
+            <div class="jp-recommendations-answer__title">
 				<?php echo esc_html( $title ); ?>
-			</div>
-		</label>
+            </div>
+        </label>
 		<?php
 	}
 }
