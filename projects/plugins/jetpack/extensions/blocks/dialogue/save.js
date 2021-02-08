@@ -20,28 +20,39 @@ export default function save( { attributes, blockName } ) {
 		label,
 		labelTextColor,
 		customLabelTextColor,
+		labelBackgroundColor,
+		customLabelBackgroundColor,
 		showTimestamp,
 		timestamp,
 	} = attributes;
 
 	const labelTextColorCSSClass = getColorClassName( 'color', labelTextColor );
 
+	const labelBackgroundcolorCSSClass = getColorClassName( 'background-color', labelBackgroundColor );
+
 	const speakerCSSClasses = classnames( `${ BASE_CLASS_NAME }__participant`, 'has-bold-style', {
 		[ `wp-block-jetpack-${ blockName }` ]: blockName,
 		'has-text-color': labelTextColor || customLabelTextColor,
 		[ labelTextColorCSSClass ]: labelTextColorCSSClass,
+		'has-background-color': labelBackgroundColor || customLabelBackgroundColor,
+		[ labelBackgroundcolorCSSClass ]: labelBackgroundcolorCSSClass,
 	} );
 
-	const labelTextColorInlineStyle = {
-		color: labelTextColorCSSClass ? undefined : customLabelTextColor,
-	};
+	const labelInlineStyle = {};
+	if ( labelTextColorCSSClass ) {
+		labelInlineStyle.color = customLabelTextColor;
+	}
+
+	if ( labelBackgroundcolorCSSClass ) {
+		labelInlineStyle.backgroundColor = customLabelBackgroundColor;
+	}
 
 	return (
 		<div>
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
 				<div
 					className={ speakerCSSClasses }
-					style={ labelTextColorInlineStyle }
+					style={ labelInlineStyle }
 				>
 					{ label }
 				</div>

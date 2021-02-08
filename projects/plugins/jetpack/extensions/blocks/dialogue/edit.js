@@ -56,6 +56,8 @@ function DialogueEdit( {
 
 	labelTextColor,
 	setLabelTextColor,
+	labelBackgroundColor,
+	setLabelBackgroundColor,
 } ) {
 	const {
 		content,
@@ -88,10 +90,14 @@ function DialogueEdit( {
 	const conversationBridge = useContext( ConversationContext );
 
 	// Debounced function to keep all sibling Dialogue blocks in-sync.
-	const syncSpeakersGlobally = useDebounceWithFallback( ( newAttributes, color ) => {
+	const syncSpeakersGlobally = useDebounceWithFallback( ( newAttributes, colors ) => {
 		setAttributes( newAttributes );
-		if ( color ) {
-			setLabelTextColor( color );
+		if ( colors?.color ) {
+			setLabelTextColor( colors.color );
+		}
+
+		if ( colors?.backgroundColor ) {
+			setLabelBackgroundColor( colors.backgroundColor );
 		}
 	}, 250 );
 
@@ -114,7 +120,10 @@ function DialogueEdit( {
 			{
 				label: conversationParticipant.label,
 			},
-			conversationParticipant?.color,
+			{
+				color: conversationParticipant?.color,
+				backgroundColor: conversationParticipant?.backgroundColor,
+			}
 		);
 	}, [ conversationParticipant, syncSpeakersGlobally, isSelected, slug ] );
 
@@ -131,12 +140,23 @@ function DialogueEdit( {
 		setAttributes( { timestamp: time } );
 	}
 
-	function setLabelTextColorHandler( color ) {
-		setLabelTextColor( color );
-		conversationBridge.updateParticipants( {
-			...conversationParticipant,
-			color,
-		} );
+	function setLabelColorHandler( type ) {
+		return function( color ) {
+			if ( type === 'labelTextColor' ) {
+				setLabelTextColor( color );
+				return conversationBridge.updateParticipants( {
+					...conversationParticipant,
+					color,
+				} );
+			}
+
+			setLabelBackgroundColor( color );
+
+			conversationBridge.updateParticipants( {
+				...conversationParticipant,
+				backgroundColor: color,
+			} );
+		};
 	}
 
 	return (
@@ -171,8 +191,14 @@ function DialogueEdit( {
 						colorSettings={ [
 							{
 								value: labelTextColor.color,
-								onChange: setLabelTextColorHandler,
-								label: __( 'Label Color', 'jetpack' ),
+								onChange: setLabelColorHandler( 'labelTextColor' ),
+								label: __( 'Label color', 'jetpack' ),
+							},
+
+							{
+								value: labelBackgroundColor.color,
+								onChange: setLabelColorHandler( 'labelBackgroundColor' ),
+								label: __( 'Label Background color', 'jetpack' ),
 							},
 						] }
 					/>
@@ -203,6 +229,7 @@ function DialogueEdit( {
 					participants={ participants }
 					transcriptRef={ contentRef }
 					color={ labelTextColor }
+					backgroundColor={ labelBackgroundColor }
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { label: updatedParticipant } );
 					} }
@@ -286,6 +313,6 @@ function DialogueEdit( {
 
 export default compose( [
 	withColors(
-		{ labelTextColor: 'color' },
+		{ labelTextColor: 'color', labelBackgroundColor: 'background-color' },
 	),
 ] )( DialogueEdit );

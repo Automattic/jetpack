@@ -91,7 +91,10 @@ const DetectOutside = withFocusOutside(
 
 		render() {
 			return (
-				<div className={ this.props.className }>
+				<div
+					className={ this.props.className }
+					style={ this.props.style }
+				>
 					{ this.props.children }
 				</div>
 			);
@@ -135,6 +138,7 @@ function refreshAutocompleter( participants ) {
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.label               - Dialogue participant value. Local level.
  * @param {object}   prop.color               - Label color object.
+ * @param {object}   prop.backgroundColor     - Label background color object.
  * @param {object}   prop.participant         - Participant object. Gloanl level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
  * @param {object}   prop.transcriptRef       - Reference to the transcript DOM element (DialogueEdit content).
@@ -149,6 +153,7 @@ export function SpeakerEditControl( {
 	className,
 	label,
 	color,
+	backgroundColor,
 	participant,
 	participants,
 	transcriptRef,
@@ -246,6 +251,7 @@ export function SpeakerEditControl( {
 
 	const inlineStyles = {
 		color: color.color,
+		backgroundColor: backgroundColor.color,
 	};
 
 	return (
@@ -256,7 +262,9 @@ export function SpeakerEditControl( {
 				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
 				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
 			} ) }
+
 			onFocusOutside={ editSpeakerHandler }
+			style={ inlineStyles }
 		>
 			<RichText
 				tagName="div"
@@ -266,7 +274,6 @@ export function SpeakerEditControl( {
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				style={ inlineStyles }
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
 					setTimeout( () => transcriptRef?.current?.focus(), 10 );

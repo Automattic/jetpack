@@ -15,6 +15,14 @@ export default {
 		type: 'string',
 		validator: colorValidator,
 	},
+	labelBackgroundColor: {
+		type: 'string',
+		validator: colorValidator,
+	},
+	customLabelBackgroundColor: {
+		type: 'string',
+		validator: colorValidator,
+	},
 	slug: {
 		type: 'string',
 	},

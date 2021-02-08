@@ -12,12 +12,12 @@
 	}
 
 	.wp-block-jetpack-dialogue__participant {
-		font-size: inherit;
-		padding: 0;
+		padding: 0 5px;
+		height: auto;
 		line-height: 17px;
 		line-height: var( --global--line-height-body );
 		overflow-wrap: anywhere;
-		color: inherit;
+		border-radius: 5px
 	}
 
 	.wp-block-jetpack-dialogue__timestamp {
@@ -31,10 +31,6 @@
 }
 
 .wp-block-jetpack-dialogue__participant {
-	padding: 3px 0;
-	height: auto;
-	line-height: 1.2;
-
 	&.has-bold-style {
 		font-weight: bold;
 	}
