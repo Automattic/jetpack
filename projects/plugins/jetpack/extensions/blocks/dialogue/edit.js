@@ -87,7 +87,13 @@ function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
+	// Debounced function to keep all sibling Dialogue blocks in-sync.
+	const syncSpeakersGlobally = useDebounceWithFallback( ( newAttributes, color ) => {
+		setAttributes( newAttributes );
+		if ( color ) {
+			setLabelTextColor( color );
+		}
+	}, 250 );
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
@@ -104,10 +110,13 @@ function DialogueEdit( {
 			return;
 		}
 
-		debounceSetDialoguesAttrs( {
-			label: conversationParticipant.label,
-		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
+		syncSpeakersGlobally(
+			{
+				label: conversationParticipant.label,
+			},
+			conversationParticipant?.color,
+		);
+	}, [ conversationParticipant, syncSpeakersGlobally, isSelected, slug ] );
 
 	// Update dialogue timestamp setting from parent conversation.
 	useEffect( () => {
@@ -120,6 +129,14 @@ function DialogueEdit( {
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
+	}
+
+	function setLabelTextColorHandler( color ) {
+		setLabelTextColor( color );
+		conversationBridge.updateParticipants( {
+			...conversationParticipant,
+			color,
+		} );
 	}
 
 	return (
@@ -154,7 +171,7 @@ function DialogueEdit( {
 						colorSettings={ [
 							{
 								value: labelTextColor.color,
-								onChange: setLabelTextColor,
+								onChange: setLabelTextColorHandler,
 								label: __( 'Label Color', 'jetpack' ),
 							},
 						] }
