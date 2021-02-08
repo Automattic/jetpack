@@ -122,7 +122,7 @@ export function TimestampControl( {
 				min={ 0 }
 				max={ duration }
 				onChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
-				withInputField={ true }
+				withInputField={ false }
 				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
 			/>
 		</>
