@@ -85,6 +85,7 @@ export default {
 			type: 'raw',
 			priority: 1,
 			isMatch: node => {
+				/* eslint-disable no-useless-escape */
 				if (
 					node.nodeName === 'P' &&
 					( /\[contact-form(\s.*?)?\](?:([^\[]+)?)?/g.test( node.textContent ) ||
@@ -93,6 +94,7 @@ export default {
 				) {
 					return true;
 				}
+				/* eslint-enable no-useless-escape */
 
 				return false;
 			},
