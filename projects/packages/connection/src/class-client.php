@@ -332,6 +332,16 @@ class Client {
 		$version       = ltrim( $version, 'v' );
 		$path          = ltrim( $path, '/' );
 
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
+			$secret = $_COOKIE['store_sandbox'];
+			if ( isset( $args['headers'] ) && isset( $args['headers']['Cookie'] ) ) {
+				$args['headers']['Cookie'] .= "store_sandbox=$secret;";
+			} else {
+				$args['headers']['Cookie'] = "store_sandbox=$secret;";
+			}
+		}
+
 		$filtered_args = array_intersect_key(
 			$args,
 			array(
