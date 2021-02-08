@@ -53,6 +53,9 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 		--type=constant
 	wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
 	wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
+
+	# Tell WP-CONFIG we're in a docker instance.
+	wp --allow-root config set JETPACK_DOCKER_ENV true --raw --type=constant
 fi
 
 # Copy single site htaccess if none is present

@@ -2,7 +2,7 @@
 /**
  * Tests for /sites/%s/categories/slug:%s
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {

@@ -35,7 +35,10 @@ program
 	)
 	.option( '--git-staged', 'Compare the staged version to the HEAD version (this is the default).' )
 	.option( '--git-unstaged', 'Compare the working copy version to the staged (or HEAD) version.' )
-	.option( '--git-branch <ref>', 'Compare the HEAD version to the HEAD of a different branch.' )
+	.option(
+		'--git-base <ref>',
+		'Compare the HEAD version to the HEAD of a different base (e.g. branch).'
+	)
 
 	.option( '--debug', 'Enable debug output.' )
 	.option(
@@ -62,7 +65,7 @@ if ( argv.diff !== undefined && argv.git ) {
 	[ 'eslint-new', 'diff' ],
 	[ 'git-staged', 'git' ],
 	[ 'git-unstaged', 'git' ],
-	[ 'git-branch', 'git' ],
+	[ 'git-base', 'git' ],
 ].forEach( x => {
 	const [ arg1, arg2 ] = x;
 	const prop1 = arg1.replace( /-[a-z]/g, v => v[ 1 ].toUpperCase() );
@@ -147,10 +150,10 @@ async function main() {
 		diffBase = doCmd( git, args ).trim();
 
 		args = [ 'diff' ];
-		if ( argv.gitBranch !== undefined ) {
-			origRef = argv.gitBranch;
+		if ( argv.gitBase !== undefined ) {
+			origRef = argv.gitBase;
 			newRef = 'HEAD';
-			args.push( `${ argv.gitBranch }...HEAD` );
+			args.push( `${ argv.gitBase }...HEAD` );
 		} else if ( argv.gitUnstaged ) {
 			origRef = ':0';
 			newRef = null;

@@ -5,22 +5,33 @@ import child_process from 'child_process';
 import path from 'path';
 
 /**
- * Entry point for the CLI.
- *
- * @param {object} argv - The argv for the command line.
+ * CLI link.
  */
-export async function cliCli( argv ) {
-	if ( argv.command === 'init' ) {
-		child_process.spawnSync( 'yarn link', {
-			cwd: path.resolve( `tools/cli` ),
-			shell: true,
-			stdio: 'inherit',
-		} );
-		child_process.spawnSync( 'yarn link jetpack-cli', {
-			shell: true,
-			stdio: 'inherit',
-		} );
-	}
+function cliLink() {
+	child_process.spawnSync( 'yarn link', {
+		cwd: path.resolve( `tools/cli` ),
+		shell: true,
+		stdio: 'inherit',
+	} );
+	child_process.spawnSync( 'yarn link jetpack-cli', {
+		shell: true,
+		stdio: 'inherit',
+	} );
+}
+
+/**
+ * CLI unlink.
+ */
+function cliUnlink() {
+	child_process.spawnSync( 'yarn unlink jetpack-cli', {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	child_process.spawnSync( 'yarn unlink', {
+		cwd: path.resolve( `tools/cli` ),
+		shell: true,
+		stdio: 'inherit',
+	} );
 }
 
 /**
@@ -31,22 +42,31 @@ export async function cliCli( argv ) {
  * @returns {object} Yargs with the build commands defined.
  */
 export function cliDefine( yargs ) {
-	yargs.command(
-		'cli [command]',
-		'Tools for the CLI tool. Meta, eh?',
-		yarg => {
-			yarg.positional( 'init', {
-				describe: 'Ensures the CLI is symlinked so any development is reflected live.',
-				type: 'boolean',
-			} );
-		},
-		async argv => {
-			await cliCli( argv );
-			if ( argv.v ) {
-				console.log( argv );
-			}
-		}
-	);
+	yargs.command( 'cli <cmd>', 'Tools for the CLI tool. Meta, eh?', yarg => {
+		yarg
+			.command(
+				'link',
+				'Symlink the CLI for global use or development.',
+				() => {},
+				argv => {
+					cliLink();
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			)
+			.command(
+				'unlink',
+				'Unlink the CLI.',
+				() => {},
+				argv => {
+					cliUnlink();
+					if ( argv.v ) {
+						console.log( argv );
+					}
+				}
+			);
+	} );
 
 	return yargs;
 }

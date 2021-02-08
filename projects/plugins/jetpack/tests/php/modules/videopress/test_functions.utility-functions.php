@@ -4,7 +4,7 @@
  *
  * Note that modules/videopress/utility-functions.php is automatically loaded and does not need to be required in this file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

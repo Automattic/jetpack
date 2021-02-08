@@ -2,7 +2,7 @@
 /**
  * Podcast Player API
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 8.4.0
  */
 

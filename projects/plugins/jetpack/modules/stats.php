@@ -11,7 +11,7 @@
  * Feature: Engagement
  * Additional Search Queries: statistics, tracking, analytics, views, traffic, stats
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Tracking;

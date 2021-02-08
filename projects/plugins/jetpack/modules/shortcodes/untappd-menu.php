@@ -9,7 +9,7 @@
  * @param location int Location ID for the Untappd venue. Required.
  * @param theme    int Theme ID for the Untappd menu. Required.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

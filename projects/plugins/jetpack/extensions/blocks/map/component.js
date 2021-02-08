@@ -113,6 +113,7 @@ export class Map extends Component {
 	}
 	componentWillUnmount() {
 		this.debouncedSizeMap.cancel();
+		window.removeEventListener( 'resize', this.debouncedSizeMap );
 	}
 	componentDidUpdate( prevProps ) {
 		const {
