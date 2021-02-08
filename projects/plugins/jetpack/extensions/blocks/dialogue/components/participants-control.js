@@ -134,6 +134,7 @@ function refreshAutocompleter( participants ) {
  * @param {object}   prop                     - ParticipantRichControl component.
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.label               - Dialogue participant value. Local level.
+ * @param {object}   prop.color               - Label color object.
  * @param {object}   prop.participant         - Participant object. Gloanl level.
  * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
  * @param {object}   prop.transcriptRef       - Reference to the transcript DOM element (DialogueEdit content).
@@ -147,6 +148,7 @@ function refreshAutocompleter( participants ) {
 export function SpeakerEditControl( {
 	className,
 	label,
+	color,
 	participant,
 	participants,
 	transcriptRef,
@@ -242,6 +244,10 @@ export function SpeakerEditControl( {
 		setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
 	}, [ participant ] );
 
+	const inlineStyles = {
+		color: color.color,
+	};
+
 	return (
 		<DetectOutside
 			className={ classNames( className, {
@@ -260,6 +266,7 @@ export function SpeakerEditControl( {
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
+				style={ inlineStyles }
 				onSplit={ () => {} }
 				onReplace={ ( replaceValue ) => {
 					setTimeout( () => transcriptRef?.current?.focus(), 10 );

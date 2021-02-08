@@ -185,6 +185,7 @@ function DialogueEdit( {
 					participant={ conversationParticipant }
 					participants={ participants }
 					transcriptRef={ contentRef }
+					color={ labelTextColor }
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { label: updatedParticipant } );
 					} }
