@@ -67,6 +67,11 @@ export default class JetpackPage extends WpPage {
 		}
 	}
 
+	async openPlans() {
+		const plansButton = "a[href*='plans'] span";
+		return await waitAndClick( this.page, plansButton );
+	}
+
 	async isConnectBannerVisible() {
 		logger.step( 'Checking if Connect banner is visible' );
 

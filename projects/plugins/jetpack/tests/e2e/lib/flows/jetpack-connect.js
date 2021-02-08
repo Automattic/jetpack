@@ -45,7 +45,7 @@ export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData =
 	}
 
 	await doClassicConnection( mockPlanData );
-	await syncJetpackPlanData( plan, mockPlanData );
+	await syncJetpackPlanData( plan );
 }
 
 export async function doClassicConnection( mockPlanData ) {
@@ -64,16 +64,18 @@ export async function doClassicConnection( mockPlanData ) {
 	return await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 }
 
-export async function doInPlaceConnection() {
+export async function doInPlaceConnection( plan = 'plan' ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'in_place' );
 	await jetpackPage.connect();
 
 	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();
-	await ( await PickAPlanPage.init( page ) ).select( 'free' );
+	await ( await PickAPlanPage.init( page ) ).select( plan );
 	// await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	// await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-	await ( await Sidebar.init( page ) ).selectJetpack();
+	if ( plan === 'free' ) {
+		await ( await Sidebar.init( page ) ).selectJetpack();
+	}
 }
 
 export async function doUserlessConnection() {

@@ -18,6 +18,8 @@ export default class PickAPlanPage extends WpPage {
 
 	async select( product = 'free' ) {
 		switch ( product ) {
+			case 'security':
+				return await this.selectSecurityDaily();
 			case 'complete':
 				return await this.selectComplete();
 			case 'free':
@@ -30,6 +32,12 @@ export default class PickAPlanPage extends WpPage {
 		const freePlanButton = '[data-e2e-product-slug="free"] a';
 		await this.waitForTimeout( 500 );
 		return await this.click( freePlanButton );
+	}
+
+	async selectSecurityDaily() {
+		const buttonSelector = '[data-e2e-product-slug="jetpack_security_daily"] button';
+		await this.waitForTimeout( 500 );
+		return await this.click( this.page, buttonSelector );
 	}
 
 	async selectComplete() {
