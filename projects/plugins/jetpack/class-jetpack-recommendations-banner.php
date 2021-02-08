@@ -200,7 +200,7 @@ class Jetpack_Recommendations_Banner {
 				<h1 class="jp-recommendations-banner__question">
 					<?php
 					/* translators: placeholder is the name of the website */
-					echo sprintf( esc_html__( 'What type of site is %s?', 'jetpack' ), $site_name );
+					echo sprintf( esc_html__( 'What type of site is %s?', 'jetpack' ), esc_html( $site_name ) );
 					?>
 				</h1>
 				<p class="jp-recommendations-banner__description">
@@ -215,8 +215,7 @@ class Jetpack_Recommendations_Banner {
 							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
 						</div>
 					</form>
-					<a id="jp-recommendations-banner__continue-button"
-					   class="jp-recommendations-banner__continue-button">
+					<a id="jp-recommendations-banner__continue-button" class="jp-recommendations-banner__continue-button">
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
 					</a>
 					<div class="jp-recommendations-banner__continue-description">
@@ -234,8 +233,7 @@ class Jetpack_Recommendations_Banner {
 						class="jp-recommendations-banner__illustration-foreground"
 				/>
 			</div>
-			<span id="jp-recommendations-banner__notice-dismiss" class="notice-dismiss"
-				  title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"/>
+			<span id="jp-recommendations-banner__notice-dismiss" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"/>
 		</div>
 		<?php
 	}
@@ -248,13 +246,13 @@ class Jetpack_Recommendations_Banner {
 	 */
 	private function render_checkbox( $name, $title ) {
 		?>
-        <label for="<?php echo esc_html( $name ); ?>" class="jp-recommendations-answer__checkbox-label">
-            <input id="<?php echo esc_html( $name ); ?>" name="<?php echo esc_html( $name ); ?>" type="checkbox"
-                   tabindex="-1"/>
-            <div class="jp-recommendations-answer__title">
+		<label for="<?php echo esc_html( $name ); ?>" class="jp-recommendations-answer__checkbox-label">
+			<input id="<?php echo esc_html( $name ); ?>" name="<?php echo esc_html( $name ); ?>" type="checkbox"
+				   tabindex="-1"/>
+			<div class="jp-recommendations-answer__title">
 				<?php echo esc_html( $title ); ?>
-            </div>
-        </label>
+			</div>
+		</label>
 		<?php
 	}
 }
