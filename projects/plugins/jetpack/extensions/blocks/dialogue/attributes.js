@@ -11,6 +11,10 @@ export default {
 		type: 'string',
 		validator: colorValidator,
 	},
+	customLabelTextColor: {
+		type: 'string',
+		validator: colorValidator,
+	},
 	slug: {
 		type: 'string',
 	},
