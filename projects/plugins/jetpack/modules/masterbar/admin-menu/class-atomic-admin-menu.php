@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+require_once __DIR__ . '/class-admin-menu.php';
+
 /**
  * Class Atomic_Admin_Menu.
  */
@@ -33,6 +35,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 
+		$wp_admin = $this->should_link_to_wp_admin();
+
+		$this->add_my_home_menu( $wp_admin );
+
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
@@ -40,9 +46,17 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		$this->add_jetpack_menu();
-
 		ksort( $GLOBALS['menu'] );
+	}
+
+	/**
+	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Plugins on Atomic sites are always managed on WP Admin.
+		parent::add_plugins_menu( true );
 	}
 
 	/**
@@ -169,54 +183,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		global $menu;
-
-		$position = 50;
-		while ( isset( $menu[ $position ] ) ) {
-			$position++;
-		}
-
-		// TODO: Replace with proper SVG data url.
-		$jetpack_icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 32 32' %3E%3Cpath fill='%23a0a5aa' d='M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z'%3E%3C/path%3E%3Cpolygon fill='%23fff' points='15,19 7,19 15,3 '%3E%3C/polygon%3E%3Cpolygon fill='%23fff' points='17,29 17,13 25,13 '%3E%3C/polygon%3E%3C/svg%3E";
-		$jetpack_slug = 'https://wordpress.com/activity-log/' . $this->domain;
-
-		$this->add_admin_menu_separator( $position++, 'manage_options' );
-		add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', $jetpack_slug, null, $jetpack_icon, $position );
-
-		// Maintain id for jQuery selector.
-		$menu[ $position ][5] = 'toplevel_page_jetpack'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-		remove_menu_page( 'jetpack' );
-		remove_submenu_page( 'jetpack', 'stats' );
-
-		$this->migrate_submenus( 'jetpack', $jetpack_slug );
-
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 5 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 10 );
-
-		add_filter(
-			'parent_file',
-			function ( $parent_file ) use ( $jetpack_slug ) {
-				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
-			}
-		);
-	}
-
-	/**
 	 * Adds Tools menu.
 	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $wp_admin = false ) {
-		$menu_slug = $wp_admin ? 'tools.php' : 'https://wordpress.com/marketing/tools/' . $this->domain;
-
-		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'manage_options', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 5 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 10 );
-
-		parent::add_tools_menu( $wp_admin );
+	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Export on Atomic sites is always handled on WP Admin.
+		parent::add_tools_menu( $wp_admin_import, true );
 	}
 
 	/**
