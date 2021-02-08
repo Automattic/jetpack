@@ -39,7 +39,6 @@
 		"test-adminpage": "yarn test-client && yarn test-gui",
 		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js",
 		"test-extensions": "jest extensions",
-		"test-extensions-single": "jest",
 		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
 		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js lib",
 		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
