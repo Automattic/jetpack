@@ -78,6 +78,46 @@ class MyPlanBody extends React.Component {
 		this.trackPlansClick( 'activate_ga' );
 	};
 
+	getSeoToolsCard = () => {
+		return (
+			<div className="jp-landing__plan-features-card">
+				<div className="jp-landing__plan-features-img">
+					<img
+						src={ imagePath + '/jetpack-performance-icon.svg' }
+						className="jp-landing__plan-features-icon"
+						alt={ __( 'Site stats showing an evolution in traffic and engagement', 'jetpack' ) }
+					/>
+				</div>
+				<div className="jp-landing__plan-features-text">
+					<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools', 'jetpack' ) }</h3>
+					<p>
+						{ __(
+							'Advanced SEO tools to help your site get found when people search for relevant content.',
+							'jetpack'
+						) }
+					</p>
+					{ this.props.isModuleActivated( 'seo-tools' ) ? (
+						<Button
+							onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
+							href={ getRedirectUrl( 'calypso-marketing-traffic', {
+								site: this.props.siteRawUrl,
+							} ) }
+						>
+							{ __( 'Configure site SEO', 'jetpack' ) }
+						</Button>
+					) : (
+						<Button
+							onClick={ this.activateSeo }
+							disabled={ this.props.isActivatingModule( 'seo-tools' ) }
+						>
+							{ __( 'Activate SEO tools', 'jetpack' ) }
+						</Button>
+					) }
+				</div>
+			</div>
+		);
+	};
+
 	render() {
 		let planCard = '';
 		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
@@ -462,48 +502,7 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
-							<div className="jp-landing__plan-features-card">
-								<div className="jp-landing__plan-features-img">
-									<img
-										src={ imagePath + '/jetpack-performance-icon.svg' }
-										className="jp-landing__plan-features-icon"
-										alt={ __(
-											'Site stats showing an evolution in traffic and engagement',
-											'jetpack'
-										) }
-									/>
-								</div>
-								<div className="jp-landing__plan-features-text">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'SEO Tools', 'jetpack' ) }
-									</h3>
-									<p>
-										{ __(
-											'Advanced SEO tools to help your site get found when people search for relevant content.',
-											'jetpack'
-										) }
-									</p>
-									{ this.props.isModuleActivated( 'seo-tools' ) ? (
-										<Button
-											onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
-											href={ getRedirectUrl( 'calypso-marketing-traffic', {
-												site: this.props.siteRawUrl,
-											} ) }
-										>
-											{ __( 'Configure site SEO', 'jetpack' ) }
-										</Button>
-									) : (
-										<Button
-											onClick={ this.activateSeo }
-											disabled={ this.props.isActivatingModule( 'seo-tools' ) }
-										>
-											{ __( 'Activate SEO tools', 'jetpack' ) }
-										</Button>
-									) }
-								</div>
-							</div>
-						) }
+						{ 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && this.getSeoToolsCard() }
 
 						{ isPlanPremiumOrBetter &&
 							'inactive' !== this.props.getModuleOverride( 'google-analytics' ) && (
@@ -757,6 +756,8 @@ class MyPlanBody extends React.Component {
 								</div>
 							) }
 						</div>
+
+						{ 'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && this.getSeoToolsCard() }
 
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
