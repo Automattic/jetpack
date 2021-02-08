@@ -20,6 +20,7 @@
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-connection-ui": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
@@ -46,6 +47,21 @@
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
 			"yarn build-concurrently"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"@composer install",
+			"tests/action-test-coverage.sh"
+		],
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn install",
+			"yarn concurrently 'yarn:test-adminpage' 'yarn:test-extensions' 'yarn:test-search'"
+		],
+		"test-php": [
+			"Composer\\Config::disableProcessTimeout",
+			"@composer install",
+			"tests/action-test-php.sh"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",

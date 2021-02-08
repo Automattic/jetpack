@@ -7,6 +7,9 @@ inputs:
   branch:
     description: "Branch (or other git refspec) to deepen with respect to."
     default: ${{ github.event.pull_request.base.sha }}
+  checkout:
+    description: "Whether to check out the head. Default is true."
+    default: true
   initial-depth:
     description: "Initial depth to check out."
     default: 10
@@ -22,17 +25,23 @@ runs:
       run: |
         depth=${{ inputs.initial-depth }}
         echo "::group::Initial fetch to $depth"
+        echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}"
         /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}
         echo "::endgroup::"
         while ! /usr/bin/git merge-base ${{ inputs.head }} ${{ inputs.branch }} >/dev/null 2>&1; do
           depth=$((depth * 2))
           echo "::group::Deepen to $depth"
+          echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}"
           /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth origin ${{ inputs.head }} ${{ inputs.branch }}
           echo "::endgroup::"
         done
     - name: "Check out new head"
       shell: bash
-      run: /usr/bin/git checkout ${{ inputs.head }}
+      run: |
+        if [[ "${{ inputs.checkout }}" == "true" ]]; then
+          echo "/usr/bin/git checkout ${{ inputs.head }}"
+          /usr/bin/git checkout ${{ inputs.head }}
+        fi
     - name: "Output"
       id: end
       shell: bash
