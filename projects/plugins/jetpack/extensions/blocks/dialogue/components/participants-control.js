@@ -16,8 +16,7 @@ import {
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { create, getTextContent } from '@wordpress/rich-text';
-import { useMemo, useState, useEffect, Component } from '@wordpress/element';
+import { useMemo, useState, useEffect, Component, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -158,33 +157,52 @@ export function SpeakerEditControl( {
 	onClean,
 } ) {
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
+	const elementRef = useRef();
 
-	function onActionHandler() {
-		switch ( editingMode ) {
-			case EDIT_MODE_ADDING: {
-				return onAdd( getTextContent( create( { html: label } ) ) );
-			}
-
-			case EDIT_MODE_EDITING: {
-				return onUpdate( {
-					...participant,
-					label,
-				} );
-			}
+	function editSpeakerHandler() {
+		if ( ! label ) {
+			return;
 		}
+
+		const participantExists = getParticipantByLabel( participants, label );
+
+		if ( participant && participant.label !== label ) {
+			// Check if the participant label exists, but it isn't the current one.
+			if ( participantExists && participantExists.slug !== participant.slug ) {
+				return onSelect( participantExists );
+			}
+
+			setEditingMode( EDIT_MODE_EDITING );
+			return onUpdate( {
+				...participant,
+				label,
+			} );
+		}
+
+		// Select the speaker but from the current label value.
+		if ( participantExists ) {
+			setEditingMode( EDIT_MODE_SELECTING );
+			return onSelect( participantExists );
+		}
+
+		// Add a new speaker.
+		onAdd( label );
+		return setEditingMode( EDIT_MODE_ADDING );
 	}
 
 	/**
 	 * Funcion handler when user types participant label.
-	 * It can edit a new participant, or add a new one,
-	 * dependeing on the previous values.
+	 * It propagates the participant label value (local), and
+	 * tracks the edition mode:
+	 * - EDIT_MODE_ADDING
+	 * - EDIT_MODE_SELECTING
+	 * - EDIT_MODE_EDITING
 	 *
 	 * @param {string} newLabel - New participant label.
 	 * @returns {null} Null
 	 */
 	function onChangeHandler( newLabel ) {
-		// If the new label is empty,
-		// activate autocomplete, and emit onClean(),
+		// If the new label is empty emit onClean(),
 		// to clean the current participant.
 		if ( ! newLabel?.length ) {
 			setEditingMode( EDIT_MODE_ADDING );
@@ -214,7 +232,7 @@ export function SpeakerEditControl( {
 
 	// Keep autocomplete options udated.
 	const autocompleter = useMemo( () => {
-		if ( editingMode !== EDIT_MODE_ADDING ) {
+		if ( editingMode === EDIT_MODE_EDITING ) {
 			return [];
 		}
 
@@ -233,9 +251,10 @@ export function SpeakerEditControl( {
 				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
 				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
 			} ) }
-			onFocusOutside={ onActionHandler }
+			onFocusOutside={ editSpeakerHandler }
 		>
 			<RichText
+				ref={ elementRef }
 				tagName="div"
 				value={ label }
 				formattingControls={ [] }
@@ -257,34 +276,7 @@ export function SpeakerEditControl( {
 						return onSelect( replacedParticipant );
 					}
 
-					if ( ! label?.length ) {
-						return;
-					}
-
-					const participantExists = getParticipantByLabel( participants, label );
-
-					if ( participant && participant.label !== label ) {
-						// Check if the participant label exists, but it isn't the current one.
-						if ( participantExists && participantExists.slug !== participant.slug ) {
-							return onSelect( participantExists );
-						}
-
-						setEditingMode( EDIT_MODE_EDITING );
-						return onActionHandler( {
-							...participant,
-							label,
-						} );
-					}
-
-					// Select the speaker but from the current label value.
-					if ( participantExists ) {
-						setEditingMode( EDIT_MODE_SELECTING );
-						return onSelect( participantExists );
-					}
-
-					// Add a new speaker.
-					onActionHandler( true );
-					return setEditingMode( EDIT_MODE_ADDING );
+					return editSpeakerHandler();
 				} }
 				autocompleters={ autocompleter }
 			/>
