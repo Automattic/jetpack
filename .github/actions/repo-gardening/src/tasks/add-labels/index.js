@@ -128,19 +128,31 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 	debug( 'add-labels: Loop through all files modified in this PR and add matching labels.' );
 
 	files.map( file => {
-		// Plugins.
-		const plugin = file.match( /^projects\/plugins\/(?<plugin>\w*)\// );
-		const pluginName = plugin && plugin.groups.plugin;
-		if ( pluginName ) {
-			keywords.add( `[Plugin] ${ cleanName( pluginName ) }` );
-		}
+		// Projects.
+		const project = file.match( /^projects\/(?<ptype>\w*)\/(?<pname>\w*)\// );
+		if ( project && project.groups.ptype && project.groups.pname ) {
+			const prefix = {
+				'editor-extensions': 'Block',
+				'github-actions': 'Action',
+				'packages': 'Package',
+				'plugins': 'Plugin',
+			}[ project.groups.ptype ];
+			if ( prefix === undefined ) {
+				const err = new Error( `Cannot determine label prefix for plugin type "${ project.groups.ptype }"` );
+				// Produce a GitHub error annotation pointing here.
+				const line = err.stack.split( '\n' )[1].split( ':' )[1] - 2;
+				console.log( `::error file=${ __filename },line=${ line }::${ err.message }` );
+				throw err;
+			}
+			keywords.add( `[${ prefix }] ${ cleanName( project.groups.pname ) }` );
 
-		// Packages.
-		const packages = file.match( /^projects\/packages\/(?<package>\w*)\// );
-		const packageName = packages && packages.groups.package;
-		if ( packageName ) {
-			keywords.add( `[Package] ${ cleanName( packageName ) }` );
-			keywords.add( `[Status] Needs Package Release` );
+			// Extra labels.
+			if ( project.groups.ptype === 'github-actions' ) {
+				keywords.add( 'Actions' );
+			}
+			if ( project.groups.ptype === 'packages' ) {
+				keywords.add( '[Status] Needs Package Release' );
+			}
 		}
 
 		// Modules.
