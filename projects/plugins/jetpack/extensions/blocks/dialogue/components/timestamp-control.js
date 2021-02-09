@@ -27,10 +27,6 @@ const timestampMap = [ 'hour', 'min', 'sec' ];
  * @returns {string} HH:MM:SS format.
  */
 function setTimestampValue( typeValue, smh ) {
-	if ( smh.length <= 2 ) {
-		smh.unshift( '00' );
-	}
-
 	const type = Object.keys( typeValue )?.[ 0 ];
 	if ( ! type ) {
 		return smh.join( ':' );
