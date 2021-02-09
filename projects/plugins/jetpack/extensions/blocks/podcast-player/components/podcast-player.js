@@ -304,7 +304,7 @@ export class PodcastPlayer extends Component {
 						onError={ this.handleError }
 						playStatus={ playerState }
 						currentTime={ currentTime }
-						loadWhenReay={ true }
+						loadWhenReady={ true }
 						onTimeChange={ this.handleTimeChange }
 						onMetadataLoaded={ this.updateMediaData }
 					/>

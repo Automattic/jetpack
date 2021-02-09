@@ -49,7 +49,7 @@ function AudioPlayer( {
 	currentTime,
 	playStatus = STATE_PAUSED,
 	onMetadataLoaded,
-	loadWhenReay = false,
+	loadWhenReady = false,
 } ) {
 	const audioRef = useRef();
 
