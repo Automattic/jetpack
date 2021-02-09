@@ -3,6 +3,7 @@
  */
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import pluralize from 'pluralize';
 
 /**
  * Internal dependencies
@@ -54,11 +55,12 @@ export async function promptForProject( options ) {
 export async function promptForGenerate( options ) {
 	let typeAnswer;
 	let nameAnswer;
-	let tries = 0;
 
 	// Get project type if not passed as an option.
 	if ( ! options.type || options.type.length === 0 ) {
 		typeAnswer = await promptForType();
+	} else if ( ! projectTypes.includes( pluralize( options.type ) ) ) {
+		return new Error( 'Must be a valid project type' );
 	}
 
 	// Get the appropriate list of project prompts based on type
@@ -74,20 +76,6 @@ export async function promptForGenerate( options ) {
 
 	// Prompt repeatedly if the project name is already used or blank
 	while ( checkNameValid( options.type || typeAnswer.type, options.name || nameAnswer.name ) ) {
-		if ( tries >= 3 ) {
-			console.error(
-				chalk.bgRed(
-					"Are you sure you know what you're doing? You might burn down the whole repo."
-				)
-			);
-		} else if ( tries >= 2 ) {
-			console.error( chalk.bold.red( 'You, uh, might want to check the file list again.' ) );
-		} else {
-			console.error(
-				chalk.red( 'Darn, a project by that name already exists (or you left it blank).' )
-			);
-		}
-		tries++;
 		options.name = '';
 		nameAnswer = await promptForName();
 	}
@@ -97,7 +85,7 @@ export async function promptForGenerate( options ) {
 
 	return {
 		...options,
-		type: options.type || typeAnswer.type,
+		type: pluralize.singular( options.type || typeAnswer.type ),
 		name: options.name || nameAnswer.name,
 		...finalAnswers,
 	};
@@ -177,14 +165,14 @@ export function getQuestions( type ) {
 	const extensionQuestions = '';
 	const githubQuestions = '';
 
-	switch ( type ) {
-		case 'plugins':
+	switch ( pluralize.singular( type ) ) {
+		case 'plugin':
 			return pluginQuestions;
-		case 'packages':
+		case 'package':
 			return packageQuestions;
-		case 'editor-extensions':
+		case 'editor-extension':
 			return extensionQuestions;
-		case 'github-actions':
+		case 'github-action':
 			return githubQuestions;
 	}
 }
