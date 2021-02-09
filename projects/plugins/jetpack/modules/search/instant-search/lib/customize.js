@@ -4,6 +4,7 @@
 import { SERVER_OBJECT_NAME } from './constants';
 
 const SETTINGS_TO_STATE_MAP = new Map( [
+	[ 'jetpack_search_color_theme', 'colorTheme' ],
 	[ 'jetpack_search_enable_sort', 'enableSort' ],
 	[ 'jetpack_search_highlight_color', 'highlightColor' ],
 	[ 'jetpack_search_inf_scroll', 'enableInfScroll' ],

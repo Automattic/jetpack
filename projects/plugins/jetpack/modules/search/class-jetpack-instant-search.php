@@ -161,6 +161,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		$options = array(
 			'overlayOptions'        => array(
+				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll' => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
