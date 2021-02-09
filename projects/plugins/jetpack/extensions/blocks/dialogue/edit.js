@@ -184,13 +184,8 @@ function DialogueEdit( {
 						/>
 					</PanelBody>
 
-					{ !! mediaSource?.title && (
-						<PanelBody title={ __( 'Podcast episode', 'jetpack' ) }>
-							<p>{ mediaSource.title }</p>
-						</PanelBody>
-					) }
-
 					<PanelColorSettings
+						initialOpen={ false }
 						title={ __( 'Color Settings', 'jetpack' ) }
 						colorSettings={ [
 							{
@@ -206,6 +201,12 @@ function DialogueEdit( {
 							},
 						] }
 					/>
+
+					{ !! mediaSource?.title && (
+						<PanelBody title={ __( 'Podcast episode', 'jetpack' ) }>
+							<p>{ mediaSource.title }</p>
+						</PanelBody>
+					) }
 
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
