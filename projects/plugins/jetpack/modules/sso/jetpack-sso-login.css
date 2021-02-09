@@ -134,12 +134,6 @@
 	font-size: 24px;
 }
 
-@media screen and ( max-width: 782px ) {
-	.jetpack-sso.button {
-		line-height: 22px;
-	}
-}
-
 #jetpack-sso-wrap__user img {
 	border-radius: 50%;
 	display: block;
