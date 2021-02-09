@@ -233,7 +233,17 @@ function DialogueEdit( {
 					onParticipantChange={ ( updatedParticipant ) => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ setAttributes }
+					onSelect={ ( selectedParticipant ) => {
+						setAttributes( selectedParticipant );
+
+						if ( selectedParticipant?.color ) {
+							setLabelTextColor( selectedParticipant.color );
+						}
+
+						if ( selectedParticipant?.backgroundColor ) {
+							setLabelBackgroundColor( selectedParticipant.backgroundColor );
+						}
+					} }
 
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
