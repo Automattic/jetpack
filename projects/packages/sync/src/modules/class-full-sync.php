@@ -1,6 +1,7 @@
 <?php
 /**
  * Full sync module.
+ * Change
  *
  * @package automattic/jetpack-sync
  */

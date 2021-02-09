@@ -1,6 +1,7 @@
 <?php // phpcs:disable Squiz.Commenting.FileComment.Missing
 /**
  * Memberships block.
+ * A change to the Payments block
  *
  * @since 7.3.0
  *

@@ -6,6 +6,7 @@ import path from 'path';
 
 /**
  * CLI link.
+ * Change
  */
 function cliLink() {
 	child_process.spawnSync( 'yarn link', {
