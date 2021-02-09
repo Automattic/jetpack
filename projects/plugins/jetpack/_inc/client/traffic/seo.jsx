@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -12,7 +11,7 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import getRedirectUrl from 'lib/jp-redirect';
-import { FEATURE_SEO_TOOLS_JETPACK, getPlanClass } from 'lib/plans/constants';
+import { FEATURE_SEO_TOOLS_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -24,7 +23,6 @@ class SeoComponent extends React.Component {
 	};
 
 	render() {
-		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		return (
 			<SettingsCard
 				{ ...this.props }
