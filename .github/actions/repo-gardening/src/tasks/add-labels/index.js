@@ -35,6 +35,7 @@ async function getFiles( octokit, owner, repo, number ) {
 
 /**
  * Clean up a feature name:
+ * - Handle some exceptions in our codename / feature names.
  * - Replace dashes by spaces.
  * - Capitalize.
  *
@@ -43,6 +44,56 @@ async function getFiles( octokit, owner, repo, number ) {
  * @returns {string} Cleaned up feature name.
  */
 function cleanName( name ) {
+	// Sharedaddy is a legacy codename.
+	if ( name === 'sharedaddy' ) {
+		name = 'Sharing';
+	}
+
+	// Our Shortcodes feature includes shortcodes and embeds.
+	if ( name === 'shortcodes' ) {
+		name = 'Shortcodes / Embeds';
+	}
+
+	// We name our CPTs "Custom Content Types" to avoid confusion with WordPress's CPT.
+	if ( name === 'custom-post-types' ) {
+		name = 'Custom Content Types';
+	}
+
+	// Our widgets are "Extra Sidebar Widgets".
+	if ( name === 'widgets' ) {
+		name = 'Extra Sidebar Widgets';
+	}
+
+	// Simple Payments was renamed into "Pay With Paypal".
+	if ( name === 'simple-payments' ) {
+		name = 'Pay With Paypal';
+	}
+
+	// WordPress.com Block Editor lives under 'wpcom-block-editor'.
+	if ( name === 'wpcom-block-editor' ) {
+		name = 'WordPress.com Block Editor';
+	}
+
+	// WordAds is a codename. We name
+	if ( name === 'wordads' ) {
+		name = 'Ad';
+	}
+
+	// Latest Instagram Posts used to be named Instagram Gallery.
+	if ( name === 'instagram-gallery' ) {
+		name = 'Latest Instagram Posts';
+	}
+
+	// Payments used to be called Recurring Payments.
+	if ( name === 'recurring-payments' ) {
+		name = 'Payments';
+	}
+
+	// Rating Star was renamed into Star Rating.
+	if ( name === 'rating-star' ) {
+		name = 'Star Rating';
+	}
+
 	return (
 		name
 			// Break up words
