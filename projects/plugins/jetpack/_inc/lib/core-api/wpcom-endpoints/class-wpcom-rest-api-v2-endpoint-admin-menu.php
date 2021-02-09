@@ -294,9 +294,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function prepare_menu_item_url( $url, $parent_slug = '' ) {
-		// Calypso URLs need the base removed so they're not interpreted as external links.
-		if ( 0 === strpos( $url, 'https://wordpress.com' ) ) {
-			$url = str_replace( 'https://wordpress.com', '', $url );
+		// For security reasons, do not allow external URLs (unless they point to Calypso).
+		if ( preg_match( '/^https?:\/\//', $url ) ) {
+			if ( 0 === strpos( $url, 'https://wordpress.com' ) ) {
+				// Calypso URLs need the base removed so they're not interpreted as external links.
+				$url = str_replace( 'https://wordpress.com', '', $url );
+			} else {
+				$url = '';
+			}
 		} else {
 			$menu_hook   = get_plugin_page_hook( $url, $parent_slug );
 			$menu_file   = wp_parse_url( $url, PHP_URL_PATH ); // Removes query args to get a file name.
@@ -323,7 +328,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 		}
 
-		return $url;
+		return esc_url( $url );
 	}
 
 	/**
