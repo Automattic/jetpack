@@ -10,6 +10,7 @@
  * to check for Jetpack::is_active() too early in the load flow.
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
@@ -396,5 +397,5 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
  */
 function jetpack_notify_is_user_connected_by_email( $email ) {
 	$user = get_user_by( 'email', $email );
-	return Jetpack::is_user_connected( $user->ID );
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user->ID );
 }

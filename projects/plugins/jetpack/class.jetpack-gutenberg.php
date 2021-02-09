@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
@@ -693,7 +694,7 @@ class Jetpack_Gutenberg {
 		} else {
 			$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
 			$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
-			$is_current_user_connected = Jetpack::is_user_connected();
+			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
 		wp_localize_script(

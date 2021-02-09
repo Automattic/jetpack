@@ -1404,7 +1404,7 @@ class Jetpack {
 			if ( count( $admins ) > 1 ) {
 				$available = array();
 				foreach ( $admins as $admin ) {
-					if ( self::is_user_connected( $admin->ID ) ) {
+					if ( self::connection()->is_user_connected( $admin->ID ) ) {
 						$available[] = $admin->ID;
 					}
 				}
@@ -4135,7 +4135,7 @@ p {
 			// @todo: Add validation against a known allowed list.
 			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
-			if ( ! self::is_user_connected() ) {
+			if ( ! self::connection()->is_user_connected() ) {
 				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
 
 				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
@@ -7073,7 +7073,7 @@ endif;
 	 * Show Jetpack icon if the user is linked.
 	 */
 	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
-		if ( 'user_jetpack' == $col && self::is_user_connected( $user_id ) ) {
+		if ( 'user_jetpack' === $col && self::connection()->is_user_connected( $user_id ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$emblem_html  = sprintf(
 				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',
