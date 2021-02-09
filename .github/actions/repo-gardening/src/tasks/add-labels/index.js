@@ -122,6 +122,11 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			keywords.add( 'Docker' );
 		}
 
+		const cliTools = file.match( /^tools\/cli\// );
+		if ( cliTools !== null ) {
+			keywords.add( '[Tools] Development CLI' );
+		}
+
 		// Blocks.
 		const blocks = file.match(
 			/^(?:projects\/plugins\/jetpack\/extensions\/blocks\/|projects\/editor-extensions\/)(?<block>[a-zA-Z-]*)\//
