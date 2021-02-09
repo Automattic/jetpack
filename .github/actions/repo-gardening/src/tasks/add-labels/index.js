@@ -74,7 +74,7 @@ function cleanName( name ) {
 		name = 'WordPress.com Block Editor';
 	}
 
-	// WordAds is a codename. We name
+	// WordAds is a codename. We name the feature just "Ad" or "Ads".
 	if ( name === 'wordads' ) {
 		name = 'Ad';
 	}
