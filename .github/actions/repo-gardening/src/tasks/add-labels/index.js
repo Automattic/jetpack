@@ -170,15 +170,9 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		}
 
 		// Actions.
-		const actions = file.match(
-			/^\.github\/actions\/|projects\/github-actions\/(?<action>[a-zA-Z-]*)\//
-		);
+		const actions = file.match( /^\.github\/(actions|workflows|files)\// );
 		if ( actions !== null ) {
 			keywords.add( 'Actions' );
-			const actionName = actions && actions.groups.action;
-			if ( actionName ) {
-				keywords.add( `[Actions] ${ cleanName( actionName ) }` );
-			}
 		}
 
 		// Docker.
