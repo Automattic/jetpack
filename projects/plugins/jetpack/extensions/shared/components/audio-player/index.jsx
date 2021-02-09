@@ -49,6 +49,7 @@ function AudioPlayer( {
 	currentTime,
 	playStatus = STATE_PAUSED,
 	onMetadataLoaded,
+	loadWhenReay = false,
 } ) {
 	const audioRef = useRef();
 
@@ -74,7 +75,14 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
+		const mediaElement = new MediaElementPlayer( audio, {
+			...meJsSettings,
+			success: function() {
+				if ( loadWhenReay && audio?.load ) {
+					audio.load();
+				}
+			}
+		} );
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
