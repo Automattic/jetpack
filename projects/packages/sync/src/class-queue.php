@@ -49,7 +49,7 @@ class Queue {
 
 		// Attempt to serialize data, if an exception (closures) return early.
 		try {
-			$item = serialize( $item );
+			$item = serialize( $item ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 		} catch ( Exception $ex ) {
 			return;
 		}
@@ -61,7 +61,7 @@ class Queue {
 				$wpdb->prepare(
 					"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
 					$this->get_next_data_row_option_name(),
-					$item, // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+					$item,
 					'no'
 				)
 			);
