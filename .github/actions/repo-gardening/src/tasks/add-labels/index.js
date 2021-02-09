@@ -129,7 +129,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 
 	files.map( file => {
 		// Projects.
-		const project = file.match( /^projects\/(?<ptype>\w*)\/(?<pname>\w*)\// );
+		const project = file.match( /^projects\/(?<ptype>[a-zA-Z-]*)\/(?<pname>[a-zA-Z-]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
 				'editor-extensions': 'Block',
