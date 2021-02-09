@@ -5,7 +5,7 @@ $modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results {
 	align-content: baseline;
-	background: $studio-white;
+	background: $color-modal-background;
 	border-radius: 3px;
 	display: flex;
 	flex-flow: row wrap;
@@ -110,7 +110,7 @@ $modal-max-width-lg: 95%;
 			right: 40px;
 			left: 40px;
 
-			background: $studio-white;
+			background: $color-modal-background;
 			border-radius: 6px;
 			border: 1px solid rgba( 0, 0, 0, 0.1 );
 			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );

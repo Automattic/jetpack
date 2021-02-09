@@ -14,7 +14,7 @@
 
 input.jetpack-instant-search__box-input.search-field {
 	appearance: none;
-	background: $studio-white;
+	background: $color-modal-background;
 	border: 0;
 	box-shadow: none;
 	color: $color-text-light;
@@ -28,7 +28,7 @@ input.jetpack-instant-search__box-input.search-field {
 
 	&:hover,
 	&:focus {
-		background: $studio-white; // necessary to override theme styles
+		background: $color-modal-background; // necessary to override theme styles
 		color: $color-text;
 	}
 

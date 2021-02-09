@@ -14,7 +14,7 @@ $overlay-horizontal-padding-lg: 3em;
 	left: 0;
 	right: 0;
 
-	background: rgba( $studio-gray-90, 0.7 );
+	background: $color-modal-backdrop-background;
 	box-sizing: border-box;
 	color: $color-text;
 	opacity: 1;
