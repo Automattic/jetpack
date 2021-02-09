@@ -67,6 +67,10 @@
 .jp-recommendations-banner__answer {
 	text-align: center;
 	margin: 0 0 32px 32px;
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 0 16px 16px;
+	}
 }
 
 .jp-recommendations-banner__checkboxes {
