@@ -110,7 +110,6 @@ export function MediaPlayerControl( {
 					className={ classnames(
 						'media-player-control__current-time', {
 							'is-disabled': isDisabled,
-							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
 						}
 					) }
 				>
