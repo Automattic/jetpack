@@ -61,7 +61,7 @@ class Queue {
 				$wpdb->prepare(
 					"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
 					$this->get_next_data_row_option_name(),
-					serialize( $item ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+					$item, // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 					'no'
 				)
 			);
