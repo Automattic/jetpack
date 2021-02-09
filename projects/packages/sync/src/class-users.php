@@ -35,6 +35,7 @@ class Users {
 	 * @todo Eventually, connection needs to be instantiated at the top level in the sync package.
 	 */
 	public static function init() {
+		add_action( 'jetpack_user_authorized', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 		$connection = new Jetpack_Connection();
 		if ( $connection->has_connected_user() ) {
 			// Kick off synchronization of user role when it changes.
