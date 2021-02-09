@@ -16,7 +16,7 @@ import {
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState, useEffect, Component, useRef } from '@wordpress/element';
+import { useMemo, useState, useEffect, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -157,7 +157,6 @@ export function SpeakerEditControl( {
 	onClean,
 } ) {
 	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-	const elementRef = useRef();
 
 	function editSpeakerHandler() {
 		if ( ! label ) {
@@ -254,7 +253,6 @@ export function SpeakerEditControl( {
 			onFocusOutside={ editSpeakerHandler }
 		>
 			<RichText
-				ref={ elementRef }
 				tagName="div"
 				value={ label }
 				formattingControls={ [] }
