@@ -26,14 +26,35 @@ class Jetpack_Recommendations {
 			return false;
 		}
 
+		// No recommendations for Atomic sites, they already get onboarded in Calypso.
+		if ( jetpack_is_atomic_site() ) {
+			return false;
+		}
+
 		self::initialize_jetpack_recommendations();
 
-		$recommendations_enabled = Jetpack_Options::get_option( 'recommendations_enabled', null );
+		return true;
+	}
+
+	/**
+	 * Returns a boolean indicating if the Jetpack Banner is enabled.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_banner_enabled() {
+		// Shortcircuit early if the recommendations are not enabled at all.
+		if ( ! self::is_enabled() ) {
+			return false;
+		}
+
+		$recommendations_banner_enabled = Jetpack_Options::get_option( 'recommendations_banner_enabled', null );
 
 		// If the option is already set, just return the cached value.
 		// Otherwise calculate it and store it before returning it.
-		if ( null !== $recommendations_enabled ) {
-			return $recommendations_enabled;
+		if ( null !== $recommendations_banner_enabled ) {
+			return $recommendations_banner_enabled;
 		}
 
 		if ( ! Jetpack::connection()->is_connected() ) {
@@ -61,12 +82,12 @@ class Jetpack_Recommendations {
 			$site_registered_date = $connection->get_assumed_site_creation_date();
 		}
 
-		$recommendations_start_date = gmdate( 'Y-m-d H:i:s', strtotime( '2020-12-01 00:00:00' ) );
-		$recommendations_enabled    = $site_registered_date > $recommendations_start_date;
+		$recommendations_start_date     = gmdate( 'Y-m-d H:i:s', strtotime( '2020-12-01 00:00:00' ) );
+		$recommendations_banner_enabled = $site_registered_date > $recommendations_start_date;
 
-		Jetpack_Options::update_option( 'recommendations_enabled', $recommendations_enabled );
+		Jetpack_Options::update_option( 'recommendations_banner_enabled', $recommendations_banner_enabled );
 
-		return $recommendations_enabled;
+		return $recommendations_banner_enabled;
 	}
 
 	/**
@@ -79,8 +100,8 @@ class Jetpack_Recommendations {
 
 		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
 		if ( 'completed' === $setup_wizard_status ) {
-			Jetpack_Options::update_option( 'recommendations_enabled', false );
-			Jetpack_Options::update_option( 'recommendations_step', 'setup_wizard_completed' );
+			Jetpack_Options::update_option( 'recommendations_banner_enabled', false );
+			Jetpack_Options::update_option( 'recommendations_step', 'setup-wizard-completed' );
 		}
 	}
 

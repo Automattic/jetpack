@@ -1,5 +1,6 @@
 <?php
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
@@ -489,7 +490,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 function jetpack_current_user_data() {
 	$current_user   = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	$dotcom_data    = Jetpack::get_connected_user_data();
+	$dotcom_data    = ( new Connection_Manager( 'jetpack' ) )->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
@@ -503,7 +504,7 @@ function jetpack_current_user_data() {
 		: false );
 
 	$current_user_data = array(
-		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
+		'isConnected' => ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $current_user->ID ),
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,

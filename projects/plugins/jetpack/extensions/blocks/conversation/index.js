@@ -6,7 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import { ConversationIcon as icon } from '../../shared/icons';
+import { TranscriptIcon as icon } from '../../shared/icons';
 
 /**
  * Local dependencies
@@ -28,8 +28,10 @@ export const settings = {
 	icon,
 	category: 'layout',
 	keywords: [
-		_x( 'Conversation', 'block search term', 'jetpack' ),
-		__( 'transcription', 'jetpack' ),
+		_x( 'conversation', 'block search term', 'jetpack' ),
+		_x( 'transcription', 'block search term', 'jetpack' ),
+		_x( 'dialogue', 'block search term', 'jetpack' ),
+		_x( 'speaker', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,

@@ -30,17 +30,13 @@ const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
 
 /**
- * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
+ * Goes through connection flow via classic (calypso) flow
  *
- * @param {Object} o Optional object with params such as `wpcomUser` and expected Jetpack plan
- * @param {string} o.wpcomUser
+ * @param {Object} o Optional object with params such as `plan` and `mockPlanData`
  * @param {string} o.plan
  * @param {boolean} o.mockPlanData
  */
-export async function connectThroughWPAdminIfNeeded( {
-	plan = 'complete',
-	mockPlanData = false,
-} = {} ) {
+export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData = false } = {} ) {
 	if ( await isBlogTokenSet() ) {
 		return 'already_connected';
 	}
@@ -62,6 +58,7 @@ export async function connectThroughWPAdminIfNeeded( {
 
 async function doClassicConnection( mockPlanData ) {
 	const jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
@@ -76,6 +73,7 @@ async function doClassicConnection( mockPlanData ) {
 
 export async function doInPlaceConnection() {
 	const jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.forceVariation( 'in_place' );
 	await jetpackPage.connect();
 
 	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();

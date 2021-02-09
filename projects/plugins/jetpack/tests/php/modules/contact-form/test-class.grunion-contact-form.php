@@ -109,7 +109,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -144,13 +144,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission   = $feedback[0];
 		$extra_fields = get_post_meta( $submission->ID, '_feedback_extra_fields', true );
 
-		$this->assertSame( 3, count( $extra_fields ), 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
+		$this->assertCount( 3, $extra_fields, 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
 
 		/*
 		 * Metadata starts counting from 5, because post content has:
@@ -177,7 +177,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -207,7 +207,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -236,7 +236,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -265,7 +265,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -298,7 +298,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -334,7 +334,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+		$this->assertCount( 1, $feedback, 'There should be one feedback after process_submission' );
 
 		// Default metadata should be saved.
 		$submission = $feedback[0];
@@ -1064,8 +1064,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
 			$n       = $options->length;
-			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
-			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
+			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
+			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
 				$option = $options->item( $i );
 				$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
@@ -1082,8 +1082,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
 			$n      = $labels->length - 1;
-			$this->assertEquals( $n, count( $attributes['options'] ), 'Number of inputs doesn\'t match number of options' );
-			$this->assertEquals( $n, count( $attributes['values'] ), 'Number of inputs doesn\'t match number of values' );
+			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
+			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
 				$item_label = $labels->item( $i + 1 );
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -1649,14 +1649,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$posts  = get_posts( array( 'post_type' => 'feedback' ) );
 		$export = $this->plugin->personal_data_exporter( 'john@example.com' );
 
-		$this->assertSame( 2, count( $posts ), 'posts count matches' );
-		$this->assertSame( 2, count( $export['data'] ), 'export[data] count matches' );
+		$this->assertCount( 2, $posts, 'posts count matches' );
+		$this->assertCount( 2, $export['data'], 'export[data] count matches' );
 
 		foreach ( $export['data'] as $data ) {
 			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
 			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
 			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
-			$this->assertSame( 9, count( $data['data'] ), 'has total expected data keys' );
+			$this->assertCount( 9, $data['data'], 'has total expected data keys' );
 		}
 	}
 
@@ -1691,12 +1691,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		}
 
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 2, count( $posts ), 'posts count matches before erasing' );
+		$this->assertCount( 2, $posts, 'posts count matches before erasing' );
 
 		$this->plugin->personal_data_eraser( 'john@example.com' );
 
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 0, count( $posts ), 'posts count matches after erasing' );
+		$this->assertCount( 0, $posts, 'posts count matches after erasing' );
 	}
 
 	/**
@@ -1750,22 +1750,22 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 4, count( $posts ), 'posts count matches before erasing' );
+		$this->assertCount( 4, $posts, 'posts count matches before erasing' );
 
 		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 1, 1 );
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 3, count( $posts ), 'posts count matches after page 1' );
+		$this->assertCount( 3, $posts, 'posts count matches after page 1' );
 
 		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 2, 1 );
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 2, count( $posts ), 'posts count matches after page 2' );
+		$this->assertCount( 2, $posts, 'posts count matches after page 2' );
 
 		$this->plugin->_internal_personal_data_eraser( 'jane_doe@example.com', 3, 1 );
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 1, count( $posts ), 'posts count matches after page 3' );
+		$this->assertCount( 1, $posts, 'posts count matches after page 3' );
 
 		$this->plugin->_internal_personal_data_eraser( 'jane@example.com', 1, 1 );
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
-		$this->assertSame( 0, count( $posts ), 'posts count matches after deleting the other feedback responder' );
+		$this->assertCount( 0, $posts, 'posts count matches after deleting the other feedback responder' );
 	}
 } // end class
