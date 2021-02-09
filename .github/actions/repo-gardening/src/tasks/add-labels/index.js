@@ -186,6 +186,26 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		if ( blockName ) {
 			keywords.add( `[Block] ${ cleanName( blockName ) }` );
 		}
+
+		// React Dashboard.
+		const reactAdmin = file.match( /^projects\/plugins\/jetpack\/_inc\/client\// );
+		if ( reactAdmin !== null ) {
+			keywords.add( 'Admin Page' );
+		}
+
+		// Instant Search.
+		const instantSearch = file.match(
+			/^projects\/plugins\/jetpack\/modules\/search\/instant-search\//
+		);
+		if ( instantSearch !== null ) {
+			keywords.add( 'Instant Search' );
+		}
+
+		// WPCOM API.
+		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
+		if ( wpcomApi !== null ) {
+			keywords.add( 'WPCOM API' );
+		}
 	} );
 
 	return [ ...keywords ];
