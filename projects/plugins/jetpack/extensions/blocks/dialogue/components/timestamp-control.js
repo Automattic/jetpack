@@ -1,8 +1,14 @@
 /**
+ * External dependencies
+ */
+import { debounce } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { Dropdown, Button, RangeControl } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
+import { useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -51,6 +57,10 @@ function setTimestampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
+const debouncedSetAttributes = debounce( function ( time, onChange ) {
+	onChange( convertSecondsToTimeCode( time ) );
+}, 250 );
+
 export function TimestampControl( {
 	value,
 	className,
@@ -59,6 +69,8 @@ export function TimestampControl( {
 	isDisabled = false,
 	duration,
 } ) {
+	const [ rangeValue, setRangeValue ] = useState( convertTimeCodeToSeconds( value ) );
+
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
@@ -113,11 +125,14 @@ export function TimestampControl( {
 
 			<RangeControl
 				disabled={ typeof duration === 'undefined' }
-				value={ convertTimeCodeToSeconds( value ) }
+				value={ rangeValue }
 				className={ `${ className }__timestamp-range-control` }
 				min={ 0 }
 				max={ duration }
-				onChange={ ( time ) => onChange( convertSecondsToTimeCode( time ) ) }
+				onChange={ ( timeInSecons ) => {
+					setRangeValue( timeInSecons );
+					debouncedSetAttributes( timeInSecons, onChange );
+				} }
 				withInputField={ false }
 				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
 			/>
@@ -187,7 +202,7 @@ export function TimestampEditControl( {
 				onClick={ () => {
 					onToggle( ! show );
 					if ( ! show ) {
-						onChange( convertSecondsToTimeCode( mediaCurrentTime ) );
+						onChange( convertSecondsToTimeCode( mediaCurrentTime ), onChange );
 					}
 				} }
 			>
