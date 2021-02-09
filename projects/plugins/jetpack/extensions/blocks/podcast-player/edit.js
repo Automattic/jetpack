@@ -101,7 +101,7 @@ const PodcastPlayerEdit = ( {
 		isLoading: false,
 		feedData: exampleFeedData || {},
 		isInteractive: false,
-		selectedGuid: selectedEpisodes[ 0 ]?.guid,
+		selectedGuid: selectedEpisodes?.[ 0 ]?.guid,
 		checkUrl: url || '',
 	} );
 
