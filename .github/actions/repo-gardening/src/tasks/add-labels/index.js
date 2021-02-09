@@ -134,11 +134,13 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			const prefix = {
 				'editor-extensions': 'Block',
 				'github-actions': 'Action',
-				'packages': 'Package',
-				'plugins': 'Plugin',
+				packages: 'Package',
+				plugins: 'Plugin',
 			}[ project.groups.ptype ];
 			if ( prefix === undefined ) {
-				const err = new Error( `Cannot determine label prefix for plugin type "${ project.groups.ptype }"` );
+				const err = new Error(
+					`Cannot determine label prefix for plugin type "${ project.groups.ptype }"`
+				);
 				// Produce a GitHub error annotation pointing here.
 				const line = err.stack.split( '\n' )[ 1 ].split( ':' )[ 1 ] - 2;
 				debug( `::error file=${ __filename },line=${ line }::${ err.message }` );
