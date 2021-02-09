@@ -151,9 +151,12 @@ async function main() {
 
 		args = [ 'diff' ];
 		if ( argv.gitBase !== undefined ) {
-			origRef = argv.gitBase;
+			const args2 = [ 'merge-base', argv.gitBase, 'HEAD' ];
+			debug( 'Running git merge-base command:', git, args2.join( ' ' ) );
+			origRef = doCmd( git, args2 ).trim();
+			debug( 'Merge base is:', origRef );
 			newRef = 'HEAD';
-			args.push( `${ argv.gitBase }...HEAD` );
+			args.push( `${ origRef }...HEAD` );
 		} else if ( argv.gitUnstaged ) {
 			origRef = ':0';
 			newRef = null;
