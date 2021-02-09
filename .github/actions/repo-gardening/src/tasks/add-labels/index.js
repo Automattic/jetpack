@@ -234,7 +234,7 @@ async function addLabels( payload, octokit ) {
 
 	if ( ! labels ) {
 		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );
-		throw new Error( 'Could not find labels to add to that PR.' );
+		return;
 	}
 
 	debug( `add-labels: Adding labels to PR #${ number }` );
