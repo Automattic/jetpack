@@ -77,11 +77,7 @@ function AudioPlayer( {
 		const audio = audioRef.current;
 		const mediaElement = new MediaElementPlayer( audio, {
 			...meJsSettings,
-			success: function() {
-				if ( loadWhenReay && audio?.load ) {
-					audio.load();
-				}
-			}
+			success: () => loadWhenReady && audio?.load()
 		} );
 
 		// Add the skip and jump buttons if needed
