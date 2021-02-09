@@ -146,21 +146,21 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-0',
+					slug: 'participant-0',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-1',
+					slug: 'participant-1',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-2',
+					slug: 'participant-2',
 				},
 			],
 		],

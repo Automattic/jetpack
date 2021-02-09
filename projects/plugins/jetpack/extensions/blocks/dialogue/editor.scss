@@ -25,3 +25,11 @@
 .wp-block-jetpack-dialogue__timestamp-dropdown {
 	min-width: 90px;
 }
+
+.wp-block-jetpack-dialogue__participant.is-adding-participant {
+	opacity: 0.7;
+}
+
+.wp-block-jetpack-dialogue__participant.is-editing-participant {
+	opacity: 0.7;
+}
