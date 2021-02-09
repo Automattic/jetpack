@@ -28,15 +28,22 @@
 			formData[ name ] = $( "input[name='" + name + "']" ).prop( 'checked' );
 		} );
 
-		$.post( jp_banner.ajax_url, {
-			action: 'jetpack_recommendations_banner',
-			nonce: jp_banner.nonce,
-			...formData,
-		}, function( response ) {
-			if (true === response.success) {
-				window.location.assign( jp_banner.recommendations_url );
+		$.post(
+			jp_banner.ajax_url,
+			{
+				action: 'jetpack_recommendations_banner',
+				nonce: jp_banner.nonce,
+				personal: formData.personal,
+				business: formData.business,
+				store: formData.store,
+				other: formData.other,
+			},
+			function ( response ) {
+				if ( true === response.success ) {
+					window.location.assign( jp_banner.recommendations_url );
+				}
 			}
-		} );
+		);
 	} );
 
 	recommendationsBannerDismiss.on( 'click', function () {
@@ -54,5 +61,4 @@
 			}
 		} );
 	} );
-
 } )( jQuery );
