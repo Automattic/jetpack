@@ -46,6 +46,14 @@ class Queue {
 	public function add( $item ) {
 		global $wpdb;
 		$added = false;
+
+		// Attempt to serialize data, if an exception (closures) return early.
+		try {
+			$item = serialize( $item );
+		} catch ( Exception $ex ) {
+			return;
+		}
+
 		// This basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key.
 		while ( ! $added ) {
@@ -77,9 +85,14 @@ class Queue {
 		$rows        = array();
 		$count_items = count( $items );
 		for ( $i = 0; $i < $count_items; ++$i ) {
-			$option_name  = esc_sql( $base_option_name . '-' . $i );
-			$option_value = esc_sql( serialize( $items[ $i ] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-			$rows[]       = "('$option_name', '$option_value', 'no')";
+			try {
+				$option_name  = esc_sql( $base_option_name . '-' . $i );
+				$option_value = esc_sql( serialize( $items[ $i ] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+				$rows[]       = "('$option_name', '$option_value', 'no')";
+			} catch ( Exception $e ) {
+				// Item cannot be serialized so skip.
+				continue;
+			}
 		}
 
 		$rows_added = $wpdb->query( $query . join( ',', $rows ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
