@@ -2,6 +2,8 @@
  * External dependencies
  */
 import { readdirSync } from 'fs';
+import pluralize from 'pluralize';
+import chalk from 'chalk';
 
 export const dirs = ( source, prefix = '' ) =>
 	readdirSync( source, { withFileTypes: true } )
@@ -35,10 +37,11 @@ export function allProjects() {
  * @returns {boolean} - return true if we're newName matches an existing project name.
  */
 export function checkNameValid( dir, newName ) {
-	const existingNames = dirs( './projects/' + dir );
+	const existingNames = dirs( './projects/' + pluralize( dir ) );
 	if ( existingNames.includes( newName ) || newName.length === 0 ) {
-		return true;
+		return console.error( chalk.red( 'Name is not valid (maybe it\'s already in use?)' ) );
 	}
+	return true;
 }
 
 /**

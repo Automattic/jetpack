@@ -55,6 +55,7 @@ export async function promptForProject( options ) {
 export async function promptForGenerate( options ) {
 	let typeAnswer;
 	let nameAnswer;
+	let tries = 0;
 
 	// Get project type if not passed as an option.
 	if ( ! options.type || options.type.length === 0 ) {
@@ -69,15 +70,23 @@ export async function promptForGenerate( options ) {
 		return new Error( "Sorry! That's not supported yet!" );
 	}
 
-	// Get project name if not passed as an option.
-	if ( ! options.name || options.name.length === 0 ) {
-		nameAnswer = await promptForName();
+	// Validate name if it was passed as an option.
+	if ( options.name ) {
+		checkNameValid( options.type || typeAnswer.type, options.name ) ? nameAnswer = options.name : nameAnswer = null;
 	}
 
-	// Prompt repeatedly if the project name is already used or blank
-	while ( checkNameValid( options.type || typeAnswer.type, options.name || nameAnswer.name ) ) {
-		options.name = '';
-		nameAnswer = await promptForName();
+	// Keep asking for name if it fails validation
+	while ( ! nameAnswer ) {
+		try {
+			tries++;
+			const rawNameAnswer = await promptForName();
+			checkNameValid( options.type || typeAnswer.type, rawNameAnswer.name ) ? nameAnswer = rawNameAnswer : nameAnswer = null;
+		} catch ( err ) {
+			if ( tries >= 3 ) {
+				console.error( 'You are really struggling here. Might be time to take a walk.' );
+				console.error( err.name + ': ' + err.message );
+			}
+		}
 	}
 
 	// Give the list of questions
