@@ -774,6 +774,27 @@ class Manager {
 	}
 
 	/**
+	 * Whether the logged-in user can connect their WordPress.com account.
+	 * With user-less connections in mind, we need to verify whether the current user
+	 * can connect their account.
+	 * Non-admin users can connect their account only if a connection owner exists.
+	 *
+	 * @access public
+	 *
+	 * @return boolean|WP_Error True if the current user is an administrator or a connected owner already exists, WP_Error if no current user exists.
+	 */
+	public function current_user_can_connect_account() {
+		if ( 0 === get_current_user_id() ) {
+			return new WP_Error( 'user_not_logged_in' );
+		}
+
+		$roles = new Roles();
+		$role  = $roles->translate_current_user_to_role();
+
+		return 'administrator' === $role || $this->has_connected_owner();
+	}
+
+	/**
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
 	 * @access public
