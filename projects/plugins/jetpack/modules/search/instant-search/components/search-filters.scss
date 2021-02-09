@@ -37,7 +37,7 @@
 
 	> div {
 		display: flex;
-		align-items: flex-start;
+		align-items: center;
 		margin-top: 8px;
 	}
 
@@ -45,7 +45,6 @@
 	// Extra specific to override width in some themes, e.g. Zerif Lite
 	.widget_search .jetpack-instant-search__search-filter-list-input {
 		cursor: pointer;
-		margin-top: 4px;
 		width: 14px;
 		height: 14px;
 	}
