@@ -407,6 +407,19 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'__return_true',
 				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
 			),
+			// Disallowed URLs.
+			array(
+				'javascript:alert("Hello")',
+				'',
+				null,
+				'',
+			),
+			array(
+				'http://example.com',
+				'',
+				null,
+				'',
+			),
 		);
 	}
 
