@@ -91,12 +91,16 @@ function DialogueEdit( {
 
 	// Debounced function to keep all sibling Dialogue blocks in-sync.
 	const syncSpeakersGlobally = useDebounceWithFallback( ( newAttributes, colors ) => {
-		setAttributes( newAttributes );
-		if ( colors?.color ) {
+		// Check whether it needs to update the block label.
+		if ( newAttributes?.label && newAttributes.label !== label ) {
+			setAttributes( newAttributes );
+		}
+
+		if ( colors?.color && colors.color !== labelTextColor.color ) {
 			setLabelTextColor( colors.color );
 		}
 
-		if ( colors?.backgroundColor ) {
+		if ( colors?.backgroundColor && colors.backgroundColor !== labelBackgroundColor.color ) {
 			setLabelBackgroundColor( colors.backgroundColor );
 		}
 	}, 250 );
