@@ -1,4 +1,4 @@
-/* global jQuery, jp_banner */
+/* global jp_banner */
 
 ( function ( $ ) {
 	var recommendationsBanner = $( '#jp-recommendations-banner-main' );
