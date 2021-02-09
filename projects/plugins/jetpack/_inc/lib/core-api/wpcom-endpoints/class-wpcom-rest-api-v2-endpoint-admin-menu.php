@@ -297,7 +297,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		// External URLS.
 		if ( preg_match( '/^https?:\/\//', $url ) ) {
 			// Allow URLs pointing to WordPress.com.
-			if ( 0 === strpos( $url, 'https://wordpress.com' ) ) {
+			if ( 0 === strpos( $url, 'https://wordpress.com/' ) ) {
 				// Calypso needs the domain removed so they're not interpreted as external links.
 				$url = str_replace( 'https://wordpress.com', '', $url );
 				return esc_url_raw( $url );

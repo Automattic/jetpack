@@ -420,6 +420,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				null,
 				'',
 			),
+			array(
+				'https://wordpress.commerce.malicious-site.com',
+				'',
+				null,
+				'',
+			),
 		);
 	}
 
