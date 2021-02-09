@@ -25,9 +25,7 @@ export default function save( { attributes, blockName } ) {
 		showTimestamp,
 		timestamp,
 	} = attributes;
-
 	const labelTextColorCSSClass = getColorClassName( 'color', labelTextColor );
-
 	const labelBackgroundcolorCSSClass = getColorClassName( 'background-color', labelBackgroundColor );
 
 	const speakerCSSClasses = classnames( `${ BASE_CLASS_NAME }__participant`, 'has-bold-style', {
@@ -39,11 +37,11 @@ export default function save( { attributes, blockName } ) {
 	} );
 
 	const labelInlineStyle = {};
-	if ( labelTextColorCSSClass ) {
+	if ( ! labelTextColorCSSClass ) {
 		labelInlineStyle.color = customLabelTextColor;
 	}
 
-	if ( labelBackgroundcolorCSSClass ) {
+	if ( ! labelBackgroundcolorCSSClass ) {
 		labelInlineStyle.backgroundColor = customLabelBackgroundColor;
 	}
 
