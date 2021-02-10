@@ -133,6 +133,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					</params>
 				</methodResponse>
 			';
+
+			$response['response']['code'] = 200;
 		}
 
 		return $response;
@@ -1003,11 +1005,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		) );
 
 		// Change owner to valid user
-		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
-		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
 	/**
