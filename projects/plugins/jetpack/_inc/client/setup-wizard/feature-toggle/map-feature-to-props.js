@@ -822,31 +822,12 @@ const features = {
 
 	seo: {
 		mapStateToProps: state => {
-			const sitePlan = getSitePlan( state );
-			const planClass = getPlanClass( sitePlan.product_slug );
-			const siteRawUrl = getSiteRawUrl( state );
-
-			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
-
-			let configureLink;
-			if ( inCurrentPlan ) {
-				configureLink = '#/settings?term=seo';
-			}
-
-			let upgradeLink;
-			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'jetpack-setup-wizard-seo-upgrade', {
-					site: siteRawUrl,
-				} );
-			}
-
 			return {
 				feature: 'seo',
 				title: __( 'SEO', 'jetpack' ),
 				details: __( 'Take control of the way search engines represent your site.', 'jetpack' ),
 				checked: getSetting( state, 'seo-tools' ),
-				configureLink,
-				upgradeLink,
+				configureLink: '#/settings?term=seo',
 				isPaid: false,
 			};
 		},
