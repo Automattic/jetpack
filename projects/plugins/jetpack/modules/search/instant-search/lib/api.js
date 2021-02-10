@@ -213,13 +213,10 @@ function generateApiQueryString( {
 			fields = fields.concat( [
 				'meta._wc_average_rating.double',
 				'meta._wc_review_count.long',
-				'wc.currency_position',
-				'wc.currency_symbol',
 				'wc.formatted_price',
 				'wc.formatted_regular_price',
 				'wc.formatted_sale_price',
 				'wc.price',
-				'wc.regular_price',
 				'wc.sale_price',
 			] );
 	}
