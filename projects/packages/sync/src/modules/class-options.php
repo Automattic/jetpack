@@ -364,7 +364,10 @@ class Options extends Module {
 	public function jetpack_sync_core_icon() {
 		$url = get_site_icon_url();
 
-		require_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php';
+		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			require_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php';
+		}
+
 		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
 		if ( ! empty( $url ) && jetpack_site_icon_url() !== $url ) {
 			// This is the option that is synced with dotcom.
