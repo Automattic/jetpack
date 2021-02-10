@@ -300,6 +300,23 @@ class Settings {
 	}
 
 	/**
+	 * Returns structured SQL clause for blacklisted taxonomies.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array taxonomies filter values
+	 */
+	public static function get_blacklisted_taxonomies_structured() {
+		return array(
+			'taxonomy' => array(
+				'operator' => 'NOT IN',
+				'values'   => array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for blacklisted comment meta.
 	 * Can be injected directly into a WHERE clause.
 	 *
