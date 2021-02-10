@@ -60,7 +60,7 @@ export function ParticipantsControl( { participants, slug, onSelect } ) {
 			label={ __( 'Participant name', 'jetpack' ) }
 			value={ slug }
 			options={ participants.map( ( { slug: value, label } ) => ( {
-				label,
+				label: getPlainText( label ),
 				value,
 			} ) ) }
 			onChange={ participantSlug => onSelect( getParticipantBySlug(
