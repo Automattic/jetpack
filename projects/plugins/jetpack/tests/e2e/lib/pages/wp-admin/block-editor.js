@@ -49,18 +49,8 @@ export default class BlockEditorPage extends Page {
 		// Disable reason: Wait for the animation to complete, since otherwise the
 		// click attempt may occur at the wrong point.
 		// Also, for some reason post-publish bar wont show up it we click to fast :/
-		await this.page.waitForTimeout( 1000 );
-
-		await takeScreenshot( 'wordads', '1' );
 		await this.page.click( '.editor-post-publish-button' );
-		await this.page.waitForTimeout( 500 );
-
-		await takeScreenshot( 'wordads', '2' );
-
 		await this.page.waitForSelector( '.components-snackbar' );
-
-		await takeScreenshot( 'wordads', '3' );
-
 		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 	}
 

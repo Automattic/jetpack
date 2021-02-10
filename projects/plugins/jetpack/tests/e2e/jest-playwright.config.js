@@ -5,24 +5,27 @@
 
 const { CI, E2E_DEBUG, HEADLESS, SLOWMO } = process.env;
 let executablePath = '';
-let dumpio = false;
 
 if ( ! CI ) {
 	executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 }
 
 if ( E2E_DEBUG ) {
-	dumpio = true;
-	process.env.DEBUG = 'pw:api';
+	process.env.DEBUG = 'pw:browser|api|error';
 }
 
+process.env.DEBUG = 'pw:browser|api|error';
+
 module.exports = {
+	exitOnPageError: false,
 	launchOptions: {
 		headless: HEADLESS !== 'false',
 		devtools: HEADLESS === 'false',
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
-		executablePath,
-		dumpio,
+		logger: {
+			isEnabled: ( name, severity ) => name === 'browser',
+			log: ( name, severity, message, args ) => console.log( `${ name } ${ message }` ),
+		},
 	},
 	contextOptions: {
 		viewport: {
