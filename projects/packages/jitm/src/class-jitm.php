@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.7.3'; // TODO: Keep in sync with version specified in composer.json.
+	const PACKAGE_VERSION = '1.13.6'; // TODO: Keep in sync with version specified in composer.json.
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -115,7 +115,7 @@ class JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			Assets::get_file_url_for_environment( 'assets/js/jetpack-jitm.min.js', 'assets/js/jetpack-jitm.js', __DIR__ ),
 			array( 'jquery' ),
 			self::PACKAGE_VERSION,
 			true
