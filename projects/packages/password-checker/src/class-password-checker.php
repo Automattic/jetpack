@@ -348,29 +348,39 @@ class Password_Checker {
 	 * @return array user data.
 	 */
 	protected function get_other_user_data() {
-
 		if ( ! isset( $this->user ) ) {
 			$user_data = get_userdata( $this->user_id );
-
-			$first_name = get_user_meta( $user_data->ID, 'first_name', true );
-			$last_name  = get_user_meta( $user_data->ID, 'last_name', true );
-			$nickname   = get_user_meta( $user_data->ID, 'nickname', true );
-
-			$this->add_user_strings_to_test( $nickname );
-			$this->add_user_strings_to_test( $user_data->user_nicename );
-			$this->add_user_strings_to_test( $user_data->display_name );
 		} else {
 			$user_data = $this->user;
-
-			$first_name = $user_data->first_name;
-			$last_name  = $user_data->last_name;
 		}
-		$email_username = substr( $user_data->user_email, 0, strpos( $user_data->user_email, '@' ) );
 
-		$this->add_user_strings_to_test( $user_data->user_email );
-		$this->add_user_strings_to_test( $email_username, '.' );
-		$this->add_user_strings_to_test( $first_name );
-		$this->add_user_strings_to_test( $last_name );
+		if ( isset( $user_data->ID ) ) {
+			$this->add_user_strings_to_test( get_user_meta( $user_data->ID, 'first_name', true ) );
+			$this->add_user_strings_to_test( get_user_meta( $user_data->ID, 'last_name', true ) );
+			$this->add_user_strings_to_test( get_user_meta( $user_data->ID, 'nickname', true ) );
+		}
+
+		if ( isset( $user_data->user_nicename ) ) {
+			$this->add_user_strings_to_test( $user_data->user_nicename );
+		}
+
+		if ( isset( $user_data->display_name ) ) {
+			$this->add_user_strings_to_test( $user_data->display_name );
+		}
+
+		if ( isset( $user_data->first_name ) ) {
+			$this->add_user_strings_to_test( $user_data->first_name );
+		}
+
+		if ( isset( $user_data->last_name ) ) {
+			$this->add_user_strings_to_test( $user_data->last_name );
+		}
+
+		if ( isset( $user_data->user_email ) ) {
+			$email_username = substr( $user_data->user_email, 0, strpos( $user_data->user_email, '@' ) );
+			$this->add_user_strings_to_test( $email_username, '.' );
+			$this->add_user_strings_to_test( $user_data->user_email );
+		}
 
 		return $this->user_strings_to_test;
 	}
