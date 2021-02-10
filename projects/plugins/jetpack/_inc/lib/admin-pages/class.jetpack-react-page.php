@@ -506,16 +506,16 @@ function jetpack_current_user_data() {
 		: false );
 
 	$current_user_data = array(
-		'isConnected'       => $jetpack_connection->is_user_connected( $current_user->ID ),
-		'canConnectAccount' => $jetpack_connection->current_user_can_connect_account(),
-		'isMaster'          => $is_master_user,
-		'username'          => $current_user->user_login,
-		'id'                => $current_user->ID,
-		'wpcomUser'         => $dotcom_data,
-		'gravatar'          => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
-		'permissions'       => array(
+		'isConnected' => $jetpack_connection->is_user_connected( $current_user->ID ),
+		'isMaster'    => $is_master_user,
+		'username'    => $current_user->user_login,
+		'id'          => $current_user->ID,
+		'wpcomUser'   => $dotcom_data,
+		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
+		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
+			'connect_user'       => current_user_can( 'jetpack_connect_user' ),
 			'disconnect'         => current_user_can( 'jetpack_disconnect' ),
 			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),

@@ -144,7 +144,7 @@ export function userCanConnectSite( state ) {
  * @returns {boolean} Whether current user can connect their WordPress.com account.
  */
 export function userCanConnectAccount( state ) {
-	return get( state.jetpack.initialState.userData.currentUser, 'canConnectAccount', false );
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect_user', false );
 }
 
 /**
