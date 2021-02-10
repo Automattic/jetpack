@@ -4,7 +4,6 @@
 import classnames from 'classnames';
 import { useEffect, useCallback } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
-import { ToolbarGroup } from '@wordpress/components';
 import { BlockControls, InspectorControls, RichText } from '@wordpress/block-editor';
 
 /**
@@ -58,15 +57,13 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 
 	return (
 		<div className={ getBlockClassNames() }>
-			{ ToolbarGroup && (
-				<BlockControls>
-					<WhatsAppButtonConfiguration
-						context="toolbar"
-						setAttributes={ setAttributes }
-						attributes={ attributes }
-					/>
-				</BlockControls>
-			) }
+			<BlockControls>
+				<WhatsAppButtonConfiguration
+					context="toolbar"
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+				/>
+			</BlockControls>
 
 			<InspectorControls>
 				<WhatsAppButtonConfiguration
