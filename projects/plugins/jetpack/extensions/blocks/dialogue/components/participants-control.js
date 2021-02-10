@@ -22,7 +22,7 @@ import { escapeHTML } from '@wordpress/escape-html';
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel, getParticipantBySlug, cleanFormatStyle } from '../../conversation/utils';
+import { getParticipantByLabel, getParticipantBySlug, getPlainText } from '../../conversation/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -175,7 +175,7 @@ export function SpeakerEditControl( {
 			setEditingMode( EDIT_MODE_EDITING );
 			return onUpdate( {
 				...participant,
-				label: escapeHTML( cleanFormatStyle( label ) ),
+				label: escapeHTML( getPlainText( label ) ),
 			} );
 		}
 
@@ -186,7 +186,7 @@ export function SpeakerEditControl( {
 		}
 
 		// Add a new speaker.
-		onAdd( escapeHTML( cleanFormatStyle( label ) ) );
+		onAdd( escapeHTML( getPlainText( label ) ) );
 		return setEditingMode( EDIT_MODE_ADDING );
 	}
 

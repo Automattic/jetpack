@@ -14,6 +14,6 @@ export function getParticipantByLabel ( participants, participantLabel ) {
 	return part?.length ? part[ 0 ] : null;
 }
 
-export function cleanFormatStyle( html ) {
+export function getPlainText( html ) {
 	return getTextContent( create( { html } ) )?.trim();
 }
