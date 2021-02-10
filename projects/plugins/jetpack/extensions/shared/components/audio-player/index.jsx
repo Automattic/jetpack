@@ -127,6 +127,7 @@ function AudioPlayer( {
 		onSkipForward,
 		onMetadataLoaded,
 		loadWhenReady,
+		preload,
 	] );
 
 	// If we get lots of events from clicking on the progress bar in the MediaElement
