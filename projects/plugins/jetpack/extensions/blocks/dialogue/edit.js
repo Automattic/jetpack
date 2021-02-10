@@ -128,7 +128,7 @@ export default function DialogueEdit( {
 			<BlockControls>
 				{ mediaSource && (
 					<MediaPlayerToolbarControl
-						onTimeChange={ time => setTimestamp( convertSecondsToTimeCode( time ) ) }
+						onTimestampClick={ time => setTimestamp( convertSecondsToTimeCode( time ) ) }
 					/>
 				) }
 			</BlockControls>
