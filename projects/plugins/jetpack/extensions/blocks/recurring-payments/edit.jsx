@@ -14,21 +14,23 @@ import {
 	Placeholder,
 	Spinner,
 	TextControl,
+	ToolbarButton,
+	ToolbarGroup,
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, InnerBlocks, BlockIcon } from '@wordpress/block-editor';
-import { Fragment, Component } from '@wordpress/element';
+import { InspectorControls, InnerBlocks, BlockIcon, BlockControls } from '@wordpress/block-editor';
+import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
-import StripeNudge from '../../shared/components/stripe-nudge';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
 import getSiteFragment from '../../shared/get-site-fragment';
 import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
+import { flashIcon } from '../../shared/icons';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -414,36 +416,45 @@ class MembershipsButtonEdit extends Component {
 
 		return (
 			<>
-			{ ! this.hasUpgradeNudge &&
-				! this.state.shouldUpgrade &&
-				connected === API_STATE_NOTCONNECTED && (
-					<StripeNudge
-						blockName="recurring-payments"
-						postId={ postId }
-						stripeConnectUrl={ connectURL }
-					/>
+				{ ! this.hasUpgradeNudge &&
+					! this.state.shouldUpgrade &&
+					connected === API_STATE_NOTCONNECTED && (
+						<BlockControls>
+							<ToolbarGroup>
+								<ToolbarButton
+									icon={ flashIcon }
+									onClick={ e => {
+										this.props.autosaveAndRedirect( e, connectURL );
+									} }
+									className="connect-stripe components-tab-button"
+								>
+									{ __( 'Connect Stripe', 'jetpack' ) }
+								</ToolbarButton>
+							</ToolbarGroup>
+						</BlockControls>
+					) }
+
+				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
+					<div className="wp-block-jetpack-recurring-payments">
+						<Placeholder
+							icon={ <BlockIcon icon={ icon } /> }
+							label={ __( 'Payments', 'jetpack' ) }
+							notices={ notices }
+							instructions={ __(
+								"You'll need to upgrade your plan to use the Payments block.",
+								'jetpack'
+							) }
+						>
+							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+								{ __( 'Upgrade your plan', 'jetpack' ) }
+							</Button>
+							{ this.renderDisclaimer() }
+						</Placeholder>
+					</div>
 				) }
-			{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
-				<div className="wp-block-jetpack-recurring-payments">
-					<Placeholder
-						icon={ <BlockIcon icon={ icon } /> }
-						label={ __( 'Payments', 'jetpack' ) }
-						notices={ notices }
-						instructions={ __(
-							"You'll need to upgrade your plan to use the Payments block.",
-							'jetpack'
-						) }
-					>
-						<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
-							{ __( 'Upgrade your plan', 'jetpack' ) }
-						</Button>
-						{ this.renderDisclaimer() }
-					</Placeholder>
-				</div>
-			) }
 			</>
 		);
-	}
+	};
 
 	renderPlanNotices = () => {
 		const { notices } = this.props;
@@ -451,59 +462,59 @@ class MembershipsButtonEdit extends Component {
 
 		return (
 			<>
-			{ ( connected === API_STATE_LOADING ||
-				this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
-				! this.props.attributes.planId && (
-					<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
-						<Spinner />
-					</Placeholder>
-				) }
-			{ ! this.state.shouldUpgrade &&
-				! this.props.attributes.planId &&
-				connected === API_STATE_CONNECTED &&
-				products.length === 0 && (
-					<div className="wp-block-jetpack-recurring-payments">
-						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Payments', 'jetpack' ) }
-							notices={ notices }
-						>
-							<div className="components-placeholder__instructions">
-								<p>
-									{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
-								</p>
-								{ this.renderAddMembershipAmount( true ) }
-								{ this.renderDisclaimer() }
-							</div>
+				{ ( connected === API_STATE_LOADING ||
+					this.state.addingMembershipAmount === PRODUCT_FORM_SUBMITTED ) &&
+					! this.props.attributes.planId && (
+						<Placeholder icon={ <BlockIcon icon={ icon } /> } notices={ notices }>
+							<Spinner />
 						</Placeholder>
-					</div>
-				) }
-			{ ! this.state.shouldUpgrade &&
-				! this.props.attributes.planId &&
-				this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
-				connected === API_STATE_CONNECTED &&
-				products.length > 0 && (
-					<div className="wp-block-jetpack-recurring-payments">
-						<Placeholder
-							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Payments', 'jetpack' ) }
-							notices={ notices }
-						>
-							<div className="components-placeholder__instructions">
-								<p>
-									{ __(
-										'To use this block, select a previously created payment plan.',
-										'jetpack'
-									) }
-								</p>
-								{ this.renderMembershipAmounts() }
-								<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
-								{ this.renderAddMembershipAmount( false ) }
-								{ this.renderDisclaimer() }
-							</div>
-						</Placeholder>
-					</div>
-				) }
+					) }
+				{ ! this.state.shouldUpgrade &&
+					! this.props.attributes.planId &&
+					connected === API_STATE_CONNECTED &&
+					products.length === 0 && (
+						<div className="wp-block-jetpack-recurring-payments">
+							<Placeholder
+								icon={ <BlockIcon icon={ icon } /> }
+								label={ __( 'Payments', 'jetpack' ) }
+								notices={ notices }
+							>
+								<div className="components-placeholder__instructions">
+									<p>
+										{ __( 'To use this block, first add at least one payment plan.', 'jetpack' ) }
+									</p>
+									{ this.renderAddMembershipAmount( true ) }
+									{ this.renderDisclaimer() }
+								</div>
+							</Placeholder>
+						</div>
+					) }
+				{ ! this.state.shouldUpgrade &&
+					! this.props.attributes.planId &&
+					this.state.addingMembershipAmount !== PRODUCT_FORM_SUBMITTED &&
+					connected === API_STATE_CONNECTED &&
+					products.length > 0 && (
+						<div className="wp-block-jetpack-recurring-payments">
+							<Placeholder
+								icon={ <BlockIcon icon={ icon } /> }
+								label={ __( 'Payments', 'jetpack' ) }
+								notices={ notices }
+							>
+								<div className="components-placeholder__instructions">
+									<p>
+										{ __(
+											'To use this block, select a previously created payment plan.',
+											'jetpack'
+										) }
+									</p>
+									{ this.renderMembershipAmounts() }
+									<p>{ __( 'Or a new one.', 'jetpack' ) }</p>
+									{ this.renderAddMembershipAmount( false ) }
+									{ this.renderDisclaimer() }
+								</div>
+							</Placeholder>
+						</div>
+					) }
 			</>
 		);
 	};
@@ -546,7 +557,7 @@ class MembershipsButtonEdit extends Component {
 		);
 
 		return (
-			<Fragment>
+			<>
 				{ this.props.noticeUI }
 				{ ! this.isPremiumContentChild && this.renderUpgradeNudges() }
 				{ ! this.isPremiumContentChild && this.renderPlanNotices() }
@@ -564,19 +575,29 @@ class MembershipsButtonEdit extends Component {
 						],
 					] }
 					templateLock="all"
+					__experimentalCaptureToolbars={ true }
+					templateInsertUpdatesSelection={ false }
 				/>
-			</Fragment>
+			</>
 		);
 	};
 }
 
 export default compose( [
-	withSelect( ( select ) => ( {
+	withSelect( select => ( {
 		postId: select( 'core/editor' ).getCurrentPostId(),
 	} ) ),
 	withDispatch( dispatch => {
 		const { updateBlockAttributes } = dispatch( 'core/editor' );
-		return { updateBlockAttributes };
+		return {
+			updateBlockAttributes,
+			autosaveAndRedirect: async ( event, stripeConnectUrl ) => {
+				event.preventDefault(); // Don't follow the href before autosaving.
+				await dispatch( 'core/editor' ).savePost();
+				// Use window.top to escape from the editor iframe on WordPress.com.
+				window.top.location.href = stripeConnectUrl;
+			},
+		};
 	} ),
 	withNotices,
 ] )( MembershipsButtonEdit );

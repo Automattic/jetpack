@@ -6,7 +6,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 /**
  * Main Comments class
  *
- * @package JetpackComments
+ * @package automattic/jetpack
  * @version 1.4
  * @since   1.4
  */

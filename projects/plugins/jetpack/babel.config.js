@@ -7,10 +7,19 @@ const config = {
 		},
 		{
 			// Transpile ES Modules syntax (`import`) in config files (but not elsewhere)
-			test: [ './dangerfile.js', './gulpfile.babel.js', './tools/webpack.config.js', './tools/builder/' ],
+			test: [
+				'./dangerfile.js',
+				'./gulpfile.babel.js',
+				'./tools/webpack.config.js',
+				'./tools/builder/',
+			],
 			presets: [
 				[ require.resolve( '@automattic/calypso-build/babel/default' ), { modules: 'commonjs' } ],
 			],
+		},
+		{
+			test: './modules/search/instant-search',
+			presets: [ require.resolve( './modules/search/instant-search/babel.config.js' ) ],
 		},
 	],
 	env: {

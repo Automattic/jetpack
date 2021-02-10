@@ -1035,8 +1035,8 @@ class Share_LinkedIn extends Sharing_Source {
 						var prev = currentScript || document.getElementsByTagName( 'script' )[ 0 ];
 						script.setAttribute( 'async', true );
 						script.setAttribute( 'src', url );
-						script.setAttribute( 'onload', cb );
 						prev.parentNode.insertBefore( script, prev );
+						script.addEventListener( 'load', cb );
 					}
 
 					function init() {

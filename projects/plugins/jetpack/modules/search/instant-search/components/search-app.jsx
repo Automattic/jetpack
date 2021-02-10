@@ -9,24 +9,32 @@ import { createPortal } from 'preact/compat';
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
-import { search } from '../lib/api';
+import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
-	getFilterQuery,
-	getResultFormatQuery,
-	getSearchQuery,
-	getSortQuery,
-	hasFilter,
+	initializeQueryValues,
+	makeSearchRequest,
+	setFilter,
 	setSearchQuery,
-	setSortQuery,
-	setFilterQuery,
-	restorePreviousHref,
-} from '../lib/query-string';
+	setSort,
+} from '../store/actions';
+import {
+	getFilters,
+	getResponse,
+	getSearchQuery,
+	getSort,
+	getWidgetOutsideOverlay,
+	hasError,
+	hasFilters,
+	hasNextPage,
+	isLoading,
+} from '../store/selectors';
 import { bindCustomizerChanges } from '../lib/customize';
 import './search-app.scss';
 
@@ -39,18 +47,17 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = createRef();
 		this.state = {
-			hasError: false,
-			isLoading: false,
 			overlayOptions: { ...this.props.initialOverlayOptions },
-			requestId: 0,
-			response: {},
 			showResults: this.props.initialShowResults,
 		};
 		this.getResults = debounce( this.getResults, 200 );
+		this.props.initializeQueryValues( {
+			defaultSort: this.props.defaultSort,
+		} );
 	}
 
 	componentDidMount() {
-		this.getResults( { sort: this.props.initialSort } );
+		this.getResults();
 		this.getResults.flush();
 
 		this.addEventListeners();
@@ -58,6 +65,16 @@ class SearchApp extends Component {
 
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
+		}
+	}
+
+	componentDidUpdate( prevProps ) {
+		if (
+			prevProps.searchQuery !== this.props.searchQuery ||
+			prevProps.sort !== this.props.sort ||
+			prevProps.filters !== this.props.filters
+		) {
+			this.onChangeQueryString();
 		}
 	}
 
@@ -69,12 +86,12 @@ class SearchApp extends Component {
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
 
-		window.addEventListener( 'popstate', this.onPopstate );
-		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
+		window.addEventListener( 'popstate', this.handleBrowserHistoryNavigation );
 
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
+			input.addEventListener( 'keydown', this.handleKeydown );
 			input.addEventListener( 'input', this.handleInput );
 		} );
 
@@ -88,11 +105,11 @@ class SearchApp extends Component {
 	}
 
 	removeEventListeners() {
-		window.removeEventListener( 'popstate', this.onPopstate );
-		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
+		window.removeEventListener( 'popstate', this.handleBrowserHistoryNavigation );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
+			input.removeEventListener( 'keydown', this.handleKeydown );
 			input.removeEventListener( 'input', this.handleInput );
 		} );
 
@@ -120,8 +137,6 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
-	getSort = () => getSortQuery( this.props.initialSort );
-
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
@@ -129,38 +144,58 @@ class SearchApp extends Component {
 	};
 
 	hasActiveQuery() {
-		return getSearchQuery() !== '' || hasFilter();
+		return this.props.searchQuery !== '' || this.props.hasFilters;
 	}
 
-	hasNextPage() {
-		return !! this.state.response.page_handle && ! this.state.hasError;
-	}
+	handleBrowserHistoryNavigation = () => {
+		// Treat history navigation as brand new query values; re-initialize.
+		this.props.initializeQueryValues( {
+			defaultSort: this.props.defaultSort,
+		} );
+	};
 
 	handleSubmit = event => {
 		event.preventDefault();
 		this.handleInput.flush();
 	};
 
+	handleKeydown = event => {
+		// If user presses enter, propagate the query value and immediately show the results.
+		if ( event.key === 'Enter' ) {
+			this.props.setSearchQuery( event.target.value );
+			this.showResults();
+		}
+	};
+
 	handleInput = debounce( event => {
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
-		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
+		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
+		if ( event.inputType?.includes( 'format' ) || event.target.value === '' ) {
 			return;
 		}
 
+		this.props.setSearchQuery( event.target.value );
 		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
 			this.showResults();
 		}
-
-		setSearchQuery( event.target.value );
+		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
+			this.props.response?.results && this.showResults();
+		}
 	}, 200 );
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
 		if ( event.currentTarget.dataset.filterType ) {
 			if ( event.currentTarget.dataset.filterType === 'taxonomy' ) {
-				setFilterQuery( event.currentTarget.dataset.taxonomy, event.currentTarget.dataset.val );
+				this.props.setFilter(
+					event.currentTarget.dataset.taxonomy,
+					event.currentTarget.dataset.val
+				);
 			} else {
-				setFilterQuery( event.currentTarget.dataset.filterType, event.currentTarget.dataset.val );
+				this.props.setFilter(
+					event.currentTarget.dataset.filterType,
+					event.currentTarget.dataset.val
+				);
 			}
 		}
 		this.showResults();
@@ -192,88 +227,36 @@ class SearchApp extends Component {
 		} );
 	};
 
-	onPopstate = () => {
-		this.onChangeQueryString();
-	};
-
 	onChangeQueryString = () => {
-		this.getResults().then( () => {
-			if ( ( !! getSearchQuery() || hasFilter() ) && ! this.state.showResults ) {
-				this.showResults();
-			}
-		} );
+		this.getResults();
+
+		if ( this.hasActiveQuery() && ! this.state.showResults ) {
+			this.showResults();
+		}
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.value = getSearchQuery();
+			input.value = this.props.searchQuery;
 		} );
-
-		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
-		this.forceUpdate();
 	};
-
-	onChangeSort = sort => setSortQuery( sort );
 
 	loadNextPage = () => {
-		this.hasNextPage() && this.getResults( { pageHandle: this.state.response.page_handle } );
+		this.props.hasNextPage && this.getResults( { pageHandle: this.props.response.page_handle } );
 	};
 
-	getResults = ( {
-		query = getSearchQuery(),
-		filter = getFilterQuery(),
-		sort = this.getSort(),
-		pageHandle,
-	} = {} ) => {
-		const requestId = this.state.requestId + 1;
-
-		this.setState( { requestId, isLoading: true } );
-		return search( {
+	getResults = ( { pageHandle } = {} ) => {
+		this.props.makeSearchRequest( {
 			// Skip aggregations when requesting for paged results
-			aggregations: !! pageHandle ? {} : this.props.aggregations,
+			aggregations: pageHandle ? {} : this.props.aggregations,
 			excludedPostTypes: this.props.options.excludedPostTypes,
-			filter,
+			filter: this.props.filters,
 			pageHandle,
-			query,
+			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
 			siteId: this.props.options.siteId,
-			sort,
+			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
-		} )
-			.then( newResponse => {
-				if ( newResponse === null ) {
-					// Request has been cancelled by a more recent request
-					return;
-				}
-
-				if ( this.state.requestId === requestId ) {
-					const response = { ...newResponse };
-					if ( !! pageHandle ) {
-						response.aggregations = {
-							...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
-								? this.state.response.aggregations
-								: {} ),
-							...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
-						};
-						response.results = [
-							...( 'results' in this.state.response ? this.state.response.results : [] ),
-							...newResponse.results,
-						];
-					}
-					this.setState( { response, hasError: false, isLoading: false } );
-					return;
-				}
-				this.setState( { isLoading: false } );
-			} )
-			.catch( error => {
-				// XHR errors are instances of ProgressEvents.
-				if ( error instanceof ProgressEvent ) {
-					this.setState( { isLoading: false, hasError: true } );
-					return;
-				}
-				// Stop loading indicator before throwing.
-				this.setState( { isLoading: false } );
-				throw error;
-			} );
+		} );
 	};
 
 	render() {
@@ -292,24 +275,26 @@ class SearchApp extends Component {
 					closeOverlay={ this.hideResults }
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					enableSort={ this.state.overlayOptions.enableSort }
-					hasError={ this.state.hasError }
-					hasNextPage={ this.hasNextPage() }
+					filters={ this.props.filters }
+					hasError={ this.props.hasError }
+					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
-					isLoading={ this.state.isLoading }
+					isLoading={ this.props.isLoading }
 					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
-					onChangeSort={ this.onChangeSort }
+					onChangeSearch={ this.props.setSearchQuery }
+					onChangeSort={ this.props.setSort }
 					onLoadNextPage={ this.loadNextPage }
 					overlayTrigger={ this.state.overlayOptions.overlayTrigger }
 					postTypes={ this.props.options.postTypes }
-					query={ getSearchQuery() }
-					response={ this.state.response }
+					response={ this.props.response }
 					resultFormat={ resultFormat }
+					searchQuery={ this.props.searchQuery }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
-					sort={ this.getSort() }
+					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
-					widgetsOutsideOverlay={ this.props.options.widgetsOutsideOverlay }
+					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
 				/>
 			</Overlay>,
 			document.body
@@ -317,4 +302,17 @@ class SearchApp extends Component {
 	}
 }
 
-export default SearchApp;
+export default connect(
+	state => ( {
+		filters: getFilters( state ),
+		hasError: hasError( state ),
+		hasFilters: hasFilters( state ),
+		hasNextPage: hasNextPage( state ),
+		isLoading: isLoading( state ),
+		response: getResponse( state ),
+		searchQuery: getSearchQuery( state ),
+		sort: getSort( state ),
+		widgetOutsideOverlay: getWidgetOutsideOverlay( state ),
+	} ),
+	{ initializeQueryValues, makeSearchRequest, setFilter, setSearchQuery, setSort }
+)( SearchApp );

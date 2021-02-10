@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { find } from 'lodash';
-import classnames from 'classnames';
+import { debounce } from 'lodash';
+import { useMemoOne } from 'use-memo-one';
 
 /**
  * WordPress dependencies
@@ -10,225 +10,116 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-
-import {
-	Panel,
-	PanelBody,
-	ToggleControl,
-	ToolbarGroup,
-	ToolbarButton,
-} from '@wordpress/components';
-import { useContext, useState, useEffect, useLayoutEffect, useRef } from '@wordpress/element';
+import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
+import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
+import { useDebounce } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, {
-	ParticipantsControl,
-	ParticipantControl,
-} from './components/participants-control';
-import TimestampControl, { TimestampDropdown } from './components/timestamp-control';
+import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
+import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
+import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
-import {
-	slug as defaultParticipantSlug,
-	list as defaultParticipants,
-} from '../conversation/participants.json';
-import { formatUppercase } from '../../shared/icons';
-
-function getParticipantBySlug( participants, slug ) {
-	const participant = find(
-		participants,
-		contextParticipant => contextParticipant.participantSlug === slug
-	);
-	if ( participant ) {
-		return participant;
-	}
-
-	// Fallback participant. First one in the list.
-	return participants?.[ 0 ];
-}
+import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
+import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
+import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
+import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
+
+const useDebounceWithFallback = useDebounce
+	? useDebounce
+	: function useDebounceFallback( ...args ) {
+		const debounced = useMemoOne( () => debounce( ...args ), args );
+		useEffect( () => () => debounced.cancel(), [ debounced ] );
+		return debounced;
+	};
 
 export default function DialogueEdit( {
 	className,
 	attributes,
 	setAttributes,
-	instanceId,
-	clientId,
 	context,
 	onReplace,
 	mergeBlocks,
 	isSelected,
 } ) {
 	const {
-		participant,
-		participantSlug,
-		timestamp,
-		showTimestamp: showTimestampLocally,
 		content,
+		label,
+		slug,
 		placeholder,
+		showTimestamp,
+		timestamp,
 	} = attributes;
-	const [ isFocusedOnParticipantLabel, setIsFocusedOnParticipantLabel ] = useState( false );
-	const richTextRef = useRef();
-	const baseClassName = 'wp-block-jetpack-dialogue';
 
-	// Pick the previous block atteobutes from the state.
-	const prevBlock = useSelect( select => {
-		const prevPartClientId = select( 'core/block-editor' ).getPreviousBlockClientId( clientId );
-		return select( 'core/block-editor' ).getBlock( prevPartClientId );
-	}, [] );
+	const mediaSource = useSelect(
+		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
+		[]
+	);
+
+	const contentRef = useRef();
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showTimestampGlobally = context[ 'jetpack/conversation-showTimestamps' ];
+	const showConversationTimestamps = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length
 		? participantsFromContext
-		: defaultParticipants;
+		: [];
 
-	const isCustomParticipant = !! participant && ! participantSlug;
-	const currentParticipantSlug = isCustomParticipant ? defaultParticipantSlug : participantSlug;
-	const currentParticipant = getParticipantBySlug( participants, currentParticipantSlug );
-	const participantLabel = isCustomParticipant ? participant : currentParticipant?.participant;
+	const conversationParticipant = getParticipantBySlug( participants, slug );
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	// Set initial attributes according to the context.
+	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
+
+	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		// Bail when block already has an slug,
-		// or participant doesn't exist.
-		if ( participantSlug || ! participants?.length || ! conversationBridge ) {
+		if ( ! conversationParticipant ) {
 			return;
 		}
 
-		const nextParticipantSlug = conversationBridge.getNextParticipantSlug(
-			prevBlock?.attributes?.participantSlug
-		);
+		if ( conversationParticipant.slug !== slug ) {
+			return;
+		}
 
-		setAttributes( {
-			...( prevBlock?.attributes || {} ),
-			participantSlug: nextParticipantSlug,
-			content: '',
+		// Do not update current Dialogue block.
+		if ( isSelected ) {
+			return;
+		}
+
+		debounceSetDialoguesAttrs( {
+			label: conversationParticipant.label,
 		} );
-	}, [ participantSlug, participants, prevBlock, setAttributes, conversationBridge ] );
+	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
 
-	// Try to focus the RichText component when mounted.
-	const hasContent = content?.length > 0;
-	const richTextRefCurrent = richTextRef?.current;
-	useLayoutEffect( () => {
-		// Bail if component is not selected.
-		if ( ! isSelected ) {
-			return;
-		}
+	// Update dialogue timestamp setting from parent conversation.
+	useEffect( () => {
+		setAttributes( { showTimestamp: showConversationTimestamps } );
+	}, [ showConversationTimestamps, setAttributes ] );
 
-		// Bail if context reference is not valid.
-		if ( ! richTextRefCurrent ) {
-			return;
-		}
-
-		// Bail if context is not empty.
-		if ( hasContent ) {
-			return;
-		}
-
-		// Focus the rich text component
-		richTextRefCurrent.focus();
-	}, [ isSelected, hasContent, richTextRefCurrent ] );
-
-	const showTimestamp = isCustomParticipant ? showTimestampLocally : showTimestampGlobally;
-
-	/**
-	 * Helper to check if the gven style is set, or not.
-	 * It handles local and global (conversation) level.
-	 *
-	 * @param {string} style - style to check.
-	 * @returns {boolean} True if the style is defined. Otherwise, False.
-	 */
-	function hasStyle( style ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return attributes?.[ style ];
-		}
-
-		return currentParticipant?.[ style ];
-	}
-
-	/**
-	 * Helper to toggle the value of the given style
-	 * It handles local and global (conversation) level.
-	 *
-	 * @param {string} style - style to toggle.
-	 * @returns {void}
-	 */
-	function toggleParticipantStyle( style ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { [ style ]: ! attributes[ style ] } );
-		}
-
-		conversationBridge.updateParticipants( {
-			participantSlug: currentParticipantSlug,
-			[ style ]: ! currentParticipant[ style ],
-		} );
-	}
-
-	/**
-	 * Helper to build the CSS classes for the participant label.
-	 * It handles local and global (conversation) level.
-	 *
-	 * @returns {string} Participant CSS class.
-	 */
-	function getParticipantLabelClass() {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return classnames( `${ baseClassName }__participant`, {
-				[ 'has-bold-style' ]: attributes?.hasBoldStyle,
-				[ 'has-italic-style' ]: attributes?.hasItalicStyle,
-				[ 'has-uppercase-style' ]: attributes?.hasUppercaseStyle,
-			} );
-		}
-
-		return classnames( `${ baseClassName }__participant`, {
-			[ 'has-bold-style' ]: currentParticipant?.hasBoldStyle,
-			[ 'has-italic-style' ]: currentParticipant?.hasItalicStyle,
-			[ 'has-uppercase-style' ]: currentParticipant?.hasUppercaseStyle,
-		} );
-	}
-
-	function setShowTimestamp( value ) {
-		if ( isCustomParticipant || ! participantsFromContext ) {
-			return setAttributes( { showTimestamp: value } );
-		}
-
+	function setShowConversationTimestamps( value ) {
 		conversationBridge.setAttributes( { showTimestamps: value } );
+	}
+
+	function setTimestamp( time ) {
+		setAttributes( { timestamp: time } );
 	}
 
 	return (
 		<div className={ className }>
 			<BlockControls>
-				{ currentParticipant && isFocusedOnParticipantLabel && (
-					<ToolbarGroup>
-						<ToolbarButton
-							icon="editor-bold"
-							isPressed={ hasStyle( 'hasBoldStyle' ) }
-							onClick={ () => toggleParticipantStyle( 'hasBoldStyle' ) }
-						/>
-
-						<ToolbarButton
-							icon="editor-italic"
-							isPressed={ hasStyle( 'hasItalicStyle' ) }
-							onClick={ () => toggleParticipantStyle( 'hasItalicStyle' ) }
-						/>
-
-						<ToolbarButton
-							icon={ formatUppercase }
-							isPressed={ hasStyle( 'hasUppercaseStyle' ) }
-							onClick={ () => toggleParticipantStyle( 'hasUppercaseStyle' ) }
-						/>
-					</ToolbarGroup>
+				{ mediaSource && (
+					<MediaPlayerToolbarControl
+						onTimeChange={ time => setTimestamp( convertSecondsToTimeCode( time ) ) }
+					/>
 				) }
 			</BlockControls>
 
@@ -236,72 +127,77 @@ export default function DialogueEdit( {
 				<Panel>
 					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
 						<ParticipantsControl
-							className={ baseClassName }
+							className={ BASE_CLASS_NAME }
 							participants={ participants }
-							participantSlug={ participantSlug || '' }
+							slug={ slug || '' }
 							onSelect={ setAttributes }
-						/>
-						<ParticipantControl
-							className={ className }
-							participantValue={ participant }
-							onChange={ setAttributes }
 						/>
 					</PanelBody>
 
+					{ !! mediaSource?.title && (
+						<PanelBody title={ __( 'Podcast episode', 'jetpack' ) }>
+							<p>{ mediaSource.title }</p>
+						</PanelBody>
+					) }
+
 					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 						<ToggleControl
-							label={
-								isCustomParticipant
-									? __( 'Show', 'jetpack' )
-									: __( 'Show conversation timestamps', 'jetpack' )
-							}
+							label={ __( 'Show conversation timestamps', 'jetpack' ) }
 							checked={ showTimestamp }
-							onChange={ setShowTimestamp }
+							onChange={ setShowConversationTimestamps }
 						/>
 
 						{ showTimestamp && (
 							<TimestampControl
-								className={ baseClassName }
+								className={ BASE_CLASS_NAME }
 								value={ timestamp }
-								onChange={ newTimestampValue => setAttributes( { timestamp: newTimestampValue } ) }
+								onChange={ setTimestamp }
 							/>
 						) }
 					</PanelBody>
 				</Panel>
 			</InspectorControls>
 
-			<div className={ `${ baseClassName }__meta` }>
-				<div onFocus={ () => setIsFocusedOnParticipantLabel( true ) }>
-					<ParticipantsDropdown
-						id={ `dialogue-${ instanceId }-participants-dropdown` }
-						className={ baseClassName }
-						labelClassName={ getParticipantLabelClass() }
-						participants={ participants }
-						participantLabel={ participantLabel }
-						participantSlug={ participantSlug }
-						participant={ participant }
-						onSelect={ setAttributes }
-						onChange={ setAttributes }
-					/>
-				</div>
+			<div className={ `${ BASE_CLASS_NAME }__meta` }>
+				<SpeakerEditControl
+					className={ `${ BASE_CLASS_NAME }__participant` }
+					label={ label }
+					participant={ conversationParticipant }
+					participants={ participants }
+					transcriptRef={ contentRef }
+					onParticipantChange={ ( updatedParticipant ) => {
+						setAttributes( { label: updatedParticipant } );
+					} }
+					onSelect={ setAttributes }
+
+					onClean={ () => {
+						setAttributes( { slug: null, label: '' } );
+					} }
+
+					onAdd={ ( newLabel ) => {
+						const newParticipant = conversationBridge.addNewParticipant( newLabel );
+						setAttributes( newParticipant );
+					} }
+					onUpdate={ ( participant ) => {
+						conversationBridge.updateParticipants( participant );
+					} }
+				/>
 
 				{ showTimestamp && (
 					<TimestampDropdown
-						className={ baseClassName }
+						className={ BASE_CLASS_NAME }
 						value={ timestamp }
-						onChange={ newTimestampValue => {
-							setAttributes( { timestamp: newTimestampValue } );
-						} }
+						onChange={ setTimestamp }
 						shortLabel={ true }
 					/>
 				) }
 			</div>
 
 			<RichText
-				ref={ richTextRef }
+				ref={ contentRef }
 				identifier="content"
 				tagName="p"
-				className={ `${ baseClassName }__content` }
+				className={ `${ BASE_CLASS_NAME }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
 				onMerge={ mergeBlocks }
@@ -335,20 +231,9 @@ export default function DialogueEdit( {
 						return onReplace( [ blocks[ 0 ] ], ...args );
 					}
 
-					// When creating a new dialogue block in a `conversation` context,
-					// try to assign the dialogue participant
-					// with the next participant slug.
-
-					// Pick up the next participant slug.
-					const nextParticipantSlug = conversationBridge.getNextParticipantSlug(
-						attributes.participantSlug
-					);
-
 					// Update new block attributes.
 					blocks[ 1 ].attributes = {
-						...blocks[ 1 ].attributes,
-						participantSlug: nextParticipantSlug,
-						timestamp: attributes.timestamp,
+						timestamp: attributes.timestamp, // <- keep same timestamp value.
 					};
 
 					onReplace( blocks, ...args );
@@ -356,8 +241,6 @@ export default function DialogueEdit( {
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
 				placeholder={ placeholder || __( 'Write dialogue…', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
-				isSelected={ ! isFocusedOnParticipantLabel }
-				onFocus={ () => setIsFocusedOnParticipantLabel( false ) }
 			/>
 		</div>
 	);

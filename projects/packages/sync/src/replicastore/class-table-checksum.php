@@ -269,15 +269,18 @@ class Table_Checksum {
 	private function validate_fields_against_table( $fields ) {
 		global $wpdb;
 
+		$valid_fields = array();
+
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$result = $wpdb->get_row( "SELECT * FROM {$this->table} LIMIT 1", ARRAY_A );
-		if ( ! is_array( $result ) ) {
-			throw new Exception( 'Unexpected $wpdb->query output: not array' );
+		$result = $wpdb->get_results( "SHOW COLUMNS FROM {$this->table}", ARRAY_A );
+
+		foreach ( $result as $result_row ) {
+			$valid_fields[] = $result_row['Field'];
 		}
 
 		// Check if the fields are actually contained in the table.
 		foreach ( $fields as $field_to_check ) {
-			if ( ! array_key_exists( $field_to_check, $result ) ) {
+			if ( ! in_array( $field_to_check, $valid_fields, true ) ) {
 				throw new Exception( "Invalid field name: field '{$field_to_check}' doesn't exist in table {$this->table}" );
 			}
 		}

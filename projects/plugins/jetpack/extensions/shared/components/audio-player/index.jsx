@@ -48,6 +48,9 @@ function AudioPlayer( {
 	onJumpBack,
 	currentTime,
 	playStatus = STATE_PAUSED,
+	onMetadataLoaded,
+	loadWhenReady = false,
+	preload = 'metadata',
 } ) {
 	const audioRef = useRef();
 
@@ -73,7 +76,14 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
+
+		// Pre load audio meta data.
+		audio.preload = preload;
+
+		const mediaElement = new MediaElementPlayer( audio, {
+			...meJsSettings,
+			success: () => loadWhenReady && audio?.load()
+		} );
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -98,6 +108,7 @@ function AudioPlayer( {
 		onPlay && audio.addEventListener( 'play', onPlay );
 		onPause && audio.addEventListener( 'pause', onPause );
 		onError && audio.addEventListener( 'error', onError );
+		onMetadataLoaded && audio.addEventListener( 'loadedmetadata', onMetadataLoaded );
 
 		return () => {
 			// Cleanup.
@@ -105,8 +116,19 @@ function AudioPlayer( {
 			onPlay && audio.removeEventListener( 'play', onPlay );
 			onPause && audio.removeEventListener( 'pause', onPause );
 			onError && audio.removeEventListener( 'error', onError );
+			onMetadataLoaded && audio.removeEventListener( 'loadedmetadata', onMetadataLoaded );
 		};
-	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward ] );
+	}, [
+		audioRef,
+		onPlay,
+		onPause,
+		onError,
+		onJumpBack,
+		onSkipForward,
+		onMetadataLoaded,
+		loadWhenReady,
+		preload,
+	] );
 
 	// If we get lots of events from clicking on the progress bar in the MediaElement
 	// then we can get stuck in a loop. We can so by debouncing here we wait until the

@@ -52,18 +52,32 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting plugin data. Otherwise false.
  * otherwise.
  *
- * @param  {Object}  state Global state tree
- * @return {Boolean}       Whether plugin data is being requested
+ * @param {object} state - Global state tree
+ *
+ * @returns {boolean} - Whether plugin data is being requested
  */
 export function isFetchingPluginsData( state ) {
 	return !! state.jetpack.pluginsData.requests.isFetchingPluginsData;
 }
 
 /**
+ * Returns the site plugins data
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {boolean} - The plugins data
+ */
+export function getPluginsData( state ) {
+	return state.jetpack.pluginsData.items;
+}
+
+/**
  * Returns whether the plugin is active or not.
- * @param  {Object}  state  Global state tree
- * @param  {String}  plugin Slug of plugin to check.
- * @return {Boolean} True if plugin is active, false otherwise.
+ *
+ * @param  {object}  state  - Global state tree
+ * @param  {string}  plugin - Slug of plugin to check.
+ *
+ * @returns {boolean} True if plugin is active, false otherwise.
  */
 export function isPluginActive( state, plugin ) {
 	return (
@@ -73,9 +87,11 @@ export function isPluginActive( state, plugin ) {
 
 /**
  * Returns whether the plugin is installed or not.
- * @param  {Object}  state  Global state tree
- * @param  {String}  plugin Slug of plugin to check.
- * @return {Boolean} True if plugin is installed, false otherwise.
+ *
+ * @param  {object}  state  - Global state tree
+ * @param  {string}  plugin - Slug of plugin to check.
+ *
+ * @returns {boolean} True if plugin is installed, false otherwise.
  */
 export function isPluginInstalled( state, plugin ) {
 	return !! state.jetpack.pluginsData.items[ plugin ];

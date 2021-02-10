@@ -2,7 +2,7 @@
 /**
  * The Mocker Runner that creates mock nonces.
  *
- * @package Jetpack
+ * @package automattic/jetpack-debug-helper
  */
 
 namespace Automattic\Jetpack\Debug_Helper\Mocker;

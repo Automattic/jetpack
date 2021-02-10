@@ -3,10 +3,11 @@
  * Handles server-side registration and use of all blocks and plugins available in Jetpack for the block editor, aka Gutenberg.
  * Works in tandem with client-side block registration via `index.json`
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
@@ -82,6 +83,14 @@ class Jetpack_Gutenberg {
 	 * @var array Extensions availability information
 	 */
 	private static $availability = array();
+
+	/**
+	 * A cached array of the fully processed availability data. Keeps track of
+	 * reasons why an extension is unavailable or missing.
+	 *
+	 * @var array Extensions availability information.
+	 */
+	private static $cached_availability = null;
 
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
@@ -320,8 +329,9 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions   = array();
-		self::$availability = array();
+		self::$extensions          = array();
+		self::$availability        = array();
+		self::$cached_availability = null;
 	}
 
 	/**
@@ -425,6 +435,20 @@ class Jetpack_Gutenberg {
 	 */
 	public static function is_available( $extension ) {
 		return isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ];
+	}
+
+	/**
+	 * Get the availability of each block / plugin, or return the cached availability
+	 * if it has already been calculated. Avoids re-registering extensions when not
+	 * necessary.
+	 *
+	 * @return array A list of block and plugins and their availability status.
+	 */
+	public static function get_cached_availability() {
+		if ( null === self::$cached_availability ) {
+			self::$cached_availability = self::get_availability();
+		}
+		return self::$cached_availability;
 	}
 
 	/**
@@ -693,7 +717,7 @@ class Jetpack_Gutenberg {
 		} else {
 			$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
 			$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
-			$is_current_user_connected = Jetpack::is_user_connected();
+			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
 		wp_localize_script(
@@ -927,6 +951,24 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Determines whether a preview of the block with an upgrade nudge should
+	 * be displayed for admins on the site frontend.
+	 *
+	 * @since 8.4.0
+	 *
+	 * @param array $availability_for_block The availability for the block.
+	 *
+	 * @return bool
+	 */
+	public static function should_show_frontend_preview( $availability_for_block ) {
+		return (
+			isset( $availability_for_block['details']['required_plan'] )
+			&& current_user_can( 'manage_options' )
+			&& ! is_feed()
+		);
+	}
+
+	/**
 	 * Output an UpgradeNudge Component on the frontend of a site.
 	 *
 	 * @since 8.4.0
@@ -936,17 +978,6 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function upgrade_nudge( $plan ) {
-		if (
-			! current_user_can( 'manage_options' )
-			/** This filter is documented in class.jetpack-gutenberg.php */
-			|| ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
-			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-			|| ! apply_filters( 'jetpack_show_promotions', true )
-			|| is_feed()
-		) {
-			return;
-		}
-
 		jetpack_require_lib( 'components' );
 		return Jetpack_Components::render_upgrade_nudge(
 			array(
@@ -1057,10 +1088,20 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
 		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
-			$availability = self::get_availability();
+			$availability = self::get_cached_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+			}
+
+			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
+			if (
+				isset( $availability[ $bare_slug ] ) &&
+				self::should_show_frontend_preview( $availability[ $bare_slug ] )
+			) {
+				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
+				$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
+				return $upgrade_nudge . $block_preview;
 			}
 
 			return null;

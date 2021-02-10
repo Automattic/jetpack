@@ -9,6 +9,7 @@ jobs:
   lock:
     name: "composer.lock is up to date"
     runs-on: ubuntu-latest
+    timeout-minutes: 2  # 2021-01-18: Successful runs seem to take ~15 seconds
     steps:
       - uses: actions/checkout@v2
 
@@ -40,9 +41,11 @@ jobs:
   json:
     name: Monorepo package version refs
     runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-01-18: Successful runs take just a few seconds
     steps:
       - uses: actions/checkout@v2
       - name: Tool versions
         run: |
           jq --version
       - run: .github/files/check-monorepo-package-versions.sh
+      - run: .github/files/check-monorepo-package-repos.sh

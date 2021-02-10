@@ -639,6 +639,7 @@
 		background-repeat: no-repeat;
 		background-position: left center;
 		background-size: 100% auto;
+		display: none;
 
 		@supports not (backdrop-filter: none) {
 			filter: blur(18px);

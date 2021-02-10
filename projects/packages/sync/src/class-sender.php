@@ -342,6 +342,16 @@ class Sender {
 			return new \WP_Error( 'sender_disabled_for_queue_' . $queue->id );
 		}
 
+		// Return early if we've gotten a retry-after header response.
+		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
+		if ( $retry_time ) {
+			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			if ( microtime( true ) > $retry_time ) {
+				delete_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
+			}
+			return new \WP_Error( 'retry_after' );
+		}
+
 		// Don't sync if we are throttled.
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
 			return new \WP_Error( 'sync_throttled' );

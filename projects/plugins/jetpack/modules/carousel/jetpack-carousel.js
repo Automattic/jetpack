@@ -563,7 +563,7 @@ jQuery( document ).ready( function ( $ ) {
 
 	var methods = {
 		testForData: function ( gallery ) {
-			gallery = $( gallery ); // make sure we have it as a jQuery object.
+			gallery = $( gallery );
 			return ! ( ! gallery.length || ! gallery.data( 'carousel-extra' ) );
 		},
 
@@ -1624,10 +1624,26 @@ jQuery( document ).ready( function ( $ ) {
 	// register the event listener for starting the gallery
 	$( document.body ).on(
 		'click.jp-carousel',
-		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
+		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, figure.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
 		function ( e ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;
+			}
+
+			// If Gallery is made up of individual Image blocks check for custom link before
+			// loading carousel.
+			if ( $( e.target ).parents().eq( 1 ).hasClass( 'wp-block-image' ) ) {
+				var parentHref = $( e.target ).parent().attr( 'href' );
+
+				// If the link does not point to the attachment or media file then assume Image has
+				// a custom link so don't load the carousel.
+				if (
+					parentHref.split( '?' )[ 0 ] !==
+						$( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== $( e.target ).attr( 'data-permalink' )
+				) {
+					return;
+				}
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
@@ -1651,10 +1667,12 @@ jQuery( document ).ready( function ( $ ) {
 			e.stopPropagation();
 			$( this ).jp_carousel( 'open', {
 				start_index: $( this )
-					.find( '.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item' )
+					.find(
+						'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item, .wp-block-image'
+					)
 					.index(
 						$( e.target ).parents(
-							'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item'
+							'.gallery-item, .tiled-gallery-item, .blocks-gallery-item, .tiled-gallery__item, .wp-block-image'
 						)
 					),
 			} );

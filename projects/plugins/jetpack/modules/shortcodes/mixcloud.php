@@ -11,7 +11,7 @@
  * [mixcloud]MalibuRum/play-6-kissy-sellouts-winter-sun-house-party-mix/[/mixcloud]
  * [mixcloud http://www.mixcloud.com/mat/playlists/classics/ width=660 height=208 hide_cover=1 hide_tracklist=1]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /*

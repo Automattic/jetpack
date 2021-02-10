@@ -1,10 +1,7 @@
 /**
  * WordPress dependencies
  */
-import {
-	Dropdown,
-	Button,
-} from '@wordpress/components';
+import { Dropdown, Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -57,7 +54,13 @@ function setTimestampValue( typeValue, smh ) {
 	return smh.join( ':' );
 }
 
-function Timestamp( { value, className, onChange, shortLabel = false } ) {
+export function TimestampControl( {
+	value,
+	className,
+	onChange,
+	shortLabel = false,
+	isDisabled = false,
+} ) {
 	const smh = value.split( ':' );
 	if ( smh.length <= 2 ) {
 		smh.unshift( '00' );
@@ -67,13 +70,17 @@ function Timestamp( { value, className, onChange, shortLabel = false } ) {
 		<div className={ `${ className }__timestamp-controls` }>
 			<NumberControl
 				className={ `${ className }__timestamp-control__hour` }
-				label={ shortLabel ? __( 'Hour', 'jetpack' ) : __( 'Hour', 'jetpack' ) }
+				label={	shortLabel
+					? _x( 'Hour', 'hour (short form)', 'jetpack' )
+					: _x( 'Hour', 'hour (long form)', 'jetpack' )
+				}
 				value={ smh[ 0 ] }
 				min={ 0 }
 				max={ 23 }
-				onChange={ hour => {
-					onChange( setTimestampValue( { hour }, smh ) );
-				} }
+				onChange={ hour => (
+					! isDisabled && onChange( setTimestampValue( { hour }, smh ) )
+				) }
+				disabled={ isDisabled }
 			/>
 
 			<NumberControl
@@ -84,9 +91,10 @@ function Timestamp( { value, className, onChange, shortLabel = false } ) {
 				value={ smh[ 1 ] }
 				min={ 0 }
 				max={ 59 }
-				onChange={ min => {
-					onChange( setTimestampValue( { min }, smh ) );
-				} }
+				onChange={ min => (
+					! isDisabled && onChange( setTimestampValue( { min }, smh ) )
+				) }
+				disabled={ isDisabled }
 			/>
 
 			<NumberControl
@@ -97,15 +105,18 @@ function Timestamp( { value, className, onChange, shortLabel = false } ) {
 				value={ smh[ 2 ] }
 				min={ 0 }
 				max={ 59 }
-				onChange={ sec => {
-					onChange( setTimestampValue( { sec }, smh ) );
-				} }
+				onChange={ sec => (
+					! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
+				) }
+				disabled={ isDisabled }
 			/>
 		</div>
 	);
 }
 
-export function TimestampDropdown( { className, value, onChange, shortLabel } ) {
+export function TimestampDropdown( props ) {
+	const { className, value } = props;
+
 	return (
 		<Dropdown
 			position="bottom right"
@@ -119,17 +130,8 @@ export function TimestampDropdown( { className, value, onChange, shortLabel } ) 
 				);
 			} }
 			renderContent={ () => (
-				<Timestamp
-					className={ className }
-					value={ value }
-					onChange={ onChange }
-					shortLabel={ shortLabel }
-				/>
+				<TimestampControl { ...props } />
 			) }
 		/>
 	);
-}
-
-export default function TimestampControl( { className, value, onChange } ) {
-	return <Timestamp className={ className } value={ value } onChange={ onChange } />;
 }

@@ -1,14 +1,8 @@
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
-
 export default {
-	participant: {
+	label: {
 		type: 'string',
-		default: __( 'Participant', 'jetpack' ),
 	},
-	participantSlug: {
+	slug: {
 		type: 'string',
 	},
 	timestamp: {
@@ -24,15 +18,7 @@ export default {
 	},
 	content: {
 		type: 'string',
-	},
-	hasBoldStyle: {
-		type: 'boolean',
-		default: true,
-	},
-	hasItalicStyle: {
-		type: 'boolean',
-	},
-	hasUppercaseStyle: {
-		type: 'boolean',
+		source: 'html',
+		selector: '.wp-block-jetpack-dialogue__content',
 	},
 };

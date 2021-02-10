@@ -12,36 +12,38 @@ import WidgetAreaContainer from './widget-area-container';
  * Internal dependencies
  */
 import JetpackColophon from './jetpack-colophon';
-import PreselectedSearchFilters from './preselected-search-filters';
-import { hasPreselectedFilters } from '../lib/query-string';
 import './search-sidebar.scss';
 
 const SearchSidebar = props => {
+	const hasFiltersSelectedOutsideOverlay = props.widgetOutsideOverlay.filters?.length > 0;
 	return (
 		<div className="jetpack-instant-search__sidebar">
-			<PreselectedSearchFilters
-				loading={ props.isLoading }
-				locale={ props.locale }
-				postTypes={ props.postTypes }
-				results={ props.response }
-				widgets={ props.widgets }
-				widgetsOutsideOverlay={ props.widgetsOutsideOverlay }
-			/>
+			{ hasFiltersSelectedOutsideOverlay && (
+				<SearchFilters
+					filters={ props.filters }
+					loading={ props.isLoading }
+					locale={ props.locale }
+					postTypes={ props.postTypes }
+					results={ props.response }
+					showClearFiltersButton={ hasFiltersSelectedOutsideOverlay }
+					widget={ props.widgetOutsideOverlay }
+				/>
+			) }
 			<WidgetAreaContainer />
 			{ props.widgets.map( ( widget, index ) => {
+				// Creates portals to elements moved into the WidgetAreaContainer.
 				return createPortal(
 					<div
 						id={ `${ widget.widget_id }-portaled-wrapper` }
 						className="jetpack-instant-search__portaled-wrapper"
 					>
 						<SearchFilters
+							filters={ props.filters }
 							loading={ props.isLoading }
 							locale={ props.locale }
 							postTypes={ props.postTypes }
 							results={ props.response }
-							showClearFiltersButton={
-								! hasPreselectedFilters( props.widgets, props.widgetsOutsideOverlay ) && index === 0
-							}
+							showClearFiltersButton={ ! hasFiltersSelectedOutsideOverlay && index === 0 }
 							widget={ widget }
 						/>
 					</div>,

@@ -5,7 +5,7 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 /**
  * Automated testing of the post-by-email REST API.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( defined( 'JETPACK__PLUGIN_DIR' ) && JETPACK__PLUGIN_DIR ) {

@@ -1,8 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
-import { __ } from '@wordpress/i18n';
+import { createBlocksFromInnerBlocksTemplate, pasteHandler } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
+import { _x, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -26,79 +27,118 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	];
 }
 
-function podcastSection( { episodeTrack } ) {
-	const { image, link } = episodeTrack;
+function podcastSection( { episodeTrack, feedUrl } ) {
+	const { guid } = episodeTrack;
 
 	return [
-		'core/columns',
+		'jetpack/podcast-player',
 		{
-			align: 'wide',
+			customPrimaryColor: getIconColor(),
+			hexPrimaryColor: getIconColor(),
+			url: feedUrl,
+			selectedEpisodes: guid ? [ { guid } ] : [],
+			showCoverArt: false,
+			showEpisodeTitle: false,
+			showEpisodeDescription: false,
 		},
-		[
-			[
-				'core/column',
-				{ width: '30%' },
-				[
-					[
-						'core/image',
-						{
-							url: image ? image : null,
-						},
-					],
-				],
-			],
-			[
-				'core/column',
-				{ width: '70%' },
-				[
-					[
-						'jetpack/podcast-player',
-						{
-							customPrimaryColor: getIconColor(),
-							hexPrimaryColor: getIconColor(),
-							url: link,
-						},
-					],
-				],
-			],
-		],
 	];
 }
 
 function podcastSummarySection( { episodeTrack } ) {
-	return [
-		'core/group',
-		{},
+	const sectionBlocks = [
 		[
-			[
-				'core/heading',
-				{
-					level: 3,
-					content: 'Summary',
-					placeholder: __( 'Podcast episode title', 'jetpack' ),
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description,
-				},
-			],
+			'core/heading',
+			{
+				level: 3,
+				content: _x( 'Summary', 'noun: summary of a podcast episode', 'jetpack' ),
+				placeholder: __( 'Podcast episode title', 'jetpack' ),
+			},
 		],
 	];
+
+	const summaryBlocks = pasteHandler( { HTML: episodeTrack.description_html, mode: 'BLOCKS' } );
+
+	if ( summaryBlocks.length ) {
+		sectionBlocks.push( ...summaryBlocks );
+	} else {
+		sectionBlocks.push( [
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			},
+		] );
+	}
+
+	return [ 'core/group', {}, sectionBlocks ];
 }
 
 function podcastConversationSection() {
+	const conversationBlockName = 'jetpack/conversation';
+	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType(
+		conversationBlockName
+	);
+
+	// Check if `jetpack/conversation` block is register.
+	if ( ! isConversationBlockAvailable ) {
+		// When it is not, return a fallback core-blocks composition.
+		return [
+			'core/group',
+			{},
+			[
+				[
+					'core/heading',
+					{
+						level: 3,
+						content: __( 'Transcription', 'jetpack' ),
+						placeholder: __( 'Podcast episode transcription', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+				[
+					'core/paragraph',
+					{
+						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+					},
+				],
+			],
+		];
+	}
+
 	return [
-		'jetpack/conversation',
-		{},
+		conversationBlockName,
+		{
+			participants: [
+				{
+					slug: 'participant-0',
+					label: __( 'Speaker 1', 'jetpack' ),
+				},
+				{
+					slug: 'participant-1',
+					label: __( 'Speaker 2', 'jetpack' ),
+				},
+				{
+					slug: 'participant-2',
+					label: __( 'Speaker 3', 'jetpack' ),
+				},
+			],
+		},
 		[
 			[
 				'core/heading',
 				{
 					level: 3,
-					content: 'Transcription',
+					content: __( 'Transcription', 'jetpack' ),
 					placeholder: __( 'Podcast episode transcription', 'jetpack' ),
 				},
 			],
@@ -106,24 +146,21 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-0',
-					hasBoldStyle: true,
+					slug: 'participant-0',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-1',
-					hasBoldStyle: true,
+					slug: 'participant-1',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-2',
-					hasBoldStyle: true,
+					slug: 'participant-2',
 				},
 			],
 		],
@@ -133,8 +170,8 @@ function podcastConversationSection() {
 /*
  * Template parts
  */
-function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {} } ) {
-	const tpl = [ podcastSection( { episodeTrack } ) ];
+function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {}, feedUrl } ) {
+	const tpl = [ podcastSection( { episodeTrack, feedUrl } ) ];
 
 	if ( spotifyShowUrl && spotifyImageUrl ) {
 		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );

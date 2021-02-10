@@ -98,6 +98,13 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 * @param Event $event Script event object.
 	 */
 	public function postAutoloadDump( Event $event ) {
+		// When the autoloader is not required by the root package we don't want to execute it.
+		// This prevents unwanted transitive execution that generates unused autoloaders or
+		// at worst throws fatal executions.
+		if ( ! $this->isRequiredByRoot() ) {
+			return;
+		}
+
 		$config = $this->composer->getConfig();
 
 		if ( 'vendor' !== $config->raw()['config']['vendor-dir'] ) {
@@ -158,4 +165,34 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		return md5( uniqid( '', true ) );
 	}
 
+	/**
+	 * Checks to see whether or not the root package is the one that required the autoloader.
+	 *
+	 * @return bool
+	 */
+	private function isRequiredByRoot() {
+		$package  = $this->composer->getPackage();
+		$requires = $package->getRequires();
+		if ( ! is_array( $requires ) ) {
+			$requires = array();
+		}
+		$devRequires = $package->getDevRequires();
+		if ( ! is_array( $devRequires ) ) {
+			$devRequires = array();
+		}
+		$requires = array_merge( $requires, $devRequires );
+
+		if ( empty( $requires ) ) {
+			$this->io->writeError( "\n<error>The package is not required and this should never happen?</error>", true );
+			exit();
+		}
+
+		foreach ( $requires as $require ) {
+			if ( 'automattic/jetpack-autoloader' === $require->getTarget() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }

@@ -2,7 +2,7 @@
 /**
  * The Image Class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -4,9 +4,6 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
-	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0"
-	},
 	"autoload": {
 		"files": [
 			"functions.php"
@@ -15,12 +12,9 @@
 			"legacy"
 		]
 	},
-	"scripts": {
-		"phpunit": [
-			"@composer install",
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		]
-	},
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-compat"
+	}
 }

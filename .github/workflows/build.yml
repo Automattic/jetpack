@@ -5,6 +5,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # 2021-01-18: Successful runs seem to take 5-7 minutes
     steps:
       - uses: actions/checkout@v2
 
@@ -41,6 +42,9 @@ jobs:
 
       - name: Build all projects
         id: build
+        env:
+          # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
+          BUILD_BASE: /tmp/jetpack-build
         run: .github/files/build-all-projects.sh
 
       # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
@@ -62,6 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    timeout-minutes: 15  # 2021-01-18: Successful runs seem to usually take ~2 minutes, but sometimes the upload is slow and it takes 12.
     steps:
       - uses: actions/checkout@v2
         with:
@@ -90,11 +95,12 @@ jobs:
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          CURRENT_VERSION=$(monorepo/tools/get-version.sh to-upload/jetpack-dev/jetpack.php)-${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)
-          sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' to-upload/jetpack-dev/jetpack.php
-          echo "$CURRENT_VERSION" > to-upload/jetpack-dev/version.txt
+          CURRENT_VERSION=$(monorepo/tools/plugin-version.sh to-upload/jetpack-dev/)-${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)
           echo "Using version $CURRENT_VERSION"
           echo "::set-output name=version::$CURRENT_VERSION"
+          echo "$CURRENT_VERSION" > to-upload/jetpack-dev/version.txt
+          # Don't use plugin-version.sh here, updating JETPACK__VERSION would clutter stats.
+          sed -i -e 's/Version: .*$/Version: '"$CURRENT_VERSION"'/' to-upload/jetpack-dev/jetpack.php
 
       - name: Upload Jetpack build
         uses: actions/upload-artifact@v2
@@ -119,18 +125,35 @@ jobs:
     name: Push to mirror repos
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/master'
+
+    # Mirror master and any branch matching "*/branch-*". But note the latter is special cased
+    # in .github/files/push-all-projects.sh.
+    # Keep this in sync with the corresponding condition in cancel-dups.yml.
+    if: github.ref == 'refs/heads/master' || contains( github.ref, '/branch-' )
+
+    # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:
       - uses: actions/checkout@v2
         with:
           path: monorepo
+        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Download build artifact
         uses: actions/download-artifact@v2
         with:
           name: jetpack-build
+        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
       - name: Extract build archive
         run: tar --xz -xvvf build.tar.xz
+        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
+
+      - name: Filter mirror list for release branch
+        if: contains( github.ref, '/branch-' )
+        working-directory: monorepo
+        env:
+          BUILD_BASE: ${{ github.workspace }}/build
+        run: .github/files/filter-mirrors-for-release-branch.sh
+        timeout-minutes: 1  # 2021-01-29: Guessing a successful run should only take a few seconds
 
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
@@ -138,9 +161,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changed projects
-        working-directory: monorepo
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-          USER_NAME: matticbot
-          BUILD_BASE: ${{ github.workspace }}/build
-        run: .github/files/push-all-projects.sh
+        uses: ./monorepo/projects/github-actions/push-to-mirrors
+        with:
+          source-directory: ${{ github.workspace }}/monorepo
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          username: matticbot
+          working-directory: ${{ github.workspace }}/build
+        timeout-minutes: 5  # 2021-01-18: Successful runs seem to take about half a minute.

@@ -8,7 +8,7 @@
  * - And all the above in shortcode formats:
  * [medium url="https://medium.com/@jeherve/this-is-a-story-19f582daaf5b" width="100%" border="false" collapsed="true"]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 // Faux-oembed support for Medium permalinks.

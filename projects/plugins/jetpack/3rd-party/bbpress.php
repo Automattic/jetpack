@@ -2,7 +2,7 @@
 /**
  * Compatibility functions for bbpress.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ensure sharing_display is loaded.

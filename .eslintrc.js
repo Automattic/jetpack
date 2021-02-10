@@ -8,7 +8,7 @@ module.exports = {
 		mocha: true,
 		node: true,
 		jquery: true,
-		jest: true
+		jest: true,
 	},
 	parserOptions: {
 		ecmaVersion: 2019,

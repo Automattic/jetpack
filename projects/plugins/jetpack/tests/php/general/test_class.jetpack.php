@@ -981,6 +981,7 @@ EXPECTED;
 			'jetpack.testConnection',
 			'jetpack.featuresAvailable',
 			'jetpack.featuresEnabled',
+			'jetpack.disconnectBlog',
 		);
 
 		$allowed = array(

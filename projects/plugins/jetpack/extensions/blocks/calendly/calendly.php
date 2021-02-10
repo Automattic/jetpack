@@ -4,7 +4,7 @@
  *
  * @since 8.2.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Calendly;
@@ -180,7 +180,7 @@ function enqueue_calendly_js() {
 			// For P2s only: wait until after o2 has
 			// replaced main#content to initialize widget.
 			if ( window.jQuery && window.o2 ) {
-				jQuery( 'body' ).on( 'ready.o2', function() { initCalendlyWidget() } );
+				jQuery( 'body' ).on( 'ready_o2', function() { initCalendlyWidget() } );
 			// Else initialize widget without waiting.
 			} else {
 				initCalendlyWidget();

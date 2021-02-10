@@ -211,7 +211,8 @@ class SiteStatsComponent extends React.Component {
 							>
 								<span className="jp-form-toggle-explanation">
 									{ __(
-										'Include a small chart in your admin bar with a 48-hour traffic snapshot', 'jetpack'
+										'Include a small chart in your admin bar with a 48-hour traffic snapshot',
+										'jetpack'
 									) }
 								</span>
 							</CompactFormToggle>
