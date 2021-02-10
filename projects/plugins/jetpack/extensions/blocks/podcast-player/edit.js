@@ -312,6 +312,7 @@ const PodcastPlayerEdit = ( {
 							min={ DEFAULT_MIN_ITEMS }
 							max={ DEFAULT_MAX_ITEMS }
 							required
+							disabled={ !! selectedGuid }
 						/>
 					) }
 					{ ComboboxControl && (
