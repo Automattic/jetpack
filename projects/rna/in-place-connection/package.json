@@ -1,0 +1,17 @@
+{
+	"name": "jetpack-in-place-connection",
+	"version": "1.0.0",
+	"description": "Jetpack In-Place Connection Component",
+	"main": "index.jsx",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"@wordpress/i18n": "^3.9.0",
+		"prop-types": "^15.7.2"
+	},
+	"optionalDependencies": {
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1"
+	},
+	"type": "module"
+}

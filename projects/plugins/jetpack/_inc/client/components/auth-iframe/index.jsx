@@ -18,8 +18,7 @@ import {
 	isAuthorizingUserInPlace,
 	hasConnectedOwner,
 } from 'state/connection';
-
-import './style.scss';
+import InPlaceConnection from '@automattic/jetpack-in-place-connection';
 
 export class AuthIframe extends React.Component {
 	static displayName = 'AuthIframe';
@@ -41,65 +40,30 @@ export class AuthIframe extends React.Component {
 		onAuthorized: noop,
 	};
 
-	componentDidMount = () => {
-		// Scroll to the iframe container
-		if ( this.props.scrollToIframe ) {
-			window.scrollTo( 0, this.refs.iframeWrap.offsetTop - 10 );
-		}
-		// Add an event listener to identify successful authorization via iframe.
-		window.addEventListener( 'message', this.receiveData );
-	};
+	onComplete = () => {
+		// Dispatch successful authorization.
+		this.props.authorizeUserInPlaceSuccess();
 
-	receiveData = e => {
-		if ( e.source !== this.refs.iframe.contentWindow ) {
-			return;
-		}
+		// Fetch user connection data after successful authorization to trigger state refresh
+		// for linked user.
+		this.props.fetchUserConnectionData();
 
-		switch ( e.data ) {
-			case 'close':
-				// Remove listener, our job here is done.
-				window.removeEventListener( 'message', this.receiveData );
-				// Dispatch successful authorization.
-				this.props.authorizeUserInPlaceSuccess();
-				// Fetch user connection data after successful authorization to trigger state refresh
-				// for linked user.
-				this.props.fetchUserConnectionData();
-				// Trigger 'onAuthorized' callback, if provided
-				this.props.onAuthorized();
-				break;
-			case 'wpcom_nocookie':
-				// Third-party cookies blocked. Let's redirect.
-				window.location.replace( this.props.connectUrl );
-				break;
-		}
+		// Trigger 'onAuthorized' callback, if provided
+		this.props.onAuthorized();
 	};
 
 	render = () => {
-		// The URL looks like https://jetpack.wordpress.com/jetpack.authorize_iframe/1/. We need to include the trailing
-		// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
-		let src = this.props.connectUrl.replace( 'authorize/', 'authorize_iframe/' );
-		let height = this.props.height;
-
-		if ( this.props.hasConnectedOwner ) {
-			src += '&display-tos';
-			height = ( parseInt( height ) + 50 ).toString();
-		}
-
 		return (
-			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
-				<h1>{ this.props.title }</h1>
-				{ this.props.fetchingConnectUrl ? (
-					<p>{ __( 'Loading…', 'jetpack' ) }</p>
-				) : (
-					<iframe
-						ref="iframe"
-						title={ this.props.title }
-						width={ this.props.width }
-						height={ height }
-						src={ src }
-					></iframe>
-				) }
-			</div>
+			<InPlaceConnection
+				connectUrl={ this.props.connectUrl }
+				height={ this.props.height }
+				width={ this.props.width }
+				isLoading={ this.props.fetchingConnectUrl }
+				title={ this.props.title }
+				hasConnectedOwner={ this.props.hasConnectedOwner }
+				scrollToIframe={ this.props.scrollToIframe }
+				onComplete={ this.onComplete }
+			/>
 		);
 	};
 }
