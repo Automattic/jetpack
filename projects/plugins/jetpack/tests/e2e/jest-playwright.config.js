@@ -3,7 +3,7 @@
  * https://playwright.dev/docs/api/class-browsertype?_highlight=launch#browsertypelaunchoptions
  */
 
-let { CI, E2E_DEBUG, HEADLESS, SLOWMO } = process.env;
+const { CI, E2E_DEBUG, HEADLESS, SLOWMO } = process.env;
 let executablePath = '';
 let dumpio = false;
 
@@ -14,7 +14,6 @@ if ( ! CI ) {
 if ( E2E_DEBUG ) {
 	dumpio = true;
 	process.env.DEBUG = 'pw:api';
-	HEADLESS = 'false';
 }
 
 module.exports = {
