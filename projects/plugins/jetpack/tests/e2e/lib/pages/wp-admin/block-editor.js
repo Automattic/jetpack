@@ -33,45 +33,45 @@ export default class BlockEditorPage extends Page {
 
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
-		await page.click( `.editor-block-list-item-jetpack-${ blockName }` );
+		await this.page.click( `.editor-block-list-item-jetpack-${ blockName }` );
 		return await this.getInsertedBlock( blockName );
 	}
 
 	async getInsertedBlock( blockName ) {
-		return ( await page.waitForSelector( `div[data-type='jetpack/${ blockName }']` ) ).getAttribute(
-			'data-block'
-		);
+		return (
+			await this.page.waitForSelector( `div[data-type='jetpack/${ blockName }']` )
+		 ).getAttribute( 'data-block' );
 	}
 
 	async publishPost() {
-		await page.click( '.editor-post-publish-panel__toggle' );
+		await this.page.click( '.editor-post-publish-panel__toggle' );
 
 		// Disable reason: Wait for the animation to complete, since otherwise the
 		// click attempt may occur at the wrong point.
 		// Also, for some reason post-publish bar wont show up it we click to fast :/
-		await page.waitForTimeout( 1000 );
+		await this.page.waitForTimeout( 1000 );
 
-		await takeScreenshot( 'wordads' );
-		await page.click( '.editor-post-publish-button' );
-		await page.waitForTimeout( 500 );
+		await takeScreenshot( 'wordads', '1' );
+		await this.page.click( '.editor-post-publish-button' );
+		await this.page.waitForTimeout( 500 );
 
-		await takeScreenshot( 'wordads' );
+		await takeScreenshot( 'wordads', '2' );
 
 		await this.page.waitForSelector( '.components-snackbar' );
 
-		await takeScreenshot( 'wordads' );
+		await takeScreenshot( 'wordads', '3' );
 
 		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 	}
 
 	async viewPost() {
 		await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
-		await page.click( '.post-publish-panel__postpublish-buttons a' );
+		await this.page.click( '.post-publish-panel__postpublish-buttons a' );
 	}
 
 	async focus() {
 		await this.page.focus( '.editor-post-title__input' );
-		await page.click( '.editor-post-title__input' );
+		await this.page.click( '.editor-post-title__input' );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
