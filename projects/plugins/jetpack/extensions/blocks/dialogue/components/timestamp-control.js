@@ -129,9 +129,9 @@ export function TimestampControl( {
 				className={ `${ className }__timestamp-range-control` }
 				min={ 0 }
 				max={ duration }
-				onChange={ ( timeInSecons ) => {
-					setRangeValue( timeInSecons );
-					debouncedSetAttributes( timeInSecons, onChange );
+				onChange={ ( timeInSeconds ) => {
+					setRangeValue( timeInSeconds );
+					debouncedSetAttributes( timeInSeconds, onChange );
 				} }
 				withInputField={ false }
 				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
