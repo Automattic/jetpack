@@ -17,11 +17,12 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { useMemo, useState, useEffect, Component } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel, getParticipantBySlug } from '../../conversation/utils';
+import { getParticipantByLabel, getParticipantBySlug, cleanFormatStyle } from '../../conversation/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -174,7 +175,7 @@ export function SpeakerEditControl( {
 			setEditingMode( EDIT_MODE_EDITING );
 			return onUpdate( {
 				...participant,
-				label,
+				label: escapeHTML( cleanFormatStyle( label ) ),
 			} );
 		}
 
@@ -185,7 +186,7 @@ export function SpeakerEditControl( {
 		}
 
 		// Add a new speaker.
-		onAdd( label );
+		onAdd( escapeHTML( cleanFormatStyle( label ) ) );
 		return setEditingMode( EDIT_MODE_ADDING );
 	}
 
