@@ -118,26 +118,29 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 					</HelpMessage>
 				) }
 			</BaseControl>
+			{ context === 'inspector' && (
+				<>
+					<TextareaControl
+						label={ __( 'Default First Message', 'jetpack' ) }
+						help={ __(
+							'The default first message that will be sent by visitors when using this button.',
+							'jetpack'
+						) }
+						value={ firstMessage }
+						onChange={ text => setAttributes( { firstMessage: text } ) }
+					/>
 
-			<TextareaControl
-				label={ __( 'Default First Message', 'jetpack' ) }
-				help={ __(
-					'The default first message that will be sent by visitors when using this button.',
-					'jetpack'
-				) }
-				value={ firstMessage }
-				onChange={ text => setAttributes( { firstMessage: text } ) }
-			/>
-
-			<ToggleControl
-				label={ __( 'Open in new tab', 'jetpack' ) }
-				checked={ openInNewTab }
-				onChange={ newValue => setAttributes( { openInNewTab: newValue } ) }
-				help={ __(
-					'When the button is tapped, should a new tab be opened if the visitor does not have WhatsApp installed?',
-					'jetpack'
-				) }
-			/>
+					<ToggleControl
+						label={ __( 'Open in new tab', 'jetpack' ) }
+						checked={ openInNewTab }
+						onChange={ newValue => setAttributes( { openInNewTab: newValue } ) }
+						help={ __(
+							'When the button is tapped, should a new tab be opened if the visitor does not have WhatsApp installed?',
+							'jetpack'
+						) }
+					/>
+				</>
+			) }
 		</>
 	);
 

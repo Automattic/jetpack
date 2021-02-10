@@ -103,7 +103,6 @@ describe( 'Toolbar settings', () => {
 		userEvent.click( screen.getByLabelText( 'WhatsApp Button Settings' ) );
 		await waitFor( () => screen.getByLabelText( 'Country code' ) );
 
-		expect( screen.getByLabelText( 'Default First Message' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Open in new tab' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Country code' ) ).toBeInTheDocument();
 	} );
 } );
