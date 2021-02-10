@@ -115,11 +115,16 @@
 
 .jetpack-sso.button {
 	height: 36px;
-	line-height: 34px;
 	float: none;
 	margin-bottom: 16px;
 	position: relative;
 	width: 100%;
+}
+
+@media screen and ( min-width: 782px ) {
+	.jetpack-sso.button {
+		line-height: 34px;
+	}
 }
 
 .jetpack-sso.button > span {
