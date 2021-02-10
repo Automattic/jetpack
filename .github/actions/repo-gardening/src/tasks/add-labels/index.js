@@ -129,7 +129,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 
 	files.map( file => {
 		// Projects.
-		const project = file.match( /^projects\/(?<ptype>[a-zA-Z-]*)\/(?<pname>[a-zA-Z-]*)\// );
+		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
 			const prefix = {
 				'editor-extensions': 'Block',
@@ -159,7 +159,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 
 		// Modules.
 		const module = file.match(
-			/^projects\/plugins\/jetpack\/?(?<test>tests\/php\/)?modules\/(?<module>[a-zA-Z-]*)\//
+			/^projects\/plugins\/jetpack\/?(?<test>tests\/php\/)?modules\/(?<module>[^/]*)\//
 		);
 		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
@@ -188,7 +188,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 
 		// Existing blocks.
 		const blocks = file.match(
-			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[a-zA-Z-]*)\//
+			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[^/]*)\//
 		);
 		const blockName = blocks && blocks.groups.block;
 		if ( blockName ) {
