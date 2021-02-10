@@ -50,6 +50,7 @@ function AudioPlayer( {
 	playStatus = STATE_PAUSED,
 	onMetadataLoaded,
 	loadWhenReady = false,
+	preload = 'metadata',
 } ) {
 	const audioRef = useRef();
 
@@ -75,6 +76,10 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
+
+		// Pre load audio meta data.
+		audio.preload = preload;
+
 		const mediaElement = new MediaElementPlayer( audio, {
 			...meJsSettings,
 			success: () => loadWhenReady && audio?.load()
