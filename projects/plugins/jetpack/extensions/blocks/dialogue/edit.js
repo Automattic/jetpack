@@ -14,6 +14,7 @@ import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { useDebounce } from '@wordpress/compose';
+import { escapeHTML } from '@wordpress/escape-html';
 
 /**
  * Internal dependencies
@@ -161,7 +162,7 @@ export default function DialogueEdit( {
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
 				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
-					label={ label }
+					label={ label?.length ? escapeHTML( label ) : '' }
 					participant={ conversationParticipant }
 					participants={ participants }
 					transcriptRef={ contentRef }
