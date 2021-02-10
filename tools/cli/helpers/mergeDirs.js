@@ -7,9 +7,9 @@ import fs from 'fs';
  * Merge directories.
  *
  * Originally from https://github.com/binocarlos/merge-dirs/blob/master/src/index.js
-
- * @param src
- * @param dest
+ *
+ * @param {string} src - Source dir.
+ * @param {string} dest - Dest dir.
  */
 export default function mergeDirs( src, dest ) {
 	if ( ! src || ! dest ) {
@@ -17,6 +17,10 @@ export default function mergeDirs( src, dest ) {
 	}
 
 	const files = fs.readdirSync( src );
+
+	if ( ! files ) {
+		throw new Error( 'Source must have files to copy.' );
+	}
 
 	files.forEach( file => {
 		const srcFile = '' + src + '/' + file;
@@ -38,8 +42,8 @@ export default function mergeDirs( src, dest ) {
  *
  * Originally from https://github.com/binocarlos/merge-dirs/blob/master/src/index.js
  *
- * @param file
- * @param location
+ * @param {string} file - File path
+ * @param {string} location - New location.
  */
 function copyFile( file, location ) {
 	fs.mkdirSync( file.split( '/' ).slice( 0, -1 ).join( '/' ), { mode: 0x1ed, recursive: true } );

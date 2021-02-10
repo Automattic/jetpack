@@ -14,6 +14,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForGenerate } from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/readJson';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
+import mergeDirs from '../helpers/mergeDirs';
 
 /**
  * Relays commands to generate a particular project
@@ -76,16 +77,18 @@ export function generateDefine( yargs ) {
 /**
  * Generate a package based on questions passed to it.
  *
- * @param object answers Answers from the question function.
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} answers - Answers from questions.
  */
-function generatePackage( answers ) {
+export function generatePackage( answers = { name: 'test' } ) {
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
 	// Copy the skeletons over.
 	try {
-		fs.copyFileSync( skeletonDir, pkgDir );
-		fs.copyFileSync( path.join( skeletonDir, 'packages' ), pkgDir );
+		mergeDirs( path.join( skeletonDir, '/common' ), pkgDir );
+		mergeDirs( path.join( skeletonDir, '/packages' ), pkgDir );
 	} catch ( e ) {
 		console.error( e );
 	}
