@@ -49,6 +49,8 @@ function AudioPlayer( {
 	currentTime,
 	playStatus = STATE_PAUSED,
 	onMetadataLoaded,
+	loadWhenReady = false,
+	preload = 'metadata',
 } ) {
 	const audioRef = useRef();
 
@@ -74,7 +76,14 @@ function AudioPlayer( {
 
 	useEffect( () => {
 		const audio = audioRef.current;
-		const mediaElement = new MediaElementPlayer( audio, meJsSettings );
+
+		// Pre load audio meta data.
+		audio.preload = preload;
+
+		const mediaElement = new MediaElementPlayer( audio, {
+			...meJsSettings,
+			success: () => loadWhenReady && audio?.load()
+		} );
 
 		// Add the skip and jump buttons if needed
 		if ( onJumpBack || onSkipForward ) {
@@ -109,7 +118,17 @@ function AudioPlayer( {
 			onError && audio.removeEventListener( 'error', onError );
 			onMetadataLoaded && audio.removeEventListener( 'loadedmetadata', onMetadataLoaded );
 		};
-	}, [ audioRef, onPlay, onPause, onError, onJumpBack, onSkipForward, onMetadataLoaded ] );
+	}, [
+		audioRef,
+		onPlay,
+		onPause,
+		onError,
+		onJumpBack,
+		onSkipForward,
+		onMetadataLoaded,
+		loadWhenReady,
+		preload,
+	] );
 
 	// If we get lots of events from clicking on the progress bar in the MediaElement
 	// then we can get stuck in a loop. We can so by debouncing here we wait until the
