@@ -146,7 +146,7 @@
 		"tinycolor2": "1.4.2",
 		"uglify-save-license": "0.4.1",
 		"url-polyfill": "1.1.12",
-		"uuid": "8.3.1",
+		"uuid": "8.3.2",
 		"webpack": "4.46.0",
 		"webpack-cli": "4.5.0"
 	},
@@ -156,7 +156,7 @@
 		"@babel/preset-react": "7.12.10",
 		"@babel/preset-typescript": "7.12.7",
 		"@size-limit/preset-app": "4.9.1",
-		"@slack/web-api": "5.15.0",
+		"@slack/web-api": "6.0.0",
 		"@testing-library/jest-dom": "5.11.9",
 		"@testing-library/preact": "2.0.1",
 		"@wordpress/components": "9.2.6",
