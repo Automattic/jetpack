@@ -65,9 +65,7 @@ export default function runBlockFixtureTests( name, fixturesPath ) {
 			let parserOutputExpectedString;
 			if ( parsedJSONFixtureContent ) {
 				parserOutputExpectedString = parsedJSONFixtureContent;
-			} else if ( 1 === 1 ) {
-				//process.env.GENERATE_MISSING_FIXTURES
-
+			} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
 				parserOutputExpectedString = JSON.stringify( parserOutputActual, null, 4 ) + '\n';
 				writeBlockFixtureParsedJSON( basename, parserOutputExpectedString );
 			} else {
@@ -109,7 +107,7 @@ export default function runBlockFixtureTests( name, fixturesPath ) {
 
 			if ( jsonFixtureContent ) {
 				blocksExpectedString = jsonFixtureContent;
-			} else if ( 1 === 1 ) {
+			} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
 				blocksExpectedString = JSON.stringify( blocksActualNormalized, null, 4 ) + '\n';
 
 				writeBlockFixtureJSON( basename, blocksExpectedString );
