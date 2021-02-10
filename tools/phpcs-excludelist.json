@@ -56,7 +56,6 @@
 	"projects/plugins/jetpack/_inc/lib/icalendar-reader.php",
 	"projects/plugins/jetpack/_inc/lib/jetpack-wpes-query-builder/jetpack-wpes-query-builder.php",
 	"projects/plugins/jetpack/_inc/lib/jetpack-wpes-query-builder/jetpack-wpes-query-parser.php",
-	"projects/plugins/jetpack/_inc/lib/markdown/0-load.php",
 	"projects/plugins/jetpack/_inc/lib/markdown/extra.php",
 	"projects/plugins/jetpack/_inc/lib/markdown/gfm.php",
 	"projects/plugins/jetpack/_inc/lib/tonesque.php",

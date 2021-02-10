@@ -12,6 +12,11 @@
  * Additional Search Queries: monitor, uptime, downtime, monitoring, maintenance, maintenance mode, offline, site is down, site down, down, repair, error
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
+/**
+ * Class Jetpack_Monitor
+ */
 class Jetpack_Monitor {
 
 	public $module = 'monitor';
@@ -22,7 +27,7 @@ class Jetpack_Monitor {
 	}
 
 	public function activate_module() {
-		if ( Jetpack::is_user_connected() ) {
+		if ( ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			self::update_option_receive_jetpack_monitor_notification( true );
 		}
 	}

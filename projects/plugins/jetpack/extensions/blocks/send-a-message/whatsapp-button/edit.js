@@ -129,46 +129,51 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		);
 	};
 
+	const renderPhoneSettings = () => {
+		return (
+			<BaseControl
+				label={ __( 'Phone Number', 'jetpack' ) }
+				help={ __(
+					'Enter the phone number you use for WhatsApp and would like to be contacted on.',
+					'jetpack'
+				) }
+				className="jetpack-whatsapp-button__phonenumber"
+			>
+				<SelectControl
+					value={ countryCode }
+					onChange={ value => setAttributes( { countryCode: value } ) }
+					options={ countryCodes }
+				/>
+
+				<TextControl
+					placeholder={ __( 'Your phone number…', 'jetpack' ) }
+					onChange={ newPhoneNumber => {
+						setAttributes( { phoneNumber: newPhoneNumber } );
+
+						if ( newPhoneNumber.length === 0 ) {
+							setIsValidPhoneNumber( true );
+						}
+
+						if ( newPhoneNumber.length > 2 ) {
+							setIsValidPhoneNumber( validatePhoneNumber( newPhoneNumber ) );
+						}
+					} }
+					value={ phoneNumber }
+				/>
+
+				{ ! isValidPhoneNumber && (
+					<HelpMessage isError className="jetpack-whatsapp-error">
+						{ __( 'Please enter a valid phone number.', 'jetpack' ) }
+					</HelpMessage>
+				) }
+			</BaseControl>
+		);
+	};
+
 	const renderSettings = () => {
 		return (
 			<>
-				<BaseControl
-					label={ __( 'Phone Number', 'jetpack' ) }
-					help={ __(
-						'Enter the phone number you use for WhatsApp and would like to be contacted on.',
-						'jetpack'
-					) }
-					className="jetpack-whatsapp-button__phonenumber"
-				>
-					<SelectControl
-						value={ countryCode }
-						onChange={ value => setAttributes( { countryCode: value } ) }
-						options={ countryCodes }
-					/>
-
-					<TextControl
-						placeholder={ __( 'Your phone number…', 'jetpack' ) }
-						onChange={ newPhoneNumber => {
-							setAttributes( { phoneNumber: newPhoneNumber } );
-
-							if ( newPhoneNumber.length === 0 ) {
-								setIsValidPhoneNumber( true );
-							}
-
-							if ( newPhoneNumber.length > 2 ) {
-								setIsValidPhoneNumber( validatePhoneNumber( newPhoneNumber ) );
-							}
-						} }
-						value={ phoneNumber }
-					/>
-
-					{ ! isValidPhoneNumber && (
-						<HelpMessage isError className="jetpack-whatsapp-error">
-							{ __( 'Please enter a valid phone number.', 'jetpack' ) }
-						</HelpMessage>
-					) }
-				</BaseControl>
-
+				{ renderPhoneSettings() }
 				<TextareaControl
 					label={ __( 'Default First Message', 'jetpack' ) }
 					help={ __(
@@ -206,7 +211,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 							className="jetpack-whatsapp-button-settings-selector"
 							contentClassName="jetpack-whatsapp-button__popover"
 							renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }
-							renderContent={ () => renderSettings() }
+							renderContent={ () => renderPhoneSettings() }
 						/>
 					</ToolbarGroup>
 				</BlockControls>

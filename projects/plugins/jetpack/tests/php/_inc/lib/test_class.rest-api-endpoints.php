@@ -114,16 +114,18 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
 	 * Used to simulate a successful response to any XML-RPC request.
-	 * Should be hooked on the `http_response` filter.
+	 * Should be hooked on the `pre_http_resquest` filter.
 	 *
-	 * @param array|obj $response HTTP Response.
-	 * @param array     $args     HTTP request arguments.
-	 * @param string    $url      The request URL.
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
 	 *
 	 * @return WP_REST_Response
 	 */
-	public function mock_xmlrpc_success( $response, $args, $url ) {
+	public function mock_xmlrpc_success( $preempt, $args, $url ) {
 		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
 			$response['body'] = '
 				<methodResponse>
 					<params>
@@ -133,9 +135,12 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					</params>
 				</methodResponse>
 			';
+
+			$response['response']['code'] = 200;
+			return $response;
 		}
 
-		return $response;
+		return $preempt;
 	}
 
 	/**
@@ -236,7 +241,16 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Setup global variables so this is the current user
 		wp_set_current_user( $user->ID );
 
-		// User has capability so this should work this time
+		// It should not work for non-admin users, except if a connection owner exists.
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
+
+		// Set user as admin.
+		$user->set_role( 'administrator' );
+		// Reset user and setup globals again to reflect the role change.
+		wp_set_current_user( 0 );
+		wp_set_current_user( $user->ID );
+		// User is admin and has capability so this should work this time.
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
@@ -329,15 +343,14 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	public function test_admin_user_unlink_permission() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
 
-		// Create a user
-		$user = $this->create_and_get_user();
+		// Create an admin user.
+		$user = $this->create_and_get_user( 'administrator' );
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_connect_user' );
@@ -673,10 +686,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	public function test_unlink_user() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
+		// Create an admin user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_connect_user' );
 		wp_set_current_user( $user->ID );
 
@@ -716,10 +728,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 8.8.0
 	 */
 	public function test_unlink_user_cache_data_removal() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
+		// Create an admin user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_connect_user' );
 		wp_set_current_user( $user->ID );
 
@@ -969,7 +980,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 7.7.0 No longer need to be master user to update.
 	 */
 	public function test_change_owner() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
@@ -998,11 +1008,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		) );
 
 		// Change owner to valid user
-		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
-		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
 	/**
@@ -1136,8 +1146,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 9.4
 	 */
 	public function test_get_user_connection_data_without_master_user() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
-		$this->setExpectedDeprecated( 'Jetpack::get_connected_user_data' );
 		// Create a user and set it up as current.
 		$user = $this->create_and_get_user( 'administrator' );
 		wp_set_current_user( $user->ID );
