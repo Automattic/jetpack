@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import { debounce } from 'lodash';
+import { useMemoOne } from 'use-memo-one';
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
@@ -24,6 +30,14 @@ import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
+
+const useDebounceWithFallback = useDebounce
+	? useDebounce
+	: function useDebounceFallback( ...args ) {
+		const debounced = useMemoOne( () => debounce( ...args ), args );
+		useEffect( () => () => debounced.cancel(), [ debounced ] );
+		return debounced;
+	};
 
 export default function DialogueEdit( {
 	className,
@@ -64,7 +78,7 @@ export default function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounce( setAttributes, 250 );
+	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
