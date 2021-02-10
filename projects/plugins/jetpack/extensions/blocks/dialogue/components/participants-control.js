@@ -113,7 +113,7 @@ function refreshAutocompleter( participants ) {
 		options: participants,
 
 		getOptionLabel: ( { label } ) => (
-			<span>{ label }</span>
+			<span>{ getPlainText( label ) }</span>
 		),
 
 		getOptionKeywords: ( { label } ) => [ label ],
