@@ -3,22 +3,20 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from '@wordpress/element';
-import { InnerBlocks, InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Panel,
 	PanelBody,
 	ToggleControl,
-	ToolbarButton,
-	ToolbarGroup,
 } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
+import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel } from './utils';
+import { getParticipantByLabel, cleanFormatStyle } from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -32,6 +30,9 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 					if ( participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
+
+					updatedParticipant.label = cleanFormatStyle( updatedParticipant.label );
+
 					return {
 						...participant,
 						...updatedParticipant,
@@ -47,7 +48,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			return;
 		}
 
-		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
+		const sanitizedSpeakerLabel = cleanFormatStyle( newSpeakerLabel );
 		// Do not add speakers with empty names.
 		if ( ! sanitizedSpeakerLabel?.length ) {
 			return;
@@ -59,6 +60,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			return existingParticipant;
 		}
 
+		// Creates the participant slug.
 		const newParticipantSlug = participants.length
 			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
 			: 'speaker-0';
@@ -109,28 +111,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
 			<div className={ className }>
-				<BlockControls>
-					<ToolbarGroup>
-						<ParticipantsDropdown
-							className={ baseClassName }
-							participants={ participants }
-							label={ __( 'Participants', 'jetpack' ) }
-							onChange={ updateParticipants }
-							onDelete={ deleteParticipant }
-							onAdd={ addNewParticipant }
-						/>
-					</ToolbarGroup>
-
-					<ToolbarGroup>
-						<ToolbarButton
-							isActive={ showTimestamps }
-							onClick={ () => setAttributes( { showTimestamps: ! showTimestamps } ) }
-						>
-							{ __( 'Timestamps', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				</BlockControls>
-
 				<InspectorControls>
 					<Panel>
 						<PanelBody
@@ -140,9 +120,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 							<ParticipantsSelector
 								className={ baseClassName }
 								participants={ participants }
-								onChange={ updateParticipants }
 								onDelete={ deleteParticipant }
-								onAdd={ addNewParticipant }
 							/>
 						</PanelBody>
 

@@ -137,6 +137,17 @@ export function userCanConnectSite( state ) {
 }
 
 /**
+ * Returns true if current user can connect their WordPress.com account.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {boolean} Whether current user can connect their WordPress.com account.
+ */
+export function userCanConnectAccount( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect_user', false );
+}
+
+/**
  * Returns true if current user is connection owner.
  *
  * @param  {Object} state Global state tree
