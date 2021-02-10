@@ -114,16 +114,18 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
 	 * Used to simulate a successful response to any XML-RPC request.
-	 * Should be hooked on the `http_response` filter.
+	 * Should be hooked on the `pre_http_resquest` filter.
 	 *
-	 * @param array|obj $response HTTP Response.
-	 * @param array     $args     HTTP request arguments.
-	 * @param string    $url      The request URL.
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
 	 *
 	 * @return WP_REST_Response
 	 */
-	public function mock_xmlrpc_success( $response, $args, $url ) {
+	public function mock_xmlrpc_success( $preempt, $args, $url ) {
 		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
 			$response['body'] = '
 				<methodResponse>
 					<params>
@@ -135,9 +137,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			';
 
 			$response['response']['code'] = 200;
+			return $response;
 		}
 
-		return $response;
+		return $preempt;
 	}
 
 	/**
