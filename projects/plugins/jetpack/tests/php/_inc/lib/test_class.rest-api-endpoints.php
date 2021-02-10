@@ -236,7 +236,16 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Setup global variables so this is the current user
 		wp_set_current_user( $user->ID );
 
-		// User has capability so this should work this time
+		// It should not work for non-admin users, except if a connection owner exists.
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
+		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
+
+		// Set user as admin.
+		$user->set_role( 'administrator' );
+		// Reset user and setup globals again to reflect the role change.
+		wp_set_current_user( 0 );
+		wp_set_current_user( $user->ID );
+		// User is admin and has capability so this should work this time.
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::get_user_connection_data_permission_callback() );
 
@@ -335,8 +344,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Current user doesn't have credentials, so checking permissions should fail
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::unlink_user_permission_callback() );
 
-		// Create a user
-		$user = $this->create_and_get_user();
+		// Create an admin user.
+		$user = $this->create_and_get_user( 'administrator' );
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_connect_user' );
@@ -673,8 +682,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_unlink_user() {
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
+		// Create an admin user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_connect_user' );
 		wp_set_current_user( $user->ID );
 
@@ -715,8 +724,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_unlink_user_cache_data_removal() {
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
+		// Create an admin user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
 		$user->add_cap( 'jetpack_connect_user' );
 		wp_set_current_user( $user->ID );
 
