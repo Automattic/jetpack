@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import path from 'path';
 import execa from 'execa';
 import Listr from 'listr';
+import fs from 'fs';
 
 /**
  * Internal dependencies
@@ -70,4 +71,22 @@ export function generateDefine( yargs ) {
 	);
 
 	return yargs;
+}
+
+/**
+ * Generate a package based on questions passed to it.
+ *
+ * @param object answers Answers from the question function.
+ */
+function generatePackage( answers ) {
+	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
+	const skeletonDir = path.join( __dirname, '../skeletons' );
+
+	// Copy the skeletons over.
+	try {
+		fs.copyFileSync( skeletonDir, pkgDir );
+		fs.copyFileSync( path.join( skeletonDir, 'packages' ), pkgDir );
+	} catch ( e ) {
+		console.error( e );
+	}
 }
