@@ -329,4 +329,24 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		// Check Plugins menu always links to WP Admin.
 		$this->assertContains( 'plugins.php', $menu[65] );
 	}
+
+	/**
+	 * Tests add_theme_install_menu
+	 *
+	 * @covers ::add_theme_install_menu
+	 */
+	public function test_add_theme_install_menu() {
+		global $submenu;
+
+		$slug         = 'https://wordpress.com/themes/' . static::$domain;
+		$submenu_item = array(
+			'WordPress.org Themes',
+			'switch_themes',
+			'theme-install.php',
+			'WordPress.org Themes',
+		);
+		static::$admin_menu->add_theme_install_menu( false );
+
+		$this->assertContains( $submenu_item, $submenu[ $slug ] );
+	}
 }
