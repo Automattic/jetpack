@@ -84,6 +84,14 @@ jobs:
       working-directory: projects/plugins/jetpack
       run: yarn test-e2e --testPathIgnorePatterns=updater
 
+    - name: Upload test artifacts
+      if: ${{ always() }}
+      continue-on-error: true
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-output
+        path: projects/plugins/jetpack/tests/e2e/output
+
     # Disable Allure reports until we'll need it
     # - name: Upload Allure artifacts
     #   if: matrix.gutenberg == 'no' && always()

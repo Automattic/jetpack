@@ -4,6 +4,7 @@
 import Page from '../page';
 import { getTunnelSiteUrl } from '../../utils-helper';
 import { searchForBlock } from '@wordpress/e2e-test-utils';
+import { takeScreenshot } from '../../reporters/screenshot';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
@@ -50,10 +51,16 @@ export default class BlockEditorPage extends Page {
 		// Also, for some reason post-publish bar wont show up it we click to fast :/
 		await page.waitForTimeout( 1000 );
 
+		await takeScreenshot( 'wordads' );
 		await page.click( '.editor-post-publish-button' );
 		await page.waitForTimeout( 500 );
 
+		await takeScreenshot( 'wordads' );
+
 		await this.page.waitForSelector( '.components-snackbar' );
+
+		await takeScreenshot( 'wordads' );
+
 		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
 	}
 
