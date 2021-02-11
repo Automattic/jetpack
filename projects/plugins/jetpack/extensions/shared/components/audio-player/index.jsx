@@ -74,12 +74,28 @@ function AudioPlayer( {
 		speak( __( 'Paused', 'jetpack' ), 'assertive' );
 	};
 
+	// Hacky patch to MediaElementPlayer to avoid the null reference error that can happen as the
+	// player is mounted and unmounted.
+	useEffect( () => {
+		if ( ! MediaElementPlayer.prototype._setResponsiveMode ) {
+			MediaElementPlayer.prototype._setResponsiveMode =
+				MediaElementPlayer.prototype.setResponsiveMode;
+			MediaElementPlayer.prototype.setResponsiveMode = function () {
+				const t = this;
+				if ( t.getElement( t.container ).parentNode ) {
+					t._setResponsiveMode();
+				}
+			};
+		}
+	}, [] );
+
 	useEffect( () => {
 		const audio = audioRef.current;
 
 		// Pre load audio meta data.
 		audio.preload = preload;
 
+		// Insert player into the DOM.
 		const mediaElement = new MediaElementPlayer( audio, {
 			...meJsSettings,
 			success: () => loadWhenReady && audio?.load()
@@ -119,7 +135,6 @@ function AudioPlayer( {
 			onMetadataLoaded && audio.removeEventListener( 'loadedmetadata', onMetadataLoaded );
 		};
 	}, [
-		audioRef,
 		onPlay,
 		onPause,
 		onError,
