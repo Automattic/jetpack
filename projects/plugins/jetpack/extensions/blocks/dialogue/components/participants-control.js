@@ -253,6 +253,7 @@ export function SpeakerEditControl( {
 			onFocusOutside={ editSpeakerHandler }
 		>
 			<RichText
+				identifier="speaker"
 				tagName="div"
 				value={ label }
 				formattingControls={ [] }
