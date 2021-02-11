@@ -2,7 +2,7 @@
 /**
  * Dailymotion code
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

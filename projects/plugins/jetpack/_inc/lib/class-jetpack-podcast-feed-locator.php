@@ -2,7 +2,7 @@
 /**
  * Extension of the SimplePie_Locator class, to detect podcast feeds
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**

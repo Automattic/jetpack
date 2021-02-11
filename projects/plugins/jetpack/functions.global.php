@@ -7,12 +7,13 @@
  *
  * Please namespace with jetpack_
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Sync\Functions;
 
 /**
  * Disable direct access.
@@ -314,6 +315,8 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
  * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
  *
  * @since 6.1.0
+
+ * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  *
  * @param array|obj $any        Source data to be cleaned up.
  * @param array     $seen_nodes Built array of nodes.
@@ -321,33 +324,9 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
  * @return array
  */
 function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
-	if ( is_object( $any ) ) {
-		$input        = get_object_vars( $any );
-		$input['__o'] = 1;
-	} else {
-		$input = &$any;
-	}
+	_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\Jetpack\Sync\Functions' );
 
-	if ( is_array( $input ) ) {
-		$seen_nodes[] = &$any;
-
-		$return = array();
-
-		foreach ( $input as $k => &$v ) {
-			if ( ( is_array( $v ) || is_object( $v ) ) ) {
-				if ( in_array( $v, $seen_nodes, true ) ) {
-					continue;
-				}
-				$return[ $k ] = jetpack_json_wrap( $v, $seen_nodes );
-			} else {
-				$return[ $k ] = $v;
-			}
-		}
-
-		return $return;
-	}
-
-	return $any;
+	return Functions::json_wrap( $any, $seen_nodes );
 }
 
 /**

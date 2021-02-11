@@ -13,6 +13,8 @@ const config = {
 		cardCountryCode: 'TR', // using Turkey to force Stripe as payment processor
 		cardPostCode: '4000',
 	},
+	testOutputDir: './tests/e2e/output',
+	configDir: './tests/e2e/config',
 };
 
 module.exports = config;

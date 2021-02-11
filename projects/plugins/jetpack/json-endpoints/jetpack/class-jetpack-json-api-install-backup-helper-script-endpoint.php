@@ -3,7 +3,7 @@
  * API endpoint /sites/%s/install-backup-helper-script
  * This API endpoint installs a Helper Script to assist Jetpack Backup fetch data
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Backup\Helper_Script_Manager;

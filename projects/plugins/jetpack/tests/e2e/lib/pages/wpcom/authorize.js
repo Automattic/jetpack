@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
 import logger from '../../logger';
 
 export default class AuthorizePage extends Page {
@@ -15,9 +14,9 @@ export default class AuthorizePage extends Page {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
 		try {
 			return await Promise.all( [
-				waitAndClick( this.page, authorizeButtonSelector ),
+				this.page.click( authorizeButtonSelector ),
 				this.waitToDisappear(),
-				this.page.waitForNavigation( { waitUntil: 'networkidle2', timeout: 50000 } ),
+				this.page.waitForNavigation( { waitUntil: 'domcontentloaded', timeout: 50000 } ),
 			] );
 		} catch ( error ) {
 			if ( repeat ) {
@@ -32,12 +31,12 @@ export default class AuthorizePage extends Page {
 	}
 
 	async waitToDisappear() {
-		await waitForSelector( this.page, '.jetpack-connect__logged-in-form-loading', {
-			hidden: true,
+		await this.page.waitForSelector( '.jetpack-connect__logged-in-form-loading', {
+			state: 'hidden',
 		} );
 
-		return await waitForSelector( this.page, '.jetpack-connect__authorize-form button', {
-			hidden: true,
+		return await this.page.waitForSelector( '.jetpack-connect__authorize-form button', {
+			state: 'hidden',
 		} );
 	}
 }

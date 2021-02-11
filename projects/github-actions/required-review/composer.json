@@ -1,0 +1,16 @@
+{
+	"name": "automattic/action-required-review",
+	"description": "GitHub Action to check that required reviewers have accepted the PR, setting a status check accordingly.",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"scripts": {
+		"build-development": [
+			"yarn install",
+			"yarn build"
+		]
+	},
+	"extra": {
+		"mirror-repo": "Automattic/action-required-review"
+	}
+}

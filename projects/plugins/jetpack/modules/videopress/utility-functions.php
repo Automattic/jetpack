@@ -635,8 +635,7 @@ function video_image_url_by_guid( $guid, $format ) {
 
 	$meta = wp_get_attachment_metadata( $post->ID );
 
-	// We add ssl => 1 to make sure that the videos.files.wordpress.com domain is parsed as photon.
-	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'], array( 'ssl' => 1 ), 'https' );
+	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'] );
 
 	return $poster;
 }

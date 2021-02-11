@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a67bd39e13b6754f2d19b1bacfbdbf0",
+    "content-hash": "ae37d53f8c27feb5a55bbaf55f69b2c6",
     "packages": [],
     "packages-dev": [
         {
@@ -13,11 +13,11 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "f317b84ea3b75512f1767551969f7aa523213785"
+                "reference": "95ad0f7fdff39b4e04688b9a55518bd25634736c"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "mediawiki/mediawiki-codesniffer": "^34.0",
+                "mediawiki/mediawiki-codesniffer": "^35.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^2.3"
@@ -30,6 +30,9 @@
                 "mirror-repo": "Automattic/jetpack-codesniffer"
             },
             "autoload": {
+                "classmap": [
+                    "hacks/"
+                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
                 }
@@ -38,6 +41,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "./tests/action-test-php.sh"
                 ]
             },
             "license": [
@@ -281,27 +291,27 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v34.0.0",
+            "version": "v35.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "a7f2480d022e288d9d8b2db827111996bb53e598"
+                "reference": "c305fa16998d742705f9b59358fbb816f524cf9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/a7f2480d022e288d9d8b2db827111996bb53e598",
-                "reference": "a7f2480d022e288d9d8b2db827111996bb53e598",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/c305fa16998d742705f9b59358fbb816f524cf9f",
+                "reference": "c305fa16998d742705f9b59358fbb816f524cf9f",
                 "shasum": ""
             },
             "require": {
-                "composer/semver": "^1.5.2|^3.0.1",
+                "composer/semver": "^1.7.2|^3.2.4",
                 "composer/spdx-licenses": "~1.5.2",
                 "ext-mbstring": "*",
                 "php": ">=7.2.0",
                 "squizlabs/php_codesniffer": "3.5.8"
             },
             "require-dev": {
-                "mediawiki/mediawiki-phan-config": "0.10.4",
+                "mediawiki/mediawiki-phan-config": "0.10.6",
                 "mediawiki/minus-x": "1.1.0",
                 "php-parallel-lint/php-console-highlighter": "0.5.0",
                 "php-parallel-lint/php-parallel-lint": "1.2.0",
@@ -324,9 +334,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v34.0.0"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v35.0.0"
             },
-            "time": "2020-12-05T07:12:58+00:00"
+            "time": "2021-01-28T20:56:31+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
@@ -559,16 +569,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.6.0",
+            "version": "v2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "45c6dcd64da45c2e54e173791f7a91737db106f2"
+                "reference": "3a29de78291cf1ec71b23fd4553a968c13620519"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/45c6dcd64da45c2e54e173791f7a91737db106f2",
-                "reference": "45c6dcd64da45c2e54e173791f7a91737db106f2",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/3a29de78291cf1ec71b23fd4553a968c13620519",
+                "reference": "3a29de78291cf1ec71b23fd4553a968c13620519",
                 "shasum": ""
             },
             "require": {
@@ -610,9 +620,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.6.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.7.0"
             },
-            "time": "2021-01-04T18:43:32+00:00"
+            "time": "2021-01-29T17:25:46+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

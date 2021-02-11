@@ -21,7 +21,7 @@
  * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
  * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
  */
-require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
+require dirname( __DIR__ ) . '/vendor/autoload.php';
 
 // Args.
 $external_repo_path = isset( $argv[1] ) ? $argv[1] : '/path/to/workspace/a8c/some-repo';
