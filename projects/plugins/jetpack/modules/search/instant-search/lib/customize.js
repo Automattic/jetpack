@@ -15,13 +15,7 @@ const SETTINGS_TO_STATE_MAP = new Map( [
 ] );
 
 export function isInCustomizer() {
-	return Boolean(
-		'undefined' !== typeof window.wp &&
-			window.wp.customize &&
-			window.wp.customize.settings &&
-			window.wp.customize.settings.url &&
-			window.wp.customize.settings.url.self
-	);
+	return typeof window?.wp?.customize === 'function';
 }
 
 export function bindCustomizerChanges( callback ) {
