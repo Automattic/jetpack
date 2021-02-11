@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Podcast_Feed_Locator extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'SimplePie_Locator', $locator );
 	}
 
-	public function test_finds_podcast_feed_with_itunes_ns() {
+	public function test_does_not_find_podcast_feed_with_itunes_ns() {
 		$rss  = <<<FEED
 <?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"></rss>
@@ -37,10 +37,10 @@ FEED;
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
-		$this->assertTrue( $locator->is_feed( $file ) );
+		$this->assertFalse( $locator->is_feed( $file ) );
 	}
 
-	public function test_finds_podcast_feed_with_audio_enclosures() {
+	public function test_does_not_find_podcast_feed_with_audio_enclosures() {
 		$rss  = <<<FEED
 <?xml version="1.0" encoding="UTF-8"?>
 <rss>
@@ -55,7 +55,7 @@ FEED;
 
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
-		$this->assertTrue( $locator->is_feed( $file ) );
+		$this->assertFalse( $locator->is_feed( $file ) );
 	}
 
 	public function test_does_not_locate_non_podcast_feeds() {
@@ -74,5 +74,23 @@ FEED;
 		$locator = new Jetpack_Podcast_Feed_Locator( $file );
 
 		$this->assertFalse( $locator->is_feed( $file ) );
+	}
+
+	public function test_finds_podcast_feed_with_itunes_ns_and_audio_enclosures() {
+		$rss  = <<<FEED
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+	<channel>
+		<item>
+			<enclosure url="https://example.com/audio.mp3" type="audio/mpeg"/>
+		</item>
+	</channel>
+</rss>
+FEED;
+		$file = new SimplePie_File( $rss );
+
+		$locator = new Jetpack_Podcast_Feed_Locator( $file );
+
+		$this->assertTrue( $locator->is_feed( $file ) );
 	}
 }
