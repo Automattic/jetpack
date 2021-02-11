@@ -30,6 +30,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		text,
 		textColor,
 		url,
+		width,
 	} = attributes;
 
 	if ( ! saveInPostContent ) {
@@ -51,6 +52,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		[ backgroundClass ]: backgroundClass,
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
+		[ `has-custom-width wp-block-button__width-${ width }` ]: width,
 	} );
 
 	const buttonStyle = {

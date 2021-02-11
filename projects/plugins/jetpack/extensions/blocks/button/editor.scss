@@ -1,5 +1,4 @@
 .wp-block[data-type='jetpack/button'] {
-	display: inline-block;
 	margin: 0 auto;
 }
 
@@ -7,5 +6,30 @@
 	.wp-block-jetpack-button {
 		display: flex;
 		justify-content: center;
+	}
+}
+
+.wp-block-jetpack-button {
+	.has-custom-width {
+		max-width: none;
+		.wp-block-button__link {
+			width: 100%;
+		}
+	}
+
+	.wp-block-button__width-25 {
+		width: 25%;
+	}
+
+	.wp-block-button__width-50 {
+		width: 50%;
+	}
+
+	.wp-block-button__width-75 {
+		width: 75%;
+	}
+
+	.wp-block-button__width-100 {
+		width: 100%;
 	}
 }

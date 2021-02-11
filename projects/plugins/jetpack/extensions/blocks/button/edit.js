@@ -21,6 +21,7 @@ import { __ } from '@wordpress/i18n';
 import applyFallbackStyles from './apply-fallback-styles';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
+import ButtonWidthPanel from './button-width-panel';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
@@ -37,7 +38,7 @@ function ButtonEdit( {
 	setTextColor,
 	textColor,
 } ) {
-	const { borderRadius, element, placeholder, text } = attributes;
+	const { borderRadius, element, placeholder, text, width } = attributes;
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
 
@@ -69,6 +70,7 @@ function ButtonEdit( {
 		[ textColor.class ]: textColor.class,
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
+		[ `has-custom-width wp-block-button__width-${ width }` ]: width,
 	} );
 
 	const buttonStyles = {
@@ -105,6 +107,7 @@ function ButtonEdit( {
 					} }
 				/>
 				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
+				<ButtonWidthPanel selectedWidth={ width } setAttributes={ setAttributes } />
 			</InspectorControls>
 		</div>
 	);
