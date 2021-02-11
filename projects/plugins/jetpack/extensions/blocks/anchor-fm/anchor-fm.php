@@ -70,8 +70,7 @@ function process_anchor_params() {
 	$current_screen = \get_current_screen();
 	// TODO: Replace `$current_screen->is_block_editor()` with `wp_should_load_block_editor_scripts_and_styles()` that is introduced in WP 5.6.
 	if (
-		is_object( $current_screen )
-		&& method_exists( $current_screen, 'is_block_editor' )
+		$current_screen instanceof \WP_Screen
 		&& ! $current_screen->is_block_editor()
 	) {
 		// Return early if we are not in the block editor.
