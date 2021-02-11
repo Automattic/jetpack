@@ -340,10 +340,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		$slug         = 'https://wordpress.com/themes/' . static::$domain;
 		$submenu_item = array(
-			'WordPress.org Themes',
-			'switch_themes',
+			'Add New Theme',
+			'install_themes',
 			'theme-install.php',
-			'WordPress.org Themes',
+			'Add New Theme',
 		);
 		static::$admin_menu->add_theme_install_menu( false );
 
