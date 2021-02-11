@@ -10,12 +10,6 @@ if ( ! CI ) {
 	executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 }
 
-if ( E2E_DEBUG ) {
-	process.env.DEBUG = 'pw:browser|api|error';
-}
-
-process.env.DEBUG = 'pw:browser|api|error';
-
 module.exports = {
 	exitOnPageError: false,
 	launchOptions: {
@@ -23,7 +17,14 @@ module.exports = {
 		devtools: HEADLESS === 'false',
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
 		logger: {
-			isEnabled: () => true,
+			isEnabled: ( name, severity ) => {
+				let bool = false;
+				if ( name !== 'protocol' ) {
+					console.log( 'ZZZZZZZZ', name, severity );
+					bool = true;
+				}
+				return bool;
+			},
 			log: ( name, severity, message, args ) => console.log( `!!!!!!  ${ name } ${ message }` ),
 		},
 	},
