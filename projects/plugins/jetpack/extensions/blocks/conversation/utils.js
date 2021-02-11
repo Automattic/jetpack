@@ -3,6 +3,7 @@
  * WordPress dependencies
  */
 import { create, getTextContent } from '@wordpress/rich-text';
+import { escapeHTML } from '@wordpress/escape-html';
 
 export function getParticipantBySlug( participants, participantSlug ) {
 	const part = participants.filter( ( { slug } ) => ( slug === participantSlug ) );
@@ -14,6 +15,11 @@ export function getParticipantByLabel ( participants, participantLabel ) {
 	return part?.length ? part[ 0 ] : null;
 }
 
-export function getPlainText( html ) {
-	return getTextContent( create( { html } ) )?.trim();
+export function getPlainText( html, escape = false ) {
+	const text = getTextContent( create( { html } ) )?.trim();
+	if ( ! escape ) {
+		return text;
+	}
+
+	return escapeHTML( text );
 }

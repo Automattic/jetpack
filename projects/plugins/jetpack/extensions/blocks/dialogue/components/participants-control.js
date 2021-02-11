@@ -17,7 +17,6 @@ import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { useMemo, useState, useEffect, Component } from '@wordpress/element';
-import { escapeHTML } from '@wordpress/escape-html';
 
 /**
  * Internal dependencies
@@ -175,7 +174,7 @@ export function SpeakerEditControl( {
 			setEditingMode( EDIT_MODE_EDITING );
 			return onUpdate( {
 				...participant,
-				label: escapeHTML( getPlainText( label ) ),
+				label: getPlainText( label, true ),
 			} );
 		}
 
@@ -186,7 +185,7 @@ export function SpeakerEditControl( {
 		}
 
 		// Add a new speaker.
-		onAdd( escapeHTML( getPlainText( label ) ) );
+		onAdd( getPlainText( label, true ) );
 		return setEditingMode( EDIT_MODE_ADDING );
 	}
 
