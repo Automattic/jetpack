@@ -19,11 +19,9 @@ class Jetpack_SEO_Utils {
 	/**
 	 * Used to check whether SEO tools are enabled for given site.
 	 *
-	 * @param int $site_id Optional. Defaults to current blog id if not given.
-	 *
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
-	public static function is_enabled_jetpack_seo( $site_id = 0 ) {
+	public static function is_enabled_jetpack_seo() {
 		/**
 		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
 		 *
@@ -37,16 +35,6 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
-		if ( function_exists( 'has_any_blog_stickers' ) ) {
-			// For WPCOM sites.
-			if ( empty( $site_id ) ) {
-				$site_id = get_current_blog_id();
-			}
-
-			return has_any_blog_stickers( array( 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-
-		// For all Jetpack sites.
 		return true;
 	}
 
