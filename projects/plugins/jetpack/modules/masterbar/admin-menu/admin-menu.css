@@ -283,7 +283,7 @@
 }
 
 @media screen and (max-width: 782px) {
-	#wp-toolbar > ul > li {
+	#wpadminbar #wp-toolbar > ul > li {
 		display: block;
 	}
 
@@ -301,11 +301,12 @@
 		width: auto;
 	}
 
-	#wpadminbar .quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
+	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
 		display: block;
 		right: auto;
 		left: auto;
 		position: static;
 		margin-top: 3px;
+		top: 13px;
 	}
 }

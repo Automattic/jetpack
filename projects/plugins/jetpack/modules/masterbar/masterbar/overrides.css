@@ -107,10 +107,6 @@
 	.wp-admin.jetpack-masterbar.post-new-php.block-editor-page .wp-responsive-open #wpadminbar #wp-admin-bar-menu-toggle {
 		left: 0;
 	}
-
-	.jetpack-masterbar #wpadminbar #wp-toolbar li img.avatar {
-		top: -1px;
-	}
 }
 
 @media screen and (max-width: 782px) {
@@ -142,13 +138,5 @@
 	#wpadminbar #wp-admin-bar-jetpack-scan-notice,
 	.jetpack-masterbar #wpadminbar #wp-admin-bar-recovery-mode {
 		display: none;
-	}
-
-	.jetpack-masterbar #wpadminbar #wp-toolbar li:not(#wp-admin-bar-debug-bar) {
-		display: block;
-	}
-
-	.jetpack-masterbar #wpadminbar #wp-toolbar li img.avatar {
-		top: 13px;
 	}
 }
