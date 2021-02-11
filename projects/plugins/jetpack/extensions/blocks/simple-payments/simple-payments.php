@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\SimplePayments;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack_Gutenberg;
 use Jetpack_Simple_Payments;
 
 const FEATURE_NAME = 'simple-payments';
@@ -41,8 +40,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content ) {
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
-
 	// Do nothing if block content is a `simple-payment` shortcode.
 	if ( preg_match( '/\[simple-payment(.*)]/', $content ) ) {
 		return $content;

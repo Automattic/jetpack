@@ -118,7 +118,7 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message 
 }
 
 .jetpack-simple-payments-description {
-    white-space: pre-wrap;
+	white-space: pre-wrap;
 }
 
 @media screen and (min-width: 400px) {
