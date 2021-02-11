@@ -26,7 +26,7 @@ import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug } from '../conversation/utils';
+import { getParticipantBySlug, getPlainText } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -227,16 +227,15 @@ export default function DialogueEdit( {
 					}
 
 					// Detect if the block content is empty.
-					// If so, keep only one paragraph block,
-					// in order to avoid duplicated blocks.
+					// If so, create and render only one paragraph block.
 					if (
-						blocks[ 0 ]?.name === blockNameFallback &&
-						blocks[ 1 ]?.name === blockNameFallback &&
-						! blocks[ 0 ]?.attributes.content &&
-						! blocks[ 1 ]?.attributes.content
+						blocks[ 0 ]?.name === blockName &&
+						blocks[ 1 ]?.name === blockName &&
+						! getPlainText( blocks[ 0 ]?.attributes.content ) &&
+						! getPlainText( blocks[ 1 ]?.attributes.content )
 					) {
 						dispatch( 'core/block-editor' ).selectBlock( blocks[ 0 ].clientId );
-						return onReplace( [ blocks[ 0 ] ], ...args );
+						return onReplace( [ createBlock( blockNameFallback ) ], ...args );
 					}
 
 					// Update new block attributes.

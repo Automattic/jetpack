@@ -15,6 +15,7 @@ export function getParticipantByLabel ( participants, participantLabel ) {
 	return part?.length ? part[ 0 ] : null;
 }
 
+<<<<<<< HEAD
 export function getPlainText( html, escape = false ) {
 	const text = getTextContent( create( { html } ) )?.trim();
 	if ( ! escape ) {
@@ -22,4 +23,12 @@ export function getPlainText( html, escape = false ) {
 	}
 
 	return escapeHTML( text );
+=======
+export function cleanFormatStyle( html ) {
+	if ( ! html ) {
+		return '';
+	}
+
+	return getTextContent( create( { html } ) )?.trim();
+>>>>>>> 98810ec... dialogue: re-implement replace with pargrapah
 }
