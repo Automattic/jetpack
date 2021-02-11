@@ -18,12 +18,6 @@ module.exports = {
 		headless: HEADLESS !== 'false',
 		devtools: HEADLESS === 'false',
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
-		logger: {
-			// eslint-disable-next-line no-unused-vars
-			isEnabled: ( name, severity ) => name === 'browser',
-			// eslint-disable-next-line no-unused-vars
-			log: ( name, severity, message, args ) => console.log( `${ name } >>>> ${ message }` ),
-		},
 	},
 	contextOptions: {
 		viewport: {
