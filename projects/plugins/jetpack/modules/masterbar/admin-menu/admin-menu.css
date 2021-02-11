@@ -274,7 +274,7 @@
 	color: #ffffff;
 }
 
-#wpadminbar ul#wp-admin-bar-root-default {
+#wpadminbar .quicklinks ul#wp-admin-bar-root-default {
 	padding-left: 0 !important;
 }
 
