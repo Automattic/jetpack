@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -10,7 +10,7 @@ import { createBlock } from '@wordpress/blocks';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
-import { DialogueIcon as icon } from '../../shared/icons';
+import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
 import { list as defaultParticipants } from '../conversation/participants.json';
 
 /**
@@ -32,6 +32,12 @@ export const settings = {
 	save,
 	attributes,
 	usesContext: [ 'jetpack/conversation-participants', 'jetpack/conversation-showTimestamps' ],
+	keywords: [
+		_x( 'dialogue', 'block search term', 'jetpack' ),
+		_x( 'participant', 'block search term', 'jetpack' ),
+		_x( 'transcription', 'block search term', 'jetpack' ),
+		_x( 'speaker', 'block search term', 'jetpack' ),
+	],
 	transforms: {
 		from: [
 			{

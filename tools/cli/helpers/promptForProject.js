@@ -2,7 +2,6 @@
  * External dependencies
  */
 import inquirer from 'inquirer';
-import chalk from 'chalk';
 import pluralize from 'pluralize';
 
 /**
@@ -53,14 +52,14 @@ export async function promptForProject( options ) {
  * @returns {object} argv object with the project property.
  */
 export async function promptForGenerate( options ) {
-	let typeAnswer;
+	let typeAnswer = options.type ? { type: options.type } : '';
 	let nameAnswer;
 	let tries = 0;
 
 	// Get project type if not passed as an option.
-	if ( ! options.type || options.type.length === 0 ) {
+	if ( ! typeAnswer || typeAnswer.length === 0 ) {
 		typeAnswer = await promptForType();
-	} else if ( ! projectTypes.includes( pluralize( options.type ) ) ) {
+	} else if ( ! projectTypes.includes( pluralize( typeAnswer.type ) ) ) {
 		return new Error( 'Must be a valid project type' );
 	}
 
@@ -72,7 +71,7 @@ export async function promptForGenerate( options ) {
 
 	// Validate name if it was passed as an option.
 	if ( options.name ) {
-		checkNameValid( options.type || typeAnswer.type, options.name ) ? nameAnswer = options.name : nameAnswer = null;
+		nameAnswer = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
 	}
 
 	// Keep asking for name if it fails validation
@@ -80,7 +79,7 @@ export async function promptForGenerate( options ) {
 		try {
 			tries++;
 			const rawNameAnswer = await promptForName();
-			checkNameValid( options.type || typeAnswer.type, rawNameAnswer.name ) ? nameAnswer = rawNameAnswer : nameAnswer = null;
+			nameAnswer = checkNameValid( typeAnswer.type, rawNameAnswer ) ? rawNameAnswer : null;
 		} catch ( err ) {
 			if ( tries >= 3 ) {
 				console.error( 'You are really struggling here. Might be time to take a walk.' );
@@ -94,8 +93,9 @@ export async function promptForGenerate( options ) {
 
 	return {
 		...options,
-		type: pluralize.singular( options.type || typeAnswer.type ),
-		name: options.name || nameAnswer.name,
+		type: pluralize.singular( typeAnswer.type ),
+		name: nameAnswer.name || options.name,
+		n: nameAnswer.name || options.name,
 		...finalAnswers,
 	};
 }

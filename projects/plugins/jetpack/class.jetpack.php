@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
@@ -779,8 +780,12 @@ class Jetpack {
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'authorize_ending_authorized' ) );
 
+		add_action( 'jetpack_client_authorize_error', array( Jetpack_Client_Server::class, 'client_authorize_error' ) );
+		add_filter( 'jetpack_client_authorize_already_authorized_url', array( Jetpack_Client_Server::class, 'client_authorize_already_authorized_url' ) );
+		add_action( 'jetpack_client_authorize_processing', array( Jetpack_Client_Server::class, 'client_authorize_processing' ) );
+		add_filter( 'jetpack_client_authorize_fallback_url', array( Jetpack_Client_Server::class, 'client_authorize_fallback_url' ) );
+
 		// Filters for the Manager::get_token() urls and request body.
-		add_filter( 'jetpack_token_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
 
@@ -824,6 +829,18 @@ class Jetpack {
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
+
+			/**
+			 * Filter to activate Jetpack Connection UI.
+			 * INTERNAL USE ONLY.
+			 *
+			 * @since 9.5.0
+			 *
+			 * @param bool false Whether to activate the Connection UI.
+			 */
+			if ( apply_filters( 'jetpack_connection_ui_active', false ) ) {
+				Automattic\Jetpack\ConnectionUI\Admin::init();
+			}
 		}
 
 		/*
@@ -1404,7 +1421,7 @@ class Jetpack {
 			if ( count( $admins ) > 1 ) {
 				$available = array();
 				foreach ( $admins as $admin ) {
-					if ( self::is_user_connected( $admin->ID ) ) {
+					if ( self::connection()->is_user_connected( $admin->ID ) ) {
 						$available[] = $admin->ID;
 					}
 				}
@@ -3548,7 +3565,8 @@ p {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if ( ! self::is_active() && ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
-		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
+			/** Already documented in automattic/jetpack-connection::src/class-client.php */
+		} elseif ( ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) && ! apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
@@ -4134,7 +4152,7 @@ p {
 			// @todo: Add validation against a known allowed list.
 			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
-			if ( ! self::is_user_connected() ) {
+			if ( ! self::connection()->is_user_connected() ) {
 				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
 
 				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
@@ -4162,15 +4180,52 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
-				case 'authorize':
-					if ( self::is_active() && self::is_user_connected() ) {
-						self::state( 'message', 'already_authorized' );
-						wp_safe_redirect( self::admin_url() );
+				case 'authorize_redirect':
+					self::log( 'authorize_redirect' );
+
+					add_filter(
+						'allowed_redirect_hosts',
+						function ( $domains ) {
+							$domains[] = 'jetpack.com';
+							$domains[] = 'jetpack.wordpress.com';
+							$domains[] = 'wordpress.com';
+							$domains[] = wp_parse_url( static::get_calypso_host(), PHP_URL_HOST ); // May differ from `wordpress.com`.
+							return array_unique( $domains );
+						}
+					);
+
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
+
+					if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
+						// The destination URL is missing or invalid, nothing to do here.
 						exit;
 					}
-					self::log( 'authorize' );
-					$client_server = new Jetpack_Client_Server();
-					$client_server->client_authorize();
+
+					if ( self::is_active() && self::is_user_connected() ) {
+						// The user is either already connected, or finished the connection process.
+						wp_safe_redirect( $dest_url );
+						exit;
+					} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						// The user decided not to proceed with setting up the connection.
+						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
+						exit;
+					}
+
+					$redirect_url = self::admin_url(
+						array(
+							'page'     => 'jetpack',
+							'action'   => 'authorize_redirect',
+							'dest_url' => rawurlencode( $dest_url ),
+							'done'     => '1',
+						)
+					);
+
+					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
+					exit;
+				case 'authorize':
+					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );
+					( new Connection_Webhooks( $this->connection_manager ) )->handle_authorize();
 					exit;
 				case 'register':
 					if ( ! current_user_can( 'jetpack_connect' ) ) {
@@ -4770,7 +4825,6 @@ endif;
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-		add_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
 		if ( $iframe ) {
 			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
@@ -4781,7 +4835,6 @@ endif;
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
-		remove_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
 		if ( $iframe ) {
 			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
@@ -4840,8 +4893,12 @@ endif;
 	 *
 	 * @param String $processing_url the default redirect URL used by the package.
 	 * @return String the modified URL.
+	 *
+	 * @deprecated since Jetpack 9.5.0
 	 */
 	public static function filter_connect_processing_url( $processing_url ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.5' );
+
 		$processing_url = admin_url( 'admin.php?page=jetpack' ); // Making PHPCS happy.
 		return $processing_url;
 	}
@@ -7072,7 +7129,7 @@ endif;
 	 * Show Jetpack icon if the user is linked.
 	 */
 	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
-		if ( 'user_jetpack' == $col && self::is_user_connected( $user_id ) ) {
+		if ( 'user_jetpack' === $col && self::connection()->is_user_connected( $user_id ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$emblem_html  = sprintf(
 				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',
