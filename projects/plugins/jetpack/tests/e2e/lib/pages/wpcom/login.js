@@ -7,13 +7,7 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  * Internal dependencies
  */
 import Page from '../page';
-import {
-	waitForSelector,
-	getAccountCredentials,
-	waitAndClick,
-	waitAndType,
-	isEventuallyVisible,
-} from '../../page-helper';
+import { getAccountCredentials, isEventuallyVisible } from '../../page-helper';
 import logger from '../../logger';
 
 export default class LoginPage extends Page {
@@ -28,34 +22,23 @@ export default class LoginPage extends Page {
 
 		const usernameSelector = '#usernameOrEmail';
 		const passwordSelector = '#password';
-		const continueButtonSelector = '.login__form-action button';
-		const submitButtonSelector = '.login__form-action button[type="submit"]';
+		const continueButtonSelector = '//button[text()="Continue"]';
+		const submitButtonSelector = '//button[text()="Log In"]';
 
-		await waitAndType( this.page, usernameSelector, username );
-		await waitAndClick( this.page, continueButtonSelector );
+		await page.type( usernameSelector, username );
+		await page.click( continueButtonSelector );
+		await page.waitForSelector( passwordSelector, { state: 'visible', timeout: 30 } );
+		// Even if we wait for the field to become visible Playwright might still type the password too fast
+		// and the first characters will miss the password field. A short wait fixes this
+		await page.waitForTimeout( 2000 );
+		await page.type( passwordSelector, password );
+		await page.click( submitButtonSelector );
 
-		// sometimes it failing to type the whole password correctly for the first time.
-		let count = 0;
-		while ( count < 5 ) {
-			await waitAndType( this.page, passwordSelector, password, { delay: 10 } );
-			const passwordEl = await this.page.$( passwordSelector );
-			await page.focus( submitButtonSelector );
-
-			const fieldValue = await page.evaluate( x => x.value, passwordEl );
-			if ( fieldValue === password ) {
-				break;
-			}
-			logger.info( `Failed to type password properly. retrying...` );
-
-			count += 1;
-		}
-
-		const submitButton = await waitForSelector( this.page, submitButtonSelector );
-		await submitButton.press( 'Enter' );
+		await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
 
 		try {
-			await waitForSelector( this.page, this.expectedSelector, {
-				hidden: true,
+			await this.page.waitForSelector( this.expectedSelector, {
+				state: 'hidden',
 				timeout: 30000 /* 30 seconds */,
 			} );
 		} catch ( e ) {
@@ -65,12 +48,10 @@ export default class LoginPage extends Page {
 			}
 			throw e;
 		}
-
-		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
 	}
 
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
-		return await isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
+		return isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
 	}
 }
