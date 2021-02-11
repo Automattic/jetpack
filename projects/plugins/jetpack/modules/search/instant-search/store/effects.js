@@ -50,6 +50,8 @@ function initializeQueryValues( action, store ) {
 	//
 	if ( 's' in queryObject ) {
 		store.dispatch( setSearchQuery( queryObject.s, false ) );
+	} else {
+		store.dispatch( setSearchQuery( null, false ) );
 	}
 
 	//
