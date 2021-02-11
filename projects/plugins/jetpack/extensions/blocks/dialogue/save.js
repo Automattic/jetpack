@@ -19,7 +19,7 @@ export default function save( { attributes } ) {
 					{ label }
 				</div>
 				{ showTimestamp && (
-					<div className={ `${ BASE_CLASS_NAME }__timestamp` }>
+					<div className={ `${ BASE_CLASS_NAME }__timestamp-label` }>
 						<a
 							className={ `${ BASE_CLASS_NAME }__timestamp_link` }
 							href={ `#${ convertTimeCodeToSeconds( timestamp ) }` }

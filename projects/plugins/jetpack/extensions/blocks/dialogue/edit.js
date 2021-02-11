@@ -10,9 +10,9 @@ import { useMemoOne } from 'use-memo-one';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
-import { useSelect, dispatch } from '@wordpress/data';
+import { dispatch, useSelect, useDispatch } from '@wordpress/data';
+import { Panel, PanelBody } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 
 /**
@@ -20,7 +20,7 @@ import { useDebounce } from '@wordpress/compose';
  */
 import './editor.scss';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
-import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
@@ -57,16 +57,27 @@ export default function DialogueEdit( {
 		timestamp,
 	} = attributes;
 
-	const mediaSource = useSelect(
-		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
-		[]
-	);
+	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference } = useSelect( select => {
+		const {
+			getDefaultMediaSource,
+			getMediaSourceCurrentTime,
+			getMediaSourceDuration,
+			getMediaSourceDomReference,
+		} = select( MEDIA_SOURCE_STORE_ID );
 
+		return {
+			mediaSource: getDefaultMediaSource(),
+			mediaCurrentTime: getMediaSourceCurrentTime(),
+			mediaDuration: getMediaSourceDuration(),
+			mediaDomReference: getMediaSourceDomReference(),
+		};
+	}, [] );
+
+	const { playMediaSource, setMediaSourceCurrentTime } = useDispatch( MEDIA_SOURCE_STORE_ID );
 	const contentRef = useRef();
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showConversationTimestamps = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
 	const participants = participantsFromContext?.length
@@ -100,17 +111,16 @@ export default function DialogueEdit( {
 		} );
 	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
 
-	// Update dialogue timestamp setting from parent conversation.
-	useEffect( () => {
-		setAttributes( { showTimestamp: showConversationTimestamps } );
-	}, [ showConversationTimestamps, setAttributes ] );
-
-	function setShowConversationTimestamps( value ) {
-		conversationBridge.setAttributes( { showTimestamps: value } );
-	}
-
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
+	}
+
+	function audioPlayback( time ) {
+		if ( mediaDomReference ) {
+			mediaDomReference.currentTime = time;
+		}
+		setMediaSourceCurrentTime( time );
+		playMediaSource();
 	}
 
 	return (
@@ -118,7 +128,10 @@ export default function DialogueEdit( {
 			<BlockControls>
 				{ mediaSource && (
 					<MediaPlayerToolbarControl
-						onTimeChange={ time => setTimestamp( convertSecondsToTimeCode( time ) ) }
+						onTimestampClick={ time => {
+							setAttributes( { showTimestamp: true } );
+							setTimestamp( convertSecondsToTimeCode( time ) );
+						} }
 					/>
 				) }
 			</BlockControls>
@@ -140,21 +153,17 @@ export default function DialogueEdit( {
 						</PanelBody>
 					) }
 
-					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Show conversation timestamps', 'jetpack' ) }
-							checked={ showTimestamp }
-							onChange={ setShowConversationTimestamps }
-						/>
-
-						{ showTimestamp && (
+					{ mediaSource && showTimestamp && (
+						<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 							<TimestampControl
 								className={ BASE_CLASS_NAME }
 								value={ timestamp }
 								onChange={ setTimestamp }
+								mediaSource={ mediaSource }
+								duration={ mediaDuration }
 							/>
-						) }
-					</PanelBody>
+						</PanelBody>
+					) }
 				</Panel>
 			</InspectorControls>
 
@@ -183,12 +192,16 @@ export default function DialogueEdit( {
 					} }
 				/>
 
-				{ showTimestamp && (
-					<TimestampDropdown
+				{ mediaSource && (
+					<TimestampEditControl
 						className={ BASE_CLASS_NAME }
+						show={ showTimestamp }
+						isSelected={ isSelected }
 						value={ timestamp }
+						mediaCurrentTime={ mediaCurrentTime }
 						onChange={ setTimestamp }
-						shortLabel={ true }
+						onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
+						onPlayback={ audioPlayback }
 					/>
 				) }
 			</div>

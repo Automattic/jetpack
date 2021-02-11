@@ -2,11 +2,10 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
 
 export default class Sidebar extends Page {
 	constructor( page ) {
-		const expectedSelector = '#adminmenumain';
+		const expectedSelector = '#adminmenuwrap';
 		super( page, { expectedSelector } );
 	}
 
@@ -40,13 +39,13 @@ export default class Sidebar extends Page {
 	}
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
-		const menuElement = await waitForSelector( this.page, menuSelector );
+		const menuElement = await this.page.waitForSelector( menuSelector );
 		const classes = await page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
 
 		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {
 			await menuElement.click();
 		}
 
-		return await waitAndClick( this.page, menuItemSelector );
+		return await page.click( menuItemSelector );
 	}
 }
