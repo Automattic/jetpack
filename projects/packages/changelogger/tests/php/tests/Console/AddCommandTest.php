@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Changelogger\Tests\Console;
 
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
-use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -36,17 +36,34 @@ class AddCommandTest extends CommandTestCase {
 	 * Test getDefaultFilename().
 	 */
 	public function testGetDefaultFilename() {
-		$output = new NullOutput();
-		$w      = TestingAccessWrapper::newFromObject( $this->getCommand( 'add' ) );
+		if ( in_array( '--debug', $GLOBALS['argv'], true ) ) {
+			$output = new \Symfony\Component\Console\Output\ConsoleOutput();
+			$output->setVerbosity( ConsoleOutput::VERBOSITY_DEBUG );
+		} else {
+			$output = new \Symfony\Component\Console\Output\NullOutput();
+		}
+		$w = TestingAccessWrapper::newFromObject( $this->getCommand( 'add' ) );
 
 		// Test with no git checkout.
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
 		// Create a git checkout, master branch.
-		$args = array( $output, new DebugFormatterHelper(), array( 'mustRun' => true ) );
+		$args = array(
+			$output,
+			new DebugFormatterHelper(),
+			array(
+				'mustRun' => true,
+				'env'     => array(
+					'GIT_AUTHOR_NAME'     => 'Dummy',
+					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
+					'GIT_COMMITTER_NAME'  => 'Dummy',
+					'GIT_COMMITTER_EMAIL' => 'dummy@example.com',
+				),
+			),
+		);
 		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'checkout', '-b', 'master' ), ...$args );
-		Utils::runCommand( array( 'git', 'commit', '--author', 'Dummy <dummy@example.com>', '--allow-empty', '-m', 'Empty' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '--allow-empty', '-m', 'Empty' ), ...$args );
 		$this->assertMatchesRegularExpression( '/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}-\d{6}$/', $w->getDefaultFilename( $output ) );
 
 		// Try a named branch.
