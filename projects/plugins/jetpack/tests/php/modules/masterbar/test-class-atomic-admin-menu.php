@@ -345,8 +345,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			'theme-install.php',
 			'Add New Theme',
 		);
+		static::$admin_menu->add_appearance_menu( false );
 		static::$admin_menu->add_theme_install_menu( false );
 
-		$this->assertContains( $submenu_item, $submenu[ $slug ] );
+		// Multisite users don't have the `install_themes` capability by default,
+		// so we have to make a dynamic check based on whether the current user can
+		// install themes.
+		if ( current_user_can( 'install_themes' ) ) {
+			$this->assertContains( $submenu_item, $submenu[ $slug ] );
+		} else {
+			$this->assertNotContains( $submenu_item, $submenu[ $slug ] );
+		}
 	}
 }
