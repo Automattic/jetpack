@@ -20,6 +20,7 @@ import {
 } from '../helpers/json';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
 import mergeDirs from '../helpers/mergeDirs';
+import { chalkJetpackGreen } from '../helpers/styling';
 
 /**
  * Relays commands to generate a particular project
@@ -92,7 +93,7 @@ export function generateDefine( yargs ) {
  *
  * @returns {object} argv object with the project property.
  */
-export async function promptForGenerate( options ) {
+async function promptForGenerate( options ) {
 	let typeAnswer = options.type ? { type: options.type } : '';
 	let nameAnswer;
 	let tries = 0;
@@ -112,7 +113,11 @@ export async function promptForGenerate( options ) {
 
 	// Validate name if it was passed as an option.
 	if ( options.name ) {
-		nameAnswer = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
+		try {
+			nameAnswer = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
+		} catch ( e ) {
+			// Do nothing. Allow the script to continue on as if no value was passed.
+		}
 	}
 
 	// Keep asking for name if it fails validation
@@ -123,8 +128,10 @@ export async function promptForGenerate( options ) {
 			nameAnswer = checkNameValid( typeAnswer.type, rawNameAnswer.name ) ? rawNameAnswer : null;
 		} catch ( err ) {
 			if ( tries >= 3 ) {
-				console.error( 'You are really struggling here. Might be time to take a walk.' );
-				console.error( err.name + ': ' + err.message );
+				console.error(
+					chalkJetpackGreen( 'You are really struggling here. Might be time to take a walk.' )
+				);
+				console.error( chalk.red( err.message ) );
 			}
 		}
 	}
@@ -135,8 +142,8 @@ export async function promptForGenerate( options ) {
 	return {
 		...options,
 		type: pluralize.singular( typeAnswer.type ),
-		name: nameAnswer.name || options.name,
-		n: nameAnswer.name || options.name,
+		name: nameAnswer.name,
+		n: nameAnswer.name,
 		...finalAnswers,
 	};
 }

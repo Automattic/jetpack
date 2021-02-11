@@ -39,7 +39,8 @@ export function allProjects() {
 export function checkNameValid( dir, newName ) {
 	const existingNames = dirs( './projects/' + pluralize( dir ) );
 	if ( existingNames.includes( newName ) || newName.length === 0 ) {
-		return console.error( chalk.red( 'Name is not valid (maybe it\'s already in use?)' ) );
+		console.error( chalk.red( "Name is not valid (maybe it's already in use?)" ) );
+		throw new Error( 'Invalid project name.' );
 	}
 	return true;
 }
