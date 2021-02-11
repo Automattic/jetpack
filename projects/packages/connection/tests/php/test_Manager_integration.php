@@ -453,5 +453,4 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $this->manager->get_access_token( 123 ) );
 		$this->assertInstanceOf( 'WP_Error', $this->manager->get_access_token( 123, '', false ) );
 	}
-
 }

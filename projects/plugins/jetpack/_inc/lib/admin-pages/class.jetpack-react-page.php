@@ -488,9 +488,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * @return array
  */
 function jetpack_current_user_data() {
+	$jetpack_connection = new Connection_Manager( 'jetpack' );
+
 	$current_user   = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	$dotcom_data    = ( new Connection_Manager( 'jetpack' ) )->get_connected_user_data();
+	$dotcom_data    = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
@@ -504,7 +506,7 @@ function jetpack_current_user_data() {
 		: false );
 
 	$current_user_data = array(
-		'isConnected' => ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $current_user->ID ),
+		'isConnected' => $jetpack_connection->is_user_connected( $current_user->ID ),
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,
@@ -513,6 +515,7 @@ function jetpack_current_user_data() {
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
+			'connect_user'       => current_user_can( 'jetpack_connect_user' ),
 			'disconnect'         => current_user_can( 'jetpack_disconnect' ),
 			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
@@ -520,8 +523,8 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'publish_posts'      => current_user_can( 'publish_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
-			'view_stats'		 => current_user_can( 'view_stats' ),
-			'manage_plugins'	 => current_user_can( 'install_plugins' )
+			'view_stats'         => current_user_can( 'view_stats' ),
+			'manage_plugins'     => current_user_can( 'install_plugins' )
 									&& current_user_can( 'activate_plugins' )
 									&& current_user_can( 'update_plugins' )
 									&& current_user_can( 'delete_plugins' ),
