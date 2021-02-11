@@ -10,8 +10,6 @@ if ( E2E_DEBUG ) {
 	HEADLESS = 'false';
 }
 
-process.env.DEBUG = 'pw:browser|api|error';
-
 module.exports = {
 	exitOnPageError: false,
 	launchOptions: {
