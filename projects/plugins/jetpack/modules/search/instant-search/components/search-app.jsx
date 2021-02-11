@@ -152,6 +152,7 @@ class SearchApp extends Component {
 		this.props.initializeQueryValues( {
 			defaultSort: this.props.defaultSort,
 		} );
+		this.showResults();
 	};
 
 	handleSubmit = event => {
