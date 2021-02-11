@@ -529,7 +529,6 @@
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-menus.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-meta.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-module-protect.php",
-	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-modules-stats.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-modules.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-network-options.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-options.php",
