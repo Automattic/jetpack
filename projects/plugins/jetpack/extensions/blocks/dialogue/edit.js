@@ -209,16 +209,13 @@ export default function DialogueEdit( {
 			<RichText
 				ref={ contentRef }
 				identifier="content"
+				multiline
 				tagName="p"
 				className={ `${ BASE_CLASS_NAME }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
 				onMerge={ mergeBlocks }
-				onSplit={ value => {
-					if ( ! content?.length ) {
-						return createBlock( blockNameFallback );
-					}
-
+				onSplit={ ( value ) => {
 					return createBlock( blockName, {
 						...attributes,
 						content: value,
