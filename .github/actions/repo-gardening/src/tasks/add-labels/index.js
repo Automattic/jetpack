@@ -232,7 +232,7 @@ async function addLabels( payload, octokit ) {
 	// Get labels to add to the PR.
 	const labels = await getLabelsToAdd( octokit, owner.login, name, number );
 
-	if ( ! labels ) {
+	if ( ! labels.length ) {
 		debug( 'add-labels: Could not find labels to add to that PR. Aborting' );
 		return;
 	}
