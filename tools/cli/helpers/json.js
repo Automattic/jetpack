@@ -34,7 +34,7 @@ function readJson( project, packageManager, output ) {
  *
  * @param {string} project - The project's name.
  * @param {string} packageManager - Which package manager.
- * @param {string} json - JSON to write.
+ * @param {object} json - JSON to write.
  * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
  *
@@ -111,8 +111,7 @@ export function writePackageJson( project, json, pkgDir, output = true ) {
  */
 function parseJSON( data, output = false ) {
 	try {
-		data = JSON.parse( data );
-		return data;
+		return JSON.parse( data );
 	} catch ( parseError ) {
 		output
 			? log( chalk.red( 'Could not parse JSON. Something is pretty wrong.' ), parseError )
@@ -131,8 +130,7 @@ function parseJSON( data, output = false ) {
  */
 function createJSON( data, output = false ) {
 	try {
-		data = JSON.stringify( data );
-		return data;
+		return JSON.stringify( data, null, 2 );
 	} catch ( parseError ) {
 		output
 			? log( chalk.red( 'Could not stringify JSON. Something is pretty wrong.' ), parseError )

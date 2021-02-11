@@ -2,7 +2,6 @@
  * External dependencies
  */
 import path from 'path';
-import fs from 'fs';
 import pluralize from 'pluralize';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
@@ -226,7 +225,6 @@ export function generatePackage( answers = { name: 'test', description: 'n/a' } 
 	packageJson.description = answers.description;
 
 	writePackageJson( project, packageJson, pkgDir );
-	fs.writeFileSync( pkgDir + '/package.json', JSON.stringify( packageJson ) );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
@@ -244,6 +242,5 @@ export function generatePackage( answers = { name: 'test', description: 'n/a' } 
 	}
 
 	writeComposerJson( project, composerJson, pkgDir );
-	fs.writeFileSync( pkgDir + '/composer.json', JSON.stringify( composerJson ) );
 	return packageJson;
 }
