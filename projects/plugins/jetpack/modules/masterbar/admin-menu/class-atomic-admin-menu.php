@@ -213,6 +213,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_theme_install_menu( $wp_admin = false ) {
 		$parent_menu_slug = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
 
-		add_submenu_page( $parent_menu_slug, esc_attr__( 'WordPress.org Themes', 'jetpack' ), __( 'WordPress.org Themes', 'jetpack' ), 'switch_themes', 'theme-install.php', null, 1 );
+		add_submenu_page( $parent_menu_slug, esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
 }
