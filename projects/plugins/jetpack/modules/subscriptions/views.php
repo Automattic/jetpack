@@ -108,11 +108,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		self::render_widget_status_messages( $instance );
 
-		if ( self::is_current_user_subscribed() ) {
-			self::render_widget_already_subscribed( $instance );
-		} else {
-			self::render_widget_subscription_form( $args, $instance, $subscribe_email );
-		}
+		self::render_widget_subscription_form( $args, $instance, $subscribe_email );
 
 		echo "\n" . $after_widget;
 	}
@@ -255,33 +251,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Renders a message to folks who are already subscribed.
-	 *
-	 * @param array $instance The settings for the particular instance of the widget.
-	 *
-	 * @return void
-	 */
-	static function render_widget_already_subscribed( $instance ) {
-		if ( self::is_wpcom() ) {
-			$subscribers_total = self::fetch_subscriber_count();
-			$edit_subs_url     = 'https://wordpress.com/following/edit/';
-			if ( function_exists( 'localized_wpcom_url' ) ) {
-				$edit_subs_url = localized_wpcom_url( http() . '://wordpress.com/following/edit/', get_user_locale() );
-			}
-			$show_subscribers_total = (bool) $instance['show_subscribers_total'];
-			if ( $show_subscribers_total && $subscribers_total > 1 ) :
-				$subscribers_not_me = $subscribers_total - 1;
-				/* translators: %s: number of folks following the blog */
-				?>
-                <p><?php printf( _n( 'You are following this blog, along with %s other amazing person (<a href="%s">manage</a>).', 'You are following this blog, along with %s other amazing people (<a href="%s">manage</a>).', $subscribers_not_me ), number_format_i18n( $subscribers_not_me ), $edit_subs_url ) ?></p><?php
-			else :
-				?>
-                <p><?php printf( __( 'You are following this blog (<a href="%s">manage</a>).' ), $edit_subs_url ) ?></p><?php
-			endif;
-		}
-	}
-
-	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -290,7 +259,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	static function render_widget_subscription_form( $args, $instance, $subscribe_email ) {
 		$show_only_email_and_button = $instance['show_only_email_and_button'];
-		$subscribe_logged_in        = isset( $instance['subscribe_logged_in'] ) ? stripslashes( $instance['subscribe_logged_in'] ) : '';
 		$show_subscribers_total     = (bool) $instance['show_subscribers_total'];
 		$subscribe_text             = empty( $instance['show_only_email_and_button'] ) ?
 			stripslashes( $instance['subscribe_text'] ) :
@@ -320,81 +288,62 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				accept-charset="utf-8"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
-				<?php if ( is_user_logged_in() ) : ?>
-					<?php
-					if ( ! $show_only_email_and_button ) {
-						echo wpautop( $subscribe_logged_in );
-					}
-					if ( $show_subscribers_total && $subscribers_total ) {
-						?>
-						<div class="jetpack-subscribe-count">
-							<p>
-							<?php
-							/* translators: %s: number of folks following the blog */
-							echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
-							?>
-							</p>
-						</div>
-						<?php
-					}
+				<?php
+				if ( ! $show_only_email_and_button ) {
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					echo wpautop( $subscribe_text );
+				}
+				if ( $show_subscribers_total && $subscribers_total ) {
 					?>
-				<?php else : ?>
-					<?php
-					if ( ! $show_only_email_and_button ) {
-						echo wpautop( $subscribe_text );
-					}
-					if ( $show_subscribers_total && $subscribers_total ) {
-						?>
-						<div class="jetpack-subscribe-count">
-							<p>
-							<?php
-							/* translators: %s: number of folks following the blog */
-							echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
-							?>
-							</p>
-						</div>
+					<div class="jetpack-subscribe-count">
+						<p>
 						<?php
-					}
-					$email_field_id  = 'subscribe-field';
-					$email_field_id .= self::$instance_count > 1
-						? '-' . self::$instance_count
-						: '';
-					$label_field_id  = $email_field_id . '-label';
-					?>
-					<p id="subscribe-email">
-						<label
-							id="<?php echo esc_attr( $label_field_id ); ?>"
-							for="<?php echo esc_attr( $email_field_id ); ?>"
-							class="screen-reader-text"
-						>
-							<?php echo esc_html__( 'Email Address:', 'jetpack' ); ?>
-						</label>
+						/* translators: %s: number of folks following the blog */
+						echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+						?>
+						</p>
+					</div>
+					<?php
+				}
+				$email_field_id  = 'subscribe-field';
+				$email_field_id .= self::$instance_count > 1
+					? '-' . self::$instance_count
+					: '';
+				$label_field_id  = $email_field_id . '-label';
+				?>
+				<p id="subscribe-email">
+					<label
+						id="<?php echo esc_attr( $label_field_id ); ?>"
+						for="<?php echo esc_attr( $email_field_id ); ?>"
+						class="screen-reader-text"
+					>
+						<?php echo esc_html__( 'Email Address:', 'jetpack' ); ?>
+					</label>
 
-						<?php
-						printf(
-							'<input
-								type="text"
-								name="email"
-								%1$s
-								style="%2$s"
-								placeholder="%3$s"
-								value=""
-								id="%4$s"
-							/>',
-							( ! empty( $email_field_classes )
-								? 'class="' . esc_attr( $email_field_classes ) . '"'
-								: ''
-							),
-							( ! empty( $email_field_styles )
-								? esc_attr( $email_field_styles )
-								: 'width: 95%; padding: 1px 10px'
-							),
-							esc_attr__( 'Enter your email address' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- This is only used on WordPress.com.
-							esc_attr( $email_field_id )
-						);
-						?>
-					</p>
-				<?php endif; ?>
+					<?php
+					printf(
+						'<input
+							type="text"
+							name="email"
+							%1$s
+							style="%2$s"
+							placeholder="%3$s"
+							value=""
+							id="%4$s"
+						/>',
+						( ! empty( $email_field_classes )
+							? 'class="' . esc_attr( $email_field_classes ) . '"'
+							: ''
+						),
+						( ! empty( $email_field_styles )
+							? esc_attr( $email_field_styles )
+							: 'width: 95%; padding: 1px 10px'
+						),
+						esc_attr__( 'Enter your email address', 'jetpack' ),
+						esc_attr( $email_field_id )
+					);
+					?>
+				</p>
 
 				<p id="subscribe-submit">
                     <input type="hidden" name="action" value="subscribe"/>
@@ -643,21 +592,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'show_only_email_and_button' => false
 		);
 
-		if ( self::is_jetpack() ) {
-			$defaults['title']                 = esc_html__( 'Subscribe to Blog via Email', 'jetpack' );
-			$defaults['subscribe_text']        = esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' );
-			$defaults['subscribe_placeholder'] = esc_html__( 'Email Address', 'jetpack' );
-			$defaults['subscribe_button']      = esc_html__( 'Subscribe', 'jetpack' );
-			$defaults['success_message']       = esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' );
-		}
-
-		if ( self::is_wpcom() ) {
-			$defaults['title']               = __( 'Follow Blog via Email' );
-			$defaults['title_following']     = __( 'You are following this blog' );
-			$defaults['subscribe_text']      = __( 'Enter your email address to follow this blog and receive notifications of new posts by email.' );
-			$defaults['subscribe_button']    = __( 'Follow' );
-			$defaults['subscribe_logged_in'] = __( 'Click to follow this blog and receive notifications of new posts by email.' );
-		}
+		$defaults['title']                 = esc_html__( 'Subscribe to Blog via Email', 'jetpack' );
+		$defaults['subscribe_text']        = esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' );
+		$defaults['subscribe_placeholder'] = esc_html__( 'Email Address', 'jetpack' );
+		$defaults['subscribe_button']      = esc_html__( 'Subscribe', 'jetpack' );
+		$defaults['success_message']       = esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' );
 
 		return $defaults;
 	}
