@@ -3,12 +3,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from '@wordpress/element';
+
 import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import {
-	Panel,
-	PanelBody,
-	ToggleControl,
-} from '@wordpress/components';
+import { Panel, PanelBody } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -16,7 +13,7 @@ import {
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel } from './utils';
+import { getParticipantByLabel, cleanFormatStyle } from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -30,6 +27,9 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 					if ( participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
+
+					updatedParticipant.label = cleanFormatStyle( updatedParticipant.label );
+
 					return {
 						...participant,
 						...updatedParticipant,
@@ -45,7 +45,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			return;
 		}
 
-		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
+		const sanitizedSpeakerLabel = cleanFormatStyle( newSpeakerLabel );
 		// Do not add speakers with empty names.
 		if ( ! sanitizedSpeakerLabel?.length ) {
 			return;
@@ -57,6 +57,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			return existingParticipant;
 		}
 
+		// Creates the participant slug.
 		const newParticipantSlug = participants.length
 			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
 			: 'speaker-0';
@@ -117,17 +118,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 								className={ baseClassName }
 								participants={ participants }
 								onDelete={ deleteParticipant }
-							/>
-						</PanelBody>
-
-						<PanelBody
-							title={ __( 'Timestamps', 'jetpack' ) }
-							className={ `${ baseClassName }__timestamps` }
-						>
-							<ToggleControl
-								label={ __( 'Show timestamps', 'jetpack' ) }
-								checked={ showTimestamps }
-								onChange={ value => setAttributes( { showTimestamps: value } ) }
 							/>
 						</PanelBody>
 					</Panel>
