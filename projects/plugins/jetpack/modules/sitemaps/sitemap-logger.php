@@ -2,7 +2,7 @@
 /**
  * A message logger for the Jetpack Sitemap module.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 4.8.0
  */
 

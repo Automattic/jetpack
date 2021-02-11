@@ -4,6 +4,7 @@ set -eo pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/chalk-lite.sh"
 
 # This script updates the composer.json file in of whatever directory it is run.
 # It will update any packages prefixed with `automattic/jetpack-` to it's latest stable version.
@@ -25,18 +26,18 @@ function usage {
 DIR=
 function check_dir {
 	if [[ ! -z "$DIR" ]]; then
-		echo "Only one directory may be specified." >&2
+		error "Only one directory may be specified."
 		return 1
 	elif [[ -d "$1" ]]; then
 		DIR="${1%/}"
 		if [[ ! -f "$DIR/composer.json" ]]; then
-			echo "$DIR does not contain composer.json." >&2
+			error "$DIR does not contain composer.json."
 			return 1
 		fi
 	elif [[ "$1" == "*/composer.json" && -f "$1" ]]; then # DWIM
 		DIR="$(dirname "$1")"
 	else
-		echo "Directory $1 does not exist." >&2
+		error "Directory $1 does not exist."
 		return 1
 	fi
 }
@@ -51,8 +52,7 @@ while [[ $# -gt 0 ]]; do
 			exit
 			;;
 		--dev|-V|--version|-d|--working-dir|--working-dir=*)
-			echo "Cannot pass $arg on to composer." >&2
-			exit 1
+			die "Cannot pass $arg on to composer."
 			;;
 		--)
 			while [[ $# -gt 0 ]]; do
@@ -83,12 +83,12 @@ PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' "$BASE"/projects
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries | .[] | select( .value == "@dev" and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
-	echo "Updating packages: ${TO_UPDATE[*]}..."
+	info "Updating packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 fi
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries | .[] | select( .value == "@dev" and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
-	echo "Updating dev packages: ${TO_UPDATE[*]}..."
+	info "Updating dev packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
 fi

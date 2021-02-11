@@ -1,17 +1,13 @@
-/**
- * Internal dependencies
- */
-import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
+import { clickAndWaitForNewPage } from '../page-helper';
 
 export default class MailchimpBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = MailchimpBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -33,14 +29,13 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
-		const formSelector = await waitForSelector( this.page, setupFormSelector );
+		const formSelector = await this.page.waitForSelector( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
-		global.page = loginTab;
+		const wpComTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
 
 		if ( ! isLoggedIn ) {
-			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
+			await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
 		}
 
 		// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
@@ -52,27 +47,28 @@ export default class MailchimpBlock {
 		while ( ! loaded ) {
 			try {
 				count++;
-				await ConnectionsPage.init( loginTab );
+				await ConnectionsPage.init( wpComTab );
 				loaded = true;
 			} catch ( e ) {
 				logger.info(
 					'ConnectionsPage is not available yet. Attempt: ' + count,
 					' URL: ' + connectionsUrl
 				);
-				await loginTab.goto( connectionsUrl, { timeout: 120000 } );
+				await wpComTab.goto( connectionsUrl, { timeout: 120000 } );
 				if ( count > 9 ) {
 					throw new Error( 'ConnectionsPage is not available is not available after 10th attempt' );
 				}
 			}
 		}
 
-		await loginTab.reload( { waitFor: 'networkidle0' } );
+		await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
 
-		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
+		const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
+		await wpComConnectionsPage.selectMailchimpList();
 
-		global.page = this.page;
+		await this.page.bringToFront();
 		const reCheckSelector = this.getSelector( 'button.is-link' );
-		await waitAndClick( this.page, reCheckSelector );
+		await page.click( reCheckSelector );
 	}
 
 	getSelector( selector ) {
@@ -82,7 +78,7 @@ export default class MailchimpBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Puppeteer page instance
+	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.wp-block-jetpack-mailchimp';
@@ -90,9 +86,9 @@ export default class MailchimpBlock {
 		const submitSelector = containerSelector + " button[type='submit']";
 		const consentSelector = containerSelector + ' #wp-block-jetpack-mailchimp_consent-text';
 
-		await waitForSelector( page, containerSelector );
-		await waitForSelector( page, emailSelector );
-		await waitForSelector( page, submitSelector );
-		await waitForSelector( page, consentSelector );
+		await page.waitForSelector( containerSelector );
+		await page.waitForSelector( emailSelector );
+		await page.waitForSelector( submitSelector );
+		await page.waitForSelector( consentSelector );
 	}
 }

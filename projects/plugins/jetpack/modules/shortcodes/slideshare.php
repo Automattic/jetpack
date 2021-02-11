@@ -17,7 +17,7 @@
  *  pro   = Slideshare Pro      (yes/no)
  *  style = Inline CSS          (string)
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

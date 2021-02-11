@@ -1,14 +1,8 @@
-/**
- * Internal dependencies
- */
-import { waitAndType, waitAndClick, waitForSelector } from '../page-helper';
-
 export default class SimplePaymentBlock {
-	constructor( block, page ) {
+	constructor( blockId, page ) {
 		this.blockTitle = SimplePaymentBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -30,17 +24,10 @@ export default class SimplePaymentBlock {
 		const priceSelector = this.getSelector( '.simple-payments__field-price' );
 		const emailSelector = this.getSelector( '.simple-payments__field-email' );
 
-		await waitAndClick( this.page, titleSelector );
-		await waitAndType( this.page, titleSelector, title );
-
-		await waitAndClick( this.page, descriptionSelector );
-		await waitAndType( this.page, descriptionSelector, description );
-
-		await waitAndClick( this.page, priceSelector );
-		await waitAndType( this.page, priceSelector, price );
-
-		await waitAndClick( this.page, emailSelector );
-		await waitAndType( this.page, emailSelector, email );
+		await this.page.type( titleSelector, title );
+		await this.page.type( descriptionSelector, description );
+		await this.page.type( priceSelector, price );
+		await this.page.type( emailSelector, email );
 	}
 
 	getSelector( selector ) {
@@ -50,11 +37,11 @@ export default class SimplePaymentBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Puppeteer page instance
+	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.jetpack-simple-payments-product';
 
-		await waitForSelector( page, containerSelector );
+		await page.waitForSelector( containerSelector );
 	}
 }

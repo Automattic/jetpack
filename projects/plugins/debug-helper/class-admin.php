@@ -2,7 +2,7 @@
 /**
  * Simple admin interface to activate/deactivate modules
  *
- * @package Jetpack
+ * @package automattic/jetpack-debug-helper
  */
 
 namespace Automattic\Jetpack\Debug_Helper;

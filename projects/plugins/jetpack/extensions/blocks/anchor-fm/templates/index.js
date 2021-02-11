@@ -1,9 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
+import { createBlocksFromInnerBlocksTemplate, pasteHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { _x, __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -27,76 +27,49 @@ function spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) {
 	];
 }
 
-function podcastSection( { episodeTrack, feedUrl, coverImage } ) {
-	const { image, guid } = episodeTrack;
+function podcastSection( { episodeTrack, feedUrl } ) {
+	const { guid } = episodeTrack;
 
 	return [
-		'core/columns',
+		'jetpack/podcast-player',
 		{
-			align: 'wide',
+			customPrimaryColor: getIconColor(),
+			hexPrimaryColor: getIconColor(),
+			url: feedUrl,
+			selectedEpisodes: guid ? [ { guid } ] : [],
+			showCoverArt: false,
+			showEpisodeTitle: false,
+			showEpisodeDescription: false,
 		},
-		[
-			[
-				'core/column',
-				{
-					width: '30%',
-				},
-				[
-					[
-						'core/image',
-						{
-							url: image ? image : coverImage,
-						},
-					],
-				],
-			],
-			[
-				'core/column',
-				{
-					width: '70%',
-					verticalAlignment: 'center',
-				},
-				[
-					[
-						'jetpack/podcast-player',
-						{
-							customPrimaryColor: getIconColor(),
-							hexPrimaryColor: getIconColor(),
-							url: feedUrl,
-							selectedEpisodes: guid ? [ { guid } ] : [],
-							showCoverArt: false,
-							showEpisodeTitle: false,
-							showEpisodeDescription: false,
-						},
-					],
-				],
-			],
-		],
 	];
 }
 
 function podcastSummarySection( { episodeTrack } ) {
-	return [
-		'core/group',
-		{},
+	const sectionBlocks = [
 		[
-			[
-				'core/heading',
-				{
-					level: 3,
-					content: 'Summary',
-					placeholder: __( 'Podcast episode title', 'jetpack' ),
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode summary', 'jetpack' ),
-					content: episodeTrack.description,
-				},
-			],
+			'core/heading',
+			{
+				level: 3,
+				content: _x( 'Summary', 'noun: summary of a podcast episode', 'jetpack' ),
+				placeholder: __( 'Podcast episode title', 'jetpack' ),
+			},
 		],
 	];
+
+	const summaryBlocks = pasteHandler( { HTML: episodeTrack.description_html, mode: 'BLOCKS' } );
+
+	if ( summaryBlocks.length ) {
+		sectionBlocks.push( ...summaryBlocks );
+	} else {
+		sectionBlocks.push( [
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode summary', 'jetpack' ),
+			},
+		] );
+	}
+
+	return [ 'core/group', {}, sectionBlocks ];
 }
 
 function podcastConversationSection() {
@@ -144,7 +117,22 @@ function podcastConversationSection() {
 
 	return [
 		conversationBlockName,
-		{},
+		{
+			participants: [
+				{
+					slug: 'participant-0',
+					label: __( 'Speaker 1', 'jetpack' ),
+				},
+				{
+					slug: 'participant-1',
+					label: __( 'Speaker 2', 'jetpack' ),
+				},
+				{
+					slug: 'participant-2',
+					label: __( 'Speaker 3', 'jetpack' ),
+				},
+			],
+		},
 		[
 			[
 				'core/heading',
@@ -158,24 +146,21 @@ function podcastConversationSection() {
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-0',
-					hasBoldStyle: true,
+					slug: 'participant-0',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-1',
-					hasBoldStyle: true,
+					slug: 'participant-1',
 				},
 			],
 			[
 				'jetpack/dialogue',
 				{
 					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-					participantSlug: 'participant-2',
-					hasBoldStyle: true,
+					slug: 'participant-2',
 				},
 			],
 		],
@@ -185,14 +170,8 @@ function podcastConversationSection() {
 /*
  * Template parts
  */
-function episodeBasicTemplate( {
-	spotifyShowUrl,
-	spotifyImageUrl,
-	episodeTrack = {},
-	feedUrl,
-	coverImage,
-} ) {
-	const tpl = [ podcastSection( { episodeTrack, feedUrl, coverImage } ) ];
+function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack = {}, feedUrl } ) {
+	const tpl = [ podcastSection( { episodeTrack, feedUrl } ) ];
 
 	if ( spotifyShowUrl && spotifyImageUrl ) {
 		tpl.push( spotifyTemplate( { spotifyShowUrl, spotifyImageUrl } ) );

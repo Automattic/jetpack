@@ -2,7 +2,7 @@
 /**
  * The WordAds API.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;

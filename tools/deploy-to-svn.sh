@@ -4,6 +4,7 @@ set -eo pipefail
 
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
+. "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/proceed_p.sh"
 
@@ -57,7 +58,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if $INTERACTIVE && [[ ! -t 0 ]]; then
-	echo "Input is not a terminal, forcing --non-interactive."
+	debug "Input is not a terminal, forcing --non-interactive."
 	INTERACTIVE=false
 fi
 if [[ ${#ARGS[@]} -ne 2 ]]; then
@@ -70,15 +71,15 @@ TAG="${ARGS[1]}"
 process_plugin_arg "${ARGS[0]}"
 PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
 MIRROR=$(jq -r '.extra["mirror-repo"] // ""' "$PLUGIN_DIR/composer.json")
-WPNAME=$(jq -r '.extra["wp-plugin-name"] // ""' "$PLUGIN_DIR/composer.json")
+WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 FAIL=false
 if [[ -z "$MIRROR" ]]; then
 	FAIL=true
-	echo "Plugin $PLUGIN_NAME has no mirror repo. Cannot deploy." >&2
+	error "Plugin $PLUGIN_NAME has no mirror repo. Cannot deploy."
 fi
-if [[ -z "$WPNAME" ]]; then
+if [[ -z "$WPSLUG" ]]; then
 	FAIL=true
-	echo "Plugin $PLUGIN_NAME has no WordPress.org plugin name. Cannot deploy." >&2
+	error "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot deploy." >&2
 fi
 $FAIL && exit 1
 
@@ -99,9 +100,9 @@ else
 fi
 cd "$BUILD_DIR"
 DIR=$(pwd)
-echo "Using build dir $DIR"
+debug "Using build dir $DIR"
 
-echo "Checking mirror repo"
+info "Checking mirror repo"
 git init -q .
 git remote add origin "https://github.com/${MIRROR}.git"
 git remote update
@@ -110,40 +111,39 @@ if [[ "$(git ls-remote --tags origin "$TAG" 2>/dev/null)" ]]; then
 elif [[ "$(git ls-remote --heads origin "$TAG" 2>/dev/null)" ]]; then
 	proceed_p "You are about to deploy a change from an unstable state 'HEAD'. This should only be done to update string typos for translators."
 else
-	echo "Tag $TAG not found in git repository. Please try again with a valid tag." >&2
-	exit 1
+	die "Tag $TAG not found in git repository. Please try again with a valid tag."
 fi
 
-echo "Checking out SVN shallowly to $DIR"
-svn -q checkout "https://plugins.svn.wordpress.org/$WPNAME/" --depth=empty "$DIR"
-echo "Done!"
+info "Checking out SVN shallowly to $DIR"
+svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
+success "Done!"
 
-echo "Checking out SVN trunk to $DIR/trunk"
+info "Checking out SVN trunk to $DIR/trunk"
 svn -q up trunk
-echo "Done!"
+success "Done!"
 
-echo "Checking out SVN tags shallowly to $DIR/tags"
+info "Checking out SVN tags shallowly to $DIR/tags"
 svn -q up tags --depth=empty
-echo "Done!"
+success "Done!"
 
-echo "Deleting everything in trunk except for .svn directories"
+info "Deleting everything in trunk except for .svn directories"
 find trunk ! \( -path '*/.svn/*' -o -path "*/.svn" \) \( ! -type d -o -empty \) -delete
 [[ -e trunk ]] || mkdir -p trunk # If there were no .svn directories, trunk itself might have been removed.
-echo "Done!"
+success "Done!"
 
-echo "Checking out $MIRROR $TAG into trunk"
+info "Checking out $MIRROR $TAG into trunk"
 mv .git trunk/
 cd trunk
 git fetch --depth=1 origin "$TAG"
 git checkout -q FETCH_HEAD
-echo "Done!"
+success "Done!"
 
-echo "Removing .git files and empty directories"
+info "Removing .git files and empty directories"
 find . -name '.git*' -print -exec rm -rf {} +
 find . -type d -empty -print -delete
-echo "Done!"
+success "Done!"
 
-echo "Your SVN checkout is at $DIR"
+success "Your SVN checkout is at $DIR"
 
 # Tag the release.
 # svn cp trunk tags/$TAG

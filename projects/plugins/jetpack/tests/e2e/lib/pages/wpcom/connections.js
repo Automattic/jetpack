@@ -2,14 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import {
-	waitAndClick,
-	waitAndType,
-	clickAndWaitForNewPage,
-	getAccountCredentials,
-	isEventuallyPresent,
-	waitForSelector,
-} from '../../page-helper';
+import { clickAndWaitForNewPage, getAccountCredentials } from '../../page-helper';
 
 export default class ConnectionsPage extends Page {
 	constructor( page ) {
@@ -19,31 +12,19 @@ export default class ConnectionsPage extends Page {
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {
 		const loadingIndicatorSelector = '.foldable-card__summary button:not([disabled])';
-		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand svg[height="24"]';
+		const mailchimpExpandSelector = '.mailchimp .foldable-card__expand';
 		const marketingSelectSelector = '.mailchimp select';
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
-		await waitForSelector( this.page, loadingIndicatorSelector );
-		await waitAndClick( this.page, mailchimpExpandSelector );
+		await this.page.waitForSelector( loadingIndicatorSelector );
 
-		// If user account is already connected to Mailchimp, we don't really need to connect it once again
-		// TODO: It's actually a default state, since connections are shared between sites. So we could get rid of chunk entirely
-		const isConnectedAlready = await isEventuallyPresent( this.page, marketingSelectSelector, {
-			timeout: 10000,
-		} );
-		if ( ! isConnectedAlready ) {
-			await this.connectMailchimp();
-		}
+		await this.page.click( mailchimpExpandSelector );
 
 		// WPCOM Connections page
-		await this.page.waitForXPath( mcOptionXpathSelector );
-
-		const optionHandle = ( await this.page.$x( mcOptionXpathSelector ) )[ 0 ];
-		const optionValue = await ( await optionHandle.getProperty( 'value' ) ).jsonValue();
-		await this.page.select( marketingSelectSelector, optionValue );
-
-		await this.page.waitForXPath( successNoticeSelector );
+		await this.page.waitForSelector( mcOptionXpathSelector, { state: 'attached' } );
+		await this.page.selectOption( marketingSelectSelector, { label: mailchimpList } );
+		await this.page.waitForSelector( successNoticeSelector );
 		await this.page.close();
 	}
 
@@ -59,8 +40,9 @@ export default class ConnectionsPage extends Page {
 		const mcPasswordSelector = '#login #password';
 		const mcSubmitSelector = "#login input[type='submit']";
 
-		await waitAndType( mcPopupPage, mcUsernameSelector, mcLogin );
-		await waitAndType( mcPopupPage, mcPasswordSelector, mcPassword );
-		await waitAndClick( mcPopupPage, mcSubmitSelector );
+		await mcPopupPage.type( mcUsernameSelector, mcLogin );
+		await mcPopupPage.type( mcPasswordSelector, mcPassword );
+		await mcPopupPage.type( mcSubmitSelector );
+		await this.page.bringToFront();
 	}
 }

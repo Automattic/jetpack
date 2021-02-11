@@ -2,7 +2,7 @@
 /**
  * Instagram Widget. Display some Instagram photos via a widget.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;

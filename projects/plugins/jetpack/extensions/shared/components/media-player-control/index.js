@@ -28,6 +28,7 @@ export function MediaPlayerControl( {
 	jumpBackIcon = ControlBackFiveIcon,
 	skipForwardIcon = ControlForwardFiveIcon,
 	currenTimeDisplay = true,
+	onTimestampClick,
 } ) {
 	const {
 		playerState,
@@ -106,16 +107,17 @@ export function MediaPlayerControl( {
 			) }
 
 			{ currenTimeDisplay && (
-				<div
+				<ToolbarButton
 					className={ classnames(
 						'media-player-control__current-time', {
 							'is-disabled': isDisabled,
-							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
 						}
 					) }
+					label={ __( 'Set timestamp', 'jetpack' ) }
+					onClick={ () => onTimestampClick( mediaCurrentTime ) }
 				>
 					{ timeInFormat }
-				</div>
+				</ToolbarButton>
 			) }
 		</>
 	);

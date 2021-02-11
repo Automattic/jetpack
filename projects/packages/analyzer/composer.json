@@ -6,21 +6,21 @@
 	"require": {
 		"nikic/php-parser": "^4.2"
 	},
-	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0"
-	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"src/",
+			"scripts"
 		]
 	},
 	"scripts": {
 		"example": [
 			"php ./scripts/example.php"
 		],
-		"phpunit": [
-			"@composer install",
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		"core-calls": [
+			"Automattic\\Jetpack\\Analyzer\\CoreCalls::callback"
+		],
+		"core-definitions": [
+			"Automattic\\Jetpack\\Analyzer\\CoreDefinitions::callback"
 		]
 	},
 	"minimum-stability": "dev",

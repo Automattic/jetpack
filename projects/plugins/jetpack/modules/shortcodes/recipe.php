@@ -11,7 +11,7 @@ use Automattic\Jetpack\Assets;
  * - validation/sanitization
  * - print styles
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
