@@ -251,33 +251,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Renders a message to folks who are already subscribed.
-	 *
-	 * @param array $instance The settings for the particular instance of the widget.
-	 *
-	 * @return void
-	 */
-	static function render_widget_already_subscribed( $instance ) {
-		if ( self::is_wpcom() ) {
-			$subscribers_total = self::fetch_subscriber_count();
-			$edit_subs_url     = 'https://wordpress.com/following/edit/';
-			if ( function_exists( 'localized_wpcom_url' ) ) {
-				$edit_subs_url = localized_wpcom_url( http() . '://wordpress.com/following/edit/', get_user_locale() );
-			}
-			$show_subscribers_total = (bool) $instance['show_subscribers_total'];
-			if ( $show_subscribers_total && $subscribers_total > 1 ) :
-				$subscribers_not_me = $subscribers_total - 1;
-				/* translators: %s: number of folks following the blog */
-				?>
-                <p><?php printf( _n( 'You are following this blog, along with %s other amazing person (<a href="%s">manage</a>).', 'You are following this blog, along with %s other amazing people (<a href="%s">manage</a>).', $subscribers_not_me ), number_format_i18n( $subscribers_not_me ), $edit_subs_url ) ?></p><?php
-			else :
-				?>
-                <p><?php printf( __( 'You are following this blog (<a href="%s">manage</a>).' ), $edit_subs_url ) ?></p><?php
-			endif;
-		}
-	}
-
-	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
