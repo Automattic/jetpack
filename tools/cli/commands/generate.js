@@ -95,7 +95,7 @@ export function generateDefine( yargs ) {
  */
 async function promptForGenerate( options ) {
 	let typeAnswer = options.type ? { type: options.type } : '';
-	let nameAnswer;
+	let nameAnswer = {};
 	let tries = 0;
 
 	// Get project type if not passed as an option.
@@ -114,14 +114,14 @@ async function promptForGenerate( options ) {
 	// Validate name if it was passed as an option.
 	if ( options.name ) {
 		try {
-			nameAnswer = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
+			nameAnswer.name = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
 		} catch ( e ) {
 			// Do nothing. Allow the script to continue on as if no value was passed.
 		}
 	}
 
 	// Keep asking for name if it fails validation
-	while ( ! nameAnswer ) {
+	while ( nameAnswer.length === 0 ) {
 		try {
 			tries++;
 			const rawNameAnswer = await promptForName();
