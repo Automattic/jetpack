@@ -57,9 +57,10 @@ class CommandLoader implements CommandLoaderInterface {
 	 */
 	public function getNames() {
 		$names = array();
-		$l     = strlen( __DIR__ ) + 1;
-		foreach ( glob( __DIR__ . '/*Command.php' ) as $file ) {
-			$names[] = lcfirst( substr( $file, $l, -11 ) );
+		foreach ( new \DirectoryIterator( __DIR__ ) as $file ) {
+			if ( substr( $file->getBasename(), -11 ) === 'Command.php' ) {
+				$names[] = lcfirst( substr( $file->getBasename(), 0, -11 ) );
+			}
 		}
 		return $names;
 	}

@@ -37,7 +37,7 @@ class ApplicationTest extends TestCase {
 		$tester->run( array( 'command' => 'list' ) );
 		$output = $tester->getDisplay();
 		$this->assertMatchesRegularExpression( '/Available commands:/', $output );
-		$this->assertMatchesRegularExpression( '/add\s*Adds a changelog entry file/', $output );
+		$this->assertMatchesRegularExpression( '/add\s*Adds a change file/', $output );
 	}
 
 	/**

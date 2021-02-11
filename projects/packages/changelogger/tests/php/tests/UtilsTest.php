@@ -5,7 +5,7 @@
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidVariableName, WordPress.WP.AlternativeFunctions
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
@@ -23,6 +23,7 @@ use function Wikimedia\quietCall;
  * @covers \Automattic\Jetpack\Changelogger\Utils
  */
 class UtilsTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
 	/**
@@ -149,6 +150,198 @@ class UtilsTest extends TestCase {
 		$helper = new DebugFormatterHelper();
 		$this->expectException( ProcessTimedOutException::class );
 		Utils::runCommand( array( $sleep, '1' ), $output, $helper, array( 'timeout' => 0.1 ) );
+	}
+
+	/**
+	 * Test loadChangeFile.
+	 *
+	 * @dataProvider provideLoadChangeFile
+	 * @param string                  $contents File contents.
+	 * @param array|\RuntimeException $expect Expected output.
+	 * @param array                   $expectDiagnostics Expected diagnostics.
+	 */
+	public function testLoadChangeFile( $contents, $expect, $expectDiagnostics = array() ) {
+		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testLoadChangeFile-' );
+		try {
+			file_put_contents( $temp, $contents );
+			if ( ! $expect instanceof \RuntimeException ) {
+				$diagnostics = null; // Make phpcs happy.
+				$this->assertSame( $expect, Utils::loadChangeFile( $temp, $diagnostics ) );
+				$this->assertSame( $expectDiagnostics, $diagnostics );
+			} else {
+				try {
+					Utils::loadChangeFile( $temp );
+					$this->fail( 'Expcected exception not thrown' );
+				} catch ( \RuntimeException $ex ) {
+					$this->assertInstanceOf( get_class( $expect ), $ex );
+					$this->assertMatchesRegularExpression( $expect->getMessage(), $ex->getMessage() );
+					$this->assertObjectHasAttribute( 'fileLine', $ex );
+					$this->assertSame( $expect->fileLine, $ex->fileLine );
+				}
+			}
+		} finally {
+			unlink( $temp );
+		}
+	}
+
+	/**
+	 * Data provider for testLoadChangeFile.
+	 */
+	public function provideLoadChangeFile() {
+		$ex = function ( $msg, $line ) {
+			$ret           = new \RuntimeException( $msg );
+			$ret->fileLine = $line;
+			return $ret;
+		};
+		return array(
+			'Normal file'                 => array(
+				"Foo: bar baz\nQuux: XXX\n\nEntry\n",
+				array(
+					'Foo'  => 'bar baz',
+					'Quux' => 'XXX',
+					''     => 'Entry',
+				),
+				array(
+					'warnings' => array(),
+					'lines'    => array(
+						'Foo'  => 1,
+						'Quux' => 2,
+						''     => 4,
+					),
+				),
+			),
+			'File with no entry'          => array(
+				"Foo: bar baz\nQuux: XXX\n\n\n\n",
+				array(
+					'Foo'  => 'bar baz',
+					'Quux' => 'XXX',
+					''     => '',
+				),
+				array(
+					'warnings' => array(),
+					'lines'    => array(
+						'Foo'  => 1,
+						'Quux' => 2,
+						''     => 6,
+					),
+				),
+			),
+			'Trimmed file with no entry'  => array(
+				"Foo: bar baz\nQuux: XXX",
+				array(
+					'Foo'  => 'bar baz',
+					'Quux' => 'XXX',
+					''     => '',
+				),
+				array(
+					'warnings' => array(),
+					'lines'    => array(
+						'Foo'  => 1,
+						'Quux' => 2,
+						''     => 2,
+					),
+				),
+			),
+			'File with no headers'        => array(
+				"\nEntry\n",
+				array(
+					'' => 'Entry',
+				),
+				array(
+					'warnings' => array(),
+					'lines'    => array(
+						'' => 2,
+					),
+				),
+			),
+			'Empty file'                  => array(
+				'',
+				array(
+					'' => '',
+				),
+				array(
+					'warnings' => array(),
+					'lines'    => array(
+						'' => 1,
+					),
+				),
+			),
+			'File with wrapped header'    => array(
+				"Foo: bar\n  baz\n  \n  ok?\n\nThis is a multiline\nentry.\n",
+				array(
+					'Foo' => 'bar baz ok?',
+					''    => "This is a multiline\nentry.",
+				),
+				array(
+					'warnings' => array(),
+					'lines'    => array(
+						'Foo' => 1,
+						''    => 6,
+					),
+				),
+			),
+			'File with duplicate headers' => array(
+				"Foo: A\nFoo: B\nBar:\nFoo: C\nBar: X\n\nEntry\n",
+				array(
+					'Foo' => 'A',
+					'Bar' => '',
+					''    => 'Entry',
+				),
+				array(
+					'warnings' => array(
+						array( 'Duplicate header "Foo", previously seen on line 1.', 2 ),
+						array( 'Duplicate header "Foo", previously seen on line 1.', 4 ),
+						array( 'Duplicate header "Bar", previously seen on line 3.', 5 ),
+					),
+					'lines'    => array(
+						'Foo' => 1,
+						'Bar' => 3,
+						''    => 7,
+					),
+				),
+			),
+			'Invalid header'              => array(
+				"Foo: bar\nWrapped: A\n B\n C\nEntry.\n",
+				$ex( '/^Invalid header.$/', 5 ),
+			),
+		);
+	}
+
+	/**
+	 * Test "bad filename" paths in loadChangeFile.
+	 */
+	public function testLoadChangeFile_badFile() {
+		try {
+			Utils::loadChangeFile( 'doesnotexist/reallydoesnotexist.txt' );
+			$this->fail( 'Expected exception not thrown' );
+		} catch ( \RuntimeException $ex ) {
+			$this->assertSame( 'File does not exist.', $ex->getMessage() );
+			$this->assertNull( $ex->fileLine );
+		}
+		try {
+			Utils::loadChangeFile( '.' );
+			$this->fail( 'Expected exception not thrown' );
+		} catch ( \RuntimeException $ex ) {
+			$this->assertSame( 'Expected a file, got dir.', $ex->getMessage() );
+			$this->assertNull( $ex->fileLine );
+		}
+
+		// Try to create an unreadable file. May fail if tests are running as root.
+		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testLoadChangeFile-' );
+		try {
+			chmod( $temp, 0000 );
+			if ( ! is_readable( $temp ) ) {
+				try {
+					Utils::loadChangeFile( $temp );
+					$this->fail( 'Expected exception not thrown' );
+				} catch ( \RuntimeException $ex ) {
+					$this->assertSame( 'File is not readable.', $ex->getMessage() );
+					$this->assertNull( $ex->fileLine );
+				}
+			}
+		} finally {
+			unlink( $temp );
+		}
 	}
 
 }

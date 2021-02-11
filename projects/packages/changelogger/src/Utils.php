@@ -5,7 +5,7 @@
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 namespace Automattic\Jetpack\Changelogger;
 
@@ -72,6 +72,81 @@ class Utils {
 			}
 		);
 		return $process;
+	}
+
+	/**
+	 * Load and parse a change file to an array.
+	 *
+	 * Header names are normalized. The entry is returned under the empty
+	 * string key.
+	 *
+	 * @param string $filename File to load.
+	 * @param mixed  $diagnostics Output variable, set to an array with diagnostic data.
+	 *   - warnings: An array of warning messages and applicable lines.
+	 *   - lines: An array mapping headers to line numbers.
+	 * @return array
+	 * @throws \RuntimeException On error.
+	 */
+	public static function loadChangeFile( $filename, &$diagnostics = null ) {
+		$diagnostics = array(
+			'warnings' => array(),
+			'lines'    => array(),
+		);
+
+		if ( ! file_exists( $filename ) ) {
+			$ex           = new \RuntimeException( 'File does not exist.' );
+			$ex->fileLine = null;
+			throw $ex;
+		}
+
+		$fileinfo = new \SplFileInfo( $filename );
+		if ( $fileinfo->getType() !== 'file' ) {
+			$ex           = new \RuntimeException( "Expected a file, got {$fileinfo->getType()}." );
+			$ex->fileLine = null;
+			throw $ex;
+		}
+		if ( ! $fileinfo->isReadable() ) {
+			$ex           = new \RuntimeException( 'File is not readable.' );
+			$ex->fileLine = null;
+			throw $ex;
+		}
+
+		self::error_clear_last();
+		$contents = quietCall( 'file_get_contents', $filename );
+		// @codeCoverageIgnoreStart
+		if ( false === $contents ) {
+			$err          = error_get_last();
+			$ex           = new \RuntimeException( "Failed to read file: {$err['message']}" );
+			$ex->fileLine = null;
+			throw $ex;
+		}
+		// @codeCoverageIgnoreEnd
+
+		$ret  = array();
+		$line = 1;
+		while ( preg_match( '/^([A-Z][a-zA-Z0-9-]*):((?:.|\n[ \t])*)(?:\n|$)/', $contents, $m ) ) {
+			if ( isset( $diagnostics['lines'][ $m[1] ] ) ) {
+				$diagnostics['warnings'][] = array(
+					"Duplicate header \"{$m[1]}\", previously seen on line {$diagnostics['lines'][ $m[1] ]}.",
+					$line,
+				);
+			} else {
+				$diagnostics['lines'][ $m[1] ] = $line;
+				$ret[ $m[1] ]                  = trim( preg_replace( '/(\n[ \t]+)+/', ' ', $m[2] ) );
+			}
+			$line    += substr_count( $m[0], "\n" );
+			$contents = (string) substr( $contents, strlen( $m[0] ) );
+		}
+
+		if ( '' !== $contents && "\n" !== $contents[0] ) {
+			$ex           = new \RuntimeException( 'Invalid header.' );
+			$ex->fileLine = $line;
+			throw $ex;
+		}
+		$diagnostics['lines'][''] = $line + strspn( $contents, "\n" );
+		$ret['']                  = trim( $contents );
+
+		return $ret;
 	}
 
 }

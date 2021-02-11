@@ -121,6 +121,16 @@ class Config {
 	}
 
 	/**
+	 * Get the changelog directory.
+	 *
+	 * @return string
+	 */
+	public static function changelogDir() {
+		self::load();
+		return self::$config['base'] . '/changelog';
+	}
+
+	/**
 	 * Get verisoning method.
 	 *
 	 * @return Versioning

@@ -77,15 +77,15 @@ class AddCommand extends Command {
 			);
 		};
 
-		$this->setDescription( 'Adds a changelog entry file' )
-			->addOption( 'filename', 'f', InputOption::VALUE_REQUIRED, 'Name for the changelog file. If not provided, a default will be determined from the current timestamp or git branch name.' )
+		$this->setDescription( 'Adds a change file' )
+			->addOption( 'filename', 'f', InputOption::VALUE_REQUIRED, 'Name for the change file. If not provided, a default will be determined from the current timestamp or git branch name.' )
 			->addOption( 'significance', 's', InputOption::VALUE_REQUIRED, "Significance of the change, in the style of semantic versioning. One of the following:\n" . $joiner( self::$significances ) )
 			->addOption( 'type', 't', InputOption::VALUE_REQUIRED, Config::types() ? "Type of change. One of the following:\n" . $joiner( Config::types() ) : 'Normally this would be used to indicate the type of change, but this project does not use types.' )
 			->addOption( 'comment', 'c', InputOption::VALUE_REQUIRED, 'Optional comment to include in the file.' )
 			->addOption( 'entry', 'e', InputOption::VALUE_REQUIRED, 'Changelog entry. May be empty if the significance is "patch".' )
 			->setHelp(
 				<<<EOF
-The <info>add</info> command adds a new changelog file to the changelog directory.
+The <info>add</info> command adds a new change file to the changelog directory.
 
 By default this is an interactive process: the user will be queried for the necessary
 information, with command line arguments supplying default values. Use <info>--no-interaction</info>
@@ -124,7 +124,7 @@ EOF
 			throw new \RuntimeException( 'Filename may not contain ' . implode( count( $bad ) > 2 ? ', ' : ' ', $bad ) . '.' );
 		}
 
-		$path = Config::base() . "/changelog/$filename";
+		$path = Config::changelogDir() . "/$filename";
 		if ( file_exists( $path ) ) {
 			throw new \RuntimeException( "File \"$path\" already exists. If you want to replace it, delete it manually." );
 		}
@@ -164,7 +164,7 @@ EOF
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) {
 		try {
-			$dir = Config::base() . '/changelog';
+			$dir = Config::changelogDir();
 			if ( ! is_dir( $dir ) ) {
 				Utils::error_clear_last();
 				if ( ! quietCall( 'mkdir', $dir, 0775, true ) ) {
@@ -182,7 +182,7 @@ EOF
 				$filename = $this->getDefaultFilename( $output );
 			}
 			if ( $isInteractive ) {
-				$question = new Question( "Name your changelog file <info>[default: $filename]</> > ", $filename );
+				$question = new Question( "Name your change file <info>[default: $filename]</> > ", $filename );
 				$question->setValidator( array( $this, 'validateFilename' ) );
 				$filename = $this->getHelper( 'question' )->ask( $input, $output, $question );
 				if ( null === $filename ) { // non-interactive.
