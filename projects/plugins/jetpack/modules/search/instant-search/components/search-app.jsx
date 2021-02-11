@@ -163,7 +163,7 @@ class SearchApp extends Component {
 		if ( ! this.state.showResults ) {
 			const value = event.target.querySelector( this.props.themeOptions.searchInputSelector )
 				?.value;
-			value && this.props.setSearchQuery( value );
+			this.props.setSearchQuery( value ); // empty string is an allowed value. Don't do a falsy check.
 			this.showResults();
 		}
 	};
