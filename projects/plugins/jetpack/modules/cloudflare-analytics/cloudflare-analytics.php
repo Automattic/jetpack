@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Cloudflare_Analytics;
  * @since 9.5.0
  */
 function insert_tracking_id() {
-	$option = get_option( 'cloudflare_analytics' );
+	$option = get_option( 'jetpack_cloudflare_analytics' );
 
 	if (
 		! empty( $option['code'] )
