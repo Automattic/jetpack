@@ -5,7 +5,7 @@ package.json      export-ignore
 webpack.config.js export-ignore
 
 # Files to include in the mirror repo
-/assets/js/jetpack-jitm.min.js  production-include
+/src/js/jetpack-jitm.min.js  production-include
 
 # Files to exclude from the mirror repo
 .gitignore        production-exclude

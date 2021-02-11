@@ -1,5 +1,5 @@
 node_modules
 vendor
 composer.lock
-assets/js/*.min.js
+src/js/*.min.js
 yarn.lock

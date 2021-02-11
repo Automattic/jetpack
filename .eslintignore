@@ -30,7 +30,7 @@ projects/plugins/jetpack/vendor/
 projects/plugins/jetpack/extensions/**/test/
 
 ### Packages
-projects/packages/jitm/assets/js/jetpack-jitm.js
+projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
 projects/packages/*/vendor
 projects/packages/*/wordpress

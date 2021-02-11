@@ -104,7 +104,7 @@ class JITM {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
-			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
+			plugins_url( "css/jetpack-admin-jitm{$min}.css", __FILE__ ),
 			false,
 			self::PACKAGE_VERSION .
 			'-201243242'
@@ -115,7 +115,7 @@ class JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( 'assets/js/jetpack-jitm.min.js', 'assets/js/jetpack-jitm.js', __DIR__ ),
+			Assets::get_file_url_for_environment( 'js/jetpack-jitm.min.js', 'js/jetpack-jitm.js', __FILE__ ),
 			array( 'jquery' ),
 			self::PACKAGE_VERSION,
 			true

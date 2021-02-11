@@ -1,7 +1,7 @@
 // @todo Remove this, use calypso-build instead. See https://github.com/Automattic/jetpack/pull/17571.
 // That should also allow us to remove webpack from package.json.
 const path = require( 'path' );
-const packagesFolder = path.resolve( __dirname, 'assets/js' );
+const packagesFolder = path.resolve( __dirname, 'src/js' );
 
 module.exports = [
 	{
