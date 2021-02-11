@@ -1221,7 +1221,8 @@ class Manager {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				$caps = array( 'read' );
+				// With user-less connections in mind, non-admin users can connect their account only if a connection owner exists.
+				$caps = $this->has_connected_owner() ? array( 'read' ) : array( 'manage_options' );
 				break;
 		}
 		return $caps;

@@ -7,6 +7,10 @@
 	}
 }
 
+.wp-block-jetpack-dialogue__timestamp-button {
+	margin-left: 6px;
+}
+
 .wp-block-jetpack-dialogue__timestamp-control__hour,
 .wp-block-jetpack-dialogue__timestamp-control__minute {
 	margin-right: 5px;
@@ -20,6 +24,11 @@
 
 .wp-block-jetpack-dialogue__timestamp-content .wp-block-jetpack-dialogue__timestamp-container {
 	min-width: 290px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-range-control {
+	margin-top: 8px;
+	margin-right: 16px;
 }
 
 .wp-block-jetpack-dialogue__timestamp-dropdown {
