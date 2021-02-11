@@ -77,12 +77,12 @@ jobs:
     - name: Run tests
       if: matrix.gutenberg == 'no'
       working-directory: projects/plugins/jetpack
-      run: yarn test-e2e
+      run: DEBUG=pw:browser|api|error yarn test-e2e
 
     - name: Run tests (excluding updater)
       if: matrix.gutenberg == 'latest'
       working-directory: projects/plugins/jetpack
-      run: yarn test-e2e --testPathIgnorePatterns=updater
+      run: DEBUG=pw:api yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload test artifacts
       if: ${{ always() }}

@@ -23,8 +23,8 @@ module.exports = {
 		devtools: HEADLESS === 'false',
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
 		logger: {
-			isEnabled: ( name, severity ) => name === 'browser',
-			log: ( name, severity, message, args ) => console.log( `${ name } ${ message }` ),
+			isEnabled: () => true,
+			log: ( name, severity, message, args ) => console.log( `!!!!!!  ${ name } ${ message }` ),
 		},
 	},
 	contextOptions: {
