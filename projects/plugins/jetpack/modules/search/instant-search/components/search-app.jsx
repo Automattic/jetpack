@@ -158,6 +158,14 @@ class SearchApp extends Component {
 	handleSubmit = event => {
 		event.preventDefault();
 		this.handleInput.flush();
+
+		// handleInput didn't respawn the overlay. Do it manually -- form submission must spawn an overlay.
+		if ( ! this.state.showResults ) {
+			const value = event.target.querySelector( this.props.themeOptions.searchInputSelector )
+				?.value;
+			value && this.props.setSearchQuery( value );
+			this.showResults();
+		}
 	};
 
 	handleKeydown = event => {
