@@ -2,14 +2,13 @@
 /**
  * External dependencies
  */
-import { wrap, get } from 'lodash';
+import { get, wrap } from 'lodash';
 import fs from 'fs';
-import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
  * Internal dependencies
  */
 import { takeScreenshot } from './reporters/screenshot';
-import { logHTML, logDebugLog } from './page-helper';
+import { logDebugLog, logHTML } from './page-helper';
 import logger from './logger';
 import { execWpCommand } from './utils-helper';
 import {
@@ -18,11 +17,26 @@ import {
 	loginToWpSite,
 } from './flows/jetpack-connect';
 import TunnelManager from './tunnel-manager';
+import config from 'config';
+import path from 'path';
 
-const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
+const { E2E_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
+	let filePath;
+
+	try {
+		filePath = await takeScreenshot( currentBlock, name );
+		reporter.addAttachment(
+			`Test failed: ${ currentBlock } :: ${ name }`,
+			fs.readFileSync( filePath ),
+			'image/png'
+		);
+	} catch ( e ) {
+		logger.warn( `Failed to add attachment to allure report: ${ e }` );
+	}
+
 	// If running tests in CI
 	if ( CI ) {
 		await logDebugLog();
@@ -30,16 +44,8 @@ const defaultErrorHandler = async ( error, name ) => {
 			type: 'failure',
 			message: { block: currentBlock, name, error },
 		} );
-		const filePath = await takeScreenshot( currentBlock, name );
-		logger.slack( { type: 'file', message: filePath } );
-		try {
-			reporter.addAttachment(
-				`Test failed: ${ currentBlock } :: ${ name }`,
-				fs.readFileSync( filePath ),
-				'image/png'
-			);
-		} catch ( e ) {
-			logger.warn( `Failed to add attachment to allure report: ${ e }` );
+		if ( filePath ) {
+			logger.slack( { type: 'file', message: filePath } );
 		}
 	}
 
@@ -49,7 +55,7 @@ const defaultErrorHandler = async ( error, name ) => {
 
 	if ( E2E_DEBUG ) {
 		console.log( error );
-		await jestPuppeteer.debug();
+		await jestPlaywright.debug();
 	}
 
 	throw error;
@@ -57,7 +63,7 @@ const defaultErrorHandler = async ( error, name ) => {
 
 /**
  * Wrapper around `beforeAll` to be able to handle thrown exceptions within the hook.
- * Main reason is to be able to universaly capture screenshots on puppeteer exceptions.
+ * Main reason is to be able to universally capture screenshots on exceptions.
  *
  * @param {*} callback
  * @param {*} errorHandler
@@ -72,10 +78,18 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 	} );
 };
 
-async function setupBrowser() {
-	const userAgent = await browser.userAgent();
-	await page.setUserAgent( userAgent + ' wp-e2e-tests' );
-	await setBrowserViewport( 'large' );
+async function setUserAgent() {
+	let userAgent = await page.evaluate( () => navigator.userAgent );
+	const userAgentSuffix = 'wp-e2e-tests';
+	const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
+
+	// Reset context as a workaround to set a custom user agent
+	await jestPlaywright.resetContext( {
+		userAgent: e2eUserAgent,
+	} );
+
+	userAgent = await page.evaluate( () => navigator.userAgent );
+	logger.info( `User agent updated to: ${ userAgent }` );
 }
 
 /**
@@ -123,6 +137,7 @@ function observeConsoleLogging() {
 			return;
 		}
 
+		//todo confirm this is valid for Playwright, remove if otherwise
 		// As of Puppeteer 1.6.1, `message.text()` wrongly returns an object of
 		// type JSHandle for error logging, instead of the expected string.
 		//
@@ -161,12 +176,15 @@ async function maybePreConnect() {
 
 	if ( status !== 'already_connected' ) {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-		fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
+		fs.writeFileSync(
+			path.resolve( config.get( 'configDir' ), 'jetpack-private-options.txt' ),
+			result.trim()
+		);
 	}
 }
 
 // The Jest timeout is increased because these tests are a bit slow
-jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );
+jest.setTimeout( E2E_TIMEOUT || 300000 );
 if ( E2E_DEBUG ) {
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 }
@@ -183,8 +201,6 @@ jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) =
 
 /**
  * Override the test case method so we can take screenshots of assertion failures.
- *
- * See: https://github.com/smooth-code/jest-puppeteer/issues/131#issuecomment-469439666
  *
  * @param {string} name
  * @param {Function} func
@@ -209,11 +225,20 @@ jasmine.getEnv().addReporter( {
 	jasmineStarted() {
 		logger.info( '############# \n\n\n' );
 	},
+	suiteStarted( result ) {
+		logger.info( `STARTING SUITE: ${ result.fullName }, description: ${ result.description }` );
+	},
+	suiteDone( result ) {
+		logger.info( `SUITE ENDED: ${ result.status }\n` );
+	},
 	specStarted( result ) {
-		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );
+		logger.info( `STARTING SPEC: ${ result.fullName }, description: ${ result.description }` );
 		jasmine.currentTest = result;
 	},
-	specDone: () => ( jasmine.currentTest = null ),
+	specDone( result ) {
+		logger.info( `SPEC ENDED: ${ result.status }\n` );
+		jasmine.currentTest = null;
+	},
 } );
 
 const tunnelManager = new TunnelManager();
@@ -222,11 +247,14 @@ const tunnelManager = new TunnelManager();
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
 // each other's side-effects.
 catchBeforeAll( async () => {
-	await setupBrowser();
+	await setUserAgent();
 
 	// Handles not saved changed dialog in block editor
-	await enablePageDialogAccept();
 	observeConsoleLogging();
+
+	page.on( 'dialog', async dialog => {
+		await dialog.accept();
+	} );
 
 	const url = await tunnelManager.create( process.env.SKIP_CONNECT );
 	global.tunnelUrl = url;
@@ -235,8 +263,4 @@ catchBeforeAll( async () => {
 
 afterAll( async () => {
 	await tunnelManager.close();
-} );
-
-afterEach( async () => {
-	await setupBrowser();
 } );

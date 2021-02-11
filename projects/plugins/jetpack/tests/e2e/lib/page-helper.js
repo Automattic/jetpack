@@ -3,96 +3,15 @@
  */
 import config from 'config';
 /**
- * WordPress dependencies
- */
-import { pressKeyWithModifier } from '@wordpress/e2e-test-utils';
-/**
  * Internal dependencies
  */
 import logger from './logger';
 import { execSyncShellCommand } from './utils-helper';
 
 /**
- * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
- * More details at: https://pptr.dev/#?product=Puppeteer&show=api-pagewaitforselectorselector-options
- *
- * @param {page} page Puppeteer representation of the page.
- * @param {string} selector CSS selector of the element
- * @param {Object} options Custom options to modify function behavior.
- */
-export async function waitForSelector( page, selector, options = {} ) {
-	const startTime = new Date();
-	const { PUPPETEER_HEADLESS } = process.env;
-
-	// set up default options
-	const defaultOptions = { timeout: 30000, logHTML: false };
-	options = Object.assign( defaultOptions, options );
-
-	try {
-		const element = await page.waitForSelector( selector, options );
-		const secondsPassed = ( new Date() - startTime ) / 1000;
-		logger.info( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
-		return element;
-	} catch ( e ) {
-		if ( options.logHTML && PUPPETEER_HEADLESS !== 'false' ) {
-			await logHTML();
-		}
-		const secondsPassed = ( new Date() - startTime ) / 1000;
-		logger.info(
-			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec. URL: ${ page.url() }`
-		);
-		throw e;
-	}
-}
-
-/**
- * Waits for element to be present and visible in DOM, and then clicks on it. @param options could be used to modify click behavior.
- * More: https://pptr.dev/#?product=Puppeteer&version=v1.17.0&show=api-elementhandleclickoptions
- *
- * @param {page} page Puppeteer representation of the page.
- * @param {string} selector CSS selector of the element
- * @param {Object} options Custom options to modify function behavior.
- */
-export async function waitAndClick( page, selector, options = { visible: true } ) {
-	await waitForSelector( page, selector, options );
-
-	try {
-		await page.click( selector, options );
-		logger.info( `Clicked on element by locator: ${ selector }.` );
-	} catch ( e ) {
-		logger.info( `Failed to click on element by locator: ${ selector }. URL: ${ page.url() }` );
-		throw e;
-	}
-}
-
-/**
- * Waits for element to be present in DOM, removes all the previous content and types @param value into the element.
- *
- * @param {page} page Puppeteer representation of the page.
- * @param {string} selector CSS selector of the element
- * @param {string} value Value to type into
- * @param {Object} options Custom options to modify function behavior. The same object passes in two different functions. Use with caution!
- */
-export async function waitAndType( page, selector, value, options = { visible: true, delay: 1 } ) {
-	const el = await waitForSelector( page, selector, options );
-
-	try {
-		await page.focus( selector );
-		await pressKeyWithModifier( 'primary', 'a' );
-		// await el.click( { clickCount: 3 } );
-		await page.waitForTimeout( 300 );
-		await el.type( value, options );
-		logger.info( `Typed into element with locator: ${ selector }.` );
-	} catch ( e ) {
-		logger.info( `Failed to type into element with locator: ${ selector }. URL: ${ page.url() }` );
-		throw e;
-	}
-}
-
-/**
  * Waits for element to be visible, returns false if element was not found after timeout.
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {number} timeout Amount of time to wait for element
  *
@@ -100,7 +19,7 @@ export async function waitAndType( page, selector, value, options = { visible: t
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
 	const isVisible = await isEventuallyPresent( page, selector, {
-		visible: true,
+		state: 'visible',
 		timeout,
 	} );
 	if ( ! isVisible ) {
@@ -113,7 +32,7 @@ export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
  * Waits for element to be present, returns false if element was not found after timeout.
  * A bit low level than `isEventuallyVisible`, which allows to wait for an element to appear in DOM but not visible yet,
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {Object} options Custom options to modify wait behavior.
  *
@@ -123,7 +42,7 @@ export async function isEventuallyPresent( page, selector, options = {} ) {
 	const defaultOptions = { timeout: 5000, logHTML: false };
 	options = Object.assign( defaultOptions, options );
 	try {
-		return !! ( await waitForSelector( page, selector, options ) );
+		return !! ( await page.waitForSelector( selector, options ) );
 	} catch ( e ) {
 		return false;
 	}
@@ -148,24 +67,17 @@ export function getAccountCredentials( accountName ) {
 /**
  * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  * @return {page} New instance of the opened page.
  */
 export async function clickAndWaitForNewPage( page, selector ) {
-	const newTabTarget = new Promise( resolve => {
-		const listener = async target => {
-			if ( target.type() === 'page' ) {
-				browser.removeListener( 'targetcreated', listener );
-				resolve( target );
-			}
-		};
-		browser.addListener( 'targetcreated', listener );
-	} );
+	const [ newPage ] = await Promise.all( [
+		context.waitForEvent( 'page' ),
+		page.click( selector ), // Opens in a new tab
+	] );
 
-	await waitAndClick( page, selector );
-	const target = await newTabTarget;
-	const newPage = await target.page();
+	await newPage.waitForLoadState();
 	await newPage.bringToFront();
 	return newPage;
 }
@@ -173,11 +85,11 @@ export async function clickAndWaitForNewPage( page, selector ) {
 /**
  * Scroll the element into view
  *
- * @param {page} page Puppeteer representation of the page.
+ * @param {page} page Playwright representation of the page.
  * @param {string} selector CSS selector of the element
  */
 export async function scrollIntoView( page, selector ) {
-	await waitForSelector( page, selector );
+	await page.waitForSelector( selector );
 	return await page.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
 }
 

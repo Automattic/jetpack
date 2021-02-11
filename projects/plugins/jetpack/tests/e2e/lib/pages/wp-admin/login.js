@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, waitAndType, waitForSelector } from '../../page-helper';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 
@@ -18,23 +17,28 @@ export default class WPLoginPage extends Page {
 			await this.toggleSSOLogin();
 		}
 
-		await waitAndType( this.page, '#user_login', username );
-		await waitAndType( this.page, '#user_pass', password );
+		await page.type( '#user_login', username );
+		await page.type( '#user_pass', password );
 
 		const navigationPromise = this.page.waitForNavigation();
-		await waitAndClick( this.page, '#wp-submit' );
+		await page.click( '#wp-submit' );
 		await navigationPromise;
 
 		try {
-			await waitForSelector( this.page, this.expectedSelector, {
-				hidden: true,
+			await this.page.waitForSelector( this.expectedSelector, {
+				state: 'hidden',
 			} );
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.info( `The WPORG login didn't work as expected - retrying now: '${ e }'` );
 
-				const filePath = await takeScreenshot( 'WPORG-login-failed' );
-				logger.slack( { type: 'file', message: filePath } );
+				try {
+					const filePath = await takeScreenshot( 'WPORG-login-failed' );
+					logger.slack( { type: 'file', message: filePath } );
+				} catch ( err ) {
+					logger.error( 'There was an error taking a screenshot!' );
+				}
+
 				return await this.login( username, password, { retry: false } );
 			}
 			throw e;
@@ -43,11 +47,11 @@ export default class WPLoginPage extends Page {
 
 	async loginSSO() {
 		const ssoLoginButton = '.jetpack-sso.button';
-		return await waitAndClick( this.page, ssoLoginButton );
+		return await this.page.click( ssoLoginButton );
 	}
 
 	async toggleSSOLogin() {
 		const ssoToggleButton = '.jetpack-sso-toggle';
-		return await waitAndClick( this.page, ssoToggleButton );
+		return await this.page.click( ssoToggleButton );
 	}
 }
