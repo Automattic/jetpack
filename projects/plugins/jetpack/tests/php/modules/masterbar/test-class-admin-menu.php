@@ -134,7 +134,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 50, 51, 59, 60, 65, 70, 75, 80 ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -823,6 +823,35 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'stats',
 		);
 		$this->assertNotContains( $stats_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_gutenberg_menus
+	 *
+	 * @covers ::add_gutenberg_menus
+	 */
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
+
+		// Gutenberg plugin menu should not be visible.
+		$this->assertArrayNotHasKey( 101, $menu );
+
+		// FSE is no longer where it was put by default.
+		$this->assertArrayNotHasKey( 100, $menu );
+		$this->assertArrayHasKey( 61, $menu );
+
+		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
+		$fse_menu = array(
+			'Site Editor',
+			'edit_theme_options',
+			$fse_link,
+			'Site Editor',
+			'menu-top toplevel_page_' . $fse_link,
+			'toplevel_page_' . $fse_link,
+			'dashicons-layout',
+		);
+		$this->assertSame( $menu[61], $fse_menu );
 	}
 
 	/**
