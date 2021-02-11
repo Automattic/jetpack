@@ -4,7 +4,6 @@
 import Page from '../page';
 import { getTunnelSiteUrl } from '../../utils-helper';
 import { searchForBlock } from '@wordpress/e2e-test-utils';
-import { takeScreenshot } from '../../reporters/screenshot';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {

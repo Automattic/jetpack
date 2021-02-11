@@ -3,15 +3,11 @@
  * https://playwright.dev/docs/api/class-browsertype?_highlight=launch#browsertypelaunchoptions
  */
 
-const { CI, E2E_DEBUG, HEADLESS, SLOWMO } = process.env;
-let executablePath = '';
-
-if ( ! CI ) {
-	executablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-}
+let { E2E_DEBUG, HEADLESS, SLOWMO } = process.env;
 
 if ( E2E_DEBUG ) {
 	process.env.DEBUG = 'pw:browser|api|error';
+	HEADLESS = 'false';
 }
 
 process.env.DEBUG = 'pw:browser|api|error';
@@ -23,8 +19,10 @@ module.exports = {
 		devtools: HEADLESS === 'false',
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
 		logger: {
+			// eslint-disable-next-line no-unused-vars
 			isEnabled: ( name, severity ) => name === 'browser',
-			log: ( name, severity, message, args ) => console.log( `${ name } ${ message }` ),
+			// eslint-disable-next-line no-unused-vars
+			log: ( name, severity, message, args ) => console.log( `${ name } >>>> ${ message }` ),
 		},
 	},
 	contextOptions: {
