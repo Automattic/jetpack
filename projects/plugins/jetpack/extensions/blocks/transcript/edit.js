@@ -17,7 +17,7 @@ import { getParticipantByLabel } from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
-function ConversationEdit( { className, attributes, setAttributes } ) {
+function TranscriptEdit( { className, attributes, setAttributes } ) {
 	const { participants = [], showTimestamps } = attributes;
 
 	const updateParticipants = useCallback(
@@ -38,42 +38,42 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
-	const addNewParticipant = useCallback( function( newSpeakerLabel ) {
-		if ( ! newSpeakerLabel ) {
-			return;
-		}
+	const addNewParticipant = useCallback(
+		function ( newParticipantLabel ) {
+			if ( ! newParticipantLabel ) {
+				return;
+			}
 
-		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
-		// Do not add speakers with empty names.
-		if ( ! sanitizedSpeakerLabel?.length ) {
-			return;
-		}
+			newParticipantLabel = newParticipantLabel.trim();
+			// Do not add participants with empty names.
+			if ( ! newParticipantLabel?.length ) {
+				return;
+			}
 
-		// Do not add a new participant with the same label.
-		const existingParticipant = getParticipantByLabel( participants, sanitizedSpeakerLabel );
-		if ( existingParticipant ) {
-			return existingParticipant;
-		}
+			// Do not add a new participant with the same label.
+			const existingParticipant = getParticipantByLabel( participants, newParticipantLabel );
+			if ( existingParticipant ) {
+				return existingParticipant;
+			}
 
-		// Creates the participant slug.
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
+			// Creates the participant slug.
+			const newParticipantSlug = participants.length
+				? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
+				: 'participant-0';
 
-		const newParticipant = {
-			slug: newParticipantSlug,
-			label: sanitizedSpeakerLabel,
-		};
+			const newParticipant = {
+				slug: newParticipantSlug,
+				label: newParticipantLabel,
+			};
 
-		setAttributes( {
-			participants: [
-				...participants,
-				newParticipant,
-			],
-		} );
+			setAttributes( {
+				participants: [ ...participants, newParticipant ],
+			} );
 
-		return newParticipant;
-	}, [ participants, setAttributes ] );
+			return newParticipant;
+		},
+		[ participants, setAttributes ]
+	);
 
 	const setBlockAttributes = useCallback( setAttributes, [] );
 
@@ -87,12 +87,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 				showTimestamps,
 			},
 		} ),
-		[
-			addNewParticipant,
-			setBlockAttributes,
-			showTimestamps,
-			updateParticipants,
-		]
+		[ addNewParticipant, setBlockAttributes, showTimestamps, updateParticipants ]
 	);
 
 	function deleteParticipant( deletedParticipantSlug ) {
@@ -101,7 +96,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 	}
 
-	const baseClassName = 'wp-block-jetpack-conversation';
+	const baseClassName = 'wp-block-jetpack-transcript';
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
@@ -127,4 +122,4 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 }
 
-export default ConversationEdit;
+export default TranscriptEdit;

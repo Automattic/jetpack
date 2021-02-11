@@ -1,4 +1,3 @@
-
 /**
  * WordPress dependencies
  */
@@ -6,12 +5,14 @@ import { create, getTextContent } from '@wordpress/rich-text';
 import { escapeHTML } from '@wordpress/escape-html';
 
 export function getParticipantBySlug( participants, participantSlug ) {
-	const part = participants.filter( ( { slug } ) => ( slug === participantSlug ) );
+	const part = participants.filter( ( { slug } ) => slug === participantSlug );
 	return part?.length ? part[ 0 ] : null;
 }
 
-export function getParticipantByLabel ( participants, participantLabel ) {
-	const part = participants.filter( ( { label } ) => ( label?.toLowerCase() === participantLabel?.toLowerCase() ) );
+export function getParticipantByLabel( participants, participantLabel ) {
+	const part = participants.filter(
+		( { label } ) => label?.toLowerCase() === participantLabel?.toLowerCase()
+	);
 	return part?.length ? part[ 0 ] : null;
 }
 

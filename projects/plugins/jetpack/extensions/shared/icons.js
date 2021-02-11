@@ -168,18 +168,6 @@ export const DonationsIcon = {
 	),
 };
 
-export const ConversationIcon = {
-	foreground: getIconColor(),
-	src: (
-		<SVG viewBox="0 0 24 24">
-			<Rect x="0" fill="none" width="24" height="24" />
-			<G>
-				<Path d="M15.9216 2H2.98533C2.43803 2 1.99023 2.45 1.99023 3V17L5.97062 13H15.9216C16.4689 13 16.9167 12.55 16.9167 12V3C16.9167 2.45 16.4689 2 15.9216 2ZM14.9265 4V11H5.14469L3.98043 12.17V4H14.9265ZM18.9069 6H20.8971C21.4444 6 21.8922 6.45 21.8922 7V22L17.9118 18H6.96572C6.41842 18 5.97062 17.55 5.97062 17V15H18.9069V6Z" />
-			</G>
-		</SVG>
-	),
-};
-
 export const DialogueIcon = {
 	foreground: getIconColor(),
 	src: (

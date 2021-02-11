@@ -11,7 +11,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 export default function save( { attributes } ) {
 	return (
 		<div
-			className={ classnames( 'wp-block-jetpack-conversation', {
+			className={ classnames( 'wp-block-jetpack-transcript', {
 				'show-timestamps': attributes?.showTimestamp,
 			} ) }
 		>

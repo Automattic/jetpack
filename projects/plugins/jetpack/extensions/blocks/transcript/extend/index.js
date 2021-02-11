@@ -14,7 +14,7 @@ import { name } from '../';
  * This function, bound to the `editor.BlockEdit` filter,
  * shows/hides the `jetpack/dialogue` block depending on
  * whether the current block is children, or children of children, or so on,
- * of the `jetpack/conversation` block.
+ * of the `jetpack/transcript` block.
  *
  * @param {Function} OriginalBlockEdit - original edit function fo the block
  * @returns {Function} extended block edit function.

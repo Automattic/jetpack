@@ -11,7 +11,7 @@ import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
-import { list as defaultParticipants } from '../conversation/participants.json';
+import { list as defaultParticipants } from '../transcript/participants.json';
 
 /**
  * Style dependencies
@@ -19,7 +19,7 @@ import { list as defaultParticipants } from '../conversation/participants.json';
 import './style.scss';
 
 export const name = 'dialogue';
-export const title = __( 'Dialogue', 'jetpack' );
+export const title = __( 'Transcript Dialogue', 'jetpack' );
 export const settings = {
 	title,
 	description: __(
@@ -31,7 +31,7 @@ export const settings = {
 	edit,
 	save,
 	attributes,
-	usesContext: [ 'jetpack/conversation-participants', 'jetpack/conversation-showTimestamps' ],
+	usesContext: [ 'jetpack/transcript-participants', 'jetpack/transcript-showTimestamps' ],
 	keywords: [
 		_x( 'dialogue', 'block search term', 'jetpack' ),
 		_x( 'participant', 'block search term', 'jetpack' ),

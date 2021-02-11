@@ -22,11 +22,11 @@ import './editor.scss';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
 import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
-import ConversationContext from '../conversation/components/context';
+import TranscriptContext from '../transcript/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug } from '../conversation/utils';
+import { getParticipantBySlug } from '../transcript/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -34,10 +34,10 @@ const blockNameFallback = 'core/paragraph';
 const useDebounceWithFallback = useDebounce
 	? useDebounce
 	: function useDebounceFallback( ...args ) {
-		const debounced = useMemoOne( () => debounce( ...args ), args );
-		useEffect( () => () => debounced.cancel(), [ debounced ] );
-		return debounced;
-	};
+			const debounced = useMemoOne( () => debounce( ...args ), args );
+			useEffect( () => () => debounced.cancel(), [ debounced ] );
+			return debounced;
+	  };
 
 export default function DialogueEdit( {
 	className,
@@ -48,14 +48,7 @@ export default function DialogueEdit( {
 	mergeBlocks,
 	isSelected,
 } ) {
-	const {
-		content,
-		label,
-		slug,
-		placeholder,
-		showTimestamp,
-		timestamp,
-	} = attributes;
+	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
 	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference } = useSelect( select => {
 		const {
@@ -77,27 +70,25 @@ export default function DialogueEdit( {
 	const contentRef = useRef();
 
 	// Block context integration.
-	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
+	const participantsFromContext = context[ 'jetpack/transcript-participants' ];
 
 	// Participants list.
-	const participants = participantsFromContext?.length
-		? participantsFromContext
-		: [];
+	const participants = participantsFromContext?.length ? participantsFromContext : [];
 
-	const conversationParticipant = getParticipantBySlug( participants, slug );
+	const transcriptParticipant = getParticipantBySlug( participants, slug );
 
-	// Conversation context. A bridge between dialogue and conversation blocks.
-	const conversationBridge = useContext( ConversationContext );
+	// Transcript context. A bridge between dialogue and transcript blocks.
+	const transcriptBridge = useContext( TranscriptContext );
 
 	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
 
-	// Update dialogue participant with conversation participant changes.
+	// Update dialogue participant with transcript participant changes.
 	useEffect( () => {
-		if ( ! conversationParticipant ) {
+		if ( ! transcriptParticipant ) {
 			return;
 		}
 
-		if ( conversationParticipant.slug !== slug ) {
+		if ( transcriptParticipant.slug !== slug ) {
 			return;
 		}
 
@@ -107,9 +98,9 @@ export default function DialogueEdit( {
 		}
 
 		debounceSetDialoguesAttrs( {
-			label: conversationParticipant.label,
+			label: transcriptParticipant.label,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
+	}, [ transcriptParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
@@ -171,24 +162,22 @@ export default function DialogueEdit( {
 				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ label }
-					participant={ conversationParticipant }
+					participant={ transcriptParticipant }
 					participants={ participants }
 					transcriptRef={ contentRef }
-					onParticipantChange={ ( updatedParticipant ) => {
+					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
 					onSelect={ setAttributes }
-
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
 					} }
-
-					onAdd={ ( newLabel ) => {
-						const newParticipant = conversationBridge.addNewParticipant( newLabel );
+					onAdd={ newLabel => {
+						const newParticipant = transcriptBridge.addNewParticipant( newLabel );
 						setAttributes( newParticipant );
 					} }
-					onUpdate={ ( participant ) => {
-						conversationBridge.updateParticipants( participant );
+					onUpdate={ participant => {
+						transcriptBridge.updateParticipants( participant );
 					} }
 				/>
 
@@ -200,7 +189,7 @@ export default function DialogueEdit( {
 						value={ timestamp }
 						mediaCurrentTime={ mediaCurrentTime }
 						onChange={ setTimestamp }
-						onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
+						onToggle={ show => setAttributes( { showTimestamp: show } ) }
 						onPlayback={ audioPlayback }
 					/>
 				) }
@@ -227,7 +216,7 @@ export default function DialogueEdit( {
 				onReplace={ ( blocks, ...args ) => {
 					// If transcription bridge doesn't exist,
 					// then run the default replace process.
-					if ( ! conversationBridge ) {
+					if ( ! transcriptBridge ) {
 						return onReplace( blocks, ...args );
 					}
 

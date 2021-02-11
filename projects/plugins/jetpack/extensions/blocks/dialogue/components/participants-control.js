@@ -21,7 +21,7 @@ import { useMemo, useState, useEffect, Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel, getParticipantBySlug, getPlainText } from '../../conversation/utils';
+import { getParticipantByLabel, getParticipantBySlug, getPlainText } from '../../transcript/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -31,9 +31,7 @@ function ParticipantsMenu( { participants, className, onSelect, slug, onClose } 
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
 			{ participants.map( ( { label, slug: speakerSlug } ) => {
-				const optionLabel = (
-					<span>{ label }</span>
-				);
+				const optionLabel = <span>{ label }</span>;
 
 				return (
 					<MenuItem
@@ -62,10 +60,9 @@ export function ParticipantsControl( { participants, slug, onSelect } ) {
 				label: getPlainText( label ),
 				value,
 			} ) ) }
-			onChange={ participantSlug => onSelect( getParticipantBySlug(
-				participants,
-				participantSlug
-			) ) }
+			onChange={ participantSlug =>
+				onSelect( getParticipantBySlug( participants, participantSlug ) )
+			}
 		/>
 	);
 }
@@ -90,11 +87,7 @@ const DetectOutside = withFocusOutside(
 		}
 
 		render() {
-			return (
-				<div className={ this.props.className }>
-					{ this.props.children }
-				</div>
-			);
+			return <div className={ this.props.className }>{ this.props.children }</div>;
 		}
 	}
 );
@@ -102,22 +95,20 @@ const DetectOutside = withFocusOutside(
 /**
  * Participants Autocompleter.
  *
- * @param {Array} participants - Conversation participants list.
+ * @param {Array} participants - Transcript participants list.
  * @returns {object} Participants autocompleter.
  */
 function refreshAutocompleter( participants ) {
 	return {
-		name: 'jetpack/conversation-participants',
+		name: 'jetpack/transcript-participants',
 		triggerPrefix: '',
 		options: participants,
 
-		getOptionLabel: ( { label } ) => (
-			<span>{ getPlainText( label ) }</span>
-		),
+		getOptionLabel: ( { label } ) => <span>{ getPlainText( label ) }</span>,
 
 		getOptionKeywords: ( { label } ) => [ label ],
 
-		getOptionCompletion: ( option ) => ( {
+		getOptionCompletion: option => ( {
 			action: 'replace',
 			value: option,
 		} ),
@@ -134,8 +125,8 @@ function refreshAutocompleter( participants ) {
  * @param {object}   prop                     - ParticipantRichControl component.
  * @param {string}   prop.className           - Component CSS class.
  * @param {string}   prop.label               - Dialogue participant value. Local level.
- * @param {object}   prop.participant         - Participant object. Gloanl level.
- * @param {Array}    prop.participants        - Participants list. Global level (Conversation block).
+ * @param {object}   prop.participant         - Participant object. Global level.
+ * @param {Array}    prop.participants        - Participants list. Global level (Transcript block).
  * @param {object}   prop.transcriptRef       - Reference to the transcript DOM element (DialogueEdit content).
  * @param {Function} prop.onParticipantChange - Use this callback to update participant label, locally.
  * @param {Function} prop.onUpdate            - Use this callback to update the participant, but globaly.
@@ -156,7 +147,9 @@ export function SpeakerEditControl( {
 	onAdd,
 	onClean,
 } ) {
-	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
+	const [ editingMode, setEditingMode ] = useState(
+		participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING
+	);
 
 	function editSpeakerHandler() {
 		if ( ! label ) {
@@ -214,7 +207,7 @@ export function SpeakerEditControl( {
 		const participantByNewLabel = getParticipantByLabel( participants, newLabel );
 
 		// Set editing mode depending on participant label,
-		// and current conversation participant
+		// and current transcript participant
 		// tied to this Dialogue block.
 		if ( participant ) {
 			if ( participant.label === newLabel ) {
@@ -261,7 +254,7 @@ export function SpeakerEditControl( {
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
-				onReplace={ ( replaceValue ) => {
+				onReplace={ replaceValue => {
 					setTimeout( () => transcriptRef?.current?.focus(), 10 );
 
 					const replacedParticipant = replaceValue?.[ 0 ];

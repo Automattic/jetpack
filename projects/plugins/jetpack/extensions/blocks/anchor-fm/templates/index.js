@@ -72,14 +72,12 @@ function podcastSummarySection( { episodeTrack } ) {
 	return [ 'core/group', {}, sectionBlocks ];
 }
 
-function podcastConversationSection() {
-	const conversationBlockName = 'jetpack/conversation';
-	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType(
-		conversationBlockName
-	);
+function podcastTranscriptSection() {
+	const transcriptBlockName = 'jetpack/transcript';
+	const isTranscriptBlockAvailable = select( 'core/blocks' ).getBlockType( transcriptBlockName );
 
-	// Check if `jetpack/conversation` block is register.
-	if ( ! isConversationBlockAvailable ) {
+	// Check if `jetpack/transcript` block is register.
+	if ( ! isTranscriptBlockAvailable ) {
 		// When it is not, return a fallback core-blocks composition.
 		return [
 			'core/group',
@@ -116,7 +114,7 @@ function podcastConversationSection() {
 	}
 
 	return [
-		conversationBlockName,
+		transcriptBlockName,
 		{
 			participants: [
 				{
@@ -178,7 +176,7 @@ function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack =
 	}
 
 	tpl.push( podcastSummarySection( { episodeTrack } ) );
-	tpl.push( podcastConversationSection() );
+	tpl.push( podcastTranscriptSection() );
 
 	return tpl;
 }

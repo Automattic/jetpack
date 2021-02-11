@@ -17,8 +17,8 @@ import edit from './edit';
 import save from './save';
 import example from './example';
 
-export const name = 'conversation';
-export const title = __( 'Conversation', 'jetpack' );
+export const name = 'transcript';
+export const title = __( 'Transcript', 'jetpack' );
 export const settings = {
 	title,
 	description: __(
@@ -45,7 +45,7 @@ export const settings = {
 	edit,
 	save,
 	providesContext: {
-		'jetpack/conversation-participants': 'participants',
-		'jetpack/conversation-showTimestamps': 'showTimestamps',
+		'jetpack/transcript-participants': 'participants',
+		'jetpack/transcript-showTimestamps': 'showTimestamps',
 	},
 };

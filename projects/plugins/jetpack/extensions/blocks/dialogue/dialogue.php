@@ -28,8 +28,8 @@ function register_block() {
 		array(
 			'render_callback' => __NAMESPACE__ . '\render_block',
 			$uses             => array(
-				'jetpack/conversation-participants',
-				'jetpack/conversation-showTimestamps',
+				'jetpack/transcript-participants',
+				'jetpack/transcript-showTimestamps',
 			),
 		)
 	);
