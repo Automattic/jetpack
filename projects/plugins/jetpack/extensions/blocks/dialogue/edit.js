@@ -210,8 +210,6 @@ export default function DialogueEdit( {
 				ref={ contentRef }
 				identifier="content"
 				multiline
-				tagName="p"
-				className={ `${ BASE_CLASS_NAME }__content` }
 				value={ content }
 				onChange={ value => setAttributes( { content: value } ) }
 				onMerge={ mergeBlocks }

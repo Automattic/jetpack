@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import { BASE_CLASS_NAME } from './utils';
+
 export default {
 	label: {
 		type: 'string',
@@ -19,6 +24,8 @@ export default {
 	content: {
 		type: 'string',
 		source: 'html',
-		selector: '.wp-block-jetpack-dialogue__content',
+		selector: `.${ BASE_CLASS_NAME }__content-wrapper`,
+		multiline: 'p',
+		default: '',
 	},
 };

@@ -29,11 +29,12 @@ export default function save( { attributes } ) {
 					</div>
 				) }
 			</div>
-			<RichText.Content
-				className={ `${ BASE_CLASS_NAME }__content` }
-				tagName="p"
-				value={ content }
-			/>
+			<div className={ `${ BASE_CLASS_NAME }__content-wrapper entry-content` }>
+				<RichText.Content
+					multiline
+					value={ content }
+				/>
+			</div>
 		</div>
 	);
 }
