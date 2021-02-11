@@ -13,6 +13,7 @@ import fs from 'fs';
  * Internal dependencies
  */
 import { generatePackage } from '../../../commands/generate';
+import { readPackageJson } from '../../../helpers/readJson';
 
 const monoRoot = path.join( __dirname, '../../../../../' );
 const destPkg = monoRoot + 'projects/packages/test/';
@@ -26,8 +27,8 @@ before( function () {
 	}
 } );
 
-// Reset after each test to ensure clean merge testing.
-afterEach( function () {
+// Reset after tests to ensure clean merge testing.
+after( function () {
 	try {
 		fs.rmdirSync( destPkg, { recursive: true } );
 	} catch ( e ) {
@@ -41,10 +42,13 @@ describe( 'GENERATE TESTS', function () {
 	} );
 
 	it( 'should copy directories to a new location', function () {
-		generatePackage();
+		const output = generatePackage( { name: 'test', description: 'Changed.' } );
 		// From the common skeleton.
 		chai.expect( fs.existsSync( monoRoot + 'projects/packages/test/package.json' ) ).to.be.true;
 		// From the packages skeleton.
 		chai.expect( fs.existsSync( monoRoot + 'projects/packages/test/phpunit.xml.dist' ) ).to.be.true;
+		chai.expect( output.description ).to.contain( 'Changed.' );
+		const packageJson = readPackageJson( 'packages/test' );
+		chai.expect( packageJson.description ).to.contain( 'Changed.' );
 	} );
 } );

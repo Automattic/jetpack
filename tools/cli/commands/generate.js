@@ -12,7 +12,7 @@ import fs from 'fs';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForGenerate } from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/readJson';
+import { readComposerJson, readPackageJson } from '../helpers/readJson';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
 import mergeDirs from '../helpers/mergeDirs';
 
@@ -80,8 +80,10 @@ export function generateDefine( yargs ) {
  * @todo REMOVE EXPORT. ONLY FOR TESTING.
  *
  * @param {object} answers - Answers from questions.
+ *
+ * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePackage( answers = { name: 'test' } ) {
+export function generatePackage( answers = { name: 'test', description: 'n/a' } ) {
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
@@ -92,4 +94,10 @@ export function generatePackage( answers = { name: 'test' } ) {
 	} catch ( e ) {
 		console.error( e );
 	}
+
+	const packageJson = readPackageJson( 'packages/' + answers.name );
+	packageJson.description = answers.description;
+
+	fs.writeFileSync( pkgDir + '/package.json', JSON.stringify( packageJson ) );
+	return packageJson;
 }
