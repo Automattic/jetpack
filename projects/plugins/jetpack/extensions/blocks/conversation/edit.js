@@ -13,7 +13,7 @@ import { Panel, PanelBody } from '@wordpress/components';
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel, cleanFormatStyle } from './utils';
+import { getParticipantByLabel } from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -27,8 +27,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 					if ( participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
-
-					updatedParticipant.label = cleanFormatStyle( updatedParticipant.label );
 
 					return {
 						...participant,
@@ -45,7 +43,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 			return;
 		}
 
-		const sanitizedSpeakerLabel = cleanFormatStyle( newSpeakerLabel );
+		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
 		// Do not add speakers with empty names.
 		if ( ! sanitizedSpeakerLabel?.length ) {
 			return;

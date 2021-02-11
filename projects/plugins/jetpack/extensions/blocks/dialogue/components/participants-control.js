@@ -21,7 +21,7 @@ import { useMemo, useState, useEffect, Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel, getParticipantBySlug } from '../../conversation/utils';
+import { getParticipantByLabel, getParticipantBySlug, getPlainText } from '../../conversation/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -59,7 +59,7 @@ export function ParticipantsControl( { participants, slug, onSelect } ) {
 			label={ __( 'Participant name', 'jetpack' ) }
 			value={ slug }
 			options={ participants.map( ( { slug: value, label } ) => ( {
-				label,
+				label: getPlainText( label ),
 				value,
 			} ) ) }
 			onChange={ participantSlug => onSelect( getParticipantBySlug(
@@ -112,7 +112,7 @@ function refreshAutocompleter( participants ) {
 		options: participants,
 
 		getOptionLabel: ( { label } ) => (
-			<span>{ label }</span>
+			<span>{ getPlainText( label ) }</span>
 		),
 
 		getOptionKeywords: ( { label } ) => [ label ],
@@ -174,7 +174,7 @@ export function SpeakerEditControl( {
 			setEditingMode( EDIT_MODE_EDITING );
 			return onUpdate( {
 				...participant,
-				label,
+				label: getPlainText( label, true ),
 			} );
 		}
 
@@ -185,7 +185,7 @@ export function SpeakerEditControl( {
 		}
 
 		// Add a new speaker.
-		onAdd( label );
+		onAdd( getPlainText( label, true ) );
 		return setEditingMode( EDIT_MODE_ADDING );
 	}
 
