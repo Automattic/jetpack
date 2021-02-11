@@ -121,7 +121,7 @@ async function promptForGenerate( options ) {
 	}
 
 	// Keep asking for name if it fails validation
-	while ( nameAnswer.length === 0 ) {
+	while ( ! nameAnswer.name ) {
 		try {
 			tries++;
 			const rawNameAnswer = await promptForName();
