@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import pluralize from 'pluralize';
 import inquirer from 'inquirer';
+import chalk from 'chalk';
 
 /**
  * Internal dependencies
@@ -39,8 +40,13 @@ async function generateRouter( options ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function generateCli( argv ) {
-	argv = await promptForGenerate( argv );
-	await generateRouter( argv );
+	try {
+		argv = await promptForGenerate( argv );
+		await generateRouter( argv );
+	} catch ( e ) {
+		console.error( chalk.red( 'Uh oh! ' + e.message ) );
+		process.exit( 1 );
+	}
 }
 
 /**
@@ -95,13 +101,13 @@ export async function promptForGenerate( options ) {
 	if ( ! typeAnswer || typeAnswer.length === 0 ) {
 		typeAnswer = await promptForType();
 	} else if ( ! projectTypes.includes( pluralize( typeAnswer.type ) ) ) {
-		return new Error( 'Must be a valid project type' );
+		throw new Error( 'Must be a valid project type.' );
 	}
 
 	// Get the appropriate list of project prompts based on type
 	const questions = getQuestions( options.type || typeAnswer.type );
 	if ( ! questions ) {
-		return new Error( "Sorry! That's not supported yet!" );
+		throw new Error( 'Sorry! That project type is not supported yet!' );
 	}
 
 	// Validate name if it was passed as an option.
