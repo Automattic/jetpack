@@ -236,6 +236,7 @@
 	.auto-fold #adminmenuback,
 	.auto-fold #adminmenuwrap {
 		width: 100%;
+		z-index: 171;
 	}
 
 	ul#adminmenu a.wp-has-current-submenu:after,
