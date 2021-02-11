@@ -147,8 +147,8 @@ EOF
 					return strtr( $ret, array_fill_keys( array_keys( self::$badChars ), '-' ) );
 				}
 			}
-		} catch ( \Throwable $t ) { // @codeCoverageIgnore
-			$output->writeln( "Command failed: {$t->getMessage()}", OutputInterface::VERBOSITY_DEBUG ); // @codeCoverageIgnore
+		} catch ( \Exception $ex ) { // @codeCoverageIgnore
+			$output->writeln( "Command failed: {$ex->getMessage()}", OutputInterface::VERBOSITY_DEBUG ); // @codeCoverageIgnore
 		}
 
 		$date = new \DateTime( 'now', new \DateTimeZone( 'UTC' ) );
