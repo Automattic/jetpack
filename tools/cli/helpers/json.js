@@ -30,6 +30,25 @@ function readJson( project, packageManager, output ) {
 }
 
 /**
+ * Writes a JSON file.
+ *
+ * @param {string} project - The project's name.
+ * @param {string} packageManager - Which package manager.
+ * @param {string} json - JSON to write.
+ * @param {boolean} output - Should an information message be outputted.
+ *
+ */
+function writeJson( project, packageManager, json, output ) {
+	const file = packageManager + '.json';
+
+	try {
+		fs.writeFileSync( pkgDir + '/' + file, createJSON( json ) );
+	} catch ( err ) {
+		output ? console.error( chalk.red( `Could not write the json file.` ), err ) : null;
+	}
+}
+
+/**
  * Reads the composer.json file and returns a parsed JS object.
  *
  * @param {string} project - The project's name.
@@ -54,6 +73,32 @@ export function readPackageJson( project, output = true ) {
 }
 
 /**
+ * Writes the composer.json file.
+ *
+ * @param {string} project - The project's name.
+ * @param {Object} json - Object to convert.
+ * @param {boolean} output - Should an information message be outputted.
+ *
+ * @returns {void}
+ */
+export function writeComposerJson( project, json, output = true ) {
+	return writeJson( project, 'composer', json, output );
+}
+
+/**
+ * Writes the package.json file.
+ *
+ * @param {string} project - The project's name.
+ * @param {Object} json - Object to convert.
+ * @param {boolean} output - Should an information message be outputted.
+ *
+ * @returns {void}
+ */
+export function writePackageJson( project, json, output = true ) {
+	return writeJson( project, 'package', json, output );
+}
+
+/**
  * Parses the JSON data or throws an log piece on failure.
  *
  * @param {string} data - string of JSON data.
@@ -61,13 +106,33 @@ export function readPackageJson( project, output = true ) {
  *
  * @returns {object|undefined} JSON Object or undefined if unable to read.
  */
-function parseJSON( data, output ) {
+function parseJSON( data, output = false ) {
 	try {
 		data = JSON.parse( data );
 		return data;
 	} catch ( parseError ) {
 		output
 			? log( chalk.red( 'Could not parse JSON. Something is pretty wrong.' ), parseError )
+			: null;
+		return undefined;
+	}
+}
+
+/**
+ * Stringify the JSON data or throws an log piece on failure.
+ *
+ * @param {object} data - data object.
+ * @param {boolean} output - should the console output a message if it can't parse the JSON.
+ *
+ * @returns {string|undefined} JSON string or undefined if unable to read.
+ */
+function createJSON( data, output = false ) {
+	try {
+		data = JSON.stringify( data );
+		return data;
+	} catch ( parseError ) {
+		output
+			? log( chalk.red( 'Could not stringify JSON. Something is pretty wrong.' ), parseError )
 			: null;
 		return undefined;
 	}

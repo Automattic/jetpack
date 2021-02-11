@@ -13,7 +13,7 @@ import fs from 'fs';
  * Internal dependencies
  */
 import { generatePackage } from '../../../commands/generate';
-import { readPackageJson } from '../../../helpers/readJson';
+import { readPackageJson } from '../../../helpers/json';
 
 const monoRoot = path.join( __dirname, '../../../../../' );
 const destPkg = monoRoot + 'projects/packages/test/';

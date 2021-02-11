@@ -12,7 +12,7 @@ import UpdateRenderer from 'listr-update-renderer';
 /**
  * Internal dependencies
  */
-import { readComposerJson, readPackageJson } from '../readJson';
+import { readComposerJson, readPackageJson } from '../json';
 import { chalkJetpackGreen } from '../styling';
 import { normalizeInstallArgv } from '../normalizeArgv';
 

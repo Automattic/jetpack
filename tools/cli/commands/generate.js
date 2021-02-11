@@ -1,18 +1,14 @@
 /**
  * External dependencies
  */
-import chalk from 'chalk';
 import path from 'path';
-import execa from 'execa';
-import Listr from 'listr';
 import fs from 'fs';
 
 /**
  * Internal dependencies
  */
-import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForGenerate } from '../helpers/promptForProject.js';
-import { readComposerJson, readPackageJson } from '../helpers/readJson';
+import { readPackageJson, writePackageJson } from '../helpers/json';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
 import mergeDirs from '../helpers/mergeDirs';
 
@@ -94,9 +90,11 @@ export function generatePackage( answers = { name: 'test', description: 'n/a' } 
 	} catch ( e ) {
 		console.error( e );
 	}
-
-	const packageJson = readPackageJson( 'packages/' + answers.name );
+	const project = 'packages/' + answers.name;
+	const packageJson = readPackageJson( project );
 	packageJson.description = answers.description;
+
+	writePackageJson( project, packageJson );
 
 	fs.writeFileSync( pkgDir + '/package.json', JSON.stringify( packageJson ) );
 	return packageJson;
