@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick } from '../../page-helper';
 
 export default class InPlacePlansPage extends Page {
 	constructor( page ) {
@@ -12,11 +11,11 @@ export default class InPlacePlansPage extends Page {
 
 	async selectFreePlan() {
 		const freePlanButton = '.plans-prompt__footer a';
-		return await waitAndClick( this.page, freePlanButton );
+		return await page.click( freePlanButton );
 	}
 
 	async selectProPlan() {
 		const freePlanButton = ".plan-features__table-item a[href*='business']";
-		return await waitAndClick( this.page, freePlanButton );
+		return await page.click( freePlanButton );
 	}
 }
