@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 
 export default class ThankYouPage extends Page {
 	constructor( page ) {
@@ -15,13 +15,13 @@ export default class ThankYouPage extends Page {
 		await isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
 
 		// Click on "Hide Message"
-		await waitAndClick( this.page, ".current-plan-thank-you a[href*='my-plan']" );
+		await page.click( ".current-plan-thank-you a[href*='my-plan']" );
 		return await this.waitToDisappear();
 	}
 
 	async waitToDisappear() {
-		return await waitForSelector( this.page, this.expectedSelector, {
-			hidden: true,
+		return await this.page.waitForSelector( this.expectedSelector, {
+			state: 'hidden',
 		} );
 	}
 }
