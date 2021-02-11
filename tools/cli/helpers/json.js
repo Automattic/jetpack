@@ -35,10 +35,11 @@ function readJson( project, packageManager, output ) {
  * @param {string} project - The project's name.
  * @param {string} packageManager - Which package manager.
  * @param {string} json - JSON to write.
+ * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
  *
  */
-function writeJson( project, packageManager, json, output ) {
+function writeJson( project, packageManager, json, pkgDir, output ) {
 	const file = packageManager + '.json';
 
 	try {
@@ -76,26 +77,28 @@ export function readPackageJson( project, output = true ) {
  * Writes the composer.json file.
  *
  * @param {string} project - The project's name.
- * @param {Object} json - Object to convert.
+ * @param {object} json - Object to convert.
+ * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
  *
  * @returns {void}
  */
-export function writeComposerJson( project, json, output = true ) {
-	return writeJson( project, 'composer', json, output );
+export function writeComposerJson( project, json, pkgDir, output = true ) {
+	return writeJson( project, 'composer', json, pkgDir, output );
 }
 
 /**
  * Writes the package.json file.
  *
  * @param {string} project - The project's name.
- * @param {Object} json - Object to convert.
+ * @param {object} json - Object to convert.
+ * @param {string} pkgDir - The project's directory.
  * @param {boolean} output - Should an information message be outputted.
  *
  * @returns {void}
  */
-export function writePackageJson( project, json, output = true ) {
-	return writeJson( project, 'package', json, output );
+export function writePackageJson( project, json, pkgDir, output = true ) {
+	return writeJson( project, 'package', json, pkgDir, output );
 }
 
 /**

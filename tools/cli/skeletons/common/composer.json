@@ -1,0 +1,43 @@
+{
+	"name": "automattic/name",
+	"description": "description",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-assets": "@dev"
+	},
+	"require-dev": {
+		"automattic/wordbless": "dev-master",
+		"yoast/phpunit-polyfills": "0.2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-production": "echo 'Not implemented.",
+		"build-development": "echo 'Not implemented.",
+		"phpunit": "echo 'Not implemented.",
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
+		"test-coverage": "echo 'Not implemented.",
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/name"
+	}
+}

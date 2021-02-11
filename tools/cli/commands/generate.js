@@ -11,7 +11,12 @@ import inquirer from 'inquirer';
  */
 import { promptForType, promptForName } from '../helpers/promptForProject.js';
 import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
-import { readPackageJson, writePackageJson } from '../helpers/json';
+import {
+	readPackageJson,
+	readComposerJson,
+	writePackageJson,
+	writeComposerJson,
+} from '../helpers/json';
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
 import mergeDirs from '../helpers/mergeDirs';
 
@@ -21,8 +26,9 @@ import mergeDirs from '../helpers/mergeDirs';
  * @param {object} options - The argv options.
  */
 async function generateRouter( options ) {
-	normalizeGenerateArgv( options );
-	console.log( options );
+	const argv = normalizeGenerateArgv( options );
+	generatePackage( argv );
+	console.log( argv );
 
 	//Route the project to the correct function to be built here.
 }
@@ -140,8 +146,28 @@ export function getQuestions( type ) {
 	const packageQuestions = [
 		{
 			type: 'input',
-			name: 'desc',
+			name: 'description',
 			message: 'Succinctly describe your package:',
+		},
+		{
+			type: 'input',
+			name: 'version',
+			message: 'Give your project a version number:',
+		},
+		{
+			type: 'confirm',
+			name: 'repositories.options.monorepo',
+			message: 'Does your project rely on packages found in the monorepo?',
+		},
+		{
+			type: 'confirm',
+			name: 'scripts.build-development',
+			message: 'Does your project require a build step for DEVELOPMENT?',
+		},
+		{
+			type: 'confirm',
+			name: 'scripts.build-production',
+			message: 'Does your project rely on a build step for PRODUCTION?',
 		},
 	];
 	const pluginQuestions = '';
@@ -181,11 +207,30 @@ export function generatePackage( answers = { name: 'test', description: 'n/a' } 
 		console.error( e );
 	}
 	const project = 'packages/' + answers.name;
+
+	// Generate the package.json file
 	const packageJson = readPackageJson( project );
 	packageJson.description = answers.description;
 
-	writePackageJson( project, packageJson );
-
+	writePackageJson( project, packageJson, pkgDir );
 	fs.writeFileSync( pkgDir + '/package.json', JSON.stringify( packageJson ) );
+
+	// Generate the composer.json file
+	const composerJson = readComposerJson( project );
+	composerJson.description = answers.description;
+	composerJson.name = 'automattic/' + answers.name;
+	composerJson.repositories[ 0 ].options.monorepo = answers.repositories.options.monorepo;
+	composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
+	if ( answers.scripts[ 'build-production' ] ) {
+		composerJson.scripts[ 'build-production' ] =
+			"echo 'Add your build step to composer.json, please!'";
+	}
+	if ( answers.scripts[ 'build-development' ] ) {
+		composerJson.scripts[ 'build-development' ] =
+			"echo 'Add your build step to composer.json, please!'";
+	}
+
+	writeComposerJson( project, composerJson, pkgDir );
+	fs.writeFileSync( pkgDir + '/composer.json', JSON.stringify( composerJson ) );
 	return packageJson;
 }
