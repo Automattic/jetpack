@@ -198,7 +198,7 @@ export const TranscriptIcon = {
 	),
 };
 
-export const TranscriptSpeakerIcon = {
+export const TranscriptDialogueIcon = {
 	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 24 24">
