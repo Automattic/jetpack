@@ -9,8 +9,8 @@ import chalk from 'chalk';
 /**
  * Internal dependencies
  */
-import { promptForType, promptForName } from '../helpers/promptForProject.js';
-import { projectTypes, checkNameValid } from '../helpers/projectHelpers.js';
+import { promptForType, promptForName } from '../helpers/promptForProject';
+import { projectTypes, checkNameValid } from '../helpers/projectHelpers';
 import {
 	readPackageJson,
 	readComposerJson,
@@ -28,10 +28,13 @@ import { chalkJetpackGreen } from '../helpers/styling';
  */
 async function generateRouter( options ) {
 	const argv = normalizeGenerateArgv( options );
-	generatePackage( argv );
-	console.log( argv );
-
-	//Route the project to the correct function to be built here.
+	switch ( options.type ) {
+		case 'package':
+			generatePackage( argv );
+			break;
+		default:
+			throw new Error( 'Unsupported type selected.' );
+	}
 }
 
 /**
