@@ -116,8 +116,10 @@ async function promptForGenerate( options ) {
 	}
 
 	// Validate name if it was passed as an option.
-	if ( options.name ) {
+	if ( options.name && typeof options.name === 'string' ) {
 		try {
+			// Some basic cleanup to avoid causing issues due to mixed caps or external whitespace.
+			options.name = options.name.trim().toLowerCase();
 			nameAnswer.name = checkNameValid( typeAnswer.type, options.name ) ? options.name : null;
 		} catch ( e ) {
 			// Do nothing. Allow the script to continue on as if no value was passed.

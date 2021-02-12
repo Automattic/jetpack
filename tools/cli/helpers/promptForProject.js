@@ -90,8 +90,11 @@ export async function promptForName( options = { name: '' } ) {
 		} );
 	}
 
+	let name = options.name || nameAnswer.name;
+	name = name.trim().toLowerCase();
+
 	return {
 		...options,
-		name: options.name || nameAnswer.name,
+		name: name,
 	};
 }
