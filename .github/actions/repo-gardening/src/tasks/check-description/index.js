@@ -9,7 +9,7 @@ const moment = require( 'moment' );
 const debug = require( '../../debug' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginName = require( '../../get-plugin-name' );
+const getPluginNames = require( '../../get-plugin-names' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -56,25 +56,14 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
 }
 
 /**
- * Build a string with info about the next milestone.
+ * Build some info about a specific plugin's release dates.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
+ * @param {string} plugin        - Plugin name.
+ * @param {object} nextMilestone - Information about next milestone as returnde by GitHub.
  *
- * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
+ * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
-async function buildMilestoneInfo( octokit, owner, repo, number ) {
-	const plugin = await getPluginName( octokit, owner, repo, number );
-	debug( `check-description: plugin found: ${ plugin }` );
-
-	// Get next valid milestone.
-	const ownerLogin = owner.login;
-	const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugin );
-
-	debug( `check-description: Milestone found: ${ nextMilestone }` );
-
+async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate;
 	let codeFreezeDate;
 	if ( nextMilestone ) {
@@ -105,8 +94,39 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	return `
 ******
 
-Next scheduled release: _${ releaseDate }_.
-Scheduled code freeze: _${ codeFreezeDate }_`;
+**${ plugin } plugin:**
+- Next scheduled release: _${ releaseDate }_.
+- Scheduled code freeze: _${ codeFreezeDate }_
+`;
+}
+
+/**
+ * Build a string with info about the next milestone.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ *
+ * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
+ */
+async function buildMilestoneInfo( octokit, owner, repo, number ) {
+	const plugins = await getPluginNames( octokit, owner, repo, number );
+	const ownerLogin = owner.login;
+	let pluginInfo;
+
+	// Get next valid milestone for each plugin.
+	for await ( const plugin of plugins ) {
+		const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugin );
+		debug( `check-description: Milestone found: ${ nextMilestone }` );
+
+		debug( `check-description: getting milestone info for ${ plugin }` );
+		const info = await getMilestoneDates( plugin, nextMilestone );
+
+		pluginInfo += info;
+	}
+
+	return pluginInfo;
 }
 
 /**

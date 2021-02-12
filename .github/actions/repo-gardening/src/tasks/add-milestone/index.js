@@ -4,7 +4,7 @@
 const debug = require( '../../debug' );
 const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginName = require( '../../get-plugin-name' );
+const getPluginNames = require( '../../get-plugin-names' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -39,10 +39,10 @@ async function addMilestone( payload, octokit ) {
 		return;
 	}
 
-	const plugin = await getPluginName( octokit, owner, repo, prNumber );
+	const plugins = await getPluginNames( octokit, owner, repo, prNumber );
 
-	// Get next valid milestone.
-	const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
+	// Get next valid milestone (we can only add one).
+	const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugins[ 0 ] );
 
 	if ( ! nextMilestone ) {
 		throw new Error( 'Could not find a valid milestone' );
