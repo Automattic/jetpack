@@ -233,4 +233,22 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Customize on Atomic sites is always done on WP Admin.
 		parent::add_appearance_menu( $wp_admin_themes, true );
 	}
+
+	/**
+	 * Adds Users menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_users_menu( $wp_admin = false ) {
+		parent::add_users_menu( $wp_admin );
+
+		// No need to add a menu linking to WP Admin if there is already one.
+		if ( $wp_admin ) {
+			return;
+		}
+
+		$parent_menu_slug = 'https://wordpress.com/people/team/' . $this->domain;
+
+		add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
+	}
 }
