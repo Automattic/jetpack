@@ -104,7 +104,7 @@ function TranscriptEdit( { className, attributes, setAttributes } ) {
 				<InspectorControls>
 					<Panel>
 						<PanelBody
-							title={ __( 'Participants', 'jetpack' ) }
+							title={ __( 'Speakers', 'jetpack' ) }
 							className={ `${ baseClassName }__participants` }
 						>
 							<ParticipantsSelector
