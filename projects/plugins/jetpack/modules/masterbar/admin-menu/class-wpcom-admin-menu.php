@@ -57,6 +57,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
+		$this->add_gutenberg_menus( $wp_admin );
+
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -71,6 +73,23 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		// Add the menu item.
 		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
+	}
+
+	/**
+	 * Test_Admin_Menu.
+	 *
+	 * @covers ::reregister_menu_items
+	 */
+	public function test_admin_menu_output() {
+		global $menu;
+
+		static::$admin_menu->reregister_menu_items();
+
+		$this->assertSame(
+			array_keys( $menu ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
+			'Admin menu should not have unexpected top menu items.'
+		);
 	}
 
 	/**
@@ -283,6 +302,37 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		parent::add_options_menu( $wp_admin );
+	}
+
+	/**
+	 * 1. Remove the Gutenberg plugin menu
+	 * 2. Re-add the Site Editor menu
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_gutenberg_menus( $wp_admin = false ) {
+		// Always remove the Gutenberg menu.
+		remove_menu_page( 'gutenberg' );
+
+		// We can bail if we don't meet the conditions of the Site Editor.
+		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
+			return;
+		}
+
+		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
+		remove_menu_page( 'gutenberg-edit-site' );
+
+		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
+
+		add_menu_page(
+			__( 'Site Editor', 'jetpack' ),
+			__( 'Site Editor', 'jetpack' ),
+			'edit_theme_options',
+			$link,
+			$wp_admin ? 'gutenberg_edit_site_page' : null,
+			'dashicons-layout',
+			61 // Just under Appearance.
+		);
 	}
 
 	/**

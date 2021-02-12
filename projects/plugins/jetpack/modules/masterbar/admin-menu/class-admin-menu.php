@@ -121,8 +121,6 @@ class Admin_Menu {
 		$this->add_options_menu( $wp_admin );
 		$this->add_jetpack_menu();
 
-		$this->add_gutenberg_menus( $wp_admin );
-
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -643,37 +641,6 @@ class Admin_Menu {
 			function ( $parent_file ) use ( $jetpack_slug ) {
 				return 'jetpack' === $parent_file ? $jetpack_slug : $parent_file;
 			}
-		);
-	}
-
-	/**
-	 * 1. Remove the Gutenberg plugin menu
-	 * 2. Re-add the Site Editor menu
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_gutenberg_menus( $wp_admin = false ) {
-		// Always remove the Gutenberg menu.
-		remove_menu_page( 'gutenberg' );
-
-		// We can bail if we don't meet the conditions of the Site Editor.
-		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
-			return;
-		}
-
-		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
-		remove_menu_page( 'gutenberg-edit-site' );
-
-		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
-
-		add_menu_page(
-			__( 'Site Editor', 'jetpack' ),
-			__( 'Site Editor', 'jetpack' ),
-			'edit_theme_options',
-			$link,
-			$wp_admin ? 'gutenberg_edit_site_page' : null,
-			'dashicons-layout',
-			61 // Just under Appearance.
 		);
 	}
 
