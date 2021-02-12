@@ -160,7 +160,7 @@ async function promptForGenerate( options ) {
  * @returns {Array} - Array of questions to ask.
  */
 export function getQuestions( type ) {
-	const packageQuestions = [
+	const defaultQuestions = [
 		{
 			type: 'input',
 			name: 'description',
@@ -169,7 +169,7 @@ export function getQuestions( type ) {
 		{
 			type: 'confirm',
 			name: 'repositories.options.monorepo',
-			message: 'Does your project rely on packages found in the monorepo?',
+			message: 'Does your project rely on Composer/PHP packages found in the monorepo?',
 		},
 		{
 			type: 'checkbox',
@@ -188,20 +188,33 @@ export function getQuestions( type ) {
 				},
 			],
 		},
+		{
+			type: 'confirm',
+			name: 'wordbless',
+			message: 'Will you need WorDBless for integration testing?',
+		},
 	];
-	const pluginQuestions = '';
-	const extensionQuestions = '';
-	const githubQuestions = '';
+	const packageQuestions = [];
+	const pluginQuestions = [
+		{
+			type: 'input',
+			name: 'version',
+			message: "What is the plugin's starting version?:",
+			default: '1.0.0-alpha',
+		},
+	];
+	const extensionQuestions = [];
+	const githubQuestions = [];
 
 	switch ( pluralize.singular( type ) ) {
 		case 'plugin':
-			return pluginQuestions;
+			return defaultQuestions.concat( pluginQuestions );
 		case 'package':
-			return packageQuestions;
+			return defaultQuestions.concat( packageQuestions );
 		case 'editor-extension':
-			return extensionQuestions;
+			return defaultQuestions.concat( extensionQuestions );
 		case 'github-action':
-			return githubQuestions;
+			return defaultQuestions.concat( githubQuestions );
 	}
 }
 
@@ -239,8 +252,17 @@ export function generatePackage(
 	const composerJson = readComposerJson( project );
 	composerJson.description = answers.description;
 	composerJson.name = 'automattic/' + answers.name;
-	composerJson.repositories[ 0 ].options.monorepo = answers.repositories.options.monorepo;
-	composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
+	if ( answers.repositories.options.monorepo ) {
+		composerJson.repositories = [
+			{
+				type: 'path',
+				url: '../*',
+				options: {
+					monorepo: true,
+				},
+			},
+		];
+	}
 	if ( answers.buildScripts.includes( 'production' ) ) {
 		composerJson.scripts[ 'build-production' ] =
 			"echo 'Add your build step to composer.json, please!'";
@@ -249,7 +271,16 @@ export function generatePackage(
 		composerJson.scripts[ 'build-development' ] =
 			"echo 'Add your build step to composer.json, please!'";
 	}
+	if ( answers.wordbless ) {
+		composerJson.scripts[ 'post-update-cmd' ] =
+			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
+		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
+	}
 
+	/**
+	 * @todo Move this to the section dealing with mirror repo creation.
+	 */
+	composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
 	writeComposerJson( project, composerJson, pkgDir );
 	return packageJson;
 }
