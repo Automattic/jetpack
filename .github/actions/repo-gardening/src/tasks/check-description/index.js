@@ -258,10 +258,12 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 
 	// If some of our checks are failing, remove any "Needs Review" labels and add an Needs Author Reply label.
 	if ( comment.includes( ':red_circle:' ) ) {
+		debug( `check-description: some of the checks are failing. Update labels accordingly.` );
+
 		await octokit.issues.removeLabel( {
 			owner: owner.login,
 			repo,
-			ssue_number: +number,
+			issue_number: +number,
 			name: '[Status] Needs Review',
 		} );
 		await octokit.issues.addLabels( {
