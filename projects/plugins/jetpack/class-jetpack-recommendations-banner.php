@@ -2,7 +2,7 @@
 /**
  * Displays the site type recommendations question as a banner.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
