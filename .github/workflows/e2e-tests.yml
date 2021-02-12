@@ -73,7 +73,7 @@ jobs:
       run: |
         yarn install
         yarn test-decrypt-config
-        ./tests/e2e/bin/env.sh start
+        ./bin/env.sh start
 
     - name: Run tests
       if: matrix.gutenberg == 'no'
