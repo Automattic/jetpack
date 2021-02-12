@@ -135,7 +135,7 @@ function refreshAutocompleter( participants ) {
  * @param {Function} prop.onClean             - Use this callback to disassociate the Dialogue with a participant.
  * @returns {Function} React component function.
  */
-export function SpeakerEditControl( {
+export function ParticipantEditControl( {
 	className,
 	label,
 	participant,

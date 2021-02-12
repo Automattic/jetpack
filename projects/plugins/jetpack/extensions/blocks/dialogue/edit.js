@@ -19,7 +19,7 @@ import { useDebounce } from '@wordpress/compose';
  * Internal dependencies
  */
 import './editor.scss';
-import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
+import { ParticipantsControl, ParticipantEditControl } from './components/participants-control';
 import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import TranscriptContext from '../transcript/components/context';
@@ -159,7 +159,7 @@ export default function DialogueEdit( {
 			</InspectorControls>
 
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
-				<SpeakerEditControl
+				<ParticipantEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ label }
 					participant={ transcriptParticipant }
