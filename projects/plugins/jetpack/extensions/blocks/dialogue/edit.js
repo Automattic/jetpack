@@ -102,17 +102,20 @@ export default function DialogueEdit( {
 
 		if ( ! conversationParticipant ) {
 			if ( participantExist ) {
-				return debounceSetDialoguesAttrs( participantExist );
+				debounceSetDialoguesAttrs( participantExist );
+				return;
 			}
 
 			return;
 		}
 
-		if ( conversationParticipant.slug === slug ) {
-			return debounceSetDialoguesAttrs( {
-				label: conversationParticipant.label,
-			} );
+		if ( conversationParticipant.slug !== slug ) {
+			return;
 		}
+
+		debounceSetDialoguesAttrs( {
+			label: conversationParticipant.label,
+		} );
 	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, participantExist, slug ] );
 
 	function setTimestamp( time ) {
