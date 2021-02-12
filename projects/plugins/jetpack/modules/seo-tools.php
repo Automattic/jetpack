@@ -10,6 +10,8 @@
  * Module Tags: Social, Appearance
  * Feature: Traffic
  * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
+ *
+ * @package automattic/jetpack
  */
 
 // Suppress SEO Tools output if any of the following plugins is active.
