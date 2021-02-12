@@ -9,6 +9,7 @@ const moment = require( 'moment' );
 const debug = require( '../../debug' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
+const getPluginName = require( '../../get-plugin-name' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -76,23 +77,7 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
  * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
-	const labels = await getLabels( octokit, owner, repo, number );
-
-	// Find out what plugin we need to worry about.
-	// We default to the Jetpack plugin for now.
-	let plugin;
-	labels.map( label => {
-		if ( label.includes( '[Plugin] Jetpack' ) ) {
-			plugin = 'jetpack';
-		}
-
-		if ( label.includes( '[Plugin] Beta Plugin' ) ) {
-			plugin = 'beta';
-		}
-
-		plugin = 'jetpack';
-	} );
-
+	const plugin = await getPluginName( octokit, owner, repo, number );
 	debug( `check-description: plugin found: ${ plugin }` );
 
 	// Get next valid milestone.
