@@ -7,6 +7,7 @@
  */
 import {
 	clearFilters,
+	clearQueryValues,
 	makeSearchRequest,
 	recordSuccessfulSearchRequest,
 	recordFailedSearchRequest,
@@ -104,6 +105,28 @@ describe( 'searchQuery Reducer', () => {
 		const state = searchQuery( undefined, setSearchQuery( 'Some new query' ) );
 		expect( state ).toBe( 'Some new query' );
 	} );
+	test( 'is set to an empty string by a set filter query action propagating to the window', () => {
+		const state = searchQuery( undefined, setFilter( 'post_types', [ 'post', 'page' ] ) );
+		expect( state ).toBe( '' );
+	} );
+	test( 'is set to an empty string by a set sort query action propagating to the window', () => {
+		const state = searchQuery( undefined, setSort( 'newest' ) );
+		expect( state ).toBe( '' );
+	} );
+	test( 'is unchanged by a set filter query or set sort query actions not propagating to the window', () => {
+		expect( searchQuery( undefined, setFilter( 'post_types', [ 'post', 'page' ], false ) ) ).toBe(
+			null
+		);
+		expect( searchQuery( 'hello', setFilter( 'post_types', [ 'post', 'page' ], false ) ) ).toBe(
+			'hello'
+		);
+		expect( searchQuery( undefined, setSort( 'newest', false ) ) ).toBe( null );
+		expect( searchQuery( 'hello', setSort( 'newest', false ) ) ).toBe( 'hello' );
+	} );
+	test( 'is set to null by a clear query values action', () => {
+		const state = searchQuery( undefined, clearQueryValues() );
+		expect( state ).toBe( null );
+	} );
 } );
 
 describe( 'sort Reducer', () => {
@@ -114,6 +137,10 @@ describe( 'sort Reducer', () => {
 	test( 'is updated by a set search query action', () => {
 		const state = sort( undefined, setSort( 'newest' ) );
 		expect( state ).toBe( 'newest' );
+	} );
+	test( 'is set to "relevance" by a clear query values action', () => {
+		const state = sort( undefined, clearQueryValues() );
+		expect( state ).toBe( 'relevance' );
 	} );
 } );
 
@@ -144,6 +171,10 @@ describe( 'filters Reducer', () => {
 	} );
 	test( 'is reset by a clear filters action', () => {
 		const state = filters( { post_types: [ 'post' ] }, clearFilters() );
+		expect( state ).toEqual( {} );
+	} );
+	test( 'is reset by a clear query values action', () => {
+		const state = filters( { post_types: [ 'post' ] }, clearQueryValues() );
 		expect( state ).toEqual( {} );
 	} );
 } );

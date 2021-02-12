@@ -118,3 +118,14 @@ export function clearFilters() {
 		type: 'CLEAR_FILTERS',
 	};
 }
+
+/**
+ * Returns an action object used to clear all query values. Invoked when the search modal is dismissed.
+ *
+ * @returns {object} Action object.
+ */
+export function clearQueryValues() {
+	return {
+		type: 'CLEAR_QUERY_VALUES',
+	};
+}

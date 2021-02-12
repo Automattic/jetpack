@@ -16,6 +16,11 @@ export function searchQuery( state = null, action ) {
 	switch ( action.type ) {
 		case 'SET_SEARCH_QUERY':
 			return action.query;
+		case 'SET_FILTER':
+		case 'SET_SORT':
+			return action.propagateToWindow ? '' : state;
+		case 'CLEAR_QUERY_VALUES':
+			return null;
 	}
 
 	return state;
@@ -30,13 +35,15 @@ export function searchQuery( state = null, action ) {
  * @returns {object} Updated state.
  */
 export function sort( state = 'relevance', action ) {
-	if ( ! VALID_SORT_KEYS.includes( action.sort ) ) {
-		return state;
-	}
-
 	switch ( action.type ) {
-		case 'SET_SORT':
+		case 'SET_SORT': {
+			if ( ! VALID_SORT_KEYS.includes( action.sort ) ) {
+				return state;
+			}
 			return action.sort;
+		}
+		case 'CLEAR_QUERY_VALUES':
+			return 'relevance';
 	}
 
 	return state;
@@ -53,6 +60,7 @@ export function sort( state = 'relevance', action ) {
 export function filters( state = {}, action ) {
 	switch ( action.type ) {
 		case 'CLEAR_FILTERS':
+		case 'CLEAR_QUERY_VALUES':
 			return {};
 		case 'SET_FILTER':
 			if (

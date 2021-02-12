@@ -18,6 +18,7 @@ import Overlay from './overlay';
 import SearchResults from './search-results';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
+	clearQueryValues,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -229,18 +230,13 @@ class SearchApp extends Component {
 	showResults = () => {
 		this.setState( { showResults: true } );
 		this.preventBodyScroll();
-
-		// If we've arrived via a filter or sort only, make sure the search query is set
-		if ( this.props.searchQuery === null ) {
-			this.props.setSearchQuery( '' );
-		}
 	};
 
 	hideResults = () => {
 		this.restoreBodyScroll();
 		restorePreviousHref( this.props.initialHref, () => {
 			this.setState( { showResults: false } );
-			this.props.setSearchQuery( null );
+			this.props.clearQueryValues();
 		} );
 	};
 
@@ -339,6 +335,7 @@ export default connect(
 		widgetOutsideOverlay: getWidgetOutsideOverlay( state ),
 	} ),
 	{
+		clearQueryValues,
 		initializeQueryValues,
 		makeSearchRequest,
 		setFilter,
