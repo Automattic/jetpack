@@ -14,7 +14,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Automattic\\Jetpack\\Changelogger\\": "src"
+			"Automattic\\Jetpack\\Changelogger\\": "src",
+			"Automattic\\Jetpack\\Changelog\\": "src/lib"
 		}
 	},
 	"autoload-dev": {
