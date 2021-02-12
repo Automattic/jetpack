@@ -12,7 +12,7 @@ use Automattic\Jetpack\Status;
 /**
  * Contains utilities related to the Jetpack Recommendations.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
