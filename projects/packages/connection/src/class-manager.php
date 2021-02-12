@@ -20,26 +20,14 @@ use WP_User;
  * and Jetpack.
  */
 class Manager {
-	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
 
 	/**
 	 * Constant used to fetch the master user token. Deprecated.
 	 *
 	 * @deprecated 9.0.0
-	 * @see Manager::CONNECTION_OWNER
 	 * @var boolean
 	 */
 	const JETPACK_MASTER_USER = true; //phpcs:ignore Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed
-
-	/**
-	 * For internal use only. If you need to get the connection owner, use the provided methods
-	 * get_connection_owner_id, get_connection_owner and is_connection_owner
-	 *
-	 * @todo Add private visibility once PHP 7.1 is the minimum supported verion.
-	 *
-	 * @var boolean
-	 */
-	const CONNECTION_OWNER = true;
 
 	/**
 	 * A copy of the raw POST data for signature verification purposes.
@@ -554,7 +542,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_admin() {
-		return (bool) count( $this->get_connected_users( 'manage_options' ) );
+		return (bool) count( Tokens::get_connected_users( 'manage_options' ) );
 	}
 
 	/**
@@ -566,7 +554,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_user() {
-		return (bool) count( $this->get_connected_users() );
+		return (bool) count( Tokens::get_connected_users() );
 	}
 
 	/**

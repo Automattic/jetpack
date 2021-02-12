@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 
 /**
  * @covers Jetpack_Data
@@ -83,7 +84,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_magic_key_returns_stored_blog_token() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
-		$token = $this->connection->get_access_token( false, Connection_Manager::MAGIC_NORMAL_TOKEN_KEY );
+		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -94,7 +95,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::STORED );
 
-		$token = $this->connection->get_access_token( false, Connection_Manager::MAGIC_NORMAL_TOKEN_KEY );
+		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -141,7 +142,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_magic_key_returns_stored_token_when_constant_multi_set() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, Connection_Manager::MAGIC_NORMAL_TOKEN_KEY );
+		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -151,7 +152,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, Connection_Manager::MAGIC_NORMAL_TOKEN_KEY );
+		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( 'looks-like-a.stored-token', $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -180,13 +181,13 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_master_user_returns_false_when_no_master_user() {
 		Jetpack_Options::delete_option( 'master_user' );
-		$token = $this->connection->get_access_token( Connection_Manager::CONNECTION_OWNER );
+		$token = $this->connection->get_access_token( false );
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_master_user() {
-		$token = $this->connection->get_access_token( Connection_Manager::CONNECTION_OWNER );
+		$token = $this->connection->get_access_token( false );
 
 		$this->assertEquals( 'user-two.dos', $token->secret );
 	}

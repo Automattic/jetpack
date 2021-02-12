@@ -27,20 +27,9 @@ class Tokens {
 	 * Constant used to fetch the master user token. Deprecated.
 	 *
 	 * @deprecated 9.0.0
-	 * @see Manager::CONNECTION_OWNER
 	 * @var boolean
 	 */
 	const JETPACK_MASTER_USER = true; //phpcs:ignore Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed
-
-	/**
-	 * For internal use only. If you need to get the connection owner, use the provided methods
-	 * get_connection_owner_id, get_connection_owner and is_connection_owner
-	 *
-	 * @todo Add private visibility once PHP 7.1 is the minimum supported verion.
-	 *
-	 * @var boolean
-	 */
-	const CONNECTION_OWNER = true;
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
@@ -375,7 +364,7 @@ class Tokens {
 			if ( ! $user_tokens ) {
 				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
-			if ( self::CONNECTION_OWNER === $user_id ) {
+			if ( false === $user_id ) { // connection owner.
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
 					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
