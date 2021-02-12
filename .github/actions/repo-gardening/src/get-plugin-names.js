@@ -7,31 +7,25 @@ const getLabels = require( './get-labels' );
 
 /**
  * Get the name of the plugin concerned by this PR.
- * Default to the Jetpack plugin for now.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR / Issue number.
  *
- * @returns {Promise<string>} Promise resolving to the plugin name.
+ * @returns {Promise<Array>} Promise resolving to an array of all the plugins touched by that PR.
  */
-async function getPluginName( octokit, owner, repo, number ) {
-	let plugin;
+async function getPluginNames( octokit, owner, repo, number ) {
+	const plugins = [];
 	const labels = await getLabels( octokit, owner, repo, number );
 	labels.map( label => {
-		if ( label.includes( '[Plugin] Jetpack' ) ) {
-			plugin = 'jetpack';
+		const plugin = label.match( /^\[Plugin\]\s(?<pluginName>[^/]*)$/ );
+		if ( plugin && plugin.groups.pluginName ) {
+			plugins.push( plugin.groups.pluginName.toLowerCase() );
 		}
-
-		if ( label.includes( '[Plugin] Beta Plugin' ) ) {
-			plugin = 'beta';
-		}
-
-		plugin = 'jetpack';
 	} );
 
-	return plugin;
+	return plugins;
 }
 
-module.exports = getPluginName;
+module.exports = getPluginNames;
