@@ -251,11 +251,13 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	// Look for an existing check-description task comment.
 	const existingComment = await getCheckComment( octokit, owner, repo, number );
 
+	const ownerLogin = owner.login;
+
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
 		await octokit.issues.updateComment( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo,
 			comment_id: +existingComment,
 			body: comment,
@@ -265,7 +267,7 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 		debug( `check-description: Posting comment to PR #${ number }` );
 
 		await octokit.issues.createComment( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo,
 			issue_number: +number,
 			body: comment,
@@ -276,10 +278,10 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	if ( comment.includes( ':red_circle:' ) ) {
 		debug( `check-description: some of the checks are failing. Update labels accordingly.` );
 
-		const hasNeedsReview = await hasNeedsReviewLabel( octokit, owner.login, repo, number );
+		const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
 		if ( hasNeedsReview ) {
 			await octokit.issues.removeLabel( {
-				owner: owner.login,
+				owner: ownerLogin,
 				repo,
 				issue_number: +number,
 				name: '[Status] Needs Review',
@@ -287,7 +289,7 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 		}
 
 		await octokit.issues.addLabels( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo,
 			issue_number: +number,
 			labels: [ '[Status] Needs Author Reply' ],
