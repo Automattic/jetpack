@@ -115,8 +115,8 @@
 }
 
 .jp-recommendations-banner__continue-button {
-	background: #007cba;
-	border-color: #007cba;
+	background: $blue-medium-dark;
+	border-color: $blue-medium-dark;
 	color: white;
 	border-style: solid;
 	border-width: 1px;
@@ -134,6 +134,12 @@
 
 	@include breakpoint( '<480px' ) {
 		width: 100%;
+	}
+
+	&:hover {
+		background: $blue-grey-dark;
+		border-color: $blue-grey-dark;
+		color: white;
 	}
 }
 
