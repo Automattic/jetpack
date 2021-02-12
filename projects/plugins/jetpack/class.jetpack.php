@@ -2228,9 +2228,9 @@ class Jetpack {
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Tokens::update_user_token() instead.
-	 *
 	 * Enters a user token into the user_tokens option
+	 *
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Tokens::update_user_token() instead.
 	 *
 	 * @param int    $user_id The user id.
 	 * @param string $token The user token.
