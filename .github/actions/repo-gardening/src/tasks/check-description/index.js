@@ -63,7 +63,7 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
  *
  * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
-async function getMilestoneDates( plugin, nextMilestone = {} ) {
+async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate;
 	let codeFreezeDate;
 	if ( nextMilestone ) {
@@ -96,7 +96,8 @@ async function getMilestoneDates( plugin, nextMilestone = {} ) {
 
 ** ${ plugin } plugin:
 - Next scheduled release: _${ releaseDate }_.
-- Scheduled code freeze: _${ codeFreezeDate }_`;
+- Scheduled code freeze: _${ codeFreezeDate }_
+`;
 }
 
 /**
@@ -111,24 +112,21 @@ async function getMilestoneDates( plugin, nextMilestone = {} ) {
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
-
-	debug( `check-description: plugins found: ${ plugins.join() }` );
+	const ownerLogin = owner.login;
+	let pluginInfo;
 
 	// Get next valid milestone for each plugin.
-	const pluginPromises = plugins.map( async plugin => {
-		const ownerLogin = owner.login;
+	for await ( const plugin of plugins ) {
 		const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugin );
-
 		debug( `check-description: Milestone found: ${ nextMilestone }` );
 
 		debug( `check-description: getting milestone info for ${ plugin }` );
 		const info = await getMilestoneDates( plugin, nextMilestone );
-		return info;
-	} );
 
-	const pluginInfo = await Promise.all( pluginPromises );
+		pluginInfo += info;
+	}
 
-	return pluginInfo.join();
+	return pluginInfo;
 }
 
 /**
