@@ -129,8 +129,9 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	}
 
 	return `
+******
 
-Scheduled release: _${ releaseDate }_.
+Next scheduled release: _${ releaseDate }_.
 Scheduled code freeze: _${ codeFreezeDate }_`;
 }
 
@@ -201,7 +202,7 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	comment += `
 - ${
 		! isLabeled ? `:red_circle:` : `:white_check_mark:`
-	} If possible, add a "[Status]" label (In Progress, Needs Team Review, ...).<br>`;
+	} Add a "[Status]" label (In Progress, Needs Team Review, ...) if possible.<br>`;
 
 	// Check for testing instructions.
 	comment += `
@@ -226,9 +227,12 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	comment += `
 
 
-If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
+This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
 
-If you are an a11n, once your PR is ready for review add the "[Status] Needs Team review" label and ask someone from your team review the code. Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+******
+
+If you are an automattician, once your PR is ready for review add the "[Status] Needs Team review" label and ask someone from your team review the code.
+Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
 
 	// Gather info about the next release for that plugin.
 	const milestoneInfo = await buildMilestoneInfo( octokit, owner, repo, number );
