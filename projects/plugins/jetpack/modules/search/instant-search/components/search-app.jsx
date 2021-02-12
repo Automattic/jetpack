@@ -34,6 +34,7 @@ import {
 	getWidgetOutsideOverlay,
 	hasError,
 	hasFilters,
+	isHistoryNavigation,
 	hasNextPage,
 	isLoading,
 } from '../store/selectors';
@@ -77,7 +78,7 @@ class SearchApp extends Component {
 			// Note the special handling for filters prop, which use object values.
 			stringify( prevProps.filters ) !== stringify( this.props.filters )
 		) {
-			this.onChangeQueryString();
+			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
 	}
 
@@ -152,10 +153,11 @@ class SearchApp extends Component {
 
 	handleHistoryNavigation = () => {
 		// Treat history navigation as brand new query values; re-initialize.
+		// Note that this re-initialization will trigger onChangeQueryString via side effects.
 		this.props.initializeQueryValues( {
 			defaultSort: this.props.defaultSort,
+			isHistoryNavigation: true,
 		} );
-		this.hasActiveQuery() ? this.showResults() : this.hideResults();
 	};
 
 	handleSubmit = event => {
@@ -235,19 +237,26 @@ class SearchApp extends Component {
 		this.preventBodyScroll();
 	};
 
-	hideResults = () => {
+	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
-		restorePreviousHref( this.props.initialHref, () => {
-			this.setState( { showResults: false } );
-			this.props.clearQueryValues();
-		} );
+		restorePreviousHref(
+			this.props.initialHref,
+			() => {
+				this.setState( { showResults: false } );
+				this.props.clearQueryValues();
+			},
+			isHistoryNav
+		);
 	};
 
-	onChangeQueryString = () => {
+	onChangeQueryString = isHistoryNav => {
 		this.getResults();
 
 		if ( this.hasActiveQuery() && ! this.state.showResults ) {
 			this.showResults();
+		}
+		if ( ! this.hasActiveQuery() && isHistoryNav ) {
+			this.hideResults( isHistoryNav );
 		}
 
 		this.props.searchQuery !== null &&
@@ -323,6 +332,7 @@ export default connect(
 		filters: getFilters( state ),
 		hasError: hasError( state ),
 		hasFilters: hasFilters( state ),
+		isHistoryNavigation: isHistoryNavigation( state ),
 		hasNextPage: hasNextPage( state ),
 		isLoading: isLoading( state ),
 		response: getResponse( state ),

@@ -14,8 +14,17 @@ import {
 	setSearchQuery,
 	setSort,
 	setFilter,
+	initializeQueryValues,
 } from '../actions';
-import { filters, hasError, isLoading, response, searchQuery, sort } from '../reducer';
+import {
+	filters,
+	hasError,
+	isHistoryNavigation,
+	isLoading,
+	response,
+	searchQuery,
+	sort,
+} from '../reducer';
 
 describe( 'hasError Reducer', () => {
 	test( 'defaults to false', () => {
@@ -176,5 +185,43 @@ describe( 'filters Reducer', () => {
 	test( 'is reset by a clear query values action', () => {
 		const state = filters( { post_types: [ 'post' ] }, clearQueryValues() );
 		expect( state ).toEqual( {} );
+	} );
+} );
+
+describe( 'isHistoryNavigation Reducer', () => {
+	test( 'defaults to false', () => {
+		expect( isHistoryNavigation( undefined, {} ) ).toBe( false );
+	} );
+
+	test( 'is updated by initializing query values action', () => {
+		expect(
+			isHistoryNavigation( undefined, initializeQueryValues( { isHistoryNavigation: false } ) )
+		).toBe( false );
+		expect(
+			isHistoryNavigation( undefined, initializeQueryValues( { isHistoryNavigation: true } ) )
+		).toBe( true );
+	} );
+
+	test( 'is set to false when a query value update propagates to the window', () => {
+		expect( isHistoryNavigation( undefined, setSearchQuery( 'Some new query' ) ) ).toBe( false );
+		expect( isHistoryNavigation( undefined, setSort( 'newest' ) ) ).toBe( false );
+		expect( isHistoryNavigation( undefined, clearFilters() ) ).toBe( false );
+		expect( isHistoryNavigation( undefined, setFilter( 'post_types', [ 'post', 'page' ] ) ) ).toBe(
+			false
+		);
+	} );
+
+	test( 'ignores query value updates not propagating to the window', () => {
+		expect( isHistoryNavigation( undefined, setSearchQuery( 'Some new query', false ) ) ).toBe(
+			false
+		);
+		expect( isHistoryNavigation( undefined, setSort( 'newest', false ) ) ).toBe( false );
+
+		// NOTE: clearFilters is omitted here because it doesn't have a configurable propagateToWindow parameter.
+		//       clearFilters is always used to propagate to the window in its current useage.
+
+		expect(
+			isHistoryNavigation( undefined, setFilter( 'post_types', [ 'post', 'page' ], false ) )
+		).toBe( false );
 	} );
 } );

@@ -104,3 +104,13 @@ export function getWidgetOutsideOverlay( state ) {
 
 	return { filters };
 }
+
+/**
+ * Returns true if the query string change was performed by a history navigation.
+ *
+ * @param {object} state - Current state.
+ * @returns {boolean} isHistoryNavigation.
+ */
+export function isHistoryNavigation( state ) {
+	return state.isHistoryNavigation;
+}

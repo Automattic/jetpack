@@ -48,13 +48,15 @@ export function recordFailedSearchRequest( error ) {
  *
  * @param {object} params - Input parameters.
  * @param {object} params.defaultSort - Default sort value configured in the customizer.
+ * @param {boolean} params.isHistoryNavigation - True if this action is invoked via history navigation.
  *
  * @returns {object} Action object.
  */
-export function initializeQueryValues( { defaultSort } ) {
+export function initializeQueryValues( { defaultSort, isHistoryNavigation = false } ) {
 	return {
 		type: 'INITIALIZE_QUERY_VALUES',
 		defaultSort,
+		isHistoryNavigation,
 	};
 }
 
@@ -116,6 +118,7 @@ export function setFilter( name, value, propagateToWindow = true ) {
 export function clearFilters() {
 	return {
 		type: 'CLEAR_FILTERS',
+		propagateToWindow: true,
 	};
 }
 
