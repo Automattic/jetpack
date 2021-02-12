@@ -16,7 +16,7 @@ export function getQuery() {
 }
 
 /**
- * Updates the browser's query string.
+ * Updates the browser's query string via a query object.
  *
  * @param {object} queryObject - a query object.
  */
@@ -24,6 +24,11 @@ export function setQuery( queryObject ) {
 	pushQueryString( encode( queryObject ) );
 }
 
+/**
+ * Updates the browser's query string via an encoded query string.
+ *
+ * @param {string} queryString - an encoded query string.
+ */
 function pushQueryString( queryString ) {
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
