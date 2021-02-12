@@ -11,8 +11,8 @@ import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
 
-export function getQuery() {
-	return decode( window.location.search.substring( 1 ), false, false );
+export function getQuery( search = window.location.search ) {
+	return decode( search.substring( 1 ), false, false );
 }
 
 /**
@@ -50,21 +50,32 @@ export function getResultFormatQuery() {
 	return query.result_format;
 }
 
-export function restorePreviousHref( initialHref, callback ) {
-	if ( history.pushState ) {
-		window.history.pushState( null, null, initialHref );
-
-		const query = getQuery();
+export function restorePreviousHref( initialHref, callback, replaceState = false ) {
+	if ( history.pushState && history.replaceState ) {
+		const url = new URL( initialHref );
+		const queryObject = getQuery( url.search );
 		const keys = [ ...getFilterKeys(), 's', 'sort' ];
-		// If initialHref has search or filter query values, clear them and reload.
-		if ( Object.keys( query ).some( key => keys.includes( key ) ) ) {
-			keys.forEach( key => delete query[ key ] );
-			pushQueryString( encode( query ) );
+
+		// If initialHref has search or filter query values, clear them.
+		const initialHasSearchQueries = Object.keys( queryObject ).some( key => keys.includes( key ) );
+		if ( initialHasSearchQueries ) {
+			keys.forEach( key => delete queryObject[ key ] );
+		}
+		url.search = encode( queryObject );
+
+		replaceState
+			? window.history.replaceState( null, null, url.toString() )
+			: window.history.pushState( null, null, url.toString() );
+
+		// If initialHref had search queries, then the page rendered beneath the search modal is WordPress's default search page.
+		// We want to strip these search queries from the URL and direct the user to the root if possible.
+		if ( initialHasSearchQueries ) {
 			window.location.reload();
 			return;
 		}
 
-		// Otherwise, invoke the callback
+		// If we didn't need to reload the window, invoke the callback which is usually used for
+		// React/Redux state transitions to reflect the newly set URL.
 		callback();
 	}
 }
