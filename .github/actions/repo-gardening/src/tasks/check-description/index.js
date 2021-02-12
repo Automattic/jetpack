@@ -20,7 +20,7 @@ const getNextValidMilestone = require( '../../get-next-valid-milestone' );
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  *
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @returns {Promise<number>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
 	let isUnverified = false;
