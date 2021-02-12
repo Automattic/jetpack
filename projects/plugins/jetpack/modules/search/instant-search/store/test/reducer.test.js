@@ -216,10 +216,7 @@ describe( 'isHistoryNavigation Reducer', () => {
 			false
 		);
 		expect( isHistoryNavigation( undefined, setSort( 'newest', false ) ) ).toBe( false );
-
-		// NOTE: clearFilters is omitted here because it doesn't have a configurable propagateToWindow parameter.
-		//       clearFilters is always used to propagate to the window in its current useage.
-
+		expect( isHistoryNavigation( undefined, clearFilters( false ) ) ).toBe( false );
 		expect(
 			isHistoryNavigation( undefined, setFilter( 'post_types', [ 'post', 'page' ], false ) )
 		).toBe( false );

@@ -6,6 +6,7 @@ import { RELEVANCE_SORT_KEY, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/
 import { getFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
+	clearFilters,
 	recordFailedSearchRequest,
 	recordSuccessfulSearchRequest,
 	setFilter,
@@ -80,6 +81,7 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize filter value for the reducer.
 	//
+	store.dispatch( clearFilters( false ) );
 	getFilterKeys()
 		.filter( filterKey => filterKey in queryObject )
 		.forEach( filterKey =>
@@ -151,8 +153,14 @@ function updateFilterQueryString( action ) {
 
 /**
  * Effect handler which will clear filter queries from the location bar
+ *
+ * @param {object} action - Action which had initiated the effect handler.
  */
-function clearFilterQueryString() {
+function clearFilterQueryString( action ) {
+	if ( action.propagateToWindow === false ) {
+		return;
+	}
+
 	const queryObject = getQuery();
 	getFilterKeys().forEach( key => delete queryObject[ key ] );
 	setQuery( queryObject );
