@@ -32,6 +32,7 @@ add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
  * Available at wp-admin/admin.php?page=jetpack_modules
  *
  * @param array $items Array of Jetpack modules.
+ * @return array
  */
 function wpcomsh_rm_masterbar_module_list( $items ) {
 	if ( isset( $items['masterbar'] ) ) {
@@ -40,6 +41,27 @@ function wpcomsh_rm_masterbar_module_list( $items ) {
 	return $items;
 }
 add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
+
+/**
+ * Sets WP_ADMIN constant on API requests for admin menus.
+ *
+ * Attempt to increase our chances that third-party plugins will
+ * register their menu items based on `is_admin()` returning true.
+ *
+ * This has to run before plugins are loaded.
+ */
+function wpcomsh_mimic_admin_page_load() {
+	if ( 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) ) {
+		// Display errors can cause the API request to fail due to the PHP notice
+		// triggered by `$pagenow` not being correctly determined when `WP_ADMIN`
+		// is forced on a non-WP Admin page.
+		@ini_set( 'display_errors', false ); // phpcs:ignore
+
+		define( 'WP_ADMIN', true );
+		require_once ABSPATH . 'wp-admin/includes/admin.php';
+	}
+}
+add_action( 'muplugins_loaded', 'wpcomsh_mimic_admin_page_load' );
 
 /**
  * Determines if the color scheme set on Calypso should be used as the Admin color scheme.
