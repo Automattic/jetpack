@@ -13,7 +13,7 @@
   "license": "GPL-2.0-or-later",
   "author": "Automattic",
   "scripts": {
-	"clean": "yarn clean-client && yarn clean-extensions && yarn clean-composer",
+	"clean": "rm -rf output allure-results",
 	"distclean": "rm -rf node_modules && yarn clean",
 	"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 	"test-e2e-env": "./bin/env.sh start",
