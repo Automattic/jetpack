@@ -575,14 +575,6 @@ class Admin_Menu {
 		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $options_slug, null, 'dashicons-admin-settings', 80 );
 		add_submenu_page( $options_slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $options_slug, null, 10 );
 
-		if ( isset( $wp_settings_fields['general']['default'] ) || isset( $wp_settings_sections['general'] ) ) {
-			add_submenu_page( $options_slug, esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 11 );
-		}
-
-		if ( isset( $wp_settings_fields['writing']['default'] ) || isset( $wp_settings_sections['writing'] ) ) {
-			add_submenu_page( $options_slug, esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php', null, 13 );
-		}
-
 		$this->migrate_submenus( 'options-general.php', $options_slug );
 		add_filter(
 			'parent_file',
