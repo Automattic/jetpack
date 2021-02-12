@@ -12,9 +12,6 @@
  * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
  */
 
-include dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
-include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-
 // Suppress SEO Tools output if any of the following plugins is active.
 $jetpack_seo_conflicting_plugins = array(
 	'wordpress-seo/wp-seo.php',
@@ -26,7 +23,7 @@ $jetpack_seo_conflicting_plugins = array(
 	'slim-seo/slim-seo.php',
 );
 
-foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
+foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
 		// Disable all custom meta tags that SEO tools manages.
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
@@ -37,4 +34,8 @@ foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 	}
 }
 
-new Jetpack_SEO;
+if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
+	require_once dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	new Jetpack_SEO();
+}
