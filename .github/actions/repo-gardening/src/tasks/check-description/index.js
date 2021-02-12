@@ -94,7 +94,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 	return `
 ******
 
-** ${ plugin } plugin:
+**${ plugin } plugin:**
 - Next scheduled release: _${ releaseDate }_.
 - Scheduled code freeze: _${ codeFreezeDate }_
 `;
