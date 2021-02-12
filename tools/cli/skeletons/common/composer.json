@@ -3,10 +3,7 @@
 	"description": "description",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-assets": "@dev"
-	},
+	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
