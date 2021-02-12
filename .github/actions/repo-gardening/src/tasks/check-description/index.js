@@ -135,6 +135,39 @@ Scheduled code freeze: _${ codeFreezeDate }_`;
 }
 
 /**
+ * Search for a previous comment from this task in our PR.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ *
+ * @returns {Promise<number>} Promise resolving to boolean.
+ */
+async function getCheckComment( octokit, owner, repo, number ) {
+	let commentID = 0;
+
+	debug( `check-description: Looking for a previous comment from this task in our PR.` );
+
+	for await ( const response of octokit.paginate.iterator( octokit.issues.listComments, {
+		owner: owner.login,
+		repo,
+		issue_number: +number,
+	} ) ) {
+		response.data.map( comment => {
+			if (
+				comment.user.login === 'github-actions[bot]' &&
+				comment.body.includes( '**Thank you for your PR!**' )
+			) {
+				commentID = comment.id;
+			}
+		} );
+	}
+
+	return commentID;
+}
+
+/**
  * Checks the contents of a PR description.
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
@@ -201,15 +234,29 @@ If you are an a11n, once your PR is ready for review add the "[Status] Needs Tea
 	const milestoneInfo = await buildMilestoneInfo( octokit, owner, repo, number );
 	comment += milestoneInfo;
 
-	// Finally, post comment.
-	debug( `check-description: Posting comment to PR #${ number }` );
+	// Look for an existing check-description task comment.
+	const existingComment = await getCheckComment( octokit, owner, repo, number );
 
-	await octokit.issues.createComment( {
-		owner: owner.login,
-		repo,
-		issue_number: +number,
-		body: comment,
-	} );
+	// If there is a comment already, update it.
+	if ( existingComment !== 0 ) {
+		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
+		await octokit.issues.updateComment( {
+			owner: owner.login,
+			repo,
+			comment_id: +existingComment,
+			body: comment,
+		} );
+	} else {
+		// If no comment was published before, publish one now.
+		debug( `check-description: Posting comment to PR #${ number }` );
+
+		await octokit.issues.createComment( {
+			owner: owner.login,
+			repo,
+			issue_number: +number,
+			body: comment,
+		} );
+	}
 }
 
 module.exports = checkDescription;
