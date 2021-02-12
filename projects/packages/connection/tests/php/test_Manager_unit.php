@@ -271,10 +271,11 @@ class ManagerTest extends TestCase {
 	 * @dataProvider jetpack_connection_custom_caps_data_provider
 	 *
 	 * @param bool   $in_offline_mode Whether offline mode is active.
+	 * @param bool   $owner_exists Whether a connection owner exists.
 	 * @param string $custom_cap The custom capability that is being tested.
 	 * @param array  $expected_caps The expected output.
 	 */
-	public function test_jetpack_connection_custom_caps( $in_offline_mode, $custom_cap, $expected_caps ) {
+	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		add_filter(
 			'jetpack_offline_mode',
@@ -282,6 +283,10 @@ class ManagerTest extends TestCase {
 				return $in_offline_mode;
 			}
 		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $owner_exists ); // 0 or 1 is alright for our testing purposes.
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
@@ -292,22 +297,25 @@ class ManagerTest extends TestCase {
 	 *
 	 * Structure of the test data arrays:
 	 *     [0] => 'in_offline_mode'   boolean Whether offline mode is active.
-	 *     [1] => 'custom_cap'        string The custom capability that is being tested.
-	 *     [2] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
+	 *     [1] => 'owner_exists'      boolean Whether a connection owner exists.
+	 *     [2] => 'custom_cap'        string The custom capability that is being tested.
+	 *     [3] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
 	 */
 	public function jetpack_connection_custom_caps_data_provider() {
 
 		return array(
-			'offline mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
-			'offline mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
-			'offline mode, jetpack_disconnect'       => array( true, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'offline mode, jetpack_connect_user'     => array( true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
-			'offline mode, unknown cap'              => array( true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
-			'not offline mode, jetpack_connect'      => array( false, 'jetpack_connect', array( 'manage_options' ) ),
-			'not offline mode, jetpack_reconnect'    => array( false, 'jetpack_reconnect', array( 'manage_options' ) ),
-			'not offline mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'not offline mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
-			'not offline mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'offline mode, owner exists, jetpack_connect'  => array( true, true, 'jetpack_connect', array( 'do_not_allow' ) ),
+			'offline mode, owner exists, jetpack_reconnect' => array( true, true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
+			'offline mode, owner exists, jetpack_disconnect' => array( true, true, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'offline mode, owner exists, jetpack_connect_user' => array( true, true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
+			'offline mode, no owner, jetpack_connect_user' => array( true, false, 'jetpack_connect_user', array( 'do_not_allow' ) ),
+			'offline mode, owner exists, unknown cap'      => array( true, true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'not offline mode, owner exists, jetpack_connect' => array( false, true, 'jetpack_connect', array( 'manage_options' ) ),
+			'not offline mode, owner exists, jetpack_reconnect' => array( false, true, 'jetpack_reconnect', array( 'manage_options' ) ),
+			'not offline mode, owner exists, jetpack_disconnect' => array( false, true, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'not offline mode, owner exists, jetpack_connect_user' => array( false, true, 'jetpack_connect_user', array( 'read' ) ),
+			'not offline mode, no owner, jetpack_connect_user' => array( false, false, 'jetpack_connect_user', array( 'manage_options' ) ),
+			'not offline mode, owner exists, unknown cap'  => array( false, true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
 		);
 	}
 

@@ -2,7 +2,7 @@
 /**
  * A multi-checkbox Customizer control for use with Jetpack Search configuration
  *
- * @package jetpack
+ * @package automattic/jetpack
  * @since 8.8.0
  */
 
@@ -95,13 +95,13 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 				<?php echo esc_html( $this->description ); ?>
 			</span>
 			<?php endif ?>
-			<input 
+			<input
 				class="customize-control-excluded-post-types"
-				id="<?php echo esc_attr( $this->id ); ?>" 
-				name="<?php echo esc_attr( $this->id ); ?>" 
-				type="hidden" 
+				id="<?php echo esc_attr( $this->id ); ?>"
+				name="<?php echo esc_attr( $this->id ); ?>"
+				type="hidden"
 				value="<?php echo esc_attr( $this->value() ); ?>"
-				<?php $this->link(); ?> 
+				<?php $this->link(); ?>
 			/>
 		<?php
 

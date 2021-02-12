@@ -9,6 +9,7 @@ import { assign, get, merge } from 'lodash';
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
+import { isCurrentUserLinked } from 'state/connection';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -133,6 +134,17 @@ export function userCanDisconnectSite( state ) {
 
 export function userCanConnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
+}
+
+/**
+ * Returns true if current user can connect their WordPress.com account.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {boolean} Whether current user can connect their WordPress.com account.
+ */
+export function userCanConnectAccount( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect_user', false );
 }
 
 /**
@@ -343,9 +355,10 @@ export function getPartnerSubsidiaryId( state ) {
 /**
  * Return an upgrade URL
  *
- * @param {object} state Global state tree
- * @param {string} source Context where this URL is clicked.
- * @param {string} userId Current user id.
+ * @param {object} state - Global state tree
+ * @param {string} source - Context where this URL is clicked.
+ * @param {string} userId - Current user id.
+ * @param {boolean} planDuration - Add plan duration to the URL.
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
@@ -353,15 +366,18 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
+
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
 	}
 
 	return (
-		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
+		'https://jetpack.com/redirect/?' +
+		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
 		( uid ? `&u=${ uid }` : '' ) +
-		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
+		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
+		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' )
 	);
 };
 

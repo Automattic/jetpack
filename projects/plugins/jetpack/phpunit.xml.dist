@@ -134,12 +134,10 @@
 		<whitelist>
 			<directory suffix=".php">.</directory>
 			<exclude>
-				<directory suffix=".php">packages/*/tests</directory>
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">views</directory>
-				<directory suffix=".php">bin</directory>
 				<directory suffix=".php">tools</directory>
-				<directory suffix=".php">docker</directory>
+				<directory suffix=".php">node_modules</directory>
 			</exclude>
 		</whitelist>
 	</filter>

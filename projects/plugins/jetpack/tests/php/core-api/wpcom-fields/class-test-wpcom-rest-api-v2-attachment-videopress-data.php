@@ -3,7 +3,7 @@
  * Tests that Attachments do have VideoPress data in REST API
  * responses if the VideoPress Module is active.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  *
  * @group videopress
  * @group rest-api

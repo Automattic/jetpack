@@ -2,7 +2,7 @@
 /**
  * Test Suite for extra oEmbed providers available in Jetpack.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

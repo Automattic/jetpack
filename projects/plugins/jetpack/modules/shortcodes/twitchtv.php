@@ -6,7 +6,7 @@
  * [twitchtv url='https://www.twitch.tv/paperbat' height='378' width='620' autoplay='false']
  * [twitchtv url='https://www.twitch.tv/paperbat/b/323486192' height='378' width='620' autoplay='false']
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

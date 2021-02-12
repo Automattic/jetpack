@@ -10,7 +10,7 @@
  * Feature: Recommended
  * Additional Search Queries: sitemap, traffic, search, site map, seo
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

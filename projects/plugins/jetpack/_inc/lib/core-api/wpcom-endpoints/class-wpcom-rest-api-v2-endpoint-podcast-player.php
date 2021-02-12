@@ -2,7 +2,7 @@
 /**
  * Podcast Player API
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 8.4.0
  */
 
@@ -42,7 +42,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 						return current_user_can( 'edit_posts' );
 					},
 					'args'                => array(
-						'url'   => array(
+						'url'             => array(
 							'description'       => __( 'The Podcast RSS feed URL.', 'jetpack' ),
 							'type'              => 'string',
 							'required'          => 'true',
@@ -50,7 +50,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 								return wp_http_validate_url( $param );
 							},
 						),
-						'guids' => array(
+						'guids'           => array(
 							'description'       => __( 'A list of unique identifiers for fetching specific podcast episodes.', 'jetpack' ),
 							'type'              => 'array',
 							'required'          => 'false',
@@ -60,6 +60,11 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 							'sanitize_callback' => function ( $guids ) {
 									return array_map( 'sanitize_text_field', $guids );
 							},
+						),
+						'episode-options' => array(
+							'description' => __( 'Whether we should return the episodes list for use in the selection UI', 'jetpack' ),
+							'type'        => 'boolean',
+							'required'    => 'false',
 						),
 					),
 					'schema'              => array( $this, 'get_public_item_schema' ),
@@ -77,11 +82,17 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	public function get_player_data( $request ) {
 		$helper = new Jetpack_Podcast_Helper( $request['url'] );
 
+		$args = array();
+
 		if ( isset( $request['guids'] ) ) {
-			$player_data = $helper->get_player_data( array( 'guids' => $request['guids'] ) );
-		} else {
-			$player_data = $helper->get_player_data();
+			$args['guids'] = $request['guids'];
 		}
+
+		if ( isset( $request['episode-options'] ) && $request['episode-options'] ) {
+			$args['episode-options'] = true;
+		}
+
+		$player_data = $helper->get_player_data( $args );
 
 		if ( is_wp_error( $player_data ) ) {
 			return rest_ensure_response( $player_data );

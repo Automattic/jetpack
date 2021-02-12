@@ -2,7 +2,7 @@
 /**
  * Jetpack Beta wp-admin menu tab page contents.
  *
- * @package Jetpack Beta
+ * @package automattic/jetpack-beta
  */
 
 ?>

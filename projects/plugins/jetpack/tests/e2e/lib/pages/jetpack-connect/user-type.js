@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick } from '../../page-helper';
 
 export default class JetpackUserTypePage extends Page {
 	constructor( page ) {
@@ -12,6 +11,6 @@ export default class JetpackUserTypePage extends Page {
 
 	async selectUserType( userType ) {
 		const userTypeSelector = `button[data-e2e-slug='${ userType }']`;
-		return await waitAndClick( this.page, userTypeSelector );
+		return await page.click( userTypeSelector );
 	}
 }

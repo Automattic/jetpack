@@ -2,6 +2,7 @@ import localtunnel from 'localtunnel';
 import config from 'config';
 import fs from 'fs';
 import axios from 'axios';
+import path from 'path';
 
 import logger from './logger';
 
@@ -32,7 +33,7 @@ export default class TunnelManager {
 		}
 
 		if ( ! oneOff ) {
-			fs.writeFileSync( 'e2e_tunnels.txt', this.url );
+			fs.writeFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), this.url );
 		}
 
 		return this.url;
@@ -70,7 +71,10 @@ export default class TunnelManager {
 
 		// use already created subdomain if found
 		try {
-			const urlFromFile = fs.readFileSync( 'e2e_tunnels.txt', 'utf8' );
+			const urlFromFile = fs.readFileSync(
+				path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ),
+				'utf8'
+			);
 			if ( urlFromFile && urlFromFile.length > 1 ) {
 				const subdomain = this.getSubdomain( urlFromFile );
 				tunnelConfig.subdomain = subdomain;

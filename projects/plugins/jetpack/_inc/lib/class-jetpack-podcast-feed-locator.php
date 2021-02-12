@@ -2,7 +2,7 @@
 /**
  * Extension of the SimplePie_Locator class, to detect podcast feeds
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -37,7 +37,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie_Locator {
 
 		// Do this as either/or but prioritise the itunes namespace. It's pretty likely
 		// that it's a podcast feed we've found if that namespace is present.
-		return $feed_dom && ( $this->has_itunes_ns( $feed_dom ) || $this->has_audio_enclosures( $feed_dom ) );
+		return $feed_dom && $this->has_itunes_ns( $feed_dom ) && $this->has_audio_enclosures( $feed_dom );
 	}
 
 	/**

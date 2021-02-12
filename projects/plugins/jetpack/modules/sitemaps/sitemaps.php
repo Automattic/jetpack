@@ -25,7 +25,7 @@
  *
  * @link https://support.google.com/webmasters/answer/74288 News sitemap extension.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 3.9.0
  * @since 4.8.0 Remove 1000 post limit.
  * @author Automattic

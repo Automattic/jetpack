@@ -155,7 +155,7 @@ class Table_Checksum {
 				'table'           => $wpdb->comments,
 				'range_field'     => 'comment_ID',
 				'key_fields'      => array( 'comment_ID' ),
-				'checksum_fields' => array( 'comment_content' ),
+				'checksum_fields' => array( 'comment_date_gmt' ),
 				'filter_values'   => array(
 					'comment_type' => array(
 						'operator' => 'IN',

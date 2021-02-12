@@ -1227,8 +1227,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @uses Jetpack::is_user_connected();
-	 *
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function get_user_connection_data_permission_callback() {
@@ -1260,12 +1258,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @uses Jetpack::is_user_connected();
+	 * @uses Automattic\Jetpack\Connection\Manager::is_user_connected();)
 	 *
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) && Jetpack::is_user_connected( get_current_user_id() ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) && ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() ) ) {
 			return true;
 		}
 
@@ -1808,7 +1806,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		if ( ! Jetpack::is_user_connected( $new_owner_id ) ) {
+		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $new_owner_id ) ) {
 			return new WP_Error(
 				'new_owner_not_connected',
 				esc_html__( 'New owner is not connected', 'jetpack' ),
@@ -1885,7 +1883,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error Response, else error.
 	 */
 	public static function get_user_tracking_settings( $request ) {
-		if ( ! Jetpack::is_user_connected() ) {
+		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			$response = array(
 				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
 			);
@@ -1918,7 +1916,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error Response, else error.
 	 */
 	public static function update_user_tracking_settings( $request ) {
-		if ( ! Jetpack::is_user_connected() ) {
+		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			$response = array(
 				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
 			);

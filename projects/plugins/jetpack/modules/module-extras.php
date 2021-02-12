@@ -4,7 +4,7 @@
  * For example, if a module shouldn't be activatable unless certain conditions are met,
  * the code belongs in this file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
