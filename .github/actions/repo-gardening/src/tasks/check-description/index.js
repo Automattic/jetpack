@@ -185,7 +185,7 @@ async function getCheckComment( octokit, owner, repo, number ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { body, number } = payload.pull_request;
+	const { base, body, head, number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 
 	debug( `check-description: start building our comment` );
@@ -207,12 +207,15 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 - ${ isDirty ? `:red_circle:` : `:white_check_mark:` } All commits were linted before commit.<br>`;
 
 	// Use labels please!
-	const isLabeled = await hasStatusLabels( octokit, owner, repo, number );
-	debug( `check-description: this PR is correctly labeled: ${ isLabeled }` );
-	comment += `
+	// Only check this for PRs created by a12s. External contributors cannot add labels.
+	if ( head.repo.full_name === base.repo.full_name ) {
+		const isLabeled = await hasStatusLabels( octokit, owner, repo, number );
+		debug( `check-description: this PR is correctly labeled: ${ isLabeled }` );
+		comment += `
 - ${
-		! isLabeled ? `:red_circle:` : `:white_check_mark:`
-	} Add a "[Status]" label (In Progress, Needs Team Review, ...) if possible.<br>`;
+			! isLabeled ? `:red_circle:` : `:white_check_mark:`
+		} Add a "[Status]" label (In Progress, Needs Team Review, ...).<br>`;
+	}
 
 	// Check for testing instructions.
 	comment += `
