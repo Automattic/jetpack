@@ -56,9 +56,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		}
 
 		// Creates the participant slug.
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
+		const newParticipantSlug = `speaker-${ +( new Date() ) }`;
 
 		const newParticipant = {
 			slug: newParticipantSlug,
