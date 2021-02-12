@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
@@ -39,11 +40,9 @@ class Jetpack_XMLRPC_Server {
 
 	/**
 	 * Creates a new XMLRPC server object.
-	 *
-	 * @param Automattic\Jetpack\Connection\Manager $manager the connection manager object.
 	 */
-	public function __construct( $manager = null ) {
-		$this->connection = is_null( $manager ) ? new Connection_Manager() : $manager;
+	public function __construct() {
+		$this->connection = new Connection_Manager();
 	}
 
 	/**
@@ -570,7 +569,7 @@ class Jetpack_XMLRPC_Server {
 		$verify_secret = isset( $params[1] ) ? $params[1] : '';
 		$state         = isset( $params[2] ) ? $params[2] : '';
 
-		$result = $this->connection->verify_secrets( $action, $verify_secret, $state );
+		$result = Secrets::verify( $action, $verify_secret, $state );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
@@ -675,7 +674,7 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = $this->connection->get_access_token( $user_id );
+		$jetpack_token = Tokens::get_access_token( $user_id );
 
 		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
 		if ( ! $api_user_code ) {
@@ -753,7 +752,7 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return Connection_Manager::disconnect_user(
+		return Tokens::disconnect_user(
 			$user_id,
 			(bool) $user_id
 		);
@@ -908,7 +907,7 @@ class Jetpack_XMLRPC_Server {
 			$token_key = $verified['token_key'];
 		}
 
-		$token = $this->connection->get_access_token( $user_id, $token_key );
+		$token = Tokens::get_access_token( $user_id, $token_key );
 		if ( ! $token || is_wp_error( $token ) ) {
 			return false;
 		}

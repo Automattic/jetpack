@@ -1508,7 +1508,7 @@ class Manager {
 
 		$roles       = new Roles();
 		$role        = $roles->translate_user_to_role( $user );
-		$signed_role = $this->sign_role( $role );
+		$signed_role = Tokens::sign_role( $role );
 
 		/**
 		 * Filter the URL of the first time the user gets redirected back to your site for connection
@@ -1636,7 +1636,7 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$token = $this->get_token( $data );
+		$token = Tokens::get( $data, $this->api_url( 'token' ) );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
