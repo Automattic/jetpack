@@ -294,7 +294,7 @@
 	}
 
 	#wpadminbar #wp-admin-bar-ab-new-post > .ab-item {
-		box-sizing: inherit;
+		box-sizing: inherit !important;
 	}
 
 	#wpadminbar #wp-admin-bar-my-account > .ab-item {
@@ -309,5 +309,17 @@
 		position: static;
 		margin-top: 3px;
 		top: 13px;
+	}
+}
+
+@media screen and  (max-width: 480px) {
+	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
+		width: auto;
+		margin-top: 12px;
+	}
+
+	/* Hide debug bar on mobile devices. */
+	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-debug-bar {
+		display: none;
 	}
 }
