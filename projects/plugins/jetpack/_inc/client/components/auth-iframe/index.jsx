@@ -18,7 +18,7 @@ import {
 	isAuthorizingUserInPlace,
 	hasConnectedOwner,
 } from 'state/connection';
-import InPlaceConnection from '@automattic/jetpack-in-place-connection';
+import { InPlaceConnection } from '@automattic/jetpack-connection';
 
 export class AuthIframe extends React.Component {
 	static displayName = 'AuthIframe';

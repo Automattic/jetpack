@@ -42,7 +42,7 @@ if ( program.args.length ) {
 		mocha.addFile( file );
 	} );
 } else {
-	glob.sync( './!(node_modules)/test/*.js' ).forEach( file => {
+	glob.sync( './!(node_modules)/**/test/*.jsx' ).forEach( file => {
 		mocha.addFile( file );
 	} );
 }

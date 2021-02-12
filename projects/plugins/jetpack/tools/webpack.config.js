@@ -23,12 +23,11 @@ const sharedWebpackConfig = {
 		...baseWebpackConfig.resolve,
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 
-		// Alias for @automattic/jetpack-in-place-connection.
 		alias: {
-			'@automattic/jetpack-in-place-connection': path.resolve(
+			'@automattic/jetpack-connection': path.resolve(
 				path.dirname( path.dirname( path.dirname( __dirname ) ) ),
 				'rna',
-				'in-place-connection'
+				'connection'
 			),
 		},
 	},
