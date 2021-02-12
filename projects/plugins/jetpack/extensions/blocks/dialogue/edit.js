@@ -10,7 +10,7 @@ import { useMemoOne } from 'use-memo-one';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useContext, useEffect, useRef, useMemo } from '@wordpress/element';
+import { useContext, useEffect, useRef } from '@wordpress/element';
 import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
@@ -26,7 +26,7 @@ import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantByLabel, getParticipantBySlug } from '../conversation/utils';
+import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -91,8 +91,6 @@ export default function DialogueEdit( {
 
 	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
 
-	const participantExist = useMemo( () => getParticipantByLabel( participants, label ), [ label, participants ] );
-
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
 		// Do not update current Dialogue block.
@@ -100,15 +98,12 @@ export default function DialogueEdit( {
 			return;
 		}
 
+		// When no context, nothing to do.
 		if ( ! conversationParticipant ) {
-			if ( participantExist ) {
-				debounceSetDialoguesAttrs( participantExist );
-				return;
-			}
-
 			return;
 		}
 
+		// Only take care of Dialogue with same speaker.
 		if ( conversationParticipant.slug !== slug ) {
 			return;
 		}
@@ -116,7 +111,7 @@ export default function DialogueEdit( {
 		debounceSetDialoguesAttrs( {
 			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, participantExist, slug ] );
+	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
@@ -191,7 +186,7 @@ export default function DialogueEdit( {
 					} }
 
 					onAdd={ ( newLabel ) => {
-						const newParticipant = conversationBridge.addNewParticipant( newLabel );
+						const newParticipant = conversationBridge.addNewParticipant( { label: newLabel, slug } );
 						setAttributes( newParticipant );
 					} }
 					onUpdate={ ( participant ) => {
