@@ -54,7 +54,7 @@ function ParticipantsMenu( { participants, className, onSelect, slug, onClose } 
 export function ParticipantsControl( { participants, slug, onSelect } ) {
 	return (
 		<SelectControl
-			label={ __( 'Participant name', 'jetpack' ) }
+			label={ __( 'Speaker name', 'jetpack' ) }
 			value={ slug }
 			options={ participants.map( ( { slug: value, label } ) => ( {
 				label: getPlainText( label ),

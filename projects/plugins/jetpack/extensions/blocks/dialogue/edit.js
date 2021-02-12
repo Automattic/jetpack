@@ -129,7 +129,7 @@ export default function DialogueEdit( {
 
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
+					<PanelBody title={ __( 'Speaker', 'jetpack' ) }>
 						<ParticipantsControl
 							className={ BASE_CLASS_NAME }
 							participants={ participants }
