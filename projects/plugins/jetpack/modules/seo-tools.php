@@ -37,7 +37,7 @@ foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 }
 
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
-	require_once dirname( __FILE__ ) . '/seo-tools/jetpack-seo.php';
+	require_once __DIR__ . '/seo-tools/jetpack-seo.php';
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	new Jetpack_SEO();
 }
