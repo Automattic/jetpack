@@ -304,6 +304,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
 		remove_menu_page( 'gutenberg-edit-site' );
+		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
+		remove_filter( 'menu_order', 'gutenberg_menu_order' );
 
 		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
 
