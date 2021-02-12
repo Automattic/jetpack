@@ -20,15 +20,6 @@ use WP_User;
  * and Jetpack.
  */
 class Manager {
-
-	/**
-	 * Constant used to fetch the master user token. Deprecated.
-	 *
-	 * @deprecated 9.0.0
-	 * @var boolean
-	 */
-	const JETPACK_MASTER_USER = true; //phpcs:ignore Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed
-
 	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *

@@ -24,14 +24,6 @@ class Tokens {
 	const MAGIC_NORMAL_TOKEN_KEY     = ';normal;';
 
 	/**
-	 * Constant used to fetch the master user token. Deprecated.
-	 *
-	 * @deprecated 9.0.0
-	 * @var boolean
-	 */
-	const JETPACK_MASTER_USER = true; //phpcs:ignore Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed
-
-	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
 	 *
 	 * @return bool True if disconnected successfully, false otherwise.
