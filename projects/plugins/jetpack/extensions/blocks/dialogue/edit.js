@@ -10,7 +10,7 @@ import { useMemoOne } from 'use-memo-one';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useContext, useEffect, useRef } from '@wordpress/element';
+import { useContext, useEffect, useRef, useMemo } from '@wordpress/element';
 import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
@@ -26,7 +26,7 @@ import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
 import { MediaPlayerToolbarControl } from '../../shared/components/media-player-control';
 import { convertSecondsToTimeCode } from '../../shared/components/media-player-control/utils';
-import { getParticipantBySlug } from '../conversation/utils';
+import { getParticipantByLabel, getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
@@ -91,25 +91,29 @@ export default function DialogueEdit( {
 
 	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
 
+	const participantExist = useMemo( () => getParticipantByLabel( participants, label ), [ label, participants ] );
+
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		if ( ! conversationParticipant ) {
-			return;
-		}
-
-		if ( conversationParticipant.slug !== slug ) {
-			return;
-		}
-
 		// Do not update current Dialogue block.
 		if ( isSelected ) {
 			return;
 		}
 
-		debounceSetDialoguesAttrs( {
-			label: conversationParticipant.label,
-		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
+		if ( ! conversationParticipant ) {
+			if ( participantExist ) {
+				return debounceSetDialoguesAttrs( participantExist );
+			}
+
+			return;
+		}
+
+		if ( conversationParticipant.slug === slug ) {
+			return debounceSetDialoguesAttrs( {
+				label: conversationParticipant.label,
+			} );
+		}
+	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, participantExist, slug ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
