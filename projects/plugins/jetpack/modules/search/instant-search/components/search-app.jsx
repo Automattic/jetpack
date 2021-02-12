@@ -10,6 +10,7 @@ import { createPortal } from 'preact/compat';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
+import stringify from 'fast-json-stable-stringify';
 
 /**
  * Internal dependencies
@@ -70,12 +71,13 @@ class SearchApp extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		if ( prevProps.searchQuery !== this.props.searchQuery ) {
-			this.onChangeSearchQuery();
-		}
-
-		if ( prevProps.sort !== this.props.sort || prevProps.filters !== this.props.filters ) {
-			this.onChangeSortOrFilters();
+		if (
+			prevProps.searchQuery !== this.props.searchQuery ||
+			prevProps.sort !== this.props.sort ||
+			// Note the special handling for filters prop, which use object values.
+			stringify( prevProps.filters ) !== stringify( this.props.filters )
+		) {
+			this.onChangeQueryString();
 		}
 	}
 
@@ -240,24 +242,17 @@ class SearchApp extends Component {
 		} );
 	};
 
-	onChangeSearchQuery = () => {
-		this.getResults();
-
-		if ( this.props.searchQuery !== null && ! this.state.showResults ) {
-			this.showResults();
-		}
-
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.value = this.props.searchQuery;
-		} );
-	};
-
-	onChangeSortOrFilters = () => {
+	onChangeQueryString = () => {
 		this.getResults();
 
 		if ( this.hasActiveQuery() && ! this.state.showResults ) {
 			this.showResults();
 		}
+
+		this.props.searchQuery !== null &&
+			document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+				input.value = this.props.searchQuery;
+			} );
 	};
 
 	loadNextPage = () => {
