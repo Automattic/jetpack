@@ -313,8 +313,11 @@
 }
 
 @media screen and  (max-width: 480px) {
-	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
+	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-my-account.with-avatar > a {
 		width: auto;
+	}
+
+	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
 		margin-top: 12px;
 	}
 
