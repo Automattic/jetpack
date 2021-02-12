@@ -66,22 +66,23 @@ jobs:
       run: yarn build-production-concurrently
 
     - name: Set up environment
-      working-directory: projects/plugins/jetpack
+      working-directory: projects/plugins/jetpack/tests/e2e
       env:
         NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
+        yarn install
         yarn test-decrypt-config
         ./tests/e2e/bin/env.sh start
 
     - name: Run tests
       if: matrix.gutenberg == 'no'
-      working-directory: projects/plugins/jetpack
+      working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e
 
     - name: Run tests (excluding updater)
       if: matrix.gutenberg == 'latest'
-      working-directory: projects/plugins/jetpack
+      working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e --testPathIgnorePatterns=updater
 
     - name: Upload test artifacts
