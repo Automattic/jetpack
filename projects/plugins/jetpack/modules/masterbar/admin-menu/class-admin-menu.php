@@ -578,7 +578,7 @@ class Admin_Menu {
 		if ( isset( $wp_settings_fields['general']['default'] ) || isset( $wp_settings_sections['general'] ) ) {
 			add_submenu_page( $options_slug, esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 11 );
 		}
-		
+
 		if ( isset( $wp_settings_fields['writing']['default'] ) || isset( $wp_settings_sections['writing'] ) ) {
 			add_submenu_page( $options_slug, esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php', null, 13 );
 		}
