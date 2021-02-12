@@ -31,7 +31,7 @@ const automations = [
 	},
 	{
 		event: 'pull_request',
-		action: [ 'opened', 'synchronize', 'edited', 'labeled' ],
+		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: checkDescription,
 	},
 ];
