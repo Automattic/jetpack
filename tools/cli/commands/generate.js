@@ -46,8 +46,10 @@ export async function generateCli( argv ) {
 	try {
 		argv = await promptForGenerate( argv );
 		await generateRouter( argv );
+		console.log( argv );
 	} catch ( e ) {
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
+		console.log( argv );
 		process.exit( 1 );
 	}
 }
@@ -165,24 +167,26 @@ export function getQuestions( type ) {
 			message: 'Succinctly describe your package:',
 		},
 		{
-			type: 'input',
-			name: 'version',
-			message: 'Give your project a version number:',
-		},
-		{
 			type: 'confirm',
 			name: 'repositories.options.monorepo',
 			message: 'Does your project rely on packages found in the monorepo?',
 		},
 		{
-			type: 'confirm',
-			name: 'scripts.build-development',
-			message: 'Does your project require a build step for DEVELOPMENT?',
-		},
-		{
-			type: 'confirm',
-			name: 'scripts.build-production',
-			message: 'Does your project rely on a build step for PRODUCTION?',
+			type: 'checkbox',
+			name: 'buildScripts',
+			message: 'Does your project require a build steps?',
+			choices: [
+				{
+					name: 'Production Build Step',
+					checked: true,
+					value: 'production',
+				},
+				{
+					name: 'Development or Generic Build Step',
+					checked: true,
+					value: 'development',
+				},
+			],
 		},
 	];
 	const pluginQuestions = '';
@@ -210,7 +214,9 @@ export function getQuestions( type ) {
  *
  * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePackage( answers = { name: 'test', description: 'n/a' } ) {
+export function generatePackage(
+	answers = { name: 'test', description: 'n/a', buildScripts: [] }
+) {
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
@@ -235,11 +241,11 @@ export function generatePackage( answers = { name: 'test', description: 'n/a' } 
 	composerJson.name = 'automattic/' + answers.name;
 	composerJson.repositories[ 0 ].options.monorepo = answers.repositories.options.monorepo;
 	composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
-	if ( answers.scripts[ 'build-production' ] ) {
+	if ( answers.buildScripts.includes( 'production' ) ) {
 		composerJson.scripts[ 'build-production' ] =
 			"echo 'Add your build step to composer.json, please!'";
 	}
-	if ( answers.scripts[ 'build-development' ] ) {
+	if ( answers.buildScripts.includes( 'development' ) ) {
 		composerJson.scripts[ 'build-development' ] =
 			"echo 'Add your build step to composer.json, please!'";
 	}
