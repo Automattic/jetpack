@@ -27,12 +27,12 @@ const automations = [
 	{
 		event: 'pull_request',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
-		task: checkDescription,
+		task: addLabels,
 	},
 	{
 		event: 'pull_request',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
-		task: addLabels,
+		task: checkDescription,
 	},
 ];
 
