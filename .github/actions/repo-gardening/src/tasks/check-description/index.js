@@ -51,8 +51,24 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're really only interested in status labels
+	// We're really only interested in status labels.
 	return !! labels.find( label => label.includes( '[Status]' ) );
+}
+
+/**
+ * Check for a "Need Review" label on a PR.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ *
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	// We're really only interested in the Needs review label.
+	return !! labels.find( label => label.includes( '[Status] Needs Review' ) );
 }
 
 /**
@@ -235,11 +251,13 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	// Look for an existing check-description task comment.
 	const existingComment = await getCheckComment( octokit, owner, repo, number );
 
+	const ownerLogin = owner.login;
+
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
 		await octokit.issues.updateComment( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo,
 			comment_id: +existingComment,
 			body: comment,
@@ -249,7 +267,7 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 		debug( `check-description: Posting comment to PR #${ number }` );
 
 		await octokit.issues.createComment( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo,
 			issue_number: +number,
 			body: comment,
@@ -260,14 +278,20 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	if ( comment.includes( ':red_circle:' ) ) {
 		debug( `check-description: some of the checks are failing. Update labels accordingly.` );
 
-		await octokit.issues.removeLabel( {
-			owner: owner.login,
-			repo,
-			issue_number: +number,
-			name: '[Status] Needs Review',
-		} );
+		const hasNeedsReview = await hasNeedsReviewLabel( octokit, owner, repo, number );
+		if ( hasNeedsReview ) {
+			debug( `check-description: remove existing Needs review label.` );
+			await octokit.issues.removeLabel( {
+				owner: ownerLogin,
+				repo,
+				issue_number: +number,
+				name: '[Status] Needs Review',
+			} );
+		}
+
+		debug( `check-description: add Needs Author Reply label.` );
 		await octokit.issues.addLabels( {
-			owner: owner.login,
+			owner: ownerLogin,
 			repo,
 			issue_number: +number,
 			labels: [ '[Status] Needs Author Reply' ],
