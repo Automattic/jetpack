@@ -51,8 +51,24 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're really only interested in status labels
+	// We're really only interested in status labels.
 	return !! labels.find( label => label.includes( '[Status]' ) );
+}
+
+/**
+ * Check for a "Need Review" label on a PR.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ *
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	// We're really only interested in the Needs review label.
+	return !! labels.find( label => label.includes( '[Status] Needs Review' ) );
 }
 
 /**
@@ -260,12 +276,16 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	if ( comment.includes( ':red_circle:' ) ) {
 		debug( `check-description: some of the checks are failing. Update labels accordingly.` );
 
-		await octokit.issues.removeLabel( {
-			owner: owner.login,
-			repo,
-			issue_number: +number,
-			name: '[Status] Needs Review',
-		} );
+		const hasNeedsReview = await hasNeedsReviewLabel( octokit, owner.login, repo, number );
+		if ( hasNeedsReview ) {
+			await octokit.issues.removeLabel( {
+				owner: owner.login,
+				repo,
+				issue_number: +number,
+				name: '[Status] Needs Review',
+			} );
+		}
+
 		await octokit.issues.addLabels( {
 			owner: owner.login,
 			repo,
