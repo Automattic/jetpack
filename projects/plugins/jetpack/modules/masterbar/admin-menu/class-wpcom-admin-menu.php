@@ -76,23 +76,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Test_Admin_Menu.
-	 *
-	 * @covers ::reregister_menu_items
-	 */
-	public function test_admin_menu_output() {
-		global $menu;
-
-		static::$admin_menu->reregister_menu_items();
-
-		$this->assertSame(
-			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
-			'Admin menu should not have unexpected top menu items.'
-		);
-	}
-
-	/**
 	 * Adds a custom element class for Site Switcher menu item.
 	 *
 	 * @param array $menu Associative array of administration menu items.

@@ -449,10 +449,3 @@ function get_submenu_fixture() {
 function gutenberg_is_fse_theme() {
 	return true;
 }
-
-/**
- * Mock for testing
- */
-function get_user_attribute() {
-	return array();
-}
