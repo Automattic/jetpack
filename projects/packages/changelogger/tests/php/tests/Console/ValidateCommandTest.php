@@ -161,4 +161,18 @@ EOF
 		);
 	}
 
+	/**
+	 * Test runs with custom `extra.changelogger.types`.
+	 */
+	public function testExecute_customTypes() {
+		$this->markAsRisky( 'Write some tests for using it with custom types defined' );
+	}
+
+	/**
+	 * Test runs with empty `extra.changelogger.types`.
+	 */
+	public function testExecute_noTypes() {
+		$this->markAsRisky( 'Write some tests for using it with no types defined' );
+	}
+
 }
