@@ -7,7 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -491,7 +491,7 @@ class Jetpack_XMLRPC_Server {
 		}
 		$token = sanitize_text_field( $token );
 
-		Connection_Utils::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
+		Tokens::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
 
 		$this->do_post_authorization();
 

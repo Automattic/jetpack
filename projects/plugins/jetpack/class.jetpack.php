@@ -1,4 +1,5 @@
 <?php
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
@@ -6,7 +7,8 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Secrets;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -2226,7 +2228,7 @@ class Jetpack {
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::update_user_token() instead.
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Tokens::update_user_token() instead.
 	 *
 	 * Enters a user token into the user_tokens option
 	 *
@@ -2236,8 +2238,8 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::update_user_token' );
-		return Connection_Utils::update_user_token( $user_id, $token, $is_master_user );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::update_user_token' );
+		return Tokens::update_user_token( $user_id, $token, $is_master_user );
 	}
 
 	/**
@@ -5330,7 +5332,8 @@ endif;
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		return self::connection()->generate_secrets( $action, $user_id, $exp );
+		$secrets = new Secrets();
+		return $secrets->generate( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {
