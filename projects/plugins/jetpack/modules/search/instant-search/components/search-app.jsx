@@ -214,6 +214,7 @@ class SearchApp extends Component {
 		this.showResults();
 	};
 
+	// Treat overlay trigger clicks to be equivalent to setting an empty string search query.
 	handleOverlayTriggerClick = event => {
 		event.stopImmediatePropagation();
 		this.props.setSearchQuery( '' );

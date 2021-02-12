@@ -11,6 +11,12 @@ import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys } from './filters';
 import { decode } from '../external/query-string-decode';
 
+/**
+ * Parses the address bar's query string into an object.
+ *
+ * @param {string} search - raw query string prepended with '?'
+ * @returns {object} queryObject - a query object.
+ */
 export function getQuery( search = window.location.search ) {
 	return decode( search.substring( 1 ), false, false );
 }
@@ -40,6 +46,11 @@ function pushQueryString( queryString ) {
 	}
 }
 
+/**
+ * Returns a result format value from the query string. Used to override the site's configured result format.
+ *
+ * @returns {null|string} resultFormatQuery
+ */
 export function getResultFormatQuery() {
 	const query = getQuery();
 
@@ -50,6 +61,13 @@ export function getResultFormatQuery() {
 	return query.result_format;
 }
 
+/**
+ * Navigates the window to a specified location with all search-related query values stirpped out.
+ *
+ * @param {string} initialHref - Target location to navigate to via push/replaceState.
+ * @param {Function} callback - Callback to be invoked if initialHref didn't include any search queries.
+ * @param {boolean} replaceState - Flag to toggle replaceState or pushState invocation. Useful if this function's being invoked due to history navigation.
+ */
 export function restorePreviousHref( initialHref, callback, replaceState = false ) {
 	if ( history.pushState && history.replaceState ) {
 		const url = new URL( initialHref );
