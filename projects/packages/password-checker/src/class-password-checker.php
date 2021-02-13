@@ -348,7 +348,7 @@ class Password_Checker {
 	 * @return array user data.
 	 */
 	protected function get_other_user_data() {
-		if ( ! isset( $this->user_id ) ) {
+		if ( empty( $this->user_id ) ) {
 			return array();
 		}
 
