@@ -493,7 +493,7 @@ class Manager {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
 			return $this->is_connected();
 		}
-		return (bool) Tokens::get_access_token( self::CONNECTION_OWNER );
+		return (bool) Tokens::get_access_token();
 	}
 
 	/**
@@ -520,7 +520,7 @@ class Manager {
 	 */
 	public function is_connected() {
 		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = (bool) Tokens::get_access_token( false );
+		$has_blog_token = (bool) Tokens::get_access_token();
 		return $has_blog_id && $has_blog_token;
 	}
 
