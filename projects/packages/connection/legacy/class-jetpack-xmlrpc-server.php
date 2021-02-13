@@ -182,7 +182,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		$user_token = $this->connection->get_access_token( $user->ID );
+		$user_token = Tokens::get_access_token( $user->ID );
 
 		if ( $user_token ) {
 			list( $user_token_key ) = explode( '.', $user_token->secret );
@@ -327,7 +327,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( ! Jetpack_Options::get_option( 'id' ) || ! $this->connection->get_access_token() || ! empty( $request['force'] ) ) {
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! Tokens::get_access_token() || ! empty( $request['force'] ) ) {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.

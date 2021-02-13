@@ -41,13 +41,13 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 
 	public function test_get_access_token_with_no_args_returns_false_when_no_blog_token() {
 		Jetpack_Options::delete_option( 'blog_token' );
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_no_args_returns_blog_token() {
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
 	}
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_no_args_returns_defined_blog_token_when_constant_set() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 
 		$this->assertEquals( self::DEFINED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 
 		$this->assertEquals( self::DEFINED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -75,7 +75,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_stored_key_returns_stored_blog_token() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
-		$token = $this->connection->get_access_token( false, '12345' );
+		$token = Tokens::get_access_token( false, '12345' );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -84,7 +84,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_magic_key_returns_stored_blog_token() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED );
 
-		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
+		$token = Tokens::get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -95,7 +95,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::STORED );
 
-		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
+		$token = Tokens::get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -104,7 +104,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_no_args_returns_first_defined_blog_token_when_constant_multi_set() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 
 		$this->assertEquals( ';hello;.world', $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -114,7 +114,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 
 		$this->assertEquals( ';hello;.world', $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_token_key_returns_matching_token_when_constant_multi_set() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, ';foo;' );
+		$token = Tokens::get_access_token( false, ';foo;' );
 
 		$this->assertEquals( ';foo;.bar', $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -133,7 +133,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, ';foo;' );
+		$token = Tokens::get_access_token( false, ';foo;' );
 
 		$this->assertEquals( ';foo;.bar', $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -142,7 +142,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_magic_key_returns_stored_token_when_constant_multi_set() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
+		$token = Tokens::get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( self::STORED, $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -152,7 +152,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'blog_token' );
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
+		$token = Tokens::get_access_token( false, Tokens::MAGIC_NORMAL_TOKEN_KEY );
 
 		$this->assertEquals( 'looks-like-a.stored-token', $token->secret );
 		$this->assertEquals( 0, $token->external_user_id );
@@ -161,7 +161,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_token_key_requires_full_key() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', self::DEFINED_MULTI );
 
-		$token = $this->connection->get_access_token( false, ';fo' );
+		$token = Tokens::get_access_token( false, ';fo' );
 
 		$this->assertFalse( $token );
 	}
@@ -169,55 +169,55 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_user_id_returns_false_when_no_user_tokens() {
 		Jetpack_Options::delete_option( 'user_tokens' );
 
-		$token = $this->connection->get_access_token( 1 );
+		$token = Tokens::get_access_token( 1 );
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_user_id() {
-		$token = $this->connection->get_access_token( 1 );
+		$token = Tokens::get_access_token( 1 );
 
 		$this->assertEquals( 'user-one.uno', $token->secret );
 	}
 
 	public function test_get_access_token_with_master_user_returns_false_when_no_master_user() {
 		Jetpack_Options::delete_option( 'master_user' );
-		$token = $this->connection->get_access_token( false );
+		$token = Tokens::get_access_token( false );
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_master_user() {
-		$token = $this->connection->get_access_token( false );
+		$token = Tokens::get_access_token( false );
 
 		$this->assertEquals( 'user-two.dos', $token->secret );
 	}
 
 	public function test_get_access_token_with_unconnected_user() {
-		$token = $this->connection->get_access_token( 3 );
+		$token = Tokens::get_access_token( 3 );
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_malformed_token_with_missing_user_id() {
-		$token = $this->connection->get_access_token( 4 );
+		$token = Tokens::get_access_token( 4 );
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_malformed_token_with_wrong_structure() {
-		$token = $this->connection->get_access_token( 5 );
+		$token = Tokens::get_access_token( 5 );
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_malformed_token_with_falsey_value() {
-		$token = $this->connection->get_access_token( 6 );
+		$token = Tokens::get_access_token( 6 );
 
 		$this->assertFalse( $token );
 	}
 
 	public function test_get_access_token_with_malformed_token_with_wrong_user_id() {
-		$token = $this->connection->get_access_token( 7 );
+		$token = Tokens::get_access_token( 7 );
 
 		$this->assertFalse( $token );
 	}
@@ -225,7 +225,7 @@ class WP_Test_Jetpack_Data extends WP_UnitTestCase {
 	public function test_get_access_token_with_empty_constant_does_not_generate_notice() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', '' );
 
-		$token = $this->connection->get_access_token();
+		$token = Tokens::get_access_token();
 
 		$this->assertEquals( self::STORED, $token->secret );
 	}

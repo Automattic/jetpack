@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Connection\Tokens;
 class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	static public function setUpBeforeClass() {
@@ -108,7 +109,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $author_id );
 
-		$return_value = Jetpack::connection()->get_token( 'test' );
+		$return_value = Tokens::get( 'test' );
 
 		$this->assertInstanceOf( 'WP_Error', $return_value );
 	}

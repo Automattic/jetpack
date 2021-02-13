@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
@@ -85,7 +86,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return object|false
 	 */
 	protected function helper_get_blog_token() {
-		return Jetpack::connection()->get_access_token();
+		return Tokens::get_access_token();
 	}
 
 	/**

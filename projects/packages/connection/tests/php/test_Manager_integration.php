@@ -274,7 +274,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			$user_id_query = false;
 		}
 
-		$token = $this->manager->get_access_token( $user_id_query, $token_key_query, false );
+		$token = Tokens::get_access_token( $user_id_query, $token_key_query, false );
 
 		if ( $expected_error_code ) {
 			$this->assertInstanceOf( 'WP_Error', $token );
@@ -449,7 +449,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * Make sure we don´t change how we return errors
 	 */
 	public function test_get_access_token_suppress_errors() {
-		$this->assertFalse( $this->manager->get_access_token( 123 ) );
-		$this->assertInstanceOf( 'WP_Error', $this->manager->get_access_token( 123, '', false ) );
+		$this->assertFalse( Tokens::get_access_token( 123 ) );
+		$this->assertInstanceOf( 'WP_Error', Tokens::get_access_token( 123, '', false ) );
 	}
 }
