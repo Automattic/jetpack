@@ -11,7 +11,7 @@ class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 	private $user_token;
 
 	function result() {
-		Tokens::update_user_token( $this->user_id, sprintf( '%s.%d', $this->user_token, $this->user_id ), false );
+		( new Tokens() )->update_user_token( $this->user_id, sprintf( '%s.%d', $this->user_token, $this->user_id ), false );
 		return array( 'success' => ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $this->user_id ) );
 	}
 

@@ -221,7 +221,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 	private static function authorize_user( $user_id, $access_token ) {
 		// authorize user and enable SSO
-		Tokens::update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
+		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
 
 		/**
 		 * Auto-enable SSO module for new Jetpack Start connections

@@ -213,7 +213,7 @@ class Post_Connection_JITM extends JITM {
 			$this->tracking->record_user_event( 'delete_connection_owner_notice_view' );
 		}
 
-		$connected_admins = Tokens::get_connected_users( 'jetpack_disconnect' );
+		$connected_admins = ( new Tokens() )->get_connected_users( 'jetpack_disconnect' );
 		$user             = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";

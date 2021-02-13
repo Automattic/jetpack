@@ -41,7 +41,7 @@ class Jetpack_Token_Subscription_Service extends Token_Subscription_Service {
 	 * @return string The key.
 	 */
 	public function get_key() {
-		$token = Tokens::get_access_token();
+		$token = ( new Tokens() )->get_access_token();
 		if ( ! isset( $token->secret ) ) {
 			return false;
 		}

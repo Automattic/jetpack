@@ -181,8 +181,8 @@ class Jetpack_Debug_Data {
 		 * If a token does not contain a period, then it is malformed and we report it as such.
 		 */
 		$user_id    = get_current_user_id();
-		$blog_token = Tokens::get_access_token();
-		$user_token = Tokens::get_access_token( $user_id );
+		$blog_token = ( new Tokens() )->get_access_token();
+		$user_token = ( new Tokens() )->get_access_token( $user_id );
 
 		$tokenset = '';
 		if ( $blog_token ) {

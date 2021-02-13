@@ -109,7 +109,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 		);
 		wp_set_current_user( $author_id );
 
-		$return_value = Tokens::get( 'test' );
+		$return_value = ( new Tokens() )->get( 'test' );
 
 		$this->assertInstanceOf( 'WP_Error', $return_value );
 	}

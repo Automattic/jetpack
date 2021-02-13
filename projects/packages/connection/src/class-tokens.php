@@ -25,7 +25,7 @@ class Tokens {
 	 *
 	 * @return bool True if disconnected successfully, false otherwise.
 	 */
-	public static function delete_all() {
+	public function delete_all() {
 		/**
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
@@ -66,7 +66,7 @@ class Tokens {
 	 *
 	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
-	public static function validate( $user_id = null ) {
+	public function validate( $user_id = null ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
@@ -79,12 +79,12 @@ class Tokens {
 			'sites/' . $blog_id . '/jetpack-token-health'
 		);
 
-		$user_token = self::get_access_token( $user_id ? $user_id : get_current_user_id() );
-		$blog_token = self::get_access_token();
+		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
+		$blog_token = $this->get_access_token();
 		$method     = 'POST';
 		$body       = array(
-			'user_token' => self::get_signed_token( $user_token ),
-			'blog_token' => self::get_signed_token( $blog_token ),
+			'user_token' => $this->get_signed_token( $user_token ),
+			'blog_token' => $this->get_signed_token( $blog_token ),
 		);
 		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
 
@@ -105,7 +105,7 @@ class Tokens {
 	 * @return object|\WP_Error Returns the auth token on success.
 	 *                          Returns a \WP_Error on failure.
 	 */
-	public static function get( $data, $token_api_url ) {
+	public function get( $data, $token_api_url ) {
 		$roles = new Roles();
 		$role  = $roles->translate_current_user_to_role();
 
@@ -113,7 +113,7 @@ class Tokens {
 			return new \WP_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
 
-		$client_secret = self::get_access_token();
+		$client_secret = $this->get_access_token();
 		if ( ! $client_secret ) {
 			return new \WP_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
@@ -177,9 +177,9 @@ class Tokens {
 				'Accept' => 'application/json',
 			),
 		);
-		add_filter( 'http_request_timeout', array( get_called_class(), 'return_30' ), PHP_INT_MAX - 1 );
+		add_filter( 'http_request_timeout', array( $this, 'return_30' ), PHP_INT_MAX - 1 );
 		$response = Client::_wp_remote_request( $token_api_url, $args );
-		remove_filter( 'http_request_timeout', array( get_called_class(), 'return_30' ), PHP_INT_MAX - 1 );
+		remove_filter( 'http_request_timeout', array( $this, 'return_30' ), PHP_INT_MAX - 1 );
 
 		if ( is_wp_error( $response ) ) {
 			return new \WP_Error( 'token_http_request_failed', $response->get_error_message() );
@@ -224,7 +224,7 @@ class Tokens {
 			return new \WP_Error( 'scope', 'Malformed Scope', $code );
 		}
 
-		if ( self::sign_role( $role ) !== $json->scope ) {
+		if ( $this->sign_role( $role ) !== $json->scope ) {
 			return new \WP_Error( 'scope', 'Invalid Scope', $code );
 		}
 
@@ -248,7 +248,7 @@ class Tokens {
 	 * @param bool   $is_master_user Whether the user is the master user.
 	 * @return bool
 	 */
-	public static function update_user_token( $user_id, $token, $is_master_user ) {
+	public function update_user_token( $user_id, $token, $is_master_user ) {
 		// Not designed for concurrent updates.
 		$user_tokens = \Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! is_array( $user_tokens ) ) {
@@ -274,7 +274,7 @@ class Tokens {
 	 * @param int    $user_id ID of the user.
 	 * @return string Signed user role.
 	 */
-	public static function sign_role( $role, $user_id = null ) {
+	public function sign_role( $role, $user_id = null ) {
 		if ( empty( $user_id ) ) {
 			$user_id = (int) get_current_user_id();
 		}
@@ -283,7 +283,7 @@ class Tokens {
 			return false;
 		}
 
-		$token = self::get_access_token();
+		$token = $this->get_access_token();
 		if ( ! $token || is_wp_error( $token ) ) {
 			return false;
 		}
@@ -296,7 +296,7 @@ class Tokens {
 	 *
 	 * @return int Returns 30.
 	 */
-	public static function return_30() {
+	public function return_30() {
 		return 30;
 	}
 
@@ -344,7 +344,7 @@ class Tokens {
 	 *
 	 * @return object|false
 	 */
-	public static function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
+	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
@@ -447,7 +447,7 @@ class Tokens {
 	 *
 	 * @return WP_Error|bool The result of updating the blog_token option.
 	 */
-	public static function refresh_blog_token() {
+	public function refresh_blog_token() {
 		( new Tracking() )->record_user_event( 'restore_connection_refresh_blog_token' );
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -503,10 +503,10 @@ class Tokens {
 	 *
 	 * @return bool
 	 */
-	public static function refresh_user_token() {
+	public function refresh_user_token() {
 		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
 
-		self::disconnect_user( null, true );
+		$this->disconnect_user( null, true );
 
 		return true;
 	}
@@ -523,7 +523,7 @@ class Tokens {
 	 * @param bool    $can_overwrite_primary_user Allow for the primary user to be disconnected.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
-	public static function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
+	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
 		$tokens = Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! $tokens ) {
 			return false;
@@ -569,7 +569,7 @@ class Tokens {
 	 * @param string $capability The capability of the user.
 	 * @return array Array of WP_User objects if found.
 	 */
-	public static function get_connected_users( $capability = 'any' ) {
+	public function get_connected_users( $capability = 'any' ) {
 		$connected_users = array();
 		$user_tokens     = \Jetpack_Options::get_option( 'user_tokens' );
 
@@ -601,7 +601,7 @@ class Tokens {
 	 * @param object $token the token.
 	 * @return WP_Error|string a signed token
 	 */
-	public static function get_signed_token( $token ) {
+	public function get_signed_token( $token ) {
 		if ( ! isset( $token->secret ) || empty( $token->secret ) ) {
 			return new WP_Error( 'invalid_token' );
 		}

@@ -75,7 +75,7 @@ function your_plugin_register_site() {
 	$manager->enable_plugin();
 
 	// If the token doesn't exist (see "Soft and Hard Disconnect" section below), we need to register the site.
-	if ( ! Tokens::get_access_token() ) {
+	if ( ! ( new Tokens() )->get_access_token() ) {
 		$manager->register();
 	}
 
@@ -179,7 +179,7 @@ However, the user explicitly requested the plugin to be disabled, so you need to
 ```php
 $manager = new Manager( 'plugin-slug' );
 
-if ( $manager->is_plugin_enabled() && Tokens::get_access_token() ) {
+if ( $manager->is_plugin_enabled() && ( new Tokens() )->get_access_token() ) {
 	// Perform the API requests.
 } else {
 	// Assume the plugin is disconnected, no matter if the tokens actually exist.
@@ -193,7 +193,7 @@ If the plugin was *softly* disconnected, removing the flag is enough for it to w
 $manager = new Manager( 'plugin-slug' );
 $manager->enable_plugin();
 
-if ( ! Tokens::get_access_token() ) {
+if ( ! ( new Tokens() )->get_access_token() ) {
     $manager->register();
 }
 ```

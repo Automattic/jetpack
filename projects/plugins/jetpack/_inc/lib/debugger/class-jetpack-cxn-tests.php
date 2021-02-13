@@ -86,7 +86,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return object|false
 	 */
 	protected function helper_get_blog_token() {
-		return Tokens::get_access_token();
+		return ( new Tokens() )->get_access_token();
 	}
 
 	/**

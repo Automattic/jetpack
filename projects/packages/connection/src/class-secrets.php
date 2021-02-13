@@ -25,7 +25,7 @@ class Secrets {
 	 *
 	 * @return String $secret value.
 	 */
-	private static function secret_callable_method() {
+	private function secret_callable_method() {
 		return wp_generate_password( 32, false );
 	}
 
@@ -36,7 +36,7 @@ class Secrets {
 	 * @param Integer $user_id The user identifier.
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
-	public static function generate( $action, $user_id = false, $exp = 600 ) {
+	public function generate( $action, $user_id = false, $exp = 600 ) {
 		if ( false === $user_id ) {
 			$user_id = get_current_user_id();
 		}
@@ -76,7 +76,7 @@ class Secrets {
 	 * @param Integer $user_id The user identifier.
 	 * @return string|array an array of secrets or an error string.
 	 */
-	public static function get( $action, $user_id ) {
+	public function get( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 		$secrets     = \Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,
@@ -88,7 +88,7 @@ class Secrets {
 		}
 
 		if ( $secrets[ $secret_name ]['exp'] < time() ) {
-			self::delete( $action, $user_id );
+			$this->delete( $action, $user_id );
 			return self::SECRETS_EXPIRED;
 		}
 
@@ -101,7 +101,7 @@ class Secrets {
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 */
-	public static function delete( $action, $user_id ) {
+	public function delete( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 		$secrets     = \Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,
@@ -121,7 +121,7 @@ class Secrets {
 	 * @param int    $user_id  The user ID of the owner of the secret.
 	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
-	public static function verify( $action, $secret_1, $user_id ) {
+	public function verify( $action, $secret_1, $user_id ) {
 		$allowed_actions = array( 'register', 'authorize', 'publicize' );
 		if ( ! in_array( $action, $allowed_actions, true ) ) {
 			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
@@ -154,8 +154,8 @@ class Secrets {
 			return $error;
 		};
 
-		$stored_secrets = self::get( $action, $user_id );
-		self::delete( $action, $user_id );
+		$stored_secrets = $this->get( $action, $user_id );
+		$this->delete( $action, $user_id );
 
 		$error = null;
 		if ( empty( $secret_1 ) ) {

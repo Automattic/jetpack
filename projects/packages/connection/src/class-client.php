@@ -72,7 +72,7 @@ class Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = Tokens::get_access_token( $args['user_id'] );
+		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new \WP_Error( 'missing_token' );
 		}

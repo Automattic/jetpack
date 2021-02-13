@@ -93,8 +93,8 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$all_users = Tokens::get_connected_users();
-		$admins    = Tokens::get_connected_users( 'manage_options' );
+		$all_users = ( new Tokens() )->get_connected_users();
+		$admins    = ( new Tokens() )->get_connected_users( 'manage_options' );
 
 		$this->assertCount( 2, $all_users );
 		$this->assertCount( 1, $admins );
@@ -274,7 +274,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			$user_id_query = false;
 		}
 
-		$token = Tokens::get_access_token( $user_id_query, $token_key_query, false );
+		$token = ( new Tokens() )->get_access_token( $user_id_query, $token_key_query, false );
 
 		if ( $expected_error_code ) {
 			$this->assertInstanceOf( 'WP_Error', $token );
@@ -449,7 +449,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * Make sure we don´t change how we return errors
 	 */
 	public function test_get_access_token_suppress_errors() {
-		$this->assertFalse( Tokens::get_access_token( 123 ) );
-		$this->assertInstanceOf( 'WP_Error', Tokens::get_access_token( 123, '', false ) );
+		$this->assertFalse( ( new Tokens() )->get_access_token( 123 ) );
+		$this->assertInstanceOf( 'WP_Error', ( new Tokens() )->get_access_token( 123, '', false ) );
 	}
 }

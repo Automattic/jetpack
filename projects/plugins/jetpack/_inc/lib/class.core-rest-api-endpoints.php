@@ -1851,7 +1851,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
-	 * @uses  Automattic\Jetpack\Connection\Tokens::disconnect_user
+	 * @uses  Automattic\Jetpack\Connection\Tokens->disconnect_user
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -1863,7 +1863,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( Tokens::disconnect_user() ) {
+		if ( ( new Tokens() )->disconnect_user() ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'

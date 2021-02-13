@@ -9,7 +9,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$user_id = $factory->user->create();
 		$user = get_user_by( 'ID', $user_id );
 		$user->set_role( 'administrator' );
-		Tokens::update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
+		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
 
 		self::$xmlrpc_admin = $user_id;
 	}
@@ -179,7 +179,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 			'blog_token'  => 1,
 			'id'          => 1001,
 		) );
-		Tokens::update_user_token( 1, sprintf( '%s.%d', 'token', 1 ), true );
+		( new Tokens() )->update_user_token( 1, sprintf( '%s.%d', 'token', 1 ), true );
 
 		$server = new Jetpack_XMLRPC_Server();
 

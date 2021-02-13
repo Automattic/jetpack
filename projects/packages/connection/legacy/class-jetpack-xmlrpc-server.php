@@ -182,7 +182,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		$user_token = Tokens::get_access_token( $user->ID );
+		$user_token = ( new Tokens() )->get_access_token( $user->ID );
 
 		if ( $user_token ) {
 			list( $user_token_key ) = explode( '.', $user_token->secret );
@@ -327,7 +327,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( ! Jetpack_Options::get_option( 'id' ) || ! Tokens::get_access_token() || ! empty( $request['force'] ) ) {
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! ( new Tokens() )->get_access_token() || ! empty( $request['force'] ) ) {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.
@@ -490,7 +490,7 @@ class Jetpack_XMLRPC_Server {
 		}
 		$token = sanitize_text_field( $token );
 
-		Tokens::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
+		( new Tokens() )->update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
 
 		$this->do_post_authorization();
 
@@ -569,7 +569,7 @@ class Jetpack_XMLRPC_Server {
 		$verify_secret = isset( $params[1] ) ? $params[1] : '';
 		$state         = isset( $params[2] ) ? $params[2] : '';
 
-		$result = Secrets::verify( $action, $verify_secret, $state );
+		$result = ( new Secrets() )->verify( $action, $verify_secret, $state );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
@@ -674,7 +674,7 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = Tokens::get_access_token( $user_id );
+		$jetpack_token = ( new Tokens() )->get_access_token( $user_id );
 
 		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
 		if ( ! $api_user_code ) {
@@ -752,7 +752,7 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return Tokens::disconnect_user(
+		return ( new Tokens() )->disconnect_user(
 			$user_id,
 			(bool) $user_id
 		);
@@ -907,7 +907,7 @@ class Jetpack_XMLRPC_Server {
 			$token_key = $verified['token_key'];
 		}
 
-		$token = Tokens::get_access_token( $user_id, $token_key );
+		$token = ( new Tokens() )->get_access_token( $user_id, $token_key );
 		if ( ! $token || is_wp_error( $token ) ) {
 			return false;
 		}

@@ -2230,7 +2230,7 @@ class Jetpack {
 	/**
 	 * Enters a user token into the user_tokens option
 	 *
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Tokens::update_user_token() instead.
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
 	 *
 	 * @param int    $user_id The user id.
 	 * @param string $token The user token.
@@ -2238,8 +2238,8 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::update_user_token' );
-		return Tokens::update_user_token( $user_id, $token, $is_master_user );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
+		return ( new Tokens() )->update_user_token( $user_id, $token, $is_master_user );
 	}
 
 	/**
@@ -3354,14 +3354,14 @@ p {
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
 	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Tokens::disconnect_user()
+	 * @see Automattic\Jetpack\Connection\Tokens->disconnect_user()
 	 *
 	 * @param Integer $user_id the user identifier.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function unlink_user( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Tokens::disconnect_user' );
-		return Tokens::disconnect_user( $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Tokens->disconnect_user' );
+		return ( new Tokens() )->disconnect_user( $user_id );
 	}
 
 	/**
@@ -4346,7 +4346,7 @@ p {
 					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 					check_admin_referer( 'jetpack-unlink' );
 					self::log( 'unlink' );
-					Tokens::disconnect_user();
+					( new Tokens() )->disconnect_user();
 					self::state( 'message', 'unlinked' );
 					if ( 'sub-unlink' == $redirect ) {
 						wp_safe_redirect( admin_url() );
@@ -5332,17 +5332,17 @@ endif;
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		return Secrets::generate( $action, $user_id, $exp );
+		return ( new Secrets() )->generate( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {
 		$secrets = self::connection()->get_secrets( $action, $user_id );
 
-		if ( Secrets::SECRETS_MISSING === $secrets ) {
+		if ( ( new Secrets() )->SECRETS_MISSING === $secrets ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
 		}
 
-		if ( Secrets::SECRETS_EXPIRED === $secrets ) {
+		if ( ( new Secrets() )->SECRETS_EXPIRED === $secrets ) {
 			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
 		}
 
@@ -5356,7 +5356,7 @@ endif;
 	 * @param $user_id
 	 */
 	public static function delete_secrets( $action, $user_id ) {
-		return Secrets::delete( $action, $user_id );
+		return ( new Secrets() )->delete( $action, $user_id );
 	}
 
 	/**

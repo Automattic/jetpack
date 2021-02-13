@@ -380,7 +380,7 @@ class Manager {
 			}
 		}
 
-		$token = Tokens::get_access_token( $user_id, $token_key, false );
+		$token = ( new Tokens() )->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
 			$token->add_data( compact( 'signature_details' ) );
 			return $token;
@@ -493,7 +493,7 @@ class Manager {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
 			return $this->is_connected();
 		}
-		return (bool) Tokens::get_access_token();
+		return (bool) ( new Tokens() )->get_access_token();
 	}
 
 	/**
@@ -520,7 +520,7 @@ class Manager {
 	 */
 	public function is_connected() {
 		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = (bool) Tokens::get_access_token();
+		$has_blog_token = (bool) ( new Tokens() )->get_access_token();
 		return $has_blog_id && $has_blog_token;
 	}
 
@@ -533,7 +533,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_admin() {
-		return (bool) count( Tokens::get_connected_users( 'manage_options' ) );
+		return (bool) count( ( new Tokens() )->get_connected_users( 'manage_options' ) );
 	}
 
 	/**
@@ -545,7 +545,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_user() {
-		return (bool) count( Tokens::get_connected_users() );
+		return (bool) count( ( new Tokens() )->get_connected_users() );
 	}
 
 	/**
@@ -587,7 +587,7 @@ class Manager {
 			return false;
 		}
 
-		return (bool) Tokens::get_access_token( $user_id );
+		return (bool) ( new Tokens() )->get_access_token( $user_id );
 	}
 
 	/**
@@ -604,14 +604,14 @@ class Manager {
 	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
 	 * Able to select by specific capability.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::get_connected_users() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_connected_users() instead.
 	 *
 	 * @param string $capability The capability of the user.
 	 * @return array Array of WP_User objects if found.
 	 */
 	public function get_connected_users( $capability = 'any' ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::get_connected_users' );
-		return Tokens::get_connected_users( $capability );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_connected_users' );
+		return ( new Tokens() )->get_connected_users( $capability );
 	}
 
 	/**
@@ -663,7 +663,7 @@ class Manager {
 		}
 
 		// Make sure user is connected.
-		$user_token = Tokens::get_access_token( $user_id );
+		$user_token = ( new Tokens() )->get_access_token( $user_id );
 
 		$connection_owner = false;
 
@@ -724,7 +724,7 @@ class Manager {
 	/**
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::disconnect_user() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->disconnect_user() instead.
 	 *
 	 * @access public
 	 * @static
@@ -736,8 +736,8 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::disconnect_user' );
-		return Tokens::disconnect_user( $user_id, $can_overwrite_primary_user );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->disconnect_user' );
+		return ( new Tokens() )->disconnect_user( $user_id, $can_overwrite_primary_user );
 	}
 
 	/**
@@ -808,7 +808,7 @@ class Manager {
 	 */
 	public function register( $api_endpoint = 'register' ) {
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
-		$secrets = Secrets::generate( 'register', get_current_user_id(), 600 );
+		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
 		if ( false === $secrets ) {
 			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack' ) );
@@ -1254,42 +1254,42 @@ class Manager {
 	/**
 	 * Generates two secret tokens and the end of life timestamp for them.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets::generate() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->generate() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
 	public function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets::generate' );
-		return Secrets::generate( $action, $user_id, $exp );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->generate' );
+		return ( new Secrets() )->generate( $action, $user_id, $exp );
 	}
 
 	/**
 	 * Returns two secret tokens and the end of life timestamp for them.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets::get() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->get() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @return string|array an array of secrets or an error string.
 	 */
 	public function get_secrets( $action, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets::get' );
-		return Secrets::get( $action, $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->get' );
+		return ( new Secrets() )->get( $action, $user_id );
 	}
 
 	/**
 	 * Deletes secret tokens in case they, for example, have expired.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets::delete() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->delete() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 */
 	public function delete_secrets( $action, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets::delete' );
-		Secrets::delete( $action, $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->delete' );
+		( new Secrets() )->delete( $action, $user_id );
 	}
 
 	/**
@@ -1309,7 +1309,7 @@ class Manager {
 			return false;
 		}
 
-		return Tokens::delete_all();
+		return ( new Tokens() )->delete_all();
 	}
 
 	/**
@@ -1384,7 +1384,7 @@ class Manager {
 	 */
 	public function restore() {
 
-		$validate_tokens_response = Tokens::validate();
+		$validate_tokens_response = ( new Tokens() )->validate();
 
 		$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
 		$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
@@ -1396,11 +1396,11 @@ class Manager {
 		}
 
 		if ( ! $blog_token_healthy ) {
-			return Tokens::refresh_blog_token();
+			return ( new Tokens() )->refresh_blog_token();
 		}
 
 		if ( ! $user_token_healthy ) {
-			return ( true === Tokens::refresh_user_token() ) ? 'authorize' : false;
+			return ( true === ( new Tokens() )->refresh_user_token() ) ? 'authorize' : false;
 		}
 
 		return false;
@@ -1418,27 +1418,27 @@ class Manager {
 			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack' ), 400 );
 		}
 
-		return Secrets::verify( 'register', $registration_secret_1, (int) $registration_user_id );
+		return ( new Secrets() )->verify( 'register', $registration_secret_1, (int) $registration_user_id );
 	}
 
 	/**
 	 * Perform the API request to validate the blog and user tokens.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::validate_tokens() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->validate_tokens() instead.
 	 *
 	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
 	 *
 	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
 	public function validate_tokens( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::validate' );
-		return Tokens::validate( $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
+		return ( new Tokens() )->validate( $user_id );
 	}
 
 	/**
 	 * Verify a Previously Generated Secret.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets::verify() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->verify() instead.
 	 *
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
@@ -1446,8 +1446,8 @@ class Manager {
 	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
 	public function verify_secrets( $action, $secret_1, $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets::verify' );
-		return Secrets::verify( $action, $secret_1, $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->verify' );
+		return ( new Secrets() )->verify( $action, $secret_1, $user_id );
 	}
 
 	/**
@@ -1461,15 +1461,15 @@ class Manager {
 	/**
 	 * Obtains the auth token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::get() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get() instead.
 	 *
 	 * @param array $data The request data.
 	 * @return object|\WP_Error Returns the auth token on success.
 	 *                          Returns a \WP_Error on failure.
 	 */
 	public function get_token( $data ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::get' );
-		return Tokens::get( $data, $this->api_url( 'token' ) );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get' );
+		return ( new Tokens() )->get( $data, $this->api_url( 'token' ) );
 	}
 
 	/**
@@ -1487,7 +1487,7 @@ class Manager {
 
 		$roles       = new Roles();
 		$role        = $roles->translate_user_to_role( $user );
-		$signed_role = Tokens::sign_role( $role );
+		$signed_role = ( new Tokens() )->sign_role( $role );
 
 		/**
 		 * Filter the URL of the first time the user gets redirected back to your site for connection
@@ -1509,7 +1509,7 @@ class Manager {
 		 */
 		$redirect = apply_filters( 'jetpack_connect_redirect_url', $redirect );
 
-		$secrets = Secrets::generate( 'authorize', $user->ID, 2 * HOUR_IN_SECONDS );
+		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID, 2 * HOUR_IN_SECONDS );
 
 		/**
 		 * Filter the type of authorization.
@@ -1615,7 +1615,7 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$token = Tokens::get( $data, $this->api_url( 'token' ) );
+		$token = ( new Tokens() )->get( $data, $this->api_url( 'token' ) );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
@@ -1631,7 +1631,7 @@ class Manager {
 
 		$is_connection_owner = ! $this->has_connected_owner();
 
-		Tokens::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
+		( new Tokens() )->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
 		/**
 		 * Fires after user has successfully received an auth token.
@@ -1784,7 +1784,7 @@ class Manager {
 	/**
 	 * Gets the requested token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::get_access_token() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_access_token() instead.
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
@@ -1792,11 +1792,11 @@ class Manager {
 	 *
 	 * @return object|false
 	 *
-	 * @see Tokens::get_access_token()
+	 * @see ( new Tokens() )->get_access_token()
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::get_access_token' );
-		return Tokens::get_access_token( $user_id, $token_key, $suppress_errors );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
+		return ( new Tokens() )->get_access_token( $user_id, $token_key, $suppress_errors );
 	}
 
 	/**
@@ -1916,7 +1916,7 @@ class Manager {
 	 * Sign a user role with the master access token.
 	 * If not specified, will default to the current user.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::sign_role() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->sign_role() instead.
 	 *
 	 * @access public
 	 *
@@ -1925,8 +1925,8 @@ class Manager {
 	 * @return string Signed user role.
 	 */
 	public function sign_role( $role, $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::sign_role' );
-		return Tokens::sign_role( $role, $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->sign_role' );
+		return ( new Tokens() )->sign_role( $role, $user_id );
 	}
 
 	/**
@@ -2017,38 +2017,38 @@ class Manager {
 	 * Note that we are making this request on behalf of the Jetpack master user,
 	 * given they were (most probably) the ones that registered the site at the first place.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::refresh_blog_token() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->refresh_blog_token() instead.
 	 *
 	 * @return WP_Error|bool The result of updating the blog_token option.
 	 */
 	public static function refresh_blog_token() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::refresh_blog_token' );
-		return Tokens::refresh_blog_token();
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->refresh_blog_token' );
+		return ( new Tokens() )->refresh_blog_token();
 	}
 
 	/**
 	 * Disconnect the user from WP.com, and initiate the reconnect process.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::refresh_user_token() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->refresh_user_token() instead.
 	 *
 	 * @return bool
 	 */
 	public function refresh_user_token() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::refresh_user_token' );
-		return Tokens::refresh_user_token();
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->refresh_user_token' );
+		return ( new Tokens() )->refresh_user_token();
 	}
 
 	/**
 	 * Fetches a signed token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens::get_signed_token() instead.
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_signed_token() instead.
 	 *
 	 * @param object $token the token.
 	 * @return WP_Error|string a signed token
 	 */
 	public function get_signed_token( $token ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens::get_signed_token' );
-		return Tokens::get_signed_token( $token );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
+		return ( new Tokens() )->get_signed_token( $token );
 	}
 
 	/**
