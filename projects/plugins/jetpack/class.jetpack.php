@@ -5332,8 +5332,7 @@ endif;
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		$secrets = new Secrets();
-		return $secrets->generate( $action, $user_id, $exp );
+		return Secrets::generate( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {
