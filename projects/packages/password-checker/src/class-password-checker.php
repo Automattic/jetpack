@@ -348,10 +348,13 @@ class Password_Checker {
 	 * @return array user data.
 	 */
 	protected function get_other_user_data() {
-		if ( ! isset( $this->user ) ) {
-			$user_data = get_userdata( $this->user_id );
-		} else {
-			$user_data = $this->user;
+		if ( ! isset( $this->user_id ) ) {
+			return array();
+		}
+
+		$user_data = get_userdata( $this->user_id );
+		if ( ! $user_data ) {
+			return array();
 		}
 
 		if ( isset( $user_data->ID ) ) {
