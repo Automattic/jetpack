@@ -50,10 +50,10 @@
   resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-2.1.1.tgz#8dfaf3a9dc73a12583fe8d42e1dfc0b5e2978459"
   integrity sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==
 
-"@automattic/color-studio@2.3.1":
-  version "2.3.1"
-  resolved "https://registry.yarnpkg.com/@automattic/color-studio/-/color-studio-2.3.1.tgz#961d9af4fbe2878bcf30c6ade4eec06537ec1fb6"
-  integrity sha512-EukCyI4mJu7pMob/xLrply5LPVQQmpWD4y5JtTn/Vvni78Ax6654I82Ute/Yu9Buvj4MS3sIXasHlhECA7lSEQ==
+"@automattic/color-studio@2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@automattic/color-studio/-/color-studio-2.4.0.tgz#d21406b30eca90077f7ca9bf3ca884d79ce8dda6"
+  integrity sha512-xdiW5uBONTi3+R6Eee1PpsPxWQH9DGPpEu5NN0/uHd5DjL6EfBNAOI7qujz4eqz76bWoz2R/zRNNjCn91caWjw==
 
 "@automattic/components@1.0.0-alpha.3":
   version "1.0.0-alpha.3"

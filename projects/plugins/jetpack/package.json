@@ -151,7 +151,7 @@
 		"webpack-cli": "4.5.0"
 	},
 	"devDependencies": {
-		"@automattic/color-studio": "2.3.1",
+		"@automattic/color-studio": "2.4.0",
 		"@babel/plugin-transform-runtime": "7.12.10",
 		"@babel/preset-react": "7.12.10",
 		"@babel/preset-typescript": "7.12.7",
