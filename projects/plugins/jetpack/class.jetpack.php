@@ -3354,14 +3354,14 @@ p {
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
 	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Manager::disconnect_user()
+	 * @see Automattic\Jetpack\Connection\Tokens::disconnect_user()
 	 *
 	 * @param Integer $user_id the user identifier.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public static function unlink_user( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::disconnect_user' );
-		return Connection_Manager::disconnect_user( $user_id );
+		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Tokens::disconnect_user' );
+		return Tokens::disconnect_user( $user_id );
 	}
 
 	/**
@@ -4346,7 +4346,7 @@ p {
 					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 					check_admin_referer( 'jetpack-unlink' );
 					self::log( 'unlink' );
-					Connection_Manager::disconnect_user();
+					Tokens::disconnect_user();
 					self::state( 'message', 'unlinked' );
 					if ( 'sub-unlink' == $redirect ) {
 						wp_safe_redirect( admin_url() );
