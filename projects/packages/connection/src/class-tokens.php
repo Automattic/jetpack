@@ -18,10 +18,7 @@ use WP_Error;
  */
 class Tokens {
 
-	const SECRETS_MISSING            = 'secrets_missing';
-	const SECRETS_EXPIRED            = 'secrets_expired';
-	const LEGACY_SECRETS_OPTION_NAME = 'jetpack_secrets';
-	const MAGIC_NORMAL_TOKEN_KEY     = ';normal;';
+	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.

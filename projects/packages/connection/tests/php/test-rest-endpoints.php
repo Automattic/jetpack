@@ -113,7 +113,7 @@ class Test_REST_Endpoints extends TestCase {
 		$options_filter = function ( $value ) use ( $secrets ) {
 			return $secrets;
 		};
-		add_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
+		add_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 
 		$user_caps_filter = function ( $allcaps, $caps, $args, $user ) {
 			if ( $user instanceof WP_User && self::USER_ID === $user->ID ) {
@@ -133,7 +133,7 @@ class Test_REST_Endpoints extends TestCase {
 		$data     = $response->get_data();
 
 		remove_filter( 'user_has_cap', $user_caps_filter );
-		remove_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
+		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ) );
 
@@ -278,7 +278,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function bypass_raw_options( array $options ) {
-		$options[ Manager::SECRETS_OPTION_NAME ] = true;
+		$options[ Secrets::LEGACY_SECRETS_OPTION_NAME ] = true;
 
 		return $options;
 	}
