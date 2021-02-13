@@ -5339,11 +5339,11 @@ endif;
 	public static function get_secrets( $action, $user_id ) {
 		$secrets = self::connection()->get_secrets( $action, $user_id );
 
-		if ( Connection_Manager::SECRETS_MISSING === $secrets ) {
+		if ( Secrets::SECRETS_MISSING === $secrets ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
 		}
 
-		if ( Connection_Manager::SECRETS_EXPIRED === $secrets ) {
+		if ( Secrets::SECRETS_EXPIRED === $secrets ) {
 			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
 		}
 
@@ -5351,13 +5351,13 @@ endif;
 	}
 
 	/**
-	 * @deprecated 7.5 Use Connection_Manager instead.
+	 * @deprecated 7.5 Use Secrets instead.
 	 *
 	 * @param $action
 	 * @param $user_id
 	 */
 	public static function delete_secrets( $action, $user_id ) {
-		return self::connection()->delete_secrets( $action, $user_id );
+		return Secrets::delete( $action, $user_id );
 	}
 
 	/**
