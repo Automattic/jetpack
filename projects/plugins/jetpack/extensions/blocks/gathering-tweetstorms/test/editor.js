@@ -1,8 +1,4 @@
 /**
- * @jest-environment jsdom
- */
-
-/**
  * External dependencies
  */
 import { mount } from 'enzyme';
@@ -10,7 +6,6 @@ import { mount } from 'enzyme';
 /**
  * Internal dependencies
  */
-import './match-media.mock';
 import addTweetstormToTweets from '../editor';
 
 describe( 'addTweetstormToTweets', () => {

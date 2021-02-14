@@ -157,7 +157,6 @@
 		"@babel/plugin-transform-runtime": "7.12.10",
 		"@babel/preset-react": "7.12.10",
 		"@babel/preset-typescript": "7.12.7",
-		"@sheerun/mutationobserver-shim": "0.3.3",
 		"@size-limit/preset-app": "4.9.1",
 		"@slack/web-api": "6.0.0",
 		"@testing-library/jest-dom": "5.11.9",
