@@ -63,7 +63,8 @@
 		"**/node-fetch": "^2.6.1",
 		"**/node-notifier": "^8.0.1",
 		"**/tar-stream/bl": "^4.0.0",
-		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
+		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0",
+		"jest-environment-jsdom": "^26.0.1"
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.1.0",
@@ -156,11 +157,13 @@
 		"@babel/plugin-transform-runtime": "7.12.10",
 		"@babel/preset-react": "7.12.10",
 		"@babel/preset-typescript": "7.12.7",
+		"@sheerun/mutationobserver-shim": "0.3.3",
 		"@size-limit/preset-app": "4.9.1",
 		"@slack/web-api": "6.0.0",
 		"@testing-library/jest-dom": "5.11.9",
 		"@testing-library/preact": "2.0.1",
 		"@testing-library/react": "11.2.3",
+		"@testing-library/user-event": "12.6.2",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
 		"@wordpress/dependency-extraction-webpack-plugin": "2.4.0",

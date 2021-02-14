@@ -2,9 +2,15 @@
  * @jest-environment jsdom
  */
 
+/**
+ * External dependencies
+ */
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
+/**
+ * Internal dependencies
+ */
 import WhatsAppButtonEdit from '../edit';
 
 const defaultAttributes = {
@@ -27,7 +33,7 @@ const defaultProps = {
 test( 'loads and displays button with buttonText attribute assigned to button', () => {
 	render( <WhatsAppButtonEdit { ...defaultProps } /> );
 
-	expect( screen.getByText( 'Chat on WhatsApp' ) ).toBeDefined();
+	expect( screen.getByText( 'Chat on WhatsApp' ) ).toBeInTheDocument();
 } );
 
 test( 'displays button as multiline textbox for updating the buttonText attribute', () => {
