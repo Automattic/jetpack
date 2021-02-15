@@ -15,7 +15,6 @@ import Button from 'components/button';
 import {
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SITE_BACKUPS_JETPACK,
-	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	FEATURE_WORDADS_JETPACK,
@@ -299,8 +298,6 @@ export const SettingsCard = props => {
 				return 'inactive' === props.getModuleOverride( 'wordads' );
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
 				return 'inactive' === props.getModuleOverride( 'google-analytics' );
-			case FEATURE_SEO_TOOLS_JETPACK:
-				return 'inactive' === props.getModuleOverride( 'seo-tools' );
 			case FEATURE_SEARCH_JETPACK:
 				return 'inactive' === props.getModuleOverride( 'search' );
 			default:
@@ -308,22 +305,18 @@ export const SettingsCard = props => {
 		}
 	};
 
-	// We only want to show this banner for Google Analytics and SEO Tools because
-	// they don't use the ModuleToggle for their UI.
-	const getModuleOverridenBanner = () => {
+	// We only want to show this banner for Google Analytics because they don't use the ModuleToggle for their UI.
+	const getGoogleAnalyticsOverridenBanner = () => {
 		if ( ! featureIsOverriden() ) {
 			return false;
 		}
-		switch ( feature ) {
-			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				const googleAnalytics = props.getModule( 'google-analytics' );
-				return <ModuleOverridenBanner moduleName={ googleAnalytics.name } />;
-			case FEATURE_SEO_TOOLS_JETPACK:
-				const seoTools = props.getModule( 'seo-tools' );
-				return <ModuleOverridenBanner moduleName={ seoTools.name } />;
-			default:
-				return null;
+
+		if ( feature !== FEATURE_GOOGLE_ANALYTICS_JETPACK ) {
+			return null;
 		}
+
+		const googleAnalytics = props.getModule( 'google-analytics' );
+		return <ModuleOverridenBanner moduleName={ googleAnalytics.name } />;
 	};
 
 	const children = showChildren() && props.children;
@@ -342,7 +335,7 @@ export const SettingsCard = props => {
 	}
 
 	return (
-		getModuleOverridenBanner() || (
+		getGoogleAnalyticsOverridenBanner() || (
 			<form
 				{ ...( moduleId ? { id: moduleId } : null ) }
 				className={ `jp-form-settings-card` }
@@ -398,7 +391,6 @@ export default connect( state => {
 		securityProUpgradeUrl: getUpgradeUrl( state, 'settings-security-pro' ),
 		securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
 		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
-		seoUpgradeUrl: getUpgradeUrl( state, 'settings-seo' ),
 		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
