@@ -46,7 +46,6 @@ export async function generateCli( argv ) {
 	try {
 		argv = await promptForGenerate( argv );
 		await generateRouter( argv );
-		console.log( argv );
 	} catch ( e ) {
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 		console.log( argv );
