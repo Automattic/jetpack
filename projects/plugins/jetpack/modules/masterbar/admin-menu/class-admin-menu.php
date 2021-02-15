@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 /**
@@ -628,13 +629,15 @@ class Admin_Menu {
 
 		remove_menu_page( 'jetpack' );
 		remove_submenu_page( 'jetpack', 'stats' );
+		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 
 		$this->migrate_submenus( 'jetpack', $jetpack_slug );
 
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 0 );
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 1 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', $jetpack_slug, null, 2 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
 		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( $jetpack_slug, esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'read', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 2 );
+		add_submenu_page( $jetpack_slug, esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'read', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
 		add_filter(
 			'parent_file',
