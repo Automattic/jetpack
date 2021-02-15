@@ -41,17 +41,19 @@ class Jetpack_SEO_Utils {
 	/**
 	 * Returns front page meta description for current site.
 	 *
-	 * If a `LEGACY_META_OPTION` is found, update it as `FRONT_PAGE_META_OPTION` instead.
-	 *
 	 * @return string Front page meta description string or empty string.
 	 */
 	public static function get_front_page_meta_description() {
-		$legacy_meta_option = get_option( self::LEGACY_META_OPTION );
-		if ( ! empty( $legacy_meta_option ) ) {
-			return self::update_front_page_meta_description( $legacy_meta_option, true );
+		$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
+
+		if ( empty( $front_page_meta ) ) {
+			$legacy_meta_option = get_option( self::LEGACY_META_OPTION );
+			if ( ! empty( $legacy_meta_option ) ) {
+				return self::update_front_page_meta_description( $legacy_meta_option, true );
+			}
 		}
 
-		return get_option( self::FRONT_PAGE_META_OPTION );
+		return $front_page_meta;
 	}
 
 	/**
@@ -84,8 +86,7 @@ class Jetpack_SEO_Utils {
 
 		$did_update = update_option( self::FRONT_PAGE_META_OPTION, $front_page_description );
 
-		if ( $delete_legacy_meta_option && $did_update && self::is_enabled_jetpack_seo() ) {
-			// Cleanup legacy option.
+		if ( $delete_legacy_meta_option && $did_update ) {
 			delete_option( 'seo_meta_description' );
 		}
 
