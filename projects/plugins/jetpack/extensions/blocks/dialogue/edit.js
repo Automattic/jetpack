@@ -93,16 +93,18 @@ export default function DialogueEdit( {
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
+		// Do not update current Dialogue block.
+		if ( isSelected ) {
+			return;
+		}
+
+		// When no context, nothing to do.
 		if ( ! conversationParticipant ) {
 			return;
 		}
 
+		// Only take care of Dialogue with same speaker.
 		if ( conversationParticipant.slug !== slug ) {
-			return;
-		}
-
-		// Do not update current Dialogue block.
-		if ( isSelected ) {
 			return;
 		}
 
@@ -184,7 +186,7 @@ export default function DialogueEdit( {
 					} }
 
 					onAdd={ ( newLabel ) => {
-						const newParticipant = conversationBridge.addNewParticipant( newLabel );
+						const newParticipant = conversationBridge.addNewParticipant( { label: newLabel, slug } );
 						setAttributes( newParticipant );
 					} }
 					onUpdate={ ( participant ) => {
