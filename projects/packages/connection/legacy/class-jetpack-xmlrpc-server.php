@@ -397,7 +397,7 @@ class Jetpack_XMLRPC_Server {
 		// Generate secrets.
 		$roles   = new Roles();
 		$role    = $roles->translate_user_to_role( $user );
-		$secrets = $this->connection->generate_secrets( 'authorize', $user->ID );
+		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID );
 
 		$response = array(
 			'jp_version'   => JETPACK__VERSION,

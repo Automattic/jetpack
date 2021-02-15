@@ -79,7 +79,7 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->user_id );
+			$token = ( new Tokens() )->get_access_token( $this->user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;
