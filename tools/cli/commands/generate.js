@@ -170,7 +170,7 @@ export function getQuestions( type ) {
 		},
 		{
 			type: 'confirm',
-			name: 'repositories.options.monorepo',
+			name: 'monorepo',
 			message: 'Does your project rely on Composer/PHP packages found in the monorepo?',
 		},
 		{
@@ -254,7 +254,7 @@ export function generatePackage(
 	const composerJson = readComposerJson( project );
 	composerJson.description = answers.description;
 	composerJson.name = 'automattic/' + answers.name;
-	if ( answers.repositories.options.monorepo ) {
+	if ( answers.monorepo ) {
 		composerJson.repositories = [
 			{
 				type: 'path',
@@ -265,11 +265,11 @@ export function generatePackage(
 			},
 		];
 	}
-	if ( answers.buildScripts.includes( 'production' ) ) {
+	if ( answers.buildScripts && answers.buildScripts.includes( 'production' ) ) {
 		composerJson.scripts[ 'build-production' ] =
 			"echo 'Add your build step to composer.json, please!'";
 	}
-	if ( answers.buildScripts.includes( 'development' ) ) {
+	if ( answers.buildScripts && answers.buildScripts.includes( 'development' ) ) {
 		composerJson.scripts[ 'build-development' ] =
 			"echo 'Add your build step to composer.json, please!'";
 	}
