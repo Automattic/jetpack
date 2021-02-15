@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { Component } from 'react';
 import { __, _x } from '@wordpress/i18n';
 
 /**
@@ -11,60 +10,66 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import getRedirectUrl from 'lib/jp-redirect';
-import { FEATURE_SEO_TOOLS_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getSitePlan } from 'state/site';
+import { ModuleToggle } from 'components/module-toggle';
 
-class SeoComponent extends React.Component {
-	trackConfigureClick = () => {
-		analytics.tracks.recordJetpackClick( 'configure-seo' );
-	};
+export const SEO = withModuleSettingsFormHelpers(
+	class extends Component {
+		trackConfigureClick = () => {
+			analytics.tracks.recordJetpackClick( 'configure-seo' );
+		};
 
-	render() {
-		return (
-			<SettingsCard
-				{ ...this.props }
-				header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
-				feature={ FEATURE_SEO_TOOLS_JETPACK }
-				hideButton
-			>
-				<SettingsGroup
-					disableInOfflineMode
-					module={ { module: 'seo-tools' } }
-					support={ {
-						text: __(
-							'Allows you to optimize your site and its content for better results in search engines.',
-							'jetpack'
-						),
-						link: getRedirectUrl( 'jetpack-support-seo-tools' ),
-					} }
+		render() {
+			const isActive = this.props.getOptionValue( 'seo-tools' );
+
+			return (
+				<SettingsCard
+					{ ...this.props }
+					header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
+					feature={ 'seo-tools-jetpack' }
+					module="seo-tools"
+					hideButton
 				>
-					<span>
-						{ __(
-							'Take control of the way search engines represent your site. With Jetpack’s SEO tools you can preview how your content will look on popular search engines and change items like your site name and tagline in seconds.',
-							'jetpack'
-						) }
-					</span>
-				</SettingsGroup>
-				{ ! this.props.isUnavailableInOfflineMode( 'seo-tools' ) && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackConfigureClick }
-						href={ this.props.configureUrl }
+					<SettingsGroup
+						disableInOfflineMode
+						module={ { module: 'seo-tools' } }
+						support={ {
+							text: __(
+								'Allows you to optimize your site and its content for better results in search engines.',
+								'jetpack'
+							),
+							link: getRedirectUrl( 'jetpack-support-seo-tools' ),
+						} }
 					>
-						{ __( 'Customize your SEO settings', 'jetpack' ) }
-					</Card>
-				) }
-			</SettingsCard>
-		);
+						<p>
+							{ __(
+								'Take control of the way search engines represent your site. With Jetpack’s SEO tools you can preview how your content will look on popular search engines and change items like your site name and tagline in seconds.',
+								'jetpack'
+							) }
+						</p>
+						<ModuleToggle
+							slug="seo-tools"
+							activated={ isActive }
+							toggling={ this.props.isSavingAnyOption( 'seo-tools' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							{ __( 'Customize your SEO settings', 'jetpack' ) }
+						</ModuleToggle>
+					</SettingsGroup>
+					{ isActive && ! this.props.isOfflineMode && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackConfigureClick }
+							href={ this.props.configureUrl }
+						>
+							{ __( 'Customize your SEO settings', 'jetpack' ) }
+						</Card>
+					) }
+				</SettingsCard>
+			);
+		}
 	}
-}
-
-export const SEO = connect( state => {
-	return {
-		sitePlan: getSitePlan( state ),
-	};
-} )( withModuleSettingsFormHelpers( SeoComponent ) );
+);
