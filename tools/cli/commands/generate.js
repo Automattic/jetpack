@@ -46,6 +46,7 @@ export async function generateCli( argv ) {
 	try {
 		argv = await promptForGenerate( argv );
 		await generateRouter( argv );
+		console.log( chalkJetpackGreen( 'Project created successfully! Happy coding!' ) );
 		if ( argv.v ) {
 			console.log( argv );
 		}
