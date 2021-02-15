@@ -331,7 +331,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$this->assertContains( $general_submenu_item, $submenu['options-general.php'] );
 		$this->assertContains( $writing_submenu_item, $submenu['options-writing.php'] );
 
-		static::$admin_menu->add_users_menu( true );
+		static::$admin_menu->add_options_menu( true );
 		$this->assertNotContains( $general_submenu_item, $submenu['options-general.php'] );
 		$this->assertNotContains( $writing_submenu_item, $submenu['options-writing.php'] );
 	}
