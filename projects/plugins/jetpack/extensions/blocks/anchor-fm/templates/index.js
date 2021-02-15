@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { createBlocksFromInnerBlocksTemplate, pasteHandler } from '@wordpress/blocks';
+import { pasteHandler } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { _x, __ } from '@wordpress/i18n';
 
@@ -9,6 +9,7 @@ import { _x, __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getIconColor } from '../../../shared/block-icons';
+import createBlocksFromTemplate from '../../../shared/create-block-from-inner-blocks-template';
 
 // Templates.
 
@@ -184,7 +185,7 @@ function episodeBasicTemplate( { spotifyShowUrl, spotifyImageUrl, episodeTrack =
 }
 
 export function basicTemplate( params ) {
-	return createBlocksFromInnerBlocksTemplate( episodeBasicTemplate( params ) );
+	return createBlocksFromTemplate( episodeBasicTemplate( params ) );
 }
 
 export function spotifyBadgeTemplate( params ) {
@@ -192,5 +193,5 @@ export function spotifyBadgeTemplate( params ) {
 		return;
 	}
 
-	return createBlocksFromInnerBlocksTemplate( [ spotifyTemplate( params ) ] );
+	return createBlocksFromTemplate( [ spotifyTemplate( params ) ] );
 }
