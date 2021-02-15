@@ -300,6 +300,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				return esc_url_raw( $url );
 			}
 
+			// Allow URLs pointing to Jetpack.com.
+			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
+				return esc_url_raw( $url );
+			}
+
 			// Disallow other external URLs.
 			return '';
 		}
