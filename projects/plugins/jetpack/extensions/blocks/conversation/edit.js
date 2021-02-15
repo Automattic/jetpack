@@ -38,12 +38,12 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
-	const addNewParticipant = useCallback( function( newSpeakerLabel ) {
-		if ( ! newSpeakerLabel ) {
+	const addNewParticipant = useCallback( function( { label, slug } ) {
+		if ( ! label ) {
 			return;
 		}
 
-		const sanitizedSpeakerLabel = newSpeakerLabel.trim();
+		const sanitizedSpeakerLabel = label.trim();
 		// Do not add speakers with empty names.
 		if ( ! sanitizedSpeakerLabel?.length ) {
 			return;
@@ -56,9 +56,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		}
 
 		// Creates the participant slug.
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
+		const newParticipantSlug = slug || `speaker-${ +( new Date() ) }`;
 
 		const newParticipant = {
 			slug: newParticipantSlug,
