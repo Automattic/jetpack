@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
-use Automattic\Jetpack\Password_Checker;
 use Automattic\Jetpack\Sync\Defaults;
 
 /**
@@ -363,7 +362,8 @@ class Users extends Module {
 			return $user;
 		}
 
-		$password_checker = new Password_Checker( $user->ID );
+		jetpack_require_lib( 'class.jetpack-password-checker' );
+		$password_checker = new \Jetpack_Password_Checker( $user->ID );
 
 		$test_results = $password_checker->test( $password, true );
 
