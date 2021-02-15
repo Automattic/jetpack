@@ -246,11 +246,6 @@ export default function DialogueEdit( {
 						return onReplace( [ blocks[ 0 ] ], ...args );
 					}
 
-					// Update new block attributes.
-					blocks[ 1 ].attributes = {
-						timestamp: attributes.timestamp, // <- keep same timestamp value.
-					};
-
 					onReplace( blocks, ...args );
 				} }
 				onRemove={ onReplace ? () => onReplace( [] ) : undefined }
