@@ -201,7 +201,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_options_menu( $wp_admin = false ) {
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
-		
+
 		// No need to add a menu linking to WP Admin if there is already one.
 		if ( ! $wp_admin ) {
 			add_options_page( esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 9 );
