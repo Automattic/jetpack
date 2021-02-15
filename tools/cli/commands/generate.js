@@ -282,7 +282,7 @@ export function generatePackage(
 	/**
 	 * @todo Move this to the section dealing with mirror repo creation.
 	 */
-	composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
+	//composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
 	writeComposerJson( project, composerJson, pkgDir );
 	return packageJson;
 }
