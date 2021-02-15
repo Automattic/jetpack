@@ -40,7 +40,7 @@ export default function DialogueEdit( {
 } ) {
 	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
-	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference } = useSelect( select => {
+	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference, isMultipleSelection } = useSelect( select => {
 		const {
 			getDefaultMediaSource,
 			getMediaSourceCurrentTime,
@@ -53,6 +53,7 @@ export default function DialogueEdit( {
 			mediaCurrentTime: getMediaSourceCurrentTime(),
 			mediaDuration: getMediaSourceDuration(),
 			mediaDomReference: getMediaSourceDomReference(),
+			isMultipleSelection: select( 'core/block-editor' ).getMultiSelectedBlocks().length,
 		};
 	}, [] );
 
@@ -77,6 +78,10 @@ export default function DialogueEdit( {
 			return;
 		}
 
+		if ( isMultipleSelection ) {
+			return;
+		}
+
 		// When no context, nothing to do.
 		if ( ! conversationParticipant ) {
 			return;
@@ -90,7 +95,7 @@ export default function DialogueEdit( {
 		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, isSelected, setAttributes, slug ] );
+	}, [ conversationParticipant, isMultipleSelection, isSelected, setAttributes, slug ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
