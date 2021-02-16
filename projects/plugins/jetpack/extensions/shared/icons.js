@@ -201,7 +201,7 @@ export const TranscriptIcon = {
 				<Path
 					d="M11.1114 8H20.0002M11.1113 15H20.0002"
 					stroke={ getIconColor() }
-					stroke-width="1.5"
+					strokeWidth="1.5"
 				/>
 				<Path d="M4 10V6L8 8L4 10Z" fill={ getIconColor() } />
 				<Path d="M4 17V13L8 15L4 17Z" fill={ getIconColor() } />
