@@ -7,6 +7,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Tokens;
 /**
  * WordPress.com Block editor for Jetpack
  */
