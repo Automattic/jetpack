@@ -216,8 +216,14 @@ export default function DialogueEdit( {
 						return createBlock( blockNameFallback );
 					}
 
+					// Copy attrs for the new block
+					// only if content is not empty.
+					const newAttributes = value?.length
+						? attributes
+						: {};
+
 					return createBlock( blockName, {
-						...attributes,
+						...newAttributes,
 						content: value,
 					} );
 				} }
