@@ -41,12 +41,26 @@ export const settings = {
 		_x( 'speaker', 'block search term', 'jetpack' ),
 	],
 	transforms: {
+		to: [
+			{
+				type: 'block',
+				blocks: [ 'core/paragraph' ],
+				isMultiBlock: true,
+				transform: ( blocks ) => {
+					return blocks.map( ( { content, label } ) =>
+						createBlock( 'core/paragraph', {
+							content: ( label?.length ? `<strong>${ label }</strong>: ` : '' ) + content,
+						} )
+					);
+				},
+			},
+		],
 		from: [
 			{
 				type: 'block',
 				blocks: [ 'core/paragraph' ],
 				isMultiBlock: true,
-				transform: blocks => {
+				transform: ( blocks ) => {
 					return blocks.map( ( { content } ) =>
 						createBlock( 'jetpack/dialogue', {
 							participant: defaultParticipants[ 0 ],
