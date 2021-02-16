@@ -488,4 +488,45 @@
 
 #jp-authenticate-no_user_test_mode {
 	display: none;
+	max-width: 555px;
+	margin: 0 auto;
+
+	h2 {
+		margin: 0;
+		font-size: 20px;
+		line-height: 24px;
+	}
+
+	p {
+		margin: 8px 0 0 0;
+		font-size: 14px;
+		line-height: 20px;
+	}
+
+	a.jp-no-user-mode-button {
+		margin: 31px auto 0;
+		background: #FFFFFF;
+		border: 2px solid #2271B1;
+		border-radius: 4px;
+		font-weight: 600;
+		font-size: 14px;
+		line-height: 17px;
+		color: #2271B1;
+		display: block;
+		width: 270px;
+	}
+
+	a.jp-no-user-all-features {
+		font-size: 13px;
+		line-height: 16px;
+		text-align: center;
+		color: #2271B1;
+		display: block;
+		margin: 24px auto 0;
+
+		svg.gridicon {
+			margin-left: 3px;
+			vertical-align: text-bottom;
+		}
+	}
 }
