@@ -25,12 +25,23 @@
 	@include breakpoint( '<960px' ) {
 		margin: 4rem 1.25rem 1.25rem 0;
 	}
+
+	.notice-dismiss {
+		@include breakpoint( '<480px' ) {
+			padding: 16px;
+		}
+	}
 }
 
 .jp-recommendations-banner__content {
 	display: flex;
 	flex-direction: column;
+
 	padding-right: 48px;
+
+	@include breakpoint( '<480px' ) {
+		padding-right: 16px;
+	}
 }
 
 .jp-recommendations-banner__logo {
