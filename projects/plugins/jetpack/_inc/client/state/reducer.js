@@ -9,7 +9,6 @@ import { globalNotices } from 'components/global-notices/state/notices/reducer';
  */
 import { initialState } from 'state/initial-state/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
-import { default as checklist } from 'state/checklist/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
 import { reducer as plans } from 'state/plans/reducer';
@@ -33,7 +32,6 @@ import { reducer as mobile } from 'state/mobile/reducer';
 import { reducer as licensing } from 'state/licensing/reducer';
 
 const jetpackReducer = combineReducers( {
-	checklist,
 	connection,
 	dashboard,
 	devCard,
