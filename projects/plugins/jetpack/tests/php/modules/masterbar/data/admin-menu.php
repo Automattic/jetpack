@@ -163,7 +163,7 @@ function get_wpcom_menu_fixture() {
 			'dashicons-edit',
 		),
 	);
-	return array_merge( get_menu_fixture(), $gutenberg_menus );
+	return get_menu_fixture() + $gutenberg_menus;
 }
 
 /**
