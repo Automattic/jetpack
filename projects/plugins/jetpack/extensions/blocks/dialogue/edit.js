@@ -73,12 +73,13 @@ export default function DialogueEdit( {
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		// Do not update current Dialogue block.
-		if ( isSelected ) {
+		// Do not update when multi blocks selected.
+		if ( isMultipleSelection ) {
 			return;
 		}
 
-		if ( isMultipleSelection ) {
+		// Do not update current Dialogue block.
+		if ( isSelected ) {
 			return;
 		}
 
