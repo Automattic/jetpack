@@ -423,11 +423,12 @@ class Password_Checker {
 	/**
 	 * A shorthand for the not in array construct.
 	 *
-	 * @param Mixed $needle the needle.
+	 * @param mixed $needle the needle.
 	 * @param array $haystack the haystack.
-	 * @return is the needle not in the haystack?
+	 *
+	 * @return bool is the needle not in the haystack?
 	 */
-	protected function negative_in_array( $needle, $haystack ) {
+	protected function negative_in_array( $needle, array $haystack ) {
 		return ! in_array( $needle, $haystack, true );
 	}
 
@@ -436,33 +437,39 @@ class Password_Checker {
 	 * that both the full string and its constituents and any variants thereof
 	 * can be tested against the password.
 	 *
-	 * @param String $string the string to be broken down.
-	 * @param String $explode_delimiter delimiter.
-	 * @return NULL|Array array of fragments, or NULL on empty string.
+	 * @param string $string the string to be broken down.
+	 * @param string $explode_delimiter delimiter.
+	 *
+	 * @return bool
 	 */
 	protected function add_user_strings_to_test( $string, $explode_delimiter = ' ' ) {
-
 		// Don't check against empty strings.
 		if ( empty( $string ) ) {
-			return;
+			return false;
 		}
 
 		$strings = explode( $explode_delimiter, $string );
 
 		// Remove any non alpha numeric characters from the strings to check against.
 		foreach ( $strings as $key => $_string ) {
-			$strings[ $key ] = preg_replace( '/[^a-zA-Z0-9]/', '', $_string );
+			$strings[ $key ] = trim( preg_replace( '/[^a-zA-Z0-9]/', '', $_string ) );
 		}
 
 		// Check the original too.
-		$strings[] = $string;
+		$strings[] = trim( $string );
 
 		// Check the original minus non alpha numeric characters.
-		$strings[] = preg_replace( '/[^a-zA-Z0-9]/', '', $string );
+		$strings[] = trim( preg_replace( '/[^a-zA-Z0-9]/', '', $string ) );
 
 		// Remove any empty strings.
-		$strings                    = array_filter( $strings );
-		$this->user_strings_to_test = array_merge( $this->user_strings_to_test, $strings );
+		$strings = array_filter( $strings );
+		if ( empty( $strings ) ) {
+			return false;
+		}
+
+		$this->user_strings_to_test = array_unique( array_merge( $this->user_strings_to_test, $strings ) );
+
+		return true;
 	}
 
 	/**
