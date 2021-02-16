@@ -2,6 +2,7 @@
  * External dependencies
  */
 import fs from 'fs';
+import path from 'path';
 
 /**
  * Merge directories.
@@ -10,12 +11,12 @@ import fs from 'fs';
  *
  * @param {string} src - Source dir.
  * @param {string} dest - Dest dir.
+ * @param {string} name - Name of new project.
  */
-export default function mergeDirs( src, dest ) {
+export default function mergeDirs( src, dest, name ) {
 	if ( ! src || ! dest ) {
 		throw new Error( 'Both a source and destination path must be provided.' );
 	}
-
 	const files = fs.readdirSync( src );
 
 	if ( ! files ) {
@@ -34,12 +35,20 @@ export default function mergeDirs( src, dest ) {
 		} else {
 			console.warn( `${ destFile } exists, skipping...` );
 		}
-	} );
 
-	if ( files.includes( 'plugin.php' ) ) {
-		const name = 'test' + '.php';
-		fs.rename( `plugin.php`, name );
-	}
+		if ( file === 'plugin.php' ) {
+			const newFile = path.join( destFile, '../', name + '.php' );
+			fs.rename( destFile, newFile, err => {
+				if ( err ) {
+					throw new Error( 'Error renaming plugin.php: ' + err );
+				}
+			} );
+		}
+	} );
+	/* 	if ( files.includes( 'plugin.php' ) ) {
+		const newFile = name + '.php';
+		fs.rename( dest + `/plugin.php`, newFile );
+	} */
 }
 
 /**
