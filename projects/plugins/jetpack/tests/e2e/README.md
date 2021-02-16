@@ -37,7 +37,7 @@ Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to h
 `wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that updates some options to make `wp-env` containers to work with Jetpack tests. To setup tests environment:
 
 1. Make sure that docker is installed locally
-1. run `./tests/e2e/bin/env.sh start` to start a `wp-env` containers. It will start 2 wordpress installation (we would use only 1 though) & wp-cli container.
+1. run `./bin/env.sh start` to start a `wp-env` containers. It will start 2 wordpress installation (we would use only 1 though) & wp-cli container.
 1. run the tests: `yarn test-e2e`.
 
 #### Environment variables
@@ -62,13 +62,13 @@ HEADLESS=false npm run test-e2e
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-npm run test-e2e ./tests/e2e/specs/dummy.test.js
+npm run test-e2e ./specs/dummy.test.js
 ```
 
 For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use. Also Jest's `-t` argument could be used to run single test from the test suite(file)
 
 ```bash
-E2E_DEBUG=true HEADLESS=false npm run test-e2e ./tests/e2e/specs/some.test.js -t 'Test name'
+E2E_DEBUG=true HEADLESS=false npm run test-e2e ./specs/some.test.js -t 'Test name'
 ```
 
 ## Writing tests
@@ -78,7 +78,7 @@ We use the following tools to write e2e tests:
 - [Playwright](https://github.com/microsoft/playwright) – a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol
 - [jest-playwright](https://github.com/playwright-community/jest-playwright) – provides all required configuration to run tests using Playwright
 
-Tests are kept in `tests/e2e/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack Connection, so we connect a site before running the actual test suite. Its logic can be found in the [`setup-env#maybePreConnect`](./lib/setup-env.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
+Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack Connection, so we connect a site before running the actual test suite. Its logic can be found in the [`setup-env#maybePreConnect`](./lib/setup-env.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
 
 The following packages are being used to write tests:
 

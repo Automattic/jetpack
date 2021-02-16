@@ -33,7 +33,7 @@ export function getTunnelSiteUrl() {
 }
 
 export async function resetWordpressInstall() {
-	const cmd = './tests/e2e/bin/env.sh reset';
+	const cmd = './bin/env.sh reset';
 	await execShellCommand( cmd );
 }
 
