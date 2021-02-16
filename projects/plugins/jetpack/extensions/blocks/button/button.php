@@ -148,6 +148,7 @@ function get_button_styles( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+	$has_width                   = array_key_exists( 'width', $attributes );
 
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
@@ -169,6 +170,10 @@ function get_button_styles( $attributes ) {
 	// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
+	}
+
+	if ( $has_width ) {
+		$styles[] = sprintf( 'width: %s%%', $attributes['width'] );
 	}
 
 	return implode( ' ', $styles );
