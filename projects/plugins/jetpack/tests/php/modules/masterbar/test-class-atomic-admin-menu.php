@@ -332,8 +332,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_options_menu( false );
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
-		$this->assertContains( $general_submenu_item, $submenu[ $slug ][9] );
-		$this->assertContains( $writing_submenu_item, $submenu[ $slug ][10] );
+		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
+		$this->assertContains( $writing_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
