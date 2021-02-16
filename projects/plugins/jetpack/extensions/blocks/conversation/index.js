@@ -2,6 +2,10 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import {
+	createBlock,
+	createBlocksFromInnerBlocksTemplate,
+} from '@wordpress/blocks';
 
 /**
  * External dependencies
@@ -46,5 +50,26 @@ export const settings = {
 	providesContext: {
 		'jetpack/conversation-participants': 'participants',
 		'jetpack/conversation-showTimestamps': 'showTimestamps',
+	},
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/paragraph' ],
+				isMultiBlock: true,
+				transform: ( blocks ) => {
+					const innerBlocksTemplate = blocks.map( ( { content } ) => [
+							'jetpack/dialogue',
+							{ content },
+					] );
+
+					return createBlock(
+						'jetpack/conversation',
+						{},
+						createBlocksFromInnerBlocksTemplate( innerBlocksTemplate )
+					);
+				},
+			},
+		],
 	},
 };
