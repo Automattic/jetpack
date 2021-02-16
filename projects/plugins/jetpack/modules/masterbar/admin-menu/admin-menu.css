@@ -310,6 +310,11 @@
 		margin-top: 3px;
 		top: 13px;
 	}
+
+	/* Hide debug bar. */
+	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-debug-bar {
+		display: none;
+	}
 }
 
 @media screen and  (max-width: 480px) {
@@ -319,10 +324,5 @@
 
 	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-my-account.with-avatar > a img {
 		margin-top: 12px;
-	}
-
-	/* Hide debug bar on mobile devices. */
-	#wpadminbar #wp-toolbar.quicklinks li#wp-admin-bar-debug-bar {
-		display: none;
 	}
 }
