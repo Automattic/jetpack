@@ -39,6 +39,10 @@
 
 	padding-right: 48px;
 
+	@include breakpoint( '<660px' ) {
+		padding-right: 32px;
+	}
+
 	@include breakpoint( '<480px' ) {
 		padding-right: 16px;
 	}
