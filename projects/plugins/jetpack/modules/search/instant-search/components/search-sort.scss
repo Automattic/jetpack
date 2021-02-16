@@ -1,0 +1,51 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__search-sort {
+	display: flex;
+	font-size: 13px;
+	transition: background-color 0.25s ease-in-out;
+
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+	}
+	@include break-large-down() {
+		margin-left: $results-margin-md;
+	}
+
+	> label {
+		margin: 0 0.25em 0 0;
+	}
+}
+
+.jetpack-instant-search__search-sort-select {
+	font-size: 0.9em;
+}
+
+.jetpack-instant-search__search-sort-option {
+	cursor: pointer;
+	padding: 0 2px 0 2px;
+	color: $color-text-lighter;
+	text-decoration: none;
+
+	&::after {
+		content: '·';
+		padding-left: 5px;
+		font-weight: 400;
+		color: $color-text-lighter;
+	}
+
+	.jetpack-instant-search__search-sort &:focus,
+	.jetpack-instant-search__search-sort &:hover {
+		text-decoration: none;
+	}
+
+	&:last-child::after {
+		content: '';
+	}
+
+	&.is-selected {
+		color: $color-link-alt;
+		font-weight: 600;
+		text-decoration: none;
+	}
+}

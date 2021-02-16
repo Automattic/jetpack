@@ -163,30 +163,6 @@ class Jetpack_Search_Customize {
 			)
 		);
 
-		$id = $setting_prefix . 'opacity';
-		$wp_customize->add_setting(
-			$id,
-			array(
-				'default'   => 97,
-				'transport' => 'postMessage',
-				'type'      => 'option',
-			)
-		);
-		$wp_customize->add_control(
-			$id,
-			array(
-				'type'        => 'range',
-				'section'     => $section_id,
-				'label'       => __( 'Background Opacity', 'jetpack' ),
-				'description' => __( 'Select an opacity for your search overlay.', 'jetpack' ),
-				'input_attrs' => array(
-					'min'  => 85,
-					'max'  => 100,
-					'step' => 0.5,
-				),
-			)
-		);
-
 		$id = $setting_prefix . 'highlight_color';
 		$wp_customize->add_setting(
 			$id,

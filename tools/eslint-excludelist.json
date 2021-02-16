@@ -208,7 +208,6 @@
 	"projects/plugins/jetpack/modules/masterbar/masterbar/tracks-events.js",
 	"projects/plugins/jetpack/modules/plugin-search/plugin-search.js",
 	"projects/plugins/jetpack/modules/scan/admin-bar-notice.js",
-	"projects/plugins/jetpack/modules/search/instant-search/components/overlay.jsx",
 	"projects/plugins/jetpack/modules/search/instant-search/components/path-breadcrumbs.jsx",
 	"projects/plugins/jetpack/modules/search/instant-search/components/search-filter.jsx",
 	"projects/plugins/jetpack/modules/search/instant-search/components/search-result-expanded.jsx",

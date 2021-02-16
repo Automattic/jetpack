@@ -12,9 +12,9 @@ import WidgetAreaContainer from './widget-area-container';
  * Internal dependencies
  */
 import JetpackColophon from './jetpack-colophon';
-import './search-sidebar.scss';
+import './sidebar.scss';
 
-const SearchSidebar = props => {
+const Sidebar = props => {
 	const hasFiltersSelectedOutsideOverlay = props.widgetOutsideOverlay.filters?.length > 0;
 	return (
 		<div className="jetpack-instant-search__sidebar">
@@ -54,4 +54,4 @@ const SearchSidebar = props => {
 		</div>
 	);
 };
-export default SearchSidebar;
+export default Sidebar;

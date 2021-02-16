@@ -1,3 +1,5 @@
+@import '../lib/styles/_helper.scss';
+
 .jetpack-instant-search__jetpack-colophon {
 	margin-top: 2em;
 	margin-bottom: 2em;
@@ -13,10 +15,13 @@
 
 .jetpack-instant-search__jetpack-colophon-logo {
 	display: inline;
+	width: 16px;
+	height: 16px;
 }
 
 .jetpack-instant-search__jetpack-colophon-text {
+	color: $color-text-light;
 	font-size: 0.7em;
-	font-weight: 600;
+	font-weight: 400;
 	padding-left: 6px;
 }

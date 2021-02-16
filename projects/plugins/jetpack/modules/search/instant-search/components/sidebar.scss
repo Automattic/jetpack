@@ -1,0 +1,20 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__sidebar {
+	.jetpack-instant-search__widget-area {
+		> .widget {
+			padding: 14px 0 0 0;
+			margin: 0;
+			background: none;
+
+			a {
+				font-weight: initial;
+			}
+		}
+	}
+
+	h2.widgettitle {
+		font-size: 1.3em;
+		margin: 1em 0 0.5em;
+	}
+}
