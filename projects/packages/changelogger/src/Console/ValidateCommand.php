@@ -141,7 +141,7 @@ EOF
 				if ( count( $list ) > 1 ) {
 					$list[ count( $list ) - 1 ] = 'or ' . $list[ count( $list ) - 1 ];
 				}
-				$messages[] = array( 'error', 'Type must be must be ' . implode( count( $list ) > 2 ? ', ' : ' ', $list ) . '.', $diagnostics['lines']['Type'] );
+				$messages[] = array( 'error', 'Type must be ' . implode( count( $list ) > 2 ? ', ' : ' ', $list ) . '.', $diagnostics['lines']['Type'] );
 			}
 		}
 

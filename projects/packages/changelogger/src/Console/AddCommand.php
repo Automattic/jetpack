@@ -80,7 +80,7 @@ class AddCommand extends Command {
 		$this->setDescription( 'Adds a change file' )
 			->addOption( 'filename', 'f', InputOption::VALUE_REQUIRED, 'Name for the change file. If not provided, a default will be determined from the current timestamp or git branch name.' )
 			->addOption( 'significance', 's', InputOption::VALUE_REQUIRED, "Significance of the change, in the style of semantic versioning. One of the following:\n" . $joiner( self::$significances ) )
-			->addOption( 'type', 't', InputOption::VALUE_REQUIRED, Config::types() ? "Type of change. One of the following:\n" . $joiner( Config::types() ) : 'Normally this would be used to indicate the type of change, but this project does not use types.' )
+			->addOption( 'type', 't', InputOption::VALUE_REQUIRED, Config::types() ? "Type of change. One of the following:\n" . $joiner( Config::types() ) : 'Normally this would be used to indicate the type of change, but this project does not use types. Do not use.' )
 			->addOption( 'comment', 'c', InputOption::VALUE_REQUIRED, 'Optional comment to include in the file.' )
 			->addOption( 'entry', 'e', InputOption::VALUE_REQUIRED, 'Changelog entry. May be empty if the significance is "patch".' )
 			->setHelp(
@@ -252,6 +252,8 @@ EOF
 					}
 				}
 				$contents .= "Type: $type\n";
+			} elseif ( null !== $input->getOption( 'type' ) ) {
+				$output->writeln( '<warning>This project does not use types. Do not specify --type.</>' );
 			}
 
 			// Determine the change comment, and add to the file contents if applicable.

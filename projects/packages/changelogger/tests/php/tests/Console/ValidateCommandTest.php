@@ -37,6 +37,8 @@ class ValidateCommandTest extends CommandTestCase {
 		file_put_contents( 'changelog/wrong-headers', "Significants: patch\nTypo: added\nComment: This is a comment\n\nEntry." );
 		file_put_contents( 'changelog/wrong-header-values', "Significance: bogus\nType: bogus" );
 		file_put_contents( 'changelog/duplicate-headers', "Significance: patch\nType: fixed\nType: added\n\nOk?" );
+		file_put_contents( 'changelog/custom-type', "Significance: patch\nType: foo\n\nOk?" );
+		file_put_contents( 'changelog/no-type', "Significance: patch\n\nOk?" );
 	}
 
 	/**
@@ -44,11 +46,16 @@ class ValidateCommandTest extends CommandTestCase {
 	 *
 	 * @dataProvider provideExecute
 	 * @param string[] $args Command line arguments.
-	 * @param array    $options Options for CommandTester.
+	 * @param array    $options Options for the test and CommandTester.
 	 * @param int      $expectExitCode Expected exit code.
 	 * @param string   $expectOutput Expected output.
 	 */
 	public function testExecute( array $args, array $options, $expectExitCode, $expectOutput ) {
+		if ( isset( $options['composer.json'] ) ) {
+			file_put_contents( 'composer.json', json_encode( $options['composer.json'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+			unset( $options['composer.json'] );
+		}
+
 		$tester = $this->getTester( 'validate' );
 		$code   = $tester->execute( $args, $options );
 		$output = str_replace( getcwd() . '/', '/base/path/', rtrim( $tester->getDisplay() ) );
@@ -65,17 +72,37 @@ class ValidateCommandTest extends CommandTestCase {
 	 * Data provider for testExecute.
 	 */
 	public function provideExecute() {
+		$composerWithTypes   = array(
+			'extra' => array(
+				'changelogger' => array(
+					'types' => array(
+						'foo' => 'Foo',
+						'bar' => 'Bar',
+					),
+				),
+			),
+		);
+		$composerWithNoTypes = array(
+			'extra' => array(
+				'changelogger' => array(
+					'types' => (object) array(),
+				),
+			),
+		);
+
 		return array(
 			'Normal run'                => array(
 				array(),
 				array(),
 				1,
 				<<<'EOF'
+/base/path/changelog/custom-type:2: Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
 <warning>/base/path/changelog/duplicate-headers:3: Duplicate header "Type", previously seen on line 2.
 /base/path/changelog/no-entry-not-patch:5: Changelog entry may only be empty when Significance is "patch".
+/base/path/changelog/no-type: File does not contain a Type header.
 <warning>/base/path/changelog/unknown-header:3: Unrecognized header "Bogus".
 /base/path/changelog/wrong-header-values:1: Significance must be "patch", "minor", or "major".
-/base/path/changelog/wrong-header-values:2: Type must be must be "security", "added", "changed", "deprecated", "removed", or "fixed".
+/base/path/changelog/wrong-header-values:2: Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
 /base/path/changelog/wrong-headers: File does not contain a Significance header.
 /base/path/changelog/wrong-headers: File does not contain a Type header.
 <warning>/base/path/changelog/wrong-headers:1: Unrecognized header "Significants".
@@ -88,23 +115,27 @@ EOF
 				array( 'verbosity' => OutputInterface::VERBOSITY_VERBOSE ),
 				1,
 				<<<'EOF'
+Checking /base/path/changelog/custom-type...
+/base/path/changelog/custom-type:2: Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
 Checking /base/path/changelog/duplicate-headers...
 <warning>/base/path/changelog/duplicate-headers:3: Duplicate header "Type", previously seen on line 2.
 Checking /base/path/changelog/good...
 Checking /base/path/changelog/no-entry-is-patch...
 Checking /base/path/changelog/no-entry-not-patch...
 /base/path/changelog/no-entry-not-patch:5: Changelog entry may only be empty when Significance is "patch".
+Checking /base/path/changelog/no-type...
+/base/path/changelog/no-type: File does not contain a Type header.
 Checking /base/path/changelog/unknown-header...
 <warning>/base/path/changelog/unknown-header:3: Unrecognized header "Bogus".
 Checking /base/path/changelog/wrong-header-values...
 /base/path/changelog/wrong-header-values:1: Significance must be "patch", "minor", or "major".
-/base/path/changelog/wrong-header-values:2: Type must be must be "security", "added", "changed", "deprecated", "removed", or "fixed".
+/base/path/changelog/wrong-header-values:2: Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
 Checking /base/path/changelog/wrong-headers...
 /base/path/changelog/wrong-headers: File does not contain a Significance header.
 /base/path/changelog/wrong-headers: File does not contain a Type header.
 <warning>/base/path/changelog/wrong-headers:1: Unrecognized header "Significants".
 <warning>/base/path/changelog/wrong-headers:2: Unrecognized header "Typo".
-Found 5 error(s) and 4 warning(s)
+Found 7 error(s) and 4 warning(s)
 EOF
 				,
 			),
@@ -141,16 +172,34 @@ changelog/.gitkeep: File does not contain a Type header.
 EOF
 				,
 			),
+			'Custom types'              => array(
+				array( 'files' => array( 'changelog/good', 'changelog/custom-type', 'changelog/no-type' ) ),
+				array( 'composer.json' => $composerWithTypes ),
+				1,
+				<<<'EOF'
+changelog/good:2: Type must be "foo" or "bar".
+changelog/no-type: File does not contain a Type header.
+EOF
+				,
+			),
+			'No types'                  => array(
+				array( 'files' => array( 'changelog/good', 'changelog/custom-type', 'changelog/no-type' ) ),
+				array( 'composer.json' => $composerWithNoTypes ),
+				0,
+				'',
+			),
 			'GH Actions output'         => array(
 				array( '--gh-action' => true ),
 				array(),
 				1,
 				<<<'EOF'
+::error file=/base/path/changelog/custom-type,line=2::Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
 ::warning file=/base/path/changelog/duplicate-headers,line=3::Duplicate header "Type", previously seen on line 2.
 ::error file=/base/path/changelog/no-entry-not-patch,line=5::Changelog entry may only be empty when Significance is "patch".
+::error file=/base/path/changelog/no-type::File does not contain a Type header.
 ::warning file=/base/path/changelog/unknown-header,line=3::Unrecognized header "Bogus".
 ::error file=/base/path/changelog/wrong-header-values,line=1::Significance must be "patch", "minor", or "major".
-::error file=/base/path/changelog/wrong-header-values,line=2::Type must be must be "security", "added", "changed", "deprecated", "removed", or "fixed".
+::error file=/base/path/changelog/wrong-header-values,line=2::Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
 ::error file=/base/path/changelog/wrong-headers::File does not contain a Significance header.
 ::error file=/base/path/changelog/wrong-headers::File does not contain a Type header.
 ::warning file=/base/path/changelog/wrong-headers,line=1::Unrecognized header "Significants".
@@ -159,20 +208,6 @@ EOF
 				,
 			),
 		);
-	}
-
-	/**
-	 * Test runs with custom `extra.changelogger.types`.
-	 */
-	public function testExecute_customTypes() {
-		$this->markAsRisky( 'Write some tests for using it with custom types defined' );
-	}
-
-	/**
-	 * Test runs with empty `extra.changelogger.types`.
-	 */
-	public function testExecute_noTypes() {
-		$this->markAsRisky( 'Write some tests for using it with no types defined' );
 	}
 
 }

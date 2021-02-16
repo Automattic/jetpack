@@ -99,13 +99,18 @@ class AddCommandTest extends CommandTestCase {
 	 *
 	 * @dataProvider provideExecute
 	 * @param string[]    $args Command line arguments.
-	 * @param array       $options Options for CommandTester.
+	 * @param array       $options Options for the test and CommandTester.
 	 * @param string[]    $inputs User inputs.
 	 * @param int         $expectExitCode Expected exit code.
 	 * @param string|null $expectFile Expected change file contents, or null if no file should exist.
 	 * @param string[]    $expectOutputRegexes Regexes to run against the output.
 	 */
 	public function testExecute( array $args, array $options, array $inputs, $expectExitCode, $expectFile, $expectOutputRegexes = array() ) {
+		if ( isset( $options['composer.json'] ) ) {
+			file_put_contents( 'composer.json', json_encode( $options['composer.json'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+			unset( $options['composer.json'] );
+		}
+
 		$tester = $this->getTester( 'add' );
 		$tester->setInputs( $inputs );
 		$code = $tester->execute( $args, $options );
@@ -127,29 +132,47 @@ class AddCommandTest extends CommandTestCase {
 	 * Data provider for testExecute.
 	 */
 	public function provideExecute() {
+		$composerWithTypes   = array(
+			'extra' => array(
+				'changelogger' => array(
+					'types' => array(
+						'foo' => 'Foo',
+						'bar' => 'Bar',
+					),
+				),
+			),
+		);
+		$composerWithNoTypes = array(
+			'extra' => array(
+				'changelogger' => array(
+					'types' => (object) array(),
+				),
+			),
+		);
+
 		return array(
-			'Normal interactive use'                      => array(
+			'Normal interactive use'                       => array(
 				array(),
 				array(),
 				array( '', 'patch', 'fixed', '', 'Testing.' ),
 				0,
 				"Significance: patch\nType: fixed\n\nTesting.\n",
 			),
-			'Normal interactive use with comment'         => array(
+			'Normal interactive use with comment'          => array(
 				array(),
 				array(),
 				array( '', 'patch', 'fixed', 'This is a comment', 'Testing.' ),
 				0,
 				"Significance: patch\nType: fixed\nComment: This is a comment\n\nTesting.\n",
 			),
-			'Normal interactive use with empty entry'     => array(
+			'Normal interactive use with empty entry'      => array(
 				array(),
 				array(),
 				array( '', 'patch', 'fixed', '', '' ),
 				0,
 				"Significance: patch\nType: fixed\n\n\n",
 			),
-			'Interactive use with command line defaults'  => array(
+			'Interactive use with command line defaults'   => array(
 				array(
 					'--significance' => 'patch',
 					'--type'         => 'fixed',
@@ -160,7 +183,7 @@ class AddCommandTest extends CommandTestCase {
 				0,
 				"Significance: patch\nType: fixed\n\nTesting.\n",
 			),
-			'Interactive use that runs into some errors'  => array(
+			'Interactive use that runs into some errors'   => array(
 				array(),
 				array(),
 				array(
@@ -189,8 +212,38 @@ class AddCommandTest extends CommandTestCase {
 					'/An empty changelog entry is only allowed when the significance is "patch"/',
 				),
 			),
+			'Interactive use with custom types'            => array(
+				array(),
+				array( 'composer.json' => $composerWithTypes ),
+				array(
+					'',
+					'minor',
+					'fixed',
+					'foo',
+					'',
+					'Testing.',
+				),
+				0,
+				"Significance: minor\nType: foo\n\nTesting.\n",
+				array(
+					'/Value "fixed" is invalid/',
+				),
+			),
+			'Interactive use with no types'                => array(
+				array(),
+				array( 'composer.json' => $composerWithNoTypes ),
+				array(
+					'',
+					'minor',
+					'',
+					'Testing.',
+				),
+				0,
+				"Significance: minor\n\nTesting.\n",
+				array(),
+			),
 
-			'Normal non-interactive use'                  => array(
+			'Normal non-interactive use'                   => array(
 				array(
 					'--significance' => 'patch',
 					'--type'         => 'fixed',
@@ -201,7 +254,7 @@ class AddCommandTest extends CommandTestCase {
 				0,
 				"Significance: patch\nType: fixed\n\nTesting.\n",
 			),
-			'Normal non-interactive use with comment'     => array(
+			'Normal non-interactive use with comment'      => array(
 				array(
 					'--significance' => 'patch',
 					'--type'         => 'fixed',
@@ -213,7 +266,7 @@ class AddCommandTest extends CommandTestCase {
 				0,
 				"Significance: patch\nType: fixed\nComment: This is a comment\n\nTesting.\n",
 			),
-			'Normal non-interactive use with empty entry' => array(
+			'Normal non-interactive use with empty entry'  => array(
 				array(
 					'--significance' => 'patch',
 					'--type'         => 'fixed',
@@ -224,7 +277,7 @@ class AddCommandTest extends CommandTestCase {
 				0,
 				"Significance: patch\nType: fixed\n\n\n",
 			),
-			'Non-interactive use with empty filename'     => array(
+			'Non-interactive use with empty filename'      => array(
 				array(
 					'--filename'     => '',
 					'--significance' => 'patch',
@@ -237,7 +290,7 @@ class AddCommandTest extends CommandTestCase {
 				null,
 				array( '/Filename may not be empty/' ),
 			),
-			'Non-interactive use with dot filename'       => array(
+			'Non-interactive use with dot filename'        => array(
 				array(
 					'--filename'     => '.bad',
 					'--significance' => 'patch',
@@ -277,7 +330,7 @@ class AddCommandTest extends CommandTestCase {
 					'/Significance value "bogus" is not valid/',
 				),
 			),
-			'Non-interactive use with missing type'       => array(
+			'Non-interactive use with missing type'        => array(
 				array(
 					'--significance' => 'patch',
 					'--entry'        => 'Testing.',
@@ -290,7 +343,7 @@ class AddCommandTest extends CommandTestCase {
 					'/Type must be specified in non-interactive mode/',
 				),
 			),
-			'Non-interactive use with invalid type'       => array(
+			'Non-interactive use with invalid type'        => array(
 				array(
 					'--significance' => 'patch',
 					'--type'         => 'bogus',
@@ -304,7 +357,7 @@ class AddCommandTest extends CommandTestCase {
 					'/Type "bogus" is not valid/',
 				),
 			),
-			'Non-interactive use with missing entry'      => array(
+			'Non-interactive use with missing entry'       => array(
 				array(
 					'--significance' => 'patch',
 					'--type'         => 'fixed',
@@ -317,7 +370,7 @@ class AddCommandTest extends CommandTestCase {
 					'/Entry must be specified in non-interactive mode/',
 				),
 			),
-			'Non-interactive use with invalid entry'      => array(
+			'Non-interactive use with invalid entry'       => array(
 				array(
 					'--significance' => 'minor',
 					'--type'         => 'fixed',
@@ -331,21 +384,70 @@ class AddCommandTest extends CommandTestCase {
 					'/An empty changelog entry is only allowed when the significance is "patch"/',
 				),
 			),
+			'Non-interactive use with custom type'         => array(
+				array(
+					'--significance' => 'patch',
+					'--type'         => 'foo',
+					'--entry'        => 'Testing.',
+				),
+				array(
+					'interactive'   => false,
+					'composer.json' => $composerWithTypes,
+				),
+				array(),
+				0,
+				"Significance: patch\nType: foo\n\nTesting.\n",
+				array(),
+			),
+			'Non-interactive use with invalid custom type' => array(
+				array(
+					'--significance' => 'patch',
+					'--type'         => 'fixed',
+					'--entry'        => 'Testing.',
+				),
+				array(
+					'interactive'   => false,
+					'composer.json' => $composerWithTypes,
+				),
+				array(),
+				1,
+				null,
+				array(
+					'/Type "fixed" is not valid/',
+				),
+			),
+			'Non-interactive use with no type'             => array(
+				array(
+					'--significance' => 'patch',
+					'--entry'        => 'Testing.',
+				),
+				array(
+					'interactive'   => false,
+					'composer.json' => $composerWithNoTypes,
+				),
+				array(),
+				0,
+				"Significance: patch\n\nTesting.\n",
+				array(),
+			),
+			'Non-interactive use with no type (2)'         => array(
+				array(
+					'--significance' => 'patch',
+					'--type'         => 'anything',
+					'--entry'        => 'Testing.',
+				),
+				array(
+					'interactive'   => false,
+					'composer.json' => $composerWithNoTypes,
+				),
+				array(),
+				0,
+				"Significance: patch\n\nTesting.\n",
+				array(
+					'/This project does not use types. Do not specify --type./',
+				),
+			),
 		);
-	}
-
-	/**
-	 * Test runs with custom `extra.changelogger.types`.
-	 */
-	public function testExecute_customTypes() {
-		$this->markAsRisky( 'Write some tests for using it with custom types defined' );
-	}
-
-	/**
-	 * Test runs with empty `extra.changelogger.types`.
-	 */
-	public function testExecute_noTypes() {
-		$this->markAsRisky( 'Write some tests for using it with no types defined' );
 	}
 
 }
