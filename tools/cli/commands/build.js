@@ -11,7 +11,7 @@ import Listr from 'listr';
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
 import { promptForProject } from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/readJson';
+import { readComposerJson } from '../helpers/json';
 import { installProjectTask } from '../helpers/tasks/installProjectTask';
 
 /**

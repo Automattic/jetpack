@@ -70,7 +70,18 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Actions::DEFAULT_SYNC_CRON_INTERVAL_NAME, wp_get_schedule( 'jetpack_sync_full_cron' ) );
 	}
 
-	function test_starts_full_sync_on_user_authorized() {
+	/**
+	 * Test 'jetpack_site_registered' triggers initial sync.
+	 */
+	public function test_starts_initial_sync_on_site_registered() {
+		do_action( 'jetpack_site_registered', 'abcd1234' );
+		$this->assertTrue( Modules::get_module( 'full-sync' )->is_started() );
+	}
+
+	/**
+	 * Test 'jetpack_user_authorized' triggers initial sync.
+	 */
+	public function test_starts_initial_sync_on_user_authorized() {
 		do_action( 'jetpack_user_authorized', 'abcd1234' );
 		$this->assertTrue( Modules::get_module( 'full-sync' )->is_started() );
 	}

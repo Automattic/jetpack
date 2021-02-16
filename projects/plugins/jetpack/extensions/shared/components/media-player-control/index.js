@@ -125,7 +125,7 @@ export function MediaPlayerControl( {
 
 export function MediaPlayerToolbarControl( props ) {
 	return (
-		<ToolbarGroup>
+		<ToolbarGroup className="media-player-control__toolbar">
 			<MediaPlayerControl { ...props } />
 		</ToolbarGroup>
 	);
