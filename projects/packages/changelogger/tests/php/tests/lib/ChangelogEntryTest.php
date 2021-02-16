@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\ChangelogEntry;
+use DateTime;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -24,8 +25,12 @@ class ChangelogEntryTest extends TestCase {
 	 * Test general getters.
 	 */
 	public function testGetters() {
+		$then  = new DateTime( 'now' );
 		$entry = new ChangelogEntry( '1.0' );
+		$now   = new DateTime( 'now' );
 		$this->assertSame( '1.0', $entry->getVersion() );
+		$this->assertGreaterThanOrEqual( $then, $entry->getTimestamp() );
+		$this->assertLessThanOrEqual( $now, $entry->getTimestamp() );
 		$this->assertSame( null, $entry->getLink() );
 		$this->assertSame( '', $entry->getPrologue() );
 		$this->assertSame( '', $entry->getEpilogue() );
@@ -169,7 +174,7 @@ class ChangelogEntryTest extends TestCase {
 	/**
 	 * Test setTimestamp error.
 	 */
-	public function testSetTimestamp() {
+	public function testSetTimestamp_error() {
 		$entry = new ChangelogEntry( '1.0' );
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\ChangelogEntry::setTimestamp: Invalid timestamp' );

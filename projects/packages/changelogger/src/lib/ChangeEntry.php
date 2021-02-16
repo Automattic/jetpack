@@ -22,7 +22,7 @@ class ChangeEntry {
 	 *
 	 * @var string|null
 	 */
-	protected $significance = 'unknown';
+	protected $significance = null;
 
 	/**
 	 * Entry timestamp.
@@ -146,7 +146,7 @@ class ChangeEntry {
 	 * @param array       $config Unused.
 	 * @return int
 	 */
-	protected function compareSignificance( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected static function compareSignificance( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		static $values = array( 'major', 'minor', 'patch', null );
 		$aa            = array_search( $a->getSignificance(), $values, true );
 		$bb            = array_search( $b->getSignificance(), $values, true );
@@ -189,7 +189,7 @@ class ChangeEntry {
 	 * @param array       $config Unused.
 	 * @return int
 	 */
-	protected function compareTimestamp( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	protected static function compareTimestamp( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$aa = $a->getTimestamp();
 		$bb = $b->getTimestamp();
 		return $aa < $bb ? -1 : ( $aa > $bb ? 1 : 0 );
@@ -208,9 +208,51 @@ class ChangeEntry {
 	 * Set the subheading.
 	 *
 	 * @param string $subheading Subheading to set.
+	 * @returns $this
 	 */
 	public function setSubheading( $subheading ) {
 		$this->subheading = (string) $subheading;
+		return $this;
+	}
+
+	/**
+	 * Compare subheadings.
+	 *
+	 * @param ChangeEntry $a First entry.
+	 * @param ChangeEntry $b Second entry.
+	 * @param array       $config Used for 'knownSubheadings'.
+	 * @return int
+	 */
+	protected static function compareSubheading( ChangeEntry $a, ChangeEntry $b, array $config ) {
+		$aa = $a->getSubheading();
+		$bb = $b->getSubheading();
+
+		// If they're equal, just return that.
+		$cmp = strnatcasecmp( $aa, $bb );
+		if ( 0 === $cmp ) {
+			return 0;
+		}
+
+		// Empty string comes first.
+		if ( '' === $aa ) {
+			return -1;
+		}
+		if ( '' === $bb ) {
+			return 1;
+		}
+
+		// Search for known values.
+		foreach ( $config['knownSubheadings'] as $v ) {
+			if ( strnatcasecmp( $aa, $v ) === 0 ) {
+				return -1;
+			}
+			if ( strnatcasecmp( $bb, $v ) === 0 ) {
+				return 1;
+			}
+		}
+
+		// Fallback.
+		return $cmp;
 	}
 
 	/**
@@ -226,9 +268,11 @@ class ChangeEntry {
 	 * Set the author.
 	 *
 	 * @param string $author Author to set.
+	 * @returns $this
 	 */
 	public function setAuthor( $author ) {
 		$this->author = (string) $author;
+		return $this;
 	}
 
 	/**
@@ -244,9 +288,11 @@ class ChangeEntry {
 	 * Set the content.
 	 *
 	 * @param string $content Content to set.
+	 * @returns $this
 	 */
 	public function setContent( $content ) {
 		$this->content = (string) $content;
+		return $this;
 	}
 
 }
