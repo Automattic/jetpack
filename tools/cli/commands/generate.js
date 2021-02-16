@@ -238,7 +238,7 @@ export function generatePackage(
 	const project = 'packages/' + answers.name;
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
 
-	createSkeleton( pluralize( answers.type ), pkgDir );
+	createSkeleton( pluralize( answers.type ), pkgDir, answers.name );
 
 	// Generate the package.json file
 	const packageJson = readPackageJson( project );
@@ -262,24 +262,22 @@ export function generatePackage(
  *
  * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePlugin(
-	answers = { name: 'test', description: 'n/a', buildScripts: [] }
-) {
+export function generatePlugin( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
 	const project = 'plugins/' + answers.name;
-	const pkgDir = path.join( __dirname, '../../..', 'projects/plugins', answers.name );
+	const pluginDir = path.join( __dirname, '../../..', 'projects/plugins', answers.name );
 
 	// Copy the skeletons over
-	createSkeleton( pluralize( answers.type ), pkgDir );
+	createSkeleton( pluralize( answers.type ), pluginDir, answers.name );
 
 	// Generate the package.json file
 	const packageJson = readPackageJson( project );
 	createPackageJson( packageJson, answers );
-	writePackageJson( project, packageJson, pkgDir );
+	writePackageJson( project, packageJson, pluginDir );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
 	createComposerJson( composerJson, answers );
-	writeComposerJson( project, composerJson, pkgDir );
+	writeComposerJson( project, composerJson, pluginDir );
 
 	// Create plugin's main php file
 
@@ -287,25 +285,53 @@ export function generatePlugin(
 	return packageJson;
 }
 
-export function createSkeleton( type, dir ) {
+/**
+ * Create skeleton files for project
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {string} type - Type of project.
+ * @param {string} dir - Directory of new project.
+ * @param {string} name - Name of new project.
+ *
+ */
+export function createSkeleton( type, dir, name ) {
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
 	// Copy the skeletons over.
 	try {
-		mergeDirs( path.join( skeletonDir, '/common' ), dir );
-		mergeDirs( path.join( skeletonDir, '/' + type ), dir );
+		mergeDirs( path.join( skeletonDir, '/common' ), dir, name );
+		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name );
 	} catch ( e ) {
 		console.error( e );
 	}
 	return;
 }
 
+/**
+ * Create package.json for project
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} packageJson - The parsed skeleton JSON package file for the project.
+ * @param {object} answers - Answers returned for project creation.
+ *
+ */
 export function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
 	return;
 }
 
-export function createComposerJson ( composerJson, answers ) {
+/**
+ * Create composer.json for project
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
+ * @param {object} answers - Answers returned for project creation.
+ *
+ */
+export function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
 	composerJson.name = 'automattic/' + answers.name;
 	if ( answers.monorepo ) {
