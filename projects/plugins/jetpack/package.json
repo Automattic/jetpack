@@ -165,7 +165,6 @@
 		"chalk": "4.1.0",
 		"commander": "6.2.1",
 		"concurrently": "5.3.0",
-		"config": "3.3.3",
 		"css-loader": "5.0.1",
 		"enzyme": "3.11.0",
 		"eslint": "7.18.0",
