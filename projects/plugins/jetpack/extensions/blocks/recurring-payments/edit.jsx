@@ -27,9 +27,13 @@ import { applyFilters } from '@wordpress/hooks';
  * Internal dependencies
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import {
+	CURRENCY_OPTIONS,
+	isPriceValid,
+	minimumTransactionAmountForCurrency,
+} from '../../shared/currencies';
 import getSiteFragment from '../../shared/get-site-fragment';
-import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
+import { icon, removeInvalidProducts } from '.';
 import { flashIcon } from '../../shared/icons';
 
 const API_STATE_LOADING = 0;
