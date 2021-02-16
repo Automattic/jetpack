@@ -428,11 +428,7 @@ class Password_Checker {
 	 * @return is the needle not in the haystack?
 	 */
 	protected function negative_in_array( $needle, $haystack ) {
-		if ( in_array( $needle, $haystack, true ) ) {
-			return false;
-		}
-
-		return true;
+		return ! in_array( $needle, $haystack, true );
 	}
 
 	/**
