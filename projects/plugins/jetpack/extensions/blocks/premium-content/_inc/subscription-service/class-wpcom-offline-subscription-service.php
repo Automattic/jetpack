@@ -65,7 +65,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Token_Subscription_Servic
 				'active' === $subscription['status'] && (
 					! isset( $subscriptions[ $subscription['product_id'] ] ) ||
 					empty( $subscription['end_date'] ) || // Special condition when subscription has no expiry date - we will default to a year from now for the purposes of the token.
-					strtotime( $subscription['end_date'] ) > strtotime( (string) $subscriptions[ $subscription['product_id'] ]['end_date'] )
+					strtotime( $subscription['end_date'] ) > strtotime( (string) $subscriptions[ $subscription['product_id'] ]->end_date )
 				)
 			) {
 				$subscriptions[ $subscription['product_id'] ]           = new \stdClass();

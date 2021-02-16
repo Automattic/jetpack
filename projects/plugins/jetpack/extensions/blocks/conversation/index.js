@@ -15,7 +15,6 @@ import { TranscriptIcon as icon } from '../../shared/icons';
 /**
  * Local dependencies
  */
-import './extend';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';

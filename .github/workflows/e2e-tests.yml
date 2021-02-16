@@ -13,7 +13,7 @@ jobs:
   e2e-tests:
     name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2021-01-18: Successful runs seem to take 9-12 minutes
+    timeout-minutes: 30  # 2021-01-18: Successful runs seem to take 9-12 minutes
     strategy:
       fail-fast: false
       matrix:
@@ -83,6 +83,14 @@ jobs:
       if: matrix.gutenberg == 'latest'
       working-directory: projects/plugins/jetpack
       run: yarn test-e2e --testPathIgnorePatterns=updater
+
+    - name: Upload test artifacts
+      if: ${{ always() }}
+      continue-on-error: true
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-output
+        path: projects/plugins/jetpack/tests/e2e/output
 
     # Disable Allure reports until we'll need it
     # - name: Upload Allure artifacts

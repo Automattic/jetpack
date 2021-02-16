@@ -12,6 +12,7 @@ import edit from './edit';
 import save from './save';
 import { TranscriptSpeakerIcon as icon } from '../../shared/icons';
 import { list as defaultParticipants } from '../conversation/participants.json';
+import { name as parentName } from '../conversation/index';
 
 /**
  * Style dependencies
@@ -26,6 +27,7 @@ export const settings = {
 		'Create a dialogue paragraph, setting the participant with an optional timestamp.',
 		'jetpack'
 	),
+	parent: [ `jetpack/${ parentName }` ],
 	icon,
 	category: 'layout',
 	edit,
