@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Connection as Connection_Manager;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
