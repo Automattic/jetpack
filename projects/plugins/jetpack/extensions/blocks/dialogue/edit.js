@@ -3,6 +3,7 @@
  */
 import { debounce } from 'lodash';
 import { useMemoOne } from 'use-memo-one';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -160,7 +161,9 @@ export default function DialogueEdit( {
 				</Panel>
 			</InspectorControls>
 
-			<div className={ `${ BASE_CLASS_NAME }__meta` }>
+			<div className={ classnames( `${ BASE_CLASS_NAME }__meta`, {
+				'has-not-media-source': ! mediaSource,
+			} ) }>
 				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ label }
