@@ -22,5 +22,9 @@ module.exports = {
 			width: 1280,
 			height: 1024,
 		},
+		recordVideo: {
+			dir: 'output/videos/',
+			size: { width: 800, height: 600 },
+		},
 	},
 };
