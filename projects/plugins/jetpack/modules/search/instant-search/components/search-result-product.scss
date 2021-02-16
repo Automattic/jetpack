@@ -47,9 +47,26 @@ $grid-size-large: 16px;
 	}
 }
 
-.jetpack-instant-search__search-result-product-img {
+.jetpack-instant-search__search-result > .jetpack-instant-search__search-result-product-img-link {
+	&:hover,
+	&:focus {
+		color: $color-link;
+	}
+}
+
+.jetpack-instant-search__search-result-product-img,
+.jetpack-instant-search__search-result-product-img--placeholder {
 	margin: 0.5em 0.5em 0.5em 0;
 	max-width: 100%;
+	border-radius: 5px;
+}
+
+.jetpack-instant-search__search-result-product-img--placeholder {
+	// TODO: Add dark mode support in search-app.scss.
+	color: $studio-gray-10;
+	height: auto;
+	max-width: 100%;
+	width: 300px;
 }
 
 .jetpack-instant-search__search-result-title.jetpack-instant-search__search-result-product-title {

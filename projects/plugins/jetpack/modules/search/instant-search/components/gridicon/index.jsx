@@ -198,11 +198,16 @@ class Gridicon extends Component {
 	}
 
 	render() {
-		const { size = 24, class_name = '' } = this.props;
+		const { size = 24, className = '' } = this.props;
+
+		const height = this.props.height || size;
+		const width = this.props.width || size;
+		const style = this.props.style || { height, width };
+
 		const icon = 'gridicons-' + this.props.icon,
 			needsOffset = this.needsOffset( icon, size );
 
-		let iconClass = [ 'gridicon', icon, class_name ];
+		let iconClass = [ 'gridicon', icon, className ];
 
 		if ( needsOffset ) {
 			iconClass.push( 'needs-offset' );
@@ -213,11 +218,11 @@ class Gridicon extends Component {
 			<svg
 				className={ iconClass }
 				focusable={ this.props.focusable }
-				height={ size }
+				height={ height }
 				onClick={ this.props.onClick }
-				style={ { height: size, width: size } }
+				style={ style }
 				viewBox="0 0 24 24"
-				width={ size }
+				width={ width }
 				xmlns="http://www.w3.org/2000/svg"
 				aria-hidden={ this.props[ 'aria-hidden' ] }
 			>
