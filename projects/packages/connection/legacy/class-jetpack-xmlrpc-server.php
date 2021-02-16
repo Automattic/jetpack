@@ -469,6 +469,7 @@ class Jetpack_XMLRPC_Server {
 		if ( ! $ixr_client ) {
 			$ixr_client = new Jetpack_IXR_Client();
 		}
+		// TODO: move this query into the Tokens class?
 		$ixr_client->query(
 			'jetpack.getUserAccessToken',
 			array(
