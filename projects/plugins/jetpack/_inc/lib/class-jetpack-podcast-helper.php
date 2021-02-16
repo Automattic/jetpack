@@ -170,9 +170,18 @@ class Jetpack_Podcast_Helper {
 			return $rss;
 		}
 
-		// Get first ten items by default and format them.
+		/**
+		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
+		 * The default number of tracks is ten.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param object $rss The SimplePie object built from core's `fetch_feed` call.
+		 */
 		$tracks_quantity = apply_filters( 'jetpack_podcast_helper_list_quantity', 10, $rss );
-		$track_list      = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
+
+		// Process the requested number of items from our feed.
+		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
 
 		// Filter out any tracks that are empty.
 		// Reset the array indicies.
