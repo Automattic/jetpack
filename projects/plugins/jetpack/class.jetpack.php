@@ -5295,7 +5295,7 @@ endif;
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->generate' );
-		return ( new Secrets() )->generate( $action, $user_id, $exp );
+		return self::connection()->generate_secrets( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {

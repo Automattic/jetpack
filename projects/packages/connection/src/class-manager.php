@@ -1257,14 +1257,11 @@ class Manager {
 	/**
 	 * Generates two secret tokens and the end of life timestamp for them.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->generate() instead.
-	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
 	public function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->generate' );
 		return ( new Secrets() )->generate( $action, $user_id, $exp );
 	}
 
@@ -1916,8 +1913,6 @@ class Manager {
 	 * Sign a user role with the master access token.
 	 * If not specified, will default to the current user.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->sign_role() instead.
-	 *
 	 * @access public
 	 *
 	 * @param string $role    User role.
@@ -1925,7 +1920,6 @@ class Manager {
 	 * @return string Signed user role.
 	 */
 	public function sign_role( $role, $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->sign_role' );
 		return $this->get_tokens()->sign_role( $role, $user_id );
 	}
 
