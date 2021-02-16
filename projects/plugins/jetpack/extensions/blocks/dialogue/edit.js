@@ -73,30 +73,42 @@ export default function DialogueEdit( {
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		// Do not update when multi blocks selected.
+		// Do not update when multi-blocks selected.
 		if ( isMultipleSelection ) {
 			return;
 		}
 
-		// Do not update current Dialogue block.
+		// Do not update current block.
 		if ( isSelected ) {
 			return;
 		}
 
-		// When no context, nothing to do.
+		// Bail early when bridge is not ready.
 		if ( ! conversationParticipant ) {
 			return;
 		}
 
-		// Only take care of Dialogue with same speaker.
+		// Only take care of blocks with same speaker slug.
 		if ( conversationParticipant.slug !== slug ) {
+			return;
+		}
+
+		// Only update if the label has changed.
+		if ( conversationParticipant.label === label ) {
 			return;
 		}
 
 		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, isMultipleSelection, isSelected, setAttributes, slug ] );
+	}, [
+		conversationParticipant,
+		label,
+		slug,
+		isMultipleSelection,
+		isSelected,
+		setAttributes,
+	] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
