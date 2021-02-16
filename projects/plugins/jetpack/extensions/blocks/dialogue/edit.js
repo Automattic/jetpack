@@ -34,10 +34,10 @@ const blockNameFallback = 'core/paragraph';
 const useDebounceWithFallback = useDebounce
 	? useDebounce
 	: function useDebounceFallback( ...args ) {
-		const debounced = useMemoOne( () => debounce( ...args ), args );
-		useEffect( () => () => debounced.cancel(), [ debounced ] );
-		return debounced;
-	};
+			const debounced = useMemoOne( () => debounce( ...args ), args );
+			useEffect( () => () => debounced.cancel(), [ debounced ] );
+			return debounced;
+	  };
 
 export default function DialogueEdit( {
 	className,
@@ -48,14 +48,7 @@ export default function DialogueEdit( {
 	mergeBlocks,
 	isSelected,
 } ) {
-	const {
-		content,
-		label,
-		slug,
-		placeholder,
-		showTimestamp,
-		timestamp,
-	} = attributes;
+	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
 	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference } = useSelect( select => {
 		const {
@@ -80,9 +73,7 @@ export default function DialogueEdit( {
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
 
 	// Participants list.
-	const participants = participantsFromContext?.length
-		? participantsFromContext
-		: [];
+	const participants = participantsFromContext?.length ? participantsFromContext : [];
 
 	const conversationParticipant = getParticipantBySlug( participants, slug );
 
@@ -93,16 +84,18 @@ export default function DialogueEdit( {
 
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
+		// Do not update current Dialogue block.
+		if ( isSelected ) {
+			return;
+		}
+
+		// When no context, nothing to do.
 		if ( ! conversationParticipant ) {
 			return;
 		}
 
+		// Only take care of Dialogue with same speaker.
 		if ( conversationParticipant.slug !== slug ) {
-			return;
-		}
-
-		// Do not update current Dialogue block.
-		if ( isSelected ) {
 			return;
 		}
 
@@ -138,7 +131,7 @@ export default function DialogueEdit( {
 
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
+					<PanelBody title={ __( 'Speaker', 'jetpack' ) }>
 						<ParticipantsControl
 							className={ BASE_CLASS_NAME }
 							participants={ participants }
@@ -174,20 +167,21 @@ export default function DialogueEdit( {
 					participant={ conversationParticipant }
 					participants={ participants }
 					transcriptRef={ contentRef }
-					onParticipantChange={ ( updatedParticipant ) => {
+					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
 					onSelect={ setAttributes }
-
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
 					} }
-
-					onAdd={ ( newLabel ) => {
-						const newParticipant = conversationBridge.addNewParticipant( newLabel );
+					onAdd={ newLabel => {
+						const newParticipant = conversationBridge.addNewParticipant( {
+							label: newLabel,
+							slug,
+						} );
 						setAttributes( newParticipant );
 					} }
-					onUpdate={ ( participant ) => {
+					onUpdate={ participant => {
 						conversationBridge.updateParticipants( participant );
 					} }
 				/>
@@ -200,7 +194,7 @@ export default function DialogueEdit( {
 						value={ timestamp }
 						mediaCurrentTime={ mediaCurrentTime }
 						onChange={ setTimestamp }
-						onToggle={ ( show ) => setAttributes( { showTimestamp: show } ) }
+						onToggle={ show => setAttributes( { showTimestamp: show } ) }
 						onPlayback={ audioPlayback }
 					/>
 				) }
