@@ -93,8 +93,8 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$all_users = ( new Tokens() )->get_connected_users();
-		$admins    = ( new Tokens() )->get_connected_users( 'manage_options' );
+		$all_users = $this->manager->get_connected_users();
+		$admins    = $this->manager->get_connected_users( 'manage_options' );
 
 		$this->assertCount( 2, $all_users );
 		$this->assertCount( 1, $admins );
@@ -271,7 +271,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		}
 
 		if ( 'CONNECTION_OWNER' === $user_id_query ) {
-			$user_id_query = false;
+			$user_id_query = true;
 		}
 
 		$token = ( new Tokens() )->get_access_token( $user_id_query, $token_key_query, false );

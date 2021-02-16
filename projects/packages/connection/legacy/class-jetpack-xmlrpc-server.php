@@ -752,7 +752,7 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return ( new Tokens() )->disconnect_user(
+		return $this->connection->disconnect_user(
 			$user_id,
 			(bool) $user_id
 		);

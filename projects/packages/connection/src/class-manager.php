@@ -380,7 +380,7 @@ class Manager {
 			}
 		}
 
-		$token = ( new Tokens() )->get_access_token( $user_id, $token_key, false );
+		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
 			$token->add_data( compact( 'signature_details' ) );
 			return $token;
@@ -493,7 +493,16 @@ class Manager {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
 			return $this->is_connected();
 		}
-		return (bool) ( new Tokens() )->get_access_token();
+		return (bool) $this->get_tokens()->get_access_token( true );
+	}
+
+	/**
+	 * Obtains an instance of the Tokens class.
+	 *
+	 * @return Tokens the Tokens object
+	 */
+	public function get_tokens() {
+		return new Tokens();
 	}
 
 	/**
@@ -520,7 +529,7 @@ class Manager {
 	 */
 	public function is_connected() {
 		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = (bool) ( new Tokens() )->get_access_token();
+		$has_blog_token = (bool) $this->get_tokens()->get_access_token();
 		return $has_blog_id && $has_blog_token;
 	}
 
@@ -533,7 +542,7 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_admin() {
-		return (bool) count( ( new Tokens() )->get_connected_users( 'manage_options' ) );
+		return (bool) count( $this->get_connected_users( 'manage_options' ) );
 	}
 
 	/**
@@ -545,7 +554,18 @@ class Manager {
 	 * @return bool
 	 */
 	public function has_connected_user() {
-		return (bool) count( ( new Tokens() )->get_connected_users() );
+		return (bool) count( $this->get_connected_users() );
+	}
+
+	/**
+	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Able to select by specific capability.
+	 *
+	 * @param string $capability The capability of the user.
+	 * @return array Array of WP_User objects if found.
+	 */
+	public function get_connected_users( $capability = 'any' ) {
+		return $this->get_tokens()->get_connected_users( $capability );
 	}
 
 	/**
@@ -587,7 +607,7 @@ class Manager {
 			return false;
 		}
 
-		return (bool) ( new Tokens() )->get_access_token( $user_id );
+		return (bool) $this->get_tokens()->get_access_token( $user_id );
 	}
 
 	/**
@@ -598,20 +618,6 @@ class Manager {
 	public function get_connection_owner_id() {
 		$owner = $this->get_connection_owner();
 		return $owner instanceof \WP_User ? $owner->ID : false;
-	}
-
-	/**
-	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
-	 * Able to select by specific capability.
-	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_connected_users() instead.
-	 *
-	 * @param string $capability The capability of the user.
-	 * @return array Array of WP_User objects if found.
-	 */
-	public function get_connected_users( $capability = 'any' ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_connected_users' );
-		return ( new Tokens() )->get_connected_users( $capability );
 	}
 
 	/**
@@ -663,7 +669,7 @@ class Manager {
 		}
 
 		// Make sure user is connected.
-		$user_token = ( new Tokens() )->get_access_token( $user_id );
+		$user_token = $this->get_tokens()->get_access_token( $user_id );
 
 		$connection_owner = false;
 
@@ -724,8 +730,6 @@ class Manager {
 	/**
 	 * Unlinks the current user from the linked WordPress.com user.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->disconnect_user() instead.
-	 *
 	 * @access public
 	 * @static
 	 *
@@ -735,9 +739,8 @@ class Manager {
 	 * @param bool    $can_overwrite_primary_user Allow for the primary user to be disconnected.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
-	public static function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->disconnect_user' );
-		return ( new Tokens() )->disconnect_user( $user_id, $can_overwrite_primary_user );
+	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
+		return $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
 	}
 
 	/**
@@ -1309,7 +1312,7 @@ class Manager {
 			return false;
 		}
 
-		return ( new Tokens() )->delete_all();
+		return $this->get_tokens()->delete_all();
 	}
 
 	/**
@@ -1384,7 +1387,7 @@ class Manager {
 	 */
 	public function restore() {
 
-		$validate_tokens_response = ( new Tokens() )->validate();
+		$validate_tokens_response = $this->get_tokens()->validate();
 
 		$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
 		$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
@@ -1396,11 +1399,11 @@ class Manager {
 		}
 
 		if ( ! $blog_token_healthy ) {
-			return ( new Tokens() )->refresh_blog_token();
+			return $this->refresh_blog_token();
 		}
 
 		if ( ! $user_token_healthy ) {
-			return ( true === ( new Tokens() )->refresh_user_token() ) ? 'authorize' : false;
+			return ( true === $this->refresh_user_token() ) ? 'authorize' : false;
 		}
 
 		return false;
@@ -1432,7 +1435,7 @@ class Manager {
 	 */
 	public function validate_tokens( $user_id = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
-		return ( new Tokens() )->validate( $user_id );
+		return $this->get_tokens()->validate( $user_id );
 	}
 
 	/**
@@ -1469,7 +1472,7 @@ class Manager {
 	 */
 	public function get_token( $data ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get' );
-		return ( new Tokens() )->get( $data, $this->api_url( 'token' ) );
+		return $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
 	}
 
 	/**
@@ -1487,7 +1490,7 @@ class Manager {
 
 		$roles       = new Roles();
 		$role        = $roles->translate_user_to_role( $user );
-		$signed_role = ( new Tokens() )->sign_role( $role );
+		$signed_role = $this->get_tokens()->sign_role( $role );
 
 		/**
 		 * Filter the URL of the first time the user gets redirected back to your site for connection
@@ -1615,7 +1618,7 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$token = ( new Tokens() )->get( $data, $this->api_url( 'token' ) );
+		$token = $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
@@ -1631,7 +1634,7 @@ class Manager {
 
 		$is_connection_owner = ! $this->has_connected_owner();
 
-		( new Tokens() )->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
+		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
 		/**
 		 * Fires after user has successfully received an auth token.
@@ -1792,11 +1795,11 @@ class Manager {
 	 *
 	 * @return object|false
 	 *
-	 * @see ( new Tokens() )->get_access_token()
+	 * @see $this->get_tokens()->get_access_token()
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
-		return ( new Tokens() )->get_access_token( $user_id, $token_key, $suppress_errors );
+		return $this->get_tokens()->get_access_token( $user_id, $token_key, $suppress_errors );
 	}
 
 	/**
@@ -1926,7 +1929,7 @@ class Manager {
 	 */
 	public function sign_role( $role, $user_id = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->sign_role' );
-		return ( new Tokens() )->sign_role( $role, $user_id );
+		return $this->get_tokens()->sign_role( $role, $user_id );
 	}
 
 	/**
@@ -2017,25 +2020,75 @@ class Manager {
 	 * Note that we are making this request on behalf of the Jetpack master user,
 	 * given they were (most probably) the ones that registered the site at the first place.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->refresh_blog_token() instead.
+	 * @return WP_Error|bool The result of updating the blog_token option.
+	 */
+	/**
+	 * Perform the API request to refresh the blog token.
+	 * Note that we are making this request on behalf of the Jetpack master user,
+	 * given they were (most probably) the ones that registered the site at the first place.
 	 *
 	 * @return WP_Error|bool The result of updating the blog_token option.
 	 */
-	public static function refresh_blog_token() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->refresh_blog_token' );
-		return ( new Tokens() )->refresh_blog_token();
+	public function refresh_blog_token() {
+		( new Tracking() )->record_user_event( 'restore_connection_refresh_blog_token' );
+
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
+
+		$url     = sprintf(
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
+			'wpcom',
+			'2',
+			'sites/' . $blog_id . '/jetpack-refresh-blog-token'
+		);
+		$method  = 'POST';
+		$user_id = get_current_user_id();
+
+		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error( 'refresh_blog_token_http_request_failed', $response->get_error_message() );
+		}
+
+		$code   = wp_remote_retrieve_response_code( $response );
+		$entity = wp_remote_retrieve_body( $response );
+
+		if ( $entity ) {
+			$json = json_decode( $entity );
+		} else {
+			$json = false;
+		}
+
+		if ( 200 !== $code ) {
+			if ( empty( $json->code ) ) {
+				return new WP_Error( 'unknown', '', $code );
+			}
+
+			/* translators: Error description string. */
+			$error_description = isset( $json->message ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->message ) : '';
+
+			return new WP_Error( (string) $json->code, $error_description, $code );
+		}
+
+		if ( empty( $json->jetpack_secret ) || ! is_scalar( $json->jetpack_secret ) ) {
+			return new WP_Error( 'jetpack_secret', '', $code );
+		}
+
+		return $this->get_tokens()->update_blog_token( 'blog_token', (string) $json->jetpack_secret );
 	}
 
 	/**
 	 * Disconnect the user from WP.com, and initiate the reconnect process.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->refresh_user_token() instead.
-	 *
 	 * @return bool
 	 */
 	public function refresh_user_token() {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->refresh_user_token' );
-		return ( new Tokens() )->refresh_user_token();
+		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
+		$this->disconnect_user( null, true );
+		return true;
 	}
 
 	/**
@@ -2048,7 +2101,7 @@ class Manager {
 	 */
 	public function get_signed_token( $token ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
-		return ( new Tokens() )->get_signed_token( $token );
+		return $this->get_tokens()->get_signed_token( $token );
 	}
 
 	/**

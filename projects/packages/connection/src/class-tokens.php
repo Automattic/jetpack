@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 
@@ -353,7 +352,7 @@ class Tokens {
 			if ( ! $user_tokens ) {
 				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
-			if ( false === $user_id ) { // connection owner.
+			if ( true === $user_id ) { // connection owner.
 				$user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
 					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
@@ -441,74 +440,15 @@ class Tokens {
 	}
 
 	/**
-	 * Perform the API request to refresh the blog token.
-	 * Note that we are making this request on behalf of the Jetpack master user,
-	 * given they were (most probably) the ones that registered the site at the first place.
+	 * Updates the blog token to a new value.
 	 *
-	 * @return WP_Error|bool The result of updating the blog_token option.
-	 */
-	public function refresh_blog_token() {
-		( new Tracking() )->record_user_event( 'restore_connection_refresh_blog_token' );
-
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', 'Site not registered.' );
-		}
-
-		$url     = sprintf(
-			'%s/%s/v%s/%s',
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
-			'wpcom',
-			'2',
-			'sites/' . $blog_id . '/jetpack-refresh-blog-token'
-		);
-		$method  = 'POST';
-		$user_id = get_current_user_id();
-
-		$response = Client::remote_request( compact( 'url', 'method', 'user_id' ) );
-
-		if ( is_wp_error( $response ) ) {
-			return new WP_Error( 'refresh_blog_token_http_request_failed', $response->get_error_message() );
-		}
-
-		$code   = wp_remote_retrieve_response_code( $response );
-		$entity = wp_remote_retrieve_body( $response );
-
-		if ( $entity ) {
-			$json = json_decode( $entity );
-		} else {
-			$json = false;
-		}
-
-		if ( 200 !== $code ) {
-			if ( empty( $json->code ) ) {
-				return new WP_Error( 'unknown', '', $code );
-			}
-
-			/* translators: Error description string. */
-			$error_description = isset( $json->message ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->message ) : '';
-
-			return new WP_Error( (string) $json->code, $error_description, $code );
-		}
-
-		if ( empty( $json->jetpack_secret ) || ! is_scalar( $json->jetpack_secret ) ) {
-			return new WP_Error( 'jetpack_secret', '', $code );
-		}
-
-		return Jetpack_Options::update_option( 'blog_token', (string) $json->jetpack_secret );
-	}
-
-	/**
-	 * Disconnect the user from WP.com, and initiate the reconnect process.
+	 * @access public
 	 *
-	 * @return bool
+	 * @param string $token the new blog token value.
+	 * @return Boolean Whether updating the blog token was successful.
 	 */
-	public function refresh_user_token() {
-		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
-
-		$this->disconnect_user( null, true );
-
-		return true;
+	public function update_blog_token( $token ) {
+		return Jetpack_Options::update_option( 'blog_token', $token );
 	}
 
 	/**

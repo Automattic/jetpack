@@ -674,8 +674,8 @@ class Jetpack {
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		// Unlink user before deleting the user from WP.com.
-		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
-		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
+		add_action( 'deleted_user', array( $this, 'disconnect_user' ), 10, 1 );
+		add_action( 'remove_user_from_blog', array( $this, 'disconnect_user' ), 10, 1 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
@@ -3387,17 +3387,12 @@ p {
 	}
 
 	/**
-	 * Unlinks the current user from the linked WordPress.com user.
+	 * Disconnects the user
 	 *
-	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Tokens->disconnect_user()
-	 *
-	 * @param Integer $user_id the user identifier.
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @param int $user_id The user ID to disconnect.
 	 */
-	public static function unlink_user( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Tokens->disconnect_user' );
-		return ( new Tokens() )->disconnect_user( $user_id );
+	public function disconnect_user( $user_id ) {
+		$this->connection_manager->disconnect_user( $user_id );
 	}
 
 	/**
@@ -4360,7 +4355,7 @@ p {
 
 					check_admin_referer( 'jetpack-reconnect' );
 					self::log( 'reconnect' );
-					$this->disconnect();
+					self::disconnect();
 					wp_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 					exit;
 				case 'deactivate':
@@ -4383,7 +4378,7 @@ p {
 					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 					check_admin_referer( 'jetpack-unlink' );
 					self::log( 'unlink' );
-					( new Tokens() )->disconnect_user();
+					$this->connection_manager->disconnect_user();
 					self::state( 'message', 'unlinked' );
 					if ( 'sub-unlink' == $redirect ) {
 						wp_safe_redirect( admin_url() );
@@ -5770,7 +5765,7 @@ endif;
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => false ) );
+			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => true ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
