@@ -17,8 +17,8 @@
 	"distclean": "rm -rf node_modules && yarn clean",
 	"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 	"test-e2e-env": "./bin/env.sh start",
-	"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
 	"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose",
+	"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
 	"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
   },
   "devDependencies": {

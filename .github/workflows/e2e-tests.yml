@@ -90,7 +90,7 @@ jobs:
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
-        name: test-output
+        name: test-output-${{ matrix.gutenberg }}
         path: projects/plugins/jetpack/tests/e2e/output
 
     # Disable Allure reports until we'll need it
