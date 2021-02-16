@@ -138,6 +138,35 @@ function get_menu_fixture() {
 }
 
 /**
+ * WPCom Menu fixture data.
+ *
+ * @return \string[][]
+ */
+function get_wpcom_menu_fixture() {
+	$gutenberg_menus = array(
+		100 => array(
+			'Site Editor <span class="awaiting-mod">beta</span>',
+			'edit_theme_options',
+			'gutenberg-edit-site',
+			'Site Editor (beta)',
+			'menu-top toplevel_page_gutenberg-edit-site',
+			'toplevel_page_gutenberg-edit-site',
+			'dashicons-layout',
+		),
+		101 => array(
+			'Gutenberg',
+			'edit_posts',
+			'gutenberg',
+			'Gutenberg',
+			'menu-top toplevel_page_gutenberg',
+			'toplevel_page_gutenberg',
+			'dashicons-edit',
+		),
+	);
+	return get_menu_fixture() + $gutenberg_menus;
+}
+
+/**
  * Submenu fixture data.
  *
  * @return \string[][][]
@@ -412,4 +441,11 @@ function get_submenu_fixture() {
 			),
 		),
 	);
+}
+
+/**
+ * Mock for testing
+ */
+function gutenberg_is_fse_theme() {
+	return true;
 }
