@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import { debounce } from 'lodash';
-import { useMemoOne } from 'use-memo-one';
 import classnames from 'classnames';
 
 /**
@@ -14,7 +12,6 @@ import { createBlock } from '@wordpress/blocks';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -31,14 +28,6 @@ import { getParticipantBySlug } from '../conversation/utils';
 
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
-
-const useDebounceWithFallback = useDebounce
-	? useDebounce
-	: function useDebounceFallback( ...args ) {
-			const debounced = useMemoOne( () => debounce( ...args ), args );
-			useEffect( () => () => debounced.cancel(), [ debounced ] );
-			return debounced;
-	  };
 
 export default function DialogueEdit( {
 	className,
@@ -81,8 +70,6 @@ export default function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
-
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
 		// Do not update current Dialogue block.
@@ -100,10 +87,10 @@ export default function DialogueEdit( {
 			return;
 		}
 
-		debounceSetDialoguesAttrs( {
+		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
+	}, [ conversationParticipant, isSelected, setAttributes, slug ] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
