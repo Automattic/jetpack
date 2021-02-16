@@ -32,6 +32,9 @@ async function generateRouter( options ) {
 		case 'package':
 			generatePackage( argv );
 			break;
+		case 'plugin':
+			generatePlugin( argv );
+			break;
 		default:
 			throw new Error( 'Unsupported type selected.' );
 	}
@@ -232,26 +235,77 @@ export function getQuestions( type ) {
 export function generatePackage(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
 ) {
-	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
-	const skeletonDir = path.join( __dirname, '../skeletons' );
-
-	// Copy the skeletons over.
-	try {
-		mergeDirs( path.join( skeletonDir, '/common' ), pkgDir );
-		mergeDirs( path.join( skeletonDir, '/packages' ), pkgDir );
-	} catch ( e ) {
-		console.error( e );
-	}
 	const project = 'packages/' + answers.name;
+	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
+
+	createSkeleton( pluralize( answers.type ), pkgDir );
 
 	// Generate the package.json file
 	const packageJson = readPackageJson( project );
-	packageJson.description = answers.description;
-
+	createPackageJson( packageJson, answers );
 	writePackageJson( project, packageJson, pkgDir );
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
+	createComposerJson( composerJson, answers );
+	writeComposerJson( project, composerJson, pkgDir );
+
+	return packageJson;
+}
+
+/**
+ * Generate a plugin based on questions passed to it.
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} answers - Answers from questions.
+ *
+ * @returns {object} package.json object. TEMPORARY FOR TESTING.
+ */
+export function generatePlugin(
+	answers = { name: 'test', description: 'n/a', buildScripts: [] }
+) {
+	const project = 'plugins/' + answers.name;
+	const pkgDir = path.join( __dirname, '../../..', 'projects/plugins', answers.name );
+
+	// Copy the skeletons over
+	createSkeleton( pluralize( answers.type ), pkgDir );
+
+	// Generate the package.json file
+	const packageJson = readPackageJson( project );
+	createPackageJson( packageJson, answers );
+	writePackageJson( project, packageJson, pkgDir );
+
+	// Generate the composer.json file
+	const composerJson = readComposerJson( project );
+	createComposerJson( composerJson, answers );
+	writeComposerJson( project, composerJson, pkgDir );
+
+	// Create plugin's main php file
+
+	// Create the readme.txt
+	return packageJson;
+}
+
+export function createSkeleton( type, dir ) {
+	const skeletonDir = path.join( __dirname, '../skeletons' );
+
+	// Copy the skeletons over.
+	try {
+		mergeDirs( path.join( skeletonDir, '/common' ), dir );
+		mergeDirs( path.join( skeletonDir, '/' + type ), dir );
+	} catch ( e ) {
+		console.error( e );
+	}
+	return;
+}
+
+export function createPackageJson( packageJson, answers ) {
+	packageJson.description = answers.description;
+	return;
+}
+
+export function createComposerJson ( composerJson, answers ) {
 	composerJson.description = answers.description;
 	composerJson.name = 'automattic/' + answers.name;
 	if ( answers.monorepo ) {
@@ -278,11 +332,9 @@ export function generatePackage(
 			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
 	}
-
 	/**
 	 * @todo Move this to the section dealing with mirror repo creation.
 	 */
 	//composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
-	writeComposerJson( project, composerJson, pkgDir );
-	return packageJson;
+	return;
 }

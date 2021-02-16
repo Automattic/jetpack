@@ -35,6 +35,11 @@ export default function mergeDirs( src, dest ) {
 			console.warn( `${ destFile } exists, skipping...` );
 		}
 	} );
+
+	if ( files.includes( 'plugin.php' ) ) {
+		const name = 'test' + '.php';
+		fs.rename( `plugin.php`, name );
+	}
 }
 
 /**
