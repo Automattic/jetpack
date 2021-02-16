@@ -45,10 +45,6 @@ export default function mergeDirs( src, dest, name ) {
 			} );
 		}
 	} );
-	/* 	if ( files.includes( 'plugin.php' ) ) {
-		const newFile = name + '.php';
-		fs.rename( dest + `/plugin.php`, newFile );
-	} */
 }
 
 /**
