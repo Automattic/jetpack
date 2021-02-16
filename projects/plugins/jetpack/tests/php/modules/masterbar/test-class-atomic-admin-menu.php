@@ -327,8 +327,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
 
 		static::$admin_menu->add_options_menu( true );
-		$this->assertNotContains( $general_submenu_item, $submenu[ 'options-general.php'] );
-		$this->assertNotContains( $writing_submenu_item, $submenu[ 'options-general.php'] );
+		$this->assertNotContains( $general_submenu_item, $submenu['options-general.php'] );
+		$this->assertNotContains( $writing_submenu_item, $submenu['options-general.php'] );
 
 		static::$admin_menu->add_options_menu( false );
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
