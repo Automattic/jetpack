@@ -82,10 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// All globals need to be declared for menu items to properly register.
-		global $admin_page_hooks, $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		// Make an attempt to not have the menu order altered.
-		add_filter( 'custom_menu_order', '__return_false', 99999 );
+		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
@@ -294,36 +291,50 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function prepare_menu_item_url( $url, $parent_slug = '' ) {
-		// Calypso URLs need the base removed so they're not interpreted as external links.
-		if ( 0 === strpos( $url, 'https://wordpress.com' ) ) {
-			$url = str_replace( 'https://wordpress.com', '', $url );
-		} else {
-			$menu_hook   = get_plugin_page_hook( $url, $parent_slug );
-			$menu_file   = wp_parse_url( $url, PHP_URL_PATH ); // Removes query args to get a file name.
-			$parent_file = wp_parse_url( $parent_slug, PHP_URL_PATH );
-
-			if (
-				! empty( $menu_hook ) ||
-				(
-					'index.php' !== $url &&
-					file_exists( WP_PLUGIN_DIR . "/$menu_file" ) &&
-					! file_exists( ABSPATH . "/wp-admin/$menu_file" )
-				)
-			) {
-				if (
-					( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
-					( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
-				) {
-					$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
-				} else {
-					$url = add_query_arg( array( 'page' => $url ), admin_url( 'admin.php' ) );
-				}
-			} elseif ( file_exists( ABSPATH . "/wp-admin/$menu_file" ) ) {
-				$url = admin_url( $url );
+		// External URLS.
+		if ( preg_match( '/^https?:\/\//', $url ) ) {
+			// Allow URLs pointing to WordPress.com.
+			if ( 0 === strpos( $url, 'https://wordpress.com/' ) ) {
+				// Calypso needs the domain removed so they're not interpreted as external links.
+				$url = str_replace( 'https://wordpress.com', '', $url );
+				return esc_url_raw( $url );
 			}
+
+			// Allow URLs pointing to Jetpack.com.
+			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
+				return esc_url_raw( $url );
+			}
+
+			// Disallow other external URLs.
+			return '';
 		}
 
-		return $url;
+		// Internal URLs.
+		$menu_hook   = get_plugin_page_hook( $url, $parent_slug );
+		$menu_file   = wp_parse_url( $url, PHP_URL_PATH ); // Removes query args to get a file name.
+		$parent_file = wp_parse_url( $parent_slug, PHP_URL_PATH );
+
+		if (
+			! empty( $menu_hook ) ||
+			(
+				'index.php' !== $url &&
+				file_exists( WP_PLUGIN_DIR . "/$menu_file" ) &&
+				! file_exists( ABSPATH . "/wp-admin/$menu_file" )
+			)
+		) {
+			if (
+				( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+				( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
+			) {
+				$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
+			} else {
+				$url = add_query_arg( array( 'page' => $url ), admin_url( 'admin.php' ) );
+			}
+		} elseif ( file_exists( ABSPATH . "/wp-admin/$menu_file" ) ) {
+			$url = admin_url( $url );
+		}
+
+		return esc_url_raw( $url );
 	}
 
 	/**

@@ -248,8 +248,8 @@ class Actions {
 		}
 
 		$connection = new Jetpack_Connection();
-		if ( ! $connection->is_active() ) {
-			if ( ! doing_action( 'jetpack_user_authorized' ) ) {
+		if ( ! $connection->is_connected() ) {
+			if ( ! doing_action( 'jetpack_site_registered' ) ) {
 				return false;
 			}
 		}
@@ -285,7 +285,7 @@ class Actions {
 				$debug['debug_details']['is_staging_site'] = true;
 			}
 			$connection = new Jetpack_Connection();
-			if ( ! $connection->is_active() ) {
+			if ( ! $connection->is_connected() ) {
 				$debug['debug_details']['active_connection'] = false;
 			}
 		}

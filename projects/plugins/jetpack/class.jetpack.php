@@ -698,6 +698,7 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
+		add_action( 'wp_ajax_jetpack_recommendations_banner', array( 'Jetpack_Recommendations_Banner', 'ajax_callback' ) );
 		add_action( 'wp_ajax_jetpack_wizard_banner', array( 'Jetpack_Wizard_Banner', 'ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
@@ -794,6 +795,9 @@ class Jetpack {
 
 		// Actions for licensing.
 		Licensing::instance()->initialize();
+
+		// Filters for Sync Callables.
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 10, 1 );
 
 		// Make resources use static domain when possible.
 		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
@@ -1024,6 +1028,39 @@ class Jetpack {
 			)
 		);
 
+	}
+
+	/**
+	 * Extend callables with Jetpack Plugin functions.
+	 *
+	 * @param array $callables list of callables.
+	 *
+	 * @return array list of callables.
+	 */
+	public function filter_sync_callable_whitelist( $callables ) {
+
+		// Jetpack Functions.
+		$jetpack_callables = array(
+			'single_user_site'         => array( 'Jetpack', 'is_single_user_site' ),
+			'updates'                  => array( 'Jetpack', 'get_updates' ),
+			'active_modules'           => array( 'Jetpack', 'get_active_modules' ),
+			'available_jetpack_blocks' => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
+		);
+		$callables         = array_merge( $callables, $jetpack_callables );
+
+		// Jetpack_SSO_Helpers.
+		if ( include_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' ) {
+			$sso_helpers = array(
+				'sso_is_two_step_required'      => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
+				'sso_should_hide_login_form'    => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
+				'sso_match_by_email'            => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
+				'sso_new_user_override'         => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
+				'sso_bypass_default_login_form' => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
+			);
+			$callables   = array_merge( $callables, $sso_helpers );
+		}
+
+		return $callables;
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
@@ -1421,7 +1458,7 @@ class Jetpack {
 			if ( count( $admins ) > 1 ) {
 				$available = array();
 				foreach ( $admins as $admin ) {
-					if ( self::is_user_connected( $admin->ID ) ) {
+					if ( self::connection()->is_user_connected( $admin->ID ) ) {
 						$available[] = $admin->ID;
 					}
 				}
@@ -3573,6 +3610,7 @@ p {
 			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
+		Jetpack_Recommendations_Banner::init();
 		Jetpack_Wizard_Banner::init();
 
 		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
@@ -4152,7 +4190,7 @@ p {
 			// @todo: Add validation against a known allowed list.
 			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
-			if ( ! self::is_user_connected() ) {
+			if ( ! self::connection()->is_user_connected() ) {
 				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
 
 				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
@@ -4180,6 +4218,49 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
+				case 'authorize_redirect':
+					self::log( 'authorize_redirect' );
+
+					add_filter(
+						'allowed_redirect_hosts',
+						function ( $domains ) {
+							$domains[] = 'jetpack.com';
+							$domains[] = 'jetpack.wordpress.com';
+							$domains[] = 'wordpress.com';
+							$domains[] = wp_parse_url( static::get_calypso_host(), PHP_URL_HOST ); // May differ from `wordpress.com`.
+							return array_unique( $domains );
+						}
+					);
+
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$dest_url = empty( $_GET['dest_url'] ) ? null : $_GET['dest_url'];
+
+					if ( ! $dest_url || ( 0 === stripos( $dest_url, 'https://jetpack.com/' ) && 0 === stripos( $dest_url, 'https://wordpress.com/' ) ) ) {
+						// The destination URL is missing or invalid, nothing to do here.
+						exit;
+					}
+
+					if ( self::is_active() && self::is_user_connected() ) {
+						// The user is either already connected, or finished the connection process.
+						wp_safe_redirect( $dest_url );
+						exit;
+					} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						// The user decided not to proceed with setting up the connection.
+						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
+						exit;
+					}
+
+					$redirect_url = self::admin_url(
+						array(
+							'page'     => 'jetpack',
+							'action'   => 'authorize_redirect',
+							'dest_url' => rawurlencode( $dest_url ),
+							'done'     => '1',
+						)
+					);
+
+					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
+					exit;
 				case 'authorize':
 					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );
 					( new Connection_Webhooks( $this->connection_manager ) )->handle_authorize();
@@ -7086,7 +7167,7 @@ endif;
 	 * Show Jetpack icon if the user is linked.
 	 */
 	function jetpack_show_user_connected_icon( $val, $col, $user_id ) {
-		if ( 'user_jetpack' == $col && self::is_user_connected( $user_id ) ) {
+		if ( 'user_jetpack' === $col && self::connection()->is_user_connected( $user_id ) ) {
 			$jetpack_logo = new Jetpack_Logo();
 			$emblem_html  = sprintf(
 				'<a title="%1$s" class="jp-emblem-user-admin">%2$s</a>',

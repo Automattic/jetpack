@@ -11,6 +11,7 @@ import { buildDefine } from './commands/build';
 import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
+import { generateDefine } from './commands/generate';
 
 // import { dockerDefine } from "./commands/docker";
 
@@ -31,6 +32,7 @@ export async function cli() {
 	argv = buildDefine( argv );
 	argv = cliDefine( argv );
 	// argv = dockerDefine( argv );
+	argv = generateDefine( argv );
 	argv = installDefine( argv );
 	argv = watchDefine( argv );
 

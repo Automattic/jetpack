@@ -10,16 +10,18 @@ import { BASE_CLASS_NAME } from './utils';
 import { convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
 export default function save( { attributes } ) {
-	const { content, participantLabel, showTimestamp, timestamp } = attributes;
+	const { content, label, showTimestamp, timestamp } = attributes;
 
 	return (
 		<div>
 			<div className={ `${ BASE_CLASS_NAME }__meta` }>
-				<div className={ `${ BASE_CLASS_NAME }__participant` }>
-					{ participantLabel }
-				</div>
+				<RichText.Content
+					className={ `${ BASE_CLASS_NAME }__participant has-bold-style` }
+					tagName="div"
+					value={ label }
+				/>
 				{ showTimestamp && (
-					<div className={ `${ BASE_CLASS_NAME }__timestamp` }>
+					<div className={ `${ BASE_CLASS_NAME }__timestamp-label` }>
 						<a
 							className={ `${ BASE_CLASS_NAME }__timestamp_link` }
 							href={ `#${ convertTimeCodeToSeconds( timestamp ) }` }

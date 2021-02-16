@@ -12,6 +12,7 @@ import { __ } from '@wordpress/i18n';
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
 import ProductRatings from './product-ratings';
+import ProductPrice from './product-price';
 
 /**
  * Style dependencies
@@ -64,11 +65,14 @@ class SearchResultProduct extends Component {
 					/>
 				</h3>
 
-				{ !! fields[ 'wc.price' ] && (
-					<div className="jetpack-instant-search__search-result-product-price">
-						{ fields[ 'wc.price' ].toFixed( 2 ) }
-					</div>
-				) }
+				<ProductPrice
+					price={ fields[ 'wc.price' ] }
+					salePrice={ fields[ 'wc.sale_price' ] }
+					formattedPrice={ fields[ 'wc.formatted_price' ] }
+					formattedRegularPrice={ fields[ 'wc.formatted_regular_price' ] }
+					formattedSalePrice={ fields[ 'wc.formatted_sale_price' ] }
+				/>
+
 				{ !! fields[ 'meta._wc_average_rating.double' ] && (
 					<ProductRatings
 						count={ fields[ 'meta._wc_review_count.long' ] }

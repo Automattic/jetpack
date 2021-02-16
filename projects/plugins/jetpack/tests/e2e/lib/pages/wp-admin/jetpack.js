@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 
 export default class JetpackPage extends Page {
 	constructor( page ) {
@@ -12,12 +12,12 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await waitAndClick( this.page, connectButtonSelector );
+		return await page.click( connectButtonSelector );
 	}
 
 	async openMyPlan() {
 		const myPlanButton = "a[href*='my-plan'] span";
-		return await waitAndClick( this.page, myPlanButton );
+		return await page.click( myPlanButton );
 	}
 
 	async isFree() {
