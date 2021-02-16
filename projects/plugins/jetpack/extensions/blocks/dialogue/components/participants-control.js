@@ -16,7 +16,7 @@ import {
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState, useEffect, Component } from '@wordpress/element';
+import { useMemo, useState, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -151,9 +151,7 @@ export function SpeakerEditControl( {
 	onAdd,
 	onClean,
 } ) {
-	const [ editingMode, setEditingMode ] = useState(
-		participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING
-	);
+	const [ editingMode, setEditingMode ] = useState();
 
 	function editSpeakerHandler() {
 		if ( ! label ) {
@@ -228,16 +226,17 @@ export function SpeakerEditControl( {
 
 	// Keep autocomplete options udated.
 	const autocompleter = useMemo( () => {
+		// No autocomplete when no edit mode defined.
+		if ( ! editingMode ) {
+			return [];
+		}
+
 		if ( editingMode === EDIT_MODE_EDITING ) {
 			return [];
 		}
 
 		return [ refreshAutocompleter( participants ) ];
 	}, [ participants, editingMode ] );
-
-	useEffect( () => {
-		setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-	}, [ participant ] );
 
 	return (
 		<DetectOutside
