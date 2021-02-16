@@ -1464,14 +1464,11 @@ class Manager {
 	/**
 	 * Obtains the auth token.
 	 *
-	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get() instead.
-	 *
 	 * @param array $data The request data.
 	 * @return object|\WP_Error Returns the auth token on success.
 	 *                          Returns a \WP_Error on failure.
 	 */
 	public function get_token( $data ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get' );
 		return $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
 	}
 
