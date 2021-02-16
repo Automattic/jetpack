@@ -22,11 +22,26 @@ $grid-size-large: 16px;
 	}
 
 	@include break-small-up {
-		// More columns on wider viewports
-		width: calc( ( 100% - ( #{$grid-size-large} * 4 ) ) / 3 );
-		margin-right: 32px;
+		// 3 columns on wider viewports
+		width: calc( ( 100% - ( #{$grid-size-large} * 2 ) ) / 3 );
+		margin-right: $grid-size-large;
 
 		&:nth-child( 3n ) {
+			margin-right: 0;
+		}
+	}
+
+	@include break-xlarge-up {
+		// 4 columns on wider viewports
+		width: calc( ( 100% - ( #{$grid-size-large} * 3 ) ) / 4 );
+		margin-right: $grid-size-large;
+
+		// Override styling from break-small-up.
+		&:nth-child( 3n ) {
+			margin-right: $grid-size-large;
+		}
+
+		&:nth-child( 4n ) {
 			margin-right: 0;
 		}
 	}
