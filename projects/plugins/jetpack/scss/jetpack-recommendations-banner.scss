@@ -10,6 +10,8 @@
 		grid-template-columns: 100% 0%;
 	}
 
+	max-width: 1200px;
+
 	min-height: 480px;
 	background: linear-gradient(
 		120deg,
@@ -171,6 +173,8 @@
 .jp-recommendations-banner__illustration-container {
 	width: 100%;
 	position: relative;
+
+	max-width: 600px;
 
 	img {
 		position: absolute;
