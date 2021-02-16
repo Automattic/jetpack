@@ -16,7 +16,6 @@
 	margin-right: 5px;
 }
 
-
 .wp-block-jetpack-dialogue__timestamp-control__play-button {
 	align-self: flex-end;
 	margin-left: 10px;
@@ -41,4 +40,18 @@
 
 .wp-block-jetpack-dialogue__participant.is-editing-participant {
 	opacity: 0.7;
+}
+
+.wp-block-jetpack-conversation:not(.is-style-column) {
+	.wp-block-jetpack-dialogue__meta {
+		// The div below is added by the withFocusOutside HoC.
+		// We need to stretch it out to deal with speaker width.
+		&.has-not-media-source > div {
+			width: 100%;
+		}	
+	
+		.wp-block-jetpack-dialogue__participant {
+			min-width: 50px;
+		}
+	}
 }
