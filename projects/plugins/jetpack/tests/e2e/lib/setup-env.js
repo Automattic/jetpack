@@ -83,14 +83,15 @@ async function setUserAgent() {
 	const userAgentSuffix = 'wp-e2e-tests';
 	const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
 
-	if ( ! fs.existsSync( 'config/storage.json' ) ) {
-		fs.writeFileSync( 'config/storage.json', '{}' );
+	const storageFilePath = 'config/storage.json';
+	if ( ! fs.existsSync( storageFilePath ) ) {
+		fs.writeFileSync( storageFilePath, '{}' );
 	}
 
 	// Reset context as a workaround to set a custom user agent
 	await jestPlaywright.resetContext( {
 		userAgent: e2eUserAgent,
-		storageState: 'config/storage.json',
+		storageState: storageFilePath,
 	} );
 
 	userAgent = await page.evaluate( () => navigator.userAgent );
