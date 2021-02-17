@@ -89,7 +89,7 @@ class JITM {
 					'admin_page_jetpack_modules',
 				),
 				true
-		) ) {
+			) ) {
 			return;
 		}
 
@@ -101,8 +101,10 @@ class JITM {
 					'dashboard',
 					'plugins',
 					'jetpack_page_stats',
-			), true ) &&
-			\Jetpack_Recommendations_Banner::can_be_displayed()
+				),
+				true
+			)
+			&& \Jetpack_Recommendations_Banner::can_be_displayed()
 		) {
 			return;
 		}
