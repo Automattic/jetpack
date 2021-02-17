@@ -83,12 +83,12 @@ class JITM {
 		// Disable all JITMs on these pages.
 		if (
 			in_array(
-			$screen->id,
-			array(
-				'jetpack_page_akismet-key-config',
-				'admin_page_jetpack_modules',
-			),
-			true
+				$screen->id,
+				array(
+					'jetpack_page_akismet-key-config',
+					'admin_page_jetpack_modules',
+				),
+				true
 		) ) {
 			return;
 		}
@@ -101,7 +101,9 @@ class JITM {
 					'dashboard',
 					'plugins',
 					'jetpack_page_stats',
-				), true ) && \Jetpack_Recommendations_Banner::can_be_displayed() ) {
+			), true ) &&
+			\Jetpack_Recommendations_Banner::can_be_displayed()
+		) {
 			return;
 		}
 
