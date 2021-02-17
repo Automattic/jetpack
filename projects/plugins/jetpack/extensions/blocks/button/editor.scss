@@ -2,6 +2,24 @@
 	margin: 0 auto;
 }
 
+div[data-type='jetpack/button'] > .wp-block > div {
+	width: 100%;
+}
+
+.wp-block[data-align="left"] {
+	.wp-block-jetpack-button {
+		display: flex;
+		justify-content: flex-start;
+	}
+}
+
+.wp-block[data-align="right"] {
+	.wp-block-jetpack-button {
+		display: flex;
+		justify-content: flex-end;
+	}
+}
+
 .wp-block[data-align="center"] {
 	.wp-block-jetpack-button {
 		display: flex;

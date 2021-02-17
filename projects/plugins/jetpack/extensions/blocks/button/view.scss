@@ -1,3 +1,19 @@
 .amp-wp-article .wp-block-jetpack-button {
 	color: #ffffff;
 }
+
+.wp-block-jetpack-button {
+	float: none;
+	width: 100%;
+
+	&.alignleft {
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	&.alignright {
+		display: flex;
+		justify-content: flex-end;
+		margin-left: 0;
+	}
+}

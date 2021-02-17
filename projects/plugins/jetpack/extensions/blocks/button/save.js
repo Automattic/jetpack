@@ -16,6 +16,7 @@ import {
  * Internal dependencies
  */
 import { IS_GRADIENT_AVAILABLE } from './constants';
+import './view.scss';
 
 export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 	const {
