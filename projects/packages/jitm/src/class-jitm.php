@@ -80,8 +80,9 @@ class JITM {
 	 * @param \WP_Screen $screen WP Core's screen object.
 	 */
 	public function prepare_jitms( $screen ) {
-		// Disable all JITMs on these pages
-		if ( in_array(
+		// Disable all JITMs on these pages.
+		if (
+			in_array(
 			$screen->id,
 			array(
 				'jetpack_page_akismet-key-config',
@@ -92,12 +93,15 @@ class JITM {
 			return;
 		}
 
-		// Disable all JITMs on pages where the recommendations banner is displaying
-		if ( in_array( $screen->id, array(
-				'dashboard',
-				'plugins',
-				'jetpack_page_stats'
-			), true ) && \Jetpack_Recommendations_Banner::can_be_displayed() ) {
+		// Disable all JITMs on pages where the recommendations banner is displaying.
+		if (
+			in_array(
+				$screen->id,
+				array(
+					'dashboard',
+					'plugins',
+					'jetpack_page_stats',
+				), true ) && \Jetpack_Recommendations_Banner::can_be_displayed() ) {
 			return;
 		}
 
