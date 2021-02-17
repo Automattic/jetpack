@@ -148,6 +148,7 @@ EOF
 		usort(
 			$messages,
 			function ( $a, $b ) {
+				// @codeCoverageIgnoreStart
 				if ( $a[2] !== $b[2] ) {
 					return $a[2] - $b[2];
 				}
@@ -155,6 +156,7 @@ EOF
 					return strcmp( $a[0], $b[0] );
 				}
 				return strcmp( $a[1], $b[1] );
+				// @codeCoverageIgnoreEnd
 			}
 		);
 		foreach ( $messages as list( $type, $msg, $line ) ) {
@@ -180,7 +182,7 @@ EOF
 		$files = $input->getArgument( 'files' );
 		if ( ! $files ) {
 			$files = array();
-			foreach ( new \DirectoryIterator( Config::changelogDir() ) as $file ) {
+			foreach ( new \DirectoryIterator( Config::changesDir() ) as $file ) {
 				$name = $file->getBasename();
 				if ( '.' !== $name[0] ) {
 					$files[] = $file->getPathname();

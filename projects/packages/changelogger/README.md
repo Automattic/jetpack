@@ -19,6 +19,7 @@ the directory will always be present.
 Changelogger is configured via entries in composer.json, under `extra.changelogger`. In most cases
 you can set the configuration using `composer config extra.changelogger.$setting $value`.
 
+- **changes-dir**: Specifies the directory holding changes files, relative to the composer.json. Default is `changelog`.
 - **types**: Specifies the types of changes used in the repository; see [Type field](#type-field). The
   value is a JSON object, with keys being the field value in the change file and values being the
   subheading text used in the combined changelog file. May be empty; the default is to use the types

@@ -22,8 +22,8 @@ class Config {
 	 * @var array
 	 */
 	private static $defaultConfig = array(
-		'versioning' => 'semver',
-		'types'      => array(
+		'changes-dir' => 'changelog',
+		'types'       => array(
 			'security'   => 'Security',
 			'added'      => 'Added',
 			'changed'    => 'Changed',
@@ -31,6 +31,7 @@ class Config {
 			'removed'    => 'Removed',
 			'fixed'      => 'Fixed',
 		),
+		'versioning'  => 'semver',
 	);
 
 	/**
@@ -74,6 +75,7 @@ class Config {
 	 * Load the configuration.
 	 *
 	 * @throws \LogicException If called before `setOutput()`.
+	 * @throws \DomainException If the path to composer.json exists but can't be `realpath`-ed.
 	 */
 	private static function load() {
 		if ( ! self::$out ) {
@@ -104,7 +106,11 @@ class Config {
 			return;
 		}
 
-		self::$config['base'] = dirname( realpath( $composer ) );
+		$dir = realpath( $composer );
+		if ( false === $dir ) {
+			throw new \DomainException( "Path $composer is not valid" ); // @codeCoverageIgnore
+		}
+		self::$config['base'] = dirname( $dir );
 		if ( isset( $data['extra']['changelogger'] ) ) {
 			self::$config = array_merge( self::$config, $data['extra']['changelogger'] );
 		}
@@ -121,13 +127,21 @@ class Config {
 	}
 
 	/**
-	 * Get the changelog directory.
+	 * Get the changes directory.
 	 *
 	 * @return string
 	 */
-	public static function changelogDir() {
+	public static function changesDir() {
 		self::load();
-		return self::$config['base'] . '/changelog';
+		if ( ! isset( self::$cache['changes-dir'] ) ) {
+			$dir = self::$config['changes-dir'];
+			// Stupid Windows requires a regex.
+			if ( ! preg_match( '#^(?:/|' . preg_quote( DIRECTORY_SEPARATOR, '#' ) . '|[a-zA-Z]:\\\\)#', $dir ) ) {
+				$dir = self::base() . DIRECTORY_SEPARATOR . $dir;
+			}
+			self::$cache['changes-dir'] = $dir;
+		}
+		return self::$cache['changes-dir'];
 	}
 
 	/**

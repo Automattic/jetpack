@@ -124,7 +124,7 @@ EOF
 			throw new \RuntimeException( 'Filename may not contain ' . implode( count( $bad ) > 2 ? ', ' : ' ', $bad ) . '.' );
 		}
 
-		$path = Config::changelogDir() . "/$filename";
+		$path = Config::changesDir() . "/$filename";
 		if ( file_exists( $path ) ) {
 			throw new \RuntimeException( "File \"$path\" already exists. If you want to replace it, delete it manually." );
 		}
@@ -164,7 +164,7 @@ EOF
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ) {
 		try {
-			$dir = Config::changelogDir();
+			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {
 				Utils::error_clear_last();
 				if ( ! quietCall( 'mkdir', $dir, 0775, true ) ) {

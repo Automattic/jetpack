@@ -5,7 +5,7 @@
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv, WordPress.NamingConventions.ValidVariableName
+// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv, WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
@@ -20,6 +20,40 @@ use Wikimedia\TestingAccessWrapper;
  */
 class ConfigTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
+
+	/**
+	 * Set up.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		$this->useTempDir();
+
+		file_put_contents( 'bogus.json', "bogus\n" );
+		$this->writeComposerJson(
+			array(
+				'types'  => (object) array(),
+				'foobar' => 'baz',
+			),
+			'no-types.json'
+		);
+	}
+
+	/**
+	 * Write a composer.json file.
+	 *
+	 * @param array  $config Contents for `.extra.changelogger`.
+	 * @param string $file Filename.
+	 */
+	public function writeComposerJson( array $config, $file = 'composer.json' ) {
+		file_put_contents(
+			$file,
+			json_encode(
+				array( 'extra' => array( 'changelogger' => $config ) ),
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
+	}
 
 	/**
 	 * Test that calling load() before setOutput() throws.
@@ -41,6 +75,8 @@ class ConfigTest extends TestCase {
 	 * @param array        $expectConfig Expected configuration data.
 	 */
 	public function testLoad( $composer, $expectOut, $expectConfig ) {
+		$expectConfig['base'] = getcwd();
+
 		$this->resetConfigCache();
 		putenv( false === $composer ? 'COMPOSER' : "COMPOSER=$composer" );
 		$out = new BufferedOutput();
@@ -51,7 +87,7 @@ class ConfigTest extends TestCase {
 		$this->assertEquals( $expectConfig, $w->config );
 
 		// Second load call should do nothing.
-		putenv( 'COMPOSER=' . __DIR__ . '../fixtures/doesnotexist.json' );
+		putenv( 'COMPOSER=./doesnotexist.json' );
 		$w->load();
 		$this->assertSame( '', $out->fetch() );
 		$this->assertEquals( $expectConfig, $w->config );
@@ -62,38 +98,30 @@ class ConfigTest extends TestCase {
 	 */
 	public function provideLoad() {
 		$defaultConfig = TestingAccessWrapper::newFromClass( Config::class )->defaultConfig;
-		$fixtures      = dirname( __DIR__ ) . '/fixtures';
 
 		return array(
 			'default'                 => array(
 				false,
 				'',
-				array(
-					'base' => getcwd(),
-				) + $defaultConfig,
+				$defaultConfig,
 			),
 			'Alternate composer.json' => array(
-				"$fixtures/no-types.json",
+				'no-types.json',
 				'',
 				array(
 					'types'  => array(),
 					'foobar' => 'baz',
-					'base'   => $fixtures,
 				) + $defaultConfig,
 			),
 			'missing composer.json'   => array(
-				"$fixtures/missing.json",
-				"File $fixtures/missing.json (as specified by the COMPOSER environment variable) is not found.\n",
-				array(
-					'base' => getcwd(),
-				) + $defaultConfig,
+				'missing.json',
+				"File missing.json (as specified by the COMPOSER environment variable) is not found.\n",
+				$defaultConfig,
 			),
 			'broken composer.json'    => array(
-				"$fixtures/bogus.json",
-				"File $fixtures/bogus.json (as specified by the COMPOSER environment variable) could not be parsed.\n",
-				array(
-					'base' => getcwd(),
-				) + $defaultConfig,
+				'bogus.json',
+				"File bogus.json (as specified by the COMPOSER environment variable) could not be parsed.\n",
+				$defaultConfig,
 			),
 		);
 	}
@@ -108,10 +136,34 @@ class ConfigTest extends TestCase {
 		$this->assertSame( getcwd(), Config::base() );
 
 		$this->resetConfigCache();
-		putenv( 'COMPOSER=' . dirname( __DIR__ ) . '/fixtures/no-types.json' );
+		putenv( 'COMPOSER=' . __DIR__ . '/../../../composer.json' );
 		Config::setOutput( $out );
-		$this->assertSame( dirname( __DIR__ ) . '/fixtures', Config::base() );
+		$this->assertSame( dirname( dirname( dirname( __DIR__ ) ) ), Config::base() );
+	}
 
+	/**
+	 * Test the changesDir method.
+	 */
+	public function testChangesDir() {
+		$this->resetConfigCache();
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'changelog', Config::changesDir() );
+
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'changes-dir' => 'changes' ) );
+		Config::setOutput( $out );
+		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'changes', Config::changesDir() );
+
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'changes-dir' => '/tmp/changes' ) );
+		Config::setOutput( $out );
+		$this->assertSame( '/tmp/changes', Config::changesDir() );
+
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'changes-dir' => 'c:\\changes' ) );
+		Config::setOutput( $out );
+		$this->assertSame( 'c:\\changes', Config::changesDir() );
 	}
 
 	/**
