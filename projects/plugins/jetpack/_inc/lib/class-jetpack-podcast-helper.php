@@ -176,7 +176,8 @@ class Jetpack_Podcast_Helper {
 		 *
 		 * @since 9.5.0
 		 *
-		 * @param object $rss The SimplePie object built from core's `fetch_feed` call.
+		 * @param int    $number Number of tracks fetched. Default is 10.
+		 * @param object $rss    The SimplePie object built from core's `fetch_feed` call.
 		 */
 		$tracks_quantity = apply_filters( 'jetpack_podcast_helper_list_quantity', 10, $rss );
 
