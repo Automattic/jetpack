@@ -443,7 +443,12 @@ class Password_Checker {
 
 		// Remove any non alpha numeric characters from the strings to check against.
 		foreach ( $strings as $key => $_string ) {
-			$strings[ $key ] = trim( preg_replace( '/[^a-zA-Z0-9]/', '', $_string ) );
+			$_string = trim( preg_replace( '/[^a-zA-Z0-9]/', '', $_string ) );
+			if ( empty( $_string ) ) {
+				continue;
+			}
+
+			$strings[ $key ] = $_string;
 		}
 
 		// Check the original too.
@@ -453,6 +458,7 @@ class Password_Checker {
 		$strings[] = trim( preg_replace( '/[^a-zA-Z0-9]/', '', $string ) );
 
 		// Remove any empty strings.
+		// Note: This will also filter out '0'.
 		$strings = array_filter( $strings );
 		if ( empty( $strings ) ) {
 			return false;
