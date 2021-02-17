@@ -10,7 +10,7 @@
 		grid-template-columns: 100% 0%;
 	}
 
-	max-width: 1200px;
+	max-width: 1600px;
 
 	min-height: 480px;
 	background: linear-gradient(
@@ -82,6 +82,7 @@
 }
 
 .jp-recommendations-banner__answer {
+	max-width: 600px;
 	text-align: center;
 	margin: 0 0 32px 32px;
 
