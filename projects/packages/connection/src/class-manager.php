@@ -682,9 +682,9 @@ class Manager {
 		$transient_key    = "jetpack_connected_user_data_$user_id";
 		$cached_user_data = get_transient( $transient_key );
 
-		// if ( $cached_user_data ) {
-		// 	return $cached_user_data;
-		// }
+		if ( $cached_user_data ) {
+			return $cached_user_data;
+		}
 
 		$xml = new \Jetpack_IXR_Client(
 			array(
