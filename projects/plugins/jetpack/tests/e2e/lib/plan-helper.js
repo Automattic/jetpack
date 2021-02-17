@@ -494,8 +494,6 @@ export async function syncPlanData( page ) {
 	let bkPlan = null;
 
 	do {
-		await page.reload( { waitFor: 'domcontentloaded' } );
-
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		/* eslint-enable no-undef */
@@ -504,7 +502,10 @@ export async function syncPlanData( page ) {
 
 		logger.info( `!!! PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
-	} while ( ! isSame );
 
-	await page.waitForTimeout( 1000 );
+		if ( isSame ) {
+			break;
+		}
+		await page.reload( { waitFor: 'domcontentloaded' } );
+	} while ( ! isSame );
 }
