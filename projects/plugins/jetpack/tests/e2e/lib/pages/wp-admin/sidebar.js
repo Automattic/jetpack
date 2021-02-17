@@ -9,6 +9,11 @@ export default class Sidebar extends Page {
 		super( page, { expectedSelector } );
 	}
 
+	async waitForPage() {
+		await super.waitForPage();
+		await this.page.waitForLoadState( 'networkidle' );
+	}
+
 	async selectJetpack() {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
 		const menuItemSelector =
