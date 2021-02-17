@@ -15,139 +15,137 @@ class Password_Checker {
 	 * Minimum entropy bits a password should contain. 36 bits of entropy is considered
 	 * to be a reasonable password, 28 stands for a weak one.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
 	public $minimum_entropy_bits = 28;
 
 	/**
 	 * Currently tested password.
 	 *
-	 * @var String
+	 * @var string
 	 */
 	public $password = '';
 
 	/**
 	 * Test results array.
 	 *
-	 * @var Array
+	 * @var array
 	 */
-	public $test_results = '';
+	public $test_results = array();
 
 	/**
 	 * Current password score.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
 	public $score = 0;
 
 	/**
 	 * Current multiplier affecting the score.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
 	public $multiplier = 4;
 
 	/**
 	 * A common password disallow list, which on match will immediately disqualify the password.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	public $common_passwords = array();
 
 	/**
 	 * Minimum password length setting.
 	 *
-	 * @var Integer
+	 * @var int
 	 */
-	public $min_password_length = 6;
+	public $minimum_password_length = 6;
 
 	/**
 	 * User defined strings that passwords need to be tested for a match against.
 	 *
-	 * @var Array
+	 * @var array
 	 */
 	private $user_strings_to_test = array();
 
 	/**
 	 * The user object for whom the password is being tested.
 	 *
-	 * @var WP_User
+	 * @var mixed
 	 */
-	protected $user;
+	protected $user = null;
 
 	/**
 	 * The user identifier for whom the password is being tested, used if there's no user object.
 	 *
-	 * @var WP_User
+	 * @var mixed
 	 */
-	protected $user_id;
+	protected $user_id = null;
 
 	/**
 	 * Creates an instance of the password checker class for the specified user, or
 	 * defaults to the currently logged in user.
 	 *
-	 * @param Mixed $user can be an integer ID, or a WP_User object.
+	 * @param mixed $user can be an integer ID, or a WP_User object.
 	 */
 	public function __construct( $user = null ) {
-
-		/**
-		 * Filters Jetpack's password strength enforcement settings. You can supply your own passwords
-		 * that should not be used for authenticating in addition to weak and easy to guess strings for
-		 * each user. For example, you can add passwords from known password databases to avoid compromised
-		 * password usage.
-		 *
-		 * @since 7.2.0
-		 *
-		 * @param array $restricted_passwords strings that are forbidden for use as passwords.
-		 */
-		$this->common_passwords = apply_filters( 'jetpack_password_checker_restricted_strings', array() );
-
 		if ( is_null( $user ) ) {
 			$this->user_id = get_current_user_id();
 		} elseif ( is_object( $user ) && isset( $user->ID ) ) {
-
 			// Existing user, using their ID.
 			$this->user_id = $user->ID;
-
 		} elseif ( is_object( $user ) ) {
-
 			// Newly created user, using existing data.
 			$this->user    = $user;
 			$this->user_id = 'new_user';
-
 		} else {
 			$this->user_id = $user;
 		}
 
 		/**
-		 * Filter for the minimum password length.
+		 * Filters the password strength enforcement settings.
 		 *
-		 * @param int $min_password_length minimum password length.
+		 * You can supply your own passwords that should not be used for authenticating in addition to weak and easy
+		 * to guess strings for each user. For example, you can add passwords from known password databases to avoid
+		 * compromised password usage.
+		 *
+		 * @param array $common_passwords strings that are forbidden for use as passwords.
 		 */
-		$this->min_password_length = apply_filters( 'better_password_min_length', $this->min_password_length );
+		$this->common_passwords = apply_filters( 'password_checker_common_passwords', $this->common_passwords );
 
 		/**
-		 * Filters Jetpack's password strength enforcement settings. You can modify the minimum
-		 * entropy bits requirement using this filter.
+		 * Filters the password strength enforcement settings.
 		 *
-		 * @since 7.2.0
+		 * You can modify the minimum password length using this filter.
+		 *
+		 * @param int $minimum_password_length minimum password length.
+		 */
+		$this->minimum_password_length = apply_filters( 'password_checker_minimum_password_length', $this->minimum_password_length );
+
+		/**
+		 * Filters the password strength enforcement settings.
+		 *
+		 * You can modify the minimum entropy bits requirement using this filter.
 		 *
 		 * @param int $minimum_entropy_bits minimum entropy bits requirement.
 		 */
-		$this->minimum_entropy_bits = apply_filters( 'jetpack_password_checker_minimum_entropy_bits', $this->minimum_entropy_bits );
+		$this->minimum_entropy_bits = apply_filters( 'password_checker_minimum_entropy_bits', $this->minimum_entropy_bits );
 	}
 
 	/**
 	 * Run tests against a password.
 	 *
-	 * @param String  $password      the tested string.
-	 * @param Boolean $required_only only test against required conditions, defaults to false.
-	 * @return array $results an array containing failed and passed test results.
+	 * @param string $password      the tested string.
+	 * @param bool   $required_only only test against required conditions, defaults to false.
+	 *
+	 * @return array an array containing failed and passed test results.
 	 */
 	public function test( $password, $required_only = false ) {
-
+		// Save the password for later use.
 		$this->password = $password;
-		$results        = $this->run_tests( $this->list_tests(), $required_only );
+
+		// Run the tests.
+		$results = $this->run_tests( $this->get_tests(), $required_only );
 
 		// If we've failed on the required tests, return now.
 		if ( ! empty( $results['failed'] ) ) {
@@ -162,13 +160,11 @@ class Password_Checker {
 		// If we have failed the entropy bits test, run the regex tests so we can suggest improvements.
 		if ( $entropy_bits < $this->minimum_entropy_bits ) {
 			$results['failed']['entropy_bits'] = $entropy_bits;
-			$results                           = array_merge(
-				$results,
-				$this->run_tests( $this->list_tests( 'preg_match' ), false )
-			);
+			// Run the tests.
+			$results = array_merge( $results, $this->run_tests( $this->get_tests( 'preg_match' ) ) );
 		}
 
-		return( array(
+		return ( array(
 			'passed'       => empty( $results['failed'] ),
 			'test_results' => $results,
 		) );
@@ -177,12 +173,12 @@ class Password_Checker {
 	/**
 	 * Run the tests using the currently set up object values.
 	 *
-	 * @param array   $tests tests to run.
-	 * @param Boolean $required_only whether to run only required tests.
+	 * @param array $tests         tests to run.
+	 * @param bool  $required_only whether to run only required tests.
+	 *
 	 * @return array test results.
 	 */
 	protected function run_tests( $tests, $required_only = false ) {
-
 		$results = array(
 			'passed' => array(),
 			'failed' => array(),
@@ -190,16 +186,12 @@ class Password_Checker {
 
 		foreach ( $tests as $test_type => $section_tests ) {
 			foreach ( $section_tests as $test_name => $test_data ) {
-
 				// Skip non-required tests if required_only param is set.
 				if ( $required_only && ! $test_data['required'] ) {
 					continue;
 				}
 
-				$test_function = 'test_' . $test_type;
-
-				$result = call_user_func( array( $this, $test_function ), $test_data );
-
+				$result = call_user_func( array( $this, 'test_' . $test_type ), $test_data );
 				if ( $result ) {
 					$results['passed'][] = array( 'test_name' => $test_name );
 				} else {
@@ -219,42 +211,41 @@ class Password_Checker {
 	}
 
 	/**
-	 * Returns a list of tests that need to be run on password strings.
+	 * Returns an array of tests that need to be run on password strings.
 	 *
 	 * @param array $sections only return specific sections with the passed keys, defaults to all.
+	 *
 	 * @return array test descriptions.
 	 */
-	protected function list_tests( $sections = false ) {
+	protected function get_tests( $sections = false ) {
 		// Note: these should be in order of priority.
 		$tests = array(
 			'preg_match'      => array(
 				'no_backslashes'   => array(
-					'pattern'          => '^[^\\\\]*$',
+					'pattern'          => '/^[^\\\\]*$/u',
 					'error'            => __( 'Passwords may not contain the character "\".', 'jetpack' ),
 					'required'         => true,
 					'fail_immediately' => true,
 				),
 				'minimum_length'   => array(
-					'pattern'          => '^.{' . $this->min_password_length . ',}',
+					'pattern'          => '/^.{' . $this->minimum_password_length . ',}/u',
 					/* translators: %d is a number of characters in the password. */
-					'error'            => sprintf( __( 'Password must be at least %d characters.', 'jetpack' ), $this->min_password_length ),
+					'error'            => sprintf( __( 'Password must be at least %d characters.', 'jetpack' ), $this->minimum_password_length ),
 					'required'         => true,
 					'fail_immediately' => true,
 				),
 				'has_mixed_case'   => array(
-					'pattern'  => '([a-z].*?[A-Z]|[A-Z].*?[a-z])',
+					'pattern'  => '/([a-z].*?[A-Z]|[A-Z].*?[a-z])/u',
 					'error'    => __( 'This password is too easy to guess: you can improve it by adding additional uppercase letters, lowercase letters, or numbers.', 'jetpack' ),
-					'trim'     => true,
 					'required' => false,
 				),
 				'has_digit'        => array(
-					'pattern'  => '\d',
+					'pattern'  => '/\d/u',
 					'error'    => __( 'This password is too easy to guess: you can improve it by mixing both letters and numbers.', 'jetpack' ),
-					'trim'     => false,
 					'required' => false,
 				),
 				'has_special_char' => array(
-					'pattern'  => '[^a-zA-Z\d]',
+					'pattern'  => '/[^a-zA-Z\d]/u',
 					'error'    => __( 'This password is too easy to guess: you can improve it by including special characters such as !#=?*&.', 'jetpack' ),
 					'required' => false,
 				),
@@ -269,27 +260,27 @@ class Password_Checker {
 				'not_same_as_other_user_data' => array(
 					'list_callback'    => 'get_other_user_data',
 					'compare_callback' => 'test_not_same_as_other_user_data',
-					'error'            => __( 'Your password is too weak: Looks like you\'re including easy to guess information about yourself. Try something a little more unique.', 'jetpack' ),
+					'error'            => __( 'Your password is too weak: Looks like you are including easy to guess information about yourself. Try something a little more unique.', 'jetpack' ),
 					'required'         => true,
 				),
 			),
 		);
 
 		/**
-		 * Filters Jetpack's password strength enforcement settings. You can determine the tests run
-		 * and their order based on whatever criteria you wish to specify.
+		 * Filters the password strength enforcement settings.
 		 *
-		 * @since 7.2.0
+		 * You can determine the tests run and their order based on whatever criteria you wish to specify.
 		 *
-		 * @param array $minimum_entropy_bits minimum entropy bits requirement.
+		 * @param array $tests tests to run.
 		 */
-		$tests = apply_filters( 'jetpack_password_checker_tests', $tests );
+		$tests = apply_filters( 'password_checker_tests', $tests );
 
 		if ( ! $sections ) {
 			return $tests;
 		}
 
 		$sections = (array) $sections;
+
 		return array_intersect_key( $tests, array_flip( $sections ) );
 	}
 
@@ -297,45 +288,36 @@ class Password_Checker {
 	 * Provides the regular expression tester functionality.
 	 *
 	 * @param array $test_data the current test data.
-	 * @return Boolean does the test pass?
+	 *
+	 * @return bool does the test pass?
 	 */
 	protected function test_preg_match( $test_data ) {
-		$password = stripslashes( $this->password );
-
-		if ( isset( $test_data['trim'] ) ) {
-			$password = substr( $password, 1, -1 );
-		}
-
-		if ( ! preg_match( '/' . $test_data['pattern'] . '/u', $password ) ) {
-			return false;
-		}
-
-		return true;
+		return preg_match( $test_data['pattern'], $this->password );
 	}
 
 	/**
 	 * Provides the comparison tester functionality.
 	 *
 	 * @param array $test_data the current test data.
-	 * @return Boolean does the test pass?
+	 *
+	 * @return bool does the test pass?
 	 */
 	protected function test_compare_to_list( $test_data ) {
-		$list_callback    = $test_data['list_callback'];
-		$compare_callback = $test_data['compare_callback'];
-
 		if (
-			! is_callable( array( $this, $list_callback ) )
-			|| ! is_callable( array( $this, $compare_callback ) )
+			! is_callable( array( $this, $test_data['list_callback'] ) )
+			|| ! is_callable( array( $this, $test_data['compare_callback'] ) )
 		) {
 			return false;
 		}
 
-		$list = call_user_func( array( $this, $list_callback ) );
-		if ( empty( $list ) ) {
-			return true;
-		}
-
-		return call_user_func( array( $this, $compare_callback ), $this->password, $list );
+		return call_user_func(
+			array(
+				$this,
+				$test_data['compare_callback'],
+			),
+			$this->password,
+			call_user_func( array( $this, $test_data['list_callback'] ) )
+		);
 	}
 
 	/**
@@ -391,23 +373,25 @@ class Password_Checker {
 			$this->add_user_strings_to_test( $user_data->user_email );
 		}
 
-		return $this->user_strings_to_test;
+		return $this->get_user_strings_to_test();
 	}
 
 	/**
 	 * Compare the password for matches with known user data.
 	 *
-	 * @param String $password the string to be tested.
+	 * @param string $password        the string to be tested.
 	 * @param array  $strings_to_test known user data.
-	 * @return Boolean does the test pass?
+	 *
+	 * @return bool does the test pass?
 	 */
 	protected function test_not_same_as_other_user_data( $password, $strings_to_test ) {
-		$password_lowercase = strtolower( $password );
-		foreach ( array_unique( $strings_to_test ) as $string ) {
-			if ( empty( $string ) ) {
-				continue;
-			}
+		if ( empty( $strings_to_test ) ) {
+			return false;
+		}
 
+		$password_lowercase = strtolower( $password );
+
+		foreach ( $strings_to_test as $string ) {
 			$string          = strtolower( $string );
 			$string_reversed = strrev( $string );
 
@@ -423,18 +407,19 @@ class Password_Checker {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
 	/**
 	 * A shorthand for the not in array construct.
 	 *
-	 * @param mixed $needle the needle.
+	 * @param mixed $needle   the needle.
 	 * @param array $haystack the haystack.
 	 *
 	 * @return bool is the needle not in the haystack?
 	 */
-	protected function negative_in_array( $needle, array $haystack ) {
+	protected function negative_in_array( $needle, $haystack ) {
 		return ! in_array( $needle, $haystack, true );
 	}
 
@@ -443,7 +428,7 @@ class Password_Checker {
 	 * that both the full string and its constituents and any variants thereof
 	 * can be tested against the password.
 	 *
-	 * @param string $string the string to be broken down.
+	 * @param string $string            the string to be broken down.
 	 * @param string $explode_delimiter delimiter.
 	 *
 	 * @return bool
@@ -479,10 +464,20 @@ class Password_Checker {
 	}
 
 	/**
+	 * Getter for the user strings array.
+	 *
+	 * @return array user strings.
+	 */
+	protected function get_user_strings_to_test() {
+		return $this->user_strings_to_test;
+	}
+
+	/**
 	 * Return a character set size that is used in the string.
 	 *
-	 * @param String $password the password.
-	 * @return Integer number of different character sets in use.
+	 * @param string $password the password.
+	 *
+	 * @return int number of different character sets in use.
 	 */
 	protected function get_charset_size( $password ) {
 		$size = 0;
@@ -493,12 +488,12 @@ class Password_Checker {
 		}
 
 		// Uppercase A-Z.
-		if ( preg_match( '/[A-Z]/', substr( $password, 1, -1 ) ) ) {
+		if ( preg_match( '/[A-Z]/', substr( $password, 1, - 1 ) ) ) {
 			$size += 26;
 		}
 
 		// Digits.
-		if ( preg_match( '/\d/', substr( $password, 1, -1 ) ) ) {
+		if ( preg_match( '/\d/', substr( $password, 1, - 1 ) ) ) {
 			$size += 10;
 		}
 
@@ -514,7 +509,7 @@ class Password_Checker {
 
 		// Spaces.
 		if ( strpos( $password, ' ' ) ) {
-			$size++;
+			$size ++;
 		}
 
 		return $size;
@@ -523,8 +518,9 @@ class Password_Checker {
 	/**
 	 * Shorthand for getting a character index.
 	 *
-	 * @param String $char character.
-	 * @return Integer the character code.
+	 * @param string $char character.
+	 *
+	 * @return int the character code.
 	 */
 	protected function get_char_index( $char ) {
 		$char = strtolower( $char[0] );
@@ -549,20 +545,25 @@ class Password_Checker {
 	 * i.e.: the probablity of U following Q is ~0.84. If our password contains this pair of characters,
 	 * the u char will only add ( 0.16^2 * charset_score ) to our total of entropy bits.
 	 *
-	 * @param String $password the password.
+	 * @param string $password the password.
+	 *
+	 * @return float|int
 	 */
 	protected function calculate_entropy_bits( $password ) {
-		$bits          = 0;
+		$bits = 0;
+		// Calculate the score.
 		$charset_score = log( $this->get_charset_size( $password ) ) / log( 2 );
 
 		$aidx   = $this->get_char_index( $password[0] );
 		$length = strlen( $password );
 
-		for ( $b = 1; $b < $length; $b++ ) {
+		for ( $b = 1; $b < $length; $b ++ ) {
 			$bidx = $this->get_char_index( $password[ $b ] );
 
 			// 27 = number of chars in the index (a-z,' ').
-			$c     = 1.0 - $this->frequency_table[ $aidx * 27 + $bidx ];
+			$c = 1.0 - $this->frequency_table[ $aidx * 27 + $bidx ];
+
+			// Increment the bits.
 			$bits += $charset_score * $c * $c;
 
 			// Move on to next pair.
@@ -576,7 +577,8 @@ class Password_Checker {
 	 * A frequency table of character pairs, starting with  '  ' then  ' a', ' b' [...] , 'a ', 'aa' etc.
 	 *
 	 * @see http://rumkin.com/tools/password/passchk.php
-	 * @var Array
+	 *
+	 * @var array
 	 */
 	public $frequency_table = array(
 		0.23653710453418866,
