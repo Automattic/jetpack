@@ -206,7 +206,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// No need to add a menu linking to WP Admin if there is already one.
 		if ( ! $wp_admin ) {
-			$parent_menu_slug = $wp_admin ? 'options-general.php' : 'https://wordpress.com/settings/general/' . $this->domain;
+			$parent_menu_slug = 'https://wordpress.com/settings/general/' . $this->domain;
 			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php' );
 			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 		}
