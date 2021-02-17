@@ -5,6 +5,7 @@ import path from 'path';
 import pluralize from 'pluralize';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import fs from 'fs';
 
 /**
  * Internal dependencies
@@ -280,6 +281,7 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
 	writeComposerJson( project, composerJson, pluginDir );
 
 	// Create plugin's main php file
+	writePluginFile( pluginDir, answers );
 
 	// Create the readme.txt
 	return packageJson;
@@ -362,5 +364,41 @@ export function createComposerJson( composerJson, answers ) {
 	 * @todo Move this to the section dealing with mirror repo creation.
 	 */
 	//composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
+	return;
+}
+
+/**
+ * Create composer.json for project
+ *
+ * @param {object} pluginDir - Directory of the project.
+ * @param {object} answers - Answers returned for project creation.
+ *
+ */
+function writePluginFile( pluginDir, answers ) {
+	const content =
+		'<?php\n' +
+		'/**\n' +
+		' *\n' +
+		` * Plugin Name: ${ answers.name }\n` +
+		' * Plugin URI: TBD\n' +
+		` * Description: ${ answers.description }\n` +
+		` * Version: ${ answers.version }\n` +
+		' * Author: Automattic\n' +
+		' * Author URI: https://jetpack.com/\n' +
+		' * License: GPLv2 or later\n' +
+		' * Text Domain: jetpack\n' +
+		' *\n' +
+		` * @package automattic/${ answers.name }\n` +
+		' */\n' +
+		'\n' +
+		'// Code some good stuff!\n';
+
+	const file = answers.name + '.php';
+
+	try {
+		fs.writeFileSync( pluginDir + '/' + file, content );
+	} catch ( err ) {
+		console.error( chalk.red( `Could not write the plugin file.` ), err );
+	}
 	return;
 }
