@@ -7,8 +7,8 @@ import {
 	Placeholder,
 	SandBox,
 	Button,
-	IconButton,
-	Toolbar,
+	ToolbarButton,
+	ToolbarGroup,
 	Spinner,
 	ExternalLink,
 	withNotices,
@@ -158,14 +158,14 @@ class EventbriteEdit extends Component {
 	renderBlockControls() {
 		return (
 			<BlockControls>
-				<Toolbar>
-					<IconButton
+				<ToolbarGroup>
+					<ToolbarButton
 						className="components-toolbar__control"
 						label={ __( 'Edit URL', 'jetpack' ) }
 						icon="edit"
 						onClick={ () => this.setState( { editingUrl: true } ) }
 					/>
-				</Toolbar>
+				</ToolbarGroup>
 			</BlockControls>
 		);
 	}

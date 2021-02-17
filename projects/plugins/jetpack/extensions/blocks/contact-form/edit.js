@@ -24,6 +24,7 @@ import {
 	TextareaControl,
 	TextControl,
 	ToolbarGroup,
+	ToolbarItem,
 	Button,
 	Dropdown,
 	Icon,
@@ -320,21 +321,23 @@ function JetpackContactFormEdit( {
 
 	return (
 		<>
-			{ ToolbarGroup && (
-				<BlockControls>
-					<ToolbarGroup>
-						<Dropdown
-							position="bottom right"
-							className="jetpack-contact-form-settings-selector"
-							contentClassName="jetpack-contact-form__popover"
-							renderToggle={ ( { isOpen, onToggle } ) =>
-								renderFormSettingsToggle( isOpen, onToggle )
-							}
-							renderContent={ () => renderFormSettings() }
-						/>
-					</ToolbarGroup>
-				</BlockControls>
-			) }
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarItem>
+						{ () => (
+							<Dropdown
+								position="bottom right"
+								className="jetpack-contact-form-settings-selector"
+								contentClassName="jetpack-contact-form__popover"
+								renderToggle={ ( { isOpen, onToggle } ) =>
+									renderFormSettingsToggle( isOpen, onToggle )
+								}
+								renderContent={ () => renderFormSettings() }
+							/>
+						) }
+					</ToolbarItem>
+				</ToolbarGroup>
+			</BlockControls>
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>

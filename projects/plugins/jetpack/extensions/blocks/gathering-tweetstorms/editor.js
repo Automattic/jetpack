@@ -2,15 +2,21 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
+import { BlockControls } from '@wordpress/block-editor';
+import {
+	withNotices,
+	ToolbarButton,
+	ToolbarGroup,
+	ToolbarItem,
+	Spinner,
+} from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import useGatherTweetstorm from './use-gather-tweetstorm';
-import { withNotices, Button, ToolbarGroup, Spinner } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import './editor.scss';
-import { BlockControls } from '@wordpress/editor';
 
 /**
  * Intercepts the registration of the Core Twitter embed block, and adds functionality
@@ -58,7 +64,7 @@ const addTweetstormToTweets = blockSettings => {
 					{ noticeUI }
 					<BlockControls>
 						<ToolbarGroup className="gathering-tweetstorms__embed-toolbar">
-							<Button
+							<ToolbarButton
 								className="gathering-tweetstorms__embed-toolbar-button"
 								onClick={ () => unleashStorm( url, noticeOperations ) }
 								label={ __(
@@ -69,8 +75,8 @@ const addTweetstormToTweets = blockSettings => {
 								disabled={ isGatheringStorm || ! url }
 							>
 								{ __( 'Unroll', 'jetpack' ) }
-							</Button>
-							{ isGatheringStorm && <Spinner /> }
+							</ToolbarButton>
+							{ isGatheringStorm && <ToolbarItem as={ Spinner } /> }
 						</ToolbarGroup>
 					</BlockControls>
 					<CoreEdit { ...props } />

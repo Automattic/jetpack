@@ -47,9 +47,9 @@ const PRODUCT_FORM_SUBMITTED = 2;
 /**
  * Formats a price with the right format for a numeric input value.
  *
- * @param {number} price Price to format.
- * @param {string} currency Currency code.
- * @returns {string} Formatted price.
+ * @param {number} price - Price to format.
+ * @param {string} currency - Currency code.
+ * @returns {string} - Formatted price.
  */
 const formatPriceForNumberInputValue = ( price, currency ) => {
 	// By using `formatCurrency` we ensure the resulting price contains the relevant decimals for the given currency (i.e. 0.5 > 0.50).
@@ -415,7 +415,7 @@ class MembershipsButtonEdit extends Component {
 	};
 
 	renderUpgradeNudges = () => {
-		const { notices, postId } = this.props;
+		const { notices } = this.props;
 		const { connected, connectURL } = this.state;
 
 		return (
@@ -529,8 +529,8 @@ class MembershipsButtonEdit extends Component {
 		/**
 		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
 		 *
-		 * @param {bool} showControls Whether inspectors controls are shown.
-		 * @param {string} showControls Block ID.
+		 * @param {boolean} showControls - Whether inspectors controls are shown.
+		 * @param {string} showControls - Block ID.
 		 */
 		const showControls = applyFilters(
 			'jetpack.RecurringPayments.showControls',

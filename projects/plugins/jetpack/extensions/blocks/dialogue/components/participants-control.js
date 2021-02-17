@@ -252,7 +252,7 @@ export function SpeakerEditControl( {
 			<RichText
 				tagName="div"
 				value={ label }
-				formattingControls={ [] }
+				allowedFormats={ [] }
 				withoutInteractiveFormatting={ true }
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }

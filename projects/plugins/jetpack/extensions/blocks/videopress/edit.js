@@ -6,12 +6,12 @@ import { isBlobURL } from '@wordpress/blob';
 import {
 	BaseControl,
 	Button,
-	IconButton,
 	PanelBody,
 	SandBox,
 	SelectControl,
 	ToggleControl,
-	Toolbar,
+	ToolbarButton,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -279,14 +279,14 @@ const VideoPressEdit = CoreVideoEdit =>
 			const blockSettings = (
 				<Fragment>
 					<BlockControls>
-						<Toolbar>
-							<IconButton
+						<ToolbarGroup>
+							<ToolbarButton
 								className="components-icon-button components-toolbar__control"
 								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
 								icon="edit"
 							/>
-						</Toolbar>
+						</ToolbarGroup>
 					</BlockControls>
 					<InspectorControls>
 						<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>

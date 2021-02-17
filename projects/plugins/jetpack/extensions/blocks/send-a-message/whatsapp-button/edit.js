@@ -13,6 +13,7 @@ import {
 	SelectControl,
 	PanelBody,
 	ToolbarGroup,
+	ToolbarItem,
 	Dropdown,
 	Path,
 	ToggleControl,
@@ -203,19 +204,23 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 
 	return (
 		<div className={ getBlockClassNames() }>
-			{ ToolbarGroup && (
-				<BlockControls>
-					<ToolbarGroup>
-						<Dropdown
-							position="bottom right"
-							className="jetpack-whatsapp-button-settings-selector"
-							contentClassName="jetpack-whatsapp-button__popover"
-							renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }
-							renderContent={ () => renderPhoneSettings() }
-						/>
-					</ToolbarGroup>
-				</BlockControls>
-			) }
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarItem>
+						{ () => (
+							<Dropdown
+								position="bottom right"
+								className="jetpack-whatsapp-button-settings-selector"
+								contentClassName="jetpack-whatsapp-button__popover"
+								renderToggle={ ( { isOpen, onToggle } ) =>
+									renderSettingsToggle( isOpen, onToggle )
+								}
+								renderContent={ () => renderPhoneSettings() }
+							/>
+						) }
+					</ToolbarItem>
+				</ToolbarGroup>
+			</BlockControls>
 
 			<InspectorControls>
 				<PanelBody title={ __( 'WhatsApp Button Settings', 'jetpack' ) } initialOpen={ true }>
