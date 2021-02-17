@@ -20,7 +20,10 @@
 		"test": "mocha tests/runner.js --require esm"
 	},
 	"dependencies": {
+		"@octokit/auth": "3.0.2",
+		"@octokit/rest": "18.1.1",
 		"chalk": "4.1.0",
+		"configstore": "5.0.1",
 		"esm": "3.2.25",
 		"execa": "5.0.0",
 		"inquirer": "7.3.3",
