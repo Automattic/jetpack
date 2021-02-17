@@ -18,7 +18,7 @@
 
 	margin: 3rem 1.25rem 1.25rem 0;
 
-	@media (min-width: 1152px) {
+	@media (max-width: 1152px) {
 		margin: 4rem 1.25rem 1.25rem 0;
 		grid-template-columns: 100% 0%;
 	}
