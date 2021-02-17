@@ -20,13 +20,6 @@ class Password_Checker {
 	public $minimum_entropy_bits = 28;
 
 	/**
-	 * Currently tested password.
-	 *
-	 * @var string
-	 */
-	public $password = '';
-
-	/**
 	 * Test results array.
 	 *
 	 * @var array
@@ -135,17 +128,14 @@ class Password_Checker {
 	/**
 	 * Run tests against a password.
 	 *
-	 * @param string $password      the tested string.
+	 * @param string $password      the password.
 	 * @param bool   $required_only only test against required conditions, defaults to false.
 	 *
 	 * @return array an array containing failed and passed test results.
 	 */
 	public function test( $password, $required_only = false ) {
-		// Save the password for later use.
-		$this->password = $password;
-
 		// Run the tests.
-		$results = $this->run_tests( $this->get_tests(), $required_only );
+		$results = $this->run_tests( $password, $this->get_tests(), $required_only );
 
 		// If we've failed on the required tests, return now.
 		if ( ! empty( $results['failed'] ) ) {
@@ -155,13 +145,13 @@ class Password_Checker {
 			);
 		}
 
-		$entropy_bits = $this->calculate_entropy_bits( $this->password );
+		$entropy_bits = $this->calculate_entropy_bits( $password );
 
 		// If we have failed the entropy bits test, run the regex tests so we can suggest improvements.
 		if ( $entropy_bits < $this->minimum_entropy_bits ) {
 			$results['failed']['entropy_bits'] = $entropy_bits;
 			// Run the tests.
-			$results = array_merge( $results, $this->run_tests( $this->get_tests( 'preg_match' ) ) );
+			$results = array_merge( $results, $this->run_tests( $password, $this->get_tests( 'preg_match' ) ) );
 		}
 
 		return ( array(
@@ -173,12 +163,13 @@ class Password_Checker {
 	/**
 	 * Run the tests using the currently set up object values.
 	 *
-	 * @param array $tests         tests to run.
-	 * @param bool  $required_only whether to run only required tests.
+	 * @param string $password      the password.
+	 * @param array  $tests         tests to run.
+	 * @param bool   $required_only whether to run only required tests.
 	 *
 	 * @return array test results.
 	 */
-	protected function run_tests( $tests, $required_only = false ) {
+	protected function run_tests( $password, $tests, $required_only = false ) {
 		$results = array(
 			'passed' => array(),
 			'failed' => array(),
@@ -191,7 +182,7 @@ class Password_Checker {
 					continue;
 				}
 
-				$result = call_user_func( array( $this, 'test_' . $test_type ), $test_data );
+				$result = call_user_func_array( array( $this, 'test_' . $test_type ), array( $password, $test_data ) );
 				if ( $result ) {
 					$results['passed'][] = array( 'test_name' => $test_name );
 				} else {
@@ -287,22 +278,24 @@ class Password_Checker {
 	/**
 	 * Provides the regular expression tester functionality.
 	 *
-	 * @param array $test_data the current test data.
+	 * @param string $password  the password.
+	 * @param array  $test_data the current test data.
 	 *
 	 * @return bool does the test pass?
 	 */
-	protected function test_preg_match( $test_data ) {
-		return preg_match( $test_data['pattern'], $this->password );
+	protected function test_preg_match( $password, $test_data ) {
+		return preg_match( $test_data['pattern'], $password );
 	}
 
 	/**
 	 * Provides the comparison tester functionality.
 	 *
-	 * @param array $test_data the current test data.
+	 * @param string $password  the password.
+	 * @param array  $test_data the current test data.
 	 *
 	 * @return bool does the test pass?
 	 */
-	protected function test_compare_to_list( $test_data ) {
+	protected function test_compare_to_list( $password, $test_data ) {
 		if (
 			! is_callable( array( $this, $test_data['list_callback'] ) )
 			|| ! is_callable( array( $this, $test_data['compare_callback'] ) )
@@ -315,7 +308,7 @@ class Password_Checker {
 				$this,
 				$test_data['compare_callback'],
 			),
-			$this->password,
+			$password,
 			call_user_func( array( $this, $test_data['list_callback'] ) )
 		);
 	}
@@ -379,7 +372,7 @@ class Password_Checker {
 	/**
 	 * Compare the password for matches with known user data.
 	 *
-	 * @param string $password        the string to be tested.
+	 * @param string $password        the password.
 	 * @param array  $strings_to_test known user data.
 	 *
 	 * @return bool does the test pass?
