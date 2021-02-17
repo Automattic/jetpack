@@ -12,5 +12,6 @@ module.exports = {
 			'@automattic/calypso-build/jest/transform/asset'
 		),
 	},
-	coverageDirectory: "coverage/extensions"
+	coverageDirectory: 'coverage/extensions',
+	setupFiles: [ '<rootDir>/tests/jest-globals.js' ],
 };
