@@ -14,6 +14,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -58,7 +59,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
-					{
+					{ this.props.hasConnectedOwner && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
@@ -70,7 +71,16 @@ export const Monitor = withModuleSettingsFormHelpers(
 						>
 							{ __( 'Configure your notification settings', 'jetpack' ) }
 						</Card>
-					}
+					) }
+
+					{ ! this.props.hasConnectedOwner && (
+						<ConnectUserBar
+							text={ __(
+								'Monitoring provided by the WordPress.com cloud. Sign in to configure personal email alerts.',
+								'jetpack'
+							) }
+						/>
+					) }
 				</SettingsCard>
 			);
 		}

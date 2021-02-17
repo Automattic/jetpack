@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
+import { isOfflineMode, isUnavailableInOfflineMode, hasConnectedOwner } from 'state/connection';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isModuleFound } from 'state/search';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
@@ -68,6 +68,7 @@ export class Security extends Component {
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			rewindStatus: this.props.rewindStatus,
 			siteRawUrl: this.props.siteRawUrl,
+			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
@@ -146,5 +147,6 @@ export default connect( state => {
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( Security );
