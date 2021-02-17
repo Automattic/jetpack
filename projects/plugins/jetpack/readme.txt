@@ -4,7 +4,7 @@ Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
 Stable tag: 9.4.1
 Requires at least: 5.6
 Requires PHP: 5.6
-Tested up to: 5.6
+Tested up to: 5.7
 
 The best WP plugin for backup, anti spam, malware scan, CDN, AMP, social, search, contact form, and integrations with Woo, Facebook, Instagram, Google
 
