@@ -39,9 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attributes, $content ) {
 	$save_in_post_content = get_attribute( $attributes, 'saveInPostContent' );
 
-	if ( Blocks::is_amp_request() ) {
-		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
-	}
+	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 
 	if ( $save_in_post_content || ! class_exists( 'DOMDocument' ) ) {
 		return $content;
