@@ -18,7 +18,7 @@ const callOnEscapeKey = callback => event => {
 };
 
 const Overlay = props => {
-	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible, opacity } = props;
+	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible } = props;
 
 	const closeWithEscape = callOnEscapeKey( closeOverlay );
 	useEffect( () => {
@@ -27,19 +27,19 @@ const Overlay = props => {
 			// Cleanup after event
 			window.removeEventListener( 'keydown', closeWithEscape );
 		};
-	}, [] );
+	}, [ closeWithEscape ] );
 
 	return (
 		<div
 			aria-labelledby="jetpack-instant-search__overlay-title"
 			className={ [
+				'jetpack-instant-search',
 				'jetpack-instant-search__overlay',
 				`jetpack-instant-search__overlay--${ colorTheme }`,
 				hasOverlayWidgets ? '' : 'jetpack-instant-search__overlay--no-sidebar',
 				isVisible ? '' : 'is-hidden',
 			].join( ' ' ) }
 			role="dialog"
-			style={ { opacity: isVisible ? opacity / 100 : 0 } }
 		>
 			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
 				{ __( 'Search results', 'jetpack' ) }

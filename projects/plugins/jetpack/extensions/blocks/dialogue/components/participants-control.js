@@ -21,7 +21,11 @@ import { useMemo, useState, useEffect, Component } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { getParticipantByLabel, getParticipantBySlug, getPlainText } from '../../conversation/utils';
+import {
+	getParticipantByLabel,
+	getParticipantBySlug,
+	getPlainText,
+} from '../../conversation/utils';
 
 const EDIT_MODE_ADDING = 'is-adding';
 const EDIT_MODE_SELECTING = 'is-selecting';
@@ -31,9 +35,7 @@ function ParticipantsMenu( { participants, className, onSelect, slug, onClose } 
 	return (
 		<MenuGroup className={ `${ className }__participants-selector` }>
 			{ participants.map( ( { label, slug: speakerSlug } ) => {
-				const optionLabel = (
-					<span>{ label }</span>
-				);
+				const optionLabel = <span>{ label }</span>;
 
 				return (
 					<MenuItem
@@ -56,16 +58,15 @@ function ParticipantsMenu( { participants, className, onSelect, slug, onClose } 
 export function ParticipantsControl( { participants, slug, onSelect } ) {
 	return (
 		<SelectControl
-			label={ __( 'Participant name', 'jetpack' ) }
+			label={ __( 'Speaker name', 'jetpack' ) }
 			value={ slug }
 			options={ participants.map( ( { slug: value, label } ) => ( {
 				label: getPlainText( label ),
 				value,
 			} ) ) }
-			onChange={ participantSlug => onSelect( getParticipantBySlug(
-				participants,
-				participantSlug
-			) ) }
+			onChange={ participantSlug =>
+				onSelect( getParticipantBySlug( participants, participantSlug ) )
+			}
 		/>
 	);
 }
@@ -90,11 +91,7 @@ const DetectOutside = withFocusOutside(
 		}
 
 		render() {
-			return (
-				<div className={ this.props.className }>
-					{ this.props.children }
-				</div>
-			);
+			return <div className={ this.props.className }>{ this.props.children }</div>;
 		}
 	}
 );
@@ -111,13 +108,11 @@ function refreshAutocompleter( participants ) {
 		triggerPrefix: '',
 		options: participants,
 
-		getOptionLabel: ( { label } ) => (
-			<span>{ getPlainText( label ) }</span>
-		),
+		getOptionLabel: ( { label } ) => <span>{ getPlainText( label ) }</span>,
 
 		getOptionKeywords: ( { label } ) => [ label ],
 
-		getOptionCompletion: ( option ) => ( {
+		getOptionCompletion: option => ( {
 			action: 'replace',
 			value: option,
 		} ),
@@ -156,7 +151,9 @@ export function SpeakerEditControl( {
 	onAdd,
 	onClean,
 } ) {
-	const [ editingMode, setEditingMode ] = useState( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
+	const [ editingMode, setEditingMode ] = useState(
+		participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING
+	);
 
 	function editSpeakerHandler() {
 		if ( ! label ) {
@@ -261,7 +258,7 @@ export function SpeakerEditControl( {
 				placeholder={ __( 'Speaker', 'jetpack' ) }
 				keepPlaceholderOnFocus={ true }
 				onSplit={ () => {} }
-				onReplace={ ( replaceValue ) => {
+				onReplace={ replaceValue => {
 					setTimeout( () => transcriptRef?.current?.focus(), 10 );
 
 					const replacedParticipant = replaceValue?.[ 0 ];
