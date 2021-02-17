@@ -291,3 +291,7 @@ input.components-text-control__input {
 .jetpack-contact-form__crm_toggle p {
 	margin-bottom: 0;
 }
+
+.jetpack-contact-form div[data-type='jetpack/button'] {
+	width: 100%;
+}
