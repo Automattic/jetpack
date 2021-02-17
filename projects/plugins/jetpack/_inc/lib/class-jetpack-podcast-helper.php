@@ -325,6 +325,7 @@ class Jetpack_Podcast_Helper {
 			'title'            => $this->get_plain_text( $episode->get_title() ),
 			'image'            => esc_url( $this->get_episode_image_url( $episode ) ),
 			'guid'             => $this->get_plain_text( $episode->get_id() ),
+			'publish_date'     => $episode->get_gmdate( 'Y-m-d H:i:s' ),
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -456,6 +457,10 @@ class Jetpack_Podcast_Helper {
 					),
 					'title'            => array(
 						'description' => __( 'The episode title.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'publish_date'     => array(
+						'description' => __( 'The publish date of the episode', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),
