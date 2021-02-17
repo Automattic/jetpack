@@ -49,7 +49,6 @@
 	"projects/plugins/jetpack/_inc/client/components/select-dropdown/item.jsx",
 	"projects/plugins/jetpack/_inc/client/components/select-dropdown/label.jsx",
 	"projects/plugins/jetpack/_inc/client/components/select-dropdown/separator.jsx",
-	"projects/plugins/jetpack/_inc/client/components/settings-card/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/spinner/docs/example.jsx",
 	"projects/plugins/jetpack/_inc/client/components/spinner/index.jsx",
 	"projects/plugins/jetpack/_inc/client/config.js",
