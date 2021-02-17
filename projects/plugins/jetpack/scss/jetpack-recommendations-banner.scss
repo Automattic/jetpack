@@ -6,13 +6,9 @@
 	display: grid;
 	grid-template-columns: 55% 45%;
 
-	@media (max-width: 800px) {
+	@media ( max-width: 800px ) {
 		grid-template-columns: 100% 0%;
 	}
-
-	/*@include breakpoint( '<660px' ) {
-		grid-template-columns: 100% 0%;
-	}*/
 
 	max-width: 1600px;
 	min-height: 480px;
