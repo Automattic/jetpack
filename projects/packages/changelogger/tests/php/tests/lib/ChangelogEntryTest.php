@@ -126,9 +126,9 @@ class ChangelogEntryTest extends TestCase {
 				'content'    => '1',
 			)
 		);
-		$this->assertSame( $entry, $entry->insertEntry( $c1 ) );
-		$this->assertSame( $entry, $entry->insertEntry( $c2, array( 'ordering' => array( 'content' ) ) ) );
-		$this->assertSame( $entry, $entry->insertEntry( $c3 ) );
+		$this->assertSame( $entry, $entry->insertChange( $c1 ) );
+		$this->assertSame( $entry, $entry->insertChange( $c2, array( 'ordering' => array( 'content' ) ) ) );
+		$this->assertSame( $entry, $entry->insertChange( $c3 ) );
 		$this->assertSame( array( $c2, $changes[0], $changes[1], $c1, $changes[2], $changes[3], $c3 ), $entry->getChanges() );
 		$this->assertSame(
 			array(
@@ -140,6 +140,10 @@ class ChangelogEntryTest extends TestCase {
 			$entry->getChangesBySubheading()
 		);
 		$this->assertSame( array( $c2, $changes[1], $c1, $changes[2] ), $entry->getChangesBySubheading( 'B' ) );
+
+		$entry = new ChangelogEntry( '1.0' );
+		$this->assertSame( $entry, $entry->appendChange( $c1 )->appendChange( $c2 )->appendChange( $c3 ) );
+		$this->assertSame( array( $c1, $c2, $c3 ), $entry->getChanges() );
 	}
 
 	/**

@@ -9,7 +9,9 @@
 
 namespace Automattic\Jetpack\Changelog\Tests;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelog\Changelog;
+use Automattic\Jetpack\Changelog\ChangelogEntry;
 use Automattic\Jetpack\Changelog\Parser;
 use PHPUnit\Framework\TestCase;
 
@@ -67,6 +69,22 @@ class ParserTest extends TestCase {
 
 		$fp = fopen( 'php://memory', 'r' );
 		$this->assertFalse( $mock->formatToFile( $fp, $changelog ) );
+	}
+
+	/**
+	 * Test newChangelogEntry.
+	 */
+	public function testNewChangelogEntry() {
+		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		$this->assertInstanceOf( ChangelogEntry::class, $mock->newChangelogEntry( '1.0' ) );
+	}
+
+	/**
+	 * Test newChangeEntry.
+	 */
+	public function testNewChangeEntry() {
+		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		$this->assertInstanceOf( ChangeEntry::class, $mock->newChangeEntry() );
 	}
 
 }

@@ -66,7 +66,27 @@ abstract class Parser {
 			}
 			return true;
 		}
+	}
 
+	/**
+	 * Create a new ChangelogEntry.
+	 *
+	 * @param string $version See `ChangelogEntry::__construct()`.
+	 * @param array  $data See `ChangelogEntry::__construct()`.
+	 * @returns ChangelogEntry
+	 */
+	public function newChangelogEntry( $version, $data = array() ) {
+		return new ChangelogEntry( $version, $data );
+	}
+
+	/**
+	 * Create a new ChangeEntry.
+	 *
+	 * @param array $data See `ChangeEntry::__construct()`.
+	 * @returns ChangeEntry
+	 */
+	public function newChangeEntry( $data = array() ) {
+		return new ChangeEntry( $data );
 	}
 
 }

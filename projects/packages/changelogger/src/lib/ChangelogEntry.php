@@ -240,13 +240,24 @@ class ChangelogEntry {
 	 * @param array       $compareconfig Comparison config, see `ChangeEntry::compare()`.
 	 * @return $this
 	 */
-	public function insertEntry( ChangeEntry $change, $compareconfig = array() ) {
+	public function insertChange( ChangeEntry $change, $compareconfig = array() ) {
 		foreach ( $this->changes as $i => $e ) {
 			if ( ChangeEntry::compare( $change, $e, $compareconfig ) < 0 ) {
 				array_splice( $this->changes, $i, 0, array( $change ) );
 				return $this;
 			}
 		}
+		$this->changes[] = $change;
+		return $this;
+	}
+
+	/**
+	 * Append a new change.
+	 *
+	 * @param ChangeEntry $change New change.
+	 * @return $this
+	 */
+	public function appendChange( ChangeEntry $change ) {
 		$this->changes[] = $change;
 		return $this;
 	}
