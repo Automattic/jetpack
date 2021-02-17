@@ -163,7 +163,9 @@ jQuery( document ).ready( function ( $ ) {
 				var parser = document.createElement( 'a' );
 				parser.href = jpConnect.dashboardUrl;
 				var reload =
-					window.location.pathname === parser.pathname && window.location.hash !== parser.hash;
+					window.location.pathname === parser.pathname &&
+					window.location.hash.length &&
+					parser.hash.length;
 
 				window.location.assign( jpConnect.dashboardUrl );
 
