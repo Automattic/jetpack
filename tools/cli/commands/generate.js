@@ -280,10 +280,13 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
 	createComposerJson( composerJson, answers );
 	writeComposerJson( project, composerJson, pluginDir );
 
-	// Create plugin's main php file
-	writePluginFile( pluginDir, answers );
+	// Write header to plugin's main file.
+	const headerContent = createPluginHeader( answers );
+	writeToFile( pluginDir + `/${ answers.name }.php`, headerContent );
 
-	// Create the readme.txt
+	// Fill in the README.md file
+	writeToFile( pluginDir + '/README.md', `# ${ answers.name }` );
+
 	return packageJson;
 }
 
@@ -368,13 +371,13 @@ export function createComposerJson( composerJson, answers ) {
 }
 
 /**
- * Create composer.json for project
+ * Creates header for main plugin file.
  *
- * @param {object} pluginDir - Directory of the project.
  * @param {object} answers - Answers returned for project creation.
  *
+ * @returns {string} content - The content we're writing to the main plugin file.
  */
-function writePluginFile( pluginDir, answers ) {
+function createPluginHeader( answers ) {
 	const content =
 		'<?php\n' +
 		'/**\n' +
@@ -392,13 +395,19 @@ function writePluginFile( pluginDir, answers ) {
 		' */\n' +
 		'\n' +
 		'// Code some good stuff!\n';
+	return content;
+}
 
-	const file = answers.name + '.php';
-
+/** Writes to files.
+ *
+ * @param {string} file - file path we're writing to.
+ * @param {string} content - the content we're writing.
+ *
+ */
+function writeToFile( file, content ) {
 	try {
-		fs.writeFileSync( pluginDir + '/' + file, content );
+		fs.writeFileSync( file, content );
 	} catch ( err ) {
-		console.error( chalk.red( `Could not write the plugin file.` ), err );
+		console.error( chalk.red( `Ah, couldn't write to the file.` ), err );
 	}
-	return;
 }
