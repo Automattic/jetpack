@@ -11,8 +11,9 @@ export default class Sidebar extends Page {
 
 	static async init( page ) {
 		const it = await super.init( page );
+		// trying to mitigate localtunnel errors
 		await it.reload();
-		await this.page.waitForLoadState( 'networkidle' );
+		await page.waitForLoadState( 'networkidle' );
 
 		return it;
 	}
