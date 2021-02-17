@@ -21,41 +21,15 @@ class Tokens {
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
-	 *
-	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function delete_all() {
-		/**
-		 * Fires upon the disconnect attempt.
-		 * Return `false` to prevent the disconnect.
-		 *
-		 * @since 8.7.0
-		 */
-		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true ) ) {
-			return false;
-		}
-
-		\Jetpack_Options::delete_option(
+		Jetpack_Options::delete_option(
 			array(
 				'blog_token',
 				'user_token',
 				'user_tokens',
-				'master_user',
-				'time_diff',
-				'fallback_no_verify_ssl_certs',
 			)
 		);
-
-		\Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
-
-		// Delete cached connected user data.
-		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
-		delete_transient( $transient_key );
-
-		// Delete all XML-RPC errors.
-		Error_Handler::get_instance()->delete_all_errors();
-
-		return true;
 	}
 
 	/**
@@ -101,20 +75,20 @@ class Tokens {
 	 *
 	 * @param array  $data The request data.
 	 * @param string $token_api_url The URL of the Jetpack "token" API.
-	 * @return object|\WP_Error Returns the auth token on success.
-	 *                          Returns a \WP_Error on failure.
+	 * @return object|WP_Error Returns the auth token on success.
+	 *                          Returns a WP_Error on failure.
 	 */
 	public function get( $data, $token_api_url ) {
 		$roles = new Roles();
 		$role  = $roles->translate_current_user_to_role();
 
 		if ( ! $role ) {
-			return new \WP_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
+			return new WP_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
 
 		$client_secret = $this->get_access_token();
 		if ( ! $client_secret ) {
-			return new \WP_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
+			return new WP_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
 
 		/**
@@ -161,7 +135,7 @@ class Tokens {
 		$body = apply_filters(
 			'jetpack_token_request_body',
 			array(
-				'client_id'     => \Jetpack_Options::get_option( 'id' ),
+				'client_id'     => Jetpack_Options::get_option( 'id' ),
 				'client_secret' => $client_secret->secret,
 				'grant_type'    => 'authorization_code',
 				'code'          => $data['code'],
@@ -181,7 +155,7 @@ class Tokens {
 		remove_filter( 'http_request_timeout', array( $this, 'return_30' ), PHP_INT_MAX - 1 );
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'token_http_request_failed', $response->get_error_message() );
+			return new WP_Error( 'token_http_request_failed', $response->get_error_message() );
 		}
 
 		$code   = wp_remote_retrieve_response_code( $response );
@@ -195,45 +169,45 @@ class Tokens {
 
 		if ( 200 !== $code || ! empty( $json->error ) ) {
 			if ( empty( $json->error ) ) {
-				return new \WP_Error( 'unknown', '', $code );
+				return new WP_Error( 'unknown', '', $code );
 			}
 
 			/* translators: Error description string. */
 			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 
-			return new \WP_Error( (string) $json->error, $error_description, $code );
+			return new WP_Error( (string) $json->error, $error_description, $code );
 		}
 
 		if ( empty( $json->access_token ) || ! is_scalar( $json->access_token ) ) {
-			return new \WP_Error( 'access_token', '', $code );
+			return new WP_Error( 'access_token', '', $code );
 		}
 
 		if ( empty( $json->token_type ) || 'X_JETPACK' !== strtoupper( $json->token_type ) ) {
-			return new \WP_Error( 'token_type', '', $code );
+			return new WP_Error( 'token_type', '', $code );
 		}
 
 		if ( empty( $json->scope ) ) {
-			return new \WP_Error( 'scope', 'No Scope', $code );
+			return new WP_Error( 'scope', 'No Scope', $code );
 		}
 
 		// TODO: get rid of the error silencer.
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $role, $hmac ) = explode( ':', $json->scope );
 		if ( empty( $role ) || empty( $hmac ) ) {
-			return new \WP_Error( 'scope', 'Malformed Scope', $code );
+			return new WP_Error( 'scope', 'Malformed Scope', $code );
 		}
 
 		if ( $this->sign_role( $role ) !== $json->scope ) {
-			return new \WP_Error( 'scope', 'Invalid Scope', $code );
+			return new WP_Error( 'scope', 'Invalid Scope', $code );
 		}
 
 		$cap = $roles->translate_role_to_cap( $role );
 		if ( ! $cap ) {
-			return new \WP_Error( 'scope', 'No Cap', $code );
+			return new WP_Error( 'scope', 'No Cap', $code );
 		}
 
 		if ( ! current_user_can( $cap ) ) {
-			return new \WP_Error( 'scope', 'current_user_cannot', $code );
+			return new WP_Error( 'scope', 'current_user_cannot', $code );
 		}
 
 		return (string) $json->access_token;
@@ -249,7 +223,7 @@ class Tokens {
 	 */
 	public function update_user_token( $user_id, $token, $is_master_user ) {
 		// Not designed for concurrent updates.
-		$user_tokens = \Jetpack_Options::get_option( 'user_tokens' );
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! is_array( $user_tokens ) ) {
 			$user_tokens = array();
 		}
@@ -260,7 +234,7 @@ class Tokens {
 		} else {
 			$options = compact( 'user_tokens' );
 		}
-		return \Jetpack_Options::update_options( $options );
+		return Jetpack_Options::update_options( $options );
 	}
 
 	/**
@@ -346,34 +320,34 @@ class Tokens {
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
-		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
+		$user_tokens             = Jetpack_Options::get_option( 'user_tokens' );
 
 		if ( $user_id ) {
 			if ( ! $user_tokens ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
+				return $suppress_errors ? false : new WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
 			}
 			if ( true === $user_id ) { // connection owner.
-				$user_id = \Jetpack_Options::get_option( 'master_user' );
+				$user_id = Jetpack_Options::get_option( 'master_user' );
 				if ( ! $user_id ) {
-					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
+					return $suppress_errors ? false : new WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
 				}
 			}
 			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
 				// translators: %s is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack' ), $user_id ) );
 			}
 			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
 			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
 				// translators: %s is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack' ), $user_id ) );
 			}
 			if ( $user_token_chunks[2] !== (string) $user_id ) {
 				// translators: %1$d is the ID of the requested user. %2$d is the user ID found in the token.
-				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack' ), $user_id, $user_token_chunks[2] ) );
+				return $suppress_errors ? false : new WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack' ), $user_id, $user_token_chunks[2] ) );
 			}
 			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
 		} else {
-			$stored_blog_token = \Jetpack_Options::get_option( 'blog_token' );
+			$stored_blog_token = Jetpack_Options::get_option( 'blog_token' );
 			if ( $stored_blog_token ) {
 				$possible_normal_tokens[] = $stored_blog_token;
 			}
@@ -400,7 +374,7 @@ class Tokens {
 
 		if ( ! $possible_tokens ) {
 			// If no user tokens were found, it would have failed earlier, so this is about blog token.
-			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens', __( 'No blog token found', 'jetpack' ) );
+			return $suppress_errors ? false : new WP_Error( 'no_possible_tokens', __( 'No blog token found', 'jetpack' ) );
 		}
 
 		$valid_token = false;
@@ -427,9 +401,9 @@ class Tokens {
 		if ( ! $valid_token ) {
 			if ( $user_id ) {
 				// translators: %d is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
+				return $suppress_errors ? false : new WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
 			} else {
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack' ) );
+				return $suppress_errors ? false : new WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack' ) );
 			}
 		}
 
@@ -511,7 +485,7 @@ class Tokens {
 	 */
 	public function get_connected_users( $capability = 'any' ) {
 		$connected_users = array();
-		$user_tokens     = \Jetpack_Options::get_option( 'user_tokens' );
+		$user_tokens     = Jetpack_Options::get_option( 'user_tokens' );
 
 		if ( ! is_array( $user_tokens ) || empty( $user_tokens ) ) {
 			return $connected_users;

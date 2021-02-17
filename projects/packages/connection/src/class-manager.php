@@ -1309,7 +1309,35 @@ class Manager {
 			return false;
 		}
 
-		return $this->get_tokens()->delete_all();
+		/**
+		 * Fires upon the disconnect attempt.
+		 * Return `false` to prevent the disconnect.
+		 *
+		 * @since 8.7.0
+		 */
+		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true ) ) {
+			return false;
+		}
+
+		\Jetpack_Options::delete_option(
+			array(
+				'master_user',
+				'time_diff',
+				'fallback_no_verify_ssl_certs',
+			)
+		);
+
+		( new Secrets() )->delete_all();
+		$this->get_tokens()->delete_all();
+
+		// Delete cached connected user data.
+		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
+		delete_transient( $transient_key );
+
+		// Delete all XML-RPC errors.
+		Error_Handler::get_instance()->delete_all_errors();
+
+		return true;
 	}
 
 	/**
@@ -2068,7 +2096,7 @@ class Manager {
 			return new WP_Error( 'jetpack_secret', '', $code );
 		}
 
-		return $this->get_tokens()->update_blog_token( 'blog_token', (string) $json->jetpack_secret );
+		return $this->get_tokens()->update_blog_token( (string) $json->jetpack_secret );
 	}
 
 	/**

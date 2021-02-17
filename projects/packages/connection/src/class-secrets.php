@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * The Jetpack Connection Secrets class that is used to manage secrets.
@@ -17,6 +18,13 @@ class Secrets {
 	const SECRETS_MISSING            = 'secrets_missing';
 	const SECRETS_EXPIRED            = 'secrets_expired';
 	const LEGACY_SECRETS_OPTION_NAME = 'jetpack_secrets';
+
+	/**
+	 * Deletes all connection secrets from the local Jetpack site.
+	 */
+	public function delete_all() {
+		Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
+	}
 
 	/**
 	 * Runs the wp_generate_password function with the required parameters. This is the
@@ -43,7 +51,7 @@ class Secrets {
 
 		$callable = apply_filters( 'jetpack_connection_secret_generator', array( get_called_class(), 'secret_callable_method' ) );
 
-		$secrets = \Jetpack_Options::get_raw_option(
+		$secrets = Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,
 			array()
 		);
@@ -78,7 +86,7 @@ class Secrets {
 	 */
 	public function get( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option(
+		$secrets     = Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,
 			array()
 		);
@@ -103,13 +111,13 @@ class Secrets {
 	 */
 	public function delete( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option(
+		$secrets     = Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,
 			array()
 		);
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			\Jetpack_Options::update_raw_option( self::LEGACY_SECRETS_OPTION_NAME, $secrets );
+			Jetpack_Options::update_raw_option( self::LEGACY_SECRETS_OPTION_NAME, $secrets );
 		}
 	}
 
@@ -119,12 +127,12 @@ class Secrets {
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
 	 * @param int    $user_id  The user ID of the owner of the secret.
-	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
+	 * @return WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
 	public function verify( $action, $secret_1, $user_id ) {
 		$allowed_actions = array( 'register', 'authorize', 'publicize' );
 		if ( ! in_array( $action, $allowed_actions, true ) ) {
-			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
+			return new WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
 		}
 
 		$user = get_user_by( 'id', $user_id );
@@ -139,7 +147,7 @@ class Secrets {
 		 */
 		do_action( 'jetpack_verify_secrets_begin', $action, $user );
 
-		$return_error = function ( \WP_Error $error ) use ( $action, $user ) {
+		$return_error = function ( WP_Error $error ) use ( $action, $user ) {
 			/**
 			 * Verifying of the previously generated secret has failed.
 			 *
@@ -147,7 +155,7 @@ class Secrets {
 			 *
 			 * @param string    $action  The type of secret to verify.
 			 * @param \WP_User  $user The user object.
-			 * @param \WP_Error $error The error object.
+			 * @param WP_Error $error The error object.
 			 */
 			do_action( 'jetpack_verify_secrets_fail', $action, $user, $error );
 
@@ -160,7 +168,7 @@ class Secrets {
 		$error = null;
 		if ( empty( $secret_1 ) ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secret_1_missing',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'secret_1' ),
@@ -169,7 +177,7 @@ class Secrets {
 			);
 		} elseif ( ! is_string( $secret_1 ) ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secret_1_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'secret_1' ),
@@ -179,7 +187,7 @@ class Secrets {
 		} elseif ( empty( $user_id ) ) {
 			// $user_id is passed around during registration as "state".
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'state_missing',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'state' ),
@@ -188,7 +196,7 @@ class Secrets {
 			);
 		} elseif ( ! ctype_digit( (string) $user_id ) ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'state_malformed',
 					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
 					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
@@ -197,7 +205,7 @@ class Secrets {
 			);
 		} elseif ( self::SECRETS_MISSING === $stored_secrets ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secrets_missing',
 					__( 'Verification secrets not found', 'jetpack' ),
 					400
@@ -205,7 +213,7 @@ class Secrets {
 			);
 		} elseif ( self::SECRETS_EXPIRED === $stored_secrets ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secrets_expired',
 					__( 'Verification took too long', 'jetpack' ),
 					400
@@ -213,7 +221,7 @@ class Secrets {
 			);
 		} elseif ( ! $stored_secrets ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secrets_empty',
 					__( 'Verification secrets are empty', 'jetpack' ),
 					400
@@ -224,7 +232,7 @@ class Secrets {
 			$error = $return_error( $stored_secrets );
 		} elseif ( empty( $stored_secrets['secret_1'] ) || empty( $stored_secrets['secret_2'] ) || empty( $stored_secrets['exp'] ) ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secrets_incomplete',
 					__( 'Verification secrets are incomplete', 'jetpack' ),
 					400
@@ -232,7 +240,7 @@ class Secrets {
 			);
 		} elseif ( ! hash_equals( $secret_1, $stored_secrets['secret_1'] ) ) {
 			$error = $return_error(
-				new \WP_Error(
+				new WP_Error(
 					'verify_secrets_mismatch',
 					__( 'Secret mismatch', 'jetpack' ),
 					400
