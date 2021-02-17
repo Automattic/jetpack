@@ -30,7 +30,14 @@ export default class BlockEditorPage extends Page {
 		return it;
 	}
 
+	async setTitle( title ) {
+		const titleSelector = '#post-title-0';
+		await this.page.waitForSelector( titleSelector );
+		await this.page.type( titleSelector, title );
+	}
+
 	async insertBlock( blockName, blockTitle ) {
+		await this.setTitle( `POST: ${ blockTitle }` );
 		await searchForBlock( blockTitle );
 		await this.page.click( `.editor-block-list-item-jetpack-${ blockName }` );
 		return await this.getInsertedBlock( blockName );
@@ -42,7 +49,15 @@ export default class BlockEditorPage extends Page {
 		 ).getAttribute( 'data-block' );
 	}
 
+	async saveDraft() {
+		const saveDraftSelector = '.editor-post-save-draft';
+		await this.page.click( saveDraftSelector );
+		await this.page.waitForTimeout( 500 );
+		await this.page.waitForSelector( saveDraftSelector );
+	}
+
 	async publishPost() {
+		await this.saveDraft();
 		await this.page.click( '.editor-post-publish-panel__toggle' );
 
 		// Disable reason: Wait for the animation to complete, since otherwise the
