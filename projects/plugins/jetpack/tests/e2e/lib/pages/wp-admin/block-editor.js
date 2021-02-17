@@ -57,7 +57,7 @@ export default class BlockEditorPage extends Page {
 	}
 
 	async publishPost() {
-		await this.saveDraft();
+		// await this.saveDraft();
 		await this.page.click( '.editor-post-publish-panel__toggle' );
 
 		// Disable reason: Wait for the animation to complete, since otherwise the
