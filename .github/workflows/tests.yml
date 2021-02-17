@@ -140,6 +140,7 @@ jobs:
       - name: Run project tests
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
+          GITHUB_TOKEN: secrets.API_TOKEN_GITHUB
         run: |
           EXIT=0
           mkdir artifacts
