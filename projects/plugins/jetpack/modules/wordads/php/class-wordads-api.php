@@ -94,7 +94,7 @@ class WordAds_API {
 			self::get_wordads_status();
 		}
 
-		return self::$wordads_status['approved'];
+		return (bool) self::$wordads_status['approved'];
 	}
 
 	/**
@@ -109,7 +109,7 @@ class WordAds_API {
 			self::get_wordads_status();
 		}
 
-		return self::$wordads_status['active'];
+		return (bool) self::$wordads_status['active'];
 	}
 
 	/**
@@ -124,7 +124,7 @@ class WordAds_API {
 			self::get_wordads_status();
 		}
 
-		return self::$wordads_status['house'];
+		return (bool) self::$wordads_status['house'];
 	}
 
 	/**
@@ -139,7 +139,7 @@ class WordAds_API {
 			self::get_wordads_status();
 		}
 
-		return self::$wordads_status['unsafe'];
+		return (bool) self::$wordads_status['unsafe'];
 	}
 
 	/**
