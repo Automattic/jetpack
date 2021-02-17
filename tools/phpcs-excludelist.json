@@ -271,7 +271,6 @@
 	"projects/plugins/jetpack/modules/related-posts/jetpack-related-posts.php",
 	"projects/plugins/jetpack/modules/search/class.jetpack-search-helpers.php",
 	"projects/plugins/jetpack/modules/search/class.jetpack-search-template-tags.php",
-	"projects/plugins/jetpack/modules/seo-tools.php",
 	"projects/plugins/jetpack/modules/seo-tools/jetpack-seo-posts.php",
 	"projects/plugins/jetpack/modules/seo-tools/jetpack-seo-titles.php",
 	"projects/plugins/jetpack/modules/seo-tools/jetpack-seo-utils.php",

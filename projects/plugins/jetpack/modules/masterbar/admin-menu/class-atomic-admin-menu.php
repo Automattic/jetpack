@@ -38,6 +38,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$wp_admin = $this->should_link_to_wp_admin();
 
 		$this->add_my_home_menu( $wp_admin );
+		$this->add_theme_install_menu( $wp_admin );
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -202,5 +203,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		parent::add_options_menu( $wp_admin );
+	}
+
+	/**
+	 * Adds a WordPress.org theme install menu item.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_theme_install_menu( $wp_admin = false ) {
+		$parent_menu_slug = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+
+		add_submenu_page( $parent_menu_slug, esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
 }

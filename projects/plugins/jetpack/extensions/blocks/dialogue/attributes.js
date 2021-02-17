@@ -1,6 +1,8 @@
 export default {
 	label: {
 		type: 'string',
+		source: 'html',
+		selector: '.wp-block-jetpack-dialogue__participant',
 	},
 	slug: {
 		type: 'string',

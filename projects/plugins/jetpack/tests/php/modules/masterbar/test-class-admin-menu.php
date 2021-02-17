@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
 require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
@@ -823,6 +824,13 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'stats',
 		);
 		$this->assertNotContains( $stats_submenu_item, $submenu[ $slug ] );
+
+		$backups_submenu_item = array(
+			'Backup &amp; Scan',
+			'manage_options',
+			esc_url( Redirect::get_url( 'calypso-backups' ) ),
+		);
+		$this->assertNotContains( $backups_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**

@@ -31,7 +31,18 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
 
-		add_submenu_page( 'https://wordpress.com/activity-log/' . $this->domain, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, 2 );
+		$parent_slug = 'https://wordpress.com/activity-log/' . $this->domain;
+
+		// Place "Scan" submenu after Backup.
+		$position = 0;
+		global $submenu;
+		foreach ( $submenu[ $parent_slug ] as $submenu_item ) {
+			$position++;
+			if ( __( 'Backup', 'jetpack' ) === $submenu_item[3] ) {
+				break;
+			}
+		}
+		add_submenu_page( $parent_slug, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
 	}
 
 	/**

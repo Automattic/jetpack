@@ -1,7 +1,6 @@
 /**
  * Internal dependencies
  */
-import { waitForSelector } from '../page-helper';
 import logger from '../logger';
 
 export default class Page {
@@ -17,7 +16,7 @@ export default class Page {
 	/**
 	 * Static method which initialize a page object. Also waits for `this.expectedSelector` to become visible, which kinda simulates page loads
 	 *
-	 * @param {page} page Puppeteer representation of the page.
+	 * @param {page} page Playwright representation of the page.
 	 *
 	 * @return {Page} Instance of the Page Object class
 	 */
@@ -29,7 +28,7 @@ export default class Page {
 
 	/**
 	 *
-	 * @param {page} page Puppeteer representation of the page
+	 * @param {page} page Playwright representation of the page
 	 * @param {string} pageURL Page URL
 	 */
 	static async visit( page, pageURL = null ) {
@@ -49,8 +48,8 @@ export default class Page {
 	 * Waits for `this.expectedSelector` to become visible on the page. In debug session logs page HTML if element not found.
 	 */
 	async waitForPage() {
-		await waitForSelector( this.page, this.expectedSelector, {
-			visible: true,
+		await this.page.waitForSelector( this.expectedSelector, {
+			state: 'visible',
 			timeout: this.explicitWaitMS,
 		} );
 	}
@@ -64,11 +63,13 @@ export default class Page {
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
 		logger.info( `Setting up the cookie for ${ this.name } page on ${ this.page.url() }` );
 
-		await this.page.setCookie( {
-			name: 'store_sandbox',
-			value: sandboxCookieValue,
-			domain,
-		} );
+		await this.page.browserContext().addCookies( [
+			{
+				name: 'store_sandbox',
+				value: sandboxCookieValue,
+				domain,
+			},
+		] );
 
 		return await this.reload();
 	}

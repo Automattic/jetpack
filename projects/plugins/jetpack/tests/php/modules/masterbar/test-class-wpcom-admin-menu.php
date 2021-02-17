@@ -68,7 +68,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain       = ( new Status() )->get_site_suffix();
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$menu_data    = get_menu_fixture();
+		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
 
@@ -409,5 +409,34 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'Customize',
 		);
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_gutenberg_menus
+	 *
+	 * @covers ::add_gutenberg_menus
+	 */
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
+
+		// Gutenberg plugin menu should not be visible.
+		$this->assertArrayNotHasKey( 101, $menu );
+
+		// FSE is no longer where it was put by default.
+		$this->assertArrayNotHasKey( 100, $menu );
+		$this->assertArrayHasKey( 61, $menu );
+
+		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
+		$fse_menu = array(
+			'Site Editor',
+			'edit_theme_options',
+			$fse_link,
+			'Site Editor',
+			'menu-top toplevel_page_' . $fse_link,
+			'toplevel_page_' . $fse_link,
+			'dashicons-layout',
+		);
+		$this->assertSame( $menu[61], $fse_menu );
 	}
 }

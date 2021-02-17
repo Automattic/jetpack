@@ -1,14 +1,8 @@
-/**
- * Internal dependencies
- */
-import { waitForSelector, waitAndClick, waitAndType } from '../page-helper';
-
 export default class PinterestBlock {
-	constructor( block, page, pinId ) {
+	constructor( blockId, page, pinId ) {
 		this.blockTitle = PinterestBlock.title();
-		this.block = block;
 		this.page = page;
-		this.blockSelector = '#block-' + block.clientId;
+		this.blockSelector = '#block-' + blockId;
 		this.pinId = pinId;
 	}
 
@@ -28,10 +22,9 @@ export default class PinterestBlock {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await waitAndClick( this.page, inputSelector );
-		await waitAndType( this.page, inputSelector, this.embedUrl() );
-		await waitAndClick( this.page, descriptionSelector );
-		await waitForSelector( this.page, '.wp-block-jetpack-pinterest .components-sandbox' );
+		await this.page.type( inputSelector, this.embedUrl() );
+		await this.page.click( descriptionSelector );
+		await this.page.waitForSelector( '.wp-block-jetpack-pinterest .components-sandbox' );
 	}
 
 	getSelector( selector ) {
@@ -41,12 +34,12 @@ export default class PinterestBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Puppeteer page instance
+	 * @param {page} page Playwright page instance
 	 * @param {Object} args An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content span[data-pin-id='${ args.pinId }']`;
 
-		await waitForSelector( page, containerSelector );
+		await page.waitForSelector( containerSelector );
 	}
 }

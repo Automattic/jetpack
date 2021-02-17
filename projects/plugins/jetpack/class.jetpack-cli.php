@@ -897,13 +897,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'start':
 				if ( ! Actions::sync_allowed() ) {
-					if ( ! Settings::get_setting( 'disable' ) ) {
+					if ( Settings::get_setting( 'disable' ) ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. It is currently disabled. Run `wp jetpack sync enable` to enable it.', 'jetpack' ) );
 						return;
 					}
-					if ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
-						return;
+					$connection = new Connection_Manager();
+					if ( ! $connection->is_connected() ) {
+						if ( ! doing_action( 'jetpack_site_registered' ) ) {
+							WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
+							return;
+						}
 					}
 
 					$status = new Status();
