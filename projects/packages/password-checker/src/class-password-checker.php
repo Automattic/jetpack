@@ -11,14 +11,13 @@ namespace Automattic\Jetpack;
  * Checks passwords strength.
  */
 class Password_Checker {
-
 	/**
 	 * Minimum entropy bits a password should contain. 36 bits of entropy is considered
 	 * to be a reasonable password, 28 stands for a weak one.
 	 *
-	 * @const Integer
+	 * @var Integer
 	 */
-	const MINIMUM_BITS = 28;
+	public $minimum_entropy_bits = 28;
 
 	/**
 	 * Currently tested password.
@@ -119,7 +118,23 @@ class Password_Checker {
 		} else {
 			$this->user_id = $user;
 		}
+
+		/**
+		 * Filter for the minimum password length.
+		 *
+		 * @param int $min_password_length minimum password length.
+		 */
 		$this->min_password_length = apply_filters( 'better_password_min_length', $this->min_password_length );
+
+		/**
+		 * Filters Jetpack's password strength enforcement settings. You can modify the minimum
+		 * entropy bits requirement using this filter.
+		 *
+		 * @since 7.2.0
+		 *
+		 * @param int $minimum_entropy_bits minimum entropy bits requirement.
+		 */
+		$this->minimum_entropy_bits = apply_filters( 'jetpack_password_checker_minimum_entropy_bits', $this->minimum_entropy_bits );
 	}
 
 	/**
@@ -142,19 +157,10 @@ class Password_Checker {
 			);
 		}
 
-		/**
-		 * Filters Jetpack's password strength enforcement settings. You can modify the minimum
-		 * entropy bits requirement using this filter.
-		 *
-		 * @since 7.2.0
-		 *
-		 * @param array $minimum_entropy_bits minimum entropy bits requirement.
-		 */
-		$bits         = apply_filters( 'jetpack_password_checker_minimum_entropy_bits', self::MINIMUM_BITS );
 		$entropy_bits = $this->calculate_entropy_bits( $this->password );
 
 		// If we have failed the entropy bits test, run the regex tests so we can suggest improvements.
-		if ( $entropy_bits < $bits ) {
+		if ( $entropy_bits < $this->minimum_entropy_bits ) {
 			$results['failed']['entropy_bits'] = $entropy_bits;
 			$results                           = array_merge(
 				$results,
