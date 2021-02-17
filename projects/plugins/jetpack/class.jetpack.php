@@ -699,7 +699,6 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
 		add_action( 'wp_ajax_jetpack_recommendations_banner', array( 'Jetpack_Recommendations_Banner', 'ajax_callback' ) );
-		add_action( 'wp_ajax_jetpack_wizard_banner', array( 'Jetpack_Wizard_Banner', 'ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
@@ -3611,7 +3610,6 @@ p {
 		}
 
 		Jetpack_Recommendations_Banner::init();
-		Jetpack_Wizard_Banner::init();
 
 		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );

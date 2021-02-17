@@ -14,9 +14,9 @@ use Automattic\Jetpack\Tracking;
  **/
 class Jetpack_Recommendations_Banner {
 	/**
-	 * Jetpack_Wizard_Banner
+	 * Jetpack_Recommendations_Banner
 	 *
-	 * @var Jetpack_Wizard_Banner
+	 * @var Jetpack_Recommendations_Banner
 	 **/
 	private static $instance = null;
 
