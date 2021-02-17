@@ -314,6 +314,7 @@ class Jetpack_Podcast_Helper {
 			return array();
 		}
 
+		$publish_date = $episode->get_gmdate( 'Y-m-d H:i:s' );
 		// Build track data.
 		$track = array(
 			'id'               => wp_unique_id( 'podcast-track-' ),
@@ -325,7 +326,7 @@ class Jetpack_Podcast_Helper {
 			'title'            => $this->get_plain_text( $episode->get_title() ),
 			'image'            => esc_url( $this->get_episode_image_url( $episode ) ),
 			'guid'             => $this->get_plain_text( $episode->get_id() ),
-			'publish_date'     => $episode->get_gmdate( 'Y-m-d H:i:s' ),
+			'publish_date'     => $publish_date ? $publish_date : null,
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -460,7 +461,7 @@ class Jetpack_Podcast_Helper {
 						'type'        => 'string',
 					),
 					'publish_date'     => array(
-						'description' => __( 'The publish date of the episode', 'jetpack' ),
+						'description' => __( 'The UTC publish date of the episode', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),
