@@ -18,7 +18,7 @@
 
 	margin: 3rem 1.25rem 1.25rem 0;
 
-	@include breakpoint( '<960px' ) {
+	@media (min-width: 1152px) {
 		margin: 4rem 1.25rem 1.25rem 0;
 		grid-template-columns: 100% 0%;
 	}
@@ -74,6 +74,10 @@
 .jp-recommendations-banner__description {
 	font-size: 16px;
 	margin: 32px 0 24px 32px;
+
+	@media (min-width: 1152px) {
+		max-width: 600px;
+	}
 
 	@include breakpoint( '<660px' ) {
 		margin: 32px 32px 24px 32px;
