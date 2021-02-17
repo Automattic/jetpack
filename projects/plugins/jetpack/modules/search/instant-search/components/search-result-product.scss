@@ -63,6 +63,7 @@ $grid-size-large: 16px;
 
 .jetpack-instant-search__search-result-product-img--placeholder {
 	// TODO: Add dark mode support in search-app.scss.
+	display: block;
 	color: $studio-gray-10;
 	height: auto;
 	max-width: 100%;
