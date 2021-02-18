@@ -18,7 +18,10 @@ export function searchQuery( state = null, action ) {
 			return action.query;
 		case 'SET_FILTER':
 		case 'SET_SORT':
-			return action.propagateToWindow ? '' : state;
+			if ( state === null && action.propagateToWindow ) {
+				return '';
+			}
+			return state;
 		case 'CLEAR_QUERY_VALUES':
 			return null;
 	}

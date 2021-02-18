@@ -114,9 +114,11 @@ describe( 'searchQuery Reducer', () => {
 		const state = searchQuery( undefined, setSearchQuery( 'Some new query' ) );
 		expect( state ).toBe( 'Some new query' );
 	} );
-	test( 'is set to an empty string by a set filter query action propagating to the window', () => {
-		const state = searchQuery( undefined, setFilter( 'post_types', [ 'post', 'page' ] ) );
-		expect( state ).toBe( '' );
+	test( 'is set to an empty string by a set filter query action propagating to the window only if the search query is currently null', () => {
+		expect( searchQuery( undefined, setFilter( 'post_types', [ 'post', 'page' ] ) ) ).toBe( '' );
+		expect(
+			searchQuery( 'this does not get overwritten', setFilter( 'post_types', [ 'post', 'page' ] ) )
+		).toBe( 'this does not get overwritten' );
 	} );
 	test( 'is set to an empty string by a set sort query action propagating to the window', () => {
 		const state = searchQuery( undefined, setSort( 'newest' ) );
