@@ -2797,7 +2797,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			// Todo: Add `advanced_seo_front_page_description` & `advanced_seo_title_formats` values.
+			// SEO Tools.
+			'advanced_seo_front_page_description' => array(
+				'description'       => esc_html__( 'Front page meta description.', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'jp_group'          => 'seo-tools',
+			),
+
+			'advanced_seo_title_formats' => array(
+				'description' => esc_html__( 'SEO page title structures.', 'jetpack' ),
+				'type'        => 'object',
+				'default'     => array(
+					'archives'   => array(),
+					'front_page' => array(),
+					'groups'     => array(),
+					'pages'      => array(),
+					'posts'      => array(),
+				),
+				'jp_group'   => 'seo-tools',
+			),
+
 		);
 
 		// Add modules to list so they can be toggled
