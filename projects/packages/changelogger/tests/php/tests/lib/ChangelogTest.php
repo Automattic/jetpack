@@ -63,24 +63,6 @@ class ChangelogTest extends TestCase {
 			)
 		);
 
-		$e = $changelog->addEntry();
-		$this->assertInstanceOf( ChangelogEntry::class, $e );
-		$this->assertSame( '0.0.1-dev', $e->getVersion() );
-
-		$this->assertSame( array( $e ), $changelog->getEntries() );
-		$this->assertSame( $e, $changelog->getLatestEntry() );
-		$this->assertSame( array( '0.0.1-dev' ), $changelog->getVersions() );
-		$this->assertSame( null, $changelog->findEntryByVersion( '2.0' ) );
-		$this->assertSame(
-			array(),
-			$changelog->findEntriesByVersions(
-				array(
-					'>=' => '2.0',
-					'<'  => '4.0',
-				)
-			)
-		);
-
 		$this->assertSame( $changelog, $changelog->setEntries( $entries ) );
 		$this->assertSame( array_values( $entries ), $changelog->getEntries() );
 		$this->assertSame( $entries[4], $changelog->getLatestEntry() );
@@ -96,29 +78,11 @@ class ChangelogTest extends TestCase {
 			)
 		);
 
-		$e1 = $changelog->addEntry();
-		$this->assertInstanceOf( ChangelogEntry::class, $e1 );
-		$this->assertSame( '4.0-p1', $e1->getVersion() );
-		$e2 = $changelog->addEntry();
-		$this->assertInstanceOf( ChangelogEntry::class, $e2 );
-		$this->assertSame( '4.0-p2', $e2->getVersion() );
-		$e2->setVersion( '4.0-dev+pl_123' );
-		$e3 = $changelog->addEntry();
-		$this->assertInstanceOf( ChangelogEntry::class, $e3 );
-		$this->assertSame( '4.0-dev+pl_124', $e3->getVersion() );
-		$this->assertSame( array_merge( array( $e3, $e2, $e1 ), array_values( $entries ) ), $changelog->getEntries() );
-		$this->assertSame( $e3, $changelog->getLatestEntry() );
-		$this->assertSame( array( '4.0-dev+pl_124', '4.0-dev+pl_123', '4.0-p1', '4.0', '3.0', '2.0', '1.0' ), $changelog->getVersions() );
-		$this->assertSame( $entries[2], $changelog->findEntryByVersion( '2.0' ) );
-		$this->assertSame(
-			array( $e3, $e2, $entries[3], $entries[2] ),
-			$changelog->findEntriesByVersions(
-				array(
-					'>=' => '2.0',
-					'<'  => '4.0',
-				)
-			)
-		);
+		$e = new ChangelogEntry( '5.0' );
+		$this->assertSame( $changelog, $changelog->addEntry( $e ) );
+		$this->assertSame( array( $e, $entries[4], $entries[3], $entries[2], $entries[1] ), $changelog->getEntries() );
+		$this->assertSame( $e, $changelog->getLatestEntry() );
+		$this->assertSame( array( '5.0', '4.0', '3.0', '2.0', '1.0' ), $changelog->getVersions() );
 	}
 
 	/**

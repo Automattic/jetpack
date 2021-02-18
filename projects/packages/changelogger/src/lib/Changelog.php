@@ -118,37 +118,12 @@ class Changelog {
 	/**
 	 * Add a new entry as the latest.
 	 *
-	 * If no new entry object is provided, one will be created. The version
-	 * number on the new entry is selected as follows.
-	 *
-	 * - If there are no existing entries, the new entry is version "0.0.1-dev".
-	 * - If the latest existing entry has a version number ending in something
-	 *   like "-p1" (see `version_compare()`), the patch number is incremented.
-	 * - Otherwise, "-p1" is appended.
-	 *
-	 * You'll probably want to chain to `ChangelogEntry::setVersion()` to
-	 * replace that with something else.
-	 *
-	 * @param ChangelogEntry|null $entry New entry, or null to create an empty entry.
-	 * @return ChangelogEntry The added entry. Always `$entry` if an entry was passed.
+	 * @param ChangelogEntry $entry New entry.
+	 * @return $this
 	 */
 	public function addEntry( ChangelogEntry $entry = null ) {
-		if ( null === $entry ) {
-			$latest = $this->getLatestEntry();
-			if ( $latest ) {
-				$version = $latest->getVersion();
-				if ( preg_match( '/[._+-]pl?[._+-]?(\d+)$/', $version, $m ) ) {
-					$version = substr( $version, 0, -strlen( $m[1] ) ) . ( $m[1] + 1 );
-				} else {
-					$version .= '-p1';
-				}
-			} else {
-				$version = '0.0.1-dev';
-			}
-			$entry = new ChangelogEntry( $version );
-		}
 		array_unshift( $this->entries, $entry );
-		return $entry;
+		return $this;
 	}
 
 	/**
