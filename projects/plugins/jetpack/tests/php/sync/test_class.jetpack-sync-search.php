@@ -4,8 +4,6 @@
 
 use Automattic\Jetpack\Sync\Modules;
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
-
 /**
  * Testing Jetpack Search Sync
  */
