@@ -13,6 +13,7 @@ import {
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -26,6 +27,16 @@ import { IS_GRADIENT_AVAILABLE } from './constants';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
+const usePrevious = value => {
+	const ref = useRef();
+
+	useEffect( () => {
+		ref.current = value;
+	}, [ value ] );
+
+	return ref.current;
+};
+
 function ButtonEdit( {
 	attributes,
 	backgroundColor,
@@ -38,7 +49,8 @@ function ButtonEdit( {
 	setTextColor,
 	textColor,
 } ) {
-	const { borderRadius, element, placeholder, text, width } = attributes;
+	const { align, borderRadius, element, placeholder, text, width } = attributes;
+	const previousAlign = usePrevious( align );
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
 
@@ -47,6 +59,16 @@ function ButtonEdit( {
 		const newValue = 'input' === element ? value.replace( /<br>/gim, ' ' ) : value;
 		setAttributes( { text: newValue } );
 	};
+
+	useEffect( () => {
+		// Reset button width if switching to left or right alignment for first time.
+		const alignmentChanged = previousAlign !== align;
+		const isAlignedLeftRight = align === 'left' || align === 'right';
+
+		if ( alignmentChanged && isAlignedLeftRight && width?.includes( '%' ) ) {
+			setAttributes( { width: undefined } );
+		}
+	}, [ align, previousAlign, setAttributes, width ] );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -70,7 +92,7 @@ function ButtonEdit( {
 		[ textColor.class ]: textColor.class,
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
-		[ `has-custom-width wp-block-button__width-${ width }` ]: width,
+		'has-custom-width': !! width,
 	} );
 
 	const buttonStyles = {
@@ -79,6 +101,7 @@ function ButtonEdit( {
 			: { backgroundColor: backgroundColor.color } ),
 		color: textColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
+		width,
 	};
 
 	return (
@@ -107,7 +130,7 @@ function ButtonEdit( {
 					} }
 				/>
 				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-				<ButtonWidthPanel selectedWidth={ width } setAttributes={ setAttributes } />
+				<ButtonWidthPanel align={ align } width={ width } setAttributes={ setAttributes } />
 			</InspectorControls>
 		</div>
 	);

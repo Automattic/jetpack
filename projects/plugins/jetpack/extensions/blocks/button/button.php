@@ -39,7 +39,9 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attributes, $content ) {
 	$save_in_post_content = get_attribute( $attributes, 'saveInPostContent' );
 
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	if ( Blocks::is_amp_request() ) {
+		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	}
 
 	if ( $save_in_post_content || ! class_exists( 'DOMDocument' ) ) {
 		return $content;
@@ -171,7 +173,7 @@ function get_button_styles( $attributes ) {
 	}
 
 	if ( $has_width ) {
-		$styles[] = sprintf( 'width: %s%%', $attributes['width'] );
+		$styles[] = sprintf( 'width: %s', $attributes['width'] );
 	}
 
 	return implode( ' ', $styles );
