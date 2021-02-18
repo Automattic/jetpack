@@ -77,6 +77,7 @@
 		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
+			<directory prefix="class-test-" suffix=".php">tests/php/sync</directory>
 			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
 		<testsuite name="legacy-full-sync">
