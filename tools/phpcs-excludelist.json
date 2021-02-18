@@ -535,6 +535,7 @@
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-posts.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-queue.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-sender.php",
+	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-search.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-settings.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-sso.php",
 	"projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-term-relationships.php",
