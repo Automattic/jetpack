@@ -287,6 +287,12 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
 	// Fill in the README.md file
 	writeToFile( pluginDir + '/README.md', `# ${ answers.name }` );
 
+	// Fill in the README.txt file
+	const readmeTxtContent = createReadMeTxt( answers );
+	const readmeTxtPath = path.join( __dirname, '../', 'skeletons/plugins/readme.txt' );
+	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
+	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
+
 	return packageJson;
 }
 
@@ -395,6 +401,30 @@ function createPluginHeader( answers ) {
 		' */\n' +
 		'\n' +
 		'// Code some good stuff!\n';
+	return content;
+}
+
+/**
+ * Creates custom readme.txt content
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the readme.txt file.
+ */
+function createReadMeTxt( answers ) {
+	const content =
+		`=== ${ answers.name } ===\n` +
+		'Contributors: automattic,\n' +
+		'Tags: jetpack, stuff\n' +
+		'Requires at least: 5.5\n' +
+		'Requires PHP: 5.6\n' +
+		'Tested up to: 5.6\n' +
+		'Stable tag: 1.0\n' +
+		'License: GPLv2 or later\n' +
+		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
+		'\n' +
+		`${ answers.description }\n` +
+		'\n';
 	return content;
 }
 
