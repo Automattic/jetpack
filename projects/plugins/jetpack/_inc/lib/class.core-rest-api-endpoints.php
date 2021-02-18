@@ -2797,6 +2797,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
+			// Todo: Add `advanced_seo_front_page_description` & `advanced_seo_title_formats` values.
 		);
 
 		// Add modules to list so they can be toggled
