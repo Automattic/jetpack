@@ -57,7 +57,7 @@ function jetpack_instagram_enable_embeds() {
 	/**
 	 * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
 	 */
-	add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 2 );
+	add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 3 );
 
 	/**
 	 * Add JP auth headers if we're proxying through WP.com.
@@ -214,16 +214,17 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
  *
  * @param string $provider URL of the oEmbed provider.
  * @param string $url      URL of the content to be embedded.
+ * @param array  $args      Additional arguments for retrieving embed HTML.
  *
  * @return string
  */
-function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
+function jetpack_instagram_oembed_fetch_url( $provider, $url, $args ) {
 	if ( ! wp_startswith( $provider, 'https://graph.facebook.com/v5.0/instagram_oembed/' ) ) {
 		return $provider;
 	}
 
 	// Get a set of URL and parameters supported by Facebook.
-	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url );
+	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url, $args );
 
 	// Replace existing URL by our clean version.
 	if ( ! empty( $clean_parameters['url'] ) ) {
