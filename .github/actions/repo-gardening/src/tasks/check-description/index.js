@@ -204,7 +204,9 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	// Check all commits in PR.
 	const isDirty = await hasUnverifiedCommit( octokit, owner, repo, number );
 	comment += `
-- ${ isDirty ? `:red_circle:` : `:white_check_mark:` } All commits were linted before commit.<br>`;
+- ${
+		isDirty ? `:heavy_multiplication_sign:` : `:white_check_mark:`
+	} All commits were linted before commit.<br>`;
 
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.
