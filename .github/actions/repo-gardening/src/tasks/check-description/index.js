@@ -202,6 +202,7 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	} Include a description of your PR changes.<br>`;
 
 	// Check all commits in PR.
+	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
 	const isDirty = await hasUnverifiedCommit( octokit, owner, repo, number );
 	comment += `
 - ${
