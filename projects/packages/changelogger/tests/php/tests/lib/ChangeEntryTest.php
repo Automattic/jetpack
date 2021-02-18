@@ -5,6 +5,8 @@
  * @package automattic/jetpack-changelogger
  */
 
+// phpcs:disable WordPress.WP.AlternativeFunctions
+
 namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
@@ -390,6 +392,48 @@ class ChangeEntryTest extends TestCase {
 			array(
 				'ordering' => array( 'subheading', 'bogus', 'content' ),
 			)
+		);
+	}
+
+	/**
+	 * Test JSON serialization.
+	 *
+	 * @dataProvider provideJson
+	 * @param string             $json JSON data.
+	 * @param ChangeEntry|string $change Change entry, or error message if decoding should fail.
+	 */
+	public function testJson( $json, $change ) {
+		if ( is_string( $change ) ) {
+			$this->expectException( InvalidArgumentException::class );
+			$this->expectExceptionMessage( $change );
+			ChangeEntry::jsonUnserialize( json_decode( $json ) );
+		} else {
+			$this->assertSame( $json, json_encode( $change ) );
+			$this->assertEquals( $change, ChangeEntry::jsonUnserialize( json_decode( $json ) ) );
+		}
+	}
+
+	/**
+	 * Data provider for testJson.
+	 */
+	public function provideJson() {
+		return array(
+			'Basic serialization'              => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+00:00","subheading":"","author":"","content":""}',
+				( new ChangeEntry() )->setTimestamp( '2021-02-18' ),
+			),
+			'Serialization with data'          => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-18T12:07:16-05:00","subheading":"Heading","author":"Me!","content":"A change."}',
+				( new ChangeEntry() )->setTimestamp( '2021-02-18T12:07:16-05:00' )->setSignificance( 'minor' )->setSubheading( 'Heading' )->setAuthor( 'Me!' )->setContent( 'A change.' ),
+			),
+			'Bad unserialization, no class'    => array(
+				'{"significance":"minor","timestamp":"2021-02-18T12:07:16-05:00","subheading":"Heading","author":"Me!","content":"A change."}',
+				'Invalid data',
+			),
+			'Bad unserialization, wrong class' => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","prologue":"","epilogue":"","entries":[]}',
+				'Cannot instantiate Automattic\\Jetpack\\Changelog\\Changelog via Automattic\\Jetpack\\Changelog\\ChangeEntry::jsonUnserialize',
+			),
 		);
 	}
 

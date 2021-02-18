@@ -10,11 +10,12 @@
 namespace Automattic\Jetpack\Changelog;
 
 use InvalidArgumentException;
+use JsonSerializable;
 
 /**
  * Class representing a changelog.
  */
-class Changelog {
+class Changelog implements JsonSerializable {
 
 	/**
 	 * Content before the changelog itself.
@@ -174,6 +175,50 @@ class Changelog {
 				}
 			}
 			$ret[] = $entry;
+		}
+		return $ret;
+	}
+
+	/**
+	 * Return data for serializing to JSON.
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return array(
+			'__class__' => static::class,
+			'prologue'  => $this->prologue,
+			'epilogue'  => $this->epilogue,
+			'entries'   => $this->entries,
+		);
+	}
+
+	/**
+	 * Unserialize from JSON.
+	 *
+	 * @param array $data JSON data as returned by self::jsonSerialize().
+	 * @return static
+	 * @throws InvalidArgumentException If the data is invalid.
+	 */
+	public static function jsonUnserialize( $data ) {
+		$data = (array) $data;
+		if ( ! isset( $data['__class__'] ) ) {
+			throw new InvalidArgumentException( 'Invalid data' );
+		}
+		$class = $data['__class__'];
+		unset( $data['__class__'] );
+		if ( ! class_exists( $class ) || ! is_a( $class, static::class, true ) ) {
+			throw new InvalidArgumentException( "Cannot instantiate $class via " . static::class . '::' . __FUNCTION__ );
+		}
+		$ret = new $class();
+		if ( isset( $data['prologue'] ) ) {
+			$ret->setPrologue( $data['prologue'] );
+		}
+		if ( isset( $data['epilogue'] ) ) {
+			$ret->setEpilogue( $data['epilogue'] );
+		}
+		if ( isset( $data['entries'] ) ) {
+			$ret->setEntries( array_map( array( ChangelogEntry::class, 'jsonUnserialize' ), $data['entries'] ) );
 		}
 		return $ret;
 	}

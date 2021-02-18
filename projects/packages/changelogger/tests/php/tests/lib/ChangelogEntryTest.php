@@ -5,6 +5,8 @@
  * @package automattic/jetpack-changelogger
  */
 
+// phpcs:disable WordPress.WP.AlternativeFunctions
+
 namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
@@ -203,6 +205,57 @@ class ChangelogEntryTest extends TestCase {
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\ChangelogEntry::setChanges: Expected a ChangeEntry, got Automattic\\Jetpack\\Changelog\\ChangelogEntry at index 0' );
 		$entry->setChanges( array( $entry ) );
+	}
+
+	/**
+	 * Test JSON serialization.
+	 *
+	 * @dataProvider provideJson
+	 * @param string                $json JSON data.
+	 * @param ChangelogEntry|string $entry Changelog entry, or error message if decoding should fail.
+	 */
+	public function testJson( $json, $entry ) {
+		if ( is_string( $entry ) ) {
+			$this->expectException( InvalidArgumentException::class );
+			$this->expectExceptionMessage( $entry );
+			ChangelogEntry::jsonUnserialize( json_decode( $json ) );
+		} else {
+			$this->assertSame( $json, json_encode( $entry ) );
+			$this->assertEquals( $entry, ChangelogEntry::jsonUnserialize( json_decode( $json ) ) );
+		}
+	}
+
+	/**
+	 * Data provider for testJson.
+	 */
+	public function provideJson() {
+		return array(
+			'Basic serialization'              => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18' ),
+			),
+			'Serialization with data'          => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":"https:\\/\\/example.org","timestamp":"2021-02-18T12:07:16-05:00","prologue":"Foo","epilogue":"Bar","changes":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-17T00:00:00+00:00","subheading":"","author":"","content":""},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+00:00","subheading":"","author":"","content":""}]}',
+				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18T12:07:16-05:00' )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' )->setChanges(
+					array(
+						new ChangeEntry( array( 'timestamp' => '2021-02-17' ) ),
+						new ChangeEntry( array( 'timestamp' => '2021-02-18' ) ),
+					)
+				),
+			),
+			'Bad unserialization, no class'    => array(
+				'{"version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'Invalid data',
+			),
+			'Bad unserialization, no version'  => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'Invalid data',
+			),
+			'Bad unserialization, wrong class' => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","version":"1.0","prologue":"","epilogue":"","entries":[]}',
+				'Cannot instantiate Automattic\\Jetpack\\Changelog\\Changelog via Automattic\\Jetpack\\Changelog\\ChangelogEntry::jsonUnserialize',
+			),
+		);
 	}
 
 }

@@ -5,6 +5,8 @@
  * @package automattic/jetpack-changelogger
  */
 
+// phpcs:disable WordPress.WP.AlternativeFunctions
+
 namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\Changelog;
@@ -103,6 +105,53 @@ class ChangelogTest extends TestCase {
 		$this->expectException( InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Automattic\\Jetpack\\Changelog\\Changelog::setEntries: Expected a ChangelogEntry, got Automattic\\Jetpack\\Changelog\\Changelog at index 0' );
 		$changelog->setEntries( array( $changelog ) );
+	}
+
+	/**
+	 * Test JSON serialization.
+	 *
+	 * @dataProvider provideJson
+	 * @param string           $json JSON data.
+	 * @param Changelog|string $changelog Changelog, or error message if decoding should fail.
+	 */
+	public function testJson( $json, $changelog ) {
+		if ( is_string( $changelog ) ) {
+			$this->expectException( InvalidArgumentException::class );
+			$this->expectExceptionMessage( $changelog );
+			Changelog::jsonUnserialize( json_decode( $json ) );
+		} else {
+			$this->assertSame( $json, json_encode( $changelog ) );
+			$this->assertEquals( $changelog, Changelog::jsonUnserialize( json_decode( $json ) ) );
+		}
+	}
+
+	/**
+	 * Data provider for testJson.
+	 */
+	public function provideJson() {
+		return array(
+			'Basic serialization'              => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","prologue":"","epilogue":"","entries":[]}',
+				new Changelog(),
+			),
+			'Serialization with data'          => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","prologue":"Prologue","epilogue":"Epilogue","entries":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.1","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-17T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}]}',
+				( new Changelog() )->setPrologue( 'Prologue' )->setEpilogue( 'Epilogue' )->setEntries(
+					array(
+						new ChangelogEntry( '1.1', array( 'timestamp' => '2021-02-18' ) ),
+						new ChangelogEntry( '1.0', array( 'timestamp' => '2021-02-17' ) ),
+					)
+				),
+			),
+			'Bad unserialization, no class'    => array(
+				'{"prologue":"","epilogue":"","entries":[]}',
+				'Invalid data',
+			),
+			'Bad unserialization, wrong class' => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'Cannot instantiate Automattic\\Jetpack\\Changelog\\ChangelogEntry via Automattic\\Jetpack\\Changelog\\Changelog::jsonUnserialize',
+			),
+		);
 	}
 
 }

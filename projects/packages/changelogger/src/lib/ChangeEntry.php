@@ -11,11 +11,12 @@ namespace Automattic\Jetpack\Changelog;
 
 use DateTime;
 use InvalidArgumentException;
+use JsonSerializable;
 
 /**
  * Class representing a change entry.
  */
-class ChangeEntry {
+class ChangeEntry implements JsonSerializable {
 
 	/**
 	 * Entry significance.
@@ -293,6 +294,42 @@ class ChangeEntry {
 	public function setContent( $content ) {
 		$this->content = (string) $content;
 		return $this;
+	}
+
+	/**
+	 * Return data for serializing to JSON.
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		return array(
+			'__class__'    => static::class,
+			'significance' => $this->significance,
+			'timestamp'    => $this->timestamp->format( 'c' ),
+			'subheading'   => $this->subheading,
+			'author'       => $this->author,
+			'content'      => $this->content,
+		);
+	}
+
+	/**
+	 * Unserialize from JSON.
+	 *
+	 * @param array $data JSON data as returned by self::jsonSerialize().
+	 * @return static
+	 * @throws InvalidArgumentException If the data is invalid.
+	 */
+	public static function jsonUnserialize( $data ) {
+		$data = (array) $data;
+		if ( ! isset( $data['__class__'] ) ) {
+			throw new InvalidArgumentException( 'Invalid data' );
+		}
+		$class = $data['__class__'];
+		unset( $data['__class__'] );
+		if ( ! class_exists( $class ) || ! is_a( $class, static::class, true ) ) {
+			throw new InvalidArgumentException( "Cannot instantiate $class via " . static::class . '::' . __FUNCTION__ );
+		}
+		return new $class( $data );
 	}
 
 }
