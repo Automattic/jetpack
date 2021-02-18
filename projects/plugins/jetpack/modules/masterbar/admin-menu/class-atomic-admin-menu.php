@@ -203,6 +203,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		parent::add_options_menu( $wp_admin );
+
+		// No need to add a menu linking to WP Admin if there is already one.
+		if ( ! $wp_admin ) {
+			$parent_menu_slug = 'https://wordpress.com/settings/general/' . $this->domain;
+			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php' );
+			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
+		}
 	}
 
 	/**
