@@ -12,12 +12,8 @@
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">vendor</directory>
-				<directory suffix=".php">views</directory>
-			</exclude>
+			<!-- Do not add `.`, bootstrap.php sets up a loop from tests/php/tmp/wp-content/plugins/current/vendor/automattic/jetpack-autoloader → . which PHPUnit chokes on. -->
+			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
 </phpunit>
