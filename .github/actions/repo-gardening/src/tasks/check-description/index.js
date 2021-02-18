@@ -21,7 +21,7 @@ const getPluginNames = require( '../../get-plugin-names' );
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  *
- * @returns {Promise<number>} Promise resolving to boolean.
+ * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
 	let isUnverified = false;
@@ -51,8 +51,8 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're really only interested in status labels.
-	return !! labels.find( label => label.includes( '[Status]' ) );
+	// We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
+	return !! labels.find( label => label.includes( /^\[Status\].*(?<!Author Reply)$/ ) );
 }
 
 /**
@@ -202,9 +202,12 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	} Include a description of your PR changes.<br>`;
 
 	// Check all commits in PR.
+	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
 	const isDirty = await hasUnverifiedCommit( octokit, owner, repo, number );
 	comment += `
-- ${ isDirty ? `:red_circle:` : `:white_check_mark:` } All commits were linted before commit.<br>`;
+- ${
+		isDirty ? `:heavy_multiplication_sign:` : `:white_check_mark:`
+	} All commits were linted before commit.<br>`;
 
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.

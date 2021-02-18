@@ -16,16 +16,12 @@ const moment = require( 'moment' );
  * @returns {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
  */
 async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' ) {
-	const params = {
-		state: 'open',
-		sort: 'due_on',
-		direction: 'asc',
-	};
-
 	const options = octokit.issues.listMilestones.endpoint.merge( {
 		owner,
 		repo,
-		...params,
+		state: 'open',
+		sort: 'due_on',
+		direction: 'asc',
 	} );
 
 	const responses = octokit.paginate.iterator( options );
