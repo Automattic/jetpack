@@ -46,7 +46,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					>
 						<ModuleToggle
 							slug="monitor"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || ! this.props.hasConnectedOwner }
 							activated={ isMonitorActive }
 							toggling={ this.props.isSavingAnyOption( 'monitor' ) }
 							toggleModule={ this.props.toggleModuleNow }
