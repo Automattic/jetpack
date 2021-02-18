@@ -39,6 +39,7 @@ class Modules {
 		'Automattic\\Jetpack\\Sync\\Modules\\Attachments',
 		'Automattic\\Jetpack\\Sync\\Modules\\Meta',
 		'Automattic\\Jetpack\\Sync\\Modules\\Plugins',
+		'Automattic\\Jetpack\\Sync\\Modules\\Search',
 		'Automattic\\Jetpack\\Sync\\Modules\\Stats',
 		'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately',
 		'Automattic\\Jetpack\\Sync\\Modules\\Term_Relationships',
