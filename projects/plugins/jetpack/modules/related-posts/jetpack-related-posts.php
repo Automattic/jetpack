@@ -1655,7 +1655,7 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
-		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
+		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
 		if ( $script ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
