@@ -87,7 +87,7 @@ export class AuthIframe extends React.Component {
 
 		return (
 			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
-				<h1>{ this.props.title }</h1>
+				{ this.props.title && <h1>{ this.props.title }</h1> }
 				{ this.props.fetchingConnectUrl ? (
 					<p>{ __( 'Loading…', 'jetpack' ) }</p>
 				) : (
