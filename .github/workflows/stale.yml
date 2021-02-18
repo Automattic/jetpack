@@ -51,3 +51,4 @@ jobs:
             testing instructions, is it up to date with master, and it is still valid.
             Feel free to close this PR if you think it's not valid anymore — if you
             do, please add a brief explanation.</p>
+          operations-per-run: 2
