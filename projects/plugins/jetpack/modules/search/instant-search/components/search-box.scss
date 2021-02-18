@@ -74,4 +74,9 @@ input.jetpack-instant-search__box-input.search-field {
 	&::-webkit-search-cancel-button {
 		-webkit-appearance: none;
 	}
+
+	&::-ms-clear,
+	&::-ms-reveal {
+		display: none;
+	}
 }
