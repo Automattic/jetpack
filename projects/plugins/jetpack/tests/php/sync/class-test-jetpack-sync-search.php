@@ -1,13 +1,16 @@
 <?php
+/**
+ * Integration Tests for Search syncing.
+ *
+ * @package automattic/jetpack-sync
+ */
+
 // phpcs:disable Squiz.Commenting
 // phpcs:disable Generic.Commenting
 
 use Automattic\Jetpack\Sync\Modules;
 
-/**
- * Testing Jetpack Search Sync
- */
-class WP_Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
+class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
 	protected static $search_sync;
 
