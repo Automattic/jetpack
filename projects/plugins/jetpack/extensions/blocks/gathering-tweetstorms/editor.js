@@ -34,8 +34,7 @@ const addTweetstormToTweets = blockSettings => {
 	}
 
 	// Allow hooking into the Twitter embed block pre and post Gutenberg 8.8.
-	// @todo The 'core-embed/twitter' check can be removed when WordPress 5.6 is the minimum version.
-	if ( 'core-embed/twitter' !== blockSettings.name && 'core/embed' !== blockSettings.name ) {
+	if ( 'core/embed' !== blockSettings.name ) {
 		return blockSettings;
 	}
 
@@ -51,11 +50,7 @@ const addTweetstormToTweets = blockSettings => {
 			} );
 
 			// Only wrap the Twitter variant of the core/embed block.
-			// @todo The core/embed' check can be removed when WordPress 5.6 is the minimum version.
-			if (
-				'core/embed' === blockSettings.name &&
-				'twitter' !== props.attributes.providerNameSlug
-			) {
+			if ( 'twitter' !== props.attributes.providerNameSlug ) {
 				return <CoreEdit { ...props } />;
 			}
 
