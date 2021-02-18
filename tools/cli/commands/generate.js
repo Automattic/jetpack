@@ -20,6 +20,7 @@ import {
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
 import mergeDirs from '../helpers/mergeDirs';
 import { chalkJetpackGreen } from '../helpers/styling';
+import { doesRepoExist } from '../helpers/github';
 
 /**
  * Relays commands to generate a particular project
@@ -30,7 +31,7 @@ async function generateRouter( options ) {
 	const argv = normalizeGenerateArgv( options );
 	switch ( options.type ) {
 		case 'package':
-			generatePackage( argv );
+			await generatePackage( argv );
 			break;
 		default:
 			throw new Error( 'Unsupported type selected.' );
@@ -195,6 +196,12 @@ export function getQuestions( type ) {
 			name: 'wordbless',
 			message: 'Will you need WorDBless for integration testing?',
 		},
+		{
+			type: 'confirm',
+			name: 'mirrorrepo',
+			message:
+				'Add a mirror repo for a build version of the project to be automatically pushed to?',
+		},
 	];
 	const packageQuestions = [];
 	const pluginQuestions = [
@@ -229,7 +236,7 @@ export function getQuestions( type ) {
  *
  * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePackage(
+export async function generatePackage(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
 ) {
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
@@ -279,10 +286,71 @@ export function generatePackage(
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
 	}
 
-	/**
-	 * @todo Move this to the section dealing with mirror repo creation.
-	 */
-	//composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
-	writeComposerJson( project, composerJson, pkgDir );
-	return packageJson;
+	try {
+		if ( answers.mirrorrepo ) {
+			// For testing, add a third arg here for the org.
+			await mirrorRepo( composerJson, answers.name );
+		}
+	} catch ( e ) {
+		// This means we couldn't create the mirror repo or something else failed, GitHub API is down, etc.
+		// Add error handling for mirror repo couldn't be created or verified.
+		// Output to console instructions on how to add it.
+	} finally {
+		// We want to proceed here either way.
+		writeComposerJson( project, composerJson, pkgDir );
+	}
+}
+
+/**
+ * Processes mirror repo
+ *
+ * @param {object} composerJson - the composer.json object being developed by the generator.
+ * @param {string} name - The name of the project.
+ * @param {string} org - The GitHub owner for the project.
+ */
+async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
+	const repo = org + '/' + name;
+	await inquirer
+		.prompt( [
+			{
+				type: 'confirm',
+				name: 'useExisting',
+				message:
+					'The repo ' +
+					repo +
+					' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
+				when: () => doesRepoExist( name, org ),
+			},
+			{
+				type: 'confirm',
+				name: 'createNew',
+				message: 'There is not a ' + repo + ' repo already. Shall I create one?',
+				when: answers => ! answers.useExisting,
+			},
+		] )
+		.then( answers => {
+			if ( answers.createNew ) {
+				// add function to create.
+				addMirrorRepo( composerJson, name, org );
+			} else if ( answers.useExisting ) {
+				addMirrorRepo( composerJson, name, org );
+			}
+		} );
+
+	// Prompt: What repo would you like to use in the "org"? Default: "name".
+
+	// Validate the name, then check for repo exists again.
+
+	// If validated, add it to composerJson. If not repeat.
+}
+
+/**
+ * Add mirror repo to the composer.json
+ *
+ * @param {object} composerJson - composer.json object.
+ * @param {string} name - Repo name.
+ * @param {string} org - Repo owner.
+ */
+function addMirrorRepo( composerJson, name, org ) {
+	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
 }

@@ -42,7 +42,6 @@ async function authenticate() {
 	let token = conf.get( 'github.token' );
 
 	if ( token ) {
-		console.log( typeof token );
 		const auth = createTokenAuth( token );
 		return await auth();
 	}
