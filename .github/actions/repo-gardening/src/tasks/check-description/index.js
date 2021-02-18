@@ -203,9 +203,7 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
 	const isDirty = await hasUnverifiedCommit( octokit, owner, repo, number );
 	comment += `
-- ${
-		isDirty ? `:heavy_multiplication_sign:` : `:white_check_mark:`
-	} All commits were linted before commit.<br>`;
+- ${ isDirty ? `:x:` : `:white_check_mark:` } All commits were linted before commit.<br>`;
 
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.
