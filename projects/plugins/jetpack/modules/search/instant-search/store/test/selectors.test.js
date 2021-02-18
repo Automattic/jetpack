@@ -5,7 +5,48 @@
 /**
  * Internal dependencies
  */
-import { getWidgetOutsideOverlay } from '../selectors';
+import { RELEVANCE_SORT_KEY } from '../../lib/constants';
+import { getSort, getWidgetOutsideOverlay, hasActiveQuery } from '../selectors';
+
+describe( 'getSort', () => {
+	test( 'defaults to "relevance" if state value is not a string', () => {
+		expect( getSort( {} ) ).toEqual( RELEVANCE_SORT_KEY );
+		expect( getSort( { sort: 1 } ) ).toEqual( RELEVANCE_SORT_KEY );
+		expect( getSort( { sort: null } ) ).toEqual( RELEVANCE_SORT_KEY );
+		expect( getSort( { sort: {} } ) ).toEqual( RELEVANCE_SORT_KEY );
+	} );
+	test( 'returns the state value if it is a string', () => {
+		expect( getSort( { sort: 'some string' } ) ).toEqual( 'some string' );
+		expect( getSort( { sort: 'relevance' } ) ).toEqual( 'relevance' );
+	} );
+} );
+
+describe( 'hasActiveQuery', () => {
+	test( 'returns false if reducers are at their initial values', () => {
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+	} );
+	test( 'returns true if there is a defined search query', () => {
+		expect( hasActiveQuery( { searchQuery: '', filters: {}, sort: null } ) ).toEqual( true );
+		expect( hasActiveQuery( { searchQuery: 'hello', filters: {}, sort: null } ) ).toEqual( true );
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+	} );
+	test( 'returns true if there are defined filters', () => {
+		expect(
+			hasActiveQuery( {
+				searchQuery: null,
+				filters: { post_types: [ 'post', 'page' ] },
+				sort: null,
+			} )
+		).toEqual( true );
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+	} );
+	test( 'returns true if there is a defined sort value', () => {
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: 'relevance' } ) ).toEqual(
+			true
+		);
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
+	} );
+} );
 
 describe( 'getWidgetOutsideOverlay', () => {
 	test( 'defaults to an object with an empty array for the filters value for a clean state', () => {

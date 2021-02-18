@@ -32,10 +32,10 @@ import {
 	getSearchQuery,
 	getSort,
 	getWidgetOutsideOverlay,
+	hasActiveQuery,
 	hasError,
-	hasFilters,
-	isHistoryNavigation,
 	hasNextPage,
+	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
 import { bindCustomizerChanges } from '../lib/customize';
@@ -66,7 +66,7 @@ class SearchApp extends Component {
 		this.addEventListeners();
 		this.disableAutocompletion();
 
-		if ( this.hasActiveQuery() ) {
+		if ( this.props.hasActiveQuery ) {
 			this.showResults();
 		}
 	}
@@ -146,10 +146,6 @@ class SearchApp extends Component {
 		const resultFormatQuery = getResultFormatQuery();
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
-
-	hasActiveQuery() {
-		return this.props.searchQuery !== null || this.props.hasFilters;
-	}
 
 	handleHistoryNavigation = () => {
 		// Treat history navigation as brand new query values; re-initialize.
@@ -252,10 +248,10 @@ class SearchApp extends Component {
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
 
-		if ( this.hasActiveQuery() && ! this.state.showResults ) {
+		if ( this.props.hasActiveQuery && ! this.state.showResults ) {
 			this.showResults();
 		}
-		if ( ! this.hasActiveQuery() && isHistoryNav ) {
+		if ( ! this.props.hasActiveQuery && isHistoryNav ) {
 			this.hideResults( isHistoryNav );
 		}
 
@@ -330,8 +326,8 @@ class SearchApp extends Component {
 export default connect(
 	state => ( {
 		filters: getFilters( state ),
+		hasActiveQuery: hasActiveQuery( state ),
 		hasError: hasError( state ),
-		hasFilters: hasFilters( state ),
 		isHistoryNavigation: isHistoryNavigation( state ),
 		hasNextPage: hasNextPage( state ),
 		isLoading: isLoading( state ),

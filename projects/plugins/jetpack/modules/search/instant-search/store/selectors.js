@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { RELEVANCE_SORT_KEY } from '../lib/constants';
 import { getUnselectableFilterKeys, mapFilterKeyToFilter } from '../lib/filters';
 
 /**
@@ -60,7 +61,7 @@ export function getSearchQuery( state ) {
  * @returns {string} sort - The selected sort key for the search interface.
  */
 export function getSort( state ) {
-	return state.sort;
+	return typeof state.sort === 'string' ? state.sort : RELEVANCE_SORT_KEY;
 }
 
 /**
@@ -81,6 +82,16 @@ export function getFilters( state ) {
  */
 export function hasFilters( state ) {
 	return Object.keys( state.filters ).length > 0;
+}
+
+/**
+ * Checks if there is an active search-related query values.
+ *
+ * @param {object} state - Current state.
+ * @returns {object} hasActiveQuery - true if any search-related query value has been defined.
+ */
+export function hasActiveQuery( state ) {
+	return getSearchQuery( state ) !== null || hasFilters( state ) || state.sort !== null;
 }
 
 /**
