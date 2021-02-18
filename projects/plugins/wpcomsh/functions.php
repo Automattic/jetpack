@@ -230,3 +230,16 @@ function wpcomsh_get_atomic_site_id() {
 
 	return 0;
 }
+
+function wpcomsh_get_atomic_client_id() {
+	if ( defined( 'ATOMIC_CLIENT_ID' ) ) {
+		return (int) ATOMIC_CLIENT_ID;
+	}
+
+	$atomic_client_id = apply_filters( 'wpcomsh_get_atomic_client_id', 0 );
+	if ( ! empty( $atomic_client_id ) ) {
+		return (int) $atomic_client_id;
+	}
+
+	return 0;
+}

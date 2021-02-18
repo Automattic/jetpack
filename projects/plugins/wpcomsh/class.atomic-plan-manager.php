@@ -114,8 +114,11 @@ class Atomic_Plan_Manager {
 			return $caps;
 		}
 
-		// Retain capabilities if this is not a WordPress.com-on-Atomic site
-		if ( ! defined( 'ATOMIC_CLIENT_ID') || 2 !== ATOMIC_CLIENT_ID ) {
+		/*
+		 * Retain capabilities if this is not a WordPress.com-on-Atomic site. wpcomsh_get_atomic_client_id
+		 * returns an integer.
+		 */
+		if ( 2 !== wpcomsh_get_atomic_client_id() ) {
 			return $caps;
 		}
 
