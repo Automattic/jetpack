@@ -251,6 +251,10 @@ export function generatePackage(
 	createComposerJson( composerJson, answers );
 	writeComposerJson( project, composerJson, pkgDir );
 
+	// Generate readme.md file
+	const readmeMdContent = createReadMeMd( answers );
+	writeToFile( pkgDir + '/README.md', readmeMdContent );
+
 	return packageJson;
 }
 
@@ -285,7 +289,8 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
 	writeToFile( pluginDir + `/${ answers.name }.php`, headerContent );
 
 	// Fill in the README.md file
-	writeToFile( pluginDir + '/README.md', `# ${ answers.name }` );
+	const readmeMdContent = createReadMeMd( answers );
+	writeToFile( pluginDir + '/README.md', readmeMdContent );
 
 	// Fill in the README.txt file
 	const readmeTxtContent = createReadMeTxt( answers );
@@ -405,7 +410,7 @@ function createPluginHeader( answers ) {
 }
 
 /**
- * Creates custom readme.txt content
+ * Creates custom readme.txt content for plugins.
  *
  * @param {object} answers - Answers returned for project creation.
  *
@@ -424,6 +429,38 @@ function createReadMeTxt( answers ) {
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
 		'\n' +
 		`${ answers.description }\n` +
+		'\n';
+	return content;
+}
+
+/**
+ * Creates custom readme.md content for plugins and packages.
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the readme.txt file.
+ */
+function createReadMeMd( answers ) {
+	const content =
+		`# ${ answers.name }\n` +
+		'\n' +
+		`${ answers.description }` +
+		'\n' +
+		`## How to install ${ answers.name }\n` +
+		'\n' +
+		'### Installation From Git Repo\n' +
+		'\n' +
+		'## Contribute\n' +
+		'\n' +
+		'## Get Help\n' +
+		'\n' +
+		'## Security\n' +
+		'\n' +
+		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
+		'\n' +
+		'## License\n' +
+		'\n' +
+		`${ answers.name } is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)\n` +
 		'\n';
 	return content;
 }
