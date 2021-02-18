@@ -32,7 +32,7 @@ jobs:
 
             <ul>
               <li>It has been inactive in the past 6 months.</li>
-              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`.</li>
+              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
             </ul>
 
             <p>No further action is needed. But it's worth checking if this ticket has clear
@@ -44,10 +44,10 @@ jobs:
 
             <ul>
               <li>It has been inactive in the past 3 months.</li>
-              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`.</li>
+              <li>It hasn’t been labeled `[Pri] Blocker`, `[Pri] High`, etc.</li>
             </ul>
 
             <p>No further action is needed. But it's worth checking if this PR has clear
             testing instructions, is it up to date with master, and it is still valid.
-            Feel free to close this issue if you think it's not valid anymore — if you
+            Feel free to close this PR if you think it's not valid anymore — if you
             do, please add a brief explanation.</p>
