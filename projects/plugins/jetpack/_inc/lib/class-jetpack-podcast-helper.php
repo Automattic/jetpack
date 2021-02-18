@@ -314,7 +314,7 @@ class Jetpack_Podcast_Helper {
 			return array();
 		}
 
-		$publish_date = $episode->get_gmdate( 'Y-m-d H:i:s' );
+		$publish_date = $episode->get_gmdate( DATE_ATOM );
 		// Build track data.
 		$track = array(
 			'id'               => wp_unique_id( 'podcast-track-' ),
