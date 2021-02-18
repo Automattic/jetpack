@@ -4238,7 +4238,7 @@ p {
 						exit;
 					}
 
-					if ( self::is_active() && self::is_user_connected() ) {
+					if ( static::is_active() && static::connection()->is_user_connected() ) {
 						// The user is either already connected, or finished the connection process.
 						wp_safe_redirect( $dest_url );
 						exit;
