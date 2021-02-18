@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/editor';
 import {
 	withNotices,
 	ToolbarButton,
