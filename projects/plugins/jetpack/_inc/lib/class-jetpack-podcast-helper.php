@@ -461,7 +461,7 @@ class Jetpack_Podcast_Helper {
 						'type'        => 'string',
 					),
 					'publish_date'     => array(
-						'description' => __( 'The UTC publish date of the episode', 'jetpack' ),
+						'description' => __( 'The UTC publish date and time of the episode', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),
