@@ -51,8 +51,8 @@ async function hasUnverifiedCommit( octokit, owner, repo, number ) {
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're really only interested in status labels.
-	return !! labels.find( label => label.includes( '[Status]' ) );
+	// We're only interested in status labels, but not the "Needs Reply" label since it can be added by the action.
+	return !! labels.find( label => label.includes( /^\[Status\].*(?<!Author Reply)$/ ) );
 }
 
 /**
