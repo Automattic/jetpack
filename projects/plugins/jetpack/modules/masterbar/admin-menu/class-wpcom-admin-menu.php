@@ -17,15 +17,6 @@ require_once __DIR__ . '/class-admin-menu.php';
 class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * WPcom_Admin_Menu constructor.
-	 */
-	protected function __construct() {
-		parent::__construct();
-
-		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
-	}
-
-	/**
 	 * Sets up class properties for REST API requests.
 	 *
 	 * @param WP_REST_Response $response Response from the endpoint.
@@ -34,8 +25,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::rest_api_init( $response );
 
 		// Get domain for requested site.
-		$this->domain         = ( new Status() )->get_site_suffix();
-		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+		$this->domain = ( new Status() )->get_site_suffix();
 
 		return $response;
 	}

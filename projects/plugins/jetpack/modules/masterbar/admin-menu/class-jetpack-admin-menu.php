@@ -76,4 +76,15 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', $menu_slug, null, 'dashicons-wordpress-alt', $position );
 	}
+
+	/**
+	 * Adds Appearance menu.
+	 *
+	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Customize on Atomic sites is always done on Jetpack sites.
+		parent::add_appearance_menu( $wp_admin_themes, true );
+	}
 }

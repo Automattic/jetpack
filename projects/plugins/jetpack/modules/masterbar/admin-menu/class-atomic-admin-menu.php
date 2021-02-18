@@ -222,4 +222,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( $parent_menu_slug, esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
+
+	/**
+	 * Adds Appearance menu.
+	 *
+	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Customize on Atomic sites is always done on WP Admin.
+		parent::add_appearance_menu( $wp_admin_themes, true );
+	}
 }
