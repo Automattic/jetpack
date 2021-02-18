@@ -428,7 +428,7 @@ class Jetpack_Connection_Banner {
 					<div id="jp-authenticate-no_user_test_mode">
 						<h2><?php esc_html_e( 'Or start using Jetpack now', 'jetpack' ); ?></h2>
 						<p><?php esc_html_e( 'Jump in and start using Jetpack right away. Some features will not be available, but you’ll be able to connect your user account at any point to unlock them.', 'jetpack' ); ?></p>
-						<a class="dops-button jp-no-user-mode-button" href="<?php echo esc_url( Redirect::get_url( 'jetpack-connect-plans' ) ); ?>"><?php esc_html_e( 'Continue without user account', 'jetpack' ); ?></a>
+						<a class="dops-button jp-no-user-mode-button" href="<?php echo esc_url( Redirect::get_url( 'jetpack-connect-plans', array( 'unlinked' => '1' ) ) ); ?>"><?php esc_html_e( 'Continue without user account', 'jetpack' ); ?></a>
 						<a class="jp-no-user-all-features" target="_blank" href="https://jetpack.com/support/features/">
 							<?php esc_html_e( 'See all Jetpack features', 'jetpack' ); ?>
 							<svg width="16" height="16" viewBox="0 0 24 24" class="gridicon gridicons-external">
