@@ -1706,16 +1706,6 @@ class Search extends Module {
 	// Hooks into sync.
 
 	/**
-	 * Initialize the module in the sender.
-	 *
-	 * @access public
-	 */
-	public function init_before_send() {
-		// Full sync.
-		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'expand_order_item_ids' ) );
-	}
-
-	/**
 	 * Add Search post meta to the post meta whitelist.
 	 *
 	 * @param array $list Existing post meta whitelist.
