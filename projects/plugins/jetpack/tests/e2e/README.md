@@ -78,7 +78,7 @@ We use the following tools to write e2e tests:
 - [Playwright](https://github.com/microsoft/playwright) – a Node library which provides a high-level API to control Chrome or Chromium over the DevTools Protocol
 - [jest-playwright](https://github.com/playwright-community/jest-playwright) – provides all required configuration to run tests using Playwright
 
-Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack Connection, so we connect a site before running the actual test suite. Its logic can be found in the [`setup-env#maybePreConnect`](./lib/setup-env.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
+Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test. Most of the tests rely on an active Jetpack Connection, so we connect a site before running the actual test suite. Its logic can be found in the [`setup-env#maybePreConnect`](lib/env/setup-env.js) function. For test suites where pre-connection is not needed, it can be disabled by setting `SKIP_CONNECT` env var to false. Check [`connection.test.js`](./specs/connection.test.js) for example use.
 
 The following packages are being used to write tests:
 

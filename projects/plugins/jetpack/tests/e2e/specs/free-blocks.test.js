@@ -6,7 +6,7 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
-import { catchBeforeAll, step } from '../lib/setup-env';
+import { catchBeforeAll, step } from '../lib/env/setup-env';
 
 describe( 'Free blocks', () => {
 	catchBeforeAll( async () => {
@@ -39,10 +39,10 @@ describe( 'Free blocks', () => {
 			await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } );
 		} );
 	} );
-
 	it( 'Eventbrite block', async () => {
 		const eventId = '112691417062';
 		let blockEditor;
+		expect( 1 ).toBe( 2 );
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );

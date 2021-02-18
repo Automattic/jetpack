@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { catchBeforeAll, step } from '../lib/setup-env';
+import { catchBeforeAll, step } from '../lib/env/setup-env';
 import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,

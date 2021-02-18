@@ -4,7 +4,7 @@ import fs from 'fs';
 import axios from 'axios';
 import path from 'path';
 
-import logger from './logger';
+import logger from '../logger';
 
 export default class TunnelManager {
 	constructor() {

@@ -5,7 +5,7 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { catchBeforeAll } from '../lib/setup-env';
+import { catchBeforeAll } from '../lib/env/setup-env';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
 import path from 'path';
 import config from 'config';

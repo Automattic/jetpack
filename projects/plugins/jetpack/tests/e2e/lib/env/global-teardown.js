@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 
-import SlackReporter from './reporters/slack';
+import SlackReporter from '../reporters/slack';
 import config from 'config';
 import path from 'path';
 

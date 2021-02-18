@@ -2,40 +2,28 @@
 /**
  * External dependencies
  */
-import { get, wrap } from 'lodash';
+import { get } from 'lodash';
 import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { takeScreenshot } from './reporters/screenshot';
-import { logDebugLog, logHTML } from './page-helper';
-import logger from './logger';
-import { execWpCommand } from './utils-helper';
+import { logDebugLog, logHTML } from '../page-helper';
+import logger from '../logger';
+import { execWpCommand } from '../utils-helper';
 import {
 	connectThroughWPAdmin,
 	loginToWpcomIfNeeded,
 	loginToWpSite,
-} from './flows/jetpack-connect';
+} from '../flows/jetpack-connect';
 import TunnelManager from './tunnel-manager';
 import config from 'config';
 import path from 'path';
 
-const { E2E_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
+const { E2E_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML, E2E_RETRY_TIMES } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
 	let filePath;
-
-	try {
-		filePath = await takeScreenshot( currentBlock, name );
-		reporter.addAttachment(
-			`Test failed: ${ currentBlock } :: ${ name }`,
-			fs.readFileSync( filePath ),
-			'image/png'
-		);
-	} catch ( e ) {
-		logger.warn( `Failed to add attachment to allure report: ${ e }` );
-	}
 
 	// If running tests in CI
 	if ( CI ) {
@@ -189,57 +177,14 @@ if ( E2E_DEBUG ) {
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 }
 
-// Use wrap to preserve all previous `wrap`s
-jasmine.getEnv().describe = wrap( jasmine.getEnv().describe, ( func, ...args ) => {
-	try {
-		currentBlock = args[ 0 ];
-		func( ...args );
-	} catch ( e ) {
-		throw e;
-	}
-} );
+jest.retryTimes( parseInt( E2E_RETRY_TIMES ) || 0 );
 
-/**
- * Override the test case method so we can take screenshots of assertion failures.
- *
- * @param {string} name
- * @param {Function} func
- */
-global.it = async ( name, func ) => {
-	return await test( `${ name }`, async () => {
-		try {
-			await func();
-		} catch ( error ) {
-			await defaultErrorHandler( error, name );
-		}
-	} );
-};
-
+// todo do we still need this?
 export const step = async ( stepName, fn ) => {
-	reporter.startStep( stepName );
+	// reporter.startStep( stepName );
 	await fn();
-	reporter.endStep();
+	// reporter.endStep();
 };
-
-jasmine.getEnv().addReporter( {
-	jasmineStarted() {
-		logger.info( '############# \n\n\n' );
-	},
-	suiteStarted( result ) {
-		logger.info( `STARTING SUITE: ${ result.fullName }, description: ${ result.description }` );
-	},
-	suiteDone( result ) {
-		logger.info( `SUITE ENDED: ${ result.status }\n` );
-	},
-	specStarted( result ) {
-		logger.info( `STARTING SPEC: ${ result.fullName }, description: ${ result.description }` );
-		jasmine.currentTest = result;
-	},
-	specDone( result ) {
-		logger.info( `SPEC ENDED: ${ result.status }\n` );
-		jasmine.currentTest = null;
-	},
-} );
 
 const tunnelManager = new TunnelManager();
 
