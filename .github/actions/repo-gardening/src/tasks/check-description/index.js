@@ -24,19 +24,19 @@ const getPluginNames = require( '../../get-plugin-names' );
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
-	let isUnverified = false;
-
 	for await ( const response of octokit.paginate.iterator( octokit.pulls.listCommits, {
 		owner: owner.login,
 		repo,
 		pull_number: +number,
 	} ) ) {
-		isUnverified = !! response.data.find( commit =>
+		if ( response.data.find( commit =>
 			commit.commit.message.includes( '[not verified]' )
-		);
+		) ) {
+			return true;
+		}
 	}
 
-	return isUnverified;
+	return false;
 }
 
 /**
