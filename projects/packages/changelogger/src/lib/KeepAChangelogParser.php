@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Changelog;
 
 use DateTime;
+use DateTimeZone;
 use InvalidArgumentException;
 
 /**
@@ -39,22 +40,14 @@ class KeepAChangelogParser extends Parser {
 	private $parseAuthors = false;
 
 	/**
-	 * If positive, wrap changes at this many columns.
-	 *
-	 * @var int
-	 */
-	private $wrap = 80;
-
-	/**
 	 * Constructor.
 	 *
 	 * @param array $config Configuration.
 	 *  - bullet: (string) Bullet for changes. Default '-'.
 	 *  - dateFormat: (string) Date format to use in output. Default 'Y-m-d'.
 	 *  - parseAuthors: (bool) Try to parse authors out of change entries. Default false.
-	 *  - wrap: (int) If positive, wrap changes at this many columns. Default 80.
 	 */
-	public function __construct( array $config ) {
+	public function __construct( array $config = array() ) {
 		if ( ! empty( $config['bullet'] ) ) {
 			$this->bullet = $config['bullet'];
 		}
@@ -62,9 +55,6 @@ class KeepAChangelogParser extends Parser {
 			$this->dateFormat = $config['dateFormat'];
 		}
 		$this->parseAuthors = ! empty( $config['parseAuthors'] );
-		if ( ! empty( $config['wrap'] ) ) {
-			$this->wrap = $config['wrap'];
-		}
 	}
 
 	/**
@@ -74,7 +64,7 @@ class KeepAChangelogParser extends Parser {
 	 * @return array|null Match data.
 	 */
 	private function endsInLink( $s ) {
-		if ( preg_match( '/^\[([^]]+)\]: *(\S+(?: +(?:"(?:[^"]|\\.)*"|\'(?:[^\']|\\.)*\'|\((?:[^()]|\\.)*\)))?) *\z/m', $s, $m ) ) {
+		if ( preg_match( '/^\[([^]]+)\]: *(\S+(?: +(?:"(?:[^"]|\\\\.)*"|\'(?:[^\']|\\\\.)*\'|\((?:[^()]|\\\\.)*\)))?)\s*\Z/m', $s, $m ) ) {
 			return array(
 				'match' => $m[0],
 				'id'    => $m[1],
@@ -95,14 +85,16 @@ class KeepAChangelogParser extends Parser {
 		$i = false;
 		foreach ( $needles as $needle ) {
 			$j = strpos( $haystack, $needle );
-			$i = false === $i ? $j : min( $i, $j );
+			if ( false !== $j ) {
+				$i = false === $i ? $j : min( $i, $j );
+			}
 		}
 		if ( false === $i ) {
-			return array( trim( $haystack ), '' );
+			return array( trim( $haystack, "\n" ), '' );
 		}
 		return array(
-			trim( substr( $haystack, 0, $i ) ),
-			trim( substr( $haystack, $i ) ),
+			trim( substr( $haystack, 0, $i ), "\n" ),
+			trim( substr( $haystack, $i ), "\n" ),
 		);
 	}
 
@@ -152,8 +144,9 @@ class KeepAChangelogParser extends Parser {
 		while ( ( $m = $this->endsInLink( $changelog ) ) ) { // phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			$links[ $m['id'] ]     = $m['link'];
 			$usedlinks[ $m['id'] ] = false;
-			$changelog             = substr( $changelog, -strlen( $m['match'] ) );
+			$changelog             = (string) substr( $changelog, 0, -strlen( $m['match'] ) );
 		}
+		$links = array_reverse( $links );
 
 		// Everything up to the first level-2 ATX heading is the prologue.
 		list( $prologue, $changelog ) = $this->split( "\n$changelog", "\n## " );
@@ -182,9 +175,12 @@ class KeepAChangelogParser extends Parser {
 				$usedlinks[ $version ] = true;
 			}
 			try {
-				$timestamp = new DateTime( $timestamp );
+				$timestamp = new DateTime( $timestamp, new DateTimeZone( 'UTC' ) );
 			} catch ( \Exception $ex ) {
 				throw new InvalidArgumentException( "Heading has an invalid timestamp: $heading", 0, $ex );
+			}
+			if ( strtotime( $m[2], 0 ) !== strtotime( $m[2], 1000000000 ) ) {
+				throw new InvalidArgumentException( "Heading has a relative timestamp: $heading" );
 			}
 			$entry     = $this->newChangelogEntry(
 				$version,
@@ -196,7 +192,7 @@ class KeepAChangelogParser extends Parser {
 			$entries[] = $entry;
 
 			// Extract the prologue, if any.
-			list( $prologue, $content ) = $this->split( "\n$content", "\n### ", "\n$bullet " );
+			list( $prologue, $content ) = $this->split( "\n$content", "\n### ", "\n$bullet" );
 			$entry->setPrologue( $prologue );
 
 			if ( '' === $content ) {
@@ -227,9 +223,9 @@ class KeepAChangelogParser extends Parser {
 						}
 						$cur = substr( $line, $len ) . "\n";
 					} elseif ( $prefix === $indent ) {
-						$cur = substr( $line, $len ) . "\n";
+						$cur .= substr( $line, $len ) . "\n";
 					} elseif ( '' === $line ) {
-						$cur = "\n";
+						$cur .= "\n";
 					} else {
 						// If there are no more subsections and the rest of the lines don't contain
 						// bullets, assume it's an epilogue. Otherwise, assume it's an error.
@@ -238,7 +234,7 @@ class KeepAChangelogParser extends Parser {
 							$entry->setEpilogue( $section );
 							break;
 						} else {
-							throw new InvalidArgumentException( "Malformatted changes list near $line" );
+							throw new InvalidArgumentException( "Malformatted changes list near \"$line\"" );
 						}
 					}
 				}
@@ -248,9 +244,9 @@ class KeepAChangelogParser extends Parser {
 				}
 				foreach ( $changes as $change ) {
 					$author = '';
-					if ( $this->parseAuthors && preg_match( '/ ([^()\n]+)$/', $change, $m ) ) {
+					if ( $this->parseAuthors && preg_match( '/ \(([^()\n]+)\)$/', $change, $m ) ) {
 						$author = $m[1];
-						$change = substr( $change, -strlen( $m[0] ) );
+						$change = substr( $change, 0, -strlen( $m[0] ) );
 					}
 					$entry->appendChange(
 						$this->newChangeEntry(
@@ -258,13 +254,14 @@ class KeepAChangelogParser extends Parser {
 								'subheading' => $subheading,
 								'author'     => $author,
 								'content'    => $change,
+								'timestamp'  => $timestamp,
 							)
 						)
 					);
 				}
 			}
 		}
-		$changelog->setEntries( $entries );
+		$ret->setEntries( $entries );
 
 		// Append any unused links to the epilogue.
 		$epilogue = $ret->getEpilogue();
@@ -314,11 +311,13 @@ class KeepAChangelogParser extends Parser {
 			foreach ( $entry->getChangesBySubheading() as $heading => $changes ) {
 				if ( '' !== $heading ) {
 					$ret .= "### $heading\n";
+				} else {
+					$ret .= "\n";
 				}
 				foreach ( $changes as $change ) {
 					$text = trim( $change->getContent() );
 					if ( $change->getAuthor() !== '' ) {
-						$text .= " {$change->getAuthor()}";
+						$text .= " ({$change->getAuthor()})";
 					}
 					$ret .= $bullet . str_replace( "\n", "\n$indent", $text ) . "\n";
 				}
@@ -327,18 +326,20 @@ class KeepAChangelogParser extends Parser {
 
 			$epilogue = trim( $entry->getEpilogue() );
 			if ( '' !== $epilogue ) {
-				$ret .= "\n$epilogue\n";
+				$ret = trim( $ret ) . "\n\n$epilogue\n";
 			}
-			$ret .= "\n";
+			$ret = trim( $ret ) . "\n\n";
 		}
 
 		$epilogue = trim( $changelog->getEpilogue() );
 		if ( '' !== $epilogue ) {
-			$ret .= "\n$epilogue\n";
+			$ret .= "$epilogue\n";
 		}
 
+		$ret = trim( $ret ) . "\n";
+
 		if ( $links ) {
-			if ( ! $this->endsInLink( $epilogue ) ) {
+			if ( ! $this->endsInLink( $ret ) ) {
 				$ret .= "\n";
 			}
 			foreach ( $links as $k => $v ) {

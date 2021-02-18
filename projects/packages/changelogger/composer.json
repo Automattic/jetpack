@@ -20,7 +20,8 @@
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/src"
+			"Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/src",
+			"Automattic\\Jetpack\\Changelog\\Tests\\": "tests/php/src/lib"
 		}
 	},
 	"bin": [

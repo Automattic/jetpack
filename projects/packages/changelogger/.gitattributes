@@ -4,3 +4,6 @@
 .gitignore       export-ignore
 phpunit.xml.dist export-ignore
 tests/           export-ignore
+
+# This file intentionally has CRLF newlines.
+tests/php/tests/lib/fixtures/KeepAChangelogParserTest.tabs-and-newlines.md binary
