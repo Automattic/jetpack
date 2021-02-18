@@ -1067,7 +1067,11 @@ class Jetpack_SSO {
 
 		/**
 		 * Return the raw connect URL with our redirect and attribute connection to SSO.
+		 * We remove any other filters that may be turning on the in-place connection
+		 * since we will be redirecting the user as opposed to iFraming.
 		 */
+		remove_all_filters( 'jetpack_use_iframe_authorization_flow' );
+		add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
 		$connect_url = Jetpack::init()->build_connect_url( true, $redirect_after_auth, 'sso' );
 
 		add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );

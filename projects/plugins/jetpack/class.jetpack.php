@@ -698,7 +698,7 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
-		add_action( 'wp_ajax_jetpack_wizard_banner', array( 'Jetpack_Wizard_Banner', 'ajax_callback' ) );
+		add_action( 'wp_ajax_jetpack_recommendations_banner', array( 'Jetpack_Recommendations_Banner', 'ajax_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
@@ -3609,7 +3609,7 @@ p {
 			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
-		Jetpack_Wizard_Banner::init();
+		Jetpack_Recommendations_Banner::init();
 
 		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
@@ -4238,7 +4238,7 @@ p {
 						exit;
 					}
 
-					if ( self::is_active() && self::is_user_connected() ) {
+					if ( static::is_active() && static::connection()->is_user_connected() ) {
 						// The user is either already connected, or finished the connection process.
 						wp_safe_redirect( $dest_url );
 						exit;

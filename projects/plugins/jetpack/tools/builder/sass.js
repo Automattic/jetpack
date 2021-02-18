@@ -256,7 +256,7 @@ export const watch = function () {
 
 export const watchPackages = function () {
 	return gulp.watch(
-		[ './packages/jitm/assets/*.scss', ...alwaysIgnoredPaths ],
+		[ './packages/jitm/src/css/*.scss', ...alwaysIgnoredPaths ],
 		gulp.parallel( 'sass:packages:rtl' )
 	);
 };

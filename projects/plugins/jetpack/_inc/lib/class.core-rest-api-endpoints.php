@@ -587,38 +587,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		/*
-		 * Get and update settings from the Jetpack wizard.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'/setup/questionnaire',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_setup_wizard_questionnaire',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_setup_wizard_questionnaire',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-					'args'                => array(
-						'questionnaire' => array(
-							'required'          => false,
-							'type'              => 'object',
-							'validate_callback' => __CLASS__ . '::validate_setup_wizard_questionnaire',
-						),
-						'status'        => array(
-							'required'          => false,
-							'type'              => 'string',
-							'validate_callback' => __CLASS__ . '::validate_string',
-						),
-					),
-				),
-			)
-		);
-
 		register_rest_route(
 			'jetpack/v4',
 			'/recommendations/data',
@@ -735,36 +703,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get the settings for the wizard questionnaire
-	 *
-	 * @return array Questionnaire settings.
-	 */
-	public static function get_setup_wizard_questionnaire() {
-		return Jetpack_Options::get_option( 'setup_wizard_questionnaire', (object) array() );
-	}
-
-	/**
-	 * Update the settings selected on the wizard questionnaire
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true.
-	 */
-	public static function update_setup_wizard_questionnaire( $request ) {
-		$questionnaire = $request['questionnaire'];
-		if ( ! empty( $questionnaire ) ) {
-			Jetpack_Options::update_option( 'setup_wizard_questionnaire', $questionnaire );
-		}
-
-		$status = $request['status'];
-		if ( ! empty( $status ) ) {
-			Jetpack_Options::update_option( 'setup_wizard_status', $status );
-		}
-
-		return true;
-	}
-
-	/**
 	 * Get the data for the recommendations
 	 *
 	 * @return array Recommendations data
@@ -843,36 +781,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array( 'status' => $response_code )
 			);
 		}
-	}
-
-	/**
-	 * Validate the answers on the setup wizard questionnaire
-	 *
-	 * @param array           $value Value to check received by request.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_setup_wizard_questionnaire( $value, $request, $param ) {
-		if ( ! is_array( $value ) ) {
-			/* translators: Name of a parameter that must be an object */
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
-		}
-
-		foreach ( $value as $answer_key => $answer ) {
-			if ( is_string( $answer ) ) {
-				$validate = self::validate_string( $answer, $request, $param );
-			} else {
-				$validate = self::validate_boolean( $answer, $request, $param );
-			}
-
-			if ( is_wp_error( $validate ) ) {
-				return $validate;
-			}
-		}
-
-		return true;
 	}
 
 	/**

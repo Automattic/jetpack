@@ -2,6 +2,16 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.4.1 =
+
+* Release date: February 16, 2021
+
+**Bug fixes**
+
+* Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
+* Dashboard: improve performance by reducing excessive API calls.
+* Payments Block: avoid layout issues when setting up a new payment plan.
+
 = 9.4 =
 
 * Release date: February 2, 2021

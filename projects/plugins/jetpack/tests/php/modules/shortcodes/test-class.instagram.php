@@ -179,13 +179,18 @@ BODY;
 	}
 
 	/**
+	 * Test different oEmbed URLs and their output.
+	 *
 	 * @covers ::jetpack_instagram_oembed_fetch_url
+	 * @dataProvider get_instagram_urls
+	 *
+	 * @param string $original Instagram URL provided by user.
+	 * @param string $expected Instagram URL embedded in the final post content.
 	 */
-	public function test_instagram_replace_image_url_with_embed() {
+	public function test_instagram_oembed_fetch_url( $original, $expected ) {
 		global $post;
 
-		$instagram_url = 'https://www.instagram.com/p/BnMO9vRleEx/';
-		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url ) );
+		$post = $this->factory->post->create_and_get( array( 'post_content' => $original ) );
 
 		setup_postdata( $post );
 		ob_start();
@@ -194,100 +199,36 @@ BODY;
 		wp_reset_postdata();
 
 		$this->assertContains(
-			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
+			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $expected,
 			$actual
 		);
 	}
 
 	/**
-	 * @covers ::jetpack_instagram_oembed_fetch_url
+	 * List of variation of Instagram embed URLs.
 	 */
-	public function test_instagram_replace_image_url_with_embed_and_remove_query_args() {
-		global $post;
-
-		$instagram_url                 = 'https://www.instagram.com/p/BnMO9vRleEx/';
-		$instagram_url_with_query_args = $instagram_url . '?utm_source=ig_web_copy_link';
-
-		$post = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url_with_query_args ) );
-
-		setup_postdata( $post );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		wp_reset_postdata();
-
-		$this->assertContains(
-			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url . '"',
-			$actual
-		);
-	}
-
-	/**
-	 * @covers ::jetpack_instagram_oembed_fetch_url
-	 */
-	public function test_instagram_replace_video_url_with_embed() {
-		global $post;
-
-		$instagram_url = 'https://www.instagram.com/tv/BkQjCfsBIzi/';
-		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_url ) );
-
-		setup_postdata( $post );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		wp_reset_postdata();
-
-		$this->assertContains(
-			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_url,
-			$actual
-		);
-	}
-
-	/**
-	 * @covers ::jetpack_instagram_oembed_fetch_url
-	 */
-	public function test_instagram_replace_profile_image_url_with_embed() {
-		global $post;
-
-		$instagram_username      = 'jeherve';
-		$instagram_id            = 'BnMO9vRleEx';
-		$instagram_original_url  = 'https://www.instagram.com/' . $instagram_username . '/p/' . $instagram_id . '/';
-		$instagram_canonical_url = 'https://www.instagram.com/p/' . $instagram_id . '/';
-		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_original_url ) );
-
-		setup_postdata( $post );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		wp_reset_postdata();
-
-		$this->assertContains(
-			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_canonical_url,
-			$actual
-		);
-	}
-
-	/**
-	 * @covers ::jetpack_instagram_oembed_fetch_url
-	 */
-	public function test_instagram_replace_profile_video_url_with_embed() {
-		global $post;
-
-		$instagram_username      = 'instagram';
-		$instagram_id            = 'BkQjCfsBIzi';
-		$instagram_original_url  = 'https://www.instagram.com/' . $instagram_username . '/tv/' . $instagram_id . '/';
-		$instagram_canonical_url = 'https://www.instagram.com/tv/' . $instagram_id . '/';
-		$post          = $this->factory->post->create_and_get( array( 'post_content' => $instagram_original_url ) );
-
-		setup_postdata( $post );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-		wp_reset_postdata();
-
-		$this->assertContains(
-			'<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="' . $instagram_canonical_url,
-			$actual
+	public function get_instagram_urls() {
+		return array(
+			'simple_image_embed'            => array(
+				'https://www.instagram.com/p/BnMO9vRleEx/',
+				'https://www.instagram.com/p/BnMO9vRleEx/',
+			),
+			'instagram_url_with_query_args' => array(
+				'https://www.instagram.com/p/BnMO9vRleEx/?utm_source=ig_web_copy_link',
+				'https://www.instagram.com/p/BnMO9vRleEx/',
+			),
+			'video_embed'                   => array(
+				'https://www.instagram.com/tv/BkQjCfsBIzi/',
+				'https://www.instagram.com/tv/BkQjCfsBIzi/',
+			),
+			'image_embed_with_username'     => array(
+				'https://www.instagram.com/jeherve/p/BnMO9vRleEx/',
+				'https://www.instagram.com/p/BnMO9vRleEx/',
+			),
+			'video_embed_with_username'     => array(
+				'https://www.instagram.com/instagram/tv/BkQjCfsBIzi/',
+				'https://www.instagram.com/tv/BkQjCfsBIzi/',
+			),
 		);
 	}
 
