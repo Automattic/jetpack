@@ -1,3 +1,32 @@
-.inline-help__button {
-    background-color: $icon-color !important;
+$inline-help-color-primary: #1d2327;
+$inline-help-color-primary-dark: #3c434a;
+$inline-help-color-primary-light: #8c8f94;
+
+.inline-help {
+    --color-primary: #{$inline-help-color-primary};
+    --color-primary-dark: #{$inline-help-color-primary-dark};
+    --color-primary-light: #{$inline-help-color-primary-light};
 }
+
+// .inline-help__button {
+//     background-color: $inline-help-color-primary;
+//     border: 1px solid $inline-help-color-primary-dark;
+// }
+
+// .inline-help__button.button.is-borderless:focus {
+//   background-color: $inline-help-color-primary;
+//   box-shadow: 0 0 0 2px $inline-help-color-primary-light;
+// }
+
+// .inline-help__button.button.is-borderless .gridicon {
+//   fill: $inline-help-color-primary;
+// }
+
+// .inline-help__button.button.is-borderless:hover:not(.is-active) {
+//   background: $inline-help-color-primary;
+// }
+
+// .inline-help__button.button.is-borderless.is-active {
+//   background: $inline-help-color-primary;
+//   border-color: var(--color-primary-40);
+// }
