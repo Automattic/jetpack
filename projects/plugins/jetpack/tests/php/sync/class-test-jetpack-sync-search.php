@@ -118,7 +118,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 			$this->assertIsBool( $spec['available'] );
 		}
 		if ( isset( $spec['alternatives'] ) ) {
-			$this->assertIsArray( $spec['alternatives'] );
+			$this->assertInternalType( 'array', $spec['alternatives'] );
 		}
 	}
 
