@@ -1,34 +1,16 @@
-$inline-help-color-primary: #1d2327;
-$inline-help-color-primary-dark: #3c434a;
-$inline-help-color-primary-light: #8c8f94;
-$inline-help-color-surface: #fff;
+// Temporary defaults needed until we have defined
+// these variables for all color schemes.
+// Default to Classic Bright colors for a "WordPress.com" look.
+$inline-help-color-primary: #0675c4 !default;
+$inline-help-color-primary-dark: #044b7a !default;
+$inline-help-color-primary-light: #399ce3 !default;
+$inline-help-color-surface: #fff !default;
+$inline-help-color-shadow: rgb(16, 21, 23) !default;
 
 .inline-help {
     --color-primary: #{$inline-help-color-primary};
     --color-primary-dark: #{$inline-help-color-primary-dark};
     --color-primary-light: #{$inline-help-color-primary-light};
     --color-surface: #{$inline-help-color-surface};
+    --color-neutral-100-rgb: #{$inline-help-color-shadow};
 }
-
-// .inline-help__button {
-//     background-color: $inline-help-color-primary;
-//     border: 1px solid $inline-help-color-primary-dark;
-// }
-
-// .inline-help__button.button.is-borderless:focus {
-//   background-color: $inline-help-color-primary;
-//   box-shadow: 0 0 0 2px $inline-help-color-primary-light;
-// }
-
-// .inline-help__button.button.is-borderless .gridicon {
-//   fill: $inline-help-color-primary;
-// }
-
-// .inline-help__button.button.is-borderless:hover:not(.is-active) {
-//   background: $inline-help-color-primary;
-// }
-
-// .inline-help__button.button.is-borderless.is-active {
-//   background: $inline-help-color-primary;
-//   border-color: var(--color-primary-40);
-// }

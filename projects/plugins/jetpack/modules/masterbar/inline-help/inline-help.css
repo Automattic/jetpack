@@ -18,6 +18,11 @@
   overflow: visible;
   width: 40px;
   height: 40px;
+
+  /* elevation() mixin styles */
+  box-shadow: 0 4px 5px 0 rgba( var( --color-neutral-100-rgb ), 0.14 ),
+                    0 1px 10px 0 rgba( var( --color-neutral-100-rgb ), 0.12 ),
+                    0 2px 4px -1px rgba( var( --color-neutral-100-rgb ), 0.2 );
 }
 
 .inline-help .inline-help__button::before {
