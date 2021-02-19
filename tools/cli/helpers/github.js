@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Octokit } from '@octokit/rest';
-import { createTokenAuth, createActionAuth } from '@octokit/auth';
+import { createTokenAuth } from '@octokit/auth';
 import inquirer from 'inquirer';
 import Configstore from 'configstore';
 
@@ -34,8 +34,8 @@ export async function doesRepoExist( name, org = 'Automattic' ) {
  * @returns {object} GitHub auth object.
  */
 async function authenticate() {
-	if ( process.env.GITHUB_ACTION ) {
-		const auth = createActionAuth();
+	if ( process.env.MB_TOKEN ) {
+		const auth = createTokenAuth( process.env.MB_TOKEN );
 		return await auth();
 	}
 
