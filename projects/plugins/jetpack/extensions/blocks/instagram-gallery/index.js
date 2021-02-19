@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -11,6 +12,12 @@ import edit from './edit';
 import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'instagram-gallery';
+
+// Regex to match Instagram profile url with username, but not individual instagram posts that
+// are already handed by oembed.
+// Username can use letters, numbers, underscores, and periods
+// Ex: https://www.instagram.com/wordpressdotcom
+export const URL_REGEX = /^\s*https?:\/\/(www\.)?instagr(\.am|am\.com)\/[A-z0-9_.]+\/?\s*$/i;
 
 export const settings = {
 	title: __( 'Latest Instagram Posts', 'jetpack' ),
@@ -44,4 +51,16 @@ export const settings = {
 				>{ `https://www.instagram.com/${ instagramUser }/` }</a>
 			</div>
 		),
+	transforms: {
+		from: [
+			{
+				type: 'raw',
+				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
+				transform: node =>
+					createBlock( `jetpack/${ name }`, {
+						url: node.textContent.trim(),
+					} ),
+			},
+		],
+	},
 };
