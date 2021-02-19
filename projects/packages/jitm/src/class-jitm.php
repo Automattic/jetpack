@@ -80,7 +80,7 @@ class JITM {
 	 * @param \WP_Screen $screen WP Core's screen object.
 	 */
 	public function prepare_jitms( $screen ) {
-		if ( apply_filters( 'jetpack_display_jitms', true, $screen->id ) ) {
+		if ( apply_filters( 'jetpack_display_jitms_on_screen', true, $screen->id ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );

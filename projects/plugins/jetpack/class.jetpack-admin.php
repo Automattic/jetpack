@@ -78,7 +78,7 @@ class Jetpack_Admin {
 			}
 		}
 
-		add_filter( 'jetpack_display_jitms', array( $this, 'should_display_jitms' ), 10, 2 );
+		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
 	}
 
 	/**
@@ -340,7 +340,7 @@ class Jetpack_Admin {
 	 *
 	 * @return bool True if JITMs should display, false otherwise.
 	 */
-	public function should_display_jitms( $value, $screen_id ) {
+	public function should_display_jitms_on_screen( $value, $screen_id ) {
 		// Disable all JITMs on these pages.
 		if (
 		in_array(
