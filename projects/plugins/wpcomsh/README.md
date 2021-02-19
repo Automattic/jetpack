@@ -103,7 +103,8 @@ In order for WordPress to load the test site correctly, you'll need to access th
 
 ### Deployment instructions
 
-- Run `bin/update-version.sh` and provide the new version. This will update the versions in `package.json` and `wpcomsh.php`. Commit the changes and create a PR.
+- Make sure there are no uncommitted changes
+- Run `bin/update-version.sh` and provide the new version. This will update the versions in `package.json`, `package-lock.json`, and `wpcomsh.php`. Make sure there are no other changes. Commit these changes and create a PR.
 - Wait for the PR to be approved and merged
 - Checkout latest `master`
 - Tag the release with `make tag`
