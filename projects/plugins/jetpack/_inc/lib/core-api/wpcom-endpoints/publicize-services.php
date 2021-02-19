@@ -88,15 +88,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Services extends WP_REST_Control
 		global $publicize;
 		/**
 		 * We need this because Publicize::get_available_service_data() uses `Jetpack_Keyring_Service_Helper`
-		 * and `Jetpack_Keyring_Service_Helper` relies on `menu_page_url()`.
-		 *
-		 * We also need add_submenu_page(), as the URLs for connecting each service
-		 * rely on the `sharing` menu subpage being present.
+		 * and `Jetpack_Keyring_Service_Helper` needs a `sharing` page to be registered.
 		 */
-		include_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-		// The `sharing` submenu page must exist for service connect URLs to be correct.
-		add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
+		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		Jetpack_Keyring_Service_Helper::register_sharing_page();
 
 		$services_data = $publicize->get_available_service_data();
 
