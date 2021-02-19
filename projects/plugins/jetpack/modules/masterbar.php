@@ -21,7 +21,11 @@ require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 
 new Masterbar();
 new Admin_Color_Schemes();
-new Inline_Help();
+
+if ( jetpack_is_atomic_site() ) {
+	new Inline_Help();
+}
+
 
 
 /**
