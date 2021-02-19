@@ -864,11 +864,8 @@ add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );
 add_filter( 'site_status_tests', 'wpcomsh_site_status_tests_disable' );
 
 function wpcomsh_site_status_tests_disable( $tests ) {
-	unset( $tests['async']['background_updates'] );
 	unset( $tests['direct']['plugin_version'] );
 	unset( $tests['direct']['theme_version'] );
-	unset( $tests['direct']['php_version'] );
-	unset( $tests['direct']['php_extensions'] );
 	return $tests;
 }
 
