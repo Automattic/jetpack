@@ -38,9 +38,7 @@ export function allProjects() {
  */
 export function checkNameValid( dir, newName ) {
 	const existingNames = dirs( './projects/' + pluralize( dir ) );
-	const validCharacters = new RegExp(
-		'^[a-z0-9]([_.-]?[a-z0-9]+)*[a-z0-9](([_.]?|-{0,2})[a-z0-9]+)*$'
-	);
+	const validCharacters = new RegExp( '^[a-z0-9_.-]+$' );
 	if ( newName.length === 0 ) {
 		console.error( chalk.red( 'Name must have a value.' ) );
 		throw new Error( 'Name must have a value' );
