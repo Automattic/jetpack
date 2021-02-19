@@ -1,16 +1,11 @@
 .inline-help {
-  --color-primary: #666;
-  --color-primary-dark: #000;
-}
-
-.inline-help {
   position: fixed;
   right: 24px;
   bottom: 24px;
   z-index: 9999;
 }
 
-.button.is-borderless.inline-help__button {
+.inline-help__button.button.is-borderless {
   position: absolute;
   right: 0;
   bottom: 10px; /* push away from WordPress Core footer */
@@ -25,7 +20,7 @@
   height: 40px;
 }
 
-.button.is-borderless.inline-help__button::before {
+.inline-help__button.button.is-borderless::before {
   width: 28px;
   height: 28px;
   display: block;
@@ -37,12 +32,12 @@
   border-radius: 100%;
 }
 
-.button.is-borderless.inline-help__button:focus {
+.inline-help__button.button.is-borderless:focus {
   background-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-light);
 }
 
-.button.is-borderless.inline-help__button .gridicon {
+.inline-help__button.button.is-borderless .gridicon {
   fill: var(--color-primary);
   margin: -3px 0 0 -3px;
   top: 0;
@@ -50,17 +45,17 @@
   width: 42px;
 }
 
-.button.is-borderless.inline-help__button .gridicon>use:first-child,
-.button.is-borderless.inline-help__button .gridicon>g:first-child {
+.inline-help__button.button.is-borderless .gridicon>use:first-child,
+.inline-help__button.button.is-borderless .gridicon>g:first-child {
   transform: none;
 }
 
-.button.is-borderless.inline-help__button:hover:not(.is-active) {
+.inline-help__button.button.is-borderless:hover:not(.is-active) {
   background: var(--color-primary);
   transform: scale(1.15);
 }
 
-.button.is-borderless.inline-help__button.is-active {
+.inline-help__button.button.is-borderless.is-active {
   background: var(--color-primary);
   border-color: var(--color-primary-40);
 }
