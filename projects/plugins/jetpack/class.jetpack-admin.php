@@ -335,7 +335,7 @@ class Jetpack_Admin {
 	/**
 	 * Determines if JITMs should display on a particular screen.
 	 *
-	 * @param bool $value The default value of the filter.
+	 * @param bool   $value The default value of the filter.
 	 * @param string $screen_id The ID of the screen being tested for JITM display.
 	 *
 	 * @return bool True if JITMs should display, false otherwise.
