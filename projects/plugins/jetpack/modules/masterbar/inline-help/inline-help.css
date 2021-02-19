@@ -40,7 +40,7 @@
 .inline-help .inline-help__button .gridicon {
 position: relative;
   fill: var(--color-primary);
-  margin: -3px 0 0 -3px;
+  margin: -1px 0 0 -1px;
   top: 0;
   height: 42px;
   width: 42px;
