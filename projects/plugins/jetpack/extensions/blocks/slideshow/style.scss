@@ -73,6 +73,12 @@
 		object-fit: contain;
 	}
 
+	&.alignfull .wp-block-jetpack-slideshow_image {
+		max-width: unset;
+		object-fit: cover;
+		width: 100vw;
+	}
+
 	.wp-block-jetpack-slideshow_button-prev,
 	.wp-block-jetpack-slideshow_button-next,
 	.wp-block-jetpack-slideshow_button-pause,
