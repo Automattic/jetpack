@@ -142,6 +142,31 @@ class ConfigTest extends TestCase {
 	}
 
 	/**
+	 * Test the changelogFile method.
+	 */
+	public function testChangelogFile() {
+		$this->resetConfigCache();
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'CHANGELOG.md', Config::changelogFile() );
+
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'changelog' => 'changes.txt' ) );
+		Config::setOutput( $out );
+		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'changes.txt', Config::changelogFile() );
+
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'changelog' => '/tmp/changes.md' ) );
+		Config::setOutput( $out );
+		$this->assertSame( '/tmp/changes.md', Config::changelogFile() );
+
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'changelog' => 'c:\\changes.md' ) );
+		Config::setOutput( $out );
+		$this->assertSame( 'c:\\changes.md', Config::changelogFile() );
+	}
+
+	/**
 	 * Test the changesDir method.
 	 */
 	public function testChangesDir() {

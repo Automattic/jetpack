@@ -22,7 +22,9 @@ class Config {
 	 * @var array
 	 */
 	private static $defaultConfig = array(
+		'changelog'   => 'CHANGELOG.md',
 		'changes-dir' => 'changelog',
+		'formatter'   => 'keepachangelog',
 		'types'       => array(
 			'security'   => 'Security',
 			'added'      => 'Added',
@@ -127,6 +129,33 @@ class Config {
 	}
 
 	/**
+	 * Add the base directory to a path, if necessary.
+	 *
+	 * @param string $path Path.
+	 * @return string
+	 */
+	private static function addBase( $path ) {
+		// Stupid Windows requires a regex.
+		if ( ! preg_match( '#^(?:/|' . preg_quote( DIRECTORY_SEPARATOR, '#' ) . '|[a-zA-Z]:\\\\)#', $path ) ) {
+			$path = self::base() . DIRECTORY_SEPARATOR . $path;
+		}
+		return $path;
+	}
+
+	/**
+	 * Get the changelog filename.
+	 *
+	 * @return string
+	 */
+	public static function changelogFile() {
+		self::load();
+		if ( ! isset( self::$cache['changelog'] ) ) {
+			self::$cache['changelog'] = self::addBase( self::$config['changelog'] );
+		}
+		return self::$cache['changelog'];
+	}
+
+	/**
 	 * Get the changes directory.
 	 *
 	 * @return string
@@ -134,32 +163,9 @@ class Config {
 	public static function changesDir() {
 		self::load();
 		if ( ! isset( self::$cache['changes-dir'] ) ) {
-			$dir = self::$config['changes-dir'];
-			// Stupid Windows requires a regex.
-			if ( ! preg_match( '#^(?:/|' . preg_quote( DIRECTORY_SEPARATOR, '#' ) . '|[a-zA-Z]:\\\\)#', $dir ) ) {
-				$dir = self::base() . DIRECTORY_SEPARATOR . $dir;
-			}
-			self::$cache['changes-dir'] = $dir;
+			self::$cache['changes-dir'] = self::addBase( self::$config['changes-dir'] );
 		}
 		return self::$cache['changes-dir'];
-	}
-
-	/**
-	 * Get verisoning method.
-	 *
-	 * @return Versioning
-	 */
-	public static function versioning() {
-		self::load();
-		if ( ! isset( self::$cache['versioning'] ) ) {
-			$class = __NAMESPACE . '\\Versioning\\' . ucfirst( self::$config['versioning'] );
-			if ( ! class_exists( $class ) ) {
-				self::$out->writeln( '<warning>Unknown versioning method "' . self::$config['versioning'] . '". Using "semver".</>' );
-				$class = __NAMESPACE . '\\Versioning\\Semver';
-			}
-			self::$cache['versioning'] = new $class( self::$out );
-		}
-		return self::$cache['versioning'];
 	}
 
 	/**
@@ -176,6 +182,77 @@ class Config {
 			}
 		}
 		return self::$cache['types'];
+	}
+
+	/**
+	 * Get a plugin.
+	 *
+	 * @param string|array $config Plugin name or configuration array.
+	 * @param string       $suffix Plugin class suffix.
+	 * @return object|null Object, or null if the plugin was not found.
+	 */
+	private static function getPlugin( $config, $suffix ) {
+		if ( is_string( $config ) ) {
+			$config = array( 'name' => $config );
+		}
+
+		if ( isset( $config['name'] ) ) {
+			$class = __NAMESPACE__ . '\\Plugins\\' . ucfirst( $config['name'] ) . $suffix;
+		} elseif ( isset( $config['class'] ) ) {
+			$class = $config['class'];
+		} elseif ( isset( $config['filename'] ) ) {
+			$classes = get_declared_classes();
+			require $config['filename'];
+			$classes = array_diff( get_declared_classes(), $classes );
+			if ( count( $classes ) !== 1 ) {
+				return null;
+			}
+			$class = array_pop( $classes );
+		} else {
+			return null;
+		}
+		if ( ! class_exists( $class ) ) {
+			return null;
+		}
+		return $class::instantiate( $config );
+	}
+
+	/**
+	 * Get formatting plugin.
+	 *
+	 * @return Formatter
+	 * @throws \RuntimeException If the configured formatter is unknown.
+	 */
+	public static function formatterPlugin() {
+		self::load();
+		if ( ! isset( self::$cache['formatter'] ) ) {
+			$obj = self::getPlugin( self::$config['formatter'], 'Formatter' );
+			if ( ! $obj instanceof FormatterPlugin ) {
+				$info = json_encode( self::$config['formatter'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+				throw new \RuntimeException( "Unknown formatter plugin $info" );
+			}
+			self::$cache['formatter'] = $obj;
+		}
+		return self::$cache['formatter'];
+	}
+
+	/**
+	 * Get verisoning plugin.
+	 *
+	 * @return Versioning
+	 * @throws \RuntimeException If the configured versioning plugin is unknown.
+	 */
+	public static function versioningPlugin() {
+		self::load();
+		if ( ! isset( self::$cache['versioning'] ) ) {
+			$obj = self::getPlugin( self::$config['versioning'], 'Versioning' );
+			if ( ! $obj instanceof VersioningPlugin ) {
+				$info = json_encode( self::$config['versioning'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+				throw new \RuntimeException( "Unknown versioning plugin $info" );
+			}
+			self::$cache['versioning'] = $obj;
+		}
+		return self::$cache['versioning'];
 	}
 
 }
