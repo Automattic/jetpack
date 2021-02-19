@@ -77,6 +77,8 @@ class Jetpack_Admin {
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
+
+		add_filter( 'jetpack_display_jitms', array( $this, 'should_display_jitms' ), 10, 2 );
 	}
 
 	/**
@@ -328,6 +330,39 @@ class Jetpack_Admin {
 	function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
+	}
+
+	function should_display_jitms( $value, $screen_id ) {
+		// Disable all JITMs on these pages.
+		if (
+		in_array(
+			$screen_id,
+			array(
+				'jetpack_page_akismet-key-config',
+				'admin_page_jetpack_modules',
+			),
+			true
+		) ) {
+			return false;
+		}
+
+		// Disable all JITMs on pages where the recommendations banner is displaying.
+		if (
+			in_array(
+				$screen_id,
+				array(
+					'dashboard',
+					'plugins',
+					'jetpack_page_stats',
+				),
+				true
+			)
+			&& \Jetpack_Recommendations_Banner::can_be_displayed()
+		) {
+			return false;
+		}
+
+		return $value;
 	}
 }
 Jetpack_Admin::init();
