@@ -6,6 +6,7 @@ import pluralize from 'pluralize';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import fs from 'fs';
+import yaml from 'js-yaml';
 
 /**
  * Internal dependencies
@@ -35,6 +36,9 @@ async function generateRouter( options ) {
 			break;
 		case 'plugin':
 			generatePlugin( argv );
+			break;
+		case 'github-action':
+			generateAction( argv );
 			break;
 		default:
 			throw new Error( 'Unsupported type selected.' );
@@ -299,6 +303,27 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
 
 	return packageJson;
+}
+
+/**
+ * Generate a github action based on questions passed to it.
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} answers - Answers from questions.
+ *
+ */
+export function generateAction( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
+	const actDir = path.join( __dirname, '../../..', 'projects/github-actions', answers.name );
+
+	// Copy the skeletons over
+	createSkeleton( pluralize( answers.type ), actDir, answers.name );
+
+	// Create the YAML file
+	const yamlFile = yaml.load( fs.readFileSync( actDir + '/action.yml', 'utf8' ) );
+	yamlFile.name = answers.name;
+	yamlFile.description = answers.description;
+	writeToFile( actDir + '/action.yml', yaml.dump( yamlFile ) );
 }
 
 /**
