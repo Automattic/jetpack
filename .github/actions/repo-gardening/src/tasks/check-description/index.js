@@ -248,7 +248,9 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 
 	// Gather info about the next release for that plugin.
 	const milestoneInfo = await buildMilestoneInfo( octokit, owner, repo, number );
-	comment += milestoneInfo;
+	if ( milestoneInfo ) {
+		comment += milestoneInfo;
+	}
 
 	// Look for an existing check-description task comment.
 	const existingComment = await getCheckComment( octokit, owner, repo, number );
