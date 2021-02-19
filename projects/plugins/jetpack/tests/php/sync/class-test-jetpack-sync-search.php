@@ -60,20 +60,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	 * Post meta tests.
 	 */
 
-	/**
-	 * @dataProvider get_allowed_postmeta_keys
-	 */
-	public function test_add_post_meta( $key ) {
-		$v = md5( wp_rand() );
-		add_post_meta( $this->post_id, $key, $v, true );
-
-		$this->sender->do_sync();
-		$this->assertEquals(
-			array( $v ),
-			$this->server_replica_storage->get_metadata( 'post', $this->post_id, $key )
-		);
-		delete_post_meta( $this->post_id, $key, $v );
-	}
+	// Note: Adding tested in WP_Test_Jetpack_Sync_Meta::test_sync_whitelisted_post_meta().
 
 	public function test_doesn_t_sync_meta() {
 		add_post_meta( $this->post_id, 'no_sync_jetpack_search', 'foo' );
