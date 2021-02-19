@@ -112,10 +112,10 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		if ( isset( $spec['searchable_in_all_content'] ) ) {
-			$this->assertIsBool( $spec['searchable_in_all_content'] );
+			$this->assertInternalType( 'bool', $spec['searchable_in_all_content'] );
 		}
 		if ( isset( $spec['available'] ) ) {
-			$this->assertIsBool( $spec['available'] );
+			$this->assertInternalType( 'bool', $spec['available'] );
 		}
 		if ( isset( $spec['alternatives'] ) ) {
 			$this->assertInternalType( 'array', $spec['alternatives'] );
