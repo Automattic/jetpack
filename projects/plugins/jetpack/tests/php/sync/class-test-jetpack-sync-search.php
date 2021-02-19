@@ -100,11 +100,10 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	public function test_check_postmeta_spec( $key ) {
 		$spec = self::$search_sync->get_postmeta_spec( $key );
 
-		$this->assertIsArray( $spec );
 		$this->assertThat(
 			$spec,
 			$this->logicalOr(
-				$this->isEmpty(),
+				$this->equalTo( array() ),
 				$this->arrayHasKey( 'searchable_in_all_content' ),
 				$this->arrayHasKey( 'available' ),
 				$this->arrayHasKey( 'alternatives' )
