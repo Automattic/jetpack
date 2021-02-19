@@ -80,7 +80,14 @@ class JITM {
 	 * @param \WP_Screen $screen WP Core's screen object.
 	 */
 	public function prepare_jitms( $screen ) {
-		// Show JITMs only if they aren't disabled on the current screen via this filter.
+		/**
+		 * Filter to hide JITMs on certain screens.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param bool true Whether to show just in time messages.
+		 * @param string $string->id The ID of the current screen.
+		 */
 		if ( apply_filters( 'jetpack_display_jitms_on_screen', true, $screen->id ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
