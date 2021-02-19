@@ -7,10 +7,8 @@
 
 // phpcs:disable WordPress.NamingConventions.ValidVariableName
 
-namespace Automattic\Jetpack\Changelogger\Console;
+namespace Automattic\Jetpack\Changelogger;
 
-use Automattic\Jetpack\Changelogger\Config;
-use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

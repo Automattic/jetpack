@@ -5,19 +5,18 @@
  * @package automattic/jetpack-changelogger
  */
 
-namespace Automattic\Jetpack\Changelogger\Tests\Console;
+namespace Automattic\Jetpack\Changelogger\Tests;
 
+use Automattic\Jetpack\Changelogger\AddCommand;
+use Automattic\Jetpack\Changelogger\CommandLoader;
 use Automattic\Jetpack\Changelogger\Config;
-use Automattic\Jetpack\Changelogger\Console\AddCommand;
-use Automattic\Jetpack\Changelogger\Console\CommandLoader;
-use Automattic\Jetpack\Changelogger\Tests\TestCase;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
  * Tests for the changelogger CommandLoader class.
  *
- * @covers \Automattic\Jetpack\Changelogger\Console\CommandLoader
+ * @covers \Automattic\Jetpack\Changelogger\CommandLoader
  */
 class CommandLoaderTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;

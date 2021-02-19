@@ -5,11 +5,10 @@
  * @package automattic/jetpack-changelogger
  */
 
-namespace Automattic\Jetpack\Changelogger\Tests\Console;
+namespace Automattic\Jetpack\Changelogger\Tests;
 
+use Automattic\Jetpack\Changelogger\Application;
 use Automattic\Jetpack\Changelogger\Config;
-use Automattic\Jetpack\Changelogger\Console\Application;
-use Automattic\Jetpack\Changelogger\Tests\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 

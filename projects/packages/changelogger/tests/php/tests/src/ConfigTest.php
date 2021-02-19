@@ -136,9 +136,9 @@ class ConfigTest extends TestCase {
 		$this->assertSame( getcwd(), Config::base() );
 
 		$this->resetConfigCache();
-		putenv( 'COMPOSER=' . __DIR__ . '/../../../composer.json' );
+		putenv( 'COMPOSER=' . __DIR__ . '/../../../../composer.json' );
 		Config::setOutput( $out );
-		$this->assertSame( dirname( dirname( dirname( __DIR__ ) ) ), Config::base() );
+		$this->assertSame( dirname( dirname( dirname( dirname( __DIR__ ) ) ) ), Config::base() );
 	}
 
 	/**

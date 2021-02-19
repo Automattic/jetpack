@@ -5,7 +5,7 @@
  * @package automattic/jetpack-changelogger
  */
 
-namespace Automattic\Jetpack\Changelogger\Console;
+namespace Automattic\Jetpack\Changelogger;
 
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
 use Symfony\Component\Console\Exception\CommandNotFoundException;

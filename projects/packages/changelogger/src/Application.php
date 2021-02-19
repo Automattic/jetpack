@@ -5,9 +5,8 @@
  * @package automattic/jetpack-changelogger
  */
 
-namespace Automattic\Jetpack\Changelogger\Console;
+namespace Automattic\Jetpack\Changelogger;
 
-use Automattic\Jetpack\Changelogger\Config;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;

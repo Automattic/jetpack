@@ -15,13 +15,13 @@
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\Changelogger\\": "src",
-			"Automattic\\Jetpack\\Changelog\\": "src/lib"
+			"Automattic\\Jetpack\\Changelog\\": "lib"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/src",
-			"Automattic\\Jetpack\\Changelog\\Tests\\": "tests/php/src/lib"
+			"Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/includes/src",
+			"Automattic\\Jetpack\\Changelog\\Tests\\": "tests/php/includes/lib"
 		}
 	},
 	"bin": [

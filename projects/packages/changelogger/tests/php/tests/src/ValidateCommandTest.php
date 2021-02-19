@@ -7,14 +7,14 @@
 
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName
 
-namespace Automattic\Jetpack\Changelogger\Tests\Console;
+namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Tests for the changelogger validate command.
  *
- * @covers \Automattic\Jetpack\Changelogger\Console\ValidateCommand
+ * @covers \Automattic\Jetpack\Changelogger\ValidateCommand
  */
 class ValidateCommandTest extends CommandTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;

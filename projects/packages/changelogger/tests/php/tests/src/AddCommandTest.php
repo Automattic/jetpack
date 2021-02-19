@@ -7,17 +7,18 @@
 
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-namespace Automattic\Jetpack\Changelogger\Tests\Console;
+namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\NullOutput;
 use Wikimedia\TestingAccessWrapper;
 
 /**
  * Tests for the changelogger add command.
  *
- * @covers \Automattic\Jetpack\Changelogger\Console\AddCommand
+ * @covers \Automattic\Jetpack\Changelogger\AddCommand
  */
 class AddCommandTest extends CommandTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
@@ -37,10 +38,10 @@ class AddCommandTest extends CommandTestCase {
 	 */
 	public function testGetDefaultFilename() {
 		if ( in_array( '--debug', $GLOBALS['argv'], true ) ) {
-			$output = new \Symfony\Component\Console\Output\ConsoleOutput();
+			$output = new ConsoleOutput();
 			$output->setVerbosity( ConsoleOutput::VERBOSITY_DEBUG );
 		} else {
-			$output = new \Symfony\Component\Console\Output\NullOutput();
+			$output = new NullOutput();
 		}
 		$w = TestingAccessWrapper::newFromObject( $this->getCommand( 'add' ) );
 
