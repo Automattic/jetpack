@@ -1,5 +1,6 @@
 /**
  * External dependencies
+ * A test
  */
 const { setFailed, getInput } = require( '@actions/core' );
 const { context, getOctokit } = require( '@actions/github' );
