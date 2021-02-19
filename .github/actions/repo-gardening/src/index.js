@@ -13,6 +13,7 @@ const addLabels = require( './tasks/add-labels' );
 const checkDescription = require( './tasks/check-description' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
+const ifNotClosed = require( './if-not-closed' );
 
 const automations = [
 	{
@@ -27,12 +28,12 @@ const automations = [
 	{
 		event: 'pull_request',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
-		task: addLabels,
+		task: ifNotClosed( addLabels ),
 	},
 	{
 		event: 'pull_request',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
-		task: checkDescription,
+		task: ifNotClosed( checkDescription ),
 	},
 ];
 
