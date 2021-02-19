@@ -4,6 +4,8 @@
 import { execSync, exec } from 'child_process';
 import config from 'config';
 import logger from './logger';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -28,8 +30,11 @@ export function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
+// todo we should only read once and set a global variable
 export function getTunnelSiteUrl() {
-	return global.tunnelUrl.replace( 'http:', 'https:' );
+	return fs
+		.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
+		.replace( 'http:', 'https:' );
 }
 
 export async function resetWordpressInstall() {

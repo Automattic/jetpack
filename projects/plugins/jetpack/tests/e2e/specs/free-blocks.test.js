@@ -42,7 +42,6 @@ describe( 'Free blocks', () => {
 	it( 'Eventbrite block', async () => {
 		const eventId = '112691417062';
 		let blockEditor;
-		expect( 1 ).toBe( 2 );
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );

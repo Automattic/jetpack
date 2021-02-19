@@ -93,7 +93,7 @@ export default class TunnelManager {
 		try {
 			const response = await axios.get( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
 			if ( response ) {
-				logger.info( response.data );
+				logger.debug( JSON.stringify( response.data ) );
 			}
 		} catch ( error ) {
 			logger.error( error );
