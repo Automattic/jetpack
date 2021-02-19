@@ -463,6 +463,7 @@ class Jetpack_Podcast_Helper {
 					'publish_date'     => array(
 						'description' => __( 'The UTC publish date and time of the episode', 'jetpack' ),
 						'type'        => 'string',
+						'format'      => 'date-time',
 					),
 				),
 			),
