@@ -13,7 +13,7 @@ import config from 'config';
 process.env.SKIP_CONNECT = true;
 
 describe( 'Jetpack pre-connection', () => {
-	ceforeAll( async () => {
+	beforeAll( async () => {
 		await execMultipleWpCommands(
 			'wp option delete jetpack_private_options',
 			'wp option delete jetpack_sync_error_idc'

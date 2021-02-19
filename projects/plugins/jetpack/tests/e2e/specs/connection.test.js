@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { step } from '../lib/env/setup-env';
+import { step } from '../lib/env/test-setup';
 import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';

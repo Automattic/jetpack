@@ -1,9 +1,5 @@
-import { logDebugLog } from '../page-helper';
-import logger from '../logger';
-
 const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
 const fs = require( 'fs' );
-const config = require( '../../config/default' );
 
 class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	async setup() {

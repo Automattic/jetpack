@@ -15,16 +15,6 @@ const config = {
 	},
 	testOutputDir: './output',
 	configDir: './config',
-	consoleIgnore: [
-		'Button isDefault prop is deprecated',
-		'Using custom components as toolbar controls is deprecated',
-		'wp.components.IconButton is deprecated',
-		'Using Toolbar without label prop is deprecated',
-		'elements with non-unique id #_wpnonce',
-		'net::ERR_UNKNOWN_URL_SCHEME',
-		'A cookie associated with a cross-site resource',
-		'This is a global warning',
-	],
 };
 
 module.exports = config;

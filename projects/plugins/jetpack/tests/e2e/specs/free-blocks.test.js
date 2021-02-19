@@ -6,7 +6,7 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
-import { step } from '../lib/env/setup-env';
+import { step } from '../lib/env/test-setup';
 
 describe( 'Free blocks', () => {
 	beforeAll( async () => {

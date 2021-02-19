@@ -51,10 +51,10 @@ export default class TunnelManager {
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		tunnel.on( 'close', () => {
-			logger.info( '!!!!!! TUNNEL is closed for ', this.url );
+			logger.info( 'Tunnel is closed' );
 		} );
 
-		logger.info( `#### CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
+		logger.info( `CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
 
 		this.tunnel = tunnel;
 		this.url = url;
@@ -87,7 +87,7 @@ export default class TunnelManager {
 	}
 
 	async close() {
-		logger.info( `#### Closing tunnel ${ this.tunnel.url }` );
+		logger.info( `Closing tunnel ${ this.tunnel.url }` );
 
 		this.tunnel.close();
 		try {

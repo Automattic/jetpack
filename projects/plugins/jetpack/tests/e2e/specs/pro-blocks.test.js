@@ -8,7 +8,7 @@ import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
-import { step } from '../lib/env/setup-env';
+import { step } from '../lib/env/test-setup';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
