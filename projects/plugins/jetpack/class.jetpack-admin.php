@@ -332,7 +332,13 @@ class Jetpack_Admin {
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 
-	function should_display_jitms( $value, $screen_id ) {
+	/**
+	 * @param $value The default value of the filter.
+	 * @param $screen_id The ID of the screen being tested for JITM display.
+	 *
+	 * @return bool True if JITMs should display, false otherwise.
+	 */
+	public function should_display_jitms( $value, $screen_id ) {
 		// Disable all JITMs on these pages.
 		if (
 		in_array(
