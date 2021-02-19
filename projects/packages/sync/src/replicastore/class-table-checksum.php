@@ -181,7 +181,7 @@ class Table_Checksum {
 						),
 					),
 					'comment_approved' => array(
-						'operator' => '<>',
+						'operator' => 'NOT IN',
 						'values'   => array( 'spam' ),
 					),
 				),
@@ -351,7 +351,6 @@ class Table_Checksum {
 			switch ( $filter['operator'] ) {
 				case 'IN':
 				case 'NOT IN':
-				case '<>':
 					$values_placeholders = implode( ',', array_fill( 0, count( $filter['values'] ), '%s' ) );
 					$statement           = "{$key} {$filter['operator']} ( $values_placeholders )";
 
@@ -360,7 +359,6 @@ class Table_Checksum {
 
 					$result[] = $prepared_statement;
 					break;
-				// TODO implement other operators if needed.
 			}
 		}
 
