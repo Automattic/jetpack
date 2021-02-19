@@ -98,8 +98,6 @@ export default class TunnelManager {
 		} catch ( error ) {
 			logger.error( error );
 		}
-		// wait for tunnel to close properly
-		await page.waitForTimeout( 1000 );
 	}
 
 	getSubdomain( url ) {

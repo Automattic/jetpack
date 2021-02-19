@@ -5,7 +5,6 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { catchBeforeAll } from '../lib/env/setup-env';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
 import path from 'path';
 import config from 'config';
@@ -14,7 +13,7 @@ import config from 'config';
 process.env.SKIP_CONNECT = true;
 
 describe( 'Jetpack pre-connection', () => {
-	catchBeforeAll( async () => {
+	ceforeAll( async () => {
 		await execMultipleWpCommands(
 			'wp option delete jetpack_private_options',
 			'wp option delete jetpack_sync_error_idc'

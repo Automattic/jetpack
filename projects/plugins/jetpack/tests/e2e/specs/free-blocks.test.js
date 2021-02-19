@@ -6,10 +6,10 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
-import { catchBeforeAll, step } from '../lib/env/setup-env';
+import { step } from '../lib/env/setup-env';
 
 describe( 'Free blocks', () => {
-	catchBeforeAll( async () => {
+	beforeAll( async () => {
 		await syncJetpackPlanData( 'free' );
 	} );
 

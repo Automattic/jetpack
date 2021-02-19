@@ -6,7 +6,6 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { logDebugLog, logHTML } from '../page-helper';
 import logger from '../logger';
 import { execWpCommand } from '../utils-helper';
 import {
@@ -17,52 +16,15 @@ import {
 import config from 'config';
 import path from 'path';
 
-const { E2E_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML, E2E_RETRY_TIMES } = process.env;
-let currentBlock;
+const { E2E_TIMEOUT, E2E_DEBUG, E2E_RETRY_TIMES } = process.env;
 
-const defaultErrorHandler = async ( error, name ) => {
-	let filePath;
+// The Jest timeout is increased because these tests are a bit slow
+jest.setTimeout( E2E_TIMEOUT || 300000 );
+if ( E2E_DEBUG ) {
+	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
+}
 
-	// If running tests in CI
-	if ( CI ) {
-		await logDebugLog();
-		logger.slack( {
-			type: 'failure',
-			message: { block: currentBlock, name, error },
-		} );
-		if ( filePath ) {
-			logger.slack( { type: 'file', message: filePath } );
-		}
-	}
-
-	if ( E2E_LOG_HTML ) {
-		logHTML();
-	}
-
-	if ( E2E_DEBUG ) {
-		console.log( error );
-		await jestPlaywright.debug();
-	}
-
-	throw error;
-};
-
-/**
- * Wrapper around `beforeAll` to be able to handle thrown exceptions within the hook.
- * Main reason is to be able to universally capture screenshots on exceptions.
- *
- * @param {*} callback
- * @param {*} errorHandler
- */
-export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandler ) => {
-	beforeAll( async () => {
-		try {
-			await callback();
-		} catch ( error ) {
-			await errorHandler( error, 'beforeAll' );
-		}
-	} );
-};
+jest.retryTimes( parseInt( E2E_RETRY_TIMES ) || 0 );
 
 async function setUserAgent() {
 	let userAgent = await page.evaluate( () => navigator.userAgent );
@@ -93,7 +55,7 @@ function observeConsoleLogging() {
 
 		const text = message.text();
 
-		if ( config.get( 'consoleIgnore' ).includes( text ) ) {
+		if ( text.includes( config.get( 'consoleIgnore' ).join() ) ) {
 			return;
 		}
 
@@ -170,14 +132,6 @@ async function maybePreConnect() {
 	}
 }
 
-// The Jest timeout is increased because these tests are a bit slow
-jest.setTimeout( E2E_TIMEOUT || 300000 );
-if ( E2E_DEBUG ) {
-	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
-}
-
-jest.retryTimes( parseInt( E2E_RETRY_TIMES ) || 0 );
-
 // todo do we still need this?
 export const step = async ( stepName, fn ) => {
 	// reporter.startStep( stepName );
@@ -185,13 +139,9 @@ export const step = async ( stepName, fn ) => {
 	// reporter.endStep();
 };
 
-// Before every test suite run, delete all content created by the test. This ensures
-// other posts/comments/etc. aren't dirtying tests and tests don't depend on
-// each other's side-effects.
-catchBeforeAll( async () => {
+beforeAll( async () => {
 	await setUserAgent();
 
-	// Handles not saved changed dialog in block editor
 	observeConsoleLogging();
 
 	page.on( 'dialog', async dialog => {

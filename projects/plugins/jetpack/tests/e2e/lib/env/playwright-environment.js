@@ -1,3 +1,6 @@
+import { logDebugLog } from '../page-helper';
+import logger from '../logger';
+
 const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
 const fs = require( 'fs' );
 const config = require( '../../config/default' );
@@ -61,6 +64,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				await this.saveScreenshot( hookName );
 				await this.storeVideoFileName( hookName );
 				await this.logHTML( hookName );
+				await this.logToSlack();
 				break;
 			case 'test_fn_start':
 				break;
@@ -76,6 +80,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 					await this.saveScreenshot( testName );
 					await this.storeVideoFileName( testName );
 					await this.logHTML( testName );
+					await this.logToSlack();
 				}
 				break;
 			case 'run_describe_finish':
@@ -89,6 +94,20 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			default:
 				break;
 		}
+	}
+
+	// todo do we still want this? we can extract failure info and report to slack after test run
+	async logToSlack() {
+		// if ( CI ) {
+		// 	await logDebugLog();
+		// 	logger.slack( {
+		// 		type: 'failure',
+		// 		message: { block: currentBlock, name, error },
+		// 	} );
+		// 	if ( filePath ) {
+		// 		logger.slack( { type: 'file', message: filePath } );
+		// 	}
+		// }
 	}
 
 	async saveScreenshot( fileName ) {
