@@ -17,9 +17,12 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
+require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 
 new Masterbar();
 new Admin_Color_Schemes();
+new Inline_Help();
+
 
 /**
  * Whether to load the admin menu functionality.
