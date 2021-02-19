@@ -26,8 +26,6 @@ if ( jetpack_is_atomic_site() ) {
 	new Inline_Help();
 }
 
-
-
 /**
  * Whether to load the admin menu functionality.
  *
