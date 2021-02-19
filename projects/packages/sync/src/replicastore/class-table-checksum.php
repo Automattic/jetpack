@@ -372,11 +372,10 @@ class Table_Checksum {
 	 * @param int|null   $range_to      End of the range.
 	 * @param array|null $filter_values Additional filter values. Not used at the moment.
 	 * @param string     $table_prefix  Table name to be prefixed to the columns. Used in sub-queries where columns can clash.
-	 * @param bool       $exclude_range Flag to exclude addition of range filter for parent tables.
 	 *
 	 * @return string
 	 */
-	public function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null, $table_prefix = '', $exclude_range = false ) {
+	public function build_filter_statement( $range_from = null, $range_to = null, $filter_values = null, $table_prefix = '' ) {
 		global $wpdb;
 
 		// If there is a field prefix that we want to use with table aliases.
@@ -387,15 +386,13 @@ class Table_Checksum {
 		 */
 
 		$filter_array = array( '1 = 1' );
-		if ( ! $exclude_range ) {
-			if ( null !== $range_from ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} >= %d", array( intval( $range_from ) ) );
-			}
-			if ( null !== $range_to ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} <= %d", array( intval( $range_to ) ) );
-			}
+		if ( null !== $range_from ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} >= %d", array( intval( $range_from ) ) );
+		}
+		if ( null !== $range_to ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$filter_array[] = $wpdb->prepare( "{$parent_prefix}{$this->range_field} <= %d", array( intval( $range_to ) ) );
 		}
 
 		/**
@@ -486,7 +483,7 @@ class Table_Checksum {
 		$join_statement = '';
 		if ( $this->parent_table ) {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
-			$parent_filter_query = $parent_table_obj->build_filter_statement( $range_from, $range_to, null, 'parent_table', true );
+			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
 			$join_statement = "
 				INNER JOIN {$parent_table_obj->table} as parent_table ON ({$this->table}.{$this->table_join_field} = parent_table.{$this->parent_join_field} AND {$parent_filter_query})
