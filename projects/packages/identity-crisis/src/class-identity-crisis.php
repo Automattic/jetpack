@@ -8,9 +8,14 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Sync\Functions;
 use Jetpack;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
+use WP_Error;
 
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
@@ -205,6 +210,21 @@ class Identity_Crisis {
 	}
 
 	/**
+	 * Checks if the site is currently in an identity crisis.
+	 *
+	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
+	 */
+	public static function check_identity_crisis() {
+		$connection = new Connection_Manager( 'jetpack' );
+
+		if ( ! $connection->is_active() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
+			return false;
+		}
+
+		return Jetpack_Options::get_option( 'sync_error_idc' );
+	}
+
+	/**
 	 * Prepare URL for display.
 	 *
 	 * @param string $url URL to display.
@@ -212,7 +232,7 @@ class Identity_Crisis {
 	 * @return string
 	 */
 	public static function prepare_url_for_display( $url ) {
-		return untrailingslashit( Jetpack::normalize_url_protocol_agnostic( $url ) );
+		return untrailingslashit( self::normalize_url_protocol_agnostic( $url ) );
 	}
 
 	/**
@@ -224,7 +244,7 @@ class Identity_Crisis {
 		// If the site is currently in IDC, let's also clear the VaultPress connection options.
 		// We have to check if the site is in IDC, otherwise we'd be clearing the VaultPress
 		// connection any time the Jetpack connection is cycled.
-		if ( Jetpack::validate_sync_error_idc_option() ) {
+		if ( self::validate_sync_error_idc_option() ) {
 			delete_option( 'vaultpress' );
 			delete_option( 'vaultpress_auto_register' );
 		}
@@ -236,6 +256,155 @@ class Identity_Crisis {
 				'migrate_for_idc',
 			)
 		);
+	}
+
+	/**
+	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
+	 *
+	 * @return bool
+	 * @since 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
+	 *
+	 * @since 4.4.0
+	 */
+	public static function validate_sync_error_idc_option() {
+		$is_valid = false;
+
+		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
+		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
+		if ( $sync_error && self::sync_idc_optin() ) {
+			$local_options = self::get_sync_error_idc_option();
+			// Ensure all values are set.
+			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
+				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
+				if (
+					isset( $sync_error['wpcom_home'] ) &&
+					isset( $sync_error['wpcom_siteurl'] ) &&
+					$sync_error['wpcom_home'] === $local_options['home'] &&
+					$sync_error['wpcom_siteurl'] === $local_options['siteurl']
+				) {
+					$is_valid = false;
+					// Enable migrate_for_idc so that sync actions are accepted.
+					Jetpack_Options::update_option( 'migrate_for_idc', true );
+				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+					$is_valid = true;
+				}
+			}
+		}
+
+		/**
+		 * Filters whether the sync_error_idc option is valid.
+		 *
+		 * @param bool $is_valid If the sync_error_idc is valid or not.
+		 *
+		 * @since 4.4.0
+		 */
+		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
+
+		if ( ! $is_valid && $sync_error ) {
+			// Since the option exists, and did not validate, delete it.
+			Jetpack_Options::delete_option( 'sync_error_idc' );
+		}
+
+		return $is_valid;
+	}
+
+	/**
+	 * Normalizes a url by doing three things:
+	 *  - Strips protocol
+	 *  - Strips www
+	 *  - Adds a trailing slash
+	 *
+	 * @param string $url URL to parse.
+	 *
+	 * @return WP_Error|string
+	 * @since 4.4.0
+	 */
+	public static function normalize_url_protocol_agnostic( $url ) {
+		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
+		if ( ! $parsed_url || empty( $parsed_url['host'] ) || empty( $parsed_url['path'] ) ) {
+			return new WP_Error(
+				'cannot_parse_url',
+				sprintf(
+				/* translators: %s: URL to parse. */
+					esc_html__( 'Cannot parse URL %s', 'jetpack' ),
+					$url
+				)
+			);
+		}
+
+		// Strip www and protocols.
+		$url = preg_replace( '/^www\./i', '', $parsed_url['host'] . $parsed_url['path'] );
+
+		return $url;
+	}
+
+	/**
+	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
+	 *
+	 * @param array $response HTTP response.
+	 *
+	 * @return array Array of the local urls, wpcom urls, and error code.
+	 * @since 4.4.0
+	 * @since 5.4.0 Add transient since home/siteurl retrieved directly from DB.
+	 */
+	public static function get_sync_error_idc_option( $response = array() ) {
+		// Since the local options will hit the database directly, store the values
+		// in a transient to allow for autoloading and caching on subsequent views.
+		$local_options = get_transient( 'jetpack_idc_local' );
+		if ( false === $local_options ) {
+			$local_options = array(
+				'home'    => Functions::home_url(),
+				'siteurl' => Functions::site_url(),
+			);
+			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
+		}
+
+		$options = array_merge( $local_options, $response );
+
+		$returned_values = array();
+		foreach ( $options as $key => $option ) {
+			if ( 'error_code' === $key ) {
+				$returned_values[ $key ] = $option;
+				continue;
+			}
+
+			$normalized_url = self::normalize_url_protocol_agnostic( $option );
+			if ( is_wp_error( $normalized_url ) ) {
+				continue;
+			}
+
+			$returned_values[ $key ] = $normalized_url;
+		}
+
+		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
+
+		return $returned_values;
+	}
+
+	/**
+	 * Returns the value of the jetpack_sync_idc_optin filter, or constant.
+	 * If set to true, the site will be put into staging mode.
+	 *
+	 * @return bool
+	 * @since 4.3.2
+	 */
+	public static function sync_idc_optin() {
+		if ( Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+			$default = Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
+		} else {
+			$default = ! Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
+		}
+
+		/**
+		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
+		 * JETPACK_SYNC_IDC_OPTIN constant if set.
+		 *
+		 * @param bool $default Whether the site is opted in to IDC mitigation.
+		 *
+		 * @since 4.3.2
+		 */
+		return (bool) apply_filters( 'jetpack_sync_idc_optin', $default );
 	}
 
 	/**
