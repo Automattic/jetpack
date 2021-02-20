@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Sync\Functions;
-use Jetpack;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
 use WP_Error;
@@ -72,7 +71,7 @@ class Identity_Crisis {
 	 */
 	private function __construct() {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
-		$urls_in_crisis = Jetpack::check_identity_crisis();
+		$urls_in_crisis = self::check_identity_crisis();
 		if ( false === $urls_in_crisis ) {
 			return;
 		}
@@ -840,8 +839,8 @@ class Identity_Crisis {
 		$string = sprintf(
 		/* translators: %s: Site URL. */
 			esc_html__( 'Is %1$s the new home of %2$s?', 'jetpack' ),
-			untrailingslashit( Jetpack::normalize_url_protocol_agnostic( get_home_url() ) ),
-			untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+			untrailingslashit( self::normalize_url_protocol_agnostic( get_home_url() ) ),
+			untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
 		);
 
 		/**
@@ -867,7 +866,7 @@ class Identity_Crisis {
 				esc_url( get_home_url() ),
 				self::prepare_url_for_display( get_home_url() ),
 				esc_url( self::$wpcom_home_url ),
-				untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+				untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
 			),
 			array( 'a' => array( 'href' => array() ) )
 		);
@@ -913,7 +912,7 @@ class Identity_Crisis {
 				esc_url( get_home_url() ),
 				self::prepare_url_for_display( get_home_url() ),
 				esc_url( self::$wpcom_home_url ),
-				untrailingslashit( Jetpack::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
+				untrailingslashit( self::normalize_url_protocol_agnostic( esc_url_raw( self::$wpcom_home_url ) ) )
 			),
 			array( 'a' => array( 'href' => array() ) )
 		);
