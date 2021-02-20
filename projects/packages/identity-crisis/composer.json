@@ -3,11 +3,16 @@
 	"description": "Identity Crisis.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
-	"require-dev": {
+	"require": {
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-tracking": "@dev",
+		"automattic/jetpack-logo": "@dev",
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
+	"require-dev": {},
 	"autoload": {
 		"classmap": [
 			"src/"
