@@ -937,11 +937,12 @@ class Manager {
 
 		\Jetpack_Options::update_options(
 			array(
-				'id'         => (int) $registration_details->jetpack_id,
-				'blog_token' => (string) $registration_details->jetpack_secret, // TODO, should this implementation detail be hidden?
-				'public'     => $jetpack_public,
+				'id'     => (int) $registration_details->jetpack_id,
+				'public' => $jetpack_public,
 			)
 		);
+
+		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
 		/**
 		 * Fires when a site is registered on WordPress.com.

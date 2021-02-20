@@ -40,9 +40,9 @@ class Secrets {
 	/**
 	 * Generates two secret tokens and the end of life timestamp for them.
 	 *
-	 * @param String  $action  The action name.
-	 * @param Integer $user_id The user identifier.
-	 * @param Integer $exp     Expiration time in seconds.
+	 * @param String       $action       The action name.
+	 * @param Integer|bool $user_id The user identifier. Defaults to `false`.
+	 * @param Integer      $exp          Expiration time in seconds.
 	 */
 	public function generate( $action, $user_id = false, $exp = 600 ) {
 		if ( false === $user_id ) {
