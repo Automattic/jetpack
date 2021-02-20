@@ -437,13 +437,11 @@ class Tokens {
 	 * @param bool    $can_overwrite_primary_user Allow for the primary user to be disconnected.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
-	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
+	public function disconnect_user( $user_id, $can_overwrite_primary_user = false ) {
 		$tokens = Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! $tokens ) {
 			return false;
 		}
-
-		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
 		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
 			return false;
@@ -453,25 +451,9 @@ class Tokens {
 			return false;
 		}
 
-		$xml = new \Jetpack_IXR_Client( compact( 'user_id' ) );
-		$xml->query( 'jetpack.unlink_user', $user_id );
-
 		unset( $tokens[ $user_id ] );
 
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
-
-		// Delete cached connected user data.
-		$transient_key = "jetpack_connected_user_data_$user_id";
-		delete_transient( $transient_key );
-
-		/**
-		 * Fires after the current user has been unlinked from WordPress.com.
-		 *
-		 * @since 4.1.0
-		 *
-		 * @param int $user_id The current user's ID.
-		 */
-		do_action( 'jetpack_unlinked_user', $user_id );
 
 		return true;
 	}
