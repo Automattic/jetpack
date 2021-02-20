@@ -10,6 +10,9 @@
 namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\Config;
+use Automattic\Jetpack\Changelogger\PluginTrait;
+use Automattic\Jetpack\Changelogger\VersioningPlugin;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Wikimedia\TestingAccessWrapper;
 
@@ -221,6 +224,137 @@ class ConfigTest extends TestCase {
 			),
 			Config::types()
 		);
+	}
+
+	/**
+	 * Test the getPlugin method.
+	 */
+	public function testGetPlugin() {
+		$w = TestingAccessWrapper::newFromClass( Config::class );
+
+		// Get plugin by class.
+		$mock1  = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
+		$class1 = get_class( $mock1 );
+		$this->assertInstanceOf( $class1, $w->getPlugin( array( 'class' => $class1 ), 'Dummy', MockObject::class ) );
+
+		// Get plugin by name.
+		$mock2  = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
+		$class2 = get_class( $mock2 );
+		class_alias( $class2, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class );
+		$this->assertInstanceOf( $class2, $w->getPlugin( 'foo', 'Dummy', MockObject::class ) );
+		$this->assertInstanceOf( $class2, $w->getPlugin( array( 'name' => 'foo' ), 'Dummy', MockObject::class ) );
+
+		// Get by loading file, valid file.
+		$ns        = __NAMESPACE__;
+		$classBody = 'implements \\' . VersioningPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n\tpublic function nextVersion( \$version, array \$changes ){}\n}";
+		file_put_contents(
+			'dummy.php',
+			"<?php\nnamespace $ns;\nclass TestFromFile $classBody\n"
+		);
+		$ret = $w->getPlugin(
+			array(
+				'filename' => 'dummy.php',
+				'option'   => 'value',
+			),
+			'Dummy',
+			VersioningPlugin::class
+		);
+		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile', $ret );
+		$this->assertSame(
+			array(
+				'filename' => 'dummy.php',
+				'option'   => 'value',
+			),
+			$ret->c
+		);
+
+		// Get by loading file, file with no classes.
+		file_put_contents( 'dummy2.php', '<?php' );
+		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy2.php' ), 'Dummy', VersioningPlugin::class ) );
+
+		// Get by loading file, file with no valid classes.
+		file_put_contents(
+			'dummy3.php',
+			"<?php\nnamespace $ns;\nclass TestFromFile3 {}\n"
+		);
+		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy3.php' ), 'Dummy', VersioningPlugin::class ) );
+
+		// Get by loading file, file with one valid class.
+		file_put_contents(
+			'dummy4.php',
+			"<?php\nnamespace $ns;\nclass TestFromFile4a {}\nclass TestFromFile4b $classBody\n"
+		);
+		$ret = $w->getPlugin( array( 'filename' => 'dummy4.php' ), 'Dummy', VersioningPlugin::class );
+		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile4b', $ret );
+
+		// Get by loading file, file with two valid class.
+		file_put_contents(
+			'dummy5.php',
+			"<?php\nnamespace $ns;\nclass TestFromFile5a $classBody\nclass TestFromFile5b $classBody\n"
+		);
+		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy5.php' ), 'Dummy', VersioningPlugin::class ) );
+
+		// Test invalid class handling.
+		$this->assertNull( $w->getPlugin( 'baz', 'Dummy', MockObject::class ) );
+
+		// Test a config array with no valid plugin specifier.
+		$this->assertNull( $w->getPlugin( array(), 'Dummy', MockObject::class ) );
+	}
+
+	/**
+	 * Test the formatterPlugin method.
+	 */
+	public function testFormatterPlugin() {
+		$this->resetConfigCache();
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+
+		$this->assertInstanceOf(
+			\Automattic\Jetpack\Changelogger\Plugins\KeepachangelogFormatter::class,
+			Config::formatterPlugin()
+		);
+	}
+
+	/**
+	 * Test the formatterPlugin method error case.
+	 */
+	public function testFormatterPlugin_error() {
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'formatter' => array( 'class' => 'foobar' ) ) );
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( "Unknown formatter plugin {\n    \"class\": \"foobar\"\n}" );
+		Config::formatterPlugin();
+	}
+
+	/**
+	 * Test the versioningPlugin method.
+	 */
+	public function testVersioningPlugin() {
+		$this->resetConfigCache();
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+
+		$this->assertInstanceOf(
+			\Automattic\Jetpack\Changelogger\Plugins\SemverVersioning::class,
+			Config::versioningPlugin()
+		);
+	}
+
+	/**
+	 * Test the versioningPlugin method error case.
+	 */
+	public function testVersioningPlugin_error() {
+		$this->resetConfigCache();
+		$this->writeComposerJson( array( 'versioning' => array( 'class' => 'foobar' ) ) );
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( "Unknown versioning plugin {\n    \"class\": \"foobar\"\n}" );
+		Config::versioningPlugin();
 	}
 
 }

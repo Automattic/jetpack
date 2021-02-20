@@ -189,9 +189,10 @@ class Config {
 	 *
 	 * @param string|array $config Plugin name or configuration array.
 	 * @param string       $suffix Plugin class suffix.
+	 * @param string       $interface Expected interface name.
 	 * @return object|null Object, or null if the plugin was not found.
 	 */
-	private static function getPlugin( $config, $suffix ) {
+	private static function getPlugin( $config, $suffix, $interface ) {
 		if ( is_string( $config ) ) {
 			$config = array( 'name' => $config );
 		}
@@ -203,7 +204,12 @@ class Config {
 		} elseif ( isset( $config['filename'] ) ) {
 			$classes = get_declared_classes();
 			require $config['filename'];
-			$classes = array_diff( get_declared_classes(), $classes );
+			$classes = array_filter(
+				array_diff( get_declared_classes(), $classes ),
+				function ( $class ) use ( $interface ) {
+					return is_a( $class, $interface, true );
+				}
+			);
 			if ( count( $classes ) !== 1 ) {
 				return null;
 			}
@@ -211,7 +217,7 @@ class Config {
 		} else {
 			return null;
 		}
-		if ( ! class_exists( $class ) ) {
+		if ( ! class_exists( $class ) || ! is_a( $class, $interface, true ) ) {
 			return null;
 		}
 		return $class::instantiate( $config );
@@ -226,7 +232,7 @@ class Config {
 	public static function formatterPlugin() {
 		self::load();
 		if ( ! isset( self::$cache['formatter'] ) ) {
-			$obj = self::getPlugin( self::$config['formatter'], 'Formatter' );
+			$obj = self::getPlugin( self::$config['formatter'], 'Formatter', FormatterPlugin::class );
 			if ( ! $obj instanceof FormatterPlugin ) {
 				$info = json_encode( self::$config['formatter'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 				throw new \RuntimeException( "Unknown formatter plugin $info" );
@@ -245,7 +251,7 @@ class Config {
 	public static function versioningPlugin() {
 		self::load();
 		if ( ! isset( self::$cache['versioning'] ) ) {
-			$obj = self::getPlugin( self::$config['versioning'], 'Versioning' );
+			$obj = self::getPlugin( self::$config['versioning'], 'Versioning', VersioningPlugin::class );
 			if ( ! $obj instanceof VersioningPlugin ) {
 				$info = json_encode( self::$config['versioning'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 				throw new \RuntimeException( "Unknown versioning plugin $info" );

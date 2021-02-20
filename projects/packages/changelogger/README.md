@@ -89,7 +89,8 @@ A plugin is specified by a JSON string, or an object with one of the following k
 
 - **name**: See below, or plugin documentation.
 - **class**: Plugin class name. Must be available via the autoloader.
-- **filename**: File from which to load the plugin class. The file must define exactly one class.
+- **filename**: File from which to load the plugin class. The file must define exactly one class of
+  the appropriate interface.
 
 The plugin may take additional keys as configuration. See the plugin documentation for details.
 
