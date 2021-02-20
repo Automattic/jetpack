@@ -84,7 +84,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"resolutions": {
-		"**/@automattic/calypso-build/node-sass": "^4.13.1",
+		"**/@automattic/calypso-build/node-sass": "^5.0.0",
 		"**/gulp/gulp-cli/yargs/yargs-parser": "^20.0.0",
 		"**/ini": "^1.3.7",
 		"**/lodash": "4.17.20",
