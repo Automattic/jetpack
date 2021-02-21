@@ -1,4 +1,4 @@
-# Parser text fixture file
+# Automattic\Jetpack\Changelog\KeepAChangelogParser test fixture file
 
 ## Changelog file
   ~~~~~~~~markdown changelog
@@ -18,5 +18,5 @@
 ## Expected output from `format()`
   ~~~~~~~~markdown format-output
   
-  
+
   ~~~~~~~~

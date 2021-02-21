@@ -1,9 +1,9 @@
-# Parser text fixture file
+# Automattic\Jetpack\Changelog\KeepAChangelogParser test fixture file
 
 ## Changelog file
   ~~~~~~~~markdown changelog
   ## 2.0 - now
-  
+
   ~~~~~~~~
 
 ## Expected exception from `parse()`

@@ -1,4 +1,4 @@
-# Parser text fixture file
+# Automattic\Jetpack\Changelog\KeepAChangelogParser test fixture file
 
 ## Constructor args
   ~~~~~~~~json args
@@ -14,20 +14,20 @@
 ## Changelog file
   ~~~~~~~~markdown changelog
   ## 1.0 - 18 February 2021
-  
+
    * Right bullet.
    * Another right bullet.
    * Who did this? (me)
    * Not an author: (me).
-  
+
   ## 0.9 - 2021-02-17
-  
+
   * Wrong bullet.
-  
+
   ## 0.8 - 2021-02-16
-  
+
   - Wrong bullet.
-  
+
   ~~~~~~~~
 
 ## Changelog object
@@ -104,18 +104,18 @@
 ## Expected output from `format()`
   ~~~~~~~~markdown format-output
   ## 1.0 - 18 February 2021
-  
+
    * Right bullet.
    * Another right bullet.
    * Who did this? (me)
    * Not an author: (me).
-  
+
   ## 0.9 - 17 February 2021
-  
+
   * Wrong bullet.
-  
+
   ## 0.8 - 16 February 2021
-  
+
   - Wrong bullet.
-  
+
   ~~~~~~~~

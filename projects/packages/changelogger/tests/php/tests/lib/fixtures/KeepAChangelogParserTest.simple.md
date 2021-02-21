@@ -1,14 +1,14 @@
-# Parser text fixture file
+# Automattic\Jetpack\Changelog\KeepAChangelogParser test fixture file
 
 ## Changelog file
   ~~~~~~~~markdown changelog
   # Changelog
   Prologue text for the changelog as a whole.
-  
+
   ## [1.0.1] - 2021-02-18
-  
+
   Prologue text for version 1.0.1.
-  
+
   ### Changed
   - Stuff.
     Stuff.
@@ -16,23 +16,23 @@
   - And more stuff.
     - This.
     - That.
-  
+
   ### Fixed
   - A typo. (me)
-  
+
   Epilogue text.
-  
+
   ## [1.0.0] - 2021-02-17
-  
+
   - Initial release.
-  
+
   ### Added
   - Everything.
     And then some.
-  
+
   [1.0.1]: https://example.org/1.0.1
   [1.0.0]: https://example.org/1.0.0
-  
+
   ~~~~~~~~
 
 ## Changelog object

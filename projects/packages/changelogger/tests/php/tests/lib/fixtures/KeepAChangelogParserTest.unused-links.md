@@ -1,10 +1,10 @@
-# Parser text fixture file
+# Automattic\Jetpack\Changelog\KeepAChangelogParser test fixture file
 
 ## Changelog file
   ~~~~~~~~markdown changelog
   # Changelog
   Prologue text for the changelog as a whole.
-  
+
   ## [1.0.6] - 2021-02-07
   ## [1.0.5] - 2021-02-06
   ## [1.0.4] - 2021-02-05
@@ -12,7 +12,7 @@
   ## [1.0.2] - 2021-02-03
   ## [1.0.1] - 2021-02-02
   ## [1.0.0] - 2021-02-01
-  
+
   [1.0.1]: https://example.org/1.0.1
   [foo]: https://example.org/foo "F'o\"o"
   [1.0.2]:https://example.org/1.0.2  
@@ -27,7 +27,7 @@
   [quux]: https://example.org/quux
   [1.0.0]: https://example.org/1.0.0
   [1.0.6]: https://example.org/1.0.6
-  
+
   ~~~~~~~~
 
 ## Changelog object
@@ -108,21 +108,21 @@
   ~~~~~~~~markdown format-output
   # Changelog
   Prologue text for the changelog as a whole.
-  
+
   ## [1.0.6] - 2021-02-07
-  
+
   ## [1.0.5] - 2021-02-06
-  
+
   ## [1.0.4] - 2021-02-05
-  
+
   ## [1.0.3] - 2021-02-04
-  
+
   ## [1.0.2] - 2021-02-03
-  
+
   ## [1.0.1] - 2021-02-02
-  
+
   ## [1.0.0] - 2021-02-01
-  
+
   [foo]: https://example.org/foo "F'o\"o"
   [bar]: https://example.org/bar 'Ba\'r'
   [baz]: https://example.org/baz (B\(a\)z)
@@ -137,5 +137,5 @@
   [1.0.2]: https://example.org/1.0.2
   [1.0.1]: https://example.org/1.0.1
   [1.0.0]: https://example.org/1.0.0
-  
+
   ~~~~~~~~
