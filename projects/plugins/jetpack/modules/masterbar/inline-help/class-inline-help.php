@@ -35,6 +35,12 @@ class Inline_Help {
 			return;
 		}
 
+		$is_gutenframe = 0 === strpos( $_SERVER['REQUEST_URI'], 'frame-nonce' );
+
+		if ( $is_gutenframe ) {
+			return;
+		}
+
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
 		echo '<div class="inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="inline-help__button">' . $gridicon_help . '</a></div>';
