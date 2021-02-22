@@ -1,6 +1,9 @@
 <?php
 /**
- * Admin Menu file.
+ * Inline Help
+ *
+ * Handles providing a LiveChat icon within WPAdmin until such time
+ * as the full live chat experience can be run in a non-Calypso environment.
  *
  * @package automattic/jetpack
  */
