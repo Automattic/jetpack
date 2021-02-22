@@ -382,7 +382,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
-		if ( ! ( new Manager() )->is_user_connected() ) {
+		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! ( new Manager() )->is_user_connected() ) {
 			echo '<p>';
 			printf(
 				// translators: %1$1 and %2$s are the opening and closing a tags creating a link to the Jetpack dashboard.
