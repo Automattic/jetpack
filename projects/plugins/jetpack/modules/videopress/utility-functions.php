@@ -529,6 +529,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->blog_id         = $blog_id;
 	$video_info->guid            = null;
 	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
+	$video_info->rating          = null;
 
 	if ( is_wp_error( $post ) ) {
 		return $video_info;

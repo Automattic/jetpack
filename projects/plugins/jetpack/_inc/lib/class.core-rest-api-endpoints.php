@@ -1758,7 +1758,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
-	 * @uses  Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @uses  Automattic\Jetpack\Connection\Manager->disconnect_user
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -1770,7 +1770,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( Connection_Manager::disconnect_user() ) {
+		if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user() ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
@@ -3966,7 +3966,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response A response object containing the Jetpack CRM data.
 	 */
 	public static function get_jetpack_crm_data() {
-		$jetpack_crm_data = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->get_crm_data();
+		$jetpack_crm_data = ( new Jetpack_CRM_Data() )->get_crm_data();
 		return rest_ensure_response( $jetpack_crm_data );
 	}
 
@@ -3981,7 +3981,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Missing or invalid extension parameter.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		$result = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->activate_crm_jetpackforms_extension();
+		$result = ( new Jetpack_CRM_Data() )->activate_crm_jetpackforms_extension();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;

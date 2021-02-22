@@ -1,6 +1,9 @@
 @import '../lib/styles/_helper.scss';
 
-.jetpack-instant-search {
+.jetpack-instant-search,
+// Extra specific to override in some themes
+.jetpack-instant-search .widget,
+.jetpack-instant-search .widget.widget_archive ul li {
 	a {
 		color: $color-link;
 		text-decoration: none;
