@@ -319,11 +319,17 @@ export function generateAction( answers = { name: 'test', description: 'n/a', bu
 	// Copy the skeletons over
 	createSkeleton( pluralize( answers.type ), actDir, answers.name );
 
+	// Create composer.json
+	const actionComposerJson = createActionJson( answers );
+	writeToFile( actDir + `/composer.json`, actionComposerJson );
+
 	// Create the YAML file
-	const yamlFile = yaml.load( fs.readFileSync( actDir + '/action.yml', 'utf8' ) );
-	yamlFile.name = answers.name;
-	yamlFile.description = answers.description;
+	const yamlFile = createYaml( actDir + '/action.yml', answers );
 	writeToFile( actDir + '/action.yml', yaml.dump( yamlFile ) );
+
+	// Create the README.md
+	const readmeMdContent = createReadMeMd( answers );
+	writeToFile( actDir + '/README.md', readmeMdContent );
 }
 
 /**
@@ -407,6 +413,38 @@ export function createComposerJson( composerJson, answers ) {
 }
 
 /**
+ * Creates custom readme.md content.
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the readme.txt file.
+ */
+function createReadMeMd( answers ) {
+	const content =
+		`# ${ answers.name }\n` +
+		'\n' +
+		`${ answers.description }\n` +
+		'\n' +
+		`## How to install ${ answers.name }\n` +
+		'\n' +
+		'### Installation From Git Repo\n' +
+		'\n' +
+		'## Contribute\n' +
+		'\n' +
+		'## Get Help\n' +
+		'\n' +
+		'## Security\n' +
+		'\n' +
+		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
+		'\n' +
+		'## License\n' +
+		'\n' +
+		`${ answers.name } is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)\n` +
+		'\n';
+	return content;
+}
+
+/**
  * Creates header for main plugin file.
  *
  * @param {object} answers - Answers returned for project creation.
@@ -459,35 +497,44 @@ function createReadMeTxt( answers ) {
 }
 
 /**
- * Creates custom readme.md content for plugins and packages.
+ * Creates custom composer.json content for github actions.
  *
  * @param {object} answers - Answers returned for project creation.
  *
  * @returns {string} content - The content we're writing to the readme.txt file.
+ * @todo replace mirror-repo with returned mirror-repo answer.
  */
-function createReadMeMd( answers ) {
+function createActionJson( answers ) {
 	const content =
-		`# ${ answers.name }\n` +
-		'\n' +
-		`${ answers.description }` +
-		'\n' +
-		`## How to install ${ answers.name }\n` +
-		'\n' +
-		'### Installation From Git Repo\n' +
-		'\n' +
-		'## Contribute\n' +
-		'\n' +
-		'## Get Help\n' +
-		'\n' +
-		'## Security\n' +
-		'\n' +
-		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
-		'\n' +
-		'## License\n' +
-		'\n' +
-		`${ answers.name } is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)\n` +
-		'\n';
+		`{\n` +
+		`	"name": "automattic/action-${ answers.name }",\n` +
+		`	"description": "${ answers.description }",\n` +
+		`	"type": "project",\n` +
+		`	"license": "GPL-2.0-or-later",\n` +
+		`	"require": {},\n` +
+		`	"extra": {\n` +
+		`		"mirror-repo": "Automattic/action-${ answers.name }"\n` +
+		`	}\n` +
+		`}`;
 	return content;
+}
+
+/** Creates YAML file skeleton for github actions.
+ *
+ * @param {string} dir - file path we're writing to.
+ * @param {string} answers - the answers to fill in the skeleton.
+ *
+ * @returns {string} yamlFile - the YAML file we've created.
+ */
+function createYaml( dir, answers ) {
+	try {
+		const yamlFile = yaml.load( fs.readFileSync( dir ) );
+		yamlFile.name = answers.name;
+		yamlFile.description = answers.description;
+		return yamlFile;
+	} catch ( err ) {
+		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+	}
 }
 
 /** Writes to files.
