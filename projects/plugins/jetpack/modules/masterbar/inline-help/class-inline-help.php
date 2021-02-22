@@ -32,12 +32,12 @@ class Inline_Help {
 	public function add_fab_icon( $data ) {
 
 		if ( wp_doing_ajax() ) {
-			return $data;
+			return;
 		}
 
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
-		echo '<div class="inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="Help" class="inline-help__button">' . $gridicon_help . '</a></div>';
+		echo '<div class="inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="inline-help__button">' . $gridicon_help . '</a></div>';
 	}
 
 
