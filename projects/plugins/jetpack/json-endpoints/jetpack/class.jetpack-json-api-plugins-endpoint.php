@@ -200,14 +200,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $plugin;
 	}
 
-	protected function plugin_has_autoupdates_enabled( $plugin_file ) {
-		return (bool) in_array( $plugin_file, (array) get_site_option( 'auto_update_plugins', array() ), true );
-	}
-
 	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {
 		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
 	}
-
 
 	protected function get_file_mod_capabilities() {
 		$reasons_can_not_autoupdate = array();
