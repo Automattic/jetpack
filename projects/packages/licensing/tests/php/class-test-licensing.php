@@ -92,6 +92,24 @@ class Test_Licensing extends BaseTestCase {
 	}
 
 	/**
+	 * Test append_license().
+	 */
+	public function test_append_license() {
+		$licensing = new Licensing();
+
+		delete_option( Licensing::LICENSES_OPTION_NAME );
+
+		$licensing->append_license( 'foo' );
+		$this->assertSame( array( 'foo' ), $licensing->stored_licenses() );
+
+		update_option( Licensing::LICENSES_OPTION_NAME, array( 'foo', 'bar' ) );
+		$licensing->append_license( 'baz' );
+		$this->assertSame( array( 'foo', 'bar', 'baz' ), $licensing->stored_licenses() );
+
+		delete_option( Licensing::LICENSES_OPTION_NAME );
+	}
+
+	/**
 	 * Test attach_licenses() without an active Jetpack connection.
 	 */
 	public function test_attach_licenses__without_connection() {

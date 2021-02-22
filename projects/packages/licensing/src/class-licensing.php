@@ -113,6 +113,21 @@ class Licensing {
 	}
 
 	/**
+	 * Append a license
+	 *
+	 * @param string $license A jetpack license key.
+	 * @return string[] License keys.
+	 */
+	public function append_license( $license ) {
+		$licenses = $this->stored_licenses();
+
+		array_push( $licenses, $license );
+		update_option( self::LICENSES_OPTION_NAME, $licenses );
+
+		return $licenses;
+	}
+
+	/**
 	 * Make an authenticated WP.com XMLRPC multicall request to attach the provided license keys.
 	 *
 	 * @param string[] $licenses License keys to attach.
