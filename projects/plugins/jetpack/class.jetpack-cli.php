@@ -1,16 +1,16 @@
 <?php
 
-WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
-
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
+
+WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
  * Control your local Jetpack installation.
@@ -230,7 +230,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				);
 				break;
 			case 'user':
-				if ( Connection_Manager::disconnect_user( $user->ID ) ) {
+				if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user( $user->ID ) ) {
 					Jetpack::log( 'unlink', $user->ID );
 					WP_CLI::success( __( 'User has been successfully disconnected.', 'jetpack' ) );
 				} else {
@@ -1281,7 +1281,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$is_master_user  = ! Jetpack::is_active();
 		$current_user_id = get_current_user_id();
 
-		Connection_Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
+		( new Tokens() )->update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
 
 		WP_CLI::log( wp_json_encode( $named_args ) );
 

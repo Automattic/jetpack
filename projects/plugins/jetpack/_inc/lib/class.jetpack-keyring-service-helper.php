@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Secrets;
+
 class Jetpack_Keyring_Service_Helper {
 	/**
 	 * @var Jetpack_Keyring_Service_Helper
@@ -175,7 +177,7 @@ class Jetpack_Keyring_Service_Helper {
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					$verification = Jetpack::generate_secrets( 'publicize' );
+					$verification = ( new Secrets() )->generate( 'publicize' );
 					if ( ! $verification ) {
 						$url = Jetpack::admin_url( 'jetpack#/settings' );
 						wp_die( sprintf( __( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack' ), $url ) );

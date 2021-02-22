@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
@@ -85,7 +86,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return object|false
 	 */
 	protected function helper_get_blog_token() {
-		return Jetpack::connection()->get_access_token();
+		return ( new Tokens() )->get_access_token();
 	}
 
 	/**
@@ -481,7 +482,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$m                = new Connection_Manager();
 		$user_id          = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
-		$validated_tokens = $m->validate_tokens( $user_id );
+		$validated_tokens = ( new Tokens() )->validate( $user_id );
 
 		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
 			return self::skipped_test(
