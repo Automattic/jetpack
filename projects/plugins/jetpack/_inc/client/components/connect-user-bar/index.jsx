@@ -33,7 +33,7 @@ const ConnectUserBar = props => {
 					/>
 				</div>
 			) }
-			{ showConnect && <ConnectUserFrame /> }
+			{ showConnect && <ConnectUserFrame source="connect-user-bar" /> }
 		</Card>
 	);
 };

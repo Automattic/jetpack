@@ -31,6 +31,7 @@ export class AuthIframe extends React.Component {
 		scrollToIframe: PropTypes.bool,
 		onAuthorized: PropTypes.func,
 		hasConnectedOwner: PropTypes.bool,
+		source: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -83,6 +84,12 @@ export class AuthIframe extends React.Component {
 		if ( this.props.hasConnectedOwner ) {
 			src += '&display-tos';
 			height = ( parseInt( height ) + 50 ).toString();
+		}
+
+		src += '&iframe_height=' + parseInt( height );
+
+		if ( this.props.source ) {
+			src += '&iframe_source=' + this.props.source;
 		}
 
 		return (

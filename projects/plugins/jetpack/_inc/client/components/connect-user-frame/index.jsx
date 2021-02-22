@@ -12,7 +12,7 @@ import AuthIframe from 'components/auth-iframe';
 import Gridicon from 'components/gridicon';
 import './style.scss';
 
-const ConnectUserFrame = () => {
+const ConnectUserFrame = props => {
 	return (
 		<div className="jp-connect-user-frame">
 			<div className="jp-connect-user-frame__left">
@@ -59,14 +59,20 @@ const ConnectUserFrame = () => {
 			</div>
 
 			<div className="jp-connect-user-frame__right">
-				<AuthIframe scrollToIframe={ false } title="" width="347" height="353" />
+				<AuthIframe
+					scrollToIframe={ false }
+					title=""
+					width="347"
+					height="353"
+					source={ props.source }
+				/>
 			</div>
 		</div>
 	);
 };
 
 ConnectUserFrame.propTypes = {
-	text: PropTypes.string.isRequired,
+	source: PropTypes.string,
 };
 
 export default ConnectUserFrame;
