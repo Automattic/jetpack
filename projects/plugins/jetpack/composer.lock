@@ -584,7 +584,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "40bb94e8719f9b4c4e2b15c0db6c6d2af91098f0"
+                "reference": "aaa4ddbbc37befbf82b59b642d8adf88fe2e78aa"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -611,6 +611,14 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build-production"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ],
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"

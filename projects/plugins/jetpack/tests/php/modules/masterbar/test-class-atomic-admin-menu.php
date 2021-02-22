@@ -310,10 +310,30 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( false );
+		$general_submenu_item = array(
+			'Advanced General',
+			'manage_options',
+			'options-general.php',
+			'Advanced General',
+		);
 
+		$writing_submenu_item = array(
+			'Advanced Writing',
+			'manage_options',
+			'options-writing.php',
+			'Advanced Writing',
+		);
+
+		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
+
+		static::$admin_menu->add_options_menu( true );
+		$this->assertNotContains( $general_submenu_item, $submenu['options-general.php'] );
+		$this->assertNotContains( $writing_submenu_item, $submenu['options-general.php'] );
+
+		static::$admin_menu->add_options_menu( false );
 		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
+		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
+		$this->assertContains( $writing_submenu_item, $submenu[ $slug ] );
 	}
 
 	/**
@@ -328,5 +348,54 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		// Check Plugins menu always links to WP Admin.
 		$this->assertContains( 'plugins.php', $menu[65] );
+	}
+
+	/**
+	 * Tests add_theme_install_menu
+	 *
+	 * @covers ::add_theme_install_menu
+	 */
+	public function test_add_theme_install_menu() {
+		global $submenu;
+
+		$slug         = 'https://wordpress.com/themes/' . static::$domain;
+		$submenu_item = array(
+			'Add New Theme',
+			'install_themes',
+			'theme-install.php',
+			'Add New Theme',
+		);
+		static::$admin_menu->add_appearance_menu( false );
+		static::$admin_menu->add_theme_install_menu( false );
+
+		// Multisite users don't have the `install_themes` capability by default,
+		// so we have to make a dynamic check based on whether the current user can
+		// install themes.
+		if ( current_user_can( 'install_themes' ) ) {
+			$this->assertContains( $submenu_item, $submenu[ $slug ] );
+		} else {
+			$this->assertNotContains( $submenu_item, $submenu[ $slug ] );
+		}
+	}
+
+	/**
+	 * Tests add_appearance_menu
+	 *
+	 * @covers ::add_appearance_menu
+	 */
+	public function test_add_appearance_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/themes/' . static::$domain;
+		static::$admin_menu->add_appearance_menu( false, false );
+
+		// Check Customize menu always links to WP Admin.
+		$customize_submenu_item = array(
+			'Customize',
+			'customize',
+			'customize.php',
+			'Customize',
+		);
+		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 	}
 }

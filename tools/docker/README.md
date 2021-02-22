@@ -154,24 +154,10 @@ This command runs the tests as a multi site install
 yarn docker:phpunit:multisite --filter=Protect
 ```
 
-For all package unit tests
+To run tests for specific packages, you can run the tests locally, from within the package's directory:
 ```sh
-yarn docker:phpunit:package
-```
-
-For a specific package's tests
-```sh
-yarn docker:phpunit:package autoloader
-```
-
-If you need to clear out a particular package's composer.lock
-```sh
-yarn docker:phpunit:package autoloader -c
-```
-
-To run all package unit tests and clear all composer.lock files within
-```sh
-yarn docker:phpunit:package -c
+cd projects/packages/assets
+composer phpunit
 ```
 
 ### Starting over

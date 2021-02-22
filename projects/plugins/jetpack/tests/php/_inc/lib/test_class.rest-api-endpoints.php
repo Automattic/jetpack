@@ -114,16 +114,18 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
 	 * Used to simulate a successful response to any XML-RPC request.
-	 * Should be hooked on the `http_response` filter.
+	 * Should be hooked on the `pre_http_resquest` filter.
 	 *
-	 * @param array|obj $response HTTP Response.
-	 * @param array     $args     HTTP request arguments.
-	 * @param string    $url      The request URL.
+	 * @param false  $preempt A preemptive return value of an HTTP request.
+	 * @param array  $args    HTTP request arguments.
+	 * @param string $url     The request URL.
 	 *
 	 * @return WP_REST_Response
 	 */
-	public function mock_xmlrpc_success( $response, $args, $url ) {
+	public function mock_xmlrpc_success( $preempt, $args, $url ) {
 		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
 			$response['body'] = '
 				<methodResponse>
 					<params>
@@ -133,9 +135,12 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					</params>
 				</methodResponse>
 			';
+
+			$response['response']['code'] = 200;
+			return $response;
 		}
 
-		return $response;
+		return $preempt;
 	}
 
 	/**
@@ -1003,42 +1008,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		) );
 
 		// Change owner to valid user
-		add_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
-		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
-	}
-
-	/**
-	 * Test saving and retrieving the Setup Wizard questionnaire responses.
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_setup_wizard() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_configure_modules' );
-		wp_set_current_user( $user->ID );
-
-		$test_data = array(
-			'param1' => 'val1',
-			'param2' => 'val2',
-		);
-
-		$response = $this->create_and_get_request(
-			'setup/questionnaire',
-			array(
-				'questionnaire' => $test_data,
-			),
-			'POST'
-		);
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( true, $response->get_data() );
-
-		$response = $this->create_and_get_request( 'setup/questionnaire', array(), 'GET' );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( $test_data, $response );
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
 	/**
@@ -1101,7 +1075,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test saving and retrieving the Setup Wizard questionnaire responses.
+	 * Test saving and retrieving licensing errors.
 	 *
 	 * @since 9.0.0
 	 */

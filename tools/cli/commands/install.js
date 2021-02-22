@@ -73,7 +73,7 @@ export async function installCli( argv ) {
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the build commands defined.
+ * @returns {object} Yargs with the install commands defined.
  */
 export function installDefine( yargs ) {
 	yargs.command(

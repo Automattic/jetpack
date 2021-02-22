@@ -68,7 +68,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain       = ( new Status() )->get_site_suffix();
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$menu_data    = get_menu_fixture();
+		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
 
@@ -391,23 +391,31 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_appearance_menu
+	 * Tests add_gutenberg_menus
 	 *
-	 * @covers ::add_appearance_menu
+	 * @covers ::add_gutenberg_menus
 	 */
-	public function test_add_appearance_menu() {
-		global $submenu;
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
 
-		$slug = 'https://wordpress.com/themes/' . static::$domain;
-		static::$admin_menu->add_appearance_menu( false );
+		// Gutenberg plugin menu should not be visible.
+		$this->assertArrayNotHasKey( 101, $menu );
 
-		// Check Customize menu always links to WP.com.
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'https://wordpress.com/customize/' . static::$domain,
-			'Customize',
+		// FSE is no longer where it was put by default.
+		$this->assertArrayNotHasKey( 100, $menu );
+		$this->assertArrayHasKey( 61, $menu );
+
+		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
+		$fse_menu = array(
+			'Site Editor',
+			'edit_theme_options',
+			$fse_link,
+			'Site Editor',
+			'menu-top toplevel_page_' . $fse_link,
+			'toplevel_page_' . $fse_link,
+			'dashicons-layout',
 		);
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( $menu[61], $fse_menu );
 	}
 }

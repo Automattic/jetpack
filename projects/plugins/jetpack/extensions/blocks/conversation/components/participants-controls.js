@@ -4,13 +4,18 @@
 import { Button } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+import { getPlainText } from '../utils';
+
 function ParticipantsLabelControl( { className, participants, onDelete } ) {
 	return (
 		<div className={ `${ className }__participant-control` }>
 			{ participants.map( ( { label, slug } ) => (
 				<div key={ `${ slug }-key` } className={ `${ className }__participant` }>
 					<div className={ `${ className }__participant-label` }>
-						{ label }
+						{ getPlainText( label ) }
 					</div>
 
 					<Button

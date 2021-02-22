@@ -7,6 +7,8 @@ import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { catchBeforeAll } from '../lib/setup-env';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
+import path from 'path';
+import config from 'config';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
@@ -22,7 +24,10 @@ describe( 'Jetpack pre-connection', () => {
 
 	afterAll( async () => {
 		await execWpCommand(
-			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
+			`wp option update jetpack_private_options --format=json < ${ path.resolve(
+				config.get( 'configDir' ),
+				'jetpack-private-options.txt'
+			) }`
 		);
 	} );
 

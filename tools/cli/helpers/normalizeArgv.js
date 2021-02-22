@@ -16,3 +16,20 @@ export function normalizeInstallArgv( argv ) {
 		...argv,
 	};
 }
+
+/**
+ * Normalize the argv used for the generate command.
+ *
+ * @param {object} argv - The argvs for the generate command.
+ *
+ * @returns {object} argv object with standard elements needed to generate a new project.
+ */
+export function normalizeGenerateArgv( argv ) {
+	return {
+		// Defaults.
+		type: '',
+		name: '',
+		// Override from `argv`.
+		...argv,
+	};
+}

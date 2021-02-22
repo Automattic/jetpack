@@ -1,13 +1,16 @@
 import { readFileSync } from 'fs';
-import { teardown } from 'jest-environment-puppeteer';
 
 import SlackReporter from './reporters/slack';
+import config from 'config';
+import path from 'path';
 
 /**
  * Goes through the messages in slack-specific log, and send these messages into slack
  */
 async function processSlackLog() {
-	const log = readFileSync( './logs/e2e-slack.log' ).toString();
+	const log = readFileSync(
+		path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-slack.log' )
+	).toString();
 	const slack = new SlackReporter();
 	const messages = getMessages( log );
 
@@ -42,7 +45,10 @@ async function processSlackLog() {
 		}
 	}
 
-	await slack.sendFileToSlack( './logs/e2e-simple.log', options );
+	await slack.sendFileToSlack(
+		path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
+		options
+	);
 }
 
 function getMessages( log ) {
@@ -57,9 +63,8 @@ function getMessages( log ) {
 	return messages;
 }
 
-module.exports = async function ( globalConfig ) {
+module.exports = async function () {
 	if ( process.env.CI ) {
 		await processSlackLog();
 	}
-	await teardown( globalConfig );
 };

@@ -3,7 +3,20 @@
  */
 import { addQueryArgs } from '@wordpress/url';
 
-export const getVideoPressUrl = ( guid, { autoplay, controls, loop, muted, poster, preload } ) => {
+export const getVideoPressUrl = (
+	guid,
+	{
+		autoplay,
+		controls,
+		loop,
+		muted,
+		poster,
+		preload,
+		seekbarColor,
+		seekbarPlayedColor,
+		seekbarLoadingColor,
+	}
+) => {
 	if ( ! guid ) {
 		return null;
 	}
@@ -22,6 +35,9 @@ export const getVideoPressUrl = ( guid, { autoplay, controls, loop, muted, poste
 		...( muted && { muted: true, persistVolume: false } ),
 		...( poster && { posterUrl: poster } ),
 		...( preload !== 'none' && { preloadContent: preload } ),
+		...( seekbarColor !== '' && { sbc: seekbarColor } ),
+		...( seekbarPlayedColor !== '' && { sbpc: seekbarPlayedColor } ),
+		...( seekbarLoadingColor !== '' && { sblc: seekbarLoadingColor } ),
 	};
 	return addQueryArgs( `https://videopress.com/v/${ guid }`, options );
 };

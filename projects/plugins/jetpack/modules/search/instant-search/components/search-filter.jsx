@@ -33,7 +33,7 @@ function fixDateFormat( dateString ) {
 
 export default class SearchFilter extends Component {
 	filtersList = createRef();
-	idPrefix = uniqueId( 'jetpack-instant-search__filter-' );
+	idPrefix = uniqueId( 'jetpack-instant-search__search-filter-' );
 
 	getIdentifier() {
 		if ( this.props.type === 'postType' ) {
@@ -67,11 +67,11 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
-					className="jetpack-instant-search__filter-list-input"
+					className="jetpack-instant-search__search-filter-list-input"
 				/>
 				<label
 					htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
-					className="jetpack-instant-search__filter-list-label"
+					className="jetpack-instant-search__search-filter-list-label"
 				>
 					{ new Date( fixDateFormat( key ) ).toLocaleString(
 						locale,
@@ -93,11 +93,11 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
-					className="jetpack-instant-search__filter-list-input"
+					className="jetpack-instant-search__search-filter-list-input"
 				/>
 				<label
 					htmlFor={ `${ this.idPrefix }-post-types-${ key }` }
-					className="jetpack-instant-search__filter-list-label"
+					className="jetpack-instant-search__search-filter-list-label"
 				>
 					{ strip( name ) } ({ count })
 				</label>
@@ -117,12 +117,12 @@ export default class SearchFilter extends Component {
 					name={ slug }
 					onChange={ this.toggleFilter }
 					type="checkbox"
-					className="jetpack-instant-search__filter-list-input"
+					className="jetpack-instant-search__search-filter-list-input"
 				/>
 
 				<label
 					htmlFor={ `${ this.idPrefix }-taxonomies-${ slug }` }
-					className="jetpack-instant-search__filter-list-label"
+					className="jetpack-instant-search__search-filter-list-label"
 				>
 					{ strip( name ) } ({ count })
 				</label>
@@ -155,11 +155,11 @@ export default class SearchFilter extends Component {
 	render() {
 		return (
 			<div>
-				<h4 className="jetpack-instant-search__filter-sub-heading">
+				<h4 className="jetpack-instant-search__search-filter-sub-heading">
 					{ this.props.configuration.name }
 				</h4>
 				{ this.props.aggregation && 'buckets' in this.props.aggregation && (
-					<div className="jetpack-instant-search__filter-list" ref={ this.filtersList }>
+					<div className="jetpack-instant-search__search-filter-list" ref={ this.filtersList }>
 						{ this.props.type === 'date' && this.renderDates() }
 						{ this.props.type === 'postType' && this.renderPostTypes() }
 						{ this.props.type === 'taxonomy' && this.renderTaxonomies() }

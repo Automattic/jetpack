@@ -38,6 +38,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$wp_admin = $this->should_link_to_wp_admin();
 
 		$this->add_my_home_menu( $wp_admin );
+		$this->add_theme_install_menu( $wp_admin );
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -202,5 +203,34 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		parent::add_options_menu( $wp_admin );
+
+		// No need to add a menu linking to WP Admin if there is already one.
+		if ( ! $wp_admin ) {
+			$parent_menu_slug = 'https://wordpress.com/settings/general/' . $this->domain;
+			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php' );
+			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
+		}
+	}
+
+	/**
+	 * Adds a WordPress.org theme install menu item.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_theme_install_menu( $wp_admin = false ) {
+		$parent_menu_slug = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+
+		add_submenu_page( $parent_menu_slug, esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
+	}
+
+	/**
+	 * Adds Appearance menu.
+	 *
+	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Customize on Atomic sites is always done on WP Admin.
+		parent::add_appearance_menu( $wp_admin_themes, true );
 	}
 }
