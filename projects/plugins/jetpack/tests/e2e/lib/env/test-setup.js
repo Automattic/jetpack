@@ -147,5 +147,3 @@ beforeAll( async () => {
 
 	await maybePreConnect();
 } );
-
-afterAll( async () => {} );
