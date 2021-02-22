@@ -466,7 +466,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$m                = new Connection_Manager();
 		$user_id          = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
-		$validated_tokens = $m->validate_tokens( $user_id );
+		$validated_tokens = ( new Tokens() )->validate( $user_id );
 
 		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
 			return self::skipped_test(
