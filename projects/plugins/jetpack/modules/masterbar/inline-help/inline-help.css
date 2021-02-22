@@ -16,8 +16,8 @@
   border: 1px solid var(--color-primary-dark);
   transition: all 0.2s ease-in-out;
   overflow: visible;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
 
   /* elevation() mixin styles */
   box-shadow: 0 4px 5px 0 rgba( var( --color-neutral-100-rgb ), 0.14 ),
@@ -45,7 +45,7 @@
 .inline-help .inline-help__button .gridicon {
 position: relative;
   fill: var(--color-primary);
-  margin: -1px 0 0 -1px;
+  margin: -3px 0 0 -3px;
   top: 0;
   height: 42px;
   width: 42px;
