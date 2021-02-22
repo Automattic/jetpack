@@ -370,12 +370,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 			<meta name="viewport" content="width=device-width">
 			<?php
-			// Remove wp_no_robots() when WordPress 5.7 is the minimum required version.
-			if ( function_exists( 'wp_robots' ) && function_exists( 'wp_robots_no_robots' ) && function_exists( 'add_filter' ) ) {
-				add_filter( 'wp_robots', 'wp_robots_no_robots' );
-				wp_robots();
+			if ( get_option( 'blog_public' ) ) {
+				echo "<meta name='robots' content='noindex,follow' />\n";
 			} else {
-				wp_no_robots();
+				echo "<meta name='robots' content='noindex,nofollow' />\n";
 			}
 			?>
 			<title><?php echo $title ?></title>
