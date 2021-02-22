@@ -2,7 +2,7 @@
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 
 // core variables (core _variables.scss)
-$base-color: $studio-blue-50; // Calypso --color-masterbar-background
+$base-color: $studio-blue-80; // Calypso --color-masterbar-background
 $icon-color: $studio-blue-5; // Calypso --color-sidebar-gridicon-fill
 $highlight-color: $studio-celadon-50; // Calypso --color-accent
 $notification-color: $studio-celadon-30; // Calypso --color-masterbar-unread-dot-background
@@ -22,7 +22,7 @@ $menu-current-background: $studio-yellow-20; // Calypso --color-sidebar-menu-sel
 $menu-submenu-text: $studio-white; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: $studio-blue-80; // Calypso --color-sidebar-submenu-background
 $menu-submenu-focus-text: $studio-yellow-20; // Calypso --color-sidebar-submenu-hover-text
-$menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
+$menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-text
 
 // masterbar overrides
 $masterbar-background: $studio-blue-80; // Calypso --color-masterbar-background
