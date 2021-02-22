@@ -5,7 +5,7 @@ $inline-help-color-primary: #0675c4 !default;
 $inline-help-color-primary-dark: #044b7a !default;
 $inline-help-color-primary-light: #399ce3 !default;
 $inline-help-color-surface: #fff !default;
-$inline-help-color-shadow: rgb(16, 21, 23) !default;
+$inline-help-color-shadow: 16, 21, 23 !default;
 
 .inline-help {
     --color-primary: #{$inline-help-color-primary};
