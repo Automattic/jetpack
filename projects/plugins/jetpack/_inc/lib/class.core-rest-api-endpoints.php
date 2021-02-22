@@ -675,6 +675,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		// Return all module settings.
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/set-license',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::set_jetpack_license',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'args'                => array(
+					'license' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'validate_callback' => __CLASS__ . '::validate_string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -3958,6 +3977,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 		Licensing::instance()->log_error( $request['error'] );
 
 		return true;
+	}
+
+	/**
+	 * Set a Jetpack license
+	 *
+	 * @since 9.5.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return WP_REST_Response A response object.
+	 */
+	public static function set_jetpack_license( $request ) {
+		Licensing::instance()->append_license( $request['license'] );
+
+		return rest_ensure_response( array( 'code' => 'success' ) );
 	}
 
 	/**
