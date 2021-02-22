@@ -143,6 +143,36 @@ function process_anchor_params() {
 								'spotifyShowUrl'  => esc_url_raw( $valid_spotify_url ),
 							),
 						);
+						l( $track );
+						if ( $track['publish_date'] && false !== strtotime( $track['publish_date'] ) ) {
+
+							$date      = get_date_from_gmt( $track['publish_date'] );
+							$gmt_date  = get_gmt_from_date( $track['publish_date'] );
+							$post_data = array(
+								'ID'                => $post->ID,
+								'post_date'         => $date,
+								'post_date_gmt'     => $gmt_date,
+								'post_modified'     => $date,
+								'post_modified_gmt' => $gmt_date,
+							);
+
+							// This is a bit of hack. There are various checks when updating a post
+							// with draft or auto draft status, to make sure that the publish date is
+							// kept to the current date and time. This registers a filter, so at the
+							// last minute, we can override it. Should we be doing this?
+							$override_post_date = function ( $data, $postarr ) use ( $post_data ) {
+								l( $postarr );
+								l( $post_data );
+								if ( $postarr['ID'] === $post_data['ID'] ) {
+									return array_merge( $data, $post_data );
+								}
+								return $data;
+							};
+
+							add_filter( 'wp_insert_post_data', $override_post_date, 10, 2 );
+							wp_update_post( $post_data );
+							remove_filter( 'wp_insert_post_data', $override_post_date, 10, 2 );
+						}
 					}
 				} else {
 					$retry_url         = add_query_arg(
