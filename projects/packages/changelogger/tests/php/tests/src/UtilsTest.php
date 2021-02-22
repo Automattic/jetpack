@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
+use Automattic\Jetpack\Changelogger\FormatterPlugin;
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -342,6 +344,49 @@ class UtilsTest extends TestCase {
 		} finally {
 			unlink( $temp );
 		}
+	}
+
+	/**
+	 * Test loadAllChanges.
+	 */
+	public function testLoadAllChanges() {
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )
+			->setMethodsExcept( array() )
+			->getMock();
+		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'newChangeEntry' ) ) );
+		$formatter->method( 'newChangeEntry' )->willReturnCallback(
+			function ( $data ) {
+				$data += array( 'timestamp' => '2021-02-22' );
+				return new ChangeEntry( $data );
+			}
+		);
+
+		$dir = $this->useTempDir() . '/changes';
+		mkdir( $dir );
+
+		file_put_contents( "$dir/a", "Significance: minor\nType: added\n\nAAAAA\n" );
+		file_put_contents( "$dir/b", "Significance: minor\nType: unknown\nType: unknown\n\nBBBBB\n" );
+		file_put_contents( "$dir/c", "Significance: minor\nType: added\nCCCCC\n" );
+		mkdir( "$dir/d" );
+		file_put_contents( "$dir/e", "Significance: bogus\nType: added\n\nEEEEE\n" );
+
+		$out   = new BufferedOutput();
+		$files = null; // Make phpcs happy.
+		$ret   = Utils::loadAllChanges( $dir, array( 'added' => 'Added!' ), $formatter, $out, $files );
+		$this->assertIsArray( $ret );
+		foreach ( $ret as $e ) {
+			$this->assertInstanceOf( ChangeEntry::class, $e );
+		}
+		usort( $ret, array( ChangeEntry::class, 'compare' ) );
+		$this->assertSame(
+			'[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Added!","author":"","content":"AAAAA"},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Unknown","author":"","content":"BBBBB"}]',
+			json_encode( $ret )
+		);
+		$this->assertSame( array( "$dir/a", "$dir/b" ), $files );
+		$this->assertSame(
+			"<warning>b:3: Duplicate header \"Type\", previously seen on line 2.\nc: Invalid header.\nd: Expected a file, got dir.\ne: Automattic\\Jetpack\\Changelog\\ChangeEntry::setSignificance: Significance must be 'patch', 'minor', or 'major' (or null)\n",
+			$out->fetch()
+		);
 	}
 
 }

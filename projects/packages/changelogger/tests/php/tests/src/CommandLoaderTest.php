@@ -56,7 +56,7 @@ class CommandLoaderTest extends TestCase {
 	public function testGetNames() {
 		$loader = new CommandLoader();
 		$this->assertSame(
-			array( 'add', 'validate' ),
+			array( 'add', 'validate', 'version' ),
 			$loader->getNames()
 		);
 	}

@@ -15,7 +15,7 @@ if ( 'cli' !== php_sapi_name() ) {
 foreach ( array( '/../../autoload.php', '/../vendor/autoload.php', '/vendor/autoload.php' ) as $file ) {
 	if ( file_exists( __DIR__ . $file ) ) {
 		require __DIR__ . $file;
-		$app = new Automattic\Jetpack\Changelogger\Console\Application();
+		$app = new Automattic\Jetpack\Changelogger\Application();
 		exit( $app->run() );
 	}
 }

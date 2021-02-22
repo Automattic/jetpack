@@ -5,10 +5,11 @@
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Automattic\Jetpack\Changelog\ChangeEntry;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
@@ -145,6 +146,57 @@ class Utils {
 		}
 		$diagnostics['lines'][''] = $line + strspn( $contents, "\n" );
 		$ret['']                  = trim( $contents );
+
+		return $ret;
+	}
+
+	/**
+	 * Load the changes files into an array of ChangeEntries.
+	 *
+	 * @param string          $dir Changes directory.
+	 * @param array           $subheadings Mapping from type codes to subheadings.
+	 * @param FormatterPlugin $formatter Formatter plugin to use.
+	 * @param OutputInterface $output OutputInterface to write diagnostics too.
+	 * @param mixed           $files Output parameter, a list of files successfully processed is written to this variable.
+	 * @return ChangeEntry[]
+	 */
+	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null ) {
+		$files = array();
+		$ret   = array();
+
+		$allFiles = array();
+		foreach ( new \DirectoryIterator( $dir ) as $file ) {
+			$name = $file->getBasename();
+			if ( '.' !== $name[0] ) {
+				$allFiles[ $name ] = $file->getPathname();
+			}
+		}
+		asort( $allFiles );
+		foreach ( $allFiles as $name => $path ) {
+			$diagnostics = null;
+			try {
+				$data = self::loadChangeFile( $path, $diagnostics );
+			} catch ( \RuntimeException $ex ) {
+				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
+				continue;
+			}
+			foreach ( $diagnostics['warnings'] as list( $msg, $line ) ) {
+				$line = $line ? ":$line" : '';
+				$output->writeln( "<warning>$name$line: $msg</>" );
+			}
+			try {
+				$ret[]   = $formatter->newChangeEntry(
+					array(
+						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
+						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
+						'content'      => $data[''],
+					)
+				);
+				$files[] = $path;
+			} catch ( \InvalidArgumentException $ex ) {
+				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
+			}
+		}
 
 		return $ret;
 	}

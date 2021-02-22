@@ -62,6 +62,7 @@ class CommandLoader implements CommandLoaderInterface {
 				$names[] = lcfirst( substr( $file->getBasename(), 0, -11 ) );
 			}
 		}
+		sort( $names );
 		return $names;
 	}
 }
