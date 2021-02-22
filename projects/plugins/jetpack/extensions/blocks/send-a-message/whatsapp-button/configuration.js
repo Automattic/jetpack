@@ -10,7 +10,6 @@ import {
 	SelectControl,
 	Path,
 	ToggleControl,
-	ToolbarItem,
 	Button,
 	PanelBody,
 	ToolbarGroup,
@@ -148,17 +147,13 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 	if ( context === 'toolbar' ) {
 		return (
 			<ToolbarGroup>
-				<ToolbarItem>
-					{ () => (
-						<Dropdown
-							position="bottom right"
-							className="jetpack-whatsapp-button-settings-selector"
-							contentClassName="jetpack-whatsapp-button__popover"
-							renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }
-							renderContent={ settings }
-						/>
-					) }
-				</ToolbarItem>
+				<Dropdown
+					position="bottom right"
+					className="jetpack-whatsapp-button-settings-selector"
+					contentClassName="jetpack-whatsapp-button__popover"
+					renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }
+					renderContent={ settings }
+				/>
 			</ToolbarGroup>
 		);
 	}
