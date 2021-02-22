@@ -75,6 +75,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 
 					{ ! this.props.hasConnectedOwner && (
 						<ConnectUserBar
+							feature="monitor"
 							text={ __(
 								'Monitoring provided by the WordPress.com cloud. Sign in to configure personal email alerts.',
 								'jetpack'

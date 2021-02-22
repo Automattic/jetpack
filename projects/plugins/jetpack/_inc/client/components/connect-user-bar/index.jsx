@@ -11,14 +11,22 @@ import { __ } from '@wordpress/i18n';
 import ConnectButton from 'components/connect-button';
 import ConnectUserFrame from 'components/connect-user-frame';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 import './style.scss';
 
 const ConnectUserBar = props => {
 	const [ showConnect, setShowConnect ] = useState( false );
 
 	const customConnect = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'connection-bar-click',
+			feature: props.feature,
+			is_user_wpcom_connected: 'no',
+			is_connection_owner: 'no',
+		} );
+
 		setShowConnect( true );
-	}, [ setShowConnect ] );
+	}, [ setShowConnect, props.feature ] );
 
 	return (
 		<Card compact className="jp-connect-user-bar__card">
@@ -40,6 +48,7 @@ const ConnectUserBar = props => {
 
 ConnectUserBar.propTypes = {
 	text: PropTypes.string.isRequired,
+	feature: PropTypes.string,
 };
 
 export default ConnectUserBar;
