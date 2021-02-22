@@ -138,7 +138,8 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	async logHTML( filePath ) {
 		if ( this.global.page ) {
 			const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
-			fs.writeFileSync( `output/logs/${ filePath }_${ new Date().toISOString() }.html`, bodyHTML );
+			const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
+			fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
 		}
 	}
 }

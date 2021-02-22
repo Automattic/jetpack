@@ -84,19 +84,7 @@ function observeConsoleLogging() {
 			return;
 		}
 
-		if ( text.includes( 'Using Toolbar without label prop is deprecated' ) ) {
-			return;
-		}
-
-		if ( text.includes( 'wp.components.IconButton is deprecated' ) ) {
-			return;
-		}
-
-		if ( text.includes( 'Using custom components as toolbar controls is deprecate' ) ) {
-			return;
-		}
-
-		if ( text.includes( 'Button isDefault prop is deprecated' ) ) {
+		if ( text.includes( 'is deprecated' ) ) {
 			return;
 		}
 
