@@ -266,85 +266,12 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $menu, $submenu;
+		global $menu;
 
-		// Current user can't list users.
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
-		$menu = array();
+		static::$admin_menu->add_users_menu( true );
 
-		static::$admin_menu->add_users_menu( false );
-
-		$profile_menu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-			'menu-top toplevel_page_https://wordpress.com/me',
-			'toplevel_page_https://wordpress.com/me',
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $profile_menu_item );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
-		$this->assertArrayNotHasKey( 'profile.php', $submenu );
-
-		// Reset.
-		wp_set_current_user( static::$user_id );
-		$menu = static::$menu_data;
-
-		static::$admin_menu->add_users_menu( false );
-
-		$slug = 'https://wordpress.com/people/team/' . static::$domain;
-
-		$users_menu_item = array(
-			'Users',
-			'list_users',
-			$slug,
-			'Users',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $users_menu_item );
-		$this->assertEmpty( $submenu['users.php'] );
-
-		$all_people_submenu_item = array(
-			'All People',
-			'list_users',
-			$slug,
-			'All People',
-		);
-		$this->assertContains( $all_people_submenu_item, $submenu[ $slug ] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'promote_users',
-			'https://wordpress.com/people/new/' . static::$domain,
-			'Add New',
-		);
-		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
-
-		$profile_submenu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-		);
-		$this->assertContains( $profile_submenu_item, $submenu[ $slug ] );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu[ $slug ] );
+		// Check that menu always links to Calypso.
+		$this->assertSame( $menu[70][2], 'https://wordpress.com/people/team/' . static::$domain );
 	}
 
 	/**

@@ -602,7 +602,25 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu( false );
 
-		$this->assertEmpty( $menu );
+		$profile_menu_item = array(
+			'My Profile',
+			'read',
+			'https://wordpress.com/me',
+			'My Profile',
+			'menu-top toplevel_page_https://wordpress.com/me',
+			'toplevel_page_https://wordpress.com/me',
+			'dashicons-admin-users',
+		);
+		$this->assertSame( $menu[70], $profile_menu_item );
+
+		$account_submenu_item = array(
+			'Account Settings',
+			'read',
+			'https://wordpress.com/me/account',
+			'Account Settings',
+		);
+		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
+		$this->assertArrayNotHasKey( 'profile.php', $submenu );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );

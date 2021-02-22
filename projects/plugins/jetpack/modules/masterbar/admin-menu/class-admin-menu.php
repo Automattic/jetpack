@@ -494,8 +494,9 @@ class Admin_Menu {
 	 */
 	public function add_users_menu( $wp_admin = false ) {
 		$users_slug   = $wp_admin ? 'users.php' : 'https://wordpress.com/people/team/' . $this->domain;
-		$add_new_slug = 'https://wordpress.com/people/new/' . $this->domain;
+		$add_new_slug = $wp_admin ? 'user-new.php' : 'https://wordpress.com/people/new/' . $this->domain;
 		$profile_slug = $wp_admin ? 'profile.php' : 'https://wordpress.com/me';
+		$account_slug = 'https://wordpress.com/me/account';
 
 		if ( current_user_can( 'list_users' ) ) {
 			remove_menu_page( 'users.php' );
@@ -506,16 +507,31 @@ class Admin_Menu {
 			remove_submenu_page( 'users.php', 'grofiles-user-settings' );
 
 			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', $users_slug, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $users_slug, esc_attr__( 'All People', 'jetpack' ), __( 'All People', 'jetpack' ), 'list_users', $users_slug, null, 5 );
-			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug, null, 10 );
-			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
-			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account', null, 20 );
+			add_submenu_page( $users_slug, esc_attr__( 'All People', 'jetpack' ), __( 'All People', 'jetpack' ), 'list_users', $users_slug );
+			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug );
+			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug );
+			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug );
 
 			$this->migrate_submenus( 'users.php', $users_slug );
 			add_filter(
 				'parent_file',
 				function ( $parent_file ) use ( $users_slug ) {
 					return 'users.php' === $parent_file ? $users_slug : $parent_file;
+				}
+			);
+		} else {
+			remove_menu_page( 'profile.php' );
+			remove_submenu_page( 'profile.php', 'grofiles-editor' );
+			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
+
+			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 'dashicons-admin-users', 70 );
+			add_submenu_page( $profile_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 5 );
+
+			$this->migrate_submenus( 'profile.php', $profile_slug );
+			add_filter(
+				'parent_file',
+				function ( $parent_file ) use ( $profile_slug ) {
+					return 'profile.php' === $parent_file ? $profile_slug : $parent_file;
 				}
 			);
 		}

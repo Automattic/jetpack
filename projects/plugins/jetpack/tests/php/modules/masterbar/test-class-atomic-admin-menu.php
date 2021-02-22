@@ -398,4 +398,26 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_users_menu
+	 */
+	public function test_add_users_menu() {
+		global $submenu;
+
+		$submenu_item = array(
+			'Advanced Users Management',
+			'list_users',
+			'users.php',
+			'Advanced Users Management',
+		);
+
+		static::$admin_menu->add_users_menu( true );
+		$this->assertNotContains( $submenu_item, $submenu['users.php'] );
+
+		static::$admin_menu->add_users_menu( false );
+		$this->assertContains( $submenu_item, $submenu[ 'https://wordpress.com/people/team/' . static::$domain ] );
+	}
 }
