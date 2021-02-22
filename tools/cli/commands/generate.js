@@ -314,14 +314,20 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
  *
  */
 export function generateAction( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
+	const project = 'github-actions/' + answers.name;
 	const actDir = path.join( __dirname, '../../..', 'projects/github-actions', answers.name );
 
 	// Copy the skeletons over
 	createSkeleton( pluralize( answers.type ), actDir, answers.name );
 
 	// Create composer.json
-	const actionComposerJson = createActionJson( answers );
+	const actionComposerJson = createActionComposer( answers );
 	writeToFile( actDir + `/composer.json`, actionComposerJson );
+
+	// Create package.json
+	const packageJson = readPackageJson( project );
+	createPackageJson( packageJson, answers );
+	writePackageJson( project, packageJson, actDir );
 
 	// Create the YAML file
 	const yamlFile = createYaml( actDir + '/action.yml', answers );
@@ -504,7 +510,7 @@ function createReadMeTxt( answers ) {
  * @returns {string} content - The content we're writing to the readme.txt file.
  * @todo replace mirror-repo with returned mirror-repo answer.
  */
-function createActionJson( answers ) {
+function createActionComposer( answers ) {
 	const content =
 		`{\n` +
 		`	"name": "automattic/action-${ answers.name }",\n` +
@@ -528,7 +534,7 @@ function createActionJson( answers ) {
  */
 function createYaml( dir, answers ) {
 	try {
-		const yamlFile = yaml.load( fs.readFileSync( dir ) );
+		const yamlFile = yaml.load( fs.readFileSync( dir, 'utf8' ) );
 		yamlFile.name = answers.name;
 		yamlFile.description = answers.description;
 		return yamlFile;
