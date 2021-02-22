@@ -21,6 +21,7 @@ export const SEO = withModuleSettingsFormHelpers(
 		constants = {
 			frontPageMetaMaxLength: 300,
 			frontPageMetaSuggestedLength: 159,
+			moduleOptionsArray: [ 'advanced_seo_front_page_description', 'advanced_seo_title_formats' ],
 		};
 
 		trackConfigureClick = () => {
@@ -41,10 +42,7 @@ export const SEO = withModuleSettingsFormHelpers(
 					header={ _x( 'Search engine optimization', 'Settings header', 'jetpack' ) }
 					feature={ 'seo-tools-jetpack' }
 					module={ seo.module }
-					saveDisabled={ this.props.isSavingAnyOption( [
-						'advanced_seo_front_page_description',
-						'advanced_seo_title_formats',
-					] ) }
+					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 				>
 					<SettingsGroup
 						disableInOfflineMode
@@ -67,8 +65,8 @@ export const SEO = withModuleSettingsFormHelpers(
 						<ModuleToggle
 							slug="seo-tools"
 							activated={ isSeoActive }
-							toggling={ this.props.isSavingAnyOption( [ seo.module ] ) }
-							disabled={ this.props.isSavingAnyOption( [ seo.module ] ) }
+							toggling={ this.props.isSavingAnyOption( seo.module ) }
+							disabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							{ __( 'Customize your SEO settings', 'jetpack' ) }
