@@ -129,7 +129,7 @@ describe( 'sort Reducer', () => {
 		const state = sort( undefined, setSort( 'newest' ) );
 		expect( state ).toBe( 'newest' );
 	} );
-	test( 'is set to "relevance" by a clear query values action', () => {
+	test( 'is set to null by a clear query values action', () => {
 		expect( sort( undefined, clearQueryValues() ) ).toBe( null );
 		expect( sort( 'newest', clearQueryValues() ) ).toBe( null );
 	} );

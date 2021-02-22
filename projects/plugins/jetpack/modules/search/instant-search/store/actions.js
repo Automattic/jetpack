@@ -47,15 +47,13 @@ export function recordFailedSearchRequest( error ) {
  * Returns an action object used to initialize query value related reducers.
  *
  * @param {object} params - Input parameters.
- * @param {object} params.defaultSort - Default sort value configured in the customizer.
  * @param {boolean} params.isHistoryNavigation - True if this action is invoked via history navigation.
  *
  * @returns {object} Action object.
  */
-export function initializeQueryValues( { defaultSort, isHistoryNavigation = false } ) {
+export function initializeQueryValues( { isHistoryNavigation = false } = {} ) {
 	return {
 		type: 'INITIALIZE_QUERY_VALUES',
-		defaultSort,
 		isHistoryNavigation,
 	};
 }

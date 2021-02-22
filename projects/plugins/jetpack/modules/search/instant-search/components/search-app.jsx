@@ -54,9 +54,7 @@ class SearchApp extends Component {
 			showResults: this.props.initialShowResults,
 		};
 		this.getResults = debounce( this.getResults, 200 );
-		this.props.initializeQueryValues( {
-			defaultSort: this.props.defaultSort,
-		} );
+		this.props.initializeQueryValues();
 	}
 
 	componentDidMount() {
@@ -150,10 +148,7 @@ class SearchApp extends Component {
 	handleHistoryNavigation = () => {
 		// Treat history navigation as brand new query values; re-initialize.
 		// Note that this re-initialization will trigger onChangeQueryString via side effects.
-		this.props.initializeQueryValues( {
-			defaultSort: this.props.defaultSort,
-			isHistoryNavigation: true,
-		} );
+		this.props.initializeQueryValues( { isHistoryNavigation: true } );
 	};
 
 	handleSubmit = event => {
@@ -324,7 +319,7 @@ class SearchApp extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state, props ) => ( {
 		filters: getFilters( state ),
 		hasActiveQuery: hasActiveQuery( state ),
 		hasError: hasError( state ),
@@ -333,7 +328,7 @@ export default connect(
 		isLoading: isLoading( state ),
 		response: getResponse( state ),
 		searchQuery: getSearchQuery( state ),
-		sort: getSort( state ),
+		sort: getSort( state, props.defaultSort ),
 		widgetOutsideOverlay: getWidgetOutsideOverlay( state ),
 	} ),
 	{

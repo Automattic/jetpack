@@ -58,10 +58,15 @@ export function getSearchQuery( state ) {
  * Get the sort key.
  *
  * @param {object} state - Current state.
+ * @param {string?} defaultSort - Default sort order specified via the Customizer.
  * @returns {string} sort - The selected sort key for the search interface.
  */
-export function getSort( state ) {
-	return typeof state.sort === 'string' ? state.sort : RELEVANCE_SORT_KEY;
+export function getSort( state, defaultSort ) {
+	// Default non-string defaultSort to 'relevance'
+	if ( typeof defaultSort !== 'string' ) {
+		defaultSort = RELEVANCE_SORT_KEY;
+	}
+	return typeof state.sort === 'string' ? state.sort : defaultSort;
 }
 
 /**

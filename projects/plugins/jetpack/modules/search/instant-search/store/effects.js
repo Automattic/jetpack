@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { search } from '../lib/api';
-import { RELEVANCE_SORT_KEY, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
+import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
 import { getFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
@@ -58,7 +58,7 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize sort value for the reducer.
 	//
-	let sort = RELEVANCE_SORT_KEY;
+	let sort;
 	if ( VALID_SORT_KEYS.includes( queryObject.sort ) ) {
 		// Set sort value from `sort` query value.
 		sort = queryObject.sort;
@@ -72,11 +72,8 @@ function initializeQueryValues( action, store ) {
 	} else if ( 'relevance' === queryObject.orderby ) {
 		// Set sort value from legacy `orderby` query value.
 		sort = 'relevance';
-	} else if ( VALID_SORT_KEYS.includes( action.defaultSort ) ) {
-		// Set sort value from customizer configured default sort value.
-		sort = action.defaultSort;
 	}
-	store.dispatch( setSort( sort, false ) );
+	typeof sort === 'string' && store.dispatch( setSort( sort, false ) );
 
 	//
 	// Initialize filter value for the reducer.

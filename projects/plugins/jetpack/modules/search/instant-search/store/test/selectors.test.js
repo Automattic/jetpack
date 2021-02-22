@@ -15,6 +15,19 @@ describe( 'getSort', () => {
 		expect( getSort( { sort: null } ) ).toEqual( RELEVANCE_SORT_KEY );
 		expect( getSort( { sort: {} } ) ).toEqual( RELEVANCE_SORT_KEY );
 	} );
+	test( 'if specified, defaults to a specified defaultSort when the state value is not a string', () => {
+		expect( getSort( {}, 'abc' ) ).toEqual( 'abc' );
+		expect( getSort( { sort: 1 }, 'abc' ) ).toEqual( 'abc' );
+		expect( getSort( { sort: null }, 'abc' ) ).toEqual( 'abc' );
+		expect( getSort( { sort: {} }, 'abc' ) ).toEqual( 'abc' );
+	} );
+	test( 'if a non-string defaultSort value is specified, defaults to "relevance" instead', () => {
+		expect( getSort( {}, {} ) ).toEqual( 'relevance' );
+		expect( getSort( {}, 1 ) ).toEqual( 'relevance' );
+		expect( getSort( {}, null ) ).toEqual( 'relevance' );
+		expect( getSort( {}, true ) ).toEqual( 'relevance' );
+		expect( getSort( {}, undefined ) ).toEqual( 'relevance' );
+	} );
 	test( 'returns the state value if it is a string', () => {
 		expect( getSort( { sort: 'some string' } ) ).toEqual( 'some string' );
 		expect( getSort( { sort: 'relevance' } ) ).toEqual( 'relevance' );
