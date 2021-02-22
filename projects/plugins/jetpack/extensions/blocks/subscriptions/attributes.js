@@ -51,10 +51,10 @@ export default {
 		type: 'string',
 	},
 	fontSize: {
-		type: 'number',
+		type: 'string',
 	},
 	customFontSize: {
-		type: 'number',
+		type: 'string',
 	},
 	borderRadius: {
 		type: 'number',
