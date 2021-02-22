@@ -144,7 +144,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		$plugin['plugin']     = $plugin_file;
+		$plugin['plugin'] = $plugin_file;
 		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		}
@@ -184,7 +184,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		$plugin['plugin']     = $plugin_file;
+		$plugin['plugin'] = $plugin_file;
 		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 		}
