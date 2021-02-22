@@ -2,36 +2,64 @@
  * External dependencies
  */
 import React, { Component } from 'react';
-import { __ } from '@wordpress/i18n';
-import { connect } from 'react-redux';
-
+import apiFetch from '@wordpress/api-fetch';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
 import TextInput from 'components/text-input';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 class License extends Component {
+	state = {
+		isSaving: false,
+		licenseKeyText: '',
+	};
+
+	handleInputChange = event => {
+		this.setState( { licenseKeyText: event.target.value } );
+	};
+
+	saveJetpackLicense = () => {
+		if ( ! this.state.licenseKeyText || this.state.isSaving ) {
+			return;
+		}
+
+		this.setState( { isSaving: true } );
+
+		apiFetch( {
+			path: '/jetpack/v4/licensing/set-license',
+			method: 'POST',
+			data: {
+				license: this.state.licenseKeyText,
+			},
+		} ).then( () => {
+			this.setState( { isSaving: false, licenseKeyText: '' } );
+		} );
+	};
+
 	render() {
 		return (
-			<div className="">
-				<h3 className="">{ __( "Jetpack License", 'jetpack' ) }</h3>
-				<p className="" onClick= { console.log(this.props.getOptionValue( 'jetpack_licenses' ) ) }>
-					{ __( 'If you have a Jetpack License from a plan purchased through a partner, add it here.', 'jetpack' ) }
-				</p>
-					<TextInput
-						name="jetpack_license_key"
-						placeholder={ __('Jetpack Licence', 'jetpack') }
-						className="code"
-					/>
+			<div className="jp-landing__plan-features-header-jetpack-license">
+				<h3>{ __( 'Jetpack License', 'jetpack' ) }</h3>
+				<p>{ __( 'If you have a Jetpack License Key add it here.', 'jetpack' ) }</p>
+				<TextInput
+					name="jetpack_license_key"
+					className="code"
+					value={ this.state.licenseKeyText }
+					placeholder={ __( 'Jetpack Licence Key', 'jetpack' ) }
+					disabled={ this.state.isSaving }
+					onChange={ this.handleInputChange }
+				/>
+				<Button primary compact onClick={ this.saveJetpackLicense }>
+					{ this.state.isSaving
+						? _x( 'Saving…', 'Button caption', 'jetpack' )
+						: _x( 'Save license', 'Button caption', 'jetpack' ) }
+				</Button>
 			</div>
 		);
 	}
-
 }
 
-export default connect( state => {
-	return {
-	}
-} )( withModuleSettingsFormHelpers(License) );
+export default License;
