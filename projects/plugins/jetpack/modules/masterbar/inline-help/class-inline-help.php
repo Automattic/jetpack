@@ -26,9 +26,9 @@ class Inline_Help {
 	public function register_actions() {
 
 		// Do not inject the FAB icon on embedded screens since the parent window may already contain a FAB icon.
-		$is_gutenframe = ! empty( $_GET['frame-nonce'] );
+		$is_framed = ! empty( $_GET['frame-nonce'] );
 
-		if ( $is_gutenframe ) {
+		if ( $is_framed ) {
 			return;
 		}
 
