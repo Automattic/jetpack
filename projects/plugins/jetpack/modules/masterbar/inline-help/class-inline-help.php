@@ -24,6 +24,13 @@ class Inline_Help {
 	}
 
 	public function register_actions() {
+
+		$is_gutenframe = 0 === strpos( $_SERVER['REQUEST_URI'], 'frame-nonce' );
+
+		if ( $is_gutenframe ) {
+			return;
+		}
+
 		add_action( 'admin_footer', array( $this, 'add_fab_icon' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_fab_styles' ) );
@@ -32,12 +39,6 @@ class Inline_Help {
 	public function add_fab_icon( $data ) {
 
 		if ( wp_doing_ajax() ) {
-			return;
-		}
-
-		$is_gutenframe = 0 === strpos( $_SERVER['REQUEST_URI'], 'frame-nonce' );
-
-		if ( $is_gutenframe ) {
 			return;
 		}
 
