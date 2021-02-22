@@ -25,7 +25,7 @@ class Inline_Help {
 
 	public function register_actions() {
 
-		$is_gutenframe = 0 === strpos( $_SERVER['REQUEST_URI'], 'frame-nonce' );
+		$is_gutenframe = false !== strpos( $_SERVER['REQUEST_URI'], 'frame-nonce' );
 
 		if ( $is_gutenframe ) {
 			return;
