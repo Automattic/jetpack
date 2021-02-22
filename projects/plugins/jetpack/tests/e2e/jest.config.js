@@ -12,4 +12,23 @@ module.exports = {
 	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
 	setupFilesAfterEnv: [ '<rootDir>/lib/env/test-setup.js', 'expect-playwright' ],
 	testRunner: 'jest-circus/runner',
+	reporters: [
+		'default',
+		[
+			'jest-junit',
+			{
+				suiteName: 'Jetpack E2E tests',
+				outputDirectory: 'output/reports',
+				outputName: 'junit-results.xml',
+				uniqueOutputName: 'true',
+			},
+		],
+		[
+			'jest-stare',
+			{
+				resultDir: `output/reports/jest-stare`,
+				reportTitle: 'Jetpack E2E tests',
+			},
+		],
+	],
 };
