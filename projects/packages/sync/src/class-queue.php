@@ -50,7 +50,7 @@ class Queue {
 		// Attempt to serialize data, if an exception (closures) return early.
 		try {
 			$item = serialize( $item ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
-		} catch ( Exception $ex ) {
+		} catch ( \Exception $ex ) {
 			return;
 		}
 
@@ -89,7 +89,7 @@ class Queue {
 				$option_name  = esc_sql( $base_option_name . '-' . $i );
 				$option_value = esc_sql( serialize( $items[ $i ] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 				$rows[]       = "('$option_name', '$option_value', 'no')";
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				// Item cannot be serialized so skip.
 				continue;
 			}
