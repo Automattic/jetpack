@@ -7,6 +7,7 @@ $inline-help-color-primary-light: #399ce3 !default;
 $inline-help-color-surface: #fff !default;
 $inline-help-color-shadow: 16, 21, 23 !default;
 
+// These vars are consumed within `modules/masterbar/inline-help/inline-help.css`
 .inline-help {
     --color-primary: #{$inline-help-color-primary};
     --color-primary-dark: #{$inline-help-color-primary-dark};
