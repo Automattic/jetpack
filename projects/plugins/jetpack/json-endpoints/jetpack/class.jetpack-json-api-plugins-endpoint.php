@@ -145,6 +145,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		$plugin['plugin']     = $plugin_file;
+		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
 		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
 		$plugin['autoupdate'] = $autoupdate;
 
@@ -182,6 +185,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		$plugin['plugin']     = $plugin_file;
+		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
 		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
 		$plugin['autoupdate'] = $autoupdate;
 
