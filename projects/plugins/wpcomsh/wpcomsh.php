@@ -1279,17 +1279,16 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
 	return $value;
 }
 
-// See context here: 371-gh-Automattic/dotcom-manage#issuecomment-759260096
-// This is unregistering the Anchor-fm block/extension from Atomic sites temporarily until
-// the block is launched.
-
+/**
+ * Disable the Conversation and Dialogue blocks.
+ * See: pbAPfg-1l8-p2
+ */
 add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
 		return array_diff(
 			$extensions,
 			array(
-				'anchor-fm',
 				'conversation',
 				'dialogue',
 			)
