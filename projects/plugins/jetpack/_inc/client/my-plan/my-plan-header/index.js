@@ -27,6 +27,7 @@ import {
 	showBackups,
 	showRecommendations,
 } from 'state/initial-state';
+import License from './license';
 import MyPlanCard from '../my-plan-card';
 
 class MyPlanHeader extends React.Component {
@@ -260,6 +261,9 @@ class MyPlanHeader extends React.Component {
 						</div>
 					</Card>
 				) }
+				<Card compact>
+					<License />
+				</Card>
 			</div>
 		);
 	}
