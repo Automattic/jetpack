@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Changelogger;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
+use InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -44,12 +45,35 @@ interface VersioningPlugin {
 	public function setIO( InputInterface $input, OutputInterface $output );
 
 	/**
+	 * Check and normalize a version number.
+	 *
+	 * @param string $version Version.
+	 * @return string Normalized version.
+	 * @throws InvalidArgumentException If the version number is not in a recognized format.
+	 */
+	public function normalizeVersion( $version );
+
+	/**
 	 * Determine the next version given a current version and a set of changes.
 	 *
 	 * @param string        $version Current version.
 	 * @param ChangeEntry[] $changes Changes.
+	 * @param array         $extra Extra components for the version.
+	 *  - prerelease: (string|null) Prerelease version, e.g. "dev", "alpha", or "beta", if any. See subclass docs for exact values accepted.
+	 *  - buildinfo: (string|null) Build info, if any. See subclass docs for exact values accepted.
 	 * @return string
+	 * @throws InvalidArgumentException If the version number is not in a recognized format, or other arguments are invalid.
 	 */
-	public function nextVersion( $version, array $changes );
+	public function nextVersion( $version, array $changes, array $extra = array() );
+
+	/**
+	 * Compare two version numbers.
+	 *
+	 * @param string $a First version.
+	 * @param string $b Second version.
+	 * @return int Less than, equal to, or greater than 0 depending on whether `$a` is less than, equal to, or greater than `$b`.
+	 * @throws InvalidArgumentException If the version numbers are not in a recognized format.
+	 */
+	public function compareVersions( $a, $b );
 
 }

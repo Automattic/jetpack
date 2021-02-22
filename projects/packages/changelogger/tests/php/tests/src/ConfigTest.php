@@ -246,7 +246,7 @@ class ConfigTest extends TestCase {
 
 		// Get by loading file, valid file.
 		$ns        = __NAMESPACE__;
-		$classBody = 'implements \\' . VersioningPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n\tpublic function nextVersion( \$version, array \$changes ){}\n}";
+		$classBody = 'implements \\' . VersioningPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n\tpublic function nextVersion( \$version, array \$changes, array \$extra = array() ){}\n\tpublic function normalizeVersion( \$v ){}\n\tpublic function compareVersions( \$a, \$b ){}\n}";
 		file_put_contents(
 			'dummy.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile $classBody\n"
