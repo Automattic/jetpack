@@ -35,6 +35,14 @@ class SemverVersioning implements VersioningPlugin {
 			$significances[ (string) $change->getSignificance() ] = true;
 		}
 		if ( isset( $significances['major'] ) ) {
+			if ( 0 === (int) $m[1] ) {
+				if ( is_callable( array( $this->output, 'getErrorOutput' ) ) ) {
+					$out = $this->output->getErrorOutput();
+					$out->writeln( '<warning>Semver does not automatically move version 0.y.z to 1.0.0.</>' );
+					$out->writeln( '<warning>You will have to do that manually when you\'re ready for the first release.</>' );
+				}
+				return sprintf( '0.%d.0', $m[2] + 1 );
+			}
 			return sprintf( '%d.0.0', $m[1] + 1 );
 		} elseif ( isset( $significances['minor'] ) ) {
 			return sprintf( '%d.%d.0', $m[1], $m[2] + 1 );
