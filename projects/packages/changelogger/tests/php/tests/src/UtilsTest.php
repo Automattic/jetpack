@@ -25,6 +25,7 @@ use function Wikimedia\quietCall;
  * @covers \Automattic\Jetpack\Changelogger\Utils
  */
 class UtilsTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 	use \Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 

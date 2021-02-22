@@ -12,7 +12,6 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 use Automattic\Jetpack\Changelogger\Config;
 use Automattic\Jetpack\Changelogger\PluginTrait;
 use Automattic\Jetpack\Changelogger\VersioningPlugin;
-use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Wikimedia\TestingAccessWrapper;
 
@@ -232,17 +231,25 @@ class ConfigTest extends TestCase {
 	public function testGetPlugin() {
 		$w = TestingAccessWrapper::newFromClass( Config::class );
 
+		if ( interface_exists( \PHPUnit\Framework\MockObject\MockObject::class ) ) {
+			$mockinterface = \PHPUnit\Framework\MockObject\MockObject::class;
+		} elseif ( interface_exists( \PHPUnit_Framework_MockObject_MockObject::class ) ) {
+			$mockinterface = \PHPUnit_Framework_MockObject_MockObject::class;
+		} else {
+			$this->fail( "Couldn't find an interface for mock objects" );
+		}
+
 		// Get plugin by class.
 		$mock1  = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
 		$class1 = get_class( $mock1 );
-		$this->assertInstanceOf( $class1, $w->getPlugin( array( 'class' => $class1 ), 'Dummy', MockObject::class ) );
+		$this->assertInstanceOf( $class1, $w->getPlugin( array( 'class' => $class1 ), 'Dummy', $mockinterface ) );
 
 		// Get plugin by name.
 		$mock2  = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
 		$class2 = get_class( $mock2 );
 		class_alias( $class2, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class );
-		$this->assertInstanceOf( $class2, $w->getPlugin( 'foo', 'Dummy', MockObject::class ) );
-		$this->assertInstanceOf( $class2, $w->getPlugin( array( 'name' => 'foo' ), 'Dummy', MockObject::class ) );
+		$this->assertInstanceOf( $class2, $w->getPlugin( 'foo', 'Dummy', $mockinterface ) );
+		$this->assertInstanceOf( $class2, $w->getPlugin( array( 'name' => 'foo' ), 'Dummy', $mockinterface ) );
 
 		// Get by loading file, valid file.
 		$ns        = __NAMESPACE__;
@@ -269,7 +276,7 @@ class ConfigTest extends TestCase {
 		);
 
 		// Get by loading file, file with no classes.
-		file_put_contents( 'dummy2.php', '<?php' );
+		file_put_contents( 'dummy2.php', "<?php\n" );
 		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy2.php' ), 'Dummy', VersioningPlugin::class ) );
 
 		// Get by loading file, file with no valid classes.
@@ -295,10 +302,10 @@ class ConfigTest extends TestCase {
 		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy5.php' ), 'Dummy', VersioningPlugin::class ) );
 
 		// Test invalid class handling.
-		$this->assertNull( $w->getPlugin( 'baz', 'Dummy', MockObject::class ) );
+		$this->assertNull( $w->getPlugin( 'baz', 'Dummy', $mockinterface ) );
 
 		// Test a config array with no valid plugin specifier.
-		$this->assertNull( $w->getPlugin( array(), 'Dummy', MockObject::class ) );
+		$this->assertNull( $w->getPlugin( array(), 'Dummy', $mockinterface ) );
 	}
 
 	/**
