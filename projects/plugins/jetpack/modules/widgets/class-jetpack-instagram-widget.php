@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * This is the actual Instagram widget along with other code that only applies to the widget.
@@ -380,6 +381,18 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
+
+		if ( ! ( new Manager() )->is_user_connected() ) {
+			echo '<p>';
+			printf(
+				// translators: %1$1 and %2$s are the opening and closing a tags creating a link to the Jetpack dashboard.
+				esc_html__( 'In order to use this widget you need %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
+				'<a href="' . esc_url( Jetpack::admin_url() ) . '">',
+				'</a>'
+			);
+			echo '</p>';
+			return;
+		}
 
 		// If coming back to the widgets page from an action, expand this widget.
 		if ( isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number ) {

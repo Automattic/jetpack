@@ -1,11 +1,14 @@
+// make use of color studio variables for consistency across products
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+
 // core variables (core _variables.scss)
 $base-color: #101517; // Calypso --color-masterbar-background
 $icon-color: #a2aab2; // Calypso --color-sidebar-gridicon-fill
-$highlight-color: #c9356e;// Calypso --color-accent
+$highlight-color: $studio-pink-50;// Calypso --color-accent
 $notification-color: $highlight-color;
 
 // global (core _variables.scss)
-$body-background: #f6f7f7; // Calypso --color-surface-backdrop
+$body-background: $studio-gray-0; // Calypso --color-surface-backdrop
 
 // admin menu & admin-bar (core _variables.scss)
 $menu-text: #eeeeee; // Calypso --color-sidebar-text
@@ -19,7 +22,7 @@ $menu-current-background: #0073aa; // Calypso --color-sidebar-menu-selected-back
 $menu-submenu-text: #b4b9be; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: #32373c; // Calypso --color-sidebar-submenu-background
 $menu-submenu-focus-text: #00b9eb; // Calypso --color-sidebar-submenu-hover-text
-$menu-submenu-current-text: #ffffff; // Calypso --color-sidebar-submenu-selected-text
+$menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
 
 // masterbar overrides
 $masterbar-background: $base-color; // Calypso --color-masterbar-background

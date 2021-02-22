@@ -271,11 +271,10 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		}
 
 		if ( 'CONNECTION_OWNER' === $user_id_query ) {
-			$manager       = $this->manager; // php 5.6 safe.
-			$user_id_query = $manager::CONNECTION_OWNER;
+			$user_id_query = true;
 		}
 
-		$token = $this->manager->get_access_token( $user_id_query, $token_key_query, false );
+		$token = ( new Tokens() )->get_access_token( $user_id_query, $token_key_query, false );
 
 		if ( $expected_error_code ) {
 			$this->assertInstanceOf( 'WP_Error', $token );
@@ -450,7 +449,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * Make sure we don´t change how we return errors
 	 */
 	public function test_get_access_token_suppress_errors() {
-		$this->assertFalse( $this->manager->get_access_token( 123 ) );
-		$this->assertInstanceOf( 'WP_Error', $this->manager->get_access_token( 123, '', false ) );
+		$this->assertFalse( ( new Tokens() )->get_access_token( 123 ) );
+		$this->assertInstanceOf( 'WP_Error', ( new Tokens() )->get_access_token( 123, '', false ) );
 	}
 }
