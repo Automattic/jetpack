@@ -55,9 +55,26 @@ class Inline_Help {
 			return;
 		}
 
+		$svg_allowed = array(
+			'svg'   => array(
+				'id'    => true,
+				'class' => true,
+				'aria-hidden' => true,
+				'aria-labelledby' => true,
+				'role' => true,
+				'xmlns' => true,
+				'width' => true,
+				'height' => true,
+				'viewbox' => true, // <= Must be lower case!
+			),
+			'g'     => array( 'fill' => true ),
+			'title' => array( 'title' => true ),
+			'path'  => array( 'd' => true, 'fill' => true,  ),
+		);
+
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
-		echo '<div class="inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="inline-help__button">' . $gridicon_help . '</a></div>';
+		echo '<div class="inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="inline-help__button">' . wp_kses( $gridicon_help, $svg_allowed ) . '</a></div>';
 	}
 
 	/**
