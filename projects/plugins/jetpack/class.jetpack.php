@@ -1,4 +1,5 @@
 <?php
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
@@ -6,7 +7,8 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Secrets;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -14,7 +16,6 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Health;
@@ -673,8 +674,8 @@ class Jetpack {
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
 		// Unlink user before deleting the user from WP.com.
-		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
-		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
+		add_action( 'deleted_user', array( $this, 'disconnect_user' ), 10, 1 );
+		add_action( 'remove_user_from_blog', array( $this, 'disconnect_user' ), 10, 1 );
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
@@ -2262,9 +2263,9 @@ class Jetpack {
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::update_user_token() instead.
-	 *
 	 * Enters a user token into the user_tokens option
+	 *
+	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
 	 *
 	 * @param int    $user_id The user id.
 	 * @param string $token The user token.
@@ -2272,8 +2273,8 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::update_user_token' );
-		return Connection_Utils::update_user_token( $user_id, $token, $is_master_user );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
+		return ( new Tokens() )->update_user_token( $user_id, $token, $is_master_user );
 	}
 
 	/**
@@ -3385,17 +3386,12 @@ p {
 	}
 
 	/**
-	 * Unlinks the current user from the linked WordPress.com user.
+	 * Disconnects the user
 	 *
-	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Manager::disconnect_user()
-	 *
-	 * @param Integer $user_id the user identifier.
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @param int $user_id The user ID to disconnect.
 	 */
-	public static function unlink_user( $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::disconnect_user' );
-		return Connection_Manager::disconnect_user( $user_id );
+	public function disconnect_user( $user_id ) {
+		$this->connection_manager->disconnect_user( $user_id );
 	}
 
 	/**
@@ -3809,7 +3805,7 @@ p {
 
 		$media_keys = array_keys( $_FILES['media'] );
 
-		$token = Jetpack_Data::get_access_token( get_current_user_id() );
+		$token = ( new Tokens() )->get_access_token( get_current_user_id() );
 		if ( ! $token || is_wp_error( $token ) ) {
 			return new WP_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
@@ -4357,7 +4353,7 @@ p {
 
 					check_admin_referer( 'jetpack-reconnect' );
 					self::log( 'reconnect' );
-					$this->disconnect();
+					self::disconnect();
 					wp_redirect( $this->build_connect_url( true, false, 'reconnect' ) );
 					exit;
 				case 'deactivate':
@@ -4380,7 +4376,7 @@ p {
 					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : '';
 					check_admin_referer( 'jetpack-unlink' );
 					self::log( 'unlink' );
-					Connection_Manager::disconnect_user();
+					$this->connection_manager->disconnect_user();
 					self::state( 'message', 'unlinked' );
 					if ( 'sub-unlink' == $redirect ) {
 						wp_safe_redirect( admin_url() );
@@ -4710,78 +4706,6 @@ endif;
 	}
 
 	/**
-	 * Get the role of the current user.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_current_user_to_role() instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return string|boolean Current user's role, false if not enough capabilities for any of the roles.
-	 */
-	public static function translate_current_user_to_role() {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-
-		$roles = new Roles();
-		return $roles->translate_current_user_to_role();
-	}
-
-	/**
-	 * Get the role of a particular user.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_user_to_role() instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param \WP_User $user User object.
-	 * @return string|boolean User's role, false if not enough capabilities for any of the roles.
-	 */
-	public static function translate_user_to_role( $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-
-		$roles = new Roles();
-		return $roles->translate_user_to_role( $user );
-	}
-
-	/**
-	 * Get the minimum capability for a role.
-	 *
-	 * @deprecated 7.6 Use Automattic\Jetpack\Roles::translate_role_to_cap() instead.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param string $role Role name.
-	 * @return string|boolean Capability, false if role isn't mapped to any capabilities.
-	 */
-	public static function translate_role_to_cap( $role ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.6.0' );
-
-		$roles = new Roles();
-		return $roles->translate_role_to_cap( $role );
-	}
-
-	/**
-	 * Sign a user role with the master access token.
-	 * If not specified, will default to the current user.
-	 *
-	 * @deprecated since 7.7
-	 * @see Automattic\Jetpack\Connection\Manager::sign_role()
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @param string $role    User role.
-	 * @param int    $user_id ID of the user.
-	 * @return string Signed user role.
-	 */
-	public static function sign_role( $role, $user_id = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::sign_role' );
-		return self::connection()->sign_role( $role, $user_id );
-	}
-
-	/**
 	 * Builds a URL to the Jetpack connection auth page
 	 *
 	 * @since 3.9.5
@@ -4796,7 +4720,7 @@ endif;
 	 */
 	function build_connect_url( $raw = false, $redirect = false, $from = false, $register = false ) {
 		$site_id    = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Data::get_access_token();
+		$blog_token = ( new Tokens() )->get_access_token();
 
 		if ( $register || ! $blog_token || ! $site_id ) {
 			$url = self::nonce_url_no_esc( self::admin_url( 'action=register' ), 'jetpack-register' );
@@ -5359,6 +5283,8 @@ endif;
 	 *
 	 * Note these tokens are unique per call, NOT static per site for connecting.
 	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->generate() instead.
+	 *
 	 * @since 2.6
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
@@ -5366,31 +5292,22 @@ endif;
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->generate' );
 		return self::connection()->generate_secrets( $action, $user_id, $exp );
 	}
 
 	public static function get_secrets( $action, $user_id ) {
-		$secrets = self::connection()->get_secrets( $action, $user_id );
+		$secrets = ( new Secrets() )->get( $action, $user_id );
 
-		if ( Connection_Manager::SECRETS_MISSING === $secrets ) {
+		if ( Secrets::SECRETS_MISSING === $secrets ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
 		}
 
-		if ( Connection_Manager::SECRETS_EXPIRED === $secrets ) {
+		if ( Secrets::SECRETS_EXPIRED === $secrets ) {
 			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
 		}
 
 		return $secrets;
-	}
-
-	/**
-	 * @deprecated 7.5 Use Connection_Manager instead.
-	 *
-	 * @param $action
-	 * @param $user_id
-	 */
-	public static function delete_secrets( $action, $user_id ) {
-		return self::connection()->delete_secrets( $action, $user_id );
 	}
 
 	/**
@@ -5846,7 +5763,7 @@ endif;
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => Connection_Manager::CONNECTION_OWNER ) );
+			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => true ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
@@ -5982,8 +5899,9 @@ endif;
 			? $_REQUEST
 			: $environment;
 
-		list( $envToken, $envVersion, $envUserId ) = explode( ':', $environment['token'] );
-		$token                                     = Jetpack_Data::get_access_token( $envUserId, $envToken );
+		//phpcs:ignore MediaWiki.Classes.UnusedUseStatement.UnusedUse,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		list( $env_token, $env_version, $env_user_id ) = explode( ':', $environment['token'] );
+		$token = ( new Tokens() )->get_access_token( $env_user_id, $env_token );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
 		}

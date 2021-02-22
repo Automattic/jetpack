@@ -5,7 +5,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
-	const VERSION   = '20201207';
+	const VERSION   = '20210219';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	private static $instance     = null;
@@ -1655,7 +1655,7 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
-		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
+		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array();
 		if ( $script ) {
 			wp_enqueue_script(
 				'jetpack_related-posts',
