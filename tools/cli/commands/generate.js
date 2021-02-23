@@ -22,6 +22,7 @@ import {
 import { normalizeGenerateArgv } from '../helpers/normalizeArgv';
 import mergeDirs from '../helpers/mergeDirs';
 import { chalkJetpackGreen } from '../helpers/styling';
+import { doesRepoExist } from '../helpers/github';
 
 /**
  * Relays commands to generate a particular project
@@ -32,7 +33,7 @@ async function generateRouter( options ) {
 	const argv = normalizeGenerateArgv( options );
 	switch ( options.type ) {
 		case 'package':
-			generatePackage( argv );
+			await generatePackage( argv );
 			break;
 		case 'plugin':
 			generatePlugin( argv );
@@ -203,6 +204,12 @@ export function getQuestions( type ) {
 			name: 'wordbless',
 			message: 'Will you need WorDBless for integration testing?',
 		},
+		{
+			type: 'confirm',
+			name: 'mirrorrepo',
+			message:
+				'Add a mirror repo for a build version of the project to be automatically pushed to?',
+		},
 	];
 	const packageQuestions = [];
 	const pluginQuestions = [
@@ -231,15 +238,9 @@ export function getQuestions( type ) {
 /**
  * Generate a package based on questions passed to it.
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {object} answers - Answers from questions.
- *
- * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePackage(
-	answers = { name: 'test', description: 'n/a', buildScripts: [] }
-) {
+async function generatePackage( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
 	const project = 'packages/' + answers.name;
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
 
@@ -258,20 +259,16 @@ export function generatePackage(
 	// Generate readme.md file
 	const readmeMdContent = createReadMeMd( answers );
 	writeToFile( pkgDir + '/README.md', readmeMdContent );
-
-	return packageJson;
 }
 
 /**
  * Generate a plugin based on questions passed to it.
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {object} answers - Answers from questions.
  *
  * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePlugin( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
+async function generatePlugin( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
 	const project = 'plugins/' + answers.name;
 	const pluginDir = path.join( __dirname, '../../..', 'projects/plugins', answers.name );
 
@@ -308,12 +305,10 @@ export function generatePlugin( answers = { name: 'test', description: 'n/a', bu
 /**
  * Generate a github action based on questions passed to it.
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {object} answers - Answers from questions.
  *
  */
-export function generateAction( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
+async function generateAction( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
 	const project = 'github-actions/' + answers.name;
 	const actDir = path.join( __dirname, '../../..', 'projects/github-actions', answers.name );
 
@@ -358,7 +353,6 @@ export function createSkeleton( type, dir, name ) {
 	} catch ( e ) {
 		console.error( e );
 	}
-	return;
 }
 
 /**
@@ -372,19 +366,16 @@ export function createSkeleton( type, dir, name ) {
  */
 export function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
-	return;
 }
 
 /**
  * Create composer.json for project
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
  * @param {object} answers - Answers returned for project creation.
  *
  */
-export function createComposerJson( composerJson, answers ) {
+async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
 	composerJson.name = 'automattic/' + answers.name;
 	if ( answers.monorepo ) {
@@ -411,11 +402,81 @@ export function createComposerJson( composerJson, answers ) {
 			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
 	}
-	/**
-	 * @todo Move this to the section dealing with mirror repo creation.
-	 */
-	//composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
-	return;
+
+	try {
+		if ( answers.mirrorrepo ) {
+			// For testing, add a third arg here for the org.
+			await mirrorRepo( composerJson, answers.name );
+		}
+	} catch ( e ) {
+		// This means we couldn't create the mirror repo or something else failed, GitHub API is down, etc.
+		// Add error handling for mirror repo couldn't be created or verified.
+		// Output to console instructions on how to add it.
+		// Since we're catching an errors here, it'll continue executing.
+	}
+}
+
+/**
+ * Processes mirror repo
+ *
+ * @param {object} composerJson - the composer.json object being developed by the generator.
+ * @param {string} name - The name of the project.
+ * @param {string} org - The GitHub owner for the project.
+ */
+async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
+	const repo = org + '/' + name;
+	const exists = await doesRepoExist( name, org );
+	const answers = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'useExisting',
+			message:
+				'The repo ' +
+				repo +
+				' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
+			when: exists, // If the repo exists, confirm we want to use it.
+		},
+		{
+			type: 'confirm',
+			name: 'createNew',
+			message: 'There is not a ' + repo + ' repo already. Shall I create one?',
+			when: ! exists, // When the repo does not exist, do we want to ask to make it.
+		},
+		{
+			type: 'string',
+			name: 'newName',
+			message: 'What name do you want to use for the repo?',
+			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
+		},
+	] );
+
+	if ( answers.createNew ) {
+		// add function to create.
+		addMirrorRepo( composerJson, name, org );
+	} else if ( answers.useExisting ) {
+		addMirrorRepo( composerJson, name, org );
+	} else if ( answers.newName ) {
+		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
+	}
+
+	// Prompt: What repo would you like to use in the "org"? Default: "name".
+
+	// Validate the name, then check for repo exists again.
+
+	// If validated, add it to composerJson. If not repeat.
+}
+
+/**
+ * Add mirror repo to the composer.json
+ *
+ * @param {object} composerJson - composer.json object.
+ * @param {string} name - Repo name.
+ * @param {string} org - Repo owner.
+ */
+function addMirrorRepo( composerJson, name, org ) {
+	composerJson.extra = {
+		'mirror-repo': org + '/' + name,
+	};
 }
 
 /**
