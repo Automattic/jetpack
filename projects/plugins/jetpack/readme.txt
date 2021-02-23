@@ -248,6 +248,8 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).
 * Instant Search: improve the design of the Search modal.
+* Social Icons Widget: add new icons.
+* Social Menu: add new icons.
 
 **Improved compatibility**
 
