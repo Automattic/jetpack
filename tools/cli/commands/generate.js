@@ -5,6 +5,8 @@ import path from 'path';
 import pluralize from 'pluralize';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import fs from 'fs';
+import yaml from 'js-yaml';
 
 /**
  * Internal dependencies
@@ -28,13 +30,7 @@ import { chalkJetpackGreen } from '../helpers/styling';
  */
 async function generateRouter( options ) {
 	const argv = normalizeGenerateArgv( options );
-	switch ( options.type ) {
-		case 'package':
-			generatePackage( argv );
-			break;
-		default:
-			throw new Error( 'Unsupported type selected.' );
-	}
+	generateProject( argv );
 }
 
 /**
@@ -221,37 +217,131 @@ export function getQuestions( type ) {
 }
 
 /**
- * Generate a package based on questions passed to it.
+ * Generate a project based on questions passed to it.
+ *
+ * @param {object} answers - Answers from questions.
+ */
+export function generateProject(
+	answers = { name: 'test', description: 'n/a', buildScripts: [] }
+) {
+	const type = pluralize( answers.type );
+	const project = type + '/' + answers.name;
+	const projDir = path.join( __dirname, '../../..', 'projects/', type, answers.name );
+
+	createSkeleton( type, projDir, answers.name );
+
+	// Generate the composer.json file
+	if ( type !== 'github-actions' ) {
+		const composerJson = readComposerJson( project );
+		createComposerJson( composerJson, answers );
+		writeComposerJson( project, composerJson, projDir );
+	}
+
+	// Create package.json
+	const packageJson = readPackageJson( project );
+	createPackageJson( packageJson, answers );
+	writePackageJson( project, packageJson, projDir );
+
+	// Generate readme.md file
+	const readmeMdContent = createReadMeMd( answers );
+	writeToFile( projDir + '/README.md', readmeMdContent );
+
+	switch ( answers.type ) {
+		case 'package':
+			break;
+		case 'plugin':
+			generatePlugin( answers, projDir );
+			break;
+		case 'github-action':
+			generateAction( answers, projDir );
+			break;
+		default:
+			throw new Error( 'Unsupported type selected.' );
+	}
+}
+
+/**
+ * Generate a plugin based on questions passed to it.
+ *
+ * @param {object} answers - Answers from questions.
+ * @param {string} pluginDir - Plugin directory path.
+ */
+function generatePlugin( answers, pluginDir ) {
+	// Write header to plugin's main file.
+	const headerContent = createPluginHeader( answers );
+	writeToFile( pluginDir + `/${ answers.name }.php`, headerContent );
+
+	// Fill in the README.txt file
+	const readmeTxtContent = createReadMeTxt( answers );
+	const readmeTxtPath = path.join( __dirname, '../', 'skeletons/plugins/readme.txt' );
+	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
+	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
+}
+
+/**
+ * Generate github action files
+ *
+ * @param {object} answers - Answers from questions.
+ * @param {string} actDir - Github action directory path.
+ *
+ */
+function generateAction( answers, actDir ) {
+	// Create composer.json
+	const actionComposerJson = createActionComposer( answers );
+	writeToFile( actDir + `/composer.json`, actionComposerJson );
+
+	// Create the YAML file
+	const yamlFile = createYaml( actDir + '/action.yml', answers );
+	writeToFile( actDir + '/action.yml', yaml.dump( yamlFile ) );
+}
+
+/**
+ * Create skeleton files for project
  *
  * @todo REMOVE EXPORT. ONLY FOR TESTING.
  *
- * @param {object} answers - Answers from questions.
+ * @param {string} type - Type of project.
+ * @param {string} dir - Directory of new project.
+ * @param {string} name - Name of new project.
  *
- * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export function generatePackage(
-	answers = { name: 'test', description: 'n/a', buildScripts: [] }
-) {
-	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
+export function createSkeleton( type, dir, name ) {
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
 	// Copy the skeletons over.
 	try {
-		mergeDirs( path.join( skeletonDir, '/common' ), pkgDir );
-		mergeDirs( path.join( skeletonDir, '/packages' ), pkgDir );
+		mergeDirs( path.join( skeletonDir, '/common' ), dir, name );
+		mergeDirs( path.join( skeletonDir, '/' + type ), dir, name );
 	} catch ( e ) {
 		console.error( e );
 	}
-	const project = 'packages/' + answers.name;
+	return;
+}
 
-	// Generate the package.json file
-	const packageJson = readPackageJson( project );
+/**
+ * Create package.json for project
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} packageJson - The parsed skeleton JSON package file for the project.
+ * @param {object} answers - Answers returned for project creation.
+ *
+ */
+export function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
+	return;
+}
 
-	writePackageJson( project, packageJson, pkgDir );
-
-	// Generate the composer.json file
-	const composerJson = readComposerJson( project );
+/**
+ * Create composer.json for project
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
+ *
+ * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
+ * @param {object} answers - Answers returned for project creation.
+ *
+ */
+export function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
 	composerJson.name = 'automattic/' + answers.name;
 	if ( answers.monorepo ) {
@@ -278,11 +368,148 @@ export function generatePackage(
 			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
 	}
-
 	/**
 	 * @todo Move this to the section dealing with mirror repo creation.
 	 */
 	//composerJson.extra[ 'mirror-repo' ] = 'Automattic' + '/' + answers.name;
-	writeComposerJson( project, composerJson, pkgDir );
-	return packageJson;
+	return;
+}
+
+/**
+ * Creates custom readme.md content.
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the readme.txt file.
+ */
+function createReadMeMd( answers ) {
+	const content =
+		`# ${ answers.name }\n` +
+		'\n' +
+		`${ answers.description }\n` +
+		'\n' +
+		`## How to install ${ answers.name }\n` +
+		'\n' +
+		'### Installation From Git Repo\n' +
+		'\n' +
+		'## Contribute\n' +
+		'\n' +
+		'## Get Help\n' +
+		'\n' +
+		'## Security\n' +
+		'\n' +
+		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
+		'\n' +
+		'## License\n' +
+		'\n' +
+		`${ answers.name } is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)\n` +
+		'\n';
+	return content;
+}
+
+/**
+ * Creates header for main plugin file.
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the main plugin file.
+ */
+function createPluginHeader( answers ) {
+	const content =
+		'<?php\n' +
+		'/**\n' +
+		' *\n' +
+		` * Plugin Name: ${ answers.name }\n` +
+		' * Plugin URI: TBD\n' +
+		` * Description: ${ answers.description }\n` +
+		` * Version: ${ answers.version }\n` +
+		' * Author: Automattic\n' +
+		' * Author URI: https://jetpack.com/\n' +
+		' * License: GPLv2 or later\n' +
+		' * Text Domain: jetpack\n' +
+		' *\n' +
+		` * @package automattic/${ answers.name }\n` +
+		' */\n' +
+		'\n' +
+		'// Code some good stuff!\n';
+	return content;
+}
+
+/**
+ * Creates custom readme.txt content for plugins.
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the readme.txt file.
+ */
+function createReadMeTxt( answers ) {
+	const content =
+		`=== ${ answers.name } ===\n` +
+		'Contributors: automattic,\n' +
+		'Tags: jetpack, stuff\n' +
+		'Requires at least: 5.5\n' +
+		'Requires PHP: 5.6\n' +
+		'Tested up to: 5.6\n' +
+		'Stable tag: 1.0\n' +
+		'License: GPLv2 or later\n' +
+		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
+		'\n' +
+		`${ answers.description }\n` +
+		'\n';
+	return content;
+}
+
+/**
+ * Creates custom composer.json content for github actions.
+ *
+ * @param {object} answers - Answers returned for project creation.
+ *
+ * @returns {string} content - The content we're writing to the readme.txt file.
+ * @todo replace mirror-repo with returned mirror-repo answer.
+ */
+function createActionComposer( answers ) {
+	const content =
+		`{\n` +
+		`	"name": "automattic/action-${ answers.name }",\n` +
+		`	"description": "${ answers.description }",\n` +
+		`	"type": "project",\n` +
+		`	"license": "GPL-2.0-or-later",\n` +
+		`	"require": {},\n` +
+		`	"extra": {\n` +
+		`		"mirror-repo": "Automattic/action-${ answers.name }"\n` +
+		`	}\n` +
+		`}`;
+	return content;
+}
+
+/** Creates YAML file skeleton for github actions.
+ *
+ * @param {string} dir - file path we're writing to.
+ * @param {string} answers - the answers to fill in the skeleton.
+ *
+ * @returns {string} yamlFile - the YAML file we've created.
+ */
+function createYaml( dir, answers ) {
+	try {
+		const yamlFile = yaml.load( fs.readFileSync( dir, 'utf8' ) );
+		yamlFile.name = answers.name;
+		yamlFile.description = answers.description;
+		return yamlFile;
+	} catch ( err ) {
+		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+	}
+}
+
+/** Writes to files.
+ *
+ * @param {string} file - file path we're writing to.
+ * @param {string} content - the content we're writing.
+ *
+ */
+function writeToFile( file, content ) {
+	try {
+		fs.writeFileSync( file, content );
+	} catch ( err ) {
+		console.error( chalk.red( `Ah, couldn't write to the file.` ), err );
+	}
 }
