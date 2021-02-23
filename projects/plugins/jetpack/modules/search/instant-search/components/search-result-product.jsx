@@ -37,12 +37,7 @@ class SearchResultProduct extends Component {
 
 		return (
 			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
-				<a
-					href={ `//${ fields[ 'permalink.url.raw' ] }` }
-					onClick={ this.props.onClick }
-					rel="noopener noreferrer"
-					target="_blank"
-				>
+				<a href={ `//${ fields[ 'permalink.url.raw' ] }` } onClick={ this.props.onClick }>
 					{ firstImage ? (
 						<PhotonImage
 							alt=""
@@ -59,8 +54,6 @@ class SearchResultProduct extends Component {
 						className="jetpack-instant-search__search-result-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
-						rel="noopener noreferrer"
-						target="_blank"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: title } }
 					/>

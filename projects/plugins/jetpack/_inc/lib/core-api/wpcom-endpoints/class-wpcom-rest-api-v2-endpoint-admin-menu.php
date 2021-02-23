@@ -122,11 +122,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
-					$item['children'][] = $this->prepare_submenu_item( $submenu_item, $menu_item );
+					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
+					if ( ! empty( $submenu_item ) ) {
+						$item['children'][] = $submenu_item;
+					}
 				}
 			}
 
-			$data[] = $item;
+			if ( ! empty( $item ) ) {
+				$data[] = $item;
+			}
 		}
 
 		return array_filter( $data );
@@ -207,10 +212,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array Prepared menu item.
 	 */
 	private function prepare_menu_item( array $menu_item ) {
+		// Exclude unauthorized menu items.
 		if ( ! current_user_can( $menu_item[1] ) ) {
 			return array();
 		}
 
+		// Exclude hidden menu items.
+		if ( false !== strpos( $menu_item[4], 'hide-if-js' ) ) {
+			return array();
+		}
+
+		// Handle menu separators.
 		if ( false !== strpos( $menu_item[4], 'wp-menu-separator' ) ) {
 			return array(
 				'type' => 'separator',
@@ -241,21 +253,27 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array Prepared submenu item.
 	 */
 	private function prepare_submenu_item( array $submenu_item, array $menu_item ) {
-		$item = array();
+		// Exclude unauthorized submenu items.
+		if ( ! current_user_can( $submenu_item[1] ) ) {
+			return array();
+		}
 
-		if ( current_user_can( $submenu_item[1] ) ) {
-			$item = array(
-				'parent' => sanitize_title_with_dashes( $menu_item[2] ),
-				'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
-				'title'  => $submenu_item[0],
-				'type'   => 'submenu-item',
-				'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
-			);
+		// Exclude hidden submenu items.
+		if ( isset( $submenu_item[4] ) && false !== strpos( $submenu_item[4], 'hide-if-js' ) ) {
+			return array();
+		}
 
-			$parsed_item = $this->parse_markup_data( $item['title'] );
-			if ( ! empty( $parsed_item ) ) {
-				$item = array_merge( $item, $parsed_item );
-			}
+		$item = array(
+			'parent' => sanitize_title_with_dashes( $menu_item[2] ),
+			'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
+			'title'  => $submenu_item[0],
+			'type'   => 'submenu-item',
+			'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
+		);
+
+		$parsed_item = $this->parse_markup_data( $item['title'] );
+		if ( ! empty( $parsed_item ) ) {
+			$item = array_merge( $item, $parsed_item );
 		}
 
 		return $item;

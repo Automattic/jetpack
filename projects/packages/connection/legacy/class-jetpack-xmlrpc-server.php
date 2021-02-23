@@ -7,7 +7,8 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Secrets;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -39,11 +40,9 @@ class Jetpack_XMLRPC_Server {
 
 	/**
 	 * Creates a new XMLRPC server object.
-	 *
-	 * @param Automattic\Jetpack\Connection\Manager $manager the connection manager object.
 	 */
-	public function __construct( $manager = null ) {
-		$this->connection = is_null( $manager ) ? new Connection_Manager() : $manager;
+	public function __construct() {
+		$this->connection = new Connection_Manager();
 	}
 
 	/**
@@ -183,7 +182,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		$user_token = $this->connection->get_access_token( $user->ID );
+		$user_token = ( new Tokens() )->get_access_token( $user->ID );
 
 		if ( $user_token ) {
 			list( $user_token_key ) = explode( '.', $user_token->secret );
@@ -328,7 +327,7 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		if ( ! Jetpack_Options::get_option( 'id' ) || ! $this->connection->get_access_token() || ! empty( $request['force'] ) ) {
+		if ( ! Jetpack_Options::get_option( 'id' ) || ! ( new Tokens() )->get_access_token() || ! empty( $request['force'] ) ) {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.
@@ -398,7 +397,7 @@ class Jetpack_XMLRPC_Server {
 		// Generate secrets.
 		$roles   = new Roles();
 		$role    = $roles->translate_user_to_role( $user );
-		$secrets = $this->connection->generate_secrets( 'authorize', $user->ID );
+		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID );
 
 		$response = array(
 			'jp_version'   => JETPACK__VERSION,
@@ -470,6 +469,7 @@ class Jetpack_XMLRPC_Server {
 		if ( ! $ixr_client ) {
 			$ixr_client = new Jetpack_IXR_Client();
 		}
+		// TODO: move this query into the Tokens class?
 		$ixr_client->query(
 			'jetpack.getUserAccessToken',
 			array(
@@ -491,7 +491,7 @@ class Jetpack_XMLRPC_Server {
 		}
 		$token = sanitize_text_field( $token );
 
-		Connection_Utils::update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
+		( new Tokens() )->update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
 
 		$this->do_post_authorization();
 
@@ -570,7 +570,7 @@ class Jetpack_XMLRPC_Server {
 		$verify_secret = isset( $params[1] ) ? $params[1] : '';
 		$state         = isset( $params[2] ) ? $params[2] : '';
 
-		$result = $this->connection->verify_secrets( $action, $verify_secret, $state );
+		$result = ( new Secrets() )->verify( $action, $verify_secret, $state );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result );
@@ -675,7 +675,7 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = $this->connection->get_access_token( $user_id );
+		$jetpack_token = ( new Tokens() )->get_access_token( $user_id );
 
 		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
 		if ( ! $api_user_code ) {
@@ -753,7 +753,7 @@ class Jetpack_XMLRPC_Server {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'unlink' );
-		return Connection_Manager::disconnect_user(
+		return $this->connection->disconnect_user(
 			$user_id,
 			(bool) $user_id
 		);
@@ -908,7 +908,7 @@ class Jetpack_XMLRPC_Server {
 			$token_key = $verified['token_key'];
 		}
 
-		$token = $this->connection->get_access_token( $user_id, $token_key );
+		$token = ( new Tokens() )->get_access_token( $user_id, $token_key );
 		if ( ! $token || is_wp_error( $token ) ) {
 			return false;
 		}

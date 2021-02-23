@@ -14,9 +14,9 @@ use Automattic\Jetpack\Tracking;
  **/
 class Jetpack_Recommendations_Banner {
 	/**
-	 * Jetpack_Wizard_Banner
+	 * Jetpack_Recommendations_Banner
 	 *
-	 * @var Jetpack_Wizard_Banner
+	 * @var Jetpack_Recommendations_Banner
 	 **/
 	private static $instance = null;
 
@@ -54,7 +54,7 @@ class Jetpack_Recommendations_Banner {
 	/**
 	 * Determines if the banner can be displayed
 	 */
-	private function can_be_displayed() {
+	public static function can_be_displayed() {
 		if ( ! Jetpack_Recommendations::is_banner_enabled() ) {
 			return false;
 		}

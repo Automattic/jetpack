@@ -133,7 +133,6 @@ abstract class SAL_Post {
 						current_user_can( 'edit_post_meta', $this->post->ID , $meta_key )
 					);
 
-			// Only business plan subscribers can view custom meta description
 			if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta_key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 				$show = false;
 			}

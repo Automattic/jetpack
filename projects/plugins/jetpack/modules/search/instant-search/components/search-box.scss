@@ -62,15 +62,21 @@ input.jetpack-instant-search__box-input.search-field {
 	height: 52px;
 	transition: color 0.15s ease-in-out, border-color 0.25s ease-in-out;
 	outline-style: none;
+	border: none;
 
-	&::-webkit-search-decoration,
 	&::-webkit-search-results-button,
 	&::-webkit-search-results-decoration {
 		display: initial;
 		-webkit-appearance: searchfield;
 	}
 
+	&::-webkit-search-decoration,
 	&::-webkit-search-cancel-button {
 		-webkit-appearance: none;
+	}
+
+	&::-ms-clear,
+	&::-ms-reveal {
+		display: none;
 	}
 }

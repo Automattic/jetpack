@@ -370,8 +370,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 			<meta name="viewport" content="width=device-width">
 			<?php
-			if ( function_exists( 'wp_no_robots' ) ) {
-				wp_no_robots();
+			if ( get_option( 'blog_public' ) ) {
+				echo "<meta name='robots' content='noindex,follow' />\n";
+			} else {
+				echo "<meta name='robots' content='noindex,nofollow' />\n";
 			}
 			?>
 			<title><?php echo $title ?></title>
