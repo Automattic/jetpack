@@ -247,6 +247,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 **Enhancements**
 
 * Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).
+* Instant Search: improve the design of the Search modal.
 
 **Improved compatibility**
 
