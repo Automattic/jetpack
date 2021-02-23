@@ -1,5 +1,6 @@
 const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
 const fs = require( 'fs' );
+const logger = require( '../logger' ).default;
 
 class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	async setup() {
@@ -44,39 +45,44 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			case 'run_describe_start':
 				break;
 			case 'test_start':
-				console.log( `\n\t> START TEST ${ testName }` );
+				logger.info( `START TEST: ${ testName }` );
 				// await this.storeVideoFileName( testName );
 				break;
 			case 'hook_start':
-				console.log( `\n\t> START ${ hookName }` );
+				logger.info( `START: ${ hookName }` );
 				// await this.storeVideoFileName( hookName );
 				break;
 			case 'hook_success':
-				console.log( `\n\t> DONE ${ hookName }` );
+				logger.info( `SUCCESS: ${ hookName }` );
 				break;
 			case 'hook_failure':
-				console.log( `\t> HOOK ${ hookName } FAILED!\n` );
-				console.log( event.hook.errors );
+				logger.info( `FAILED: ${ hookName } FAILED!` );
+				logger.info( event.hook.errors );
 				await this.saveScreenshot( hookName );
 				await this.storeVideoFileName( hookName );
 				await this.logHTML( hookName );
-				await this.logToSlack( event.hook.parent.name, event.hook.type, event.hook.errors );
+				await this.logFailureToSlack( event.hook.parent.name, event.hook.type, event.hook.errors );
 				break;
 			case 'test_fn_start':
 				break;
 			case 'test_fn_success':
+				logger.info( `TEST PASSED: ${ testName }` );
 				break;
 			case 'test_fn_failure':
-				console.log( `\t> TEST ${ testName } FAILED\n` );
-				console.log( event.test.errors );
+				logger.info( `FAILED TEST: ${ testName }` );
+				logger.info( event.test.errors );
 				break;
 			case 'test_done':
-				console.log( `\t> TEST DONE ${ testName }\n` );
+				logger.info( `TEST DONE: ${ testName }` );
 				if ( event.test.errors.length > 0 ) {
 					await this.saveScreenshot( testName );
 					await this.storeVideoFileName( testName );
 					await this.logHTML( testName );
-					await this.logToSlack( event.test.parent.name, event.test.name, event.test.errors );
+					await this.logFailureToSlack(
+						event.test.parent.name,
+						event.test.name,
+						event.test.errors
+					);
 				}
 				break;
 			case 'run_describe_finish':
@@ -92,26 +98,19 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 		}
 	}
 
-	async writeFailureToSlackLog( failureObj ) {
-		fs.appendFileSync( `output/logs/e2e-slack.log`, JSON.stringify( failureObj ) );
-	}
-
-	// We cannot use the old logger.slack here because: https://github.com/facebook/jest/pull/8751
-	// As a temp workaround create failure objects and write them in the log file using fs
-	// todo We should rewrite the Slack reporting and change the approach
-	async logToSlack( block, name, errors ) {
-		const failure = {
+	async logFailureToSlack( block, name, errors ) {
+		logger.slack( {
 			type: 'failure',
-			level: 'slack',
-			block,
-			name,
-			message: '',
-			error: errors,
-		};
-
-		await this.writeFailureToSlackLog( `${ failure }\n` );
+			message: { block, name, errors },
+		} );
 	}
 
+	/**
+	 * Takes a screenshot of the current page and saves it
+	 *
+	 * @param {string} fileName screenshot file name
+	 * @return {Promise<void>}
+	 */
 	async saveScreenshot( fileName ) {
 		if ( this.global.page ) {
 			const ts = new Date().toISOString();
@@ -121,14 +120,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			const filePath = path.resolve( `output/screenshots/${ fileName }` );
 			this.global.page.screenshot( { path: filePath } );
 
-			const failure = {
-				type: 'file',
-				level: 'slack',
-				timestamp: ts,
-				message: filePath,
-			};
-
-			await this.writeFailureToSlackLog( failure );
+			logger.slack( { type: 'file', message: filePath } );
 		}
 	}
 
