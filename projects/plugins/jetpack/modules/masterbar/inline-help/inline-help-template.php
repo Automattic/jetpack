@@ -6,7 +6,7 @@
 ?>
 
 <div class="a8c-faux-inline-help">
-	<a data-jptracks-name="<?php echo esc_attr( $args['tracking_event_name'] ); ?>" class="<?php echo esc_attr( $jp_tracking_classname ); ?> a8c-faux-inline-help__button" href="<?php echo esc_attr( $args['href'] ); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo esc_attr__( 'Help', 'jetpack' ); ?>">
+	<a data-jptracks-name="<?php echo esc_attr( $args['tracking_event_name'] ); ?>" class="<?php echo esc_attr( $jp_tracking_classname ); ?> a8c-faux-inline-help__button" href="<?php echo esc_url( $args['href'] ); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo esc_attr__( 'Help', 'jetpack' ); ?>">
 		<?php echo wp_kses( $args['gridicon_help'], $args['svg_allowed'] ); ?>
 	</a>
 </div>
