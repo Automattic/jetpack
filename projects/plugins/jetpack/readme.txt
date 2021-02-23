@@ -252,6 +252,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Recommendations: add a dashboard banner to help users discover the best Jetpack features.
 * Social Icons Widget: add new icons.
 * Social Menu: add new icons.
+* Video Block: add support for custom video player progress bar colors.
 
 **Improved compatibility**
 
