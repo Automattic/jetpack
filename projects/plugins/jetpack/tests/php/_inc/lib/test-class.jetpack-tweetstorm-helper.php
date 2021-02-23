@@ -276,27 +276,11 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *
 	 * @param string $provider The embed provider name.
 	 * @param string $url      The url of the embed.
-	 * @param bool   $classic  Whether to use the pre-WordPress 5.6 embed block format.
+	 * @param bool   $classic  Deprecated. Whether to use the pre-WordPress 5.6 embed block format.
 	 *
 	 * @return array The embed blob of data.
 	 */
-	public function generateCoreEmbedData( $provider, $url, $classic ) {
-		// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
-		if ( $classic ) {
-			return array(
-				'attributes' => array(
-					'url' => $url,
-				),
-				'block'      => array(
-					'attrs'     => array(
-						'url' => $url,
-					),
-					'blockName' => "core-embed/$provider",
-					'innerHTML' => '',
-				),
-				'clientId'   => wp_generate_uuid4(),
-			);
-		} else {
+	public function generateCoreEmbedData( $provider, $url, $classic = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			return array(
 				'attributes' => array(
 					'providerNameSlug' => $provider,
@@ -312,7 +296,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				),
 				'clientId'   => wp_generate_uuid4(),
 			);
-		}
 	}
 
 	/**

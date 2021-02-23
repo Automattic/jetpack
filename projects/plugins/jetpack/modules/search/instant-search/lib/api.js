@@ -196,6 +196,10 @@ function generateApiQueryString( {
 	postsPerPage = 10,
 	adminQueryFilter,
 } ) {
+	if ( query === null ) {
+		query = '';
+	}
+
 	let fields = [
 		'date',
 		'permalink.url.raw',

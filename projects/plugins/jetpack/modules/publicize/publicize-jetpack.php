@@ -1,5 +1,6 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 
 class Publicize extends Publicize_Base {

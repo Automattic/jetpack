@@ -2,7 +2,7 @@
  * External Dependencies
  */
 import 'url-polyfill';
-import { isEqual, pick } from 'lodash';
+import { isEqual } from 'lodash';
 import queryString from 'query-string';
 
 /**
@@ -17,7 +17,8 @@ import {
 	Placeholder,
 	Spinner,
 	ToggleControl,
-	Toolbar,
+	ToolbarButton,
+	ToolbarGroup,
 	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
@@ -84,6 +85,7 @@ function CalendlyEdit( props ) {
 			setAttributes( { url: undefined } );
 			setErrorNotice();
 		} );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const parseEmbedCode = event => {
@@ -242,9 +244,11 @@ function CalendlyEdit( props ) {
 		<>
 			{ url && ! isEditingUrl && (
 				<BlockControls>
-					<Toolbar>
-						<Button onClick={ () => setIsEditingUrl( true ) }>{ __( 'Edit', 'jetpack' ) }</Button>
-					</Toolbar>
+					<ToolbarGroup>
+						<ToolbarButton onClick={ () => setIsEditingUrl( true ) }>
+							{ __( 'Edit', 'jetpack' ) }
+						</ToolbarButton>
+					</ToolbarGroup>
 				</BlockControls>
 			) }
 			{ url && (

@@ -1,7 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 require dirname( __FILE__ ) . '/base.php';
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 
 /**
  * Main Comments class
