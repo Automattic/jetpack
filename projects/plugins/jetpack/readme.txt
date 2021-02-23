@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Jetpack Videos: fix responsiveness of Video poster images.
 * Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
 * Payments Block: avoid layout issues when setting up a new payment plan.
+* Pay With Paypal Block: ensure that line breaks can be used in product description.
 * Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
 * Sharing: ensure that sharing popup opens properly in Firefox.
 * Shortcodes: use arguments provided by shortcode attributes for the Instagram embeds.
