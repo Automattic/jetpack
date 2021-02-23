@@ -25,4 +25,12 @@ Tiled Galleries now work without the need of jQuery. To test that the galleries 
     - One using a Tiled Gallery block
 3. Ensure that in both scenarios, tiled galleries still work, regardless of the gallery type (square, circle, colunmns...) you choose.
 
+### Related Posts
+
+We've also worked on improving the performance of Related Posts. To test that they still work, try the following:
+
+1. Enable Related posts under Jetpack > Settings
+2. Ensure that related posts appear at the bottom of your posts, when you have a sufficient amount of posts and when those posts have been synced with WordPress.com.
+3. Ensure that Related Posts blocks added to any post are displayed properly.
+
 **Thank you for all your help!**

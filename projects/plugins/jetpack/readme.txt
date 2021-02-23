@@ -252,6 +252,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Podcast Player Block: allow filtering the number of tracks returned when fetching new podcast episodes.
 * Podcast Player Block: add publication date to the data returned when fetching new podcast episodes.
 * Recommendations: add a dashboard banner to help users discover the best Jetpack features.
+* Related Posts: improve performance by removing jQuery dependency.
 * SEO Tools: make the feature available for all sites.
 * Social Icons Widget: add new icons.
 * Social Menu: add new icons.
