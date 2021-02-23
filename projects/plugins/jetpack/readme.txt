@@ -275,6 +275,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Payments Block: avoid layout issues when setting up a new payment plan.
 * Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
 * Sharing: ensure that sharing popup opens properly in Firefox.
+* Shortcodes: use arguments provided by shortcode attributes for the Instagram embeds.
 * WhatsApp block: adjust width of block options toolbar.
 
 --------
