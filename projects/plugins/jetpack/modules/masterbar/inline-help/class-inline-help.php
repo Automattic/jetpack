@@ -77,7 +77,7 @@ class Inline_Help {
 
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
-		echo '<div class="inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="inline-help__button">' . wp_kses( $gridicon_help, $svg_allowed ) . '</a></div>';
+		echo '<div class="a8c-faux-inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="a8c-faux-inline-help__button">' . wp_kses( $gridicon_help, $svg_allowed ) . '</a></div>';
 	}
 
 	/**
@@ -86,6 +86,6 @@ class Inline_Help {
 	 * @return void
 	 */
 	public function add_fab_styles() {
-		wp_enqueue_style( 'a8c-wpcom-inline-help', plugins_url( 'inline-help.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'a8c-faux-inline-help', plugins_url( 'inline-help.css', __FILE__ ), array(), JETPACK__VERSION );
 	}
 }
