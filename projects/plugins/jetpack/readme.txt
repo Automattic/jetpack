@@ -268,6 +268,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Dashboard: improve product upgrade flow for non-connected Jetpack users.
 * Instant Search: fix closing of the overlay using the Escape key in IE11.
 * Instant Search: improve compatibility with browser forward/back navigation.
+* Instant Search: avoid issues when changes made in customizer would not immediately appear in preview.
 * Jetpack Videos: fix responsiveness of Video poster images.
 * Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
 * Payments Block: avoid layout issues when setting up a new payment plan.
