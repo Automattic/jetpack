@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae861137dcef39be319770f81beb7a4e",
+    "content-hash": "80d4ad4580cefb1fe1ec93075c21f68b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -360,22 +360,21 @@
         },
         {
             "name": "automattic/jetpack-connection-ui",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection-ui.git",
-                "reference": "962b88d546c65311570724356e76f7d068684413"
+                "reference": "6d6b3dcf640bcc686c70d65cf88240c2d89b0f77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection-ui/zipball/962b88d546c65311570724356e76f7d068684413",
-                "reference": "962b88d546c65311570724356e76f7d068684413",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection-ui/zipball/6d6b3dcf640bcc686c70d65cf88240c2d89b0f77",
+                "reference": "6d6b3dcf640bcc686c70d65cf88240c2d89b0f77",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "@dev"
+                "automattic/jetpack-connection": "1.24.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "mirror-repo": "Automattic/jetpack-connection-ui"
@@ -391,9 +390,9 @@
             ],
             "description": "Jetpack Connection UI",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection-ui/tree/master"
+                "source": "https://github.com/Automattic/jetpack-connection-ui/tree/v1.0.0"
             },
-            "time": "2021-02-08T15:51:19+00:00"
+            "time": "2021-02-23T15:22:28+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -1095,9 +1094,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "automattic/jetpack-connection-ui": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
