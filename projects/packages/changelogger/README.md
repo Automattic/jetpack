@@ -21,6 +21,10 @@ you can set the configuration using `composer config extra.changelogger.$setting
 
 - **changelog**: Specifies the changelog file, relative to the composer.json. Default is `CHANGELOG.md`.
 - **changes-dir**: Specifies the directory holding changes files, relative to the composer.json. Default is `changelog`.
+- **link-template**: Template for creating changelog entry links. `${new}` is replaced with the
+  URL-encoded new version number, `${old}` with the old.
+- **ordering**: Specifies the ordering of change entries: by type ('subheading'), 'significance',
+  'timestamp', and/or 'content'. Default is `[ 'subheading', 'content' ]`.
 - **types**: Specifies the types of changes used in the repository; see [Type field](#type-field). The
   value is a JSON object, with keys being the field value in the change file and values being the
   subheading text used in the combined changelog file. May be empty; the default is to use the types
@@ -81,6 +85,33 @@ version.
 When the [significance](#significance-field) is "patch", the entry may be left empty. It is not
 valid to leave it empty when the significance is "minor" or "major".
 
+### Validating change files
+
+Change files may be validated using `changelogger validate`. By default it will check all
+non-dotfiles in the [configured](#configuration) `changes-dir`, but a list of specific files may be
+passed instead.
+
+When errors or warnings are encountered, by default the full path to the file is reported. This may
+be overridden using `--basedir`, which will cause paths inside that directory to be reported
+relative to it.
+
+### Checking versions
+
+To allow easier integration of changelogger into other tooling, the current, previous, and next
+versions based on the current may be printed with `changelogger version`.
+
+When fetching the next version, the same flags accepted by `changelogger write` to control the
+versioning are accepted here too.
+
+### Updating the changelog
+
+The change files may be combined into a new changelog entry using `changelogger write`. Note that
+this operation will delete the change files, so you're encouraged to have checked them into git
+beforehand in case something goes wrong.
+
+Command line options allow for specifying prerelease suffixes (like `-dev` or `-beta`), overriding
+the version determination entirely, or amending the latest changelog entry.
+
 ## Plugins
 
 Plugins are used to parse the changelog file and to determine the next version from a current version.
@@ -119,6 +150,10 @@ Determines the next version using the [significance](#significance-field) of the
 WordPress, and some of its plugins such as Jetpack, give normal releases decimal version numbers
 such as 9.4, incrementing it by 0.1 with each release. There is no special significance to going
 from 8.9 to 9.0. Bugfix "point releases" add a suffix like 9.4.1.
+
+When this plugin is in use, the [version](#checking-versions) and [write](#updating-the-changelog)
+commands will accept a `--point-release` option to indicate that a point release increment should be
+done rather than a major release.
 
 ### Writing plugins
 

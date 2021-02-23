@@ -194,6 +194,69 @@ class ConfigTest extends TestCase {
 	}
 
 	/**
+	 * Test the link method.
+	 */
+	public function testLink() {
+		$this->resetConfigCache();
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+		$w = TestingAccessWrapper::newFromClass( Config::class );
+
+		$this->assertNull( Config::link( '1.2.3+A', '4.5.6+B' ) );
+
+		$w->config = array(
+			'link-template' => 'https://example.com/diff/${old}..${new}',
+		);
+		$this->assertSame(
+			'https://example.com/diff/1.2.3%2BA..4.5.6%2BB',
+			Config::link( '1.2.3+A', '4.5.6+B' )
+		);
+	}
+
+	/**
+	 * Test the ordering method.
+	 */
+	public function testOrdering() {
+		$this->resetConfigCache();
+		$out = new BufferedOutput();
+		Config::setOutput( $out );
+		$w = TestingAccessWrapper::newFromClass( Config::class );
+
+		$this->assertSame( $w->defaultConfig['ordering'], Config::ordering() );
+
+		$w->config = array(
+			'ordering' => array(
+				'subheading',
+				'bogus',
+				123,
+				'x' => 'y',
+			),
+		);
+
+		// No change because of caching.
+		$this->assertSame( $w->defaultConfig['ordering'], Config::ordering() );
+
+		// Clear cache, now it changes.
+		$w->cache = array();
+		$this->assertSame(
+			array(
+				'subheading',
+				'bogus',
+				'123',
+				'x' => 'y',
+			),
+			Config::ordering()
+		);
+
+		// Not really supported, but DWIM.
+		$w->config = array(
+			'ordering' => 'content',
+		);
+		$w->cache  = array();
+		$this->assertSame( array( 'content' ), Config::ordering() );
+	}
+
+	/**
 	 * Test the types method.
 	 */
 	public function testTypes() {

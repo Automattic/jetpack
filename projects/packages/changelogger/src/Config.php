@@ -22,10 +22,12 @@ class Config {
 	 * @var array
 	 */
 	private static $defaultConfig = array(
-		'changelog'   => 'CHANGELOG.md',
-		'changes-dir' => 'changelog',
-		'formatter'   => 'keepachangelog',
-		'types'       => array(
+		'changelog'     => 'CHANGELOG.md',
+		'changes-dir'   => 'changelog',
+		'link-template' => null,
+		'ordering'      => array( 'subheading', 'content' ),
+		'formatter'     => 'keepachangelog',
+		'types'         => array(
 			'security'   => 'Security',
 			'added'      => 'Added',
 			'changed'    => 'Changed',
@@ -33,7 +35,7 @@ class Config {
 			'removed'    => 'Removed',
 			'fixed'      => 'Fixed',
 		),
-		'versioning'  => 'semver',
+		'versioning'    => 'semver',
 	);
 
 	/**
@@ -166,6 +168,40 @@ class Config {
 			self::$cache['changes-dir'] = self::addBase( self::$config['changes-dir'] );
 		}
 		return self::$cache['changes-dir'];
+	}
+
+	/**
+	 * Get the link.
+	 *
+	 * @param string $old Old version number.
+	 * @param string $new New version number.
+	 * @return string|null
+	 */
+	public static function link( $old, $new ) {
+		self::load();
+		if ( null !== self::$config['link-template'] ) {
+			return strtr(
+				self::$config['link-template'],
+				array(
+					'${old}' => rawurlencode( $old ),
+					'${new}' => rawurlencode( $new ),
+				)
+			);
+		}
+		return null;
+	}
+
+	/**
+	 * Get change entry ordering.
+	 *
+	 * @return string[]
+	 */
+	public static function ordering() {
+		self::load();
+		if ( ! isset( self::$cache['ordering'] ) ) {
+			self::$cache['ordering'] = array_map( 'strval', (array) self::$config['ordering'] );
+		}
+		return self::$cache['ordering'];
 	}
 
 	/**

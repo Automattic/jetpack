@@ -122,7 +122,7 @@ class Changelog implements JsonSerializable {
 	 * @param ChangelogEntry $entry New entry.
 	 * @return $this
 	 */
-	public function addEntry( ChangelogEntry $entry = null ) {
+	public function addEntry( ChangelogEntry $entry ) {
 		array_unshift( $this->entries, $entry );
 		return $this;
 	}
