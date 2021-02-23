@@ -101,6 +101,15 @@ class VersionCommandTest extends CommandTestCase {
 				0,
 				'2.0.1',
 			),
+			'Run for next, no directory at all'          => array(
+				array( 'which' => 'next' ),
+				array(
+					'CHANGELOG.md'  => $changelog,
+					'composer.json' => array( 'changes-dir' => 'doesnotexist' ),
+				),
+				0,
+				"<warning>Changes directory does not exist\n2.0.1",
+			),
 			'Run for next, some entries'                 => array(
 				array( 'which' => 'next' ),
 				array(

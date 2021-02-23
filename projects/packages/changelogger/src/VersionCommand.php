@@ -148,7 +148,13 @@ EOF
 				return 1;
 			}
 		} else {
-			$changes = Utils::loadAllChanges( Config::changesDir(), Config::types(), $formatter, $output );
+			$dir = Config::changesDir();
+			if ( is_dir( $dir ) ) {
+				$changes = Utils::loadAllChanges( Config::changesDir(), Config::types(), $formatter, $output );
+			} else {
+				$output->writeln( '<warning>Changes directory does not exist</>' );
+				$changes = array();
+			}
 		}
 		$extra = array_filter(
 			array(
