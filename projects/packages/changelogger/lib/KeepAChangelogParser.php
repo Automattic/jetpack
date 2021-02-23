@@ -310,16 +310,19 @@ class KeepAChangelogParser extends Parser {
 
 			foreach ( $entry->getChangesBySubheading() as $heading => $changes ) {
 				if ( '' !== $heading ) {
-					$ret .= "### $heading\n";
+					$heading = "### $heading\n";
 				} else {
-					$ret .= "\n";
+					$heading = substr( $ret, -2 ) === "\n\n" ? '' : "\n";
 				}
 				foreach ( $changes as $change ) {
 					$text = trim( $change->getContent() );
-					if ( $change->getAuthor() !== '' ) {
-						$text .= " ({$change->getAuthor()})";
+					if ( '' !== $text ) {
+						if ( $change->getAuthor() !== '' ) {
+							$text .= " ({$change->getAuthor()})";
+						}
+						$ret    .= $heading . $bullet . str_replace( "\n", "\n$indent", $text ) . "\n";
+						$heading = '';
 					}
-					$ret .= $bullet . str_replace( "\n", "\n$indent", $text ) . "\n";
 				}
 				$ret .= "\n";
 			}
