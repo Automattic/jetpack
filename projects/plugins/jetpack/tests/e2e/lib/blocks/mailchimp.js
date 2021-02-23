@@ -55,8 +55,8 @@ export default class MailchimpBlock {
 					' URL: ' + connectionsUrl
 				);
 				await wpComTab.goto( connectionsUrl, { timeout: 120000 } );
-				if ( count > 9 ) {
-					throw new Error( 'ConnectionsPage is not available after 10th attempt' );
+				if ( count > 2 ) {
+					throw new Error( 'ConnectionsPage is not available after 2nd attempt' );
 				}
 			}
 		}

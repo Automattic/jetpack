@@ -60,7 +60,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				await this.saveScreenshot( hookName );
 				await this.storeVideoFileName( hookName );
 				await this.logHTML( hookName );
-				await this.logToSlack();
+				await this.logToSlack( event.hook.parent.name, event.hook.type, event.hook.errors );
 				break;
 			case 'test_fn_start':
 				break;
@@ -76,7 +76,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 					await this.saveScreenshot( testName );
 					await this.storeVideoFileName( testName );
 					await this.logHTML( testName );
-					await this.logToSlack();
+					await this.logToSlack( event.test.parent.name, event.test.name, event.test.errors );
 				}
 				break;
 			case 'run_describe_finish':
@@ -92,25 +92,44 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 		}
 	}
 
-	// todo do we still want this? we can extract failure info and report to slack after test run
-	async logToSlack() {
-		// if ( CI ) {
-		// 	await logDebugLog();
-		// 	logger.slack( {
-		// 		type: 'failure',
-		// 		message: { block: currentBlock, name, error },
-		// 	} );
-		// 	if ( filePath ) {
-		// 		logger.slack( { type: 'file', message: filePath } );
-		// 	}
-		// }
+	async writeFailureToSlackLog( failureObj ) {
+		fs.appendFileSync( `output/logs/e2e-slack.log`, JSON.stringify( failureObj ) );
+	}
+
+	// We cannot use the old logger.slack here because: https://github.com/facebook/jest/pull/8751
+	// As a temp workaround create failure objects and write them in the log file using fs
+	// todo We should rewrite the Slack reporting and change the approach
+
+	async logToSlack( block, name, errors ) {
+		const failure = {
+			type: 'failure',
+			level: 'slack',
+			block,
+			name,
+			message: '',
+			error: errors[ 0 ],
+		};
+
+		await this.writeFailureToSlackLog( failure );
 	}
 
 	async saveScreenshot( fileName ) {
 		if ( this.global.page ) {
-			this.global.page.screenshot( {
-				path: `output/screenshots/${ fileName.replace( /\W/g, '_' ) }.png`,
-			} );
+			const ts = new Date().toISOString();
+			fileName = `${ fileName }_${ ts }`;
+			fileName = `${ fileName.replace( /\W/g, '_' ) }.png`;
+			const path = require( 'path' );
+			const filePath = path.resolve( `output/screenshots/${ fileName }` );
+			this.global.page.screenshot( { path: filePath } );
+
+			const failure = {
+				type: 'file',
+				level: 'slack',
+				timestamp: ts,
+				message: filePath,
+			};
+
+			await this.writeFailureToSlackLog( failure );
 		}
 	}
 
