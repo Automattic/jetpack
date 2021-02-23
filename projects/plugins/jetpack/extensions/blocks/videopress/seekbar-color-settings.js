@@ -25,15 +25,15 @@ class SeekbarColorSettings extends Component {
 
 	handleChangeSeekbarColor = newColor => {
 		this.setState( { seekbarColor: newColor } );
-	}
+	};
 
 	handleChangeSeekbarLoadingColor = newColor => {
 		this.setState( { seekbarLoadingColor: newColor } );
-	}
+	};
 
 	handleChangeSeekbarPlayedColor = newColor => {
 		this.setState( { seekbarPlayedColor: newColor } );
-	}
+	};
 
 	saveColors = () => {
 		const { seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = this.state;
@@ -66,10 +66,7 @@ class SeekbarColorSettings extends Component {
 					},
 				] }
 			>
-				<Button
-					isDefault
-					onClick={ this.saveColors }
-				>
+				<Button isDefault onClick={ this.saveColors }>
 					{ __( 'Save colors', 'jetpack' ) }
 				</Button>
 			</PanelColorSettings>

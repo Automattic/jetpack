@@ -145,6 +145,8 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 	);
 
 	if ( context === 'toolbar' ) {
+		// This should be updated to use ToolbarItem
+		// when Jetpack uses @wordpress/components v. 10.1.0+.
 		return (
 			<ToolbarGroup>
 				<Dropdown
