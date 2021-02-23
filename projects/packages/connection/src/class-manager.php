@@ -1077,7 +1077,7 @@ class Manager {
 	 */
 	public function clean_nonces( $all = false ) {
 		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
-		( new Nonce_Handler() )->clean_all( $all ? PHP_INT_MAX : time() - Nonce_Handler::LIFETIME );
+		( new Nonce_Handler() )->clean_all( $all ? PHP_INT_MAX : ( time() - Nonce_Handler::LIFETIME ) );
 	}
 
 	/**

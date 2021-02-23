@@ -90,7 +90,7 @@ class Nonce_Handler {
 		// Raw query so we can avoid races: add_option will also update.
 		$show_errors = $this->db->hide_errors();
 
-		// Running try...finally to make sure.
+		// Running `try...finally` to make sure that we re-enable errors in case of an exception.
 		try {
 			$old_nonce = $this->db->get_row(
 				$this->db->prepare( "SELECT 1 FROM `{$this->db->options}` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
