@@ -4,12 +4,14 @@
 import React, { Component } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _x } from '@wordpress/i18n';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import Button from 'components/button';
 import TextInput from 'components/text-input';
+import { createNotice } from 'components/global-notices/state/notices/actions';
 
 class License extends Component {
 	state = {
@@ -34,9 +36,19 @@ class License extends Component {
 			data: {
 				license: this.state.licenseKeyText,
 			},
-		} ).then( () => {
-			this.setState( { isSaving: false, licenseKeyText: '' } );
-		} );
+		} )
+			.then( () => {
+				this.props.createNotice( 'is-success', __( 'Jetpack License Key added.', 'jetpack' ), {
+					id: 'license-key-added-success',
+				} );
+				this.setState( { isSaving: false, licenseKeyText: '' } );
+			} )
+			.catch( () => {
+				this.props.createNotice( 'is-error', __( 'Error adding Jetpack License Key.', 'jetpack' ), {
+					id: 'license-key-added-error',
+				} );
+				this.setState( { isSaving: false } );
+			} );
 	};
 
 	render() {
@@ -62,4 +74,4 @@ class License extends Component {
 	}
 }
 
-export default License;
+export default connect( null, { createNotice } )( License );
