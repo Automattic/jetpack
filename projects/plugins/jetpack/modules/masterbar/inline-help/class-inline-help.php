@@ -79,9 +79,10 @@ class Inline_Help {
 			__DIR__ . '/inline-help-template.php',
 			true,
 			array(
-				'href'          => 'https://wordpress.com/help',
-				'gridicon_help' => $gridicon_help,
-				'svg_allowed'   => $svg_allowed,
+				'href'                => 'https://wordpress.com/help',
+				'gridicon_help'       => $gridicon_help,
+				'svg_allowed'         => $svg_allowed,
+				'tracking_event_name' => 'jetpack_masterbar_inline_help',
 			)
 		);
 
