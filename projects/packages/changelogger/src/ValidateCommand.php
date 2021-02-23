@@ -49,11 +49,19 @@ class ValidateCommand extends Command {
 	private $counts;
 
 	/**
+	 * Base directory regex.
+	 *
+	 * @var string
+	 */
+	private $basedirRegex;
+
+	/**
 	 * Configures the command.
 	 */
 	protected function configure() {
 		$this->setDescription( 'Validates changelog entry files' )
 			->addOption( 'gh-action', null, InputOption::VALUE_NONE, 'Output validation issues using GitHub Action command syntax.' )
+			->addOption( 'basedir', null, InputOption::VALUE_REQUIRED, 'Output file paths in this directory relative to it.' )
 			->addOption( 'no-strict', null, InputOption::VALUE_NONE, 'Do not exit with a failure code if only warnings are found.' )
 			->addArgument( 'files', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Files to check. By default, all change files in the changelog directory are checked.' )
 			->setHelp(
@@ -72,6 +80,7 @@ EOF
 	 * @param string   $msg Error message.
 	 */
 	private function msg( $type, $file, $line, $msg ) {
+		$file = preg_replace( $this->basedirRegex, '', $file );
 		if ( $this->input->getOption( 'gh-action' ) ) {
 			$prefix = "::$type file=$file";
 			if ( null !== $line ) {
@@ -177,6 +186,14 @@ EOF
 			'warning' => 0,
 		);
 
+		if ( $input->getOption( 'basedir' ) ) {
+			$basedir            = rtrim( $input->getOption( 'basedir' ), '/' );
+			$basedir            = rtrim( $basedir, DIRECTORY_SEPARATOR );
+			$this->basedirRegex = '#^' . preg_quote( $basedir, '#' ) . '[/' . preg_quote( DIRECTORY_SEPARATOR, '#' ) . ']#';
+		} else {
+			$this->basedirRegex = '/(?!)/';
+		}
+
 		$files = $input->getArgument( 'files' );
 		if ( ! $files ) {
 			$files = array();
@@ -190,7 +207,8 @@ EOF
 		}
 
 		foreach ( $files as $filename ) {
-			$output->writeln( "Checking $filename...", OutputInterface::VERBOSITY_VERBOSE );
+			$file = preg_replace( $this->basedirRegex, '', $filename );
+			$output->writeln( "Checking $file...", OutputInterface::VERBOSITY_VERBOSE );
 			$this->validateFile( $filename );
 		}
 

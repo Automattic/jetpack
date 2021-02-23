@@ -56,6 +56,10 @@ class ValidateCommandTest extends CommandTestCase {
 			unset( $options['composer.json'] );
 		}
 
+		if ( isset( $args['--basedir'] ) && true === $args['--basedir'] ) {
+			$args['--basedir'] = getcwd();
+		}
+
 		$tester = $this->getTester( 'validate' );
 		$code   = $tester->execute( $args, $options );
 		$output = str_replace( getcwd() . '/', '/base/path/', rtrim( $tester->getDisplay() ) );
@@ -91,7 +95,7 @@ class ValidateCommandTest extends CommandTestCase {
 		);
 
 		return array(
-			'Normal run'                => array(
+			'Normal run'                     => array(
 				array(),
 				array(),
 				1,
@@ -110,7 +114,7 @@ class ValidateCommandTest extends CommandTestCase {
 EOF
 				,
 			),
-			'Verbose run'               => array(
+			'Verbose run'                    => array(
 				array( '-v' ),
 				array( 'verbosity' => OutputInterface::VERBOSITY_VERBOSE ),
 				1,
@@ -139,19 +143,19 @@ Found 7 error(s) and 4 warning(s)
 EOF
 				,
 			),
-			'Specific file'             => array(
+			'Specific file'                  => array(
 				array( 'files' => array( 'changelog/good' ) ),
 				array(),
 				0,
 				'',
 			),
-			'Only warnings'             => array(
+			'Only warnings'                  => array(
 				array( 'files' => array( 'changelog/unknown-header' ) ),
 				array(),
 				1,
 				'<warning>changelog/unknown-header:3: Unrecognized header "Bogus".',
 			),
-			'Only warnings, non-strict' => array(
+			'Only warnings, non-strict'      => array(
 				array(
 					'--no-strict' => true,
 					'files'       => array( 'changelog/unknown-header' ),
@@ -160,7 +164,7 @@ EOF
 				0,
 				'<warning>changelog/unknown-header:3: Unrecognized header "Bogus".',
 			),
-			'Multiple specific files'   => array(
+			'Multiple specific files'        => array(
 				array( 'files' => array( 'changelog/.', 'changelog/..', 'changelog/.gitkeep' ) ),
 				array(),
 				1,
@@ -172,7 +176,7 @@ changelog/.gitkeep: File does not contain a Type header.
 EOF
 				,
 			),
-			'Custom types'              => array(
+			'Custom types'                   => array(
 				array( 'files' => array( 'changelog/good', 'changelog/custom-type', 'changelog/no-type' ) ),
 				array( 'composer.json' => $composerWithTypes ),
 				1,
@@ -182,13 +186,13 @@ changelog/no-type: File does not contain a Type header.
 EOF
 				,
 			),
-			'No types'                  => array(
+			'No types'                       => array(
 				array( 'files' => array( 'changelog/good', 'changelog/custom-type', 'changelog/no-type' ) ),
 				array( 'composer.json' => $composerWithNoTypes ),
 				0,
 				'',
 			),
-			'GH Actions output'         => array(
+			'GH Actions output'              => array(
 				array( '--gh-action' => true ),
 				array(),
 				1,
@@ -204,6 +208,38 @@ EOF
 ::error file=/base/path/changelog/wrong-headers::File does not contain a Type header.
 ::warning file=/base/path/changelog/wrong-headers,line=1::Unrecognized header "Significants".
 ::warning file=/base/path/changelog/wrong-headers,line=2::Unrecognized header "Typo".
+EOF
+				,
+			),
+			'GH Actions output with basedir' => array(
+				array(
+					'--gh-action' => true,
+					'--basedir'   => true,
+				),
+				array( 'verbosity' => OutputInterface::VERBOSITY_VERBOSE ),
+				1,
+				<<<'EOF'
+Checking changelog/custom-type...
+::error file=changelog/custom-type,line=2::Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
+Checking changelog/duplicate-headers...
+::warning file=changelog/duplicate-headers,line=3::Duplicate header "Type", previously seen on line 2.
+Checking changelog/good...
+Checking changelog/no-entry-is-patch...
+Checking changelog/no-entry-not-patch...
+::error file=changelog/no-entry-not-patch,line=5::Changelog entry may only be empty when Significance is "patch".
+Checking changelog/no-type...
+::error file=changelog/no-type::File does not contain a Type header.
+Checking changelog/unknown-header...
+::warning file=changelog/unknown-header,line=3::Unrecognized header "Bogus".
+Checking changelog/wrong-header-values...
+::error file=changelog/wrong-header-values,line=1::Significance must be "patch", "minor", or "major".
+::error file=changelog/wrong-header-values,line=2::Type must be "security", "added", "changed", "deprecated", "removed", or "fixed".
+Checking changelog/wrong-headers...
+::error file=changelog/wrong-headers::File does not contain a Significance header.
+::error file=changelog/wrong-headers::File does not contain a Type header.
+::warning file=changelog/wrong-headers,line=1::Unrecognized header "Significants".
+::warning file=changelog/wrong-headers,line=2::Unrecognized header "Typo".
+Found 7 error(s) and 4 warning(s)
 EOF
 				,
 			),
