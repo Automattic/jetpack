@@ -52,7 +52,7 @@
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon {
-	pointer-events: none;
+	pointer-events: none; /* ensure SVG does not capture click on anchor */
 	position: relative;
 	fill: #1d2327; /* IE11 fallback - Classic Dark */
 	fill: var( --color-primary );
