@@ -75,7 +75,16 @@ class Inline_Help {
 
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
-		echo '<div class="a8c-faux-inline-help"><a href="https://wordpress.com/help" target="_blank" rel="noopener noreferrer" title="' . esc_attr__( 'Help', 'jetpack' ) . '" class="a8c-faux-inline-help__button">' . wp_kses( $gridicon_help, $svg_allowed ) . '</a></div>';
+		echo load_template(
+			__DIR__ . '/inline-help-template.php',
+			true,
+			array(
+				'href'          => 'https://wordpress.com/help',
+				'gridicon_help' => $gridicon_help,
+				'svg_allowed'   => $svg_allowed,
+			)
+		);
+
 	}
 
 	/**
