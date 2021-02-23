@@ -36,7 +36,7 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can assert that Pinterest block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } );
+			expect( await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } ) ).toBeTruthy();
 		} );
 	} );
 	it( 'Eventbrite block', async () => {
@@ -62,9 +62,11 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can assert that Eventbrite block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( EventbriteBlock, {
-				eventId,
-			} );
+			expect(
+				await frontend.isRenderedBlockPresent( EventbriteBlock, {
+					eventId,
+				} )
+			).toBeTruthy();
 		} );
 	} );
 } );
