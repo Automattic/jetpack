@@ -258,6 +258,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
 * Dashboard: improve performance by reducing excessive API calls.
 * Instant Search: fix closing of the overlay using the Escape key in IE11.
+* Jetpack Videos: fix responsiveness of Video poster images.
 * Payments Block: avoid layout issues when setting up a new payment plan.
 * Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
 * WhatsApp block: adjust width of block options toolbar.
