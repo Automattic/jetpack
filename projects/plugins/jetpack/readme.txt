@@ -248,6 +248,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 * Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).
 * Instant Search: improve the design of the Search modal.
+* Instant Search: open search result links in the current window rather than opening a new one.
 * Social Icons Widget: add new icons.
 * Social Menu: add new icons.
 
@@ -260,6 +261,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
 * Dashboard: improve performance by reducing excessive API calls.
 * Instant Search: fix closing of the overlay using the Escape key in IE11.
+* Instant Search: improve compatibility with browser forward/back navigation.
 * Jetpack Videos: fix responsiveness of Video poster images.
 * Payments Block: avoid layout issues when setting up a new payment plan.
 * Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
