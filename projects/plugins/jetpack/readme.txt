@@ -259,7 +259,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Synchronization: improve reliability of data by excluding blocked taxonomies.
 * Tiled Galleries: improve performance by removing jQuery dependency.
 * Video Block: add support for custom video player progress bar colors.
-* Widgets: display notice in the customizer when one needs to connect their account before to use the Instagram widget.
+* Widgets: display notice in the customizer when one needs to connect their account before using the Instagram widget.
 
 **Improved compatibility**
 
