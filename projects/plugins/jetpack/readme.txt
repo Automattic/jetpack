@@ -250,6 +250,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Instant Search: improve the design of the Search modal.
 * Instant Search: open search result links in the current window rather than opening a new one.
 * Recommendations: add a dashboard banner to help users discover the best Jetpack features.
+* SEO Tools: make the feature available for all sites.
 * Social Icons Widget: add new icons.
 * Social Menu: add new icons.
 * Video Block: add support for custom video player progress bar colors.
