@@ -35,32 +35,30 @@ export async function doesRepoExist( name, org = 'Automattic' ) {
  */
 async function authenticate() {
 	if ( process.env.MB_TOKEN ) {
-		const auth = createTokenAuth( process.env.MB_TOKEN );
+		const auth = await createTokenAuth( process.env.MB_TOKEN );
 		return await auth();
 	}
 
 	let token = conf.get( 'github.token' );
 
-	if ( token ) {
-		const auth = createTokenAuth( token );
-		return await auth();
+	if ( ! token ) {
+		await inquirer
+			.prompt( [
+				{
+					type: 'password',
+					name: 'token',
+					message: 'What is your GitHub Personal Token?',
+				},
+			] )
+			.then( async answers => {
+				token = answers.token;
+				conf.set( 'github.token', token );
+			} )
+			.catch( error => {
+				console.error( error );
+			} );
 	}
-	await inquirer
-		.prompt( [
-			{
-				type: 'password',
-				name: 'token',
-				message: 'What is your GitHub Personal Token?',
-			},
-		] )
-		.then( async answers => {
-			token = answers.token;
-			conf.set( 'github.token', token );
-			console.log( token );
-			const auth = createTokenAuth( token );
-			return await auth();
-		} )
-		.catch( error => {
-			console.error( error );
-		} );
+
+	const auth = await createTokenAuth( token );
+	return await auth();
 }

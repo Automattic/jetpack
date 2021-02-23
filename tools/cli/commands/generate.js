@@ -230,15 +230,9 @@ export function getQuestions( type ) {
 /**
  * Generate a package based on questions passed to it.
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {object} answers - Answers from questions.
- *
- * @returns {object} package.json object. TEMPORARY FOR TESTING.
  */
-export async function generatePackage(
-	answers = { name: 'test', description: 'n/a', buildScripts: [] }
-) {
+async function generatePackage( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
 	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
@@ -310,32 +304,39 @@ export async function generatePackage(
  */
 async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 	const repo = org + '/' + name;
-	await inquirer
-		.prompt( [
-			{
-				type: 'confirm',
-				name: 'useExisting',
-				message:
-					'The repo ' +
-					repo +
-					' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
-				when: () => doesRepoExist( name, org ),
-			},
-			{
-				type: 'confirm',
-				name: 'createNew',
-				message: 'There is not a ' + repo + ' repo already. Shall I create one?',
-				when: answers => ! answers.useExisting,
-			},
-		] )
-		.then( answers => {
-			if ( answers.createNew ) {
-				// add function to create.
-				addMirrorRepo( composerJson, name, org );
-			} else if ( answers.useExisting ) {
-				addMirrorRepo( composerJson, name, org );
-			}
-		} );
+	const exists = await doesRepoExist( name, org );
+	const answers = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'useExisting',
+			message:
+				'The repo ' +
+				repo +
+				' already exists. Do you want to use it? THIS WILL OVERRIDE ANYTHING ALREADY IN THIS REPO.',
+			when: exists, // If the repo exists, confirm we want to use it.
+		},
+		{
+			type: 'confirm',
+			name: 'createNew',
+			message: 'There is not a ' + repo + ' repo already. Shall I create one?',
+			when: ! exists, // When the repo does not exist, do we want to ask to make it.
+		},
+		{
+			type: 'string',
+			name: 'newName',
+			message: 'What name do you want to use for the repo?',
+			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
+		},
+	] );
+
+	if ( answers.createNew ) {
+		// add function to create.
+		addMirrorRepo( composerJson, name, org );
+	} else if ( answers.useExisting ) {
+		addMirrorRepo( composerJson, name, org );
+	} else if ( answers.newName ) {
+		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
+	}
 
 	// Prompt: What repo would you like to use in the "org"? Default: "name".
 
@@ -352,5 +353,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
  * @param {string} org - Repo owner.
  */
 function addMirrorRepo( composerJson, name, org ) {
-	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
+	composerJson.extra = {
+		'mirror-repo': org + '/' + name,
+	};
 }
