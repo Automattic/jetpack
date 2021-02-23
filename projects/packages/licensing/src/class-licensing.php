@@ -232,4 +232,18 @@ class Licensing {
 			$this->attach_stored_licenses();
 		}
 	}
+
+	/**
+	 * Can the UI be displayed?
+	 *
+	 * @return bool
+	 */
+	public static function can_ui_be_displayed() {
+		/**
+		 * Determines if the Licensing UI is displayed or not
+		 *
+		 * @since 9.5.0
+		 */
+		return apply_filters( 'jetpack_show_licensing_ui', false ) && current_user_can( 'jetpack_connect_user' );
+	}
 }

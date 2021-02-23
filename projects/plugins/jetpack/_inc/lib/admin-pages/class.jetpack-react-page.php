@@ -321,7 +321,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'isSafari'                    => $is_safari,
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error' => Licensing::instance()->last_error(),
+				'error'           => Licensing::instance()->last_error(),
+				'showLicensingUi' => Licensing::instance()->can_ui_be_displayed(),
 			),
 		);
 	}
