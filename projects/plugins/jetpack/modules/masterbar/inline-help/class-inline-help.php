@@ -10,9 +10,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
-
 /**
  * Class Inline_Help.
  */
@@ -31,13 +28,14 @@ class Inline_Help {
 	 * @return void
 	 */
 	public function register_actions() {
-
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Do not inject the FAB icon on embedded screens since the parent window may already contain a FAB icon.
 		$is_framed = ! empty( $_GET['frame-nonce'] );
 
 		if ( $is_framed ) {
 			return;
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		add_action( 'admin_footer', array( $this, 'add_fab_icon' ) );
 
