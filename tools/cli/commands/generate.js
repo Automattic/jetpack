@@ -1,5 +1,5 @@
 /**
- * External dependencies hey
+ * External dependencies
  */
 import path from 'path';
 import pluralize from 'pluralize';
@@ -31,19 +31,7 @@ import { doesRepoExist } from '../helpers/github';
  */
 async function generateRouter( options ) {
 	const argv = normalizeGenerateArgv( options );
-	switch ( options.type ) {
-		case 'package':
-			await generatePackage( argv );
-			break;
-		case 'plugin':
-			generatePlugin( argv );
-			break;
-		case 'github-action':
-			generateAction( argv );
-			break;
-		default:
-			throw new Error( 'Unsupported type selected.' );
-	}
+	generateProject( argv );
 }
 
 /**
@@ -236,101 +224,82 @@ export function getQuestions( type ) {
 }
 
 /**
- * Generate a package based on questions passed to it.
+ * Generate a project based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
  */
-async function generatePackage( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
-	const project = 'packages/' + answers.name;
-	const pkgDir = path.join( __dirname, '../../..', 'projects/packages', answers.name );
+export function generateProject(
+	answers = { name: 'test', description: 'n/a', buildScripts: [] }
+) {
+	const type = pluralize( answers.type );
+	const project = type + '/' + answers.name;
+	const projDir = path.join( __dirname, '../../..', 'projects/', type, answers.name );
 
-	createSkeleton( pluralize( answers.type ), pkgDir, answers.name );
-
-	// Generate the package.json file
-	const packageJson = readPackageJson( project );
-	createPackageJson( packageJson, answers );
-	writePackageJson( project, packageJson, pkgDir );
+	createSkeleton( type, projDir, answers.name );
 
 	// Generate the composer.json file
-	const composerJson = readComposerJson( project );
-	createComposerJson( composerJson, answers );
-	writeComposerJson( project, composerJson, pkgDir );
+	if ( type !== 'github-actions' ) {
+		const composerJson = readComposerJson( project );
+		createComposerJson( composerJson, answers );
+		writeComposerJson( project, composerJson, projDir );
+	}
+
+	// Create package.json
+	const packageJson = readPackageJson( project );
+	createPackageJson( packageJson, answers );
+	writePackageJson( project, packageJson, projDir );
 
 	// Generate readme.md file
 	const readmeMdContent = createReadMeMd( answers );
-	writeToFile( pkgDir + '/README.md', readmeMdContent );
+	writeToFile( projDir + '/README.md', readmeMdContent );
+
+	switch ( answers.type ) {
+		case 'package':
+			break;
+		case 'plugin':
+			generatePlugin( answers, projDir );
+			break;
+		case 'github-action':
+			generateAction( answers, projDir );
+			break;
+		default:
+			throw new Error( 'Unsupported type selected.' );
+	}
 }
 
 /**
  * Generate a plugin based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
- *
- * @returns {object} package.json object. TEMPORARY FOR TESTING.
+ * @param {string} pluginDir - Plugin directory path.
  */
-async function generatePlugin( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
-	const project = 'plugins/' + answers.name;
-	const pluginDir = path.join( __dirname, '../../..', 'projects/plugins', answers.name );
-
-	// Copy the skeletons over
-	createSkeleton( pluralize( answers.type ), pluginDir, answers.name );
-
-	// Generate the package.json file
-	const packageJson = readPackageJson( project );
-	createPackageJson( packageJson, answers );
-	writePackageJson( project, packageJson, pluginDir );
-
-	// Generate the composer.json file
-	const composerJson = readComposerJson( project );
-	createComposerJson( composerJson, answers );
-	writeComposerJson( project, composerJson, pluginDir );
-
+function generatePlugin( answers, pluginDir ) {
 	// Write header to plugin's main file.
 	const headerContent = createPluginHeader( answers );
 	writeToFile( pluginDir + `/${ answers.name }.php`, headerContent );
-
-	// Fill in the README.md file
-	const readmeMdContent = createReadMeMd( answers );
-	writeToFile( pluginDir + '/README.md', readmeMdContent );
 
 	// Fill in the README.txt file
 	const readmeTxtContent = createReadMeTxt( answers );
 	const readmeTxtPath = path.join( __dirname, '../', 'skeletons/plugins/readme.txt' );
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
-
-	return packageJson;
 }
 
 /**
- * Generate a github action based on questions passed to it.
+ * Generate github action files
  *
  * @param {object} answers - Answers from questions.
+ * @param {string} actDir - Github action directory path.
  *
  */
-async function generateAction( answers = { name: 'test', description: 'n/a', buildScripts: [] } ) {
-	const project = 'github-actions/' + answers.name;
-	const actDir = path.join( __dirname, '../../..', 'projects/github-actions', answers.name );
-
-	// Copy the skeletons over
-	createSkeleton( pluralize( answers.type ), actDir, answers.name );
-
+function generateAction( answers, actDir ) {
 	// Create composer.json
 	const actionComposerJson = createActionComposer( answers );
 	writeToFile( actDir + `/composer.json`, actionComposerJson );
 
-	// Create package.json
-	const packageJson = readPackageJson( project );
-	createPackageJson( packageJson, answers );
-	writePackageJson( project, packageJson, actDir );
-
 	// Create the YAML file
 	const yamlFile = createYaml( actDir + '/action.yml', answers );
 	writeToFile( actDir + '/action.yml', yaml.dump( yamlFile ) );
-
-	// Create the README.md
-	const readmeMdContent = createReadMeMd( answers );
-	writeToFile( actDir + '/README.md', readmeMdContent );
 }
 
 /**
@@ -353,6 +322,7 @@ export function createSkeleton( type, dir, name ) {
 	} catch ( e ) {
 		console.error( e );
 	}
+	return;
 }
 
 /**
@@ -366,10 +336,13 @@ export function createSkeleton( type, dir, name ) {
  */
 export function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
+	return;
 }
 
 /**
  * Create composer.json for project
+ *
+ * @todo REMOVE EXPORT. ONLY FOR TESTING.
  *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
  * @param {object} answers - Answers returned for project creation.
