@@ -6,6 +6,29 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
+### Blocks
+
+We've updated several blocks to ensure full compatibility with the upcoming version of WordPress, 5.7. To test those changes, you'll want to try inserting different blocks on your site, whether it runs WordPress 5.6 or WordPress 5.7 Beta. You'll want to take extra attention to the toolbar buttons that appear above each block in the editor. Those toolbars should keep working just like before. Here is a full list of the blocks that were updated:
+
+- Business Hours
+- Calendly
+- Contact Form
+- Donations
+- Eventbrite
+- Gathering Tweetstorms ("unroll" feature appearing in the toolbar when embedding a Twitter thread)
+- Map
+- Pay With Paypal
+- Payments
+- Pinterest
+- Podcast Player
+- Premium Content
+- Publicize
+- WhatsApp
+- Slideshow
+- Tiled Gallery
+- Video
+
+
 ### Dashboard
 
 This release introduces a new banner, appearing in the main dashboard and on the Plugins page once you've connected Jetpack to WordPress.com. To test, try the following:

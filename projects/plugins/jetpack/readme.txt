@@ -263,6 +263,8 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
+* Block Editor: update all blocks to be fully compatible with WordPress 5.7.
+* General: Jetpack now requires WordPress 5.6, and is fully compatible with WordPress 5.7.
 * Protect: ensure that the blocked login page is fully compatible with the Robots API changes introduced in WordPress 5.7.
 
 **Bug fixes**
