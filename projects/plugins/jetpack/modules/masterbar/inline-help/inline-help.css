@@ -12,8 +12,10 @@
   line-height: 0;
   padding: 1px;
   border-radius: 100%;
-  background-color: var(--color-primary);
-  border: 1px solid var(--color-primary-dark);
+  background-color: #1d2327; /* IE11 fallback - Classic Dark */
+  background-color: var( --color-primary );
+  border: 1px solid #3c434a; /* IE11 fallback - Classic Dark */
+  border: 1px solid var( --color-primary-dark );
   transition: all 0.2s ease-in-out;
   overflow: visible;
   width: 40px;
@@ -21,6 +23,9 @@
   box-sizing: border-box; /* .button component */
 
   /* elevation() mixin styles */
+  box-shadow: 0 4px 5px 0 rgba( 16, 21, 23, 0.14 ),
+                    0 1px 10px 0 rgba( 16, 21, 23, 0.12 ),
+                    0 2px 4px -1px rgba( 16, 21, 23, 0.2 ); /* IE11 fallback - Classic Dark */
   box-shadow: 0 4px 5px 0 rgba( var( --color-neutral-100-rgb ), 0.14 ),
                     0 1px 10px 0 rgba( var( --color-neutral-100-rgb ), 0.12 ),
                     0 2px 4px -1px rgba( var( --color-neutral-100-rgb ), 0.2 );
@@ -34,18 +39,22 @@
   top: 5px;
   left: 5px;
   content: '';
-  background: var(--color-surface);
+  background: #ffffff; /* IE11 fallback - Classic Dark */
+  background: var( --color-surface );
   border-radius: 100%;
 }
 
 .inline-help .inline-help__button:focus {
-  background-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-light);
+  background-color: #1d2327; /* IE11 fallback - Classic Dark */
+  background-color: var( --color-primary );
+  box-shadow: 0 0 0 2px #8c8f94; /* IE11 fallback - Classic Dark */
+  box-shadow: 0 0 0 2px var( --color-primary-light );
 }
 
 .inline-help .inline-help__button .gridicon {
 position: relative;
-  fill: var(--color-primary);
+  fill: #1d2327; /* IE11 fallback - Classic Dark */
+  fill: var( --color-primary );
   margin: -3px 0 0 -3px;
   top: 0;
   height: 42px;
@@ -58,11 +67,7 @@ position: relative;
 }
 
 .inline-help .inline-help__button:hover:not(.is-active) {
-  background: var(--color-primary);
-  transform: scale(1.15);
-}
-
-.inline-help .inline-help__button.is-active {
-  background: var(--color-primary);
-  border-color: var(--color-primary-40);
+  background: #1d2327; /* IE11 fallback - Classic Dark */
+  background: var( --color-primary );
+  transform: scale( 1.15 );
 }
