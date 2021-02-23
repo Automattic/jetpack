@@ -29,7 +29,10 @@ import {
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
-import { getModulesThatRequireConnection } from 'state/modules';
+import {
+	getModulesThatRequireConnection,
+	getModulesThatRequireUserConnection,
+} from 'state/modules';
 
 export const status = (
 	state = { siteConnected: window.Initial_State.connectionStatus },
@@ -336,6 +339,28 @@ export function requiresConnection( state, slug ) {
  */
 export function isUnavailableInOfflineMode( state, module ) {
 	return isOfflineMode( state ) && requiresConnection( state, module );
+}
+
+/**
+ * Checks if the module requires user to be connected.
+ *
+ * @param  {object} state - Global state tree
+ * @param  {string} slug - Module slug.
+ * @returns {boolean} True if module requires connection.
+ */
+export function requiresUserConnection( state, slug ) {
+	return includes( getModulesThatRequireUserConnection( state ), slug );
+}
+
+/**
+ * Checks if the current module is unavailable in userless mode.
+ *
+ * @param  {object} state - Global state tree
+ * @param  {string} module - Module slug.
+ * @returns {boolean} True if site is in userless mode and module requires connection. False otherwise.
+ */
+export function isUnavailableInUserlessMode( state, module ) {
+	return ! hasConnectedOwner( state ) && requiresUserConnection( state, module );
 }
 
 /**

@@ -35,6 +35,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
+						disableInUserlessMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __(

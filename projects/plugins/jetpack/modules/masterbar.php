@@ -6,6 +6,7 @@
  * Recommendation Order: 16
  * First Introduced: 4.8
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar, colorschemes
