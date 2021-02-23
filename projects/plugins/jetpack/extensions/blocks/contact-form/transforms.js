@@ -33,6 +33,7 @@ const getContactFieldBlockName = type => {
 		textarea: `${ prefix }/field-textarea`,
 		radio: `${ prefix }/field-radio`,
 		checkbox: `${ prefix }/field-checkbox`,
+		'checkbox-multiple': `${ prefix }/field-checkbox-multiple`,
 		select: `${ prefix }/field-select`,
 		email: `${ prefix }/field-email`,
 		name: `${ prefix }/field-name`,
@@ -109,9 +110,9 @@ export default {
 				}
 
 				if ( shortCode.includes( '[contact-field' ) ) {
-					const fields = shortCode.match( /(\[contact-field[\s\S]*?\/])/g );
+					const fields = shortCode.match( /(\[contact-field[\s\S]*?\/?])/g );
 
-					if ( fields.length > 0 ) {
+					if ( fields && fields.length > 0 ) {
 						fields.forEach( field => {
 							blockData.innerBlocks.push( transformContactFieldShortcode( field ) );
 						} );
