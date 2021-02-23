@@ -1,12 +1,3 @@
-// Temporary defaults needed until we have defined
-// these variables for all color schemes.
-// Default to Classic Bright colors for a "WordPress.com" look.
-$color-primary: #0675c4 !default; // Calypso --color-primary
-$color-primary-dark: #044b7a !default; // Calypso --color-primary-dark
-$color-primary-light: #399ce3 !default; // Calypso --color-primary-light
-$color-surface: #fff !default; // Calypso --color-surface
-$color-neutral-100-rgb: 16, 21, 23 !default; // Calypso --color-neutral-100-rgb
-
 // These vars are consumed within `modules/masterbar/inline-help/inline-help.css`
 .inline-help {
     --color-primary: #{$color-primary};
