@@ -1,6 +1,6 @@
 <?php
 /**
- * Inline Help
+ * Inline Help.
  *
  * Handles providing a LiveChat icon within WPAdmin until such time
  * as the full live chat experience can be run in a non-Calypso environment.
@@ -23,7 +23,7 @@ class Inline_Help {
 	}
 
 	/**
-	 * Registers actions
+	 * Registers actions.
 	 *
 	 * @return void
 	 */
@@ -75,6 +75,8 @@ class Inline_Help {
 
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		// We trust that output in the template has been escaped.
 		echo load_template(
 			__DIR__ . '/inline-help-template.php',
 			true,
@@ -85,6 +87,7 @@ class Inline_Help {
 				'tracking_event_name' => 'jetpack_masterbar_inline_help',
 			)
 		);
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 
 	}
 
