@@ -47,14 +47,14 @@ export function recordFailedSearchRequest( error ) {
  * Returns an action object used to initialize query value related reducers.
  *
  * @param {object} params - Input parameters.
- * @param {object} params.defaultSort - Default sort value configured in the customizer.
+ * @param {boolean} params.isHistoryNavigation - True if this action is invoked via history navigation.
  *
  * @returns {object} Action object.
  */
-export function initializeQueryValues( { defaultSort } ) {
+export function initializeQueryValues( { isHistoryNavigation = false } = {} ) {
 	return {
 		type: 'INITIALIZE_QUERY_VALUES',
-		defaultSort,
+		isHistoryNavigation,
 	};
 }
 
@@ -78,7 +78,7 @@ export function setSearchQuery( query, propagateToWindow = true ) {
  * Returns an action object used to set a search sort value.
  *
  * @param {string} sort - Sort value.
- * @param {boolean} propagateToWindow - If true, will tell the effects handler to set the search query in the location bar.
+ * @param {boolean} propagateToWindow - If true, will tell the effects handler to set the query string in the location bar.
  *
  * @returns {object} Action object.
  */
@@ -95,7 +95,7 @@ export function setSort( sort, propagateToWindow = true ) {
  *
  * @param {string} name - Filter name.
  * @param {string[]} value - Filter values.
- * @param {boolean} propagateToWindow - If true, will tell the effects handler to set the search query in the location bar.
+ * @param {boolean} propagateToWindow - If true, will tell the effects handler to set the query string in the location bar.
  *
  * @returns {object} Action object.
  */
@@ -111,10 +111,23 @@ export function setFilter( name, value, propagateToWindow = true ) {
 /**
  * Returns an action object used to clear all filter values.
  *
+ * @param {boolean} propagateToWindow - If true, will tell the effects handler to update the query string in the location bar.
  * @returns {object} Action object.
  */
-export function clearFilters() {
+export function clearFilters( propagateToWindow = true ) {
 	return {
 		type: 'CLEAR_FILTERS',
+		propagateToWindow,
+	};
+}
+
+/**
+ * Returns an action object used to clear all query values. Invoked when the search modal is dismissed.
+ *
+ * @returns {object} Action object.
+ */
+export function clearQueryValues() {
+	return {
+		type: 'CLEAR_QUERY_VALUES',
 	};
 }

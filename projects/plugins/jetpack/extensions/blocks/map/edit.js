@@ -8,13 +8,13 @@ import {
 	Button,
 	ButtonGroup,
 	ExternalLink,
-	IconButton,
 	PanelBody,
 	Placeholder,
 	Spinner,
 	TextControl,
 	ToggleControl,
-	Toolbar,
+	ToolbarButton,
+	ToolbarGroup,
 	withNotices,
 	ResizableBox,
 	RangeControl,
@@ -26,7 +26,6 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
-import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -150,7 +149,7 @@ class MapEdit extends Component {
 	 * Change event handler for the map height sidebar control. Ensures the height is valid,
 	 * and updates both the height attribute, and the map component's height in the DOM.
 	 *
-	 * @param {Event} event The change event object.
+	 * @param {Event} event - The change event object.
 	 */
 	onHeightChange = event => {
 		const { attributes, setAttributes } = this.props;
@@ -180,10 +179,10 @@ class MapEdit extends Component {
 	 * Event handler for the ResizableBox component. Updates both the height attribute,
 	 * and the map component's height in the DOM.
 	 *
-	 * @param {Event} event The event object.
-	 * @param {ResizeDirection} direction A string representing which resize handler was used.
-	 * @param {HtmlDivElement} elt A ref to the ResizeableBox's container element.
-	 * @param {NumberSize} delta Information about how far the element was resized.
+	 * @param {Event} event - The event object.
+	 * @param {string} direction - A string representing which resize handler was used.
+	 * @param {HTMLElement} elt - A ref to the ResizeableBox's container element.
+	 * @param {object} delta - Information about how far the element was resized.
 	 */
 	onMapResize = ( event, direction, elt, delta ) => {
 		const { onResizeStop, setAttributes } = this.props;
@@ -238,13 +237,13 @@ class MapEdit extends Component {
 						onChange={ this.updateAlignment }
 						controls={ [ 'center', 'wide', 'full' ] }
 					/>
-					<Toolbar>
-						<IconButton
+					<ToolbarGroup>
+						<ToolbarButton
 							icon={ settings.markerIcon }
 							label={ __( 'Add a marker', 'jetpack' ) }
 							onClick={ () => this.setState( { addPointVisibility: true } ) }
 						/>
-					</Toolbar>
+					</ToolbarGroup>
 				</BlockControls>
 				<InspectorControls>
 					<PanelColorSettings
