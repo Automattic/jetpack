@@ -7,18 +7,9 @@
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-options": "@dev"
 	},
-	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0"
-	},
 	"autoload": {
 		"classmap": [
 			"src/"
-		]
-	},
-	"scripts": {
-		"phpunit": [
-			"@composer install",
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		]
 	},
 	"repositories": [

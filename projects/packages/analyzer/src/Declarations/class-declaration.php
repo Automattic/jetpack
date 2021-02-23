@@ -34,7 +34,7 @@ abstract class Declaration extends PersistentListItem {
 		return implode(
 			',',
 			array_map(
-				function( $param ) {
+				function ( $param ) {
 					if ( ! empty( $param->default ) ) {
 						  return '$' . $param->name . '=' . $param->default;
 					}

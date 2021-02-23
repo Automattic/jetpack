@@ -7,16 +7,19 @@ import fs from 'fs';
  */
 import { getTunnelSiteUrl, execWpCommand } from './utils-helper';
 import logger from './logger';
+import config from 'config';
+import path from 'path';
 
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteUrl = getTunnelSiteUrl();
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
+	const planDatafilePath = path.resolve( config.get( 'configDir' ), 'plan-data.txt' );
 
-	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
+	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
-	const cmd = `wp option update ${ planDataOption } < plan-data.txt`;
+	const cmd = `wp option update ${ planDataOption } < ${ planDatafilePath }`;
 	await execWpCommand( cmd );
 }
 
@@ -491,7 +494,7 @@ export async function syncPlanData( page ) {
 	let bkPlan = null;
 
 	do {
-		await page.reload( { waitFor: 'networkidle0' } );
+		await page.reload( { waitFor: 'domcontentloaded' } );
 
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );

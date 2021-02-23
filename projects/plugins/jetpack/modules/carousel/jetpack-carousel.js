@@ -252,7 +252,7 @@ jQuery( document ).ready( function ( $ ) {
 				right: 0,
 			} );
 
-			close_hint = $( '<div class="jp-carousel-close-hint"><span>&times;</span></div>' ).css( {
+			close_hint = $( '<div class="jp-carousel-close-hint"><span>&#10006;</span></div>' ).css( {
 				position: 'fixed',
 			} );
 
@@ -297,7 +297,20 @@ jQuery( document ).ready( function ( $ ) {
 					data = data || [];
 
 					if ( target.is( gallery ) || target.parents().add( target ).is( close_hint ) ) {
-						container.jp_carousel( 'close' );
+						if ( ! window.matchMedia( '(max-device-width: 760px)' ).matches ) {
+							container.jp_carousel( 'close' );
+						} else {
+							if ( target.parents().add( target ).is( close_hint ) ) {
+								container.jp_carousel( 'close' );
+							}
+
+							if ( e.pageX <= 70 ) {
+								container.jp_carousel( 'previous' );
+							}
+							if ( $( window ).width() - e.pageX <= 70 ) {
+								container.jp_carousel( 'next' );
+							}
+						}
 					} else if ( target.hasClass( 'jp-carousel-commentlink' ) ) {
 						e.preventDefault();
 						e.stopPropagation();
@@ -447,7 +460,16 @@ jQuery( document ).ready( function ( $ ) {
 							} );
 						}
 					} else if ( ! target.parents( '.jp-carousel-info' ).length ) {
-						container.jp_carousel( 'next' );
+						if ( window.matchMedia( '(max-device-width: 760px)' ).matches ) {
+							if ( e.pageX <= 70 ) {
+								container.jp_carousel( 'previous' );
+							}
+							if ( $( window ).width() - e.pageX <= 70 ) {
+								container.jp_carousel( 'next' );
+							}
+						} else {
+							container.jp_carousel( 'next' );
+						}
 					}
 				} )
 				.bind( 'jp_carousel.afterOpen', function () {
@@ -1629,23 +1651,19 @@ jQuery( document ).ready( function ( $ ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;
 			}
-			// Check if the image is linked so we can disable carousel for custom linked images
-			var parentHref = $( e.target ).parent().attr( 'href' );
-			if ( parentHref ) {
-				var valid = false;
+
+			// If Gallery is made up of individual Image blocks check for custom link before
+			// loading carousel.
+			if ( $( e.target ).parents().eq( 1 ).hasClass( 'wp-block-image' ) ) {
+				var parentHref = $( e.target ).parent().attr( 'href' );
+
+				// If the link does not point to the attachment or media file then assume Image has
+				// a custom link so don't load the carousel.
 				if (
-					parentHref.split( '?' )[ 0 ] === $( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ]
+					parentHref.split( '?' )[ 0 ] !==
+						$( e.target ).attr( 'data-orig-file' ).split( '?' )[ 0 ] &&
+					parentHref !== $( e.target ).attr( 'data-permalink' )
 				) {
-					valid = true;
-				}
-
-				// if link points to 'Attachment Page' allow it
-				if ( parentHref === $( e.target ).attr( 'data-permalink' ) ) {
-					valid = true;
-				}
-
-				// links to 'Custom URL' or 'Media File' when flag not set are not valid
-				if ( ! valid ) {
 					return;
 				}
 			}
@@ -1757,15 +1775,16 @@ jQuery( document ).ready( function ( $ ) {
 ( function ( $ ) {
 	$.fn.touchwipe = function ( settings ) {
 		var config = {
-			min_move_x: 20,
-			min_move_y: 20,
+			threshold: 150, // Required min distance traveled to be considered swipe.
+			restraint: 100, // Maximum distance allowed at the same time in perpendicular direction.
+			allowedTime: 300, // Maximum time allowed to travel that distance.
 			wipeLeft: function (/*e*/) {},
 			wipeRight: function (/*e*/) {},
 			wipeUp: function (/*e*/) {},
 			wipeDown: function (/*e*/) {},
 			preventDefaultEvents: true,
 		};
-
+		var startTime, elapsedTime;
 		if ( settings ) {
 			$.extend( config, settings );
 		}
@@ -1790,19 +1809,22 @@ jQuery( document ).ready( function ( $ ) {
 					var y = e.touches[ 0 ].pageY;
 					var dx = startX - x;
 					var dy = startY - y;
-					if ( Math.abs( dx ) >= config.min_move_x ) {
-						cancelTouch();
-						if ( dx > 0 ) {
-							config.wipeLeft( e );
-						} else {
-							config.wipeRight( e );
-						}
-					} else if ( Math.abs( dy ) >= config.min_move_y ) {
-						cancelTouch();
-						if ( dy > 0 ) {
-							config.wipeDown( e );
-						} else {
-							config.wipeUp( e );
+					elapsedTime = new Date().getTime() - startTime;
+					if ( elapsedTime <= config.allowedTime ) {
+						if ( Math.abs( dx ) >= config.threshold && Math.abs( dy ) <= config.restraint ) {
+							cancelTouch();
+							if ( dx > 0 ) {
+								config.wipeLeft( e );
+							} else {
+								config.wipeRight( e );
+							}
+						} else if ( Math.abs( dy ) >= config.threshold && Math.abs( dx ) <= config.restraint ) {
+							cancelTouch();
+							if ( dy > 0 ) {
+								config.wipeDown( e );
+							} else {
+								config.wipeUp( e );
+							}
 						}
 					}
 				}
@@ -1810,6 +1832,7 @@ jQuery( document ).ready( function ( $ ) {
 
 			function onTouchStart( e ) {
 				if ( e.touches.length === 1 ) {
+					startTime = new Date().getTime();
 					startX = e.touches[ 0 ].pageX;
 					startY = e.touches[ 0 ].pageY;
 					isMoving = true;

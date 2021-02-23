@@ -58,7 +58,7 @@
 /tests/**                                                production-exclude
 /tools/**                                                production-exclude
 /vendor/automattic/**/README.md                          production-exclude
-/vendor/automattic/**/assets/*.scss                      production-exclude
+/vendor/automattic/**/src/css/*.scss                     production-exclude
 /vendor/automattic/**/composer.json                      production-exclude
 /vendor/automattic/jetpack-autoloader/**                 production-exclude
 /wp-cli-templates/**                                     production-exclude

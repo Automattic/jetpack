@@ -1,7 +1,7 @@
 ## FOLDERS
 /.sass-cache/
 /node_modules
-/vendor/
+vendor/
 /.vscode/
 /logs
 /allure-results/

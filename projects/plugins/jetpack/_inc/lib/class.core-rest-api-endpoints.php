@@ -587,38 +587,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		/*
-		 * Get and update settings from the Jetpack wizard.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'/setup/questionnaire',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_setup_wizard_questionnaire',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_setup_wizard_questionnaire',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-					'args'                => array(
-						'questionnaire' => array(
-							'required'          => false,
-							'type'              => 'object',
-							'validate_callback' => __CLASS__ . '::validate_setup_wizard_questionnaire',
-						),
-						'status'        => array(
-							'required'          => false,
-							'type'              => 'string',
-							'validate_callback' => __CLASS__ . '::validate_string',
-						),
-					),
-				),
-			)
-		);
-
 		register_rest_route(
 			'jetpack/v4',
 			'/recommendations/data',
@@ -735,36 +703,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get the settings for the wizard questionnaire
-	 *
-	 * @return array Questionnaire settings.
-	 */
-	public static function get_setup_wizard_questionnaire() {
-		return Jetpack_Options::get_option( 'setup_wizard_questionnaire', (object) array() );
-	}
-
-	/**
-	 * Update the settings selected on the wizard questionnaire
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true.
-	 */
-	public static function update_setup_wizard_questionnaire( $request ) {
-		$questionnaire = $request['questionnaire'];
-		if ( ! empty( $questionnaire ) ) {
-			Jetpack_Options::update_option( 'setup_wizard_questionnaire', $questionnaire );
-		}
-
-		$status = $request['status'];
-		if ( ! empty( $status ) ) {
-			Jetpack_Options::update_option( 'setup_wizard_status', $status );
-		}
-
-		return true;
-	}
-
-	/**
 	 * Get the data for the recommendations
 	 *
 	 * @return array Recommendations data
@@ -843,36 +781,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array( 'status' => $response_code )
 			);
 		}
-	}
-
-	/**
-	 * Validate the answers on the setup wizard questionnaire
-	 *
-	 * @param array           $value Value to check received by request.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_setup_wizard_questionnaire( $value, $request, $param ) {
-		if ( ! is_array( $value ) ) {
-			/* translators: Name of a parameter that must be an object */
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
-		}
-
-		foreach ( $value as $answer_key => $answer ) {
-			if ( is_string( $answer ) ) {
-				$validate = self::validate_string( $answer, $request, $param );
-			} else {
-				$validate = self::validate_boolean( $answer, $request, $param );
-			}
-
-			if ( is_wp_error( $validate ) ) {
-				return $validate;
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -1227,8 +1135,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @uses Jetpack::is_user_connected();
-	 *
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function get_user_connection_data_permission_callback() {
@@ -1260,12 +1166,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @uses Jetpack::is_user_connected();
+	 * @uses Automattic\Jetpack\Connection\Manager::is_user_connected();)
 	 *
 	 * @return bool|WP_Error True if user is able to unlink.
 	 */
 	public static function unlink_user_permission_callback() {
-		if ( current_user_can( 'jetpack_connect_user' ) && Jetpack::is_user_connected( get_current_user_id() ) ) {
+		if ( current_user_can( 'jetpack_connect_user' ) && ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() ) ) {
 			return true;
 		}
 
@@ -1808,7 +1714,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		if ( ! Jetpack::is_user_connected( $new_owner_id ) ) {
+		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $new_owner_id ) ) {
 			return new WP_Error(
 				'new_owner_not_connected',
 				esc_html__( 'New owner is not connected', 'jetpack' ),
@@ -1852,7 +1758,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
-	 * @uses  Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @uses  Automattic\Jetpack\Connection\Manager->disconnect_user
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -1864,7 +1770,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( Connection_Manager::disconnect_user() ) {
+		if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user() ) {
 			return rest_ensure_response(
 				array(
 					'code' => 'success'
@@ -1885,7 +1791,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error Response, else error.
 	 */
 	public static function get_user_tracking_settings( $request ) {
-		if ( ! Jetpack::is_user_connected() ) {
+		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			$response = array(
 				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
 			);
@@ -1918,7 +1824,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error Response, else error.
 	 */
 	public static function update_user_tracking_settings( $request ) {
-		if ( ! Jetpack::is_user_connected() ) {
+		if ( ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 			$response = array(
 				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
 			);
@@ -4060,7 +3966,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response A response object containing the Jetpack CRM data.
 	 */
 	public static function get_jetpack_crm_data() {
-		$jetpack_crm_data = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->get_crm_data();
+		$jetpack_crm_data = ( new Jetpack_CRM_Data() )->get_crm_data();
 		return rest_ensure_response( $jetpack_crm_data );
 	}
 
@@ -4075,7 +3981,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Missing or invalid extension parameter.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		$result = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->activate_crm_jetpackforms_extension();
+		$result = ( new Jetpack_CRM_Data() )->activate_crm_jetpackforms_extension();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;

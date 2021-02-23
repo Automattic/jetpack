@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.6 -- February 8, 2021
+
+- Prevents updating stable version of Jetpack when using beta plugin in Docker instance.
+- Fixes some errant copy appearing in the beta plugin welcome message.
+- Sets the JETPACK_AUTOLOAD_DEV constant to true when a development version of Jetpack is activated.
+
 ## 2.4.5 -- January 25, 2021
 
 - Resolves a conflict between stable and beta Jetpack versions with the autoloader.

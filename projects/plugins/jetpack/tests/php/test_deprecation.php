@@ -82,28 +82,6 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * @dataProvider provider_deprecated_lib_stubs
-	 */
-	function test_deprecated_lib( $lib, $functions = array() ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
-		set_error_handler( '__return_null' );
-		try {
-			jetpack_require_lib( $lib );
-		} finally {
-			restore_error_handler();
-		}
-		foreach ( $functions as $function ) {
-			$this->assertTrue( function_exists( $function ) );
-		}
-	}
-
-	function provider_deprecated_lib_stubs() {
-		return array(
-			array( 'tracks/client', array( 'jetpack_tracks_record_event' ) ),
-		);
-	}
-
 	function test_jetpack_sync_action_sender_exists() {
 		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}

@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { catchBeforeAll, step } from '../lib/setup-env';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
@@ -51,7 +51,7 @@ describe( 'Jetpack updater', () => {
 		} );
 
 		await step( 'Can connect Jetpack', async () => {
-			await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
+			await connectThroughWPAdmin( { mockPlanData: true, plan: 'free' } );
 		} );
 	} );
 } );

@@ -19,12 +19,12 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can visit the block editor and add a Pinterest block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
-			const blockInfo = await blockEditor.insertBlock(
+			const blockId = await blockEditor.insertBlock(
 				PinterestBlock.name(),
 				PinterestBlock.title()
 			);
 
-			const pinterestBlock = new PinterestBlock( blockInfo, page, pinId );
+			const pinterestBlock = new PinterestBlock( blockId, page, pinId );
 			await pinterestBlock.addEmbed();
 		} );
 
@@ -46,12 +46,12 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
-			const blockInfo = await blockEditor.insertBlock(
+			const blockId = await blockEditor.insertBlock(
 				EventbriteBlock.name(),
 				EventbriteBlock.title()
 			);
 
-			const eventbriteBlock = new EventbriteBlock( blockInfo, page, eventId );
+			const eventbriteBlock = new EventbriteBlock( blockId, page, eventId );
 			await eventbriteBlock.addEmbed();
 		} );
 

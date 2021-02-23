@@ -5,6 +5,7 @@ const path = require( 'path' );
 
 module.exports = {
 	preset: '@automattic/calypso-build',
+	testEnvironment: 'jsdom',
 	roots: [ '<rootDir>/extensions/', '<rootDir>/modules/search/instant-search' ],
 	transform: {
 		'\\.[jt]sx?$': path.join( __dirname, 'tests', 'jest-extensions-babel-transform' ),
@@ -12,5 +13,7 @@ module.exports = {
 			'@automattic/calypso-build/jest/transform/asset'
 		),
 	},
-	coverageDirectory: "coverage/extensions"
+	coverageDirectory: 'coverage/extensions',
+	setupFiles: [ '<rootDir>/tests/jest-globals.js' ],
+	testPathIgnorePatterns: [ 'node_modules', 'extensions/shared/test/block-fixtures.js' ],
 };

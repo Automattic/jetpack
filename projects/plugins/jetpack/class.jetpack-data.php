@@ -1,13 +1,10 @@
 <?php
+/**
+ * Deprecated since 9.5.
+ *
+ * @deprecated
+ * @package automattic/jetpack
+ */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-
-class Jetpack_Data {
-	/**
-	 * @deprecated 7.5 Use Connection_Manager instead.
-	 */
-	public static function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
-		$connection = new Connection_Manager();
-		return $connection->get_access_token( $user_id, $token_key, $suppress_errors );
-	}
-}
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+_deprecated_file( basename( __FILE__ ), 'jetpack-9.5' );

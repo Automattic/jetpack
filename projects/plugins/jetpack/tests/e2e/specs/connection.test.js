@@ -6,6 +6,8 @@ import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
+import path from 'path';
+import config from 'config';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
@@ -16,8 +18,7 @@ describe( 'Connection', () => {
 			'wp option delete e2e_jetpack_plan_data',
 			'wp option delete jetpack_active_plan',
 			'wp option delete jetpack_private_options',
-			'wp option delete jetpack_sync_error_idc',
-			'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false'
+			'wp option delete jetpack_sync_error_idc'
 		);
 		await page.reload();
 		await page.reload();
@@ -25,9 +26,11 @@ describe( 'Connection', () => {
 
 	afterAll( async () => {
 		await execWpCommand(
-			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
+			`'wp option update jetpack_private_options --format=json < ${ path.resolve(
+				config.get( 'configDir' ),
+				'jetpack-private-options.txt'
+			) }'`
 		);
-		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
 	} );
 
 	it( 'In-place', async () => {

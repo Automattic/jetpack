@@ -7,7 +7,8 @@ import {
 	RangeControl,
 	SelectControl,
 	ToggleControl,
-	Toolbar,
+	ToolbarGroup,
+	ToolbarItem,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
@@ -90,18 +91,22 @@ export default ( {
 			</InspectorControls>
 			<BlockControls>
 				{ !! images.length && (
-					<Toolbar>
-						<MediaUpload
-							onSelect={ onSelectImages }
-							allowedTypes={ allowedMediaTypes }
-							multiple
-							gallery
-							value={ images.map( img => img.id ) }
-							render={ ( { open } ) => (
-								<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+					<ToolbarGroup>
+						<ToolbarItem>
+							{ () => (
+								<MediaUpload
+									onSelect={ onSelectImages }
+									allowedTypes={ allowedMediaTypes }
+									multiple
+									gallery
+									value={ images.map( img => img.id ) }
+									render={ ( { open } ) => (
+										<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+									) }
+								/>
 							) }
-						/>
-					</Toolbar>
+						</ToolbarItem>
+					</ToolbarGroup>
 				) }
 			</BlockControls>
 		</Fragment>
