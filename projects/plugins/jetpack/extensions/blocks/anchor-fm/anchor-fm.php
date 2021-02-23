@@ -68,7 +68,7 @@ function process_anchor_params() {
 	}
 
 	// Return early if we are not in the block editor.
-	if ( wp_should_load_block_editor_scripts_and_styles() ) {
+	if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
 		return;
 	}
 
