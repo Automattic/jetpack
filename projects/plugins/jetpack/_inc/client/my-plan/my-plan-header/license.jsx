@@ -38,13 +38,20 @@ class License extends Component {
 			},
 		} )
 			.then( () => {
-				this.props.createNotice( 'is-success', __( 'Jetpack License Key added.', 'jetpack' ), {
-					id: 'license-key-added-success',
-				} );
+				this.props.createNotice(
+					'is-success',
+					__(
+						'Jetpack license key added. It may take a minute for the license to be processed.',
+						'jetpack'
+					),
+					{
+						id: 'license-key-added-success',
+					}
+				);
 				this.setState( { isSaving: false, licenseKeyText: '' } );
 			} )
 			.catch( () => {
-				this.props.createNotice( 'is-error', __( 'Error adding Jetpack License Key.', 'jetpack' ), {
+				this.props.createNotice( 'is-error', __( 'Error adding Jetpack license key.', 'jetpack' ), {
 					id: 'license-key-added-error',
 				} );
 				this.setState( { isSaving: false } );
@@ -55,12 +62,12 @@ class License extends Component {
 		return (
 			<div className="jp-landing__plan-features-header-jetpack-license">
 				<h3>{ __( 'Jetpack License', 'jetpack' ) }</h3>
-				<p>{ __( 'If you have a Jetpack License Key add it here.', 'jetpack' ) }</p>
+				<p>{ __( 'If you have a Jetpack license key add it here.', 'jetpack' ) }</p>
 				<TextInput
 					name="jetpack_license_key"
 					className="code"
 					value={ this.state.licenseKeyText }
-					placeholder={ __( 'Jetpack Licence Key', 'jetpack' ) }
+					placeholder={ __( 'Jetpack licence key', 'jetpack' ) }
 					disabled={ this.state.isSaving }
 					onChange={ this.handleInputChange }
 				/>
