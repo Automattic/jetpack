@@ -82,9 +82,9 @@ class Inline_Help {
 			true,
 			array(
 				'href'                => 'https://wordpress.com/help',
-				'gridicon_help'       => $gridicon_help,
+				'tracking_event_name' => 'jetpack_masterbar_inline_help_click',
+				'icon'                => $gridicon_help,
 				'svg_allowed'         => $svg_allowed,
-				'tracking_event_name' => 'jetpack_masterbar_inline_help',
 			)
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
