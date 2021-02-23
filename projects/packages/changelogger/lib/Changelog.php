@@ -141,45 +141,6 @@ class Changelog implements JsonSerializable {
 	}
 
 	/**
-	 * Find an entry by version.
-	 *
-	 * @param string $version Version to search for.
-	 * @param string $operator Operator as for `version_compare()`. Note the
-	 *   passed `$version` is passed to `version_compare()` as the second
-	 *   argument, and the first entry matching is returned.
-	 * @return ChangelogEntry|null
-	 */
-	public function findEntryByVersion( $version, $operator = '==' ) {
-		foreach ( $this->entries as $entry ) {
-			if ( version_compare( $entry->getVersion(), $version, $operator ) ) {
-				return $entry;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Fetch all entries by a version check.
-	 *
-	 * @param array $constraints Version constraints. Keys are operations
-	 *   recognized by `version_compare()`, values are the version to compare
-	 *   with as the second argument.
-	 * @return ChangelogEntry[]
-	 */
-	public function findEntriesByVersions( $constraints ) {
-		$ret = array();
-		foreach ( $this->entries as $entry ) {
-			foreach ( $constraints as $op => $version ) {
-				if ( ! version_compare( $entry->getVersion(), $version, $op ) ) {
-					continue 2;
-				}
-			}
-			$ret[] = $entry;
-		}
-		return $ret;
-	}
-
-	/**
 	 * Return data for serializing to JSON.
 	 *
 	 * @return array

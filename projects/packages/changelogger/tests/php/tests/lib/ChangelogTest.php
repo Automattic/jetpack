@@ -54,31 +54,11 @@ class ChangelogTest extends TestCase {
 		$this->assertSame( array(), $changelog->getEntries() );
 		$this->assertSame( null, $changelog->getLatestEntry() );
 		$this->assertSame( array(), $changelog->getVersions() );
-		$this->assertSame( null, $changelog->findEntryByVersion( '2.0' ) );
-		$this->assertSame(
-			array(),
-			$changelog->findEntriesByVersions(
-				array(
-					'>=' => '2.0',
-					'<'  => '4.0',
-				)
-			)
-		);
 
 		$this->assertSame( $changelog, $changelog->setEntries( $entries ) );
 		$this->assertSame( array_values( $entries ), $changelog->getEntries() );
 		$this->assertSame( $entries[4], $changelog->getLatestEntry() );
 		$this->assertSame( array( '4.0', '3.0', '2.0', '1.0' ), $changelog->getVersions() );
-		$this->assertSame( $entries[2], $changelog->findEntryByVersion( '2.0' ) );
-		$this->assertSame(
-			array( $entries[3], $entries[2] ),
-			$changelog->findEntriesByVersions(
-				array(
-					'>=' => '2.0',
-					'<'  => '4.0',
-				)
-			)
-		);
 
 		$e = new ChangelogEntry( '5.0' );
 		$this->assertSame( $changelog, $changelog->addEntry( $e ) );
