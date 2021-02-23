@@ -263,6 +263,8 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 **Improved compatibility**
 
+* Protect: ensure that the blocked login page is fully compatible with the Robots API changes introduced in WordPress 5.7.
+
 **Bug fixes**
 
 * Autoloader: prevent transitive plugin execution.
