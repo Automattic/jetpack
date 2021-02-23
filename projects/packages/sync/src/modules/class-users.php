@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Password_Checker;
 use Automattic\Jetpack\Sync\Defaults;
-namespace Automattic\Jetpack;
 
 /**
  * Class to handle sync for users.
