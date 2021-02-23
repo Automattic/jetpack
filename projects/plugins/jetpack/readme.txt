@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Instant Search: avoid issues when changes made in customizer would not immediately appear in preview.
 * Jetpack Videos: fix responsiveness of Video poster images.
 * Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
+* Markdown: avoid filters loading too early when creating a new site within a Multisite network.
 * Payments Block: avoid layout issues when setting up a new payment plan.
 * Pay With Paypal Block: ensure that line breaks can be used in product description.
 * Secure Sign On: improve the connection flow when users first log in via SSO.
