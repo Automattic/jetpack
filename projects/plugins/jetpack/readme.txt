@@ -274,6 +274,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
 * Payments Block: avoid layout issues when setting up a new payment plan.
 * Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
+* Sharing: ensure that sharing popup opens properly in Firefox.
 * WhatsApp block: adjust width of block options toolbar.
 
 --------
