@@ -125,3 +125,12 @@ beforeAll( async () => {
 
 	await maybePreConnect();
 } );
+
+beforeEach( async () => {
+	observeConsoleLogging();
+
+	// Accept dialogs
+	page.on( 'dialog', async dialog => {
+		await dialog.accept();
+	} );
+} );

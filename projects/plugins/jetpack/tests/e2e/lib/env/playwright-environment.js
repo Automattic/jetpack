@@ -107,7 +107,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			block,
 			name,
 			message: '',
-			error: errors[ 0 ],
+			error: errors,
 		};
 
 		await this.writeFailureToSlackLog( failure );
