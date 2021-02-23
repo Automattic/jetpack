@@ -263,6 +263,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Comments: improve respect for the Core moderation option in particular cases.
 * Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
 * Dashboard: improve performance by reducing excessive API calls.
+* Dashboard: improve product upgrade flow for non-connected Jetpack users.
 * Instant Search: fix closing of the overlay using the Escape key in IE11.
 * Instant Search: improve compatibility with browser forward/back navigation.
 * Jetpack Videos: fix responsiveness of Video poster images.
