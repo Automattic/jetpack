@@ -265,6 +265,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
 * Comments: improve respect for the Core moderation option in particular cases.
 * Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
+* Custom Content Types: allow Newspack's Blog Posts block to display Testimonial and Portfolio posts.
 * Dashboard: improve performance by reducing excessive API calls.
 * Dashboard: improve product upgrade flow for non-connected Jetpack users.
 * Instant Search: fix closing of the overlay using the Escape key in IE11.
