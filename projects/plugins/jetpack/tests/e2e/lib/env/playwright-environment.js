@@ -99,7 +99,6 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	// We cannot use the old logger.slack here because: https://github.com/facebook/jest/pull/8751
 	// As a temp workaround create failure objects and write them in the log file using fs
 	// todo We should rewrite the Slack reporting and change the approach
-
 	async logToSlack( block, name, errors ) {
 		const failure = {
 			type: 'failure',
@@ -110,7 +109,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			error: errors,
 		};
 
-		await this.writeFailureToSlackLog( failure );
+		await this.writeFailureToSlackLog( `${ failure }\n` );
 	}
 
 	async saveScreenshot( fileName ) {
