@@ -57,19 +57,22 @@ class Inline_Help {
 
 		$svg_allowed = array(
 			'svg'   => array(
-				'id'    => true,
-				'class' => true,
-				'aria-hidden' => true,
+				'id'              => true,
+				'class'           => true,
+				'aria-hidden'     => true,
 				'aria-labelledby' => true,
-				'role' => true,
-				'xmlns' => true,
-				'width' => true,
-				'height' => true,
-				'viewbox' => true, // <= Must be lower case!
+				'role'            => true,
+				'xmlns'           => true,
+				'width'           => true,
+				'height'          => true,
+				'viewbox'         => true, // <= Must be lower case!
 			),
 			'g'     => array( 'fill' => true ),
 			'title' => array( 'title' => true ),
-			'path'  => array( 'd' => true, 'fill' => true,  ),
+			'path'  => array(
+				'd'    => true,
+				'fill' => true,
+			),
 		);
 
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
