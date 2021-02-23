@@ -157,8 +157,9 @@ class Utils {
 	 * @param array           $subheadings Mapping from type codes to subheadings.
 	 * @param FormatterPlugin $formatter Formatter plugin to use.
 	 * @param OutputInterface $output OutputInterface to write diagnostics too.
-	 * @param mixed           $files Output parameter, a list of files successfully processed is written to this variable.
-	 * @return ChangeEntry[]
+	 * @param mixed           $files Output parameter. An array is written to this parameter, with
+	 *   keys being filenames in `$dir` and values being 0 for success, 1 for warnings, 2 for errors.
+	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
 	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null ) {
 		$files = array();
@@ -173,28 +174,33 @@ class Utils {
 		}
 		asort( $allFiles );
 		foreach ( $allFiles as $name => $path ) {
-			$diagnostics = null;
+			$diagnostics    = null;
+			$files[ $name ] = 0;
 			try {
 				$data = self::loadChangeFile( $path, $diagnostics );
 			} catch ( \RuntimeException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
+				$files[ $name ] = 2;
 				continue;
 			}
-			foreach ( $diagnostics['warnings'] as list( $msg, $line ) ) {
-				$line = $line ? ":$line" : '';
-				$output->writeln( "<warning>$name$line: $msg</>" );
+			if ( $diagnostics['warnings'] ) {
+				$files[ $name ] = 1;
+				foreach ( $diagnostics['warnings'] as list( $msg, $line ) ) {
+					$line = $line ? ":$line" : '';
+					$output->writeln( "<warning>$name$line: $msg</>" );
+				}
 			}
 			try {
-				$ret[]   = $formatter->newChangeEntry(
+				$ret[ $name ] = $formatter->newChangeEntry(
 					array(
 						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
 						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
 						'content'      => $data[''],
 					)
 				);
-				$files[] = $path;
 			} catch ( \InvalidArgumentException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
+				$files[ $name ] = 2;
 			}
 		}
 

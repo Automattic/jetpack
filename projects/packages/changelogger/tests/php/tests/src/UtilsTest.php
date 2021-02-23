@@ -378,12 +378,20 @@ class UtilsTest extends TestCase {
 		foreach ( $ret as $e ) {
 			$this->assertInstanceOf( ChangeEntry::class, $e );
 		}
-		usort( $ret, array( ChangeEntry::class, 'compare' ) );
 		$this->assertSame(
-			'[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Added!","author":"","content":"AAAAA"},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Unknown","author":"","content":"BBBBB"}]',
+			'{"a":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Added!","author":"","content":"AAAAA"},"b":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Unknown","author":"","content":"BBBBB"}}',
 			json_encode( $ret )
 		);
-		$this->assertSame( array( "$dir/a", "$dir/b" ), $files );
+		$this->assertSame(
+			array(
+				'a' => 0,
+				'b' => 1,
+				'c' => 2,
+				'd' => 2,
+				'e' => 2,
+			),
+			$files
+		);
 		$this->assertSame(
 			"<warning>b:3: Duplicate header \"Type\", previously seen on line 2.\nc: Invalid header.\nd: Expected a file, got dir.\ne: Automattic\\Jetpack\\Changelog\\ChangeEntry::setSignificance: Significance must be 'patch', 'minor', or 'major' (or null)\n",
 			$out->fetch()
