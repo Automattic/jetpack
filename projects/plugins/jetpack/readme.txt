@@ -283,6 +283,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 * Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
 * Sharing: ensure that sharing popup opens properly in Firefox.
 * Shortcodes: use arguments provided by shortcode attributes for the Instagram embeds.
+* Video Block: avoid potential PHP notice when working with Jetpack Videos.
 * WhatsApp block: adjust width of block options toolbar.
 
 --------
