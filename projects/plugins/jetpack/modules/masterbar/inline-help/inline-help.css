@@ -52,6 +52,7 @@
 }
 
 .a8c-faux-inline-help .a8c-faux-inline-help__button .gridicon {
+	pointer-events: none;
 	position: relative;
 	fill: #1d2327; /* IE11 fallback - Classic Dark */
 	fill: var( --color-primary );
