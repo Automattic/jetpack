@@ -1,4 +1,6 @@
 <?php
+    // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
 	// See https://github.com/Automattic/jetpack/blob/41fe374f32d0fa35bb66b4ca492e0b337ee7c6cd/projects/packages/tracking/src/js/tracks-ajax.js#L29
 	$jp_tracking_classname = 'jptracks';
 ?>
