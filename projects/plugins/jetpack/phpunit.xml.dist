@@ -133,6 +133,7 @@
 	<filter>
 		<whitelist>
 			<directory suffix=".php">.</directory>
+			<directory suffix=".php">../../packages</directory>
 			<exclude>
 				<directory suffix=".php">tests</directory>
 				<directory suffix=".php">views</directory>
