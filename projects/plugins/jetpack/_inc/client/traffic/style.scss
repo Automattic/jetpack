@@ -99,6 +99,10 @@
 	}
 }
 
+#jp-seo-front-page-description {
+	min-height: 96px;
+}
+
 .jp-seo-front-page-description {
 	&-container {
 		background: $gray-light;
@@ -107,5 +111,20 @@
 
 	&-count {
 		padding: 0 0 0.25rem 0.25rem;
+	}
+}
+
+.jp-seo-social-previews {
+	.search-preview,
+	.facebook-preview,
+	.twitter-preview {
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	&-label {
+		font-weight: 600;
+		display: block;
+		margin-top: 1rem;
 	}
 }
