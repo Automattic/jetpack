@@ -1,5 +1,6 @@
 // make use of color studio variables for consistency across products
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
 
 // core variables (core _variables.scss)
 $base-color: $studio-blue-100; // Calypso --color-masterbar-background
@@ -32,5 +33,12 @@ $masterbar-active-background: $studio-blue-80; // Calypso --color-masterbar-item
 // nav unification overrides
 $nav-unification-sidebar-border: $studio-blue-90; // Calypso --color-sidebar-border
 $nav-unification-sidebar-text-alternative: $studio-blue-20; // Calypso --color-sidebar-text-alternative
+
+// Calypso color variables used in e.g. inline help
+$color-primary: $studio-gray-90; // Calypso --color-primary
+$color-primary-dark: $studio-gray-70; // Calypso --color-primary-dark
+$color-primary-light: $studio-gray-30; // Calypso --color-primary-light
+$color-surface: $studio-white; // Calypso --color-surface
+$color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
 
 @import "../admin";
