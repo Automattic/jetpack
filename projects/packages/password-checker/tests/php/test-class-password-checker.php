@@ -14,12 +14,28 @@ use WorDBless\BaseTestCase;
  * Test Password_Checker class
  */
 class Password_Checker_Test extends BaseTestCase {
+	/**
+	 * User ID.
+	 *
+	 * @var int|\WP_Error
+	 */
+	private $user_id;
 
 	/**
-	 * Test the password checker.
+	 * User object.
+	 *
+	 * @var \WP_User
 	 */
-	public function test_password() {
-		$id = wp_insert_user(
+
+	private $user;
+
+	/**
+	 * Initialize tests.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		$this->user_id = wp_insert_user(
 			array(
 				'user_login' => 'test-user',
 				'user_pass'  => '123',
@@ -30,10 +46,14 @@ class Password_Checker_Test extends BaseTestCase {
 			)
 		);
 
-		// by id.
-		$user = new \WP_User( $id );
+		$this->user = new \WP_User( $this->user_id );
+	}
 
-		$password_checker = new Password_Checker( $user );
+	/**
+	 * Test the password checker.
+	 */
+	public function test_password() {
+		$password_checker = new Password_Checker( $this->user );
 
 		$test_results = $password_checker->test( '123', true );
 		$this->assertFalse( $test_results['passed'] );
