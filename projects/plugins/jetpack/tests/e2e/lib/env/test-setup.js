@@ -115,14 +115,10 @@ export const step = async ( stepName, fn ) => {
 
 beforeAll( async () => {
 	await setUserAgent();
-
-	context.on( 'page', () => {
-		observeConsoleLogging();
-	} );
-
+	observeConsoleLogging();
 	await maybePreConnect();
 } );
 
 beforeEach( async () => {
-	// observeConsoleLogging();
+	observeConsoleLogging();
 } );
