@@ -75,15 +75,15 @@ jobs:
         yarn test-decrypt-config
         ./bin/env.sh start
 
-    - name: Run tests
+    - name: Run all tests
       if: matrix.gutenberg == 'no'
       working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e
 
-    - name: Run tests (excluding updater)
+    - name: Run blocks tests with latest Gutenberg
       if: matrix.gutenberg == 'latest'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e --testPathIgnorePatterns=updater
+      run: yarn test-e2e --testNamePattern=blocks
 
     - name: Upload test artifacts
       if: ${{ always() }}
