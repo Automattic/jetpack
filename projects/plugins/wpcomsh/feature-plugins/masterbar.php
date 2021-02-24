@@ -43,6 +43,14 @@ function wpcomsh_rm_masterbar_module_list( $items ) {
 add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
 
 /**
+ * Check if the current request is an API request to the `wpcom/v2/admin-menu` endpoint.
+ * @return bool
+ */
+function wpcomsh_is_admin_menu_api_request() {
+	return 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+}
+
+/**
  * Sets WP_ADMIN constant on API requests for admin menus.
  *
  * Attempt to increase our chances that third-party plugins will
@@ -51,7 +59,7 @@ add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_lis
  * This has to run before plugins are loaded.
  */
 function wpcomsh_mimic_admin_page_load() {
-	if ( 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) ) {
+	if ( wpcomsh_is_admin_menu_api_request() ) {
 		// Display errors can cause the API request to fail due to the PHP notice
 		// triggered by `$pagenow` not being correctly determined when `WP_ADMIN`
 		// is forced on a non-WP Admin page.
@@ -122,18 +130,10 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $e
 		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
 	}
 
-	if ( isset( $value['is_probably_a11n'] ) ) {
-		update_user_option( get_current_user_id(), 'wpcom_is_probably_a11n', true );
+	if ( ! empty( $value['is_nav_unification_enabled'] ) ) {
+		update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', true );
 	} else {
-		delete_user_option( get_current_user_id(), 'wpcom_is_probably_a11n' );
-	}
-
-	if ( isset( $value['ID'] ) ) {
-		update_user_option( get_current_user_id(), 'wpcom_user_id', $value['ID'] );
-	}
-
-	if ( isset( $value['site_count'] ) ) {
-		update_user_option( get_current_user_id(), 'wpcom_site_count', $value['site_count'] );
+		update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', false );
 	}
 }
 add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 3 );
@@ -148,24 +148,16 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  * CURRENT ROLLOUT SEGMENT: 5% of single site users.
  */
 function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
-	if ( false !== strpos( $_SERVER['REQUEST_URI'], 'rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' ) ) {
-		// Loads for all api requests for the admin-menu ( eg from calypso ).
+	// Loads for all API requests to the admin-menu endpoint (i.e. Calypso).
+	if ( wpcomsh_is_admin_menu_api_request() ) {
 		return true;
 	}
 
-	$is_automattician = get_user_option( 'wpcom_is_probably_a11n' );
-	if ( $is_automattician ) {
-		// Loads only for a12s.
+	// Check if nav unification has been enabled for current user.
+	$is_nav_unification_enabled = get_user_option( 'wpcom_is_nav_unification_enabled' );
+	if ( $is_nav_unification_enabled ) {
 		return true;
 	}
-
-	// When ready to launch this feature for users, delete the block above and uncomment the following.
-	// Feature should always be available for a12s and for selected customer segments.
-	// $user_id         = get_user_option( 'wpcom_user_id' );
-	// $user_site_count = get_user_option( 'wpcom_site_count' );
-	// if ( $is_automattician || ( 1 === $user_site_count && $user_id % 100 < 5 ) ) {
-	// 	return true;
-	// }
 
 	// Otherwise, keep using the previous value of the filter.
 	return $should_activate_nav_unification;
