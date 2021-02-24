@@ -777,6 +777,9 @@ class Jetpack {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
 
+		// After a successful connection.
+		add_action( 'jetpack_site_registered', array( $this, 'site_registered' ) );
+
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
@@ -4996,6 +4999,25 @@ endif;
 	}
 
 	/**
+	 * Fires on the jetpack_site_registered hook and acitvates default modules
+	 */
+	public static function site_registered() {
+		$active_modules = Jetpack_Options::get_option( 'active_modules' );
+		if ( $active_modules ) {
+			self::delete_active_modules();
+
+			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
+			self::activate_default_modules( 999, 1, $active_modules, null, null );
+		} else {
+			// On a fresh new connection, at this point we activate only modules that do not require a user connection.
+			self::activate_default_modules( false, false, array(), null, null, null, false );
+		}
+
+		// Since this is a fresh connection, be sure to clear out IDC options.
+		Jetpack_IDC::clear_all_idc_options();
+	}
+
+	/**
 	 * This action fires at the end of the REST_Connector connection_reconnect method when the
 	 * reconnect process is completed.
 	 * Note that this currently only happens when we don't need the user to re-authorize
@@ -7329,12 +7351,14 @@ endif;
 			? array( 'sso' )
 			: array();
 
-		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+		if ( Jetpack_Options::get_option( 'active_modules_initialized' ) ) {
+			$active_modules = Jetpack_Options::get_option( 'active_modules' );
 			self::delete_active_modules();
 
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
 		} else {
 			self::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages );
+			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		}
 
 		// Since this is a fresh connection, be sure to clear out IDC options
