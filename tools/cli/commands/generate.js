@@ -1,5 +1,5 @@
 /**
- * External dependencies
+ * External dependencies hey
  */
 import path from 'path';
 import pluralize from 'pluralize';
