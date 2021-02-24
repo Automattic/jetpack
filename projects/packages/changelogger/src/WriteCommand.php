@@ -265,8 +265,9 @@ EOF
 	protected function loadChanges( InputInterface $input, OutputInterface $output ) {
 		$dir = Config::changesDir();
 		if ( ! is_dir( $dir ) ) {
-			if ( ! $this->askToContinue( $input, $output, 'Changes directory does not exist!' ) ) {
-				return array( self::ASKED_EXIT, null, null );
+			$this->askedNoChanges = true;
+			if ( ! $this->askToContinue( $input, $output, 'Changes directory does not exist, so there are no changes to write!' ) ) {
+				return array( self::NO_CHANGE_EXIT, null, null );
 			}
 			return array( self::OK_EXIT, array(), array() );
 		}
@@ -376,7 +377,7 @@ EOF
 				$latest = array_shift( $entries );
 				$changelog->setEntries( $entries );
 				$amendedVersion = $latest->getVersion();
-				$changes        = array_merge( array_values( $changes ), $latest->getEntries() );
+				$changes        = array_merge( $latest->getChanges(), array_values( $changes ) );
 				$output->writeln( "Removing changes for $amendedVersion from changelog for --amend.", OutputInterface::VERBOSITY_DEBUG );
 
 				if ( $input->getOption( 'prologue' ) === null ) {
@@ -437,20 +438,20 @@ EOF
 			$nversion = $this->versioning->normalizeVersion( $version );
 		} catch ( InvalidArgumentException $ex ) {
 			$nversion = $version;
-			$this->writeln( "<error>Invalid --use-version: {$ex->getMessage()}{/}" );
+			$output->writeln( "<error>Invalid --use-version: {$ex->getMessage()}</>" );
 			if ( ! $this->askToContinue( $input, $output, 'The specified version is not valid. This may cause problems in the future!' ) ) {
 				return self::ASKED_EXIT;
 			}
 		}
 		if ( $version !== $nversion ) {
 			if ( ! $input->isInteractive() ) {
-				if ( ! $this->askToContinue( "The supplied version $version is not normalized, it should be $nversion." ) ) {
+				if ( ! $this->askToContinue( $input, $output, "The supplied version $version is not normalized, it should be $nversion." ) ) {
 					return self::ASKED_EXIT;
 				}
 			} else {
 				try {
 					$question = new ChoiceQuestion(
-						"The supplied version $version is not normalized",
+						"The supplied version $version is not normalized.",
 						array(
 							'proceed'   => "Proceed with $version",
 							'normalize' => "Normalize to $nversion",
@@ -459,9 +460,9 @@ EOF
 						$input->getOption( 'yes' ) ? 'proceed' : 'abort'
 					);
 					switch ( $this->getHelper( 'question' )->ask( $input, $output, $question ) ) {
-						case 'proceed':
+						case 'proceed': // @codeCoverageIgnore
 							break;
-						case 'normalize':
+						case 'normalize': // @codeCoverageIgnore
 							$output->writeln( "Normalizing $version to $nversion.", OutputInterface::VERBOSITY_DEBUG );
 							$version = $nversion;
 							break;
@@ -482,7 +483,7 @@ EOF
 			try {
 				$cmp = $this->versioning->compareVersions( $version, $curver );
 			} catch ( InvalidArgumentException $ex ) {
-				$this->writeln( "Cannot compare $version with $curver: {$ex->getMessage()}", OutputInterface::VERBOSITY_DEBUG );
+				$output->writeln( "Cannot compare $version with $curver: {$ex->getMessage()}", OutputInterface::VERBOSITY_DEBUG );
 				$cmp = 1;
 			}
 			if ( $cmp < 0 && ! $this->askToContinue( $input, $output, "The most recent version in the changelog is $curver, which comes after $version." ) ) {
@@ -616,7 +617,7 @@ EOF
 		$amendedVersion = null; // Make phpcs happy.
 		$ret            = $this->doAmendChanges( $input, $output, $changelog, $changes, $amendedVersion );
 		if ( self::OK_EXIT !== $ret ) {
-			return $ret;
+			return $ret; // @codeCoverageIgnore
 		}
 		$changes = $this->sortChanges( $changes );
 
