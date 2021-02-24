@@ -254,21 +254,6 @@ EOF
 				$output->writeln( '<warning>This project does not use types. Do not specify --type.</>' );
 			}
 
-			// Determine the change comment, and add to the file contents if applicable.
-			$comment = (string) $input->getOption( 'comment' );
-			if ( $isInteractive ) {
-				$question = new Question( "Comment about the change. Optional, feel free to leave empty.\n > ", $comment );
-				$comment  = $this->getHelper( 'question' )->ask( $input, $output, $question );
-				if ( null === $comment ) {
-					$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
-					return 1; // @codeCoverageIgnore
-				}
-			}
-			$comment = trim( preg_replace( '/\s+/', ' ', $comment ) );
-			if ( '' !== $comment ) {
-				$contents .= "Comment: $comment\n";
-			}
-
 			// Determine the changelog entry and add to the file contents.
 			$entry = $input->getOption( 'entry' );
 			if ( $isInteractive ) {
@@ -300,6 +285,22 @@ EOF
 					return 1;
 				}
 			}
+
+			// Ask if a change comment is desired, if they left the change entry itself empty.
+			$comment = (string) $input->getOption( 'comment' );
+			if ( $isInteractive && '' === $entry ) {
+				$question = new Question( "You omitted the changelog entry, which is fine. But please comment as to why no entry is needed.\n > ", $comment );
+				$comment  = $this->getHelper( 'question' )->ask( $input, $output, $question );
+				if ( null === $comment ) {
+					$output->writeln( 'Got EOF when attempting to query user, aborting.', OutputInterface::VERBOSITY_VERBOSE ); // @codeCoverageIgnore
+					return 1; // @codeCoverageIgnore
+				}
+			}
+			$comment = trim( preg_replace( '/\s+/', ' ', $comment ) );
+			if ( '' !== $comment ) {
+				$contents .= "Comment: $comment\n";
+			}
+
 			$contents .= "\n$entry";
 
 			// Ok! Write the file.
