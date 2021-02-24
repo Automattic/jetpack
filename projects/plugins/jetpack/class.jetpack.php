@@ -2600,46 +2600,55 @@ class Jetpack {
 			'plan_classes'              => 'Plans',
 		);
 
+		static $modules_details;
 		$file = self::get_module_path( self::get_module_slug( $module ) );
 
-		$mod = self::get_file_data( $file, $headers );
-		if ( empty( $mod['name'] ) ) {
-			return false;
-		}
-
-		$mod['sort']                     = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
-		$mod['recommendation_order']     = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
-		$mod['deactivate']               = empty( $mod['deactivate'] );
-		$mod['free']                     = empty( $mod['free'] );
-		$mod['requires_connection']      = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
-		$mod['requires_user_connection'] = ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] ) ? false : true;
-
-		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
-			$mod['auto_activate'] = 'No';
+		if ( isset( $modules_details[ $module ] ) ) {
+			$mod = $modules_details[ $module ];
 		} else {
-			$mod['auto_activate'] = (string) $mod['auto_activate'];
-		}
 
-		if ( $mod['module_tags'] ) {
-			$mod['module_tags'] = explode( ',', $mod['module_tags'] );
-			$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
-			$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
-		} else {
-			$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
-		}
+			$mod = self::get_file_data( $file, $headers );
+			if ( empty( $mod['name'] ) ) {
+				return false;
+			}
 
-		if ( $mod['plan_classes'] ) {
-			$mod['plan_classes'] = explode( ',', $mod['plan_classes'] );
-			$mod['plan_classes'] = array_map( 'strtolower', array_map( 'trim', $mod['plan_classes'] ) );
-		} else {
-			$mod['plan_classes'] = array( 'free' );
-		}
+			$mod['sort']                     = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
+			$mod['recommendation_order']     = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
+			$mod['deactivate']               = empty( $mod['deactivate'] );
+			$mod['free']                     = empty( $mod['free'] );
+			$mod['requires_connection']      = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
+			$mod['requires_user_connection'] = ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] ) ? false : true;
 
-		if ( $mod['feature'] ) {
-			$mod['feature'] = explode( ',', $mod['feature'] );
-			$mod['feature'] = array_map( 'trim', $mod['feature'] );
-		} else {
-			$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
+			if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ), true ) ) {
+				$mod['auto_activate'] = 'No';
+			} else {
+				$mod['auto_activate'] = (string) $mod['auto_activate'];
+			}
+
+			if ( $mod['module_tags'] ) {
+				$mod['module_tags'] = explode( ',', $mod['module_tags'] );
+				$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
+				$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
+			} else {
+				$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
+			}
+
+			if ( $mod['plan_classes'] ) {
+				$mod['plan_classes'] = explode( ',', $mod['plan_classes'] );
+				$mod['plan_classes'] = array_map( 'strtolower', array_map( 'trim', $mod['plan_classes'] ) );
+			} else {
+				$mod['plan_classes'] = array( 'free' );
+			}
+
+			if ( $mod['feature'] ) {
+				$mod['feature'] = explode( ',', $mod['feature'] );
+				$mod['feature'] = array_map( 'trim', $mod['feature'] );
+			} else {
+				$mod['feature'] = array( self::translate_module_tag( 'Other' ) );
+			}
+
+			$modules_details[ $module ] = $mod;
+
 		}
 
 		/**
