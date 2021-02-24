@@ -75,16 +75,26 @@ class Inline_Help {
 
 		$gridicon_help = file_get_contents( __DIR__ . '/gridicon-help.svg', true );
 
+		// Add tracking data to link to be picked up by Calypso for GA and Tracks usage.
+		$tracking_href = add_query_arg(
+			array(
+				'utm_source'  => 'wp_admin',
+				'utm_medium'  => 'other',
+				'utm_content' => 'jetpack_masterbar_inline_help_click',
+				'flags'       => 'a8c-analytics.on',
+			),
+			'https://wordpress.com/help'
+		);
+
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		// We trust that output in the template has been escaped.
 		echo load_template(
 			__DIR__ . '/inline-help-template.php',
 			true,
 			array(
-				'href'                => 'https://wordpress.com/help?utm_source=wp_admin&utm_medium=other&utm_content=jetpack_masterbar_inline_help_click&flags=a8c-analytics.on',
-				'tracking_event_name' => 'jetpack_masterbar_inline_help_click',
-				'icon'                => $gridicon_help,
-				'svg_allowed'         => $svg_allowed,
+				'href'        => $tracking_href,
+				'icon'        => $gridicon_help,
+				'svg_allowed' => $svg_allowed,
 			)
 		);
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
