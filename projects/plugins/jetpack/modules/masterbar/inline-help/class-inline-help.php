@@ -81,7 +81,7 @@ class Inline_Help {
 			__DIR__ . '/inline-help-template.php',
 			true,
 			array(
-				'href'                => 'https://wordpress.com/help',
+				'href'                => 'https://wordpress.com/help?utm_source=wp_admin&flags=a8c-analytics.on,google-analytics&ga_optimize=on',
 				'tracking_event_name' => 'jetpack_masterbar_inline_help_click',
 				'icon'                => $gridicon_help,
 				'svg_allowed'         => $svg_allowed,
