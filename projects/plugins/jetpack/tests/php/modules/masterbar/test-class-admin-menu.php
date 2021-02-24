@@ -571,6 +571,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertEquals( $plugins_menu_item, $menu[65] );
 		$this->assertEmpty( $submenu['plugins.php'] );
 		$this->assertArrayNotHasKey( $slug, $submenu );
+
+		// Reset.
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
+
+		// Check submenu are kept when using WP Admin links.
+		static::$admin_menu->add_plugins_menu( true );
+		$this->assertNotEmpty( $submenu['plugins.php'] );
 	}
 
 	/**

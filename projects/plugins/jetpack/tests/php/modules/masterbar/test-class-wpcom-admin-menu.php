@@ -345,4 +345,18 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertSame( $menu[61], $fse_menu );
 	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $menu;
+
+		static::$admin_menu->add_plugins_menu( true );
+
+		// Check Plugins menu always links to Calypso.
+		$this->assertContains( 'https://wordpress.com/plugins/' . static::$domain, $menu[65] );
+	}
 }
