@@ -72,19 +72,6 @@ function wpcomsh_mimic_admin_page_load() {
 add_action( 'muplugins_loaded', 'wpcomsh_mimic_admin_page_load' );
 
 /**
- * Determines if the color scheme set on Calypso should be used as the Admin color scheme.
- *
- * The Calypso color scheme will be used unless there are third party plugins that provide
- * more color schemes.
- *
- * @return bool
- */
-function wpcomsh_should_use_calypso_color_scheme() {
-	// WP Admin default color scheme + Calypso color schemes = 18.
-	return 18 === count( $GLOBALS['_wp_admin_css_colors'] );
-}
-
-/**
  * Prints the calypso page link for changing a color scheme.
  **/
 function wpcomsh_admin_color_scheme_picker_disabled() {
@@ -100,10 +87,8 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
  * and adds an action that prints a calypso page link.
  **/
 function wpcomsh_hide_color_schemes() {
-	if ( wpcomsh_should_use_calypso_color_scheme() ) {
-		remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
-		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
-	}
+	remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
+	add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
 }
 add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
 
