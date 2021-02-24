@@ -166,7 +166,7 @@ If you want your plugin to be available via a `name`, create an alias to it from
 as appropriate for its type, and make sure that alias can be loaded via the autoloader. There
 are two common ways to do this correctly:
 
-1. Using PSR-0 or PRS-4, put the `class_alias()` in the same file as the _target_ class, and create a
+1. Using PSR-0 or PSR-4, put the `class_alias()` in the same file as the _target_ class, and create a
    dummy file at the aliased name with a `class_exists()` call for the target name to trigger loading.
 2. Use `.autoload.files` in composer.json to load a file with the necessary `class_alias()` calls.
    Note this will load all aliases classes on every request.
