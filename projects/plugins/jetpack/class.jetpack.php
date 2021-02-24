@@ -2376,8 +2376,15 @@ class Jetpack {
 	/**
 	 * List available Jetpack modules. Simply lists .php files in /modules/.
 	 * Make sure to tuck away module "library" files in a sub-directory.
+	 *
+	 * @param bool|string $min_version Onlu return modules introduced in this version or later. Default is false, do not filter.
+	 * @param bool|string $max_version Only return modules introduced before this version. Default is false, do not filter.
+	 * @param bool|null   $requires_connection Only return modules that require a conncetion.
+	 * @param bool|null   $requires_user_connection Only return modules that require a user conncetion.
+	 *
+	 * @return array $modules Array of module slugs
 	 */
-	public static function get_available_modules( $min_version = false, $max_version = false ) {
+	public static function get_available_modules( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
 		static $modules = null;
 
 		if ( ! isset( $modules ) ) {
@@ -2415,10 +2422,12 @@ class Jetpack {
 		 * @param array $modules Array of available modules.
 		 * @param string $min_version Minimum version number required to use modules.
 		 * @param string $max_version Maximum version number required to use modules.
+		 * @param bool|null $requires_connection Value of the Requires Connection filter.
+		 * @param bool|null $requires_user_connection Value of the Requires User Connection filter.
 		 */
-		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version );
+		$mods = apply_filters( 'jetpack_get_available_modules', $modules, $min_version, $max_version, $requires_connection, $requires_user_connection );
 
-		if ( ! $min_version && ! $max_version ) {
+		if ( ! $min_version && ! $max_version && is_null( $requires_connection ) && is_null( $requires_user_connection ) ) {
 			return array_keys( $mods );
 		}
 
@@ -2432,6 +2441,16 @@ class Jetpack {
 				continue;
 			}
 
+			$mod_details = self::get_module( $slug );
+
+			if ( is_bool( $requires_connection ) && $requires_connection !== $mod_details['requires_connection'] ) {
+				continue;
+			}
+
+			if ( is_bool( $requires_user_connection ) && $requires_user_connection !== $mod_details['requires_user_connection'] ) {
+				continue;
+			}
+
 			$r[] = $slug;
 		}
 
@@ -2439,12 +2458,19 @@ class Jetpack {
 	}
 
 	/**
-	 * Default modules loaded on activation.
+	 * Get default modules loaded on activation.
+	 *
+	 * @param bool|string $min_version Onlu return modules introduced in this version or later. Default is false, do not filter.
+	 * @param bool|string $max_version Only return modules introduced before this version. Default is false, do not filter.
+	 * @param bool|null   $requires_connection Only return modules that require a conncetion.
+	 * @param bool|null   $requires_user_connection Only return modules that require a user conncetion.
+	 *
+	 * @return array $modules Array of module slugs
 	 */
-	public static function get_default_modules( $min_version = false, $max_version = false ) {
+	public static function get_default_modules( $min_version = false, $max_version = false, $requires_connection = null, $requires_user_connection = null ) {
 		$return = array();
 
-		foreach ( self::get_available_modules( $min_version, $max_version ) as $module ) {
+		foreach ( self::get_available_modules( $min_version, $max_version, $requires_connection, $requires_user_connection ) as $module ) {
 			$module_data = self::get_module( $module );
 
 			switch ( strtolower( $module_data['auto_activate'] ) ) {
@@ -2469,8 +2495,10 @@ class Jetpack {
 		 * @param array $return Array of default modules.
 		 * @param string $min_version Minimum version number required to use modules.
 		 * @param string $max_version Maximum version number required to use modules.
+		 * @param bool|null $requires_connection Value of the Requires Connection filter.
+		 * @param bool|null $requires_user_connection Value of the Requires User Connection filter.
 		 */
-		return apply_filters( 'jetpack_get_default_modules', $return, $min_version, $max_version );
+		return apply_filters( 'jetpack_get_default_modules', $return, $min_version, $max_version, $requires_connection, $requires_user_connection );
 	}
 
 	/**
@@ -2856,7 +2884,9 @@ class Jetpack {
 		$max_version = false,
 		$other_modules = array(),
 		$redirect = null,
-		$send_state_messages = null
+		$send_state_messages = null,
+		$requires_connection = null,
+		$requires_user_connection = null
 	) {
 		$jetpack = self::init();
 
@@ -2884,7 +2914,7 @@ class Jetpack {
 			$send_state_messages = current_user_can( 'jetpack_activate_modules' );
 		}
 
-		$modules = self::get_default_modules( $min_version, $max_version );
+		$modules = self::get_default_modules( $min_version, $max_version, $requires_connection, $requires_user_connection );
 		$modules = array_merge( $other_modules, $modules );
 
 		// Look for standalone plugins and disable if active.
@@ -2927,11 +2957,13 @@ class Jetpack {
 		 *
 		 * @since 1.9.0
 		 *
-		 * @param string $min_version Minimum version number required to use modules.
-		 * @param string $max_version Maximum version number required to use modules.
-		 * @param array $other_modules Array of other modules to activate alongside the default modules.
+		 * @param string    $min_version Minimum version number required to use modules.
+		 * @param string    $max_version Maximum version number required to use modules.
+		 * @param array     $other_modules Array of other modules to activate alongside the default modules.
+		 * @param bool|null $requires_connection Value of the Requires Connection filter.
+		 * @param bool|null $requires_user_connection Value of the Requires User Connection filter.
 		 */
-		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules );
+		do_action( 'jetpack_before_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
 
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating
 		if ( $send_state_messages ) {
@@ -3011,11 +3043,13 @@ class Jetpack {
 		 *
 		 * @since 1.9.0
 		 *
-		 * @param string $min_version Minimum version number required to use modules.
-		 * @param string $max_version Maximum version number required to use modules.
-		 * @param array $other_modules Array of other modules to activate alongside the default modules.
+		 * @param string    $min_version Minimum version number required to use modules.
+		 * @param string    $max_version Maximum version number required to use modules.
+		 * @param array     $other_modules Array of other modules to activate alongside the default modules.
+		 * @param bool|null $requires_connection Value of the Requires Connection filter.
+		 * @param bool|null $requires_user_connection Value of the Requires User Connection filter.
 		 */
-		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules );
+		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules, $requires_connection, $requires_user_connection );
 	}
 
 	public static function activate_module( $module, $exit = true, $redirect = true ) {
