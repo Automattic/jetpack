@@ -87,4 +87,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		// Customize on Atomic sites is always done on Jetpack sites.
 		parent::add_appearance_menu( $wp_admin_themes, true );
 	}
+
+	/**
+	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Plugins on Jetpack sites are always managed on Calypso.
+		parent::add_plugins_menu( false );
+	}
 }
