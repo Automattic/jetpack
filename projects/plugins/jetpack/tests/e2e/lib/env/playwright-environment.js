@@ -56,12 +56,13 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				logger.info( `SUCCESS: ${ hookName }` );
 				break;
 			case 'hook_failure':
-				logger.info( `FAILED: ${ hookName } FAILED!` );
-				logger.info( event.hook.errors );
+				logger.info( `FAILED: ${ hookName }` );
+				logger.error( JSON.stringify( event.hook.errors ) );
+				logger.error( JSON.stringify( event.error ) );
 				await this.saveScreenshot( hookName );
 				await this.storeVideoFileName( hookName );
 				await this.logHTML( hookName );
-				await this.logFailureToSlack( event.hook.parent.name, event.hook.type, event.hook.errors );
+				await this.logFailureToSlack( event.hook.parent.name, event.hook.type, event.error );
 				break;
 			case 'test_fn_start':
 				break;
@@ -70,20 +71,15 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				break;
 			case 'test_fn_failure':
 				logger.info( `FAILED TEST: ${ testName }` );
-				logger.info( event.test.errors );
+				logger.error( JSON.stringify( event.test.errors ) );
+				logger.error( JSON.stringify( event.error ) );
+				await this.saveScreenshot( testName );
+				await this.storeVideoFileName( testName );
+				await this.logHTML( testName );
+				await this.logFailureToSlack( event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
 				logger.info( `TEST DONE: ${ testName }` );
-				if ( event.test.errors.length > 0 ) {
-					await this.saveScreenshot( testName );
-					await this.storeVideoFileName( testName );
-					await this.logHTML( testName );
-					await this.logFailureToSlack(
-						event.test.parent.name,
-						event.test.name,
-						event.test.errors
-					);
-				}
 				break;
 			case 'run_describe_finish':
 				break;
@@ -98,10 +94,12 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 		}
 	}
 
-	async logFailureToSlack( block, name, errors ) {
+	async logFailureToSlack( block, name, error ) {
 		logger.slack( {
 			type: 'failure',
-			message: { block, name, errors },
+			block,
+			name,
+			error,
 		} );
 	}
 

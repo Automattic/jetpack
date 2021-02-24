@@ -5890,10 +5890,10 @@ playwright-core@>=1.2.0:
     rimraf "^3.0.2"
     ws "^7.3.1"
 
-playwright@1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.8.0.tgz#8eca2250967ee892b9fdfec44e2358455ab0f8e3"
-  integrity sha512-urMJDLX92KawbkWKrt3chVVBPQsuuNwlS5St7I5YQENXAEItoyUqX7FjiYaoPgXifKqe1+BKC+7pBAq1QUkgSw==
+playwright@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/playwright/-/playwright-1.9.0.tgz#7876f005b7be08419b03f14a1d9c1504e0db6d37"
+  integrity sha512-vCVPCj6toZweLW2wz9g92FpsmKoLljz6ql1MeqBcVDgOh5yVR/rFdFQ6T+Ed1sqkssaissfSeZMNmTodQCsK3Q==
   dependencies:
     commander "^6.1.0"
     debug "^4.1.1"
@@ -5906,6 +5906,7 @@ playwright@1.8.0:
     proper-lockfile "^4.1.1"
     proxy-from-env "^1.1.0"
     rimraf "^3.0.2"
+    stack-utils "^2.0.3"
     ws "^7.3.1"
 
 pngjs@^5.0.0:
@@ -6714,7 +6715,7 @@ stack-trace@0.0.x:
   resolved "https://registry.yarnpkg.com/stack-trace/-/stack-trace-0.0.10.tgz#547c70b347e8d32b4e108ea1a2a159e5fdde19c0"
   integrity sha1-VHxws0fo0ytOEI6hoqFZ5f3eGcA=
 
-stack-utils@^2.0.2:
+stack-utils@^2.0.2, stack-utils@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-2.0.3.tgz#cd5f030126ff116b78ccb3c027fe302713b61277"
   integrity sha512-gL//fkxfWUsIlFL2Tl42Cl6+HFALEaB1FU76I/Fy+oZjRreP7OPMXFlGbxM7NQsI0ZpUfw76sHnv0WNYuTb7Iw==

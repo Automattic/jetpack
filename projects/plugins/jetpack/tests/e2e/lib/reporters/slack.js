@@ -45,14 +45,14 @@ export default class SlackReporter {
 		};
 	}
 
-	getFailedTestMessage( { name, block, errors } ) {
+	getFailedTestMessage( { name, block, error } ) {
 		let testFailure = '';
-		if ( errors && errors.length > 0 ) {
-			if ( errors[ 0 ].name ) {
-				testFailure += errors[ 0 ].name;
+		if ( error ) {
+			if ( error.name ) {
+				testFailure += `: ${ error.name }\n`;
 			}
-			if ( errors[ 0 ].message ) {
-				testFailure += `: ${ errors[ 0 ].message }`;
+			if ( error.message ) {
+				testFailure += `: ${ error.message }\n`;
 			}
 		}
 

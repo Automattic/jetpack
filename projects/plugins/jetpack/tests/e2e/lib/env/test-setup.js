@@ -116,21 +116,13 @@ export const step = async ( stepName, fn ) => {
 beforeAll( async () => {
 	await setUserAgent();
 
-	observeConsoleLogging();
-
-	// Accept dialogs
-	page.on( 'dialog', async dialog => {
-		await dialog.accept();
+	context.on( 'page', () => {
+		observeConsoleLogging();
 	} );
 
 	await maybePreConnect();
 } );
 
 beforeEach( async () => {
-	observeConsoleLogging();
-
-	// Accept dialogs
-	page.on( 'dialog', async dialog => {
-		await dialog.accept();
-	} );
+	// observeConsoleLogging();
 } );
