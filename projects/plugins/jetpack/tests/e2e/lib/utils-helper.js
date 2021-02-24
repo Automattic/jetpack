@@ -22,7 +22,7 @@ export async function execShellCommand( cmd ) {
 			}
 			return resolve( stdout );
 		} );
-		cmdExec.stdout.on( 'data', data => logger.info( data ) );
+		cmdExec.stdout.on( 'data', data => logger.info( `CLI: ${ data }` ) );
 	} );
 }
 
