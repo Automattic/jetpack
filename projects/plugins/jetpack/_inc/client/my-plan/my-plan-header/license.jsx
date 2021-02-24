@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Component } from 'react';
+import React, { useState, useCallback } from 'react';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _x } from '@wordpress/i18n';
 import { connect } from 'react-redux';
@@ -11,74 +11,71 @@ import { connect } from 'react-redux';
  */
 import Button from 'components/button';
 import TextInput from 'components/text-input';
-import { createNotice } from 'components/global-notices/state/notices/actions';
+import {
+	successNotice as successNoticeAction,
+	errorNotice as errorNoticeAction,
+} from 'components/global-notices/state/notices/actions';
 
-class License extends Component {
-	state = {
-		isSaving: false,
-		licenseKeyText: '',
-	};
+const License = ( { successNotice, errorNotice } ) => {
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ licenseKeyText, setLicenseKeyText ] = useState( false );
 
-	handleInputChange = event => {
-		this.setState( { licenseKeyText: event.target.value } );
-	};
+	const handleInputChange = useCallback( event => {
+		setLicenseKeyText( event.target.value );
+	}, [] );
 
-	saveJetpackLicense = () => {
-		if ( ! this.state.licenseKeyText || this.state.isSaving ) {
+	const saveJetpackLicense = useCallback( () => {
+		if ( ! licenseKeyText || isSaving ) {
 			return;
 		}
 
-		this.setState( { isSaving: true } );
+		setIsSaving( true );
 
 		apiFetch( {
 			path: '/jetpack/v4/licensing/set-license',
 			method: 'POST',
 			data: {
-				license: this.state.licenseKeyText,
+				license: licenseKeyText,
 			},
 		} )
 			.then( () => {
-				this.props.createNotice(
-					'is-success',
+				successNotice(
 					__(
 						'Jetpack license key added. It may take a minute for the license to be processed.',
 						'jetpack'
-					),
-					{
-						id: 'license-key-added-success',
-					}
+					)
 				);
-				this.setState( { isSaving: false, licenseKeyText: '' } );
+				setIsSaving( true );
+				setLicenseKeyText( '' );
 			} )
 			.catch( () => {
-				this.props.createNotice( 'is-error', __( 'Error adding Jetpack license key.', 'jetpack' ), {
-					id: 'license-key-added-error',
-				} );
-				this.setState( { isSaving: false } );
+				errorNotice( __( 'Error adding Jetpack license key.', 'jetpack' ) );
+				setIsSaving( false );
 			} );
-	};
+	}, [ successNotice, errorNotice, isSaving, licenseKeyText ] );
 
-	render() {
-		return (
-			<div className="jp-landing__plan-features-header-jetpack-license">
-				<h3>{ __( 'Jetpack License', 'jetpack' ) }</h3>
-				<p>{ __( 'If you have a Jetpack license key add it here.', 'jetpack' ) }</p>
-				<TextInput
-					name="jetpack_license_key"
-					className="code"
-					value={ this.state.licenseKeyText }
-					placeholder={ __( 'Jetpack licence key', 'jetpack' ) }
-					disabled={ this.state.isSaving }
-					onChange={ this.handleInputChange }
-				/>
-				<Button primary compact onClick={ this.saveJetpackLicense }>
-					{ this.state.isSaving
-						? _x( 'Saving…', 'Button caption', 'jetpack' )
-						: _x( 'Save license', 'Button caption', 'jetpack' ) }
-				</Button>
-			</div>
-		);
-	}
-}
+	return (
+		<div className="jp-landing__plan-features-header-jetpack-license">
+			<h3>{ __( 'Jetpack License', 'jetpack' ) }</h3>
+			<p>{ __( 'If you have a Jetpack license key add it here.', 'jetpack' ) }</p>
+			<TextInput
+				name="jetpack_license_key"
+				className="code"
+				value={ licenseKeyText }
+				placeholder={ __( 'Jetpack licence key', 'jetpack' ) }
+				disabled={ isSaving }
+				onChange={ handleInputChange }
+			/>
+			<Button primary compact onClick={ saveJetpackLicense }>
+				{ isSaving
+					? _x( 'Saving…', 'Button caption', 'jetpack' )
+					: _x( 'Save license', 'Button caption', 'jetpack' ) }
+			</Button>
+		</div>
+	);
+};
 
-export default connect( null, { createNotice } )( License );
+export default connect( null, {
+	createNotice: successNoticeAction,
+	errorNotice: errorNoticeAction,
+} )( License );
