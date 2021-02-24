@@ -63,7 +63,6 @@ export const Monitor = withModuleSettingsFormHelpers(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
-							target="_blank"
 							href={ getRedirectUrl( 'calypso-settings-security', {
 								site: this.props.siteRawUrl,
 							} ) }
