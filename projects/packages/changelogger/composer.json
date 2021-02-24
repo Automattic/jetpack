@@ -43,6 +43,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-changelogger"
+		"mirror-repo": "Automattic/jetpack-changelogger",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
+		}
 	}
 }
