@@ -223,14 +223,14 @@
 	&.is-current,
 	&:visited.is-current,
 	&:focus.is-current {
-		color: #23282d;
+		color: #1d2327;
 		text-decoration: none;
 	}
 }
 
 .jp-at-a-glance__stats-view-link:focus {
 	outline: 0;
-	box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 
 }
 
