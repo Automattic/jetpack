@@ -356,9 +356,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	}
 
 	/**
-	 * Parses the update count from a given menu item title and removes the associated markup.
+	 * Parses the a counter from a given menu item title and removes the associated markup.
 	 *
-	 * "Plugin" and "Updates" menu items have a count badge when there are updates available.
+	 * "Plugins", "Comments", "Updates" menu items have a count badge when there are updates available.
 	 * This method parses that information and adds it to the response.
 	 *
 	 * @param array $item containing title to parse.
@@ -368,28 +368,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		$title = $item['title'];
 
 		if ( false !== strpos( $title, 'count-' ) ) {
-			preg_match( '/class="(.+\s)?count-(\d*)/', $title, $matches );
+			preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches );
 
-			$count = absint( $matches[2] );
+			$count = absint( $matches[1] );
 			if ( $count > 0 ) {
 				$item['count'] = $count;
 			}
-		}
-
-		return $item;
-	}
-
-	/**
-	 * Removes unexpected markup from the title.
-	 *
-	 * @param array $item containing title to parse.
-	 * @return array
-	 */
-	private function sanitize_title( $item ) {
-		$title = $item['title'];
-
-		if ( wp_strip_all_tags( $title ) !== trim( $title ) ) {
-			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
+			$item['title'] = trim( str_replace( $matches[0], '', $title ) );
 		}
 
 		return $item;
@@ -408,7 +393,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 		$item = $this->parse_count_data( $item );
 		// It's important we sanitize the title after parsing data to remove the markup.
-		$item = $this->sanitize_title( $item );
+		$item['title'] = ucfirst( wp_strip_all_tags( $item['title'] ) );
 
 		return $item;
 	}
