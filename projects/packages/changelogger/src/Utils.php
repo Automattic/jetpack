@@ -151,6 +151,36 @@ class Utils {
 	}
 
 	/**
+	 * Get a timestamp for a file.
+	 *
+	 * @param string               $file File.
+	 * @param OutputInterface      $output OutputInterface to write debug output to.
+	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
+	 * @return string|null
+	 */
+	public static function getTimestamp( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
+		try {
+			$process = self::runCommand( array( 'git', 'log', '-1', '--format=%cI', $file ), $output, $formatter );
+			if ( $process->isSuccessful() ) {
+				$ret = trim( $process->getOutput() );
+				if ( preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $ret ) ) {
+					return $ret;
+				}
+			}
+		// phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( \Exception $ex ) { // @codeCoverageIgnore
+			// Don't care.
+		}
+
+		$mtime = quietCall( 'filemtime', $file );
+		if ( false !== $mtime ) {
+			return gmdate( 'Y-m-d\\TH:i:s\\Z', $mtime );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Load the changes files into an array of ChangeEntries.
 	 *
 	 * @param string          $dir Changes directory.
@@ -162,8 +192,9 @@ class Utils {
 	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
 	public static function loadAllChanges( $dir, array $subheadings, FormatterPlugin $formatter, OutputInterface $output, &$files = null ) {
-		$files = array();
-		$ret   = array();
+		$debugHelper = new DebugFormatterHelper();
+		$files       = array();
+		$ret         = array();
 
 		$allFiles = array();
 		foreach ( new \DirectoryIterator( $dir ) as $file ) {
@@ -196,6 +227,7 @@ class Utils {
 						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
 						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
 						'content'      => $data[''],
+						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : self::getTimestamp( $path, $output, $debugHelper ),
 					)
 				);
 			} catch ( \InvalidArgumentException $ex ) {

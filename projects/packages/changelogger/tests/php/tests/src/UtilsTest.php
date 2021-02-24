@@ -14,6 +14,8 @@ use Automattic\Jetpack\Changelogger\FormatterPlugin;
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -348,6 +350,53 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
+	 * Test getTimestamp.
+	 */
+	public function testGetTimestamp() {
+		$this->useTempDir();
+
+		if ( in_array( '--debug', $GLOBALS['argv'], true ) ) {
+			$output = new ConsoleOutput();
+			$output->setVerbosity( ConsoleOutput::VERBOSITY_DEBUG );
+		} else {
+			$output = new NullOutput();
+		}
+		$helper = new DebugFormatterHelper();
+
+		// Create a non-git file in a non-git checkout.
+		touch( 'not-in-git.txt', 1614124800 );
+		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getTimestamp( 'not-in-git.txt', $output, $helper ) );
+
+		// Create a file in a git checkout.
+		file_put_contents( 'in-git.txt', '' );
+		$args = array(
+			$output,
+			$helper,
+			array(
+				'mustRun' => true,
+				'env'     => array(
+					'GIT_AUTHOR_NAME'     => 'Dummy',
+					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
+					'GIT_AUTHOR_DATE'     => '2021-01-01T11:11:11Z',
+					'GIT_COMMITTER_NAME'  => 'Dummy',
+					'GIT_COMMITTER_EMAIL' => 'dummy@example.com',
+					'GIT_COMMITTER_DATE'  => '2021-02-02T22:22:22Z',
+				),
+			),
+		);
+		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit' ), ...$args );
+		$this->assertSame( '2021-02-02T22:22:22+00:00', Utils::getTimestamp( 'in-git.txt', $output, $helper ) );
+
+		// Test our non-git file again.
+		$this->assertSame( '2021-02-24T00:00:00Z', Utils::getTimestamp( 'not-in-git.txt', $output, $helper ) );
+
+		// Nonexistent file.
+		$this->assertNull( Utils::getTimestamp( 'missing.txt', $output, $helper ) );
+	}
+
+	/**
 	 * Test loadAllChanges.
 	 */
 	public function testLoadAllChanges() {
@@ -357,7 +406,6 @@ class UtilsTest extends TestCase {
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'newChangeEntry' ) ) );
 		$formatter->method( 'newChangeEntry' )->willReturnCallback(
 			function ( $data ) {
-				$data += array( 'timestamp' => '2021-02-22' );
 				return new ChangeEntry( $data );
 			}
 		);
@@ -365,8 +413,9 @@ class UtilsTest extends TestCase {
 		$dir = $this->useTempDir() . '/changes';
 		mkdir( $dir );
 
-		file_put_contents( "$dir/a", "Significance: minor\nType: added\n\nAAAAA\n" );
+		file_put_contents( "$dir/a", "Date: 2021-02-22T00:00:00Z\nSignificance: minor\nType: added\n\nAAAAA\n" );
 		file_put_contents( "$dir/b", "Significance: minor\nType: unknown\nType: unknown\n\nBBBBB\n" );
+		touch( "$dir/b", 1614124800 );
 		file_put_contents( "$dir/c", "Significance: minor\nType: added\nCCCCC\n" );
 		mkdir( "$dir/d" );
 		file_put_contents( "$dir/e", "Significance: bogus\nType: added\n\nEEEEE\n" );
@@ -378,8 +427,9 @@ class UtilsTest extends TestCase {
 		foreach ( $ret as $e ) {
 			$this->assertInstanceOf( ChangeEntry::class, $e );
 		}
+
 		$this->assertSame(
-			'{"a":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Added!","author":"","content":"AAAAA"},"b":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Unknown","author":"","content":"BBBBB"}}',
+			'{"a":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Added!","author":"","content":"AAAAA"},"b":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-24T00:00:00+00:00","subheading":"Unknown","author":"","content":"BBBBB"}}',
 			json_encode( $ret )
 		);
 		$this->assertSame(
