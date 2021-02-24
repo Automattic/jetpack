@@ -180,4 +180,43 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 	}
+
+	/**
+	 * Tests add_posts_menu
+	 *
+	 * @covers ::add_posts_menu
+	 */
+	public function test_add_posts_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/posts/' . static::$domain;
+		static::$admin_menu->add_posts_menu();
+		$this->assertEmpty( $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_page_menu
+	 *
+	 * @covers ::add_page_menu
+	 */
+	public function test_add_page_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/pages/' . static::$domain;
+		static::$admin_menu->add_page_menu();
+		$this->assertEmpty( $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_users_menu
+	 */
+	public function test_add_users_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/people/team/' . static::$domain;
+		static::$admin_menu->add_users_menu();
+		$this->assertEmpty( $submenu[ $slug ] );
+	}
 }
