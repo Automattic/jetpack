@@ -17,12 +17,12 @@ export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
-				logger.warn( error.toString() );
+				logger.warn( `CLI: ${ error.toString() }` );
 				return resolve( error );
 			}
 			return resolve( stdout );
 		} );
-		cmdExec.stdout.on( 'data', data => logger.info( `CLI: ${ data }` ) );
+		cmdExec.stdout.on( 'data', data => logger.debug( `CLI: ${ data }` ) );
 	} );
 }
 

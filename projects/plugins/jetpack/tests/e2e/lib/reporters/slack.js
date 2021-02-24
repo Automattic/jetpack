@@ -47,7 +47,7 @@ export default class SlackReporter {
 
 	getFailedTestMessage( { name, block, errors } ) {
 		let testFailure = '';
-		if ( errors.length > 0 ) {
+		if ( errors && errors.length > 0 ) {
 			if ( errors[ 0 ].name ) {
 				testFailure += errors[ 0 ].name;
 			}
