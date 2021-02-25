@@ -1008,17 +1008,17 @@ class Jetpack_Gutenberg {
 		$color = '';
 		switch ( $status ) {
 			case 'success':
-				$color = '#46b450';
+				$color = '#00a32a';
 				break;
 			case 'warning':
-				$color = '#ffb900';
+				$color = '#dba617';
 				break;
 			case 'error':
-				$color = '#dc3232';
+				$color = '#d63638';
 				break;
 			case 'info':
 			default:
-				$color = '#00a0d2';
+				$color = '#72aee6';
 				break;
 		}
 

@@ -17,15 +17,6 @@ require_once __DIR__ . '/class-admin-menu.php';
 class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * WPcom_Admin_Menu constructor.
-	 */
-	protected function __construct() {
-		parent::__construct();
-
-		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
-	}
-
-	/**
 	 * Sets up class properties for REST API requests.
 	 *
 	 * @param WP_REST_Response $response Response from the endpoint.
@@ -34,8 +25,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::rest_api_init( $response );
 
 		// Get domain for requested site.
-		$this->domain         = ( new Status() )->get_site_suffix();
-		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+		$this->domain = ( new Status() )->get_site_suffix();
 
 		return $response;
 	}
@@ -56,6 +46,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
+
+		$this->add_gutenberg_menus( $wp_admin );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -213,49 +205,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $wp_admin = false ) {
-		$users_slug   = $wp_admin ? 'users.php' : 'https://wordpress.com/people/team/' . $this->domain;
-		$add_new_slug = 'https://wordpress.com/people/new/' . $this->domain;
-		$profile_slug = $wp_admin ? 'grofiles-editor' : 'https://wordpress.com/me';
-		$account_slug = $wp_admin ? 'grofiles-user-settings' : 'https://wordpress.com/me/account';
-
-		if ( current_user_can( 'list_users' ) ) {
-			remove_menu_page( 'users.php' );
-			remove_submenu_page( 'users.php', 'users.php' );
-			remove_submenu_page( 'users.php', 'user-new.php' );
-			remove_submenu_page( 'users.php', 'profile.php' );
-			remove_submenu_page( 'users.php', 'grofiles-editor' );
-			remove_submenu_page( 'users.php', 'grofiles-user-settings' );
-
-			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', $users_slug, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $users_slug, esc_attr__( 'All People', 'jetpack' ), __( 'All People', 'jetpack' ), 'list_users', $users_slug, null, 5 );
-			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug, null, 10 );
-			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
-			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 20 );
-
-			$this->migrate_submenus( 'users.php', $users_slug );
-			add_filter(
-				'parent_file',
-				function ( $parent_file ) use ( $users_slug ) {
-					return 'users.php' === $parent_file ? $users_slug : $parent_file;
-				}
-			);
-		} elseif ( ! $wp_admin ) {
-			remove_menu_page( 'profile.php' );
-			remove_submenu_page( 'profile.php', 'grofiles-editor' );
-			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
-
-			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $profile_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 5 );
-
-			$this->migrate_submenus( 'profile.php', $profile_slug );
-			add_filter(
-				'parent_file',
-				function ( $parent_file ) use ( $profile_slug ) {
-					return 'profile.php' === $parent_file ? $profile_slug : $parent_file;
-				}
-			);
-		}
+	public function add_users_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Users on Simple sites are always managed on Calypso.
+		parent::add_users_menu( false );
 	}
 
 	/**
@@ -286,6 +238,39 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * 1. Remove the Gutenberg plugin menu
+	 * 2. Re-add the Site Editor menu
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_gutenberg_menus( $wp_admin = false ) {
+		// Always remove the Gutenberg menu.
+		remove_menu_page( 'gutenberg' );
+
+		// We can bail if we don't meet the conditions of the Site Editor.
+		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
+			return;
+		}
+
+		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
+		remove_menu_page( 'gutenberg-edit-site' );
+		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
+		remove_filter( 'menu_order', 'gutenberg_menu_order' );
+
+		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
+
+		add_menu_page(
+			__( 'Site Editor', 'jetpack' ),
+			__( 'Site Editor', 'jetpack' ),
+			'edit_theme_options',
+			$link,
+			$wp_admin ? 'gutenberg_edit_site_page' : null,
+			'dashicons-layout',
+			61 // Just under Appearance.
+		);
+	}
+
+	/**
 	 * Whether to use wp-admin pages rather than Calypso.
 	 *
 	 * @return bool
@@ -299,5 +284,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Plugins on Simple sites are always managed on Calypso.
+		parent::add_plugins_menu( false );
 	}
 }

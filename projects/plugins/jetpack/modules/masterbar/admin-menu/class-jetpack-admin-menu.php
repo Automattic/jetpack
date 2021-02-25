@@ -31,7 +31,18 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
 
-		add_submenu_page( 'https://wordpress.com/activity-log/' . $this->domain, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, 2 );
+		$parent_slug = 'https://wordpress.com/activity-log/' . $this->domain;
+
+		// Place "Scan" submenu after Backup.
+		$position = 0;
+		global $submenu;
+		foreach ( $submenu[ $parent_slug ] as $submenu_item ) {
+			$position++;
+			if ( __( 'Backup', 'jetpack' ) === $submenu_item[3] ) {
+				break;
+			}
+		}
+		add_submenu_page( $parent_slug, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
 	}
 
 	/**
@@ -64,5 +75,26 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$this->add_admin_menu_separator( ++$position );
 
 		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', $menu_slug, null, 'dashicons-wordpress-alt', $position );
+	}
+
+	/**
+	 * Adds Appearance menu.
+	 *
+	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Customize on Atomic sites is always done on Jetpack sites.
+		parent::add_appearance_menu( $wp_admin_themes, true );
+	}
+
+	/**
+	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Plugins on Jetpack sites are always managed on Calypso.
+		parent::add_plugins_menu( false );
 	}
 }

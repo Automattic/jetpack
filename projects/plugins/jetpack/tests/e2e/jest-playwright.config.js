@@ -22,5 +22,10 @@ module.exports = {
 			width: 1280,
 			height: 1024,
 		},
+		recordVideo: {
+			dir: 'output/videos/',
+			//todo revisit video resolution with Playwright 1.9.0
+			size: { width: 800, height: 600 },
+		},
 	},
 };

@@ -173,6 +173,11 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'count' => 5,
 				),
 			),
+			// Hidden menu item.
+			array(
+				array( 'Hidden', 'read', 'hidden', '', 'hide-if-js' ),
+				array(),
+			),
 		);
 	}
 
@@ -237,6 +242,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'url'    => admin_url( 'upload.php' ),
 					'count'  => 15,
 				),
+			),
+			// Hidden submenu item.
+			array(
+				array( 'Hidden', 'read', 'hidden', 'Hidden', 'hide-if-js' ),
+				array( 'My Plugin', 'read', 'my-plugin', 'My Plugin', '', '', '' ),
+				array(),
 			),
 		);
 	}
@@ -380,6 +391,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'admin.php',
 				'__return_true',
 				admin_url( 'admin.php?page=custom_settings' ),
+			),
+			// Jetpack.
+			array(
+				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+				'jetpack',
+				null,
+				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
 			),
 			// WooCommerce URLs.
 			array(

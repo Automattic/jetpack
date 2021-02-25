@@ -8,13 +8,13 @@
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 5.5
+ * Requires at least: 5.6
  * Requires PHP: 5.6
  *
  * @package automattic/jetpack
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '5.5' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '5.6' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
 define( 'JETPACK__VERSION', '9.5-alpha' );
 

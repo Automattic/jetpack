@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { IconButton, Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
 import { withSelect } from '@wordpress/data';
 
@@ -134,7 +134,7 @@ class GalleryImageEdit extends Component {
 			>
 				{ showMovers && (
 					<div className="tiled-gallery__item__move-menu">
-						<IconButton
+						<Button
 							icon={ columns === 1 ? upChevron : leftChevron }
 							onClick={ isFirstItem ? undefined : onMoveBackward }
 							className="tiled-gallery__item__move-backward"
@@ -142,7 +142,7 @@ class GalleryImageEdit extends Component {
 							aria-disabled={ isFirstItem }
 							disabled={ ! isSelected }
 						/>
-						<IconButton
+						<Button
 							icon={ columns === 1 ? downChevron : rightChevron }
 							onClick={ isLastItem ? undefined : onMoveForward }
 							className="tiled-gallery__item__move-forward"
@@ -153,7 +153,7 @@ class GalleryImageEdit extends Component {
 					</div>
 				) }
 				<div className="tiled-gallery__item__inline-menu">
-					<IconButton
+					<Button
 						icon={ close }
 						onClick={ onRemove }
 						className="tiled-gallery__item__remove"

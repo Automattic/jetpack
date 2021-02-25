@@ -6,6 +6,7 @@ Here is the current list of tasks handled by this action:
 
 - Assign Issues: Adds assignee for issues which are being worked on, and adds the "In Progress" label.
 - Add Milestone: Adds a valid milestone to all PRs that get merged and don't already include a milestone.
+- Check Description: Checks the contents of a PR description, and ensure it matches our recommendations.
 
 ## Build your own
 

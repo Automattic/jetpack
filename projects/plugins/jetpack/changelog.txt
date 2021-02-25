@@ -2,6 +2,69 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 9.5 =
+
+* Release date: March 2, 2021
+* Release post: https://wp.me/p1moTy-uSv
+
+**Enhancements**
+
+* Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).
+* Instant Search: improve the design of the Search modal.
+* Instant Search: open search result links in the current window rather than opening a new one.
+* Podcast Player Block: allow filtering the number of tracks returned when fetching new podcast episodes.
+* Podcast Player Block: add publication date to the data returned when fetching new podcast episodes.
+* Recommendations: add a dashboard banner to help users discover the best Jetpack features.
+* Related Posts: improve performance by removing jQuery dependency.
+* SEO Tools: make the feature available for all sites.
+* Social Icons Widget: add new icons.
+* Social Menu: add new icons.
+* Synchronization: improve reliability of data by excluding blocked taxonomies.
+* Tiled Galleries: improve performance by removing jQuery dependency.
+* Video Block: add support for custom video player progress bar colors.
+* Widgets: display notice in the customizer when one needs to connect their account before using the Instagram widget.
+
+**Improved compatibility**
+
+* Block Editor: update all blocks to be fully compatible with WordPress 5.7.
+* General: Jetpack now requires WordPress 5.6, and is fully compatible with WordPress 5.7.
+* Protect: ensure that the blocked login page is fully compatible with the Robots API changes introduced in WordPress 5.7.
+
+**Bug fixes**
+
+* Autoloader: prevent transitive plugin execution.
+* Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
+* Comments: improve respect for the Core moderation option in particular cases.
+* Connection flow: ensuring Jetpack Dashboard successfully loads after reconnect.
+* Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
+* Custom Content Types: allow Newspack's Blog Posts block to display Testimonial and Portfolio posts.
+* Dashboard: improve performance by reducing excessive API calls.
+* Dashboard: improve product upgrade flow for non-connected Jetpack users.
+* Instant Search: fix closing of the overlay using the Escape key in IE11.
+* Instant Search: improve compatibility with browser forward/back navigation.
+* Instant Search: avoid issues when changes made in customizer would not immediately appear in preview.
+* Jetpack Videos: fix responsiveness of Video poster images.
+* Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
+* Markdown: avoid filters loading too early when creating a new site within a Multisite network.
+* Payments Block: avoid layout issues when setting up a new payment plan.
+* Pay With Paypal Block: ensure that line breaks can be used in product description.
+* Secure Sign On: improve the connection flow when users first log in via SSO.
+* Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
+* Sharing: ensure that sharing popup opens properly in Firefox.
+* Shortcodes: use arguments provided by shortcode attributes for the Instagram embeds.
+* Video Block: avoid potential PHP notice when working with Jetpack Videos.
+* WhatsApp block: adjust width of block options toolbar.
+
+= 9.4.1 =
+
+* Release date: February 16, 2021
+
+**Bug fixes**
+
+* Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
+* Dashboard: improve performance by reducing excessive API calls.
+* Payments Block: avoid layout issues when setting up a new payment plan.
+
 = 9.4 =
 
 * Release date: February 2, 2021

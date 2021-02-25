@@ -8,20 +8,13 @@ const SETTINGS_TO_STATE_MAP = new Map( [
 	[ 'jetpack_search_enable_sort', 'enableSort' ],
 	[ 'jetpack_search_highlight_color', 'highlightColor' ],
 	[ 'jetpack_search_inf_scroll', 'enableInfScroll' ],
-	[ 'jetpack_search_opacity', 'opacity' ],
 	[ 'jetpack_search_overlay_trigger', 'overlayTrigger' ],
 	[ 'jetpack_search_show_powered_by', 'showPoweredBy' ],
 	[ 'jetpack_search_result_format', 'resultFormat' ],
 ] );
 
 export function isInCustomizer() {
-	return Boolean(
-		'undefined' !== typeof window.wp &&
-			window.wp.customize &&
-			window.wp.customize.settings &&
-			window.wp.customize.settings.url &&
-			window.wp.customize.settings.url.self
-	);
+	return typeof window?.wp?.customize === 'function';
 }
 
 export function bindCustomizerChanges( callback ) {
