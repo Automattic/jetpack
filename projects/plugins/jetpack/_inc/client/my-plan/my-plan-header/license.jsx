@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React, { useState, useCallback } from 'react';
-import apiFetch from '@wordpress/api-fetch';
 import { __, _x } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 
@@ -15,10 +14,11 @@ import {
 	successNotice as successNoticeAction,
 	errorNotice as errorNoticeAction,
 } from 'components/global-notices/state/notices/actions';
+import restApi from 'rest-api';
 
-const License = ( { successNotice, errorNotice } ) => {
+const License = ( { errorNotice, successNotice } ) => {
 	const [ isSaving, setIsSaving ] = useState( false );
-	const [ licenseKeyText, setLicenseKeyText ] = useState( false );
+	const [ licenseKeyText, setLicenseKeyText ] = useState( '' );
 
 	const handleInputChange = useCallback( event => {
 		setLicenseKeyText( event.target.value );
@@ -31,13 +31,8 @@ const License = ( { successNotice, errorNotice } ) => {
 
 		setIsSaving( true );
 
-		apiFetch( {
-			path: '/jetpack/v4/licensing/set-license',
-			method: 'POST',
-			data: {
-				license: licenseKeyText,
-			},
-		} )
+		restApi
+			.updateLicenseKey( licenseKeyText )
 			.then( () => {
 				successNotice(
 					__(
@@ -45,14 +40,15 @@ const License = ( { successNotice, errorNotice } ) => {
 						'jetpack'
 					)
 				);
-				setIsSaving( true );
+
+				setIsSaving( false );
 				setLicenseKeyText( '' );
 			} )
 			.catch( () => {
 				errorNotice( __( 'Error adding Jetpack license key.', 'jetpack' ) );
 				setIsSaving( false );
 			} );
-	}, [ successNotice, errorNotice, isSaving, licenseKeyText ] );
+	}, [ errorNotice, successNotice, isSaving, licenseKeyText ] );
 
 	return (
 		<div className="jp-landing__plan-features-header-jetpack-license">
@@ -76,6 +72,6 @@ const License = ( { successNotice, errorNotice } ) => {
 };
 
 export default connect( null, {
-	createNotice: successNoticeAction,
 	errorNotice: errorNoticeAction,
+	successNotice: successNoticeAction,
 } )( License );
