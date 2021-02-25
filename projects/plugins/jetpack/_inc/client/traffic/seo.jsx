@@ -157,7 +157,7 @@ export const SEO = withModuleSettingsFormHelpers(
 							</SettingsGroup>
 							<FoldableCard
 								header={ __(
-									'Expand to preview how SEO settings will look on Google, Facebook, and Twitter.',
+									'Expand to preview how your SEO settings will look for your homepage on Google, Facebook, and Twitter.',
 									'jetpack'
 								) }
 								clickableHeader={ true }
