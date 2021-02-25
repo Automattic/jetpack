@@ -1,0 +1,17 @@
+{
+	"name": "@automattic/jetpack-components",
+	"version": "1.0.0",
+	"description": "Jetpack Miscellaneous Component",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"@wordpress/i18n": "^3.9.0",
+		"classnames": "2.2.6",
+		"prop-types": "^15.7.2"
+	},
+	"peerDependencies": {
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1"
+	},
+	"type": "module"
+}

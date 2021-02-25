@@ -22,6 +22,10 @@ module.exports = [
 		resolve: {
 			...baseConfig.resolve,
 			modules: [ 'node_modules' ],
+			alias: {
+				'@automattic/jetpack-connection': path.resolve( __dirname, '../../rna/connection' ),
+				'@automattic/jetpack-components': path.resolve( __dirname, '../../rna/components' ),
+			},
 		},
 		devtool: isDevelopment ? 'source-map' : false,
 		entry: { index: path.join( __dirname, './_inc/admin.jsx' ) },

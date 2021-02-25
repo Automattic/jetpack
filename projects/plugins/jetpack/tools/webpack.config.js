@@ -24,11 +24,8 @@ const sharedWebpackConfig = {
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 
 		alias: {
-			'@automattic/jetpack-connection': path.resolve(
-				path.dirname( path.dirname( path.dirname( __dirname ) ) ),
-				'rna',
-				'connection'
-			),
+			'@automattic/jetpack-connection': path.resolve( __dirname, '../../../rna/connection' ),
+			'@automattic/jetpack-components': path.resolve( __dirname, '../../../rna/components' ),
 		},
 	},
 	node: {

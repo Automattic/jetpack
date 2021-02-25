@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import Button from 'components/button';
+import { Button } from '@automattic/jetpack-components';
 import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
@@ -32,6 +32,7 @@ import {
 import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
+import { ConnectButton as JetpackConnectButton } from '@automattic/jetpack-connection';
 
 import './style.scss';
 
@@ -85,6 +86,10 @@ export class ConnectButton extends React.Component {
 	};
 
 	renderUserButton = () => {
+		if ( ! this.props.connectUser ) {
+			return;
+		}
+
 		// Already linked
 		if ( this.props.isLinked ) {
 			return (
@@ -140,23 +145,56 @@ export class ConnectButton extends React.Component {
 		);
 	};
 
-	renderContent = () => {
-		if ( this.props.connectUser ) {
-			return this.renderUserButton();
+	renderManageButton = () => {
+		if ( this.props.connectUser || ! this.props.isSiteConnected ) {
+			return;
 		}
 
+		return (
+			<a
+				role="button"
+				tabIndex="0"
+				onKeyDown={ onKeyDownCallback( this.handleOpenModal ) }
+				onClick={ this.handleOpenModal }
+				disabled={ this.props.isDisconnecting }
+			>
+				{ this.props.connectLegend || __( 'Manage site connection', 'jetpack' ) }
+			</a>
+		);
+	};
+
+	renderTOS = () => {
 		if ( this.props.isSiteConnected ) {
-			return (
-				<a
-					role="button"
-					tabIndex="0"
-					onKeyDown={ onKeyDownCallback( this.handleOpenModal ) }
-					onClick={ this.handleOpenModal }
-					disabled={ this.props.isDisconnecting }
-				>
-					{ this.props.connectLegend || __( 'Manage site connection', 'jetpack' ) }
-				</a>
-			);
+			return;
+		}
+
+		return (
+			<p className="jp-banner__tos-blurb">
+				{ createInterpolateElement(
+					__(
+						'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+						'jetpack'
+					),
+					{
+						tosLink: (
+							<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
+						),
+						shareDetailsLink: (
+							<a
+								href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+								rel="noopener noreferrer"
+								target="_blank"
+							/>
+						),
+					}
+				) }
+			</p>
+		);
+	};
+
+	renderConnectButton = () => {
+		if ( this.props.connectUser || this.props.isSiteConnected ) {
+			return;
 		}
 
 		let connectUrl = this.props.connectUrl;
@@ -164,51 +202,26 @@ export class ConnectButton extends React.Component {
 			connectUrl += `&from=${ this.props.from }`;
 		}
 
-		const buttonProps = {
-				className: 'jp-jetpack-connect__button',
-				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
-			},
-			connectLegend = this.props.connectLegend || __( 'Set up Jetpack', 'jetpack' );
-
-		return this.props.asLink ? (
-			<a { ...buttonProps }>{ connectLegend }</a>
-		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
+		return (
+			<JetpackConnectButton
+				asLink={ this.props.asLink }
+				connectUrl={ connectUrl }
+				disabled={ this.props.fetchingConnectUrl }
+				label={ this.props.connectLegend || __( 'Set up Jetpack', 'jetpack' ) }
+			/>
 		);
 	};
 
 	render() {
 		return (
 			<div>
-				{ ! this.props.isSiteConnected && (
-					<p className="jp-banner__tos-blurb">
-						{ createInterpolateElement(
-							__(
-								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-								'jetpack'
-							),
-							{
-								tosLink: (
-									<a
-										href={ getRedirectUrl( 'wpcom-tos' ) }
-										rel="noopener noreferrer"
-										target="_blank"
-									/>
-								),
-								shareDetailsLink: (
-									<a
-										href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-										rel="noopener noreferrer"
-										target="_blank"
-									/>
-								),
-							}
-						) }
-					</p>
-				) }
-				{ this.renderContent() }
+				{ this.renderTOS() }
+				{ this.renderConnectButton() }
+				{ this.renderUserButton() }
+				{ this.renderManageButton() }
+
 				{ this.props.children }
+
 				<JetpackDisconnectModal
 					show={ this.state.showModal }
 					showSurvey={ false }
