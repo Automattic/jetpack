@@ -461,9 +461,13 @@ class Admin_Menu {
 		$menu_slug = $wp_admin ? 'plugins.php' : 'https://wordpress.com/plugins/' . $this->domain;
 
 		remove_menu_page( 'plugins.php' );
-		remove_submenu_page( 'plugins.php', 'plugins.php' );
-		remove_submenu_page( 'plugins.php', 'plugin-install.php' );
-		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+
+		// Keep submenus when links point to WP Admin.
+		if ( ! $wp_admin ) {
+			remove_submenu_page( 'plugins.php', 'plugins.php' );
+			remove_submenu_page( 'plugins.php', 'plugin-install.php' );
+			remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+		}
 
 		$count = '';
 		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {

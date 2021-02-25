@@ -285,4 +285,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		return $result;
 	}
+
+	/**
+	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Plugins on Simple sites are always managed on Calypso.
+		parent::add_plugins_menu( false );
+	}
 }
