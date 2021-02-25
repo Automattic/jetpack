@@ -44,29 +44,52 @@ class WP_Test_WPCom_GHF_Markdown_Parser extends WP_UnitTestCase {
 	 */
 	public function get_text_urls() {
 		return array(
-			'no_link_bold'          => array(
+			'no_link_bold'                      => array(
 				'Some **bold** text',
 				'Some <strong>bold</strong> text',
 			),
-			'link_bold'             => array(
+			'link_bold'                         => array(
 				'**[A bold link](https://jetpack.com/)**',
 				'<strong><a href="https://jetpack.com/">A bold link</a></strong>',
 			),
-			'link_undercore'        => array(
+			'link_undercore'                    => array(
 				'[A link with underscore in URL](https://jetpack.com/_features_/)',
 				'<a href="https://jetpack.com/_features_/">A link with underscore in URL</a>',
 			),
-			'link_alone'            => array(
+			'link_alone'                        => array(
 				'https://jetpack.com/',
 				'https://jetpack.com/',
 			),
-			'link_underscore_alone' => array(
+			'link_underscore_alone'             => array(
 				'https://jetpack.com/_features_/',
 				'https://jetpack.com/_features_/',
 			),
-			'ftp_link_underscore'   => array(
+			'ftp_link_underscore'               => array(
 				'ftp://_best_pack@jetpack.com:123',
 				'ftp://_best_pack@jetpack.com:123',
+			),
+			// This is current behavior before this patch.
+			'explicit URL'                      => array(
+				'url: <https://jetpack.com/_features_/>',
+				'url: <a href="https://jetpack.com/_features_/">https://jetpack.com/_features_/</a>',
+			),
+			// This too.
+			'URL in link text'                  => array(
+				'url: [https://jetpack.com/](https://jetpack.com/#xyz)',
+				'url: <a href="https://jetpack.com/#xyz">https://jetpack.com/</a>',
+			),
+
+			'bolded URL'                        => array(
+				'**https://jetpack.com/_features_/**',
+				'<strong>https://jetpack.com/_features_/</strong>',
+			),
+			'emphasized URL'                    => array(
+				'_https://jetpack.com/_features_/_',
+				'<em>https://jetpack.com/_features_/</em>',
+			),
+			'URL with odd but legal characters' => array(
+				'https://example.com/_form?type=*&q=a+(b+or+c)&arr[]=1&arr[]=2&value=_foo_bar',
+				'https://example.com/_form?type=*&q=a+(b+or+c)&arr[]=1&arr[]=2&value=_foo_bar',
 			),
 		);
 	}
