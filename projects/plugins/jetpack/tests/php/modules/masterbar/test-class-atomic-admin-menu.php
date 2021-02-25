@@ -405,7 +405,14 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			'theme-editor.php',
 			'Theme Editor',
 		);
-		$this->assertContains( $theme_editor_submenu_item, $submenu[ $slug ] );
+		// Multisite users don't have the `edit_themes` capability by default,
+		// so we have to make a dynamic check based on whether the current user can
+		// install themes.
+		if ( current_user_can( 'install_themes' ) ) {
+			$this->assertContains( $theme_editor_submenu_item, $submenu[ $slug ] );
+		} else {
+			$this->assertNotContains( $theme_editor_submenu_item, $submenu[ $slug ] );
+		}
 	}
 
 	/**
