@@ -11,7 +11,7 @@ elif [[ ! -e "$BUILD_BASE" ]]; then
 elif [[ ! -d "$BUILD_DIR" ]]; then
 	echo "$BUILD_DIR already exists, and is not a directory." >&2
 	exit 1
-elif [[ $(ls -A -- "$BUILD_DIR") ]]; then
+elif [[ "$(ls -A -- "$BUILD_DIR")" ]]; then
 	echo "Directory $BUILD_DIR already exists, and is not empty." >&2
 	exit 1
 fi
@@ -19,10 +19,13 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally.
+# Install Yarn generally, and changelogger.
 echo "::group::Monorepo setup"
 yarn install
 yarn cli-link
+echo "::endgroup::"
+echo "::group::Changelogger setup"
+(cd projects/packages/changelogger && composer install)
 echo "::endgroup::"
 
 EXIT=0
@@ -87,6 +90,34 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 		echo "::error::Build of ${GIT_SLUG} failed"
 		EXIT=1
 		continue
+	fi
+
+	# Update the changelog, if applicable.
+	if [[ -x 'vendor/bin/changelogger' ]]; then
+		CHANGELOGGER=vendor/bin/changelogger
+	elif [[ -x 'bin/changelogger' ]]; then
+		# Changelogger itself doesn't have itself in vendor/.
+		CHANGELOGGER=bin/changelogger
+	elif jq -e '.["require-dev"]["automattic/jetpack-changelogger"] // false' composer.json > /dev/null; then
+		# Some plugins might build with `composer install --no-dev`.
+		CHANGELOGGER="$BASE/projects/packages/changelogger/bin/changelogger"
+	else
+		CHANGELOGGER=
+	fi
+	if [[ -n "$CHANGELOGGER" ]]; then
+		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
+			echo "::group::Updating changelog"
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --no-interaction --yes -vvv; then
+				echo "::endgroup::"
+				echo "::error::Changelog update for ${GIT_SLUG} failed"
+				EXIT=1
+				continue
+			fi
+			echo "::endgroup::"
+		else
+			echo "Not updating changelog, there are no change files."
+		fi
 	fi
 
 	BUILD_DIR="${BUILD_BASE}/${GIT_SLUG}"

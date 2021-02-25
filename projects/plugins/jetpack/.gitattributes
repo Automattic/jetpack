@@ -29,6 +29,7 @@
 /_inc/build/maps/**                                      production-exclude
 /_inc/client/**                                          production-exclude
 /babel.config*                                           production-exclude
+/changelog/**                                            production-exclude
 /composer.lock                                           production-exclude
 /css/*.css.map                                           production-exclude
 /css/*.css.min.map                                       production-exclude
