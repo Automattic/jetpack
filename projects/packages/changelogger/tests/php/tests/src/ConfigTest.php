@@ -11,7 +11,6 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\Config;
 use Automattic\Jetpack\Changelogger\PluginTrait;
-use Automattic\Jetpack\Changelogger\VersioningPlugin;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Wikimedia\TestingAccessWrapper;
 
@@ -294,29 +293,49 @@ class ConfigTest extends TestCase {
 	public function testGetPlugin() {
 		$w = TestingAccessWrapper::newFromClass( Config::class );
 
-		if ( interface_exists( \PHPUnit\Framework\MockObject\MockObject::class ) ) {
-			$mockinterface = \PHPUnit\Framework\MockObject\MockObject::class;
-		} elseif ( interface_exists( \PHPUnit_Framework_MockObject_MockObject::class ) ) {
-			$mockinterface = \PHPUnit_Framework_MockObject_MockObject::class;
-		} else {
-			$this->fail( "Couldn't find an interface for mock objects" );
-		}
-
 		// Get plugin by class.
-		$mock1  = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
-		$class1 = get_class( $mock1 );
-		$this->assertInstanceOf( $class1, $w->getPlugin( array( 'class' => $class1 ), 'Dummy', $mockinterface ) );
+		$ret = $w->getPlugin(
+			array(
+				'class'  => DummyPluginImpl::class,
+				'option' => 'value',
+			),
+			'Dummy',
+			DummyPlugin::class
+		);
+		$this->assertInstanceOf( DummyPluginImpl::class, $ret );
+		$this->assertSame(
+			array(
+				'class'  => DummyPluginImpl::class,
+				'option' => 'value',
+			),
+			$ret->config
+		);
 
 		// Get plugin by name.
-		$mock2  = $this->getMockBuilder( PluginTrait::class )->getMockForTrait();
-		$class2 = get_class( $mock2 );
-		class_alias( $class2, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class );
-		$this->assertInstanceOf( $class2, $w->getPlugin( 'foo', 'Dummy', $mockinterface ) );
-		$this->assertInstanceOf( $class2, $w->getPlugin( array( 'name' => 'foo' ), 'Dummy', $mockinterface ) );
+		class_alias( DummyPluginImpl::class, \Automattic\Jetpack\Changelogger\Plugins\FooDummy::class );
+		$ret = $w->getPlugin( 'foo', 'Dummy', DummyPlugin::class );
+		$this->assertInstanceOf( DummyPluginImpl::class, $ret );
+		$this->assertSame( array( 'name' => 'foo' ), $ret->config );
+		$ret = $w->getPlugin(
+			array(
+				'name'   => 'foo',
+				'option' => 'value',
+			),
+			'Dummy',
+			DummyPlugin::class
+		);
+		$this->assertInstanceOf( DummyPluginImpl::class, $ret );
+		$this->assertSame(
+			array(
+				'name'   => 'foo',
+				'option' => 'value',
+			),
+			$ret->config
+		);
 
 		// Get by loading file, valid file.
 		$ns        = __NAMESPACE__;
-		$classBody = 'implements \\' . VersioningPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n\tpublic function nextVersion( \$version, array \$changes, array \$extra = array() ){}\n\tpublic function normalizeVersion( \$v ){}\n\tpublic function compareVersions( \$a, \$b ){}\n}";
+		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
 		file_put_contents(
 			'dummy.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile $classBody\n"
@@ -327,7 +346,7 @@ class ConfigTest extends TestCase {
 				'option'   => 'value',
 			),
 			'Dummy',
-			VersioningPlugin::class
+			DummyPlugin::class
 		);
 		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile', $ret );
 		$this->assertSame(
@@ -340,21 +359,21 @@ class ConfigTest extends TestCase {
 
 		// Get by loading file, file with no classes.
 		file_put_contents( 'dummy2.php', "<?php\n" );
-		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy2.php' ), 'Dummy', VersioningPlugin::class ) );
+		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy2.php' ), 'Dummy', DummyPlugin::class ) );
 
 		// Get by loading file, file with no valid classes.
 		file_put_contents(
 			'dummy3.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile3 {}\n"
 		);
-		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy3.php' ), 'Dummy', VersioningPlugin::class ) );
+		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy3.php' ), 'Dummy', DummyPlugin::class ) );
 
 		// Get by loading file, file with one valid class.
 		file_put_contents(
 			'dummy4.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile4a {}\nclass TestFromFile4b $classBody\n"
 		);
-		$ret = $w->getPlugin( array( 'filename' => 'dummy4.php' ), 'Dummy', VersioningPlugin::class );
+		$ret = $w->getPlugin( array( 'filename' => 'dummy4.php' ), 'Dummy', DummyPlugin::class );
 		$this->assertInstanceOf( __NAMESPACE__ . '\\TestFromFile4b', $ret );
 
 		// Get by loading file, file with two valid class.
@@ -362,13 +381,13 @@ class ConfigTest extends TestCase {
 			'dummy5.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile5a $classBody\nclass TestFromFile5b $classBody\n"
 		);
-		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy5.php' ), 'Dummy', VersioningPlugin::class ) );
+		$this->assertNull( $w->getPlugin( array( 'filename' => 'dummy5.php' ), 'Dummy', DummyPlugin::class ) );
 
 		// Test invalid class handling.
-		$this->assertNull( $w->getPlugin( 'baz', 'Dummy', $mockinterface ) );
+		$this->assertNull( $w->getPlugin( 'baz', 'Dummy', DummyPlugin::class ) );
 
 		// Test a config array with no valid plugin specifier.
-		$this->assertNull( $w->getPlugin( array(), 'Dummy', $mockinterface ) );
+		$this->assertNull( $w->getPlugin( array(), 'Dummy', DummyPlugin::class ) );
 	}
 
 	/**
