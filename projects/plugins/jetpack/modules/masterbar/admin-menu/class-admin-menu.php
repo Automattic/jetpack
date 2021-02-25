@@ -626,6 +626,20 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Remove submenu items from given menu slug.
+	 *
+	 * @param string $slug Menu slug.
+	 */
+	public function remove_submenus( $slug ) {
+		global $submenu;
+
+		if ( isset( $submenu[ $slug ] ) ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu[ $slug ] = array();
+		}
+	}
+
+	/**
 	 * Adds Jetpack menu.
 	 */
 	public function add_jetpack_menu() {
