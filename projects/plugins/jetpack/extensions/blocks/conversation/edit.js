@@ -4,8 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from '@wordpress/element';
 
-import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { Panel, PanelBody } from '@wordpress/components';
+import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
+import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -14,10 +14,16 @@ import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
 import { getParticipantByLabel } from './utils';
+import { TranscriptIcon as icon } from '../../shared/icons';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
-function ConversationEdit( { className, attributes, setAttributes } ) {
+function ConversationEdit( {
+	className,
+	attributes,
+	setAttributes,
+	noticeUI,
+} ) {
 	const { participants = [], showTimestamps } = attributes;
 
 	const updateParticipants = useCallback(
@@ -94,7 +100,45 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 	}
 
+	function uploadFromFiles( event ) {
+		if ( event ) {
+			event.preventDefault();
+		}
+	}
+
 	const baseClassName = 'wp-block-jetpack-conversation';
+
+	if ( ! participants?.length ) {
+		return (
+			<Placeholder
+				label={ __( 'Conversation', 'jetpack' ) }
+				instructions={ __(
+					'Start to create a conversation.',
+					'jetpack'
+				) }
+				icon={ <BlockIcon icon={ icon } /> }
+				notices={ noticeUI }
+			>
+				<div className={ `${ baseClassName }__placeholder` }>
+					<FormFileUpload
+						multiple={ false }
+						isLarge
+						className="wp-block-jetpack-slideshow__add-item-button"
+						onChange={ uploadFromFiles }
+						accept="text/*"
+						icon="media-text"
+						isPrimary
+					>
+						{ __( 'Upload transcript', 'jetpack' ) }
+					</FormFileUpload>
+
+					<Button isSecondary>
+						{ __( 'Empty', 'jetpack' ) }
+					</Button>
+				</div>
+			</Placeholder>
+		);
+	}
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
@@ -120,4 +164,4 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 }
 
-export default ConversationEdit;
+export default withNotices( ConversationEdit );
