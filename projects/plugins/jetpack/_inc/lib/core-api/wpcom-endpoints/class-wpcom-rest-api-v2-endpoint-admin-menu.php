@@ -237,7 +237,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'url'   => $this->prepare_menu_item_url( $menu_item[2] ),
 		);
 
-		$parsed_item = $this->parse_markup_data( $item['title'] );
+		$parsed_item = $this->parse_menu_item( $item['title'] );
 		if ( ! empty( $parsed_item ) ) {
 			$item = array_merge( $item, $parsed_item );
 		}
@@ -271,7 +271,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
 		);
 
-		$parsed_item = $this->parse_markup_data( $item['title'] );
+		$parsed_item = $this->parse_menu_item( $item['title'] );
 		if ( ! empty( $parsed_item ) ) {
 			$item = array_merge( $item, $parsed_item );
 		}
@@ -356,16 +356,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	}
 
 	/**
-	 * Parses the counter from a given menu item title and removes the associated markup.
-	 *
 	 * "Plugins", "Comments", "Updates" menu items have a count badge when there are updates available.
-	 * This method parses that information and adds it to the response.
+	 * This method parses that information, removes the associated markup and adds it to the response.
 	 *
-	 * @param array $item containing title to parse.
+	 * Also sanitizes the titles from remaining unexpected markup.
+	 *
+	 * @param string $title Title to parse.
 	 * @return array
 	 */
-	private function parse_count_data( $item ) {
-		$title = $item['title'];
+	private function parse_menu_item( $title ) {
+		$item = array();
 
 		if ( false !== strpos( $title, 'count-' ) ) {
 			preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches );
@@ -377,26 +377,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Finally remove the markup.
-			$item['title'] = trim( str_replace( $matches[0], '', $title ) );
+			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		return $item;
-	}
-
-	/**
-	 * Parses data from the markup in titles and sanitizes titles from unexpected markup.
-	 *
-	 * @param string $title Title to parse.
-	 * @return array
-	 */
-	private function parse_markup_data( $title ) {
-		$item = array(
-			'title' => $title,
-		);
-
-		$item = $this->parse_count_data( $item );
 		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
-		$item['title'] = ucfirst( wp_strip_all_tags( $item['title'] ) );
+		// We are also capilizing the first letter in case there was a counter (now parsed) in front of the title.
+		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
 
 		return $item;
 	}
