@@ -3982,16 +3982,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Set a Jetpack license
 	 *
-	 * @since 9.5.0
+	 * @since 9.6.0
 	 *
 	 * @param WP_REST_Request $request The request.
 	 *
-	 * @return WP_REST_Response A response object.
+	 * @return WP_REST_Response|WP_Error A response object if the option was successfully updated, or a WP_Error if it failed.
 	 */
 	public static function set_jetpack_license( $request ) {
-		Licensing::instance()->append_license( $request['license'] );
+		if ( Licensing::instance()->append_license( $request['license'] ) ) {
+			return rest_ensure_response( array( 'code' => 'success' ) );
+		}
 
-		return rest_ensure_response( array( 'code' => 'success' ) );
+		return new WP_Error(
+			'setting_license_key_failed',
+			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**

@@ -99,11 +99,14 @@ class Test_Licensing extends BaseTestCase {
 
 		delete_option( Licensing::LICENSES_OPTION_NAME );
 
-		$licensing->append_license( 'foo' );
+		$did_update = $licensing->append_license( 'foo' );
+		$this->assertTrue( $did_update );
 		$this->assertSame( array( 'foo' ), $licensing->stored_licenses() );
 
 		update_option( Licensing::LICENSES_OPTION_NAME, array( 'foo', 'bar' ) );
-		$licensing->append_license( 'baz' );
+		$did_update = $licensing->append_license( 'baz' );
+		$this->assertTrue( $did_update );
+		$this->assertTrue( false );
 		$this->assertSame( array( 'foo', 'bar', 'baz' ), $licensing->stored_licenses() );
 
 		delete_option( Licensing::LICENSES_OPTION_NAME );

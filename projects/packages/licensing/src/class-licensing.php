@@ -116,15 +116,14 @@ class Licensing {
 	 * Append a license
 	 *
 	 * @param string $license A jetpack license key.
-	 * @return string[] License keys.
+	 * @return bool True if the option was updated with the new license, false otherwise.
 	 */
 	public function append_license( $license ) {
 		$licenses = $this->stored_licenses();
 
 		array_push( $licenses, $license );
-		update_option( self::LICENSES_OPTION_NAME, $licenses );
 
-		return $licenses;
+		return update_option( self::LICENSES_OPTION_NAME, $licenses );
 	}
 
 	/**
@@ -242,7 +241,7 @@ class Licensing {
 		/**
 		 * Determines if the Licensing UI is displayed or not
 		 *
-		 * @since 9.5.0
+		 * @since 9.6.0
 		 */
 		return apply_filters( 'jetpack_show_licensing_ui', false ) && current_user_can( 'jetpack_connect_user' );
 	}
