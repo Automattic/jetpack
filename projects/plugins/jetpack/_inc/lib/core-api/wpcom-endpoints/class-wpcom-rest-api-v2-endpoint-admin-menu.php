@@ -372,8 +372,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 			$count = absint( $matches[1] );
 			if ( $count > 0 ) {
+				// Keep the counter in the item array.
 				$item['count'] = $count;
 			}
+
+			// Finally remove the markup.
 			$item['title'] = trim( str_replace( $matches[0], '', $title ) );
 		}
 

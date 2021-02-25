@@ -482,7 +482,20 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				),
 			),
 			array(
+				'<span class="update-plugins count-0"><span class="update-count">0</span></span> Zero updates',
+				array(
+					'title' => 'Zero updates',
+				),
+			),
+			array(
 				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
+				array(
+					'title' => 'Finally some updates',
+					'count' => 5,
+				),
+			),
+			array(
+				'<span class="update-plugins count-5"><span class="update-count">5</span></span> finally some updates',
 				array(
 					'title' => 'Finally some updates',
 					'count' => 5,
@@ -496,9 +509,30 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				),
 			),
 			array(
-				'Unexpected markup <span class="unexpected-classname">badge name</span>',
+				'<span class="update-plugins count-5"><span class="plugin-count">5</span></span> plugin updates',
 				array(
-					'title' => 'Unexpected markup',
+					'title' => 'Plugin updates',
+					'count' => 5,
+				),
+			),
+			array(
+				'Comments <span class="awaiting-mod count-2"><span class="pending-count" aria-hidden="true">2</span><span class="comments-in-moderation-text screen-reader-text">Comments in moderation</span></span>',
+				array(
+					'title' => 'Comments',
+					'count' => 2,
+				),
+			),
+			array(
+				'<span class="awaiting-mod count-2"><span class="pending-count" aria-hidden="true">2</span><span class="comments-in-moderation-text screen-reader-text"> comments in moderation</span></span> Comments',
+				array(
+					'title' => 'Comments',
+					'count' => 2,
+				),
+			),
+			array(
+				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><span class="awaiting-mod"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font></span> <span class="unexpected-classname">badge name</span>',
+				array(
+					'title' => 'Badge name Unexpected markup badge name',
 				),
 			),
 		);
