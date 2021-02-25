@@ -76,4 +76,11 @@ interface VersioningPlugin {
 	 */
 	public function compareVersions( $a, $b );
 
+	/**
+	 * Return a valid "first" version number.
+	 *
+	 * @param array $extra Extra components for the version, as for `nextVersion()`.
+	 * @return string
+	 */
+	public function firstVersion( array $extra = array() );
 }

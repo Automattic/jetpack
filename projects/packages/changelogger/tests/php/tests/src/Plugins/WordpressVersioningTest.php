@@ -292,4 +292,13 @@ class WordpressVersioningTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Test firstVersion.
+	 */
+	public function testFirstVersion() {
+		$obj = new WordpressVersioning( array() );
+		$this->assertSame( '0.0', $obj->firstVersion() );
+		$this->assertSame( '0.0-alpha', $obj->firstVersion( array( 'prerelease' => 'alpha' ) ) );
+	}
+
 }

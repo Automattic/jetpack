@@ -192,13 +192,16 @@ class WriteCommandTest extends CommandTestCase {
 				array( '/Changelog file contains no entries! Use --use-version to specify the initial version\.$/m' ),
 			),
 			'No changelog file, interactive (3)'           => array(
-				array( '--use-version' => '1.0.0' ),
+				array(
+					'--default-first-version' => true,
+					'--prerelease'            => 'beta',
+				),
 				array( 'changelog' => null ),
 				array( 'Y' ),
 				0,
 				array(),
 				true,
-				"## 1.0.0 - $date\n### Fixed\n- Fixed a thing.\n",
+				"## 0.1.0-beta - $date\n### Fixed\n- Fixed a thing.\n",
 			),
 			'No changelog file, non-interactive'           => array(
 				array(),

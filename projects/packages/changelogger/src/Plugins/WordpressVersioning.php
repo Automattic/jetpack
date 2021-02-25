@@ -180,4 +180,19 @@ class WordpressVersioning implements VersioningPlugin {
 		return $acount - $bcount;
 	}
 
+	/**
+	 * Return a valid "first" version number.
+	 *
+	 * @param array $extra Extra components for the version, as for `nextVersion()`.
+	 * @return string
+	 */
+	public function firstVersion( array $extra = array() ) {
+		return $this->normalizeVersion(
+			array(
+				'major' => 0.0,
+				'point' => 0,
+			) + $extra
+		);
+	}
+
 }

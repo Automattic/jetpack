@@ -74,6 +74,7 @@ class WriteCommand extends Command {
 			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions', 1 )
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
+			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
 			->setHelp(
 				<<<EOF
@@ -507,15 +508,25 @@ EOF
 	 * @return string|int New version, or int on error.
 	 */
 	protected function nextVersion( InputInterface $input, OutputInterface $output, Changelog $changelog, array $changes, $amendedVersion ) {
+		$extra = array_filter(
+			array(
+				'prerelease' => $input->getOption( 'prerelease' ),
+				'buildinfo'  => $input->getOption( 'buildinfo' ),
+			)
+		);
+
 		// Is there a version in the changelog?
 		$latest = $changelog->getLatestEntry();
 		if ( ! $latest ) {
 			if ( null !== $amendedVersion ) {
 				$output->writeln( "Amending earliest version, reusing version $amendedVersion...", OutputInterface::VERBOSITY_DEBUG );
 				return $amendedVersion;
+			} elseif ( $input->getOption( 'default-first-version' ) ) {
+				return $this->versioning->firstVersion( $extra );
+			} else {
+				$output->writeln( '<error>Changelog file contains no entries! Use --use-version to specify the initial version.</>' );
+				return self::FATAL_EXIT;
 			}
-			$output->writeln( '<error>Changelog file contains no entries! Use --use-version to specify the initial version.</>' );
-			return self::FATAL_EXIT;
 		}
 
 		$output->writeln( "Latest version from changelog is {$latest->getVersion()}.", OutputInterface::VERBOSITY_DEBUG );
@@ -540,12 +551,6 @@ EOF
 		}
 
 		// Get the next version from the versioning plugin.
-		$extra = array_filter(
-			array(
-				'prerelease' => $input->getOption( 'prerelease' ),
-				'buildinfo'  => $input->getOption( 'buildinfo' ),
-			)
-		);
 		try {
 			$version = $this->versioning->nextVersion( $latest->getVersion(), $verchanges, $extra );
 		} catch ( InvalidArgumentException $ex ) {

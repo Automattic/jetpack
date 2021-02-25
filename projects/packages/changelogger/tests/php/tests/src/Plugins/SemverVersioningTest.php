@@ -288,4 +288,13 @@ class SemverVersioningTest extends TestCase {
 		);
 	}
 
+	/**
+	 * Test firstVersion.
+	 */
+	public function testFirstVersion() {
+		$obj = new SemverVersioning( array() );
+		$this->assertSame( '0.1.0', $obj->firstVersion() );
+		$this->assertSame( '0.1.0-alpha', $obj->firstVersion( array( 'prerelease' => 'alpha' ) ) );
+	}
+
 }
