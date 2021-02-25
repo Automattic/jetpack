@@ -1568,12 +1568,12 @@
 **Major Enhancements**
 
 - Block Editor: this release introduces 6 new blocks:
-	- the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages.
-	- the Mailchimp block allows your readers to easily subscribe to your Mailchimp newsletter.
-	- the Video block supports VideoPress videos if you've purchased our Premium or Professional plan.
-	- the Slideshow block allows you to insert beautiful slideshows in your posts and pages.
-	- The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site.
-	- The Contact Info block is useful for any business who may want to display useful information on a post or page.
+  - the Ads block allows you to insert different ads from [our WordAds program](https://jetpack.com/support/ads/) within your posts and pages.
+  - the Mailchimp block allows your readers to easily subscribe to your Mailchimp newsletter.
+  - the Video block supports VideoPress videos if you've purchased our Premium or Professional plan.
+  - the Slideshow block allows you to insert beautiful slideshows in your posts and pages.
+  - The Business Hours blocks is useful for companies who want to display their business's Opening Hours on their site.
+  - The Contact Info block is useful for any business who may want to display useful information on a post or page.
 
 **Enhancements**
 
@@ -4024,7 +4024,7 @@ Additional changes:
   properly
 - Enhancement: REST API: Add locale support
 - Enhancement: Sharing: Retire StumbleUpon
-- Enhancement: Sharing:	Upgrade to reCAPTCHA 2.0 for Email Sharing
+- Enhancement: Sharing: Upgrade to reCAPTCHA 2.0 for Email Sharing
 - Enhancement: Shortcode Embeds: Add Mesh oembed support
 - Enhancement: Shortcode Embeds: New Wufoo Shortcode from WordPress.com
 - Enhancement: Shortcode Embeds: Mixcloud: handle accented characters in URLs
