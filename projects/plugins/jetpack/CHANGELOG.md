@@ -1,11 +1,8 @@
-== Changelog ==
+# Changelog
 
 **This is a list detailing changes for all Jetpack releases.**
 
-= 9.5 =
-
-- Release date: March 2, 2021
-- Release post: https://wp.me/p1moTy-uSv
+## [9.5] - 2021-03-02
 
 **Enhancements**
 
@@ -55,9 +52,7 @@
 - Video Block: avoid potential PHP notice when working with Jetpack Videos.
 - WhatsApp block: adjust width of block options toolbar.
 
-= 9.4.1 =
-
-- Release date: February 16, 2021
+## 9.4.1 - 2021-02-16
 
 **Bug fixes**
 
@@ -65,10 +60,7 @@
 - Dashboard: improve performance by reducing excessive API calls.
 - Payments Block: avoid layout issues when setting up a new payment plan.
 
-= 9.4 =
-
-- Release date: February 2, 2021
-- Release post: https://wp.me/p1moTy-tOv
+## [9.4] - 2021-02-02
 
 **Enhancements**
 
@@ -105,19 +97,14 @@
 - Synchronization with WordPress.com: fix potential PHP notices when making XMLRPC requests.
 - WordPress.com REST API: fix PHP notice when fetching user connection data without a connection owner.
 
-= 9.3.1 =
-
-- Release date: January 14, 2021
+## 9.3.1 - 2021-01-14
 
 **Bug fixes**
 
 - Multisite: avoid Fatals on sites using the WPMUDEV domain mapping plugin.
 - SEO Tools: prevent a PHP notice in some situations involving taxonomy or author pages.
 
-= 9.3 =
-
-- Release date: January 12, 2021
-- Release post: https://wp.me/p1moTy-sgZ
+## [9.3] - 2021-01-12
 
 **Enhancements**
 
@@ -154,9 +141,7 @@
 - Widgets: avoid JavaScript errors when displaying the Cookies & Consent Widget.
 - WordPress.com REST API: avoid fatal errors in some scenarios, when updating a post's metadata.
 
-= 9.2.1 =
-
-- Release date:  December 10, 2020
+## 9.2.1 - 2020-12-10
 
 **Improved compatibility**
 
@@ -169,10 +154,7 @@
 - WordPress.com Toolbar: avoid Fatal errors when the feature is not active.
 - WordPress.com Toolbar: avoid 404 errors when loading the toolbar.
 
-= 9.2 =
-
-- Release date: December 1, 2020
-- Release post: https://wp.me/p1moTy-scn
+## [9.2] - 2020-12-01
 
 **Enhancements**
 
@@ -217,10 +199,7 @@
 - Whatsapp Button Block: fix Guyana country code metadata.
 - WordPress.com REST API: restore post comments when untrashing a post, such as via the mobile apps.
 
-= 9.1 =
-
-- Release date: November 10, 2020
-- Release post: https://wp.me/p1moTy-s0E
+## [9.1] - 2020-11-10
 
 **Enhancements**
 
@@ -288,9 +267,7 @@
 - Videos: ensure Jetpack videos use the correct aspect ratio in both the editor and the frontend, even when used within column blocks.
 - WhatsApp Block: fix issue when the text color would not be correct.
 
-= 9.0.2 =
-
-- Release date: October 9, 2020
+## 9.0.2 - 2020-10-09
 
 **Enhancements**
 
@@ -305,18 +282,13 @@
 - Sharing: avoid PHP notices when a post object is invalid.
 - WordPress.com REST API: avoid errors when uploading images from a URL.
 
-= 9.0.1 =
-
-- Release date: October 6, 2020
+## 9.0.1 - 2020-10-06
 
 **Bug fixes**
 
 - General: remove a database optimization task that could potentially cause database issues.
 
-= 9.0 =
-
-- Release date: October 6, 2020
-- Release post: https://wp.me/p1moTy-rLy
+## [9.0] - 2020-10-06
 
 **Major Enhancements**
 
@@ -381,9 +353,7 @@
 - WordPress.com Block Editor: ensure that "Code Editor" menu item is available on mobile devices.
 - WordPress.com REST API: improve messaging when uploading a media file via the API fails.
 
-= 8.9.1 =
-
-- Release date: September 16, 2020
+## 8.9.1 - 2020-09-16
 
 **Enhancements**
 
@@ -397,10 +367,7 @@
 - Search: fix a bug where no results appear when using Jetpack's Instant Search interface.
 - Site Health Tools: skip a connection status test when in offline mode.
 
-= 8.9 =
-
-- Release date: September 1, 2020
-- Release post: https://wp.me/p1moTy-rAs
+## [8.9] - 2020-09-01
 
 **Major Enhancements**
 
@@ -456,17 +423,13 @@
 - Widgets: ensure that the Instagram Widget is properly styled when previewed in the customizer.
 - Widgets: do not hide accepted cookie widget to allow visual customization in the Customizer.
 
-= 8.8.2 =
-
-- Release date: August 17, 2020
+## 8.8.2 - 2020-08-17
 
 **Bug fixes**
 
 - Infinite Scroll: avoid loading issues with some themes using Infinite Scroll.
 
-= 8.8.1 =
-
-- Release date: August 10, 2020
+## 8.8.1 - 2020-08-10
 
 **Improved compatibility**
 
@@ -477,10 +440,7 @@
 - Admin Page: avoid blank dashboard when some specific notices (such as Offline mode) are displayed.
 - Synchronization with WordPress.com: resolve errors triggered from not properly sanitizing/verifying inputs.
 
-= 8.8 =
-
-- Release date: August 4, 2020
-- Release post: https://wp.me/p1moTy-rs2
+## [8.8] - 2020-08-04
 
 **Enhancements**
 
@@ -533,9 +493,7 @@
 - Tiled Gallery block: do not load the block when your site is not connected to WordPress.com.
 - Twitter Cards: resolve potential PHP notice.
 
-= 8.7.1 =
-
-- Release date: July 14, 2020
+## 8.7.1 - 2020-07-14
 
 **Bug fixes**
 
@@ -545,10 +503,7 @@
 - General: prevent PHP notices with the Contact Form feature, Sharing feature, and the Latest Instagram Galleries block.
 - Sharing: create proper Open Graph Description tag when a post starts with an image.
 
-= 8.7 =
-
-- Release date: July 7, 2020
-- Release post: https://wp.me/p1moTy-qiH
+## [8.7] - 2020-07-07
 
 **Major Enhancements**
 
@@ -607,19 +562,14 @@
 - Shortcodes / Embeds: fix the Twitch embed according to new Twitch embed requirements.
 - SEO Tools / Open Graph: improve cleaning up of description meta tags.
 
-= 8.6.1 =
-
-- Release date: June 2, 2020
+## 8.6.1 - 2020-06-02
 
 **Bug Fixes**
 
 - Resolves PHP notice when generating Twitter Cards for posts with images without saved size information.
 - Resolves an issue that can lead to excessive SQL queries.
 
-= 8.6 =
-
-- Release date: June 2, 2020
-- Release post: https://wp.me/p1moTy-pb1
+## [8.6] - 2020-06-02
 
 **Major Enhancements**
 
@@ -676,10 +626,7 @@
 - Synchronization: ensure data is properly handled when customizing the Sync experience.
 - Theme Tools: add correct schema.org value for Jetpack Breadcrumbs.
 
-= 8.5 =
-
-- Release date: May 5, 2020
-- Release post: https://wp.me/p1moTy-p00
+## [8.5] - 2020-05-05
 
 **Major Enhancements**
 
@@ -716,9 +663,7 @@
 - Subscriptions Block: fix layout issue in email input box.
 - Sync: improve performance of the synchronization process when processing a large amount of Akismet feedback.
 
-= 8.4.2 =
-
-- Release date: April 14, 2020
+## 8.4.2 - 2020-04-14
 
 **Bug Fixes**
 
@@ -729,18 +674,13 @@
 - Contact Info Widget: avoid the display of notices in the widget settings when an API key is set via a filter.
 - Top Posts Widget: provide default for newly added parameter to avoid errors when using third-party plugins interacting with stats.
 
-= 8.4.1 =
-
-- Release date: April 7, 2020
+## 8.4.1 - 2020-04-07
 
 **Bug Fixes**
 
 - Secure Sign On: fix conflict that would block one from logging in to their site via the Secure Sign On option.
 
-= 8.4 =
-
-- Release date: April 7, 2020
-- Release post: https://wp.me/p1moTy-oPp
+## [8.4] - 2020-04-07
 
 **Major Enhancements**
 
@@ -811,10 +751,7 @@
 - Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
 - Widgets: avoid display issues in the Top Posts Widget, when displaying posts from Custom Post Types.
 
-= 8.3 =
-
-- Release date: March 3, 2020
-- Release post: https://wp.me/p1moTy-nZT
+## [8.3] - 2020-03-03
 
 **Major Enhancements**
 
@@ -872,26 +809,19 @@
 - WooCommerce Analytics: improve product checks to avoid errors on order pages.
 - Wufoo shortcode: Security fix return early when invalid parameters.
 
-= 8.2.2 & 8.2.3 =
-
-- Release date: February 20, 2020
+## 8.2.3 - 2020-02-20
 
 - General: fix compatibility issues with other plugins relying on the REST API to communicate with Jetpack, or on the Jetpack registration process.
 - Multisite: resolve issue with Jetpack's loading sequence that would fatal subsites that did not have any individually activated plugins.
 
-= 8.2.1 =
-
-- Release date: February 17, 2020
+## 8.2.1 - 2020-02-17
 
 **Bug fixes**
 
 - Block Editor: avoid errors when uploading additional media to the Slideshow, Tiled Gallery, and Video blocks.
 - Synchronization: address issues that would cause delayed synchronization of your posts to WordPress.com.
 
-= 8.2 =
-
-- Release date: February 11, 2020
-- Release post: https://wp.me/p1moTy-mVu
+## [8.2] - 2020-02-11
 
 **Major Enhancements**
 
@@ -929,10 +859,7 @@
 - WordPress.com REST API: avoid PHP notices when a media file is edited via the API.
 - WordPress.com REST API: ensure that image URLs are currently set when uploading an image multiple times.
 
-= 8.1.1 =
-
-- Release date: January 23, 2020
-- Release post: https://wp.me/p1moTy-lJT
+## [8.1.1] - 2020-01-23
 
 **Bug fixes**
 
@@ -940,10 +867,7 @@
 - Block Editor: ensure that the Jetpack block sidebar icon is properly displayed, even with the latest version of the Gutenberg plugin.
 - WordPress.com Block Editor: fix compatibility issues with Chrome's upcoming cross-site cookie changes.
 
-= 8.1 =
-
-- Release date: January 14, 2020
-- Release post: https://wp.me/p1moTy-lJT
+## [8.1] - 2020-01-14
 
 **Enhancements**
 
@@ -982,10 +906,7 @@
 - WordAds: ensure that the ads.txt file created by the feature returns a correct HTTP response code.
 - WordPress.com Block Editor: exclude WordPress.com features from Jetpack sites.
 
-= 8.0 =
-
-- Release date: December 3, 2019
-- Release post: https://wp.me/p1moTy-lGH
+## [8.0] - 2019-12-03
 
 **Major enhancements**
 
@@ -1021,10 +942,7 @@
 - Sync: avoid conflicts when two processes are synchronized to WordPress.com at the same time.
 - WordPress.com Block Editor: ensure that the Justify button works well on any paragraph using that button.
 
-= 7.9.1 =
-
-- Release date: November 19, 2019
-- Release post: https://wp.me/p1moTy-lHA
+## [7.9.1] - 2019-11-19
 
 **Bug fixes**
 
@@ -1036,10 +954,7 @@
 
 - Twenty Twenty: ensure that Related Posts and Jetpack Blocks are displayed nicely in the new default theme.
 
-= 7.9 =
-
-- Release date: November 5, 2019
-- Release post: https://wp.me/p1moTy-lzt
+## [7.9] - 2019-11-05
 
 **Major enhancements**
 
@@ -1111,10 +1026,7 @@
 - Widgets: fix timeout issues that may sometimes occur in the GoodReads widget when user has added lots of books to their account.
 - WordPress.com REST API: better site preview support for sites using WordPress in a subdirectory.
 
-= 7.8 =
-
-- Release date: October 1, 2019
-- Release post: https://wp.me/p1moTy-lvE
+## [7.8] - 2019-10-01
 
 **Enhancements**
 
@@ -1146,17 +1058,13 @@
 - Sync: avoid issues when using deprecated Sync functions.
 - WordPress.com dashboard styles: fix layout on Plugins > Add New Page, on mobile devices.
 
-= 7.7.2 =
-
-- Release date: September 23, 2019
+## 7.7.2 - 2019-09-23
 
 **Bug fixes**
 
 - General: fix connection issues when attempting to install and connect Jetpack from a mobile app.
 
-= 7.7.1 =
-
-- Release date: September 6, 2019
+## 7.7.1 - 2019-09-06
 
 **Bug fixes**
 
@@ -1165,10 +1073,7 @@
 - SSO: avoid Fatal errors happening during some log in attempts.
 - Sync: check if IXR client exists to prevent errors when updating the plugin.
 
-= 7.7 =
-
-- Release date: September 3, 2019
-- Release post: https://wp.me/p1moTy-log
+## [7.7] - 2019-09-03
 
 **Major Enhancements**
 
@@ -1217,10 +1122,7 @@
 - WordPress.com API: fix API responses which contain malformed (non-UTF-8) data.
 - WordPress.com Toolbar: limit access to Stats and Plan menu items.
 
-= 7.6 =
-
-- Release date: August 6, 2019
-- Release post: https://wp.me/p1moTy-ljs
+## [7.6] - 2019-08-06
 
 **Enhancements**
 
@@ -1258,39 +1160,27 @@
 - Sync: fix home and Site URL synchronization issues on sites with custom Cron implementations.
 - WordPress.com Activity Log: add Action Scheduler to the list of blacklisted post types
 
-= 7.5.3 =
-
-- Release date: July 17, 2019
-- Release post: https://wp.me/p1moTy-k9A
+## [7.5.3] - 2019-07-17
 
 **Bug fixes**
 
 - General: Fixes plugin activation/deactivation hooks that were accidentally disabled.
 - General: Fixes fatal errors that were possible when using pre-7.5 Jetpack internal API.
 
-= 7.5.2 =
-
-- Release date: July 4, 2019
-- Release post: https://wp.me/p1moTy-k9A
+## [7.5.2] - 2019-07-04
 
 **Bug fixes**
 
 - General: Fixes an error when a site's connection to WordPress.com is set to "Safe Mode".
 
-= 7.5.1 =
-
-- Release date: July 2, 2019
-- Release post: https://wp.me/p1moTy-k9A
+## [7.5.1] - 2019-07-02
 
 **Bug fixes**
 
 - General: Fixes an error when trying to delete the Jetpack plugin.
 - General: Fixes supported PHP version declaration.
 
-= 7.5 =
-
-- Release date: July 2, 2019
-- Release post: https://wp.me/p1moTy-k9A
+## [7.5] - 2019-07-02
 
 **Enhancements**
 
@@ -1320,19 +1210,13 @@
 - Slideshow Block: fix CSS class name.
 - Videos: ensure that Video Poster images are always displayed properly.
 
-= 7.4.1 =
-
-- Release date: June 17, 2019
-- Release post: https://wp.me/p1moTy-kvz
+## [7.4.1] - 2019-06-17
 
 **Bug fix**
 
 - Contact Form Block: avoid errors when trying to edit a form block, when using the Gutenberg plugin.
 
-= 7.4 =
-
-- Release date: June 4, 2019
-- Release post: https://wp.me/p1moTy-jgZ
+## [7.4] - 2019-06-04
 
 **Enhancements**
 
@@ -1396,9 +1280,7 @@
 - WordPress.com Toolbar: ensure you are properly logged out of your WordPress.com account when you sign out of your site using the toolbar.
 - WP Cli: ensure that WP Cli commands added by Jetpack include translator comments when necessary, to help with translations.
 
-= 7.3.1 =
-- Release date: May 14, 2019
-- Release post: https://wp.me/p1moTy-jgO
+## [7.3.1] - 2019-05-14
 
 **Bug fixes**
 
@@ -1409,10 +1291,7 @@
 - WordPress.com Editor: Redirect to a login page when logging out from the block editor on WordPress.com.
 - WordPress.com Toolbar: Add menu icon for smaller screen widths to restore wp-admin navigation menu.
 
-= 7.3 =
-
-- Release date: May 07, 2019
-- Release post: https://wp.me/p1moTy-ipR
+## [7.3] - 2019-05-07
 
 **Major Enhancements**
 - We streamlined the default features of Jetpack to make the "out of the box" experience better.
@@ -1482,20 +1361,14 @@
 - Uninstalling Jetpack: Prevent notice about JETPACK__PLUGIN_DIR already being defined when programmatically uninstalling Jetpack. (But why would you uninstall?)
 - Widgets: Remove the Cookies & Consents Banner (not just hide it) after consenting. Thanks Tony Tettinger!
 
-
-= 7.2.1 =
-- Release date: April 04, 2019
-- Release post: https://wp.me/p1moTy-h7o
+## [7.2.1] - 2019-04-04
 
 - Feature Hints: display suggestions only for features available under the site's current plan.
 - Feature Hints: improve visual display to make more distinct from search results.
 - Feature Hints: disable hints once administrators have dismissed three hints.
 - Slideshow Block: resolve an issue that broke navigating between images.
 
-= 7.2 =
-
-- Release date: April 02, 2019
-- Release post: https://wp.me/p1moTy-foe
+## [7.2] - 2019-04-02
 
 **Major Enhancements**
 
@@ -1547,10 +1420,7 @@
 - Widgets: display all characters in an address from Contact Info correctly when sometimes we encoded those that we'd expect in an URL.
 - Widgets: improve the performance of the Contact Info widget by eliminating unused JavaScript.
 
-= 7.1.1 =
-
-- Release date: March 06, 2019
-- Release post: https://wp.me/p1moTy-foJ
+## [7.1.1] - 2019-03-06
 
 **Bug fixes**
 
@@ -1560,10 +1430,7 @@
 - Subscriptions: fix an issue that prevented displaying subscribers count in the subscription forms.
 - Tiled Galleries / Slideshows: ensure they can be displayed properly in Internet Explorer 11.
 
-= 7.1 =
-
-- Release date: March 05, 2019
-- Release post: https://wp.me/p1moTy-e9x
+## [7.1] - 2019-03-05
 
 **Major Enhancements**
 
@@ -1622,10 +1489,7 @@
 - Widgets: support alternative Pinterest domain extensions in the Social Icons Widget.
 - Widgets: update the Cookies & Consents Banner to be fully accessible on mobile devices.
 
-= 7.0.1 =
-
-- Release date: February 14, 2019
-- Release post: https://wp.me/p1moTy-eFX
+## [7.0.1] - 2019-02-14
 
 **Improved compatibility**
 
@@ -1640,10 +1504,7 @@
 - Shortlinks: do not show Jetpack Sidebar in the block editor if Shortlinks are not available.
 - Sync: avoid errors in WordPress' code editor, for sites using PHP 7 with `fastcgi_finish_request` enabled.
 
-= 7.0 =
-
-- Release date: February 05, 2019
-- Release post: https://wp.me/p1moTy-dqO
+## [7.0] - 2019-02-05
 
 **Major Enhancements**
 
@@ -1689,10 +1550,7 @@
 - Subscriptions: display subscription options below the comment form, even when you are logged in to your WordPress account.
 - WordPress.com REST API: add new endpoint to allow the creation of a WooCommerce connection via the API.
 
-= 6.9 =
-
-- Release date: January 10, 2019
-- Release post: https://wp.me/p1moTy-cEZ
+## [6.9] - 2019-01-10
 
 **Major Enhancements**
 
@@ -1743,10 +1601,7 @@
 - WooCommerce Analytics: avoid Fatal Errors in some specific site setups.
 - WooCommerce Analytics: improve performance by avoiding unnecessary calls to the feature when it is not needed.
 
-= 6.8.1 =
-
-- Release date: December 6, 2018
-- Release post: https://wp.me/p1moTy-d3t
+## [6.8.1] - 2018-12-06
 
 **Bug fixes**
 
@@ -1755,10 +1610,7 @@
 - Sync: improve synchronization of WooCommerce events.
 - WordPress.com REST API: handle WooCommerce Product reviews for a better display in apps that use the API.
 
-= 6.8 =
-
-- Release date: November 27, 2018
-- Release post: https://wp.me/p1moTy-cee
+## [6.8] - 2018-11-27
 
 **Major Enhancements**
 
@@ -1781,10 +1633,7 @@
 - Carousel: handle galleries created via the Gallery block in the new block editor.
 - Photon: make sure our image CDN is fully compatible with the block editor.
 
-= 6.7 =
-
-- Release date: November 6, 2018
-- Release post: https://wp.me/p1moTy-aEq
+## [6.7] - 2018-11-06
 
 **Major Enhancements**
 
@@ -1834,20 +1683,14 @@
 - Sitemaps: avoid protocol mismatches between the sitemaps and the site.
 - Site Verification Tools: make sure we validate meta tags when saving.
 
-= 6.6.1 =
-
-- Release date: October 10, 2018
-- Release post: https://wp.me/p1moTy-aEt
+## [6.6.1] - 2018-10-10
 
 **Bug fixes**
 
 - Sitemaps: improve initial sitemap creation process.
 - Widgets: fix missing CSS for the Social Icons Widgets.
 
-= 6.6 =
-
-- Release date: October 9, 2018
-- Release post: https://wp.me/p1moTy-aa1
+## [6.6] - 2018-10-09
 
 **Major Enhancements**
 
@@ -1895,10 +1738,7 @@
 - VideoPress: avoid duplicate rel attributes in links.
 - VideoPress: do not block access to the Video settings for our customers using a 2-year plan.
 
-= 6.5 =
-
-- Release date: September 4, 2018
-- Release post: https://wp.me/p1moTy-a7U
+## [6.5] - 2018-09-04
 
 **Major Enhancements**
 
@@ -1931,28 +1771,19 @@
 - Widgets: Removed cutoff date check for Twitter Timeline widget as it is no longer necessary.
 - Widgets: Added decimal precision validator to Simple Payments Widget price field on the Customizer for supporting Japanese Yen.
 
-= 6.4.2 =
-
-- Release date: August 10, 2018
-- Release post: https://wp.me/p1moTy-9pL
+## [6.4.2] - 2018-08-10
 
 **Bug fixes**
 
 Comments: We fixed an error that broke functionality of Social Login for comments.
 
-= 6.4.1 =
-
-- Release date: August 8, 2018
-- Release post: https://wp.me/p1moTy-9pc
+## [6.4.1] - 2018-08-08
 
 **Bug fixes**
 
 Comments: We fixed an error that broke functionality of nested comments.
 
-= 6.4 =
-
-- Release date: August 7, 2018
-- Release post: https://wp.me/p1moTy-9md
+## [6.4] - 2018-08-07
 
 **Enhancements**
 
@@ -1983,10 +1814,7 @@ Comments: We fixed an error that broke functionality of nested comments.
 - General: Removed ability to set custom name for Site Identity section.
 - General: Added advanced control capabilities to image extraction from posts.
 
-= 6.3.3 =
-
-- Release date: July 30, 2018
-- Release post: https://wp.me/p1moTy-9n0
+## [6.3.3] - 2018-07-30
 
 **Facebook API Maintenance**
 
@@ -2000,19 +1828,13 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 
 - General: properly handle Jetpack connection owner transition process.
 
-= 6.3.2 =
-
-- Release date: July 4, 2018
-- Release post: https://wp.me/p1moTy-96E
+## [6.3.2] - 2018-07-04
 
 **Bug fixes**
 
 - Simple Payment: Fix compatibility issues with PHP versions 5.3 and below
 
-= 6.3 =
-
-- Release date: July 3, 2018
-- Release post: https://wp.me/p1moTy-8ag
+## [6.3] - 2018-07-03
 
 **Major Enhancements**
 
@@ -2039,21 +1861,14 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Sitemap: We fixed the format of the date shown for videos on the video sitemap.
 - Stats: We fixed the width of the Stats page for wide screens.
 
-= 6.2.1 =
-
-- Release date: June 8, 2018
-- Release post: https://wp.me/p1moTy-8am
-
+## [6.2.1] - 2018-06-08
 
 **Bug fixes**
 
 - AMP: We fixed the rendering of the stats pixel for legacy, non-paired, non-canonical AMP pages.
 - Shortcodes: Fixed a fatal coming form the VR shortcode when using the Gutenberg editor in the frontend.
 
-= 6.2 =
-
-- Release date: June 5, 2018
-- Release post: https://wp.me/p1moTy-88v
+## [6.2] - 2018-06-05
 
 **Major Enhancements**
 
@@ -2082,10 +1897,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Widget Visibility: Fixed styling for MS Edge.
 - Widgets: Removed .widget class from Cookies and Consent widget styles since .widget is not used in every theme.
 
-= 6.1.1 =
-
-- Release date: May 22, 2018
-- Release post: https://wp.me/p1moTy-85t
+## [6.1.1] - 2018-05-22
 
 **Enhancements**
 
@@ -2105,10 +1917,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Sharing: Added check for validating Akismet key before allowing sharing by email.
 - WooCommerce Analytics: Fixed PHP warning when attemping to get a list of plugins.
 
-= 6.1 =
-
-- Release date: May 1, 2018
-- Release post: https://wp.me/p1moTy-7Sj
+## [6.1] - 2018-05-01
 
 **Major Enhancements**
 
@@ -2150,10 +1959,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Sync: Fixed Warning: Warning: json_encode(): recursion detected.
 - WooCommerce Analytics: fixed broken Remove From Cart link.
 
-= 6.0 =
-
-- Release date: April 3, 2018
-- Release post: https://wp.me/p1moTy-7xM
+## [6.0] - 2018-04-03
 
 **Major Enhancements**
 - Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
@@ -2228,10 +2034,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - WooCommerce Analytics: Fixed PHP warning coming from str_replace usage.
 - WooCommerce Analytics: Started tracking all possible ways to add a product to a cart.
 
-== 5.9 ==
-
-- Release date: March 6, 2018
-- Release post: https://wp.me/p1moTy-7mW
+## [5.9] - 2018-03-06
 
 **Major Enhancements**
 
@@ -2284,10 +2087,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Widget Visibility: Added a decodeEntities function in widget-conditions.js to handle entity decoding for the minor conditions dropdown.
 - WordAds: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 
-= 5.8 =
-
-- Release date: February 6, 2018
-- Release post: https://wp.me/p1moTy-731
+## [5.8] - 2018-02-06
 
 **Major Enhancements**
 
@@ -2357,20 +2157,14 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Stats: make sure the Stats script is XHTML compliant.
 - Widgets: Mailchimp - avoid conflicts with jQuery UI.
 
-= 5.7.1 =
-
-- Release date: January 16, 2018
-- Release post: https://wp.me/p1moTy-7aS
+## [5.7.1] - 2018-01-16
 
 **Bug Fixes**
 
 - Protect: Fixed the math problem fallback for logging into Multisite installations.
 - Settings: Made sure that the Security tab is no longer constantly updating the displayed information.
 
-= 5.7 =
-
-- Release date: January 2, 2018
-- Release post: https://wp.me/p1moTy-6FR
+## [5.7] - 2018-01-02
 
 **Enhancements**
 
@@ -2394,10 +2188,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Markdown: Fixed bug where code inside shortcodes wasn't correctly restored from the hash.
 - Search: Fixed the link that acts as a month and year filter removal toggle.
 
-= 5.6.1 =
-
-- Release date: December 14, 2017
-- Release post: https://wp.me/p1moTy-6Jk
+## [5.6.1] - 2017-12-14
 
 **Security Improvements**
 
@@ -2411,10 +2202,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 
 - Widget Visibility: Fixed a bug that disabled "saving" the widget when removing a Widget Visibility rule.
 
-= 5.6 =
-
-- Release date: December 5, 2017
-- Release post: https://wp.me/p1moTy-6zt
+## [5.6] - 2017-12-05
 
 **Major Enhancements**
 - Google Analytics: Add support for universal analytics for WooCommerce.
@@ -2447,10 +2235,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Search: Maintain ordering of the search filters in the widget.
 - Sync: avoid PHP notices during the synchronization process.
 
-= 5.5.1 =
-
-- Release date: November 21, 2017
-- Release post: https://wp.me/p1moTy-6Bd
+## [5.5.1] - 2017-11-21
 
 **Bug fixes**
 - In Jetpack 5.5 we made some changes that created errors if you were using other plugins that added custom links to the Plugins menu. This is now fixed.
@@ -2461,10 +2246,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - We fixed conflicts between Jetpack's Responsive Videos and the updates made to Video players in WordPress 4.9.
 - We updated Publicize's message length to match Twitter's new 280 character limit.
 
-= 5.5 =
-
-- Release date: November 7, 2017
-- Release post: https://wp.me/p1moTy-6rk
+## [5.5] - 2017-11-07
 
 **Major Enhancements**
 
@@ -2529,10 +2311,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Upcoming events Widget: avoid PHP notices on sites using a custom timezone setting.
 - WordPress.com REST API: avoid errors when installing plugins via the WordPress.com API.
 
-= 5.4 =
-
-- Release date: October 3, 2017
-- Release post: http://wp.me/p1moTy-67V
+## [5.4] - 2017-10-03
 
 **Major Enhancements**
 - Multiple improvements to the connection process, to allow more people to use the Jetpack plugin, even on very specific server configurations.
@@ -2566,10 +2345,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Avoid displaying raw HTML in the Stats Configuration screen.
 - Comment edits are reflected properly in wordpress.com.
 
-= 5.3 =
-
-- Release date: September 5, 2017
-- Release post: http://wp.me/p1moTy-5Xv
+## [5.3] - 2017-09-05
 
 **Major Enhancements**
 - Full PHP 7.1 compatibility.
@@ -2604,19 +2380,12 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Brought back a filter for the Widget Visibility feature that was accidentally removed.
 - Managing your comments and comment authors more reliable from WordPress.com.
 
-
-= 5.2.1 =
-
-- Release date: August 2, 2017
-- Release post: https://jetpack.com/?p=22686
+## [5.2.1] - 2017-08-02
 
 **Bug fixes**
 - Solves an issue that caused widgets to lose their content when saved in WP Admin or Customizer.
 
-= 5.2 =
-
-- Release date: August 1, 2017
-- Release post: https://jetpack.com/?p=22509
+## [5.2] - 2017-08-01
 
 **Major Enhancements**
 - Contact Forms now sports a fancy new interface that allows you to visually compose your form in the editor.
@@ -2631,10 +2400,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Fixed a 404 when loading Open Sans font from a stylesheet plus now it's only enqueued if it will be used.
 - Solve PHP warnings when Image widget wasn't migrated.
 
-= 5.1 =
-
-- Release date: July 5th, 2017
-- Release post: https://jetpack.com/?p=20888
+## [5.1] - 2017-07-05
 
 **Major Enhancements**
 - You and your readers can now show appreciation to particularly clever comments with the new Comment Likes feature.
@@ -2657,10 +2423,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - UI now handles VaultPress connection or registration problems gracefully.
 - Photon now works correctly with images uploaded before WordPress 2.7.
 
-= 5.0 =
-
-- Release date: June 6th, 2017
-- Release post: http://wp.me/p1moTy-5hK
+## [5.0] - 2017-06-06
 
 **Enhancements**
 
@@ -2706,10 +2469,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Use correct time constant to define an hour in Upcoming Events Widget.
 - Avoid HTML encoding issues in sitemaps.
 
-= 4.9 =
-
-- Release date: May 2nd, 2017
-- Release post: http://wp.me/p1moTy-4Rl
+## [4.9] - 2017-05-02
 
 **Major Enhancements**
 
@@ -2756,10 +2516,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Avoid PHP warnings and errors in the Stats dashboard on Multisite.
 - Avoid errors when the Jetpack plugin is deleted.
 
-= 4.8.2 =
-
-- Release date: April 7th, 2017
-- Release post: http://wp.me/p1moTy-4P0
+## [4.8.2] - 2017-04-07
 
 **Bug Fixes**
 
@@ -2767,10 +2524,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Removed an unused function that was also incompatible with PHP versions below 5.4.
 - Fixed a bug that was causing a blank Jetpack admin area.
 
-= 4.8.1 =
-
-- Release date: April 5th, 2017
-- Release post: http://wp.me/p1moTy-4N5
+## [4.8.1] - 2017-04-05
 
 **Bug Fixes**
 
@@ -2779,10 +2533,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - General: Clicking on the info icon in the settings area will no longer jump to the top of the page.
 - General: The Anti-spam card will always display the correct status in the Jetpack dashboard.
 
-= 4.8 =
-
-- Release date: April 4th, 2017
-- Release post: http://wp.me/p1moTy-4gA
+## [4.8] - 2017-04-04
 
 **Major Enhancements**
 
@@ -2850,10 +2601,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - All values entered in Facebook Page Plugin widget settings are now escaped.
 - Widget Visibility now avoids memory issues on sites with a lot of registered users.
 
-= 4.7.1 =
-
-- Release date: March 14th, 2017
-- Release post: http://wp.me/p1moTy-48Y
+## [4.7.1] - 2017-03-14
 
 **Bug Fixes**
 
@@ -2868,10 +2616,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Widget Visibility: migrate widget visibility settings to the new major Page rule for Custom Post Types.
 - Widget Visibility: add missing CSS for widget visibility settings on sites using an RTL language.
 
-= 4.7 =
-
-- Release date: March 7th, 2017
-- Release post: http://wp.me/p1moTy-46L
+## [4.7] - 2017-03-07
 
 **Enhancements**
 
@@ -2954,10 +2699,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - Widget Visibility wasn't playing nice on taxonomy pages, this is no longer the case.
 - The WordPress.com REST API received a couple of fixes to remove PHP errors when editing via the WordPress.com interface, authentication errors when using third-party apps, and permission errors when trying to preview edited posts in the WordPress.com editor.
 
-= 4.6 =
-
-- Release date: February 7, 2017
-- Release post: http://wp.me/p1moTy-40g
+## [4.6] - 2017-02-07
 
 **New Features and Improvements**
 
@@ -3005,10 +2747,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 - There was a Top Posts Widget image size issue when using list layouts, but is no longer causing issues.
 - We fixed some notices and warnings when updating data from the WordPress.com central interface.
 
-= 4.5 =
-
-- Release date: January 17, 2017
-- Release post: http://wp.me/p1moTy-3Kc
+## [4.5] - 2017-01-17
 
 This release introduces a brand-new module, Jetpack Ads, a brand-new VideoPress feature, and a lot of new shortcodes and widgets.
 
@@ -3078,10 +2817,7 @@ This release introduces a brand-new module, Jetpack Ads, a brand-new VideoPress 
 - Added a Translate Widget default title in case you haven't defined one.
 - The Top Posts Widget now avoids layout issues when using the Grid layout while displaying a post without an image.
 
-= 4.4.2 =
-
-- Release date: December 6, 2016
-- Release post: http://wp.me/p1moTy-3JR
+## [4.4.2] - 2016-12-06
 
 This release improves Jetpack compatibility with WordPress 4.7.
 
@@ -3098,10 +2834,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - Sync: now making sure that needed classes are loaded, preventing errors.
 - Sync: cleared out unneeded scheduled jobs.
 
-= 4.4.1 =
-
-- Release date: November 22, 2016
-- Release post: http://wp.me/p1moTy-3JR
+## [4.4.1] - 2016-11-22
 
 **Bug Fixes**
 
@@ -3110,10 +2843,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - Fixed an issue where users on a Jetpack Professional plan who were paying
   monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
 
-= 4.4 =
-
-- Release date: November 21, 2016
-- Release post: http://wp.me/p5U9nj-2Ow
+## [4.4] - 2016-11-21
 
 **Enhancements**
 
@@ -3138,9 +2868,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - Move email notification settings back with the other email settings in the Discussion Settings.
 - Various minor performance/compatibility fixes.
 
-= 4.3.2 =
-
-- Release date: October 13, 2016
+## 4.3.2 - 2016-10-13
 
 **Enhancements**
 
@@ -3172,9 +2900,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - We removed the form legend for default Tiled Gallery settings as it doesn't relate.
 - With shortcodes we now return early from processing them if no string is passed, as they are required.
 
-= 4.3.1 =
-
-- Release date: September 8, 2016
+## 4.3.1 - 2016-09-08
 
 **Support Enhancements**
 
@@ -3209,19 +2935,14 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - Verification Tools: in the Settings card, use appropriate link for each
   service.
 
-
-= 4.3 =
-
-- Release date: September 6th, 2016
+## 4.3 - 2016-09-06
 
 **Exciting Performance and UI Improvements:**
 
 - We have launched the all new React powered interface, a year in the making,
   designed to give you better control of your favorite Jetpack features.
 
-= 4.2.2 =
-
-- Release date: August 19th, 2016
+## 4.2.2 - 2016-08-19
 
 **Bug Fixes:**
 
@@ -3234,9 +2955,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - Improved Sync performance.
 - Increase security by sanitizing a URL used in the SSO process.
 
-= 4.2.1 =
-
-- Release date: August 17th, 2016
+## 4.2.1 - 2016-08-17
 
 **Bug Fixes:**
 
@@ -3246,9 +2965,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
   with WordPress.com.
 - We improved the synchronization process between your site and WordPress.com.
 
-= 4.2 =
-
-- Release date: August 10th, 2016
+## 4.2 - 2016-08-10
 
 **Performance Enhancements:**
 
@@ -3308,9 +3025,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - We’ve exterminated PHP notices that appeared when using Random Redirect, as
   well as when the author wasn't set.
 
-= 4.1.1 =
-
-- Release date: July 7th, 2016
+## 4.1.1 - 2016-07-07
 
 **Bug Fixes:**
 
@@ -3318,10 +3033,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
   devices.
 - Publicize: improve reliability of Publicize when publishing new posts.
 
-= 4.1 =
-
-- Release date: July 6th, 2016
-- Release Post: http://wp.me/p1moTy-3jd
+## [4.1] - 2016-07-06
 
 **Performance Enhancements:**
 
@@ -3422,9 +3134,7 @@ This release improves Jetpack compatibility with WordPress 4.7.
 - We fixed a bug where multiple `display` properties weren’t able to be saved
   in Custom CSS.
 
-= 4.0.4 =
-Release date: June 20th, 2016
-Release Post: http://wp.me/p1moTy-3eT
+## [4.0.4] - 2016-06-20
 
 Security:
 
@@ -3500,23 +3210,18 @@ Bug Fixes:
 - We had some JavaScript errors when you were using the customizer to modify
   widgets. They are no longer with us.
 
-= 4.0.3 =
-Release date: May 26th, 2016
-Release Post: http://wp.me/p1moTy-3hm
+## [4.0.3] - 2016-05-26
 
 - Important security update. Please upgrade immediately.
 
-= 4.0.2 =
-Release date: April 21st, 2016
+## 4.0.2 - 2016-04-21
 
 Bug Fix:
 
 - Addresses an issue where Jetpack 4.0 caused a fatal error on sites with
   specific configurations.
 
-= 4.0 =
-Release date: April 20th, 2016
-Release Post: http://wp.me/p1moTy-3dL
+## [4.0] - 2016-04-20
 
 Performance Enhancements:
 
@@ -3565,15 +3270,11 @@ Bug Fixes:
   virus alert in ClamAV. Expect it to be re-minified in 4.0.3 once we resolve
   the issue with ClamAV.
 
-= 3.9.6 =
-Release date: March 31st, 2016
-Release Post: http://wp.me/p1moTy-3bz
+## [3.9.6] - 2016-03-31
 
 Bug fix: Shortcodes: fixed incorrect Vimeo embed logic.
 
-= 3.9.5 =
-Release date: March 31st, 2016
-Release Post: http://wp.me/p1moTy-3bz
+## [3.9.5] - 2016-03-31
 
 This release features several WordPress 4.5 compatibility changes that make
 several Jetpack features work properly in the Customizer view. Big thanks to
@@ -3589,15 +3290,11 @@ Other enhancements and bug fixes:
 - Shortcodes: made the Vimeo links work properly in case of multiple mixed
   uses in one post.
 
-= 3.9.4 =
-Release date: March 10th, 2016
-Release post: http://wp.me/p1moTy-396
+## [3.9.4] - 2016-03-10
 
 Bug fix: Shortcodes: Addresses an issue with embedded Vimeo content
 
-= 3.9.3 =
-Release date: March 9th, 2016
-Release post: http://wp.me/p1moTy-396
+## [3.9.3] - 2016-03-09
 
 Featured:
 
@@ -3632,9 +3329,7 @@ Bug Fixes:
 - Widgets: No longer showing errors when adding new instances of the Display
   Post Widget.
 
-= 3.9.2 =
-Release date: February 25th, 2016
-Release post: http://wp.me/p1moTy-2Ei
+## [3.9.2] - 2016-02-25
 
 Maintenance and Security Release
 
@@ -3680,8 +3375,7 @@ Bug Fixes:
 - Site Logo: It's no longer possible to choose a non-image.
 - Widget Visibility: No longer confusing page IDs and titles in certain cases.
 
-= 3.9.1 =
-Release date: January 21st, 2016
+## 3.9.1 - 2016-01-21
 
 Bug Fixes:
 
@@ -3690,9 +3384,7 @@ Bug Fixes:
 - Sitemaps: Added MSM-Sitemap to the list of plugins which, if installed, will
   prevent Jetpack Sitemaps from being used
 
-= 3.9 =
-Release date: January 20th, 2016
-Release Post: http://wp.me/p1moTy-29R
+## [3.9] - 2016-01-20
 
 Featured:
 
@@ -3755,9 +3447,7 @@ Bug Fixes:
   Facebook.
 - Widgets: Fixed layout for Twenty Sixteen.
 
-= 3.8.2 =
-Release date: December 17th, 2015
-Release post: http://wp.me/p1moTy-26v
+## [3.8.2] - 2015-12-17
 
 Jetpack 3.8.2 is here to squash a few annoying bugs.
 
@@ -3772,9 +3462,7 @@ Bug Fixes:
 - Fixed typos in inline docs.
 - Very minor fixes to: Carousel, Publicize, Google+, and Infinite Scroll.
 
-= 3.8.1 =
-Release date: December 1st, 2015
-Release post: http://wp.me/p1moTy-23V
+## [3.8.1] - 2015-12-01
 
 Jetpack 3.8.1 is here and is fully compatible with WordPress 4.4.
 
@@ -3798,9 +3486,7 @@ Bug Fixes:
 - Single Sign On: Fixed login always redirecting to the admin dashboard.
 - Subscriptions: Filter to allow per-post emails fixed for use in themes.
 
-= 3.8.0 =
-Release date: November 4th, 2015
-Release post: http://wp.me/p1moTy-1VN
+## [3.8.0] - 2015-11-04
 
 We're happy to introduce Jetpack 3.8, which has significant contributions from
 the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
@@ -3865,15 +3551,11 @@ Bug fixes:
 - Tiled Galleries: Add image alt attribute if there is a title set. This was
   breaking some screen reader functionality.
 
-= 3.7.2 =
-Release date: September 29th, 2015
-Release Post: http://wp.me/p1moTy-1LB
+## [3.7.2] - 2015-09-29
 
 - Bug Fix: REST API: Fixed an error when saving drafts and publishing posts
 
-= 3.7.1 =
-Release date: September 28th, 2015
-Release Post: http://wp.me/p1moTy-1LB
+## [3.7.1] - 2015-09-28
 
 - Enhancement: General: Added inline documentation for various filters and
   functions
@@ -3907,9 +3589,7 @@ Release Post: http://wp.me/p1moTy-1LB
 - Bug Fix: Sharing: Fixed compatibility issues with bbPress
 - Bug Fix: Widget Visibility: Fixed a fatal error in case of a missing tag
 
-= 3.7.0 =
-Release date: September 9th, 2015
-Release Post: http://wp.me/p1moTy-1JB
+## [3.7.0] - 2015-09-09
 
 Feature Enhancements:
 
@@ -3981,8 +3661,7 @@ Additional changes:
 - Bug Fix: Social Links: Fixed a possible conflict with another class
 - Bug Fix: Stats: Made sure the Stats URL is always escaped properly
 
-= 3.6.1 =
-Release Date: July 24, 2015
+## 3.6.1 - 2015-07-24
 
 - Enhancement: Fully compatible with upcoming WordPress 4.3
 - Enhancement: Site Icon: Start to deprecate Site Icon in favor of Core's
@@ -3994,9 +3673,7 @@ Release Date: July 24, 2015
 - Bug Fix: Correct permissions check for connection panel
 - Hardening: Increase permissions checks
 
-= 3.6 =
-Release Date: July 6th, 2015
-Release Post: http://wp.me/p1moTy-1ua
+## [3.6] - 2015-07-06
 
 Feature Enhancements:
 
@@ -4056,19 +3733,15 @@ Additional changes:
   Mosaic galleries are the default
 - Bug Fix: Twitter Cards: Remove deprecated card types
 
-= 3.5.3 =
-Release Date: May 6th, 2015
+## 3.5.3 - 2015-05-06
 
 - Security Hardening: Remove Genericons example.html file.
 
-= 3.5.2 =
-Release Date: May 5th, 2015
+## 3.5.2 - 2015-05-05
 
 - Bug Fix: Sharing: Changes Facebook share count endpoint
 
-
-= 3.5.1 =
-Release Date: May 5th, 2015
+## 3.5.1 - 2015-05-05
 
 - Enhancement: Sharing: Changes Facebook share count method per Facebook API
   change
@@ -4077,9 +3750,7 @@ Release Date: May 5th, 2015
 - Bug Fix: Subscriptions: Correct required input validation
 - Security hardening
 
-= 3.5 =
-Release Date: April 23rd, 2015
-Release Post: http://wp.me/p1moTy-1jF
+## [3.5] - 2015-04-23
 
 Jetpack 3.5 introduces the ability to manage your site's menus directly from
 WordPress.com and several bug fixes and enhancements. This upgrade is
@@ -4107,15 +3778,11 @@ recommended for all users.
 - Bug Fix: Theme Tools: Include breadcrumb code
 - Misc: Extra Sidebar Widgets: Remove Readmill Widget
 
-= 3.4.3 =
-Release Date: April 20th, 2015
-Release Post: http://wp.me/p1moTy-1jb
+## [3.4.3] - 2015-04-20
 
 - Security hardening.
 
-= 3.4.2 =
-Release Date: April 19th, 2015
-Release Post: http://wp.me/p1moTy-1j6
+## [3.4.2] - 2015-04-19
 
 - Bug Fix: Contact info widget namespacing
 - Bug Fix: Javascript errors on wp-admin due to stats display code
@@ -4123,8 +3790,7 @@ Release Post: http://wp.me/p1moTy-1j6
 - Bug Fix: Potential fatal error when protect servers are unreachable for
   WordPress Multisite
 
-= 3.4.1 =
-Release Date: March 19th, 2015
+## 3.4.1 - 2015-03-19
 
 - Bug Fix: General: Modules not displaying properly in non-English installs
 - Bug Fix: Manage: Some installs showing a transient fatal error
@@ -4134,9 +3800,7 @@ Release Date: March 19th, 2015
 - Bug Fix: Stats: Top posts/pages widget not loading
 - Bug Fix: Contact Info Widget: Fix conflict with Avada theme
 
-= 3.4 =
-Release Date: March 18th, 2015
-Release Post: http://wp.me/p1moTy-1fU
+## [3.4] - 2015-03-18
 
 - Enhancement: Config Settings: provide a notification for users that update
   features settings
@@ -4215,9 +3879,7 @@ Release Post: http://wp.me/p1moTy-1fU
 - Bug Fix: Stats language
 - Bug Fix: Subscritpions: fix invalid field when no email address
 
-
-= 3.3.2 =
-Release Date: February 19th, 2015
+## 3.3.2 - 2015-02-19
 
 - Enhancement: Updated translation files.
 - Enhancement: Heartbeat: Correctly stat new datasets.
@@ -4227,8 +3889,7 @@ Release Date: February 19th, 2015
 - Bug Fix: Photon: Make sure our gallery filter can parse array inputs as well
   as the default html.
 
-= 3.3.1 =
-Release Date: February 11th, 2015
+## 3.3.1 - 2015-02-11
 
 - Bug Fix: JSON API: Minor versioning data.
 - Bug Fix: Markdown: Re-run KSES after processing to account for syntax
@@ -4249,9 +3910,7 @@ Release Date: February 11th, 2015
 - Bug Fix: Widgets: Gallery Widget: Allow folks to upload images from the
   widget area in the customizer.
 
-= 3.3 =
-Release Date: December 15th, 2014
-Release Post: http://wp.me/p1moTy-1aF
+## [3.3] - 2014-12-15
 
 - Enhancement: Adds responsive video support to BuddyPress.
 - Enhancement: Custom Content Types: Added 'order' and 'orderby' options to
@@ -4300,8 +3959,7 @@ Release Post: http://wp.me/p1moTy-1aF
 - Bug Fix: Site Logo: Correct evaluation of the Display Header Text in
   Customizer preview.
 
-= 3.2.1 =
-Release Date: November 14th, 2014
+## 3.2.1 - 2014-11-14
 
 - Enhancement: Updated translation files.
 - Enhancement: JSON API: More object vars passed back to some queries.
@@ -4321,9 +3979,7 @@ Release Date: November 14th, 2014
 - Bug Fix: Sharing: enqueue Genericons on static front page as well if
   selected.
 
-= 3.2 =
-Release Date: October 29, 2014
-Release Post: http://wp.me/p1moTy-181
+## [3.2] - 2014-10-29
 
 - Enhancement: Speed Improvements (woohoo!).
 - Enhancement: Add site icons: an avatar for your blog.
@@ -4351,9 +4007,7 @@ Release Post: http://wp.me/p1moTy-181
 - Bug Fix: Fixed styles in ShareDaddy.
 - Bug Fix: Better match protocols (http/https) to the site.
 
-
-= 3.1.1 =
-Release Date: August 7, 2014
+## 3.1.1 - 2014-08-07
 
 - Enhancement: Update translation files for strings that had been
   submitted/approved since release.
@@ -4367,9 +4021,7 @@ Release Date: August 7, 2014
   should be an array occasionally wasn't.
 - Bug Fix: Custom CSS: Add extra whitelist rule for -o-keyframe rules.
 
-= 3.1 =
-Release Date: July 31, 2014
-Release Post: http://wp.me/p1moTy-129
+## [3.1] - 2014-07-31
 
 - Enhancement: New Custom Content Types module.
 - Enhancement: New Jetpack Logo.
@@ -4423,8 +4075,7 @@ Release Post: http://wp.me/p1moTy-129
   flickering.
 - Bug Fix: Widgets Visibility: Works better in the customizer admin view.
 
-= 3.0.2 =
-Release Date: June 17, 2014
+## 3.0.2 - 2014-06-17
 
 - Enhancement: General: Make module categories filter more visible when
   active.
@@ -4453,8 +4104,7 @@ Release Date: June 17, 2014
 - Bug Fix: Open Graph: Resolved PHP warning on open graph gallery pages when
   the gallery is empty.
 
-= 3.0.1 =
-Release Date: May 22, 2014
+## 3.0.1 - 2014-05-22
 
 - Bug Fix: AtD: A wpcom-only function got synced by mistake and caused a few
   errors. Fixed.
@@ -4468,9 +4118,7 @@ Release Date: May 22, 2014
 - Bug Fix: Infinite Scroll: Work better with core's MediaElement.js
 - Bug Fix: Heartbeat: Undeclared variable fixed.
 
-= 3.0 =
-Release Date: May 20, 2014
-Release Post: http://wp.me/p1moTy-Wi
+## [3.0] - 2014-05-20
 
 - New User Interface for managing modules and settings
 - New Module: Verfication Tools
@@ -4503,20 +4151,16 @@ Release Post: http://wp.me/p1moTy-Wi
 - Bug Fix: Ensure Sharing settings persist when Bulk Editing a post
 - Bug Fix: Various other shortcode improvements
 
-= 2.9.3 =
-Release Date: April 10, 2014
-Release Post: http://wp.me/p1moTy-U2
+## [2.9.3] - 2014-04-10
 
 - Important security update. CVE-2014-0173
 
-= 2.9.2 =
-Release Date: March 17, 2014
+## 2.9.2 - 2014-03-17
 
 - Bug Fix: Publicize: When publishing from a mobile app or third-party client,
   Publicize now works again.
 
-= 2.9.1 =
-Release Date: March 6, 2014
+## 2.9.1 - 2014-03-06
 
 - Bug Fix: After the Deadline: Fix a Javascript glitch that could prevent
   publishing of posts.
@@ -4524,9 +4168,7 @@ Release Date: March 6, 2014
   before release. This would have only been an issue if a site administrator
   had enabled the module during an early beta of 2.9.
 
-= 2.9 =
-Release Date: February 26, 2014
-Release Post: http://wp.me/p1moTy-RN
+## [2.9] - 2014-02-26
 
 - Added Multisite network functionality
 - New Module: Related Posts
@@ -4553,9 +4195,7 @@ Release Post: http://wp.me/p1moTy-RN
 - Other bugfixes and enhancements at
   https://github.com/Automattic/jetpack/commits/2.9
 
-= 2.8 =
-Release Date: January 31, 2014
-Release Post: http://wp.me/p1moTy-Pd
+## [2.8] - 2014-01-31
 
 - New Module: Markdown
 - Module Update: Jetpack Monitor
@@ -4606,9 +4246,7 @@ Release Post: http://wp.me/p1moTy-Pd
 - Bug Fix: Some plugins trying to catch brute-force attacks mistakenly flagged
   the Jetpack connection as one.
 
-= 2.7 =
-Release Date: December 11, 2013
-Release Post: http://wp.me/p1moTy-Mk
+## [2.7] - 2013-12-11
 
 - Enhancement: Google+ Publicize
 - Enhancement: Add Cloudup as an oEmbed provider
@@ -4646,8 +4284,7 @@ Release Post: http://wp.me/p1moTy-Mk
 - Bug Fix: Misc: Prevent collisions with 'Facebook Featured Image & OG Meta
   Tags' plugin
 
-= 2.6.1 =
-Release Date: December 3, 2013
+## 2.6.1 - 2013-12-03
 
 - Bug Fix: minor styling fix in pre- and post-MP6/3.8 UI changes.
 - Bug Fix: Stats: spinner gif url fix when the user is viewing it over https.
@@ -4661,9 +4298,7 @@ Release Date: December 3, 2013
 - Bug Fix: Correct max supported version number -- had been 3.6, update to
   3.7.1
 
-= 2.6 =
-Release Date: November 28, 2013
-Release Post: http://wp.me/p1moTy-KE
+## [2.6] - 2013-11-28
 
 - Enhancement: WPCC / now called [SSO](http://jetpack.com/support/sso/):
   refactored.
@@ -4717,9 +4352,7 @@ Release Post: http://wp.me/p1moTy-KE
 - Bug Fix: Tiled Galleries: improve display of panoramic images and fix errors
   when an image is not uploaded properly.
 
-= 2.5 =
-Release Date: September 19, 2013
-Release Post: http://wp.me/p1moTy-xS
+## [2.5] - 2013-09-19
 
 - Enhancement: Connect your Google+ profile and WordPress site to prove
   authorship of posts.
@@ -4747,8 +4380,7 @@ Release Post: http://wp.me/p1moTy-xS
 - Enhancement: Better handling of cookies for subsites on multisite installs
 - Bug Fix: Check for post in G+ authorship before accessing it
 
-= 2.4.2 =
-Release Date: September 5, 2013
+## 2.4.2 - 2013-09-05
 
 - Enhancement: Converted to module headers to detect Auto-Activating modules.
 - Enhancement: WPCC: Added 'Close' link to deactivate WPCC in the admin nag.
@@ -4774,14 +4406,11 @@ Release Date: September 5, 2013
   included.
 - Bug Fix: Slideshow Shortcode: Add a height of 410px.
 
-= 2.4.1 =
-Release Date: September 4, 2013
+## 2.4.1 - 2013-09-04
 
 - Enhancement: Don't auto-activate WPCC.
 
-= 2.4 =
-Release Date: August 30, 2013
-Release Post: http://wp.me/p1moTy-wv
+## [2.4] - 2013-08-30
 
 - Enhancement: WordPress.com Connect (WPCC): New Module.
 - Enhancement: Widget Visibility: New Module.
@@ -4811,15 +4440,11 @@ Release Post: http://wp.me/p1moTy-wv
 - Bug Fix: Add an empty debug.php file to the /modules/ folder, to solve some
   update issues where it never got deleted.
 
-= 2.3.5 =
-Release Date: August 12, 2013
-Release Post: http://wp.me/p1moTy-vf
+## [2.3.5] - 2013-08-12
 
 - Enhancement: Added Path support to Publicize.
 
-= 2.3.4 =
-Release Date: August 6, 2013
-Release Post: http://wp.me/p1moTy-uL
+## [2.3.4] - 2013-08-06
 
 - Bug Fix: Correct when output occurs with CSV export for feedback.
 - Bug Fix: Tidy up the Heartbeat API.
@@ -4835,18 +4460,14 @@ Release Post: http://wp.me/p1moTy-uL
 - Deprecation: Removing the retinization code for 3.4, as it was included in
   WordPress trunk from 3.5 onwards.
 
-= 2.3.3 =
-Release Date: July 26, 2013
-Release Post: http://wp.me/p1moTy-uv
+## [2.3.3] - 2013-07-26
 
 - Bug Fix: We were inadvertently overwriting cron schedules with our Jetpack
   heartbeat. This should now be fixed.
 - Enhancement: New Facebook Sharing icons.
 - Enhancement: Minor update to the Minileven stylesheet.
 
-= 2.3.2 =
-Release Date: July 25, 2013
-Release Post: http://wp.me/p1moTy-uv
+## [2.3.2] - 2013-07-25
 
 - Bug Fix: Fixed an issue where Facebook Pages were not available when
   connecting a Publicize account.
@@ -4854,9 +4475,7 @@ Release Post: http://wp.me/p1moTy-uv
   occur consistently on connecting to WordPress.com.
 - Enhancement: Adding some new stats and heartbeat checking to Jetpack.
 
-= 2.3.1 =
-Release Date: July 2, 2013
-Release Post: http://wp.me/p1moTy-t9
+## [2.3.1] - 2013-07-02
 
 - Enhancement: Social Links: Retooling the class for better consistency and
   performance behind the scenes.
@@ -4891,9 +4510,7 @@ Release Post: http://wp.me/p1moTy-t9
   method.
 - Bug Fix: Add some further security measures to module activation.
 
-= 2.3 =
-Release Date: June 19, 2013
-Release Post: http://wp.me/p1moTy-rX
+## [2.3] - 2013-06-19
 
 - Enhancement: Omnisearch: Search once, get results from everything!
   Omnisearch is a single search box that lets you search many different things
@@ -4976,9 +4593,7 @@ Release Post: http://wp.me/p1moTy-rX
 - Note: Adding Jetpack_Options class, and abstracting out options functions to
   it
 
-= 2.2.5 =
-Release Date: May 1, 2013
-Release Post: http://wp.me/p1moTy-p8
+## [2.2.5] - 2013-05-01
 
 - Enhancement: Stats: Counting of registered users' views can now be enabled
   for specific roles
@@ -4989,16 +4604,12 @@ Release Post: http://wp.me/p1moTy-p8
   theme's content width
 - Bug Fix: Custom CSS: Fix possible missing argument warning.
 
-= 2.2.4 =
-Release Date: April 26, 2013
-Release Post: http://wp.me/p1moTy-oU
+## [2.2.4] - 2013-04-26
 
 - Bug Fix: JSON API compat file include was not assigning a variable
   correctly, thus throwing errors. This has been resolved.
 
-= 2.2.3 =
-Release Date: April 26, 2013
-Release Post: http://wp.me/p1moTy-oR
+## [2.2.3] - 2013-04-26
 
 - Enhancement: Comments - Add the reply-title H3 to the comment form so that
   themes or user CSS can style it
@@ -5074,8 +4685,7 @@ Release Post: http://wp.me/p1moTy-oR
 - Enhancement: Twitter Timeline Widget: New JavaScript based widget. Old one
   will discontinue May 7th.
 
-= 2.2.2 =
-Release Date: April 5, 2013
+## 2.2.2 - 2013-04-05
 
 - Enhancement: Mobile Theme: Add controls for custom CSS.
 - Enhancement: Sharing: Add Pocket to the available services.
@@ -5088,9 +4698,7 @@ Release Date: April 5, 2013
 - Bug Fix: Widgets: Update wording on the Top Posts widget for clarity.
 - Bug Fix: Jetpack Post Images security fixes.
 
-= 2.2.1 =
-Release Date: March 28, 2013
-Release Post: http://wp.me/p1moTy-ob
+## [2.2.1] - 2013-03-28
 
 - Enhancement: Development Mode: Define the `JETPACK_DEV_DEBUG` constant to
   `true` to enable an offline mode for localhost development. Only modules that
@@ -5150,9 +4758,7 @@ Release Post: http://wp.me/p1moTy-ob
   a chance to run
 - Bug Fix: Prophylactic strict equality check
 
-= 2.2 =
-Release Date: February 26, 2013
-Release Post: http://wp.me/p1moTy-ns
+## [2.2] - 2013-02-26
 
 - Enhancement: Likes: Allow your readers to show their appreciation of your
   posts.
@@ -5202,8 +4808,7 @@ Release Post: http://wp.me/p1moTy-ns
 - Bug Fix: Publicize: Twitter: Re-enable character count turning red when more
   than 140 characters are typed.
 
-= 2.1.2 =
-Release Date: February 5, 2013
+## 2.1.2 - 2013-02-05
 
 - Enhancement: Infinite Scroll: Introduce filters for Infinite Scroll.
 - Enhancement: Shortcodes: TED shortcode.
@@ -5251,17 +4856,12 @@ Release Date: February 5, 2013
 - Bug Fix: typo in delete_post_action function.
 - Bug Fix: Load rendered LaTeX image on same protocol as its page.
 
-
-= 2.1.1 =
-Release Date: January 5, 2013
-Release Post: http://wp.me/p1moTy-ng
+## [2.1.1] - 2013-01-05
 
 - Bug Fix: Fix for an error appearing for blogs updating from Jetpack 1.9.2 or
   earlier to 2.1.
 
-= 2.1 =
-Release Date: January 4, 2013
-Release Post: http://wp.me/p1moTy-m3
+## [2.1] - 2013-01-04
 
 - Enhancement: Tiled Galleries: Show off your photos with cool mosaic
   galleries.
@@ -5290,17 +4890,12 @@ Release Post: http://wp.me/p1moTy-m3
 - Bug Fix: Photon: Handle images with relative paths.
 - Bug Fix: Contact Form: Fix compatibility with the Shortcode Embeds module.
 
-
-= 2.0.4 =
-Release Date: December 14, 2012
-Release Post: http://wp.me/p1moTy-lT
+## [2.0.4] - 2012-12-14
 
 - Bug Fix: Open Graph: Correct a bug that prevents Jetpack from being
   activated if the SharePress plugin isn't installed.
 
-= 2.0.3 =
-Release Date: December 14, 2012
-Release Post: http://wp.me/p1moTy-lJ
+## [2.0.3] - 2012-12-14
 
 - Enhancement: Infinite Scroll: support
   [VideoPress](https://wordpress.org/plugins/video/) plugin.
@@ -5317,16 +4912,12 @@ Release Post: http://wp.me/p1moTy-lJ
 - Bug Fix: Custom CSS: Fix for bug preventing @import from working with
   url()-style URLs.
 
-= 2.0.2 =
-Release Date: November 21, 2012
-Release Post: http://wp.me/p1moTy-lu
+## [2.0.2] - 2012-11-21
 
 - Bug Fix: Remove an erroneous PHP short open tag with the full tag to correct
   fatal errors under certain PHP configurations.
 
-= 2.0.1 =
-Release Date: November 21, 2012
-Release Post: http://wp.me/p1moTy-lc
+## [2.0.1] - 2012-11-21
 
 - Enhancement: Photon: Support for the [Lazy
   Load](https://wordpress.org/plugins/lazy-load/) plugin.
@@ -5343,9 +4934,7 @@ Release Post: http://wp.me/p1moTy-lc
 - Bug Fix: Notifications: Use locally-installed Javascript libraries if
   available.
 
-= 2.0 =
-Release Date: November 8, 2012
-Release Post: http://wp.me/p1moTy-jg
+## [2.0] - 2012-11-08
 
 - Enhancement: Publicize: Connect your site to popular social networks and
   automatically share new posts with your friends.
@@ -5367,14 +4956,11 @@ Release Post: http://wp.me/p1moTy-jg
 - Bug Fix: JSON API: Fixed error when creating some posts in some versions of
   PHP.
 
-= 1.9.2 =
-Release Date: October 29, 2012
+## 1.9.2 - 2012-10-29
 
 - Bug Fix: Only sync options on upgrade once.
 
-= 1.9.1 =
-Release Date: October 29, 2012
-Release Post: http://wp.me/p1moTy-iC
+## [1.9.1] - 2012-10-29
 
 - Enhancement: Notifications feature is enabled for logged-out users when the
   module is active & the toolbar is shown by another plugin.
@@ -5383,9 +4969,7 @@ Release Post: http://wp.me/p1moTy-iC
   WordPress.com. Fixes comment notifications marked as spam appearing to be
   trashed.
 
-= 1.9 =
-Release Date: October 26, 2012
-Release Post: http://wp.me/p1moTy-hC
+## [1.9] - 2012-10-26
 
 - Enhancement: Notifications: Display Notifications in the toolbar and support
   reply/moderation of comment notifications.
@@ -5421,8 +5005,7 @@ Release Post: http://wp.me/p1moTy-hC
 - Bug Fix: Contact Form: Fix a bug where some web hosts would reject mail from
   the contact form due to email address spoofing.
 
-= 1.8.3 =
-Release Date: October 23, 2012
+## 1.8.3 - 2012-10-23
 
 - Bug Fix: Subscriptions: Fix a bug where subscriptions were not being sent
   from the blog.
@@ -5431,9 +5014,7 @@ Release Date: October 23, 2012
 - Bug Fix: Fix a bug where Contact Form notification emails were not being
   sent.
 
-= 1.8.2 =
-Release Date: October 4, 2012
-Release Post: http://wp.me/p1moTy-gI
+## [1.8.2] - 2012-10-04
 
 - Bug Fix: Subscriptions: Fix a bug where subscriptions were not sent for
   posts and comments written by some authors.
@@ -5442,9 +5023,7 @@ Release Post: http://wp.me/p1moTy-gI
 - Bug Fix: Custom CSS: Make the default "Welcome" message translatable.
 - Bug Fix: Fix Lithuanian translation.
 
-= 1.8.1 =
-Release Date: September 28, 2012
-Release Post: http://wp.me/p1moTy-gx
+## [1.8.1] - 2012-09-28
 
 - Bug Fix: Stats: Fixed a bug preventing some users from viewing stats.
 - Bug Fix: Mobile Theme: Fixed some disabled toolbar buttons.
@@ -5458,9 +5037,7 @@ Release Post: http://wp.me/p1moTy-gx
 - Bug Fix: Mobile Theme: Fixed a bug that caused errors for some users with
   custom header images.
 
-= 1.8 =
-Release Date: September 27, 2012
-Release Post: http://wp.me/p1moTy-fV
+## [1.8] - 2012-09-27
 
 - Enhancement: Mobile Theme: Automatically serve a slimmed down version of
   your site to users on mobile devices.
@@ -5482,9 +5059,7 @@ Release Post: http://wp.me/p1moTy-fV
 - Bug Fix: Sharing: Fix Google +1 button HTML validation issues (again :))
 - Bug Fix: Gravatar Profile Widget: Reduce size of header margins
 
-= 1.7 =
-Release Date: August 23, 2012
-Release Post: http://wp.me/p1moTy-eq
+## [1.7] - 2012-08-23
 
 - Enhancement: CSS Editor: Customize your site's design without modifying your
   theme.
@@ -5516,16 +5091,13 @@ Release Post: http://wp.me/p1moTy-eq
   when page first loads on some sites
 - Bug Fix: Carousel: CSS Compatibility with more themes.
 
-= 1.6.1 =
-Release Date: August 4, 2012
+## 1.6.1 - 2012-08-04
 
 - Bug Fix: Prevent Fatal error under certain conditions in sharing module
 - Bug Fix: Add cachebuster to sharing.css
 - Bug Fix: Disable via for Twitter until more robust code is in place
 
-= 1.6 =
-Release Date: August 2, 2012
-Release Post: http://wp.me/p1moTy-e0
+## [1.6] - 2012-08-02
 
 - Enhancement: Carousel: Better image resolution selection based on available
   width/height.
@@ -5554,16 +5126,13 @@ Release Post: http://wp.me/p1moTy-e0
 - Bug Fix: Contact Form: If send_to_editor() exists, use it. Fixes an IE9 text
   area issue.
 
-= 1.5 =
-Release Date: July 31, 2012
-Release Post: http://wp.me/p1moTy-d7
+## [1.5] - 2012-07-31
 
 - Enhancement: Add Gallery Carousel feature
 - Note: the Carousel module bundles http://fgnass.github.com/spin.js/ (MIT
   license)
 
-= 1.4.2 =
-Release Date: June 20, 2012
+## 1.4.2 - 2012-06-20
 
 - Bug Fix: Jetpack Comments: Add alternative Javascript event listener for
   Internet 8 users.
@@ -5571,15 +5140,12 @@ Release Date: June 20, 2012
   andJetpack only support PHP 5).
 - Enhancement: Remove more WordPress 3.1 and under backwards-compatible code.
 
-= 1.4.1 =
-Release Date: June 15, 2012
+## 1.4.1 - 2012-06-15
 
 - Bug Fix: Jetpack Comments / Subscriptions: Add checkboxes and logic control
   for the Subscription checkboxes.
 
-= 1.4 =
-Release Date: June 14, 2012
-Release Post: http://wp.me/p1moTy-cz
+## [1.4] - 2012-06-14
 
 - Enhancement: Add Jetpack Comments feature.
 - Bug Fix: Sharing: Make the sharing_label translatable.
@@ -5599,23 +5165,19 @@ Release Post: http://wp.me/p1moTy-cz
   shortcode.
 - Bug Fix: After the Deadline: Code clean up and removal of inconsistencies.
 
-= 1.3.4 =
-Release Date: May 24, 2012
+## 1.3.4 - 2012-05-24
 
 - Bug Fix: Revert changes to the top level menu that are causing problems.
 
-= 1.3.3 =
-Release Date: May 22, 2012
+## 1.3.3 - 2012-05-22
 
 - Bug Fix: Fix notices caused by last update
 
-= 1.3.2 =
-Release Date: May 22, 2012
+## 1.3.2 - 2012-05-22
 
 - Bug Fix: Fix Jetpack menu so that Akismet and VaultPress submenus show up.
 
-= 1.3.1 =
-Release Date: May 22, 2012
+## 1.3.1 - 2012-05-22
 
 - Enhancement: Add a new widget, the Facebook Likebox
 - Bug Fix: Sharing: Sharing buttons can now be used on custom post types.
@@ -5629,22 +5191,17 @@ Release Date: May 22, 2012
 - Bug Fix: Subscriptions: Fix an issue that was causing errors with new
   BuddyPress forum posts.
 
-= 1.3 =
-Release Date: April 25, 2012
-Release Post: http://wp.me/p1moTy-bq
+## [1.3] - 2012-04-25
 
 - Enhancement: Add Contact Forms feature. Formerly Grunion Contact Forms.
 - Bug Fix: Tweak YouTube autoembedder to catch more YouTube URLs.
 - Bug Fix: Correctly load the Sharing CSS files.
 
-= 1.2.4 =
-Release Date: April 6, 2012
+## 1.2.4 - 2012-04-06
 
 - Bug Fix: Fix rare bug with static front pages
 
-= 1.2.3 =
-Release Date: April 5, 2012
-Release Post: http://wp.me/p1moTy-b4
+## [1.2.3] - 2012-04-05
 
 - Enhancement: Twitter Widget: Expand t.co URLs
 - Bug Fix: Various PHP Notices.
@@ -5674,18 +5231,14 @@ Release Post: http://wp.me/p1moTy-b4
 - Bug Fix: Spelling and Grammar: Don't prevent post save when proofreading
   service is unavailable.
 
-= 1.2.2 =
-Release Date: December 6, 2011
-Release Post: http://wp.me/p1moTy-ax
+## [1.2.2] - 2011-12-06
 
 - Bug Fix: Ensure expected modules get reactivated correctly during upgrade.
 - Bug Fix: Don't send subscription request during spam comment submission.
 - Bug Fix: Increased theme compatibility for subscriptions.
 - Bug Fix: Remove reference to unused background image.
 
-= 1.2.1 =
-Release Date: November 18, 2011
-Release Post: http://wp.me/p1moTy-9H
+## [1.2.1] - 2011-11-18
 
 - Bug Fix: Ensure Site Stats menu item is accessible.
 - Bug Fix: Fixed errors displayed during some upgrades.
@@ -5693,9 +5246,7 @@ Release Post: http://wp.me/p1moTy-9H
 - Bug Fix: Fix VaultPress detection.
 - Bug Fix: Fix link to http://jetpack.com/faq/
 
-= 1.2 =
-Release Date: November 17, 2011
-Release Post: http://wp.me/p1moTy-8x
+## [1.2] - 2011-11-17
 
 - Enhancement: Add Subscriptions: Subscribe to site's posts and posts'
   comments.
@@ -5711,9 +5262,7 @@ Release Post: http://wp.me/p1moTy-8x
 - Bug Fix: Translatable module names/descriptinos.
 - Bug Fix: Correctly detect host's ability to make outgoing HTTPS requests.
 
-= 1.1.3 =
-Release Date: July 19, 2011
-Release Post: http://wp.me/p1moTy-90
+## [1.1.3] - 2011-07-19
 
 - Bug Fix: Increase compatibility with WordPress 3.2's new
   `wp_remote_request()` API.
@@ -5727,9 +5276,7 @@ Release Post: http://wp.me/p1moTy-90
 - Translations: Updated: Spanish, French, Italian, Japanese, Brazilian
   Portuguese, Portuguese
 
-= 1.1.2 =
-Release Date: July 6, 2011
-Release Post: http://wp.me/p1moTy-8B
+## [1.1.2] - 2011-07-06
 
 - Bug Fix: Note, store, and keep fresh the time difference between the Jetpack
   site's host and the Jetpack servers at WordPress.com. Should fix all
@@ -5752,9 +5299,7 @@ Release Post: http://wp.me/p1moTy-8B
 - Enhancement: Sharedaddy: Improve localization for Facebook Like button.
 - Enhancement: Gravatar Hovercards: Improved experience for Windows browsers.
 
-= 1.1.1 =
-Release Date: March 19, 2011
-Release Post: http://wp.me/p1moTy-8i
+## [1.1.1] - 2011-03-19
 
 - Bug Fix: Improve experience on hosts capable of making outgoing HTTPS
   requests but incapable of verifying SSL certificates. Fixes most "Your Jetpack
@@ -5784,8 +5329,154 @@ Release Post: http://wp.me/p1moTy-8i
   stats reports.
 - Enhancement: Improve performance of LaTeX URLs be using cookieless CDN.
 
-= 1.1 =
-Release Date: March 9, 2011
-Release post: http://wp.me/p1moTy-7R
+## [1.1] - 2011-03-09
 
 - Initial release
+
+[9.5]: https://wp.me/p1moTy-uSv
+[9.4]: https://wp.me/p1moTy-tOv
+[9.3]: https://wp.me/p1moTy-sgZ
+[9.2]: https://wp.me/p1moTy-scn
+[9.1]: https://wp.me/p1moTy-s0E
+[9.0]: https://wp.me/p1moTy-rLy
+[8.9]: https://wp.me/p1moTy-rAs
+[8.8]: https://wp.me/p1moTy-rs2
+[8.7]: https://wp.me/p1moTy-qiH
+[8.6]: https://wp.me/p1moTy-pb1
+[8.5]: https://wp.me/p1moTy-p00
+[8.4]: https://wp.me/p1moTy-oPp
+[8.3]: https://wp.me/p1moTy-nZT
+[8.2]: https://wp.me/p1moTy-mVu
+[8.1.1]: https://wp.me/p1moTy-lJT
+[8.1]: https://wp.me/p1moTy-lJT
+[8.0]: https://wp.me/p1moTy-lGH
+[7.9.1]: https://wp.me/p1moTy-lHA
+[7.9]: https://wp.me/p1moTy-lzt
+[7.8]: https://wp.me/p1moTy-lvE
+[7.7]: https://wp.me/p1moTy-log
+[7.6]: https://wp.me/p1moTy-ljs
+[7.5.3]: https://wp.me/p1moTy-k9A
+[7.5.2]: https://wp.me/p1moTy-k9A
+[7.5.1]: https://wp.me/p1moTy-k9A
+[7.5]: https://wp.me/p1moTy-k9A
+[7.4.1]: https://wp.me/p1moTy-kvz
+[7.4]: https://wp.me/p1moTy-jgZ
+[7.3.1]: https://wp.me/p1moTy-jgO
+[7.3]: https://wp.me/p1moTy-ipR
+[7.2.1]: https://wp.me/p1moTy-h7o
+[7.2]: https://wp.me/p1moTy-foe
+[7.1.1]: https://wp.me/p1moTy-foJ
+[7.1]: https://wp.me/p1moTy-e9x
+[7.0.1]: https://wp.me/p1moTy-eFX
+[7.0]: https://wp.me/p1moTy-dqO
+[6.9]: https://wp.me/p1moTy-cEZ
+[6.8.1]: https://wp.me/p1moTy-d3t
+[6.8]: https://wp.me/p1moTy-cee
+[6.7]: https://wp.me/p1moTy-aEq
+[6.6.1]: https://wp.me/p1moTy-aEt
+[6.6]: https://wp.me/p1moTy-aa1
+[6.5]: https://wp.me/p1moTy-a7U
+[6.4.2]: https://wp.me/p1moTy-9pL
+[6.4.1]: https://wp.me/p1moTy-9pc
+[6.4]: https://wp.me/p1moTy-9md
+[6.3.3]: https://wp.me/p1moTy-9n0
+[6.3.2]: https://wp.me/p1moTy-96E
+[6.3]: https://wp.me/p1moTy-8ag
+[6.2.1]: https://wp.me/p1moTy-8am
+[6.2]: https://wp.me/p1moTy-88v
+[6.1.1]: https://wp.me/p1moTy-85t
+[6.1]: https://wp.me/p1moTy-7Sj
+[6.0]: https://wp.me/p1moTy-7xM
+[5.9]: https://wp.me/p1moTy-7mW
+[5.8]: https://wp.me/p1moTy-731
+[5.7.1]: https://wp.me/p1moTy-7aS
+[5.7]: https://wp.me/p1moTy-6FR
+[5.6.1]: https://wp.me/p1moTy-6Jk
+[5.6]: https://wp.me/p1moTy-6zt
+[5.5.1]: https://wp.me/p1moTy-6Bd
+[5.5]: https://wp.me/p1moTy-6rk
+[5.4]: http://wp.me/p1moTy-67V
+[5.3]: http://wp.me/p1moTy-5Xv
+[5.2.1]: https://jetpack.com/?p=22686
+[5.2]: https://jetpack.com/?p=22509
+[5.1]: https://jetpack.com/?p=20888
+[5.0]: http://wp.me/p1moTy-5hK
+[4.9]: http://wp.me/p1moTy-4Rl
+[4.8.2]: http://wp.me/p1moTy-4P0
+[4.8.1]: http://wp.me/p1moTy-4N5
+[4.8]: http://wp.me/p1moTy-4gA
+[4.7.1]: http://wp.me/p1moTy-48Y
+[4.7]: http://wp.me/p1moTy-46L
+[4.6]: http://wp.me/p1moTy-40g
+[4.5]: http://wp.me/p1moTy-3Kc
+[4.4.2]: http://wp.me/p1moTy-3JR
+[4.4.1]: http://wp.me/p1moTy-3JR
+[4.4]: http://wp.me/p5U9nj-2Ow
+[4.1]: http://wp.me/p1moTy-3jd
+[4.0.4]: http://wp.me/p1moTy-3eT
+[4.0.3]: http://wp.me/p1moTy-3hm
+[4.0]: http://wp.me/p1moTy-3dL
+[3.9.6]: http://wp.me/p1moTy-3bz
+[3.9.5]: http://wp.me/p1moTy-3bz
+[3.9.4]: http://wp.me/p1moTy-396
+[3.9.3]: http://wp.me/p1moTy-396
+[3.9.2]: http://wp.me/p1moTy-2Ei
+[3.9]: http://wp.me/p1moTy-29R
+[3.8.2]: http://wp.me/p1moTy-26v
+[3.8.1]: http://wp.me/p1moTy-23V
+[3.8.0]: http://wp.me/p1moTy-1VN
+[3.7.2]: http://wp.me/p1moTy-1LB
+[3.7.1]: http://wp.me/p1moTy-1LB
+[3.7.0]: http://wp.me/p1moTy-1JB
+[3.6]: http://wp.me/p1moTy-1ua
+[3.5]: http://wp.me/p1moTy-1jF
+[3.4.3]: http://wp.me/p1moTy-1jb
+[3.4.2]: http://wp.me/p1moTy-1j6
+[3.4]: http://wp.me/p1moTy-1fU
+[3.3]: http://wp.me/p1moTy-1aF
+[3.2]: http://wp.me/p1moTy-181
+[3.1]: http://wp.me/p1moTy-129
+[3.0]: http://wp.me/p1moTy-Wi
+[2.9.3]: http://wp.me/p1moTy-U2
+[2.9]: http://wp.me/p1moTy-RN
+[2.8]: http://wp.me/p1moTy-Pd
+[2.7]: http://wp.me/p1moTy-Mk
+[2.6]: http://wp.me/p1moTy-KE
+[2.5]: http://wp.me/p1moTy-xS
+[2.4]: http://wp.me/p1moTy-wv
+[2.3.5]: http://wp.me/p1moTy-vf
+[2.3.4]: http://wp.me/p1moTy-uL
+[2.3.3]: http://wp.me/p1moTy-uv
+[2.3.2]: http://wp.me/p1moTy-uv
+[2.3.1]: http://wp.me/p1moTy-t9
+[2.3]: http://wp.me/p1moTy-rX
+[2.2.5]: http://wp.me/p1moTy-p8
+[2.2.4]: http://wp.me/p1moTy-oU
+[2.2.3]: http://wp.me/p1moTy-oR
+[2.2.1]: http://wp.me/p1moTy-ob
+[2.2]: http://wp.me/p1moTy-ns
+[2.1.1]: http://wp.me/p1moTy-ng
+[2.1]: http://wp.me/p1moTy-m3
+[2.0.4]: http://wp.me/p1moTy-lT
+[2.0.3]: http://wp.me/p1moTy-lJ
+[2.0.2]: http://wp.me/p1moTy-lu
+[2.0.1]: http://wp.me/p1moTy-lc
+[2.0]: http://wp.me/p1moTy-jg
+[1.9.1]: http://wp.me/p1moTy-iC
+[1.9]: http://wp.me/p1moTy-hC
+[1.8.2]: http://wp.me/p1moTy-gI
+[1.8.1]: http://wp.me/p1moTy-gx
+[1.8]: http://wp.me/p1moTy-fV
+[1.7]: http://wp.me/p1moTy-eq
+[1.6]: http://wp.me/p1moTy-e0
+[1.5]: http://wp.me/p1moTy-d7
+[1.4]: http://wp.me/p1moTy-cz
+[1.3]: http://wp.me/p1moTy-bq
+[1.2.3]: http://wp.me/p1moTy-b4
+[1.2.2]: http://wp.me/p1moTy-ax
+[1.2.1]: http://wp.me/p1moTy-9H
+[1.2]: http://wp.me/p1moTy-8x
+[1.1.3]: http://wp.me/p1moTy-90
+[1.1.2]: http://wp.me/p1moTy-8B
+[1.1.1]: http://wp.me/p1moTy-8i
+[1.1]: http://wp.me/p1moTy-7R
