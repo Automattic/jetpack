@@ -6,7 +6,7 @@
  */
 
 // Require the whole lib to process text.
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown/0-load.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/markdown.php';
 
 /**
  * Class for testing the WPCom_GHF_Markdown_Parser class.
