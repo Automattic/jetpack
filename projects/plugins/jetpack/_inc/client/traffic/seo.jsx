@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
+import SocialLogo from 'social-logos';
 
 /**
  * Internal dependencies
@@ -157,24 +158,36 @@ export const SEO = withModuleSettingsFormHelpers(
 							</SettingsGroup>
 							<FoldableCard
 								header={ __(
-									'Expand to preview how your SEO settings will look for your homepage on Google, Facebook, and Twitter.',
+									'Expand to preview how the SEO settings will look for your homepage on Google, Facebook, and Twitter.',
 									'jetpack'
 								) }
 								clickableHeader={ true }
 								className="jp-seo-social-previews"
 							>
-								<p>Todo: social icons?</p>
-								<span className="jp-seo-social-previews-label">
-									{ __( 'Google search', 'jetpack' ) }
-								</span>
+								<div className="jp-seo-social-previews-container">
+									<SocialLogo icon="google" size={ 24 } />
+									<span className="jp-seo-social-previews-label">
+										{ __( 'Google search', 'jetpack' ) }
+									</span>
+								</div>
 								{ this.SocialPreviewGoogle( siteData ) }
+
 								<hr />
-								<span className="jp-seo-social-previews-label">
-									{ __( 'Facebook', 'jetpack' ) }
-								</span>
+								<div className="jp-seo-social-previews-container">
+									<SocialLogo icon="facebook" size={ 24 } />
+									<span className="jp-seo-social-previews-label">
+										{ __( 'Facebook', 'jetpack' ) }
+									</span>
+								</div>
 								{ this.SocialPreviewFacebook( siteData ) }
+
 								<hr />
-								<span className="jp-seo-social-previews-label">{ __( 'Twitter', 'jetpack' ) }</span>
+								<div className="jp-seo-social-previews-container">
+									<SocialLogo icon="twitter-alt" size={ 24 } />
+									<span className="jp-seo-social-previews-label">
+										{ __( 'Twitter', 'jetpack' ) }
+									</span>
+								</div>
 								{ this.SocialPreviewTwitter( siteData ) }
 							</FoldableCard>
 						</div>

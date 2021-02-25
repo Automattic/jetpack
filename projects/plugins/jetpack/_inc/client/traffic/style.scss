@@ -122,9 +122,14 @@
 		margin-bottom: 1rem;
 	}
 
+	&-container {
+		display: flex;
+		align-items: center;
+		margin-top: 1rem;
+	}
+
 	&-label {
 		font-weight: 600;
-		display: block;
-		margin-top: 1rem;
+		margin-left: 0.5rem;
 	}
 }
