@@ -28,6 +28,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		parent::reregister_menu_items();
 
+		$this->add_feedback_menu();
 		$this->add_wp_admin_menu();
 
 		ksort( $GLOBALS['menu'] );
@@ -164,6 +165,26 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		// Remove all submenus to mimic the old Calypso navigation.
 		$this->remove_submenus( 'https://wordpress.com/people/team/' . $this->domain );
+	}
+
+	/**
+	 * Adds Feedback menu.
+	 */
+	public function add_feedback_menu() {
+		$post_type = 'feedback';
+
+		$ptype_obj = get_post_type_object( $post_type );
+		if ( empty( $ptype_obj ) ) {
+			return;
+		}
+
+		$slug       = 'edit.php?post_type=' . $post_type;
+		$name       = $ptype_obj->labels->menu_name;
+		$capability = $ptype_obj->cap->edit_posts;
+		$icon       = $ptype_obj->menu_icon;
+		$position   = 45; // Before Jetpack.
+
+		add_menu_page( esc_attr( $name ), $name, $capability, $slug, null, $icon, $position );
 	}
 
 	/**

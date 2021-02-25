@@ -219,4 +219,24 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_users_menu();
 		$this->assertEmpty( $submenu[ $slug ] );
 	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_feedback_menu
+	 */
+	public function add_feedback_menu() {
+		global $menu;
+
+		$menu_item = array(
+			'Feedback',
+			'edit_posts',
+			'edit.php?post_type=feedback',
+			'Feedback',
+			'menu-top toplevel_page_index',
+			'toplevel_page_index',
+			'dashicons-feedback',
+		);
+		$this->assertSame( $menu[45], $menu_item );
+	}
 }
