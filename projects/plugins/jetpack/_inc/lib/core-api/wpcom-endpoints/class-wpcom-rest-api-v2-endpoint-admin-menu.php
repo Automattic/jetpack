@@ -356,7 +356,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	}
 
 	/**
-	 * Parses the a counter from a given menu item title and removes the associated markup.
+	 * Parses the counter from a given menu item title and removes the associated markup.
 	 *
 	 * "Plugins", "Comments", "Updates" menu items have a count badge when there are updates available.
 	 * This method parses that information and adds it to the response.
@@ -395,7 +395,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		);
 
 		$item = $this->parse_count_data( $item );
-		// It's important we sanitize the title after parsing data to remove the markup.
+		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
 		$item['title'] = ucfirst( wp_strip_all_tags( $item['title'] ) );
 
 		return $item;
