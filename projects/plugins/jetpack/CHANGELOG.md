@@ -3575,7 +3575,7 @@ recommended for all users.
   Jetpack sites where the function doesn't exist.
 - Bug Fix: Site Logo: Add backward-compatible template tags to match the
   standalone release.
-- Bug Fix: Don't use __DIR__ -- it's 5.3+ only, and WordPress supports back to
+- Bug Fix: Don't use `__DIR__` -- it's 5.3+ only, and WordPress supports back to
   5.2.
 - Bug Fix: Retool how we remove the source styles when using the concatenated
   version.
@@ -3797,8 +3797,8 @@ recommended for all users.
 - Bug Fix: Clear max_posts transient on theme switch.
 - Bug Fix: Lower priority of sync to allow all CPTs to be registered.
 - Bug Fix: Contact form fields emailed in correct order.
-- Other bugfixes and enhancements at
-  https://github.com/Automattic/jetpack/commits/2.9
+
+Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits/2.9
 
 ## [2.8] - 2014-01-31
 
@@ -3992,7 +3992,7 @@ recommended for all users.
 - Enhancement: JSON API: Add User Nicename to the user data.
 - Bug Fix: Contact Form: Stopped using a short tag.
 - Bug Fix: Changed CSS selector to catch MP6 stylings.
-- Bug Fix: Dropped __FILE__ references in class.jetpack.php in favor of
+- Bug Fix: Dropped `__FILE__` references in class.jetpack.php in favor of
   JETPACK__PLUGIN_DIR constant, now code that deactivates the plugin from the
   connect nag works again.
 - Bug Fix: Random Redirect: Add random-redirect to the plugins overriden list,
