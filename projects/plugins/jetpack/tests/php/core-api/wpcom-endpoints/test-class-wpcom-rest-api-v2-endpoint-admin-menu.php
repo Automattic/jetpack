@@ -448,12 +448,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_update_data
-	 * @covers ::parse_markup_data
+	 * @covers ::parse_menu_item
 	 */
-	public function test_parse_markup_data( $menu_item, $expected ) {
+	public function test_parse_menu_item( $menu_item, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
-		$prepare_menu_item_url = $class->getMethod( 'parse_markup_data' );
+		$prepare_menu_item_url = $class->getMethod( 'parse_menu_item' );
 		$prepare_menu_item_url->setAccessible( true );
 
 		$this->assertSame(
@@ -482,23 +482,57 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				),
 			),
 			array(
+				'<span class="update-plugins count-0"><span class="update-count">0</span></span> Zero updates',
+				array(
+					'title' => 'Zero updates',
+				),
+			),
+			array(
 				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
 				array(
-					'title' => 'Finally some updates',
 					'count' => 5,
+					'title' => 'Finally some updates',
+				),
+			),
+			array(
+				'<span class="update-plugins count-5"><span class="update-count">5</span></span> finally some updates',
+				array(
+					'count' => 5,
+					'title' => 'Finally some updates',
 				),
 			),
 			array(
 				'Plugin updates <span class="update-plugins count-5"><span class="plugin-count">5</span></span>',
 				array(
-					'title' => 'Plugin updates',
 					'count' => 5,
+					'title' => 'Plugin updates',
 				),
 			),
 			array(
-				'Unexpected markup <span class="unexpected-classname">badge name</span>',
+				'<span class="update-plugins count-5"><span class="plugin-count">5</span></span> plugin updates',
 				array(
-					'title' => 'Unexpected markup',
+					'count' => 5,
+					'title' => 'Plugin updates',
+				),
+			),
+			array(
+				'Comments <span class="awaiting-mod count-2"><span class="pending-count" aria-hidden="true">2</span><span class="comments-in-moderation-text screen-reader-text">Comments in moderation</span></span>',
+				array(
+					'count' => 2,
+					'title' => 'Comments',
+				),
+			),
+			array(
+				'<span class="awaiting-mod count-2"><span class="pending-count" aria-hidden="true">2</span><span class="comments-in-moderation-text screen-reader-text"> comments in moderation</span></span> Comments',
+				array(
+					'count' => 2,
+					'title' => 'Comments',
+				),
+			),
+			array(
+				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><span class="awaiting-mod"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font></span> <span class="unexpected-classname">badge name</span>',
+				array(
+					'title' => 'Badge name Unexpected markup badge name',
 				),
 			),
 		);
