@@ -16,7 +16,6 @@ import {
  * Internal dependencies
  */
 import { IS_GRADIENT_AVAILABLE } from './constants';
-import './view.scss';
 
 export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 	const {
@@ -53,7 +52,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		[ backgroundClass ]: backgroundClass,
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
-		[ `has-custom-width wp-block-button__width-${ width }` ]: width,
+		'has-custom-width': !! width,
 	} );
 
 	const buttonStyle = {
@@ -62,6 +61,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 			backgroundClass || customGradient || gradient ? undefined : customBackgroundColor,
 		color: textClass ? undefined : customTextColor,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
+		width,
 	};
 
 	return (

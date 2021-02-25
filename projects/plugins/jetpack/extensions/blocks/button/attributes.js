@@ -51,6 +51,6 @@ export default {
 		type: 'number',
 	},
 	width: {
-		type: 'number',
+		type: 'string',
 	},
 };
