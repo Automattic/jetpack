@@ -9,6 +9,7 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
 import Page from '../page';
 import { getAccountCredentials, isEventuallyVisible } from '../../page-helper';
 import logger from '../../logger';
+import fs from 'fs';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
@@ -18,6 +19,7 @@ export default class LoginPage extends Page {
 	}
 
 	async login( wpcomUser, { retry = true } = {} ) {
+		logger.debug( 'Log in WPCOM' );
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
 		const usernameSelector = '#usernameOrEmail';
@@ -47,6 +49,10 @@ export default class LoginPage extends Page {
 			}
 			throw e;
 		}
+
+		// save storage state to reuse later to skip log in
+		const storage = await context.storageState();
+		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
 	}
 
 	async isLoggedIn() {

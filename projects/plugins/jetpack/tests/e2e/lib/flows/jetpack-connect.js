@@ -128,6 +128,8 @@ export async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
 	}
 	if ( ! ( await login.isLoggedIn() ) ) {
 		await login.login( wpcomUser );
+	} else {
+		logger.debug( 'Already logged into WPCOM' );
 	}
 }
 

@@ -41,7 +41,7 @@
 	vertical-align: middle;
 }
 .tiled-gallery-caption { /* Captions */
-	background: #eee;
+	background: #f0f0f1;
 	background: rgba( 255,255,255,0.8 );
 	color: #333;
 	font-size: 13px;

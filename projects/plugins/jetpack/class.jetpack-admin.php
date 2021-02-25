@@ -40,7 +40,6 @@ class Jetpack_Admin {
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
-		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_set_up_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
@@ -77,6 +76,8 @@ class Jetpack_Admin {
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
+
+		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
 	}
 
 	/**
@@ -328,6 +329,47 @@ class Jetpack_Admin {
 	function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
+	}
+
+	/**
+	 * Determines if JITMs should display on a particular screen.
+	 *
+	 * @param bool   $value The default value of the filter.
+	 * @param string $screen_id The ID of the screen being tested for JITM display.
+	 *
+	 * @return bool True if JITMs should display, false otherwise.
+	 */
+	public function should_display_jitms_on_screen( $value, $screen_id ) {
+		// Disable all JITMs on these pages.
+		if (
+		in_array(
+			$screen_id,
+			array(
+				'jetpack_page_akismet-key-config',
+				'admin_page_jetpack_modules',
+			),
+			true
+		) ) {
+			return false;
+		}
+
+		// Disable all JITMs on pages where the recommendations banner is displaying.
+		if (
+			in_array(
+				$screen_id,
+				array(
+					'dashboard',
+					'plugins',
+					'jetpack_page_stats',
+				),
+				true
+			)
+			&& \Jetpack_Recommendations_Banner::can_be_displayed()
+		) {
+			return false;
+		}
+
+		return $value;
 	}
 }
 Jetpack_Admin::init();

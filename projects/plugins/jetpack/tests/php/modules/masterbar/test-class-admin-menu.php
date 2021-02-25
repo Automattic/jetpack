@@ -491,7 +491,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_appearance_menu() {
 		global $menu, $submenu;
-		$customize_slug = 'customize.php';
+		$customize_slug = 'https://wordpress.com/customize/' . static::$domain;
 		static::$admin_menu->add_appearance_menu( false );
 
 		$slug = 'https://wordpress.com/themes/' . static::$domain;
@@ -571,6 +571,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertEquals( $plugins_menu_item, $menu[65] );
 		$this->assertEmpty( $submenu['plugins.php'] );
 		$this->assertArrayNotHasKey( $slug, $submenu );
+
+		// Reset.
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
+
+		// Check submenu are kept when using WP Admin links.
+		static::$admin_menu->add_plugins_menu( true );
+		$this->assertNotEmpty( $submenu['plugins.php'] );
 	}
 
 	/**
@@ -602,7 +610,25 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu( false );
 
-		$this->assertEmpty( $menu );
+		$profile_menu_item = array(
+			'My Profile',
+			'read',
+			'https://wordpress.com/me',
+			'My Profile',
+			'menu-top toplevel_page_https://wordpress.com/me',
+			'toplevel_page_https://wordpress.com/me',
+			'dashicons-admin-users',
+		);
+		$this->assertSame( $menu[70], $profile_menu_item );
+
+		$account_submenu_item = array(
+			'Account Settings',
+			'read',
+			'https://wordpress.com/me/account',
+			'Account Settings',
+		);
+		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
+		$this->assertArrayNotHasKey( 'profile.php', $submenu );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );

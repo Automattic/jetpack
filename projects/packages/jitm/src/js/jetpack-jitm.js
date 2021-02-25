@@ -116,7 +116,7 @@ jQuery( document ).ready( function ( $ ) {
 				$.ajax( {
 					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
 					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
-					beforeSend: function( xhr ) {
+					beforeSend: function ( xhr ) {
 						xhr.setRequestHeader( 'X-WP-Nonce', window.jitm_config.nonce );
 					},
 					data: {
@@ -210,11 +210,6 @@ jQuery( document ).ready( function ( $ ) {
 	};
 
 	var reFetch = function () {
-		// Do not render JITMs if the Wizard Banner is displayed.
-		if ( $( '#jp-wizard-banner' ).length ) {
-			return;
-		}
-
 		$( '.jetpack-jitm-message' ).each( function () {
 			var $el = $( this );
 

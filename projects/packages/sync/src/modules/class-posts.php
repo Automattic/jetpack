@@ -570,16 +570,6 @@ class Posts extends Module {
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
-
-		/*
-		 * WP 5.6 introduced the wp_after_insert_post hook that triggers when
-		 * the post, meta and terms has been updated. We are migrating send_published
-		 * function to this hook to ensure we have all data for WP.com functionality.
-		 * @todo: remove full if statement when WordPress 5.6 is the minimum required version.
-		 */
-		if ( ! function_exists( 'wp_after_insert_post' ) ) {
-			$this->send_published( $post_ID, $post );
-		}
 	}
 
 	/**

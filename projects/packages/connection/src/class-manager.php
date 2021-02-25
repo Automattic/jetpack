@@ -12,7 +12,6 @@ use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
-use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -21,38 +20,6 @@ use WP_User;
  * and Jetpack.
  */
 class Manager {
-
-	const SECRETS_MISSING        = 'secrets_missing';
-	const SECRETS_EXPIRED        = 'secrets_expired';
-	const SECRETS_OPTION_NAME    = 'jetpack_secrets';
-	const MAGIC_NORMAL_TOKEN_KEY = ';normal;';
-
-	/**
-	 * Constant used to fetch the master user token. Deprecated.
-	 *
-	 * @deprecated 9.0.0
-	 * @see Manager::CONNECTION_OWNER
-	 * @var boolean
-	 */
-	const JETPACK_MASTER_USER = true; //phpcs:ignore Jetpack.Constants.MasterUserConstant.ShouldNotBeUsed
-
-	/**
-	 * For internal use only. If you need to get the connection owner, use the provided methods
-	 * get_connection_owner_id, get_connection_owner and is_connection_owner
-	 *
-	 * @todo Add private visibility once PHP 7.1 is the minimum supported verion.
-	 *
-	 * @var boolean
-	 */
-	const CONNECTION_OWNER = true;
-
-	/**
-	 * The procedure that should be run to generate secrets.
-	 *
-	 * @var Callable
-	 */
-	protected $secret_callable;
-
 	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *
@@ -413,7 +380,7 @@ class Manager {
 			}
 		}
 
-		$token = $this->get_access_token( $user_id, $token_key, false );
+		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
 			$token->add_data( compact( 'signature_details' ) );
 			return $token;
@@ -526,7 +493,16 @@ class Manager {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
 			return $this->is_connected();
 		}
-		return (bool) $this->get_access_token( self::CONNECTION_OWNER );
+		return (bool) $this->get_tokens()->get_access_token( true );
+	}
+
+	/**
+	 * Obtains an instance of the Tokens class.
+	 *
+	 * @return Tokens the Tokens object
+	 */
+	public function get_tokens() {
+		return new Tokens();
 	}
 
 	/**
@@ -553,7 +529,7 @@ class Manager {
 	 */
 	public function is_connected() {
 		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = (bool) $this->get_access_token( false );
+		$has_blog_token = (bool) $this->get_tokens()->get_access_token();
 		return $has_blog_id && $has_blog_token;
 	}
 
@@ -579,6 +555,17 @@ class Manager {
 	 */
 	public function has_connected_user() {
 		return (bool) count( $this->get_connected_users() );
+	}
+
+	/**
+	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
+	 * Able to select by specific capability.
+	 *
+	 * @param string $capability The capability of the user.
+	 * @return array Array of WP_User objects if found.
+	 */
+	public function get_connected_users( $capability = 'any' ) {
+		return $this->get_tokens()->get_connected_users( $capability );
 	}
 
 	/**
@@ -620,7 +607,7 @@ class Manager {
 			return false;
 		}
 
-		return (bool) $this->get_access_token( $user_id );
+		return (bool) $this->get_tokens()->get_access_token( $user_id );
 	}
 
 	/**
@@ -631,39 +618,6 @@ class Manager {
 	public function get_connection_owner_id() {
 		$owner = $this->get_connection_owner();
 		return $owner instanceof \WP_User ? $owner->ID : false;
-	}
-
-	/**
-	 * Returns an array of user_id's that have user tokens for communicating with wpcom.
-	 * Able to select by specific capability.
-	 *
-	 * @param string $capability The capability of the user.
-	 * @return array Array of WP_User objects if found.
-	 */
-	public function get_connected_users( $capability = 'any' ) {
-		$connected_users = array();
-		$user_tokens     = \Jetpack_Options::get_option( 'user_tokens' );
-
-		if ( ! is_array( $user_tokens ) || empty( $user_tokens ) ) {
-			return $connected_users;
-		}
-		$connected_user_ids = array_keys( $user_tokens );
-
-		if ( ! empty( $connected_user_ids ) ) {
-			foreach ( $connected_user_ids as $id ) {
-				// Check for capability.
-				if ( 'any' !== $capability && ! user_can( $id, $capability ) ) {
-					continue;
-				}
-
-				$user_data = get_userdata( $id );
-				if ( $user_data instanceof \WP_User ) {
-					$connected_users[] = $user_data;
-				}
-			}
-		}
-
-		return $connected_users;
 	}
 
 	/**
@@ -715,7 +669,7 @@ class Manager {
 		}
 
 		// Make sure user is connected.
-		$user_token = $this->get_access_token( $user_id );
+		$user_token = $this->get_tokens()->get_access_token( $user_id );
 
 		$connection_owner = false;
 
@@ -785,43 +739,29 @@ class Manager {
 	 * @param bool    $can_overwrite_primary_user Allow for the primary user to be disconnected.
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
-	public static function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
-		$tokens = Jetpack_Options::get_option( 'user_tokens' );
-		if ( ! $tokens ) {
-			return false;
-		}
-
+	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
 		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
-		if ( Jetpack_Options::get_option( 'master_user' ) === $user_id && ! $can_overwrite_primary_user ) {
-			return false;
+		$result = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+
+		if ( $result ) {
+			$xml = new \Jetpack_IXR_Client( compact( 'user_id' ) );
+			$xml->query( 'jetpack.unlink_user', $user_id );
+
+			// Delete cached connected user data.
+			$transient_key = "jetpack_connected_user_data_$user_id";
+			delete_transient( $transient_key );
+
+			/**
+			 * Fires after the current user has been unlinked from WordPress.com.
+			 *
+			 * @since 4.1.0
+			 *
+			 * @param int $user_id The current user's ID.
+			 */
+			do_action( 'jetpack_unlinked_user', $user_id );
 		}
-
-		if ( ! isset( $tokens[ $user_id ] ) ) {
-			return false;
-		}
-
-		$xml = new \Jetpack_IXR_Client( compact( 'user_id' ) );
-		$xml->query( 'jetpack.unlink_user', $user_id );
-
-		unset( $tokens[ $user_id ] );
-
-		Jetpack_Options::update_option( 'user_tokens', $tokens );
-
-		// Delete cached connected user data.
-		$transient_key = "jetpack_connected_user_data_$user_id";
-		delete_transient( $transient_key );
-
-		/**
-		 * Fires after the current user has been unlinked from WordPress.com.
-		 *
-		 * @since 4.1.0
-		 *
-		 * @param int $user_id The current user's ID.
-		 */
-		do_action( 'jetpack_unlinked_user', $user_id );
-
-		return true;
+		return $result;
 	}
 
 	/**
@@ -892,7 +832,7 @@ class Manager {
 	 */
 	public function register( $api_endpoint = 'register' ) {
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
-		$secrets = $this->generate_secrets( 'register', get_current_user_id(), 600 );
+		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
 		if ( false === $secrets ) {
 			return new WP_Error( 'cannot_save_secrets', __( 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'jetpack' ) );
@@ -997,11 +937,12 @@ class Manager {
 
 		\Jetpack_Options::update_options(
 			array(
-				'id'         => (int) $registration_details->jetpack_id,
-				'blog_token' => (string) $registration_details->jetpack_secret,
-				'public'     => $jetpack_public,
+				'id'     => (int) $registration_details->jetpack_id,
+				'public' => $jetpack_public,
 			)
 		);
+
+		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
 		/**
 		 * Fires when a site is registered on WordPress.com.
@@ -1336,35 +1277,6 @@ class Manager {
 	}
 
 	/**
-	 * Returns the callable that would be used to generate secrets.
-	 *
-	 * @return Callable a function that returns a secure string to be used as a secret.
-	 */
-	protected function get_secret_callable() {
-		if ( ! isset( $this->secret_callable ) ) {
-			/**
-			 * Allows modification of the callable that is used to generate connection secrets.
-			 *
-			 * @param Callable a function or method that returns a secret string.
-			 */
-			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', array( $this, 'secret_callable_method' ) );
-		}
-
-		return $this->secret_callable;
-	}
-
-	/**
-	 * Runs the wp_generate_password function with the required parameters. This is the
-	 * default implementation of the secret callable, can be overridden using the
-	 * jetpack_connection_secret_generator filter.
-	 *
-	 * @return String $secret value.
-	 */
-	private function secret_callable_method() {
-		return wp_generate_password( 32, false );
-	}
-
-	/**
 	 * Generates two secret tokens and the end of life timestamp for them.
 	 *
 	 * @param String  $action  The action name.
@@ -1372,80 +1284,34 @@ class Manager {
 	 * @param Integer $exp     Expiration time in seconds.
 	 */
 	public function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		if ( false === $user_id ) {
-			$user_id = get_current_user_id();
-		}
-
-		$callable = $this->get_secret_callable();
-
-		$secrets = \Jetpack_Options::get_raw_option(
-			self::SECRETS_OPTION_NAME,
-			array()
-		);
-
-		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-
-		if (
-			isset( $secrets[ $secret_name ] ) &&
-			$secrets[ $secret_name ]['exp'] > time()
-		) {
-			return $secrets[ $secret_name ];
-		}
-
-		$secret_value = array(
-			'secret_1' => call_user_func( $callable ),
-			'secret_2' => call_user_func( $callable ),
-			'exp'      => time() + $exp,
-		);
-
-		$secrets[ $secret_name ] = $secret_value;
-
-		$res = Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
-		return $res ? $secrets[ $secret_name ] : false;
+		return ( new Secrets() )->generate( $action, $user_id, $exp );
 	}
 
 	/**
 	 * Returns two secret tokens and the end of life timestamp for them.
+	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->get() instead.
 	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @return string|array an array of secrets or an error string.
 	 */
 	public function get_secrets( $action, $user_id ) {
-		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option(
-			self::SECRETS_OPTION_NAME,
-			array()
-		);
-
-		if ( ! isset( $secrets[ $secret_name ] ) ) {
-			return self::SECRETS_MISSING;
-		}
-
-		if ( $secrets[ $secret_name ]['exp'] < time() ) {
-			$this->delete_secrets( $action, $user_id );
-			return self::SECRETS_EXPIRED;
-		}
-
-		return $secrets[ $secret_name ];
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->get' );
+		return ( new Secrets() )->get( $action, $user_id );
 	}
 
 	/**
 	 * Deletes secret tokens in case they, for example, have expired.
 	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->delete() instead.
+	 *
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 */
 	public function delete_secrets( $action, $user_id ) {
-		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets     = \Jetpack_Options::get_raw_option(
-			self::SECRETS_OPTION_NAME,
-			array()
-		);
-		if ( isset( $secrets[ $secret_name ] ) ) {
-			unset( $secrets[ $secret_name ] );
-			\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->delete' );
+		( new Secrets() )->delete( $action, $user_id );
 	}
 
 	/**
@@ -1460,6 +1326,7 @@ class Manager {
 	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function delete_all_connection_tokens( $ignore_connected_plugins = false ) {
+		// refuse to delete if we're not the last Jetpack plugin installed.
 		if ( ! $ignore_connected_plugins && null !== $this->plugin && ! $this->plugin->is_only() ) {
 			return false;
 		}
@@ -1470,22 +1337,20 @@ class Manager {
 		 *
 		 * @since 8.7.0
 		 */
-		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true, $this ) ) {
+		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true ) ) {
 			return false;
 		}
 
 		\Jetpack_Options::delete_option(
 			array(
-				'blog_token',
-				'user_token',
-				'user_tokens',
 				'master_user',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
 			)
 		);
 
-		\Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
+		( new Secrets() )->delete_all();
+		$this->get_tokens()->delete_all();
 
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
@@ -1568,90 +1433,27 @@ class Manager {
 	 * @return string|true|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object otherwise.
 	 */
 	public function restore() {
-		$invalid_tokens = array();
-		$can_restore    = $this->can_restore( $invalid_tokens );
 
-		// Tokens are valid. We can't fix the problem we don't see, so the full reconnection is needed.
-		if ( ! $can_restore ) {
+		$validate_tokens_response = $this->get_tokens()->validate();
+
+		$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
+		$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
+
+		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
+		if ( $blog_token_healthy === $user_token_healthy ) {
 			$result = $this->reconnect();
-			return true === $result ? 'authorize' : $result;
+			return ( true === $result ) ? 'authorize' : $result;
 		}
 
-		if ( in_array( 'blog', $invalid_tokens, true ) ) {
-			return self::refresh_blog_token();
+		if ( ! $blog_token_healthy ) {
+			return $this->refresh_blog_token();
 		}
 
-		if ( in_array( 'user', $invalid_tokens, true ) ) {
-			return true === self::refresh_user_token() ? 'authorize' : false;
+		if ( ! $user_token_healthy ) {
+			return ( true === $this->refresh_user_token() ) ? 'authorize' : false;
 		}
 
 		return false;
-	}
-
-	/**
-	 * Determine whether we can restore the connection, or the full reconnect is needed.
-	 *
-	 * @param array $invalid_tokens The array the invalid tokens are stored in, provided by reference.
-	 *
-	 * @return bool `True` if the connection can be restored, `false` otherwise.
-	 */
-	public function can_restore( &$invalid_tokens ) {
-		$invalid_tokens = array();
-
-		$validated_tokens = $this->validate_tokens();
-
-		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
-			return false;
-		}
-
-		if ( empty( $validated_tokens['blog_token']['is_healthy'] ) ) {
-			$invalid_tokens[] = 'blog';
-		}
-
-		if ( empty( $validated_tokens['user_token']['is_healthy'] ) ) {
-			$invalid_tokens[] = 'user';
-		}
-
-		// If both tokens are invalid, we can't restore the connection.
-		return 1 === count( $invalid_tokens );
-	}
-
-	/**
-	 * Perform the API request to validate the blog and user tokens.
-	 *
-	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
-	 *
-	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
-	 */
-	public function validate_tokens( $user_id = null ) {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', 'Site not registered.' );
-		}
-		$url = sprintf(
-			'%s/%s/v%s/%s',
-			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
-			'wpcom',
-			'2',
-			'sites/' . $blog_id . '/jetpack-token-health'
-		);
-
-		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
-		$blog_token = $this->get_access_token();
-		$method     = 'POST';
-		$body       = array(
-			'user_token' => $this->get_signed_token( $user_token ),
-			'blog_token' => $this->get_signed_token( $blog_token ),
-		);
-		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
-
-		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
-		}
-
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		return $body ? $body : false;
 	}
 
 	/**
@@ -1666,11 +1468,27 @@ class Manager {
 			return new \WP_Error( 'registration_state_invalid', __( 'Invalid Registration State', 'jetpack' ), 400 );
 		}
 
-		return $this->verify_secrets( 'register', $registration_secret_1, (int) $registration_user_id );
+		return ( new Secrets() )->verify( 'register', $registration_secret_1, (int) $registration_user_id );
+	}
+
+	/**
+	 * Perform the API request to validate the blog and user tokens.
+	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->validate_tokens() instead.
+	 *
+	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
+	 *
+	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
+	 */
+	public function validate_tokens( $user_id = null ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->validate' );
+		return $this->get_tokens()->validate( $user_id );
 	}
 
 	/**
 	 * Verify a Previously Generated Secret.
+	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Secrets->verify() instead.
 	 *
 	 * @param string $action   The type of secret to verify.
 	 * @param string $secret_1 The secret string to compare to what is stored.
@@ -1678,140 +1496,8 @@ class Manager {
 	 * @return \WP_Error|string WP_Error on failure, secret_2 on success.
 	 */
 	public function verify_secrets( $action, $secret_1, $user_id ) {
-		$allowed_actions = array( 'register', 'authorize', 'publicize' );
-		if ( ! in_array( $action, $allowed_actions, true ) ) {
-			return new \WP_Error( 'unknown_verification_action', 'Unknown Verification Action', 400 );
-		}
-
-		$user = get_user_by( 'id', $user_id );
-
-		/**
-		 * We've begun verifying the previously generated secret.
-		 *
-		 * @since 7.5.0
-		 *
-		 * @param string   $action The type of secret to verify.
-		 * @param \WP_User $user The user object.
-		 */
-		do_action( 'jetpack_verify_secrets_begin', $action, $user );
-
-		$return_error = function ( \WP_Error $error ) use ( $action, $user ) {
-			/**
-			 * Verifying of the previously generated secret has failed.
-			 *
-			 * @since 7.5.0
-			 *
-			 * @param string    $action  The type of secret to verify.
-			 * @param \WP_User  $user The user object.
-			 * @param \WP_Error $error The error object.
-			 */
-			do_action( 'jetpack_verify_secrets_fail', $action, $user, $error );
-
-			return $error;
-		};
-
-		$stored_secrets = $this->get_secrets( $action, $user_id );
-		$this->delete_secrets( $action, $user_id );
-
-		$error = null;
-		if ( empty( $secret_1 ) ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secret_1_missing',
-					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'secret_1' ),
-					400
-				)
-			);
-		} elseif ( ! is_string( $secret_1 ) ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secret_1_malformed',
-					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'secret_1' ),
-					400
-				)
-			);
-		} elseif ( empty( $user_id ) ) {
-			// $user_id is passed around during registration as "state".
-			$error = $return_error(
-				new \WP_Error(
-					'state_missing',
-					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is missing.', 'jetpack' ), 'state' ),
-					400
-				)
-			);
-		} elseif ( ! ctype_digit( (string) $user_id ) ) {
-			$error = $return_error(
-				new \WP_Error(
-					'state_malformed',
-					/* translators: "%s" is the name of a paramter. It can be either "secret_1" or "state". */
-					sprintf( __( 'The required "%s" parameter is malformed.', 'jetpack' ), 'state' ),
-					400
-				)
-			);
-		} elseif ( self::SECRETS_MISSING === $stored_secrets ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secrets_missing',
-					__( 'Verification secrets not found', 'jetpack' ),
-					400
-				)
-			);
-		} elseif ( self::SECRETS_EXPIRED === $stored_secrets ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secrets_expired',
-					__( 'Verification took too long', 'jetpack' ),
-					400
-				)
-			);
-		} elseif ( ! $stored_secrets ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secrets_empty',
-					__( 'Verification secrets are empty', 'jetpack' ),
-					400
-				)
-			);
-		} elseif ( is_wp_error( $stored_secrets ) ) {
-			$stored_secrets->add_data( 400 );
-			$error = $return_error( $stored_secrets );
-		} elseif ( empty( $stored_secrets['secret_1'] ) || empty( $stored_secrets['secret_2'] ) || empty( $stored_secrets['exp'] ) ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secrets_incomplete',
-					__( 'Verification secrets are incomplete', 'jetpack' ),
-					400
-				)
-			);
-		} elseif ( ! hash_equals( $secret_1, $stored_secrets['secret_1'] ) ) {
-			$error = $return_error(
-				new \WP_Error(
-					'verify_secrets_mismatch',
-					__( 'Secret mismatch', 'jetpack' ),
-					400
-				)
-			);
-		}
-
-		// Something went wrong during the checks, returning the error.
-		if ( ! empty( $error ) ) {
-			return $error;
-		}
-
-		/**
-		 * We've succeeded at verifying the previously generated secret.
-		 *
-		 * @since 7.5.0
-		 *
-		 * @param string   $action The type of secret to verify.
-		 * @param \WP_User $user The user object.
-		 */
-		do_action( 'jetpack_verify_secrets_success', $action, $user );
-
-		return $stored_secrets['secret_2'];
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Secrets->verify' );
+		return ( new Secrets() )->verify( $action, $secret_1, $user_id );
 	}
 
 	/**
@@ -1830,147 +1516,7 @@ class Manager {
 	 *                          Returns a \WP_Error on failure.
 	 */
 	public function get_token( $data ) {
-		$roles = new Roles();
-		$role  = $roles->translate_current_user_to_role();
-
-		if ( ! $role ) {
-			return new \WP_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
-		}
-
-		$client_secret = $this->get_access_token();
-		if ( ! $client_secret ) {
-			return new \WP_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
-		}
-
-		/**
-		 * Filter the URL of the first time the user gets redirected back to your site for connection
-		 * data processing.
-		 *
-		 * @since 8.0.0
-		 *
-		 * @param string $redirect_url Defaults to the site admin URL.
-		 */
-		$processing_url = apply_filters( 'jetpack_token_processing_url', admin_url( 'admin.php' ) );
-
-		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
-
-		/**
-		* Filter the URL to redirect the user back to when the authentication process
-		* is complete.
-		*
-		* @since 8.0.0
-		*
-		* @param string $redirect_url Defaults to the site URL.
-		*/
-		$redirect = apply_filters( 'jetpack_token_redirect_url', $redirect );
-
-		$redirect_uri = ( 'calypso' === $data['auth_type'] )
-			? $data['redirect_uri']
-			: add_query_arg(
-				array(
-					'handler'  => 'jetpack-connection-webhooks',
-					'action'   => 'authorize',
-					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-					'redirect' => $redirect ? rawurlencode( $redirect ) : false,
-				),
-				esc_url( $processing_url )
-			);
-
-		/**
-		 * Filters the token request data.
-		 *
-		 * @since 8.0.0
-		 *
-		 * @param array $request_data request data.
-		 */
-		$body = apply_filters(
-			'jetpack_token_request_body',
-			array(
-				'client_id'     => \Jetpack_Options::get_option( 'id' ),
-				'client_secret' => $client_secret->secret,
-				'grant_type'    => 'authorization_code',
-				'code'          => $data['code'],
-				'redirect_uri'  => $redirect_uri,
-			)
-		);
-
-		$args = array(
-			'method'  => 'POST',
-			'body'    => $body,
-			'headers' => array(
-				'Accept' => 'application/json',
-			),
-		);
-		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
-		$response = Client::_wp_remote_request( $this->api_url( 'token' ), $args );
-		remove_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
-
-		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'token_http_request_failed', $response->get_error_message() );
-		}
-
-		$code   = wp_remote_retrieve_response_code( $response );
-		$entity = wp_remote_retrieve_body( $response );
-
-		if ( $entity ) {
-			$json = json_decode( $entity );
-		} else {
-			$json = false;
-		}
-
-		if ( 200 !== $code || ! empty( $json->error ) ) {
-			if ( empty( $json->error ) ) {
-				return new \WP_Error( 'unknown', '', $code );
-			}
-
-			/* translators: Error description string. */
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
-
-			return new \WP_Error( (string) $json->error, $error_description, $code );
-		}
-
-		if ( empty( $json->access_token ) || ! is_scalar( $json->access_token ) ) {
-			return new \WP_Error( 'access_token', '', $code );
-		}
-
-		if ( empty( $json->token_type ) || 'X_JETPACK' !== strtoupper( $json->token_type ) ) {
-			return new \WP_Error( 'token_type', '', $code );
-		}
-
-		if ( empty( $json->scope ) ) {
-			return new \WP_Error( 'scope', 'No Scope', $code );
-		}
-
-		// TODO: get rid of the error silencer.
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		@list( $role, $hmac ) = explode( ':', $json->scope );
-		if ( empty( $role ) || empty( $hmac ) ) {
-			return new \WP_Error( 'scope', 'Malformed Scope', $code );
-		}
-
-		if ( $this->sign_role( $role ) !== $json->scope ) {
-			return new \WP_Error( 'scope', 'Invalid Scope', $code );
-		}
-
-		$cap = $roles->translate_role_to_cap( $role );
-		if ( ! $cap ) {
-			return new \WP_Error( 'scope', 'No Cap', $code );
-		}
-
-		if ( ! current_user_can( $cap ) ) {
-			return new \WP_Error( 'scope', 'current_user_cannot', $code );
-		}
-
-		return (string) $json->access_token;
-	}
-
-	/**
-	 * Increases the request timeout value to 30 seconds.
-	 *
-	 * @return int Returns 30.
-	 */
-	public function increase_timeout() {
-		return 30;
+		return $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
 	}
 
 	/**
@@ -1988,7 +1534,7 @@ class Manager {
 
 		$roles       = new Roles();
 		$role        = $roles->translate_user_to_role( $user );
-		$signed_role = $this->sign_role( $role );
+		$signed_role = $this->get_tokens()->sign_role( $role );
 
 		/**
 		 * Filter the URL of the first time the user gets redirected back to your site for connection
@@ -2010,7 +1556,7 @@ class Manager {
 		 */
 		$redirect = apply_filters( 'jetpack_connect_redirect_url', $redirect );
 
-		$secrets = $this->generate_secrets( 'authorize', $user->ID, 2 * HOUR_IN_SECONDS );
+		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID, 2 * HOUR_IN_SECONDS );
 
 		/**
 		 * Filter the type of authorization.
@@ -2116,7 +1662,7 @@ class Manager {
 			return new \WP_Error( 'no_code', 'Request must include an authorization code.', 400 );
 		}
 
-		$token = $this->get_token( $data );
+		$token = $this->get_tokens()->get( $data, $this->api_url( 'token' ) );
 
 		if ( is_wp_error( $token ) ) {
 			$code = $token->get_error_code();
@@ -2132,7 +1678,7 @@ class Manager {
 
 		$is_connection_owner = ! $this->has_connected_owner();
 
-		Utils::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
+		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 
 		/**
 		 * Fires after user has successfully received an auth token.
@@ -2285,141 +1831,19 @@ class Manager {
 	/**
 	 * Gets the requested token.
 	 *
-	 * Tokens are one of two types:
-	 * 1. Blog Tokens: These are the "main" tokens. Each site typically has one Blog Token,
-	 *    though some sites can have multiple "Special" Blog Tokens (see below). These tokens
-	 *    are not associated with a user account. They represent the site's connection with
-	 *    the Jetpack servers.
-	 * 2. User Tokens: These are "sub-"tokens. Each connected user account has one User Token.
-	 *
-	 * All tokens look like "{$token_key}.{$private}". $token_key is a public ID for the
-	 * token, and $private is a secret that should never be displayed anywhere or sent
-	 * over the network; it's used only for signing things.
-	 *
-	 * Blog Tokens can be "Normal" or "Special".
-	 * * Normal: The result of a normal connection flow. They look like
-	 *   "{$random_string_1}.{$random_string_2}"
-	 *   That is, $token_key and $private are both random strings.
-	 *   Sites only have one Normal Blog Token. Normal Tokens are found in either
-	 *   Jetpack_Options::get_option( 'blog_token' ) (usual) or the JETPACK_BLOG_TOKEN
-	 *   constant (rare).
-	 * * Special: A connection token for sites that have gone through an alternative
-	 *   connection flow. They look like:
-	 *   ";{$special_id}{$special_version};{$wpcom_blog_id};.{$random_string}"
-	 *   That is, $private is a random string and $token_key has a special structure with
-	 *   lots of semicolons.
-	 *   Most sites have zero Special Blog Tokens. Special tokens are only found in the
-	 *   JETPACK_BLOG_TOKEN constant.
-	 *
-	 * In particular, note that Normal Blog Tokens never start with ";" and that
-	 * Special Blog Tokens always do.
-	 *
-	 * When searching for a matching Blog Tokens, Blog Tokens are examined in the following
-	 * order:
-	 * 1. Defined Special Blog Tokens (via the JETPACK_BLOG_TOKEN constant)
-	 * 2. Stored Normal Tokens (via Jetpack_Options::get_option( 'blog_token' ))
-	 * 3. Defined Normal Tokens (via the JETPACK_BLOG_TOKEN constant)
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_access_token() instead.
 	 *
 	 * @param int|false    $user_id   false: Return the Blog Token. int: Return that user's User Token.
 	 * @param string|false $token_key If provided, check that the token matches the provided input.
 	 * @param bool|true    $suppress_errors If true, return a falsy value when the token isn't found; When false, return a descriptive WP_Error when the token isn't found.
 	 *
 	 * @return object|false
+	 *
+	 * @see $this->get_tokens()->get_access_token()
 	 */
 	public function get_access_token( $user_id = false, $token_key = false, $suppress_errors = true ) {
-		$possible_special_tokens = array();
-		$possible_normal_tokens  = array();
-		$user_tokens             = \Jetpack_Options::get_option( 'user_tokens' );
-
-		if ( $user_id ) {
-			if ( ! $user_tokens ) {
-				return $suppress_errors ? false : new \WP_Error( 'no_user_tokens', __( 'No user tokens found', 'jetpack' ) );
-			}
-			if ( self::CONNECTION_OWNER === $user_id ) {
-				$user_id = \Jetpack_Options::get_option( 'master_user' );
-				if ( ! $user_id ) {
-					return $suppress_errors ? false : new \WP_Error( 'empty_master_user_option', __( 'No primary user defined', 'jetpack' ) );
-				}
-			}
-			if ( ! isset( $user_tokens[ $user_id ] ) || ! $user_tokens[ $user_id ] ) {
-				// translators: %s is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_token_for_user', sprintf( __( 'No token for user %d', 'jetpack' ), $user_id ) );
-			}
-			$user_token_chunks = explode( '.', $user_tokens[ $user_id ] );
-			if ( empty( $user_token_chunks[1] ) || empty( $user_token_chunks[2] ) ) {
-				// translators: %s is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'token_malformed', sprintf( __( 'Token for user %d is malformed', 'jetpack' ), $user_id ) );
-			}
-			if ( $user_token_chunks[2] !== (string) $user_id ) {
-				// translators: %1$d is the ID of the requested user. %2$d is the user ID found in the token.
-				return $suppress_errors ? false : new \WP_Error( 'user_id_mismatch', sprintf( __( 'Requesting user_id %1$d does not match token user_id %2$d', 'jetpack' ), $user_id, $user_token_chunks[2] ) );
-			}
-			$possible_normal_tokens[] = "{$user_token_chunks[0]}.{$user_token_chunks[1]}";
-		} else {
-			$stored_blog_token = \Jetpack_Options::get_option( 'blog_token' );
-			if ( $stored_blog_token ) {
-				$possible_normal_tokens[] = $stored_blog_token;
-			}
-
-			$defined_tokens_string = Constants::get_constant( 'JETPACK_BLOG_TOKEN' );
-
-			if ( $defined_tokens_string ) {
-				$defined_tokens = explode( ',', $defined_tokens_string );
-				foreach ( $defined_tokens as $defined_token ) {
-					if ( ';' === $defined_token[0] ) {
-						$possible_special_tokens[] = $defined_token;
-					} else {
-						$possible_normal_tokens[] = $defined_token;
-					}
-				}
-			}
-		}
-
-		if ( self::MAGIC_NORMAL_TOKEN_KEY === $token_key ) {
-			$possible_tokens = $possible_normal_tokens;
-		} else {
-			$possible_tokens = array_merge( $possible_special_tokens, $possible_normal_tokens );
-		}
-
-		if ( ! $possible_tokens ) {
-			// If no user tokens were found, it would have failed earlier, so this is about blog token.
-			return $suppress_errors ? false : new \WP_Error( 'no_possible_tokens', __( 'No blog token found', 'jetpack' ) );
-		}
-
-		$valid_token = false;
-
-		if ( false === $token_key ) {
-			// Use first token.
-			$valid_token = $possible_tokens[0];
-		} elseif ( self::MAGIC_NORMAL_TOKEN_KEY === $token_key ) {
-			// Use first normal token.
-			$valid_token = $possible_tokens[0]; // $possible_tokens only contains normal tokens because of earlier check.
-		} else {
-			// Use the token matching $token_key or false if none.
-			// Ensure we check the full key.
-			$token_check = rtrim( $token_key, '.' ) . '.';
-
-			foreach ( $possible_tokens as $possible_token ) {
-				if ( hash_equals( substr( $possible_token, 0, strlen( $token_check ) ), $token_check ) ) {
-					$valid_token = $possible_token;
-					break;
-				}
-			}
-		}
-
-		if ( ! $valid_token ) {
-			if ( $user_id ) {
-				// translators: %d is the user ID.
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_user_token', sprintf( __( 'Invalid token for user %d', 'jetpack' ), $user_id ) );
-			} else {
-				return $suppress_errors ? false : new \WP_Error( 'no_valid_blog_token', __( 'Invalid blog token', 'jetpack' ) );
-			}
-		}
-
-		return (object) array(
-			'secret'           => $valid_token,
-			'external_user_id' => (int) $user_id,
-		);
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_access_token' );
+		return $this->get_tokens()->get_access_token( $user_id, $token_key, $suppress_errors );
 	}
 
 	/**
@@ -2546,20 +1970,7 @@ class Manager {
 	 * @return string Signed user role.
 	 */
 	public function sign_role( $role, $user_id = null ) {
-		if ( empty( $user_id ) ) {
-			$user_id = (int) get_current_user_id();
-		}
-
-		if ( ! $user_id ) {
-			return false;
-		}
-
-		$token = $this->get_access_token();
-		if ( ! $token || is_wp_error( $token ) ) {
-			return false;
-		}
-
-		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
+		return $this->get_tokens()->sign_role( $role, $user_id );
 	}
 
 	/**
@@ -2652,10 +2063,17 @@ class Manager {
 	 *
 	 * @return WP_Error|bool The result of updating the blog_token option.
 	 */
-	public static function refresh_blog_token() {
+	/**
+	 * Perform the API request to refresh the blog token.
+	 * Note that we are making this request on behalf of the Jetpack master user,
+	 * given they were (most probably) the ones that registered the site at the first place.
+	 *
+	 * @return WP_Error|bool The result of updating the blog_token option.
+	 */
+	public function refresh_blog_token() {
 		( new Tracking() )->record_user_event( 'restore_connection_refresh_blog_token' );
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
+		$blog_id = \Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
@@ -2700,7 +2118,7 @@ class Manager {
 			return new WP_Error( 'jetpack_secret', '', $code );
 		}
 
-		return Jetpack_Options::update_option( 'blog_token', (string) $json->jetpack_secret );
+		return $this->get_tokens()->update_blog_token( (string) $json->jetpack_secret );
 	}
 
 	/**
@@ -2708,67 +2126,23 @@ class Manager {
 	 *
 	 * @return bool
 	 */
-	public static function refresh_user_token() {
+	public function refresh_user_token() {
 		( new Tracking() )->record_user_event( 'restore_connection_refresh_user_token' );
-
-		self::disconnect_user( null, true );
-
+		$this->disconnect_user( null, true );
 		return true;
 	}
 
 	/**
 	 * Fetches a signed token.
 	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->get_signed_token() instead.
+	 *
 	 * @param object $token the token.
 	 * @return WP_Error|string a signed token
 	 */
 	public function get_signed_token( $token ) {
-		if ( ! isset( $token->secret ) || empty( $token->secret ) ) {
-			return new WP_Error( 'invalid_token' );
-		}
-
-		list( $token_key, $token_secret ) = explode( '.', $token->secret );
-
-		$token_key = sprintf(
-			'%s:%d:%d',
-			$token_key,
-			Constants::get_constant( 'JETPACK__API_VERSION' ),
-			$token->external_user_id
-		);
-
-		$timestamp = time();
-
-		if ( function_exists( 'wp_generate_password' ) ) {
-			$nonce = wp_generate_password( 10, false );
-		} else {
-			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
-		}
-
-		$normalized_request_string = join(
-			"\n",
-			array(
-				$token_key,
-				$timestamp,
-				$nonce,
-			)
-		) . "\n";
-
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		$signature = base64_encode( hash_hmac( 'sha1', $normalized_request_string, $token_secret, true ) );
-
-		$auth = array(
-			'token'     => $token_key,
-			'timestamp' => $timestamp,
-			'nonce'     => $nonce,
-			'signature' => $signature,
-		);
-
-		$header_pieces = array();
-		foreach ( $auth as $key => $value ) {
-			$header_pieces[] = sprintf( '%s="%s"', $key, $value );
-		}
-
-		return join( ' ', $header_pieces );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->get_signed_token' );
+		return $this->get_tokens()->get_signed_token( $token );
 	}
 
 	/**

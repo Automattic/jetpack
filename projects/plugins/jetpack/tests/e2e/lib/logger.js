@@ -100,6 +100,7 @@ if ( process.env.E2E_DEBUG || ! process.env.CI ) {
 	logger.add(
 		new transports.Console( {
 			format: stringFormat,
+			level: 'debug',
 		} )
 	);
 }
