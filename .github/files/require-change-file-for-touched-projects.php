@@ -125,7 +125,7 @@ $exit = 0;
 foreach ( $touched_projects as $slug => $files ) {
 	if ( empty( $ok_projects[ $slug ] ) ) {
 		printf(
-			"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AGo to that project and use `%s add` to add a change file.\n",
+			"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AGo to that project and use `%s add` to add a change file.%%0AGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\n",
 			$slug,
 			"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/",
 			'packages/changelogger' === $slug ? 'bin/changelogger' : 'vendor/bin/changelogger'
