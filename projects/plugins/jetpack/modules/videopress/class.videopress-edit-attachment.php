@@ -34,6 +34,29 @@ class VideoPress_Edit_Attachment {
 		add_filter( 'attachment_fields_to_save', array( $this, 'save_fields' ), 10, 2 );
 		add_filter( 'wp_ajax_save-attachment', array( $this, 'save_fields' ), -1 );
 		add_filter( 'wp_ajax_save-attachment-compat', array( $this, 'save_fields' ), -1 );
+
+		add_action( 'add_meta_boxes', array( $this, 'configure_meta_boxes' ), 10, 2 );
+	}
+
+	/**
+	 * @param string $post_type
+	 * @param object $post
+	 */
+	public function configure_meta_boxes( $post_type = 'unknown', $post = null ) {
+		if ( null == $post ) {
+			$post = (object) array( 'ID' => 0 );
+		}
+
+		if ( 'attachment' != $post_type ) {
+			return;
+		}
+
+		// If this has not been processed by videopress, we can skip the rest.
+		if ( ! is_videopress_attachment( $post->ID ) ) {
+			return;
+		}
+
+		add_meta_box( 'videopress-media-info', __( 'VideoPress Information', 'jetpack' ), array( $this, 'videopress_information_box' ), 'attachment', 'side', 'core' );
 	}
 
 	/**
@@ -207,6 +230,56 @@ class VideoPress_Edit_Attachment {
 		);
 
 		return $fields;
+	}
+
+	/**
+	 * @param stdClass $post
+	 */
+	public function videopress_information_box( $post ) {
+		$post_id = absint( $post->ID );
+
+		$meta = wp_get_attachment_metadata( $post_id );
+		$guid = get_post_meta( $post_id, 'videopress_guid', true );
+
+		// If this has not been processed by videopress, we can skip the rest.
+		if ( ! is_videopress_attachment( $post_id ) ) {
+			return;
+		}
+
+		$info = (object) $meta['videopress'];
+
+		$embed = "[videopress {$guid}]";
+
+		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
+
+		$url = 'empty';
+		if ( ! empty( $guid ) ) {
+			$url = videopress_build_url( $guid );
+			$url = "<a href=\"{$url}\">{$url}</a>";
+		}
+
+		$poster = '<em>Still Processing</em>';
+		if ( ! empty( $info->poster ) ) {
+			$poster = "<br><img src=\"{$info->poster}\" width=\"175px\">";
+		}
+
+		$html = <<< HTML
+
+<div class="misc-pub-section misc-pub-shortcode">
+	<strong>Shortcode</strong><br>
+	{$shortcode}
+</div>
+<div class="misc-pub-section misc-pub-url">
+	<strong>Url</strong>
+	{$url}
+</div>
+<div class="misc-pub-section misc-pub-poster">
+	<strong>Poster</strong>
+	{$poster}
+</div>
+HTML;
+
+		echo $html;
 	}
 
 	/**
