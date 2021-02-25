@@ -28,7 +28,15 @@ const alignedWidthUnits = [
 
 const predefinedWidths = [ '25%', '50%', '75%', '100%' ];
 
-export default function ButtonWidthPanel( { align, width, setAttributes } ) {
+export default function ButtonWidthPanel( props ) {
+	return (
+		<PanelBody title={ __( 'Width settings', 'jetpack' ) }>
+			<ButtonWidthControl { ...props } />
+		</PanelBody>
+	);
+}
+
+export function ButtonWidthControl( { align, width, onChange } ) {
 	// Left and right aligned blocks are floated so % widths don't work as expected.
 	const isAlignedLeftOrRight = align === 'left' || align === 'right';
 
@@ -37,45 +45,43 @@ export default function ButtonWidthPanel( { align, width, setAttributes } ) {
 		const newWidth = width === selectedWidth ? undefined : selectedWidth;
 
 		// Update attributes.
-		setAttributes( { width: newWidth } );
+		onChange( newWidth );
 	}
 
 	return (
-		<PanelBody title={ __( 'Width settings', 'jetpack' ) }>
-			<BaseControl label={ __( 'Button width', 'jetpack' ) }>
-				<div
-					className={ classnames( 'jetpack-button__width-settings', {
-						'is-aligned': isAlignedLeftOrRight,
-					} ) }
-				>
-					{ ! isAlignedLeftOrRight && (
-						<ButtonGroup aria-label={ __( 'Percentage Width', 'jetpack' ) }>
-							{ predefinedWidths.map( widthValue => {
-								return (
-									<Button
-										key={ widthValue }
-										isSmall
-										isPrimary={ widthValue === width }
-										onClick={ () => handleChange( widthValue ) }
-									>
-										{ widthValue }
-									</Button>
-								);
-							} ) }
-						</ButtonGroup>
-					) }
-					<UnitControl
-						className="jetpack-button__custom-width"
-						isResetValueOnUnitChange
-						max={ width?.includes( '%' ) ? 100 : undefined }
-						min={ 0 }
-						onChange={ selectedWidth => setAttributes( { width: selectedWidth } ) }
-						size={ 'small' }
-						units={ isAlignedLeftOrRight ? alignedWidthUnits : widthUnits }
-						value={ width }
-					/>
-				</div>
-			</BaseControl>
-		</PanelBody>
+		<BaseControl label={ __( 'Button width', 'jetpack' ) }>
+			<div
+				className={ classnames( 'jetpack-button__width-settings', {
+					'is-aligned': isAlignedLeftOrRight,
+				} ) }
+			>
+				{ ! isAlignedLeftOrRight && (
+					<ButtonGroup aria-label={ __( 'Percentage Width', 'jetpack' ) }>
+						{ predefinedWidths.map( widthValue => {
+							return (
+								<Button
+									key={ widthValue }
+									isSmall
+									isPrimary={ widthValue === width }
+									onClick={ () => handleChange( widthValue ) }
+								>
+									{ widthValue }
+								</Button>
+							);
+						} ) }
+					</ButtonGroup>
+				) }
+				<UnitControl
+					className="jetpack-button__custom-width"
+					isResetValueOnUnitChange
+					max={ width?.includes( '%' ) ? 100 : undefined }
+					min={ 0 }
+					onChange={ selectedWidth => onChange( selectedWidth ) }
+					size={ 'small' }
+					units={ isAlignedLeftOrRight ? alignedWidthUnits : widthUnits }
+					value={ width }
+				/>
+			</div>
+		</BaseControl>
 	);
 }

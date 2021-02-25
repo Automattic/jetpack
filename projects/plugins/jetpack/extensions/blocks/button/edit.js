@@ -61,7 +61,7 @@ function ButtonEdit( {
 	};
 
 	useEffect( () => {
-		// Reset button width if switching to left or right alignment for first time.
+		// Reset button width if switching to left or right (floated) alignment for first time.
 		const alignmentChanged = previousAlign !== align;
 		const isAlignedLeftRight = align === 'left' || align === 'right';
 
@@ -130,7 +130,11 @@ function ButtonEdit( {
 					} }
 				/>
 				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-				<ButtonWidthPanel align={ align } width={ width } setAttributes={ setAttributes } />
+				<ButtonWidthPanel
+					align={ align }
+					width={ width }
+					onChange={ newWidth => setAttributes( { width: newWidth } ) }
+				/>
 			</InspectorControls>
 		</div>
 	);
