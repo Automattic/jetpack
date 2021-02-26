@@ -148,7 +148,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @param ChangeEntry $a First entry.
 	 * @param ChangeEntry $b Second entry.
-	 * @param array       $config Unused.
+	 * @param array       $config Passed from `compare()`, but unused here.
 	 * @return int
 	 */
 	protected static function compareSignificance( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -191,7 +191,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @param ChangeEntry $a First entry.
 	 * @param ChangeEntry $b Second entry.
-	 * @param array       $config Unused.
+	 * @param array       $config Passed from `compare()`, but unused here.
 	 * @return int
 	 */
 	protected static function compareTimestamp( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -225,7 +225,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @param ChangeEntry $a First entry.
 	 * @param ChangeEntry $b Second entry.
-	 * @param array       $config Used for 'knownSubheadings'.
+	 * @param array       $config Passed from `compare()`, used for 'knownSubheadings'.
 	 * @return int
 	 */
 	protected static function compareSubheading( ChangeEntry $a, ChangeEntry $b, array $config ) {
