@@ -91,9 +91,10 @@ async function activateModule( page, module ) {
 	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
-		throw new Error( `${ module } is failed to activate` );
+		throw new Error( `${ module } failed to activate` );
 	}
 
+	// todo we shouldn't have page references in here. these methods could be called without a browser being opened
 	await page.waitForTimeout( 1000 );
 	await page.reload( { waitUntil: 'domcontentloaded' } );
 
@@ -103,7 +104,7 @@ async function activateModule( page, module ) {
 async function execWpCommand( wpCmd ) {
 	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
 
-	logger.info( cmd );
+	logger.info( `CLI ${ cmd }` );
 	const result = await execShellCommand( cmd );
 
 	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
