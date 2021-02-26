@@ -1,0 +1,31 @@
+@import '../../../shared/styles/gutenberg-base-styles.scss';
+
+.media-player-control__current-time {
+	display: flex;
+	align-items: center;
+	padding: 0 12px 0 5px;
+	min-width: 55px;
+	font-size: 14px;
+
+	&.is-disabled {
+		color: $gray-700;
+		cursor: default;
+    }
+}
+
+.wp-block-jetpack-dialogue__timestamp-player {
+	display: flex;
+	margin-top: 10px;
+	justify-content: center;
+	flex-wrap: wrap;
+
+	button {
+		padding: 0;
+	}
+}
+
+.media-player-control__toolbar .components-toolbar-button {
+	.dashicons {
+		margin: 0;
+	}
+}

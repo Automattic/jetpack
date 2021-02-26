@@ -1,0 +1,23 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__search-form-controls {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	right: $results-margin-lg + $sidebar-width;
+	line-height: 1.3;
+	margin-top: 16px;
+
+	@include break-large-down() {
+		position: relative;
+		left: 0;
+		right: 0;
+
+		display: flex;
+		flex-direction: row-reverse;
+		justify-content: space-between;
+	}
+	@include break-large-up() {
+		margin-top: 36px;
+	}
+}

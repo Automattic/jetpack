@@ -1,0 +1,39 @@
+{
+	"name": "automattic/jetpack-autoloader",
+	"description": "Creates a custom autoloader for a plugin or theme.",
+	"type": "composer-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"composer-plugin-api": "^1.1 || ^2.0"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "0.2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/AutoloadGenerator.php"
+		],
+		"psr-4": {
+			"Automattic\\Jetpack\\Autoloader\\": "src"
+		}
+	},
+	"scripts": {
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
+		"mirror-repo": "Automattic/jetpack-autoloader"
+	}
+}

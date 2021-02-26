@@ -3,14 +3,16 @@
  */
 const debug = require( '../../debug' );
 
+/* global GitHub, WebhookPayloadPullRequest */
+
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
  *
- * @param {WebhookPayloadPullRequest} payload Pull request event payload.
- * @param {GitHub}                    octokit Initialized Octokit REST client.
+ * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function assignIssues( payload, octokit ) {
-	const regex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:\#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
+	const regex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
 
 	let match;
 	while ( ( match = regex.exec( payload.pull_request.body ) ) ) {

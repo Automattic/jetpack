@@ -1,0 +1,29 @@
+{
+	"name": "automattic/jetpack-heartbeat",
+	"description": "This adds a cronjob that sends a batch of internal automattic stats to wp.com once a day",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-a8c-mc-stats": "@dev",
+		"automattic/jetpack-options": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-heartbeat"
+	}
+}

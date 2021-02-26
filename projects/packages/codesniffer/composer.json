@@ -1,0 +1,40 @@
+{
+	"name": "automattic/jetpack-codesniffer",
+	"description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
+	"type": "phpcodesniffer-standard",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
+		"mediawiki/mediawiki-codesniffer": "^35.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"sirbrillig/phpcs-variable-analysis": "^2.10",
+		"wp-coding-standards/wpcs": "^2.3"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "0.2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"hacks/"
+		],
+		"psr-4": {
+			"Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
+		}
+	},
+	"scripts": {
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": "./tests/action-test-php.sh"
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-codesniffer"
+	}
+}

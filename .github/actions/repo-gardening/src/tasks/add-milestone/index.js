@@ -1,55 +1,18 @@
 /**
- * External dependencies
- */
-const moment = require( 'moment' );
-
-/**
  * Internal dependencies
  */
 const debug = require( '../../debug' );
 const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
+const getNextValidMilestone = require( '../../get-next-valid-milestone' );
+const getPluginNames = require( '../../get-plugin-names' );
 
-/**
- * Returns a promise resolving to the next valid milestone, if exists.
- *
- * @param {GitHub} octokit Initialized Octokit REST client.
- * @param {string} owner   Repository owner.
- * @param {string} repo    Repository name.
- *
- * @return {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
- */
-async function getNextValidMilestone( octokit, owner, repo ) {
-	const params = {
-		state: 'open',
-		sort: 'due_on',
-		direction: 'asc',
-	};
-
-	const options = octokit.issues.listMilestones.endpoint.merge( {
-		owner,
-		repo,
-		...params,
-	} );
-
-	const responses = octokit.paginate.iterator( options );
-
-	for await ( const response of responses ) {
-		// Find a milestone which name is a version number
-		// and it's due dates is earliest in a future
-		const nextMilestone = response.data
-			.filter( m => m.title.match( /\d\.\d/ ) )
-			.sort( ( m1, m2 ) => parseFloat( m1.title ) - parseFloat( m2.title ) )
-			.find( milestone => milestone.due_on && moment( milestone.due_on ) > moment() );
-
-		return nextMilestone;
-	}
-}
+/* global GitHub, WebhookPayloadPullRequest */
 
 /**
  * Assigns any issues that are being worked to the author of the matching PR.
  *
- * @param {WebhookPayloadPullRequest} payload Pull request event payload.
- * @param {GitHub}                    octokit Initialized Octokit REST client.
+ * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function addMilestone( payload, octokit ) {
 	// We should not get to that point as the action is triggered on pushes to master, but...
@@ -76,8 +39,10 @@ async function addMilestone( payload, octokit ) {
 		return;
 	}
 
-	// Get next valid milestone.
-	const nextMilestone = await getNextValidMilestone( octokit, owner, repo );
+	const plugins = await getPluginNames( octokit, owner, repo, prNumber );
+
+	// Get next valid milestone (we can only add one).
+	const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugins[ 0 ] );
 
 	if ( ! nextMilestone ) {
 		throw new Error( 'Could not find a valid milestone' );

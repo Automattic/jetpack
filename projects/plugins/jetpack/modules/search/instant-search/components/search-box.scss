@@ -1,0 +1,82 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__box {
+	position: relative;
+	border-bottom: 1px solid $color-layout-borders;
+}
+
+.jetpack-instant-search__box-label {
+	display: flex;
+	align-items: center;
+	flex: 0 0 100%;
+	margin: 0;
+}
+
+input.jetpack-instant-search__box-input.search-field {
+	appearance: none;
+	background: $color-modal-background;
+	border: 0;
+	box-shadow: none;
+	color: $color-text-light;
+	font-size: 18px;
+	height: 60px;
+	line-height: 1;
+	margin: 0;
+	padding: 0 14px;
+	text-indent: 32px;
+	vertical-align: middle;
+
+	&:hover,
+	&:focus {
+		background: $color-modal-background; // necessary to override theme styles
+		color: $color-text;
+	}
+
+	&.search-field {
+		text-indent: 0;
+		padding-left: 0;
+		letter-spacing: -0.02em;
+	}
+}
+
+.jetpack-instant-search__box-gridicon {
+	position: relative;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 60px;
+	width: 60px;
+
+	svg {
+		fill: $color-text-lighter;
+	}
+}
+
+/* apply to all the inputs to try and pick up any theme styling */
+.jetpack-instant-search__box input,
+.jetpack-instant-search__box input[type='search'].jetpack-instant-search__box-input {
+	width: 100%;
+	height: 52px;
+	transition: color 0.15s ease-in-out, border-color 0.25s ease-in-out;
+	outline-style: none;
+	border: none;
+
+	&::-webkit-search-results-button,
+	&::-webkit-search-results-decoration {
+		display: initial;
+		-webkit-appearance: searchfield;
+	}
+
+	&::-webkit-search-decoration,
+	&::-webkit-search-cancel-button {
+		-webkit-appearance: none;
+	}
+
+	&::-ms-clear,
+	&::-ms-reveal {
+		display: none;
+	}
+}

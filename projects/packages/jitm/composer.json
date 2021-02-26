@@ -1,0 +1,61 @@
+{
+	"name": "automattic/jetpack-jitm",
+	"description": "Just in time messages for Jetpack",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-partner": "@dev",
+		"automattic/jetpack-tracking": "@dev",
+		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-status": "@dev"
+	},
+	"require-dev": {
+		"brain/monkey": "2.6.0",
+		"yoast/phpunit-polyfills": "0.2.0"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"scripts": {
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build-production"
+		],
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build"
+		],
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-jitm"
+	}
+}

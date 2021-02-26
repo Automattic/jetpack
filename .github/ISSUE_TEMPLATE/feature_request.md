@@ -1,6 +1,8 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
+labels: '[Type] Feature'
+assignees: ''
 
 ---
 
@@ -15,3 +17,9 @@ about: Suggest an idea for this project
 
 #### Additional context
 <!-- Add any other context or screenshots about the feature request here. -->
+
+<!--
+PLEASE NOTE
+- Everything is optional, but try to add as many details as possible.
+- Do not report potential security vulnerabilities here. For responsible disclosure of security issues and to be eligible for our bug bounty program, please review the [Security Policy guidelines](https://github.com/Automattic/jetpack/security/policy).
+-->

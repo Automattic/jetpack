@@ -1,0 +1,231 @@
+@import '../lib/styles/_helper.scss';
+
+$modal-max-width: 1080px;
+$modal-max-width-lg: 95%;
+
+.jetpack-instant-search__search-results {
+	align-content: baseline;
+	background: $color-modal-background;
+	border-radius: 3px;
+	display: flex;
+	flex-flow: row wrap;
+	min-height: 100%;
+	margin: 0 auto;
+	max-width: $modal-max-width;
+	padding: 0;
+	position: relative;
+	text-align: left;
+	z-index: 10;
+
+	@include break-small-down() {
+		border-radius: 0;
+	}
+
+	@include break-large-up() {
+		max-width: $modal-max-width-lg;
+	}
+
+	mark {
+		color: $color-text;
+		background: $color-mark-background-default;
+		padding: 3px 2px;
+	}
+}
+
+.jetpack-instant-search__search-results-filter-button {
+	align-items: center;
+	border: 0;
+	color: $color-text-lighter;
+	cursor: pointer;
+	display: flex;
+	font-size: 12px;
+	margin-right: 6px;
+	padding: 8px;
+	text-decoration: none;
+	transition: background-color 0.25s ease-in-out;
+
+	@include break-small-up() {
+		padding: 10px 14px;
+		font-size: 13px;
+		margin-right: 16px;
+	}
+
+	@include break-large-up() {
+		display: none;
+	}
+
+	@include break-medium-down() {
+		margin-right: $results-margin-sm;
+	}
+
+	@include break-large-down() {
+		margin-right: $results-margin-md;
+	}
+
+	&:hover,
+	&:focus {
+		color: $color-text;
+	}
+
+	.gridicon {
+		margin-left: 4px;
+	}
+}
+
+.jetpack-instant-search__search-results-primary {
+	margin: 0;
+	max-width: calc( 100% - #{$sidebar-width} );
+	width: 100%;
+
+	@include break-large-down() {
+		max-width: 100%;
+	}
+}
+
+.jetpack-instant-search__search-results-secondary {
+	display: none;
+	color: $color-text;
+
+	@include break-large-up() {
+		background: none;
+		border-left: 1px solid $color-layout-borders;
+		border-radius: 0;
+		bottom: 0;
+		box-shadow: none;
+		display: block;
+		flex: none;
+		padding: 0 32px;
+		position: static;
+		width: $sidebar-width;
+
+		.jetpack-instant-search__overlay--no-sidebar & {
+			display: none;
+		}
+	}
+
+	&.jetpack-instant-search__search-results-secondary--show-as-modal {
+		@include break-large-down() {
+			position: absolute;
+			top: 96px;
+			right: 40px;
+			left: 40px;
+
+			background: $color-modal-background;
+			border-radius: 6px;
+			border: 1px solid rgba( 0, 0, 0, 0.1 );
+			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
+			display: block;
+			margin: 16px 0 32px;
+			min-width: 360px;
+			padding: 16px 24px;
+			width: auto;
+			z-index: 10;
+			max-height: 70vh;
+			overflow-y: scroll;
+
+			@include break-small-down() {
+				max-height: 80vh;
+			}
+
+			.jetpack-instant-search__jetpack-colophon {
+				margin-bottom: 1em;
+			}
+
+			.jetpack-instant-search__jetpack-colophon-text {
+				font-size: 0.8em;
+			}
+		}
+	}
+}
+
+.jetpack-instant-search__search-results-title,
+.jetpack-instant-search__search-results-unused-query {
+	color: $color-text;
+	display: inline-flex;
+	font-size: 1em;
+	font-weight: 700;
+	font-weight: bold;
+	line-height: 1.3;
+
+	margin: 0.5em $results-margin-lg 1.5em;
+	padding: 0;
+
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+	}
+	@include break-large-down() {
+		margin-left: $results-margin-md;
+	}
+	@include break-large-up() {
+		margin-top: 32px;
+	}
+}
+
+.jetpack-instant-search__search-results-list {
+	color: $color-text;
+	list-style: none;
+	margin-left: $results-margin-lg;
+	margin-right: $results-margin-lg;
+	padding: 0;
+
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
+	}
+	@include break-large-down() {
+		margin-left: $results-margin-md;
+		margin-right: $results-margin-md;
+	}
+
+	// Accessibility improvement for VoiceOVer
+	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
+	li:before {
+		content: '\200B';
+		position: absolute;
+		height: 1px;
+		width: 1px;
+	}
+}
+
+.jetpack-instant-search__search-results-search-form {
+	font-size: 0.8em;
+	margin: 0;
+	position: relative;
+	top: 0;
+	width: 100%;
+}
+
+.jetpack-instant-search__overlay-close {
+	align-items: center;
+	appearance: none;
+	background: none;
+	border: none;
+	cursor: pointer;
+	display: flex;
+	height: 60px;
+	justify-content: center;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+	text-decoration: none;
+	width: 60px;
+	z-index: 20;
+
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	&:focus {
+		outline: 1px dotted;
+	}
+
+	svg.gridicon {
+		fill: $color-text-lighter;
+	}
+}
+
+.jetpack-instant-search__search-results-pagination {
+	margin: 50px;
+	display: block;
+	flex: none;
+}

@@ -1,0 +1,55 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+@import './player/style.scss';
+
+.wp-block-jetpack-story__add-item {
+	margin-top: 4px;
+	width: 100%;
+
+	.components-form-file-upload,
+	.components-button.wp-block-jetpack-story__add-item-button {
+		width: 100%;
+		height: 100%;
+	}
+
+	.components-button.wp-block-jetpack-story__add-item-button {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		box-shadow: none;
+		border: none;
+		border-radius: 0;
+		min-height: 100px;
+
+		.dashicon {
+			margin-top: 10px;
+		}
+
+		&:hover,
+		&:focus {
+			border: 1px solid $gray-600;
+		}
+	}
+}
+
+.wp-story-container {
+
+	.wp-story-prev-slide,
+	.wp-story-next-slide {
+		button {
+			width: 36px !important;
+			height: 36px !important;
+			color: #50575e;
+			border: 1px solid #50575e;
+			outline: 0;
+			background-color: transparent;
+
+			&:hover {
+				border: 1px solid #50575e;
+				background-color: transparent;
+				i {
+					color: rgb(51, 129, 184);
+				}
+			}
+		}
+	}
+}

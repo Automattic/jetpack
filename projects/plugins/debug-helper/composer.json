@@ -1,0 +1,11 @@
+{
+	"name": "automattic/jetpack-debug-helper",
+	"description": "A plugin for mocking various states of the plugin to aid in Jetpack development. Not for production use.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"minimum-stability": "dev",
+	"require": {},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-debug-helper"
+	}
+}

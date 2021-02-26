@@ -1,6 +1,0 @@
-# This is used by the Gardening Action, in the triage job
-"[Status] Needs Package Release":
-- 'packages/*'
-- 'packages/*/*'
-- 'packages/*/*/*'
-- 'packages/*/*/*/*'

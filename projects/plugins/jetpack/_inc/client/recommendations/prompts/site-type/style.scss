@@ -1,0 +1,55 @@
+@import '../../../scss/mixin_breakpoint.scss';
+@import '../../../scss/calypso-colors';
+
+.jp-recommendations-question__site-type-checkboxes {
+	@include breakpoint( '>480px' ) {
+		display: grid;
+		gap: 16px;
+		grid-template-rows: auto auto;
+		grid-template-columns: auto auto;
+	}
+
+	@include breakpoint( '<480px' ) {
+		display: flex;
+		flex-direction: column;
+	}
+
+	margin-bottom: 16px;
+
+	text-align: left;
+}
+
+.jp-recommendations-question__site-type-answer-container {
+	text-align: center;
+
+	margin: 0 0 32px 32px;
+
+	@include breakpoint( '<660px' ) {
+		margin: 0 32px 32px 32px;
+	}
+
+	@include breakpoint( '<480px' ) {
+		margin: 0 16px 16px 16px;
+	}
+
+	.dops-button {
+		@include breakpoint( '<480px' ) {
+			width: 100%;
+		}
+	}
+}
+
+.jp-recommendations-site-type-question__continue-description {
+	color: #646970;
+	margin: 24px auto 0 auto;
+	max-width: 300px;
+
+	@include breakpoint( '<480px' ) {
+		display: none;
+	}
+}
+
+.jp-recommendations-site-type__illustration {
+	height: 200px;
+	padding: 65px;
+}

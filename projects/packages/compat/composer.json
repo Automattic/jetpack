@@ -1,0 +1,20 @@
+{
+	"name": "automattic/jetpack-compat",
+	"description": "Compatibility layer with previous versions of Jetpack",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"autoload": {
+		"files": [
+			"functions.php"
+		],
+		"classmap": [
+			"legacy"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-compat"
+	}
+}

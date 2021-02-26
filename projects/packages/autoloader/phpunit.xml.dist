@@ -1,0 +1,19 @@
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="true" colors="true">
+	<testsuites>
+		<testsuite name="unit">
+			<directory suffix="Test.php">tests/php/tests/unit</directory>
+		</testsuite>
+		<testsuite name="integration">
+			<directory suffix="Test.php">tests/php/tests/integration</directory>
+		</testsuite>
+		<testsuite name="acceptance">
+			<directory suffix="Test.php">tests/php/tests/acceptance</directory>
+		</testsuite>
+	</testsuites>
+	<filter>
+		<whitelist processUncoveredFilesFromWhitelist="false">
+			<!-- Do not add `.`, bootstrap.php sets up a loop from tests/php/tmp/wp-content/plugins/current/vendor/automattic/jetpack-autoloader → . which PHPUnit chokes on. -->
+			<directory suffix=".php">src</directory>
+		</whitelist>
+	</filter>
+</phpunit>

@@ -9,8 +9,11 @@ const { context, getOctokit } = require( '@actions/github' );
  */
 const assignIssues = require( './tasks/assign-issues' );
 const addMilestone = require( './tasks/add-milestone' );
+const addLabels = require( './tasks/add-labels' );
+const checkDescription = require( './tasks/check-description' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
+const ifNotClosed = require( './if-not-closed' );
 
 const automations = [
 	{
@@ -22,6 +25,16 @@ const automations = [
 		event: 'push',
 		task: addMilestone,
 	},
+	{
+		event: 'pull_request',
+		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
+		task: ifNotClosed( addLabels ),
+	},
+	{
+		event: 'pull_request',
+		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
+		task: ifNotClosed( checkDescription ),
+	},
 ];
 
 ( async function main() {
@@ -31,6 +44,7 @@ const automations = [
 		return;
 	}
 
+	// eslint-disable-next-line new-cap
 	const octokit = new getOctokit( token );
 
 	// Get info about the event.
