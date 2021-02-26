@@ -6,7 +6,6 @@ import config from 'config';
  * Internal dependencies
  */
 import logger from './logger';
-import { execSyncShellCommand } from './utils-helper';
 
 /**
  * Waits for element to be visible, returns false if element was not found after timeout.
