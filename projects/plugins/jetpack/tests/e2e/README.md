@@ -44,6 +44,7 @@ Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to h
 
 * `HEADLESS` - default `true`. Whether to run tests in a headless mode or not.
 * `E2E_DEBUG` - default `false`. Will log debug information into console. Also forces browser headfull mode, any value for the above `HEADLESS` var will be ignored.
+* `PAUSE_ON_FAILURE` - default `false`. Combined with `E2E_DEBUG=true` will pause the test execution when an error occurs and will open Playwright Inspector.
 
 ## Running tests
 
