@@ -92,6 +92,9 @@ add_action( 'admin_enqueue_scripts', 'wpcom_fse_global_editors_script' );
  */
 function wpcom_editor_site_launch()
 {
+	// Temporarily disable launch.
+	return false;
+
 	// If site is already launched, skip.
 	if ( \Private_Site\is_launched() ) {
 		return false;
