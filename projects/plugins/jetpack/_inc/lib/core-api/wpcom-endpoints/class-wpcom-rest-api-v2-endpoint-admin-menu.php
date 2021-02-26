@@ -212,6 +212,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array Prepared menu item.
 	 */
 	private function prepare_menu_item( array $menu_item ) {
+		global $submenu;
+
 		// Exclude unauthorized menu items.
 		if ( ! current_user_can( $menu_item[1] ) ) {
 			return array();
@@ -229,12 +231,23 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			);
 		}
 
+		$url         = $menu_item[2];
+		$parent_slug = '';
+
+		// If there are submenus, the parent menu should always link to the first submenu.
+		// @see https://core.trac.wordpress.org/browser/trunk/src/wp-admin/menu-header.php?rev=49193#L152.
+		if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
+			$parent_slug        = $url;
+			$first_submenu_item = reset( $submenu[ $menu_item[2] ] );
+			$url                = $first_submenu_item[2];
+		}
+
 		$item = array(
 			'icon'  => $this->prepare_menu_item_icon( $menu_item[6] ),
 			'slug'  => sanitize_title_with_dashes( $menu_item[2] ),
 			'title' => $menu_item[0],
 			'type'  => 'menu-item',
-			'url'   => $this->prepare_menu_item_url( $menu_item[2] ),
+			'url'   => $this->prepare_menu_item_url( $url, $parent_slug ),
 		);
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
