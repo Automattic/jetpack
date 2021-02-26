@@ -786,7 +786,16 @@ function jetpack_do_subscription_form( $instance ) {
 	}
 	if ( isset( $instance['custom_button_width'] ) && 'undefined' !== $instance['custom_button_width'] ) {
 		$submit_button_wrapper_styles .= 'width: ' . $instance['custom_button_width'] . '; ';
-		$submit_button_styles         .= 'width: 100%; ';
+
+		// Account for custom margins on inline forms.
+		if (
+			! empty( $instance['custom_spacing'] ) &&
+			! ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] )
+		) {
+			$submit_button_styles .= 'width: calc(100% - ' . $instance['custom_spacing'] . 'px); ';
+		} else {
+			$submit_button_styles .= 'width: 100%; ';
+		}
 	}
 
 	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
