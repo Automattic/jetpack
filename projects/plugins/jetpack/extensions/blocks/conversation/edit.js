@@ -3,9 +3,10 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from '@wordpress/element';
-
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -15,16 +16,36 @@ import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
 import { getParticipantByLabel } from './utils';
 import { TranscriptIcon as icon } from '../../shared/icons';
+import { pickExtensionFromFileName } from '../../shared/file-utils';
+import { SRT_parse } from '../../shared/transcript-utils';
+import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
+
+const FILE_EXTENSION_SRT = '.srt';
+const FILE_EXTENSION_TXT = '.txt';
+const FILE_EXTENSION_VTT = '.vtt';
+const FILE_EXTENSION_SBV = '.sbv';
+
+const ACCEPTED_FILE_EXT_ARRAY = [
+	FILE_EXTENSION_SRT,
+	FILE_EXTENSION_TXT,
+	FILE_EXTENSION_VTT,
+	FILE_EXTENSION_SBV,
+];
+
+const ACCEPTED_FILE_EXTENSIONS = ACCEPTED_FILE_EXT_ARRAY.join( ', ' );
 
 function ConversationEdit( {
 	className,
 	attributes,
 	setAttributes,
 	noticeUI,
+	clientId,
 } ) {
 	const { participants = [], showTimestamps } = attributes;
+
+	const { insertBlocks } = useDispatch( 'core/block-editor' );
 
 	const updateParticipants = useCallback(
 		updatedParticipant => {
@@ -104,6 +125,49 @@ function ConversationEdit( {
 		if ( event ) {
 			event.preventDefault();
 		}
+
+		const textFile = event.target.files?.[ 0 ];
+		if ( ! textFile ) {
+			return;
+		}
+
+		// Read file content.
+		const reader = new FileReader();
+		reader.addEventListener( 'load', ( ev ) => {
+			const rawData = ev.target.result;
+			if ( ! rawData?.length ) {
+				return;
+			}
+
+			// Detect format by extension.
+			const fileExtension = pickExtensionFromFileName( textFile?.name );
+			if (
+				fileExtension &&
+				fileExtension !== 'txt' &&
+				ACCEPTED_FILE_EXT_ARRAY.indexOf( fileExtension ) >= 0
+			) {
+				if ( fileExtension === FILE_EXTENSION_SRT ) {
+					// SRT doesn't include speakers.
+					const newSpeaker = addNewParticipant( {
+						label: 'Speaker',
+					} );
+
+					const parsedSRTData = SRT_parse( rawData );
+					const blocks = parsedSRTData.map( function( dialogue ) {
+						return createBlock( 'jetpack/dialogue', {
+							slug: newSpeaker.slug,
+							content: dialogue.text,
+							timestamp: convertSecondsToTimeCode( convertTimeCodeToSeconds( dialogue.startTime ) ),
+							showTimestamp: true,
+						} );
+					} );
+
+					insertBlocks( blocks, 0, clientId );
+				}
+			}
+		} );
+
+		reader.readAsText( textFile );
 	}
 
 	const baseClassName = 'wp-block-jetpack-conversation';
@@ -125,11 +189,11 @@ function ConversationEdit( {
 						isLarge
 						className="wp-block-jetpack-slideshow__add-item-button"
 						onChange={ uploadFromFiles }
-						accept="text/*"
+						accept={ ACCEPTED_FILE_EXTENSIONS }
 						icon="media-text"
 						isPrimary
 					>
-						{ __( 'Upload transcript', 'jetpack' ) }
+						{ __( 'Upload Transcript', 'jetpack' ) }
 					</FormFileUpload>
 
 					<Button isSecondary>
