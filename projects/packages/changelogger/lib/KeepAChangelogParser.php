@@ -200,7 +200,7 @@ class KeepAChangelogParser extends Parser {
 				continue;
 			}
 
-			// Inject an empty heading if necessary so the change parsing can be more striaghtforward.
+			// Inject an empty heading if necessary so the change parsing can be more straightforward.
 			if ( '#' !== $content[0] ) {
 				$content = "### \n$content";
 			}

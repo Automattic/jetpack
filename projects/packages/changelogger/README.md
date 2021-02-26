@@ -1,6 +1,6 @@
 # Jetpack Changelogger
 
-This is tool allowing for managing a changelog for your project by having each PR drop a
+This tool allows for managing a changelog for your project by having each PR drop a
 specially-formatted "change file" into a `changelog` directory, which the tool can then process when
 you make a release.
 
