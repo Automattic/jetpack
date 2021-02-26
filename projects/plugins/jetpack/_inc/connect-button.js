@@ -100,7 +100,13 @@ jQuery( document ).ready( function ( $ ) {
 		},
 		handleConnectionSuccess: function ( data ) {
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
-			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
+			jetpackConnectIframe.attr(
+				'src',
+				data.authorizeUrl +
+					'&from=' +
+					connectButtonFrom +
+					'&iframe_height=340&iframe_source=jetpack-connect-main'
+			);
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
