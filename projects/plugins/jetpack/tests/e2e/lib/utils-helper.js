@@ -1,11 +1,14 @@
 /**
  * External dependencies
  */
-import { execSync, exec } from 'child_process';
-import config from 'config';
-import logger from './logger';
-import fs from 'fs';
-import path from 'path';
+const { execSync, exec } = require( 'child_process' );
+const config = require( 'config' );
+const fs = require( 'fs' );
+const path = require( 'path' );
+/**
+ * Internal dependencies
+ */
+const logger = require( './logger' ).default;
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -13,7 +16,7 @@ import path from 'path';
  * @param {string} cmd  shell command
  * @return {Promise<string>} output
  */
-export async function execShellCommand( cmd ) {
+async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
@@ -26,23 +29,23 @@ export async function execShellCommand( cmd ) {
 	} );
 }
 
-export function execSyncShellCommand( cmd ) {
+function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
 // todo we should only read once and set a global variable
-export function getTunnelSiteUrl() {
+function getTunnelSiteUrl() {
 	return fs
 		.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
 		.replace( 'http:', 'https:' );
 }
 
-export async function resetWordpressInstall() {
+async function resetWordpressInstall() {
 	const cmd = './bin/env.sh reset';
 	await execShellCommand( cmd );
 }
 
-export async function prepareUpdaterTest() {
+async function prepareUpdaterTest() {
 	const cmd =
 		'yarn wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
 
@@ -56,7 +59,7 @@ export async function prepareUpdaterTest() {
  * @param {string} user Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-export function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
+function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 	const url = getTunnelSiteUrl();
 
@@ -79,7 +82,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {page} page Playwright page object
  * @param {string} module Jetpack module name
  */
-export async function activateModule( page, module ) {
+async function activateModule( page, module ) {
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
@@ -96,7 +99,7 @@ export async function activateModule( page, module ) {
 	return true;
 }
 
-export async function execWpCommand( wpCmd ) {
+async function execWpCommand( wpCmd ) {
 	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
 
 	logger.info( cmd );
@@ -116,6 +119,42 @@ export async function execWpCommand( wpCmd ) {
  *
  * @param  {...string} commands Array of wp commands to run together
  */
-export async function execMultipleWpCommands( ...commands ) {
+async function execMultipleWpCommands( ...commands ) {
 	return await execWpCommand( `bash -c '${ commands.join( ' && ' ) }'` );
 }
+
+async function logDebugLog() {
+	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	const lines = log.split( '\n' );
+	log = lines
+		.filter( line => {
+			if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
+				return false;
+			}
+			return true;
+		} )
+		.join( '\n' );
+
+	if ( log.length > 1 ) {
+		if ( process.env.E2E_DEBUG ) {
+			logger.debug( '#### WP DEBUG.LOG ####' );
+			logger.debug( log );
+		}
+		logger.slack( { message: log, type: 'debuglog' } );
+	}
+
+	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
+	logger.slack( { type: 'debuglog', message: apacheLog } );
+}
+
+module.exports = {
+	execShellCommand,
+	execSyncShellCommand,
+	getTunnelSiteUrl,
+	resetWordpressInstall,
+	prepareUpdaterTest,
+	provisionJetpackStartConnection,
+	activateModule,
+	execMultipleWpCommands,
+	logDebugLog,
+};

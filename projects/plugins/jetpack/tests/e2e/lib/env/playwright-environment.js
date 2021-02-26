@@ -1,6 +1,7 @@
 const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
 const fs = require( 'fs' );
 const logger = require( '../logger' ).default;
+const { logDebugLog } = require( '../utils-helper' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
@@ -91,6 +92,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 		await this.storeVideoFileName( eventFullName );
 		await this.logHTML( eventFullName );
 		await this.logFailureToSlack( parentName, eventName, error );
+		await logDebugLog();
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
 			await this.global.page.pause();
