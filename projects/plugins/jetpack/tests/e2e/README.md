@@ -66,7 +66,7 @@ yarn test-e2e ./specs/dummy.test.js
 For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use. Also Jest's `-t` argument could be used to run single test from the test suite(file)
 
 ```bash
-E2E_DEBUG=true yarn run test-e2e ./specs/some.test.js -t 'Test name'
+E2E_DEBUG=true yarn test-e2e ./specs/some.test.js -t 'Test name'
 ```
 
 ## Writing tests
