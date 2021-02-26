@@ -60,14 +60,12 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
 			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
+			'jetpack.testConnection'   => array( $this, 'test_connection' ),
 		);
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$jetpack_methods['jetpack.jsonAPI']           = array( $this, 'json_api' );
-			$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
-			$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
-			$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
-			$jetpack_methods['jetpack.disconnectBlog']    = array( $this, 'disconnect_blog' );
+			$jetpack_methods['jetpack.jsonAPI']        = array( $this, 'json_api' );
+			$jetpack_methods['jetpack.disconnectBlog'] = array( $this, 'disconnect_blog' );
 		}
 
 		$this->user = $this->login();
@@ -641,10 +639,15 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Just authenticates with the given Jetpack credentials.
 	 *
-	 * @return string The current Jetpack version number
+	 * @return string A success string. The Jetpack plugin filters it and make it retun the Jetpack plugin version.
 	 */
 	public function test_connection() {
-		return JETPACK__VERSION;
+		/**
+		 * Filters the successful response of the XMLRPC test_connection method
+		 *
+		 * @param string $response The response string.
+		 */
+		return apply_filters( 'jetpack_xmlrpc_test_connection_response', 'success' );
 	}
 
 	/**
@@ -785,36 +788,6 @@ class Jetpack_XMLRPC_Server {
 			'home'    => Functions::home_url(),
 			'siteurl' => Functions::site_url(),
 		);
-	}
-
-	/**
-	 * Returns what features are available. Uses the slug of the module files.
-	 *
-	 * @return array
-	 */
-	public function features_available() {
-		$raw_modules = Jetpack::get_available_modules();
-		$modules     = array();
-		foreach ( $raw_modules as $module ) {
-			$modules[] = Jetpack::get_module_slug( $module );
-		}
-
-		return $modules;
-	}
-
-	/**
-	 * Returns what features are enabled. Uses the slug of the modules files.
-	 *
-	 * @return array
-	 */
-	public function features_enabled() {
-		$raw_modules = Jetpack::get_active_modules();
-		$modules     = array();
-		foreach ( $raw_modules as $module ) {
-			$modules[] = Jetpack::get_module_slug( $module );
-		}
-
-		return $modules;
 	}
 
 	/**
