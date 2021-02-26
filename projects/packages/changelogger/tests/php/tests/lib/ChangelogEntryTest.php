@@ -231,12 +231,12 @@ class ChangelogEntryTest extends TestCase {
 	public function provideJson() {
 		return array(
 			'Basic serialization'              => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18' ),
 			),
 			'Serialization with data'          => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":"https:\\/\\/example.org","timestamp":"2021-02-18T12:07:16-05:00","prologue":"Foo","epilogue":"Bar","changes":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-17T00:00:00+00:00","subheading":"","author":"","content":""},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+00:00","subheading":"","author":"","content":""}]}',
-				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18T12:07:16-05:00' )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' )->setChanges(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":"https:\\/\\/example.org","timestamp":"2021-02-18T12:07:16-0500","prologue":"Foo","epilogue":"Bar","changes":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-17T00:00:00+0000","subheading":"","author":"","content":""},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}]}',
+				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18T12:07:16-0500' )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' )->setChanges(
 					array(
 						new ChangeEntry( array( 'timestamp' => '2021-02-17' ) ),
 						new ChangeEntry( array( 'timestamp' => '2021-02-18' ) ),
@@ -244,11 +244,11 @@ class ChangelogEntryTest extends TestCase {
 				),
 			),
 			'Bad unserialization, no class'    => array(
-				'{"version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'{"version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				'Invalid data',
 			),
 			'Bad unserialization, no version'  => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				'Invalid data',
 			),
 			'Bad unserialization, wrong class' => array(

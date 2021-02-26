@@ -292,7 +292,7 @@ class ChangelogEntry implements JsonSerializable {
 			'__class__' => static::class,
 			'version'   => $this->version,
 			'link'      => $this->link,
-			'timestamp' => $this->timestamp->format( 'c' ),
+			'timestamp' => $this->timestamp->format( DateTime::ISO8601 ),
 			'prologue'  => $this->prologue,
 			'epilogue'  => $this->epilogue,
 			'changes'   => $this->changes,

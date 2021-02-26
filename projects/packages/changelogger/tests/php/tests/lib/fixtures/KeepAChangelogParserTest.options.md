@@ -41,14 +41,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0",
               "link": null,
-              "timestamp": "2021-02-18T00:00:00+00:00",
+              "timestamp": "2021-02-18T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "Right bullet."
@@ -56,7 +56,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "Another right bullet."
@@ -64,7 +64,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "",
                       "author": "me",
                       "content": "Who did this?"
@@ -72,7 +72,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "Not an author: (me)."
@@ -83,7 +83,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "0.9",
               "link": null,
-              "timestamp": "2021-02-17T00:00:00+00:00",
+              "timestamp": "2021-02-17T00:00:00+0000",
               "prologue": "* Wrong bullet.",
               "epilogue": "",
               "changes": []
@@ -92,7 +92,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "0.8",
               "link": null,
-              "timestamp": "2021-02-16T00:00:00+00:00",
+              "timestamp": "2021-02-16T00:00:00+0000",
               "prologue": "- Wrong bullet.",
               "epilogue": "",
               "changes": []

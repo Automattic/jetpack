@@ -429,7 +429,7 @@ class UtilsTest extends TestCase {
 		}
 
 		$this->assertSame(
-			'{"a":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+00:00","subheading":"Added!","author":"","content":"AAAAA"},"b":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-24T00:00:00+00:00","subheading":"Unknown","author":"","content":"BBBBB"}}',
+			'{"a":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-22T00:00:00+0000","subheading":"Added!","author":"","content":"AAAAA"},"b":{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-24T00:00:00+0000","subheading":"Unknown","author":"","content":"BBBBB"}}',
 			json_encode( $ret )
 		);
 		$this->assertSame(

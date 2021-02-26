@@ -309,7 +309,7 @@ class ChangeEntry implements JsonSerializable {
 		return array(
 			'__class__'    => static::class,
 			'significance' => $this->significance,
-			'timestamp'    => $this->timestamp->format( 'c' ),
+			'timestamp'    => $this->timestamp->format( DateTime::ISO8601 ),
 			'subheading'   => $this->subheading,
 			'author'       => $this->author,
 			'content'      => $this->content,

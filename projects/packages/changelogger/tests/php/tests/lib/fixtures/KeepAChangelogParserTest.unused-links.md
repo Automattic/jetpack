@@ -41,7 +41,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.6",
               "link": "https://example.org/1.0.6",
-              "timestamp": "2021-02-07T00:00:00+00:00",
+              "timestamp": "2021-02-07T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []
@@ -50,7 +50,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.5",
               "link": "https://example.org/1.0.5",
-              "timestamp": "2021-02-06T00:00:00+00:00",
+              "timestamp": "2021-02-06T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []
@@ -59,7 +59,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.4",
               "link": "https://example.org/1.0.4",
-              "timestamp": "2021-02-05T00:00:00+00:00",
+              "timestamp": "2021-02-05T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []
@@ -68,7 +68,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.3",
               "link": "https://example.org/1.0.3",
-              "timestamp": "2021-02-04T00:00:00+00:00",
+              "timestamp": "2021-02-04T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []
@@ -77,7 +77,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.2",
               "link": "https://example.org/1.0.2",
-              "timestamp": "2021-02-03T00:00:00+00:00",
+              "timestamp": "2021-02-03T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []
@@ -86,7 +86,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.1",
               "link": "https://example.org/1.0.1",
-              "timestamp": "2021-02-02T00:00:00+00:00",
+              "timestamp": "2021-02-02T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []
@@ -95,7 +95,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.0",
               "link": "https://example.org/1.0.0",
-              "timestamp": "2021-02-01T00:00:00+00:00",
+              "timestamp": "2021-02-01T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": []

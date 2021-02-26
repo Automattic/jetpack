@@ -419,15 +419,15 @@ class ChangeEntryTest extends TestCase {
 	public function provideJson() {
 		return array(
 			'Basic serialization'              => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+00:00","subheading":"","author":"","content":""}',
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}',
 				( new ChangeEntry() )->setTimestamp( '2021-02-18' ),
 			),
 			'Serialization with data'          => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-18T12:07:16-05:00","subheading":"Heading","author":"Me!","content":"A change."}',
-				( new ChangeEntry() )->setTimestamp( '2021-02-18T12:07:16-05:00' )->setSignificance( 'minor' )->setSubheading( 'Heading' )->setAuthor( 'Me!' )->setContent( 'A change.' ),
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":"minor","timestamp":"2021-02-18T12:07:16-0500","subheading":"Heading","author":"Me!","content":"A change."}',
+				( new ChangeEntry() )->setTimestamp( '2021-02-18T12:07:16-0500' )->setSignificance( 'minor' )->setSubheading( 'Heading' )->setAuthor( 'Me!' )->setContent( 'A change.' ),
 			),
 			'Bad unserialization, no class'    => array(
-				'{"significance":"minor","timestamp":"2021-02-18T12:07:16-05:00","subheading":"Heading","author":"Me!","content":"A change."}',
+				'{"significance":"minor","timestamp":"2021-02-18T12:07:16-0500","subheading":"Heading","author":"Me!","content":"A change."}',
 				'Invalid data',
 			),
 			'Bad unserialization, wrong class' => array(

@@ -11,14 +11,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.3",
               "link": null,
-              "timestamp": "2021-02-23T00:00:00+00:00",
+              "timestamp": "2021-02-23T00:00:00+0000",
               "prologue": "Only heading H1 has content, H2 should not appear.",
               "epilogue": "",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "H1",
                       "author": "",
                       "content": ""
@@ -26,7 +26,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "H1",
                       "author": "",
                       "content": "A."
@@ -34,7 +34,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "H1",
                       "author": "",
                       "content": ""
@@ -42,7 +42,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "H2",
                       "author": "",
                       "content": ""
@@ -53,14 +53,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.2",
               "link": null,
-              "timestamp": "2021-02-23T00:00:00+00:00",
+              "timestamp": "2021-02-23T00:00:00+0000",
               "prologue": "A mix of empty and non-empty changes.",
               "epilogue": "",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": ""
@@ -68,7 +68,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "A."
@@ -76,7 +76,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": ""
@@ -84,7 +84,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "B."
@@ -92,7 +92,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": ""
@@ -100,7 +100,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "C."
@@ -108,7 +108,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": ""
@@ -119,14 +119,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.1",
               "link": null,
-              "timestamp": "2021-02-23T00:00:00+00:00",
+              "timestamp": "2021-02-23T00:00:00+0000",
               "prologue": "Only empty changes.",
               "epilogue": "",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-23T00:00:00+00:00",
+                      "timestamp": "2021-02-23T00:00:00+0000",
                       "subheading": "HHH",
                       "author": "XXX",
                       "content": ""
@@ -137,7 +137,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.0",
               "link": null,
-              "timestamp": "2021-02-23T00:00:00+00:00",
+              "timestamp": "2021-02-23T00:00:00+0000",
               "prologue": "No changes at all.",
               "epilogue": "",
               "changes": []
