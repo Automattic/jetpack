@@ -7357,7 +7357,9 @@ endif;
 
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
 		} else {
-			self::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages );
+			// Default modules that don't require a user were already activated on site_register.
+			// This time let's activate only those that require a user, this assure we don't reactivate manually deactivated modules while the site was user-less.
+			self::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages, null, true );
 			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		}
 
