@@ -56,7 +56,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				logger.info( `SUCCESS: ${ hookName }` );
 				break;
 			case 'hook_failure':
-				logger.info( `FAILED: ${ hookName }` );
+				logger.info( `HOOK FAILED: ${ hookName }` );
 				logger.error( JSON.stringify( event.hook.errors ) );
 				logger.error( JSON.stringify( event.error ) );
 				await this.saveScreenshot( hookName );
