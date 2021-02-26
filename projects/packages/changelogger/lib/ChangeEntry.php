@@ -127,6 +127,10 @@ class ChangeEntry implements JsonSerializable {
 	/**
 	 * Set the significance.
 	 *
+	 * While entries coming in from users should always have a significance, we allow null here
+	 * because entries created programmatically, particularly when parsing an existing changelog,
+	 * may not include significance information.
+	 *
 	 * @param string|null $significance 'patch', 'minor', or 'major'.
 	 * @returns $this
 	 * @throws InvalidArgumentException If an argument is invalid.
