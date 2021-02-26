@@ -9,6 +9,7 @@ const path = require( 'path' );
  * Internal dependencies
  */
 const logger = require( './logger' ).default;
+const { E2E_DEBUG } = process.env;
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -125,23 +126,24 @@ async function execMultipleWpCommands( ...commands ) {
 
 async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+
 	const lines = log.split( '\n' );
 	log = lines
 		.filter( line => {
-			if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
-				return false;
-			}
-			return true;
+			return ! (
+				line.startsWith( '$ ' ) ||
+				line.includes( 'yarn run' ) ||
+				line.includes( 'Done ' )
+			);
 		} )
 		.join( '\n' );
 
-	if ( log.length > 1 ) {
-		if ( process.env.E2E_DEBUG ) {
-			logger.debug( '#### WP DEBUG.LOG ####' );
-			logger.debug( log );
-		}
-		logger.slack( { message: log, type: 'debuglog' } );
+	if ( log.length > 1 && E2E_DEBUG ) {
+		logger.debug( '#### WP DEBUG.LOG ####' );
+		logger.debug( log );
 	}
+
+	logger.slack( { message: log, type: 'debuglog' } );
 
 	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
 	logger.slack( { type: 'debuglog', message: apacheLog } );
@@ -155,6 +157,7 @@ module.exports = {
 	prepareUpdaterTest,
 	provisionJetpackStartConnection,
 	activateModule,
+	execWpCommand,
 	execMultipleWpCommands,
 	logDebugLog,
 };
