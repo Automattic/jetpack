@@ -1,6 +1,7 @@
 const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
 const fs = require( 'fs' );
 const logger = require( '../logger' ).default;
+const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	async setup() {
@@ -57,12 +58,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				break;
 			case 'hook_failure':
 				logger.info( `HOOK FAILED: ${ hookName }` );
-				logger.error( JSON.stringify( event.hook.errors ) );
-				logger.error( JSON.stringify( event.error ) );
-				await this.saveScreenshot( hookName );
-				await this.storeVideoFileName( hookName );
-				await this.logHTML( hookName );
-				await this.logFailureToSlack( event.hook.parent.name, event.hook.type, event.error );
+				await this.onFailure( testName, event.hook.parent.name, event.hook.type, event.error );
 				break;
 			case 'test_fn_start':
 				break;
@@ -71,12 +67,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				break;
 			case 'test_fn_failure':
 				logger.info( `FAILED TEST: ${ testName }` );
-				logger.error( JSON.stringify( event.test.errors ) );
-				logger.error( JSON.stringify( event.error ) );
-				await this.saveScreenshot( testName );
-				await this.storeVideoFileName( testName );
-				await this.logHTML( testName );
-				await this.logFailureToSlack( event.test.parent.name, event.test.name, event.error );
+				await this.onFailure( testName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
 				logger.info( `TEST DONE: ${ testName }` );
@@ -91,6 +82,18 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				break;
 			default:
 				break;
+		}
+	}
+
+	async onFailure( eventFullName, parentName, eventName, error ) {
+		logger.error( JSON.stringify( error ) );
+		await this.saveScreenshot( eventFullName );
+		await this.storeVideoFileName( eventFullName );
+		await this.logHTML( eventFullName );
+		await this.logFailureToSlack( parentName, eventName, error );
+
+		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
+			await this.global.page.pause();
 		}
 	}
 
