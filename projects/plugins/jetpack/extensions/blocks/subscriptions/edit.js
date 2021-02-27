@@ -378,7 +378,6 @@ function SubscriptionEdit( props ) {
 					/>
 
 					<ButtonWidthControl
-						align={ null }
 						width={ buttonWidth }
 						onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
 					/>

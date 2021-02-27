@@ -13,6 +13,7 @@ import {
 	PanelBody,
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const widthUnits = [
@@ -37,6 +38,8 @@ export default function ButtonWidthPanel( props ) {
 }
 
 export function ButtonWidthControl( { align, width, onChange } ) {
+	const [ unit, setUnit ] = useState( null );
+
 	// Left and right aligned blocks are floated so % widths don't work as expected.
 	const isAlignedLeftOrRight = align === 'left' || align === 'right';
 
@@ -44,7 +47,8 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 		// Check if we are toggling the width off.
 		const newWidth = width === selectedWidth ? undefined : selectedWidth;
 
-		// Update attributes.
+		// Update the units on the unit control.
+		setUnit( '%' );
 		onChange( newWidth );
 	}
 
@@ -77,9 +81,11 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 					max={ width?.includes( '%' ) ? 100 : undefined }
 					min={ 0 }
 					onChange={ selectedWidth => onChange( selectedWidth ) }
+					onUnitChange={ selectedUnit => setUnit( selectedUnit ) }
 					size={ 'small' }
 					units={ isAlignedLeftOrRight ? alignedWidthUnits : widthUnits }
 					value={ width }
+					unit={ unit }
 				/>
 			</div>
 		</BaseControl>
