@@ -38,7 +38,7 @@ class VersionCommand extends Command {
 			->addOption( 'use-significance', null, InputOption::VALUE_REQUIRED, 'When fetching the next version, use this significance instead of using the actual change files' )
 			->addOption( 'prerelease', 'p', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this prerelease suffix' )
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
-			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
+			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring. When used with <info>current</>, makes it work as <info>next</> in that situation.' )
 			->setHelp(
 				<<<EOF
 The <info>version</info> command reads the versions from the changelog, and outputs the previous, current, or next version based on the change files.
