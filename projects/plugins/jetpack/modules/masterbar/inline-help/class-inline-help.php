@@ -112,6 +112,11 @@ class Inline_Help {
 		wp_enqueue_style( 'a8c-faux-inline-help', plugins_url( 'inline-help.css', __FILE__ ), array(), JETPACK__VERSION );
 	}
 
+	/**
+	 * Enqueues FAB JS scripts.
+	 *
+	 * @return void
+	 */
 	public function add_fab_scripts() {
 		wp_enqueue_script(
 			'a8c-faux-inline-help',

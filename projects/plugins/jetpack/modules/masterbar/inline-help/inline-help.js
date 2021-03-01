@@ -5,7 +5,7 @@
 			if ( e.target.dataset.fauxInlineHelp !== undefined ) {
 				e.preventDefault();
 
-				if ( windowObjectReference == null || windowObjectReference.closed ) {
+				if ( windowObjectReference === null || windowObjectReference.closed ) {
 					windowObjectReference = window.open( e.target.href, e.target.target );
 				} else {
 					windowObjectReference.focus();
