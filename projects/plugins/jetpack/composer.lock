@@ -1204,9 +1204,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "3d65ad63e3a7af05fb5d47b7bf0c32cea1f8651f"
+                "reference": "d93b00f0125f58e9771b15ce3c0f253e54ce7290"
             },
             "require": {
+                "php": ">=5.6",
                 "symfony/console": "^3.4 | ^5.2",
                 "symfony/process": "^3.4 | ^5.2",
                 "wikimedia/at-ease": "^1.2 | ^2.0"
