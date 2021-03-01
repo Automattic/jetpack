@@ -493,6 +493,7 @@ export async function syncPlanData( page ) {
 	let frPlan = null;
 	let bkPlan = null;
 
+	// todo set a limit here to avoid infinite loop in case plans are never the same?
 	do {
 		await page.reload( { waitFor: 'domcontentloaded' } );
 

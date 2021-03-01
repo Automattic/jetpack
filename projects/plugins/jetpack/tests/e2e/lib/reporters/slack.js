@@ -47,9 +47,15 @@ export default class SlackReporter {
 
 	getFailedTestMessage( { name, block, error } ) {
 		let testFailure = '';
-		if ( error.name || error.message ) {
-			testFailure = error.name + ': ' + error.message;
+		if ( error ) {
+			if ( error.name ) {
+				testFailure += `: ${ error.name }\n`;
+			}
+			if ( error.message ) {
+				testFailure += `: ${ error.message }\n`;
+			}
 		}
+
 		const message = [
 			this.createSection( `*TEST FAILED:*
 *Test suite*: ${ block }
