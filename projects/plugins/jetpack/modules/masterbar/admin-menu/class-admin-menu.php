@@ -154,6 +154,8 @@ class Admin_Menu {
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$menu[ $dashboard_menu_position ] = $dashboard_menu_item;
 
+		remove_submenu_page( 'index.php', 'index.php' );
+
 		$this->migrate_submenus( 'index.php', $dashboard_menu_item[2] );
 		add_filter(
 			'parent_file',
