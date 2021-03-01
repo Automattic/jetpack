@@ -71,10 +71,10 @@ class WriteCommand extends Command {
 			->addOption( 'use-significance', null, InputOption::VALUE_REQUIRED, 'When determining the new version, use this significance instead of using the actual change files' )
 			->addOption( 'prerelease', 'p', InputOption::VALUE_REQUIRED, 'When determining the new version, include this prerelease suffix' )
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
+			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
 			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions', 1 )
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
 			->addOption( 'epilogue', null, InputOption::VALUE_REQUIRED, 'Epilogue text for the new changelog entry' )
-			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
 			->addOption( 'link', null, InputOption::VALUE_REQUIRED, 'Link for the new changelog entry' )
 			->setHelp(
 				<<<EOF

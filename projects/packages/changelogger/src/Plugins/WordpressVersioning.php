@@ -94,16 +94,14 @@ class WordpressVersioning implements VersioningPlugin {
 	}
 
 	/**
-	 * Determine the next version given a current version and a set of changes.
+	 * Validate an `$extra` array.
 	 *
-	 * @param string        $version Current version.
-	 * @param ChangeEntry[] $changes Changes.
-	 * @param array         $extra Extra components for the version.
-	 * @return string
-	 * @throws InvalidArgumentException If the version number is not in a recognized format, or other arguments are invalid.
+	 * @param array $extra Extra components for the version. See `nextVersion()`.
+	 * @return array
+	 * @throws InvalidArgumentException If the `$extra` data is invalid.
 	 */
-	public function nextVersion( $version, array $changes, array $extra = array() ) {
-		$info = $this->parseVersion( $version );
+	private function validateExtra( array $extra ) {
+		$info = array();
 
 		if ( isset( $extra['prerelease'] ) ) {
 			try {
@@ -123,6 +121,24 @@ class WordpressVersioning implements VersioningPlugin {
 		} else {
 			$info['buildinfo'] = null;
 		}
+
+		return $info;
+	}
+
+	/**
+	 * Determine the next version given a current version and a set of changes.
+	 *
+	 * @param string        $version Current version.
+	 * @param ChangeEntry[] $changes Changes.
+	 * @param array         $extra Extra components for the version.
+	 * @return string
+	 * @throws InvalidArgumentException If the version number is not in a recognized format, or other arguments are invalid.
+	 */
+	public function nextVersion( $version, array $changes, array $extra = array() ) {
+		$info = array_merge(
+			$this->parseVersion( $version ),
+			$this->validateExtra( $extra )
+		);
 
 		if ( $this->input->getOption( 'point-release' ) ) {
 			$info['point']++;
@@ -191,7 +207,7 @@ class WordpressVersioning implements VersioningPlugin {
 			array(
 				'major' => 0.0,
 				'point' => 0,
-			) + $extra
+			) + $this->validateExtra( $extra )
 		);
 	}
 
