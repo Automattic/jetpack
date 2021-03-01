@@ -40,6 +40,8 @@ class Inline_Help {
 		add_action( 'admin_footer', array( $this, 'add_fab_icon' ) );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_fab_styles' ) );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_fab_scripts' ) );
 	}
 
 	/**
@@ -108,5 +110,15 @@ class Inline_Help {
 	 */
 	public function add_fab_styles() {
 		wp_enqueue_style( 'a8c-faux-inline-help', plugins_url( 'inline-help.css', __FILE__ ), array(), JETPACK__VERSION );
+	}
+
+	public function add_fab_scripts() {
+		wp_enqueue_script(
+			'a8c-faux-inline-help',
+			plugins_url( 'inline-help.js', __FILE__ ),
+			array(),
+			JETPACK__VERSION,
+			true
+		);
 	}
 }
