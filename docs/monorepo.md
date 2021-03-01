@@ -38,12 +38,12 @@ Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart th
 
 The wizard accepts a few arguments to speed things up:
 
-* `[project type]` - Accepted values: `package`, `plugin`, `github-action` )
+* `[project type]` - Accepted values: `package`, `plugin`, `github-action`
 * `--name`, `--n` - The name of your project (no spaces)
 
 Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
 
-### What Does it Include?
+### What's Included
 
 The Jetpack Generate Wizard includes the following for each project: 
 #### All Projects:
@@ -67,9 +67,17 @@ The Jetpack Generate Wizard includes the following for each project:
 - phpunit.xml.dist
 - readme.txt
 - A main plugin.php (plugin_name.php), with filled in header
+
 #### Github Actions
 
 - action.yml
+
+### Next Steps
+
+* The wizard should auto-generate common information
+* Check things over to make sure it looks correct
+* If your project requires a build step, add steps to `composer.json` and `package.json`
+* Create a mirror repo if necessary. See [Mirror repositories](#mirror-repositories).
 ## Project structure
 
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
