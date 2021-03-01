@@ -4,6 +4,48 @@ Welcome to the Jetpack Monorepo! This document will give you some idea of the la
 
 ### Jetpack Generate
 
+Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart the files you need. To get started:
+
+* Make sure you're checked out to the branch you want.
+* Use the CLI command `jetpack generate` to start the process.
+* The wizard will walk you through the steps of starting a new package, plugin, or Github action.
+
+## Accepted Arguments
+
+The wizard accepts a few arguments to speed things up:
+
+* `[project type]` - Accepted values: `package`, `plugin`, `github-action` )
+* `--name`, `--n` - The name of your project (no spaces)
+
+Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
+
+## What Does it Include?
+
+The Jetpack Generate Wizard includes the following for each project: 
+# All Projects:
+
+- composer.json
+- package.json
+- readme.md
+- license.txt
+- .gitignore
+# Packages
+
+- bootstrap.php
+- .gitkeep
+- .gitattributes
+- phpunit.xml.dist
+# Plugins
+
+- bootstrap.php
+- .gitkeep
+- .gitattributes
+- phpunit.xml.dist
+- readme.txt
+- A main plugin.php (plugin_name.php), with filled in header
+# Github Actions
+
+- action.yml
 ### Layout
 
 Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
