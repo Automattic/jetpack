@@ -95,14 +95,15 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		/**
-		 * Filters the XML-RPC methods available to Jetpack for requests signed only with a blog token.
+		 * Filters the XML-RPC methods available to Jetpack for requests signed both with a blog token or a user token.
 		 *
 		 * @since 3.0.0
 		 *
-		 * @param array $jetpack_methods XML-RPC methods available to the Jetpack Server.
-		 * @param array $core_methods    Available core XML-RPC methods.
+		 * @param array         $jetpack_methods XML-RPC methods available to the Jetpack Server.
+		 * @param array         $core_methods    Available core XML-RPC methods.
+		 * @param \WP_User|bool $user            Information about a given WordPress user. False if authenticated with blog token.
 		 */
-		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods );
+		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods, $this->user );
 	}
 
 	/**
