@@ -13,7 +13,7 @@ import {
 	PanelBody,
 	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const widthUnits = [
@@ -39,6 +39,15 @@ export default function ButtonWidthPanel( props ) {
 
 export function ButtonWidthControl( { align, width, onChange } ) {
 	const [ unit, setUnit ] = useState( null );
+
+	useEffect( () => {
+		// If a button has a % width selected and is changed to left or right
+		// alignment, it will be floated and the width selection cleared. The
+		// unit should also be updated.
+		if ( width === undefined ) {
+			setUnit( 'px' );
+		}
+	}, [ width ] );
 
 	// Left and right aligned blocks are floated so % widths don't work as expected.
 	const isAlignedLeftOrRight = align === 'left' || align === 'right';
@@ -78,7 +87,7 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 				<UnitControl
 					className="jetpack-button__custom-width"
 					isResetValueOnUnitChange
-					max={ width?.includes( '%' ) ? 100 : undefined }
+					max={ unit === '%' ? 100 : undefined }
 					min={ 0 }
 					onChange={ selectedWidth => onChange( selectedWidth ) }
 					onUnitChange={ selectedUnit => setUnit( selectedUnit ) }
