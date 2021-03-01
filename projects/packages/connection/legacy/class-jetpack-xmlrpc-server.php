@@ -63,10 +63,6 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.testConnection'   => array( $this, 'test_connection' ),
 		);
 
-		if ( class_exists( 'Jetpack' ) ) {
-			$jetpack_methods['jetpack.jsonAPI'] = array( $this, 'json_api' );
-		}
-
 		$this->user = $this->login();
 
 		if ( $this->user ) {
@@ -778,114 +774,6 @@ class Jetpack_XMLRPC_Server {
 				'ID'          => $attachment_id,
 				'post_parent' => $parent_id,
 			)
-		);
-	}
-
-	/**
-	 * Serve a JSON API request.
-	 *
-	 * @param array $args request arguments.
-	 */
-	public function json_api( $args = array() ) {
-		$json_api_args        = $args[0];
-		$verify_api_user_args = $args[1];
-
-		$method       = (string) $json_api_args[0];
-		$url          = (string) $json_api_args[1];
-		$post_body    = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
-		$user_details = (array) $json_api_args[4];
-		$locale       = (string) $json_api_args[5];
-
-		if ( ! $verify_api_user_args ) {
-			$user_id = 0;
-		} elseif ( 'internal' === $verify_api_user_args[0] ) {
-			$user_id = (int) $verify_api_user_args[1];
-			if ( $user_id ) {
-				$user = get_user_by( 'id', $user_id );
-				if ( ! $user || is_wp_error( $user ) ) {
-					return false;
-				}
-			}
-		} else {
-			$user_id = call_user_func( array( $this, 'test_api_user_code' ), $verify_api_user_args );
-			if ( ! $user_id ) {
-				return false;
-			}
-		}
-
-		/* phpcs:ignore
-		 debugging
-		error_log( "-- begin json api via jetpack debugging -- " );
-		error_log( "METHOD: $method" );
-		error_log( "URL: $url" );
-		error_log( "POST BODY: $post_body" );
-		error_log( "VERIFY_ARGS: " . print_r( $verify_api_user_args, 1 ) );
-		error_log( "VERIFIED USER_ID: " . (int) $user_id );
-		error_log( "-- end json api via jetpack debugging -- " );
-		*/
-
-		if ( 'en' !== $locale ) {
-			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
-			$new_locale = $locale;
-			if ( strpos( $locale, '-' ) !== false ) {
-				$locale_pieces = explode( '-', $locale );
-				$new_locale    = $locale_pieces[0];
-				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
-			} else {
-				// .com might pass 'fr' because thats what our language files are named as, where core seems
-				// to do fr_FR - so try that if we don't think we can load the file.
-				if ( ! file_exists( WP_LANG_DIR . '/' . $locale . '.mo' ) ) {
-					$new_locale = $locale . '_' . strtoupper( $locale );
-				}
-			}
-
-			if ( file_exists( WP_LANG_DIR . '/' . $new_locale . '.mo' ) ) {
-				unload_textdomain( 'default' );
-				load_textdomain( 'default', WP_LANG_DIR . '/' . $new_locale . '.mo' );
-			}
-		}
-
-		$old_user = wp_get_current_user();
-		wp_set_current_user( $user_id );
-
-		if ( $user_id ) {
-			$token_key = false;
-		} else {
-			$verified  = $this->connection->verify_xml_rpc_signature();
-			$token_key = $verified['token_key'];
-		}
-
-		$token = ( new Tokens() )->get_access_token( $user_id, $token_key );
-		if ( ! $token || is_wp_error( $token ) ) {
-			return false;
-		}
-
-		define( 'REST_API_REQUEST', true );
-		define( 'WPCOM_JSON_API__BASE', 'public-api.wordpress.com/rest/v1' );
-
-		// needed?
-		require_once ABSPATH . 'wp-admin/includes/admin.php';
-
-		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
-		$api                        = WPCOM_JSON_API::init( $method, $url, $post_body );
-		$api->token_details['user'] = $user_details;
-		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
-
-		$display_errors = ini_set( 'display_errors', 0 ); // phpcs:ignore WordPress.PHP.IniSet
-		ob_start();
-		$api->serve( false );
-		$output = ob_get_clean();
-		ini_set( 'display_errors', $display_errors ); // phpcs:ignore WordPress.PHP.IniSet
-
-		$nonce = wp_generate_password( 10, false );
-		$hmac  = hash_hmac( 'md5', $nonce . $output, $token->secret );
-
-		wp_set_current_user( isset( $old_user->ID ) ? $old_user->ID : 0 );
-
-		return array(
-			(string) $output,
-			(string) $nonce,
-			(string) $hmac,
 		);
 	}
 
