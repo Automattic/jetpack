@@ -1,15 +1,13 @@
 ( function () {
 	var windowObjectReference = null;
 	function init() {
-		document.addEventListener( 'click', function ( e ) {
-			if ( e.target.dataset.fauxInlineHelp !== undefined ) {
-				e.preventDefault();
+		document.querySelector( '[data-faux-inline-help]' ).addEventListener( 'click', function ( e ) {
+			e.preventDefault();
 
-				if ( windowObjectReference === null || windowObjectReference.closed ) {
-					windowObjectReference = window.open( e.target.href, e.target.target );
-				} else {
-					windowObjectReference.focus();
-				}
+			if ( windowObjectReference === null || windowObjectReference.closed ) {
+				windowObjectReference = window.open( e.target.href, e.target.target );
+			} else {
+				windowObjectReference.focus();
 			}
 		} );
 	}
