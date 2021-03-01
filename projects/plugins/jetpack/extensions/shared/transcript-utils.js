@@ -7,7 +7,7 @@ const toLineObj = function( group ) {
 	};
 };
 
-export const SRT_parse = function( content ) {
+export function SRT_parse( content ) {
 	// SRT format.
 	const pattern = /(\d+)\n([\d:,]+)\s+-{2}>\s+([\d:,]+)\n([\s\S]*?(?=\n{2}|$))/gm;
 
@@ -21,4 +21,4 @@ export const SRT_parse = function( content ) {
 	}
 
 	return result;
-};
+}
