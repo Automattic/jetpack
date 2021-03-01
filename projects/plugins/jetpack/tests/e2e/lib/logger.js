@@ -99,7 +99,14 @@ const logger = createLogger( {
 if ( process.env.E2E_DEBUG || ! process.env.CI ) {
 	logger.add(
 		new transports.Console( {
-			format: stringFormat,
+			format: format.combine(
+				format.timestamp(),
+				format.cli(),
+				format.printf( ( { level, message, timestamp } ) => {
+					return `${ timestamp } ${ level }: ${ message }`;
+				} )
+			),
+			level: 'debug',
 		} )
 	);
 }

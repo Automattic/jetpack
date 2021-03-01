@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { catchBeforeAll, step } from '../lib/setup-env';
+import { step } from '../lib/env/test-setup';
 import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
@@ -17,7 +17,7 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 process.env.SKIP_CONNECT = true;
 
 describe( 'Jetpack updater', () => {
-	catchBeforeAll( async () => {
+	beforeAll( async () => {
 		await prepareUpdaterTest();
 		const url = getTunnelSiteUrl();
 
