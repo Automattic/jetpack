@@ -233,16 +233,12 @@ class Licensing {
 	}
 
 	/**
-	 * Can the UI be displayed?
+	 * Return if the Licensing UI is allowed for that user
 	 *
+	 * @since 9.6.0
 	 * @return bool
 	 */
-	public static function can_ui_be_displayed() {
-		/**
-		 * Determines if the Licensing UI is displayed or not
-		 *
-		 * @since 9.6.0
-		 */
+	public static function is_licensing_input_enabled() {
 		return apply_filters( 'jetpack_show_licensing_ui', false ) && current_user_can( 'jetpack_connect_user' );
 	}
 }

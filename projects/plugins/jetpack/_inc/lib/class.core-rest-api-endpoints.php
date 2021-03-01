@@ -4072,7 +4072,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error True if user is able to set a Jetpack license key
 	 */
 	public static function set_jetpack_license_key_permission_check() {
-		if ( current_user_can( 'jetpack_connect_user' ) ) {
+		if ( Licensing::instance()->is_licensing_input_enabled() ) {
 			return true;
 		}
 

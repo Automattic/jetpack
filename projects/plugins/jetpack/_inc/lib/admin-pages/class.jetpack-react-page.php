@@ -322,7 +322,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
 				'error'           => Licensing::instance()->last_error(),
-				'showLicensingUi' => Licensing::instance()->can_ui_be_displayed(),
+				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
 			),
 		);
 	}
