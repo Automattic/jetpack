@@ -177,7 +177,7 @@ function ConversationEdit( {
 			<Placeholder
 				label={ __( 'Conversation', 'jetpack' ) }
 				instructions={ __(
-					'Start to create a conversation.',
+					'Upload a transcript file or create a conversation from scratch.',
 					'jetpack'
 				) }
 				icon={ <BlockIcon icon={ icon } /> }
@@ -190,14 +190,14 @@ function ConversationEdit( {
 						className="wp-block-jetpack-slideshow__add-item-button"
 						onChange={ uploadFromFiles }
 						accept={ ACCEPTED_FILE_EXTENSIONS }
-						icon="media-text"
 						isPrimary
+						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }
 					>
-						{ __( 'Upload Transcript', 'jetpack' ) }
+						{ __( 'Upload transcript', 'jetpack' ) }
 					</FormFileUpload>
 
-					<Button isSecondary>
-						{ __( 'Empty', 'jetpack' ) }
+					<Button isTertiary>
+						{ __( 'From scratch', 'jetpack' ) }
 					</Button>
 				</div>
 			</Placeholder>
