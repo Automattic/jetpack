@@ -115,7 +115,7 @@ class ChangelogTest extends TestCase {
 				new Changelog(),
 			),
 			'Serialization with data'          => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","prologue":"Prologue","epilogue":"Epilogue","entries":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.1","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-17T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}]}',
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","prologue":"Prologue","epilogue":"Epilogue","entries":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.1","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-17T00:00:00+0000","prologue":"","epilogue":"","changes":[]}]}',
 				( new Changelog() )->setPrologue( 'Prologue' )->setEpilogue( 'Epilogue' )->setEntries(
 					array(
 						new ChangelogEntry( '1.1', array( 'timestamp' => '2021-02-18' ) ),
@@ -128,7 +128,7 @@ class ChangelogTest extends TestCase {
 				'Invalid data',
 			),
 			'Bad unserialization, wrong class' => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+00:00","prologue":"","epilogue":"","changes":[]}',
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				'Cannot instantiate Automattic\\Jetpack\\Changelog\\ChangelogEntry via Automattic\\Jetpack\\Changelog\\Changelog::jsonUnserialize',
 			),
 		);

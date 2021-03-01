@@ -290,11 +290,45 @@ class SemverVersioningTest extends TestCase {
 
 	/**
 	 * Test firstVersion.
+	 *
+	 * @dataProvider provideFirstVersion
+	 * @param array                           $extra Extra components.
+	 * @param string|InvalidArgumentException $expect Expected result.
 	 */
-	public function testFirstVersion() {
+	public function testFirstVersion( array $extra, $expect ) {
 		$obj = new SemverVersioning( array() );
-		$this->assertSame( '0.1.0', $obj->firstVersion() );
-		$this->assertSame( '0.1.0-alpha', $obj->firstVersion( array( 'prerelease' => 'alpha' ) ) );
+
+		if ( $expect instanceof InvalidArgumentException ) {
+			$this->expectException( InvalidArgumentException::class );
+			$this->expectExceptionMessage( $expect->getMessage() );
+			$obj->firstVersion( $extra );
+		} else {
+			$this->assertSame( $expect, $obj->firstVersion( $extra ) );
+		}
+	}
+
+	/**
+	 * Data provider for testFirstVersion.
+	 */
+	public function provideFirstVersion() {
+		return array(
+			'Normal'             => array(
+				array(),
+				'0.1.0',
+			),
+			'Some extra'         => array(
+				array( 'prerelease' => 'alpha' ),
+				'0.1.0-alpha',
+			),
+			'Invalid prerelease' => array(
+				array( 'prerelease' => 'delta?' ),
+				new InvalidArgumentException( 'Invalid prerelease data' ),
+			),
+			'Invalid buildinfo'  => array(
+				array( 'buildinfo' => 'build?' ),
+				new InvalidArgumentException( 'Invalid buildinfo data' ),
+			),
+		);
 	}
 
 }

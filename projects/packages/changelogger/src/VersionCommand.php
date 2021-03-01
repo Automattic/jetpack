@@ -38,6 +38,7 @@ class VersionCommand extends Command {
 			->addOption( 'use-significance', null, InputOption::VALUE_REQUIRED, 'When fetching the next version, use this significance instead of using the actual change files' )
 			->addOption( 'prerelease', 'p', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this prerelease suffix' )
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
+			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring. When used with <info>current</>, makes it work as <info>next</> in that situation.' )
 			->setHelp(
 				<<<EOF
 The <info>version</info> command reads the versions from the changelog, and outputs the previous, current, or next version based on the change files.
@@ -88,6 +89,7 @@ EOF
 			return 1;
 		}
 
+		// Read current versions, either from command line or changelog.
 		if ( 'next' === $which && $input->getOption( 'use-version' ) !== null ) {
 			$versions = array( $input->getOption( 'use-version' ) );
 		} else {
@@ -114,12 +116,13 @@ EOF
 				return 1;
 			}
 
-			if ( count( $versions ) === 0 ) {
+			if ( count( $versions ) === 0 && ! $input->getOption( 'default-first-version' ) ) {
 				$output->writeln( '<error>Changelog file contains no entries</>' );
 				return 1;
 			}
 		}
 
+		// If we want the previous, return it from the changelog.
 		if ( 'previous' === $which ) {
 			if ( count( $versions ) < 2 ) {
 				$output->writeln( '<error>Changelog file contains no previous version</>' );
@@ -128,11 +131,32 @@ EOF
 			$output->writeln( $versions[1], OutputInterface::VERBOSITY_QUIET );
 			return 0;
 		}
+
+		// For current and next, if the changelog was empty of versions (and it didn't error out
+		// earlier) then guess the first version.
+		$extra = array_filter(
+			array(
+				'prerelease' => $input->getOption( 'prerelease' ),
+				'buildinfo'  => $input->getOption( 'buildinfo' ),
+			)
+		);
+		if ( ! $versions ) {
+			try {
+				$output->writeln( $versioning->firstVersion( $extra ), OutputInterface::VERBOSITY_QUIET );
+				return 0;
+			} catch ( \Exception $ex ) {
+				$output->writeln( "<error>{$ex->getMessage()}</>" );
+				return 1;
+			}
+		}
+
+		// Otherwise, for current, return the current version.
 		if ( 'current' === $which ) {
 			$output->writeln( $versions[0], OutputInterface::VERBOSITY_QUIET );
 			return 0;
 		}
 
+		// We want the next version. Determine it based on changes or command line.
 		if ( $input->getOption( 'use-significance' ) ) {
 			try {
 				$changes = array(
@@ -156,12 +180,6 @@ EOF
 				$changes = array();
 			}
 		}
-		$extra = array_filter(
-			array(
-				'prerelease' => $input->getOption( 'prerelease' ),
-				'buildinfo'  => $input->getOption( 'buildinfo' ),
-			)
-		);
 		try {
 			$output->writeln( $versioning->nextVersion( $versions[0], $changes, $extra ), OutputInterface::VERBOSITY_QUIET );
 			return 0;

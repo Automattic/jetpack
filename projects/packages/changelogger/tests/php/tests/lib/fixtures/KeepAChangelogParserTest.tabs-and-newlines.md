@@ -33,14 +33,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0",
               "link": null,
-              "timestamp": "2021-02-18T00:00:00+00:00",
+              "timestamp": "2021-02-18T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "Some text.\n  And some more text."
@@ -48,7 +48,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "This one has a CR\nwithout LF in the middle."

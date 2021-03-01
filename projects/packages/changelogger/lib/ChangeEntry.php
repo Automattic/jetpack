@@ -127,6 +127,10 @@ class ChangeEntry implements JsonSerializable {
 	/**
 	 * Set the significance.
 	 *
+	 * While entries coming in from users should always have a significance, we allow null here
+	 * because entries created programmatically, particularly when parsing an existing changelog,
+	 * may not include significance information.
+	 *
 	 * @param string|null $significance 'patch', 'minor', or 'major'.
 	 * @returns $this
 	 * @throws InvalidArgumentException If an argument is invalid.
@@ -144,7 +148,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @param ChangeEntry $a First entry.
 	 * @param ChangeEntry $b Second entry.
-	 * @param array       $config Unused.
+	 * @param array       $config Passed from `compare()`, but unused here.
 	 * @return int
 	 */
 	protected static function compareSignificance( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -187,7 +191,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @param ChangeEntry $a First entry.
 	 * @param ChangeEntry $b Second entry.
-	 * @param array       $config Unused.
+	 * @param array       $config Passed from `compare()`, but unused here.
 	 * @return int
 	 */
 	protected static function compareTimestamp( ChangeEntry $a, ChangeEntry $b, array $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -221,7 +225,7 @@ class ChangeEntry implements JsonSerializable {
 	 *
 	 * @param ChangeEntry $a First entry.
 	 * @param ChangeEntry $b Second entry.
-	 * @param array       $config Used for 'knownSubheadings'.
+	 * @param array       $config Passed from `compare()`, used for 'knownSubheadings'.
 	 * @return int
 	 */
 	protected static function compareSubheading( ChangeEntry $a, ChangeEntry $b, array $config ) {
@@ -305,7 +309,7 @@ class ChangeEntry implements JsonSerializable {
 		return array(
 			'__class__'    => static::class,
 			'significance' => $this->significance,
-			'timestamp'    => $this->timestamp->format( 'c' ),
+			'timestamp'    => $this->timestamp->format( DateTime::ISO8601 ),
 			'subheading'   => $this->subheading,
 			'author'       => $this->author,
 			'content'      => $this->content,

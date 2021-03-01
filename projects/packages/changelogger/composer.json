@@ -4,6 +4,7 @@
 	"type": "project",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"php": ">=5.6",
 		"symfony/console": "^3.4 | ^5.2",
 		"symfony/process": "^3.4 | ^5.2",
 		"wikimedia/at-ease": "^1.2 | ^2.0"

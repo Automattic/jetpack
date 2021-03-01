@@ -46,14 +46,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.1",
               "link": "https://example.org/1.0.1",
-              "timestamp": "2021-02-18T00:00:00+00:00",
+              "timestamp": "2021-02-18T00:00:00+0000",
               "prologue": "Prologue text for version 1.0.1.",
               "epilogue": "Epilogue text.\n",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "Changed",
                       "author": "",
                       "content": "Stuff.\nStuff.\nStuff."
@@ -61,7 +61,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "Changed",
                       "author": "",
                       "content": "And more stuff.\n- This.\n- That."
@@ -69,7 +69,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-18T00:00:00+00:00",
+                      "timestamp": "2021-02-18T00:00:00+0000",
                       "subheading": "Fixed",
                       "author": "",
                       "content": "A typo. (me)"
@@ -80,14 +80,14 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.0",
               "link": "https://example.org/1.0.0",
-              "timestamp": "2021-02-17T00:00:00+00:00",
+              "timestamp": "2021-02-17T00:00:00+0000",
               "prologue": "",
               "epilogue": "",
               "changes": [
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-17T00:00:00+00:00",
+                      "timestamp": "2021-02-17T00:00:00+0000",
                       "subheading": "",
                       "author": "",
                       "content": "Initial release."
@@ -95,7 +95,7 @@
                   {
                       "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
                       "significance": null,
-                      "timestamp": "2021-02-17T00:00:00+00:00",
+                      "timestamp": "2021-02-17T00:00:00+0000",
                       "subheading": "Added",
                       "author": "",
                       "content": "Everything.\nAnd then some."

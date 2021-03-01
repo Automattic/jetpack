@@ -1,8 +1,24 @@
 # Jetpack Changelogger
 
-This is tool allowing for managing a changelog for your project by having each PR drop a
+This tool allows for managing a changelog for your project by having each PR drop a
 specially-formatted "change file" into a `changelog` directory, which the tool can then process when
 you make a release.
+
+## Why?
+
+Traditional changelog files have one major disadvantage in a project with many things going on at
+once: merge conflicts! Multiple PRs are likely to be inserting changelog entries at the same place
+in the file, so when one is merged the other needs to be rebased. And, unfortunately, GitHub and
+other hosts seldom offer support for custom merge engines that might mitigate this.
+
+The use of "change files" in a directory works around this, since file creation won't conflict
+unless two people happen to choose the same filename for their PRs. This tool defaults to basing the
+filename on the git branch name, which again people usually choose to be unique enough.
+
+The use of change files also allows us to include additional metadata about the change, in
+particular the semantic versioning "significance". This means the release manager no longer has to
+determine on their own whether the new version should have a patch, minor, or major bump as the
+change files themselves already specify the kind of bump that's needed.
 
 ## Installation
 

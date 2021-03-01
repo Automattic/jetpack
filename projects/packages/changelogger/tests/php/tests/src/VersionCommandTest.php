@@ -276,6 +276,35 @@ class VersionCommandTest extends CommandTestCase {
 				1,
 				'Changelog file contains no entries',
 			),
+			'Empty changelog, --default-first-version'   => array(
+				array(
+					'which'                   => 'current',
+					'--default-first-version' => true,
+				),
+				array( 'CHANGELOG.md' => '' ),
+				0,
+				'0.1.0',
+			),
+			'Empty changelog, --default-first-version and --prerelease' => array(
+				array(
+					'which'                   => 'next',
+					'--default-first-version' => true,
+					'--prerelease'            => 'alpha',
+				),
+				array( 'CHANGELOG.md' => '' ),
+				0,
+				'0.1.0-alpha',
+			),
+			'Empty changelog, --default-first-version and invalid --prerelease' => array(
+				array(
+					'which'                   => 'next',
+					'--default-first-version' => true,
+					'--prerelease'            => '???',
+				),
+				array( 'CHANGELOG.md' => '' ),
+				1,
+				'Invalid prerelease data',
+			),
 			'Previous, only one entry in changelog'      => array(
 				array( 'which' => 'prev' ),
 				array( 'CHANGELOG.md' => '## 1.0.0 - 2021-02-22' ),
