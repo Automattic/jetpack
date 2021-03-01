@@ -166,7 +166,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_my_home_menu
 	 */
 	public function test_add_my_home_menu() {
-		global $menu, $submenu;
+		global $menu;
 
 		static::$admin_menu->add_my_home_menu( false );
 
@@ -177,32 +177,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'manage_options',
 			$slug,
 			'My Home',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
+			'menu-top menu-top-first menu-icon-dashboard',
+			'menu-dashboard',
 			'dashicons-admin-home',
 		);
 		$this->assertSame( $menu[2], $my_home_menu_item );
-
-		// Has My Home submenu item when there are other submenu items.
-		$my_home_submenu_item = array(
-			'My Home',
-			'manage_options',
-			$slug,
-			'My Home',
-		);
-		$this->assertContains( $my_home_submenu_item, $submenu[ $slug ] );
-		// Reset data.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		// Has no ny Home submenu when there are no other submenus.
-		$submenu['index.php'] = array(
-			0 => array( 'Home', 'read', 'index.php' ),
-		);
-
-		static::$admin_menu->add_my_home_menu( false );
-
-		$this->assertArrayNotHasKey( 'https://wordpress.com/home/' . static::$domain, $submenu );
 	}
 
 	/**
