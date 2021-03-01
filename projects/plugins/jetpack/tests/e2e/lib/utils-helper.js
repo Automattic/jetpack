@@ -125,7 +125,7 @@ async function execMultipleWpCommands( ...commands ) {
 	return await execWpCommand( `bash -c '${ commands.join( ' && ' ) }'` );
 }
 
-export async function logDebugLog() {
+async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
 	const lines = log.split( '\n' );
 	log = lines
