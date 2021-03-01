@@ -29,6 +29,7 @@ class Jetpack_XMLRPC_Methods {
 
 		$methods['jetpack.featuresAvailable'] = array( __CLASS__, 'features_available' );
 		$methods['jetpack.featuresEnabled']   = array( __CLASS__, 'features_enabled' );
+		$methods['jetpack.disconnectBlog']    = array( __CLASS__, 'disconnect_blog' );
 
 		return $methods;
 	}
@@ -70,5 +71,26 @@ class Jetpack_XMLRPC_Methods {
 	 */
 	public function test_connection() {
 		return JETPACK__VERSION;
+	}
+
+	/**
+	 * Disconnect this blog from the connected wordpress.com account
+	 *
+	 * @return boolean
+	 */
+	public function disconnect_blog() {
+
+		/**
+		 * Fired when we want to log an event to the Jetpack event log.
+		 *
+		 * @since 7.7.0
+		 *
+		 * @param string $code Unique name for the event.
+		 * @param string $data Optional data about the event.
+		 */
+		do_action( 'jetpack_event_log', 'disconnect' );
+		Jetpack::disconnect();
+
+		return true;
 	}
 }

@@ -64,8 +64,7 @@ class Jetpack_XMLRPC_Server {
 		);
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$jetpack_methods['jetpack.jsonAPI']        = array( $this, 'json_api' );
-			$jetpack_methods['jetpack.disconnectBlog'] = array( $this, 'disconnect_blog' );
+			$jetpack_methods['jetpack.jsonAPI'] = array( $this, 'json_api' );
 		}
 
 		$this->user = $this->login();
@@ -703,32 +702,6 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $user_id;
-	}
-
-	/**
-	 * Disconnect this blog from the connected wordpress.com account
-	 *
-	 * @return boolean
-	 */
-	public function disconnect_blog() {
-
-		// For tracking.
-		if ( ! empty( $this->user->ID ) ) {
-			wp_set_current_user( $this->user->ID );
-		}
-
-		/**
-		 * Fired when we want to log an event to the Jetpack event log.
-		 *
-		 * @since 7.7.0
-		 *
-		 * @param string $code Unique name for the event.
-		 * @param string $data Optional data about the event.
-		 */
-		do_action( 'jetpack_event_log', 'disconnect' );
-		Jetpack::disconnect();
-
-		return true;
 	}
 
 	/**
