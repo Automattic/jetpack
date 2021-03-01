@@ -17,7 +17,7 @@ import TranscriptionContext from './components/context';
 import { getParticipantByLabel } from './utils';
 import { TranscriptIcon as icon } from '../../shared/icons';
 import { pickExtensionFromFileName } from '../../shared/file-utils';
-import { SRT_parse } from '../../shared/transcript-utils';
+import { SRT_parse, TXT_parse } from '../../shared/transcript-utils';
 import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
@@ -141,9 +141,10 @@ function ConversationEdit( {
 
 			// Detect format by extension.
 			const fileExtension = pickExtensionFromFileName( textFile?.name );
+
 			if (
 				fileExtension &&
-				fileExtension !== 'txt' &&
+				fileExtension !== FILE_EXTENSION_TXT &&
 				ACCEPTED_FILE_EXT_ARRAY.indexOf( fileExtension ) >= 0
 			) {
 				if ( fileExtension === FILE_EXTENSION_SRT ) {
@@ -164,6 +165,25 @@ function ConversationEdit( {
 
 					insertBlocks( blocks, 0, clientId );
 				}
+			}
+
+			if ( fileExtension === FILE_EXTENSION_TXT ) {
+				const parsedUnknownFormatContent = TXT_parse( rawData );
+				setAttributes( {
+					participants: [ ...participants, ...parsedUnknownFormatContent.speakers ],
+				} );
+
+				const blocks = parsedUnknownFormatContent.dialogues.map( function( dialogue ) {
+					return createBlock( 'jetpack/dialogue', {
+						slug: dialogue.speakerSlug,
+						label: dialogue.speaker,
+						content: dialogue.content,
+						timestamp: dialogue.timestamp,
+						showTimestamp: true,
+					} );
+				} );
+
+				insertBlocks( blocks, 0, clientId );
 			}
 		} );
 
