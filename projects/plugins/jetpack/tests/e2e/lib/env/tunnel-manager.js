@@ -4,7 +4,7 @@ import fs from 'fs';
 import axios from 'axios';
 import path from 'path';
 
-import logger from './logger';
+import logger from '../logger';
 
 export default class TunnelManager {
 	constructor() {
@@ -51,10 +51,10 @@ export default class TunnelManager {
 		const url = tunnel.url.replace( 'http:', 'https:' );
 
 		tunnel.on( 'close', () => {
-			logger.info( '!!!!!! TUNNEL is closed for ', this.url );
+			logger.info( 'Tunnel is closed' );
 		} );
 
-		logger.info( `#### CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
+		logger.info( `CREATING A TUNNEL! Config: ${ JSON.stringify( tunnelConfig ) }. ${ url }` );
 
 		this.tunnel = tunnel;
 		this.url = url;
@@ -87,19 +87,17 @@ export default class TunnelManager {
 	}
 
 	async close() {
-		logger.info( `#### Closing tunnel ${ this.tunnel.url }` );
+		logger.info( `Closing tunnel ${ this.tunnel.url }` );
 
 		this.tunnel.close();
 		try {
 			const response = await axios.get( `${ this.host }/api/tunnels/${ this.subdomain }/delete` );
 			if ( response ) {
-				logger.info( response.data );
+				logger.debug( JSON.stringify( response.data ) );
 			}
 		} catch ( error ) {
 			logger.error( error );
 		}
-		// wait for tunnel to close properly
-		await page.waitForTimeout( 1000 );
 	}
 
 	getSubdomain( url ) {

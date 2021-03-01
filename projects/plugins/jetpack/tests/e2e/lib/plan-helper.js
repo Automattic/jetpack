@@ -493,6 +493,7 @@ export async function syncPlanData( page ) {
 	let frPlan = null;
 	let bkPlan = null;
 
+	// todo set a limit here to avoid infinite loop in case plans are never the same?
 	do {
 		/* eslint-disable no-undef */
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );

@@ -1,6 +1,6 @@
-import { readFileSync } from 'fs';
+import { readFileSync, renameSync, existsSync } from 'fs';
 
-import SlackReporter from './reporters/slack';
+import SlackReporter from '../reporters/slack';
 import config from 'config';
 import path from 'path';
 
@@ -63,7 +63,29 @@ function getMessages( log ) {
 	return messages;
 }
 
+/**
+ * Goes through each line in the video_files file and attempts to rename the video files accordingly
+ * The file is expected to contain lines of "current file name->new file name" pairs
+ *
+ * @return {Promise<void>}
+ */
+async function renameVideoFiles() {
+	readFileSync( 'output/video_files', 'utf-8' )
+		.split( /\r?\n/ )
+		.forEach( function ( line ) {
+			const names = line.split( '->' );
+			if ( ! names[ 1 ] || ! existsSync( names[ 0 ] ) ) {
+				return;
+			}
+			renameSync( names[ 0 ], names[ 1 ] );
+		} );
+}
+
 module.exports = async function () {
+	// Close tunnel
+	await global.tunnelManager.close();
+
+	await renameVideoFiles();
 	if ( process.env.CI ) {
 		await processSlackLog();
 	}

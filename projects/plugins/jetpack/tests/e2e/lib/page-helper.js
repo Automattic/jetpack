@@ -6,7 +6,6 @@ import config from 'config';
  * Internal dependencies
  */
 import logger from './logger';
-import { execSyncShellCommand } from './utils-helper';
 
 /**
  * Waits for element to be visible, returns false if element was not found after timeout.
@@ -102,28 +101,4 @@ export async function logHTML() {
 	}
 	logger.slack( { message: bodyHTML, type: 'debuglog' } );
 	return bodyHTML;
-}
-
-export async function logDebugLog() {
-	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
-	const lines = log.split( '\n' );
-	log = lines
-		.filter( line => {
-			if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
-				return false;
-			}
-			return true;
-		} )
-		.join( '\n' );
-
-	if ( log.length > 1 ) {
-		if ( process.env.E2E_DEBUG ) {
-			logger.info( '#### WP DEBUG.LOG ####' );
-			logger.info( log );
-		}
-		logger.slack( { message: log, type: 'debuglog' } );
-	}
-
-	const apacheLog = execSyncShellCommand( 'yarn wp-env logs --environment=tests --no-watch' );
-	logger.slack( { type: 'debuglog', message: apacheLog } );
 }
