@@ -126,16 +126,16 @@ async function execMultipleWpCommands( ...commands ) {
 }
 
 async function logDebugLog() {
-	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
-	const lines = log.split( '\n' );
-	log = lines
-		.filter( line => {
-			if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
-				return false;
-			}
-			return true;
-		} )
-		.join( '\n' );
+	const log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	// const lines = log.split( '\n' );
+	// log = lines
+	// 	.filter( line => {
+	// 		if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
+	// 			return false;
+	// 		}
+	// 		return true;
+	// 	} )
+	// 	.join( '\n' );
 
 	if ( log.length > 1 ) {
 		if ( E2E_DEBUG ) {
