@@ -1,8 +1,32 @@
 # Jetpack Monorepo Overview
 
 Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
+## Layout
 
-## Jetpack Generate
+Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
+
+* WordPress plugins live in subdirectories of `projects/plugins/`. The directory name should probably match the WordPress plugin name, with a leading "jetpack-" removed if applicable.
+* Composer packages live in subdirectories of `projects/packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
+* Editor extensions live in subdirectories of `projects/editor-extensions/`. The directory name should match the feature name (without a "jetpack/" prefix).
+* GitHub Actions live in subdirectories of `projects/github-actions/`. The directory name should match the action name with the leading "Automattic/action-" removed.
+
+Tooling that's applicable to the monorepo as a whole, including tooling for generically handling projects, lives in `tools/`.
+
+WordPress, being a part of the Docker environment, gets installed into the directory `tools/docker/wordpress`, with non-monorepo plugins stored in `tools/docker/wordpress/wp-content/plugins`.
+
+Documentation that's applicable to the monorepo as a whole lives in `docs/`.
+
+All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specifc to any one project.
+
+* Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
+* Pattern matchers (not associated with an action) go in `.github/matchers/`.
+* Other files specific to actions, including scripts used with `run:`, go in `.github/files/`.
+
+## Compatibility
+
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 5.6 to 8.0.
+
+## Jetpack Generate Wizard
 
 Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart the files you need. To get started:
 
@@ -46,31 +70,6 @@ The Jetpack Generate Wizard includes the following for each project:
 #### Github Actions
 
 - action.yml
-## Layout
-
-Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
-
-* WordPress plugins live in subdirectories of `projects/plugins/`. The directory name should probably match the WordPress plugin name, with a leading "jetpack-" removed if applicable.
-* Composer packages live in subdirectories of `projects/packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
-* Editor extensions live in subdirectories of `projects/editor-extensions/`. The directory name should match the feature name (without a "jetpack/" prefix).
-* GitHub Actions live in subdirectories of `projects/github-actions/`. The directory name should match the action name with the leading "Automattic/action-" removed.
-
-Tooling that's applicable to the monorepo as a whole, including tooling for generically handling projects, lives in `tools/`.
-
-WordPress, being a part of the Docker environment, gets installed into the directory `tools/docker/wordpress`, with non-monorepo plugins stored in `tools/docker/wordpress/wp-content/plugins`.
-
-Documentation that's applicable to the monorepo as a whole lives in `docs/`.
-
-All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specifc to any one project.
-
-* Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
-* Pattern matchers (not associated with an action) go in `.github/matchers/`.
-* Other files specific to actions, including scripts used with `run:`, go in `.github/files/`.
-
-## Compatibility
-
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 5.6 to 8.0.
-
 ## Project structure
 
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
