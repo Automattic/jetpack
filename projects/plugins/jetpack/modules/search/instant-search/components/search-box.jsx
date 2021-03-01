@@ -57,6 +57,11 @@ const SearchBox = props => {
 						value={ props.searchQuery }
 					/>
 
+					{ typeof props.searchQuery === 'string' && props.searchQuery.length > 0 && (
+						/* Translators: Clear is used to clear the search input query. */
+						<input type="button" value={ __( 'clear', 'jetpack' ) } onClick={ props.onClear } />
+					) }
+
 					<button className="screen-reader-text assistive-text">
 						{ __( 'Search', 'jetpack' ) }
 					</button>

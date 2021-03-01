@@ -4,17 +4,11 @@ $modal-max-width: 1080px;
 $modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results {
-	align-content: baseline;
 	background: $color-modal-background;
 	border-radius: 3px;
-	display: flex;
-	flex-flow: row wrap;
 	min-height: 100%;
 	margin: 0 auto;
 	max-width: $modal-max-width;
-	padding: 0;
-	position: relative;
-	text-align: left;
 	z-index: 10;
 
 	@include break-small-down() {
@@ -30,6 +24,15 @@ $modal-max-width-lg: 95%;
 		background: $color-mark-background-default;
 		padding: 3px 2px;
 	}
+}
+
+.jetpack-instant-search__search-results-controls {
+	display: flex;
+	position: relative;
+}
+
+.jetpack-instant-search__search-results-content {
+	display: flex;
 }
 
 .jetpack-instant-search__search-results-filter-button {
@@ -190,7 +193,6 @@ $modal-max-width-lg: 95%;
 .jetpack-instant-search__search-results-search-form {
 	font-size: 0.8em;
 	margin: 0;
-	position: relative;
 	top: 0;
 	width: 100%;
 }
@@ -202,18 +204,14 @@ $modal-max-width-lg: 95%;
 	border: none;
 	cursor: pointer;
 	display: flex;
-	height: 60px;
+	height: 61px;
 	justify-content: center;
 	line-height: 1;
 	margin: 0;
 	padding: 0;
 	text-decoration: none;
 	width: 60px;
-	z-index: 20;
-
-	position: absolute;
-	right: 0;
-	top: 0;
+	border-bottom: 1px solid $color-layout-borders;
 
 	&:focus {
 		outline: 1px dotted;

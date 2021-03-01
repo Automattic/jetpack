@@ -47,12 +47,16 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 	background: $color-dark-modal-backdrop-background;
 	color: $color-dark-text;
 
-	a {
-		color: $color-dark-link;
+	&,
+	.widget,
+	.widget.widget_archive ul li {
+		a {
+			color: $color-dark-link;
 
-		&:hover,
-		&:focus {
-			color: $color-dark-link-alt;
+			&:hover,
+			&:focus {
+				color: $color-dark-link-alt;
+			}
 		}
 	}
 
@@ -65,8 +69,13 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		color: $color-dark-text-light;
 	}
 
-	.jetpack-instant-search__box {
-		border-color: $color-dark-layout-borders;
+	.jetpack-instant-search__box input[type='button'] {
+		color: $color-dark-text-lighter;
+
+		&:hover,
+		&:focus {
+			color: $color-dark-text-light;
+		}
 	}
 
 	input.jetpack-instant-search__box-input.search-field {
@@ -108,6 +117,10 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		}
 	}
 
+	.jetpack-instant-search__box {
+		border-color: $color-dark-layout-borders;
+	}
+
 	.jetpack-instant-search__search-results-filter-button {
 		color: $color-dark-text-lighter;
 
@@ -140,6 +153,10 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 
 	.jetpack-instant-search__search-results-list {
 		color: $color-dark-text;
+	}
+
+	.jetpack-instant-search__overlay-close {
+		border-color: $color-dark-layout-borders;
 	}
 
 	.jetpack-instant-search__overlay-close svg.gridicon {
