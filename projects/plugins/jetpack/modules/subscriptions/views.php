@@ -786,6 +786,7 @@ function jetpack_do_subscription_form( $instance ) {
 	}
 	if ( isset( $instance['custom_button_width'] ) && 'undefined' !== $instance['custom_button_width'] ) {
 		$submit_button_wrapper_styles .= 'width: ' . $instance['custom_button_width'] . '; ';
+		$submit_button_wrapper_styles .= 'max-width: 100%; ';
 
 		// Account for custom margins on inline forms.
 		if (
