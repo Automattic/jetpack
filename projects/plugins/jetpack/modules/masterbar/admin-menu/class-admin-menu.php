@@ -386,7 +386,12 @@ class Admin_Menu {
 		$user_can_customize = current_user_can( 'customize' );
 		$appearance_cap     = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
 		$themes_slug        = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
-		$customize_slug     = $wp_admin_customize ? 'customize.php' : 'https://wordpress.com/customize/' . $this->domain; // phpcs:ignore
+		if ( ! $wp_admin_customize ) {
+			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+		} else {
+			// In case this is an api request we will have to add the 'return' querystring via JS.
+			$customize_slug = $this->is_api_request ? 'customize.php' : add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
+		}
 		remove_menu_page( 'themes.php' );
 		remove_submenu_page( 'themes.php', 'themes.php' );
 		remove_submenu_page( 'themes.php', 'theme-editor.php' );
@@ -461,9 +466,13 @@ class Admin_Menu {
 		$menu_slug = $wp_admin ? 'plugins.php' : 'https://wordpress.com/plugins/' . $this->domain;
 
 		remove_menu_page( 'plugins.php' );
-		remove_submenu_page( 'plugins.php', 'plugins.php' );
-		remove_submenu_page( 'plugins.php', 'plugin-install.php' );
-		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+
+		// Keep submenus when links point to WP Admin.
+		if ( ! $wp_admin ) {
+			remove_submenu_page( 'plugins.php', 'plugins.php' );
+			remove_submenu_page( 'plugins.php', 'plugin-install.php' );
+			remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+		}
 
 		$count = '';
 		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
@@ -618,6 +627,20 @@ class Admin_Menu {
 				$submenu[ $new_slug ] = $submenu[ $old_slug ];
 			}
 			unset( $submenu[ $old_slug ] );
+		}
+	}
+
+	/**
+	 * Remove submenu items from given menu slug.
+	 *
+	 * @param string $slug Menu slug.
+	 */
+	public function remove_submenus( $slug ) {
+		global $submenu;
+
+		if ( isset( $submenu[ $slug ] ) ) {
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu[ $slug ] = array();
 		}
 	}
 

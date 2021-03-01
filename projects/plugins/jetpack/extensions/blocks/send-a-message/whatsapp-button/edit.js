@@ -11,7 +11,7 @@ import { BlockControls, InspectorControls, RichText } from '@wordpress/block-edi
  */
 import { countryCodes } from '../shared/countrycodes.js';
 import WhatsAppButtonConfiguration from './configuration';
-import './view.scss';
+import '../view.scss';
 
 export default function WhatsAppButtonEdit( { attributes, setAttributes, className, clientId } ) {
 	const { countryCode, buttonText, colorClass, backgroundColor } = attributes;

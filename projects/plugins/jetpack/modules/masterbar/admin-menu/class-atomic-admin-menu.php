@@ -232,6 +232,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Customize on Atomic sites is always done on WP Admin.
 		parent::add_appearance_menu( $wp_admin_themes, true );
+
+		// Add back the Theme Editor submenu.
+		$parent_slug = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+		add_submenu_page( $parent_slug, __( 'Theme Editor', 'jetpack' ), __( 'Theme Editor', 'jetpack' ), 'edit_themes', 'theme-editor.php' );
 	}
 
 	/**

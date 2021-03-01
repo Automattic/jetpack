@@ -10,7 +10,7 @@
 #infinite-handle span {
 	background: #333;
 	border-radius: 1px;
-	color: #eee;
+	color: #f0f0f1;
 	cursor: pointer;
 	font-size: 13px;
 	padding: 6px 16px;
@@ -218,7 +218,7 @@
 	text-align: right;
 }
 #infinite-footer .blog-credits a {
-	color: #666;
+	color: #646970;
 }
 
 /**

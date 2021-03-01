@@ -179,11 +179,11 @@
 		z-index: 5;
 
 		&:hover {
-			background: #eee;
+			background: #f0f0f1;
 			opacity: 0.8;
 		}
 		&:active {
-			background: #eee;
+			background: #f0f0f1;
 			opacity: 0.4;
 		}
 	}
@@ -225,7 +225,7 @@
 		bottom: 0;
 		width: 100%;
 		padding: 12px 20px;
-		border-top: 1px solid #ddd;
+		border-top: 1px solid #dcdcde;
 		background: #fff;
 		text-align: right;
 
@@ -267,7 +267,7 @@
 	margin: 0 0 8px 30px;
 
 	img {
-		border: 1px solid #ddd;
+		border: 1px solid #dcdcde;
 		max-width: 100%;
 		height: auto;
 
@@ -393,7 +393,7 @@
 }
 .primary {
 	padding: 25px 15px 10px 15px;
-	border-bottom: 1px solid #eee;
+	border-bottom: 1px solid #f0f0f1;
 }
 .secondary-footer {
 	margin: 0 auto;
@@ -404,7 +404,7 @@
 	@include minbreakpoint(tablet){
 		padding: 8px 15px 10px;
 		margin-bottom: 30px;
-		border-bottom: 1px solid #eee;
+		border-bottom: 1px solid #f0f0f1;
 	};
 	@include minbreakpoint(large-desktop){
 			margin-bottom: 0;
@@ -420,7 +420,7 @@
 		font-weight: 400;
 
 		a {
-			border-top: 1px solid #eee;
+			border-top: 1px solid #f0f0f1;
 		}
 	};
 }
@@ -463,7 +463,7 @@
 .secondary {
 		@include minbreakpoint(tablet){
 			padding: 0 15px 10px 15px;
-			border-bottom: 1px solid #eee;
+			border-bottom: 1px solid #f0f0f1;
 		}
 		@include minbreakpoint(large-desktop){
 			padding: 0 15px 10px 15px;
