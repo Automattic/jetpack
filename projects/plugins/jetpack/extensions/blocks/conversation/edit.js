@@ -3,9 +3,9 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -13,8 +13,9 @@ import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } fr
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel, ACCEPTED_FILE_EXTENSIONS } from './utils';
+import { getParticipantByLabel, ACCEPTED_FILE_EXTENSIONS, parseTranscriptFile } from './utils';
 import { TranscriptIcon as icon } from '../../shared/icons';
+import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -23,9 +24,11 @@ function ConversationEdit( {
 	attributes,
 	setAttributes,
 	noticeUI,
+	clientId,
  } ) {
 	const { participants = [], showTimestamps, createdFromScratch } = attributes;
 	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
+	const { insertBlocks } = useDispatch( 'core/block-editor' );
 
 	const updateParticipants = useCallback(
 		updatedParticipant => {
@@ -102,9 +105,27 @@ function ConversationEdit( {
 	}
 
 	function uploadFromFiles( event ) {
-		if ( event ) {
-			event.preventDefault();
+		const transcriptFile = event.target.files?.[ 0 ];
+		if ( ! transcriptFile ) {
+			return;
 		}
+
+		setIsProcessingFile( true );
+
+		parseTranscriptFile( transcriptFile, function( { conversation, dialogues } ) {
+			setAttributes( {
+				participants: conversation.speakers,
+				createdFromScratch: ! conversation?.length,
+			} );
+			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => [
+				'jetpack/dialogue',
+				dialogue,
+			] );
+
+			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
+			insertBlocks( dialogueBlocks, 0, clientId );
+			setIsProcessingFile( false );
+		} );
 	}
 
 	const baseClassName = 'wp-block-jetpack-conversation';
