@@ -17,10 +17,10 @@ jobs:
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     outputs:
       # Whether any PHP files have changed.
-      php: ${{ steps.filter.outputs.php == 'true' }}
+      php: ${{ steps.filter.outputs.php }}
 
       # Whether any JavaScript files have changed.
-      js: ${{ steps.filter.outputs.js == 'true' }}
+      js: ${{ steps.filter.outputs.js }}
 
       # Whether any miscellaneous files related to PHP linting have changed.
       misc_php: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' }}
@@ -113,39 +113,18 @@ jobs:
           EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
           echo "::set-output name=excluded_files::$EXCLUDED_FILES"
 
-      # When the `php_lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
-      - name: Hack around Github bug when skipping required matrixed jobs
-        if: steps.filter.outputs.php != 'true' && steps.filter.outputs.misc != 'true' && steps.filter.outputs.misc_php != 'true'
-        shell: bash
-        run: |
-          for v in '5.6' '7.0' '7.4' '8.0'; do
-            curl -v \
-              --url "${GITHUB_API_URL}/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
-              --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-              --header 'content-type: application/json' \
-              --data '{
-                "state": "success",
-                "target_url": "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}/checks?check_run_id=${{ github.run_id }}",
-                "description": "Test skipped, no changed files",
-                "context": '"\"PHP lint ($v)\""'
-              }'
-          done
-
-
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
   php_lint:
     name: PHP lint (${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: 3  # 2021-01-18: Successful runs seem to take ~1 minute
 
     strategy:
       fail-fast: false
       matrix:
-        # Note, if you add versions here then add them to the hack above too.
         php-versions: [ '5.6', '7.0', '7.4', '8.0' ]
         experimental: [ false ]
 
@@ -194,7 +173,7 @@ jobs:
     name: PHP Code Sniffer (non-excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
+    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
@@ -237,7 +216,7 @@ jobs:
     name: PHP Compatibility
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
+    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
@@ -337,7 +316,7 @@ jobs:
     name: ESLint (non-excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.js || needs.changed_files.outputs.misc_js
+    if: needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
@@ -415,7 +394,7 @@ jobs:
     name: Check linter exclude lists
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.excludelist
+    if: needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2021-02-04: Canceling out at 5 minutes due to now installing all composer/yarn deps to ensure valid linting.
     steps:
       - uses: actions/checkout@v2
