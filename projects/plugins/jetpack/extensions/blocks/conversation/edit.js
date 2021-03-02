@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
@@ -44,8 +44,8 @@ function ConversationEdit( {
 	clientId,
 } ) {
 	const { participants = [], showTimestamps } = attributes;
-
 	const { insertBlocks } = useDispatch( 'core/block-editor' );
+	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
 
 	const updateParticipants = useCallback(
 		updatedParticipant => {
@@ -130,6 +130,7 @@ function ConversationEdit( {
 		if ( ! textFile ) {
 			return;
 		}
+		setIsProcessingFile( true );
 
 		// Read file content.
 		const reader = new FileReader();
@@ -184,6 +185,7 @@ function ConversationEdit( {
 				} );
 
 				insertBlocks( blocks, 0, clientId );
+				setIsProcessingFile( false );
 			}
 		} );
 
@@ -212,11 +214,15 @@ function ConversationEdit( {
 						accept={ ACCEPTED_FILE_EXTENSIONS }
 						isPrimary
 						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }
+						disabled={ isProcessingFile }
 					>
 						{ __( 'Upload transcript', 'jetpack' ) }
 					</FormFileUpload>
 
-					<Button isTertiary>
+					<Button
+						isTertiary
+						disabled={ isProcessingFile }
+					>
 						{ __( 'From scratch', 'jetpack' ) }
 					</Button>
 				</div>
