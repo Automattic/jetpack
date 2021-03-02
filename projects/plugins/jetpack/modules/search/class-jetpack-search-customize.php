@@ -153,12 +153,12 @@ class Jetpack_Search_Customize {
 			$id,
 			array(
 				'label'       => __( 'Result Format', 'jetpack' ),
-				'description' => __( 'Choose how the search results look.', 'jetpack' ),
+				'description' => __( 'Choose how the search results look. The expanded view will feature images associated with the search result.', 'jetpack' ),
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
 					'minimal'  => __( 'Minimal', 'jetpack' ),
-					'expanded' => __( 'Expanded', 'jetpack' ),
+					'expanded' => __( 'Expanded (shows images)', 'jetpack' ),
 				),
 			)
 		);
