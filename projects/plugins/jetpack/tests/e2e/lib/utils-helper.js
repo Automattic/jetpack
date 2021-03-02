@@ -127,6 +127,7 @@ async function execMultipleWpCommands( ...commands ) {
 
 async function logDebugLog() {
 	const log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	const conf = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-config.php' );
 	// const lines = log.split( '\n' );
 	// log = lines
 	// 	.filter( line => {
@@ -142,11 +143,12 @@ async function logDebugLog() {
 			logger.info( '#### WP DEBUG.LOG ####' );
 			logger.info( log );
 		}
-		logger.slack( { message: log, type: 'debuglog' } );
+		logger.slack( { message: log, type: 'debuglog', filename: 'debug.log' } );
+		logger.slack( { message: conf, type: 'debuglog', filename: 'wp-config.php' } );
 	}
 
 	const apacheLog = execSyncShellCommand( 'yarn wp-env logs --environment=tests --no-watch' );
-	logger.slack( { type: 'debuglog', message: apacheLog } );
+	logger.slack( { type: 'debuglog', message: apacheLog, filename: 'access.log' } );
 }
 
 module.exports = {
