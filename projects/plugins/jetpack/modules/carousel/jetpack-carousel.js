@@ -106,14 +106,18 @@ jQuery( document ).ready( function ( $ ) {
 						data = wrap.data( 'carousel-extra' ),
 						slide = wrap.find( 'div.selected' ),
 						attachment_id = slide.data( 'attachment-id' );
-					var close_hint = container.find( '.jp-carousel-close-hint' );
 					data = data || [];
 
-					if ( target.is( gallery ) || target.parents().add( target ).is( close_hint ) ) {
+					if (
+						target.is( gallery ) ||
+						target.parents().add( target ).is( container.find( '.jp-carousel-close-hint' ) )
+					) {
 						if ( ! window.matchMedia( '(max-device-width: 760px)' ).matches ) {
 							container.jp_carousel( 'close' );
 						} else {
-							if ( target.parents().add( target ).is( close_hint ) ) {
+							if (
+								target.parents().add( target ).is( container.find( '.jp-carousel-close-hint' ) )
+							) {
 								container.jp_carousel( 'close' );
 							}
 
