@@ -129,3 +129,42 @@ export function parseTranscriptFile( file, fn ) {
 
 	reader.readAsText( file );
 }
+
+// export async function loadTranscriptFile( files ) {
+// 	return await new Promise( ( resolve ) => {
+// 		if ( ! files?.length ) {
+// 			return resolve();
+// 		}
+
+// 		const file = files[ 0 ];
+
+// 		// Read file content.
+// 		const reader = new FileReader();
+// 		reader.addEventListener( 'load', ( ev ) => {
+// 			const rawData = ev.target.result;
+// 			if ( ! rawData?.length ) {
+// 				return resolve();
+// 			}
+
+// 			// Detect format by extension.
+// 			const fileExtension = pickExtensionFromFileName( file?.name );
+
+// 			if (
+// 				fileExtension &&
+// 				fileExtension !== FILE_EXTENSION_TXT &&
+// 				isAcceptedTranscriptExtension( fileExtension )
+// 			) {
+// 				if ( fileExtension === FILE_EXTENSION_SRT ) {
+// 					return resolve( SRT_parse( rawData ) );
+// 				}
+// 			}
+
+// 			if ( fileExtension === FILE_EXTENSION_TXT ) {
+// 				return resolve( false );
+// 			}
+// 		} );
+
+// 		reader.readAsText( file );
+// 	} );
+// }
+
