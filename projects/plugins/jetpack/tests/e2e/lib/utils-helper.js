@@ -147,7 +147,7 @@ async function logDebugLog() {
 		logger.slack( { message: conf, type: 'debuglog', filename: 'wp-config.php' } );
 	}
 
-	const apacheLog = execSyncShellCommand( 'yarn wp-env logs --no-watch' );
+	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch false' );
 	logger.slack( { type: 'debuglog', message: apacheLog, filename: 'access.log' } );
 }
 
