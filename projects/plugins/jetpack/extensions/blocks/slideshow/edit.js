@@ -30,7 +30,7 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 	return imageProps;
 };
 
-class SlideshowEdit extends Component {
+export class SlideshowEdit extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
