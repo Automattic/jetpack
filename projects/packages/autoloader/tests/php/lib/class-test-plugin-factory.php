@@ -136,6 +136,7 @@ class Test_Plugin_Factory {
 			'classmap' => array( 'includes' ),
 			'psr-4'    => array(
 				self::TESTING_NAMESPACE => 'src',
+				self::TESTING_NAMESPACE . $namespace_version . '\\' => 'src' . DIRECTORY_SEPARATOR . $namespace_version,
 			),
 			'files'    => array( 'functions.php' ),
 		);

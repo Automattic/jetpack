@@ -70,8 +70,6 @@ class AutoloaderTest extends Acceptance_Test_Case {
 		$this->assertAutoloaderFoundUnknown( self::CURRENT_MU );
 		$this->assertAutoloaderCacheEquals( array( self::CURRENT_MU, Test_Plugin_Factory::CURRENT ) );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\SharedTestClass::class );
-
-		$this->markTestIncomplete( 'The autoloader does not currently support PSR-4 loading from multiple directories.' );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass::class );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Currentmu\UniqueTestClass::class );
 	}
@@ -97,8 +95,6 @@ class AutoloaderTest extends Acceptance_Test_Case {
 		$this->assertAutoloaderFoundUnknown( self::CURRENT_MU );
 		$this->assertAutoloaderCacheEquals( array( self::CURRENT_MU, Test_Plugin_Factory::CURRENT ) );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\SharedTestClass::class );
-
-		$this->markTestIncomplete( 'The autoloader does not currently support PSR-4 loading from multiple directories.' );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Current\UniqueTestClass::class );
 		$this->assertAutoloaderProvidesClass( \Automattic\Jetpack\AutoloaderTesting\Currentmu\UniqueTestClass::class );
 	}
