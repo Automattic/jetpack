@@ -1735,6 +1735,7 @@ class Jetpack {
 	 * @deprecated since 8.0.
 	 */
 	public static function is_development_mode() {
+		_deprecated_function( __METHOD__, 'jetpack-8.0', '\Automattic\Jetpack\Status->is_offline_mode' );
 		return ( new Status() )->is_offline_mode();
 	}
 
