@@ -112,8 +112,9 @@ export default function DialogueEdit( {
 	function audioPlayback( time ) {
 		if ( mediaDomReference ) {
 			mediaDomReference.currentTime = time;
+		} else {
+			setMediaSourceCurrentTime( time );
 		}
-		setMediaSourceCurrentTime( time );
 		playMediaSource();
 	}
 
