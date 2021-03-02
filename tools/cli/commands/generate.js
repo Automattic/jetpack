@@ -25,24 +25,15 @@ import { chalkJetpackGreen } from '../helpers/styling';
 import { doesRepoExist } from '../helpers/github';
 
 /**
- * Relays commands to generate a particular project
- *
- * @param {object} options - The argv options.
- */
-async function generateRouter( options ) {
-	const argv = normalizeGenerateArgv( options );
-	await generateProject( argv );
-}
-
-/**
  * Entry point for the CLI.
  *
  * @param {object} argv - The argv for the command line.
  */
 export async function generateCli( argv ) {
+	argv = normalizeGenerateArgv( argv );
 	try {
 		argv = await promptForGenerate( argv );
-		await generateRouter( argv );
+		await generateProject( argv );
 		console.log( chalkJetpackGreen( 'Project created successfully! Happy coding!' ) );
 		if ( argv.v ) {
 			console.log( argv );
