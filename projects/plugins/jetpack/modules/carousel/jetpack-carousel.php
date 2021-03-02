@@ -294,7 +294,7 @@ class Jetpack_Carousel {
 			 *
 			 * @param bool Enable Jetpack Carousel stat collection. Default false.
 			 */
-			if ( apply_filters( 'jetpack_enable_carousel_stats', false ) && in_array( 'stats', Jetpack::get_active_modules(), true ) && ! ( new Status() )->is_development_mode() ) {
+			if ( apply_filters( 'jetpack_enable_carousel_stats', false ) && in_array( 'stats', Jetpack::get_active_modules(), true ) && ! ( new Status() )->is_offline_mode() ) {
 				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
@@ -382,8 +382,17 @@ class Jetpack_Carousel {
 									<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
 										<div id="jp-carousel-comment-form-commenting-as">
 											<p id="jp-carousel-commenting-as">
-												<?php // phpcs:ignore Standard.Category.SniffName.ErrorCode,WordPress.Security.EscapeOutput.UnsafePrintingFunction ?>
-												<?php _e( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.', 'jetpack' ); ?>
+												<?php
+													echo wp_kses(
+														__( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.', 'jetpack' ),
+														array(
+															'a' => array(
+																'href'  => array(),
+																'class' => array(),
+															),
+														)
+													);
+												?>
 											</p>
 										</div>
 									<?php else : ?>
@@ -392,22 +401,27 @@ class Jetpack_Carousel {
 												name="comment"
 												class="jp-carousel-comment-form-field jp-carousel-comment-form-textarea"
 												id="jp-carousel-comment-form-comment-field"
-												placeholder="<?php echo( esc_attr( $localize_strings['write_comment'] ) ); ?>"
+												placeholder="<?php echo esc_attr( $localize_strings['write_comment'] ); ?>"
 											></textarea>
 											<div id="jp-carousel-comment-form-submit-and-info-wrapper">
 												<div id="jp-carousel-comment-form-commenting-as">
 													<?php if ( $localize_strings['is_logged_in'] ) : ?>
 														<p id="jp-carousel-commenting-as">
-															<?php /* translators: %s is replaced with the user's display name */ ?>
-															<?php echo( esc_html( sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) ) ); ?>
+															<?php
+																printf(
+																	/* translators: %s is replaced with the user's display name */
+																	esc_html__( 'Commenting as %s', 'jetpack' ),
+																	esc_html( $current_user->data->display_name )
+																);
+															?>
 														</p>
 													<?php else : ?>
 														<fieldset>
-															<label for="email"><?php echo( esc_html( sprintf( $required, __( 'Email', 'jetpack' ) ) ) ); ?></label>
+															<label for="email"><?php echo esc_html( sprintf( $required, __( 'Email', 'jetpack' ) ) ); ?></label>
 															<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" />
 														</fieldset>
 														<fieldset>
-															<label for="author"><?php echo( esc_html( sprintf( $required, __( 'Name', 'jetpack' ) ) ) ); ?></label>
+															<label for="author"><?php echo esc_html( sprintf( $required, __( 'Name', 'jetpack' ) ) ); ?></label>
 															<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" />
 														</fieldset>
 														<fieldset>
@@ -421,7 +435,7 @@ class Jetpack_Carousel {
 													name="submit"
 													class="jp-carousel-comment-form-button"
 													id="jp-carousel-comment-form-button-submit"
-													value="<?php echo( esc_attr( $localize_strings['post_comment'] ) ); ?>" />
+													value="<?php echo esc_attr( $localize_strings['post_comment'] ); ?>" />
 												<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
 												<div id="jp-carousel-comment-post-results"></div>
 											</div>
@@ -431,17 +445,17 @@ class Jetpack_Carousel {
 							</div>
 							<div class="jp-carousel-comments"></div>
 							<div id="jp-carousel-comments-loading">
-								<span><?php echo( esc_html( $localize_strings['loading_comments'] ) ); ?></span>
+								<span><?php echo esc_html( $localize_strings['loading_comments'] ); ?></span>
 							</div>
 						<?php endif ?>
 					</div>
 					<div class="jp-carousel-image-meta">
 						<div class="jp-carousel-buttons">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
-							<a class="jp-carousel-commentlink" href="#"><?php echo( esc_html( $localize_strings['comment'] ) ); ?></a>
+							<a class="jp-carousel-commentlink" href="#"><?php echo esc_html( $localize_strings['comment'] ); ?></a>
 							<?php endif ?>
 							<?php if ( is_user_logged_in() && $localize_strings['is_public'] && $localize_strings['reblog_enabled'] ) : ?>
-								<a class="jp-carousel-reblog" href="#"><?php echo( esc_html( $localize_strings['reblog'] ) ); ?></a>
+								<a class="jp-carousel-reblog" href="#"><?php echo esc_html( $localize_strings['reblog'] ); ?></a>
 							<?php endif ?>
 						</div>
 						<ul class="jp-carousel-image-exif" style="display: none;"></ul>
