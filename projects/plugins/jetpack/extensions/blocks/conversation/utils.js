@@ -23,3 +23,17 @@ export function getPlainText( html, escape = false ) {
 
 	return escapeHTML( text );
 }
+
+export const FILE_EXTENSION_SRT = '.srt';
+export const FILE_EXTENSION_TXT = '.txt';
+export const FILE_EXTENSION_VTT = '.vtt';
+export const FILE_EXTENSION_SBV = '.sbv';
+
+export const ACCEPTED_FILE_EXT_ARRAY = [
+	FILE_EXTENSION_SRT,
+	FILE_EXTENSION_TXT,
+	FILE_EXTENSION_VTT,
+	FILE_EXTENSION_SBV,
+];
+
+export const ACCEPTED_FILE_EXTENSIONS = ACCEPTED_FILE_EXT_ARRAY.join( ', ' );

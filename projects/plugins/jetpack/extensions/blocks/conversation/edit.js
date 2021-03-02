@@ -2,10 +2,10 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 
-import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import { Panel, PanelBody } from '@wordpress/components';
+import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
+import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -13,12 +13,19 @@ import { Panel, PanelBody } from '@wordpress/components';
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel } from './utils';
+import { getParticipantByLabel, ACCEPTED_FILE_EXTENSIONS } from './utils';
+import { TranscriptIcon as icon } from '../../shared/icons';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
-function ConversationEdit( { className, attributes, setAttributes } ) {
-	const { participants = [], showTimestamps } = attributes;
+function ConversationEdit( {
+	className,
+	attributes,
+	setAttributes,
+	noticeUI,
+ } ) {
+	const { participants = [], showTimestamps, createdFromScratch } = attributes;
+	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
 
 	const updateParticipants = useCallback(
 		updatedParticipant => {
@@ -94,7 +101,50 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 	}
 
+	function uploadFromFiles( event ) {
+		if ( event ) {
+			event.preventDefault();
+		}
+	}
+
 	const baseClassName = 'wp-block-jetpack-conversation';
+
+	if ( ! participants?.length && ! createdFromScratch ) {
+		return (
+			<Placeholder
+				label={ __( 'Conversation', 'jetpack' ) }
+				instructions={ __(
+					'Upload a transcript file or create a conversation from scratch.',
+					'jetpack'
+				) }
+				icon={ <BlockIcon icon={ icon } /> }
+				notices={ noticeUI }
+			>
+				<div className={ `${ baseClassName }__placeholder` }>
+					<FormFileUpload
+						multiple={ false }
+						isLarge
+						className="wp-block-jetpack-slideshow__add-item-button"
+						onChange={ uploadFromFiles }
+						accept={ ACCEPTED_FILE_EXTENSIONS }
+						isPrimary
+						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }
+						disabled={ isProcessingFile }
+					>
+						{ __( 'Upload transcript', 'jetpack' ) }
+					</FormFileUpload>
+
+					<Button
+						isTertiary
+						disabled={ isProcessingFile }
+						onClick={ () => setAttributes( { createdFromScratch: true } ) }
+					>
+						{ __( 'From scratch', 'jetpack' ) }
+					</Button>
+				</div>
+			</Placeholder>
+		);
+	}
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
@@ -120,4 +170,4 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 }
 
-export default ConversationEdit;
+export default withNotices( ConversationEdit );

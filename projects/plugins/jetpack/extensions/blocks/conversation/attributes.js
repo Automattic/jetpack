@@ -6,4 +6,8 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	createdFromScratch: {
+		type: 'boolean',
+		default: false,
+	},
 };
