@@ -43,7 +43,7 @@ function ConversationEdit( {
 	noticeUI,
 	clientId,
 } ) {
-	const { participants = [], showTimestamps } = attributes;
+	const { participants = [], showTimestamps, createdFromScratch } = attributes;
 	const { insertBlocks } = useDispatch( 'core/block-editor' );
 	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
 
@@ -194,7 +194,7 @@ function ConversationEdit( {
 
 	const baseClassName = 'wp-block-jetpack-conversation';
 
-	if ( ! participants?.length ) {
+	if ( ! participants?.length && ! createdFromScratch ) {
 		return (
 			<Placeholder
 				label={ __( 'Conversation', 'jetpack' ) }
@@ -222,6 +222,7 @@ function ConversationEdit( {
 					<Button
 						isTertiary
 						disabled={ isProcessingFile }
+						onClick={ () => setAttributes( { createdFromScratch: true } ) }
 					>
 						{ __( 'From scratch', 'jetpack' ) }
 					</Button>
