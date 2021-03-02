@@ -166,7 +166,8 @@ export default class SlackReporter {
 				error.code === ErrorCode.RateLimitedError ||
 				error.code === ErrorCode.HTTPError
 			) {
-				console.log( error.data );
+				console.log( 'Error occurred during sending message to Slack' );
+				console.log( error, error.data );
 			} else {
 				// Some other error, oh no!
 				console.log(
