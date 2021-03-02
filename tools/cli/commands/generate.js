@@ -154,7 +154,7 @@ export function getQuestions( type ) {
 		{
 			type: 'input',
 			name: 'description',
-			message: 'Succinctly describe your package:',
+			message: 'Succinctly describe your project:',
 		},
 		{
 			type: 'confirm',
