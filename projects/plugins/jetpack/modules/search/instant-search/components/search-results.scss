@@ -97,10 +97,6 @@ $modal-max-width-lg: 95%;
 		padding: 0 32px;
 		position: static;
 		width: $sidebar-width;
-
-		.jetpack-instant-search__overlay--no-sidebar & {
-			display: none;
-		}
 	}
 
 	&.jetpack-instant-search__search-results-secondary--show-as-modal {

@@ -189,7 +189,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'excludedPostTypes'     => $excluded_post_types,
 
 			// widget info.
-			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);

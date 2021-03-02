@@ -18,7 +18,7 @@ const callOnEscapeKey = callback => event => {
 };
 
 const Overlay = props => {
-	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible } = props;
+	const { children, closeOverlay, colorTheme, isVisible } = props;
 
 	const closeWithEscape = callOnEscapeKey( closeOverlay );
 	useEffect( () => {
@@ -36,7 +36,6 @@ const Overlay = props => {
 				'jetpack-instant-search',
 				'jetpack-instant-search__overlay',
 				`jetpack-instant-search__overlay--${ colorTheme }`,
-				hasOverlayWidgets ? '' : 'jetpack-instant-search__overlay--no-sidebar',
 				isVisible ? '' : 'is-hidden',
 			].join( ' ' ) }
 			role="dialog"
