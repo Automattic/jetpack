@@ -58,7 +58,7 @@ const SearchBox = props => {
 					/>
 
 					{ typeof props.searchQuery === 'string' && props.searchQuery.length > 0 && (
-						/* Translators: Clear is used to clear the search input query. */
+						/* Translators: Button is used to clear the search input query. */
 						<input type="button" value={ __( 'clear', 'jetpack' ) } onClick={ props.onClear } />
 					) }
 
