@@ -1,8 +1,7 @@
-## Jetpack Monorepo Overview
+# Jetpack Monorepo Overview
 
 Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
-
-### Layout
+## Layout
 
 Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
 
@@ -23,11 +22,63 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 * Pattern matchers (not associated with an action) go in `.github/matchers/`.
 * Other files specific to actions, including scripts used with `run:`, go in `.github/files/`.
 
-### Compatibility
+## Compatibility
 
 All projects should be compatible with PHP versions WordPress supports. That's currently PHP 5.6 to 8.0.
 
-### Project structure
+## Jetpack Generate Wizard
+
+Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart the files you need. To get started:
+
+* Make sure you're checked out to the branch you want.
+* Use the CLI command `jetpack generate` to start the process.
+* The wizard will walk you through the steps of starting a new package, plugin, or Github action.
+
+### Accepted Arguments
+
+The wizard accepts a few arguments to speed things up:
+
+* `[project type]` - Accepted values: `package`, `plugin`, `github-action`
+* `--name`, `--n` - The name of your project (no spaces)
+
+Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
+
+### What's Included
+
+The Jetpack Generate Wizard includes the following for each project: 
+#### All Projects:
+
+- composer.json
+- package.json
+- readme.md
+- license.txt
+- .gitignore
+#### Packages
+
+- bootstrap.php
+- .gitkeep
+- .gitattributes
+- phpunit.xml.dist
+#### Plugins
+
+- bootstrap.php
+- .gitkeep
+- .gitattributes
+- phpunit.xml.dist
+- readme.txt
+- A main plugin.php (plugin_name.php), with filled in header
+
+#### Github Actions
+
+- action.yml
+
+### Next Steps
+
+* The wizard should auto-generate common information
+* Check things over to make sure it looks correct
+* If your project requires a build step, add steps to `composer.json` and `package.json`
+* Create a mirror repo if necessary. See [Mirror repositories](#mirror-repositories).
+## Project structure
 
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
 
@@ -52,7 +103,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
-### Testing
+## Testing
 
 The Jetpack Monorepo includes GitHub actions to run a number of CI checks on all projects.
 
@@ -67,7 +118,7 @@ All test commands must return a shell failure status when tests fail and a succe
 
 If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
-#### Linting
+### Linting
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
@@ -75,7 +126,7 @@ We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply 
 * As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the root of the monorepo.
 * As phpcs does not support per-directory configuration, any necessary file ignore clauses should be added to `.phpcs.config.xml` in the root of the monorepo.
 
-#### PHP tests
+### PHP tests
 
 If a project contains PHP tests (typically PHPUnit), it must define `.scripts.test-php` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
@@ -85,7 +136,7 @@ Tests are run with a variety of supported PHP versions from 5.6 to 8.0. The PHP 
 
 If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 
-##### PHP tests for non-plugins
+#### PHP tests for non-plugins
 
 For all project types other than WordPress plugins, the necessary version of PHPUnit and/or any other tools should be pulled in via Composer.
 
@@ -100,7 +151,7 @@ We currently make use of the following packages in testing; it's encouraged to u
     * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before WorDBless's setup, so Brain Monkey can mock WordPress functions.
     * Follow Brain Monkey's [functions-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/functions-testing-tools/functions-setup.md) instead of [wordpress-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/wordpress-specific-tools/wordpress-setup.md); don't call `Monkey\setUp()` or try to use its WordPress-specific tools.
 
-##### PHP tests for plugins
+#### PHP tests for plugins
 
 WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there. An appropriate version of PHPUnit is made available in the path; installing it via Composer is not needed.
 
@@ -108,13 +159,13 @@ Tests will be run against the latest version of WordPress using the variety of s
 
 Note that WordPress currently requires a version of PHPUnit that does not natively support PHP 8.0. Their current approach is to monkey-patch it via `composer.json` which monorepo plugins cannot duplicate. [This example bootstrap.php](./examples/bootstrap.php) illustrates how to handle it.
 
-#### JavaScript tests
+### JavaScript tests
 
 If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
 If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 
-#### E2E tests
+### E2E tests
 
 **This is not implemented yet!**
 
@@ -122,7 +173,7 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 
-#### Code coverage
+### Code coverage
 
 If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output.
 
@@ -137,7 +188,7 @@ If your tests generate any artifacts that might be useful for debugging, you may
 
 There's no need to be concerned about collisions with other projects' coverage files or artifacts, a separate directory is used per project.
 
-### Mirror repositories
+## Mirror repositories
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
@@ -153,7 +204,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 5. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
    * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
 
-### Plugin release tooling
+## Plugin release tooling
 
 If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extra.wp-plugin-slug` in your plugin's `composer.json`, we have tooling to make releasing to WordPress.org easier.
 
