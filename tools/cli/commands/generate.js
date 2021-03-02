@@ -228,7 +228,7 @@ export function getQuestions( type ) {
  *
  * @param {object} answers - Answers from questions.
  */
-export function generateProject(
+export async function generateProject(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
 ) {
 	const type = pluralize( answers.type );
@@ -240,7 +240,7 @@ export function generateProject(
 	// Generate the composer.json file
 	if ( type !== 'github-actions' ) {
 		const composerJson = readComposerJson( project );
-		createComposerJson( composerJson, answers );
+		await createComposerJson( composerJson, answers );
 		writeComposerJson( project, composerJson, projDir );
 	}
 
@@ -305,14 +305,12 @@ function generateAction( answers, actDir ) {
 /**
  * Create skeleton files for project
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {string} type - Type of project.
  * @param {string} dir - Directory of new project.
  * @param {string} name - Name of new project.
  *
  */
-export function createSkeleton( type, dir, name ) {
+function createSkeleton( type, dir, name ) {
 	const skeletonDir = path.join( __dirname, '../skeletons' );
 
 	// Copy the skeletons over.
@@ -322,27 +320,21 @@ export function createSkeleton( type, dir, name ) {
 	} catch ( e ) {
 		console.error( e );
 	}
-	return;
 }
 
 /**
  * Create package.json for project
  *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
- *
  * @param {object} packageJson - The parsed skeleton JSON package file for the project.
  * @param {object} answers - Answers returned for project creation.
  *
  */
-export function createPackageJson( packageJson, answers ) {
+function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
-	return;
 }
 
 /**
  * Create composer.json for project
- *
- * @todo REMOVE EXPORT. ONLY FOR TESTING.
  *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
  * @param {object} answers - Answers returned for project creation.
@@ -403,6 +395,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 		{
 			type: 'confirm',
 			name: 'useExisting',
+			default: false,
 			message:
 				'The repo ' +
 				repo +
@@ -412,6 +405,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 		{
 			type: 'confirm',
 			name: 'createNew',
+			default: false,
 			message: 'There is not a ' + repo + ' repo already. Shall I create one?',
 			when: ! exists, // When the repo does not exist, do we want to ask to make it.
 		},
@@ -425,9 +419,15 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 
 	if ( answers.createNew ) {
 		// add function to create.
-		addMirrorRepo( composerJson, name, org );
+		console.log(
+			chalk.yellow(
+				'We have not quite added the automatic creation of a mirror repo, so please visit https://github.com/organizations/Automattic/repositories/new to create a new repo of ' +
+					name
+			)
+		);
+		await addMirrorRepo( composerJson, name, org );
 	} else if ( answers.useExisting ) {
-		addMirrorRepo( composerJson, name, org );
+		await addMirrorRepo( composerJson, name, org );
 	} else if ( answers.newName ) {
 		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
 	}
