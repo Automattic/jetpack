@@ -98,16 +98,17 @@ jobs:
         if: matrix.script == 'test-coverage'
         env:
           CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
+          GH_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          # As suggested here https://github.com/codeclimate/test-reporter/issues/406#issuecomment-578483422
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            echo "GIT_BRANCH=$GITHUB_REF" >> $GITHUB_ENV
-            echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
+            GIT_BRANCH="${GITHUB_REF#refs/heads/}"
+            GIT_COMMIT_SHA="$GITHUB_SHA"
           else
-            git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
-            echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
-            echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
+            GIT_BRANCH="$GITHUB_HEAD_REF"
+            GIT_COMMIT_SHA="$GH_PR_HEAD_SHA"
           fi
+          echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
+          echo "GIT_COMMIT_SHA=$GIT_COMMIT_SHA" >> $GITHUB_ENV
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
