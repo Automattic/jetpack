@@ -328,7 +328,18 @@ function createPackageJson( packageJson, answers ) {
  */
 async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
-	composerJson.name = 'automattic/' + answers.name;
+
+	// Add the name.
+	let name;
+	switch ( answers.type ) {
+		case 'github-action':
+			name = 'automattic/action-' + answers.name;
+			break;
+		default:
+			name = 'automattic/jetpack-' + answers.name;
+	}
+	composerJson.name = name;
+
 	if ( answers.monorepo ) {
 		composerJson.repositories = [
 			{
@@ -357,7 +368,7 @@ async function createComposerJson( composerJson, answers ) {
 	try {
 		if ( answers.mirrorrepo ) {
 			// For testing, add a third arg here for the org.
-			await mirrorRepo( composerJson, answers.name );
+			await mirrorRepo( composerJson, name );
 		}
 	} catch ( e ) {
 		// This means we couldn't create the mirror repo or something else failed, GitHub API is down, etc.
@@ -482,7 +493,7 @@ function createPluginHeader( answers ) {
 		'<?php\n' +
 		'/**\n' +
 		' *\n' +
-		` * Plugin Name: ${ answers.name }\n` +
+		` * Plugin Name: Jetpack ${ answers.name }\n` +
 		' * Plugin URI: TBD\n' +
 		` * Description: ${ answers.description }\n` +
 		` * Version: ${ answers.version }\n` +
@@ -491,7 +502,7 @@ function createPluginHeader( answers ) {
 		' * License: GPLv2 or later\n' +
 		' * Text Domain: jetpack\n' +
 		' *\n' +
-		` * @package automattic/${ answers.name }\n` +
+		` * @package automattic/jetpack-${ answers.name }\n` +
 		' */\n' +
 		'\n' +
 		'// Code some good stuff!\n';
@@ -507,7 +518,7 @@ function createPluginHeader( answers ) {
  */
 function createReadMeTxt( answers ) {
 	const content =
-		`=== ${ answers.name } ===\n` +
+		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 5.5\n' +
