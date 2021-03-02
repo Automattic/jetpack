@@ -253,7 +253,7 @@ async function generatePackage( answers = { name: 'test', description: 'n/a', bu
 
 	// Generate the composer.json file
 	const composerJson = readComposerJson( project );
-	createComposerJson( composerJson, answers );
+	await createComposerJson( composerJson, answers );
 	writeComposerJson( project, composerJson, pkgDir );
 
 	// Generate readme.md file
@@ -430,6 +430,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 		{
 			type: 'confirm',
 			name: 'useExisting',
+			default: false,
 			message:
 				'The repo ' +
 				repo +
@@ -439,6 +440,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 		{
 			type: 'confirm',
 			name: 'createNew',
+			default: false,
 			message: 'There is not a ' + repo + ' repo already. Shall I create one?',
 			when: ! exists, // When the repo does not exist, do we want to ask to make it.
 		},
@@ -452,9 +454,15 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 
 	if ( answers.createNew ) {
 		// add function to create.
-		addMirrorRepo( composerJson, name, org );
+		console.log(
+			chalk.yellow(
+				'We have not quite added the automatic creation of a mirror repo, so please visit https://github.com/organizations/Automattic/repositories/new to create a new repo of ' +
+					name
+			)
+		);
+		await addMirrorRepo( composerJson, name, org );
 	} else if ( answers.useExisting ) {
-		addMirrorRepo( composerJson, name, org );
+		await addMirrorRepo( composerJson, name, org );
 	} else if ( answers.newName ) {
 		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
 	}
