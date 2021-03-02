@@ -36,10 +36,11 @@ const defaultProps = {
 	noticeOperations: {},
 };
 
-test( 'loads and displays "Slideshow" text', () => {
+test( 'loads without slideshow structure if no images', () => {
 	render( <SlideshowEdit { ...defaultProps } /> );
 
 	expect( screen.getByText( 'Slideshow' ) ).toBeInTheDocument();
+	expect( screen.queryByLabelText( 'Pause Slideshow' ) ).not.toBeInTheDocument();
 } );
 
 test( 'loads basic slideshow structure if images present', () => {
