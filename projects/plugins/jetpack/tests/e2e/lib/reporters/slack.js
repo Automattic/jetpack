@@ -12,7 +12,7 @@ export default class SlackReporter {
 		const token = config.get( 'slackToken' );
 		this.webCli = new WebClient( token, {
 			logLevel: LogLevel.DEBUG,
-			retryConfig: retryPolicies.fiveRetriesInFiveMinutes,
+			retryConfig: retryPolicies.rapidRetryPolicy,
 		} );
 		this.runURL = `https://github.com/Automattic/jetpack/actions/runs/${ GITHUB_RUN_ID }`;
 		this.runType =

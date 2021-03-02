@@ -121,7 +121,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			fileName = `${ fileName.replace( /\W/g, '_' ) }.png`;
 			const path = require( 'path' );
 			const filePath = path.resolve( `output/screenshots/${ fileName }` );
-			this.global.page.screenshot( { path: filePath } );
+			await this.global.page.screenshot( { path: filePath } );
 
 			logger.slack( { type: 'file', message: filePath } );
 		}
