@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
-import { createBlock } from '@wordpress/blocks';
 import { useDispatch } from '@wordpress/data';
 
 /**
@@ -16,9 +15,8 @@ import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
 import { getParticipantByLabel } from './utils';
 import { TranscriptIcon as icon } from '../../shared/icons';
-import { pickExtensionFromFileName } from '../../shared/file-utils';
-import { SRT_parse, TXT_parse } from '../../shared/transcript-utils';
-import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../shared/components/media-player-control/utils';
+import { parseTranscriptFile } from '../../shared/transcript-utils';
+import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -132,64 +130,17 @@ function ConversationEdit( {
 		}
 		setIsProcessingFile( true );
 
-		// Read file content.
-		const reader = new FileReader();
-		reader.addEventListener( 'load', ( ev ) => {
-			const rawData = ev.target.result;
-			if ( ! rawData?.length ) {
-				return;
-			}
+		parseTranscriptFile( textFile, function( parsedData ) {
+			setAttributes( { participants: parsedData.conversation.speakers } );
+			const dialogueBlocksTemplate = parsedData.dialogues.map( ( dialogue ) => [
+				'jetpack/dialogue',
+				{ ...dialogue },
+			] );
 
-			// Detect format by extension.
-			const fileExtension = pickExtensionFromFileName( textFile?.name );
-
-			if (
-				fileExtension &&
-				fileExtension !== FILE_EXTENSION_TXT &&
-				ACCEPTED_FILE_EXT_ARRAY.indexOf( fileExtension ) >= 0
-			) {
-				if ( fileExtension === FILE_EXTENSION_SRT ) {
-					// SRT doesn't include speakers.
-					const newSpeaker = addNewParticipant( {
-						label: 'Speaker',
-					} );
-
-					const parsedSRTData = SRT_parse( rawData );
-					const blocks = parsedSRTData.map( function( dialogue ) {
-						return createBlock( 'jetpack/dialogue', {
-							slug: newSpeaker.slug,
-							content: dialogue.text,
-							timestamp: convertSecondsToTimeCode( convertTimeCodeToSeconds( dialogue.startTime ) ),
-							showTimestamp: true,
-						} );
-					} );
-
-					insertBlocks( blocks, 0, clientId );
-				}
-			}
-
-			if ( fileExtension === FILE_EXTENSION_TXT ) {
-				const parsedUnknownFormatContent = TXT_parse( rawData );
-				setAttributes( {
-					participants: [ ...participants, ...parsedUnknownFormatContent.speakers ],
-				} );
-
-				const blocks = parsedUnknownFormatContent.dialogues.map( function( dialogue ) {
-					return createBlock( 'jetpack/dialogue', {
-						slug: dialogue.speakerSlug,
-						label: dialogue.speaker,
-						content: dialogue.content,
-						timestamp: dialogue.timestamp,
-						showTimestamp: true,
-					} );
-				} );
-
-				insertBlocks( blocks, 0, clientId );
-				setIsProcessingFile( false );
-			}
+			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
+			insertBlocks( dialogueBlocks, 0, clientId );
+			setIsProcessingFile( false );
 		} );
-
-		reader.readAsText( textFile );
 	}
 
 	const baseClassName = 'wp-block-jetpack-conversation';
