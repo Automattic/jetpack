@@ -8,6 +8,12 @@
 touch wp-content/debug.log
 chown www-data:www-data wp-content/debug.log
 
+# Remove default config entries
+sed '/localhost:8889/d' wp-config.php
+sed '/WP_SITEURL/d' wp-config.php
+sed '/WP_HOME/d' wp-config.php
+sed '/E2E_REQUEST_URL/d' wp-config.php
+
 sed -i "/\/\* That's all, stop editing! Happy publishing. \*\//i\
 define( 'E2E_REQUEST_URL', ( ! empty( \\\$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \\\$_SERVER['HTTP_HOST'] ) ? \\\$_SERVER['HTTP_HOST'] : 'localhost' ) );\n\
 define( 'WP_SITEURL', E2E_REQUEST_URL );\n\
