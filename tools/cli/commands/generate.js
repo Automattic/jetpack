@@ -164,7 +164,7 @@ export function getQuestions( type ) {
 		{
 			type: 'checkbox',
 			name: 'buildScripts',
-			message: 'Does your project require a build steps?',
+			message: 'Does your project require build steps?',
 			choices: [
 				{
 					name: 'Production Build Step',
@@ -392,7 +392,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 			type: 'confirm',
 			name: 'createNew',
 			default: false,
-			message: 'There is not a ' + repo + ' repo already. Shall I create one?',
+			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
 			when: ! exists, // When the repo does not exist, do we want to ask to make it.
 		},
 		{
