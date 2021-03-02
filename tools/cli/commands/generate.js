@@ -31,7 +31,7 @@ import { doesRepoExist } from '../helpers/github';
  */
 async function generateRouter( options ) {
 	const argv = normalizeGenerateArgv( options );
-	generateProject( argv );
+	await generateProject( argv );
 }
 
 /**
@@ -191,6 +191,7 @@ export function getQuestions( type ) {
 			type: 'confirm',
 			name: 'wordbless',
 			message: 'Will you need WorDBless for integration testing?',
+			default: false,
 		},
 		{
 			type: 'confirm',
@@ -238,11 +239,9 @@ export async function generateProject(
 	createSkeleton( type, projDir, answers.name );
 
 	// Generate the composer.json file
-	if ( type !== 'github-actions' ) {
-		const composerJson = readComposerJson( project );
-		await createComposerJson( composerJson, answers );
-		writeComposerJson( project, composerJson, projDir );
-	}
+	const composerJson = readComposerJson( project );
+	await createComposerJson( composerJson, answers );
+	writeComposerJson( project, composerJson, projDir );
 
 	// Create package.json
 	const packageJson = readPackageJson( project );
@@ -293,10 +292,6 @@ function generatePlugin( answers, pluginDir ) {
  *
  */
 function generateAction( answers, actDir ) {
-	// Create composer.json
-	const actionComposerJson = createActionComposer( answers );
-	writeToFile( actDir + `/composer.json`, actionComposerJson );
-
 	// Create the YAML file
 	const yamlFile = createYaml( actDir + '/action.yml', answers );
 	writeToFile( actDir + '/action.yml', yaml.dump( yamlFile ) );
@@ -533,29 +528,6 @@ function createReadMeTxt( answers ) {
 		'\n' +
 		`${ answers.description }\n` +
 		'\n';
-	return content;
-}
-
-/**
- * Creates custom composer.json content for github actions.
- *
- * @param {object} answers - Answers returned for project creation.
- *
- * @returns {string} content - The content we're writing to the readme.txt file.
- * @todo replace mirror-repo with returned mirror-repo answer.
- */
-function createActionComposer( answers ) {
-	const content =
-		`{\n` +
-		`	"name": "automattic/action-${ answers.name }",\n` +
-		`	"description": "${ answers.description }",\n` +
-		`	"type": "project",\n` +
-		`	"license": "GPL-2.0-or-later",\n` +
-		`	"require": {},\n` +
-		`	"extra": {\n` +
-		`		"mirror-repo": "Automattic/action-${ answers.name }"\n` +
-		`	}\n` +
-		`}`;
 	return content;
 }
 
