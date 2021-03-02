@@ -85,11 +85,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Use yarn cache
         uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
-          path: /home/runner/.cache/yarn/v6
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
@@ -137,6 +139,8 @@ jobs:
           node --version
           which yarn
           yarn --version
+          which jq
+          jq --version
 
       - name: Run project tests
         env:
