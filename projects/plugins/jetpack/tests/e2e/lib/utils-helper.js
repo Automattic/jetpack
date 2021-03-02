@@ -126,25 +126,23 @@ async function execMultipleWpCommands( ...commands ) {
 }
 
 async function logDebugLog() {
-	const log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
-	const conf = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-config.php' );
-	// const lines = log.split( '\n' );
-	// log = lines
-	// 	.filter( line => {
-	// 		if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
-	// 			return false;
-	// 		}
-	// 		return true;
-	// 	} )
-	// 	.join( '\n' );
+	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	const lines = log.split( '\n' );
+	log = lines
+		.filter( line => {
+			if ( line.startsWith( '$ ' ) || line.includes( 'yarn run' ) || line.includes( 'Done ' ) ) {
+				return false;
+			}
+			return true;
+		} )
+		.join( '\n' );
 
 	if ( log.length > 1 ) {
 		if ( E2E_DEBUG ) {
 			logger.info( '#### WP DEBUG.LOG ####' );
 			logger.info( log );
 		}
-		logger.slack( { message: log, type: 'debuglog', filename: 'debug.log' } );
-		logger.slack( { message: conf, type: 'debuglog', filename: 'wp-config.php' } );
+		logger.slack( { message: log, type: 'debuglog' } );
 	}
 
 	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch false' );

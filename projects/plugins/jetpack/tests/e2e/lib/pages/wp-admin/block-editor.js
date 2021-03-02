@@ -49,15 +49,7 @@ export default class BlockEditorPage extends Page {
 		 ).getAttribute( 'data-block' );
 	}
 
-	async saveDraft() {
-		const saveDraftSelector = '.editor-post-save-draft';
-		await this.page.click( saveDraftSelector );
-		await this.page.waitForTimeout( 500 );
-		await this.page.waitForSelector( saveDraftSelector );
-	}
-
 	async publishPost() {
-		// await this.saveDraft();
 		await this.page.click( '.editor-post-publish-panel__toggle' );
 
 		// Disable reason: Wait for the animation to complete, since otherwise the
