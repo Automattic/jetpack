@@ -70,7 +70,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 	fi
 	# Need to remove the "projects/" from the string since the CLI only looks for {type}/{project-name}.
 	SLUG="${project#projects/}"
-	if jetpack build "${SLUG}" --production; then
+	if jetpack build "${SLUG}" -v --production; then
 		FAIL=false
 	else
 		FAIL=true
