@@ -76,7 +76,13 @@ const ConvertToAudio = () => {
 					'jetpack'
 				) }
 			</p>
-			<div role="link" tabIndex={ 0 } onClick={ handleClick } onKeyDown={ handleClick }>
+			<div
+				role="link"
+				className="post-publish-panel__postpublish-buttons"
+				tabIndex={ 0 }
+				onClick={ handleClick }
+				onKeyDown={ handleClick }
+			>
 				<Button isPrimary href="https://anchor.fm/wordpressdotcom" target="_top">
 					{ __( 'Create a podcast episode', 'jetpack' ) }{ ' ' }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
