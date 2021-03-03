@@ -23,6 +23,7 @@ import applyFallbackStyles from './apply-fallback-styles';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
 import ButtonWidthPanel from './button-width-panel';
+import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
@@ -37,18 +38,8 @@ const usePrevious = value => {
 	return ref.current;
 };
 
-function ButtonEdit( {
-	attributes,
-	backgroundColor,
-	className,
-	clientId,
-	fallbackBackgroundColor,
-	fallbackTextColor,
-	setAttributes,
-	setBackgroundColor,
-	setTextColor,
-	textColor,
-} ) {
+function ButtonEdit( props ) {
+	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
 	const { align, borderRadius, element, placeholder, text, width } = attributes;
 	const previousAlign = usePrevious( align );
 
@@ -117,16 +108,11 @@ function ButtonEdit( {
 				withoutInteractiveFormatting
 			/>
 			<InspectorControls>
-				<ButtonColorsPanel
+				<ButtonControls
 					{ ...{
-						backgroundColor,
-						fallbackBackgroundColor,
-						fallbackTextColor,
 						gradientValue,
-						setBackgroundColor,
 						setGradient,
-						setTextColor,
-						textColor,
+						...props,
 					} }
 				/>
 				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
