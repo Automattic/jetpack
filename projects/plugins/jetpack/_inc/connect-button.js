@@ -176,7 +176,9 @@ jQuery( document ).ready( function ( $ ) {
 			} );
 		},
 		handleConnectionError: function ( error ) {
-			console.error('CONNECT ERROR', error);
+			console.error('CONNECT ERROR');
+			console.error(error);
+			console.error(JSON.stringify( error ) );
 			jetpackConnectButton.isRegistering = false;
 			jetpackConnectButton.handleOriginalFlow();
 		},
