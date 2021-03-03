@@ -27,6 +27,23 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 	}
 
+	/**
+	 * Verify post_content is limited based on MAX_POST_CONTENT_LENGTH.
+	 */
+	public function test_post_content_limit() {
+
+		$post_sync_module = Modules::get_module( 'posts' );
+
+		$this->post->post_content = str_pad( '', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1, 'X', STR_PAD_LEFT );
+		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->assertNotEmpty( $filtered_post->post_content, 'Filtered post content is empty for stings of allowed length.' );
+
+		$this->post->post_content = str_pad( '', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH + 1, 'X', STR_PAD_LEFT );
+		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->assertEmpty( $filtered_post->post_content, 'Filtered post content is not truncated (empty) for stings larger than allowed length.' );
+
+	}
+
 	public function test_add_post_syncs_event() {
 		// event stored by server should event fired by client
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );

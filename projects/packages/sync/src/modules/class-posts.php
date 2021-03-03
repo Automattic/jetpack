@@ -446,7 +446,7 @@ class Posts extends Module {
 
 		// Explicitly truncate post_content when it exceeds limit.
 		// Large content will cause OOM issues and break Sync.
-		if ( $post->post_content >= self::MAX_POST_CONTENT_LENGTH ) {
+		if ( strlen( $post->post_content ) >= self::MAX_POST_CONTENT_LENGTH ) {
 			$post->post_content = '';
 		}
 
