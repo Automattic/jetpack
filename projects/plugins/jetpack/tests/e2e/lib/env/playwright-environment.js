@@ -88,6 +88,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( JSON.stringify( error ) );
+		logger.error( error );
 		await this.saveScreenshot( eventFullName );
 		await this.storeVideoFileName( eventFullName );
 		await this.logHTML( eventFullName );
