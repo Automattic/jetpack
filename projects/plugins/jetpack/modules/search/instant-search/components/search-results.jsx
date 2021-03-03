@@ -187,7 +187,7 @@ class SearchResults extends Component {
 
 	render() {
 		return (
-			<main
+			<div
 				aria-hidden={ this.props.isLoading === true }
 				aria-live="polite"
 				className="jetpack-instant-search__search-results"
@@ -261,7 +261,7 @@ class SearchResults extends Component {
 						{ this.renderSecondarySection() }
 					</div>
 				</div>
-			</main>
+			</div>
 		);
 	}
 }
