@@ -22,6 +22,12 @@ const sharedWebpackConfig = {
 	resolve: {
 		...baseWebpackConfig.resolve,
 		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
+		alias: {
+			'@automattic/jetpack-connection': path.resolve(
+				__dirname,
+				'../../../js-packages/connection'
+			),
+		},
 	},
 	node: {
 		fs: 'empty',
