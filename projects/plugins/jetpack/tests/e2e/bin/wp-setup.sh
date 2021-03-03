@@ -19,5 +19,3 @@ define( 'E2E_REQUEST_URL', ( ! empty( \\\$_SERVER['HTTPS'] ) ? 'https://' : 'htt
 define( 'WP_SITEURL', E2E_REQUEST_URL );\n\
 define( 'WP_HOME', E2E_REQUEST_URL );\n\
 " wp-config.php
-
-cat wp-config.php
