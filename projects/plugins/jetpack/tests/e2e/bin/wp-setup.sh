@@ -7,6 +7,7 @@
 
 touch wp-content/debug.log
 chown www-data:www-data wp-content/debug.log
+chmod 755 wp-content/debug.log
 
 # Remove default config entries
 sed -i '/WP_SITEURL/d' wp-config.php
