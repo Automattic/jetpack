@@ -8,6 +8,10 @@
 	line-height: 1.3;
 	margin-top: 16px;
 
+	.jetpack-instant-search__overlay--no-sidebar & {
+		right: $results-margin-lg;
+	}
+
 	@include break-large-down() {
 		position: relative;
 		left: 0;

@@ -47,6 +47,10 @@ $modal-max-width-lg: 95%;
 	text-decoration: none;
 	transition: background-color 0.25s ease-in-out;
 
+	.jetpack-instant-search__overlay--no-sidebar & {
+		visibility: hidden;
+	}
+
 	@include break-small-up() {
 		padding: 10px 14px;
 		font-size: 13px;
@@ -79,6 +83,10 @@ $modal-max-width-lg: 95%;
 	margin: 0;
 	max-width: calc( 100% - #{$sidebar-width} );
 	width: 100%;
+
+	.jetpack-instant-search__overlay--no-sidebar & {
+		max-width: 100%;
+	}
 
 	@include break-large-down() {
 		max-width: 100%;
@@ -136,6 +144,10 @@ $modal-max-width-lg: 95%;
 
 			.jetpack-instant-search__jetpack-colophon-text {
 				font-size: 0.8em;
+			}
+
+			.jetpack-instant-search__overlay--no-sidebar & {
+				display: none;
 			}
 		}
 	}
