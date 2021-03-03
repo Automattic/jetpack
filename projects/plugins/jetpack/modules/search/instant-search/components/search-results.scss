@@ -144,11 +144,11 @@ $modal-max-width-lg: 95%;
 .jetpack-instant-search__search-results-title,
 .jetpack-instant-search__search-results-unused-query {
 	color: $color-text;
-	display: inline-flex;
 	font-size: 1em;
 	font-weight: 700;
 	font-weight: bold;
 	line-height: 1.3;
+	word-break: break-word;
 
 	margin: 0.5em $results-margin-lg 1.5em;
 	padding: 0;
@@ -161,6 +161,13 @@ $modal-max-width-lg: 95%;
 	}
 	@include break-large-up() {
 		margin-top: 32px;
+	}
+}
+
+.jetpack-instant-search__search-results-title {
+	@include break-large-up() {
+		// Account for .jetpack-instant-search__search-form-controls.
+		padding-right: 200px;
 	}
 }
 
