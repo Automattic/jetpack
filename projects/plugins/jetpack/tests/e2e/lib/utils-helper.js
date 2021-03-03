@@ -127,7 +127,7 @@ async function execMultipleWpCommands( ...commands ) {
 
 async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
-	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( ':', '-' );
+	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	let filename = `logs/debug_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), log );
 
