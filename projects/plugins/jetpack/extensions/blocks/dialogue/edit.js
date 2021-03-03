@@ -53,7 +53,7 @@ export default function DialogueEdit( {
 			mediaCurrentTime: getMediaSourceCurrentTime(),
 			mediaDuration: getMediaSourceDuration(),
 			mediaDomReference: getMediaSourceDomReference(),
-			isMultipleSelection: select( 'core/block-editor' ).getMultiSelectedBlocks().length,
+			isMultipleSelection: select( 'core/block-editor' ).getMultiSelectedBlocks().length > 0,
 		};
 	}, [] );
 
@@ -178,7 +178,13 @@ export default function DialogueEdit( {
 					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ setAttributes }
+					onSelect={ ( selectedParticipant ) => {
+						if ( isMultipleSelection ) {
+							return;
+						}
+
+						setAttributes( selectedParticipant );
+					} }
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
 					} }
