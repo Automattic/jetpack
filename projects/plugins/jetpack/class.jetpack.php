@@ -49,6 +49,8 @@ jetpack_do_activate (bool)
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
+error_log('qweqweqwe');
+
 class Jetpack {
 	public $xmlrpc_server = null;
 
