@@ -127,7 +127,8 @@ async function execMultipleWpCommands( ...commands ) {
 
 async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
-	let filename = `logs/debug_${ new Date() }.log`;
+	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( ':', '-' );
+	let filename = `logs/debug_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), log );
 
 	const lines = log.split( '\n' );
@@ -149,7 +150,7 @@ async function logDebugLog() {
 	}
 
 	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch false' );
-	filename = `logs/access_${ new Date() }.log`;
+	filename = `logs/access_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), apacheLog );
 	logger.slack( { type: 'debuglog', message: apacheLog, filename: 'access.log' } );
 }
