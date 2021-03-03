@@ -175,10 +175,12 @@ jQuery( document ).ready( function ( $ ) {
 				}
 			} );
 		},
-		handleConnectionError: function ( error ) {
+		handleConnectionError: function ( req, status, error ) {
 			console.error('CONNECT ERROR');
+			console.error(JSON.stringify( req ) );
+			console.error(req);
+			console.error(status);
 			console.error(error);
-			console.error(JSON.stringify( error ) );
 			jetpackConnectButton.isRegistering = false;
 			jetpackConnectButton.handleOriginalFlow();
 		},
