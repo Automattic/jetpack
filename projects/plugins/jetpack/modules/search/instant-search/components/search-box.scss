@@ -56,24 +56,19 @@ input.jetpack-instant-search__box-input.search-field {
 }
 
 .jetpack-instant-search__box input[type='button'] {
-	appearance: none;
-	background: none;
-	border: none;
+	@include remove-button-styling();
 	color: $color-text-lighter;
 	cursor: pointer;
 	font-size: 0.9em;
 	height: 60px;
 	line-height: 1;
 	margin: 0 0.25em 0 0;
-	padding: 0;
-	text-decoration: none;
-	width: 60px;
 	transition: 0.1s linear all;
+	width: 60px;
 
 	&:hover,
 	&:focus {
 		color: $color-text-light;
-		outline: none;
 	}
 }
 

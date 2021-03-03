@@ -205,18 +205,13 @@ $modal-max-width-lg: 95%;
 }
 
 .jetpack-instant-search__overlay-close {
+	@include remove-button-styling();
 	align-items: center;
-	appearance: none;
-	background: none;
-	border: none;
 	cursor: pointer;
 	display: flex;
 	height: 61px;
 	justify-content: center;
 	line-height: 1;
-	margin: 0;
-	padding: 0;
-	text-decoration: none;
 	width: 60px;
 	border-bottom: 1px solid $color-layout-borders;
 
@@ -226,6 +221,12 @@ $modal-max-width-lg: 95%;
 
 	svg.gridicon {
 		fill: $color-text-lighter;
+	}
+	&:focus,
+	&:hover {
+		svg.gridicon {
+			fill: $color-text-light;
+		}
 	}
 }
 
