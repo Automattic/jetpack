@@ -5,16 +5,16 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 /**
  * Internal dependencies
  */
-import ButtonEdit from '../edit';
+import { ButtonEdit } from '../edit';
 
 const defaultAttributes = {
-    borderRadius: 5,
+    borderRadius: 15,
     element: "button",
     placeholder: "Add text",
     text: "Contact Us",
@@ -39,8 +39,12 @@ const defaultProps = {
     },
 };
 
+jest.mock( '../constants', () => ( {
+    IS_GRADIENT_AVAILABLE: false
+} ) );
+
 test( 'loads and displays button with buttonText attribute assigned to button', () => {
-	render( <ButtonEdit { ...defaultProps } /> );
+    render( <ButtonEdit { ...defaultProps } /> );
 
 	expect( screen.getByText( 'Contact Us' ) ).toBeInTheDocument();
 } );
@@ -52,8 +56,37 @@ test( 'displays button as multiline textbox for updating the buttonText attribut
 	expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'contenteditable' );
 } );
 
-test( 'assigns colorClass attribute to the block wrapper', () => {
+test( 'assigns background color class and styles to the button', () => {
 	const { container } = render( <ButtonEdit { ...defaultProps } /> );
+    const button = within( container ).getByRole( 'textbox' );
 
-	expect( container.firstChild ).toHaveClass( 'has-black-background-color' );
+    expect( button ).toHaveClass( 'has-black-background-color' );
+    expect( button ).toHaveStyle( { backgroundColor: '#000000' } );
+} );
+
+test( 'applies text color class and style to the button', () => {
+    const { container } = render( <ButtonEdit { ...defaultProps } /> );
+    const button = within( container ).getByRole( 'textbox' );
+
+    expect( button ).toHaveClass( 'has-white-color' );
+    expect( button ).toHaveStyle( { color: '#FFFFFF' } );
+} );
+
+test( 'applies border radius style to the button', () => {
+    const { container } = render( <ButtonEdit { ...defaultProps } /> );
+    const button = within( container ).getByRole( 'textbox' );
+
+    expect( button ).toHaveStyle( { borderRadius: '15px' } );
+} );
+
+test( 'applies class when 0 border radius selected', () => {
+    const attributes = {
+        ...defaultAttributes,
+        borderRadius: 0
+    };
+    const props = { ...defaultProps, attributes };
+    const { container } = render( <ButtonEdit { ...props } /> );
+    const button = within( container ).getByRole( 'textbox' );
+
+    expect( button ).toHaveClass( 'no-border-radius' );
 } );
