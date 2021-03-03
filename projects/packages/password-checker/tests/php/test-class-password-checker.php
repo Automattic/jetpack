@@ -26,8 +26,14 @@ class Password_Checker_Test extends BaseTestCase {
 	 *
 	 * @var \WP_User
 	 */
-
 	private $user;
+
+	/**
+	 * Password_Checker object.
+	 *
+	 * @var Password_Checker
+	 */
+	private $password_checker;
 
 	/**
 	 * Initialize tests.
@@ -47,18 +53,49 @@ class Password_Checker_Test extends BaseTestCase {
 		);
 
 		$this->user = new \WP_User( $this->user_id );
+
+		$this->password_checker = new Password_Checker( $this->user );
 	}
 
 	/**
 	 * Test the password checker.
+	 *
+	 * @dataProvider rule_provider
+	 *
+	 * @param string $rule            Rule name.
+	 * @param string $password        The password.
+	 * @param bool   $expected_result The expected result.
+	 * @param string $output_message  The output message.
 	 */
-	public function test_password() {
-		$password_checker = new Password_Checker( $this->user );
+	public function test_password( $rule, $password, $expected_result, $output_message ) {
+		$tests = apply_filters( 'password_checker_tests', array() );
+		echo count( $tests ) . "\n";
+		echo esc_attr( $output_message ) . "\n";
 
-		$test_results = $password_checker->test( '123', true );
-		$this->assertFalse( $test_results['passed'] );
+		$results = $this->password_checker->test( $password, true );
+		$this->assertSame( $results['passed'], $expected_result );
+	}
 
-		$test_results = $password_checker->test( 'password', true );
-		$this->assertTrue( $test_results['passed'] );
+	/**
+	 * Data provider for password tests.
+	 *
+	 * @return array
+	 */
+	public function rule_provider() {
+		/**
+		 * Data format.
+		 *
+		 * Param 1 -> rule
+		 * Param 2 -> password
+		 * Param 3 -> expected_result
+		 * Param 4 -> output_message
+		 */
+		return array(
+			array( 'no_backslashes', 'abc\123', false, 'Passwords may not contain the character "\".' ),
+			array( 'minimum_length', 'abc12', false, 'Password must be at least 6 characters.' ),
+			array( 'has_mixed_case', 'abc123', false, 'Password must have mixed case characters.' ),
+			array( 'has_digit', 'abcdef', false, 'Password must have digits.' ),
+			array( 'has_special_char', 'abcdef', false, 'Password must have special characters.' ),
+		);
 	}
 }
