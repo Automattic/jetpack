@@ -15,6 +15,12 @@ const myCustomLevels = {
 	},
 };
 
+let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
+
+if ( process.env.CI ) {
+	consoleLogLevel = 'error';
+}
+
 /**
  * Log only the messages the match `level`.
  *
@@ -91,13 +97,7 @@ const logger = createLogger( {
 				} )
 			),
 		} ),
-	],
-} );
 
-// If we're running tests locally with debug enabled then **ALSO** log to the `console`
-// with the colorized simple format.
-if ( process.env.E2E_DEBUG || ! process.env.CI ) {
-	logger.add(
 		new transports.Console( {
 			format: format.combine(
 				format.timestamp(),
@@ -106,9 +106,9 @@ if ( process.env.E2E_DEBUG || ! process.env.CI ) {
 					return `${ timestamp } ${ level }: ${ message }`;
 				} )
 			),
-			level: 'debug',
-		} )
-	);
-}
+			level: consoleLogLevel,
+		} ),
+	],
+} );
 
 export default logger;
