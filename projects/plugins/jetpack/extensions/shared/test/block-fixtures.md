@@ -75,9 +75,9 @@ the attributes are serialized correctly.
 
 ## Add a deprecation fixture
 
-When adding a fixture for a block deprecation follow the same steps as above but name the new fixture file as `core__image__deprecated-1.html`) where the number at the end represents the deprecation version. The content of this file should match the saved block content the deprecated version of the block
+When adding a fixture for a block deprecation follow the same steps as above but name the new fixture file as `core__image__deprecated-1.html`) where the number at the end represents the deprecation version. The content of this file should match the saved block content of the deprecated version of the block.
 
-In the case of deprecations the content of the `.json` and `.serialized.html` files should match the content of the produced by the latest version of the block save method, ie. they should mimic what would happen to a blocks content when a deprecated version is loaded in the editor and migrated to be compatible with the new save method.
+In the case of deprecations, the content of the `.json` and `.serialized.html` files should match the content produced by the latest version of the block save method, ie. they should mimic what would happen to a block's content when a deprecated version is loaded in the editor and migrated to be compatible with the new save method.
 
 ## Updating fixtures
 
