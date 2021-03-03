@@ -13,9 +13,16 @@ import { useDispatch } from '@wordpress/data';
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel, ACCEPTED_FILE_EXTENSIONS, parseTranscriptFile } from './utils';
 import { TranscriptIcon as icon } from '../../shared/icons';
 import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
+import {
+	getParticipantByLabel,
+	parseTranscriptFile,
+	pickExtensionFromFileName,
+	isAcceptedTranscriptExtension,
+	ACCEPTED_FILE_EXTENSIONS,
+	TRANSCRIPT_MAX_FILE_SIZE,
+} from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
@@ -25,6 +32,7 @@ function ConversationEdit( {
 	setAttributes,
 	noticeUI,
 	clientId,
+	noticeOperations,
  } ) {
 	const { participants = [], showTimestamps, createdFromScratch } = attributes;
 	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
@@ -104,15 +112,43 @@ function ConversationEdit( {
 		} );
 	}
 
-	function uploadFromFiles( event ) {
+	function showTranscriptProcessErrorMessage( message ) {
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice( message );
+		setIsProcessingFile( false );
+	}
+
+	function uploadTranscriptFile( event ) {
 		const transcriptFile = event.target.files?.[ 0 ];
+
+		// Check file exists.
 		if ( ! transcriptFile ) {
-			return;
+			return showTranscriptProcessErrorMessage( __( 'Transcript file not found.', 'jetpack' ) );
+		}
+
+		// Check file size.
+		if ( ! transcriptFile?.size || transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE ) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file type.', 'jetpack' ) );
+		}
+
+		// Check file type.
+		if ( transcriptFile?.type?.length && transcriptFile.type !== 'text/plain' ) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file type.', 'jetpack' ) );
+		}
+
+		// Check format by extension.
+		const fileExtension = pickExtensionFromFileName( transcriptFile?.name );
+		if ( ! isAcceptedTranscriptExtension( fileExtension ) ) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file extension.', 'jetpack' ) );
 		}
 
 		setIsProcessingFile( true );
 
-		parseTranscriptFile( transcriptFile, function( { conversation, dialogues } ) {
+		parseTranscriptFile( transcriptFile, function( { conversation, dialogues }, err ) {
+			if ( err ) {
+				return showTranscriptProcessErrorMessage( err );
+			}
+
 			setAttributes( {
 				participants: conversation.speakers,
 				createdFromScratch: ! conversation?.length,
@@ -146,7 +182,7 @@ function ConversationEdit( {
 						multiple={ false }
 						isLarge
 						className="wp-block-jetpack-slideshow__add-item-button"
-						onChange={ uploadFromFiles }
+						onChange={ uploadTranscriptFile }
 						accept={ ACCEPTED_FILE_EXTENSIONS }
 						isPrimary
 						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }

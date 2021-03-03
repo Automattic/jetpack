@@ -4,6 +4,7 @@
  */
 import { create, getTextContent } from '@wordpress/rich-text';
 import { escapeHTML } from '@wordpress/escape-html';
+import { __ } from '@wordpress/i18n';
 
 export function getParticipantBySlug( participants, participantSlug ) {
 	const part = participants.filter( ( { slug } ) => ( slug === participantSlug ) );
@@ -48,6 +49,8 @@ export const ACCEPTED_FILE_EXT_ARRAY = [
 
 export const ACCEPTED_FILE_EXTENSIONS = ACCEPTED_FILE_EXT_ARRAY.join( ', ' );
 
+export const TRANSCRIPT_MAX_FILE_SIZE = 100000;
+
 /*
  * Generic format / template.
  * ----------------------------
@@ -56,7 +59,30 @@ export const ACCEPTED_FILE_EXTENSIONS = ACCEPTED_FILE_EXT_ARRAY.join( ', ' );
  * ----------------------------
  * Serices: otter.ai, ...
  */
-export const speakerTimestampRegExp = /(.*[^\s])\s+(\d{1,2}(:\d{1,2})+)\s*\n([\s\S]*?(?=\n{2}|$))/gm;
+const otterFormatRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S]*?(?=\n{2}|$))/gm;
+const otterFormatTestRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S]*?(?=\n{2}|$))/g;
+
+/*
+ * ----------------------------
+ * <speaker>: [<timestamp>] <content>
+ * ----------------------------
+ * Serices: sonix.ai, ...
+ */
+const sonixFormatRegExp = /(?:(.*[^\s]):\s*)?\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/gm;
+const sonixFormatTestRegExp = /(.*[^\s]):\s*\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/g;
+
+const parsers = [
+	{
+		name: 'otter',
+		re: otterFormatRegExp,
+		testRE: otterFormatTestRegExp,
+	},
+	{
+		name: 'sonix',
+		re: sonixFormatRegExp,
+		testRE: sonixFormatTestRegExp,
+	},
+];
 
 /* SRT format / template.
  * ----------------------------
@@ -67,10 +93,6 @@ export const speakerTimestampRegExp = /(.*[^\s])\s+(\d{1,2}(:\d{1,2})+)\s*\n([\s
  * Serices: otter.ai, youtube.com, etc.
  */
 export const srtFormatRegExp = /(\d+)\n([\d:,]+)\s+-{2}>\s+([\d:,]+)\n([\s\S]*?(?=\n{2}|$))/gm;
-
-export function isValidTranscriptFormat( content ) {
-	return speakerTimestampRegExp.test( content );
-}
 
 export function isAcceptedTranscriptExtension( fileExtension ) {
 	return ACCEPTED_FILE_EXT_ARRAY.indexOf( fileExtension ) >= 0;
@@ -104,18 +126,31 @@ export function TXT_parse ( content ) {
 		}
 	};
 
-	let matches;
+	// Pick vallid parsers testing the content.
+	const validParsers = parsers.filter( ( { testRE } ) => testRE.test( content ) );
+	if ( ! validParsers?.length ) {
+		return result;
+	}
 
-	while ( ( matches = speakerTimestampRegExp.exec( content ) ) != null ) {
-		if ( result.conversation.speakers.indexOf( matches[ 1 ] ) < 0 ) {
-			result.conversation.speakers.push( matches[ 1 ] );
+	// Pick the first parser from the list.
+	const parser = validParsers[ 0 ];
+
+	let matches;
+	while ( ( matches = parser.re.exec( content ) ) != null ) {
+		const speakerName = matches[ parser?.indexes?.speaker || 1 ] || '';
+
+		if (
+			speakerName?.length &&
+			result.conversation.speakers.indexOf( speakerName ) < 0
+		) {
+			result.conversation.speakers.push( speakerName );
 		}
 
 		result.dialogues.push( {
-			label: matches[ 1 ],
-			slug: `speaker-${ result.conversation.speakers.indexOf( matches[ 1 ] ) }`,
-			content: matches[ 4 ],
-			timestamp: matches[ 2 ],
+			label: speakerName,
+			slug: `speaker-${ result.conversation.speakers.indexOf( speakerName ) }`,
+			content: matches[ parser?.indexes?.content || 3 ],
+			timestamp: matches[ parser?.indexes?.timestamp || 2 ],
 			showTimestamp: true,
 		} );
 	}
@@ -129,6 +164,9 @@ export function TXT_parse ( content ) {
 }
 
 export function parseTranscriptFile( file, fn ) {
+	// Detect format by extension.
+	const fileExtension = pickExtensionFromFileName( file?.name );
+
 	const reader = new FileReader();
 	reader.addEventListener( 'load', ( ev ) => {
 		const rawData = ev.target.result
@@ -139,14 +177,7 @@ export function parseTranscriptFile( file, fn ) {
 			return;
 		}
 
-		// Detect format by extension.
-		const fileExtension = pickExtensionFromFileName( file?.name );
-
-		if (
-			fileExtension &&
-			fileExtension !== FILE_EXTENSION_TXT &&
-			isAcceptedTranscriptExtension( fileExtension )
-		) {
+		if ( fileExtension && fileExtension !== FILE_EXTENSION_TXT ) {
 			if ( fileExtension === FILE_EXTENSION_SRT ) {
 				return fn( SRT_parse( rawData ) );
 			}
@@ -155,6 +186,8 @@ export function parseTranscriptFile( file, fn ) {
 		if ( fileExtension === FILE_EXTENSION_TXT ) {
 			return fn( TXT_parse( rawData ) );
 		}
+
+		fn( {}, __( 'Transcript format not supported', 'jetpack' ) );
 	} );
 
 	reader.readAsText( file );
