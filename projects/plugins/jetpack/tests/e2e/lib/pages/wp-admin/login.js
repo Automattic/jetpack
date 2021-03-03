@@ -17,11 +17,11 @@ export default class WPLoginPage extends Page {
 			await this.toggleSSOLogin();
 		}
 
-		await page.type( '#user_login', username );
-		await page.type( '#user_pass', password );
+		await this.page.type( '#user_login', username );
+		await this.page.type( '#user_pass', password );
 
 		const navigationPromise = this.page.waitForNavigation();
-		await page.click( '#wp-submit' );
+		await this.page.click( '#wp-submit' );
 		await navigationPromise;
 
 		try {

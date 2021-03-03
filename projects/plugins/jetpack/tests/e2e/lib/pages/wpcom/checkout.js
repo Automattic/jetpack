@@ -13,10 +13,10 @@ export default class CheckoutPage extends Page {
 	async processPurchase( cardCredentials ) {
 		// Enter billing info
 		await this.page.select( `select#country-selector`, cardCredentials.cardCountryCode );
-		await page.type( '#contact-postal-code', cardCredentials.cardPostCode, {
+		await this.page.type( '#contact-postal-code', cardCredentials.cardPostCode, {
 			delay: 10,
 		} );
-		await page.click( '.checkout-step.is-active .checkout-button' );
+		await this.page.click( '.checkout-step.is-active .checkout-button' );
 
 		// Pick a payment method
 		const isExistingCard = await isEventuallyVisible(
@@ -26,7 +26,7 @@ export default class CheckoutPage extends Page {
 		);
 
 		if ( ! isExistingCard ) {
-			await page.click( 'label[for="card"]' );
+			await this.page.click( 'label[for="card"]' );
 			await this.enterTestCreditCardDetails( cardCredentials );
 		}
 
@@ -35,7 +35,7 @@ export default class CheckoutPage extends Page {
 	}
 
 	async enterTestCreditCardDetails( { cardHolder, cardNumber, cardExpiry, cardCVV } ) {
-		await page.type( '#cardholder-name', cardHolder, { delay: 10 } );
+		await this.page.type( '#cardholder-name', cardHolder, { delay: 10 } );
 
 		await this.waitAndTypeInIframe( '.number', "input[name='cardnumber']", cardNumber );
 		await this.waitAndTypeInIframe( '.cvv', "input[name='cvc']", cardCVV );
@@ -49,7 +49,7 @@ export default class CheckoutPage extends Page {
 	async submitPaymentDetails() {
 		const paymentButtonSelector = '.checkout-submit-button button';
 
-		await page.click( paymentButtonSelector );
+		await this.page.click( paymentButtonSelector );
 		return await this.waitForPaymentProcessing();
 	}
 
@@ -72,7 +72,7 @@ export default class CheckoutPage extends Page {
 	// Switches to credit-card specific iframe and type the value into relative input
 	async waitAndTypeInIframe( iframeSelector, what, value ) {
 		const fullSelector = `.credit-card-form-fields ${ iframeSelector } iframe`;
-		const iframeElement = await page.$( fullSelector );
+		const iframeElement = await this.page.$( fullSelector );
 		const iframe = await iframeElement.contentFrame();
 
 		return await iframe.type( what, value, { delay: 10 } );

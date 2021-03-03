@@ -49,12 +49,12 @@ export default class Sidebar extends Page {
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
 		const menuElement = await this.page.waitForSelector( menuSelector );
-		const classes = await page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
+		const classes = await this.page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
 
 		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {
 			await menuElement.click();
 		}
 
-		return await page.click( menuItemSelector );
+		return await this.page.click( menuItemSelector );
 	}
 }

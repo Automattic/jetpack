@@ -10,7 +10,7 @@ export default class PlansPage extends Page {
 	}
 
 	async returnToWPAdmin() {
-		return await page.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
+		return await this.page.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
 	}
 
 	async isCurrentPlan( plan = 'business' ) {

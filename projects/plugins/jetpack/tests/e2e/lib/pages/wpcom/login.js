@@ -28,14 +28,14 @@ export default class LoginPage extends Page {
 		const submitButtonSelector = '//button[text()="Log In"]';
 
 		try {
-			await page.type( usernameSelector, username );
-			await page.click( continueButtonSelector );
-			await page.waitForSelector( passwordSelector, { state: 'visible', timeout: 30 } );
+			await this.page.type( usernameSelector, username );
+			await this.page.click( continueButtonSelector );
+			await this.page.waitForSelector( passwordSelector, { state: 'visible', timeout: 30 } );
 			// Even if we wait for the field to become visible Playwright might still type the password too fast
 			// and the first characters will miss the password field. A short wait fixes this
-			await page.waitForTimeout( 2000 );
-			await page.type( passwordSelector, password );
-			await page.click( submitButtonSelector );
+			await this.page.waitForTimeout( 2000 );
+			await this.page.type( passwordSelector, password );
+			await this.page.click( submitButtonSelector );
 
 			await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
 			await this.page.waitForSelector( this.expectedSelector, {

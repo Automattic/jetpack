@@ -10,6 +10,6 @@ export default class MyPlanPage extends Page {
 	}
 
 	async returnToWPAdmin() {
-		return await page.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
+		return await this.page.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
 	}
 }

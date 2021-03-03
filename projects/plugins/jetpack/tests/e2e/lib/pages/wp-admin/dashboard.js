@@ -19,6 +19,6 @@ export default class DashboardPage extends Page {
 
 	async connect() {
 		const selector = ".jp-wpcom-connect__container a[href*='register']";
-		return await page.click( selector );
+		return await this.page.click( selector );
 	}
 }

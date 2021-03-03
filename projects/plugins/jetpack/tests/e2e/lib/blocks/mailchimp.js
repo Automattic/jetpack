@@ -68,7 +68,7 @@ export default class MailchimpBlock {
 
 		await this.page.bringToFront();
 		const reCheckSelector = this.getSelector( 'button.is-link' );
-		await page.click( reCheckSelector );
+		await this.page.click( reCheckSelector );
 	}
 
 	getSelector( selector ) {

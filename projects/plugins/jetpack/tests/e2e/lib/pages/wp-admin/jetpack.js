@@ -12,12 +12,12 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await page.click( connectButtonSelector );
+		return await this.page.click( connectButtonSelector );
 	}
 
 	async openMyPlan() {
 		const myPlanButton = "a[href*='my-plan'] span";
-		return await page.click( myPlanButton );
+		return await this.page.click( myPlanButton );
 	}
 
 	async isFree() {
