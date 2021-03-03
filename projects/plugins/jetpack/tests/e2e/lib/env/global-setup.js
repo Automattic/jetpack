@@ -4,7 +4,7 @@ import TunnelManager from './tunnel-manager';
 module.exports = async function () {
 	// Create tunnel. Make it global so we can access it in global-teardown
 	global.tunnelManager = new TunnelManager();
-	await global.tunnelManager.create();
+	await global.tunnelManager.create( process.env.SKIP_CONNECT );
 
 	// Create the file used to save browser storage to skip login actions
 	// If the file is missing Playwright context creation will fail
