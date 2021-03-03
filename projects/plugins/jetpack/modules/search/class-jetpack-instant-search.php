@@ -160,6 +160,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		$is_wpcom                  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_private_site           = '-1' === get_option( 'blog_public' );
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(
@@ -180,12 +181,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
-			'isPhotonEnabled'       => $is_wpcom || $is_jetpack_photon_enabled,
+			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
 			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateSite'         => '-1' === get_option( 'blog_public' ),
+			'isPrivateSite'         => $is_private_site,
 			'isWpcom'               => $is_wpcom,
 
 			// search options.

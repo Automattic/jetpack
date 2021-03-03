@@ -296,6 +296,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.props.isLoading }
+					isPhotonEnabled={ this.props.options.isPhotonEnabled }
 					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
