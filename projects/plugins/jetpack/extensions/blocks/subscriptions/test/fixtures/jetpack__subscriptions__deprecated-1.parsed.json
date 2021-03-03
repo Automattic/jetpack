@@ -1,0 +1,20 @@
+[
+    {
+        "blockName": "jetpack/subscriptions",
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-subscriptions\">[jetpack_subscription_form show_subscribers_total=\"false\" show_only_email_and_button=\"true\"]</div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-subscriptions\">[jetpack_subscription_form show_subscribers_total=\"false\" show_only_email_and_button=\"true\"]</div>\n"
+        ]
+    },
+    {
+        "blockName": null,
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n",
+        "innerContent": [
+            "\n"
+        ]
+    }
+]

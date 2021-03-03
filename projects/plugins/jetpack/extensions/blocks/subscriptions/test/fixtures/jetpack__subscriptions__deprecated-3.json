@@ -1,0 +1,15 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/subscriptions",
+        "isValid": false,
+        "attributes": {
+            "subscribePlaceholder": "Email Address",
+            "showSubscribersTotal": false,
+            "buttonOnNewLine": false,
+            "submitButtonText": "Subscribe"
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-subscriptions wp-block-jetpack-subscriptions__supports-newline\">\n\t[jetpack_subscription_form\n\tsubscribe_placeholder=\"Email Address\"\n\tshow_subscribers_total=\"false\"\n\tbutton_on_newline=\"false\"\n\tsubmit_button_text=\"Subscribe\"\n\tcustom_font_size=\"16px\"\n\tcustom_border_radius=\"0\"\n\tcustom_border_weight=\"1\"\n\tcustom_padding=\"15\"\n\tcustom_spacing=\"10\"\n\tsubmit_button_classes=\"\"\n\temail_field_classes=\"\"\n\tshow_only_email_and_button=\"true\"\n\t]</div>"
+    }
+]
