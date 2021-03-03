@@ -160,7 +160,6 @@
 	"projects/plugins/jetpack/extensions/blocks/tiled-gallery/deprecated/v2/utils/index.js",
 	"projects/plugins/jetpack/extensions/blocks/tiled-gallery/icons.js",
 	"projects/plugins/jetpack/extensions/blocks/tiled-gallery/layout/mosaic/ratios.js",
-	"projects/plugins/jetpack/extensions/blocks/tiled-gallery/layout/mosaic/resize.js",
 	"projects/plugins/jetpack/extensions/blocks/tiled-gallery/utils/index.js",
 	"projects/plugins/jetpack/extensions/blocks/tiled-gallery/view.js",
 	"projects/plugins/jetpack/extensions/blocks/videopress/utils.js",
