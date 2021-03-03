@@ -452,11 +452,6 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * @return string $description Cleaned up description string.
  */
 function jetpack_og_get_description( $description = '', $data = null ) {
-	// Calls the render methods for each block, so hidden content
-	// such as subscriber content in Premium Content blocks are not
-	// included in the meta tags.
-	$description = do_blocks( $description );
-
 	// Remove tags such as <style or <script.
 	$description = wp_strip_all_tags( $description );
 

@@ -22,7 +22,6 @@ echo "::set-output name=build-base::$BUILD_BASE"
 # Install Yarn generally, and changelogger.
 echo "::group::Monorepo setup"
 yarn install
-yarn cli-link
 echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
@@ -73,7 +72,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 	fi
 	# Need to remove the "projects/" from the string since the CLI only looks for {type}/{project-name}.
 	SLUG="${project#projects/}"
-	if jetpack build "${SLUG}" --production; then
+	if node "$BASE"/tools/cli/bin/jetpack build "${SLUG}" -v --production; then
 		FAIL=false
 	else
 		FAIL=true

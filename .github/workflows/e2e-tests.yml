@@ -20,46 +20,65 @@ jobs:
         gutenberg: [ 'no', 'latest' ]
     env:
       GUTENBERG: ${{ matrix.gutenberg }}
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
     - uses: actions/checkout@v2
-    - uses: shivammathur/setup-php@v2
+
+    - name: Read PHP and Node versions
+      id: versions
+      run: |
+        echo "::set-output name=php-version::$(<.github/php-version)"
+        echo "::set-output name=node-version::$(<.nvmrc)"
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: ${{ steps.versions.outputs.php-version }}
         tools: composer
+        extensions: mysql, imagick
         coverage: none
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '12'
 
-    - name: Use yarn cache
-      uses: actions/cache@v2
-      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+    - name: Setup Node
+      uses: actions/setup-node@v2
       with:
-        path: /home/runner/.cache/yarn/v6
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
+        node-version: ${{ steps.versions.outputs.node-version }}
 
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: |
+        echo "::set-output name=dir::$(composer config cache-files-dir)"
     - name: Use composer cache
       uses: actions/cache@v2
       with:
-        path: /home/runner/.composer/cache/files
+        path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-composer-
 
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    - name: Use yarn cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-yarn-
+
     - name: Tool versions
       run: |
-        echo "PATH=$PATH"
-        which node
-        node --version
-        which yarn
-        yarn --version
         which php
         php --version
         which composer
         composer --version
+        which node
+        node --version
+        which yarn
+        yarn --version
+        which jq
+        jq --version
 
     - name: Build Production Jetpack
       working-directory: projects/plugins/jetpack
