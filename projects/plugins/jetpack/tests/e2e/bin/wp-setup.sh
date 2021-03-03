@@ -9,7 +9,6 @@ touch wp-content/debug.log
 chown www-data:www-data wp-content/debug.log
 
 # Remove default config entries
-sed -i '/localhost:8889/d' wp-config.php
 sed -i '/WP_SITEURL/d' wp-config.php
 sed -i '/WP_HOME/d' wp-config.php
 sed -i '/E2E_REQUEST_URL/d' wp-config.php
