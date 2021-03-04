@@ -72,11 +72,8 @@ function count_lines_before_class_keyword( $file ) {
 	}
 
 	// Support both styles of line endings.
-	$newlines = substr_count( $content, "\r\n", 0, $matches[0][0][1] );
-	if ( $newlines > 0 ) {
-		return $newlines + 1;
-	}
-	$newlines = substr_count( $content, "\n", 0, $matches[0][0][1] );
+	$newlines  = substr_count( $content, "\r\n", 0, $matches[0][0][1] );
+	$newlines += substr_count( $content, "\n", 0, $matches[0][0][1] ) - $newlines;
 	if ( $newlines > 0 ) {
 		return $newlines + 1;
 	}
@@ -109,9 +106,9 @@ function get_path_transformation_map( $report_file_paths ) {
 			continue;
 		}
 
-		// We need to use the class keywork to address the line offset from injecting the header.
+		// We need to use the class keyword to address the line offset from injecting the header.
 		$class_line = count_lines_before_class_keyword( $file );
-		if ( ! isset( $class_line ) ) {
+		if ( null === $class_line ) {
 			// The autoloader only has class files and so this is fine.
 			continue;
 		}
@@ -144,7 +141,7 @@ function get_path_transformation_map( $report_file_paths ) {
 				break;
 			}
 		}
-		if ( ! isset( $src_file_path ) ) {
+		if ( ! $src_file_path ) {
 			continue;
 		}
 
@@ -225,14 +222,14 @@ function process_coverage() {
 	$coverage_version = get_coverage_version();
 	$major_version    = substr( $coverage_version, 0, strpos( $coverage_version, '.' ) );
 
-	// We can finally load the report that we're wanting to process.
-	$report = load_report();
-
 	$function = 'process_coverage_' . $major_version;
 	if ( ! function_exists( $function ) ) {
 		echo "No handler defined for major version $major_version\n";
 		die( -1 );
 	}
+
+	// We can finally load the report that we're wanting to process.
+	$report = load_report();
 
 	// Process the report using the handler.
 	$report = call_user_func( $function, $report );
