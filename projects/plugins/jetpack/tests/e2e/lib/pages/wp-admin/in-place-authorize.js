@@ -11,7 +11,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
-		await page.waitForSelector( loadingSelector, { state: 'hidden', timeout: 45000 } );
+		await page.waitForSelector( loadingSelector, { state: 'hidden', timeout: 120000 } );
 
 		return await super.init( page );
 	}

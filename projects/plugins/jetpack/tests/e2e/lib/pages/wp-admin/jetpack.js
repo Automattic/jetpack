@@ -41,14 +41,10 @@ export default class JetpackPage extends Page {
 	}
 
 	async forceVariation( variation = 'original' ) {
-		let vari = await this.page.evaluate( () => jpConnect.forceVariation );
-		console.log( 'VARIATION 1', vari );
-		await this.page.evaluate(
+		return await this.page.evaluate(
 			forceVariation => ( jpConnect.forceVariation = forceVariation ),
 			variation
 		);
-		vari = await this.page.evaluate( () => jpConnect.forceVariation );
-		console.log( 'VARIATION 2', vari );
 	}
 
 	async isPlan( plan ) {
