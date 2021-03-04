@@ -898,6 +898,10 @@ class Manager {
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
 
+		error_log('!!!!!! register request');
+		error_log( print_r( $this->api_url( $api_endpoint ), 1));
+		error_log( print_r( $args, 1));
+
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
 			$this->api_url( $api_endpoint ),
@@ -905,11 +909,7 @@ class Manager {
 			true
 		);
 
-		error_log('!!!!!! register request');
-		error_log( print_r( $this->api_url( $api_endpoint ), 1));
-		error_log( print_r( $args, 1));
 		error_log('!!!!!! register response');
-
 		error_log( print_r( $response, 1));
 
 		// Make sure the response is valid and does not contain any Jetpack errors.
