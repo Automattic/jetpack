@@ -102,7 +102,7 @@ const DetectOutside = withFocusOutside(
  * @param {Array} participants - Conversation participants list.
  * @returns {object} Participants autocompleter.
  */
-function refreshAutocompleter( participants ) {
+function freshAutocompleter( participants ) {
 	return {
 		name: 'jetpack/conversation-participants',
 		triggerPrefix: '',
@@ -232,7 +232,7 @@ export function SpeakerEditControl( {
 			return [];
 		}
 
-		return [ refreshAutocompleter( participants ) ];
+		return [ freshAutocompleter( participants ) ];
 	}, [ participants, editingMode ] );
 
 	useEffect( () => {
