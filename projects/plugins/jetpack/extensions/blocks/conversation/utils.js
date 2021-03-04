@@ -177,17 +177,24 @@ export function parseTranscriptFile( file, fn ) {
 			return fn( {}, __( 'Transcript content is empty', 'jetpack' ) );
 		}
 
+		let parsedData = {};
+
 		if ( fileExtension && fileExtension !== FILE_EXTENSION_TXT ) {
 			if ( fileExtension === FILE_EXTENSION_SRT ) {
-				return fn( SRT_parse( rawData ) );
+				parsedData = SRT_parse( rawData );
 			}
 		}
 
 		if ( fileExtension === FILE_EXTENSION_TXT ) {
-			return fn( TXT_parse( rawData ) );
+			parsedData = TXT_parse( rawData );
 		}
 
-		fn( {}, __( 'Transcript format not supported', 'jetpack' ) );
+		// Check parsing data results.
+		if ( ! parsedData.dialogues?.length ) {
+			return fn( {}, __( 'Transcript format not supported', 'jetpack' ) );
+		}
+
+		fn( parsedData );
 	} );
 
 	reader.readAsText( file );
