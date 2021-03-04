@@ -230,9 +230,6 @@ class Client {
 
 		$response = wp_remote_request( $url, $args );
 
-		error_log( '_wp_remote_request' );
-		error_log( print_r( $response, 1) );
-
 		if (
 			! $set_fallback                                     // We're not allowed to set the flag on this request, so whatever happens happens.
 			||

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { readFileSync, createReadStream } from 'fs';
-import { WebClient, ErrorCode, LogLevel, retryPolicies } from '@slack/web-api';
+import { WebClient, ErrorCode, retryPolicies } from '@slack/web-api';
 import config from 'config';
 
 const { GITHUB_EVENT_PATH, GITHUB_RUN_ID, GUTENBERG } = process.env;
@@ -11,7 +11,6 @@ export default class SlackReporter {
 	constructor() {
 		const token = config.get( 'slackToken' );
 		this.webCli = new WebClient( token, {
-			logLevel: LogLevel.DEBUG,
 			retryConfig: retryPolicies.rapidRetryPolicy,
 		} );
 		this.runURL = `https://github.com/Automattic/jetpack/actions/runs/${ GITHUB_RUN_ID }`;

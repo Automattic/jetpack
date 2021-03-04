@@ -9,15 +9,6 @@ export default class Sidebar extends Page {
 		super( page, { expectedSelector } );
 	}
 
-	static async init( page ) {
-		const it = await super.init( page );
-		// trying to mitigate localtunnel errors
-		await it.reload();
-		await page.waitForLoadState( 'networkidle' );
-
-		return it;
-	}
-
 	async selectJetpack() {
 		const jetpackMenuSelector = '#toplevel_page_jetpack';
 		const menuItemSelector =
