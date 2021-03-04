@@ -54,7 +54,9 @@ describe( 'Email', () => {
 		};
 		render( <EmailEdit { ...propsNotSelected } /> );
 
-		expect( screen.getByRole( 'link', { name: 'test@example.com' } ).getAttribute( 'href' ) ).toEqual( 'mailto:test@example.com' );
+		expect(
+			screen.getByRole( 'link', { name: 'test@example.com' } ).getAttribute( 'href' )
+		).toEqual( 'mailto:test@example.com' );
 		expect( screen.getByText( 'email me at:' ) ).toBeInTheDocument();
 	} );
 
