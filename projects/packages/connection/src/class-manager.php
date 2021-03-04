@@ -906,11 +906,11 @@ class Manager {
 		);
 
 		error_log('!!!!!! register request');
-		error_log( preint_r( $this->api_url( $api_endpoint ), 1));
-		error_log( preint_r( $args, 1));
+		error_log( print_r( $this->api_url( $api_endpoint ), 1));
+		error_log( print_r( $args, 1));
 		error_log('!!!!!! register response');
 
-		error_log( preint_r( $response, 1));
+		error_log( print_r( $response, 1));
 
 		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
