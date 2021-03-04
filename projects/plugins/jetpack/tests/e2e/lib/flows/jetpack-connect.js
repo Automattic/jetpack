@@ -52,7 +52,7 @@ export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData =
 		}
 	}
 
-	await doClassicConnection( mockPlanData );
+	await doInPlaceConnection();
 	await syncJetpackPlanData( plan, mockPlanData );
 }
 
