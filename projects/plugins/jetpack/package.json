@@ -123,7 +123,7 @@
 		"markdown-it": "12.0.4",
 		"node-sass": "4.14.1",
 		"page": "1.7.1",
-		"photon": "2.1.0",
+		"photon": "4.0.0",
 		"plugin-error": "1.0.1",
 		"postcss-custom-properties": "10.0.0",
 		"preact": "10.5.7",
