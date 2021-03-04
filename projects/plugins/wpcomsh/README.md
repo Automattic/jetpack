@@ -108,7 +108,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Wait for the PR to be approved and merged
 - Checkout latest `master`
 - Tag the release with `make tag`
-- Build a new release zip and create a GH release with `bin/create-github-release.sh`. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step. 
+- Build a new release zip and create a GH release with `bin/create-github-release.sh`. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.
 - New version will be deployed when our monitoring detects it has been released.
 
 ### Deploying new languages (optional, and mostly Atomic team)
@@ -117,7 +117,7 @@ After every deployment, as described above, please create a new
 branch and run:
 
 - `make i18n` to update translatable strings and translations and create a new PR
-- Follow Deployment instructions 
+- Follow Deployment instructions
 
 ## Troubleshooting
 
@@ -270,3 +270,14 @@ The navigation sidebar in the [WordPress.com Editing Toolkit](https://wordpress.
 ### Coming Soon
 
 Coming Soon mode and associated functionality is contained within the [WordPress.com Editing Toolkit](https://wordpress.org/plugins/full-site-editing/) and is enabled using a filter. Coming Soon allows users to hide their site behind a Coming Soon page from the site settings page of Calypso.
+
+### Nav Unification
+
+Provides a series of customisations to enable the full Nav Unification experience on Atomic (see pbAPfg-Ou-p2). Includes:
+
+- force enable Masterbar module.
+- hide admin color scheme picker and add notice pointing to WordPress.com Account Settings.
+- persist important WP.com user data to user_option via Jetpack connected user data.
+- activate the Nav Unification feature shipped in Jetpack on Atomic.
+- add a WooCommerce install item to the menu when Woo isn't installed.
+- force disable Nav Unification feature via query string.
