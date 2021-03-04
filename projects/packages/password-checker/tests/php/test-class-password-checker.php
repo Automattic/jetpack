@@ -71,7 +71,7 @@ class Password_Checker_Test extends BaseTestCase {
 		$tests = apply_filters( 'password_checker_tests', array() ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$results = $this->password_checker->test( $password, true );
-		$this->assertSame( $results['passed'], $expected_result );
+		$this->assertSame( $expected_result, $results['passed'] );
 	}
 
 	/**
