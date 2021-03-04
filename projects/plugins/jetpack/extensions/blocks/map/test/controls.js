@@ -13,6 +13,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import MapControls from '../contr'
 // 👀 Import the edit component you are testing.
 // e.g. import WhatsAppButtonControls from '../controls';
 
