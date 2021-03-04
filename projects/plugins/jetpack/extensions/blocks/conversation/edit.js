@@ -34,7 +34,7 @@ function ConversationEdit( {
 	clientId,
 	noticeOperations,
  } ) {
-	const { participants = [], showTimestamps, createdFromScratch } = attributes;
+	const { participants = [], showTimestamps, skipUpload } = attributes;
 	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
 	const { insertBlocks } = useDispatch( 'core/block-editor' );
 
@@ -154,7 +154,7 @@ function ConversationEdit( {
 
 			setAttributes( {
 				participants: conversation.speakers,
-				createdFromScratch: ! conversation?.length,
+				skipUpload: ! conversation?.length,
 			} );
 			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => [
 				'jetpack/dialogue',
@@ -169,12 +169,12 @@ function ConversationEdit( {
 
 	const baseClassName = 'wp-block-jetpack-conversation';
 
-	if ( ! participants?.length && ! createdFromScratch ) {
+	if ( ! participants?.length && ! skipUpload ) {
 		return (
 			<Placeholder
 				label={ __( 'Conversation', 'jetpack' ) }
 				instructions={ __(
-					'Upload a transcript file or create a conversation from scratch.',
+					'Upload a transcript file or create a conversation with blank content.',
 					'jetpack'
 				) }
 				icon={ <BlockIcon icon={ icon } /> }
@@ -197,9 +197,9 @@ function ConversationEdit( {
 					<Button
 						isTertiary
 						disabled={ isProcessingFile }
-						onClick={ () => setAttributes( { createdFromScratch: true } ) }
+						onClick={ () => setAttributes( { skipUpload: true } ) }
 					>
-						{ __( 'From scratch', 'jetpack' ) }
+						{ __( 'Skip upload', 'jetpack' ) }
 					</Button>
 				</div>
 			</Placeholder>

@@ -6,7 +6,7 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
-	createdFromScratch: {
+	skipUpload: {
 		type: 'boolean',
 		default: false,
 	},
