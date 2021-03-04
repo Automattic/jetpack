@@ -59,8 +59,10 @@ export const TRANSCRIPT_MAX_FILE_SIZE = 100000;
  * ----------------------------
  * Serices: otter.ai, ...
  */
-const otterFormatRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S]*?(?=\n{2}|$))/gm;
-const otterFormatTestRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S]*?(?=\n{2}|$))/g;
+
+const otterRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S]*?(?=\n{2}|$))/;
+const otterFormatRegExp = new RegExp( otterRegExp, 'gm' );
+const otterFormatTestRegExp = new RegExp( otterRegExp, 'g' );
 
 /*
  * ----------------------------
@@ -68,8 +70,9 @@ const otterFormatTestRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S
  * ----------------------------
  * Serices: sonix.ai, ...
  */
-const sonixFormatRegExp = /(?:(.*[^\s]):\s*)?\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/gm;
-const sonixFormatTestRegExp = /(.*[^\s]):\s*\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/g;
+const sonixRegExp = /(?:(.*[^\s]):\s*)?\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/gm;
+const sonixFormatRegExp = new RegExp( sonixRegExp, 'gm' );
+const sonixFormatTestRegExp = new RegExp( sonixRegExp, 'gm' );
 
 const parsers = [
 	{
