@@ -1,39 +1,83 @@
 <?php
+/**
+ * Plugin Name: Jetpack Carousel
+ * Plugin URL: https://wordpress.com/
+ * Description: Transform your standard image galleries into an immersive full-screen experience.
+ * Version: 0.1
+ * Author: Automattic
+ * Text Domain: jetpack
+ *
+ * @package jetpack
+ *
+ * Released under the GPL v.2 license.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
-/*
-Plugin Name: Jetpack Carousel
-Plugin URL: https://wordpress.com/
-Description: Transform your standard image galleries into an immersive full-screen experience.
-Version: 0.1
-Author: Automattic
 
-Released under the GPL v.2 license.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-*/
+/**
+ * Initiate Jetpack Carousel Class
+ */
 class Jetpack_Carousel {
 
+	/**
+	 * Base width of carousel.
+	 *
+	 * @var $prebuilt_widths - prebuilt widths of carousel.
+	 */
 	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
 
+	/**
+	 * First time the carousel loaded on page? Default is true.
+	 *
+	 * @var $first_run - bool, true.
+	 */
 	public $first_run = true;
 
+	/**
+	 * Don't know what this does yet?
+	 *
+	 * @var $in_gallery - bool, false.
+	 */
 	public $in_gallery = false;
 
+	/**
+	 * Checks if Jetpack is enabled.
+	 *
+	 * @var $in_jetpack - bool, true.
+	 */
 	public $in_jetpack = true;
 
+	/**
+	 * Disables carousel for single images by default.
+	 *
+	 * @var $single_image_gallery_enabled - bool, false.
+	 */
 	public $single_image_gallery_enabled = false;
 
+	/**
+	 * Disables carousel for single images linking to 'Media File' by default.
+	 *
+	 * @var $single_image_gallery_enabled_media_file - bool, false.
+	 */
 	public $single_image_gallery_enabled_media_file = false;
 
-	function __construct() {
+	/**
+	 * Initializes carousel initialization.
+	 */
+	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
 
-	function init() {
+	/**
+	 * Initializes carousel class.
+	 */
+	public function init() {
 		if ( $this->maybe_disable_jp_carousel() ) {
 			return;
 		}
@@ -44,11 +88,11 @@ class Jetpack_Carousel {
 		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
 
 		if ( is_admin() ) {
-			// Register the Carousel-related related settings
+			// Register the Carousel-related related settings.
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 			if ( ! $this->in_jetpack ) {
-				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
-					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
+				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
+					return; // Carousel disabled, abort early, but still register setting so user can switch it back on.
 				}
 			}
 			// If in admin, register the ajax endpoints.
@@ -58,8 +102,8 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
-				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
-					return; // Carousel disabled, abort early
+				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
+					return; // Carousel disabled, abort early.
 				}
 			}
 			// If on front-end, do the Carousel thang.
@@ -73,7 +117,7 @@ class Jetpack_Carousel {
 			 * @param array $this->prebuilt_widths Array of default widths.
 			 */
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
-			// below: load later than other callbacks hooked it (e.g. 3rd party plugins handling gallery shortcode)
+			// below: load later than other callbacks hooked it (e.g. 3rd party plugins handling gallery shortcode).
 			add_filter( 'post_gallery', array( $this, 'check_if_shortcode_processed_and_enqueue_assets' ), 1000, 2 );
 			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
@@ -86,7 +130,7 @@ class Jetpack_Carousel {
 		}
 
 		if ( $this->in_jetpack ) {
-			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
+			Jetpack::enable_module_configurable( dirname( dirname( __DIR__ ) ) . '/carousel.php' );
 		}
 	}
 
