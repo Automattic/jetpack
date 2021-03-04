@@ -88,12 +88,38 @@ class Password_Checker_Test extends BaseTestCase {
 		 * Param 3 -> expected_result
 		 * Param 4 -> output_message
 		 */
+
 		return array(
-			array( 'no_backslashes', 'abc\123', false, 'Passwords may not contain the character "\".' ),
-			array( 'minimum_length', 'abc12', false, 'Password must be at least 6 characters.' ),
-			array( 'has_mixed_case', 'abc123', false, 'Password must have mixed case characters.' ),
-			array( 'has_digit', 'abcdef', false, 'Password must have digits.' ),
-			array( 'has_special_char', 'abcdef', false, 'Password must have special characters.' ),
+			'no_backslashes'   => array(
+				'no_backslashes',
+				'abc\123',
+				false,
+				'Passwords may not contain the character "\".',
+			),
+			'minimum_length'   => array(
+				'minimum_length',
+				'abc12',
+				false,
+				'Password must be at least 6 characters.',
+			),
+			'has_mixed_case'   => array(
+				'has_mixed_case',
+				'abc123',
+				false,
+				'Password must have mixed case characters.',
+			),
+			'has_digit'        => array(
+				'has_digit',
+				'abcdef',
+				false,
+				'Password must have digits.',
+			),
+			'has_special_char' => array(
+				'has_special_char',
+				'abcdef',
+				false,
+				'Password must have special characters.',
+			),
 		);
 	}
 }
