@@ -13,11 +13,12 @@ import '@testing-library/jest-dom/extend-expect';
  */
 import { ButtonEdit } from '../edit';
 import { __experimentalUseGradient } from '@wordpress/block-editor';
+import userEvent from '@testing-library/user-event';
 
 const defaultAttributes = {
     borderRadius: 15,
     element: "button",
-    placeholder: "Add text",
+    placeholder: "Placeholder text!!!",
     text: "Contact Us",
 };
 
@@ -27,6 +28,7 @@ const defaultProps = {
         class: "has-black-background-color",
         color: "#000000",
     },
+    className: 'className',
     fallbackBackgroundColor: 'rgba(0, 0, 0, 0)',
     fallbackTextColor: 'rgba(0, 0, 0, 0)',
     setAttributes: jest.fn(),
@@ -57,61 +59,76 @@ jest.mock( '@wordpress/block-editor', () => ( {
     } ),
 } ) );
 
+beforeEach( () => {
+    defaultProps.setAttributes.mockClear();
+} );
+
 function renderButton( props ) {
     const { container } = render( <ButtonEdit { ...props } /> );
     return within( container ).getByRole( 'textbox' );
 }
 
-test( 'loads and displays button with buttonText attribute assigned to button', () => {
-    renderButton( defaultProps );
+describe( 'ButtonEdit', () => {
+    test( 'loads and displays button with buttonText attribute assigned to button', () => {
+        renderButton( defaultProps );
 
-	expect( screen.getByText( 'Contact Us' ) ).toBeInTheDocument();
-} );
+        expect( screen.getByText( 'Contact Us' ) ).toBeInTheDocument();
+    } );
 
-test( 'displays button as multiline textbox for updating the buttonText attribute', () => {
-    renderButton( defaultProps );
+    test( 'displays button as multiline textbox for updating the buttonText attribute', () => {
+        renderButton( defaultProps );
 
-	expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'aria-multiline' );
-	expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'contenteditable' );
-} );
+        expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'aria-multiline' );
+        expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'contenteditable' );
+    } );
 
-test( 'assigns background color class and styles to the button', () => {
-    const button = renderButton( defaultProps );
+    test( 'adds the placeholder when attribute is provided', () => {
+		const attributes = { ...defaultAttributes, text: undefined };
+        const button = renderButton( { ...defaultProps, attributes } );
+        expect( button.getAttribute( 'aria-label' ) ).toEqual( defaultAttributes.placeholder );
+    } );
 
-    expect( button ).toHaveClass( 'has-black-background-color' );
-    expect( button ).toHaveStyle( { backgroundColor: '#000000' } );
-} );
+    test( 'assigns background color class and styles to the button', () => {
+        const button = renderButton( defaultProps );
 
-test( 'applies text color class and style to the button', () => {
-    const button = renderButton( defaultProps );
+        expect( button ).toHaveClass( 'has-background' );
+        expect( button ).toHaveClass( 'has-black-background-color' );
+        expect( button ).toHaveStyle( { backgroundColor: '#000000' } );
+    } );
 
-    expect( button ).toHaveClass( 'has-white-color' );
-    expect( button ).toHaveStyle( { color: '#FFFFFF' } );
-} );
+    test( 'applies text color class and style to the button', () => {
+        const button = renderButton( defaultProps );
 
-test( 'applies border radius style to the button', () => {
-    const button = renderButton( defaultProps );
+        expect( button ).toHaveClass( 'has-text-color' );
+        expect( button ).toHaveClass( 'has-white-color' );
+        expect( button ).toHaveStyle( { color: '#FFFFFF' } );
+    } );
 
-    expect( button ).toHaveStyle( { borderRadius: '15px' } );
-} );
+    test( 'applies border radius style to the button', () => {
+        const button = renderButton( defaultProps );
 
-test( 'applies class when 0 border radius selected', () => {
-    const attributes = {
-        ...defaultAttributes,
-        borderRadius: 0
-    };
-    const props = { ...defaultProps, attributes };
-    const button = renderButton( props );
+        expect( button ).toHaveStyle( { borderRadius: '15px' } );
+    } );
 
-    expect( button ).toHaveClass( 'no-border-radius' );
-} );
+    test( 'applies class when 0 border radius selected', () => {
+        const attributes = {
+            ...defaultAttributes,
+            borderRadius: 0
+        };
+        const props = { ...defaultProps, attributes };
+        const button = renderButton( props );
 
-test( 'applies gradient color class and style to the button', () => {
-    __experimentalUseGradient.mockReturnValueOnce = gradientProps;
+        expect( button ).toHaveClass( 'no-border-radius' );
+    } );
 
-    const props = { ...defaultProps, backgroundColor: {} };
-    const button = renderButton( props );
+    test( 'applies gradient color class and style to the button', () => {
+        __experimentalUseGradient.mockImplementation( () => gradientProps );
 
-    expect( button ).toHaveClass( gradientProps.gradientClass );
-    expect( button ).toHaveStyle( { background: gradientProps.gradientValue } );
+        const props = { ...defaultProps, backgroundColor: {} };
+        const button = renderButton( props );
+
+        expect( button ).toHaveClass( 'has-background' );
+        expect( button ).toHaveClass( gradientProps.gradientClass );
+        expect( button ).toHaveStyle( { background: gradientProps.gradientValue } );
+    } );
 } );

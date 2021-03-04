@@ -15,6 +15,7 @@ export default function ButtonControls( {
 	textColor,
 	gradientValue,
 	setGradient,
+	isGradientAvailable,
 } ) {
 	const { borderRadius } = attributes;
 
@@ -30,6 +31,7 @@ export default function ButtonControls( {
 					setGradient,
 					setTextColor,
 					textColor,
+					isGradientAvailable,
 				} }
 			/>
 			<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />

@@ -111,6 +111,7 @@ export function ButtonEdit( props ) {
 					{ ...{
 						gradientValue,
 						setGradient,
+						isGradientAvailable: IS_GRADIENT_AVAILABLE,
 						...props,
 					} }
 				/>
