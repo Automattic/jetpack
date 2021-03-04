@@ -70,9 +70,9 @@ const otterFormatTestRegExp = new RegExp( otterRegExp, 'g' );
  * ----------------------------
  * Serices: sonix.ai, ...
  */
-const sonixRegExp = /(?:(.*[^\s]):\s*)?\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/gm;
+const sonixRegExp = /(?:(.*[^\s]):\s*)?\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/;
 const sonixFormatRegExp = new RegExp( sonixRegExp, 'gm' );
-const sonixFormatTestRegExp = new RegExp( sonixRegExp, 'gm' );
+const sonixFormatTestRegExp = new RegExp( sonixRegExp, 'g' );
 
 const parsers = [
 	{
