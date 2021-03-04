@@ -3421,11 +3421,12 @@ p {
 			}
 		}
 
+		error_log('!!!!!! try_registration');
+
 		$result = self::register();
 
 		error_log( 'try_registration' );
 		error_log( print_r( $result, 1) );
-
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
 		if ( ! $result || is_wp_error( $result ) ) {
