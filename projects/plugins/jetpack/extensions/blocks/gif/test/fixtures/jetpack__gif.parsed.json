@@ -1,0 +1,22 @@
+[
+    {
+        "blockName": "jetpack/gif",
+        "attrs": {
+            "giphyUrl": "https://giphy.com/embed/s4yuh5ZwKHfXO",
+            "searchText": "bunny",
+            "paddingTop": "74%"
+        },
+        "innerBlocks": [],
+        "innerHTML": "",
+        "innerContent": []
+    },
+    {
+        "blockName": null,
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n",
+        "innerContent": [
+            "\n"
+        ]
+    }
+]

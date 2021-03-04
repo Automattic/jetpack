@@ -1,0 +1,15 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/gif",
+        "isValid": true,
+        "attributes": {
+            "align": "center",
+            "giphyUrl": "https://giphy.com/embed/s4yuh5ZwKHfXO",
+            "searchText": "bunny",
+            "paddingTop": "74%"
+        },
+        "innerBlocks": [],
+        "originalContent": ""
+    }
+]
