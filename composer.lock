@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "95ad0f7fdff39b4e04688b9a55518bd25634736c"
+                "reference": "706eea7971ea1f5aa96515a5264a25146b33b69b"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -23,11 +23,15 @@
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "0.1.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-codesniffer"
+                "mirror-repo": "Automattic/jetpack-codesniffer",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
