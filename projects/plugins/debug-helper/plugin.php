@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic - Jetpack Crew
- * Version: 1.0
+ * Version: 1.0.1
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
