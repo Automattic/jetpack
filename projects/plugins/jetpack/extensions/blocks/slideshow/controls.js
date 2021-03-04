@@ -8,6 +8,7 @@ import {
 	SelectControl,
 	ToggleControl,
 	ToolbarGroup,
+	ToolbarItem,
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
@@ -93,16 +94,20 @@ export function ToolbarControls( { allowedMediaTypes, attributes: { images }, on
 		<Fragment>
 			{ !! images.length && (
 				<ToolbarGroup>
-					<MediaUpload
-						onSelect={ onSelectImages }
-						allowedTypes={ allowedMediaTypes }
-						multiple
-						gallery
-						value={ images.map( img => img.id ) }
-						render={ ( { open } ) => (
-							<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+					<ToolbarItem>
+						{ () => (
+							<MediaUpload
+								onSelect={ onSelectImages }
+								allowedTypes={ allowedMediaTypes }
+								multiple
+								gallery
+								value={ images.map( img => img.id ) }
+								render={ ( { open } ) => (
+									<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+								) }
+							/>
 						) }
-					/>
+					</ToolbarItem>
 				</ToolbarGroup>
 			) }
 		</Fragment>
