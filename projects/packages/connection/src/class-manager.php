@@ -905,6 +905,9 @@ class Manager {
 			true
 		);
 
+		error_log('!!!!!! register response');
+		error_log( preint_r( $response, 1));
+
 		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
 
