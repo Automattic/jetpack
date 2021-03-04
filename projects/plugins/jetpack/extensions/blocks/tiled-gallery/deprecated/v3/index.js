@@ -86,3 +86,16 @@ export const supports = {
 	customClassName: false,
 	html: false,
 };
+
+export const migrate = oldAttributes => {
+	// The column widths need to be updated to match the new precision
+	// implemented in the current version.
+	const precision = Math.pow( 10, 5 );
+
+	return {
+		...oldAttributes,
+		columnWidths: oldAttributes.columnWidths.map( column =>
+			column.map( width => Math.round( width * precision ) / precision )
+		),
+	};
+};
