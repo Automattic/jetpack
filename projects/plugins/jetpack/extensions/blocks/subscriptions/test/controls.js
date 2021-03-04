@@ -1,8 +1,4 @@
 /**
- * @jest-environment jsdom
- */
-
-/**
  * External dependencies
  */
 import { render, screen, waitFor } from '@testing-library/react';
@@ -13,6 +9,13 @@ import '@testing-library/jest-dom/extend-expect';
  * Internal dependencies
  */
 import SubscriptionsInspectorControls from '../controls';
+import {
+	DEFAULT_BORDER_RADIUS_VALUE,
+	DEFAULT_BORDER_WEIGHT_VALUE,
+	DEFAULT_PADDING_VALUE,
+	DEFAULT_SPACING_VALUE,
+	DEFAULT_FONTSIZE_VALUE,
+} from '../constants';
 
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
@@ -26,20 +29,20 @@ const defaultProps = {
 		buttonGradient: 10,
 		setGradient,
 	},
-	borderRadius: 10,
-	borderWeight: 10,
+	borderRadius: DEFAULT_BORDER_RADIUS_VALUE,
+	borderWeight: DEFAULT_BORDER_WEIGHT_VALUE,
 	buttonOnNewLine: false,
 	emailFieldBackgroundColor: { color: '#000000' },
 	fallbackButtonBackgroundColor: '#000000',
 	fallbackTextColor: '#000000',
-	fontSize: 1,
+	fontSize: DEFAULT_FONTSIZE_VALUE,
 	isGradientAvailable: true,
-	padding: 3,
+	padding: DEFAULT_PADDING_VALUE,
 	setAttributes,
 	setButtonBackgroundColor,
 	setTextColor,
 	showSubscribersTotal: true,
-	spacing: 4,
+	spacing: DEFAULT_SPACING_VALUE,
 	subscriberCount: 100,
 	textColor: '#000000',
 };
@@ -100,42 +103,15 @@ describe( 'Inspector controls', () => {
 
 			expect( screen.getByText( 'Text Settings' ) ).toBeInTheDocument();
 		} );
-	} );
 
-	describe( 'Border settings panel', () => {
-		test( 'displays correctly', () => {
+		test( 'set custom text ', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			userEvent.click( screen.getByText( 'Text Settings' ), { selector: 'button' } );
+			userEvent.type( screen.getAllByLabelText( 'Custom Size' )[1], '18' );
 
-			expect( screen.getByText( 'Border Settings' ) ).toBeInTheDocument();
-		} );
-	} );
-
-	describe( 'Spacing settings panel', () => {
-		test( 'displays correctly', () => {
-			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-
-			expect( screen.getByText( 'Spacing Settings' ) ).toBeInTheDocument();
-		} );
-
-		test( 'set space inside', () => {
-			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			// For some reason, userEvent.type is not triggering the onChange event
-			userEvent.clear( screen.getAllByLabelText( 'Space Inside' )[0] );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				padding: undefined,
-			} );
-		} );
-
-		test( 'set space between', () => {
-			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
-			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			// For some reason, userEvent.type is not triggering the onChange event
-			userEvent.clear( screen.getAllByLabelText( 'Space Between' )[0] );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				spacing: undefined,
+			expect( setAttributes ).toHaveBeenLastCalledWith( {
+				fontSize: 18,
+				customFontSize: 18,
 			} );
 		} );
 	} );
@@ -150,21 +126,49 @@ describe( 'Inspector controls', () => {
 		test( 'set border radius', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			// For some reason, userEvent.type is not triggering the onChange event
-			userEvent.clear( screen.getAllByLabelText( 'Border Radius' )[0] );
+			userEvent.type( screen.getAllByLabelText( 'Border Radius' )[1], '5' );
 
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				padding: undefined,
+			expect( setAttributes ).toHaveBeenLastCalledWith( {
+				borderRadius: 5,
 			} );
 		} );
 
 		test( 'set border weight', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			// For some reason, userEvent.type is not triggering the onChange event
-			userEvent.clear( screen.getAllByLabelText( 'Border Weight' )[0] );
+			userEvent.type( screen.getAllByLabelText( 'Border Weight' )[1], '10' );
 
-			expect( setAttributes ).toHaveBeenCalledWith( {
+			expect( setAttributes ).toHaveBeenLastCalledWith( {
+				borderWeight: 10,
+			} );
+		} );
+	} );
+
+	describe( 'Spacing settings panel', () => {
+		test( 'displays correctly', () => {
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+
+			expect( screen.getByText( 'Spacing Settings' ) ).toBeInTheDocument();
+		} );
+
+		test( 'set space inside', () => {
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
+			// For some reason userEvent.type won't work on these inputs
+			userEvent.clear( screen.getAllByLabelText( 'Space Inside' )[1] );
+
+			expect( setAttributes ).toHaveBeenLastCalledWith( {
+				padding: undefined,
+			} );
+		} );
+
+		test( 'set space between', () => {
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
+			// For some reason userEvent.type won't work on these inputs
+			userEvent.clear( screen.getAllByLabelText( 'Space Between' )[1] );
+
+			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				spacing: undefined,
 			} );
 		} );

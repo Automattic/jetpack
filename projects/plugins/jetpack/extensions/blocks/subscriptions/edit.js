@@ -55,7 +55,7 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
-function SubscriptionEdit( props ) {
+export function SubscriptionEdit( props ) {
 	const {
 		className,
 		attributes,
