@@ -173,10 +173,20 @@ function ConversationEdit( {
 		return (
 			<Placeholder
 				label={ __( 'Conversation', 'jetpack' ) }
-				instructions={ __(
-					'Upload a transcript file or create a conversation with blank content.',
-					'jetpack'
-				) }
+				instructions={
+					<>
+						{ __(
+							'Upload a transcript file or create a conversation with blank content.',
+							'jetpack'
+						) }
+						<div>
+							<em>
+								{ __( 'Accepted file formats:', 'jetpack' ) }
+								<strong> { ACCEPTED_FILE_EXTENSIONS }</strong>.
+							</em>
+						</div>
+					</>
+				}
 				icon={ <BlockIcon icon={ icon } /> }
 				notices={ noticeUI }
 			>
