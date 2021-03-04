@@ -59,7 +59,16 @@ class Shutdown_Handler {
 		// when a plugin is in the cache but not "active" when the autoloader loads.
 		// We also want to make sure that plugins which are deactivating are not
 		// considered "active" so that they will be removed from the cache now.
-		$active_plugins = $this->plugins_handler->get_active_plugins( false, ! $this->was_included_by_autoloader );
+		try {
+			$active_plugins = $this->plugins_handler->get_active_plugins( false, ! $this->was_included_by_autoloader );
+		} catch ( \Exception $ex ) {
+			// When the package is deleted before shutdown it will throw an exception.
+			// In the event this happens we should erase the cache.
+			if ( ! empty( $this->cached_plugins ) ) {
+				$this->plugins_handler->cache_plugins( array() );
+			}
+			return;
+		}
 
 		// The paths should be sorted for easy comparisons with those loaded from the cache.
 		// Note we don't need to sort the cached entries because they're already sorted.

@@ -80,4 +80,22 @@ class ShutdownHandlerTest extends TestCase {
 
 		( new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false ) )();
 	}
+
+	/**
+	 * Tests that expected exceptions thrown during shutdown aren't propogated.
+	 */
+	public function test_shutdown_handles_exceptions() {
+		$this->plugins_handler->expects( $this->once() )
+			->method( 'get_active_plugins' )
+			->with( false, true )
+			->willThrowException( new \RuntimeException() );
+		$this->plugins_handler->expects( $this->once() )
+			->method( 'cache_plugins' )
+			->with( array() );
+
+		// Mark that the plugins have been loaded so that we can perform a safe shutdown.
+		do_action( 'plugins_loaded' );
+
+		( new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false ) )();
+	}
 }
