@@ -93,7 +93,7 @@ const parsers = [
  * <startTime> --> <endTime>
  * <content>
  * ----------------------------
- * Serices: otter.ai, youtube.com, etc.
+ * Services: otter.ai, youtube.com, etc.
  */
 export const srtFormatRegExp = /(\d+)\n([\d:,]+)\s+-{2}>\s+([\d:,]+)\n([\s\S]*?(?=\n{2}|$))/gm;
 
