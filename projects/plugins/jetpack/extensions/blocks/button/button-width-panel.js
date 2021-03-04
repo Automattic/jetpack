@@ -87,7 +87,7 @@ export function ButtonWidthControl( { align, width, onChange } ) {
 				<UnitControl
 					className="jetpack-button__custom-width"
 					isResetValueOnUnitChange
-					max={ unit === '%' ? 100 : undefined }
+					max={ unit === '%' || width?.includes( '%' ) ? 100 : undefined }
 					min={ 0 }
 					onChange={ selectedWidth => onChange( selectedWidth ) }
 					onUnitChange={ selectedUnit => setUnit( selectedUnit ) }
