@@ -67,10 +67,8 @@ class Password_Checker_Test extends BaseTestCase {
 	 * @param bool   $expected_result The expected result.
 	 * @param string $output_message  The output message.
 	 */
-	public function test_password( $rule, $password, $expected_result, $output_message ) {
-		$tests = apply_filters( 'password_checker_tests', array() );
-		echo count( $tests ) . "\n";
-		echo esc_attr( $output_message ) . "\n";
+	public function test_password( $rule, $password, $expected_result, $output_message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$tests = apply_filters( 'password_checker_tests', array() ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$results = $this->password_checker->test( $password, true );
 		$this->assertSame( $results['passed'], $expected_result );
