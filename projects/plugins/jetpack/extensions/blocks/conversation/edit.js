@@ -126,9 +126,12 @@ function ConversationEdit( {
 			return showTranscriptProcessErrorMessage( __( 'Transcript file not found.', 'jetpack' ) );
 		}
 
-		// Check file size.
-		if ( ! transcriptFile?.size || transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE ) {
-			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file type.', 'jetpack' ) );
+		// Check file MAX size.
+		if (
+			transcriptFile?.size && transcriptFile.size <= 0 || // min size
+			! transcriptFile?.size || transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE // max size
+		) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file size.', 'jetpack' ) );
 		}
 
 		// Check file type.

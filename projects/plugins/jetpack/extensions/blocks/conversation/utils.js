@@ -174,7 +174,7 @@ export function parseTranscriptFile( file, fn ) {
 			: null;
 
 		if ( ! rawData?.length ) {
-			return;
+			return fn( {}, __( 'Transcript content is empty', 'jetpack' ) );
 		}
 
 		if ( fileExtension && fileExtension !== FILE_EXTENSION_TXT ) {
