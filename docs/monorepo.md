@@ -37,7 +37,7 @@ For the first time only:
 
 This does a couple of things: 1. Adds a global symlink per yarn link so you can run the cli from any directory and 2. allows any changes made to the CLI to be immediately reflected on your local system.
 
-Once you’ve done that, it’s easy: run jetpack while anywhere in the Jetpack repo. To explore on your own, run jetpack --help to see the available commands.
+Once you’ve done that, it’s easy: run jetpack while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
 
 ## Jetpack Generate Wizard
 
