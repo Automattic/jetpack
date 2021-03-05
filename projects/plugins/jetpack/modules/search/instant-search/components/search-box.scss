@@ -70,6 +70,10 @@ input.jetpack-instant-search__box-input.search-field {
 	&:focus {
 		color: $color-text-light;
 	}
+
+	&:focus {
+		outline: 1px dotted;
+	}
 }
 
 /* apply to all the inputs to try and pick up any theme styling */
