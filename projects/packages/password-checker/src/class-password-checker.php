@@ -169,7 +169,7 @@ class Password_Checker {
 	 *
 	 * @return array test results.
 	 */
-	protected function run_tests( $password, $tests, $required_only = false ) {
+	public function run_tests( $password, $tests, $required_only = false ) {
 		$results = array(
 			'passed' => array(),
 			'failed' => array(),
@@ -208,7 +208,7 @@ class Password_Checker {
 	 *
 	 * @return array test descriptions.
 	 */
-	protected function get_tests( $sections = false ) {
+	public function get_tests( $sections = false ) {
 		// Note: these should be in order of priority.
 		$tests = array(
 			'preg_match'      => array(

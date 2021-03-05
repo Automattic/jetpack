@@ -62,16 +62,18 @@ class Password_Checker_Test extends BaseTestCase {
 	 *
 	 * @dataProvider rule_provider
 	 *
+	 * @param string $section         Section name.
 	 * @param string $rule            Rule name.
 	 * @param string $password        The password.
 	 * @param bool   $expected_result The expected result.
 	 * @param string $output_message  The output message.
 	 */
-	public function test_password( $rule, $password, $expected_result, $output_message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$tests = apply_filters( 'password_checker_tests', array() ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function test_password( $section, $rule, $password, $expected_result, $output_message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$tests = $this->password_checker->get_tests( $section );
 
-		$results = $this->password_checker->test( $password, true );
-		$this->assertSame( $expected_result, $results['passed'] );
+		$results = $this->password_checker->run_tests( $password, array( $section => array( $rule => $tests[ $section ][ $rule ] ) ) );
+
+		$this->assertSame( $expected_result, ! empty( $results['passed'] ), $output_message );
 	}
 
 	/**
@@ -83,41 +85,47 @@ class Password_Checker_Test extends BaseTestCase {
 		/**
 		 * Data format.
 		 *
-		 * Param 1 -> rule
-		 * Param 2 -> password
-		 * Param 3 -> expected_result
-		 * Param 4 -> output_message
+		 * Param 1 -> section
+		 * Param 2 -> rule
+		 * Param 3 -> password
+		 * Param 4 -> expected_result
+		 * Param 5 -> output_message
 		 */
 
 		return array(
 			'no_backslashes'   => array(
+				'preg_match',
 				'no_backslashes',
-				'abc\123',
-				false,
+				'abc123',
+				true,
 				'Passwords may not contain the character "\".',
 			),
 			'minimum_length'   => array(
+				'preg_match',
 				'minimum_length',
-				'abc12',
-				false,
+				'abc123',
+				true,
 				'Password must be at least 6 characters.',
 			),
 			'has_mixed_case'   => array(
+				'preg_match',
 				'has_mixed_case',
-				'abc123',
-				false,
+				'Abc123',
+				true,
 				'Password must have mixed case characters.',
 			),
 			'has_digit'        => array(
+				'preg_match',
 				'has_digit',
-				'abcdef',
-				false,
+				'abc123',
+				true,
 				'Password must have digits.',
 			),
 			'has_special_char' => array(
+				'preg_match',
 				'has_special_char',
-				'abcdef',
-				false,
+				'abc!def',
+				true,
 				'Password must have special characters.',
 			),
 		);
