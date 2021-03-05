@@ -122,9 +122,13 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			fileName = `${ fileName.replace( /\W/g, '_' ) }.png`;
 			const path = require( 'path' );
 			const filePath = path.resolve( `output/screenshots/${ fileName }` );
-			await this.global.page.screenshot( { path: filePath } );
-
-			logger.slack( { type: 'file', message: filePath } );
+			try {
+				await this.global.page.screenshot( { path: filePath } );
+				logger.slack( { type: 'file', message: filePath } );
+			} catch ( error ) {
+				logger.debug( 'Failed to take screenshot due to: ' );
+				logger.debug( error );
+			}
 		}
 	}
 
