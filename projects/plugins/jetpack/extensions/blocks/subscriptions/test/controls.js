@@ -10,10 +10,6 @@ import '@testing-library/jest-dom/extend-expect';
  */
 import SubscriptionsInspectorControls from '../controls';
 import {
-	DEFAULT_BORDER_RADIUS_VALUE,
-	DEFAULT_BORDER_WEIGHT_VALUE,
-	DEFAULT_PADDING_VALUE,
-	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from '../constants';
 
@@ -29,20 +25,20 @@ const defaultProps = {
 		buttonGradient: 10,
 		setGradient,
 	},
-	borderRadius: DEFAULT_BORDER_RADIUS_VALUE,
-	borderWeight: DEFAULT_BORDER_WEIGHT_VALUE,
+	borderRadius: 0,
+	borderWeight: 0,
 	buttonOnNewLine: false,
 	emailFieldBackgroundColor: { color: '#000000' },
 	fallbackButtonBackgroundColor: '#000000',
 	fallbackTextColor: '#000000',
 	fontSize: DEFAULT_FONTSIZE_VALUE,
 	isGradientAvailable: true,
-	padding: DEFAULT_PADDING_VALUE,
+	padding: 0,
 	setAttributes,
 	setButtonBackgroundColor,
 	setTextColor,
 	showSubscribersTotal: true,
-	spacing: DEFAULT_SPACING_VALUE,
+	spacing: 0,
 	subscriberCount: 100,
 	textColor: '#000000',
 };
@@ -136,10 +132,10 @@ describe( 'Inspector controls', () => {
 		test( 'set border weight', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			userEvent.type( screen.getAllByLabelText( 'Border Weight' )[1], '10' );
+			userEvent.type( screen.getAllByLabelText( 'Border Weight' )[1], '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
-				borderWeight: 10,
+				borderWeight: 5,
 			} );
 		} );
 	} );
@@ -154,22 +150,20 @@ describe( 'Inspector controls', () => {
 		test( 'set space inside', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			// For some reason userEvent.type won't work on these inputs
-			userEvent.clear( screen.getAllByLabelText( 'Space Inside' )[1] );
+			userEvent.type( screen.getAllByLabelText( 'Space Inside' )[1], '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
-				padding: undefined,
+				padding: 5,
 			} );
 		} );
 
 		test( 'set space between', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			// For some reason userEvent.type won't work on these inputs
-			userEvent.clear( screen.getAllByLabelText( 'Space Between' )[1] );
+			userEvent.type( screen.getAllByLabelText( 'Space Between' )[1], '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
-				spacing: undefined,
+				spacing: 5,
 			} );
 		} );
 	} );

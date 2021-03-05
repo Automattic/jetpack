@@ -33,7 +33,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 
-export default ( {
+export default function SubscriptionControls ( {
 	buttonBackgroundColor,
 	borderColor,
 	buttonGradient,
@@ -53,7 +53,7 @@ export default ( {
 	spacing,
 	subscriberCount,
 	textColor,
-} ) => {
+} ) {
 	return (
 		<>
 			{ isGradientAvailable && (
@@ -244,4 +244,5 @@ export default ( {
 			</PanelBody>
 		</>
 	);
-};
+}
+

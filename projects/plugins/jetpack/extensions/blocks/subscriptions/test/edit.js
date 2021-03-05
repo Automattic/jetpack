@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -38,6 +38,18 @@ const defaultProps = {
 	fontSize: 12,
 };
 
+const originalFetch = window.fetch;
+
+/**
+ * Mock return value for a successful fetch JSON return value.
+ *
+ * @return {Promise} Mock return value.
+ */
+const RESOLVED_FETCH_PROMISE = Promise.resolve( { count: 100 } );
+const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
+	status: 200,
+	json: () => RESOLVED_FETCH_PROMISE,
+} );
 
 jest.mock( '../constants', () => ( {
 	IS_GRADIENT_AVAILABLE: true
@@ -53,6 +65,19 @@ jest.mock( '@wordpress/block-editor', () => ( {
 } ) );
 
 describe( 'SubscriptionEdit', () => {
+	beforeEach( () => {
+		window.fetch = jest.fn();
+		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
+	} );
+
+	afterEach( async () => {
+		await act( () => RESOLVED_FETCH_PROMISE );
+	} );
+
+	afterAll( () => {
+		window.fetch = originalFetch;
+	} );
+
 	test( 'adds correct classes to container', () => {
 		const { container, rerender } = render( <SubscriptionEdit { ...defaultProps }  /> );
 
@@ -119,6 +144,5 @@ describe( 'SubscriptionEdit', () => {
 
 		expect( container.querySelector( '.wp-block-jetpack-subscriptions__show-subs' ) ).toBeInTheDocument();
 		expect( container.querySelector( 'p' ) ).toBeInTheDocument();
-
 	} );
 } );
