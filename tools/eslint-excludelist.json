@@ -59,7 +59,6 @@
 	"projects/plugins/jetpack/_inc/client/lib/touch-detect/index.js",
 	"projects/plugins/jetpack/_inc/client/main.jsx",
 	"projects/plugins/jetpack/_inc/client/mixins/emitter/index.js",
-	"projects/plugins/jetpack/_inc/client/mixins/url-search/build-url.js",
 	"projects/plugins/jetpack/_inc/client/my-plan/index.jsx",
 	"projects/plugins/jetpack/_inc/client/notices/index.js",
 	"projects/plugins/jetpack/_inc/client/performance/index.jsx",

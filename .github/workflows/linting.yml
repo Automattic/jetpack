@@ -96,6 +96,8 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
       - id: filterJS
         shell: bash
@@ -104,14 +106,18 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
       - id: filterExcludeList
         shell: bash
         env:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/eslint-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
           echo "::set-output name=excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
