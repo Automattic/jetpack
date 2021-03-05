@@ -1,8 +1,6 @@
 /**
  * External dependencies
  */
-import { debounce } from 'lodash';
-import { useMemoOne } from 'use-memo-one';
 import classnames from 'classnames';
 
 /**
@@ -14,7 +12,6 @@ import { createBlock } from '@wordpress/blocks';
 import { useContext, useEffect, useRef } from '@wordpress/element';
 import { dispatch, useSelect, useDispatch } from '@wordpress/data';
 import { Panel, PanelBody } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -32,14 +29,6 @@ import { getParticipantBySlug } from '../conversation/utils';
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
 
-const useDebounceWithFallback = useDebounce
-	? useDebounce
-	: function useDebounceFallback( ...args ) {
-			const debounced = useMemoOne( () => debounce( ...args ), args );
-			useEffect( () => () => debounced.cancel(), [ debounced ] );
-			return debounced;
-	  };
-
 export default function DialogueEdit( {
 	className,
 	attributes,
@@ -51,7 +40,7 @@ export default function DialogueEdit( {
 } ) {
 	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
-	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference } = useSelect( select => {
+	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference, isMultipleSelection } = useSelect( select => {
 		const {
 			getDefaultMediaSource,
 			getMediaSourceCurrentTime,
@@ -64,6 +53,7 @@ export default function DialogueEdit( {
 			mediaCurrentTime: getMediaSourceCurrentTime(),
 			mediaDuration: getMediaSourceDuration(),
 			mediaDomReference: getMediaSourceDomReference(),
+			isMultipleSelection: select( 'core/block-editor' ).getMultiSelectedBlocks().length > 0,
 		};
 	}, [] );
 
@@ -81,29 +71,44 @@ export default function DialogueEdit( {
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
-
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		// Do not update current Dialogue block.
+		// Do not update when multi-blocks selected.
+		if ( isMultipleSelection ) {
+			return;
+		}
+
+		// Do not update current block.
 		if ( isSelected ) {
 			return;
 		}
 
-		// When no context, nothing to do.
+		// Bail early when bridge is not ready.
 		if ( ! conversationParticipant ) {
 			return;
 		}
 
-		// Only take care of Dialogue with same speaker.
+		// Only take care of blocks with same speaker slug.
 		if ( conversationParticipant.slug !== slug ) {
 			return;
 		}
 
-		debounceSetDialoguesAttrs( {
+		// Only update if the label has changed.
+		if ( conversationParticipant.label === label ) {
+			return;
+		}
+
+		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
+	}, [
+		conversationParticipant,
+		label,
+		slug,
+		isMultipleSelection,
+		isSelected,
+		setAttributes,
+	] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
@@ -173,7 +178,13 @@ export default function DialogueEdit( {
 					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ setAttributes }
+					onSelect={ ( selectedParticipant ) => {
+						if ( isMultipleSelection ) {
+							return;
+						}
+
+						setAttributes( selectedParticipant );
+					} }
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
 					} }

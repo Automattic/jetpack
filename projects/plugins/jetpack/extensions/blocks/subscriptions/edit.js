@@ -63,7 +63,8 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 			buttonBackgroundColorValue || ! node
 				? undefined
 				: buttonNode && getComputedStyle( buttonNode ).backgroundColor,
-		fallbackTextColor: textColorValue || ! node ? undefined : buttonNode && getComputedStyle( buttonNode ).color,
+		fallbackTextColor:
+			textColorValue || ! node ? undefined : buttonNode && getComputedStyle( buttonNode ).color,
 	};
 } );
 
@@ -161,7 +162,7 @@ function SubscriptionEdit( props ) {
 		borderColor: borderColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : DEFAULT_BORDER_RADIUS_VALUE + 'px',
 		borderWidth: borderWeight ? borderWeight + 'px' : DEFAULT_BORDER_WEIGHT_VALUE + 'px',
-		fontSize: fontSize.size ? fontSize.size + 'px' : DEFAULT_FONTSIZE_VALUE + 'px',
+		fontSize: fontSize.size ? fontSize.size : DEFAULT_FONTSIZE_VALUE,
 		padding: getPaddingStyleValue( padding ),
 	};
 

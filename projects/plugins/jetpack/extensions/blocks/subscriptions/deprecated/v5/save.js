@@ -8,11 +8,12 @@ import {
 	getFontSizeClass,
 } from '@wordpress/block-editor';
 import classnames from 'classnames';
+import { reduce } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import definedAttributes from './attributes';
+import definedAttributes from '../v3/attributes';
 
 export const DEFAULT_BORDER_RADIUS_VALUE = 0;
 export const DEFAULT_BORDER_WEIGHT_VALUE = 1;
@@ -20,11 +21,7 @@ export const DEFAULT_PADDING_VALUE = 15;
 export const DEFAULT_SPACING_VALUE = 10;
 export const DEFAULT_FONTSIZE_VALUE = 16;
 
-export default function getSubscriptionsShortcode(
-	className,
-	attributes,
-	checkTextDefaults = null
-) {
+export default function Save( { className, attributes } ) {
 	const {
 		subscribePlaceholder,
 		showSubscribersTotal,
@@ -106,43 +103,45 @@ export default function getSubscriptionsShortcode(
 		);
 	};
 
-	let placeholderText = subscribePlaceholder;
-	let buttonText = submitButtonText;
+	const shortcodeAttributes = {
+		subscribe_placeholder:
+			subscribePlaceholder !== definedAttributes.subscribePlaceholder.default
+				? subscribePlaceholder
+				: undefined,
+		show_subscribers_total: showSubscribersTotal,
+		button_on_newline: buttonOnNewLine,
+		submit_button_text:
+			submitButtonText !== definedAttributes.submitButtonText.default
+				? submitButtonText
+				: undefined,
+		custom_background_emailfield_color: emailFieldBackgroundStyle,
+		custom_background_button_color: buttonBackgroundStyle,
+		custom_text_button_color: customTextColor,
+		custom_font_size: customFontSize || DEFAULT_FONTSIZE_VALUE,
+		custom_border_radius: borderRadius || DEFAULT_BORDER_RADIUS_VALUE,
+		custom_border_weight: borderWeight || DEFAULT_BORDER_WEIGHT_VALUE,
+		custom_border_color: customBorderColor,
+		custom_padding: padding || DEFAULT_PADDING_VALUE,
+		custom_spacing: spacing || DEFAULT_SPACING_VALUE,
+		submit_button_classes: submitButtonClasses,
+		email_field_classes: emailFieldClasses,
+		show_only_email_and_button: true,
+	};
 
-	if ( 'check-text-defaults' === checkTextDefaults ) {
-		placeholderText =
-			subscribePlaceholder === definedAttributes.subscribePlaceholder.default
-				? 'Enter your email address'
-				: subscribePlaceholder;
-		buttonText =
-			submitButtonText === definedAttributes.submitButtonText.default
-				? 'Sign Up'
-				: submitButtonText;
-	}
+	const shortcodeAttributesStringified = reduce(
+		shortcodeAttributes,
+		( stringifiedAttributes, value, key ) => {
+			if ( undefined === value ) {
+				return stringifiedAttributes;
+			}
+			return stringifiedAttributes + ` ${ key }="${ value }"`;
+		},
+		''
+	);
 
 	return (
 		<div className={ getBlockClassName() }>
-			<RawHTML>
-				{ `
-			[jetpack_subscription_form
-				subscribe_placeholder="${ placeholderText }"
-				show_subscribers_total="${ showSubscribersTotal }"
-				button_on_newline="${ buttonOnNewLine }"
-				submit_button_text="${ buttonText }"
-				custom_background_emailfield_color="${ emailFieldBackgroundStyle }"
-				custom_background_button_color="${ buttonBackgroundStyle }"
-				custom_text_button_color="${ customTextColor }"
-				custom_font_size="${ customFontSize || DEFAULT_FONTSIZE_VALUE }"
-				custom_border_radius="${ borderRadius || DEFAULT_BORDER_RADIUS_VALUE }"
-				custom_border_weight="${ borderWeight || DEFAULT_BORDER_WEIGHT_VALUE }"
-				custom_border_color="${ customBorderColor }"
-				custom_padding="${ padding || DEFAULT_PADDING_VALUE }"
-				custom_spacing="${ spacing || DEFAULT_SPACING_VALUE }"
-				submit_button_classes="${ submitButtonClasses }"
-				email_field_classes="${ emailFieldClasses }"
-				show_only_email_and_button="true"
-			]` }
-			</RawHTML>
+			<RawHTML>{ `[jetpack_subscription_form${ shortcodeAttributesStringified }]` }</RawHTML>
 		</div>
 	);
 }

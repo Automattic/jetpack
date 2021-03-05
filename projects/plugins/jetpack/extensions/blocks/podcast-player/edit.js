@@ -153,7 +153,7 @@ const PodcastPlayerEdit = ( {
 				}
 			);
 		}, 300 ),
-		[ replaceWithEmbedBlock, createErrorNotice, removeAllNotices, setAttributes ]
+		[ replaceWithEmbedBlock, setAttributes ]
 	);
 
 	useEffect( () => {
