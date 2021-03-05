@@ -134,70 +134,76 @@ class Jetpack_Carousel {
 		}
 	}
 
-	function maybe_disable_jp_carousel() {
-		/**
-		 * Allow third-party plugins or themes to disable Carousel.
-		 *
-		 * @module carousel
-		 *
-		 * @since 1.6.0
-		 *
-		 * @param bool false Should Carousel be disabled? Default to false.
-		 */
+	/**
+	 * Allow third-party plugins or themes to disable Carousel.
+	 *
+	 * @module carousel
+	 *
+	 * @since 1.6.0
+	 */
+	public function maybe_disable_jp_carousel() {
+		// Should Carousel be disabled? Default to false.
 		return apply_filters( 'jp_carousel_maybe_disable', false );
 	}
 
-	function maybe_disable_jp_carousel_single_images() {
-		/**
-		 * Allow third-party plugins or themes to disable Carousel for single images.
-		 *
-		 * @module carousel
-		 *
-		 * @since 4.5.0
-		 *
-		 * @param bool false Should Carousel be disabled for single images? Default to false.
-		 */
+	/**
+	 * Allow third-party plugins or themes to disable Carousel for single images.
+	 *
+	 * @module carousel
+	 *
+	 * @since 4.5.0
+	 */
+	public function maybe_disable_jp_carousel_single_images() {
+		// Should Carousel be disabled for single images? Default to false.
 		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
 	}
 
-	function maybe_enable_jp_carousel_single_images_media_file() {
-		/**
-		 * Allow third-party plugins or themes to enable Carousel
-		 * for single images linking to 'Media File' (full size image).
-		 *
-		 * @module carousel
-		 *
-		 * @since 4.5.0
-		 *
-		 * @param bool false Should Carousel be enabled for single images linking to 'Media File'? Default to false.
-		 */
+	/**
+	 * Allow third-party plugins or themes to enable Carousel
+	 * for single images linking to 'Media File' (full size image).
+	 *
+	 * @module carousel
+	 *
+	 * @since 4.5.0
+	 */
+	public function maybe_enable_jp_carousel_single_images_media_file() {
+		// Should Carousel be enabled for single images linking to 'Media File'? Default to false.
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
 	}
 
-	function asset_version( $version ) {
-		/**
-		 * Filter the version string used when enqueuing Carousel assets.
-		 *
-		 * @module carousel
-		 *
-		 * @since 1.6.0
-		 *
-		 * @param string $version Asset version.
-		 */
+	/**
+	 * Filter the version string used when enqueuing Carousel assets.
+	 *
+	 * @module carousel
+	 *
+	 * @since 1.6.0
+	 *
+	 * @param string $version Asset version.
+	 */
+	public function asset_version( $version ) {
 		return apply_filters( 'jp_carousel_asset_version', $version );
 	}
 
-	function display_bail_message( $output = '' ) {
-		// Displays a message on top of gallery if carousel has bailed
+	/**
+	 * Displays a message on top of gallery if carousel has bailed.
+	 *
+	 * @param string $output Message we're outputting.
+	 */
+	public function display_bail_message( $output = '' ) {
 		$message  = '<div class="jp-carousel-msg"><p>';
 		$message .= __( 'Jetpack\'s Carousel has been disabled, because another plugin or your theme is overriding the [gallery] shortcode.', 'jetpack' );
 		$message .= '</p></div>';
-		// put before gallery output
+		// Put before gallery output.
 		$output = $message . $output;
 		return $output;
 	}
 
-	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
+	/**
+	 * Checks if gallery shortcode is processed and enqueues assets.
+	 *
+	 * @param string $output The gallery output.
+	 */
+	public function check_if_shortcode_processed_and_enqueue_assets( $output ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -238,7 +244,7 @@ class Jetpack_Carousel {
 		 * @module carousel
 		 *
 		 * @since 1.6.0
-		 **/
+		 */
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		$this->enqueue_assets();
@@ -255,7 +261,7 @@ class Jetpack_Carousel {
 	 *
 	 * @return string $content Post content.
 	 */
-	function check_content_for_blocks( $content ) {
+	public function check_content_for_blocks( $content ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -270,7 +276,8 @@ class Jetpack_Carousel {
 		return $content;
 	}
 
-	function enqueue_assets() {
+	/** Enqueue assets */
+	public function enqueue_assets() {
 		if ( $this->first_run ) {
 			wp_enqueue_script(
 				'jetpack-carousel',
@@ -305,6 +312,7 @@ class Jetpack_Carousel {
 				'post_comment'                    => __( 'Post Comment', 'jetpack' ),
 				'write_comment'                   => __( 'Write a Comment...', 'jetpack' ),
 				'loading_comments'                => __( 'Loading Comments...', 'jetpack' ),
+				// translators: placeholder is size of the image.
 				'download_original'               => sprintf( __( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ), '{0}', '{1}' ),
 				'no_comment_text'                 => __( 'Please be sure to submit some text with your comment.', 'jetpack' ),
 				'no_comment_email'                => __( 'Please provide an email address to comment.', 'jetpack' ),
@@ -329,11 +337,13 @@ class Jetpack_Carousel {
 				// We're not using Comments after all, so fallback to standard local comments.
 
 				if ( $is_logged_in ) {
+					// translators: display name of commenter.
 					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';
 				} else {
 					if ( $comment_registration ) {
 						$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . __( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.', 'jetpack' ) . '</p>';
 					} else {
+						// translators: name or email that's required.
 						$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 						$localize_strings['local_comments_commenting_as'] = ''
 							. '<fieldset><label for="email">' . sprintf( $required, __( 'Email', 'jetpack' ) ) . '</label> '
