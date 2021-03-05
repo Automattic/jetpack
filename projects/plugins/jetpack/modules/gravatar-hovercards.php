@@ -156,7 +156,7 @@ function grofiles_amp_comment_author_url( $url, $id ) {
  * @param string $avatar The <img/> element of the avatar.
  * @param mixed $author User ID, email address, user login, comment object, user object, post object
  *
- * @return The <img/> element of the avatar.
+ * @return string The <img/> element of the avatar.
  */
 function grofiles_get_avatar( $avatar, $author ) {
 	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
