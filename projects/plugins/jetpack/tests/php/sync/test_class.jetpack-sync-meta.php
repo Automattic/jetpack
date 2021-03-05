@@ -259,7 +259,6 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$module = Modules::get_module( 'meta' );
 		$meta   = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertIsArray( $meta );
 		$this->assertEquals( '', $meta['meta_value'] );
 	}
 
@@ -272,7 +271,6 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$module = Modules::get_module( 'meta' );
 		$meta   = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertIsArray( $meta );
 		$this->assertEquals( $meta_test_value, $meta['meta_value'] );
 	}
 
