@@ -116,6 +116,16 @@ export const step = async ( stepName, fn ) => {
 beforeAll( async () => {
 	await setUserAgent();
 	observeConsoleLogging();
+
+	page.on( 'response', async response => {
+		console.log( '<<', response.status(), response.url() );
+		if ( response.status() > 499 ) {
+			logger.info( 'REQUEST FAILED' );
+			logger.info( `<< ${ response.status() } ${ response.url() }` );
+			logger.info( await response.json() );
+		}
+	} );
+
 	await maybePreConnect();
 } );
 
