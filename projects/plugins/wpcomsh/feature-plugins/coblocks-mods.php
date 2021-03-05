@@ -23,6 +23,9 @@ function wpcomsh_coblocks_plugins_loaded() {
 			remove_action( 'init', array( $instance, 'register_category_taxonomy' ) );
 			remove_action( 'init', array( $instance, 'load_block_patterns' ) );
 			remove_action( 'rest_insert_' . CoBlocks_Block_Patterns::POST_TYPE, array( $instance, 'add_taxonomies_on_insert_post' ), 10, 2 );
+
+			remove_filter( 'coblocks_layout_selector_categories', array( $instance, 'load_categories' ) );
+			remove_filter( 'coblocks_layout_selector_layouts', array( $instance, 'load_layouts' ) );
 		}
 	}
 }
