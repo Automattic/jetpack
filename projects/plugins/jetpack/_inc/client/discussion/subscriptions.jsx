@@ -68,11 +68,11 @@ class SubscriptionsComponent extends React.Component {
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'subscriptions' );
 
 		const getSubClickableCard = () => {
-			if ( unavailableInOfflineMode || ! isSubscriptionsActive ) {
+			if ( unavailableInOfflineMode || ! isSubscriptionsActive || ! this.props.isLinked ) {
 				return '';
 			}
 
-			return this.props.isLinked ? (
+			return (
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
@@ -83,14 +83,6 @@ class SubscriptionsComponent extends React.Component {
 				>
 					{ __( 'View your Email Followers', 'jetpack' ) }
 				</Card>
-			) : (
-				<ConnectUserBar
-					feature="subscriptions"
-					text={ __(
-						'Subscriptions feature provided by the WordPress.com cloud. Sign in to view your email followers.',
-						'jetpack'
-					) }
-				/>
 			);
 		};
 
@@ -153,6 +145,16 @@ class SubscriptionsComponent extends React.Component {
 					}
 				</SettingsGroup>
 				{ getSubClickableCard() }
+
+				{ ! this.props.isLinked && (
+					<ConnectUserBar
+						feature="subscriptions"
+						text={ __(
+							'Subscriptions feature provided by the WordPress.com cloud. Sign in to view your email followers.',
+							'jetpack'
+						) }
+					/>
+				) }
 			</SettingsCard>
 		);
 	}
