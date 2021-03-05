@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 9.5.1 - 2021-03-04
+### Bug fixes
+- Sharing: avoid potential conflicts with the Blog Posts Block from Newspack.
+- Subscriptions Block: avoid validation errors when customizing font size on a site using the Gutenberg plugin.
+
 ## [9.5] - 2021-03-02
 ### Enhancements
 - Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).

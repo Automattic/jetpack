@@ -26,6 +26,19 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 All projects should be compatible with PHP versions WordPress supports. That's currently PHP 5.6 to 8.0.
 
+## First Time
+
+First time working with the monorepo? We got you covered.
+
+For the first time only:
+
+* From the root of the repo, run `yarn install && yarn cli-link`
+* That’s it. You won’t need to do that again unless you nuke your node_modules directory.
+
+This does a couple of things: 1. Adds a global symlink per yarn link so you can run the cli from any directory and 2. allows any changes made to the CLI to be immediately reflected on your local system.
+
+Once you’ve done that, it’s easy: run jetpack while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
+
 ## Jetpack Generate Wizard
 
 Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart the files you need. To get started:

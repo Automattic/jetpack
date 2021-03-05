@@ -367,7 +367,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "12e456c8275b50a26d2e980ff3a0ca20bf9622ed"
+                "reference": "2e07e7420b7c4cac20fcc37f6bf5aa39853c65e0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -380,7 +380,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "0.1.x-dev",
                 "automattic/wordbless": "@dev",
-                "brain/monkey": "^2.6",
+                "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
