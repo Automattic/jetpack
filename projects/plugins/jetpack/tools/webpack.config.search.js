@@ -8,6 +8,7 @@ const {
 	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/util' );
 const path = require( 'path' );
+const webpack = require( 'webpack' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -68,6 +69,15 @@ module.exports = {
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
 		...baseWebpackConfig.plugins,
+		// Replace 'debug' module with a dummy implementation in production
+		...( isDevelopment
+			? []
+			: [
+					new webpack.NormalModuleReplacementPlugin(
+						/^debug$/,
+						path.resolve( __dirname, '../modules/search/instant-search/lib/dummy-debug' )
+					),
+			  ] ),
 		new DependencyExtractionWebpackPlugin( {
 			injectPolyfill: true,
 			useDefaults: false,
