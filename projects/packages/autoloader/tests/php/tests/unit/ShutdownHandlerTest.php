@@ -48,7 +48,8 @@ class ShutdownHandlerTest extends TestCase {
 		// Mark that the plugins have been loaded so that we can perform a safe shutdown.
 		do_action( 'plugins_loaded' );
 
-		( new Shutdown_Handler( $this->plugins_handler, array(), false ) )();
+		$handler = new Shutdown_Handler( $this->plugins_handler, array(), false );
+		$handler();
 	}
 
 	/**
@@ -65,7 +66,8 @@ class ShutdownHandlerTest extends TestCase {
 		// Mark that the plugins have been loaded so that we can perform a safe shutdown.
 		do_action( 'plugins_loaded' );
 
-		( new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false ) )();
+		$handler = new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false );
+		$handler();
 	}
 
 	/**
@@ -78,7 +80,8 @@ class ShutdownHandlerTest extends TestCase {
 
 		// Do NOT run plugins_loaded so that the shutdown can be considered early.
 
-		( new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false ) )();
+		$handler = new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false );
+		$handler();
 	}
 
 	/**
@@ -96,6 +99,7 @@ class ShutdownHandlerTest extends TestCase {
 		// Mark that the plugins have been loaded so that we can perform a safe shutdown.
 		do_action( 'plugins_loaded' );
 
-		( new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false ) )();
+		$handler = new Shutdown_Handler( $this->plugins_handler, array( TEST_PLUGIN_DIR ), false );
+		$handler();
 	}
 }
