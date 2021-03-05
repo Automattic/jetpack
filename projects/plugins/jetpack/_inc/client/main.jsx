@@ -310,7 +310,7 @@ class Main extends React.Component {
 	}
 
 	shouldShowFooter() {
-		// Only show on the dashboard and settings page
+		// Only show on the dashboard, settings, and recommendations pages
 		return [ ...dashboardRoutes, ...settingsRoutes, ...recommendationsRoutes ].includes(
 			this.props.location.pathname
 		);
