@@ -118,8 +118,8 @@ beforeAll( async () => {
 	observeConsoleLogging();
 
 	page.on( 'response', async response => {
-		console.log( '<<', response.status(), response.url() );
 		if ( response.status() > 499 ) {
+			console.log( '<<', response.status(), response.url() );
 			logger.info( 'REQUEST FAILED' );
 			logger.info( `<< ${ response.status() } ${ response.url() }` );
 			logger.info( await response.json() );
