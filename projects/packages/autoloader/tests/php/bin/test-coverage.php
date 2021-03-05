@@ -11,7 +11,7 @@ use SebastianBergmann\CodeCoverage\Version;
 
 // phpcs:disabled WordPress.Security.EscapeOutput.OutputNotEscaped
 
-define( 'ROOT_DIR', realpath( implode( DIRECTORY_SEPARATOR, array( __DIR__, '..', '..', '..' ) ) ) );
+define( 'ROOT_DIR', dirname( dirname( dirname( __DIR__ ) ) ) );
 
 require_once ROOT_DIR . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
@@ -71,9 +71,8 @@ function count_lines_before_class_keyword( $file ) {
 		return null;
 	}
 
-	// Support both styles of line endings.
-	$newlines  = substr_count( $content, "\r\n", 0, $matches[0][0][1] );
-	$newlines += substr_count( $content, "\n", 0, $matches[0][0][1] ) - $newlines;
+	// Count the line endings leading up to the `class` keyword.
+	$newlines = substr_count( $content, "\n", 0, $matches[0][0][1] );
 	if ( $newlines > 0 ) {
 		return $newlines + 1;
 	}
