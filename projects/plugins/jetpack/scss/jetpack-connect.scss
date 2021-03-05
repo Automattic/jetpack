@@ -11,7 +11,10 @@
 	margin: 1rem auto 0;
 
 	@media (min-width: 491px) {
-		height: 300px;
+		background: #FFFFFF;
+		border: 2px solid #C1D0E8;
+		box-sizing: border-box;
+		border-radius: 6px;
 	}
 }
 
