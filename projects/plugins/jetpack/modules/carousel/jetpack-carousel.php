@@ -415,7 +415,11 @@ class Jetpack_Carousel {
 		}
 	}
 
-	function set_in_gallery( $output ) {
+	/** Still do'nt quite know what this does
+	 *
+	 * @param string $output - the gallery output.
+	 */
+	public function set_in_gallery( $output ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -433,10 +437,10 @@ class Jetpack_Carousel {
 	 * @see add_data_to_images()
 	 * @see wp_make_content_images_responsive() in wp-includes/media.php
 	 *
-	 * @param string $content HTML content of the post
-	 * @return string Modified HTML content of the post
+	 * @param string $content HTML content of the post.
+	 * @return string Modified HTML content of the post.
 	 */
-	function add_data_img_tags_and_enqueue_assets( $content ) {
+	public function add_data_img_tags_and_enqueue_assets( $content ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -456,7 +460,7 @@ class Jetpack_Carousel {
 				 * If exactly the same image tag is used more than once, overwrite it.
 				 * All identical tags will be replaced later with 'str_replace()'.
 				 */
-				$selected_images[ $attachment_id  ] = $image_html;
+				$selected_images[ $attachment_id ] = $image_html;
 			}
 		}
 
@@ -493,7 +497,13 @@ class Jetpack_Carousel {
 		return $content;
 	}
 
-	function add_data_to_images( $attr, $attachment = null ) {
+	/**
+	 * Add data to images
+	 *
+	 * @param string $attr - data attributes.
+	 * @param array  $attachment - the image we're adding data to.
+	 */
+	public function add_data_to_images( $attr, $attachment = null ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -537,21 +547,21 @@ class Jetpack_Carousel {
 		$attachment       = get_post( $attachment_id );
 		$attachment_title = wptexturize( $attachment->post_title );
 		$attachment_desc  = wpautop( wptexturize( $attachment->post_content ) );
-		// Not yet providing geo-data, need to "fuzzify" for privacy
+		// Not yet providing geo-data, need to "fuzzify" for privacy.
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' == $k || 'longitude' == $k ) {
+				if ( 'latitude' === $k || 'longitude' === $k ) {
 					unset( $img_meta[ $k ] );
 				}
 			}
 		}
 
-		// See https://github.com/Automattic/jetpack/issues/2765
+		// See https://github.com/Automattic/jetpack/issues/2765.
 		if ( isset( $img_meta['keywords'] ) ) {
 			unset( $img_meta['keywords'] );
 		}
 
-		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
+		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
 		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
@@ -567,7 +577,12 @@ class Jetpack_Carousel {
 		return $attr;
 	}
 
-	function add_data_to_container( $html ) {
+	/**
+	 * Adds data to container.
+	 *
+	 * @param string $html - gallery html.
+	 */
+	public function add_data_to_container( $html ) {
 		global $post;
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
@@ -632,7 +647,7 @@ class Jetpack_Carousel {
 
 		return preg_replace_callback(
 			'#(<a[^>]* href=(["\']?)(\S+)\2>)\s*(<img[^>]*)(class=(["\']?)[^>]*wp-image-[0-9]+[^>]*\6.*>)\s*</a>#is',
-			static function( $matches ) {
+			static function ( $matches ) {
 				if ( ! preg_match( '#\.\w+$#', $matches[3] ) ) {
 					// The a[href] doesn't end in a file extension like .jpeg, so this is not a link to the media file, and should get a lightbox.
 					return $matches[4] . ' data-amp-lightbox="true" lightbox="true" ' . $matches[5]; // https://github.com/ampproject/amp-wp/blob/1094ea03bd5dc92889405a47a8c41de1a88908de/includes/sanitizers/class-amp-img-sanitizer.php#L419.
@@ -664,7 +679,7 @@ class Jetpack_Carousel {
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
 
 		if ( ! $attachment_id ) {
-			echo json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
+			echo wp_json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
 			die();
 		}
 
@@ -675,7 +690,7 @@ class Jetpack_Carousel {
 		$comments = get_comments(
 			array(
 				'status'  => 'approve',
-				'order'   => ( 'asc' == get_option( 'comment_order' ) ) ? 'ASC' : 'DESC',
+				'order'   => ( 'asc' === get_option( 'comment_order' ) ) ? 'ASC' : 'DESC',
 				'number'  => 10,
 				'offset'  => $offset,
 				'post_id' => $attachment_id,
