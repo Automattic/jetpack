@@ -650,7 +650,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "3da668c0a94c3dd4f9e06f4f32138282162304bf"
+                "reference": "9a82fb43ef7a5014469e969158319f501a05fb1b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -671,6 +671,9 @@
             "type": "library",
             "extra": {
                 "mirror-repo": "Automattic/jetpack-jitm",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-jitm.php"
+                },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 }
