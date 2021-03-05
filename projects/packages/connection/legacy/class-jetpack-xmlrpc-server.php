@@ -635,7 +635,7 @@ class Jetpack_XMLRPC_Server {
 	/**
 	 * Just authenticates with the given Jetpack credentials.
 	 *
-	 * @return string A success string. The Jetpack plugin filters it and make it retun the Jetpack plugin version.
+	 * @return string A success string. The Jetpack plugin filters it and make it return the Jetpack plugin version.
 	 */
 	public function test_connection() {
 		/**
