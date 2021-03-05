@@ -20,6 +20,7 @@ import ConnectUserBar from 'components/connect-user-bar';
 import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import FoldableCard from 'components/foldable-card';
 import TextInput from 'components/text-input';
+import Button from 'components/button';
 
 export const SEO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -54,6 +55,14 @@ export const SEO = withModuleSettingsFormHelpers(
 			},
 		};
 
+		customSeoTitleInputRefs = {
+			front_page: React.createRef(),
+			posts: React.createRef(),
+			pages: React.createRef(),
+			groups: React.createRef(),
+			archives: React.createRef(),
+		};
+
 		trackConfigureClick = () => {
 			analytics.tracks.recordJetpackClick( 'configure-seo' );
 		};
@@ -86,6 +95,41 @@ export const SEO = withModuleSettingsFormHelpers(
 			/>
 		);
 
+		handleTokenButtonClick = event => {
+			const pageType = event.target.dataset.page;
+			const inputRef = this.customSeoTitleInputRefs[ pageType ].current;
+			inputRef.focus();
+
+			const textToInsert = '2319';
+			const cursorPos = inputRef.refs.textField.selectionStart;
+			const strBeforeCursor = inputRef.props.value.substring( 0, cursorPos );
+			const strAfterCursor = inputRef.props.value.substring(
+				cursorPos,
+				inputRef.props.value.length
+			);
+			const newString = strBeforeCursor + textToInsert + strAfterCursor;
+
+			// Todo: Commit before refactor customSeoTitleInput to separate file & handle state differently.
+		};
+
+		getTokenButtonsForCustomSeoTitleInput = pageType => {
+			return this.constants.customSeoTitles.tokensAvailablePerPageType[ pageType.name ].map(
+				token => {
+					return (
+						<Button
+							className="jp-seo-custom-titles-input-button"
+							compact
+							onClick={ this.handleTokenButtonClick }
+							data-token={ token }
+							data-page={ pageType.name }
+						>
+							{ this.constants.customSeoTitles.insertableTokens[ token ] }
+						</Button>
+					);
+				}
+			);
+		};
+
 		/**
 		 * Handle user input to one of the custom SEO title inputs.
 		 * Updates controlled custom SEO title inputs and advanced_seo_title_formats option/form state.
@@ -94,7 +138,7 @@ export const SEO = withModuleSettingsFormHelpers(
 		 */
 		handleCustomSeoTitleInput = event => {
 			const pageType = event.target
-				.getAttribute( 'name' )
+				.getAttribute( 'id' )
 				.split( 'jp-seo-custom-titles-input-' )[ 1 ];
 			const inputArray = this.buildCustomSeoTitleInputArray( event.target.value, pageType );
 
@@ -166,19 +210,26 @@ export const SEO = withModuleSettingsFormHelpers(
 
 		customSeoTitleInput = ( pageType, customSeoTitles ) => {
 			return (
-				<FormLabel
-					key={ pageType.name }
-					className={ `jp-seo-custom-titles-input-label-${ pageType.name }` }
-				>
-					<span>{ pageType.label }</span>
-					<span style={ { float: 'right' } }>Todo: token buttons</span>
+				<div className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }>
+					<div className={ `jp-seo-custom-titles-input-controls` }>
+						<FormLabel
+							key={ pageType.name }
+							className={ `jp-seo-custom-titles-input-label` }
+							htmlFor={ `jp-seo-custom-titles-input-${ pageType.name }` }
+						>
+							<span className="jp-form-label">{ pageType.label }</span>
+						</FormLabel>
+						{ this.getTokenButtonsForCustomSeoTitleInput( pageType ) }
+					</div>
 					<TextInput
-						name={ `jp-seo-custom-titles-input-${ pageType.name }` }
+						id={ `jp-seo-custom-titles-input-${ pageType.name }` }
+						className="jp-seo-custom-titles-input"
 						value={ this.buildCustomSeoTitleInputValue( customSeoTitles[ pageType.name ] ) }
 						onChange={ this.handleCustomSeoTitleInput }
+						ref={ this.customSeoTitleInputRefs[ pageType.name ] }
 					/>
 					<span style={ { 'margin-bottom': '1rem', display: 'block' } }>Todo: live preview</span>
-				</FormLabel>
+				</div>
 			);
 		};
 

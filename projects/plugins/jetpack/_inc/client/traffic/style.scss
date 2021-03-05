@@ -133,3 +133,28 @@
 		margin-left: 0.5rem;
 	}
 }
+
+.jp-seo-custom-titles {
+	&-input[type="text"] {
+		margin-top: 0.25rem;
+	}
+
+	&-input-controls {
+		display: flex;
+		align-items: flex-end;
+		flex-wrap: wrap;
+
+		.jp-form-label {
+			margin-bottom: 0;
+			font-weight: 600;
+		}
+	}
+
+	&-input-label {
+		margin-right: auto;
+	}
+
+	&-input-button:not(:first-of-type) {
+		margin-left: 0.5rem;
+	}
+}
