@@ -83,7 +83,7 @@ describe( 'ButtonEdit', () => {
     } );
 
     test( 'adds the placeholder when attribute is provided', () => {
-		const attributes = { ...defaultAttributes, text: undefined };
+        const attributes = { ...defaultAttributes, text: undefined };
         const button = renderButton( { ...defaultProps, attributes } );
         expect( button.getAttribute( 'aria-label' ) ).toEqual( defaultAttributes.placeholder );
     } );
