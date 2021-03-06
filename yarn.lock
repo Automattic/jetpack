@@ -153,10 +153,10 @@
     "@octokit/auth-token" "^2.4.0"
     "@octokit/types" "^6.0.3"
 
-"@octokit/auth-app@^2.10.3":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@octokit/auth-app/-/auth-app-2.11.0.tgz#7dce17adf3b30a722aea5bf239396418151034eb"
-  integrity sha512-tC0BjqyTEjReIBHogOjLjF3rc2n4xwjZcpOaUUhybDnqkrp7Gxj5n91aGUcIFgJ3MDYf+f3XZehQd2B4ijG+4w==
+"@octokit/auth-app@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@octokit/auth-app/-/auth-app-3.0.0.tgz#67bb0939588e8edc2be52b6ed957078fc8577faa"
+  integrity sha512-7280Oz7zsyF1cRuJEMJGG0H3zenOKY44P2QZRwN/21qRqyI+aQ0wM7IQny6uQk/xow36B7JNu2U2GtcgEdx8iA==
   dependencies:
     "@octokit/request" "^5.4.11"
     "@octokit/request-error" "^2.0.0"
@@ -186,13 +186,13 @@
   dependencies:
     "@octokit/types" "^6.0.3"
 
-"@octokit/auth@3.0.2":
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/@octokit/auth/-/auth-3.0.2.tgz#0ccfaaf29b128a9fe740c2b2d6f04f1551f0265e"
-  integrity sha512-uBEAO2NXVwwHZ0RwtahN8STKNmZBMU7ZZWygBFLQhDlpTeo5LRyQvjbgExydrdkWTLD4jzQ/mNJXudcqCKUm3g==
+"@octokit/auth@3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@octokit/auth/-/auth-3.0.3.tgz#05bba1f224be619834768bdbb49f8a76309367d6"
+  integrity sha512-Ei3gBBzUZDCKForSq7NisHsodoFnorS8QzP+E2mbN9DhelR7pVuN9WmbzFNUmSevEU4bJgm2WmGytUHlddJV8g==
   dependencies:
     "@octokit/auth-action" "^1.3.1"
-    "@octokit/auth-app" "^2.10.3"
+    "@octokit/auth-app" "^3.0.0"
     "@octokit/auth-oauth-app" "^3.0.7"
     "@octokit/auth-token" "^2.4.4"
 
@@ -243,12 +243,12 @@
   resolved "https://registry.yarnpkg.com/@octokit/plugin-request-log/-/plugin-request-log-1.0.3.tgz#70a62be213e1edc04bb8897ee48c311482f9700d"
   integrity sha512-4RFU4li238jMJAzLgAwkBAw+4Loile5haQMQr+uhFq27BmyJXcXSKvoQKqh0agsZEiUlW6iSv3FAgvmGkur7OQ==
 
-"@octokit/plugin-rest-endpoint-methods@4.10.3":
-  version "4.10.3"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-4.10.3.tgz#d78ddf926bca3b81a4d9b79a463d32b3750a4485"
-  integrity sha512-CsNQeVY34Vs9iea2Z9/TCPlebxv6KpjO9f1BUPz+14qundTSYT9kgf8j5wA1k37VstfBQ4xnuURYdnbGzJBJXw==
+"@octokit/plugin-rest-endpoint-methods@4.13.4":
+  version "4.13.4"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-4.13.4.tgz#093b130d558760f6bc912c6f622ce502522410af"
+  integrity sha512-MGxptzVfiP8O+aydC/riheYzS/yJ9P16M29OuvtZep/sF5sKuOCQP8Wf83YCKXRsQF+ZpYfke2snbPPSIMZKzg==
   dependencies:
-    "@octokit/types" "^6.8.3"
+    "@octokit/types" "^6.12.0"
     deprecation "^2.3.1"
 
 "@octokit/request-error@^2.0.0":
@@ -274,17 +274,17 @@
     once "^1.4.0"
     universal-user-agent "^6.0.0"
 
-"@octokit/rest@18.1.1":
-  version "18.1.1"
-  resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-18.1.1.tgz#bd7053c28db3577c936029e9da6bfbd046474a2f"
-  integrity sha512-ZcCHMyfGT1qtJD72usigAfUQ6jU89ZUPFb2AOubR6WZ7/RRFVZUENVm1I2yvJBUicqTujezPW9cY1+o3Mb4rNA==
+"@octokit/rest@18.3.4":
+  version "18.3.4"
+  resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-18.3.4.tgz#8e7ab02cd509e2fe7e71917a54254a8f8b827f20"
+  integrity sha512-NES0pHbwyFB1D0jrLkdnIXgEmze/gLE0JoSNgfAe4vwD77/qaQGO/lRWNuPPsoBVBjiW6mmA9CU5cYHujJTKQA==
   dependencies:
     "@octokit/core" "^3.2.3"
     "@octokit/plugin-paginate-rest" "^2.6.2"
     "@octokit/plugin-request-log" "^1.0.2"
-    "@octokit/plugin-rest-endpoint-methods" "4.10.3"
+    "@octokit/plugin-rest-endpoint-methods" "4.13.4"
 
-"@octokit/types@^6.0.3", "@octokit/types@^6.11.0", "@octokit/types@^6.7.1", "@octokit/types@^6.8.3":
+"@octokit/types@^6.0.3", "@octokit/types@^6.11.0", "@octokit/types@^6.12.0", "@octokit/types@^6.7.1":
   version "6.12.0"
   resolved "https://registry.yarnpkg.com/@octokit/types/-/types-6.12.0.tgz#8376fd60edfd5d1eebfeedb994c6bcb5b862c7a1"
   integrity sha512-KwOf16soD7aDEEi/PgNeJlHzjZPfrmmNy+7WezSdrpnqZ7YImBJcNnX9+5RUHt1MnA4h8oISRHTqaZDGsX9DRQ==
@@ -2090,8 +2090,8 @@ isstream@~0.1.2:
 "jetpack-cli@file:tools/cli":
   version "1.0.0"
   dependencies:
-    "@octokit/auth" "3.0.2"
-    "@octokit/rest" "18.1.1"
+    "@octokit/auth" "3.0.3"
+    "@octokit/rest" "18.3.4"
     chalk "4.1.0"
     configstore "5.0.1"
     esm "3.2.25"

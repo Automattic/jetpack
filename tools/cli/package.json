@@ -21,7 +21,7 @@
 	},
 	"dependencies": {
 		"@octokit/auth": "3.0.3",
-		"@octokit/rest": "18.1.1",
+		"@octokit/rest": "18.3.4",
 		"chalk": "4.1.0",
 		"configstore": "5.0.1",
 		"esm": "3.2.25",
