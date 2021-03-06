@@ -29,6 +29,8 @@ echo "::endgroup::"
 
 EXIT=0
 
+REPO="$(jq --arg path "$BUILD_BASE/*/*" -nc '{ type: "path", url: $path, options: { monorepo: true } }')"
+
 touch "$BUILD_BASE/mirrors.txt"
 for project in projects/packages/* projects/plugins/* projects/github-actions/*; do
 	PROJECT_DIR="${BASE}/${project}"
@@ -60,7 +62,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 	# That allows us to pick up the built version for plugins like Jetpack.
 	# Also save the old contents to restore post-build to help with local testing.
 	OLDJSON=$(<composer.json)
-	JSON=$(jq --arg path "$BUILD_BASE/*/*" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [{ type: "path", url: $path, options: { monorepo: true } }] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
+	JSON=$(jq --argjson repo "$REPO" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [ $repo ] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
 	if [[ "$JSON" != "$OLDJSON" ]]; then
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
@@ -146,6 +148,9 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 
 	echo "Build succeeded!"
 	echo "$GIT_SLUG" >> "$BUILD_BASE/mirrors.txt"
+
+	# Add the package's version to the custom repo, since composer can't determine it right on its own.
+	REPO="$(jq --argjson repo "$REPO" -nc 'reduce inputs as $in ($repo; .options.versions[$in.name] |= ( $in.extra["branch-alias"]["dev-monorepo"] // "dev-monorepo" ) )' composer.json)"
 done
 
 exit $EXIT

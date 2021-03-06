@@ -8,6 +8,7 @@ BASE="$PWD"
 . "$BASE/tools/includes/chalk-lite.sh"
 
 ARGS=( "--basedir=$BASE" )
+ARGS2=()
 if [[ -n "$CI" ]]; then
 	ARGS+=( '--gh-action' )
 fi
@@ -16,6 +17,7 @@ DEBUG=false
 if [[ "$1" == "--debug" ]]; then
 	DEBUG=true
 	ARGS+=( '-v' )
+	ARGS2+=( '-v' )
 fi
 
 EXIT=0
@@ -37,15 +39,33 @@ for FILE in projects/*/*/composer.json; do
 	fi
 
 	info "Validating change entries for $SLUG"
+	if [[ "$(git ls-files ./composer.lock)" ]]; then
+		CMD=install
+	else
+		CMD=update
+	fi
 	if $DEBUG && [[ -n "$CI" ]]; then
-		echo "::group::Executing composer install for $SLUG"
-		composer install
+		echo "::group::Executing composer $CMD for $SLUG"
+		composer $CMD
 		echo "::endgroup::"
 	else
-		composer install --quiet
+		composer $CMD --quiet
 	fi
 	if ! $CHANGELOGGER validate "${ARGS[@]}"; then
 		EXIT=1
+		continue
+	fi
+
+	info "Checking version numbers $SLUG"
+	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
+		VER=$($CHANGELOGGER version next --default-first-version --prerelease=alpha)
+	else
+		VER=$($CHANGELOGGER version current --default-first-version --prerelease=alpha)
+	fi
+	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" -c "$VER" "$SLUG"; then
+		EXIT=1
+		continue
 	fi
 done
 exit $EXIT
