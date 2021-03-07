@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { InspectorControls, RichText } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, RadioControl } from '@wordpress/components';
+import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useLayoutEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { photonizedImgProps } from '../tiled-gallery/utils';
+import ImageCompareControls from './controls';
 import ImgUpload from './img-upload';
 import useDebounce from './use-debounce';
 import './editor.scss';
@@ -48,7 +49,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	}
 
 	// Initial state if attributes already set or not.
-	// If both images are set, add juxtaspose class, which is picked up by the library.
+	// If both images are set, add juxtapose class, which is picked up by the library.
 	const isComplete = imageBefore && imageBefore.url && imageAfter && imageAfter.url;
 	const classes = isComplete ? 'image-compare__comparison juxtapose' : 'image-compare__placeholder';
 
@@ -63,20 +64,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		<figure className={ className } id={ clientId }>
 			{ resizeListener }
 			<InspectorControls key="controls">
-				<PanelBody title={ __( 'Orientation', 'jetpack' ) }>
-					<RadioControl
-						selected={ orientation || 'horizontal' }
-						options={ [
-							{ label: __( 'Side by side', 'jetpack' ), value: 'horizontal' },
-							{ label: __( 'Above and below', 'jetpack' ), value: 'vertical' },
-						] }
-						onChange={ value => {
-							setAttributes( {
-								orientation: value,
-							} );
-						} }
-					/>
-				</PanelBody>
+				<ImageCompareControls { ...{ attributes, setAttributes } } />
 			</InspectorControls>
 			<div className={ classes } data-mode={ orientation || 'horizontal' }>
 				<Placeholder label={ null }>
