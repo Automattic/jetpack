@@ -12,7 +12,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "0.1.x-dev"
+		"automattic/jetpack-changelogger": "1.0.x-dev"
 	},
 	"autoload": {
 		"classmap": [
