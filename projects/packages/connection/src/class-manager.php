@@ -893,7 +893,7 @@ class Manager {
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
-			'timeout' => $timeout,
+			'timeout' => 10,
 		);
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
@@ -904,6 +904,8 @@ class Manager {
 			$args,
 			true
 		);
+		error_log('REGISTER RESPONSE');
+		error_log( print_r( $response, 1 ) );
 
 		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
