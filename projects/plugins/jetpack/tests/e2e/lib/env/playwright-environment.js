@@ -155,9 +155,14 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	 */
 	async logHTML( filePath ) {
 		if ( this.global.page ) {
-			const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
-			const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
-			fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+			try {
+				const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
+				const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
+				fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+			} catch ( error ) {
+				logger.debug( 'Failed to log page HTML due to: ' );
+				logger.debug( error );
+			}
 		}
 	}
 }
