@@ -828,6 +828,8 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		error_log('REGISTER');
+
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
@@ -897,6 +899,7 @@ class Manager {
 		);
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
+		error_log('BEFORE REGISTER RESPONSE');
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(

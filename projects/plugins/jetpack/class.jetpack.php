@@ -48,7 +48,6 @@ jetpack_do_activate (bool)
 */
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
-error_log('admin_page_load');
 
 class Jetpack {
 	public $xmlrpc_server = null;
@@ -3402,6 +3401,8 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
+		error_log('in try_registration');
+
 		$terms_of_service = new Terms_Of_Service();
 		// The user has agreed to the TOS at some point by now.
 		$terms_of_service->agree();
@@ -3423,10 +3424,17 @@ p {
 			}
 		}
 
+		error_log('before self::register');
+
+
 		$result = self::register();
+		error_log('after self::register');
+		error_log( print_r( $result, 1 ) );
+
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
 		if ( ! $result || is_wp_error( $result ) ) {
+			error_log('error self::register');
 			return $result;
 		} else {
 			return true;
@@ -4271,8 +4279,9 @@ p {
 					check_admin_referer( 'jetpack-register' );
 					self::log( 'register' );
 					self::maybe_set_version_option();
+					error_log('before try_registration');
 					$registered = self::try_registration();
-					error_log('admin_page_load');
+					error_log('try_registration response');
 					error_log( print_r( $registered, 1 ) );
 
 					if ( is_wp_error( $registered ) ) {
