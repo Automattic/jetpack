@@ -153,6 +153,10 @@ async function logDebugLog() {
 	filename = `logs/access_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), apacheLog );
 	logger.slack( { type: 'debuglog', message: apacheLog } );
+
+	const jpLog = execWpCommand( 'wp option get jetpack_log' );
+	filename = `logs/jetpack_log_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), jpLog );
 }
 
 module.exports = {
