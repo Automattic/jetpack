@@ -39,7 +39,7 @@ export default class LoginPage extends Page {
 
 				await page.type( usernameSelector, username );
 				await page.click( continueButtonSelector );
-				await page.waitForSelector( passwordSelector, { state: 'visible', timeout: 30 } );
+				await page.waitForSelector( passwordSelector, { state: 'visible' );
 				// Even if we wait for the field to become visible Playwright might still type the password too fast
 				// and the first characters will miss the password field. A short wait fixes this
 				await page.waitForTimeout( 2000 );
