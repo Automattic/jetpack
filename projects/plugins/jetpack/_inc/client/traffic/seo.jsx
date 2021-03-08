@@ -74,16 +74,15 @@ export const SEO = withModuleSettingsFormHelpers(
 			);
 			const customSeoTitles = this.props.getOptionValue( 'advanced_seo_title_formats' );
 			const siteData = {
-				title: this.props.siteData.data.name || '',
-				tagline: this.props.siteData.data.description || '',
-				url: this.props.siteData.data.URL || '',
+				title: this.props.siteData.name || '',
+				tagline: this.props.siteData.description || '',
+				url: this.props.siteData.URL || '',
 				frontPageMetaDescription: frontPageMetaDescription
 					? frontPageMetaDescription
-					: this.props.siteData.data.description || '',
-				image:
-					this.props.siteData.data.icon && this.props.siteData.data.icon.img
-						? `${ this.props.siteData.data.icon.img }?s=${ this.constants.siteIconPreviewSize }`
-						: '',
+					: this.props.siteData.description || '',
+				image: this.props.siteData.icon?.img
+					? `${ this.props.siteData.icon.img }?s=${ this.constants.siteIconPreviewSize }`
+					: '',
 			};
 
 			return (
@@ -226,6 +225,6 @@ export const SEO = withModuleSettingsFormHelpers(
 
 export default connect( state => {
 	return {
-		siteData: state.jetpack.siteData,
+		siteData: state.jetpack.siteData.data,
 	};
 } )( SEO );
