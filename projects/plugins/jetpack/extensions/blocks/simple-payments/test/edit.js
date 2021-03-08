@@ -48,16 +48,76 @@ describe( 'Edit component', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { title: 'A' } );
 	} );
 
-	test( 'updates attribute attribute if description input updated', () => {
+	test( 'validates name', () => {
+		const notSelectedProps = {
+			...props,
+			isSelected: false,
+			attributes: { title: '' },
+		};
+		const { rerender } = render( <SimplePaymentsEdit { ...props } /> );
+
+		rerender( <SimplePaymentsEdit { ...notSelectedProps } /> );
+
+		expect( screen.getByText( 'Please add a brief title', { exact: false } ) ).toBeInTheDocument();
+	} );
+
+	test( 'updates description attribute if description input updated', () => {
 		render( <SimplePaymentsEdit { ...props } /> );
 		userEvent.type( screen.getByLabelText( 'Describe your item in a few words' ), 'B' );
 		expect( setAttributes ).toHaveBeenCalledWith( { content: 'B' } );
 	} );
 
-	test.only( 'updates price attribute if price input updated', () => {
+	test( 'updates price attribute if price input updated', () => {
 		render( <SimplePaymentsEdit { ...props } /> );
-		// screen.debug();
-		await userEvent.type( screen.getByLabelText( 'Price' ), 1 );
+		userEvent.paste( screen.getByLabelText( 'Price' ), 1 );
 		expect( setAttributes ).toHaveBeenCalledWith( { price: 1 } );
+	} );
+
+	test( 'validates price', () => {
+		const notSelectedProps = {
+			...props,
+			isSelected: false,
+			attributes: { price: 0 },
+		};
+		const { rerender } = render( <SimplePaymentsEdit { ...props } /> );
+
+		rerender( <SimplePaymentsEdit { ...notSelectedProps } /> );
+
+		expect(
+			screen.getByText( 'If you’re selling something, you need a price tag', { exact: false } )
+		).toBeInTheDocument();
+	} );
+
+	test( 'sets currency attribute', () => {
+		render( <SimplePaymentsEdit { ...props } /> );
+		userEvent.selectOptions( screen.getByLabelText( 'Currency' ), [ 'AUD' ] );
+
+		expect( setAttributes ).toHaveBeenCalledWith( { currency: 'AUD' } );
+	} );
+
+	test( 'toggles allow multiple', () => {
+		render( <SimplePaymentsEdit { ...props } /> );
+		userEvent.click( screen.getByLabelText( 'Allow people to buy more than one item at a time' ) );
+
+		expect( setAttributes ).toHaveBeenCalledWith( { multiple: true } );
+	} );
+
+	test( 'updates email attribute if email input updated', () => {
+		render( <SimplePaymentsEdit { ...props } /> );
+		userEvent.paste( screen.getByPlaceholderText( 'Email' ), 'bob@bob.com' );
+		expect( setAttributes ).toHaveBeenCalledWith( { email: 'bob@bob.com' } );
+	} );
+
+	test( 'validates email', () => {
+		const notSelectedProps = {
+			...props,
+			isSelected: false,
+			attributes: { email: 'my-invalid-email' },
+		};
+		const { rerender } = render( <SimplePaymentsEdit { ...props } /> );
+
+		rerender( <SimplePaymentsEdit { ...notSelectedProps } /> );
+
+		expect( screen.getByText( 'not a valid email address', { exact: false } ) ).toBeInTheDocument();
 	} );
 } );
