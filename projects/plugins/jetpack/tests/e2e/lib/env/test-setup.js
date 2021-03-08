@@ -118,14 +118,19 @@ beforeAll( async () => {
 	observeConsoleLogging();
 
 	page.on( 'response', async response => {
-		if ( response.status() > 499 ) {
-			const json = await response.json();
-			console.log( '<<', response.status(), response.url() );
-			console.log( '<<<', json );
+		console.log( '<<', response.status(), response.url() );
+		logger.info( 'REQUEST FAILED' );
+		logger.info( `<< ${ response.status() } ${ response.url() }` );
 
-			logger.info( 'REQUEST FAILED' );
-			logger.info( `<< ${ response.status() } ${ response.url() }` );
-			logger.info( `<<< ${ json }` );
+		if ( response.status() > 499 ) {
+			try {
+				const body = await response.text();
+				console.log( '<<<', body );
+				logger.info( `<<< ${ body }` );
+			} catch ( error ) {
+				console.log( 'Failed to get response body' );
+				logger.info( 'Failed to get response body' );
+			}
 		}
 	} );
 
