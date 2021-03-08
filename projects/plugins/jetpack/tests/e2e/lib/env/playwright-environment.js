@@ -121,9 +121,13 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			fileName = `${ fileName.replace( /\W/g, '_' ) }.png`;
 			const path = require( 'path' );
 			const filePath = path.resolve( `output/screenshots/${ fileName }` );
-			this.global.page.screenshot( { path: filePath } );
-
-			logger.slack( { type: 'file', message: filePath } );
+			try {
+				await this.global.page.screenshot( { path: filePath } );
+				logger.slack( { type: 'file', message: filePath } );
+			} catch ( error ) {
+				logger.debug( 'Failed to take screenshot due to: ' );
+				logger.debug( error );
+			}
 		}
 	}
 
@@ -150,9 +154,14 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 	 */
 	async logHTML( filePath ) {
 		if ( this.global.page ) {
-			const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
-			const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
-			fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+			try {
+				const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
+				const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
+				fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+			} catch ( error ) {
+				logger.debug( 'Failed to log page HTML due to: ' );
+				logger.debug( error );
+			}
 		}
 	}
 }
