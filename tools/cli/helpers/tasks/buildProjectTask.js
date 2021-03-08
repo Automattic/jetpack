@@ -29,7 +29,7 @@ export function buildProjectTask( argv ) {
 	}
 
 	const cwd = path.resolve( `projects/${ argv.project }` );
-	const command = projectBuildCommand( argv.project, argv.v );
+	const command = projectBuildCommand( argv.project, argv.production );
 	let enabled = true;
 
 	if ( ! command ) {

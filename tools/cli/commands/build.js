@@ -59,8 +59,8 @@ export async function build( project, production, composerJson, verbose ) {
 				task: () => {
 					return new Listr(
 						[
-							installProjectTask( { project: project, v: verbose } ),
-							buildProjectTask( { project: project, v: verbose } ),
+							installProjectTask( { project: project, v: verbose, production: production } ),
+							buildProjectTask( { project: project, v: verbose, production: production } ),
 						],
 						opts
 					);
@@ -88,14 +88,22 @@ function buildAllPackages( options ) {
 	};
 
 	allProjectsByType( 'packages' ).forEach( project => {
-		if ( projectBuildCommand( project, options.v ) ) {
+		if ( projectBuildCommand( project, options.production ) ) {
 			tasks.push( {
 				title: `Building ${ project }`,
 				task: () => {
 					return new Listr(
 						[
-							installProjectTask( { project: project, v: options.v } ),
-							buildProjectTask( { project: project, v: options.v } ),
+							installProjectTask( {
+								project: project,
+								v: options.v,
+								production: options.production,
+							} ),
+							buildProjectTask( {
+								project: project,
+								v: options.v,
+								production: options.production,
+							} ),
 						],
 						opts
 					);
