@@ -15,12 +15,13 @@ import ImgUpload from '../img-upload';
 
 describe( 'ImgUpload', () => {
 	const onChange = jest.fn();
+	const image = {
+		id: 1,
+		url: 'https://test.com/test.jpg',
+		alt: 'Image description',
+	};
 	const defaultProps = {
-		image: {
-			id: 1,
-			url: 'https://test.com/test.jpg',
-			alt: 'Image description',
-		},
+		image,
 		placeHolderLabel: 'Image Placeholder Label',
 		onChange,
 	};
@@ -34,12 +35,12 @@ describe( 'ImgUpload', () => {
 
 	test( 'displays image when available', () => {
 		render( <ImgUpload { ...defaultProps } /> );
+		const element = screen.getByRole( 'img' );
 
-		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
 		expect( screen.queryByText( defaultProps.placeHolderLabel ) ).not.toBeInTheDocument();
-	} );
-
-	test.skip( 'calls onChange when image select changes', () => {
-		// TODO
+		expect( element ).toBeInTheDocument();
+		expect( element ).toHaveAttribute( 'id', `${ image.id }` );
+		expect( element ).toHaveAttribute( 'src', image.url );
+		expect( element ).toHaveAttribute( 'alt', image.alt );
 	} );
 } );
