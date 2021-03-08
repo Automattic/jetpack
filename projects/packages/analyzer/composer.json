@@ -6,6 +6,9 @@
 	"require": {
 		"nikic/php-parser": "^4.2"
 	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "0.1.x-dev"
+	},
 	"autoload": {
 		"classmap": [
 			"src/",
@@ -23,9 +26,21 @@
 			"Automattic\\Jetpack\\Analyzer\\CoreDefinitions::callback"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-analyzer"
+		"mirror-repo": "Automattic/jetpack-analyzer",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-analyzer/compare/v${old}...v${new}"
+		}
 	}
 }

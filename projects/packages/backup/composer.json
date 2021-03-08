@@ -4,6 +4,9 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "0.1.x-dev"
+	},
 	"autoload": {
 		"files": [
 			"actions.php"
@@ -12,9 +15,21 @@
 			"src/"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-backup"
+		"mirror-repo": "Automattic/jetpack-backup",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
+		}
 	}
 }

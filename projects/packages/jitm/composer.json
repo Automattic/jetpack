@@ -16,7 +16,8 @@
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/jetpack-changelogger": "0.1.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -56,6 +57,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-jitm"
+		"mirror-repo": "Automattic/jetpack-jitm",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-jitm.php"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
+		}
 	}
 }
