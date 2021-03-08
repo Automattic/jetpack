@@ -156,7 +156,7 @@
 		"@babel/plugin-transform-runtime": "7.12.10",
 		"@babel/preset-react": "7.12.10",
 		"@babel/preset-typescript": "7.12.7",
-		"@size-limit/preset-app": "4.9.1",
+		"@size-limit/preset-app": "4.10.0",
 		"@testing-library/jest-dom": "5.11.9",
 		"@testing-library/preact": "2.0.1",
 		"@testing-library/react": "11.2.3",
