@@ -8,7 +8,7 @@ import '@testing-library/jest-dom/extend-expect';
 /**
  * Internal dependencies
  */
-import { PanelControls, ToolbarControls } from '../controls';
+import { PanelControls } from '../controls';
 
 const images = [
 	{
