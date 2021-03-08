@@ -27,16 +27,22 @@ echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
 echo "::endgroup::"
 
+echo "::group::Determining build order"
+TMP="$(.github/files/get-build-order.php)"
+SLUGS=()
+mapfile -t SLUGS <<<"$TMP"
+echo "::endgroup::"
+
 EXIT=0
 
 REPO="$(jq --arg path "$BUILD_BASE/*/*" -nc '{ type: "path", url: $path, options: { monorepo: true } }')"
 
 touch "$BUILD_BASE/mirrors.txt"
-for project in projects/packages/* projects/plugins/* projects/github-actions/*; do
-	PROJECT_DIR="${BASE}/${project}"
+for SLUG in "${SLUGS[@]}"; do
+	PROJECT_DIR="${BASE}/projects/${SLUG}"
 	[[ -d "$PROJECT_DIR" ]] || continue # We are only interested in directories (i.e. projects)
 
-	printf "\n\n\e[7m Project: %s \e[0m\n" "$project"
+	printf "\n\n\e[7m Project: %s \e[0m\n" "$SLUG"
 
 	cd "${PROJECT_DIR}"
 
@@ -72,8 +78,6 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 			OLDLOCK=
 		fi
 	fi
-	# Need to remove the "projects/" from the string since the CLI only looks for {type}/{project-name}.
-	SLUG="${project#projects/}"
 	if node "$BASE"/tools/cli/bin/jetpack build "${SLUG}" -v --production; then
 		FAIL=false
 	else
