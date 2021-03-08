@@ -177,8 +177,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'manage_options',
 			$slug,
 			'My Home',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
+			'menu-top menu-top-first menu-icon-dashboard',
+			'menu-dashboard',
 			'dashicons-admin-home',
 		);
 		$this->assertSame( $menu[2], $my_home_menu_item );

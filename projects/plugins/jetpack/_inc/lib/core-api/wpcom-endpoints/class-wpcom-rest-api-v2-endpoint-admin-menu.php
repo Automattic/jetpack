@@ -221,6 +221,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 		// Exclude hidden menu items.
 		if ( false !== strpos( $menu_item[4], 'hide-if-js' ) ) {
+			// Exclude submenu items as well.
+			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ $menu_item[2] ] = array();
+			}
 			return array();
 		}
 

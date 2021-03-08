@@ -25,6 +25,7 @@ import {
 	isCurrentUserLinked,
 	isReconnectingSite,
 	getConnectUrl as _getConnectUrl,
+	hasConnectedOwner,
 } from 'state/connection';
 import {
 	isDevVersion,
@@ -244,6 +245,7 @@ class JetpackNotices extends React.Component {
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&
 					this.props.userCanConnectAccount &&
+					this.props.hasConnectedOwner &&
 					! siteDataErrors.length &&
 					! this.props.connectionErrors.length && (
 						<UserUnlinked
@@ -292,6 +294,7 @@ export default connect(
 			siteDataErrors: getSiteDataErrors( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
 	dispatch => {

@@ -12,8 +12,15 @@
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
-			<!-- Do not add `.`, bootstrap.php sets up a loop from tests/php/tmp/wp-content/plugins/current/vendor/automattic/jetpack-autoloader → . which PHPUnit chokes on. -->
+			<!--
+				Since tests are executed against compiled autoloaders we need to generate coverage for
+				those files. This data can then be transformed and aggregated so that the report
+				will contain all of the expected data at the expected locations.
+			-->
 			<directory suffix=".php">src</directory>
+			<!-- These paths need to be VERY specific because PHPUnit will die on the symlinks in {plugin}/vendor/automattic/jetpack-autoloader -->
+			<directory suffix=".php">tests/php/tmp/wp-content/plugins/current/vendor/jetpack-autoloader</directory>
+			<directory suffix=".php">tests/php/tmp/wp-content/mu-plugins/current/vendor/jetpack-autoloader</directory>
 		</whitelist>
 	</filter>
 </phpunit>

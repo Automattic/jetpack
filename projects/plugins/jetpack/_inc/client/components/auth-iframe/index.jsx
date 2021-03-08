@@ -31,6 +31,7 @@ export class AuthIframe extends React.Component {
 		scrollToIframe: PropTypes.bool,
 		onAuthorized: PropTypes.func,
 		hasConnectedOwner: PropTypes.bool,
+		source: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -85,9 +86,15 @@ export class AuthIframe extends React.Component {
 			height = ( parseInt( height ) + 50 ).toString();
 		}
 
+		src += '&iframe_height=' + parseInt( height );
+
+		if ( this.props.source ) {
+			src += '&iframe_source=' + this.props.source;
+		}
+
 		return (
 			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
-				<h1>{ this.props.title }</h1>
+				{ this.props.title && <h1>{ this.props.title }</h1> }
 				{ this.props.fetchingConnectUrl ? (
 					<p>{ __( 'Loading…', 'jetpack' ) }</p>
 				) : (
