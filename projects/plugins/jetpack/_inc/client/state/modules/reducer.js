@@ -235,6 +235,20 @@ export function getModulesThatRequireConnection( state ) {
 }
 
 /**
+ * Returns an array of modules that require user to be connected.
+ *
+ * The module's header comments indicates if it requires user connection or not.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {Array} Array of modules that require user connection.
+ */
+export function getModulesThatRequireUserConnection( state ) {
+	return Object.keys( state.jetpack.modules.items ).filter(
+		module_slug => state.jetpack.modules.items[ module_slug ].requires_user_connection
+	);
+}
+
+/**
  * Check that the module list includes at least one of these modules.
  *
  * @param  {Object} state   Global state tree
