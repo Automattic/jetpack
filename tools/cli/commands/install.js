@@ -3,16 +3,15 @@
  */
 import chalk from 'chalk';
 import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
-import UpdateRenderer from 'listr-update-renderer';
 
 /**
  * Internal dependencies
  */
-import { promptForProject } from '../helpers/promptForProject.js';
-import { installProjectTask } from '../helpers/tasks/installProjectTask';
+import promptForProject from '../helpers/promptForProject.js';
+import installProjectTask from '../helpers/tasks/installProjectTask';
 import { allProjects } from '../helpers/projectHelpers';
 import { normalizeInstallArgv } from '../helpers/normalizeArgv';
+import listrOpts from '../helpers/tasks/listrOpts';
 
 /**
  * Installs a project.
@@ -37,10 +36,7 @@ export async function install( argv ) {
 
 	argv.project ? tasks.push( installProjectTask( argv ) ) : null;
 
-	const opts = {
-		concurrent: ! argv.v,
-		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
-	};
+	const opts = listrOpts( argv );
 
 	const installs = new Listr( tasks, opts );
 

@@ -10,13 +10,14 @@ import UpdateRenderer from 'listr-update-renderer';
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { promptForProject } from '../helpers/promptForProject.js';
+import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json';
-import { installProjectTask } from '../helpers/tasks/installProjectTask';
+import installProjectTask from '../helpers/tasks/installProjectTask';
 import { allProjectsByType } from '../helpers/projectHelpers';
 import { normalizeBuildArgv } from '../helpers/normalizeArgv';
-import { buildProjectTask } from '../helpers/tasks/buildProjectTask';
-import { projectBuildCommand } from '../helpers/projectBuildCommand';
+import buildProjectTask from '../helpers/tasks/buildProjectTask';
+import projectBuildCommand from '../helpers/projectBuildCommand';
+import listrOpts from '../helpers/tasks/listrOpts';
 
 /**
  * Relays build commands to a particular project.
@@ -82,10 +83,7 @@ export async function build( project, production, composerJson, verbose ) {
  */
 function buildAllPackages( options ) {
 	const tasks = [];
-	const opts = {
-		concurrent: ! options.v,
-		renderer: options.v ? VerboseRenderer : UpdateRenderer,
-	};
+	const opts = listrOpts( options );
 
 	allProjectsByType( 'packages' ).forEach( project => {
 		if ( projectBuildCommand( project, options.production ) ) {

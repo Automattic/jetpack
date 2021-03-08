@@ -10,7 +10,7 @@ import execa from 'execa';
  */
 import { chalkJetpackGreen } from '../styling';
 import { normalizeBuildArgv } from '../normalizeArgv';
-import { projectBuildCommand } from '../projectBuildCommand';
+import projectBuildCommand from '../projectBuildCommand';
 
 /**
  * Preps the task for an individual project.
@@ -19,7 +19,7 @@ import { projectBuildCommand } from '../projectBuildCommand';
  *
  * @returns {object} - The project install task per Listr format.
  */
-export function buildProjectTask( argv ) {
+export default function buildProjectTask( argv ) {
 	argv = normalizeBuildArgv( argv );
 
 	// This should never happen. Hard exit to avoid errors in consuming code.

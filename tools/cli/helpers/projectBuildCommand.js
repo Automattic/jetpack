@@ -11,7 +11,7 @@ import { readComposerJson } from './json';
  *
  * @returns {string} Build command, empty if none.
  */
-export function projectBuildCommand( project, production ) {
+export default function projectBuildCommand( project, production ) {
 	const composerJson = readComposerJson( project, false );
 	let command = '';
 	if ( composerJson.scripts ) {
