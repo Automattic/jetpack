@@ -1170,7 +1170,6 @@ class Jetpack {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
@@ -1194,6 +1193,7 @@ class Jetpack {
 				$caps = array( 'manage_sites' );
 				break;
 			case 'jetpack_admin_page':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'manage_options' );
 					break;
@@ -1735,6 +1735,7 @@ class Jetpack {
 	 * @deprecated since 8.0.
 	 */
 	public static function is_development_mode() {
+		_deprecated_function( __METHOD__, 'jetpack-8.0', '\Automattic\Jetpack\Status->is_offline_mode' );
 		return ( new Status() )->is_offline_mode();
 	}
 

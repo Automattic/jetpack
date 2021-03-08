@@ -128,22 +128,43 @@ class Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_my_home_menu( $wp_admin = false ) {
-		global $submenu;
+		global $menu, $submenu;
+
+		$dashboard_menu_item     = null;
+		$dashboard_menu_position = null;
+
+		foreach ( $menu as $i => $item ) {
+			if ( 'index.php' === $item[2] ) {
+				$dashboard_menu_item     = $item;
+				$dashboard_menu_position = $i;
+				break;
+			}
+		}
+
+		if ( ! $dashboard_menu_item ) {
+			return;
+		}
 
 		$menu_slug = $wp_admin ? 'index.php' : 'https://wordpress.com/home/' . $this->domain;
 		$cap       = $wp_admin ? 'read' : 'manage_options'; // Calypso's My Home is only available for admins.
 
-		remove_menu_page( 'index.php' );
-		remove_submenu_page( 'index.php', 'index.php' );
+		$dashboard_menu_item[0] = __( 'My Home', 'jetpack' );
+		$dashboard_menu_item[1] = $cap;
+		$dashboard_menu_item[2] = $menu_slug;
+		$dashboard_menu_item[3] = __( 'My Home', 'jetpack' );
+		$dashboard_menu_item[6] = 'dashicons-admin-home';
 
-		add_menu_page( __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), $cap, $menu_slug, null, 'dashicons-admin-home', 2 );
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$menu[ $dashboard_menu_position ] = $dashboard_menu_item;
+
+		remove_submenu_page( 'index.php', 'index.php' );
 
 		// Only add submenu when there are other submenu items.
 		if ( ! empty( $submenu['index.php'] ) ) {
-			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), $cap, $menu_slug, null, 1 );
+			add_submenu_page( $menu_slug, __( 'My Home', 'jetpack' ), __( 'My Home', 'jetpack' ), $cap, $menu_slug, null, 0 );
 		}
 
-		$this->migrate_submenus( 'index.php', $menu_slug );
+		$this->migrate_submenus( 'index.php', $dashboard_menu_item[2] );
 		add_filter(
 			'parent_file',
 			function ( $parent_file ) use ( $menu_slug ) {
