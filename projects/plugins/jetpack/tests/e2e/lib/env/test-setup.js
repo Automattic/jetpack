@@ -134,6 +134,9 @@ beforeAll( async () => {
 		}
 	} );
 
+	await maybePreConnect();
+} );
+
 beforeEach( async () => {
 	observeConsoleLogging();
 } );
