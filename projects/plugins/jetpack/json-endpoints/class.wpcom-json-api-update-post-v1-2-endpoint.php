@@ -851,11 +851,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		if ( ! empty( $media_results['errors'] ) ) {
-			// Depending on whether the errors array keys are sequential or not
-			// json_encode would transform this into either an array or an object
-			// see https://www.php.net/manual/en/function.json-encode.php#example-3967
-
-			// We use array_values to always return an array
+			/*
+			 * Depending on whether the errors array keys are sequential or not
+			 * json_encode would transform this into either an array or an object
+			 * see https://www.php.net/manual/en/function.json-encode.php#example-3967
+			 * We use array_values to always return an array
+			 */
 			$return['media_errors'] = array_values( $media_results['errors'] );
 		}
 
