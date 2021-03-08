@@ -11,7 +11,7 @@ elif [[ ! -e "$BUILD_BASE" ]]; then
 elif [[ ! -d "$BUILD_DIR" ]]; then
 	echo "$BUILD_DIR already exists, and is not a directory." >&2
 	exit 1
-elif [[ $(ls -A -- "$BUILD_DIR") ]]; then
+elif [[ "$(ls -A -- "$BUILD_DIR")" ]]; then
 	echo "Directory $BUILD_DIR already exists, and is not empty." >&2
 	exit 1
 fi
@@ -19,12 +19,17 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally.
+# Install Yarn generally, and changelogger.
 echo "::group::Monorepo setup"
 yarn install
 echo "::endgroup::"
+echo "::group::Changelogger setup"
+(cd projects/packages/changelogger && composer install)
+echo "::endgroup::"
 
 EXIT=0
+
+REPO="$(jq --arg path "$BUILD_BASE/*/*" -nc '{ type: "path", url: $path, options: { monorepo: true } }')"
 
 touch "$BUILD_BASE/mirrors.txt"
 for project in projects/packages/* projects/plugins/* projects/github-actions/*; do
@@ -57,7 +62,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 	# That allows us to pick up the built version for plugins like Jetpack.
 	# Also save the old contents to restore post-build to help with local testing.
 	OLDJSON=$(<composer.json)
-	JSON=$(jq --arg path "$BUILD_BASE/*/*" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [{ type: "path", url: $path, options: { monorepo: true } }] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
+	JSON=$(jq --argjson repo "$REPO" '( .repositories // [] | map( .options.monorepo or false ) | index(true) ) as $i | if $i != null then .repositories[$i:$i] |= [ $repo ] else . end' composer.json | "$BASE/tools/prettier" --parser=json-stringify)
 	if [[ "$JSON" != "$OLDJSON" ]]; then
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
@@ -88,6 +93,34 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 		continue
 	fi
 
+	# Update the changelog, if applicable.
+	if [[ -x 'vendor/bin/changelogger' ]]; then
+		CHANGELOGGER=vendor/bin/changelogger
+	elif [[ -x 'bin/changelogger' ]]; then
+		# Changelogger itself doesn't have itself in vendor/.
+		CHANGELOGGER=bin/changelogger
+	elif jq -e '.["require-dev"]["automattic/jetpack-changelogger"] // false' composer.json > /dev/null; then
+		# Some plugins might build with `composer install --no-dev`.
+		CHANGELOGGER="$BASE/projects/packages/changelogger/bin/changelogger"
+	else
+		CHANGELOGGER=
+	fi
+	if [[ -n "$CHANGELOGGER" ]]; then
+		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
+			echo "::group::Updating changelog"
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --no-interaction --yes -vvv; then
+				echo "::endgroup::"
+				echo "::error::Changelog update for ${GIT_SLUG} failed"
+				EXIT=1
+				continue
+			fi
+			echo "::endgroup::"
+		else
+			echo "Not updating changelog, there are no change files."
+		fi
+	fi
+
 	BUILD_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	echo "Build dir: $BUILD_DIR"
 	mkdir -p "$BUILD_DIR"
@@ -115,6 +148,9 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 
 	echo "Build succeeded!"
 	echo "$GIT_SLUG" >> "$BUILD_BASE/mirrors.txt"
+
+	# Add the package's version to the custom repo, since composer can't determine it right on its own.
+	REPO="$(jq --argjson repo "$REPO" -nc 'reduce inputs as $in ($repo; .options.versions[$in.name] |= ( $in.extra["branch-alias"]["dev-monorepo"] // "dev-monorepo" ) )' composer.json)"
 done
 
 exit $EXIT

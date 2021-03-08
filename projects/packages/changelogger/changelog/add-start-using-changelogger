@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Don't try to include change files in the production build. It breaks the builder.
+
+

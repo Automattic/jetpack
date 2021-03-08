@@ -44,7 +44,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"branch-alias": {
+			"dev-monorepo": "0.1.x-dev"
+		},
 		"mirror-repo": "Automattic/jetpack-changelogger",
+		"version-constants": {
+			"::VERSION": "src/Application.php"
+		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
 		}
