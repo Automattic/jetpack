@@ -659,7 +659,8 @@ class Jetpack_Carousel {
 		);
 	}
 
-	function get_attachment_comments() {
+	/** Gets comments for images. */
+	public function get_attachment_comments() {
 		if ( ! headers_sent() ) {
 			header( 'Content-type: text/javascript' );
 		}
@@ -674,6 +675,10 @@ class Jetpack_Carousel {
 		 * @since 1.6.0
 		 */
 		do_action( 'jp_carousel_check_blog_user_privileges' );
+
+		if ( empty( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'carousel_nonce' ) ) {
+			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
+		}
 
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
@@ -715,16 +720,17 @@ class Jetpack_Carousel {
 			);
 		}
 
-		die( json_encode( $out ) );
+		die( wp_json_encode( $out ) );
 	}
 
-	function post_attachment_comment() {
+	/** Post a comment to an image attachment. */
+	public function post_attachment_comment() {
 		if ( ! headers_sent() ) {
 			header( 'Content-type: text/javascript' );
 		}
 
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
-			die( json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 
 		$_blog_id = (int) $_POST['blog_id'];
@@ -732,20 +738,20 @@ class Jetpack_Carousel {
 		$comment  = $_POST['comment'];
 
 		if ( empty( $_blog_id ) ) {
-			die( json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
 		}
 
 		if ( empty( $_post_id ) ) {
-			die( json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
 		}
 
 		if ( empty( $comment ) ) {
-			die( json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
 		}
 
-		// Used in context like NewDash
+		// Used in context like NewDash.
 		$switched = false;
-		if ( is_multisite() && $_blog_id != get_current_blog_id() ) {
+		if ( is_multisite() && get_current_blog_id() !== $_blog_id ) {
 			switch_to_blog( $_blog_id );
 			$switched = true;
 		}
@@ -757,7 +763,7 @@ class Jetpack_Carousel {
 			if ( $switched ) {
 				restore_current_blog();
 			}
-			die( json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -771,7 +777,7 @@ class Jetpack_Carousel {
 				if ( $switched ) {
 					restore_current_blog();
 				}
-				die( json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
+				die( wp_json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
 			}
 		} else {
 			$user_id      = 0;
@@ -784,21 +790,21 @@ class Jetpack_Carousel {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
 				}
 
 				if ( empty( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
 				}
 
 				if ( ! is_email( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
 			}
 		}
@@ -835,7 +841,7 @@ class Jetpack_Carousel {
 		}
 
 		die(
-			json_encode(
+			wp_json_encode(
 				array(
 					'comment_id'     => $comment_id,
 					'comment_status' => $comment_status,
