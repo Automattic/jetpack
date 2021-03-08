@@ -790,4 +790,77 @@ class Jetpack_XMLRPC_Server {
 		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
 		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
 	}
+
+	/**
+	 * Deprecated: This method is no longer part of the Connection package and now lives on the Jetpack plugin.
+	 *
+	 * Disconnect this blog from the connected wordpress.com account
+	 *
+	 * @deprecated since 9.6.0
+	 * @see Jetpack_XMLRPC_Methods::disconnect_blog() in the Jetpack plugin
+	 *
+	 * @return boolean
+	 */
+	public function disconnect_blog() {
+		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::disconnect_blog()' );
+		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
+			return Jetpack_XMLRPC_Methods::disconnect_blog();
+		}
+		return false;
+	}
+
+	/**
+	 * Deprecated: This method is no longer part of the Connection package and now lives on the Jetpack plugin.
+	 *
+	 * Returns what features are available. Uses the slug of the module files.
+	 *
+	 * @deprecated since 9.6.0
+	 * @see Jetpack_XMLRPC_Methods::features_available() in the Jetpack plugin
+	 *
+	 * @return array
+	 */
+	public function features_available() {
+		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::features_available()' );
+		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
+			return Jetpack_XMLRPC_Methods::features_available();
+		}
+		return array();
+	}
+
+	/**
+	 * Deprecated: This method is no longer part of the Connection package and now lives on the Jetpack plugin.
+	 *
+	 * Returns what features are enabled. Uses the slug of the modules files.
+	 *
+	 * @deprecated since 9.6.0
+	 * @see Jetpack_XMLRPC_Methods::features_enabled() in the Jetpack plugin
+	 *
+	 * @return array
+	 */
+	public function features_enabled() {
+		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::features_enabled()' );
+		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
+			return Jetpack_XMLRPC_Methods::features_enabled();
+		}
+		return array();
+	}
+
+	/**
+	 * Deprecated: This method is no longer part of the Connection package and now lives on the Jetpack plugin.
+	 *
+	 * Serve a JSON API request.
+	 *
+	 * @deprecated since 9.6.0
+	 * @see Jetpack_XMLRPC_Methods::json_api() in the Jetpack plugin
+	 *
+	 * @param array $args request arguments.
+	 */
+	public function json_api( $args = array() ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.6', 'Jetpack_XMLRPC_Methods::json_api()' );
+		if ( class_exists( 'Jetpack_XMLRPC_Methods' ) ) {
+			return Jetpack_XMLRPC_Methods::json_api( $args );
+		}
+		return array();
+	}
+
 }
