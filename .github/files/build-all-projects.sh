@@ -146,6 +146,13 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 		echo "$JSON" > "$BUILD_DIR/composer.json"
 	fi
 
+	# Workaround for https://github.com/Automattic/jetpack/issues/18695
+	# TODO: Keep dependencies away from built branches and fetch them before publishing on WP-org plugins repository.
+	JSON=$(jq '.replace = ( [ .require | to_entries[] | select( .key | startswith( "ext-" ) | not ) ] | from_entries )' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
+		echo "$JSON" > "$BUILD_DIR/composer.json"
+	fi
+
 	echo "Build succeeded!"
 	echo "$GIT_SLUG" >> "$BUILD_BASE/mirrors.txt"
 
