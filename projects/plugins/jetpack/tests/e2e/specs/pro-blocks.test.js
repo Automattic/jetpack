@@ -8,10 +8,10 @@ import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
-import { catchBeforeAll, step } from '../lib/setup-env';
+import { step } from '../lib/env/test-setup';
 
 describe( 'Paid blocks', () => {
-	catchBeforeAll( async () => {
+	beforeAll( async () => {
 		await syncJetpackPlanData( 'complete' );
 
 		await activateModule( page, 'publicize' );

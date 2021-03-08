@@ -393,9 +393,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$customize_submenu_item = array(
 			'Customize',
 			'customize',
-			'customize.php',
+			'customize.php?return',
 			'Customize',
 		);
+
 		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
 
 		// Check Theme Editor is present.

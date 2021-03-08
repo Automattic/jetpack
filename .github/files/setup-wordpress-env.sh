@@ -70,7 +70,7 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	NAME="$(basename "$DIR")"
 	echo "::group::Installing plugin $NAME into WordPress"
 	cd "$DIR"
-	composer install
+	composer install || composer update
 	cd "$BASE"
 
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"

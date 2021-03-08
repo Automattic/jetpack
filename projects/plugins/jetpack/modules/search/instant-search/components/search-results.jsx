@@ -135,7 +135,7 @@ class SearchResults extends Component {
 						{ results.map( ( result, index ) => (
 							<SearchResult
 								index={ index }
-								isPrivateSite={ this.props.isPrivateSite }
+								isPhotonEnabled={ this.props.isPhotonEnabled }
 								locale={ this.props.locale }
 								query={ this.props.query }
 								railcar={ this.props.isVisible ? result.railcar : null }

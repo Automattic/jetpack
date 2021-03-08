@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import 'url-polyfill';
 import { encode } from 'qss';
 
 /**

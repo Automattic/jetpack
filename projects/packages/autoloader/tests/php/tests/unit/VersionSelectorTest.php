@@ -33,7 +33,6 @@ class VersionSelectorTest extends TestCase {
 	 *                                needs to be updated.
 	 * @param bool   $expected The expected Version_Selector::is_version_update_required() output.
 	 *
-	 * @covers Version_Selector::is_version_update_required
 	 * @dataProvider is_version_update_required_provider
 	 * @dataProvider is_version_update_required_without_dev_constant_provider
 	 */
@@ -50,7 +49,6 @@ class VersionSelectorTest extends TestCase {
 	 *                                needs to be updated.
 	 * @param bool   $expected The expected Version_Selector::is_version_update_required() output.
 	 *
-	 * @covers Version_Selector::is_version_update_required
 	 * @dataProvider is_version_update_required_provider
 	 * @dataProvider is_version_update_required_with_dev_constant_provider
 	 * @runInSeparateProcess

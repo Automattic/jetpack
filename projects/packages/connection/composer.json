@@ -14,7 +14,7 @@
 	"require-dev": {
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "0.2.0",
-		"brain/monkey": "^2.6"
+		"brain/monkey": "2.6.0"
 	},
 	"autoload": {
 		"files": [

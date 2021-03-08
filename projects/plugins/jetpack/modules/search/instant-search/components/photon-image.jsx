@@ -23,12 +23,12 @@ const PhotonImage = ( {
 	maxWidth = 300,
 	maxHeight = 300,
 	alt,
-	isPrivateSite,
+	isPhotonEnabled,
 	...otherProps
 } ) => {
 	let srcToDisplay = src;
 
-	if ( ! isPrivateSite ) {
+	if ( isPhotonEnabled ) {
 		const photonSrc = photon( stripQueryString( src ), { resize: `${ maxWidth },${ maxHeight }` } );
 		if ( photonSrc !== null ) {
 			srcToDisplay = photonSrc;

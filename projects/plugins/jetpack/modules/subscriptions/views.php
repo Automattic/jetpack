@@ -776,7 +776,9 @@ function jetpack_do_subscription_form( $instance ) {
 	}
 
 	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
-		$style                 = 'font-size: ' . $instance['custom_font_size'] . 'px; ';
+		$style  = 'font-size: ' . $instance['custom_font_size'];
+		$style .= is_numeric( $instance['custom_font_size'] ) ? 'px; ' : '; '; // Handle deprecated numeric font size values.
+
 		$submit_button_styles .= $style;
 		$email_field_styles   .= $style;
 	}

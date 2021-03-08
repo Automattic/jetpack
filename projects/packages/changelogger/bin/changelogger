@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+/**
+ * A tool for managing changelog files via a changelog directory.
+ *
+ * @package automattic/jetpack-changelogger
+ */
+
+// Make sure this script is being run over the PHP CLI.
+if ( 'cli' !== php_sapi_name() ) {
+	return;
+}
+
+// Find the Composer autoloader. Load it, then run the application.
+foreach ( array( '/../../autoload.php', '/../vendor/autoload.php', '/vendor/autoload.php' ) as $file ) {
+	if ( file_exists( __DIR__ . $file ) ) {
+		require __DIR__ . $file;
+		$app = new Automattic\Jetpack\Changelogger\Application();
+		exit( $app->run() );
+	}
+}
+
+$err = <<<EOF
+You need to set up the project dependencies using Composer:
+
+    composer install
+
+You can learn all about Composer on https://getcomposer.org/.
+EOF;
+fprintf( STDERR, "%s\n", $err );
+exit( 1 );

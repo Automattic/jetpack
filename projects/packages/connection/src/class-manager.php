@@ -1089,10 +1089,10 @@ class Manager {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_connection_custom_caps( $caps, $cap, $user_id, $args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_connect':
 			case 'jetpack_reconnect':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'do_not_allow' );
 					break;
@@ -1110,6 +1110,7 @@ class Manager {
 				$caps = apply_filters( 'jetpack_disconnect_cap', array( 'manage_options' ) );
 				break;
 			case 'jetpack_connect_user':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'do_not_allow' );
 					break;

@@ -16,6 +16,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import ConnectUserBar from 'components/connect-user-bar';
 
 class SubscriptionsComponent extends React.Component {
 	/**
@@ -67,11 +68,11 @@ class SubscriptionsComponent extends React.Component {
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'subscriptions' );
 
 		const getSubClickableCard = () => {
-			if ( unavailableInOfflineMode || ! isSubscriptionsActive ) {
+			if ( unavailableInOfflineMode || ! isSubscriptionsActive || ! this.props.isLinked ) {
 				return '';
 			}
 
-			return this.props.isLinked ? (
+			return (
 				<Card
 					compact
 					className="jp-settings-card__configure-link"
@@ -82,14 +83,6 @@ class SubscriptionsComponent extends React.Component {
 				>
 					{ __( 'View your Email Followers', 'jetpack' ) }
 				</Card>
-			) : (
-				<Card
-					compact
-					className="jp-settings-card__configure-link"
-					href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
-				>
-					{ __( 'Create a Jetpack account to view your email followers', 'jetpack' ) }{ ' ' }
-				</Card>
 			);
 		};
 
@@ -98,6 +91,7 @@ class SubscriptionsComponent extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
+					disableInUserlessMode
 					module={ subscriptions }
 					support={ {
 						text: __(
@@ -151,6 +145,16 @@ class SubscriptionsComponent extends React.Component {
 					}
 				</SettingsGroup>
 				{ getSubClickableCard() }
+
+				{ ! this.props.isLinked && (
+					<ConnectUserBar
+						feature="subscriptions"
+						text={ __(
+							'Subscriptions feature provided by the WordPress.com cloud. Sign in to view your email followers.',
+							'jetpack'
+						) }
+					/>
+				) }
 			</SettingsCard>
 		);
 	}
