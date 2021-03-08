@@ -15,20 +15,6 @@ import {
 import config from 'config';
 import path from 'path';
 
-async function setUserAgent() {
-	const userAgent = await page.evaluate( () => navigator.userAgent );
-	// const userAgentSuffix = 'wp-e2e-tests';
-	// const e2eUserAgent = `${ userAgent } ${ userAgentSuffix }`;
-
-	// Reset context as a workaround to set a custom user agent
-	// await jestPlaywright.resetContext( {
-	// 	userAgent: e2eUserAgent,
-	// } );
-
-	// userAgent = await page.evaluate( () => navigator.userAgent );
-	logger.info( `User agent updated to: ${ userAgent }` );
-}
-
 async function maybePreConnect() {
 	const wpcomUser = 'defaultUser';
 	const mockPlanData = true;

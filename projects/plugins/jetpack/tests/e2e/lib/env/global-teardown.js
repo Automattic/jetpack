@@ -1,4 +1,4 @@
-import { readFileSync, renameSync, existsSync } from 'fs';
+import { readFileSync } from 'fs';
 const os = require( 'os' );
 const rimraf = require( 'rimraf' );
 const path = require( 'path' );
@@ -75,7 +75,6 @@ module.exports = async function () {
 	// Close tunnel
 	await global.tunnelManager.close();
 
-	await renameVideoFiles();
 	if ( process.env.CI ) {
 		await processSlackLog();
 	}

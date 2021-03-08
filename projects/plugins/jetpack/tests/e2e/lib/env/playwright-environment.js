@@ -13,6 +13,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async setup() {
 		await super.setup();
 
+		// Connect to server (launched in global-setup)
 		const wsEndpoint = fs.readFileSync( path.join( DIR, 'wsEndpoint' ), 'utf8' );
 		if ( ! wsEndpoint ) {
 			throw new Error( 'wsEndpoint not found' );
@@ -22,18 +23,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			wsEndpoint,
 		} );
 
-		this.global.context = await this.global.browser.newContext( {
-			recordVideo: {
-				dir: 'output/videos',
-			},
-			viewport: {
-				width: 1280,
-				height: 1024,
-			},
-			storageState: 'config/storage.json',
-		} );
-
-		this.global.videoFiles = [];
+		// Create a new browser context
+		await this.newContext();
 	}
 
 	async teardown() {
@@ -42,17 +33,14 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	}
 
 	async handleTestEvent( event ) {
-		logger.info( `\t>>>>>> ${ event.name }` );
-
-		let testName = 'unknown_test';
-		let hookName = 'unknown_hook';
+		let eventName;
 
 		if ( event.test ) {
-			testName = `${ event.test.parent.name } - ${ event.test.name }`;
-		}
-
-		if ( event.hook ) {
-			hookName = `${ event.hook.type } - ${ event.hook.parent.name }`;
+			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
+		} else if ( event.hook ) {
+			eventName = `${ event.hook.type } - ${ event.hook.parent.name }`;
+		} else {
+			eventName = event.name;
 		}
 
 		switch ( event.name ) {
@@ -75,34 +63,34 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			case 'run_describe_start':
 				break;
 			case 'test_start':
-				await this.newPage( testName );
+				await this.newPage( eventName );
 				break;
 			case 'hook_start':
-				logger.info( `START: ${ hookName }` );
+				logger.info( `START: ${ eventName }` );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.newPage( hookName );
+					await this.newPage( eventName );
 				}
 				break;
 			case 'hook_success':
-				logger.info( `SUCCESS: ${ hookName }` );
+				logger.info( `SUCCESS: ${ eventName }` );
 				if ( event.hook.type === 'beforeAll' ) {
 				}
 				break;
 			case 'hook_failure':
-				logger.info( `HOOK FAILED: ${ hookName }` );
-				await this.onFailure( testName, event.hook.parent.name, event.hook.type, event.error );
+				logger.info( `HOOK FAILED: ${ eventName }` );
+				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
 				}
 				break;
 			case 'test_fn_start':
-				logger.info( `START TEST: ${ testName }` );
+				logger.info( `START TEST: ${ eventName }` );
 				break;
 			case 'test_fn_success':
-				logger.info( `TEST PASSED: ${ testName }` );
+				logger.info( `TEST PASSED: ${ eventName }` );
 				break;
 			case 'test_fn_failure':
-				logger.info( `FAILED TEST: ${ testName }` );
-				await this.onFailure( testName, event.test.parent.name, event.test.name, event.error );
+				logger.info( `FAILED TEST: ${ eventName }` );
+				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
 				break;
@@ -119,11 +107,33 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		}
 	}
 
+	async newContext() {
+		this.global.context = await this.global.browser.newContext( {
+			recordVideo: {
+				dir: 'output/videos',
+			},
+			viewport: {
+				width: 1280,
+				height: 1024,
+			},
+			storageState: 'config/storage.json',
+		} );
+
+		// todo we need to set a custom user agent!
+		const userAgent = await this.global.page.evaluate( () => navigator.userAgent );
+		logger.info( `User agent: ${ userAgent }` );
+
+		// This array will store the video files paths for each page in the current context
+		// We want to make sure it's empty when the context gets created
+		this.global.videoFiles = [];
+	}
+
 	async newPage( eventName = '' ) {
 		logger.debug( 'Creating new page' );
 
 		this.global.page = await this.global.context.newPage();
 
+		// Observe console logging
 		this.global.page.on( 'console', message => {
 			const type = message.type();
 			if ( ! [ 'warning', 'error' ].includes( type ) ) {
@@ -169,6 +179,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
 
+		// Save the pair of the current page videoPath and the event name
+		// to use later in video files renaming
 		try {
 			const srcVideoPath = await this.global.page.video().path();
 			const targetFileName = `${ new Date().toISOString() }_${ eventName }`;
@@ -177,15 +189,14 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		} catch ( error ) {
 			logger.error( `Cannot get page's video file path! \n ${ error }` );
 		}
-
-		logger.debug( this.global.videoFiles );
 	}
 
 	async closeContext() {
 		logger.debug( 'Closing browser context' );
 		await this.global.context.close();
 
-		// Rename video files
+		// Rename video files. This can only be done after browser context is closed
+		// Each page has its own video file
 		for ( const video of this.global.videoFiles ) {
 			logger.debug( 'Renaming video file' );
 			try {
