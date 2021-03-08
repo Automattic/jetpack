@@ -6,28 +6,38 @@
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '@testing-library/react';
-// 👀 Remove any unneeded imports from above.
+//import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 
 /**
  * Internal dependencies
  */
-import MapControls from '../contr'
-// 👀 Import the edit component you are testing.
-// e.g. import WhatsAppButtonControls from '../controls';
+import MapControls from '../controls';
 
-describe( '', () => {
+const API_STATE_SUCCESS = 2;
+
+describe( 'Inspector controls', () => {
 	const defaultAttributes = {
-		// 👀 Setup default block attributes.
+		points: [],
+		mapDetails: true,
+		zoom: 13,
+		mapHeight: 300,
 	};
-
 	const setAttributes = jest.fn();
+
 	const defaultProps = {
 		// 👀 Setup default block props.
 		attributes: defaultAttributes,
-		setAttributes,
+		setAttributes: jest.fn(),
 		clientId: 1,
+    	state: {
+			apiState: API_STATE_SUCCESS,
+			apiKeySource: 'site',
+			apiKeyControl: '',
+			apiKey: 'test-api-key',
+			apiRequestOutstanding: false,
+		},
+    	setState: jest.fn(),
 	};
 
 	// 👀 Tests setup.
@@ -35,29 +45,12 @@ describe( '', () => {
 		setAttributes.mockClear();
 	} );
 
-	/**
-	 * 👀 Write tests specific to this block controls.
-	 *
-	 * These may cover whatever controls are added by the block
-	 * e.g. Inspector or Block Toolbar controls.
-	 *
-	 * Tests may cover behaviour such as:
-	 * - Correct fields included in controls
-	 * - Appropriate attributes and defaults are applied
-	 * - User interactions trigger correct event handlers etc.
-	 */
+	describe( 'Colors settings panel', () => {
+		test( 'displays marker colors correctly', () => {
+			render( <MapControls { ...defaultProps } /> );
 
-	/**
-	 * 👀 Example:
-	 * test( 'loads settings when toolbar button clicked', async () => {
-	 *		render( <WhatsAppButtonConfiguration { ...props } /> );
-	 *		userEvent.click( screen.getByLabelText( 'WhatsApp Button Settings' ) );
-	 *		await waitFor( () => screen.getByLabelText( 'Country code' ) );
-	 *
-	 *		expect( screen.getByLabelText( 'Country code' ) ).toBeInTheDocument();
-	 * } );
-	 */
-	test( '', () => {
-
+			expect( screen.getByText( 'Marker Color' ) ).toBeInTheDocument();
+		} );
 	} );
+
 } );
