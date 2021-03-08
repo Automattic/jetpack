@@ -4271,6 +4271,9 @@ p {
 					self::log( 'register' );
 					self::maybe_set_version_option();
 					$registered = self::try_registration();
+					error_log('admin_page_load');
+					error_log( print_r( $registered, 1 ) );
+
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
