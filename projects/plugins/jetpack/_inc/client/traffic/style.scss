@@ -155,6 +155,11 @@
 		margin-right: auto;
 	}
 
+	&-input-button::before {
+		content: "+";
+		margin-right: 4px;
+	}
+
 	&-input-button:not(:first-of-type) {
 		margin-left: 0.5rem;
 	}
