@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
 
 /**
  * Internal dependencies
@@ -99,6 +100,35 @@ export const tokenizedArrayToString = arr => {
 	return '';
 };
 
+const getCustomSeoTitleInputPreview = ( pageType, value, siteData ) => {
+	customSeoTitles.tokensAvailablePerPageType[ pageType.name ].forEach( token => {
+		switch ( token ) {
+			case 'site_name':
+				value = value.replace( /\[site_name\]/g, siteData.title );
+				break;
+			case 'tagline':
+				value = value.replace( /\[tagline\]/g, siteData.tagline );
+				break;
+			case 'post_title':
+				value = value.replace( /\[post_title\]/g, __( 'Example Title', 'jetpack' ) );
+				break;
+			case 'page_title':
+				value = value.replace( /\[page_title\]/g, __( 'Example Title', 'jetpack' ) );
+				break;
+			case 'group_title':
+				value = value.replace( /\[group_title\]/g, __( 'Tag', 'jetpack' ) );
+				break;
+			case 'date':
+				value = value.replace( /\[date\]/g, dateI18n( 'F Y', Date.now() ) );
+				break;
+			default:
+				break;
+		}
+	} );
+
+	return __( 'Preview: ', 'jetpack' ) + value;
+};
+
 const handleTokenButtonClick = (
 	customSeoTitleInputRef,
 	pageType,
@@ -170,7 +200,9 @@ const CustomSeoTitleInput = props => {
 				onChange={ e => props.handleCustomSeoTitleInput( props.pageType, e.target.value ) }
 				ref={ props.customSeoTitleInputRef }
 			/>
-			<span style={ { 'margin-bottom': '1rem', display: 'block' } }>Preview: (todo)</span>
+			<div className={ 'jp-seo-custom-titles-input-preview' }>
+				{ getCustomSeoTitleInputPreview( props.pageType, props.value, props.siteData ) }
+			</div>
 		</div>
 	);
 };
@@ -219,6 +251,7 @@ const CustomSeoTitles = props => {
 						value={ customSeoTitlesAsStrings[ pageType.name ] }
 						handleCustomSeoTitleInput={ handleCustomSeoTitleInput }
 						customSeoTitleInputRef={ customSeoTitleInputRefs[ pageType.name ] }
+						siteData={ props.siteData }
 					/>
 				);
 			} ) }

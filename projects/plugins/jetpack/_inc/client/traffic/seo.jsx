@@ -75,6 +75,7 @@ export const SEO = withModuleSettingsFormHelpers(
 			const customSeoTitles = this.props.getOptionValue( 'advanced_seo_title_formats' );
 			const siteData = {
 				title: this.props.siteData.data.name || '',
+				tagline: this.props.siteData.data.description || '',
 				url: this.props.siteData.data.URL || '',
 				frontPageMetaDescription: frontPageMetaDescription
 					? frontPageMetaDescription
@@ -134,6 +135,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									<CustomSeoTitles
 										customSeoTitles={ customSeoTitles }
 										handleCustomSeoTitleInput={ this.handleCustomSeoTitleInput }
+										siteData={ siteData }
 									/>
 								</FormFieldset>
 							</SettingsGroup>
