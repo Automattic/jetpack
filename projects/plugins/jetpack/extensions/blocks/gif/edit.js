@@ -32,7 +32,7 @@ function GifEdit( {
 	};
 
 	const setSearchInputFocus = () => {
-		//searchFormInputRef.current.focus();
+		searchFormInputRef.current.focus();
 		setCaptionFocus( false );
 	};
 
