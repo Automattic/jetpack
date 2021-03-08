@@ -28,6 +28,16 @@ export default class LoginPage extends Page {
 		const submitButtonSelector = '//button[text()="Log In"]';
 
 		try {
+			await page.type( usernameSelector, username );
+			await page.click( continueButtonSelector );
+			await page.waitForSelector( passwordSelector, { state: 'visible' } );
+			// Even if we wait for the field to become visible Playwright might still type the password too fast
+			// and the first characters will miss the password field. A short wait fixes this
+			await page.waitForTimeout( 2000 );
+			await page.type( passwordSelector, password );
+			await page.click( submitButtonSelector );
+
+			await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
 			await this.page.waitForSelector( this.expectedSelector, {
 				state: 'hidden',
 				timeout: 30000 /* 30 seconds */,
@@ -36,17 +46,6 @@ export default class LoginPage extends Page {
 			if ( retry === true ) {
 				logger.info( `The login didn't work as expected - retrying now: '${ e }'` );
 				await this.reload();
-
-				await page.type( usernameSelector, username );
-				await page.click( continueButtonSelector );
-				await page.waitForSelector( passwordSelector, { state: 'visible' } );
-				// Even if we wait for the field to become visible Playwright might still type the password too fast
-				// and the first characters will miss the password field. A short wait fixes this
-				await page.waitForTimeout( 2000 );
-				await page.type( passwordSelector, password );
-				await page.click( submitButtonSelector );
-
-				await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
 				return await this.login( wpcomUser, { retry: false } );
 			}
 			throw e;
