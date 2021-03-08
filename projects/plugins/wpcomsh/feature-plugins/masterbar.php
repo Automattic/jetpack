@@ -6,6 +6,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Status;
+
 /**
  * Force-enable the Masterbar module
  * If you use a version of Jetpack that supports it,
@@ -195,3 +197,31 @@ function should_force_disable_for_request() {
 
 	return isset( $_GET['disable-nav-unification'] );
 }
+
+/**
+ * Fixes the Jetpack menu items so they are placed under the correct parent.
+ *
+ * See link below for the bug details:
+ * https://github.com/Automattic/wp-calypso/issues/50713#issuecomment-790635930.
+ *
+ * @param string $parent_file  the parent_file.
+ *
+ * @return string parent file slug.
+ */
+function wpcomsh_fix_jetpack_menu_item_parent_on_atomic( $parent_file ) {
+	global $hook_suffix;
+
+	// Safety - don't alter anything if Nav Unification is not enabled.
+	if ( ! wpcomsh_activate_nav_unification( false ) ) {
+		return $parent_file;
+	}
+
+	// Match slug to the value in Jetpack
+	// https://github.com/Automattic/jetpack/blob/294ad77419b63293fde382ed6c4f268677dec72c/projects/plugins/jetpack/modules/masterbar/admin-menu/class-admin-menu.php#L681.
+	$site_domain  = ( new Status() )->get_site_suffix();
+	$jetpack_slug = 'https://wordpress.com/activity-log/' . $site_domain;
+
+	// If our hook identifies the Jetpack page then use the correct menu parent.
+	return 'toplevel_page_jetpack' === $hook_suffix ? $jetpack_slug : $parent_file;
+}
+add_filter( 'parent_file', 'wpcomsh_fix_jetpack_menu_item_parent_on_atomic', 100 );
