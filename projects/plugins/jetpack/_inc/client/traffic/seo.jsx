@@ -19,8 +19,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import ConnectUserBar from 'components/connect-user-bar';
 import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import FoldableCard from 'components/foldable-card';
-import TextInput from 'components/text-input';
-import Button from 'components/button';
+import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
 export const SEO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -29,38 +28,6 @@ export const SEO = withModuleSettingsFormHelpers(
 			frontPageMetaSuggestedLength: 159,
 			moduleOptionsArray: [ 'advanced_seo_front_page_description', 'advanced_seo_title_formats' ],
 			siteIconPreviewSize: 512,
-			customSeoTitles: {
-				pageTypes: [
-					{ name: 'front_page', label: __( 'Front Page', 'jetpack' ) },
-					{ name: 'posts', label: __( 'Posts', 'jetpack' ) },
-					{ name: 'pages', label: __( 'Pages', 'jetpack' ) },
-					{ name: 'groups', label: __( 'Tags', 'jetpack' ) },
-					{ name: 'archives', label: __( 'Archives', 'jetpack' ) },
-				],
-				insertableTokens: {
-					site_name: __( 'Site Title', 'jetpack' ),
-					tagline: __( 'Tagline', 'jetpack' ),
-					post_title: __( 'Post Title', 'jetpack' ),
-					page_title: __( 'Page Title', 'jetpack' ),
-					group_title: __( 'Tag or Category Name', 'jetpack' ),
-					date: __( 'Date', 'jetpack' ),
-				},
-				tokensAvailablePerPageType: {
-					front_page: [ 'site_name', 'tagline' ],
-					posts: [ 'site_name', 'tagline', 'post_title' ],
-					pages: [ 'site_name', 'tagline', 'page_title' ],
-					groups: [ 'site_name', 'tagline', 'group_title' ],
-					archives: [ 'site_name', 'tagline', 'date' ],
-				},
-			},
-		};
-
-		customSeoTitleInputRefs = {
-			front_page: React.createRef(),
-			posts: React.createRef(),
-			pages: React.createRef(),
-			groups: React.createRef(),
-			archives: React.createRef(),
 		};
 
 		trackConfigureClick = () => {
@@ -95,142 +62,8 @@ export const SEO = withModuleSettingsFormHelpers(
 			/>
 		);
 
-		handleTokenButtonClick = event => {
-			const pageType = event.target.dataset.page;
-			const inputRef = this.customSeoTitleInputRefs[ pageType ].current;
-			inputRef.focus();
-
-			const textToInsert = '2319';
-			const cursorPos = inputRef.refs.textField.selectionStart;
-			const strBeforeCursor = inputRef.props.value.substring( 0, cursorPos );
-			const strAfterCursor = inputRef.props.value.substring(
-				cursorPos,
-				inputRef.props.value.length
-			);
-			const newString = strBeforeCursor + textToInsert + strAfterCursor;
-
-			// Todo: Commit before refactor customSeoTitleInput to separate file & handle state differently.
-		};
-
-		getTokenButtonsForCustomSeoTitleInput = pageType => {
-			return this.constants.customSeoTitles.tokensAvailablePerPageType[ pageType.name ].map(
-				token => {
-					return (
-						<Button
-							className="jp-seo-custom-titles-input-button"
-							compact
-							onClick={ this.handleTokenButtonClick }
-							data-token={ token }
-							data-page={ pageType.name }
-						>
-							{ this.constants.customSeoTitles.insertableTokens[ token ] }
-						</Button>
-					);
-				}
-			);
-		};
-
-		/**
-		 * Handle user input to one of the custom SEO title inputs.
-		 * Updates controlled custom SEO title inputs and advanced_seo_title_formats option/form state.
-		 *
-		 * @param {object} event - Event object fired from user input.
-		 */
-		handleCustomSeoTitleInput = event => {
-			const pageType = event.target
-				.getAttribute( 'id' )
-				.split( 'jp-seo-custom-titles-input-' )[ 1 ];
-			const inputArray = this.buildCustomSeoTitleInputArray( event.target.value, pageType );
-
-			const customSeoTitles = this.props.getOptionValue( 'advanced_seo_title_formats' );
-			customSeoTitles[ pageType ] = inputArray;
-
-			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', customSeoTitles );
-		};
-
-		/**
-		 * Converts the array of token/string objects for a particular custom SEO title pageType/input into a string.
-		 *
-		 * @param {Array} data - An array of token/string objects and their values.
-		 * @returns {string} A concatenated string of values from the token/string objects supplied.
-		 */
-		buildCustomSeoTitleInputValue = data => {
-			if ( Array.isArray( data ) ) {
-				return data.reduce( ( acc, obj ) => {
-					return acc + ( obj.type === 'token' ? `[${ obj.value }]` : obj.value );
-				}, '' );
-			}
-		};
-
-		/**
-		 * Converts an input value to an array of token/string objects,
-		 * for storage into the `advanced_seo_title_formats` option.
-		 *
-		 * @param {string} inputValue - The value of an input for one of the custom SEO title inputs/pageTypes.
-		 * @param {string} pageType - Type of page the title is being customized for (e.g front_page, archives)
-		 * @returns {Array} An array of token/string objects and their values.
-		 */
-		buildCustomSeoTitleInputArray = ( inputValue, pageType ) => {
-			const inputArray = inputValue.split(
-				/(\[(?:site_name|tagline|post_title|page_title|group_title|date)\])/
-			);
-
-			return inputArray
-				.filter( value => {
-					if ( value ) {
-						return value;
-					}
-				} )
-				.map( value => {
-					let matchedToken = null;
-					Object.keys( this.constants.customSeoTitles.insertableTokens ).map( token => {
-						if ( value === `[${ token }]` ) {
-							matchedToken = token;
-						}
-					} );
-
-					if (
-						matchedToken &&
-						this.constants.customSeoTitles.tokensAvailablePerPageType[ pageType ].includes(
-							matchedToken
-						)
-					) {
-						return {
-							type: 'token',
-							value: matchedToken,
-						};
-					}
-
-					return {
-						type: 'string',
-						value,
-					};
-				} );
-		};
-
-		customSeoTitleInput = ( pageType, customSeoTitles ) => {
-			return (
-				<div className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }>
-					<div className={ `jp-seo-custom-titles-input-controls` }>
-						<FormLabel
-							key={ pageType.name }
-							className={ `jp-seo-custom-titles-input-label` }
-							htmlFor={ `jp-seo-custom-titles-input-${ pageType.name }` }
-						>
-							<span className="jp-form-label">{ pageType.label }</span>
-						</FormLabel>
-						{ this.getTokenButtonsForCustomSeoTitleInput( pageType ) }
-					</div>
-					<TextInput
-						id={ `jp-seo-custom-titles-input-${ pageType.name }` }
-						className="jp-seo-custom-titles-input"
-						value={ this.buildCustomSeoTitleInputValue( customSeoTitles[ pageType.name ] ) }
-						onChange={ this.handleCustomSeoTitleInput }
-						ref={ this.customSeoTitleInputRefs[ pageType.name ] }
-					/>
-					<span style={ { 'margin-bottom': '1rem', display: 'block' } }>Todo: live preview</span>
-				</div>
-			);
+		handleCustomSeoTitleInput = newCustomSeoTitles => {
+			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
 		};
 
 		render() {
@@ -297,10 +130,11 @@ export const SEO = withModuleSettingsFormHelpers(
 										'jetpack'
 									) }
 								</p>
-								<FormFieldset className="jp-seo-custom-titles">
-									{ this.constants.customSeoTitles.pageTypes.map( pageType =>
-										this.customSeoTitleInput( pageType, customSeoTitles )
-									) }
+								<FormFieldset>
+									<CustomSeoTitles
+										customSeoTitles={ customSeoTitles }
+										handleCustomSeoTitleInput={ this.handleCustomSeoTitleInput }
+									/>
 								</FormFieldset>
 							</SettingsGroup>
 							<SettingsGroup>
