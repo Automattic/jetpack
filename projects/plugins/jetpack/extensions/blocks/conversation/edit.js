@@ -156,10 +156,10 @@ function ConversationEdit( {
 				participants: conversation.speakers,
 				skipUpload: ! conversation?.length,
 			} );
-			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => [
-				'jetpack/dialogue',
-				dialogue,
-			] );
+
+			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => (
+				dialogue.slug ? [ 'jetpack/dialogue', dialogue ] : [ 'core/paragraph', dialogue ]
+			) );
 
 			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
 			insertBlocks( dialogueBlocks, 0, clientId );

@@ -59,7 +59,6 @@ export const TRANSCRIPT_MAX_FILE_SIZE = 100000;
  * ----------------------------
  * Serices: otter.ai, ...
  */
-
 const otterRegExp = /(.*[^\s])\s{1,}(\d{1,2}(?::\d{1,2}?)+)\s+\n([\s\S]*?(?=\n{2}|$))/;
 const otterFormatRegExp = new RegExp( otterRegExp, 'gm' );
 const otterFormatTestRegExp = new RegExp( otterRegExp, 'g' );
@@ -70,7 +69,7 @@ const otterFormatTestRegExp = new RegExp( otterRegExp, 'g' );
  * ----------------------------
  * Serices: sonix.ai, ...
  */
-const sonixRegExp = /(?:(.*[^\s]):\s*)?\[([\d{1,2}:]*)]\s([\s\S]*?(?=\n{1,2}|$))/;
+const sonixRegExp = /(?:(.*[^\s]):\s+)?(?:\[([\d{1,2}:]*)])?([\s\S]+?(?:\n+|$))/;
 const sonixFormatRegExp = new RegExp( sonixRegExp, 'gm' );
 const sonixFormatTestRegExp = new RegExp( sonixRegExp, 'g' );
 
@@ -141,7 +140,6 @@ export function TXT_parse ( content ) {
 	let matches;
 	while ( ( matches = parser.re.exec( content ) ) != null ) {
 		const speakerName = matches[ parser?.indexes?.speaker || 1 ] || '';
-
 		if (
 			speakerName?.length &&
 			result.conversation.speakers.indexOf( speakerName ) < 0
@@ -149,13 +147,18 @@ export function TXT_parse ( content ) {
 			result.conversation.speakers.push( speakerName );
 		}
 
-		result.dialogues.push( {
-			label: speakerName,
-			slug: `speaker-${ result.conversation.speakers.indexOf( speakerName ) }`,
+		const dialogue = {
 			content: matches[ parser?.indexes?.content || 3 ],
 			timestamp: matches[ parser?.indexes?.timestamp || 2 ],
 			showTimestamp: true,
-		} );
+		};
+
+		if ( speakerName?.length ) {
+			dialogue.label = speakerName;
+			dialogue.slug = `speaker-${ result.conversation.speakers.indexOf( speakerName ) }`;
+		}
+
+		result.dialogues.push( dialogue );
 	}
 
 	result.conversation.speakers = result.conversation.speakers.map( ( speaker, ind ) => ( {
