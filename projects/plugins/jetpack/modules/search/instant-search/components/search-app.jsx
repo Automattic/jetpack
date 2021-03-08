@@ -38,7 +38,7 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import { bindCustomizerChanges } from '../lib/customize';
+import { bindCustomizerChanges, isInCustomizer } from '../lib/customize';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -273,6 +273,7 @@ class SearchApp extends Component {
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
+			isInCustomizer: isInCustomizer(),
 		} );
 	};
 
