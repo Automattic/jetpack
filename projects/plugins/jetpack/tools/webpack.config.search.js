@@ -75,4 +75,11 @@ module.exports = {
 			requestToHandle: defaultRequestToHandle,
 		} ),
 	],
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				vendors: false,
+			},
+		},
+	},
 };
