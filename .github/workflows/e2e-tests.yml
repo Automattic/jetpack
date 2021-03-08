@@ -97,12 +97,12 @@ jobs:
     - name: Run all tests
       if: matrix.gutenberg == 'no'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: DEBUG=pw:api yarn test-e2e
+      run: yarn test-e2e
 
     - name: Run only blocks tests with latest Gutenberg
       if: matrix.gutenberg == 'latest'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: DEBUG=pw:api yarn test-e2e --testNamePattern=blocks
+      run: yarn test-e2e --testNamePattern=blocks
 
     - name: Upload test artifacts
       if: ${{ always() }}
