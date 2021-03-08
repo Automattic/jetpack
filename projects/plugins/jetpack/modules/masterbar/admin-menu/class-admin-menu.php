@@ -516,7 +516,7 @@ class Admin_Menu {
 		add_filter(
 			'parent_file',
 			function ( $parent_file ) use ( $menu_slug ) {
-				return 'jetpack' === $parent_file ? $menu_slug : $parent_file;
+				return 'plugins.php' === $parent_file ? $menu_slug : $parent_file;
 			}
 		);
 	}
