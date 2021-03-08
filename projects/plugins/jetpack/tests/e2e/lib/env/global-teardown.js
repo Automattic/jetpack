@@ -1,8 +1,10 @@
 import { readFileSync, renameSync, existsSync } from 'fs';
+const os = require( 'os' );
+const rimraf = require( 'rimraf' );
+const path = require( 'path' );
 
 import SlackReporter from '../reporters/slack';
 import config from 'config';
-import path from 'path';
 
 /**
  * Goes through the messages in slack-specific log, and send these messages into slack
@@ -63,25 +65,13 @@ function getMessages( log ) {
 	return messages;
 }
 
-/**
- * Goes through each line in the video_files file and attempts to rename the video files accordingly
- * The file is expected to contain lines of "current file name->new file name" pairs
- *
- * @return {Promise<void>}
- */
-async function renameVideoFiles() {
-	readFileSync( 'output/video_files', 'utf-8' )
-		.split( /\r?\n/ )
-		.forEach( function ( line ) {
-			const names = line.split( '->' );
-			if ( ! names[ 1 ] || ! existsSync( names[ 0 ] ) ) {
-				return;
-			}
-			renameSync( names[ 0 ], names[ 1 ] );
-		} );
-}
+const DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
 module.exports = async function () {
+	// Close browser
+	await global.browser.close();
+	rimraf.sync( DIR );
+
 	// Close tunnel
 	await global.tunnelManager.close();
 

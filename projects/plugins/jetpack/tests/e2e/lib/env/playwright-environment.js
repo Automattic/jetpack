@@ -1,20 +1,48 @@
-const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
+const NodeEnvironment = require( 'jest-environment-node' );
+const { chromium } = require( 'playwright' );
+const os = require( 'os' );
 const fs = require( 'fs' );
+const path = require( 'path' );
 const logger = require( '../logger' ).default;
 const { logDebugLog } = require( '../utils-helper' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
-class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
+const DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
+
+class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async setup() {
 		await super.setup();
+
+		const wsEndpoint = fs.readFileSync( path.join( DIR, 'wsEndpoint' ), 'utf8' );
+		if ( ! wsEndpoint ) {
+			throw new Error( 'wsEndpoint not found' );
+		}
+
+		this.global.browser = await chromium.connect( {
+			wsEndpoint,
+		} );
+
+		this.global.context = await this.global.browser.newContext( {
+			recordVideo: {
+				dir: 'output/videos',
+			},
+			viewport: {
+				width: 1280,
+				height: 1024,
+			},
+			storageState: 'config/storage.json',
+		} );
+
+		this.global.videoFiles = [];
 	}
 
 	async teardown() {
 		await super.teardown();
+		await this.closeContext();
 	}
 
 	async handleTestEvent( event ) {
-		await super.handleTestEvent( event );
+		logger.info( `\t>>>>>> ${ event.name }` );
 
 		let testName = 'unknown_test';
 		let hookName = 'unknown_hook';
@@ -47,21 +75,27 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			case 'run_describe_start':
 				break;
 			case 'test_start':
-				logger.info( `START TEST: ${ testName }` );
-				// await this.storeVideoFileName( testName );
+				await this.newPage( testName );
 				break;
 			case 'hook_start':
 				logger.info( `START: ${ hookName }` );
-				// await this.storeVideoFileName( hookName );
+				if ( event.hook.type === 'beforeAll' ) {
+					await this.newPage( hookName );
+				}
 				break;
 			case 'hook_success':
 				logger.info( `SUCCESS: ${ hookName }` );
+				if ( event.hook.type === 'beforeAll' ) {
+				}
 				break;
 			case 'hook_failure':
 				logger.info( `HOOK FAILED: ${ hookName }` );
 				await this.onFailure( testName, event.hook.parent.name, event.hook.type, event.error );
+				if ( event.hook.type === 'beforeAll' ) {
+				}
 				break;
 			case 'test_fn_start':
+				logger.info( `START TEST: ${ testName }` );
 				break;
 			case 'test_fn_success':
 				logger.info( `TEST PASSED: ${ testName }` );
@@ -71,7 +105,6 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				await this.onFailure( testName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
-				logger.info( `TEST DONE: ${ testName }` );
 				break;
 			case 'run_describe_finish':
 				break;
@@ -86,10 +119,87 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 		}
 	}
 
+	async newPage( eventName = '' ) {
+		logger.debug( 'Creating new page' );
+
+		this.global.page = await this.global.context.newPage();
+
+		this.global.page.on( 'console', message => {
+			const type = message.type();
+			if ( ! [ 'warning', 'error' ].includes( type ) ) {
+				return;
+			}
+
+			const text = message.text();
+
+			// An exception is made for _blanket_ deprecation warnings: Those
+			// which log regardless of whether a deprecated feature is in use.
+			if ( text.includes( 'This is a global warning' ) ) {
+				return;
+			}
+
+			// A chrome advisory warning about SameSite cookies is informational
+			// about future changes, tracked separately for improvement in core.
+			//
+			// See: https://core.trac.wordpress.org/ticket/37000
+			// See: https://www.chromestatus.com/feature/5088147346030592
+			// See: https://www.chromestatus.com/feature/5633521622188032
+			if ( text.includes( 'A cookie associated with a cross-site resource' ) ) {
+				return;
+			}
+
+			// Viewing posts on the front end can result in this error, which
+			// has nothing to do with Gutenberg.
+			if ( text.includes( 'net::ERR_UNKNOWN_URL_SCHEME' ) ) {
+				return;
+			}
+
+			// As of WordPress 5.3.2 in Chrome 79, navigating to the block editor
+			// (Posts > Add New) will display a console warning about
+			// non - unique IDs.
+			// See: https://core.trac.wordpress.org/ticket/23165
+			if ( text.includes( 'elements with non-unique id #_wpnonce' ) ) {
+				return;
+			}
+
+			if ( text.includes( 'is deprecated' ) ) {
+				return;
+			}
+
+			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
+		} );
+
+		try {
+			const srcVideoPath = await this.global.page.video().path();
+			const targetFileName = `${ new Date().toISOString() }_${ eventName }`;
+			const targetFilePath = `output/videos/${ targetFileName.replace( /\W/g, '_' ) }.webm`;
+			this.global.videoFiles.push( [ srcVideoPath, targetFilePath ] );
+		} catch ( error ) {
+			logger.error( `Cannot get page's video file path! \n ${ error }` );
+		}
+
+		logger.debug( this.global.videoFiles );
+	}
+
+	async closeContext() {
+		logger.debug( 'Closing browser context' );
+		await this.global.context.close();
+
+		// Rename video files
+		for ( const video of this.global.videoFiles ) {
+			logger.debug( 'Renaming video file' );
+			try {
+				fs.renameSync( video[ 0 ], video[ 1 ] );
+				logger.debug( `Video file saved as ${ video[ 1 ] }` );
+			} catch ( error ) {
+				logger.error( `Renaming video file failed! \n ${ error }` );
+			}
+		}
+	}
+
 	async onFailure( eventFullName, parentName, eventName, error ) {
-		logger.error( JSON.stringify( error ) );
+		logger.error( error );
 		await this.saveScreenshot( eventFullName );
-		await this.storeVideoFileName( eventFullName );
 		await this.logHTML( eventFullName );
 		await this.logFailureToSlack( parentName, eventName, error );
 		await logDebugLog();
@@ -119,26 +229,10 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 			const ts = new Date().toISOString();
 			fileName = `${ fileName }_${ ts }`;
 			fileName = `${ fileName.replace( /\W/g, '_' ) }.png`;
-			const path = require( 'path' );
 			const filePath = path.resolve( `output/screenshots/${ fileName }` );
-			this.global.page.screenshot( { path: filePath } );
+			this.global.page.screenshot( { path: filePath, fullPage: true } );
 
 			logger.slack( { type: 'file', message: filePath } );
-		}
-	}
-
-	/**
-	 * Store the name of the video corresponding to the current page in a file so we can rename it later
-	 * Store pairs of current name (path) and target name
-	 *
-	 * @param {string} targetFileName the video file name we will rename it into
-	 * @return {Promise<void>}
-	 */
-	async storeVideoFileName( targetFileName ) {
-		if ( this.global.page ) {
-			const videoFilePath = await this.global.page.video().path();
-			const targetFilePath = `output/videos/${ targetFileName.replace( /\W/g, '_' ) }.webm`;
-			fs.appendFileSync( `output/video_files`, `${ videoFilePath }->${ targetFilePath }\n` );
 		}
 	}
 
