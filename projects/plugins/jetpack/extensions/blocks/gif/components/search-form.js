@@ -25,8 +25,9 @@ export function SearchForm( { onSubmit, onChange, value = '' }, ref ) {
 				value={ value }
 				onChange={ onChange }
 				ref={ ref }
+				aria-labelledby="wp-block-jetpack-gif_search-button"
 			/>
-			<Button isSecondary type="submit">
+			<Button id="wp-block-jetpack-gif_search-button" isSecondary type="submit">
 				{ __( 'Search', 'jetpack' ) }
 			</Button>
 		</form>

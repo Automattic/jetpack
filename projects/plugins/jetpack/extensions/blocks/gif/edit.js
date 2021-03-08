@@ -74,6 +74,11 @@ function GifEdit( {
 
 	const onSubmit = ( event ) => {
 		event.preventDefault();
+
+		if ( ! attributes.searchText ) {
+			return;
+		}
+
 		fetchResults( getUrl( attributes.searchText ) );
 	};
 
@@ -123,7 +128,7 @@ function GifEdit( {
 							} ) }
 						</div>
 					) }
-					<div className="wp-block-jetpack-gif-wrapper" style={ paddingTop.style }>
+					<div className="wp-block-jetpack-gif-wrapper" style={ { paddingTop } }>
 						<div
 							className="wp-block-jetpack-gif_cover"
 							onClick={ setSearchInputFocus }

@@ -19,8 +19,8 @@ export const getUrlWithId = ( giphyId ) => {
 	) }?api_key=${ encodeURIComponent( GIPHY_API_KEY ) }`;
 };
 
-export const splitAndLast = ( array, delimiter ) => {
-	const split = array.split( delimiter );
+export const splitStringAndReturnLastItem = ( str = '', delimiter ) => {
+	const split = str.split( delimiter );
 	return split[ split.length - 1 ];
 };
 
@@ -29,12 +29,12 @@ export const getUrl = ( searchText ) => {
 
 	// If search is hardcoded Giphy URL following this pattern: https://giphy.com/embed/4ZFekt94LMhNK
 	if ( searchText.indexOf( '//giphy.com/gifs' ) !== -1 ) {
-		giphyID = splitAndLast( splitAndLast( searchText, '/' ), '-' );
+		giphyID = splitStringAndReturnLastItem( splitStringAndReturnLastItem( searchText, '/' ), '-' );
 	}
 
 	// If search is hardcoded Giphy URL following this patterh: http://i.giphy.com/4ZFekt94LMhNK.gif
 	if ( searchText.indexOf( '//i.giphy.com' ) !== -1 ) {
-		giphyID = splitAndLast( searchText, '/' ).replace( '.gif', '' );
+		giphyID = splitStringAndReturnLastItem( searchText, '/' ).replace( '.gif', '' );
 	}
 
 	// https://media.giphy.com/media/gt0hYzKlMpfOg/giphy.gif
