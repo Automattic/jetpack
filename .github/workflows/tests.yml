@@ -6,7 +6,7 @@ on:
     branches: [ 'master', '*/branch-*' ]
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-master"
+  COMPOSER_ROOT_VERSION: "dev-monorepo"
 
 jobs:
   create-matrix:

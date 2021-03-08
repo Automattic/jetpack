@@ -8,11 +8,15 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "1.0.x-dev"
+	},
 	"scripts": {
 		"pre-update-cmd": [
 			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
 		]
 	},
+	"autoload": {},
 	"repositories": [
 		{
 			"type": "path",
@@ -22,7 +26,6 @@
 			}
 		}
 	],
-	"autoload": {},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {

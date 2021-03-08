@@ -70,7 +70,16 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	NAME="$(basename "$DIR")"
 	echo "::group::Installing plugin $NAME into WordPress"
 	cd "$DIR"
-	composer install || composer update
+	if [[ ! -f "composer.lock" ]]; then
+		echo 'No composer.lock, running `composer update`'
+		composer update
+	elif composer check-platform-reqs --lock; then
+		echo 'Platform reqs pass, running `composer install`'
+		composer install
+	else
+		echo 'Platform reqs failed, running `composer update`'
+		composer update
+	fi
 	cd "$BASE"
 
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
