@@ -33,7 +33,7 @@ import { decimalPlaces, formatPrice } from './utils';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 import { PanelControls } from './controls';
 
-class SimplePaymentsEdit extends Component {
+export class SimplePaymentsEdit extends Component {
 	state = {
 		fieldEmailError: null,
 		fieldPriceError: null,
