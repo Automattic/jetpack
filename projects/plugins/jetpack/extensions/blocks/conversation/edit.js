@@ -157,8 +157,12 @@ function ConversationEdit( {
 				skipUpload: ! conversation?.length,
 			} );
 
+			console.log( 'dialogues: ', dialogues );
+
 			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => (
-				dialogue.slug ? [ 'jetpack/dialogue', dialogue ] : [ 'core/paragraph', dialogue ]
+				dialogue.slug || dialogue.timestamp
+					? [ 'jetpack/dialogue', dialogue ]
+					: [ 'core/paragraph', dialogue ]
 			) );
 
 			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
