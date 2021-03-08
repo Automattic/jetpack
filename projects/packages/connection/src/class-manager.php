@@ -893,7 +893,7 @@ class Manager {
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
-			'timeout' => 10,
+			'timeout' => 3,
 		);
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
