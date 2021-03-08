@@ -13,6 +13,7 @@ function usage {
 
 start_env() {
 	yarn wp-env start
+	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/tests/e2e/bin/wp-setup.sh
 	configure_wp_env
 }
 
@@ -22,8 +23,6 @@ reset_env() {
 }
 
 configure_wp_env() {
-	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/tests/e2e/bin/wp-setup.sh
-
 	if [ "$GUTENBERG" == "latest" ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
 	fi
