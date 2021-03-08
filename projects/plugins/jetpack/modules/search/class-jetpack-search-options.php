@@ -40,7 +40,7 @@ class Jetpack_Search_Options {
 	 */
 	const RESULT_FORMAT_MINIMAL  = 'minimal';
 	const RESULT_FORMAT_EXPANDED = 'expanded';
-	const RESULT_FORMAT_PRODUCT  = 'product;'
+	const RESULT_FORMAT_PRODUCT  = 'product';
 
 	/**
 	 * Returns a boolean for whether instant search is enabled.
