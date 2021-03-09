@@ -20,9 +20,8 @@ export default {
 			submitButtonClasses: '',
 		};
 	},
-
 	isEligible: attr => {
-		if ( ! isEmpty( attr.subscribeButton ) ) {
+		if ( ! attr.hasOwnProperty( 'subscribeButton' ) || ! isEmpty( attr.subscribeButton ) ) {
 			return false;
 		}
 		return true;
