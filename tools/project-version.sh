@@ -188,7 +188,7 @@ done
 # Update branch-alias in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"
 debug "$OPING branch-alias version, if any"
-jsver "$FILE" '.extra["branch-alias"]["dev-monorepo"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
+jsver "$FILE" '.extra["branch-alias"]["dev-master"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
 
 # Update declared constants
 FILE="$BASE/projects/$SLUG/composer.json"
