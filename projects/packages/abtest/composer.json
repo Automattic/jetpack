@@ -46,6 +46,9 @@
 		"mirror-repo": "Automattic/jetpack-abtest",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.9.x-dev"
 		}
 	}
 }

@@ -44,6 +44,9 @@
 		"mirror-repo": "Automattic/jetpack-redirect",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.5.x-dev"
 		}
 	}
 }

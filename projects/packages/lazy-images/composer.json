@@ -54,6 +54,9 @@
 		"mirror-repo": "Automattic/jetpack-lazy-images",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.4.x-dev"
 		}
 	}
 }
