@@ -38,7 +38,7 @@ const automations = [
 	},
 	{
 		event: 'push',
-		task: ifNotFork( wpcomCommitReminder ),
+		task: wpcomCommitReminder,
 	},
 ];
 
