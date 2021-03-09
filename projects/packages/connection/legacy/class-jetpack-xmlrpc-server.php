@@ -9,7 +9,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 
@@ -57,7 +56,6 @@ class Jetpack_XMLRPC_Server {
 			'jetpack.verifyAction'     => array( $this, 'verify_action' ),
 			'jetpack.getUser'          => array( $this, 'get_user' ),
 			'jetpack.remoteRegister'   => array( $this, 'remote_register' ),
-			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
 			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
 			'jetpack.testConnection'   => array( $this, 'test_connection' ),
@@ -350,73 +348,6 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	/**
-	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
-	 * register this site so that a plan can be provisioned.
-	 *
-	 * @param array $request An array containing at minimum a nonce key and a local_username key.
-	 *
-	 * @return \WP_Error|array
-	 */
-	public function remote_provision( $request ) {
-		$user = $this->fetch_and_verify_local_user( $request );
-
-		if ( ! $user ) {
-			return $this->error(
-				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ),
-				'remote_provision'
-			);
-		}
-
-		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
-			return $this->error( $user, 'remote_provision' );
-		}
-
-		$site_icon = get_site_icon_url();
-
-		$auto_enable_sso = ( ! $this->connection->is_active() || Jetpack::is_module_active( 'sso' ) );
-
-		/** This filter is documented in class.jetpack-cli.php */
-		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
-			$redirect_uri = add_query_arg(
-				array(
-					'action'      => 'jetpack-sso',
-					'redirect_to' => rawurlencode( admin_url() ),
-				),
-				wp_login_url() // TODO: come back to Jetpack dashboard?
-			);
-		} else {
-			$redirect_uri = admin_url();
-		}
-
-		// Generate secrets.
-		$roles   = new Roles();
-		$role    = $roles->translate_user_to_role( $user );
-		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID );
-
-		$response = array(
-			'jp_version'   => JETPACK__VERSION,
-			'redirect_uri' => $redirect_uri,
-			'user_id'      => $user->ID,
-			'user_email'   => $user->user_email,
-			'user_login'   => $user->user_login,
-			'scope'        => $this->connection->sign_role( $role, $user->ID ),
-			'secret'       => $secrets['secret_1'],
-			'is_active'    => $this->connection->is_active(),
-		);
-
-		if ( $site_icon ) {
-			$response['site_icon'] = $site_icon;
-		}
-
-		if ( ! empty( $request['onboarding'] ) ) {
-			Jetpack::create_onboarding_token();
-			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
-		}
-
-		return $response;
-	}
-
-	/**
 	 * Given an array containing a local user identifier and a nonce, will attempt to fetch and set
 	 * an access token for the given user.
 	 *
@@ -497,7 +428,7 @@ class Jetpack_XMLRPC_Server {
 	 *
 	 * @param array $request the current request data.
 	 */
-	private function fetch_and_verify_local_user( $request ) {
+	public function fetch_and_verify_local_user( $request ) {
 		if ( empty( $request['local_user'] ) ) {
 			return $this->error(
 				new \WP_Error(
