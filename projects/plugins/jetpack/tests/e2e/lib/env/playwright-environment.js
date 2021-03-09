@@ -32,7 +32,6 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 	async teardown() {
 		await super.teardown();
-		logger.debug( 'Closing browser context' );
 		await this.global.context.close();
 	}
 
@@ -134,8 +133,6 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	}
 
 	async onNewPage( page ) {
-		logger.debug( chalk.blueBright( 'New page created' ) );
-
 		// Observe console logging
 		page.on( 'console', message => {
 			const type = message.type();
@@ -157,14 +154,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
 
-		// const userAgent = await page.evaluate( () => navigator.userAgent );
-		// logger.info( chalk.blueBright( `New page created with user agent: ${ userAgent }` ) );
-
 		await this.saveVideoFilePathsForPage( page );
 	}
 
 	async closePage() {
-		logger.debug( chalk.blueBright( 'Closing page' ) );
 		await this.global.page.close();
 	}
 
