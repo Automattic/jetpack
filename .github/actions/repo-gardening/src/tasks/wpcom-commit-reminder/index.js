@@ -99,7 +99,7 @@ async function wpcomCommitReminder( payload, octokit ) {
 	// get diff id from comment body above.
 	const diffId = matticBotComment.match( /(D\d{5}-code)/ );
 
-	if ( 0 === diffId.length ) {
+	if ( ! diffId || 0 === diffId.length ) {
 		debug( 'wpcom-commit-reminder: We could not find a diff ID. Aborting' );
 		return;
 	}
