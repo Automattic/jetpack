@@ -157,8 +157,6 @@ function ConversationEdit( {
 				skipUpload: ! conversation?.length,
 			} );
 
-			console.log( 'dialogues: ', dialogues );
-
 			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => (
 				dialogue.slug || dialogue.timestamp
 					? [ 'jetpack/dialogue', dialogue ]
