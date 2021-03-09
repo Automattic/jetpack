@@ -20,6 +20,23 @@ import ConnectUserBar from 'components/connect-user-bar';
 import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import FoldableCard from 'components/foldable-card';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
+import SimpleNotice from 'components/notice';
+
+export const conflictingSeoPlugins = [
+	'Yoast SEO',
+	'Yoast SEO Premium',
+	'All In One SEO Pack',
+	'All in One SEO Pack Pro',
+];
+
+// Returns first conflicting plugin
+export const getConflictingSeoPlugin = plugins => {
+	const conflictingPlugins = Object.keys( plugins ).filter( plugin => {
+		return plugins[ plugin ].active && conflictingSeoPlugins.includes( plugins[ plugin ].Name );
+	} );
+
+	return plugins[ conflictingPlugins[ 0 ] ];
+};
 
 export const SEO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -69,6 +86,8 @@ export const SEO = withModuleSettingsFormHelpers(
 		render() {
 			const seo = this.props.getModule( 'seo-tools' );
 			const isSeoActive = this.props.getOptionValue( seo.module );
+			const isFetchingPluginsData = this.props.pluginsData.requests.isFetchingPluginsData;
+			const hasConflictingSeoPlugin = getConflictingSeoPlugin( this.props.pluginsData.items );
 			const frontPageMetaDescription = this.props.getOptionValue(
 				'advanced_seo_front_page_description'
 			);
@@ -92,6 +111,7 @@ export const SEO = withModuleSettingsFormHelpers(
 					feature={ 'seo-tools-jetpack' }
 					module={ seo.module }
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
+					hideButton={ hasConflictingSeoPlugin }
 				>
 					<SettingsGroup
 						disableInOfflineMode
@@ -105,6 +125,15 @@ export const SEO = withModuleSettingsFormHelpers(
 							link: getRedirectUrl( 'jetpack-support-seo-tools' ),
 						} }
 					>
+						{ hasConflictingSeoPlugin && (
+							<SimpleNotice showDismiss={ false }>
+								{ sprintf(
+									/* translators: %s is the name of conflicting SEO plugin */
+									__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
+									hasConflictingSeoPlugin.Name
+								) }
+							</SimpleNotice>
+						) }
 						<p>
 							{ __(
 								'Take control of the way search engines represent your site. With Jetpack’s SEO tools you can preview how your content will look on popular search engines and change items like your site name and tagline in seconds.',
@@ -115,100 +144,106 @@ export const SEO = withModuleSettingsFormHelpers(
 							slug="seo-tools"
 							activated={ isSeoActive }
 							toggling={ this.props.isSavingAnyOption( seo.module ) }
-							disabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
+							disabled={
+								this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) ||
+								hasConflictingSeoPlugin
+							}
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							{ __( 'Customize your SEO settings', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{ isSeoActive && ! this.props.isOfflineMode && (
-						<div>
-							<SettingsGroup>
-								<p>
-									{ __(
-										'You can set the structure of page titles for different sections of your site. Doing this will change the way your site title is displayed in search engines, social media sites, and browser tabs.',
-										'jetpack'
-									) }
-								</p>
-								<FormFieldset>
-									<CustomSeoTitles
-										customSeoTitles={ customSeoTitles }
-										handleCustomSeoTitleInput={ this.handleCustomSeoTitleInput }
-										siteData={ siteData }
-									/>
-								</FormFieldset>
-							</SettingsGroup>
-							<SettingsGroup>
-								<p>
-									{ __(
-										'Craft a description of your Website up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
-										'jetpack'
-									) }
-								</p>
-								<FormLabel htmlFor="jp-seo-front-page-description">
-									<span className="jp-form-label-wide">
-										{ __( 'Front Page Meta Description', 'jetpack' ) }
-									</span>
-								</FormLabel>
-								<div className="jp-seo-front-page-description-container">
-									<FormTextarea
-										name="advanced_seo_front_page_description"
-										id="jp-seo-front-page-description"
-										className="jp-form-textarea-wide"
-										maxLength={ this.constants.frontPageMetaMaxLength }
-										value={ frontPageMetaDescription }
-										onChange={ this.props.onOptionChange }
-									/>
-									<div className="jp-seo-front-page-description-count">
-										{ sprintf(
-											/* translators: placeholder is number of characters */
-											_n(
-												'%d character',
-												'%d characters',
-												frontPageMetaDescription.length,
-												'jetpack'
-											),
-											frontPageMetaDescription.length
+					{ isSeoActive &&
+						! this.props.isOfflineMode &&
+						! isFetchingPluginsData &&
+						! hasConflictingSeoPlugin && (
+							<div>
+								<SettingsGroup>
+									<p>
+										{ __(
+											'You can set the structure of page titles for different sections of your site. Doing this will change the way your site title is displayed in search engines, social media sites, and browser tabs.',
+											'jetpack'
 										) }
+									</p>
+									<FormFieldset>
+										<CustomSeoTitles
+											customSeoTitles={ customSeoTitles }
+											handleCustomSeoTitleInput={ this.handleCustomSeoTitleInput }
+											siteData={ siteData }
+										/>
+									</FormFieldset>
+								</SettingsGroup>
+								<SettingsGroup>
+									<p>
+										{ __(
+											'Craft a description of your Website up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
+											'jetpack'
+										) }
+									</p>
+									<FormLabel htmlFor="jp-seo-front-page-description">
+										<span className="jp-form-label-wide">
+											{ __( 'Front Page Meta Description', 'jetpack' ) }
+										</span>
+									</FormLabel>
+									<div className="jp-seo-front-page-description-container">
+										<FormTextarea
+											name="advanced_seo_front_page_description"
+											id="jp-seo-front-page-description"
+											className="jp-form-textarea-wide"
+											maxLength={ this.constants.frontPageMetaMaxLength }
+											value={ frontPageMetaDescription }
+											onChange={ this.props.onOptionChange }
+										/>
+										<div className="jp-seo-front-page-description-count">
+											{ sprintf(
+												/* translators: placeholder is number of characters */
+												_n(
+													'%d character',
+													'%d characters',
+													frontPageMetaDescription.length,
+													'jetpack'
+												),
+												frontPageMetaDescription.length
+											) }
+										</div>
 									</div>
-								</div>
-							</SettingsGroup>
-							<FoldableCard
-								header={ __(
-									'Expand to preview how the SEO settings will look for your homepage on Google, Facebook, and Twitter.',
-									'jetpack'
-								) }
-								clickableHeader={ true }
-								className="jp-seo-social-previews"
-							>
-								<div className="jp-seo-social-previews-container">
-									<SocialLogo icon="google" size={ 24 } />
-									<span className="jp-seo-social-previews-label">
-										{ __( 'Google search', 'jetpack' ) }
-									</span>
-								</div>
-								{ this.SocialPreviewGoogle( siteData ) }
+								</SettingsGroup>
+								<FoldableCard
+									header={ __(
+										'Expand to preview how the SEO settings will look for your homepage on Google, Facebook, and Twitter.',
+										'jetpack'
+									) }
+									clickableHeader={ true }
+									className="jp-seo-social-previews"
+								>
+									<div className="jp-seo-social-previews-container">
+										<SocialLogo icon="google" size={ 24 } />
+										<span className="jp-seo-social-previews-label">
+											{ __( 'Google search', 'jetpack' ) }
+										</span>
+									</div>
+									{ this.SocialPreviewGoogle( siteData ) }
 
-								<hr />
-								<div className="jp-seo-social-previews-container">
-									<SocialLogo icon="facebook" size={ 24 } />
-									<span className="jp-seo-social-previews-label">
-										{ __( 'Facebook', 'jetpack' ) }
-									</span>
-								</div>
-								{ this.SocialPreviewFacebook( siteData ) }
+									<hr />
+									<div className="jp-seo-social-previews-container">
+										<SocialLogo icon="facebook" size={ 24 } />
+										<span className="jp-seo-social-previews-label">
+											{ __( 'Facebook', 'jetpack' ) }
+										</span>
+									</div>
+									{ this.SocialPreviewFacebook( siteData ) }
 
-								<hr />
-								<div className="jp-seo-social-previews-container">
-									<SocialLogo icon="twitter-alt" size={ 24 } />
-									<span className="jp-seo-social-previews-label">
-										{ __( 'Twitter', 'jetpack' ) }
-									</span>
-								</div>
-								{ this.SocialPreviewTwitter( siteData ) }
-							</FoldableCard>
-						</div>
-					) }
+									<hr />
+									<div className="jp-seo-social-previews-container">
+										<SocialLogo icon="twitter-alt" size={ 24 } />
+										<span className="jp-seo-social-previews-label">
+											{ __( 'Twitter', 'jetpack' ) }
+										</span>
+									</div>
+									{ this.SocialPreviewTwitter( siteData ) }
+								</FoldableCard>
+							</div>
+						) }
 
 					{ ! this.props.hasConnectedOwner && (
 						<ConnectUserBar
@@ -226,5 +261,6 @@ export const SEO = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		siteData: state.jetpack.siteData.data,
+		pluginsData: state.jetpack.pluginsData,
 	};
 } )( SEO );
