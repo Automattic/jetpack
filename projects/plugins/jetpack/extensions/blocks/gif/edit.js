@@ -3,7 +3,7 @@
  */
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import { createRef, useState, useEffect, useCallback } from '@wordpress/element';
+import { createRef, useState, useEffect } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
 import { RichText } from '@wordpress/block-editor';
 
@@ -14,6 +14,7 @@ import { icon, title } from './';
 import { getUrl, getPaddingTop, getEmbedUrl } from './utils';
 import SearchForm from './components/search-form';
 import Controls from './controls';
+import useFetchGiphyData from './hooks/use-fetch-giphy-data';
 
 function GifEdit( {
 	attributes,
@@ -24,8 +25,8 @@ function GifEdit( {
 	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;
 	const classes = classNames( className, `align${ align }` );
 	const [ captionFocus, setCaptionFocus ] = useState( false );
-	const [ results, setResults ] = useState( '' );
 	const searchFormInputRef = createRef();
+	const { isFetching, giphyData, fetchGiphyData } = useFetchGiphyData();
 
 	const setSelectedGiphy = ( item ) => {
 		setAttributes( { giphyUrl: getEmbedUrl( item ), paddingTop: getPaddingTop( item ) } );
@@ -36,50 +37,20 @@ function GifEdit( {
 		setCaptionFocus( false );
 	};
 
-	const fetchResults = async ( requestUrl ) => {
-		const giphyFetch = await fetch( requestUrl )
-			.then( ( response ) => {
-				if ( response.ok ) {
-					return response;
-				}
-				return false;
-			} )
-			.catch( () => {
-				return false;
-			} );
-
-		if ( giphyFetch ) {
-			const giphyResponse = await giphyFetch.json();
-			// If there is only one result, Giphy's API does not return an array.
-			// The following statement normalizes the data into an array with one member in this case.
-			const giphyResults = typeof giphyResponse.data.images !== 'undefined' ? [ giphyResponse.data ] : giphyResponse.data;
-
-			// Try to grab the first result. We're going to show this as the main image.
-			const giphyData = giphyResults[ 0 ];
-
-			// No results
-			if ( ! giphyData.images ) {
-				return false;
-			}
-
-			setResults( giphyResults );
-		}
-	};
-
 	useEffect( () => {
-		if ( results && results[ 0 ] ) {
-			setSelectedGiphy( results[ 0 ] );
+		if ( giphyData && giphyData[ 0 ] ) {
+			setSelectedGiphy( giphyData[ 0 ] );
 		}
-	}, [ results ] );
+	}, [ giphyData ] );
 
 	const onSubmit = ( event ) => {
 		event.preventDefault();
 
-		if ( ! attributes.searchText ) {
+		if ( ! attributes.searchText || isFetching ) {
 			return;
 		}
 
-		fetchResults( getUrl( attributes.searchText ) );
+		fetchGiphyData( getUrl( attributes.searchText ) );
 	};
 
 	const onChange = ( event ) => setAttributes( { searchText: event.target.value } );
@@ -111,9 +82,9 @@ function GifEdit( {
 							ref={ searchFormInputRef }
 						/>
 					) }
-					{ isSelected && results && results.length > 1 && (
+					{ isSelected && giphyData && giphyData.length > 1 && (
 						<div className="wp-block-jetpack-gif_thumbnails-container">
-							{ results.map( thumbnail => {
+							{ giphyData.map( thumbnail => {
 								const thumbnailStyle = {
 									backgroundImage: `url(${ thumbnail.images.downsized_still.url })`,
 								};

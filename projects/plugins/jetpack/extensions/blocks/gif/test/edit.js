@@ -5,14 +5,15 @@
 /**
  * External dependencies
  */
-import { render, act, fireEvent } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 /**
  * Internal dependencies
  */
 import GifEdit from '../edit';
-import { getUrl } from '../utils';
+import { getUrl, getPaddingTop, getEmbedUrl } from '../utils';
+import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
 
 const setAttributes = jest.fn();
 
@@ -31,50 +32,54 @@ const defaultProps = {
 	isSelected: false,
 };
 
-const originalFetch = window.fetch;
-
-/**
- * Mock return value for a successful fetch JSON return value.
- *
- * @return {Promise} Mock return value.
- */
-const GIPHY_RESPONSE = {
-	data: [
-		{
-			id: '9',
-			embed_url: 'pony',
-			images: {
-				downsized_still: {
-					url: 'chips',
-				},
-				original: {
-					height: 10,
-					width: 10,
-				},
-			}
+const GIPHY_DATA = [
+	{
+		id: '9',
+		embed_url: 'pony',
+		images: {
+			downsized_still: {
+				url: 'chips',
+			},
+			original: {
+				height: 10,
+				width: 10,
+			},
 		}
-	]
-};
-const RESOLVED_FETCH_PROMISE = Promise.resolve( GIPHY_RESPONSE );
-const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
-	status: 200,
-	ok: true,
-	json: () => RESOLVED_FETCH_PROMISE,
-} );
+	},
+	{
+		id: '99',
+		embed_url: 'horsey',
+		images: {
+			downsized_still: {
+				url: 'fish',
+			},
+			original: {
+				height: 12,
+				width: 12,
+			},
+		}
+	}
+];
+
+const fetchGiphyData = jest.fn();
+
+jest.mock('./../hooks/use-fetch-giphy-data' );
 
 describe( 'GifEdit', () => {
 	beforeEach( () => {
-		window.fetch = jest.fn();
-		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
+		useFetchGiphyData.mockImplementation( () => {
+			return {
+				fetchGiphyData,
+				giphyData: [],
+				isFetching: false,
+			}
+		} );
 	} );
 
 	afterEach( async () => {
-		await act( () => GIPHY_RESPONSE );
+		fetchGiphyData.mockReset();
 		setAttributes.mockReset();
-	} );
-
-	afterAll( () => {
-		window.fetch = originalFetch;
+		useFetchGiphyData.mockReset();
 	} );
 
 	test( 'adds class names', () => {
@@ -88,16 +93,39 @@ describe( 'GifEdit', () => {
 		expect( container.querySelector( 'figure' ) ).not.toBeInTheDocument();
 	} );
 
-/*	test( 'calls API and returns giphy images', () => {
+	test( 'calls API and returns giphy images', async () => {
+		useFetchGiphyData.mockImplementationOnce( () => {
+			return {
+				fetchGiphyData,
+				giphyData: GIPHY_DATA,
+				isFetching: false,
+			}
+		} );
 		const newProps = {
 			...defaultProps,
+			isSelected: true,
 			attributes: {
 				...defaultAttributes,
-				searchText: 'sausage roll',
+				giphyUrl: 'https://itsalong.way/to/the/top/if/you/want',
+				searchText: 'a sausage roll',
 			},
 		};
-		const { container } = render( <GifEdit { ...newProps } /> );
+		const { container, screen } = render( <GifEdit { ...newProps } /> );
+
+		expect( container.querySelector( 'form input' ).value ).toEqual( newProps.attributes.searchText );
+
 		fireEvent.submit( container.querySelector( 'form' ) );
-		expect( window.fetch ).toHaveBeenCalledWith( getUrl( newProps.attributes.searchText ) );
-	} );*/
+
+		expect( fetchGiphyData ).toHaveBeenCalledWith( getUrl( newProps.attributes.searchText ) );
+		expect( setAttributes.mock.calls[0][0] ).toStrictEqual( {
+			giphyUrl: getEmbedUrl( GIPHY_DATA[0] ),
+			paddingTop: getPaddingTop( GIPHY_DATA[0] ),
+		} );
+
+		expect( container.querySelector( 'figure' ) ).toBeInTheDocument();
+		expect( container.querySelector( 'figcaption' ) ).toBeInTheDocument();
+		expect( container.querySelector( '.wp-block-jetpack-gif-wrapper iframe' ) ).toBeInTheDocument();
+		expect( container.querySelectorAll( '.wp-block-jetpack-gif_thumbnail-container' ) ).toHaveLength( 2 );
+
+	} );
 } );

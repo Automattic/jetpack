@@ -160,6 +160,7 @@
 		"@testing-library/jest-dom": "5.11.9",
 		"@testing-library/preact": "2.0.1",
 		"@testing-library/react": "11.2.3",
+		"@testing-library/react-hooks": "4.0.0",
 		"@testing-library/user-event": "12.8.1",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/core-data": "2.12.3",
