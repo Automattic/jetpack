@@ -143,7 +143,10 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 			$this->assertInstanceOf( 'IXR_Error', $response );
 			$this->assertEquals( $expected['code'], $response->code );
-			$this->assertContains( sprintf( '[%s]', $expected['message'] ), $response->message );
+
+			// Not using assertContains or assertStringContainsString to work with all phpunit versions.
+			$has_message = strpos( sprintf( '[%s]', $expected['message'] ), $response->message );
+			$this->assertTrue( false !== $has_message );
 		}
 	}
 
