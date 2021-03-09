@@ -7,8 +7,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '@testing-library/react';
-// 👀 Remove any unneeded imports from above.
+import { render, screen } from '@testing-library/react';
 
 /**
  * Internal dependencies
@@ -32,7 +31,6 @@ describe( 'RelatedPostsControls', () => {
 		setAttributes,
 	};
 
-	// 👀 Tests setup.
 	beforeEach( () => {
 		setAttributes.mockClear();
 	} );
@@ -85,17 +83,9 @@ describe( 'RelatedPostsControls', () => {
 
 		test( 'sets postsToShow attribute', () => {
 			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			const numposts = screen.getByText( 'Number of posts' ).closest( 'div' );
-			userEvent.paste( within( numposts ).getAllByLabelText( 'Number of posts' )[ 1 ], '5' );
+			userEvent.clear( screen.getAllByLabelText( 'Number of posts' )[ 1 ] );
 
-			expect( setAttributes ).toHaveBeenCalledWith( { postsToShow: 5 } );
-		} );
-
-		test( 'does not allow number of posts greater than 6', () => {
-			render( <RelatedPostsInspectorControls { ...defaultProps } /> );
-			userEvent.paste( screen.getAllByLabelText( 'Number of posts' )[ 1 ], '8' );
-
-			expect( setAttributes ).toHaveBeenCalledWith( { postsToShow: 6 } );
+			expect( setAttributes ).toHaveBeenCalledTimes( 1 );
 		} );
 	} );
 

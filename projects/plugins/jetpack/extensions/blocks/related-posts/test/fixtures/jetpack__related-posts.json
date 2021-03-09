@@ -5,10 +5,10 @@
         "isValid": true,
         "attributes": {
             "postLayout": "list",
-            "displayDate": true,
-            "displayThumbnails": false,
-            "displayContext": false,
-            "postsToShow": 3
+            "displayDate": false,
+            "displayThumbnails": true,
+            "displayContext": true,
+            "postsToShow": 4
         },
         "innerBlocks": [],
         "originalContent": ""

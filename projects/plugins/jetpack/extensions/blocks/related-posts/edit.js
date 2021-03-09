@@ -144,7 +144,7 @@ function RelatedPostsPreviewRows( props ) {
 	);
 }
 
-class RelatedPostsEdit extends Component {
+export class RelatedPostsEdit extends Component {
 	render() {
 		const { attributes, className, posts, setAttributes, instanceId } = this.props;
 		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
