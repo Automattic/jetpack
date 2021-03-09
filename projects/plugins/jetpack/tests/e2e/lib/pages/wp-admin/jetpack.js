@@ -12,7 +12,7 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await page.click( connectButtonSelector );
+		return await page.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
