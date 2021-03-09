@@ -4,12 +4,12 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-heartbeat": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-roles": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-connection": "1.24.x-dev",
+		"automattic/jetpack-constants": "1.6.x-dev",
+		"automattic/jetpack-heartbeat": "1.3.x-dev",
+		"automattic/jetpack-options": "1.11.x-dev",
+		"automattic/jetpack-roles": "1.4.x-dev",
+		"automattic/jetpack-status": "1.7.x-dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.0.x-dev"

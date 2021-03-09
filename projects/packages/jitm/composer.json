@@ -4,15 +4,15 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-partner": "@dev",
-		"automattic/jetpack-tracking": "@dev",
-		"automattic/jetpack-redirect": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-assets": "1.11.x-dev",
+		"automattic/jetpack-connection": "1.24.x-dev",
+		"automattic/jetpack-logo": "1.5.x-dev",
+		"automattic/jetpack-constants": "1.6.x-dev",
+		"automattic/jetpack-options": "1.11.x-dev",
+		"automattic/jetpack-partner": "1.4.x-dev",
+		"automattic/jetpack-tracking": "1.13.x-dev",
+		"automattic/jetpack-redirect": "1.5.x-dev",
+		"automattic/jetpack-status": "1.7.x-dev"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
