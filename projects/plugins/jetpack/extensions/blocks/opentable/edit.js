@@ -89,7 +89,8 @@ function OpenTableEdit( {
 			);
 			noticeOperations.createNotice( { status: 'warning', content } );
 		}
-	}, [ __isBlockPreview, align, isPlaceholder, noticeOperations, rid, style ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ __isBlockPreview, align, isPlaceholder, rid, style ] );
 
 	// Don't allow button style with multiple restaurant IDs.
 	useEffect( () => {

@@ -36,7 +36,7 @@ describe( 'AuthIframe', () => {
         const wrapper = shallow( <AuthIframe { ...testProps } /> );
 
         it( 'has a link to jetpack.wordpress.com', () => {
-            expect( wrapper.find( 'iframe' ).props().src ).to.be.equal( 'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/' );
+            expect( wrapper.find( 'iframe' ).props().src ).to.be.a( 'string' ).and.satisfy( url => url.startsWith( 'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/' ) );
         } );
 
         it( 'has 100% width', () => {

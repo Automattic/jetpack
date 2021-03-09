@@ -143,7 +143,7 @@ class Slideshow extends Component {
 									'swiper-slide',
 									isBlobURL( url ) && 'is-transient'
 								) }
-								key={ id }
+								key={ id ? id : url }
 							>
 								<figure>
 									<img
