@@ -25,7 +25,7 @@ const getPluginNames = require( '../../get-plugin-names' );
  */
 async function hasUnverifiedCommit( octokit, owner, repo, number ) {
 	for await ( const response of octokit.paginate.iterator( octokit.pulls.listCommits, {
-		owner: owner.login,
+		owner,
 		repo,
 		pull_number: +number,
 	} ) ) {
@@ -126,12 +126,11 @@ async function getMilestoneDates( plugin, nextMilestone ) {
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
-	const ownerLogin = owner.login;
 	let pluginInfo;
 
 	// Get next valid milestone for each plugin.
 	for await ( const plugin of plugins ) {
-		const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugin );
+		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
 		debug( `check-description: Milestone found: ${ nextMilestone }` );
 
 		debug( `check-description: getting milestone info for ${ plugin }` );
@@ -159,7 +158,7 @@ async function getCheckComment( octokit, owner, repo, number ) {
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
 	for await ( const response of octokit.paginate.iterator( octokit.issues.listComments, {
-		owner: owner.login,
+		owner,
 		repo,
 		issue_number: +number,
 	} ) ) {
@@ -185,6 +184,7 @@ async function getCheckComment( octokit, owner, repo, number ) {
 async function checkDescription( payload, octokit ) {
 	const { base, body, head, number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
+	const ownerLogin = owner.login;
 
 	debug( `check-description: start building our comment` );
 
@@ -201,14 +201,14 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 
 	// Check all commits in PR.
 	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
-	const isDirty = await hasUnverifiedCommit( octokit, owner, repo, number );
+	const isDirty = await hasUnverifiedCommit( octokit, ownerLogin, repo, number );
 	comment += `
 - ${ isDirty ? `:x:` : `:white_check_mark:` } All commits were linted before commit.<br>`;
 
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.
 	if ( head.repo.full_name === base.repo.full_name ) {
-		const isLabeled = await hasStatusLabels( octokit, owner, repo, number );
+		const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
 		debug( `check-description: this PR is correctly labeled: ${ isLabeled }` );
 		comment += `
 - ${
@@ -221,12 +221,6 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 - ${
 		! body.includes( 'Testing instructions' ) ? `:red_circle:` : `:white_check_mark:`
 	} Add testing instructions.<br>`;
-
-	// Check for a proposed changelog entry.
-	comment += `
-- ${
-		! body.includes( 'Proposed changelog entry' ) ? `:red_circle:` : `:white_check_mark:`
-	} Include a changelog entry for any meaningful change.<br>`;
 
 	// Check if the Privacy section is filled in.
 	comment += `
@@ -247,15 +241,13 @@ If you are an automattician, once your PR is ready for review add the "[Status] 
 Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
 
 	// Gather info about the next release for that plugin.
-	const milestoneInfo = await buildMilestoneInfo( octokit, owner, repo, number );
+	const milestoneInfo = await buildMilestoneInfo( octokit, ownerLogin, repo, number );
 	if ( milestoneInfo ) {
 		comment += milestoneInfo;
 	}
 
 	// Look for an existing check-description task comment.
-	const existingComment = await getCheckComment( octokit, owner, repo, number );
-
-	const ownerLogin = owner.login;
+	const existingComment = await getCheckComment( octokit, ownerLogin, repo, number );
 
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {

@@ -38,7 +38,7 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import { bindCustomizerChanges } from '../lib/customize';
+import { bindCustomizerChanges, isInCustomizer } from '../lib/customize';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -273,6 +273,7 @@ class SearchApp extends Component {
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
+			isInCustomizer: isInCustomizer(),
 		} );
 	};
 
@@ -296,6 +297,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.props.isLoading }
+					isPhotonEnabled={ this.props.options.isPhotonEnabled }
 					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }

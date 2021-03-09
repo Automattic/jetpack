@@ -15,6 +15,7 @@ import './search-form.scss';
 const noop = event => event.preventDefault();
 
 class SearchForm extends Component {
+	onClear = () => this.props.onChangeSearch( '' );
 	onChangeSearch = event => this.props.onChangeSearch( event.currentTarget.value );
 	onChangeSort = sort => this.props.onChangeSort( sort );
 
@@ -25,6 +26,7 @@ class SearchForm extends Component {
 					<SearchBox
 						isVisible={ this.props.isVisible }
 						onChange={ this.onChangeSearch }
+						onClear={ this.onClear }
 						shouldRestoreFocus
 						searchQuery={ this.props.searchQuery }
 					/>
