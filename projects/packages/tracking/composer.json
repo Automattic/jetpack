@@ -4,10 +4,10 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "1.11.x-dev",
-		"automattic/jetpack-options": "1.11.x-dev",
-		"automattic/jetpack-status": "1.7.x-dev",
-		"automattic/jetpack-terms-of-service": "1.9.x-dev"
+		"automattic/jetpack-assets": "^1.11",
+		"automattic/jetpack-options": "^1.11",
+		"automattic/jetpack-status": "^1.7",
+		"automattic/jetpack-terms-of-service": "^1.9"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0",
