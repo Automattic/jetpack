@@ -7,6 +7,7 @@ const chalk = require( 'chalk' );
 const logger = require( '../logger' ).default;
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
+const config = require( 'config' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 const DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
@@ -138,44 +139,19 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		// Observe console logging
 		page.on( 'console', message => {
 			const type = message.type();
+
+			// Ignore debug messages
 			if ( ! [ 'warning', 'error' ].includes( type ) ) {
 				return;
 			}
 
 			const text = message.text();
 
-			// An exception is made for _blanket_ deprecation warnings: Those
-			// which log regardless of whether a deprecated feature is in use.
-			if ( text.includes( 'This is a global warning' ) ) {
-				return;
-			}
-
-			// A chrome advisory warning about SameSite cookies is informational
-			// about future changes, tracked separately for improvement in core.
-			//
-			// See: https://core.trac.wordpress.org/ticket/37000
-			// See: https://www.chromestatus.com/feature/5088147346030592
-			// See: https://www.chromestatus.com/feature/5633521622188032
-			if ( text.includes( 'A cookie associated with a cross-site resource' ) ) {
-				return;
-			}
-
-			// Viewing posts on the front end can result in this error, which
-			// has nothing to do with Gutenberg.
-			if ( text.includes( 'net::ERR_UNKNOWN_URL_SCHEME' ) ) {
-				return;
-			}
-
-			// As of WordPress 5.3.2 in Chrome 79, navigating to the block editor
-			// (Posts > Add New) will display a console warning about
-			// non - unique IDs.
-			// See: https://core.trac.wordpress.org/ticket/23165
-			if ( text.includes( 'elements with non-unique id #_wpnonce' ) ) {
-				return;
-			}
-
-			if ( text.includes( 'is deprecated' ) ) {
-				return;
+			// Ignore messages
+			for ( const subString of config.consoleIgnore ) {
+				if ( text.includes( subString ) ) {
+					return;
+				}
 			}
 
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
@@ -262,8 +238,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async saveScreenshot( fileName ) {
 		for ( const page of this.global.context.pages() ) {
 			try {
-				fileName = `${ fileName }.png`;
-				const filePath = path.resolve( `output/screenshots/${ fileNameFormatter( fileName ) }` );
+				const filePath = path.resolve(
+					config.screenshotsDir,
+					`${ fileNameFormatter( fileName ) }.png`
+				);
 				await page.screenshot( { path: filePath, fullPage: true } );
 				logger.debug( `Screenshot saved: ${ filePath }` );
 				logger.slack( { type: 'file', message: filePath } );
@@ -285,7 +263,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			try {
 				const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 				fileName = `${ fileNameFormatter( fileName ) }.html`;
-				const filePath = path.resolve( `output/logs/${ fileName }` );
+				const filePath = path.resolve( config.logsDir, fileName );
 				fs.writeFileSync( filePath, bodyHTML );
 				logger.debug( `Page saved: ${ filePath }` );
 			} catch ( error ) {
