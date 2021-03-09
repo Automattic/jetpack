@@ -1014,7 +1014,7 @@ class Jetpack_Carousel {
 	 * @param int $value Value to sanitize.
 	 */
 	public function carousel_background_color_sanitize( $value ) {
-		return ( 'white' == $value ) ? 'white' : 'black';
+		return ( 'white' === $value ) ? 'white' : 'black';
 	}
 
 	/** Callback for enabling carousel */
@@ -1032,4 +1032,4 @@ class Jetpack_Carousel {
 	}
 }
 
-new Jetpack_Carousel;
+new Jetpack_Carousel();
