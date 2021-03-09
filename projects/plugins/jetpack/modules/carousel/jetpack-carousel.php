@@ -836,7 +836,7 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 
-		if ( true == $switched ) {
+		if ( true === $switched ) {
 			restore_current_blog();
 		}
 
@@ -850,7 +850,8 @@ class Jetpack_Carousel {
 		);
 	}
 
-	function register_settings() {
+	/** Register carousel settings */
+	public function register_settings() {
 		add_settings_section( 'carousel_section', __( 'Image Gallery Carousel', 'jetpack' ), array( $this, 'carousel_section_callback' ), 'media' );
 
 		if ( ! $this->in_jetpack ) {
@@ -867,19 +868,26 @@ class Jetpack_Carousel {
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
 
-		// No geo setting yet, need to "fuzzify" data first, for privacy
-		// add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
-		// register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
+		/**
+		 * No geo setting yet, need to "fuzzify" data first, for privacy:
+		 * add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
+		 * register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
+		 */
 	}
 
-	// Fulfill the settings section callback requirement by returning nothing
-	function carousel_section_callback() {
+	/** Fulfill the settings section callback requirement by returning nothing. */
+	public function carousel_section_callback() {
 		return;
 	}
 
-	function test_1or0_option( $value, $default_to_1 = true ) {
+	/** Test if option is set to 1 or 0
+	 *
+	 * @param int  $value - value we're testing.
+	 * @param bool $default_to_1 - set default value to true.
+	 */
+	public function test_1or0_option( $value, $default_to_1 = true ) {
 		if ( true == $default_to_1 ) {
-			// Binary false (===) of $value means it has not yet been set, in which case we do want to default sites to 1
+			// Binary false (===) of $value means it has not yet been set, in which case we do want to default sites to 1.
 			if ( false === $value ) {
 				$value = 1;
 			}
@@ -887,11 +895,23 @@ class Jetpack_Carousel {
 		return ( 1 == $value ) ? 1 : 0;
 	}
 
-	function sanitize_1or0_option( $value ) {
+	/** Sanitize 1_or0_option (so we're comparing ints)
+	 *
+	 * @param int $value - value if option is enabled (int, bool, or empty string).
+	 */
+	public function sanitize_1or0_option( $value ) {
 		return ( 1 == $value ) ? 1 : 0;
 	}
 
-	function settings_checkbox( $name, $label_text, $extra_text = '', $default_to_checked = true ) {
+	/**
+	 * Settings Checkbox.
+	 *
+	 * @param mixed  $name Name.
+	 * @param mixed  $label_text Label Text.
+	 * @param string $extra_text (default: '') Extra text.
+	 * @param bool   $default_to_checked (default: true) Default Checked.
+	 */
+	public function settings_checkbox( $name, $label_text, $extra_text = '', $default_to_checked = true ) {
 		if ( empty( $name ) ) {
 			return;
 		}
@@ -899,14 +919,21 @@ class Jetpack_Carousel {
 		echo '<fieldset>';
 		echo '<input type="checkbox" name="' . esc_attr( $name ) . '" id="' . esc_attr( $name ) . '" value="1" ';
 		checked( '1', $option );
-		echo '/> <label for="' . esc_attr( $name ) . '">' . $label_text . '</label>';
+		echo '/> <label for="' . esc_attr( $name ) . '">' . esc_attr( $label_text ) . '</label>';
 		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . $extra_text . '</p>';
+			echo '<p class="description">' . esc_attr( $extra_text ) . '</p>';
 		}
 		echo '</fieldset>';
 	}
 
-	function settings_select( $name, $values, $extra_text = '' ) {
+	/**
+	 * Select Settings.
+	 *
+	 * @param mixed  $name Name.
+	 * @param array  $values setting values.
+	 * @param string $extra_text (default: '') Extra text to display.
+	 */
+	public function settings_select( $name, $values, $extra_text = '' ) {
 		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) ) {
 			return;
 		}
@@ -920,12 +947,13 @@ class Jetpack_Carousel {
 		}
 		echo '</select>';
 		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . $extra_text . '</p>';
+			echo '<p class="description">' . esc_attr( $extra_text ) . '</p>';
 		}
 		echo '</fieldset>';
 	}
 
-	function carousel_display_exif_callback() {
+	/** Display Exif setting callback */
+	public function carousel_display_exif_callback() {
 		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" rel="noopener noreferrer" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
 	}
 
@@ -936,7 +964,11 @@ class Jetpack_Carousel {
 		$this->settings_checkbox( 'carousel_display_comments', esc_html__( 'Show comments area in carousel', 'jetpack' ) );
 	}
 
-	function carousel_display_exif_sanitize( $value ) {
+	/** Sanitize options for exif display
+	 *
+	 * @param int $value - value of option.
+	 */
+	public function carousel_display_exif_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 
@@ -951,32 +983,51 @@ class Jetpack_Carousel {
 		return $this->sanitize_1or0_option( $value );
 	}
 
-	function carousel_display_geo_callback() {
+	/** Callback for displaying geo setting */
+	public function carousel_display_geo_callback() {
 		$this->settings_checkbox( 'carousel_display_geo', __( 'Show map of photo location in carousel, when available.', 'jetpack' ) );
 	}
 
-	function carousel_display_geo_sanitize( $value ) {
+	/**
+	 * Return sanitized option for value that controls whether geolocation setting is on or not.
+	 *
+	 * @param int $value Value to sanitize.
+	 */
+	public function carousel_display_geo_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 
-	function carousel_background_color_callback() {
+	/** Callback for displaying color settings setting */
+	public function carousel_background_color_callback() {
 		$this->settings_select(
-			'carousel_background_color', array(
+			'carousel_background_color',
+			array(
 				'black' => __( 'Black', 'jetpack' ),
 				'white' => __( 'White', 'jetpack' ),
 			)
 		);
 	}
 
-	function carousel_background_color_sanitize( $value ) {
+	/**
+	 * Return sanitized option for value that controls carousel color.
+	 *
+	 * @param int $value Value to sanitize.
+	 */
+	public function carousel_background_color_sanitize( $value ) {
 		return ( 'white' == $value ) ? 'white' : 'black';
 	}
 
-	function carousel_enable_it_callback() {
+	/** Callback for enabling carousel */
+	public function carousel_enable_it_callback() {
 		$this->settings_checkbox( 'carousel_enable_it', __( 'Display images in full-size carousel slideshow.', 'jetpack' ) );
 	}
 
-	function carousel_enable_it_sanitize( $value ) {
+	/**
+	 * Return sanitized option for value of enabling carousel.
+	 *
+	 * @param int $value Value to sanitize.
+	 */
+	public function carousel_enable_it_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 }
