@@ -13,7 +13,6 @@ import { step } from '../lib/env/test-setup';
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
 		await syncJetpackPlanData( 'complete' );
-
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
 	} );
@@ -40,9 +39,8 @@ describe( 'Paid blocks', () => {
 		} );
 
 		await step( 'Can publish a post and assert that MailChimp block is rendered', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
-
 			await blockEditor.viewPost();
 			const frontend = await PostFrontendPage.init( page );
 			expect( await frontend.isRenderedBlockPresent( MailchimpBlock ) ).toBeTruthy();
@@ -71,10 +69,9 @@ describe( 'Paid blocks', () => {
 		await step(
 			'Can publish a post and assert that Pay with PayPal block is rendered',
 			async () => {
-				await blockEditor.focus();
+				await blockEditor.selectPostTitle();
 				await blockEditor.publishPost();
 				await blockEditor.viewPost();
-
 				const frontend = await PostFrontendPage.init( page );
 				expect( await frontend.isRenderedBlockPresent( SimplePaymentBlock ) ).toBeTruthy();
 			}
@@ -89,7 +86,7 @@ describe( 'Paid blocks', () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			blockId = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 		} );
 
 		await step( 'Can switch to Wide Skyscraper ad format', async () => {
@@ -99,7 +96,7 @@ describe( 'Paid blocks', () => {
 		} );
 
 		await step( 'Can publish a post and assert that WordAds block is rendered', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 

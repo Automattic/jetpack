@@ -3,7 +3,6 @@
  */
 import Page from '../page';
 import { getTunnelSiteUrl } from '../../utils-helper';
-import { searchForBlock } from '@wordpress/e2e-test-utils';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
@@ -30,37 +29,77 @@ export default class BlockEditorPage extends Page {
 		return it;
 	}
 
+	//region selectors
+
+	get insertBlockBtnSel() {
+		return '.edit-post-header-toolbar__inserter-toggle';
+	}
+
+	get searchBlockFldSel() {
+		return '.block-editor-inserter__search-input';
+	}
+
+	blockSel( blockName ) {
+		return `.editor-block-list-item-jetpack-${ blockName }`;
+	}
+
+	insertedBlockSel( blockName ) {
+		return `div[data-type='jetpack/${ blockName }']`;
+	}
+
+	get publishPanelToggleBtnSel() {
+		return '.editor-post-publish-panel__toggle';
+	}
+
+	get publishPostBtnSel() {
+		return '.editor-post-publish-button';
+	}
+
+	get postPublishBtnSel() {
+		return '.post-publish-panel__postpublish-buttons';
+	}
+
+	get postPublishViewPostBtnSel() {
+		// return `${ this.postPublishBtnSel } a`;
+		return '.post-publish-panel__postpublish-buttons a';
+	}
+
+	get postTitleFldSel() {
+		return '.editor-post-title__input';
+	}
+
+	//endregion
+
+	async searchForBlock( searchTerm ) {
+		await this.page.click( this.insertBlockBtnSel );
+		await this.page.type( this.searchBlockFldSel, searchTerm );
+	}
+
 	async insertBlock( blockName, blockTitle ) {
-		await searchForBlock( blockTitle );
-		await this.page.click( `.editor-block-list-item-jetpack-${ blockName }` );
+		await this.searchForBlock( blockTitle );
+		await this.page.click( this.blockSel( blockName ) );
 		return await this.getInsertedBlock( blockName );
 	}
 
 	async getInsertedBlock( blockName ) {
-		return (
-			await this.page.waitForSelector( `div[data-type='jetpack/${ blockName }']` )
-		 ).getAttribute( 'data-block' );
+		return ( await this.page.waitForSelector( this.insertedBlockSel( blockName ) ) ).getAttribute(
+			'data-block'
+		);
 	}
 
 	async publishPost() {
-		await this.page.click( '.editor-post-publish-panel__toggle' );
-
-		// Disable reason: Wait for the animation to complete, since otherwise the
-		// click attempt may occur at the wrong point.
-		// Also, for some reason post-publish bar wont show up it we click to fast :/
-		await this.page.click( '.editor-post-publish-button' );
-		await this.page.waitForSelector( '.components-snackbar' );
-		return await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
+		await this.page.click( this.publishPanelToggleBtnSel );
+		await this.page.click( this.publishPostBtnSel );
+		await this.page.waitForSelector( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
-		await this.page.waitForSelector( '.post-publish-panel__postpublish-buttons a' );
-		await this.page.click( '.post-publish-panel__postpublish-buttons a' );
+		await this.page.click( this.postPublishViewPostBtnSel );
 	}
 
-	async focus() {
-		await this.page.focus( '.editor-post-title__input' );
-		await this.page.click( '.editor-post-title__input' );
+	async selectPostTitle() {
+		await this.page.focus( this.postTitleFldSel );
+		await this.page.click( this.postTitleFldSel );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
