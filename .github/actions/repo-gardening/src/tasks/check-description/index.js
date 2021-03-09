@@ -222,12 +222,6 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 		! body.includes( 'Testing instructions' ) ? `:red_circle:` : `:white_check_mark:`
 	} Add testing instructions.<br>`;
 
-	// Check for a proposed changelog entry.
-	comment += `
-- ${
-		! body.includes( 'Proposed changelog entry' ) ? `:red_circle:` : `:white_check_mark:`
-	} Include a changelog entry for any meaningful change.<br>`;
-
 	// Check if the Privacy section is filled in.
 	comment += `
 - ${

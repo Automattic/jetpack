@@ -1,7 +1,7 @@
 const PlaywrightEnvironment = require( 'jest-playwright-preset/lib/PlaywrightEnvironment' ).default;
 const fs = require( 'fs' );
 const logger = require( '../logger' ).default;
-const { logDebugLog } = require( '../utils-helper' );
+const { logDebugLog, logAccessLog } = require( '../utils-helper' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
@@ -93,6 +93,7 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 		await this.logHTML( eventFullName );
 		await this.logFailureToSlack( parentName, eventName, error );
 		await logDebugLog();
+		await logAccessLog();
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
 			await this.global.page.pause();
@@ -125,8 +126,8 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				await this.global.page.screenshot( { path: filePath } );
 				logger.slack( { type: 'file', message: filePath } );
 			} catch ( error ) {
-				logger.debug( 'Failed to take screenshot due to: ' );
-				logger.debug( error );
+				logger.error( 'Failed to take screenshot due to: ' );
+				logger.error( error );
 			}
 		}
 	}
@@ -159,8 +160,8 @@ class PlaywrightCustomEnvironment extends PlaywrightEnvironment {
 				const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
 				fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
 			} catch ( error ) {
-				logger.debug( 'Failed to log page HTML due to: ' );
-				logger.debug( error );
+				logger.error( 'Failed to log page HTML due to: ' );
+				logger.error( error );
 			}
 		}
 	}

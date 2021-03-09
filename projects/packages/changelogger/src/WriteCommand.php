@@ -408,6 +408,7 @@ EOF
 			'ordering'         => Config::ordering(),
 			'knownSubheadings' => Config::types(),
 		);
+		$changes    = array_values( $changes );
 		usort(
 			$changes,
 			function ( $a, $b ) use ( $sortConfig, $changes ) {

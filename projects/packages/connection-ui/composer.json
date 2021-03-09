@@ -6,6 +6,9 @@
 	"require": {
 		"automattic/jetpack-connection": "@dev"
 	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "1.0.x-dev"
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -33,6 +36,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-connection-ui"
+		"mirror-repo": "Automattic/jetpack-connection-ui",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
+		}
 	}
 }

@@ -39,6 +39,9 @@
 		"automattic/jetpack-tracking": "@dev",
 		"nojimage/twitter-text-php": "3.1.1"
 	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "1.0.x-dev"
+	},
 	"scripts": {
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
@@ -100,6 +103,15 @@
 		"version-constants": {
 			"JETPACK__VERSION": "jetpack.php"
 		},
-		"wp-plugin-slug": "jetpack"
+		"wp-plugin-slug": "jetpack",
+		"changelogger": {
+			"versioning": "wordpress",
+			"types": {
+				"major": "Major Enhancements",
+				"enhancement": "Enhancements",
+				"compat": "Improved compatibility",
+				"bugfix": "Bug fixes"
+			}
+		}
 	}
 }

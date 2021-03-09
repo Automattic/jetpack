@@ -22,7 +22,7 @@
 		"validate-es5": "eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore"
 	},
 	"devDependencies": {
-		"eslint": "7.18.0",
+		"eslint": "7.21.0",
 		"webpack": "4.46.0",
 		"webpack-cli": "4.5.0"
 	},
