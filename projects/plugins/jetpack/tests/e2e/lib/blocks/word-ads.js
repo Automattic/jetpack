@@ -1,5 +1,3 @@
-import { clickBlockToolbarButton } from '@wordpress/e2e-test-utils';
-
 export default class WordAdsBlock {
 	constructor( blockId, page ) {
 		this.blockTitle = WordAdsBlock.title();
@@ -16,11 +14,8 @@ export default class WordAdsBlock {
 	}
 
 	async switchFormat( buttonNumber ) {
-		await clickBlockToolbarButton( 'Pick an ad format' );
-
+		await this.page.click( '.wp-block-jetpack-wordads__format-picker-icon' );
 		const formatButtonSelector = `.wp-block-jetpack-wordads__format-picker button:nth-child(${ buttonNumber })`;
-		await this.page.waitForSelector( formatButtonSelector );
-		await this.page.waitForTimeout( 500 );
 		return await this.page.click( formatButtonSelector );
 	}
 
