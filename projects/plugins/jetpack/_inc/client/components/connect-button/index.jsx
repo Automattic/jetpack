@@ -44,6 +44,7 @@ export class ConnectButton extends React.Component {
 		asLink: PropTypes.bool,
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
+		customConnect: PropTypes.func,
 	};
 
 	static defaultProps = {
@@ -78,10 +79,16 @@ export class ConnectButton extends React.Component {
 		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
 			return;
 		}
+
 		// Track click
 		analytics.tracks.recordJetpackClick( 'link_account_in_place' );
-		// Dispatch user in place authorization.
-		this.props.authorizeUserInPlace();
+
+		if ( this.props.customConnect ) {
+			this.props.customConnect();
+		} else {
+			// Dispatch user in place authorization.
+			this.props.authorizeUserInPlace();
+		}
 	};
 
 	renderUserButton = () => {

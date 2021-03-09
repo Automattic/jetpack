@@ -96,7 +96,7 @@ The Jetpack Generate Wizard includes the following for each project:
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
 
 * `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
-* `.version`: If present, updated by `tools/plugin-version.sh`. This should not be included on Composer packages that will be served through Packagist.
+* `.version`: If present, updated by `tools/project-version.sh`. This should not be included on Composer packages that will be served through Packagist.
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. This command or build-production below are required for projects requiring a build step.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. This command or build-development above are required for projects requiring a build step.
@@ -107,10 +107,14 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "https://github.com/Automattic/jetpack-_something_".
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
-* `.extra.version-constants`: When `tools/plugin-version.sh` is updating versions, this specifies PHP constants to replace. The value is an object matching constants to the file (relative to the plugin root) in which the constant is defined.
+* `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
     ```php
     define( 'CONSTANT', 'version' );
+    ```
+  * Class constants may be specified by prefixing the constant name with "::", e.g. `::CONSTANT`. In that case the definition must look like this:
+    ```php
+    const CONSTANT = 'version';
     ```
 * `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
 

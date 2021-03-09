@@ -850,8 +850,15 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$return['sticky'] = ( true === $sticky );
 		}
 
-		if ( ! empty( $media_results['errors'] ) )
-			$return['media_errors'] = $media_results['errors'];
+		if ( ! empty( $media_results['errors'] ) ) {
+			/*
+			 * Depending on whether the errors array keys are sequential or not
+			 * json_encode would transform this into either an array or an object
+			 * see https://www.php.net/manual/en/function.json-encode.php#example-3967
+			 * We use array_values to always return an array
+			 */
+			$return['media_errors'] = array_values( $media_results['errors'] );
+		}
 
 		if ( 'publish' !== $return['status'] && isset( $input['title'] )) {
 			$sal_site = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );

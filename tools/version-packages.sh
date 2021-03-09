@@ -81,13 +81,13 @@ PACKAGES=$(jq -nc 'reduce inputs as $in ([]; . + [ $in.name ])' "$BASE"/projects
 
 # Update the packages that appear in composer.json
 TO_UPDATE=()
-mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries | .[] | select( .value == "@dev" and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
+mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --working-dir="$DIR" -- "${TO_UPDATE[@]}"
 fi
 TO_UPDATE=()
-mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries | .[] | select( .value == "@dev" and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
+mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and ( [ .key ] | inside( $packages ) ) ) | .key' "$DIR/composer.json")
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Updating dev packages: ${TO_UPDATE[*]}..."
 	composer require "${COMPOSER_ARGS[@]}" --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
