@@ -828,7 +828,7 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
-		error_log('REGISTER');
+		error_log( 'REGISTER' );
 
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
@@ -895,11 +895,11 @@ class Manager {
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
-			'timeout' => 3,
+			'timeout' => $timeout,
 		);
 
 		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
-		error_log('BEFORE REGISTER RESPONSE');
+		error_log( 'BEFORE REGISTER RESPONSE' );
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
@@ -907,7 +907,7 @@ class Manager {
 			$args,
 			true
 		);
-		error_log('REGISTER RESPONSE');
+		error_log( 'REGISTER RESPONSE' );
 		error_log( print_r( $response, 1 ) );
 
 		// Make sure the response is valid and does not contain any Jetpack errors.
