@@ -6,7 +6,7 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' ).default;
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { logDebugLog, fileNameFormatter } = require( '../utils-helper' );
+const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 const DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
@@ -229,6 +229,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.logHTML( eventFullName );
 		await this.logFailureToSlack( parentName, eventName, error );
 		await logDebugLog();
+		await logAccessLog();
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
 			await this.global.page.pause();
@@ -252,11 +253,16 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 */
 	async saveScreenshot( fileName ) {
 		if ( this.global.page ) {
-			fileName = `${ fileName }.png`;
-			const filePath = path.resolve( `output/screenshots/${ fileNameFormatter( fileName ) }` );
-			this.global.page.screenshot( { path: filePath, fullPage: true } );
+			try {
+				fileName = `${ fileName }.png`;
+				const filePath = path.resolve( `output/screenshots/${fileNameFormatter( fileName )}` );
+				await this.global.page.screenshot( { path: filePath, fullPage: true } );
 
-			logger.slack( { type: 'file', message: filePath } );
+				logger.slack( { type: 'file', message: filePath } );
+			} catch ( error ) {
+				logger.error( 'Failed to take screenshot due to: ' );
+				logger.error( error );
+			}
 		}
 	}
 
@@ -268,9 +274,14 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 */
 	async logHTML( filePath ) {
 		if ( this.global.page ) {
-			const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
-			const fileName = `${ fileNameFormatter( filePath ) }.html`;
-			fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+			try {
+				const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
+				const fileName = `${ fileNameFormatter( filePath ) }.html`;
+				fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+			} catch ( error ) {
+				logger.error( 'Failed to log page HTML due to: ' );
+				logger.error( error );
+			}
 		}
 	}
 }
