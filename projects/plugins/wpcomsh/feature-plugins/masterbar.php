@@ -131,13 +131,13 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $e
 add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 3 );
 
 /**
- * Enables the nav-unification feature pbAPfg-Ou-p2
- * via `jetpack_load_admin_menu_class` filter that lives in Jetpack
- * https://github.com/Automattic/jetpack/blob/507142b09bae12b58e84c0c2b7d20024563f170d/modules%2Fmasterbar.php#L29
+ * Determines whether Nav Unification should be enabled (pbAPfg-Ou-p2).
  *
- * Should add_filter for all a12s and all api requests for the admin-menu ( eg from calypso ).
- * Should add_filter depending on the current rollout segment.
- * CURRENT ROLLOUT SEGMENT: 5% of single site users.
+ * This function is hooked into the `jetpack_load_admin_menu_class` filter that lives in Jetpack.
+ * See https://github.com/Automattic/jetpack/blob/507142b09bae12b58e84c0c2b7d20024563f170d/modules%2Fmasterbar.php#L29.
+ *
+ * @param bool $should_activate_nav_unification Whether Nav Unification is currently enabled.
+ * @return bool Whether Nav Unification should be enabled.
  */
 function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 	// Loads for all API requests to the admin-menu endpoint (i.e. Calypso).
@@ -145,15 +145,23 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 		return true;
 	}
 
-	// Disable using the query string "escape hatch". This is intentionally open to
-	// all users.
-	if ( should_force_disable_for_request() ) {
+	// Disable when explicitly requested. This is an escape hatch for HEs. See paYJgx-1p8-p2.
+	if ( isset( $_GET['disable-nav-unification'] ) ) {
 		return false;
 	}
 
 	// Check if nav unification has been enabled for current user.
 	$is_nav_unification_enabled = get_user_option( 'wpcom_is_nav_unification_enabled' );
 	if ( $is_nav_unification_enabled ) {
+		if ( isset( $_GET['from'] ) && 'calypso-old-menu' === $_GET['from'] ) {
+			// Disable if user is coming from the old menu in Calypso (useful for avoiding caching issues if a revert is needed).
+			update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', false );
+			return false;
+		}
+		return true;
+	} else if ( isset( $_GET['from'] ) && 'calypso-unified-menu' === $_GET['from'] ) {
+		// Enable if user is coming from the unified menu in Calypso.
+		update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', true );
 		return true;
 	}
 
@@ -178,25 +186,6 @@ function wpcomsh_add_woocommerce_install_menu() {
 	}
 }
 add_action( 'admin_menu', 'wpcomsh_add_woocommerce_install_menu' );
-
-
-/**
- * Determine whether this request should force disable Nav Unification.
- *
- * See paYJgx-1p8-p2
- *
- * @return boolean whether or not to disable Nav Unification for this request.
- */
-function should_force_disable_for_request() {
-
-	// Don't disable for REST requests as these come via Calypso and we are disabling
-	// for WPAdmin only.
-	if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
-		return false;
-	}
-
-	return isset( $_GET['disable-nav-unification'] );
-}
 
 /**
  * Fixes the Jetpack menu items so they are placed under the correct parent.
