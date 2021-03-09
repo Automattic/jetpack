@@ -1,8 +1,22 @@
+const { E2E_DEBUG, HEADLESS, SLOWMO } = process.env;
+
+let recordVideo;
+
+if ( HEADLESS !== 'false' && ! E2E_DEBUG ) {
+	recordVideo = {
+		dir: 'output/videos',
+		size: { width: 800, height: 600 },
+	};
+}
+
 module.exports = {
+	pwBrowserOptions: {
+		headless: HEADLESS !== 'false' && ! E2E_DEBUG,
+		slowMo: parseInt( SLOWMO, 10 ) || 0,
+		devtools: HEADLESS === 'false',
+	},
 	pwContextOptions: {
-		recordVideo: {
-			dir: 'output/videos',
-		},
+		recordVideo,
 		viewport: {
 			width: 1280,
 			height: 1024,

@@ -6,7 +6,7 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' ).default;
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { logDebugLog } = require( '../utils-helper' );
+const { logDebugLog, fileNameFormatter } = require( '../utils-helper' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 const DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
@@ -31,7 +31,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 	async teardown() {
 		await super.teardown();
-		await this.closeContext();
+		logger.debug( 'Closing browser context' );
+		await this.global.context.close();
 	}
 
 	async handleTestEvent( event ) {
@@ -76,12 +77,14 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			case 'hook_success':
 				logger.info( chalk.green( `SUCCESS: ${ eventName }` ) );
 				if ( event.hook.type === 'beforeAll' ) {
+					await this.closePage();
 				}
 				break;
 			case 'hook_failure':
 				logger.info( chalk.red( `HOOK FAILED: ${ eventName }` ) );
 				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
+					await this.closePage();
 				}
 				break;
 			case 'test_fn_start':
@@ -95,6 +98,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
+				await this.closePage();
 				break;
 			case 'run_describe_finish':
 				break;
@@ -114,6 +118,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 		this.global.context = await this.global.browser.newContext( pwContextOptions );
 		this.global.context.on( 'page', page => this.onNewPage( page ) );
+		this.global.context.on( 'close', () => this.onContextClose() );
 
 		// This will store the video files paths for each page in the current context
 		// We want to make sure it's empty when the context gets created
@@ -122,6 +127,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 	async newPage( eventName = '' ) {
 		this.global.page = await this.global.context.newPage();
+		// Even though this was already called by the page opened event
+		// we're calling it again with an event name to give the video file a nice name
 		await this.saveVideoFilePathsForPage( this.global.page, eventName );
 	}
 
@@ -176,7 +183,13 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 		// const userAgent = await page.evaluate( () => navigator.userAgent );
 		// logger.info( chalk.blueBright( `New page created with user agent: ${ userAgent }` ) );
+
 		await this.saveVideoFilePathsForPage( page );
+	}
+
+	async closePage() {
+		logger.debug( chalk.blueBright( 'Closing page' ) );
+		await this.global.page.close();
 	}
 
 	async saveVideoFilePathsForPage( page, eventName = '' ) {
@@ -185,23 +198,22 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 		try {
 			const srcVideoPath = await page.video().path();
-			const targetFileName = `${ new Date().toISOString() }_${ eventName }`;
-			const targetFilePath = `output/videos/${ targetFileName.replace( /\W/g, '_' ) }.webm`;
-			this.global.videoFiles[ srcVideoPath ] = targetFilePath;
+			const ext = path.extname( srcVideoPath );
+			const dir = path.dirname( srcVideoPath );
+			this.global.videoFiles[ srcVideoPath ] = path.join(
+				dir,
+				`${ fileNameFormatter( eventName ) }${ ext }`
+			);
 		} catch ( error ) {
-			logger.error( `Cannot get page's video file path! \n ${ error }` );
+			logger.error( `Cannot get page's video file path! Is video capture active? \n ${ error }` );
 		}
 		logger.debug( chalk.redBright( JSON.stringify( this.global.videoFiles ) ) );
 	}
 
-	async closeContext() {
-		logger.debug( 'Closing browser context' );
-		await this.global.context.close();
-
+	async onContextClose() {
 		// Rename video files. This can only be done after browser context is closed
 		// Each page has its own video file
 		for ( const [ src, dst ] of Object.entries( this.global.videoFiles ) ) {
-			logger.debug( 'Renaming video file' );
 			try {
 				fs.renameSync( src, dst );
 				logger.debug( `Video file saved as ${ dst }` );
@@ -240,10 +252,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 */
 	async saveScreenshot( fileName ) {
 		if ( this.global.page ) {
-			const ts = new Date().toISOString();
-			fileName = `${ fileName }_${ ts }`;
-			fileName = `${ fileName.replace( /\W/g, '_' ) }.png`;
-			const filePath = path.resolve( `output/screenshots/${ fileName }` );
+			fileName = `${ fileName }.png`;
+			const filePath = path.resolve( `output/screenshots/${ fileNameFormatter( fileName ) }` );
 			this.global.page.screenshot( { path: filePath, fullPage: true } );
 
 			logger.slack( { type: 'file', message: filePath } );
@@ -259,7 +269,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async logHTML( filePath ) {
 		if ( this.global.page ) {
 			const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
-			const fileName = `${ filePath.replace( /\W/g, '_' ) }.html`;
+			const fileName = `${ fileNameFormatter( filePath ) }.html`;
 			fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
 		}
 	}

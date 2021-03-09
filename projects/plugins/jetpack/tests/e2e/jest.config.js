@@ -3,6 +3,10 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
+if ( process.env.E2E_DEBUG ) {
+	process.env.DEBUG = 'pw:browser|api|error';
+}
+
 module.exports = {
 	testEnvironment: '<rootDir>/lib/env/playwright-environment.js',
 	globalSetup: '<rootDir>/lib/env/global-setup.js',

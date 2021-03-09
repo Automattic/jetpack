@@ -150,6 +150,31 @@ async function logDebugLog() {
 	logger.slack( { type: 'debuglog', message: apacheLog } );
 }
 
+/**
+ * Formats a given file name by replacing unaccepted characters (e.g. space)
+ *
+ * @param {string} filePath the file path. can be absolute file path, file name only, with or without extension
+ * @param {boolean} includeTimestamp if true, the current timestamp will be added as a prefix
+ * @return {string} the formatted file path
+ */
+function fileNameFormatter( filePath, includeTimestamp = true ) {
+	const parts = path.parse( path.normalize( filePath ) );
+	let fileName = parts.name;
+	const ext = parts.ext;
+	const dirname = parts.dir;
+
+	if ( includeTimestamp ) {
+		const now = new Date();
+		const formattedDate = `${ now.getFullYear() }${ now.getMonth() }${ now.getDay() }${ now.getHours() }${ now.getMinutes() }${ now.getSeconds() }${ now.getMilliseconds() }`;
+
+		fileName = `${ formattedDate }_${ fileName }`;
+	}
+
+	fileName = fileName.replace( /\W/g, '_' );
+
+	return path.join( dirname, `${ fileName }${ ext }` );
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -161,4 +186,5 @@ module.exports = {
 	execWpCommand,
 	execMultipleWpCommands,
 	logDebugLog,
+	fileNameFormatter,
 };
