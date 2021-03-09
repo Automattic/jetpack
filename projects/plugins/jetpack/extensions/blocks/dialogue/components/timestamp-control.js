@@ -184,7 +184,7 @@ function ToggleButton( {
 } ) {
 	return (
 		<Button
-			className={ `${ className }__timestamp-button` }
+			className={ className }
 			isSmall
 			isTertiary
 			onClick={ () => {
