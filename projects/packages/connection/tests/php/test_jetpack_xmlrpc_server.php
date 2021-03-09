@@ -143,7 +143,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 			$this->assertInstanceOf( 'IXR_Error', $response );
 			$this->assertEquals( $expected['code'], $response->code );
-			$this->assertStringContainsString( sprintf( '[%s]', $expected['message'] ), $response->message );
+			$this->assertContains( sprintf( '[%s]', $expected['message'] ), $response->message );
 		}
 	}
 
