@@ -150,7 +150,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 	echo "$GIT_SLUG" >> "$BUILD_BASE/mirrors.txt"
 
 	# Add the package's version to the custom repo, since composer can't determine it right on its own.
-	REPO="$(jq --argjson repo "$REPO" -nc 'reduce inputs as $in ($repo; .options.versions[$in.name] |= ( $in.extra["branch-alias"]["dev-monorepo"] // "dev-monorepo" ) )' composer.json)"
+	REPO="$(jq --argjson repo "$REPO" -nc 'reduce inputs as $in ($repo; .options.versions[$in.name] |= ( $in.extra["branch-alias"]["dev-master"] // "dev-master" ) )' composer.json)"
 done
 
 exit $EXIT

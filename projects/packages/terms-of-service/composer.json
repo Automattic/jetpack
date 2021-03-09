@@ -4,8 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-options": "^1.11",
+		"automattic/jetpack-status": "^1.7"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
@@ -45,6 +45,9 @@
 		"mirror-repo": "Automattic/jetpack-terms-of-service",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.9.x-dev"
 		}
 	}
 }
