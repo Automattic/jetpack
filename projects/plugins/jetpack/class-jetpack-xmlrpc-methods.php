@@ -30,7 +30,7 @@ class Jetpack_XMLRPC_Methods {
 	 *
 	 * @param array $methods Methods added by the Connection package.
 	 */
-	public function xmlrpc_methods( $methods ) {
+	public static function xmlrpc_methods( $methods ) {
 
 		$methods['jetpack.featuresAvailable'] = array( __CLASS__, 'features_available' );
 		$methods['jetpack.featuresEnabled']   = array( __CLASS__, 'features_enabled' );
