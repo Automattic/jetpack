@@ -468,7 +468,7 @@ class Admin_Menu {
 
 		if ( $user_can_customize ) {
 			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
-			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge';
+			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_slug );
 			add_submenu_page( $themes_slug, esc_attr__( 'Edit CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
