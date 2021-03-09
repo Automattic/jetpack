@@ -42,6 +42,11 @@ async function addMilestone( payload, octokit ) {
 
 	const plugins = await getPluginNames( octokit, ownerLogin, repo, prNumber );
 
+	if ( plugins.length === 0 ) {
+		debug( 'add-milestone: No plugins for this PR. Aborting' );
+		return;
+	}
+
 	// Get next valid milestone (we can only add one).
 	const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugins[ 0 ] );
 
