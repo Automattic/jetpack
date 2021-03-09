@@ -207,7 +207,6 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		} catch ( error ) {
 			logger.error( `Cannot get page's video file path! Is video capture active? \n ${ error }` );
 		}
-		logger.debug( chalk.redBright( JSON.stringify( this.global.videoFiles ) ) );
 	}
 
 	async onContextClose() {
@@ -223,6 +222,15 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		}
 	}
 
+	/**
+	 * Series of actions to be performed when a failure is detected
+	 *
+	 * @param {string} eventFullName the event in which the failure occurred (e.g. test name)
+	 * @param {string} parentName the event's parent name (e.g. describe block name)
+	 * @param {string} eventName the event in which the failure occurred (e.g. test name)
+	 * @param {Object} error the error object that triggered the failure
+	 * @return {Promise<void>}
+	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
 		await this.saveScreenshot( eventFullName );
@@ -252,12 +260,12 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 * @return {Promise<void>}
 	 */
 	async saveScreenshot( fileName ) {
-		if ( this.global.page ) {
+		for ( const page of this.global.context.pages() ) {
 			try {
 				fileName = `${ fileName }.png`;
-				const filePath = path.resolve( `output/screenshots/${fileNameFormatter( fileName )}` );
-				await this.global.page.screenshot( { path: filePath, fullPage: true } );
-
+				const filePath = path.resolve( `output/screenshots/${ fileNameFormatter( fileName ) }` );
+				await page.screenshot( { path: filePath, fullPage: true } );
+				logger.debug( `Screenshot saved: ${ filePath }` );
 				logger.slack( { type: 'file', message: filePath } );
 			} catch ( error ) {
 				logger.error( 'Failed to take screenshot due to: ' );
@@ -269,15 +277,17 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	/**
 	 * Save the html of the current page into a file
 	 *
-	 * @param {string} filePath
+	 * @param {string} fileName
 	 * @return {Promise<void>}
 	 */
-	async logHTML( filePath ) {
-		if ( this.global.page ) {
+	async logHTML( fileName ) {
+		for ( const page of this.global.context.pages() ) {
 			try {
-				const bodyHTML = await this.global.page.evaluate( () => document.body.innerHTML );
-				const fileName = `${ fileNameFormatter( filePath ) }.html`;
-				fs.writeFileSync( `output/logs/${ fileName }`, bodyHTML );
+				const bodyHTML = await page.evaluate( () => document.body.innerHTML );
+				fileName = `${ fileNameFormatter( fileName ) }.html`;
+				const filePath = path.resolve( `output/logs/${ fileName }` );
+				fs.writeFileSync( filePath, bodyHTML );
+				logger.debug( `Page saved: ${ filePath }` );
 			} catch ( error ) {
 				logger.error( 'Failed to log page HTML due to: ' );
 				logger.error( error );
