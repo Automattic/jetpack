@@ -36,18 +36,18 @@ export function installProjectTask( argv ) {
 	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
-	const command = ( pkgMgr, verbose ) =>
+	const command = ( pkgMgr, verbose, cmd ) =>
 		verbose
-			? execa.commandSync( `${ pkgMgr } install`, { cwd: cwd, stdio: 'inherit' } )
-			: execa.command( `${ pkgMgr } install`, { cwd: cwd } );
+			? execa.commandSync( `${ pkgMgr } ${ cmd }`, { cwd: cwd, stdio: 'inherit' } )
+			: execa.command( `${ pkgMgr } ${ cmd }`, { cwd: cwd } );
 
-	const task = ( pkgMgr, enabled ) => {
+	const task = ( pkgMgr, enabled, cmd ) => {
 		return {
 			title: chalkJetpackGreen( `Installing ${ pkgMgr } Dependencies` ),
 			enabled: () => {
 				return enabled;
 			},
-			task: () => command( pkgMgr.toLowerCase(), argv.v ),
+			task: () => command( pkgMgr.toLowerCase(), argv.v, cmd ),
 		};
 	};
 	const opts = {
@@ -58,9 +58,31 @@ export function installProjectTask( argv ) {
 	return {
 		title: chalk.yellow( `Installing ${ argv.project }` ),
 		task: () => {
-			return new Listr( [ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ], {
-				opts,
-			} );
+			return new Listr(
+				[
+					task( 'Composer', composerEnabled, determineComposerCommand( cwd ) ),
+					task( 'Yarn', yarnEnabled, 'install' ),
+				],
+				{
+					opts,
+				}
+			);
 		},
 	};
+}
+
+/**
+ * Determines if composer update or composer install should run.
+ *
+ * @param {string} cwd - Current working directory for the project.
+ *
+ * @returns {string} update or install based on if composer.lock matches composer.json.
+ */
+function determineComposerCommand( cwd ) {
+	try {
+		execa.commandSync( `composer validate --no-check-all --no-check-publish`, { cwd: cwd } );
+		return 'install';
+	} catch ( e ) {
+		return 'update';
+	}
 }
