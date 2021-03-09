@@ -209,18 +209,11 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
 		parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
-		$themes_slug = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
-
-		if ( ! $wp_admin_customize ) {
-			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
-		} else {
-			// In case this is an api request we will have to add the 'return' querystring via JS.
-			$customize_slug = $this->is_api_request ? 'customize.php' : add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-		}
-
 		$user_can_customize = current_user_can( 'customize' );
 
 		if ( $user_can_customize ) {
+			$themes_slug    = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
 			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_slug );
