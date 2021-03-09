@@ -65,17 +65,6 @@ class Dummy_Class {
 		function nested() {
 		}
 
-		// MediaWiki.Usage.PHPUnitAssertEquals.
-		$this->assertEquals( null, $u->var );
-		$this->assertEquals( true, $u->var );
-		$this->assertEquals( false, $u->var );
-		$this->assertEquals( 0, $u->var );
-		$this->assertEquals( 0.0, $u->var );
-		$this->assertEquals( 1, $u->var );
-		$this->assertEquals( 1.0, $u->var );
-		$this->assertEquals( '0', $u->var );
-		$this->assertEquals( '123.45', $u->var );
-
 		// MediaWiki.Usage.PlusStringConcat.
 		$u->string  = '1' + '2';
 		$u->string += '3';

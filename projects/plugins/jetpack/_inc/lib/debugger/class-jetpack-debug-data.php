@@ -2,10 +2,10 @@
 /**
  * Jetpack Debug Data for the Site Health sections.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Sync\Functions;
@@ -181,9 +181,8 @@ class Jetpack_Debug_Data {
 		 * If a token does not contain a period, then it is malformed and we report it as such.
 		 */
 		$user_id    = get_current_user_id();
-		$cxn_mgr    = new Connection_Manager();
-		$blog_token = $cxn_mgr->get_access_token();
-		$user_token = $cxn_mgr->get_access_token( $user_id );
+		$blog_token = ( new Tokens() )->get_access_token();
+		$user_token = ( new Tokens() )->get_access_token( $user_id );
 
 		$tokenset = '';
 		if ( $blog_token ) {

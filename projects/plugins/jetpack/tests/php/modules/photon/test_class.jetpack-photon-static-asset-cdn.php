@@ -2,7 +2,7 @@
 /**
  * The WP_Test_Jetpack_Photon_Static_Assets_CDN class file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 require_jetpack_file( 'modules/photon-cdn.php' );

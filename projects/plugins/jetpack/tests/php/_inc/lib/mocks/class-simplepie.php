@@ -2,7 +2,7 @@
 /**
  * Implements a basic interface of the SimplePie class in environments where it doesn't exist.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 if ( ! class_exists( 'SimplePie' ) ) {

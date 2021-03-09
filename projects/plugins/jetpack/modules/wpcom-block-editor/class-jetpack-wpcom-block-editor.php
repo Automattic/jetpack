@@ -4,9 +4,10 @@
  * Allow new block editor posts to be composed on WordPress.com.
  * This is auto-loaded as of Jetpack v7.4 for sites connected to WordPress.com only.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Tokens;
 /**
  * WordPress.com Block editor for Jetpack
  */
@@ -224,7 +225,7 @@ class Jetpack_WPCOM_Block_Editor {
 			return false;
 		}
 
-		$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
+		$token = ( new Tokens() )->get_access_token( $this->nonce_user_id );
 		if ( ! $token ) {
 			return false;
 		}
@@ -268,7 +269,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
+			$token = ( new Tokens() )->get_access_token( $this->nonce_user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;

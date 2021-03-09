@@ -5,7 +5,7 @@
  *
  * Reference: https://github.com/Automattic/social-logos
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /*

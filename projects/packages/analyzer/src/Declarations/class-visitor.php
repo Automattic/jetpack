@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack\Analyzer\Declarations;
 
-use PhpParser\NodeVisitorAbstract;
-use PhpParser\Node;
 use Automattic\Jetpack\Analyzer\Utils;
+use PhpParser\Node;
+use PhpParser\NodeVisitorAbstract;
 
 class Visitor extends NodeVisitorAbstract {
 	private $current_class;

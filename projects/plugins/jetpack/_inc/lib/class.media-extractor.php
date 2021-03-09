@@ -3,7 +3,7 @@
  * Class with methods to extract metadata from a post/page about videos, images, links, mentions embedded
  * in or attached to the post/page.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

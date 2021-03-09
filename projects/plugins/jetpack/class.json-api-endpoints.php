@@ -1338,6 +1338,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$file_info = pathinfo( $file );
 		$ext       = isset( $file_info['extension'] ) ? $file_info['extension'] : null;
 
+		// File operations are handled differently on WordPress.com.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$attachment_metadata = wp_get_attachment_metadata( $media_item->ID );
+			$filesize            = ! empty( $attachment_metadata['filesize'] )
+				? $attachment_metadata['filesize']
+				: 0;
+		} else {
+			$filesize = filesize( $attachment_file );
+		}
+
 		$response = array(
 			'ID'          => $media_item->ID,
 			'URL'         => wp_get_attachment_url( $media_item->ID ),
@@ -1353,6 +1363,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'description' => $media_item->post_content,
 			'alt'         => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
 			'icon'        => wp_mime_type_icon( $media_item->ID ),
+			'size'        => size_format( (int) $filesize, 2 ),
 			'thumbnails'  => array(),
 		);
 

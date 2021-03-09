@@ -6,12 +6,12 @@ import { isBlobURL } from '@wordpress/blob';
 import {
 	BaseControl,
 	Button,
-	IconButton,
 	PanelBody,
 	SandBox,
 	SelectControl,
 	ToggleControl,
-	Toolbar,
+	ToolbarButton,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { compose, createHigherOrderComponent, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -34,6 +34,7 @@ import { get, indexOf } from 'lodash';
 import Loading from './loading';
 import { getVideoPressUrl } from './url';
 import { getClassNames } from './utils';
+import SeekbarColorSettings from './seekbar-color-settings';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 
@@ -279,14 +280,14 @@ const VideoPressEdit = CoreVideoEdit =>
 			const blockSettings = (
 				<Fragment>
 					<BlockControls>
-						<Toolbar>
-							<IconButton
+						<ToolbarGroup>
+							<ToolbarButton
 								className="components-icon-button components-toolbar__control"
 								label={ __( 'Edit video', 'jetpack' ) }
 								onClick={ this.switchToEditing }
 								icon="edit"
 							/>
-						</Toolbar>
+						</ToolbarGroup>
 					</BlockControls>
 					<InspectorControls>
 						<PanelBody title={ __( 'Video Settings', 'jetpack' ) }>
@@ -363,6 +364,9 @@ const VideoPressEdit = CoreVideoEdit =>
 								</BaseControl>
 							</MediaUploadCheck>
 						</PanelBody>
+
+						<SeekbarColorSettings { ...{ attributes, setAttributes } } />
+
 						<PanelBody title={ __( 'Video File Settings', 'jetpack' ) }>
 							<SelectControl
 								label={ _x( 'Rating', 'The age rating for this video.', 'jetpack' ) }
@@ -472,7 +476,19 @@ const VideoPressEdit = CoreVideoEdit =>
 export default createHigherOrderComponent(
 	compose( [
 		withSelect( ( select, ownProps ) => {
-			const { autoplay, controls, guid, loop, muted, poster, preload, src } = ownProps.attributes;
+			const {
+				autoplay,
+				controls,
+				guid,
+				loop,
+				muted,
+				poster,
+				preload,
+				seekbarColor,
+				seekbarLoadingColor,
+				seekbarPlayedColor,
+				src,
+			} = ownProps.attributes;
 			const { getEmbedPreview, isRequestingEmbedPreview } = select( 'core' );
 
 			const url = getVideoPressUrl( guid, {
@@ -482,6 +498,9 @@ export default createHigherOrderComponent(
 				muted,
 				poster,
 				preload,
+				seekbarColor,
+				seekbarLoadingColor,
+				seekbarPlayedColor,
 			} );
 			const preview = !! url && getEmbedPreview( url );
 

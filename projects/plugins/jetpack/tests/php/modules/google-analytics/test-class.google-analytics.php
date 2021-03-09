@@ -2,7 +2,7 @@
 /**
  * Tests for the Google Analytics module.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 require_jetpack_file( 'modules/google-analytics/wp-google-analytics.php' );

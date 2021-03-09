@@ -2,7 +2,7 @@
 /**
  * Premium Content Logged Out View Child Block.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Premium_Content;
@@ -62,7 +62,7 @@ function render_loggedout_view_block( $attributes, $content, $block = null ) {
 
 	// Old versions of the block were rendering the subscribe/login button server-side, so we need to still support them.
 	if ( ! empty( $attributes['buttonClasses'] ) ) {
-		require_once '../_inc/legacy-buttons.php';
+		require_once __DIR__ . '/../_inc/legacy-buttons.php';
 
 		$buttons = create_legacy_buttons_markup( $attributes, $content, $block );
 		return $content . $buttons;

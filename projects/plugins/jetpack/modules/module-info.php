@@ -8,7 +8,7 @@
  * - The second creates a information block.
  * It is hooked into `jetpack_module_more_info_ . $module`
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Redirect;

@@ -48,8 +48,8 @@
 	align-content: space-between;
 	clear: both;
 	padding: 12px 20px;
-	background-color: #fafafa;
-	border-top: 1px solid #ddd;
+	background-color: #f6f7f7;
+	border-top: 1px solid #dcdcde;
 	overflow: hidden;
 }
 
@@ -80,5 +80,5 @@
 }
 
 .jetpack-plugin-search__dismiss:hover {
-	color: #666;
+	color: #646970;
 }

@@ -4,7 +4,7 @@
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
  * into module that can be enabled/disabled.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

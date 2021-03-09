@@ -15,7 +15,7 @@
  * On July 8th, 2016 CartoDB changed its primary domain from cartodb.com to carto.com
  * So this shortcode still supports the cartodb.com domain for oembeds.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 wp_oembed_add_provider( '#https?://(?:www\.)?[^/^\.]+\.carto(db)?\.com/\S+#i', 'https://services.carto.com/oembed', true );

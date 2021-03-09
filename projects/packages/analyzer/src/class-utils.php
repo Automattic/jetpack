@@ -66,7 +66,8 @@ class Utils {
 
 	static function maybe_stringify( $object ) {
 		$is_stringifiable = (
-			is_string( $object )
+			is_numeric( $object )
+			|| is_string( $object )
 			|| (
 				is_object( $object )
 				&& method_exists( $object, '__toString' )

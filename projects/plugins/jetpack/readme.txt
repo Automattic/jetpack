@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 9.3
-Requires at least: 5.5
+Stable tag: 9.5
+Requires at least: 5.6
 Requires PHP: 5.6
-Tested up to: 5.6
+Tested up to: 5.7
 
 The best WP plugin for backup, anti spam, malware scan, CDN, AMP, social, search, contact form, and integrations with Woo, Facebook, Instagram, Google
 
@@ -239,54 +239,67 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
-= 9.3.1 =
+= 9.5.1 =
 
-* Release date: January 14, 2021
+* Release date: March 4, 2021
 
 **Bug fixes**
 
-* Multisite: avoid Fatals on sites using the WPMUDEV domain mapping plugin.
-* SEO Tools: prevent a PHP notice in some situations involving taxonomy or author pages.
+* Sharing: avoid potential conflicts with the Blog Posts Block from Newspack.
+* Subscriptions Block: avoid validation errors when customizing font size on a site using the Gutenberg plugin.
 
-= 9.3 =
+= 9.5 =
 
-* Release date: January 12, 2021
-* Release post: https://wp.me/p1moTy-sgZ
+* Release date: March 2, 2021
+* Release post: https://wp.me/p1moTy-uSv
 
 **Enhancements**
 
-* Autoloader: improve performance by caching known plugins.
-* Instant Search: improve compatibility with IE11.
-* Related Posts: use the semantic time element when displaying dates.
-* Sharing: defer loading of the reCAPTCHA library by default.
+* Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).
+* Instant Search: improve the design of the Search modal.
+* Instant Search: open search result links in the current window rather than opening a new one.
+* Podcast Player Block: allow filtering the number of tracks returned when fetching new podcast episodes.
+* Podcast Player Block: add publication date to the data returned when fetching new podcast episodes.
+* Recommendations: add a dashboard banner to help users discover the best Jetpack features.
+* Related Posts: improve performance by removing jQuery dependency.
+* SEO Tools: make the feature available for all sites.
+* Social Icons Widget: add new icons.
+* Social Menu: add new icons.
+* Synchronization: improve reliability of data by excluding blocked taxonomies.
+* Tiled Galleries: improve performance by removing jQuery dependency.
+* Video Block: add support for custom video player progress bar colors.
+* Widgets: display notice in the customizer when one needs to connect their account before using the Instagram widget.
 
 **Improved compatibility**
 
-* AMP: avoid PHP notice on sites using legacy versions of the AMP plugin.
-* Dashboard: avoid errors on sites using PHP 8.
-* General: use modern JavaScript best practices for loading scripts.
-* Infinite Scroll: add compatibility for the TwentyTwentyOne theme.
-* Search: improve styling for the TwentyTwenty theme.
-* Synchronization: improve integrity of synchronization between your site and WordPress.com.
-* WordPress.com Toolbar: iterate on the design and functionality of the toolbar to match the toolbar in use on WordPress.com.
+* Block Editor: update all blocks to be fully compatible with WordPress 5.7.
+* General: Jetpack now requires WordPress 5.6, and is fully compatible with WordPress 5.7.
+* Protect: ensure that the blocked login page is fully compatible with the Robots API changes introduced in WordPress 5.7.
 
 **Bug fixes**
 
-* Autoloader: resolve symbolic links in active plugin paths.
-* Autoloader: ensure deactivating plugins aren't cached.
-* Blocks: improve sidebar display in non-fullscreen mode.
-* Content Options: do not output CSS when it is not needed.
-* Instant Search: improve display of tags and categories in search results.
-* Lazy Images: attempt to load all images when printing a post, and inform the user when printing if images haven't been loaded.
-* Podcast Player Block: avoid PHP notices in some scenarios.
-* Search: limit number of filters automatically set up.
-* Slideshow Block: ensure that image captions are always shown, regardless of the theme you're using.
-* Subscription Block: display the correct default placeholder and button text strings in the post editor.
-* Subscriptions: fix the behavior of the toggle switches for the comment subscription settings.
-* Twitter Threads: improve how Twitter Cards are generated for embeds in the thread preview.
-* VideoPress: detect aspect ratios rounding to both 1.77 and 1.78 as 16:9.
-* Widgets: avoid JavaScript errors when displaying the Cookies & Consent Widget.
-* WordPress.com REST API: avoid fatal errors in some scenarios, when updating a post's metadata.
+* Autoloader: prevent transitive plugin execution.
+* Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
+* Comments: improve respect for the Core moderation option in particular cases.
+* Connection flow: ensuring Jetpack Dashboard successfully loads after reconnect.
+* Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
+* Custom Content Types: allow Newspack's Blog Posts block to display Testimonial and Portfolio posts.
+* Dashboard: improve performance by reducing excessive API calls.
+* Dashboard: improve product upgrade flow for non-connected Jetpack users.
+* Instant Search: fix closing of the overlay using the Escape key in IE11.
+* Instant Search: improve compatibility with browser forward/back navigation.
+* Instant Search: avoid issues when changes made in customizer would not immediately appear in preview.
+* Jetpack Videos: fix responsiveness of Video poster images.
+* Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
+* Markdown: avoid filters loading too early when creating a new site within a Multisite network.
+* Payments Block: avoid layout issues when setting up a new payment plan.
+* Pay With Paypal Block: ensure that line breaks can be used in product description.
+* Secure Sign On: improve the connection flow when users first log in via SSO.
+* Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
+* Sharing: ensure that sharing popup opens properly in Firefox.
+* Shortcodes: use arguments provided by shortcode attributes for the Instagram embeds.
+* Video Block: avoid potential PHP notice when working with Jetpack Videos.
+* WhatsApp block: adjust width of block options toolbar.
 
 --------
 

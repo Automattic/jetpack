@@ -87,6 +87,9 @@ class Container {
 			$this->get( Version_Selector::class )
 		);
 
+		require_once __DIR__ . '/class-php-autoloader.php';
+		$this->dependencies[ PHP_Autoloader::class ] = new PHP_Autoloader();
+
 		require_once __DIR__ . '/class-manifest-reader.php';
 		$this->dependencies[ Manifest_Reader::class ] = new Manifest_Reader(
 			$this->get( Version_Selector::class )
@@ -100,6 +103,7 @@ class Container {
 
 		require_once __DIR__ . '/class-autoloader-handler.php';
 		$this->dependencies[ Autoloader_Handler::class ] = new Autoloader_Handler(
+			$this->get( PHP_Autoloader::class ),
 			$this->get( Hook_Manager::class ),
 			$this->get( Manifest_Reader::class ),
 			$this->get( Version_Selector::class )
@@ -114,28 +118,25 @@ class Container {
 
 		// Register any classes that we will use elsewhere.
 		require_once __DIR__ . '/class-version-loader.php';
+		require_once __DIR__ . '/class-shutdown-handler.php';
 	}
 
 	/**
 	 * Initializes any of the globals needed by the autoloader.
 	 */
 	private function initialize_globals() {
+		/*
+		 * This global was retired in version 2.9. The value is set to 'false' to maintain
+		 * compatibility with older versions of the autoloader.
+		 */
+		global $jetpack_autoloader_including_latest;
+		$jetpack_autoloader_including_latest = false;
+
 		// Not all plugins can be found using the locator. In cases where a plugin loads the autoloader
 		// but was not discoverable, we will record them in this array to track them as "active".
 		global $jetpack_autoloader_activating_plugins_paths;
 		if ( ! isset( $jetpack_autoloader_activating_plugins_paths ) ) {
 			$jetpack_autoloader_activating_plugins_paths = array();
-		}
-
-		// Since older autoloaders include newer ones, we need to be able to tell the difference between an
-		// inclusion via autoloader and an inclusion via plugin file. This allows the autoloader to
-		// perform special tasks for each kind of inclusion.
-		global $jetpack_autoloader_including_latest;
-		if ( ! isset( $jetpack_autoloader_including_latest ) ) {
-			// If the latest version global has been set but the including latest hasn't, it means that an
-			// older autoloader without support for the global is including us.
-			global $jetpack_autoloader_latest_version;
-			$jetpack_autoloader_including_latest = isset( $jetpack_autoloader_latest_version );
 		}
 	}
 }

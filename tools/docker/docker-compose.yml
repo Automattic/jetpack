@@ -34,9 +34,9 @@ services:
     restart: always
 
   ## SMTP Server + Web Interface for viewing and testing emails during development.
-  ## http://danfarrelly.nyc/MailDev/
+  ## http://maildev.github.io/maildev/
   maildev:
-    image: djfarrelly/maildev
+    image: maildev/maildev
     container_name: maildev
     restart: always
     ports:

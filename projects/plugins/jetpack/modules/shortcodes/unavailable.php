@@ -3,7 +3,7 @@
  * Display a message on the frontend when we retire a shortcode,
  * explaining why the shortcode is not available anymore.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

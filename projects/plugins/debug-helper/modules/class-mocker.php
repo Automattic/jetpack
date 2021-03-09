@@ -2,7 +2,7 @@
 /**
  * The Mocker class creates mock data userful for testing.
  *
- * @package Jetpack
+ * @package automattic/jetpack-debug-helper
  */
 
 namespace Automattic\Jetpack\Debug_Helper;

@@ -9,7 +9,7 @@
  * Embed code example, from http://www.ustream.tv/leolaporte
  * <iframe src="http://www.ustream.tv/embed/recorded/1524?v=3&#038;wmode=direct" width="480" height="296" scrolling="no" frameborder="0" style="border: 0 none transparent;"></iframe>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_shortcode( 'ustream', 'ustream_shortcode' );

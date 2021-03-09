@@ -1,0 +1,52 @@
+@import '../../../scss/variables/colors';
+
+.jp-recommendations-product-card-upsell-no-price {
+	background: $white;
+	border-radius: 8px;
+
+	img {
+		margin-right: 8px;
+	}
+
+	h2 {
+		margin: 0 0 24px 0;
+	}
+
+	ul {
+		margin: 16px 0;
+	}
+
+	li {
+		display: flex;
+		align-items: center;
+	}
+
+	p {
+		margin: 0;
+	}
+
+	.gridicons-checkmark-circle {
+		fill: $green-primary;
+		margin-right: 8px;
+	}
+
+	.dops-button {
+		margin: 32px 0 0 0;
+		width: 100%;
+		background: $color-plan;
+		border-color: $color-plan;
+		text-align: center;
+	}
+}
+
+.jp-recommendations-product-card-upsell-no-price__padding {
+	padding: 24px;
+}
+
+.jp-recommendations-product-card-upsell-no-price__header-chrome {
+	background: $blue-medium;
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+	padding: 8px;
+	color: $white;
+}

@@ -2,7 +2,7 @@
 /**
  * Widget for adding ads to a sidebar.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

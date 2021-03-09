@@ -2,16 +2,17 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * External dependencies
  */
-import { ConversationIcon as icon } from '../../shared/icons';
+import { TranscriptIcon as icon } from '../../shared/icons';
+import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
 
 /**
  * Local dependencies
  */
-import './extend';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
@@ -28,8 +29,10 @@ export const settings = {
 	icon,
 	category: 'layout',
 	keywords: [
-		_x( 'Conversation', 'block search term', 'jetpack' ),
-		__( 'transcription', 'jetpack' ),
+		_x( 'conversation', 'block search term', 'jetpack' ),
+		_x( 'transcription', 'block search term', 'jetpack' ),
+		_x( 'dialogue', 'block search term', 'jetpack' ),
+		_x( 'speaker', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,
@@ -45,5 +48,26 @@ export const settings = {
 	providesContext: {
 		'jetpack/conversation-participants': 'participants',
 		'jetpack/conversation-showTimestamps': 'showTimestamps',
+	},
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/paragraph' ],
+				isMultiBlock: true,
+				transform: ( blocks ) => {
+					const innerBlocksTemplate = blocks.map( ( { content } ) => [
+							'jetpack/dialogue',
+							{ content },
+					] );
+
+					return createBlock(
+						'jetpack/conversation',
+						{},
+						createBlocksFromInnerBlocksTemplate( innerBlocksTemplate )
+					);
+				},
+			},
+		],
 	},
 };

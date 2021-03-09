@@ -2,7 +2,7 @@
 /**
  * Tests for modules/protect/shared_functions.php
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 // Require the functions.

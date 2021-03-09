@@ -19,7 +19,7 @@ namespace Automattic\Jetpack\Autoloader\jp123 {
 	/**
 	 * A dummy autoloader class to register.
 	 */
-	class Autoloader {
+	class PHP_Autoloader {
 		/**
 		 * A dummy autoloader function to register.
 		 */

@@ -2,7 +2,7 @@
 /**
  * Display the Pay with PayPal Widget.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 ?>

@@ -2,16 +2,11 @@
  * Internal dependencies
  */
 import Page from '../page';
-/**
- * WordPress dependencies
- */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.block-editor';
+		const expectedSelector = '#editor';
 		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelector, url } );
 	}
@@ -34,41 +29,77 @@ export default class BlockEditorPage extends Page {
 		return it;
 	}
 
-	async insertBlock( blockName, blockTitle ) {
-		await searchForBlock( blockTitle );
-		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		await scrollIntoView( this.page, blockIconSelector );
+	//region selectors
 
-		await waitAndClick( this.page, blockIconSelector );
-		const blockInfo = await this.getInsertedBlock();
-		return blockInfo;
+	get insertBlockBtnSel() {
+		return '.edit-post-header-toolbar__inserter-toggle';
 	}
 
-	async getInsertedBlock() {
-		const blocks = await getAllBlocks();
-		return blocks[ blocks.length - 1 ];
+	get searchBlockFldSel() {
+		return '.block-editor-inserter__search-input';
+	}
+
+	blockSel( blockName ) {
+		return `.editor-block-list-item-jetpack-${ blockName }`;
+	}
+
+	insertedBlockSel( blockName ) {
+		return `div[data-type='jetpack/${ blockName }']`;
+	}
+
+	get publishPanelToggleBtnSel() {
+		return '.editor-post-publish-panel__toggle';
+	}
+
+	get publishPostBtnSel() {
+		return '.editor-post-publish-button';
+	}
+
+	get postPublishBtnSel() {
+		return '.post-publish-panel__postpublish-buttons';
+	}
+
+	get postPublishViewPostBtnSel() {
+		// return `${ this.postPublishBtnSel } a`;
+		return '.post-publish-panel__postpublish-buttons a';
+	}
+
+	get postTitleFldSel() {
+		return '.editor-post-title__input';
+	}
+
+	//endregion
+
+	async searchForBlock( searchTerm ) {
+		await this.page.click( this.insertBlockBtnSel );
+		await this.page.type( this.searchBlockFldSel, searchTerm );
+	}
+
+	async insertBlock( blockName, blockTitle ) {
+		await this.searchForBlock( blockTitle );
+		await this.page.click( this.blockSel( blockName ) );
+		return await this.getInsertedBlock( blockName );
+	}
+
+	async getInsertedBlock( blockName ) {
+		return ( await this.page.waitForSelector( this.insertedBlockSel( blockName ) ) ).getAttribute(
+			'data-block'
+		);
 	}
 
 	async publishPost() {
-		await waitAndClick( this.page, '.editor-post-publish-panel__toggle' );
-
-		// Disable reason: Wait for the animation to complete, since otherwise the
-		// click attempt may occur at the wrong point.
-		// Also, for some reason post-publish bar wont show up it we click to fast :/
-		await page.waitForTimeout( 500 );
-
-		await waitAndClick( this.page, '.editor-post-publish-button' );
-		return await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
+		await this.page.click( this.publishPanelToggleBtnSel );
+		await this.page.click( this.publishPostBtnSel );
+		await this.page.waitForSelector( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
-		await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
-		await waitAndClick( this.page, '.post-publish-panel__postpublish-buttons a' );
+		await this.page.click( this.postPublishViewPostBtnSel );
 	}
 
-	async focus() {
-		await this.page.focus( this.expectedSelector );
-		await waitAndClick( this.page, '.editor-post-title__input' );
+	async selectPostTitle() {
+		await this.page.focus( this.postTitleFldSel );
+		await this.page.click( this.postTitleFldSel );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
@@ -79,7 +110,7 @@ export default class BlockEditorPage extends Page {
 		let count = 0;
 		while ( count < 20 && ! block ) {
 			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitFor: 'networkidle0' } );
+			await this.reload( { waitUntil: 'domcontentloaded' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
 		}

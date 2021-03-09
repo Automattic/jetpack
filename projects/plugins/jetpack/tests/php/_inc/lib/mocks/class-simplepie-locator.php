@@ -2,7 +2,7 @@
 /**
  * Implements a basic interface of the SimplePie_Locator class in environments where it doesn't exist.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

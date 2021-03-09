@@ -2,7 +2,7 @@
 /**
  * Tests for the Jetpack_Sitemap_Finder class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 4.7.0
  */
 

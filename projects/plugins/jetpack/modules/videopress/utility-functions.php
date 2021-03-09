@@ -529,6 +529,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 	$video_info->blog_id         = $blog_id;
 	$video_info->guid            = null;
 	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
+	$video_info->rating          = null;
 
 	if ( is_wp_error( $post ) ) {
 		return $video_info;
@@ -635,8 +636,7 @@ function video_image_url_by_guid( $guid, $format ) {
 
 	$meta = wp_get_attachment_metadata( $post->ID );
 
-	// We add ssl => 1 to make sure that the videos.files.wordpress.com domain is parsed as photon.
-	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'], array( 'ssl' => 1 ), 'https' );
+	$poster = apply_filters( 'jetpack_photon_url', $meta['videopress']['poster'] );
 
 	return $poster;
 }

@@ -92,6 +92,12 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function maybe_load_actions_and_filters( $new_blog_id = null, $old_blog_id = null ) {
+
+		// When WP sites are being installed, the options table is not available yet.
+		if ( function_exists( 'wp_installing' ) && wp_installing() ) {
+			return;
+		}
+
 		// If this is a switch_to_blog call, and the blog isn't changing, we'll already be loaded
 		if ( $new_blog_id && $new_blog_id === $old_blog_id ) {
 			return;

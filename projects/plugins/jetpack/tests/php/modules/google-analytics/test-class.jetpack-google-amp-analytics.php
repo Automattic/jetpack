@@ -2,7 +2,7 @@
 /**
  * Tests for the WooCommerce Google Analytics.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

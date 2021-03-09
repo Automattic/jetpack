@@ -1,4 +1,7 @@
 import { createLogger, format, transports } from 'winston';
+import config from 'config';
+import path from 'path';
+
 const LEVEL = Symbol.for( 'level' );
 
 const myCustomLevels = {
@@ -11,6 +14,12 @@ const myCustomLevels = {
 		slack: 9,
 	},
 };
+
+let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
+
+if ( process.env.CI ) {
+	consoleLogLevel = 'error';
+}
 
 /**
  * Log only the messages the match `level`.
@@ -53,14 +62,16 @@ const logger = createLogger( {
 		// - Write to all logs with level `info` and below to `quick-start-combined.log`.
 		// - Write all logs error (and below) to `quick-start-error.log`.
 		//
-		new transports.File( { filename: 'logs/e2e-json.log' } ),
 		new transports.File( {
-			filename: 'logs/e2e-simple.log',
+			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-json.log' ),
+		} ),
+		new transports.File( {
+			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
 			format: stringFormat,
 		} ),
 		// Slack specific logging transport that is used later to send a report to slack.
 		new transports.File( {
-			filename: 'logs/e2e-slack.log',
+			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-slack.log' ),
 			level: 'slack',
 
 			format: format.combine(
@@ -86,17 +97,18 @@ const logger = createLogger( {
 				} )
 			),
 		} ),
+
+		new transports.Console( {
+			format: format.combine(
+				format.timestamp(),
+				format.cli(),
+				format.printf( ( { level, message, timestamp } ) => {
+					return `${ timestamp } ${ level }: ${ message }`;
+				} )
+			),
+			level: consoleLogLevel,
+		} ),
 	],
 } );
-
-// If we're running tests locally with debug enabled then **ALSO** log to the `console`
-// with the colorized simple format.
-if ( process.env.E2E_DEBUG || ! process.env.CI ) {
-	logger.add(
-		new transports.Console( {
-			format: stringFormat,
-		} )
-	);
-}
 
 export default logger;

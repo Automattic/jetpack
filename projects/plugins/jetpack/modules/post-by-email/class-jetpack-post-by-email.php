@@ -2,10 +2,10 @@
 /**
  * Class Jetpack_Post_By_Email
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -72,7 +72,7 @@ class Jetpack_Post_By_Email {
 	 * @return bool True if connected. False if not.
 	 */
 	public function check_user_connection() {
-		$user_token = ( new Connection_Manager() )->get_access_token( get_current_user_id() );
+		$user_token = ( new Tokens() )->get_access_token( get_current_user_id() );
 
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 

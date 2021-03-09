@@ -7,14 +7,9 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  * Internal dependencies
  */
 import Page from '../page';
-import {
-	waitForSelector,
-	getAccountCredentials,
-	waitAndClick,
-	waitAndType,
-	isEventuallyVisible,
-} from '../../page-helper';
+import { getAccountCredentials, isEventuallyVisible } from '../../page-helper';
 import logger from '../../logger';
+import fs from 'fs';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
@@ -24,53 +19,45 @@ export default class LoginPage extends Page {
 	}
 
 	async login( wpcomUser, { retry = true } = {} ) {
+		logger.debug( 'Log in WPCOM' );
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
 		const usernameSelector = '#usernameOrEmail';
 		const passwordSelector = '#password';
-		const continueButtonSelector = '.login__form-action button';
-		const submitButtonSelector = '.login__form-action button[type="submit"]';
-
-		await waitAndType( this.page, usernameSelector, username );
-		await waitAndClick( this.page, continueButtonSelector );
-
-		// sometimes it failing to type the whole password correctly for the first time.
-		let count = 0;
-		while ( count < 5 ) {
-			await waitAndType( this.page, passwordSelector, password, { delay: 10 } );
-			const passwordEl = await this.page.$( passwordSelector );
-			await page.focus( submitButtonSelector );
-
-			const fieldValue = await page.evaluate( x => x.value, passwordEl );
-			if ( fieldValue === password ) {
-				break;
-			}
-			logger.info( `Failed to type password properly. retrying...` );
-
-			count += 1;
-		}
-
-		const submitButton = await waitForSelector( this.page, submitButtonSelector );
-		await submitButton.press( 'Enter' );
+		const continueButtonSelector = '//button[text()="Continue"]';
+		const submitButtonSelector = '//button[text()="Log In"]';
 
 		try {
-			await waitForSelector( this.page, this.expectedSelector, {
-				hidden: true,
+			await page.type( usernameSelector, username );
+			await page.click( continueButtonSelector );
+			await page.waitForSelector( passwordSelector, { state: 'visible' } );
+			// Even if we wait for the field to become visible Playwright might still type the password too fast
+			// and the first characters will miss the password field. A short wait fixes this
+			await page.waitForTimeout( 2000 );
+			await page.type( passwordSelector, password );
+			await page.click( submitButtonSelector );
+
+			await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
+			await this.page.waitForSelector( this.expectedSelector, {
+				state: 'hidden',
 				timeout: 30000 /* 30 seconds */,
 			} );
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.info( `The login didn't work as expected - retrying now: '${ e }'` );
+				this.reload();
 				return await this.login( wpcomUser, { retry: false } );
 			}
 			throw e;
 		}
 
-		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
+		// save storage state to reuse later to skip log in
+		const storage = await context.storageState();
+		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
 	}
 
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
-		return await isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
+		return isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
 	}
 }

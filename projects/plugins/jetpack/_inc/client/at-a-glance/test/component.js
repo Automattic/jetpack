@@ -15,6 +15,7 @@ describe( 'Connections', () => {
 		siteConnectionStatus: true,
 		isOfflineMode: false,
 		userCanDisconnectSite: true,
+		userCanConnectAccount: true,
 		isConnectionOwner: true,
 		isLinked: true,
 		userGravatar:'https://example.org/avatar.png',
@@ -98,6 +99,20 @@ describe( 'Connections', () => {
 
 		it( 'does not show an avatar', () => {
 			expect( wrapper.find( 'img' ) ).to.have.length( 0 );
+		} );
+
+	} );
+
+	describe( 'when user cannot connect their WPCOM account', () => {
+
+		const wrapper = shallow( <DashConnections { ...testProps } userCanConnectAccount={ false } /> );
+
+		it( 'renders the site connection card', () => {
+			expect( wrapper.find( '.jp-at-a-glance__left' ) ).to.have.length( 1 );
+		} );
+
+		it( 'does not render the user connection card', () => {
+			expect( wrapper.find( '.jp-at-a-glance__right' ) ).to.have.length( 0 );
 		} );
 
 	} );

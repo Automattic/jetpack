@@ -6,7 +6,7 @@
  * Examples:
  * [wufoo username="jeherve" formhash="z1x13ltw1m8jtrw" autoresize="true" height="338" header="show"]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

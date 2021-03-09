@@ -1,7 +1,7 @@
 <?php
 /* HEADER */ // phpcs:ignore
 
-use \Automattic\Jetpack\Autoloader\AutoloadGenerator;
+use Automattic\Jetpack\Autoloader\AutoloadGenerator;
 
 /**
  * This class locates autoloaders.

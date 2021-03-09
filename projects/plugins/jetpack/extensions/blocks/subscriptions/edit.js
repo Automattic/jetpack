@@ -56,14 +56,15 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const buttonBackgroundColorValue = buttonBackgroundColor && buttonBackgroundColor.color;
 	const textColorValue = textColor && textColor.color;
 
-	const buttonNode = node.querySelector( '[contenteditable="true"]' );
+	const buttonNode = node.querySelector( '.wp-block-jetpack-subscriptions__button' );
 
 	return {
 		fallbackButtonBackgroundColor:
 			buttonBackgroundColorValue || ! node
 				? undefined
-				: getComputedStyle( buttonNode ).backgroundColor,
-		fallbackTextColor: textColorValue || ! node ? undefined : getComputedStyle( buttonNode ).color,
+				: buttonNode && getComputedStyle( buttonNode ).backgroundColor,
+		fallbackTextColor:
+			textColorValue || ! node ? undefined : buttonNode && getComputedStyle( buttonNode ).color,
 	};
 } );
 
@@ -161,7 +162,7 @@ function SubscriptionEdit( props ) {
 		borderColor: borderColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : DEFAULT_BORDER_RADIUS_VALUE + 'px',
 		borderWidth: borderWeight ? borderWeight + 'px' : DEFAULT_BORDER_WEIGHT_VALUE + 'px',
-		fontSize: fontSize.size ? fontSize.size + 'px' : DEFAULT_FONTSIZE_VALUE + 'px',
+		fontSize: fontSize.size ? fontSize.size : DEFAULT_FONTSIZE_VALUE,
 		padding: getPaddingStyleValue( padding ),
 	};
 

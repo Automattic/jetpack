@@ -2,7 +2,7 @@
 /**
  * Script to be directly executed to output the latest version of WP.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  *
  * Disable WordPress-related coding standards; this script does not run within WP.
  * @phpcs:disable WordPress.Security

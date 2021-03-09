@@ -4,12 +4,12 @@
  * Plugin URI: https://github.com/Automattic/jetpack#jetpack-monorepo
  * Description: The Jetpack Monorepo is not a plugin. Don't try to use it as one. See the Jetpack Monorepo documentation for instructions on correctly installing Jetpack.
  * Author: Automattic
- * Version: 9.4-alpha
+ * Version: 9.5-alpha
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

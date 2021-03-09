@@ -16,7 +16,7 @@
  * [embed width="300"]https://vine.co/v/bjHh0zHdgZT[/embed]
  * [embed type="postcard" width="300"]https://vine.co/v/bjHh0zHdgZT[/embed]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

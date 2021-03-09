@@ -2,7 +2,7 @@
 /**
  * WordAds Admin.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

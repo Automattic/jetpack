@@ -4,7 +4,7 @@
  *
  * @since 8.2.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Eventbrite;

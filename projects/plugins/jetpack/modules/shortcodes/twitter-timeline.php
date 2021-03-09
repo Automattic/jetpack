@@ -5,7 +5,7 @@
  * Examples:
  * [twitter-timeline username=jetpack]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

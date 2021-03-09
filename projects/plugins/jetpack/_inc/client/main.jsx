@@ -32,11 +32,11 @@ import {
 	userCanConnectSite,
 	getCurrentVersion,
 	getTracksUserData,
-	showSetupWizard,
+	showRecommendations,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
-import { SetupWizard } from 'setup-wizard';
+import { Recommendations } from 'recommendations';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Footer from 'components/footer';
@@ -53,12 +53,15 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 import ReconnectModal from 'components/reconnect-modal';
 
-const setupRoutes = [
-	'/setup',
-	'/setup/intro',
-	'/setup/income',
-	'/setup/updates',
-	'/setup/features',
+const recommendationsRoutes = [
+	'/recommendations',
+	'/recommendations/site-type',
+	'/recommendations/woocommerce',
+	'/recommendations/monitor',
+	'/recommendations/related-posts',
+	'/recommendations/creative-mail',
+	'/recommendations/site-accelerator',
+	'/recommendations/summary',
 ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
@@ -243,14 +246,16 @@ class Main extends React.Component {
 					/>
 				);
 				break;
-			case '/setup':
-			case '/setup/intro':
-			case '/setup/income':
-			case '/setup/updates':
-			case '/setup/features':
-				if ( this.props.showSetupWizard ) {
-					navComponent = null;
-					pageComponent = <SetupWizard />;
+			case '/recommendations':
+			case '/recommendations/site-type':
+			case '/recommendations/woocommerce':
+			case '/recommendations/monitor':
+			case '/recommendations/related-posts':
+			case '/recommendations/creative-mail':
+			case '/recommendations/site-accelerator':
+			case '/recommendations/summary':
+				if ( this.props.showRecommendations ) {
+					pageComponent = <Recommendations />;
 				} else {
 					this.props.history.replace( '/dashboard' );
 					pageComponent = this.getAtAGlance();
@@ -262,11 +267,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		const pageOrder = this.props.showSetupWizard
-			? { dashboard: 1, setup: 2, settings: 3 }
-			: { setup: -1, dashboard: 1, settings: 2 };
-
-		window.wpNavMenuClassChange( pageOrder );
+		window.wpNavMenuClassChange();
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
@@ -303,14 +304,16 @@ class Main extends React.Component {
 
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
-		return [ ...setupRoutes, ...dashboardRoutes, ...settingsRoutes ].includes(
+		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
 			this.props.location.pathname
 		);
 	}
 
 	shouldShowFooter() {
-		// Only show on the dashboard and settings page
-		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
+		// Only show on the dashboard, settings, and recommendations pages
+		return [ ...dashboardRoutes, ...settingsRoutes, ...recommendationsRoutes ].includes(
+			this.props.location.pathname
+		);
 	}
 
 	shouldShowAuthIframe() {
@@ -382,7 +385,7 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
-			showSetupWizard: showSetupWizard( state ),
+			showRecommendations: showRecommendations( state ),
 		};
 	},
 	dispatch => ( {
@@ -403,7 +406,7 @@ export default connect(
  *
  * @param pageOrder
  */
-window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
+window.wpNavMenuClassChange = function ( pageOrder = { dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
 
 	// Clear currently highlighted sub-nav item
@@ -421,9 +424,7 @@ window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, 
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if ( setupRoutes.includes( hash ) ) {
-		getJetpackSubNavItem( pageOrder.setup ).classList.add( 'current' );
-	} else if ( dashboardRoutes.includes( hash ) ) {
+	if ( dashboardRoutes.includes( hash ) || recommendationsRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );

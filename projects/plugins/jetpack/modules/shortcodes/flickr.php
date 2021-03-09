@@ -12,7 +12,7 @@
  *
  * <div class="flick_video" style="max-width: 100%;width: 500px;height: 300px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls autoplay ></video></div>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

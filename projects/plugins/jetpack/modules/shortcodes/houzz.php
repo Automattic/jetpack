@@ -8,7 +8,7 @@
  * - http://www.houzz.com/pro/james-crisp
  * Blog sidebar: [houzz=http://www.houzz.com/profile/alon w=200 h=300]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 // Register oEmbed provider.

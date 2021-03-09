@@ -4,7 +4,7 @@
  *
  * @since 6.8.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Markdown;

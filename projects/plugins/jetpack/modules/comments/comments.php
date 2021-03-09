@@ -1,12 +1,12 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 require dirname( __FILE__ ) . '/base.php';
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 
 /**
  * Main Comments class
  *
- * @package JetpackComments
+ * @package automattic/jetpack
  * @version 1.4
  * @since   1.4
  */
@@ -277,11 +277,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$blog_token = Jetpack_Data::get_access_token();
+		$blog_token        = ( new Tokens() )->get_access_token();
 		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
 		// Prophylactic check: anything else should never happen.
 		if ( $token_key && $token_key !== $blog_token->secret ) {
-			// Is the token a Special Token (@see class.jetpack-data.php)?
+			// Is the token a Special Token (@see class.tokens.php)?
 			if ( preg_match( '/^;.\d+;\d+;$/', $token_key, $matches ) ) {
 				// The token key for a Special Token is public.
 				$params['token_key'] = $token_key;
@@ -292,7 +292,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				 * one Normal Token per site, avoid concern by
 				 * sending the magic "use the Normal Token" token key.
 				 */
-				$params['token_key'] = Connection_Manager::MAGIC_NORMAL_TOKEN_KEY;
+				$params['token_key'] = Tokens::MAGIC_NORMAL_TOKEN_KEY;
 			}
 		}
 
@@ -510,7 +510,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
 		}
 
-		$blog_token = Jetpack_Data::get_access_token( false, $post_array['token_key'] );
+		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
 		if ( ! $blog_token ) {
 			wp_die( __( 'Unknown security token.', 'jetpack' ), 400 );
 		}

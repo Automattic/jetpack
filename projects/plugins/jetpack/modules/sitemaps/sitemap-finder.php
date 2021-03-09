@@ -3,7 +3,7 @@
  * The functions in this class provide an API for handling
  * sitemap related URIs.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 4.8.0
  * @author Automattic
  */

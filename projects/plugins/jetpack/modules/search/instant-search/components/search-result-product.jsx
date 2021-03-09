@@ -11,6 +11,8 @@ import { __ } from '@wordpress/i18n';
  */
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
+import ProductRatings from './product-ratings';
+import ProductPrice from './product-price';
 
 /**
  * Style dependencies
@@ -34,31 +36,42 @@ class SearchResultProduct extends Component {
 				: __( 'No title', 'jetpack' );
 
 		return (
-			<li className="jetpack-instant-search__search-result-product">
-				<h3 className="jetpack-instant-search__result-product-title">
+			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
+				<a href={ `//${ fields[ 'permalink.url.raw' ] }` } onClick={ this.props.onClick }>
+					{ firstImage ? (
+						<PhotonImage
+							alt=""
+							className="jetpack-instant-search__search-result-product-img"
+							isPhotonEnabled={ this.props.isPhotonEnabled }
+							src={ `//${ firstImage }` }
+						/>
+					) : (
+						<div className="jetpack-instant-search__search-result-product-img"></div>
+					) }
+				</a>
+				<h3 className="jetpack-instant-search__search-result-title jetpack-instant-search__search-result-product-title">
 					<a
+						className="jetpack-instant-search__search-result-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
-						rel="noopener noreferrer"
-						target="_blank"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: title } }
 					/>
 				</h3>
-				{ firstImage && (
-					<a
-						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						onClick={ this.props.onClick }
-						rel="noopener noreferrer"
-						target="_blank"
-					>
-						<PhotonImage
-							alt=""
-							className="jetpack-instant-search__search-result-product-img"
-							isPrivateSite={ this.props.isPrivateSite }
-							src={ `//${ firstImage }` }
-						/>
-					</a>
+
+				<ProductPrice
+					price={ fields[ 'wc.price' ] }
+					salePrice={ fields[ 'wc.sale_price' ] }
+					formattedPrice={ fields[ 'wc.formatted_price' ] }
+					formattedRegularPrice={ fields[ 'wc.formatted_regular_price' ] }
+					formattedSalePrice={ fields[ 'wc.formatted_sale_price' ] }
+				/>
+
+				{ !! fields[ 'meta._wc_average_rating.double' ] && (
+					<ProductRatings
+						count={ fields[ 'meta._wc_review_count.long' ] }
+						rating={ fields[ 'meta._wc_average_rating.double' ] }
+					/>
 				) }
 				<div
 					className="jetpack-instant-search__search-result-product-content"
@@ -67,11 +80,6 @@ class SearchResultProduct extends Component {
 						__html: highlight.content.join( ' ... ' ),
 					} }
 				/>
-				{ fields[ 'wc.price' ] && (
-					<div className="jetpack-instant-search__search-result-product-price">
-						{ fields[ 'wc.price' ].toFixed( 2 ) }
-					</div>
-				) }
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
 			</li>

@@ -2,7 +2,7 @@
 /**
  * Jetpack sync debug helper class
  *
- * @package jetpack
+ * @package automattic/jetpack-debug-helper
  */
 
 defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', get_option( Jetpack_Sync_Debug_Helper::API_BASE, 'https://jetpack.wordpress.com/jetpack.' ) );

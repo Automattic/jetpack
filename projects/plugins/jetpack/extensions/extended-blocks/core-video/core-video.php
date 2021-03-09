@@ -2,7 +2,7 @@
 /**
  * Plan checks for uploading video files to core/video.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  **/
 
 // Populate the available extensions with core/video.

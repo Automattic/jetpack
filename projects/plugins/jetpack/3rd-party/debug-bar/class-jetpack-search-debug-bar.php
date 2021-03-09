@@ -2,7 +2,7 @@
 /**
  * Adds a Jetpack Search debug panel to Debug Bar.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

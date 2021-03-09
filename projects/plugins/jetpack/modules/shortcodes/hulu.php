@@ -14,7 +14,7 @@
  * <embed src="http://www.hulu.com/embed/gQ6Z0I990IWv_VFQI2J7Eg" type="application/x-shockwave-flash"  width="512" height="288" allowFullScreen="true"></embed>
  * </object>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_shortcode( 'hulu', 'jetpack_hulu_shortcode' );

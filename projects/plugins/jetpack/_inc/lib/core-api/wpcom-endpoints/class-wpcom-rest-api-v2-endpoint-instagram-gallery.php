@@ -2,7 +2,7 @@
 /**
  * REST API endpoint for the Instagram connections.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 8.5.0
  */
 

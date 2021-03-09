@@ -4,7 +4,7 @@
  *
  * This is auto-loaded as of Jetpack v8.3 for WP.com connected-sites only.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\TOS;

@@ -5,10 +5,6 @@
  */
 import { h, Component } from 'preact';
 import { __ } from '@wordpress/i18n';
-// NOTE: We only import the get package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import get from 'lodash/get';
 import { connect } from 'react-redux';
 
 /**
@@ -63,9 +59,10 @@ class SearchFilters extends Component {
 			return null;
 		}
 
-		const aggregations = get( this.props.results, 'aggregations' );
+		const aggregations = this.props.results?.aggregations;
 		return (
-			<div className="jetpack-instant-search__filters">
+			<div className="jetpack-instant-search__search-filters">
+				<div className="jetpack-instant-search__search-filters-title">Filter options</div>
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
 					<a
 						class="jetpack-instant-search__clear-filters-link"
@@ -78,8 +75,8 @@ class SearchFilters extends Component {
 						{ __( 'Clear filters', 'jetpack' ) }
 					</a>
 				) }
-				{ get( this.props.widget, 'filters' )
-					.map( configuration =>
+				{ this.props.widget?.filters
+					?.map( configuration =>
 						aggregations
 							? { configuration, results: aggregations[ configuration.filter_id ] }
 							: null

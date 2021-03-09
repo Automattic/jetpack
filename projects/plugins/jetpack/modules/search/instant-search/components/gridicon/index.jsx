@@ -28,6 +28,8 @@ class Gridicon extends Component {
 			'gridicons-folder',
 			'gridicons-info',
 			'gridicons-posts',
+			'gridicons-star-outline',
+			'gridicons-star',
 		];
 
 		if ( iconNeedsOffset.indexOf( icon ) >= 0 ) {
@@ -166,6 +168,18 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z" />
+					</g>
+				);
+			case 'gridicons-star-outline':
+				return (
+					<g>
+						<path d="M12 6.308l1.176 3.167.347.936.997.042 3.374.14-2.647 2.09-.784.62.27.963.91 3.25-2.813-1.872-.83-.553-.83.552-2.814 1.87.91-3.248.27-.962-.783-.62-2.648-2.092 3.374-.14.996-.04.347-.936L12 6.308M12 2L9.418 8.953 2 9.257l5.822 4.602L5.82 21 12 16.89 18.18 21l-2.002-7.14L22 9.256l-7.418-.305L12 2z" />
+					</g>
+				);
+			case 'gridicons-star':
+				return (
+					<g>
+						<path d="M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304" />
 					</g>
 				);
 			case 'gridicons-tag':

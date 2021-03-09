@@ -2,7 +2,7 @@
 /**
  * Functions and template tags for using site logos.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

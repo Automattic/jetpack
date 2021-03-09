@@ -4,7 +4,7 @@
  *
  * @since 8.2
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\OpenTable;

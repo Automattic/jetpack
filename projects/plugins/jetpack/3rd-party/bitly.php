@@ -3,7 +3,7 @@
  * Fixes issues with the Official Bitly for WordPress
  * https://wordpress.org/plugins/bitly/
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( class_exists( 'Bitly' ) ) {

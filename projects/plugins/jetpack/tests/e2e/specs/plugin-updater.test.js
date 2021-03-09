@@ -1,8 +1,8 @@
 /**
  * Internal dependencies
  */
-import { catchBeforeAll, step } from '../lib/setup-env';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
+import { step } from '../lib/env/test-setup';
+import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
@@ -17,7 +17,7 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 process.env.SKIP_CONNECT = true;
 
 describe( 'Jetpack updater', () => {
-	catchBeforeAll( async () => {
+	beforeAll( async () => {
 		await prepareUpdaterTest();
 		const url = getTunnelSiteUrl();
 
@@ -51,7 +51,7 @@ describe( 'Jetpack updater', () => {
 		} );
 
 		await step( 'Can connect Jetpack', async () => {
-			await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
+			await connectThroughWPAdmin( { mockPlanData: true, plan: 'free' } );
 		} );
 	} );
 } );

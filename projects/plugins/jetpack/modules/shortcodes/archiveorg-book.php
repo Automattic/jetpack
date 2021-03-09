@@ -9,7 +9,7 @@
 
  * <iframe src='https://www.archive.org/stream/goodytwoshoes00newyiala?ui=embed#mode/1up' width='480px' height='430px' frameborder='0' ></iframe>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

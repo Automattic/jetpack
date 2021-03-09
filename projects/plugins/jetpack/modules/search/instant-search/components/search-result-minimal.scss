@@ -1,24 +1,23 @@
-.jetpack-instant-search__search-result-minimal {
-	padding: 0.125em 0;
-	margin: 2em 0;
-	position: relative;
-}
+@import '../lib/styles/_helper.scss';
 
-.jetpack-instant-search__search-result-title {
-	clear: none;
-	margin: 0;
-	overflow: hidden;
+.jetpack-instant-search__search-result-title.jetpack-instant-search__search-result-minimal-title {
+	margin-bottom: 0.4em;
 
 	.gridicon {
 		margin-right: 8px;
 	}
 }
 
+.jetpack-instant-search__search-result-minimal-cats-and-tags {
+	display: flex;
+	flex-flow: row wrap;
+	font-size: 0.9375em;
+}
+
 .jetpack-instant-search__search-result-minimal-tags,
 .jetpack-instant-search__search-result-minimal-cats {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+	flex-flow: row wrap;
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
@@ -33,10 +32,12 @@
 	}
 }
 
-.jetpack-instant-search__search-result-minimal-tag .gridicon {
+.jetpack-instant-search__search-result-minimal-tag-text,
+.jetpack-instant-search__search-result-minimal-cat-text,
+.jetpack-instant-search__search-result-minimal-tag .gridicon,
+.jetpack-instant-search__search-result-minimal-cat .gridicon {
 	vertical-align: middle;
 }
-
 
 .jetpack-instant-search__search-result-minimal-content {
 	word-break: break-word;

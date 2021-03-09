@@ -321,6 +321,31 @@ class Jetpack_SSO_Helpers {
 			array( 'jetpack_json_api_original_query' => $original_request )
 		);
 	}
+
+		/**
+		 * Check if the site has a custom login page URL, and return it.
+		 * If default login page URL is used (`wp-login.php`), `null` will be returned.
+		 *
+		 * @return string|null
+		 */
+		public static function get_custom_login_url() {
+			$login_url = wp_login_url();
+
+			if ( 'wp-login.php' === substr( $login_url, -12 ) ) {
+				// No custom URL found.
+				return null;
+			}
+
+			$site_url = trailingslashit( site_url() );
+
+			if ( 0 !== strpos( $login_url, $site_url ) ) {
+				// Something went wrong, we can't properly extract the custom URL.
+				return null;
+			}
+
+			// Extracting the "path" part of the URL, because we don't need the `site_url` part.
+			return str_ireplace( $site_url, '', $login_url );
+		}
 }
 
 endif;

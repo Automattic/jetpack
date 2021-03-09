@@ -3,7 +3,7 @@
 /**
  * Display a list of upcoming events from a calendar.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

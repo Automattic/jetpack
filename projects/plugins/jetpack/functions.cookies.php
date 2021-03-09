@@ -5,7 +5,7 @@
  *
  * This file is loaded whether or not Jetpack is connected to WP.com.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

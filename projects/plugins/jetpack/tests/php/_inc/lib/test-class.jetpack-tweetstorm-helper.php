@@ -2,7 +2,7 @@
 /**
  * Tweetstorm testing.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -276,27 +276,11 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 *
 	 * @param string $provider The embed provider name.
 	 * @param string $url      The url of the embed.
-	 * @param bool   $classic  Whether to use the pre-WordPress 5.6 embed block format.
+	 * @param bool   $classic  Deprecated. Whether to use the pre-WordPress 5.6 embed block format.
 	 *
 	 * @return array The embed blob of data.
 	 */
-	public function generateCoreEmbedData( $provider, $url, $classic ) {
-		// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
-		if ( $classic ) {
-			return array(
-				'attributes' => array(
-					'url' => $url,
-				),
-				'block'      => array(
-					'attrs'     => array(
-						'url' => $url,
-					),
-					'blockName' => "core-embed/$provider",
-					'innerHTML' => '',
-				),
-				'clientId'   => wp_generate_uuid4(),
-			);
-		} else {
+	public function generateCoreEmbedData( $provider, $url, $classic = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			return array(
 				'attributes' => array(
 					'providerNameSlug' => $provider,
@@ -312,7 +296,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 				),
 				'clientId'   => wp_generate_uuid4(),
 			);
-		}
 	}
 
 	/**
@@ -429,10 +412,10 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		if ( $editor_info ) {
 			$block_count = count( $blocks );
 
-			$this->assertEquals( $block_count, count( $tweet['blocks'] ) );
+			$this->assertCount( $block_count, $tweet['blocks'] );
 
 			for ( $ii = 0; $ii < $block_count; $ii++ ) {
-				$this->assertEquals( 2, count( $tweet['blocks'][ $ii ] ) );
+				$this->assertCount( 2, $tweet['blocks'][ $ii ] );
 				$this->assertEquals( $blocks[ $ii ]['clientId'], $tweet['blocks'][ $ii ]['clientId'] );
 				$this->assertEquals( $blocks[ $ii ]['attributes'], $tweet['blocks'][ $ii ]['attributes'] );
 			}
@@ -466,9 +449,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$tweets      = Jetpack_Tweetstorm_Helper::parse( $blocks );
 		$tweet_count = count( $tweets );
 
-		$this->assertEquals( $tweet_count, count( $content ) );
-		$this->assertEquals( $tweet_count, count( $boundaries ) );
-		$this->assertEquals( $tweet_count, count( $tweet_blocks ) );
+		$this->assertCount( $tweet_count, $content );
+		$this->assertCount( $tweet_count, $boundaries );
+		$this->assertCount( $tweet_count, $tweet_blocks );
 
 		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
 			$this->assertTweetContains( $content[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], true );
@@ -488,9 +471,9 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$tweets      = Jetpack_Tweetstorm_Helper::parse( $publicize_blocks );
 		$tweet_count = count( $tweets );
 
-		$this->assertEquals( $tweet_count, count( $content ) );
-		$this->assertEquals( $tweet_count, count( $boundaries ) );
-		$this->assertEquals( $tweet_count, count( $tweet_blocks ) );
+		$this->assertCount( $tweet_count, $content );
+		$this->assertCount( $tweet_count, $boundaries );
+		$this->assertCount( $tweet_count, $tweet_blocks );
 
 		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
 			$this->assertTweetContains( $content[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], false );

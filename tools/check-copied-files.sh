@@ -3,6 +3,7 @@
 set -eo pipefail
 
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+. tools/includes/chalk-lite.sh
 
 EXIT=0
 
@@ -20,7 +21,7 @@ compare () {
 				if [[ -n "$CI" ]]; then
 					printf '::error file=%s::' "$F"
 				fi
-				echo "Did not find delimiter \`$D\` in $F."
+				error "Did not find delimiter \`$D\` in $F."
 				FAIL=1
 			fi
 		done
@@ -62,7 +63,7 @@ compare () {
 			printf "::error file=%s,line=%d::%s\\n" "$1" "${LA%%:*}" "$MSG"
 			printf "::error file=%s,line=%d::%s\\n" "$2" "${LB%%:*}" "$MSG"
 		else
-			echo "$MSG"
+			error "$MSG"
 		fi
 
 		diff -u /dev/fd/3 --label "$1" /dev/fd/4 --label "$2" 3<<<"$A" 4<<<"$B" || true

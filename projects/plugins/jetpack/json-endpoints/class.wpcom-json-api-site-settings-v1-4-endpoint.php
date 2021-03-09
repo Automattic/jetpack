@@ -72,6 +72,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint( array(
 		'lang_id'                                 => '(int) ID for language blog is written in',
 		'locale'                                  => '(string) locale code for language blog is written in',
 		'wga'                                     => '(array) Google Analytics Settings',
+		'jetpack_cloudflare_analytics'            => '(array) Cloudflare Analytics Settings',
 		'disabled_likes'                          => '(bool) Are likes globally disabled (they can still be turned on per post)?',
 		'disabled_reblogs'                        => '(bool) Are reblogs disabled on posts?',
 		'jetpack_comment_likes_enabled'           => '(bool) Are comment likes enabled for all comments?',

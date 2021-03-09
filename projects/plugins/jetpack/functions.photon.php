@@ -7,7 +7,7 @@ use Automattic\Jetpack\Status;
  *
  * Some are used outside of the Photon module being active, so intentionally not within the module.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -125,16 +125,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		|| wp_parse_url( $custom_photon_url, PHP_URL_HOST ) === $image_url_parts['host']
 		|| $is_wpcom_image
 	) {
-		/*
-		 * VideoPress Poster images should only keep one param, ssl.
-		 */
-		if (
-			is_array( $args )
-			&& 'videos.files.wordpress.com' === strtolower( $image_url_parts['host'] )
-		) {
-			$args = array_intersect_key( array( 'ssl' => 1 ), $args );
-		}
-
 		$photon_url = add_query_arg( $args, $image_url );
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
 	}

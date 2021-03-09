@@ -343,4 +343,34 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 		$this->assertFalse( jetpack_photon_banned_domains( false, 'https://s.w.org/style/images/wp-header-logo-2x.png' ) );
 	}
 
+	/**
+	 * Tests that Photon will rely on native resizing for WordPress.com images.
+	 *
+	 * @author aforcier
+	 * @covers ::jetpack_photon_url
+	 * @since  9.5.0
+	 */
+	public function test_photonizing_wordpress_url() {
+		$url = jetpack_photon_url( 'https://jetpack.files.wordpress.com/abcd1234/poster_image.jpg', array( 'w' => 500 ) );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
+		$this->assertSame( '500', $args['w'], 'WordPress.com image source should have given params applied.' );
+		$this->assertArrayNotHasKey( 'ssl', $args, 'WordPress.com image source should not have an ssl query string.' );
+		$this->assertSame( 'jetpack.files.wordpress.com', wp_parse_url( $url )['host'], 'WordPress.com image source should not be wrapped in Photon URL.' );
+	}
+
+	/**
+	 * Tests that Photon will rely on native resizing for VideoPress poster images.
+	 *
+	 * @author aforcier
+	 * @covers ::jetpack_photon_url
+	 * @since  9.5.0
+	 */
+	public function test_photonizing_videopress_url() {
+		$url = jetpack_photon_url( 'https://videos.files.wordpress.com/abcd1234/poster_image.jpg', array( 'w' => 500 ) );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
+		$this->assertSame( '500', $args['w'], 'VideoPress poster image source should have given params applied.' );
+		$this->assertArrayNotHasKey( 'ssl', $args, 'VideoPress poster image source should not have an ssl query string.' );
+		$this->assertSame( 'videos.files.wordpress.com', wp_parse_url( $url )['host'], 'VideoPress poster image source should not be wrapped in Photon URL.' );
+	}
+
 }

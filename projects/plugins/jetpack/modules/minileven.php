@@ -14,7 +14,7 @@
  * However, we do not recommend it.
  *
  * @deprecated
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

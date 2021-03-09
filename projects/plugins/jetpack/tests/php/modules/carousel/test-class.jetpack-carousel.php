@@ -2,7 +2,7 @@
 /**
  * Class WP_Test_Jetpack_Carousel.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 require_jetpack_file( 'modules/carousel/jetpack-carousel.php' );

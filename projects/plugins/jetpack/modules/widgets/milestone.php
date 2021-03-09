@@ -4,7 +4,7 @@
  *
  * Everything happens within the folder, but Jetpack loads widgets via a widgets/*.php scheme.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

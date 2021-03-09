@@ -1,10 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Connection\Webhooks;
 
 /**
  * Client = Plugin
@@ -13,63 +9,52 @@ use Automattic\Jetpack\Tracking;
 class Jetpack_Client_Server {
 
 	/**
-	 * Authorizations
+	 * Handle the client authorization error.
+	 *
+	 * @param WP_Error $error The error object.
 	 */
-	function client_authorize() {
-		$data              = stripslashes_deep( $_GET );
-		$data['auth_type'] = 'client';
-		$roles             = new Roles();
-		$role              = $roles->translate_current_user_to_role();
-		$redirect          = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
-
-		check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
-
-		$tracking = new Tracking();
-
-		$manager = new Connection_Manager();
-		$result  = $manager->authorize( $data );
-
-		if ( is_wp_error( $result ) ) {
-			Jetpack::state( 'error', $result->get_error_code() );
-
-			$tracking->record_user_event(
-				'jpc_client_authorize_fail',
-				array(
-					'error_code'    => $result->get_error_code(),
-					'error_message' => $result->get_error_message(),
-				)
-			);
-		} else {
-			/**
-			 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param int Jetpack Blog ID.
-			 */
-			do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
+	public static function client_authorize_error( $error ) {
+		if ( $error instanceof WP_Error ) {
+			Jetpack::state( 'error', $error->get_error_code() );
 		}
-
-		if ( wp_validate_redirect( $redirect ) ) {
-			// Exit happens below in $this->do_exit()
-			wp_safe_redirect( $redirect );
-		} else {
-			// Exit happens below in $this->do_exit()
-			wp_safe_redirect( Jetpack::admin_url() );
-		}
-
-		$tracking->record_user_event( 'jpc_client_authorize_success' );
-
-		$this->do_exit();
 	}
 
-	/*
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Manager::authorize() instead.
+	/**
+	 * The user is already authorized, we set the Jetpack state and adjust the redirect URL.
+	 *
+	 * @return string
 	 */
-	function authorize( $data = array() ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Manager::authorize' );
-		$manager = new Connection_Manager();
-		return $manager->authorize( $data );
+	public static function client_authorize_already_authorized_url() {
+		Jetpack::state( 'message', 'already_authorized' );
+		return Jetpack::admin_url();
+	}
+
+	/**
+	 * The authorization processing has started.
+	 */
+	public static function client_authorize_processing() {
+		Jetpack::log( 'authorize' );
+	}
+
+	/**
+	 * The authorization has completed (successfully or not), and the redirect URL is empty.
+	 * We set the Jetpack Dashboard as the default URL.
+	 *
+	 * @return string
+	 */
+	public static function client_authorize_fallback_url() {
+		return Jetpack::admin_url();
+	}
+
+	/**
+	 * Authorization handler.
+	 *
+	 * @deprecated since Jetpack 9.5.0
+	 * @see Webhooks::handle_authorize()
+	 */
+	public function client_authorize() {
+		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Webhooks::handle_authorize' );
+		( new Webhooks() )->handle_authorize();
 	}
 
 	public static function deactivate_plugin( $probable_file, $probable_title ) {
@@ -93,28 +78,21 @@ class Jetpack_Client_Server {
 	}
 
 	/**
-	 * @deprecated since 8.0.0 Use Automattic\Jetpack\Connection\Manager::get_token() instead.
-	 *
-	 * @return object|WP_Error
-	 */
-	function get_token( $data ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Manager\\get_token' );
-		return Jetpack::connection()->get_token( $data );
-	}
-
-	/**
-	 * Returns an instance of the Jetpack object.
-	 *
-	 * @return Automattic\Jetpack
+	 * @deprecated since Jetpack 9.5.0
+	 * @see Jetpack::init()
 	 */
 	public function get_jetpack() {
+		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Jetpack::init' );
 		return Jetpack::init();
 	}
 
 	/**
-	 * Kills the current process.
+	 * No longer used.
+	 *
+	 * @deprecated since Jetpack 9.5.0
 	 */
 	public function do_exit() {
+		_deprecated_function( __METHOD__, 'jetpack-9.5.0' );
 		exit;
 	}
 }

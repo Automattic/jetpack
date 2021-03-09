@@ -14,10 +14,12 @@ import {
 	Placeholder,
 	Spinner,
 	TextControl,
+	ToolbarButton,
+	ToolbarGroup,
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, InnerBlocks, BlockIcon } from '@wordpress/block-editor';
+import { InspectorControls, InnerBlocks, BlockIcon, BlockControls } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
@@ -25,10 +27,14 @@ import { applyFilters } from '@wordpress/hooks';
  * Internal dependencies
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
-import StripeNudge from '../../shared/components/stripe-nudge';
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import {
+	CURRENCY_OPTIONS,
+	isPriceValid,
+	minimumTransactionAmountForCurrency,
+} from '../../shared/currencies';
 import getSiteFragment from '../../shared/get-site-fragment';
-import { icon, isPriceValid, removeInvalidProducts, CURRENCY_OPTIONS } from '.';
+import { icon, removeInvalidProducts } from '.';
+import { flashIcon } from '../../shared/icons';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -41,9 +47,9 @@ const PRODUCT_FORM_SUBMITTED = 2;
 /**
  * Formats a price with the right format for a numeric input value.
  *
- * @param {number} price Price to format.
- * @param {string} currency Currency code.
- * @returns {string} Formatted price.
+ * @param {number} price - Price to format.
+ * @param {string} currency - Currency code.
+ * @returns {string} - Formatted price.
  */
 const formatPriceForNumberInputValue = ( price, currency ) => {
 	// By using `formatCurrency` we ensure the resulting price contains the relevant decimals for the given currency (i.e. 0.5 > 0.50).
@@ -409,7 +415,7 @@ class MembershipsButtonEdit extends Component {
 	};
 
 	renderUpgradeNudges = () => {
-		const { notices, postId } = this.props;
+		const { notices } = this.props;
 		const { connected, connectURL } = this.state;
 
 		return (
@@ -417,12 +423,21 @@ class MembershipsButtonEdit extends Component {
 				{ ! this.hasUpgradeNudge &&
 					! this.state.shouldUpgrade &&
 					connected === API_STATE_NOTCONNECTED && (
-						<StripeNudge
-							blockName="recurring-payments"
-							postId={ postId }
-							stripeConnectUrl={ connectURL }
-						/>
+						<BlockControls>
+							<ToolbarGroup>
+								<ToolbarButton
+									icon={ flashIcon }
+									onClick={ e => {
+										this.props.autosaveAndRedirect( e, connectURL );
+									} }
+									className="connect-stripe components-tab-button"
+								>
+									{ __( 'Connect Stripe', 'jetpack' ) }
+								</ToolbarButton>
+							</ToolbarGroup>
+						</BlockControls>
 					) }
+
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
@@ -514,8 +529,8 @@ class MembershipsButtonEdit extends Component {
 		/**
 		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
 		 *
-		 * @param {bool} showControls Whether inspectors controls are shown.
-		 * @param {string} showControls Block ID.
+		 * @param {boolean} showControls - Whether inspectors controls are shown.
+		 * @param {string} showControls - Block ID.
 		 */
 		const showControls = applyFilters(
 			'jetpack.RecurringPayments.showControls',
@@ -564,6 +579,8 @@ class MembershipsButtonEdit extends Component {
 						],
 					] }
 					templateLock="all"
+					__experimentalCaptureToolbars={ true }
+					templateInsertUpdatesSelection={ false }
 				/>
 			</>
 		);
@@ -576,7 +593,15 @@ export default compose( [
 	} ) ),
 	withDispatch( dispatch => {
 		const { updateBlockAttributes } = dispatch( 'core/editor' );
-		return { updateBlockAttributes };
+		return {
+			updateBlockAttributes,
+			autosaveAndRedirect: async ( event, stripeConnectUrl ) => {
+				event.preventDefault(); // Don't follow the href before autosaving.
+				await dispatch( 'core/editor' ).savePost();
+				// Use window.top to escape from the editor iframe on WordPress.com.
+				window.top.location.href = stripeConnectUrl;
+			},
+		};
 	} ),
 	withNotices,
 ] )( MembershipsButtonEdit );

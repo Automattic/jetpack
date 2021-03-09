@@ -2,7 +2,7 @@
 /**
  * Build the sitemap tree.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 4.8.0
  * @author Automattic
  */

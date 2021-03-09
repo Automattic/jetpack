@@ -2,7 +2,7 @@
 /**
  * Manage settings via the WordPress.com REST API.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
@@ -404,6 +404,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
 						'wga'                              => $this->get_google_analytics(),
+						'jetpack_cloudflare_analytics'     => get_option( 'jetpack_cloudflare_analytics' ),
 						'disabled_likes'                   => (bool) get_option( 'disabled_likes' ),
 						'disabled_reblogs'                 => (bool) get_option( 'disabled_reblogs' ),
 						'jetpack_comment_likes_enabled'    => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
@@ -487,7 +488,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 			}
 		}
-
 		return $response;
 
 	}
@@ -663,6 +663,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'jetpack_cloudflare_analytics':
+					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^[a-fA-F0-9]+$/i', $value['code'] ) ) {
+						return new WP_Error( 'invalid_code', __( 'Invalid Cloudflare Analytics ID', 'jetpack' ) );
+					}
+
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
 				case 'jetpack_testimonial':
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
@@ -782,7 +792,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
-					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_legacy_front_page_meta() ) {
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 

@@ -26,6 +26,21 @@ The URL of the audio file to play. In the case of the podcast player, this is al
 
 Used in conjunction with `onTimeChange` this tracks the current position in the audio file, and can be set to a value in order to jump back and forth.
 
+#### `loadWhenReady`
+
+Loads the audio file when it's ready. `False` as default.
+
+#### `preload`
+
+This props will be propagated to the <audio> element.
+
+> This enumerated attribute is intended to provide a hint to the browser about what the author thinks will lead to the best user experience. 
+
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio#attr-preload
+
+`metadata` as default.
+
+
 #### `onTimeChange`
 
 While the file is playing, this callback will be triggered every second to update the controlling component that the time position has changed. This value is then expected to be passed back in using the `currentTime` prop.

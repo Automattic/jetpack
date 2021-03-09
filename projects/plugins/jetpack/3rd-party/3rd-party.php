@@ -3,7 +3,7 @@
  * Compatibility files for third-party plugins.
  * This is used to improve compatibility of specific Jetpack features with third-party plugins.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack;

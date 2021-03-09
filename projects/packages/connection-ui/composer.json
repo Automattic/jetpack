@@ -1,0 +1,44 @@
+{
+	"name": "automattic/jetpack-connection-ui",
+	"description": "Jetpack Connection UI",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "@dev"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "1.0.x-dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"scripts": {
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-connection-ui",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
+		}
+	}
+}

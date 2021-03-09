@@ -11,7 +11,7 @@
  * http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  * https://www.youtube.com/playlist?list=PLP7HaNDU4Cifov7C2fQM8Ij6Ew_uPHEXW
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

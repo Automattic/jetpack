@@ -7,7 +7,7 @@ use Automattic\Jetpack\Assets;
  *
  * @since 4.4.2
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -2,11 +2,18 @@
 /**
  * Utilities related to the Jetpack Recommendations
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+
+/**
+ * Contains utilities related to the Jetpack Recommendations.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Jetpack_Recommendations class
@@ -20,12 +27,40 @@ class Jetpack_Recommendations {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		$recommendations_enabled = Jetpack_Options::get_option( 'recommendations_enabled', null );
+		// Shortcircuit early if Jetpack is not active or we are in offline mode.
+		if ( ! Jetpack::is_active() || ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		// No recommendations for Atomic sites, they already get onboarded in Calypso.
+		if ( jetpack_is_atomic_site() ) {
+			return false;
+		}
+
+		self::initialize_jetpack_recommendations();
+
+		return true;
+	}
+
+	/**
+	 * Returns a boolean indicating if the Jetpack Banner is enabled.
+	 *
+	 * @since 9.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_banner_enabled() {
+		// Shortcircuit early if the recommendations are not enabled at all.
+		if ( ! self::is_enabled() ) {
+			return false;
+		}
+
+		$recommendations_banner_enabled = Jetpack_Options::get_option( 'recommendations_banner_enabled', null );
 
 		// If the option is already set, just return the cached value.
 		// Otherwise calculate it and store it before returning it.
-		if ( null !== $recommendations_enabled ) {
-			return $recommendations_enabled;
+		if ( null !== $recommendations_banner_enabled ) {
+			return $recommendations_banner_enabled;
 		}
 
 		if ( ! Jetpack::connection()->is_connected() ) {
@@ -53,17 +88,16 @@ class Jetpack_Recommendations {
 			$site_registered_date = $connection->get_assumed_site_creation_date();
 		}
 
-		$recommendations_start_date = gmdate( 'Y-m-d H:i:s', strtotime( '2020-12-01 00:00:00' ) );
-		$recommendations_enabled    = $site_registered_date > $recommendations_start_date;
+		$recommendations_start_date     = gmdate( 'Y-m-d H:i:s', strtotime( '2020-12-01 00:00:00' ) );
+		$recommendations_banner_enabled = $site_registered_date > $recommendations_start_date;
 
-		Jetpack_Options::update_option( 'recommendations_enabled', $recommendations_enabled );
+		Jetpack_Options::update_option( 'recommendations_banner_enabled', $recommendations_banner_enabled );
 
-		return $recommendations_enabled;
+		return $recommendations_banner_enabled;
 	}
 
 	/**
-	 * Initializes the Recommendations step according to the Setup Wizard state, and then clears the
-	 * Setup Wizard state.
+	 * Initializes the Recommendations step according to the Setup Wizard state.
 	 */
 	private static function initialize_jetpack_recommendations() {
 		if ( Jetpack_Options::get_option( 'recommendations_step' ) ) {
@@ -72,10 +106,9 @@ class Jetpack_Recommendations {
 
 		$setup_wizard_status = Jetpack_Options::get_option( 'setup_wizard_status' );
 		if ( 'completed' === $setup_wizard_status ) {
-			Jetpack_Options::update_option( 'recommendations_step', 'completed' );
+			Jetpack_Options::update_option( 'recommendations_banner_enabled', false );
+			Jetpack_Options::update_option( 'recommendations_step', 'setup-wizard-completed' );
 		}
-
-		Jetpack_Options::delete_option( array( 'setup_wizard_questionnaire', 'setup_wizard_status' ) );
 	}
 
 	/**
@@ -86,7 +119,7 @@ class Jetpack_Recommendations {
 	public static function get_recommendations_data() {
 		self::initialize_jetpack_recommendations();
 
-		return Jetpack_Options::get_option( 'recommendations_data', (object) array() );
+		return Jetpack_Options::get_option( 'recommendations_data', array() );
 	}
 
 	/**

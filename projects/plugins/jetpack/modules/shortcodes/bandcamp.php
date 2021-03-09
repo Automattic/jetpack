@@ -7,7 +7,7 @@
  * [bandcamp album=3462839126  bgcol=FFFFFF linkcol=4285BB size=venti]
  * [bandcamp track=2446959313]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

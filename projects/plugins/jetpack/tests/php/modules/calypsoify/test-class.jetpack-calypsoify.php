@@ -2,7 +2,7 @@
 /**
  * Class Calypsoify.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 require_jetpack_file( 'modules/calypsoify/class-jetpack-calypsoify.php' );

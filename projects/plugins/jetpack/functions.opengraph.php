@@ -8,7 +8,7 @@
  * @link https://ogp.me/
  * @link https://developers.facebook.com/docs/opengraph/
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_action( 'wp_head', 'jetpack_og_tags' );

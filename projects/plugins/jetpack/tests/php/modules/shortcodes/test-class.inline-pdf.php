@@ -2,7 +2,7 @@
 /**
  * Unit test for Inline PDF embeds.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since   8.4
  */
 class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {

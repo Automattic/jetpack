@@ -1,0 +1,21 @@
+{
+	"name": "required-review",
+	"version": "2.0.1-alpha",
+	"description": "Check that a PR has reviews from required teams.",
+	"main": "index.js",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"@actions/core": "1.2.6",
+		"@actions/github": "4.0.0",
+		"error": "10.4.0",
+		"js-yaml": "4.0.0",
+		"picomatch": "2.2.2"
+	},
+	"devDependencies": {
+		"@vercel/ncc": "0.27.0"
+	},
+	"scripts": {
+		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"
+	}
+}

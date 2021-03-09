@@ -2,7 +2,7 @@
 /**
  * Tests for the WP_Test_Comment_Likes class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 8.4.0
  */
 

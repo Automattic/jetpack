@@ -129,3 +129,8 @@
 	}
 
 }
+
+// Ensure sidebar is visually separate from the content in the Contrast color scheme
+.admin-color-contrast #adminmenuback {
+	outline: 1px solid $nav-unification-sidebar-border;
+}

@@ -9,7 +9,7 @@
  * Feature: Engagement
  * Additional Search Queries: webmaster, seo, google, bing, pinterest, search, console
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

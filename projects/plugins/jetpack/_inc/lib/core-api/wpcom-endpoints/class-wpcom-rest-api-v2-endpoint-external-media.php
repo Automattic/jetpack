@@ -2,7 +2,7 @@
 /**
  * REST API endpoint for the External Media.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 8.7.0
  */
 

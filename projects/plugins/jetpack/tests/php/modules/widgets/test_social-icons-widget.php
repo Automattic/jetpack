@@ -44,8 +44,14 @@ class WP_Test_Social_Icons_Widget extends WP_UnitTestCase {
 		$this->social_icon_widget->widget( $args, $instance );
 		$output_string = ob_get_clean();
 
-		$this->assertNotFalse( strpos( $output_string, 'target="_blank"' ), 'The expected attribute target="_blank" is missing.' );
-		$this->assertNotFalse( strpos( $output_string, 'rel="noopener noreferrer"' ), 'The expected attribute rel="noopener noreferrer" is missing.' );
+		// @todo Use yoast/phpunit-polyfill or the like. Or just drop this if we drop support for PHPUnit < 7.5.0 (PHP < 7.1).
+		if ( is_callable( array( $this, 'assertStringContainsString' ) ) ) {
+			$this->assertStringContainsString( 'target="_blank"', $output_string, 'The expected attribute target="_blank" is missing.' );
+			$this->assertStringContainsString( 'rel="noopener noreferrer"', $output_string, 'The expected attribute rel="noopener noreferrer" is missing.' );
+		} else {
+			$this->assertContains( 'target="_blank"', $output_string, 'The expected attribute target="_blank" is missing.' );
+			$this->assertContains( 'rel="noopener noreferrer"', $output_string, 'The expected attribute rel="noopener noreferrer" is missing.' );
+		}
 	}
 
 	/**
@@ -75,7 +81,13 @@ class WP_Test_Social_Icons_Widget extends WP_UnitTestCase {
 		$this->social_icon_widget->widget( $args, $instance );
 		$output_string = ob_get_clean();
 
-		$this->assertNotFalse( strpos( $output_string, 'target="_self"' ), 'The expected attribute target="_self" is missing.' );
-		$this->assertFalse( strpos( $output_string, 'rel="noopener noreferrer"' ), 'The attribute rel="noopener noreferrer should not be present.' );
+		// @todo Use yoast/phpunit-polyfill or the like. Or just drop this if we drop support for PHPUnit < 7.5.0 (PHP < 7.1).
+		if ( is_callable( array( $this, 'assertStringContainsString' ) ) ) {
+			$this->assertStringContainsString( 'target="_self"', $output_string, 'The expected attribute target="_self" is missing.' );
+			$this->assertStringNotContainsString( 'rel="noopener noreferrer"', $output_string, 'The attribute rel="noopener noreferrer should not be present.' );
+		} else {
+			$this->assertContains( 'target="_self"', $output_string, 'The expected attribute target="_self" is missing.' );
+			$this->assertNotContains( 'rel="noopener noreferrer"', $output_string, 'The attribute rel="noopener noreferrer should not be present.' );
+		}
 	}
 }

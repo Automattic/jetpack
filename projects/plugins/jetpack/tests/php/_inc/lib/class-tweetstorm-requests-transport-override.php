@@ -2,7 +2,7 @@
 /**
  * Tweetstorm_Requests_Transport_Override class.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

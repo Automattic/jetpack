@@ -2,7 +2,7 @@
 /**
  * Main WordAds file.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 define( 'WORDADS_ROOT', __DIR__ );

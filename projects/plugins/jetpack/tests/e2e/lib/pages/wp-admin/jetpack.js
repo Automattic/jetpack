@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { isEventuallyVisible } from '../../page-helper';
 
 export default class JetpackPage extends Page {
 	constructor( page ) {
@@ -12,32 +12,39 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await waitAndClick( this.page, connectButtonSelector );
+		return await page.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
 		const myPlanButton = "a[href*='my-plan'] span";
-		return await waitAndClick( this.page, myPlanButton );
+		return await page.click( myPlanButton );
 	}
 
 	async isFree() {
 		const freePlanImage = ".my-plan-card__icon img[src*='free']";
-		return await isEventuallyVisible( this.page, freePlanImage, 20000 );
+		return isEventuallyVisible( this.page, freePlanImage, 20000 );
 	}
 
 	async isComplete() {
 		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
+		return isEventuallyVisible( this.page, premiumPlanImage, 20000 );
 	}
 
 	async isSecurity() {
 		const proPlanImage = ".my-plan-card__icon img[src*='security']";
-		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
+		return isEventuallyVisible( this.page, proPlanImage, 20000 );
 	}
 
 	async isConnected() {
 		const connectionInfo = '.jp-connection-settings__info';
-		return await isEventuallyVisible( this.page, connectionInfo, 5000 );
+		return isEventuallyVisible( this.page, connectionInfo, 5000 );
+	}
+
+	async forceVariation( variation = 'original' ) {
+		return await this.page.evaluate(
+			forceVariation => ( jpConnect.forceVariation = forceVariation ),
+			variation
+		);
 	}
 
 	async isPlan( plan ) {

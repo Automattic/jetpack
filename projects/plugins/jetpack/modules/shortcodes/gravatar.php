@@ -7,7 +7,7 @@
  * [gravatar email="user@example.org" size="48"]
  * [gravatar_profile who="user@example.org"]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 add_shortcode( 'gravatar', 'jetpack_gravatar_shortcode' );
@@ -119,7 +119,7 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 				styleNode.type = 'text/css';
 				styleNode.id = 'gravatar-profile-embed-styles';
 
-				var gCSS = '.grofile-wrap { border: solid 1px #eee; padding: 10px; } .grofile { padding: 0 0 5px 0; }  .grofile-left { float: left; display: block; width: 96px; margin-right: 15px; } .grofile .gravatar { margin-bottom: 5px; } .grofile-clear { clear: left; font-size: 1px; height: 1px; } .grofile ul li a { text-indent: -99999px; } .grofile .grofile-left a:hover { text-decoration: none !important; border: none !important; } .grofile-name { margin-top: 0; }';
+				var gCSS = '.grofile-wrap { border: solid 1px #f0f0f1; padding: 10px; } .grofile { padding: 0 0 5px 0; }  .grofile-left { float: left; display: block; width: 96px; margin-right: 15px; } .grofile .gravatar { margin-bottom: 5px; } .grofile-clear { clear: left; font-size: 1px; height: 1px; } .grofile ul li a { text-indent: -99999px; } .grofile .grofile-left a:hover { text-decoration: none !important; border: none !important; } .grofile-name { margin-top: 0; }';
 
 				if ( document.all ) {
 					styleNode.innerText = gCSS;

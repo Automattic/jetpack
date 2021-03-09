@@ -2,7 +2,7 @@
 /**
  * WordAds cron tasks.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

@@ -9,7 +9,7 @@
  * License: GPL2 or later
  * Text Domain: jetpack
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

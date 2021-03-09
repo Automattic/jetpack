@@ -7,7 +7,7 @@
  *
  * @see https://github.com/Automattic/crowdsignal-plugin/commit/941fc5758152ebf860a14d1cd0058245e8aed86b
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * A label-only Customizer control for use with Jetpack Search configuration
  *
- * @package jetpack
+ * @package automattic/jetpack
  * @since 8.6.0
  */
 

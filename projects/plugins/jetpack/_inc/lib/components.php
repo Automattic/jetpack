@@ -48,6 +48,20 @@ class Jetpack_Components {
 	}
 
 	/**
+	 * Renders the frontend-nudge with the provided props.
+	 *
+	 * @param array $props Component properties.
+	 *
+	 * @return string The component markup.
+	 */
+	public static function render_frontend_nudge( $props ) {
+		return self::render_component(
+			'frontend-nudge',
+			$props
+		);
+	}
+
+	/**
 	 * Load and display a pre-rendered component
 	 *
 	 * @since 7.7.0
@@ -65,8 +79,7 @@ class Jetpack_Components {
 			return self::render_component(
 				'upgrade-nudge',
 				array(
-					'planName'   => __( 'a paid plan', 'jetpack' ),
-					'upgradeUrl' => '',
+					'checkoutUrl' => '',
 				)
 			);
 		}
@@ -99,8 +112,7 @@ class Jetpack_Components {
 		return self::render_component(
 			'upgrade-nudge',
 			array(
-				'planName'   => $plan->product_name,
-				'upgradeUrl' => $upgrade_url,
+				'checkoutUrl' => $upgrade_url,
 			)
 		);
 	}

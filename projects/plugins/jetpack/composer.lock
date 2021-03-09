@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd6bccfd532028223f52f22d6cb45efb",
+    "content-hash": "bca888b973bb69780fe20ab4a0246aa7",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -12,14 +12,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "cd10280f90bcf38481b19329fc6d91c77eaf7c6a"
+                "reference": "3d92026870a02bbeb361a122043ee3478768d8b3"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-a8c-mc-stats"
+                "mirror-repo": "Automattic/jetpack-a8c-mc-stats",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-a8c-mc-stats/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -30,6 +34,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -47,19 +58,23 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/abtest",
-                "reference": "68f701cfe29f41b42c80765a251cd8a9929fbc9d"
+                "reference": "4052ebd5e01e443ec6f706483f91b697b38cdea2"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-error": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-abtest"
+                "mirror-repo": "Automattic/jetpack-abtest",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -73,6 +88,13 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -90,18 +112,22 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "ff4ba62b0e6b6c91df44816aafad672cd7297d87"
+                "reference": "068798a55f748db20515075c8d5c88aca69ab81a"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-assets"
+                "mirror-repo": "Automattic/jetpack-assets",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -112,6 +138,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -129,18 +162,22 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "f124e1e6a0cc3bf5940b04909439db5316f0e223"
+                "reference": "99164a1659df1e1a642f0b14b38fc1ed01edd43b"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "composer-plugin",
             "extra": {
                 "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
-                "mirror-repo": "Automattic/jetpack-autoloader"
+                "mirror-repo": "Automattic/jetpack-autoloader",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -154,6 +191,14 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -171,11 +216,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "be67003ef388f36c943b7c767865c6ac0dc46ee6"
+                "reference": "1bdd55efb42ce2d8c4977bcc8d8f6233ce96add2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-backup"
+                "mirror-repo": "Automattic/jetpack-backup",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "files": [
@@ -200,15 +251,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "5363c30a2543f49c04ba5f3b8e5aee3b08e101a3"
+                "reference": "f0682c1a7893c392d44fecc4f9d051b173ca900b"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-blocks"
+                "mirror-repo": "Automattic/jetpack-blocks",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -222,6 +277,13 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -239,14 +301,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
-                "reference": "9d4114aa60acc28bc2cf737fe19b9b34f83a9d52"
+                "reference": "e0f7843232ab28171bec3ac674f9e6869725752c"
             },
             "require-dev": {
-                "yoast/phpunit-polyfills": "0.2.0"
+                "automattic/jetpack-changelogger": "1.0.x-dev"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-compat"
+                "mirror-repo": "Automattic/jetpack-compat",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "files": [
@@ -254,12 +319,6 @@
                 ],
                 "classmap": [
                     "legacy"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ]
             },
             "license": [
@@ -277,11 +336,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "8ad7b4207482fb5e67078bbb996849106815f737"
+                "reference": "96fc4d629640006784e6ad9ada5fc8454dac3dcc"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-config"
+                "mirror-repo": "Automattic/jetpack-config",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -303,7 +368,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e40b1ec7bcd963cb361c09753223dcbfdea7bf0e"
+                "reference": "894335704fd49a00971f1a684a0fb4edd584a809"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -314,12 +379,17 @@
                 "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "automattic/wordbless": "@dev",
+                "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-connection"
+                "mirror-repo": "Automattic/jetpack-connection",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "files": [
@@ -337,6 +407,13 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -349,20 +426,69 @@
             }
         },
         {
+            "name": "automattic/jetpack-connection-ui",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/connection-ui",
+                "reference": "4ff26c380154024d2b48e9f3af797b03b2d77c97"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev"
+            },
+            "type": "library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-connection-ui",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Connection UI",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-constants",
             "version": "dev-monorepo",
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "de55b72a16b71b18f96634941821638f77d8b16c"
+                "reference": "d7f7c3d46211b3b56e8964d0500a0fc1f70f9bdc"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-constants"
+                "mirror-repo": "Automattic/jetpack-constants",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -373,6 +499,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -390,14 +523,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "150103d688c3882d0c781d587aa5d141b1b584e4"
+                "reference": "0528c651b15d90eed0f1a4e8eff63ddd43e4520a"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-device-detection"
+                "mirror-repo": "Automattic/jetpack-device-detection",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -408,6 +545,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -425,14 +569,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/error",
-                "reference": "60750c4bf5e4df91e8aa85082824a172225477a4"
+                "reference": "46610c38a0f3268b9faf7834361e5d27b77a6761"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-error"
+                "mirror-repo": "Automattic/jetpack-error",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-error/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -443,6 +591,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -460,28 +615,25 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/heartbeat",
-                "reference": "a9049d7d076cc197c252511edb2d3edd3c3f9b63"
+                "reference": "68cb90b11e768672c74f2281be25fd6a776bc250"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
-                "yoast/phpunit-polyfills": "0.2.0"
+                "automattic/jetpack-changelogger": "1.0.x-dev"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-heartbeat"
+                "mirror-repo": "Automattic/jetpack-heartbeat",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-heartbeat/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
                     "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ]
             },
             "license": [
@@ -499,7 +651,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "fb5f7053e83c30915323765b56cffe9d45bd1dcf"
+                "reference": "ad1a4f91c4cee1ff1adc06ccaad7b78c16f13f0c"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -513,12 +665,19 @@
                 "automattic/jetpack-tracking": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-jitm"
+                "mirror-repo": "Automattic/jetpack-jitm",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-jitm.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -526,9 +685,24 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build-production"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ],
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -546,19 +720,23 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "78a9a10af3c2c86edcde245a57f68db77261c1c0"
+                "reference": "9a1ab2344ac1f3ff44cb84b2bb849f1ccf7b284e"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-lazy-images"
+                "mirror-repo": "Automattic/jetpack-lazy-images",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -566,12 +744,27 @@
                 ]
             },
             "scripts": {
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build-production"
+                ],
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "yarn build"
+                ],
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -589,19 +782,23 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "7655281de2d6417ad906f1e97b041c58dba388ed"
+                "reference": "ae25c5266a15ce82db14cdece134343be9951a1f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-options": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-licensing"
+                "mirror-repo": "Automattic/jetpack-licensing",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -615,6 +812,13 @@
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -632,14 +836,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "bc91ee4f55e3d2c04ac2d97232cd69d3c691d043"
+                "reference": "c49c788d1d0f16a3d04c31677ba5f14c34f7cf24"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-logo"
+                "mirror-repo": "Automattic/jetpack-logo",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -650,6 +858,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -667,17 +882,21 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
-                "reference": "c8be933ad221139ef1fc676a0b45c706fe8b7a24"
+                "reference": "927050dd5da30a86b83a2b627d6d96ea535077d5"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-options"
+                "mirror-repo": "Automattic/jetpack-options",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -699,15 +918,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "28bfc833bb1b9e2364f482eb9b1fe19ba2724354"
+                "reference": "3ebd9e2c3a83e9025e1b030101a4aa86b8e6d6ea"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-partner"
+                "mirror-repo": "Automattic/jetpack-partner",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -718,6 +941,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -735,18 +965,22 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "5c7599ab85cda352641881cdd5e780b99bbe0bba"
+                "reference": "4480c52c2f55b396ab1b28b36d6b5f4fd8a99ba8"
             },
             "require": {
                 "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-redirect"
+                "mirror-repo": "Automattic/jetpack-redirect",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -757,6 +991,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -774,15 +1015,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "6dd361b47db3a1ceb564582038aa5c197e66686c"
+                "reference": "082939b9511467b33eb644d4260e85349ed3688f"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-roles"
+                "mirror-repo": "Automattic/jetpack-roles",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-roles/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -793,6 +1038,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -810,15 +1062,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "e9b08716a61c189e068b0ad4149806f4910c3faa"
+                "reference": "3fd12ed469fa336e83ca88e5c3ae405f61204b73"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-status"
+                "mirror-repo": "Automattic/jetpack-status",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -829,6 +1085,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -846,18 +1109,25 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "04ffdbcbfaf365588ecb2551d2f220a2dac605a8"
+                "reference": "88a48c65a4abb04857f092d8e2ae586cc50abfbf"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-heartbeat": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev"
+            },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-sync"
+                "mirror-repo": "Automattic/jetpack-sync",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -879,19 +1149,23 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "777a57eba53092c14477a9f5af40a2f71d34750d"
+                "reference": "1f062d2a5c030f983d10e1b71564dc1fb51fe565"
             },
             "require": {
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "brain/monkey": "2.6.0",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-terms-of-service"
+                "mirror-repo": "Automattic/jetpack-terms-of-service",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -902,6 +1176,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -919,19 +1200,24 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "8e7d2a15d69ee7377b0d10eaf154766c981d91f0"
+                "reference": "8f81bf80e82a2faf6bd82cbd923f39cda6be7952"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-terms-of-service": "@dev"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.0.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-tracking"
+                "mirror-repo": "Automattic/jetpack-tracking",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -943,6 +1229,13 @@
                 "phpunit": [
                     "@composer install",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
                 ]
             },
             "license": [
@@ -1025,7 +1318,991 @@
             "time": "2020-09-30T13:30:59+00:00"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "automattic/jetpack-changelogger",
+            "version": "dev-monorepo",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/changelogger",
+                "reference": "8a96006610ca99d93e4439a4bfeea8ee993261ae"
+            },
+            "require": {
+                "php": ">=5.6",
+                "symfony/console": "^3.4 | ^5.2",
+                "symfony/process": "^3.4 | ^5.2",
+                "wikimedia/at-ease": "^1.2 | ^2.0"
+            },
+            "require-dev": {
+                "wikimedia/testing-access-wrapper": "^1.0 | ^2.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "bin": [
+                "bin/changelogger"
+            ],
+            "type": "project",
+            "extra": {
+                "branch-alias": {
+                    "dev-monorepo": "1.0.x-dev"
+                },
+                "mirror-repo": "Automattic/jetpack-changelogger",
+                "version-constants": {
+                    "::VERSION": "src/Application.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-changelogger/compare/${old}...${new}"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Changelogger\\": "src",
+                    "Automattic\\Jetpack\\Changelog\\": "lib"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/includes/src",
+                    "Automattic\\Jetpack\\Changelog\\Tests\\": "tests/php/includes/lib"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "psr/container",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/container.git",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Container\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common Container Interface (PHP FIG PSR-11)",
+            "homepage": "https://github.com/php-fig/container",
+            "keywords": [
+                "PSR-11",
+                "container",
+                "container-interface",
+                "container-interop",
+                "psr"
+            ],
+            "support": {
+                "issues": "https://github.com/php-fig/container/issues",
+                "source": "https://github.com/php-fig/container/tree/master"
+            },
+            "time": "2017-02-14T16:28:37+00:00"
+        },
+        {
+            "name": "symfony/console",
+            "version": "v5.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/console.git",
+                "reference": "89d4b176d12a2946a1ae4e34906a025b7b6b135a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/console/zipball/89d4b176d12a2946a1ae4e34906a025b7b6b135a",
+                "reference": "89d4b176d12a2946a1ae4e34906a025b7b6b135a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/polyfill-mbstring": "~1.0",
+                "symfony/polyfill-php73": "^1.8",
+                "symfony/polyfill-php80": "^1.15",
+                "symfony/service-contracts": "^1.1|^2",
+                "symfony/string": "^5.1"
+            },
+            "conflict": {
+                "symfony/dependency-injection": "<4.4",
+                "symfony/dotenv": "<5.1",
+                "symfony/event-dispatcher": "<4.4",
+                "symfony/lock": "<4.4",
+                "symfony/process": "<4.4"
+            },
+            "provide": {
+                "psr/log-implementation": "1.0"
+            },
+            "require-dev": {
+                "psr/log": "~1.0",
+                "symfony/config": "^4.4|^5.0",
+                "symfony/dependency-injection": "^4.4|^5.0",
+                "symfony/event-dispatcher": "^4.4|^5.0",
+                "symfony/lock": "^4.4|^5.0",
+                "symfony/process": "^4.4|^5.0",
+                "symfony/var-dumper": "^4.4|^5.0"
+            },
+            "suggest": {
+                "psr/log": "For using the console logger",
+                "symfony/event-dispatcher": "",
+                "symfony/lock": "",
+                "symfony/process": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Console\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Eases the creation of beautiful and testable command line interfaces",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cli",
+                "command line",
+                "console",
+                "terminal"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/console/tree/v5.2.3"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-28T22:06:19+00:00"
+        },
+        {
+            "name": "symfony/polyfill-ctype",
+            "version": "v1.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-ctype.git",
+                "reference": "c6c942b1ac76c82448322025e084cadc56048b4e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/c6c942b1ac76c82448322025e084cadc56048b4e",
+                "reference": "c6c942b1ac76c82448322025e084cadc56048b4e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "suggest": {
+                "ext-ctype": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.22-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Ctype\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Gert de Pagter",
+                    "email": "BackEndTea@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for ctype functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "ctype",
+                "polyfill",
+                "portable"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.22.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-07T16:49:33+00:00"
+        },
+        {
+            "name": "symfony/polyfill-intl-grapheme",
+            "version": "v1.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-grapheme.git",
+                "reference": "5601e09b69f26c1828b13b6bb87cb07cddba3170"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/5601e09b69f26c1828b13b6bb87cb07cddba3170",
+                "reference": "5601e09b69f26c1828b13b6bb87cb07cddba3170",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "suggest": {
+                "ext-intl": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.22-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Intl\\Grapheme\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for intl's grapheme_* functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "grapheme",
+                "intl",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.22.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-22T09:19:47+00:00"
+        },
+        {
+            "name": "symfony/polyfill-intl-normalizer",
+            "version": "v1.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
+                "reference": "43a0283138253ed1d48d352ab6d0bdb3f809f248"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/43a0283138253ed1d48d352ab6d0bdb3f809f248",
+                "reference": "43a0283138253ed1d48d352ab6d0bdb3f809f248",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "suggest": {
+                "ext-intl": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.22-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Intl\\Normalizer\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for intl's Normalizer class and related functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "intl",
+                "normalizer",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.22.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-22T09:19:47+00:00"
+        },
+        {
+            "name": "symfony/polyfill-mbstring",
+            "version": "v1.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-mbstring.git",
+                "reference": "5232de97ee3b75b0360528dae24e73db49566ab1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/5232de97ee3b75b0360528dae24e73db49566ab1",
+                "reference": "5232de97ee3b75b0360528dae24e73db49566ab1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "suggest": {
+                "ext-mbstring": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.22-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for the Mbstring extension",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "mbstring",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.22.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-22T09:19:47+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php73",
+            "version": "v1.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php73.git",
+                "reference": "a678b42e92f86eca04b7fa4c0f6f19d097fb69e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php73/zipball/a678b42e92f86eca04b7fa4c0f6f19d097fb69e2",
+                "reference": "a678b42e92f86eca04b7fa4c0f6f19d097fb69e2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.22-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php73\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php73/tree/v1.22.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-07T16:49:33+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php80",
+            "version": "v1.22.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php80.git",
+                "reference": "dc3063ba22c2a1fd2f45ed856374d79114998f91"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/dc3063ba22c2a1fd2f45ed856374d79114998f91",
+                "reference": "dc3063ba22c2a1fd2f45ed856374d79114998f91",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "1.22-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php80\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ],
+                "classmap": [
+                    "Resources/stubs"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ion Bazan",
+                    "email": "ion.bazan@gmail.com"
+                },
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.22.1"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-07T16:49:33+00:00"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v5.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/process.git",
+                "reference": "313a38f09c77fbcdc1d223e57d368cea76a2fd2f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/process/zipball/313a38f09c77fbcdc1d223e57d368cea76a2fd2f",
+                "reference": "313a38f09c77fbcdc1d223e57d368cea76a2fd2f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/polyfill-php80": "^1.15"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Process\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Executes commands in sub-processes",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/process/tree/v5.2.3"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-27T10:15:41+00:00"
+        },
+        {
+            "name": "symfony/service-contracts",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/service-contracts.git",
+                "reference": "d15da7ba4957ffb8f1747218be9e1a121fd298a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/d15da7ba4957ffb8f1747218be9e1a121fd298a1",
+                "reference": "d15da7ba4957ffb8f1747218be9e1a121fd298a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "psr/container": "^1.0"
+            },
+            "suggest": {
+                "symfony/service-implementation": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.2-dev"
+                },
+                "thanks": {
+                    "name": "symfony/contracts",
+                    "url": "https://github.com/symfony/contracts"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Contracts\\Service\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Generic abstractions related to writing services",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "abstractions",
+                "contracts",
+                "decoupling",
+                "interfaces",
+                "interoperability",
+                "standards"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/service-contracts/tree/master"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-09-07T11:33:47+00:00"
+        },
+        {
+            "name": "symfony/string",
+            "version": "v5.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/string.git",
+                "reference": "c95468897f408dd0aca2ff582074423dd0455122"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/string/zipball/c95468897f408dd0aca2ff582074423dd0455122",
+                "reference": "c95468897f408dd0aca2ff582074423dd0455122",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-intl-grapheme": "~1.0",
+                "symfony/polyfill-intl-normalizer": "~1.0",
+                "symfony/polyfill-mbstring": "~1.0",
+                "symfony/polyfill-php80": "~1.15"
+            },
+            "require-dev": {
+                "symfony/error-handler": "^4.4|^5.0",
+                "symfony/http-client": "^4.4|^5.0",
+                "symfony/translation-contracts": "^1.1|^2",
+                "symfony/var-exporter": "^4.4|^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\String\\": ""
+                },
+                "files": [
+                    "Resources/functions.php"
+                ],
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides an object-oriented API to strings and deals with bytes, UTF-8 code points and grapheme clusters in a unified way",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "grapheme",
+                "i18n",
+                "string",
+                "unicode",
+                "utf-8",
+                "utf8"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/string/tree/v5.2.3"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-25T15:14:59+00:00"
+        },
+        {
+            "name": "wikimedia/at-ease",
+            "version": "v2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wikimedia/at-ease.git",
+                "reference": "013ac61929797839c80a111a3f1a4710d8248e7a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wikimedia/at-ease/zipball/013ac61929797839c80a111a3f1a4710d8248e7a",
+                "reference": "013ac61929797839c80a111a3f1a4710d8248e7a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.99"
+            },
+            "require-dev": {
+                "jakub-onderka/php-console-highlighter": "0.3.2",
+                "jakub-onderka/php-parallel-lint": "1.0.0",
+                "mediawiki/mediawiki-codesniffer": "22.0.0",
+                "mediawiki/minus-x": "0.3.1",
+                "ockcyp/covers-validator": "0.5.1 || 0.6.1",
+                "phpunit/phpunit": "4.8.36 || ^6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Wikimedia\\AtEase\\": "src/Wikimedia/AtEase/"
+                },
+                "files": [
+                    "src/Wikimedia/Functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Tim Starling",
+                    "email": "tstarling@wikimedia.org"
+                },
+                {
+                    "name": "MediaWiki developers",
+                    "email": "wikitech-l@lists.wikimedia.org"
+                }
+            ],
+            "description": "Safe replacement to @ for suppressing warnings.",
+            "homepage": "https://www.mediawiki.org/wiki/at-ease",
+            "support": {
+                "source": "https://github.com/wikimedia/at-ease/tree/master"
+            },
+            "time": "2018-10-10T15:39:06+00:00"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
@@ -1038,6 +2315,7 @@
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
+        "automattic/jetpack-connection-ui": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
@@ -1053,7 +2331,8 @@
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-tracking": 20
+        "automattic/jetpack-tracking": 20,
+        "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

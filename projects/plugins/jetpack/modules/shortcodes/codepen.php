@@ -4,7 +4,7 @@
  *
  * Example URL: http://codepen.io/css-tricks/pen/wFeaG
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 // Register oEmbed provider.

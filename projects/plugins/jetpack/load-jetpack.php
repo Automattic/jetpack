@@ -2,7 +2,7 @@
 /**
  * Load all Jetpack files that do not get loaded via the autoloader.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -40,7 +40,6 @@ add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_a
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-network.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-data.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php';
@@ -60,8 +59,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
 jetpack_require_lib( 'class-jetpack-recommendations' );
-jetpack_require_lib( 'class-jetpack-wizard' );
-require_once JETPACK__PLUGIN_DIR . 'class-jetpack-wizard-banner.php';
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-recommendations-banner.php';
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';

@@ -5,7 +5,7 @@
  * [getty src="82278805" width="$width" height="$height"]
  * <div class="getty embed image" style="background-color:#fff;display:inline-block;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#a7a7a7;font-size:11px;width:100%;max-width:462px;"><div style="padding:0;margin:0;text-align:left;"><a href="http://www.gettyimages.com/detail/82278805" target="_blank" style="color:#a7a7a7;text-decoration:none;font-weight:normal !important;border:none;display:inline-block;">Embed from Getty Images</a></div><div style="overflow:hidden;position:relative;height:0;padding:80.086580% 0 0 0;width:100%;"><iframe src="//embed.gettyimages.com/embed/82278805?et=jGiu6FXXSpJDGf1SnwLV2g&sig=TFVNFtqghwNw5iJQ1MFWnI8f4Y40_sfogfZLhai6SfA=" width="462" height="370" scrolling="no" frameborder="0" style="display:inline-block;position:absolute;top:0;left:0;width:100%;height:100%;"></iframe></div><p style="margin:0;"></p></div>
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

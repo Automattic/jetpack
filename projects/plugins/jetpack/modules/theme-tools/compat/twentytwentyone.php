@@ -3,7 +3,7 @@
  * Jetpack Compatibility File
  * See: https://jetpack.com/
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**

@@ -4,7 +4,7 @@
  *
  * @since 8.5.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Button;
