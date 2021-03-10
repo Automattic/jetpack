@@ -8,6 +8,9 @@ name: Linting
 
 on: pull_request
 
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
 jobs:
 
   ### Job to categorize changed files. Other jobs depend on this to know when they should run.
