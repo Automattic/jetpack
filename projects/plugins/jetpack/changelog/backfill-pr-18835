@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Conversation: Handle speaker-name changes propagation closely.

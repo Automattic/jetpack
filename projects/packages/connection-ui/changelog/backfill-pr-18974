@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection UI: remove .github directory from production package

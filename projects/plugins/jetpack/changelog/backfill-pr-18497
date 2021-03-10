@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+API Nonces: Improve performances.
