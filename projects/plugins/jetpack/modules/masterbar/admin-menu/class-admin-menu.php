@@ -641,7 +641,7 @@ class Admin_Menu {
 	 * @param string $new_slug Calypso menu slug. (Calypso URL).
 	 */
 	public function migrate_submenus( $old_slug, $new_slug ) {
-		global $submenu;
+		global $submenu, $wp_filter, $_registered_pages;
 
 		if ( $old_slug !== $new_slug && ! empty( $submenu[ $old_slug ] ) ) {
 			if ( ! empty( $submenu[ $new_slug ] ) ) {
@@ -651,6 +651,23 @@ class Admin_Menu {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$submenu[ $new_slug ] = $submenu[ $old_slug ];
 			}
+
+			// Migrate hooks.
+			foreach ( $submenu[ $old_slug ] as $submenu_item ) {
+				$old_hookname = get_plugin_page_hookname( $submenu_item[2], $old_slug );
+				$new_hookname = get_plugin_page_hookname( $submenu_item[2], $new_slug );
+				if ( empty( $old_hookname ) || empty( $new_hookname ) || $old_hookname === $new_hookname || ! isset( $wp_filter[ $old_hookname ] ) ) {
+					continue;
+				}
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$wp_filter[ $new_hookname ] = $wp_filter[ $old_hookname ];
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$_registered_pages[ $new_hookname ] = true;
+
+				unset( $wp_filter[ $old_hookname ] );
+				unset( $_registered_pages[ $old_hookname ] );
+			}
+
 			unset( $submenu[ $old_slug ] );
 		}
 	}
