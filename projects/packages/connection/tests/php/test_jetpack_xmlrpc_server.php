@@ -145,7 +145,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			$this->assertEquals( $expected['code'], $response->code );
 
 			// Not using assertContains or assertStringContainsString to work with all phpunit versions.
-			$has_message = strpos( sprintf( '[%s]', $expected['message'] ), $response->message );
+			$has_message = strpos( $response->message, sprintf( '[%s]', $expected['message'] ) );
 			$this->assertTrue( false !== $has_message );
 		}
 	}
@@ -169,7 +169,6 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 		remove_filter( 'pre_http_request', array( $this, 'return_ok_status' ) );
 
-		$this->assertIsArray( $response );
 		$this->assertArrayHasKey( 'client_id', $response );
 		$this->assertEquals( 1001, $response['client_id'] );
 	}
