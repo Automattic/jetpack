@@ -10,14 +10,14 @@ const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-help
 const config = require( 'config' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
-const DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
+const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
 class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async setup() {
 		await super.setup();
 
 		// Connect to server (launched in global-setup)
-		const wsEndpoint = fs.readFileSync( path.join( DIR, 'wsEndpoint' ), 'utf8' );
+		const wsEndpoint = fs.readFileSync( path.join( TMP_DIR, 'wsEndpoint' ), 'utf8' );
 		if ( ! wsEndpoint ) {
 			throw new Error( 'wsEndpoint not found' );
 		}

@@ -174,10 +174,7 @@ function fileNameFormatter( filePath, includeTimestamp = true ) {
 	const dirname = parts.dir;
 
 	if ( includeTimestamp ) {
-		const now = new Date();
-		const formattedDate = `${ now.getFullYear() }${ now.getMonth() }${ now.getDay() }${ now.getHours() }${ now.getMinutes() }${ now.getSeconds() }${ now.getMilliseconds() }`;
-
-		fileName = `${ formattedDate }_${ fileName }`;
+		fileName = `${ Date().now }_${ fileName }`;
 	}
 
 	fileName = fileName.replace( /\W/g, '_' );
