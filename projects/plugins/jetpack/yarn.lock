@@ -6313,7 +6313,7 @@ cosmiconfig@^6.0.0:
     path-type "^4.0.0"
     yaml "^1.7.2"
 
-crc32@0.2.2:
+crc32@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/crc32/-/crc32-0.2.2.tgz#7ad220d6ffdcd119f9fc127a7772cacea390a4ba"
   integrity sha1-etIg1v/c0Rn5/BJ6d3LKzqOQpLo=
@@ -6747,7 +6747,7 @@ debug@4.2.0:
   dependencies:
     ms "2.1.2"
 
-debug@4.3.1, debug@^4.3.1:
+debug@4.3.1, debug@^4.0.0, debug@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
   integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
@@ -13070,15 +13070,15 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-photon@2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/photon/-/photon-2.1.0.tgz#a8d9aecdc91f8b9b267f3782a15892d5e9c4eb20"
-  integrity sha512-ouotmk51C1Ve4K0w3/t24qePIYbB8wMIc3fgzOyo5RaLUygcaQJQUjf2YimmN5AXl8UGnxP13cO2I3EYMjgR/w==
+photon@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/photon/-/photon-4.0.0.tgz#471a80884009a5fd978df1e9c8b15dcf2cbe1f8f"
+  integrity sha512-RD3buB17jW9B+OOPjIqv/cE9imCyR+WJ4ALWtb1Q1mVg8OfYnHAyvdVTxa/+bZFNI2FWaQBKry3i1mItmW3H3A==
   dependencies:
-    crc32 "0.2.2"
-    debug "^3.2.6"
-    seed-random "2.2.0"
-    url "^0.11.0"
+    "@babel/runtime" "^7.12.5"
+    crc32 "^0.2.2"
+    debug "^4.0.0"
+    seed-random "^2.2.0"
 
 picomatch@^2.0.4, picomatch@^2.0.5, picomatch@^2.2.1:
   version "2.2.2"
@@ -15162,7 +15162,7 @@ scss-tokenizer@^0.2.3:
     js-base64 "^2.1.8"
     source-map "^0.4.2"
 
-seed-random@2.2.0:
+seed-random@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/seed-random/-/seed-random-2.2.0.tgz#2a9b19e250a817099231a5b99a4daf80b7fbed54"
   integrity sha1-KpsZ4lCoFwmSMaW5mk2vgLf77VQ=
