@@ -274,7 +274,7 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	if ( comment.includes( ':red_circle:' ) ) {
 		debug( `check-description: some of the checks are failing. Update labels accordingly.` );
 
-		const hasNeedsReview = await hasNeedsReviewLabel( octokit, owner, repo, number );
+		const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
 		if ( hasNeedsReview ) {
 			debug( `check-description: remove existing Needs review label.` );
 			await octokit.issues.removeLabel( {
