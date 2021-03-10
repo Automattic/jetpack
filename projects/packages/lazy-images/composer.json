@@ -4,8 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-assets": "@dev"
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-assets": "^1.11"
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
@@ -54,6 +54,9 @@
 		"mirror-repo": "Automattic/jetpack-lazy-images",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.4.x-dev"
 		}
 	}
 }
