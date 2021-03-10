@@ -778,7 +778,7 @@ class Jetpack {
 		}
 
 		// After a successful connection.
-		add_action( 'jetpack_site_registered', array( $this, 'site_registered' ) );
+		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -5003,16 +5003,16 @@ endif;
 	/**
 	 * Fires on the jetpack_site_registered hook and acitvates default modules
 	 */
-	public static function site_registered() {
+	public static function activate_default_modules_on_site_register() {
 		$active_modules = Jetpack_Options::get_option( 'active_modules' );
 		if ( $active_modules ) {
 			self::delete_active_modules();
 
 			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
-			self::activate_default_modules( 999, 1, $active_modules );
+			self::activate_default_modules( 999, 1, $active_modules, false );
 		} else {
 			// On a fresh new connection, at this point we activate only modules that do not require a user connection.
-			self::activate_default_modules( false, false, array(), null, null, null, false );
+			self::activate_default_modules( false, false, array(), false, null, null, false );
 		}
 
 		// Since this is a fresh connection, be sure to clear out IDC options.
