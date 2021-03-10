@@ -11,6 +11,7 @@ gulpfile.babel.js export-ignore
 /build/index.js         production-include
 
 # Files to exclude from the mirror repo
+/changelog/**     production-exclude
 .gitignore        production-exclude
 _inc/**           production-exclude
 yarn.lock         production-exclude

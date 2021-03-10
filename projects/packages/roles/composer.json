@@ -6,7 +6,8 @@
 	"require": {},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/jetpack-changelogger": "1.0.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -38,6 +39,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-roles"
+		"mirror-repo": "Automattic/jetpack-roles",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-roles/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.4.x-dev"
+		}
 	}
 }
