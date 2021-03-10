@@ -14,7 +14,7 @@ import { render, screen, waitFor, getByLabelText } from '@testing-library/react'
  */
 import BusinessHours, { defaultLocalization } from '../edit';
 
-const isWeekend = ( day ) => [ 'Sun', 'Sat' ].includes( day.substring( 0, 3 ) );
+const isWeekend = day => [ 'Sun', 'Sat' ].includes( day.substring( 0, 3 ) );
 
 const dayStrings = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
 const dayStringsShort = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
@@ -65,7 +65,7 @@ describe( 'Business Hours', () => {
 		expect( screen.getByText( 'Loading business hours' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Saturday' ) ).not.toBeInTheDocument();
 
-		// // Displays rendered default business hours
+		// Displays default days and business hours
 		await waitFor( () => expect( screen.getByText( 'Monday' ) ).toBeInTheDocument() );
 		await waitFor( () => expect( screen.getByText( 'Tuesday' ) ).toBeInTheDocument() );
 		await waitFor( () => expect( screen.getByText( 'Wednesday' ) ).toBeInTheDocument() );
@@ -73,6 +73,10 @@ describe( 'Business Hours', () => {
 		await waitFor( () => expect( screen.getByText( 'Friday' ) ).toBeInTheDocument() );
 		await waitFor( () => expect( screen.getByText( 'Saturday' ) ).toBeInTheDocument() );
 		await waitFor( () => expect( screen.getByText( 'Sunday' ) ).toBeInTheDocument() );
+		await waitFor( () =>
+			expect( screen.getAllByText( '9: 00 am - 5: 00 pm' ).length ).toEqual( 5 )
+		);
+		await waitFor( () => expect( screen.getAllByText( 'Closed' ).length ).toEqual( 2 ) );
 	} );
 
 	test.each( dayStrings )(
@@ -98,7 +102,9 @@ describe( 'Business Hours', () => {
 					setAttributes.mock.calls[ 0 ][ 0 ].days[ dayStrings.indexOf( dayString ) ]
 				).toEqual( { hours: [], name: dayString.substring( 0, 3 ) } );
 			} else {
-				expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ dayStrings.indexOf( dayString ) ] ).toEqual( {
+				expect(
+					setAttributes.mock.calls[ 0 ][ 0 ].days[ dayStrings.indexOf( dayString ) ]
+				).toEqual( {
 					hours: [ { closing: '17:00', opening: '09:00' } ],
 					name: dayString.substring( 0, 3 ),
 				} );
@@ -132,5 +138,69 @@ describe( 'Business Hours', () => {
 			hours: [ { closing: '14:00', opening: '09:00' } ],
 			name: 'Mon',
 		} );
+	} );
+
+	test( 'should add an additional set of opening/closing hours', async () => {
+		const propsSelectedSingleDay = { ...defaultProps, isSelected: true };
+		propsSelectedSingleDay.attributes.days = dayStringsShort.map( day => ( {
+			name: day,
+			hours: [],
+		} ) );
+		propsSelectedSingleDay.attributes.days[ 0 ].hours = [ { opening: '09:00', closing: '17:00' } ];
+
+		const { rerender } = render( <BusinessHours { ...propsSelectedSingleDay } /> );
+
+		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 1 ) );
+		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 1 ) );
+
+		userEvent.click( screen.getByLabelText( 'Add Hours' ) );
+
+		const newHours = [
+			{ opening: '09:00', closing: '17:00' },
+			{ opening: '', closing: '' },
+		];
+		expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ 0 ] ).toEqual( {
+			hours: newHours,
+			name: 'Sun',
+		} );
+
+		propsSelectedSingleDay.attributes.days[ 0 ].hours = newHours;
+
+		rerender( <BusinessHours { ...propsSelectedSingleDay } /> );
+
+		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 2 ) );
+		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 2 ) );
+	} );
+
+	test( 'should remove an additional set of opening/closing hours', async () => {
+		const propsSelectedSingleDay = { ...defaultProps, isSelected: true };
+		propsSelectedSingleDay.attributes.days = dayStringsShort.map( day => ( {
+			name: day,
+			hours: [],
+		} ) );
+		propsSelectedSingleDay.attributes.days[ 0 ].hours = [
+			{ opening: '09:00', closing: '17:00' },
+			{ opening: '18:00', closing: '20:00' },
+		];
+
+		const { rerender } = render( <BusinessHours { ...propsSelectedSingleDay } /> );
+
+		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 2 ) );
+		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 2 ) );
+
+		userEvent.click( screen.getAllByLabelText( 'Remove Hours' )[ 1 ] );
+
+		const newHours = [ { opening: '09:00', closing: '17:00' } ];
+		expect( setAttributes.mock.calls[ 0 ][ 0 ].days[ 0 ] ).toEqual( {
+			hours: newHours,
+			name: 'Sun',
+		} );
+
+		propsSelectedSingleDay.attributes.days[ 0 ].hours = newHours;
+
+		rerender( <BusinessHours { ...propsSelectedSingleDay } /> );
+
+		await waitFor( () => expect( screen.getAllByLabelText( 'Opening' ).length ).toEqual( 1 ) );
+		await waitFor( () => expect( screen.getAllByLabelText( 'Closing' ).length ).toEqual( 1 ) );
 	} );
 } );
