@@ -2383,10 +2383,10 @@ class Jetpack {
 	 * List available Jetpack modules. Simply lists .php files in /modules/.
 	 * Make sure to tuck away module "library" files in a sub-directory.
 	 *
-	 * @param bool|string $min_version Onlu return modules introduced in this version or later. Default is false, do not filter.
+	 * @param bool|string $min_version Only return modules introduced in this version or later. Default is false, do not filter.
 	 * @param bool|string $max_version Only return modules introduced before this version. Default is false, do not filter.
-	 * @param bool|null   $requires_connection Only return modules that require a conncetion.
-	 * @param bool|null   $requires_user_connection Only return modules that require a user conncetion.
+	 * @param bool|null   $requires_connection Pass a boolean value to only return modules that require (or do not require) a connection.
+	 * @param bool|null   $requires_user_connection Pass a boolean value to only return modules that require (or do not require) a user connection.
 	 *
 	 * @return array $modules Array of module slugs
 	 */
