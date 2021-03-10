@@ -328,7 +328,7 @@ class Test_Plugin_Factory {
 			'autoload' => $this->autoloads,
 		);
 		if ( $this->is_using_local_package() ) {
-			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-monorepo' );
+			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-master' );
 			$composer_config['repositories'] = array(
 				array(
 					'type'    => 'path',
@@ -363,7 +363,7 @@ class Test_Plugin_Factory {
 			'2.0.9'   => array(
 				'min'    => '2.6.0',
 				'url'    => 'https://getcomposer.org/download/2.0.9/composer.phar',
-				'sha256' => '24faa5bc807e399f32e9a21a33fbb5b0686df9c8850efabe2c047c2ccfb9f9cc',
+				'sha256' => '8e91344a5ca2fc0fb583c50f195a1f36918908561c4ea3d6f01a4ef01c3b8560',
 			),
 			// Version 2.0.6 of Composer changed a base class we used to inherit in a way that throws fatals.
 			'2.0.5'   => array(
@@ -429,7 +429,7 @@ class Test_Plugin_Factory {
 
 				$content = file_get_contents( $manifest );
 				// Use a sufficiently large version so that the local package will always be the latest autoloader.
-				$content = str_replace( 'dev-monorepo', self::VERSION_CURRENT, $content );
+				$content = str_replace( 'dev-master', self::VERSION_CURRENT, $content );
 				file_put_contents( $manifest, $content );
 			}
 		}

@@ -48,6 +48,9 @@
 		"mirror-repo": "Automattic/jetpack-autoloader",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "2.10.x-dev"
 		}
 	}
 }
