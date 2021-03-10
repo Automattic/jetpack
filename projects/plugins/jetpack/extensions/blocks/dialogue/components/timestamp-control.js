@@ -14,7 +14,10 @@ import { useState } from '@wordpress/element';
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
-import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
+import {
+	convertSecondsToTimeCode,
+	convertTimeCodeToSeconds,
+} from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -81,16 +84,15 @@ export function TimestampControl( {
 			<div className={ `${ className }__timestamp-controls` }>
 				<NumberControl
 					className={ `${ className }__timestamp-control__hour` }
-					label={	shortLabel
-						? _x( 'Hour', 'hour (short form)', 'jetpack' )
-						: _x( 'Hour', 'hour (long form)', 'jetpack' )
+					label={
+						shortLabel
+							? _x( 'Hour', 'hour (short form)', 'jetpack' )
+							: _x( 'Hour', 'hour (long form)', 'jetpack' )
 					}
 					value={ smh[ 0 ] }
 					min={ 0 }
 					max={ 23 }
-					onChange={ hour => (
-						! isDisabled && onChange( setTimestampValue( { hour }, smh ) )
-					) }
+					onChange={ hour => ! isDisabled && onChange( setTimestampValue( { hour }, smh ) ) }
 					disabled={ isDisabled }
 				/>
 
@@ -102,9 +104,7 @@ export function TimestampControl( {
 					value={ smh[ 1 ] }
 					min={ 0 }
 					max={ 59 }
-					onChange={ min => (
-						! isDisabled && onChange( setTimestampValue( { min }, smh ) )
-					) }
+					onChange={ min => ! isDisabled && onChange( setTimestampValue( { min }, smh ) ) }
 					disabled={ isDisabled }
 				/>
 
@@ -116,9 +116,7 @@ export function TimestampControl( {
 					value={ smh[ 2 ] }
 					min={ 0 }
 					max={ 59 }
-					onChange={ sec => (
-						! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
-					) }
+					onChange={ sec => ! isDisabled && onChange( setTimestampValue( { sec }, smh ) ) }
 					disabled={ isDisabled }
 				/>
 			</div>
@@ -129,12 +127,12 @@ export function TimestampControl( {
 				className={ `${ className }__timestamp-range-control` }
 				min={ 0 }
 				max={ duration }
-				onChange={ ( timeInSeconds ) => {
+				onChange={ timeInSeconds => {
 					setRangeValue( timeInSeconds );
 					debouncedSetAttributes( timeInSeconds, onChange );
 				} }
 				withInputField={ false }
-				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+				renderTooltipContent={ time => convertSecondsToTimeCode( time ) }
 			/>
 		</>
 	);
@@ -155,9 +153,7 @@ export function TimestampDropdown( props ) {
 					</Button>
 				);
 			} }
-			renderContent={ () => (
-				<TimestampControl { ...props } />
-			) }
+			renderContent={ () => <TimestampControl { ...props } /> }
 		/>
 	);
 }
