@@ -103,6 +103,7 @@ export async function build( project, production, composerJson, verbose ) {
 
 	builder.run().catch( err => {
 		console.error( err );
+		process.exit( err.exitCode || 1 );
 	} );
 }
 

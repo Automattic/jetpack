@@ -5,12 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.0.x-dev"
-	},
-	"scripts": {
-		"pre-update-cmd": [
-			"@putenv COMPOSER_ROOT_VERSION=dev-monorepo"
-		]
+		"automattic/jetpack-changelogger": "1.1.x-dev"
 	},
 	"repositories": [
 		{
