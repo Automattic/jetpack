@@ -109,7 +109,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			echo "::group::Updating changelog"
-			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --no-interaction --yes -vvv; then
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --release-date=unreleased --no-interaction --yes -vvv; then
 				echo "::endgroup::"
 				echo "::error::Changelog update for ${GIT_SLUG} failed"
 				EXIT=1
