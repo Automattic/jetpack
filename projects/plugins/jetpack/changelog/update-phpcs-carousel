@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+cleans up carousel code to meet phpcs standards
