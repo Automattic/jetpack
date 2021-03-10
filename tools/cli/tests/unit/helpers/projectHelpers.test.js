@@ -11,6 +11,7 @@ import {
 	projectTypes,
 	allProjects,
 	allProjectsByType,
+	typeFromProjectgit
 } from '../../../helpers/projectHelpers';
 
 describe( 'projectHelpers', function () {
@@ -80,5 +81,9 @@ describe( 'projectHelpers', function () {
 		chai
 			.expect( allProjectsByType( 'github-actions' ) )
 			.to.contain( 'github-actions/push-to-mirrors' );
+	} );
+
+	it( 'typeFromProject should be a function', function() {
+		chai.expect( typeFromProject ).to.be.a( 'function' );
 	} );
 } );
