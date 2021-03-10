@@ -9,7 +9,7 @@
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions, WordPress.Security.EscapeOutput.OutputNotEscaped
 
 ob_start();
-require_once __DIR__ . '/find-project-deps.php';
+require_once __DIR__ . '/../../tools/find-project-deps.php';
 ob_end_clean();
 
 // Files that mean all tests should be run.

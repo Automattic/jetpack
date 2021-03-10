@@ -14,7 +14,7 @@
  * @return string[][] Key is the project slug, value is an array of slugs depended on.
  */
 function get_dependencies() {
-	$base = dirname( dirname( __DIR__ ) );
+	$base = dirname( __DIR__ );
 	$l    = strlen( $base );
 
 	// Collect all project slugs.

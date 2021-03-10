@@ -28,7 +28,7 @@ echo "::group::Changelogger setup"
 echo "::endgroup::"
 
 echo "::group::Determining build order"
-TMP="$(.github/files/get-build-order.php)"
+TMP="$(tools/get-build-order.php)"
 SLUGS=()
 mapfile -t SLUGS <<<"$TMP"
 echo "::endgroup::"
