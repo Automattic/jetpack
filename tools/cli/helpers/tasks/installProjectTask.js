@@ -84,7 +84,9 @@ export function installProjectTask( argv ) {
  * @returns {string} update or install based on if composer.lock matches composer.json.
  */
 export function determineComposerCommand( cwd, project ) {
-	if ( typeFromProject( project ) !== 'packages' ) {
+	console.log( `Determing install step for ${ project }...` );
+
+	if ( project === 'Monorepo' || typeFromProject( project ) !== 'packages' ) {
 		return 'install';
 	}
 	try {
