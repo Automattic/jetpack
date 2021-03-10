@@ -15,6 +15,7 @@ import UpdateRenderer from 'listr-update-renderer';
 import { readComposerJson, readPackageJson } from '../json';
 import { chalkJetpackGreen } from '../styling';
 import { normalizeInstallArgv } from '../normalizeArgv';
+import { typeFromProject } from '../projectHelpers';
 
 /**
  * Preps the task for an individual project.
@@ -60,7 +61,7 @@ export function installProjectTask( argv ) {
 		task: () => {
 			return new Listr(
 				[
-					task( 'Composer', composerEnabled, determineComposerCommand( cwd ) ),
+					task( 'Composer', composerEnabled, determineComposerCommand( cwd, argv.project ) ),
 					task( 'Yarn', yarnEnabled, 'install' ),
 				],
 				{
@@ -74,11 +75,18 @@ export function installProjectTask( argv ) {
 /**
  * Determines if composer update or composer install should run.
  *
+ * For packages, it checks to see if the composer.lock is in sync and returns "composer update" or "composer install".
+ * For other projects, it is assumed they would commit their lock file and we'll always `install` within the scope of the install task.
+ *
  * @param {string} cwd - Current working directory for the project.
+ * @param {string} project - Project string, e.g. plugins/jetpack
  *
  * @returns {string} update or install based on if composer.lock matches composer.json.
  */
-function determineComposerCommand( cwd ) {
+export function determineComposerCommand( cwd, project ) {
+	if ( typeFromProject( project ) !== 'packages' ) {
+		return 'install';
+	}
 	try {
 		execa.commandSync( `composer validate --no-check-all --no-check-publish`, { cwd: cwd } );
 		return 'install';
