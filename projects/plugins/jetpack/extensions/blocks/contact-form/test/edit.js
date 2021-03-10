@@ -8,29 +8,52 @@
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/react';
-// 👀 Remove any unneeded imports from above.
 
 /**
  * Internal dependencies
  */
-// 👀 Import the edit component you are testing.
-// e.g. import WhatsAppButtonEdit from '../edit';
+import { JetpackContactFormEdit } from '../edit';
+import defaultVariations from '../variations';
+
 
 describe( '', () => {
 	const defaultAttributes = {
-		// 👀 Setup default block attributes.
+		subject: '',
+		to: '',
+		customThankyou: '',
+		customThankyouMessage: '',
+		customThankyouRedirect: '',
+		jetpackCRM: true,
 	};
 
 	const setAttributes = jest.fn();
+	const selectBlock = jest.fn();
+	const replaceInnerBlocks = jest.fn();
+
 	const defaultProps = {
 		// 👀 Setup default block props.
 		attributes: defaultAttributes,
 		setAttributes,
+		siteTitle: '',
+		postTitle: '',
+		postAuthorEmail: '',
+		hasInnerBlocks: true,
+		replaceInnerBlocks,
+		selectBlock,
 		clientId: 1,
+		instanceId: 2,
+		className: '',
+		blockType: '',
+		variations: [],
+		defaultVariation: null,
 	};
+
 
 	// 👀 Tests setup.
 	beforeEach( () => {
+	} );
+
+	afterEach( () => {
 		setAttributes.mockClear();
 	} );
 
@@ -53,6 +76,7 @@ describe( '', () => {
 	 * } );
 	 */
 	test( '', () => {
-
+		render( <JetpackContactFormEdit { ...defaultProps } /> );
+		screen.debug();
 	} );
 } );
