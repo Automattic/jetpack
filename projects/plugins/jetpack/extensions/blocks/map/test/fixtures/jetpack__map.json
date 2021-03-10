@@ -1,0 +1,22 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/map",
+        "isValid": true,
+        "attributes": {
+            "points": [],
+            "mapDetails": true,
+            "zoom": 13,
+            "mapCenter": {
+                "lng": -122.41941550000001,
+                "lat": 37.7749295
+            },
+            "markerColor": "red",
+            "preview": false,
+            "scrollToZoom": false,
+            "showFullscreenButton": true
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-map\" data-map-style=\"default\" data-map-details=\"true\" data-points=\"[]\" data-zoom=\"13\"\n    data-map-center=\"{&quot;lng&quot;:-122.41941550000001,&quot;lat&quot;:37.7749295}\" data-marker-color=\"red\"\n    data-show-fullscreen-button=\"true\"></div>"
+    }
+]
