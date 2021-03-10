@@ -69,6 +69,8 @@ class Password_Checker_Test extends BaseTestCase {
 	 * @param string $output_message  The output message.
 	 */
 	public function test_password( $section, $rule, $password, $expected_result, $output_message ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->password_checker->common_passwords = array( 'password' );
+
 		$tests = $this->password_checker->get_tests( $section );
 
 		$results = $this->password_checker->run_tests( $password, array( $section => array( $rule => $tests[ $section ][ $rule ] ) ) );
@@ -93,40 +95,61 @@ class Password_Checker_Test extends BaseTestCase {
 		 */
 
 		return array(
-			'no_backslashes'   => array(
+			'no_backslashes'    => array(
 				'preg_match',
 				'no_backslashes',
 				'abc123',
 				true,
 				'Passwords may not contain the character "\".',
 			),
-			'minimum_length'   => array(
+			'minimum_length'    => array(
 				'preg_match',
 				'minimum_length',
 				'abc123',
 				true,
 				'Password must be at least 6 characters.',
 			),
-			'has_mixed_case'   => array(
+			'has_mixed_case'    => array(
 				'preg_match',
 				'has_mixed_case',
 				'Abc123',
 				true,
 				'Password must have mixed case characters.',
 			),
-			'has_digit'        => array(
+			'has_digit'         => array(
 				'preg_match',
 				'has_digit',
 				'abc123',
 				true,
 				'Password must have digits.',
 			),
-			'has_special_char' => array(
+			'has_special_char'  => array(
 				'preg_match',
 				'has_special_char',
 				'abc!def',
 				true,
 				'Password must have special characters.',
+			),
+			'compare_to_list_1' => array(
+				'compare_to_list',
+				'not_a_common_password',
+				'password',
+				false,
+				'Common passwords that should not be used.',
+			),
+			'compare_to_list_2' => array(
+				'compare_to_list',
+				'not_a_common_password',
+				'hunter2',
+				true,
+				'Common passwords that should not be used.',
+			),
+			'compare_to_list_3' => array(
+				'compare_to_list',
+				'not_same_as_other_user_data',
+				'test-user',
+				false,
+				'Password contains user data.',
 			),
 		);
 	}
