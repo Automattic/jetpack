@@ -3989,7 +3989,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return WP_REST_Response|WP_Error A response object if the option was successfully updated, or a WP_Error if it failed.
 	 */
 	public static function set_jetpack_license( $request ) {
-		if ( Licensing::instance()->append_license( $request['license'] ) ) {
+		$license = trim( sanitize_text_field( $request['license'] ) );
+
+		if ( Licensing::instance()->append_license( $license ) ) {
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
 
