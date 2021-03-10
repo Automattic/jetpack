@@ -11,6 +11,7 @@ import {
 	projectTypes,
 	allProjects,
 	allProjectsByType,
+	typeFromProject,
 } from '../../../helpers/projectHelpers';
 
 describe( 'projectHelpers', function () {
@@ -80,5 +81,21 @@ describe( 'projectHelpers', function () {
 		chai
 			.expect( allProjectsByType( 'github-actions' ) )
 			.to.contain( 'github-actions/push-to-mirrors' );
+	} );
+
+	it( 'typeFromProject should be a function', function () {
+		chai.expect( typeFromProject ).to.be.a( 'function' );
+	} );
+	it( 'typeFromProject should indicate a type from a plugin', function () {
+		chai.expect( typeFromProject( 'plugins/jetpack' ) ).to.equal( 'plugins' );
+	} );
+	it( 'typeFromProject should indicate a type from a package', function () {
+		chai.expect( typeFromProject( 'packages/jitm' ) ).to.equal( 'packages' );
+	} );
+	it( 'typeFromProject should throw an error for an unexpected type', function () {
+		chai.expect( () => typeFromProject( 'not-a-real-type/jetpack' ) ).to.throw();
+	} );
+	it( 'typeFromProject should throw an error malformed project string', function () {
+		chai.expect( () => typeFromProject( 'not-a-real-project' ) ).to.throw();
 	} );
 } );

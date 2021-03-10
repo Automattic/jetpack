@@ -74,3 +74,20 @@ export function allProjectsByType( type ) {
 	}
 	return dirs( './projects/' + type, type + '/' );
 }
+
+/**
+ * Returns the project type from a project string,
+ *
+ * @param {string} project - Project string, e.g. plugins/jetpack
+ *
+ * @returns {string} - Type string.
+ */
+export function typeFromProject( project ) {
+	const bits = project.split( '/' );
+	const type = bits[ 0 ];
+	if ( ! projectTypes.includes( type ) ) {
+		throw new Error( 'Project string did not have an known project type.' );
+	}
+
+	return type;
+}
