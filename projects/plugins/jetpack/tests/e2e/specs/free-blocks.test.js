@@ -29,7 +29,7 @@ describe( 'Free blocks', () => {
 		} );
 
 		await step( 'Can publish a post with a Pinterest block', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 		} );
@@ -55,7 +55,7 @@ describe( 'Free blocks', () => {
 		} );
 
 		await step( 'Can publish a post with a Eventbrite block', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 		} );

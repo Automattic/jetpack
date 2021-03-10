@@ -14,7 +14,7 @@ async function getLabels( octokit, owner, repo, number ) {
 	const labelList = [];
 
 	for await ( const response of octokit.paginate.iterator( octokit.issues.listLabelsOnIssue, {
-		owner: owner.login,
+		owner,
 		repo,
 		issue_number: +number,
 	} ) ) {
