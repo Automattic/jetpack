@@ -5009,7 +5009,7 @@ endif;
 			self::delete_active_modules();
 
 			// If there was previously activated modules (a reconnection), re-activate them all including those that require a user, and do not re-activate those that have been deactivated.
-			self::activate_default_modules( 999, 1, $active_modules, null, null );
+			self::activate_default_modules( 999, 1, $active_modules );
 		} else {
 			// On a fresh new connection, at this point we activate only modules that do not require a user connection.
 			self::activate_default_modules( false, false, array(), null, null, null, false );
