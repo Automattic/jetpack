@@ -5,10 +5,7 @@ import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import {
-	TextControl,
-	withFallbackStyles,
-} from '@wordpress/components';
+import { TextControl, withFallbackStyles } from '@wordpress/components';
 import {
 	InspectorControls,
 	RichText,
@@ -16,7 +13,6 @@ import {
 	withFontSizes,
 	__experimentalUseGradient as useGradient,
 } from '@wordpress/block-editor';
-import { ButtonWidthControl } from '../button/button-width-panel';
 import { useEffect, useState } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 

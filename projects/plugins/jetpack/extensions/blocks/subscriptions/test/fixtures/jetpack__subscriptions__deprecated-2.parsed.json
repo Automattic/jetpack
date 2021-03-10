@@ -2,25 +2,15 @@
     {
         "blockName": "jetpack/subscriptions",
         "attrs": {
-            "submitButtonClasses": "",
-            "submitButtonText": "Subscribe",
-            "showSubscribersTotal": false,
+            "customBackgroundButtonColor": "#ffffff",
             "customTextButtonColor": "#000000",
-            "customBackgroundButtonColor": "#ffffff"
+            "submitButtonText": "Subscribe",
+            "submitButtonClasses": ""
         },
         "innerBlocks": [],
         "innerHTML": "\n<div class=\"wp-block-jetpack-subscriptions\">[jetpack_subscription_form show_only_email_and_button=\"true\" custom_background_button_color=\"#ffffff\" custom_text_button_color=\"#000000\" submit_button_text=\"Subscribe\" submit_button_classes=\"\" show_subscribers_total=\"false\" ]</div>\n",
         "innerContent": [
             "\n<div class=\"wp-block-jetpack-subscriptions\">[jetpack_subscription_form show_only_email_and_button=\"true\" custom_background_button_color=\"#ffffff\" custom_text_button_color=\"#000000\" submit_button_text=\"Subscribe\" submit_button_classes=\"\" show_subscribers_total=\"false\" ]</div>\n"
-        ]
-    },
-    {
-        "blockName": null,
-        "attrs": {},
-        "innerBlocks": [],
-        "innerHTML": "\n",
-        "innerContent": [
-            "\n"
         ]
     }
 ]

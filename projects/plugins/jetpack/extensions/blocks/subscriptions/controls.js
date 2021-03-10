@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	ToggleControl,
-	PanelBody,
-	RangeControl,
-} from '@wordpress/components';
+import { ToggleControl, PanelBody, RangeControl } from '@wordpress/components';
 import {
 	ContrastChecker,
 	PanelColorSettings,
@@ -17,6 +13,7 @@ import {
 /**
  * Internal dependencies
  */
+import { ButtonWidthControl } from '../button/button-width-panel';
 import {
 	MIN_BORDER_RADIUS_VALUE,
 	MAX_BORDER_RADIUS_VALUE,
@@ -33,7 +30,7 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 
-export default function SubscriptionControls ( {
+export default function SubscriptionControls( {
 	buttonBackgroundColor,
 	borderColor,
 	buttonGradient,
@@ -53,6 +50,7 @@ export default function SubscriptionControls ( {
 	spacing,
 	subscriberCount,
 	textColor,
+	buttonWidth,
 } ) {
 	return (
 		<>
@@ -211,6 +209,11 @@ export default function SubscriptionControls ( {
 					allowReset
 					onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 				/>
+
+				<ButtonWidthControl
+					width={ buttonWidth }
+					onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
+				/>
 			</PanelBody>
 
 			<PanelBody
@@ -245,4 +248,3 @@ export default function SubscriptionControls ( {
 		</>
 	);
 }
-
