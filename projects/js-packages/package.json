@@ -1,0 +1,25 @@
+{
+	"name": "jetpack-rna",
+	"version": "1.0.0",
+	"description": "Jetpack RNA components",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"devDependencies": {
+		"@automattic/calypso-build": "6.5.0",
+		"@babel/core": "7.12.13",
+		"@babel/plugin-transform-runtime": "7.12.15",
+		"@babel/preset-env": "7.12.13",
+		"@babel/register": "7.12.13",
+		"@wordpress/i18n": "3.18.0",
+		"chai": "4.3.0",
+		"enzyme": "3.11.0",
+		"enzyme-adapter-react-16": "1.15.6",
+		"mocha": "8.2.1",
+		"nock": "13.0.7",
+		"sinon": "9.2.4",
+		"sinon-chai": "3.5.0"
+	},
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. ./test-runner.js"
+	}
+}
