@@ -18,7 +18,7 @@ export default function Header( { fullscreen, onExitFullscreen, siteIconUrl, sto
 	return (
 		<div className="wp-story-meta">
 			<div className="wp-story-icon">
-				<img alt="Site icon" src={ siteIconUrl } />
+				<img alt="Site icon" src={ siteIconUrl } width="40" height="40" />
 			</div>
 			<div>
 				<div className="wp-story-title">{ storyTitle }</div>

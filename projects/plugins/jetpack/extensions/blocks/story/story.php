@@ -356,7 +356,7 @@ function render_block( $attributes ) {
 				<div class="wp-story-container">
 					<div class="wp-story-meta">
 						<div class="wp-story-icon">
-							<img alt="%4$s" src="%5$s" width="32" height=32>
+							<img alt="%4$s" src="%5$s" width="40" height="40">
 						</div>
 						<div>
 							<div class="wp-story-title">
@@ -381,7 +381,7 @@ function render_block( $attributes ) {
 		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
-		esc_attr( get_site_icon_url( 40, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
