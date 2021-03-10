@@ -162,63 +162,111 @@ export function TimestampDropdown( props ) {
 	);
 }
 
+function TimestampButton( { className, onPlayback, value } ) {
+	return (
+		<Button
+			className={ className }
+			isTertiary
+			onClick={ () => onPlayback( convertTimeCodeToSeconds( value ) ) }
+		>
+			{ value }
+		</Button>
+	);
+}
+
+function ToggleButton( {
+	className,
+	currentTime,
+	isTimestampButtonVisible,
+	children,
+	onChange,
+	onToggle,
+} ) {
+	return (
+		<Button
+			className={ className }
+			isSmall
+			isTertiary
+			onClick={ () => {
+				onToggle( ! isTimestampButtonVisible );
+				if ( ! isTimestampButtonVisible ) {
+					onChange( convertSecondsToTimeCode( currentTime ), onChange );
+				}
+			} }
+		>
+			{ children }
+		</Button>
+	);
+}
+
 export function TimestampEditControl( {
 	className,
 	isSelected,
 	show,
 	value,
 	mediaCurrentTime = 0,
-
 	onChange,
 	onToggle,
 	onPlayback,
 } ) {
-	function TimestampButton() {
-		return (
-			<Button
-				className={ `${ className }__timestamp-label` }
-				isTertiary
-				onClick={ () => onPlayback( convertTimeCodeToSeconds( value ) ) }
-			>
-				{ value }
-			</Button>
-		);
-	}
-
 	if ( ! isSelected ) {
+		// When the block is not either selected,
+		// and the timestamp visible,
+		// render a blank component.
 		if ( ! show ) {
 			return null;
 		}
 
-		return <TimestampButton />;
-	}
-
-	function ToggleButton( { label } ) {
+		// When the block is not selected,
+		// but the timestamp is visible,
+		// render the timestamp button.
 		return (
-			<Button
-				className={ `${ className }__timestamp-button` }
-				isSmall
-				isTertiary
-				onClick={ () => {
-					onToggle( ! show );
-					if ( ! show ) {
-						onChange( convertSecondsToTimeCode( mediaCurrentTime ), onChange );
-					}
-				} }
-			>
-				{ label }
-			</Button>
+			<TimestampButton
+				className={ `${ className }__timestamp-label` }
+				value={ value }
+				onPlayback={ onPlayback }
+			/>
 		);
 	}
 
 	if ( ! show ) {
-		return <ToggleButton label={ __( 'Add timestamp', 'jetpack' ) } />;
+		// When the block is selected,
+		// but the timestamp is not visible,
+		// render the toggle button,
+		// allowing the user adding the timestamp button.
+		return (
+			<ToggleButton
+				className={ `${ className }__timestamp-button` }
+				currentTime={ mediaCurrentTime }
+				onChange={ onChange }
+				onToggle={ onToggle }
+				isTimestampButtonVisible={ show }
+			>
+				{ __( 'Add timestamp', 'jetpack' ) }
+			</ToggleButton>
+		);
 	}
 
+	// When the block is selected,
+	// and the timestamp is  visible,
+	// render the timestamp and toggle buttons.
 	return (
 		<>
-			<TimestampButton />
-			<ToggleButton label={ __( 'Remove', 'jetpack' ) } />
+			<TimestampButton
+				className={ `${ className }__timestamp-label` }
+				value={ value }
+				onPlayback={ onPlayback }
+			/>
+
+			<ToggleButton
+				className={ `${ className }__timestamp-button` }
+				currentTime={ mediaCurrentTime }
+				onChange={ onChange }
+				onToggle={ onToggle }
+				isTimestampButtonVisible={ show }
+			>
+				{ __( 'Remove', 'jetpack' ) }
+			</ToggleButton>
 		</>
 	);
 }
