@@ -95,4 +95,31 @@ export default class Page {
 			count++;
 		}
 	}
+
+	/**
+	 * Scroll the element into view
+	 *
+	 * @param {string} selector CSS selector of the element
+	 */
+	async scrollIntoView( selector ) {
+		await this.page.waitForSelector( selector );
+		return await this.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
+	}
+
+	/**
+	 * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
+	 *
+	 * @param {string} selector CSS selector of the element
+	 * @return {page} New instance of the opened page.
+	 */
+	async clickAndWaitForNewPage( selector ) {
+		const [ newPage ] = await Promise.all( [
+			this.page.context().waitForEvent( 'page' ),
+			this.page.page.click( selector ),
+		] );
+
+		await newPage.waitForLoadState();
+		await newPage.bringToFront();
+		return newPage;
+	}
 }

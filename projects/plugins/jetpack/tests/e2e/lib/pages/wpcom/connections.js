@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { clickAndWaitForNewPage, getAccountCredentials } from '../../page-helper';
+import { getAccountCredentials } from '../../env/test-setup';
 
 export default class ConnectionsPage extends Page {
 	constructor( page ) {
@@ -31,7 +31,7 @@ export default class ConnectionsPage extends Page {
 	async connectMailchimp() {
 		const mailchimpConnectSelector =
 			'div.mailchimp .foldable-card__summary-expanded button:not([disabled])';
-		const mcPopupPage = await clickAndWaitForNewPage( this.page, mailchimpConnectSelector );
+		const mcPopupPage = await this.page.clickAndWaitForNewPage( mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page
 		const [ mcLogin, mcPassword ] = getAccountCredentials( 'mailchimpLogin' );

@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible } from '../../page-helper';
 
 export default class JetpackPage extends Page {
 	constructor( page ) {
@@ -22,22 +21,22 @@ export default class JetpackPage extends Page {
 
 	async isFree() {
 		const freePlanImage = ".my-plan-card__icon img[src*='free']";
-		return isEventuallyVisible( this.page, freePlanImage, 20000 );
+		return this.page.isVisible( freePlanImage );
 	}
 
 	async isComplete() {
 		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
-		return isEventuallyVisible( this.page, premiumPlanImage, 20000 );
+		return this.page.isVisible( premiumPlanImage );
 	}
 
 	async isSecurity() {
 		const proPlanImage = ".my-plan-card__icon img[src*='security']";
-		return isEventuallyVisible( this.page, proPlanImage, 20000 );
+		return this.page.isVisible( proPlanImage );
 	}
 
 	async isConnected() {
 		const connectionInfo = '.jp-connection-settings__info';
-		return isEventuallyVisible( this.page, connectionInfo, 5000 );
+		return this.page.isVisible( connectionInfo );
 	}
 
 	async forceVariation( variation = 'original' ) {
@@ -64,8 +63,8 @@ export default class JetpackPage extends Page {
 		const containerSelector = '.jp-connect-full__container-card';
 		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
 
-		const isCardVisible = await isEventuallyVisible( this.page, containerSelector );
-		const isConnectButtonVisible = await isEventuallyVisible( this.page, buttonSelector );
+		const isCardVisible = await this.page.isVisible( containerSelector );
+		const isConnectButtonVisible = await this.page.isVisible( buttonSelector );
 		return isCardVisible && isConnectButtonVisible;
 	}
 }

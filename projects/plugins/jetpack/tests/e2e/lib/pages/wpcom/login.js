@@ -7,9 +7,9 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  * Internal dependencies
  */
 import Page from '../page';
-import { getAccountCredentials, isEventuallyVisible } from '../../page-helper';
 import logger from '../../logger';
 import fs from 'fs';
+import { getAccountCredentials } from '../../env/test-setup';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
@@ -58,6 +58,6 @@ export default class LoginPage extends Page {
 
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
-		return isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
+		return this.page.isVisible( continueAsUserSelector, { timeout: 2000 } );
 	}
 }

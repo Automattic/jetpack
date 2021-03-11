@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible } from '../../page-helper';
 
 export default class PluginsPage extends Page {
 	constructor( page ) {
@@ -27,8 +26,8 @@ export default class PluginsPage extends Page {
 	async isFullScreenPopupShown() {
 		const fullScreenCardSelector = '.jp-connect-full__container-card';
 		const connectButtonSelector = ".jp-connect-full__button-container a[href*='register']";
-		const isCardVisible = await isEventuallyVisible( this.page, fullScreenCardSelector );
-		const isConnectButtonVisible = await isEventuallyVisible( this.page, connectButtonSelector );
+		const isCardVisible = await this.page.isVisible( fullScreenCardSelector );
+		const isConnectButtonVisible = await this.page.isVisible( connectButtonSelector );
 		return isCardVisible && isConnectButtonVisible;
 	}
 

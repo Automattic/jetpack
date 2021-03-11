@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible } from '../../page-helper';
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
@@ -19,11 +18,9 @@ export default class CheckoutPage extends Page {
 		await page.click( '.checkout-step.is-active .checkout-button' );
 
 		// Pick a payment method
-		const isExistingCard = await isEventuallyVisible(
-			this.page,
-			'label[for*="existingCard"]',
-			2000
-		);
+		const isExistingCard = await this.page.isVisible( 'label[for*="existingCard"]', {
+			timeout: 2000,
+		} );
 
 		if ( ! isExistingCard ) {
 			await page.click( 'label[for="card"]' );

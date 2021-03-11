@@ -1,7 +1,6 @@
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
 import logger from '../logger';
-import { clickAndWaitForNewPage } from '../page-helper';
 
 export default class MailchimpBlock {
 	constructor( blockId, page ) {
@@ -32,7 +31,7 @@ export default class MailchimpBlock {
 		const formSelector = await this.page.waitForSelector( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const wpComTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
+		const wpComTab = await this.page.clickAndWaitForNewPage( setupFormSelector );
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );

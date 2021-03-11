@@ -2,7 +2,6 @@
  * Internal dependencies
  */
 import Page from '../page';
-import { isEventuallyVisible } from '../../page-helper';
 
 export default class ThankYouPage extends Page {
 	constructor( page ) {
@@ -12,7 +11,7 @@ export default class ThankYouPage extends Page {
 
 	async waitForSetupAndProceed() {
 		// Wait for progress bar to appear first
-		await isEventuallyVisible( this.page, '.progress-bar.is-pulsing' );
+		await this.page.isVisible( '.progress-bar.is-pulsing' );
 
 		// Click on "Hide Message"
 		await page.click( ".current-plan-thank-you a[href*='my-plan']" );

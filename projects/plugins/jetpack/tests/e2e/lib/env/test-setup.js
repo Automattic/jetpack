@@ -38,6 +38,22 @@ async function maybePreConnect() {
 	}
 }
 
+/**
+ * Extracts a `accountName` configuration from the config file.
+ *
+ * @param {string} accountName one of the keys of `testAccounts` entry in config file
+ *
+ * @return {Array} username and password
+ */
+export function getAccountCredentials( accountName ) {
+	const globalConfig = config.get( 'testAccounts' );
+	if ( globalConfig.has( 'testAccounts' ) ) {
+		throw new Error( `${ accountName } not found in config file` );
+	}
+
+	return globalConfig.get( accountName );
+}
+
 // todo do we still need this?
 // keep it for the moment and use it to log steps in console, but unless we're
 // bringing back Allure or other reporter to use it we might want to remove it
