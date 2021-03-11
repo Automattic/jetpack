@@ -616,22 +616,40 @@ jobs:
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which jq
+          jq --version
 
       - name: Check change files are touched for touched projects
         run: .github/files/require-change-file-for-touched-projects.php --debug
@@ -645,22 +663,40 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which jq
+          jq --version
 
       - name: Check change file validity
         run: tools/changelogger-validate-all.sh --debug
