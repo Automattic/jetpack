@@ -65,33 +65,11 @@ describe( '', () => {
 		defaultVariation: null,
 	};
 
-
-	// 👀 Tests setup.
-	beforeEach( () => {
-	} );
-
 	afterEach( () => {
 		setAttributes.mockClear();
 	} );
 
-	/**
-	 * 👀 Write tests specific to this block's edit component.
-	 *
-	 * Tests may cover behaviour such as:
-	 * - Loading correctly
-	 * - Children are rendered
-	 * - Event handler callbacks are called
-	 * - Correct attributes are applied in markup
-	 * - Appropriate CSS classes applied
-	 */
 
-	/**
-	 * 👀 Example:
-	 * test( 'displays with customText attribute', () => {
-	 * 		render( <YourEditComponent { ...defaultProps } /> );
-	 * 		expect( screen.getByText( 'Custom text rendered in block' ) ).toBeInTheDocument();
-	 * } );
-	 */
 	test( 'renders a variation selector list', () => {
 		render( <JetpackContactFormEdit { ...defaultProps } /> );
 		expect( screen.getByRole( 'list' ).children ).toHaveLength( 2 );
