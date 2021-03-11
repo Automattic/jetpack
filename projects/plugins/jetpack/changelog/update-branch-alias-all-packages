@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+Comment: Remove composer dev-monorepo hack.
+

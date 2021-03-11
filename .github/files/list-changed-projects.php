@@ -36,7 +36,11 @@ if ( array_search( '--debug', $argv, true ) !== false ) {
 	 * @param array ...$args Arguments to printf. A newline is automatically appended.
 	 */
 	function debug( ...$args ) {
-		$args[0] = "\e[1;30m${args[0]}\e[0m\n";
+		if ( getenv( 'CI' ) ) {
+			$args[0] = "\e[34m${args[0]}\e[0m\n";
+		} else {
+			$args[0] = "\e[1;30m${args[0]}\e[0m\n";
+		}
 		fprintf( STDERR, ...$args );
 	}
 } else {

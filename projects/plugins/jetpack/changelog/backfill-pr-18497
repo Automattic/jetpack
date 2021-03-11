@@ -1,0 +1,3 @@
+Significance: patch
+Type: compat
+Comment: API Nonces: Improve performances. I don't think these changes need a changelog entry.

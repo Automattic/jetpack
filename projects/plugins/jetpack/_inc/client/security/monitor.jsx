@@ -14,6 +14,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -34,6 +35,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
+						disableInUserlessMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __(
@@ -45,7 +47,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					>
 						<ModuleToggle
 							slug="monitor"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || ! this.props.hasConnectedOwner }
 							activated={ isMonitorActive }
 							toggling={ this.props.isSavingAnyOption( 'monitor' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -58,19 +60,28 @@ export const Monitor = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
-					{
+					{ this.props.hasConnectedOwner && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
-							target="_blank"
 							href={ getRedirectUrl( 'calypso-settings-security', {
 								site: this.props.siteRawUrl,
 							} ) }
 						>
 							{ __( 'Configure your notification settings', 'jetpack' ) }
 						</Card>
-					}
+					) }
+
+					{ ! this.props.hasConnectedOwner && (
+						<ConnectUserBar
+							feature="monitor"
+							text={ __(
+								'Monitoring provided by the WordPress.com cloud. Sign in to configure personal email alerts.',
+								'jetpack'
+							) }
+						/>
+					) }
 				</SettingsCard>
 			);
 		}

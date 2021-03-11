@@ -17,15 +17,6 @@ require_once __DIR__ . '/class-admin-menu.php';
 class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
-	 * WPcom_Admin_Menu constructor.
-	 */
-	protected function __construct() {
-		parent::__construct();
-
-		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
-	}
-
-	/**
 	 * Sets up class properties for REST API requests.
 	 *
 	 * @param WP_REST_Response $response Response from the endpoint.
@@ -34,8 +25,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::rest_api_init( $response );
 
 		// Get domain for requested site.
-		$this->domain         = ( new Status() )->get_site_suffix();
-		$this->customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+		$this->domain = ( new Status() )->get_site_suffix();
 
 		return $response;
 	}
@@ -211,53 +201,34 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Appearance menu.
+	 *
+	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
+		parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+
+		$user_can_customize = current_user_can( 'customize' );
+
+		if ( $user_can_customize ) {
+			$themes_slug    = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
+			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
+			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_slug );
+			add_submenu_page( $themes_slug, esc_attr__( 'Edit CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
+		}
+	}
+
+	/**
 	 * Adds Users menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $wp_admin = false ) {
-		$users_slug   = $wp_admin ? 'users.php' : 'https://wordpress.com/people/team/' . $this->domain;
-		$add_new_slug = 'https://wordpress.com/people/new/' . $this->domain;
-		$profile_slug = $wp_admin ? 'grofiles-editor' : 'https://wordpress.com/me';
-		$account_slug = $wp_admin ? 'grofiles-user-settings' : 'https://wordpress.com/me/account';
-
-		if ( current_user_can( 'list_users' ) ) {
-			remove_menu_page( 'users.php' );
-			remove_submenu_page( 'users.php', 'users.php' );
-			remove_submenu_page( 'users.php', 'user-new.php' );
-			remove_submenu_page( 'users.php', 'profile.php' );
-			remove_submenu_page( 'users.php', 'grofiles-editor' );
-			remove_submenu_page( 'users.php', 'grofiles-user-settings' );
-
-			add_menu_page( esc_attr__( 'Users', 'jetpack' ), __( 'Users', 'jetpack' ), 'list_users', $users_slug, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $users_slug, esc_attr__( 'All People', 'jetpack' ), __( 'All People', 'jetpack' ), 'list_users', $users_slug, null, 5 );
-			add_submenu_page( $users_slug, esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', $add_new_slug, null, 10 );
-			add_submenu_page( $users_slug, esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 15 );
-			add_submenu_page( $users_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 20 );
-
-			$this->migrate_submenus( 'users.php', $users_slug );
-			add_filter(
-				'parent_file',
-				function ( $parent_file ) use ( $users_slug ) {
-					return 'users.php' === $parent_file ? $users_slug : $parent_file;
-				}
-			);
-		} elseif ( ! $wp_admin ) {
-			remove_menu_page( 'profile.php' );
-			remove_submenu_page( 'profile.php', 'grofiles-editor' );
-			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
-
-			add_menu_page( esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', $profile_slug, null, 'dashicons-admin-users', 70 );
-			add_submenu_page( $profile_slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', $account_slug, null, 5 );
-
-			$this->migrate_submenus( 'profile.php', $profile_slug );
-			add_filter(
-				'parent_file',
-				function ( $parent_file ) use ( $profile_slug ) {
-					return 'profile.php' === $parent_file ? $profile_slug : $parent_file;
-				}
-			);
-		}
+	public function add_users_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Users on Simple sites are always managed on Calypso.
+		parent::add_users_menu( false );
 	}
 
 	/**
@@ -334,5 +305,15 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Adds Plugins menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Plugins on Simple sites are always managed on Calypso.
+		parent::add_plugins_menu( false );
 	}
 }

@@ -159,4 +159,98 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		);
 		$this->assertSame( end( $menu ), $wp_admin_menu_item );
 	}
+
+	/**
+	 * Tests add_appearance_menu
+	 *
+	 * @covers ::add_appearance_menu
+	 */
+	public function test_add_appearance_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/themes/' . static::$domain;
+		static::$admin_menu->add_appearance_menu( false, false );
+
+		// Check Customize menu always links to WP Admin.
+		$customize_submenu_item = array(
+			'Customize',
+			'customize',
+			'customize.php',
+			'Customize',
+		);
+		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_posts_menu
+	 *
+	 * @covers ::add_posts_menu
+	 */
+	public function test_add_posts_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/posts/' . static::$domain;
+		static::$admin_menu->add_posts_menu();
+		$this->assertEmpty( $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_page_menu
+	 *
+	 * @covers ::add_page_menu
+	 */
+	public function test_add_page_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/pages/' . static::$domain;
+		static::$admin_menu->add_page_menu();
+		$this->assertEmpty( $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_users_menu
+	 */
+	public function test_add_users_menu() {
+		global $submenu;
+
+		$slug = 'https://wordpress.com/people/team/' . static::$domain;
+		static::$admin_menu->add_users_menu();
+		$this->assertEmpty( $submenu[ $slug ] );
+	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_feedback_menu
+	 */
+	public function add_feedback_menu() {
+		global $menu;
+
+		$menu_item = array(
+			'Feedback',
+			'edit_posts',
+			'edit.php?post_type=feedback',
+			'Feedback',
+			'menu-top toplevel_page_index',
+			'toplevel_page_index',
+			'dashicons-feedback',
+		);
+		$this->assertSame( $menu[45], $menu_item );
+	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $menu;
+
+		static::$admin_menu->add_plugins_menu( true );
+
+		// Check Plugins menu always links to Calypso.
+		$this->assertContains( 'https://wordpress.com/plugins/' . static::$domain, $menu[65] );
+	}
 }

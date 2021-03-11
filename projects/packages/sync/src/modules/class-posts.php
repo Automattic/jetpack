@@ -54,6 +54,16 @@ class Posts extends Module {
 	private $import_end = false;
 
 	/**
+	 * Max bytes allowed for post_content => length.
+	 * Current Setting : 5MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_CONTENT_LENGTH = 5000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -434,6 +444,12 @@ class Posts extends Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 
+		// Explicitly omit post_content when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		if ( strlen( $post->post_content ) >= self::MAX_POST_CONTENT_LENGTH ) {
+			$post->post_content = '';
+		}
+
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
 			global $shortcode_tags;
@@ -570,16 +586,6 @@ class Posts extends Module {
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
-
-		/*
-		 * WP 5.6 introduced the wp_after_insert_post hook that triggers when
-		 * the post, meta and terms has been updated. We are migrating send_published
-		 * function to this hook to ensure we have all data for WP.com functionality.
-		 * @todo: remove full if statement when WordPress 5.6 is the minimum required version.
-		 */
-		if ( ! function_exists( 'wp_after_insert_post' ) ) {
-			$this->send_published( $post_ID, $post );
-		}
 	}
 
 	/**

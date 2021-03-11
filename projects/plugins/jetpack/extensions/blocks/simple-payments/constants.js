@@ -4,11 +4,11 @@ export const DEFAULT_CURRENCY = 'USD';
 
 /**
  * Currencies should be supported by PayPal:
- * @link https://developer.paypal.com/docs/api/reference/currency-codes/
+ * https://developer.paypal.com/docs/api/reference/currency-codes/
  *
  * List has to be in sync with list at the widget's backend side and API's backend side:
- * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/widgets/simple-payments.php#L19-L44
- * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/simple-payments/simple-payments.php#L386-L415
+ * https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/widgets/simple-payments.php#L19-L44
+ * https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/simple-payments/simple-payments.php#L386-L415
  *
  * Indian Rupee not supported because at the time of the creation of this file
  * because it's limited to in-country PayPal India accounts only.

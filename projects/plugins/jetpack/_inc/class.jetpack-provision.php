@@ -1,7 +1,8 @@
 <?php //phpcs:ignore
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Secrets;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
 
@@ -99,7 +100,7 @@ class Jetpack_Provision { //phpcs:ignore
 			$role        = $roles->translate_current_user_to_role();
 			$signed_role = Jetpack::connection()->sign_role( $role );
 
-			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+			$secrets = ( new Secrets() )->generate( 'authorize' );
 
 			// Jetpack auth stuff.
 			$request_body['scope']  = $signed_role;
@@ -210,7 +211,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 		if ( isset( $body_json->access_token ) && is_user_logged_in() ) {
 			// Check if this matches the existing token before replacing.
-			$existing_token = Jetpack_Data::get_access_token( get_current_user_id() );
+			$existing_token = ( new Tokens() )->get_access_token( get_current_user_id() );
 			if ( empty( $existing_token ) || $existing_token->secret !== $body_json->access_token ) {
 				self::authorize_user( get_current_user_id(), $body_json->access_token );
 			}
@@ -221,7 +222,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 	private static function authorize_user( $user_id, $access_token ) {
 		// authorize user and enable SSO
-		Connection_Utils::update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
+		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
 
 		/**
 		 * Auto-enable SSO module for new Jetpack Start connections

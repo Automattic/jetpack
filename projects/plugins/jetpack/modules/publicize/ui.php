@@ -390,7 +390,7 @@ jQuery( function($) {
 	padding-right: 3px;
 	vertical-align: top;
 	-webkit-font-smoothing: antialiased;
-	color: #82878c;
+	color: #8c8f94;
 }
 .post-new-php .authorize-link, .post-php .authorize-link {
 	line-height: 1.5em;

@@ -7,9 +7,9 @@ import {
 	Placeholder,
 	SandBox,
 	Button,
-	IconButton,
 	Spinner,
-	Toolbar,
+	ToolbarButton,
+	ToolbarGroup,
 	withNotices,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
@@ -136,14 +136,14 @@ class PinterestEdit extends Component {
 
 		const controls = (
 			<BlockControls>
-				<Toolbar>
-					<IconButton
+				<ToolbarGroup>
+					<ToolbarButton
 						className="components-toolbar__control"
 						label={ __( 'Edit URL', 'jetpack' ) }
 						icon="edit"
 						onClick={ () => this.setState( { editingUrl: true } ) }
 					/>
-				</Toolbar>
+				</ToolbarGroup>
 			</BlockControls>
 		);
 
