@@ -6,7 +6,7 @@ import Page from '../page';
 export default class PluginsPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.search-box';
-		super( page, { expectedSelector } );
+		super( page, 'PluginsPage', { expectedSelector } );
 	}
 
 	async deactivateJetpack() {

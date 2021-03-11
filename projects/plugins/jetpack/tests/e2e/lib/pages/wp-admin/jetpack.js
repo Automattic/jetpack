@@ -6,7 +6,7 @@ import Page from '../page';
 export default class JetpackPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '#jp-plugin-container';
-		super( page, { expectedSelector } );
+		super( page, 'JetpackPage', { expectedSelector } );
 	}
 
 	async connect() {

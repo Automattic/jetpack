@@ -6,7 +6,7 @@ import Page from '../page';
 export default class Sidebar extends Page {
 	constructor( page ) {
 		const expectedSelector = '#adminmenuwrap';
-		super( page, { expectedSelector } );
+		super( page, 'Sidebar', { expectedSelector } );
 	}
 
 	async selectJetpack() {

@@ -5,8 +5,8 @@ import logger from '../logger';
 import PageActions from './page-actions';
 
 export default class Page extends PageActions {
-	constructor( page, { expectedSelector, url = null, explicitWaitMS = 25000 } ) {
-		super( page, [ expectedSelector ] );
+	constructor( page, pageName, { expectedSelector, url = null, explicitWaitMS = 25000 } ) {
+		super( page, pageName, [ expectedSelector ] );
 		this.expectedSelector = expectedSelector;
 		this.visit = false;
 		this.url = url;
@@ -35,12 +35,6 @@ export default class Page extends PageActions {
 	static async visit( page, pageURL = null ) {
 		const it = new this( page );
 		const url = pageURL ? pageURL : it.url;
-
-		if ( ! url ) {
-			throw new Error( 'Page URL is not set' );
-		}
-
-		logger.action( `${ it.name } navigating to: ${ url }` );
 		await page.goto( url );
 		return this.init( page );
 	}

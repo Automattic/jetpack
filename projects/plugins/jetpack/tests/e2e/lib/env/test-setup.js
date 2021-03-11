@@ -9,18 +9,18 @@ import logger from '../logger';
 import { execWpCommand, getTunnelSiteUrl } from '../utils-helper';
 import {
 	connectThroughWPAdmin,
-	loginToWpcomIfNeeded,
+	loginToWpComIfNeeded,
 	loginToWpSite,
 } from '../flows/jetpack-connect';
 import config from 'config';
 import path from 'path';
 
 async function maybePreConnect() {
-	const wpcomUser = 'defaultUser';
+	const wpComUser = 'defaultUser';
 	const mockPlanData = true;
 	const plan = 'free';
 
-	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
+	await loginToWpComIfNeeded( wpComUser, mockPlanData );
 	await loginToWpSite( mockPlanData );
 
 	if ( process.env.SKIP_CONNECT ) {

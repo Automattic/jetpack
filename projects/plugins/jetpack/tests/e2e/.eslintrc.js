@@ -15,9 +15,7 @@ module.exports = {
 		page: true,
 		wp: true,
 		context: true,
-		jestPlaywright: true,
 		reporter: true,
-		jasmine: true,
 		jpConnect: true,
 	},
 	settings: {

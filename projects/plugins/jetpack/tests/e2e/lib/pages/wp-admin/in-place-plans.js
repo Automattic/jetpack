@@ -6,7 +6,7 @@ import Page from '../page';
 export default class InPlacePlansPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.plans-prompt__footer a';
-		super( page, { expectedSelector, explicitWaitMS: 60000 } );
+		super( page, 'InPlacePlansPage', { expectedSelector, explicitWaitMS: 60000 } );
 	}
 
 	async selectFreePlan() {

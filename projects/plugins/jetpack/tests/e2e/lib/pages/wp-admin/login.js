@@ -8,7 +8,7 @@ import { takeScreenshot } from '../../reporters/screenshot';
 export default class WPLoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.login';
-		super( page, { expectedSelector } );
+		super( page, 'Login page', { expectedSelector } );
 	}
 
 	async login( username = 'admin', password = 'password', { retry = true } = {} ) {

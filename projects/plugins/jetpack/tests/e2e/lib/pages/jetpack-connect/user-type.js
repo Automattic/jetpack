@@ -6,7 +6,7 @@ import Page from '../page';
 export default class JetpackUserTypePage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.user-type__connect-step';
-		super( page, { expectedSelector } );
+		super( page, 'JetpackUserTypePage', { expectedSelector } );
 	}
 
 	async selectUserType( userType ) {

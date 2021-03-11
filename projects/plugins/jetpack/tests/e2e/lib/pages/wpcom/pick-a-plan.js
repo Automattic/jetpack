@@ -6,7 +6,7 @@ import Page from '../page';
 export default class PickAPlanPage extends Page {
 	constructor( page ) {
 		const expectedSelector = 'div[data-e2e-product-slug="jetpack_complete"]';
-		super( page, { expectedSelector, explicitWaitMS: 40000 } );
+		super( page, 'PickAPlanPage', { expectedSelector, explicitWaitMS: 40000 } );
 	}
 
 	async waitForPage() {

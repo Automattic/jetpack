@@ -8,7 +8,7 @@ export default class BlockEditorPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '#editor';
 		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
-		super( page, { expectedSelector, url } );
+		super( page, 'BlockEditorPage', { expectedSelector, url } );
 	}
 
 	static async init( page, showWelcomeGuide = false ) {

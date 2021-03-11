@@ -6,7 +6,7 @@ import Page from '../page';
 export default class InPlaceAuthorizeFrame extends Page {
 	constructor( page ) {
 		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
-		super( page, { expectedSelector } );
+		super( page, 'InPlaceAuthorizeFrame', { expectedSelector } );
 	}
 
 	static async init( page ) {

@@ -6,7 +6,7 @@ import Page from './page';
 export default class PostFrontendPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.post';
-		super( page, { expectedSelector } );
+		super( page, 'PostFrontendPage', { expectedSelector } );
 	}
 
 	/**

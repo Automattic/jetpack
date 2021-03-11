@@ -6,7 +6,7 @@ import Page from '../page';
 export default class ThankYouPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.current-plan-thank-you';
-		super( page, { expectedSelector } );
+		super( page, 'ThankYouPage', { expectedSelector } );
 	}
 
 	async waitForSetupAndProceed() {

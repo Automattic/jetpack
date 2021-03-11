@@ -6,7 +6,7 @@ import Page from '../page';
 export default class PlansPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.plans-features-main';
-		super( page, { expectedSelector } );
+		super( page, 'PlansPage', { expectedSelector } );
 	}
 
 	async returnToWPAdmin() {

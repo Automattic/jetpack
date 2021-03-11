@@ -6,7 +6,7 @@ import Page from '../page';
 export default class JetpackSiteTopicPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.jetpack-connect__step .site-topic__content';
-		super( page, { expectedSelector } );
+		super( page, 'JetpackSiteTopicPage', { expectedSelector } );
 	}
 
 	async selectSiteTopic( siteTopic ) {

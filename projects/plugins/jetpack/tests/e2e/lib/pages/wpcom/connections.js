@@ -7,7 +7,7 @@ import { getAccountCredentials } from '../../env/test-setup';
 export default class ConnectionsPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.connections__sharing-connections';
-		super( page, { expectedSelector, explicitWaitMS: 40000 } );
+		super( page, 'ConnectionsPage', { expectedSelector, explicitWaitMS: 40000 } );
 	}
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {

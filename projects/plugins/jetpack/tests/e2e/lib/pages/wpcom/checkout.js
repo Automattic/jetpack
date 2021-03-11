@@ -6,7 +6,7 @@ import Page from '../page';
 export default class CheckoutPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.checkout__content .wp-checkout__review-order-step';
-		super( page, { expectedSelector } );
+		super( page, 'CheckoutPage', { expectedSelector } );
 	}
 
 	async processPurchase( cardCredentials ) {

@@ -120,16 +120,16 @@ export async function loginToWpSite( mockPlanData ) {
 	}
 }
 
-export async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
-	// Logs in to WPCOM
+export async function loginToWpComIfNeeded( wpComUser, mockPlanData ) {
+	// Log in to WPCOM
 	const login = await LoginPage.visit( page );
 	if ( ! mockPlanData ) {
 		await login.setSandboxModeForPayments( cookie );
 	}
 	if ( ! ( await login.isLoggedIn() ) ) {
-		await login.login( wpcomUser );
+		await login.login( wpComUser );
 	} else {
-		logger.debug( 'Already logged into WPCOM' );
+		logger.step( 'Already logged into Wordpress.com' );
 	}
 }
 

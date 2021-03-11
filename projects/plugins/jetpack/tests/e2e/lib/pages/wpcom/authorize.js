@@ -7,7 +7,7 @@ import logger from '../../logger';
 export default class AuthorizePage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.jetpack-connect__logged-in-form';
-		super( page, { expectedSelector } );
+		super( page, 'AuthorizePage', { expectedSelector } );
 	}
 
 	async approve( repeat = true ) {

@@ -16,8 +16,8 @@ const myCustomLevels = {
 		slack: 10,
 	},
 	colors: {
-		action: 'yellow',
-		step: 'yellow',
+		action: 'cyan',
+		step: 'cyan',
 	},
 };
 

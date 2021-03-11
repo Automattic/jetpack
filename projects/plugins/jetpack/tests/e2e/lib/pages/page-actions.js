@@ -1,17 +1,34 @@
 import logger from '../logger';
 
 export default class PageActions {
-	constructor( page, selectors = [] ) {
+	constructor( page, pageName, selectors = [] ) {
 		this.page = page;
 		this.selectors = selectors;
+		this.pageName = pageName;
 	}
 
 	// region page functions
+
+	/**
+	 * Navigate to a given URL
+	 *
+	 * @param {string} url
+	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
+	 * @return {Promise<void>}
+	 */
+	async goto( url, options = null ) {
+		if ( ! url ) {
+			throw new Error( 'Cannot navigate! Page URL is not set' );
+		}
+		logger.action( `Navigating to ${ url }` );
+		await this.page.goto( url, options );
+	}
+
 	/**
 	 * Waits for each of the given selectors to become visible on the page.
 	 */
 	async waitForPage() {
-		logger.action( 'Checking that page is displayed' );
+		logger.action( `Checking ${ this.pageName } is displayed` );
 		for ( const selector of this.selectors ) {
 			logger.action( `Waiting for element ${ selector } to be visible` );
 			await this.page.waitForSelector( selector );
@@ -23,7 +40,7 @@ export default class PageActions {
 	 *
 	 * @param {Object} options page.reload options object
 	 */
-	async reload( options = {} ) {
+	async reload( options = null ) {
 		logger.action( 'Reloading page' );
 		await this.page.reload( options );
 		return await this.waitForPage();

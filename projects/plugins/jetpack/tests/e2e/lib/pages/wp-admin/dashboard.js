@@ -8,7 +8,7 @@ export default class DashboardPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '#dashboard-widgets-wrap';
 		const url = getTunnelSiteUrl() + '/wp-admin';
-		super( page, { expectedSelector, url } );
+		super( page, 'DashboardPage', { expectedSelector, url } );
 	}
 
 	async isConnectBannerVisible() {

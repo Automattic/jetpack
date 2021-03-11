@@ -6,7 +6,7 @@ import Page from '../page';
 export default class JetpackSiteTypePage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.jetpack-connect__step .site-type__wrapper';
-		super( page, { expectedSelector } );
+		super( page, 'JetpackSiteTypePage', { expectedSelector } );
 	}
 
 	async selectSiteType( type ) {
