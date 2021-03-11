@@ -1,4 +1,4 @@
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports, addColors } from 'winston';
 import config from 'config';
 import path from 'path';
 
@@ -10,10 +10,18 @@ const myCustomLevels = {
 		warn: 4,
 		notice: 5,
 		info: 6,
-		debug: 7,
-		slack: 9,
+		step: 7,
+		action: 8,
+		debug: 9,
+		slack: 10,
+	},
+	colors: {
+		action: 'yellow',
+		step: 'yellow',
 	},
 };
+
+addColors( myCustomLevels.colors );
 
 let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
 
@@ -44,7 +52,8 @@ const stringFormat = format.combine(
 		}
 
 		return msg;
-	} )
+	} ),
+	format.uncolorize()
 );
 
 const logger = createLogger( {
@@ -64,10 +73,12 @@ const logger = createLogger( {
 		//
 		new transports.File( {
 			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-json.log' ),
+			format: format.uncolorize(),
 		} ),
 		new transports.File( {
 			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
 			format: stringFormat,
+			level: 'debug',
 		} ),
 		// Slack specific logging transport that is used later to send a report to slack.
 		new transports.File( {
@@ -94,14 +105,15 @@ const logger = createLogger( {
 					}
 
 					return JSON.stringify( info );
-				} )
+				} ),
+				format.uncolorize()
 			),
 		} ),
 
 		new transports.Console( {
 			format: format.combine(
 				format.timestamp(),
-				format.cli(),
+				format.colorize(),
 				format.printf( ( { level, message, timestamp } ) => {
 					return `${ timestamp } ${ level }: ${ message }`;
 				} )
