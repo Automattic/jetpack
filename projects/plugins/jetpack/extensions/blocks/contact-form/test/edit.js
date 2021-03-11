@@ -37,14 +37,31 @@ describe( '', () => {
 		siteTitle: '',
 		postTitle: '',
 		postAuthorEmail: '',
-		hasInnerBlocks: true,
+		hasInnerBlocks: false,
 		replaceInnerBlocks,
 		selectBlock,
 		clientId: 1,
 		instanceId: 2,
 		className: '',
 		blockType: '',
-		variations: [],
+		variations: [
+			{
+				name: 'susan',
+				title: 'a nice person',
+				icon: 'book',
+				attributes: {
+					className: 'wp-variation-susan',
+				}
+			},
+			{
+				name: 'barry',
+				title: 'a fine person',
+				icon: 'edit',
+				attributes: {
+					className: 'wp-variation-barry',
+				}
+			}
+		],
 		defaultVariation: null,
 	};
 
@@ -75,8 +92,8 @@ describe( '', () => {
 	 * 		expect( screen.getByText( 'Custom text rendered in block' ) ).toBeInTheDocument();
 	 * } );
 	 */
-	test( '', () => {
+	test( 'renders a variation selector list', () => {
 		render( <JetpackContactFormEdit { ...defaultProps } /> );
-		screen.debug();
+		expect( screen.getByRole( 'list' ).children ).toHaveLength( 2 );
 	} );
 } );
