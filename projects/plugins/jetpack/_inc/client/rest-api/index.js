@@ -353,6 +353,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchLicenses: () =>
+			getRequest( `${ apiRoot }jetpack/v4/licensing`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		updateLicensingError: props =>
 			postRequest( `${ apiRoot }jetpack/v4/licensing/error`, postParams, {
 				body: JSON.stringify( props ),
