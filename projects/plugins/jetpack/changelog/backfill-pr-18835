@@ -1,0 +1,3 @@
+Significance: patch
+Type: compat
+Comment: Conversation: Handle speaker-name changes propagation closely. Not worth a changelog entry, the feature isn't yet widely available.

@@ -16,6 +16,7 @@
 
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -1608,7 +1609,7 @@ function jetpack_stats_load_admin_css() {
  * @return mixed
  */
 function jetpack_stats_post_table( $columns ) { // Adds a stats link on the edit posts page
-	if ( ! current_user_can( 'view_stats' ) || ! Jetpack::is_user_connected() ) {
+	if ( ! current_user_can( 'view_stats' ) || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 		return $columns;
 	}
 	// Array-Fu to add before comments

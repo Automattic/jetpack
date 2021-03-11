@@ -11,7 +11,7 @@ import lru from 'tiny-lru/lib/tiny-lru.esm';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS, SERVER_OBJECT_NAME } from './constants';
+import { MINUTE_IN_MILLISECONDS, RESULT_FORMAT_PRODUCT, SERVER_OBJECT_NAME } from './constants';
 
 let cancelToken = CancelToken.source();
 
@@ -195,7 +195,12 @@ function generateApiQueryString( {
 	sort,
 	postsPerPage = 10,
 	adminQueryFilter,
+	isInCustomizer = false,
 } ) {
+	if ( query === null ) {
+		query = '';
+	}
+
 	let fields = [
 		'date',
 		'permalink.url.raw',
@@ -208,16 +213,21 @@ function generateApiQueryString( {
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 
-	switch ( resultFormat ) {
-		case 'product':
-			fields = fields.concat( [
-				'meta._wc_average_rating.double',
-				'meta._wc_review_count.long',
-				'wc.currency_position',
-				'wc.currency_symbol',
-				'wc.price',
-				'wc.sale_price',
-			] );
+	/* Fetch additional fields for product results
+	 *
+	 * We always need these in the Customizer too, because the API request is not
+	 * repeated when switching result format
+	 */
+	if ( resultFormat === RESULT_FORMAT_PRODUCT || isInCustomizer ) {
+		fields = fields.concat( [
+			'meta._wc_average_rating.double',
+			'meta._wc_review_count.long',
+			'wc.formatted_price',
+			'wc.formatted_regular_price',
+			'wc.formatted_sale_price',
+			'wc.price',
+			'wc.sale_price',
+		] );
 	}
 
 	return encode(

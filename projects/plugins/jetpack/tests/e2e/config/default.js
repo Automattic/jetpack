@@ -13,6 +13,20 @@ const config = {
 		cardCountryCode: 'TR', // using Turkey to force Stripe as payment processor
 		cardPostCode: '4000',
 	},
+	configDir: './config',
+	testOutputDir: './output',
+	screenshotsDir: './output/screenshots',
+	videosDir: './output/videos',
+	logsDir: './output/logs',
+	reportsDir: './output/reports',
+	consoleIgnore: [
+		'This is a global warning',
+		'A cookie associated with a cross-site resource',
+		'net::ERR_UNKNOWN_URL_SCHEME',
+		'elements with non-unique id #_wpnonce',
+		'is deprecated',
+		'SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021',
+	],
 };
 
 module.exports = config;

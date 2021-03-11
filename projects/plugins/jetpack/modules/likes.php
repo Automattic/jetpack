@@ -343,13 +343,13 @@ class Jetpack_Likes {
 				margin-top: 5px;
 				-webkit-border-radius: 5px;
 				border-radius: 5px;
-				background-color: #72777C;
+				background-color: #787c82;
 				color: #FFF;
 				font-size: 11px;
 				line-height: 21px;
 			}
 			.fixed .column-likes .post-com-count::after { border: none !important; }
-			.fixed .column-likes .post-com-count:hover { background-color: #0073AA; }
+			.fixed .column-likes .post-com-count:hover { background-color: #2271b1; }
 			.fixed .column-likes .vers:before {
 				font: normal 20px/1 dashicons;
 				content: '\f155';

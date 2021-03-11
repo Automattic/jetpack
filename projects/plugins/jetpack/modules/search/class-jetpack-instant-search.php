@@ -159,13 +159,16 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
+		$is_wpcom                  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_private_site           = '-1' === get_option( 'blog_public' );
+		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll' => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
 				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
 				'resultFormat'    => get_option( $prefix . 'result_format', 'minimal' ),
 				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
@@ -178,12 +181,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
+			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
 			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateSite'         => '-1' === get_option( 'blog_public' ),
-			'isWpcom'               => defined( 'IS_WPCOM' ) && IS_WPCOM,
+			'isPrivateSite'         => $is_private_site,
+			'isWpcom'               => $is_wpcom,
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
@@ -556,11 +560,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		if ( ! empty( $post_types ) ) {
 			$settings['filters'][] = array(
-				array(
-					'name'  => '',
-					'type'  => 'post_type',
-					'count' => 5,
-				),
+				'name'  => '',
+				'type'  => 'post_type',
+				'count' => 5,
 			);
 		}
 

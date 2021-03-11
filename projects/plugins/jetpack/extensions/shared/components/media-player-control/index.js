@@ -6,17 +6,14 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import './style.scss';
-import {
-	ControlBackFiveIcon,
-	ControlForwardFiveIcon,
-} from '../../icons';
+import { ControlBackFiveIcon, ControlForwardFiveIcon } from '../../icons';
 import { STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { convertSecondsToTimeCode } from './utils';
 
@@ -28,37 +25,33 @@ export function MediaPlayerControl( {
 	jumpBackIcon = ControlBackFiveIcon,
 	skipForwardIcon = ControlForwardFiveIcon,
 	currenTimeDisplay = true,
+	onTimestampClick,
 } ) {
-	const {
-		playerState,
-		mediaCurrentTime,
-		defaultMediaSource,
-		mediaDomReference,
-	} = useSelect( select => {
-		const {
-			getMediaSourceCurrentTime,
-			getMediaPlayerState,
-			getDefaultMediaSource,
-			getMediaSourceDuration,
-			getMediaSourceDomReference,
-		} = select( STORE_ID );
+	const { playerState, mediaCurrentTime, defaultMediaSource, mediaDomReference } = useSelect(
+		select => {
+			const {
+				getMediaSourceCurrentTime,
+				getMediaPlayerState,
+				getDefaultMediaSource,
+				getMediaSourceDuration,
+				getMediaSourceDomReference,
+			} = select( STORE_ID );
 
-		return {
-			playerState: getMediaPlayerState(),
-			mediaCurrentTime: getMediaSourceCurrentTime(),
-			mediaDuration: getMediaSourceDuration(),
-			defaultMediaSource: getDefaultMediaSource(),
-			mediaDomReference: getMediaSourceDomReference(),
-		};
-	}, [] );
+			return {
+				playerState: getMediaPlayerState(),
+				mediaCurrentTime: getMediaSourceCurrentTime(),
+				mediaDuration: getMediaSourceDuration(),
+				defaultMediaSource: getDefaultMediaSource(),
+				mediaDomReference: getMediaSourceDomReference(),
+			};
+		},
+		[]
+	);
 
 	const timeInFormat = convertSecondsToTimeCode( mediaCurrentTime );
 	const isDisabled = ! defaultMediaSource;
 
-	const {
-		toggleMediaSource,
-		setMediaSourceCurrentTime,
-	} = useDispatch( STORE_ID );
+	const { toggleMediaSource, setMediaSourceCurrentTime } = useDispatch( STORE_ID );
 
 	function togglePlayer() {
 		toggleMediaSource( defaultMediaSource.id );
@@ -106,16 +99,15 @@ export function MediaPlayerControl( {
 			) }
 
 			{ currenTimeDisplay && (
-				<div
-					className={ classnames(
-						'media-player-control__current-time', {
-							'is-disabled': isDisabled,
-							[ `has-${ timeInFormat.split( ':' ) }-parts` ]: true
-						}
-					) }
+				<ToolbarButton
+					className={ classnames( 'media-player-control__current-time', {
+						'is-disabled': isDisabled,
+					} ) }
+					label={ __( 'Set timestamp', 'jetpack' ) }
+					onClick={ () => onTimestampClick( mediaCurrentTime ) }
 				>
 					{ timeInFormat }
-				</div>
+				</ToolbarButton>
 			) }
 		</>
 	);
@@ -123,8 +115,8 @@ export function MediaPlayerControl( {
 
 export function MediaPlayerToolbarControl( props ) {
 	return (
-		<ToolbarGroup>
-			<MediaPlayerControl { ...props } />
+		<ToolbarGroup className="media-player-control__toolbar">
+			<ToolbarItem>{ () => <MediaPlayerControl { ...props } /> }</ToolbarItem>
 		</ToolbarGroup>
 	);
 }

@@ -5,7 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "0.2.0"
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/jetpack-changelogger": "1.1.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -16,11 +17,33 @@
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-device-detection"
+		"mirror-repo": "Automattic/jetpack-device-detection",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.4.x-dev"
+		}
 	}
 }

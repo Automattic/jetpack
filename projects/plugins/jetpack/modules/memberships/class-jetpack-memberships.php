@@ -285,7 +285,7 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function render_button( $attributes, $content, $block ) {
+	public function render_button( $attributes, $content = null, $block = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
 
 		if ( $this->should_render_button_preview( $block ) ) {

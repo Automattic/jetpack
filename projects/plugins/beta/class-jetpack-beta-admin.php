@@ -284,7 +284,7 @@ class Jetpack_Beta_Admin {
 			<p>
 			<?php
 			echo wp_kses_post(
-				printf(
+				sprintf(
 					// Translators: link to Jetack master testing doc in Github.
 					__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
 					esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )

@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -178,9 +179,9 @@ class Jetpack_Connection_Banner {
 
 		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
-		// Due to the limitation in how 3rd party cookies are handled in Safari,
-		// we're falling back to the original flow on Safari desktop and mobile.
-		if ( $is_safari || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
+		// Due to the limitation in how 3rd party cookies are handled in Safari and Opera,
+		// we're falling back to the original flow.
+		if ( $is_safari || User_Agent_Info::is_opera_desktop() || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
 		} else {
 			$force_variation = 'in_place';
@@ -413,12 +414,6 @@ class Jetpack_Connection_Banner {
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
 				</div>
 
-				<?php if ( ( new Status() )->is_no_user_testing_mode() ) : ?>
-					<div id="jp-authenticate-no_user_test_mode">
-						<a href="<?php echo esc_url( Jetpack::admin_url() ); ?>">Skip user authentication</a>
-					</div>
-				<?php endif; ?>
-
 				<p class="jp-connect-full__tos-blurb">
 					<?php jetpack_render_tos_blurb(); ?>
 				</p>
@@ -429,6 +424,20 @@ class Jetpack_Connection_Banner {
 						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 					</a>
 				</p>
+
+				<?php if ( ( new Status() )->is_no_user_testing_mode() ) : ?>
+					<div id="jp-authenticate-no_user_test_mode">
+						<h2><?php esc_html_e( 'Or start using Jetpack now', 'jetpack' ); ?></h2>
+						<p><?php esc_html_e( 'Jump in and start using Jetpack right away. Some features will not be available, but you’ll be able to connect your user account at any point to unlock them.', 'jetpack' ); ?></p>
+						<a class="dops-button jp-no-user-mode-button" href="<?php echo esc_url( Redirect::get_url( 'jetpack-connect-plans', array( 'unlinked' => '1' ) ) ); ?>"><?php esc_html_e( 'Continue without user account', 'jetpack' ); ?></a>
+						<a class="jp-no-user-all-features" target="_blank" href="https://jetpack.com/support/features/">
+							<?php esc_html_e( 'See all Jetpack features', 'jetpack' ); ?>
+							<svg width="16" height="16" viewBox="0 0 24 24" class="gridicon gridicons-external">
+								<g><path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z"></path></g>
+							</svg>
+						</a>
+					</div>
+				<?php endif; ?>
 
 				<div class="jp-connect-full__row" id="jetpack-connection-cards">
 					<div class="jp-connect-full__slide">

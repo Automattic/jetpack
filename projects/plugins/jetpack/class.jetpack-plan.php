@@ -44,6 +44,7 @@ class Jetpack_Plan {
 				'opentable',
 				'calendly',
 				'send-a-message',
+				'whatsapp-button',
 				'social-previews',
 
 				'core/video',

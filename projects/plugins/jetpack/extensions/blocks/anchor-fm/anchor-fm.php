@@ -67,10 +67,8 @@ function process_anchor_params() {
 		return;
 	}
 
-	$current_screen = \get_current_screen();
-	// TODO: Replace `$current_screen->is_block_editor()` with `wp_should_load_block_editor_scripts_and_styles()` that is introduced in WP 5.6.
-	if ( method_exists( $current_screen, 'is_block_editor' ) && ! $current_screen->is_block_editor() ) {
-		// Return early if we are not in the block editor.
+	// Return early if we are not in the block editor.
+	if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
 		return;
 	}
 
@@ -114,7 +112,7 @@ function process_anchor_params() {
 			}
 
 			if ( ! empty( $episode_id ) ) {
-				$track = $podcast_helper->get_track_data( $episode_id );
+				$track = $podcast_helper->get_track_data( $episode_id, true );
 				if ( ! \is_wp_error( $track ) ) {
 					update_post_meta( $post->ID, 'jetpack_anchor_episode', $track['guid'] );
 
@@ -141,6 +139,21 @@ function process_anchor_params() {
 							),
 						);
 					}
+				} else {
+					$retry_url         = add_query_arg(
+						array(
+							'anchor_episode' => $episode_id,
+							'anchor_podcast' => $podcast_id,
+							'spotify_url'    => $valid_spotify_url ? rawurlencode( $spotify_url ) : false,
+						),
+						admin_url( 'post-new.php' )
+					);
+					$data['actions'][] = array(
+						'create-episode-error-notice',
+						array(
+							'retry_url' => esc_url_raw( $retry_url ),
+						),
+					);
 				}
 			}
 		}

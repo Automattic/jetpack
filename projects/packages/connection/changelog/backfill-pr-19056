@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Only check offline mode when needed in map_meta_cap filters

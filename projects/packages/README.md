@@ -96,9 +96,7 @@ While the script we use to deploy the package takes care of everything, we might
 Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-master` version of the package available to the public.
 
 ## Unit Tests
-You may run unit tests locally for any given package by running `composer phpunit` within the package directory or
-via Jetpack Docker with the command `yarn docker:phpunit:package` for all package unit tests or 
-`yarn docker:phpunit:package packagename` for a specific one. 
+You may run unit tests locally for any given package by running `composer phpunit` within the package directory.
 
 ## Developing Jetpack Packages
 
