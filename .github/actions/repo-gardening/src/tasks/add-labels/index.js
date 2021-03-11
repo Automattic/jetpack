@@ -136,6 +136,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
+				'js-packages': 'JS Package',
 			}[ project.groups.ptype ];
 			if ( prefix === undefined ) {
 				const err = new Error(
@@ -154,6 +155,10 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			}
 			if ( project.groups.ptype === 'packages' ) {
 				keywords.add( '[Status] Needs Package Release' );
+			}
+			if ( project.groups.ptype === 'js-packages' ) {
+				keywords.add( '[Status] Needs JS Package Release' );
+				keywords.add( 'RNA' );
 			}
 		}
 
