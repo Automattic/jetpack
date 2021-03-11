@@ -1,5 +1,12 @@
-import fs from 'fs';
+const { chromium } = require( 'playwright' );
+const mkdirp = require( 'mkdirp' );
+const path = require( 'path' );
+const fs = require( 'fs' );
+const os = require( 'os' );
+const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
 import TunnelManager from './tunnel-manager';
+
+const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
 module.exports = async function () {
 	// Create tunnel. Make it global so we can access it in global-teardown
@@ -11,8 +18,8 @@ module.exports = async function () {
 	// If the file already exists the content gets overwritten with an empty object
 	fs.writeFileSync( 'config/storage.json', '{}' );
 
-	// Create the file used to save video files that need to be renamed at teardown
-	// If the file already exists the content gets overwritten with an empty object
-	// It's important this file is empty at global setup time as content will be appended to it
-	fs.writeFileSync( 'output/video_files', '' );
+	// Launch a browser server that client can connect to
+	global.browser = await chromium.launchServer( pwBrowserOptions );
+	mkdirp.sync( TMP_DIR );
+	fs.writeFileSync( path.join( TMP_DIR, 'wsEndpoint' ), global.browser.wsEndpoint() );
 };

@@ -5,6 +5,7 @@
  * Sort Order: 13
  * First Introduced: 1.9
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Other
  * Feature: General

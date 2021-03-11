@@ -6,4 +6,8 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	skipUpload: {
+		type: 'boolean',
+		default: false,
+	},
 };

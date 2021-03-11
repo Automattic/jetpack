@@ -186,6 +186,11 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 			keywords.add( '[Tools] Development CLI' );
 		}
 
+		const docs = file.match( /^docs\// );
+		if ( docs !== null ) {
+			keywords.add( 'Docs' );
+		}
+
 		// Existing blocks.
 		const blocks = file.match(
 			/^projects\/plugins\/jetpack\/extensions\/blocks\/(?<block>[^/]*)\//

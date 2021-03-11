@@ -46,6 +46,7 @@ export async function install( argv ) {
 
 	installs.run().catch( err => {
 		console.error( err );
+		process.exit( err.exitCode || 1 );
 	} );
 }
 

@@ -8,6 +8,9 @@ name: Linting
 
 on: pull_request
 
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
 jobs:
 
   ### Job to categorize changed files. Other jobs depend on this to know when they should run.
@@ -96,6 +99,8 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
       - id: filterJS
         shell: bash
@@ -104,14 +109,18 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
       - id: filterExcludeList
         shell: bash
         env:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/eslint-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
           echo "::set-output name=excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
@@ -360,7 +369,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    timeout-minutes: 10  # 2021-03-05: Runs now take ~5 minutes due to now installing all composer/yarn deps to ensure valid linting.
 
     steps:
       - uses: actions/checkout@v2
@@ -435,7 +444,7 @@ jobs:
     needs: changed_files
     if: needs.changed_files.outputs.js_excluded_files != '[]'
     continue-on-error: true
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    timeout-minutes: 10  # 2021-03-05: Taking ~4:30 now due to now installing all composer/yarn deps to ensure valid linting.
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
@@ -592,3 +601,102 @@ jobs:
         run: tools/cleanup-excludelists.sh
       - name: Check for changes to exclude lists
         run: .github/files/check-excludelist-diff.js
+
+  ### Checks that changelogger change files are being created.
+  # No good equivalent, since it depends on the diff.
+  changelogger_used:
+    name: Changelogger use
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-02-25: Wild guess.
+    steps:
+      # We don't need full git history, but require-change-file-for-touched-projects.php does need everything up to the merge-base.
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versions.outputs.php-version }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which jq
+          jq --version
+
+      - name: Check change files are touched for touched projects
+        run: .github/files/require-change-file-for-touched-projects.php --debug
+
+  ### Checks that changelogger change files are valid.
+  # Local equivalent: `./tools/changelogger-validate-all.sh`
+  changelogger_valid:
+    name: Changelogger validity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-02-25: Wild guess.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versions.outputs.php-version }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which jq
+          jq --version
+
+      - name: Check change file validity
+        run: tools/changelogger-validate-all.sh --debug
