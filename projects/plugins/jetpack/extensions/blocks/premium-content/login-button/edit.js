@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from '@wordpress/element';
 import { PanelBody, RangeControl } from '@wordpress/components';
-import { InspectorControls, RichText, __experimentalBlock as Block } from '@wordpress/block-editor';
+import { InspectorControls, RichText, useBlockProps as Block } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies

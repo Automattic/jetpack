@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 // eslint-disable-next-line wpcalypso/import-docblock
-import { InnerBlocks, __experimentalBlock as Block } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps as Block } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';

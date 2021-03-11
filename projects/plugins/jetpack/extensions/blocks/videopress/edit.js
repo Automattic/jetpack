@@ -21,7 +21,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
-	__experimentalBlock as Block,
+	useBlockProps as Block,
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
