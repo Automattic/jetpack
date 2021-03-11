@@ -61,7 +61,7 @@ class Posts extends Module {
 	 *
 	 * @var int
 	 */
-	const MAX_POST_CONTENT_LENGTH = 2500000;
+	const MAX_POST_CONTENT_LENGTH = 5000000;
 
 	/**
 	 * Default previous post state.
