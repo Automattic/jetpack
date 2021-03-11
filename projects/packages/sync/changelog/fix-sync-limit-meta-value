@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Jetpack Sync :: Impose a max limit of 2MB on post meta values that are synced.
+Impose a max limit of 2MB on post meta values that are synced.
