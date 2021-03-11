@@ -34,11 +34,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_sync_module = Modules::get_module( 'posts' );
 
-		$this->post->post_content = str_pad( '', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1, 'X', STR_PAD_LEFT );
+		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1 );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertNotEmpty( $filtered_post->post_content, 'Filtered post content is empty for stings of allowed length.' );
 
-		$this->post->post_content = str_pad( '', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH + 1, 'X', STR_PAD_LEFT );
+		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEmpty( $filtered_post->post_content, 'Filtered post content is not truncated (empty) for stings larger than allowed length.' );
 

@@ -22,6 +22,8 @@
 
   Epilogue text.
 
+  ## 1.0.0-alpha - unreleased
+
   ## [1.0.0] - 2021-02-17
 
   - Initial release.
@@ -75,6 +77,15 @@
                       "content": "A typo. (me)"
                   }
               ]
+          },
+          {
+              "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
+              "version": "1.0.0-alpha",
+              "link": null,
+              "timestamp": null,
+              "prologue": "",
+              "epilogue": "",
+              "changes": []
           },
           {
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",

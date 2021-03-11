@@ -61,7 +61,7 @@ class Posts extends Module {
 	 *
 	 * @var int
 	 */
-	const MAX_POST_CONTENT_LENGTH = 2500000;
+	const MAX_POST_CONTENT_LENGTH = 5000000;
 
 	/**
 	 * Default previous post state.
@@ -466,7 +466,7 @@ class Posts extends Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 
-		// Explicitly truncate post_content when it exceeds limit.
+		// Explicitly omit post_content when it exceeds limit.
 		// Large content will cause OOM issues and break Sync.
 		if ( strlen( $post->post_content ) >= self::MAX_POST_CONTENT_LENGTH ) {
 			$post->post_content = '';

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Jetpack Sync :: Impose a max limit of 5MB on post_content that can be synced.

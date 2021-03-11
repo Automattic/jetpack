@@ -239,6 +239,15 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
+= 9.5.1 =
+
+* Release date: March 4, 2021
+
+**Bug fixes**
+
+* Sharing: avoid potential conflicts with the Blog Posts Block from Newspack.
+* Subscriptions Block: avoid validation errors when customizing font size on a site using the Gutenberg plugin.
+
 = 9.5 =
 
 * Release date: March 2, 2021

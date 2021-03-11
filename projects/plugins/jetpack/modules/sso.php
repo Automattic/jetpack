@@ -16,6 +16,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' 
  * Recommendation Order: 5
  * First Introduced: 2.6
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: Developers
  * Feature: Security
