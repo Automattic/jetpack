@@ -1,4 +1,4 @@
 Significance: patch
-Type: compat
+Type: bugfix
 
-Nova Restaurant: Fix inline quick editing.
+Custom Content Types: fix inline quick editing of Restaurant menu items.

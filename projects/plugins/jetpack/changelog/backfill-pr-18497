@@ -1,4 +1,3 @@
 Significance: patch
 Type: compat
-
-API Nonces: Improve performances.
+Comment: API Nonces: Improve performances. I don't think these changes need a changelog entry.

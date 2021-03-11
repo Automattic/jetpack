@@ -1,4 +1,4 @@
 Significance: patch
-Type: compat
+Type: bugfix
 
 Recommendations: When enabling Site Accelerator, also enable Tiled Galleries.

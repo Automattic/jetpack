@@ -1,4 +1,4 @@
 Significance: patch
 Type: compat
 
-AMP: Fix compatibility with Gravatar Hovercards for Pingbacks and Trackbacks.
+Gravatar Hovercards: Fix compatibility with the AMP plugin for Pingbacks and Trackbacks.

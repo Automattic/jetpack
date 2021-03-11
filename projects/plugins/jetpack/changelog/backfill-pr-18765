@@ -1,4 +1,5 @@
 Significance: patch
-Type: bugfix
+Type: compat.
+Comment: Sync: Catch serialization errors.
 
-Sync: Catch serialization errors.
+Synchronization: avoid issues with themes or plugins using anonymous functions within hooks.
