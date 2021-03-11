@@ -120,4 +120,16 @@ describe( 'Edit component', () => {
 
 		expect( screen.getByText( 'not a valid email address', { exact: false } ) ).toBeInTheDocument();
 	} );
+
+	test( 'displays title and price fields when not selected', () => {
+		const notSelectedProps = {
+			...props,
+			isSelected: false,
+			attributes: { email: 'bob@bob.com', currency: 'USD', price: 10.00, title: 'White TShirt' },
+		};
+		render( <SimplePaymentsEdit { ...notSelectedProps } /> );
+
+		expect( screen.getByText( 'White TShirt' ) ).toBeInTheDocument();
+		expect( screen.getByText( '$10.00' ) ).toBeInTheDocument();
+	} );
 } );
