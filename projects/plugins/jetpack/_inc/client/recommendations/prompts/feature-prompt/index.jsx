@@ -85,7 +85,7 @@ const FeaturePromptComponent = props => {
 						{ ctaText }
 					</Button>
 					<a href={ nextRoute } onClick={ onDecideLaterClick }>
-						{ __( 'Now now', 'jetpack' ) }
+						{ __( 'Not now', 'jetpack' ) }
 					</a>
 				</div>
 			}
