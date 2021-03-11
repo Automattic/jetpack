@@ -561,11 +561,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		if ( ! empty( $post_types ) ) {
 			$settings['filters'][] = array(
-				array(
-					'name'  => '',
-					'type'  => 'post_type',
-					'count' => 5,
-				),
+				'name'  => '',
+				'type'  => 'post_type',
+				'count' => 5,
 			);
 		}
 

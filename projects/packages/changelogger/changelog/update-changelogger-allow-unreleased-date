@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow "unreleased" as the date for a changelog entry.
