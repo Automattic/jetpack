@@ -15,10 +15,12 @@ import {
 	errorNotice as errorNoticeAction,
 } from 'components/global-notices/state/notices/actions';
 import restApi from 'rest-api';
+import { getLicenses, isFetchingLicenses } from 'state/licensing';
 
-const License = ( { errorNotice, successNotice } ) => {
+const License = props => {
+	const { errorNotice, isLoading, licenses, successNotice } = props;
 	const [ isSaving, setIsSaving ] = useState( false );
-	const [ licenseKeyText, setLicenseKeyText ] = useState( '' );
+	const [ licenseKeyText, setLicenseKeyText ] = useState( licenses );
 
 	const handleInputChange = useCallback( event => {
 		setLicenseKeyText( event.target.value );
@@ -42,7 +44,7 @@ const License = ( { errorNotice, successNotice } ) => {
 				);
 
 				setIsSaving( false );
-				setLicenseKeyText( '' );
+				setLicenseKeyText( licenseKeyText );
 			} )
 			.catch( () => {
 				errorNotice( __( 'Error adding Jetpack license key.', 'jetpack' ) );
@@ -62,9 +64,9 @@ const License = ( { errorNotice, successNotice } ) => {
 			<TextInput
 				name="jetpack_license_key"
 				className="code"
-				value={ licenseKeyText }
+				value={ licenseKeyText || licenses }
 				placeholder={ __( 'Jetpack licence key', 'jetpack' ) }
-				disabled={ isSaving }
+				disabled={ isSaving || isLoading }
 				onChange={ handleInputChange }
 			/>
 			<Button primary compact onClick={ saveJetpackLicense }>
@@ -76,7 +78,13 @@ const License = ( { errorNotice, successNotice } ) => {
 	);
 };
 
-export default connect( null, {
-	errorNotice: errorNoticeAction,
-	successNotice: successNoticeAction,
-} )( License );
+export default connect(
+	state => ( {
+		isLoading: isFetchingLicenses( state ),
+		licenses: getLicenses( state ),
+	} ),
+	{
+		errorNotice: errorNoticeAction,
+		successNotice: successNoticeAction,
+	}
+)( License );
