@@ -64,6 +64,16 @@ class Posts extends Module {
 	const MAX_POST_CONTENT_LENGTH = 5000000;
 
 	/**
+	 * Max bytes allowed for post meta_value => length.
+	 * Current Setting : 2MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_META_LENGTH = 2000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -291,7 +301,7 @@ class Posts extends Module {
 		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
 		// Explicitly truncate meta_value when it exceeds limit.
 		// Large content will cause OOM issues and break Sync.
-		if ( strlen( $meta_value ) >= self::MAX_POST_CONTENT_LENGTH ) {
+		if ( strlen( $meta_value ) >= self::MAX_POST_META_LENGTH ) {
 			$meta_value = '';
 		}
 		return array( $meta_id, $object_id, $meta_key, $meta_value );

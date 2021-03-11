@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values below size limit are not tuncated.
 	 */
 	public function test_meta_adheres_size_limit_max() {
-		$meta_test_value = str_pad( '', Posts::MAX_POST_CONTENT_LENGTH - 1, 'X', STR_PAD_LEFT );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH - 1 );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$this->sender->do_sync();
@@ -46,7 +46,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values above size limit are truncated.
 	 */
 	public function test_meta_adheres_size_limit_exceeded() {
-		$meta_test_value = str_pad( '', Posts::MAX_POST_CONTENT_LENGTH + 1, 'X', STR_PAD_LEFT );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$this->sender->do_sync();
@@ -254,7 +254,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values above size limit are truncated in get_object_by_id
 	 */
 	public function test_get_object_by_id_size_limit_exceeded() {
-		$meta_test_value = str_pad( '', Posts::MAX_POST_CONTENT_LENGTH + 1, 'X', STR_PAD_LEFT );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
@@ -266,7 +266,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that meta_values below size limit are not truncated in get_object_by_id
 	 */
 	public function test_get_object_by_id_size_limit_max() {
-		$meta_test_value = str_pad( '', Posts::MAX_POST_CONTENT_LENGTH - 1, 'X', STR_PAD_LEFT );
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH - 1 );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
