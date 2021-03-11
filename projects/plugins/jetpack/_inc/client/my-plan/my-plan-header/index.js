@@ -28,6 +28,7 @@ import {
 	showRecommendations,
 	showLicensingUi,
 } from 'state/initial-state';
+import QueryLicenses from 'components/data/query-licenses';
 import License from './license';
 import MyPlanCard from '../my-plan-card';
 
@@ -264,6 +265,7 @@ class MyPlanHeader extends React.Component {
 				) }
 				{ this.props.showLicensingUi && (
 					<Card compact>
+						<QueryLicenses />
 						<License />
 					</Card>
 				) }
