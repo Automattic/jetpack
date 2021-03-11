@@ -54,7 +54,8 @@ class SearchResultProduct extends Component {
 						<Gridicon
 							className="jetpack-instant-search__search-result-product-img--placeholder"
 							icon="image"
-							style={ {} }
+							style={ {} } // Mandatory. Overrides manual setting of height/width in Gridicon.
+							title={ __( 'Does not have an image', 'jetpack' ) }
 						/>
 					) }
 				</a>

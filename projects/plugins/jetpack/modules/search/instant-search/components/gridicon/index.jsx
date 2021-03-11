@@ -39,6 +39,10 @@ class Gridicon extends Component {
 	}
 
 	getSVGTitle( icon ) {
+		if ( this.props.title ) {
+			return <title>{ this.props.title }</title>;
+		}
+
 		switch ( icon ) {
 			default:
 				return null;
