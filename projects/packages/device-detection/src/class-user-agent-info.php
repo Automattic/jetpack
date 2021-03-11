@@ -707,6 +707,25 @@ class User_Agent_Info {
 	}
 
 	/**
+	 * Detect modern Opera desktop
+	 *
+	 * Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 OPR/74.0.3911.203
+	 *
+	 * Looking for "OPR/" specifically.
+	 */
+	public static function is_opera_desktop() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+
+		if ( false === strpos( $_SERVER['HTTP_USER_AGENT'], 'OPR/' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Detects if the current browser is Opera Mobile
 	 *
 	 * What is the difference between Opera Mobile and Opera Mini?

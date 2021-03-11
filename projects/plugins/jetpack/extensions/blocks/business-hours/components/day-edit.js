@@ -48,6 +48,7 @@ class DayEdit extends Component {
 								isSmall
 								isLink
 								icon="trash"
+								label={ __( 'Remove Hours', 'jetpack' ) }
 								onClick={ () => {
 									this.removeInterval( intervalIndex );
 								} }
