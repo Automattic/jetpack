@@ -188,11 +188,11 @@ done
 # Update branch-alias in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"
 debug "$OPING branch-alias version, if any"
-jsver "$FILE" '.extra["branch-alias"]["dev-monorepo"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
+jsver "$FILE" '.extra["branch-alias"]["dev-master"]' "$(sed -E 's/\.[0-9]+([-+].*)?$/.x-dev/' <<<"$SEMVERSION")"
 
 # Update declared constants
 FILE="$BASE/projects/$SLUG/composer.json"
-jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE" | while IFS=" " read -r C F; do
+while IFS=" " read -r C F; do
 	debug "$OPING version constant $C in $F"
 	CE=$(sed 's/[.\[\]\\*^$\/()+?{}|]/\\&/g' <<<"${C}")
 
@@ -213,6 +213,6 @@ jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .valu
 		PAT="^([[:blank:]]*define\( '$CE', ')([^']*)(' \);)$"
 	fi
 	sedver "$BASE/projects/$SLUG/$F" "$PAT" "$VERSION" "version constant $C"
-done
+done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$FILE")
 
 exit $EXIT

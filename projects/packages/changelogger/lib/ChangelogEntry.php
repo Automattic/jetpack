@@ -35,7 +35,7 @@ class ChangelogEntry implements JsonSerializable {
 	/**
 	 * Entry timestamp.
 	 *
-	 * @var DateTime
+	 * @var DateTime|null
 	 */
 	protected $timestamp;
 
@@ -136,7 +136,9 @@ class ChangelogEntry implements JsonSerializable {
 	/**
 	 * Get the timestamp.
 	 *
-	 * @return DateTime
+	 * The timestamp may be null, which should be interpreted as "unreleased".
+	 *
+	 * @return DateTime|null
 	 */
 	public function getTimestamp() {
 		return $this->timestamp;
@@ -145,12 +147,14 @@ class ChangelogEntry implements JsonSerializable {
 	/**
 	 * Set the timestamp.
 	 *
-	 * @param DateTime|string $timestamp Timestamp to set.
+	 * The timestamp may be null, which should be interpreted as "unreleased".
+	 *
+	 * @param DateTime|string|null $timestamp Timestamp to set.
 	 * @returns $this
 	 * @throws InvalidArgumentException If an argument is invalid.
 	 */
 	public function setTimestamp( $timestamp ) {
-		if ( ! $timestamp instanceof DateTime ) {
+		if ( null !== $timestamp && ! $timestamp instanceof DateTime ) {
 			try {
 				$timestamp = new DateTime( $timestamp );
 			} catch ( \Exception $ex ) {
@@ -292,7 +296,7 @@ class ChangelogEntry implements JsonSerializable {
 			'__class__' => static::class,
 			'version'   => $this->version,
 			'link'      => $this->link,
-			'timestamp' => $this->timestamp->format( DateTime::ISO8601 ),
+			'timestamp' => null === $this->timestamp ? null : $this->timestamp->format( DateTime::ISO8601 ),
 			'prologue'  => $this->prologue,
 			'epilogue'  => $this->epilogue,
 			'changes'   => $this->changes,
