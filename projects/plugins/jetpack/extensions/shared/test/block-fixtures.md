@@ -104,7 +104,7 @@ For all blocks:
 yarn fixtures:regenerate
 ```
 
-After regenerating fixtures, check that the content of the `.parsed.json` and `.parsed.html` files are as expected. An error should be thrown if any of the fixtures are invalid after parsing.
+After regenerating fixtures, check that the content of the `.parsed.json` and `.serialized.html` files are as expected. An error should be thrown if any of the fixtures are invalid after parsing.
 
 ## Running the tests
 
