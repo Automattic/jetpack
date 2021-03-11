@@ -816,7 +816,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'jetpack' ), 400 );
 					}
 
-					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
+					$new_title_formats = Jetpack_SEO_Titles::update_title_formats(
+						Jetpack_SEO_Titles::sanitize_title_formats( $value )
+					);
 
 					if ( ! empty( $new_title_formats ) ) {
 						$updated[ $key ] = $new_title_formats;

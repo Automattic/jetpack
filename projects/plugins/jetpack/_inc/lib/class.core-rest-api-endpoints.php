@@ -2817,6 +2817,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'posts'      => array(),
 				),
 				'jp_group'   => 'seo-tools',
+				'validate_callback' => 'Jetpack_SEO_Titles::are_valid_title_formats',
+				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
 		);
