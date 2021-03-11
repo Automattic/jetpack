@@ -20,8 +20,11 @@ module.exports = {
 		react: {
 			version: 'detect', // React version. "detect" automatically picks the version you have installed.
 		},
+		jest: {
+			version: 'detect',
+		},
 	},
-	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
+	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc', '@wordpress/eslint-plugin' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -103,6 +106,9 @@ module.exports = {
 		'jsx-a11y/anchor-has-content': 0,
 		'react/no-string-refs': 0,
 		'jsx-a11y/anchor-is-valid': 0,
+
+		// Adding @wordpress rules
+		'@wordpress/no-unsafe-wp-apis': [ 'error' ],
 
 		// JSDoc plugin overrides
 		'jsdoc/check-alignment': 1, // Recommended
