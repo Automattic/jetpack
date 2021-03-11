@@ -35,6 +35,7 @@
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",
 		"automattic/jetpack-tracking": "@dev",
 		"nojimage/twitter-text-php": "3.1.1"

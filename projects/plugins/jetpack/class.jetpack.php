@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
@@ -3355,7 +3356,7 @@ p {
 		}
 
 		$connection->delete_all_connection_tokens( true );
-		Jetpack_IDC::clear_all_idc_options();
+		Identity_Crisis::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
@@ -7374,7 +7375,7 @@ endif;
 		}
 
 		// Since this is a fresh connection, be sure to clear out IDC options
-		Jetpack_IDC::clear_all_idc_options();
+		Identity_Crisis::clear_all_idc_options();
 
 		if ( $send_state_messages ) {
 			self::state( 'message', 'authorized' );
