@@ -248,7 +248,7 @@ The “Significance” header specifies the significance of change in the style 
 
 The “Type” header categorizes the change in the changelog. In Jetpack, for example, our changelog divides changes into “Major Enhancements”, “Enhancements”, “Improved compatibility”, and “Bugfixes”.
 
-The body is separated from the headers by a blank line, and is the text that actually goes into the changelog. This should follow our recommendations for [writing a good changelog entry](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md). Feel free to (sparingly) use Markdown in the body text.
+The body is separated from the headers by a blank line, and is the text that actually goes into the changelog. This should follow our recommendations for [writing a good changelog entry](./writing-a-good-changelog-entry.md). Feel free to (sparingly) use Markdown in the body text.
 
 ### Using the Jetpack Changelogger
 
