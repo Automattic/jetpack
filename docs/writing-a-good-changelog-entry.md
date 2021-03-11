@@ -8,7 +8,7 @@ For Jetpack, our changelog is intended primarily for end users and third-party d
 
 If you've changed something that users will notice, like improving the display of a block or fixing a bug that prevents a feature from working, then by all means submit a suggested changelog entry.
 
-If you've improved our CI or development environments, or refactored old code without user-visible changes, it's probably not a change that needs a changelog entry intended for end users. However, you would still submit a changelog entry with a ["Comment" header](./monorepo.md#using-the-jetpack-changelogger) which would be omitted from the generated changelog, but still serve as documentation to other developers.
+If you've improved our CI or development environments, or refactored old code without user-visible changes, it's probably not a change that needs a changelog entry intended for end users. However, you would still include a change file with a ["Comment" header](./monorepo.md#using-the-jetpack-changelogger) which would be omitted from the generated changelog, but still serve as documentation to other developers.
 
 If you're ever unsure, feel free to ask for help.
 

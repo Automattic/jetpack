@@ -233,7 +233,7 @@ If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extr
 
 The [Jetpack Changelogger](https://packagist.org/packages/automattic/jetpack-changelogger) tool helps in managing a changelog for a project by having each PR drop a specially-formatted "change file" into a changelog directory, which the tool can then process for a release.
 
-As implemented by the Jetpack Monorepo, any PR that touches the Jetpack plugin itself, or anything else in the `/projects` directory will require a specially-formatted file to the project's specified `changelog` directory; there is a [command](#using-the-jetpack-changelogger) mentioned below that can help create the change file.
+As implemented by the Jetpack Monorepo, any PR that touches the Jetpack plugin itself, or anything else in the `/projects` directory will need to add a specially-formatted file to the project's specified `changelog` directory; there is a [command](#using-the-jetpack-changelogger) mentioned below that can help create the change file.
 
 **What does the change file look like?** It’s a text file with a header-and-body format, like HTTP or email. A change file might look like this:
 
@@ -252,7 +252,7 @@ The body is separated from the headers by a blank line, and is the text that act
 
 ### Using the Jetpack Changelogger
 
-The changelogger tool is dev-required by each project via Composer, and after `composer install`, may be run to interactively add a change file using:
+The changelogger tool is dev-required by each project via Composer, and after `composer install` may be run to interactively add a change file using:
 
 `vendor/bin/changelogger add`
 
