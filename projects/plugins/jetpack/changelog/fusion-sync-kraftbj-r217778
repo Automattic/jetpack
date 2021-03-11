@@ -1,5 +1,5 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 Comment: Just a minor type in shared json endpoints.
 
 
