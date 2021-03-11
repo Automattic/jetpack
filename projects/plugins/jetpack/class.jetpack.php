@@ -1194,7 +1194,6 @@ class Jetpack {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
@@ -1218,6 +1217,7 @@ class Jetpack {
 				$caps = array( 'manage_sites' );
 				break;
 			case 'jetpack_admin_page':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'manage_options' );
 					break;
@@ -2619,6 +2619,7 @@ class Jetpack {
 			'deactivate'                => 'Deactivate',
 			'free'                      => 'Free',
 			'requires_connection'       => 'Requires Connection',
+			'requires_user_connection'  => 'Requires User Connection',
 			'auto_activate'             => 'Auto Activate',
 			'module_tags'               => 'Module Tags',
 			'feature'                   => 'Feature',
@@ -2633,11 +2634,12 @@ class Jetpack {
 			return false;
 		}
 
-		$mod['sort']                 = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
-		$mod['recommendation_order'] = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
-		$mod['deactivate']           = empty( $mod['deactivate'] );
-		$mod['free']                 = empty( $mod['free'] );
-		$mod['requires_connection']  = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		$mod['sort']                     = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
+		$mod['recommendation_order']     = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
+		$mod['deactivate']               = empty( $mod['deactivate'] );
+		$mod['free']                     = empty( $mod['free'] );
+		$mod['requires_connection']      = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
+		$mod['requires_user_connection'] = ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] ) ? false : true;
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
 			$mod['auto_activate'] = 'No';

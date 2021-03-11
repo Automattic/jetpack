@@ -119,6 +119,10 @@ class Admin_Menu {
 		$this->add_options_menu( $wp_admin );
 		$this->add_jetpack_menu();
 
+		// Remove Links Manager menu since its usage is discouraged.
+		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
+		remove_menu_page( 'link-manager.php' );
+
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -512,7 +516,7 @@ class Admin_Menu {
 		add_filter(
 			'parent_file',
 			function ( $parent_file ) use ( $menu_slug ) {
-				return 'jetpack' === $parent_file ? $menu_slug : $parent_file;
+				return 'plugins.php' === $parent_file ? $menu_slug : $parent_file;
 			}
 		);
 	}

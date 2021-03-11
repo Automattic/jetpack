@@ -3,6 +3,10 @@
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
 
+		if ( ! adminbar ) {
+			return;
+		}
+
 		function setAriaExpanded( value ) {
 			var anchors = adminbar.querySelectorAll( '#wp-admin-bar-blog a' );
 			for ( var i = 0; i < anchors.length; i++ ) {

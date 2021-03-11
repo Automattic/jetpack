@@ -6,6 +6,7 @@
  * Recommendation Order: 8
  * First Introduced: 1.2
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
  * Feature: Engagement

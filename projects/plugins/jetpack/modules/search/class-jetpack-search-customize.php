@@ -158,7 +158,8 @@ class Jetpack_Search_Customize {
 				'type'        => 'select',
 				'choices'     => array(
 					'minimal'  => __( 'Minimal', 'jetpack' ),
-					'expanded' => __( 'Expanded', 'jetpack' ),
+					'expanded' => __( 'Expanded (shows images)', 'jetpack' ),
+					'product'  => __( 'Product (for WooCommerce stores)', 'jetpack' ),
 				),
 			)
 		);
