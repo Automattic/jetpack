@@ -68,7 +68,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain       = ( new Status() )->get_site_suffix();
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$menu_data    = get_menu_fixture();
+		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
 
@@ -436,5 +436,18 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu( false );
 		$this->assertContains( $submenu_item, $submenu[ 'https://wordpress.com/people/team/' . static::$domain ] );
+	}
+
+	/**
+	 * Tests add_gutenberg_menus
+	 *
+	 * @covers ::add_gutenberg_menus
+	 */
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
+
+		// Gutenberg plugin menu should not be visible.
+		$this->assertArrayNotHasKey( 101, $menu );
 	}
 }

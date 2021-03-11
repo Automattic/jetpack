@@ -239,6 +239,18 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Remove the Gutenberg plugin menu
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_gutenberg_menus( $wp_admin = false ) {
+		parent::add_gutenberg_menus( $wp_admin );
+
+		// Always remove the Gutenberg plugin menu on Atomic.
+		remove_menu_page( 'gutenberg' );
+	}
+
+	/**
 	 * Adds Users menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
