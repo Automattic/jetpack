@@ -54,11 +54,8 @@ export function getAccountCredentials( accountName ) {
 	return globalConfig.get( accountName );
 }
 
-// todo do we still need this?
-// keep it for the moment and use it to log steps in console, but unless we're
-// bringing back Allure or other reporter to use it we might want to remove it
 export const step = async ( stepName, fn ) => {
-	logger.info( `Step: ${ stepName }` );
+	logger.step( `Step: ${ stepName }` );
 	await fn();
 };
 

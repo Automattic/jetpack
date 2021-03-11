@@ -2,10 +2,11 @@
  * Internal dependencies
  */
 import logger from '../logger';
+import PageActions from './page-actions';
 
-export default class Page {
+export default class Page extends PageActions {
 	constructor( page, { expectedSelector, url = null, explicitWaitMS = 25000 } ) {
-		this.page = page;
+		super( page, [ expectedSelector ] );
 		this.expectedSelector = expectedSelector;
 		this.visit = false;
 		this.url = url;
@@ -39,19 +40,9 @@ export default class Page {
 			throw new Error( 'Page URL is not set' );
 		}
 
-		logger.info( `${ it.name } navigating to: ${ url }` );
+		logger.action( `${ it.name } navigating to: ${ url }` );
 		await page.goto( url );
-		return await this.init( page );
-	}
-
-	/**
-	 * Waits for `this.expectedSelector` to become visible on the page. In debug session logs page HTML if element not found.
-	 */
-	async waitForPage() {
-		await this.page.waitForSelector( this.expectedSelector, {
-			state: 'visible',
-			timeout: this.explicitWaitMS,
-		} );
+		return this.init( page );
 	}
 
 	/**
@@ -72,54 +63,5 @@ export default class Page {
 		] );
 
 		return await this.reload();
-	}
-
-	/**
-	 * Reloads the page and waits for the expected locator
-	 *
-	 * @param {Object} options page.reload options object
-	 */
-	async reload( options = {} ) {
-		await this.page.reload( options );
-		return await this.waitForPage();
-	}
-
-	async reloadUntil( callback, options = {} ) {
-		let reloadNeeded = await callback();
-		let count = 1;
-		while ( reloadNeeded || count > 5 ) {
-			logger.info( 'Reloading since reloadNeeded is: ', reloadNeeded.toString() );
-
-			await this.reload( options );
-			reloadNeeded = await callback();
-			count++;
-		}
-	}
-
-	/**
-	 * Scroll the element into view
-	 *
-	 * @param {string} selector CSS selector of the element
-	 */
-	async scrollIntoView( selector ) {
-		await this.page.waitForSelector( selector );
-		return await this.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
-	}
-
-	/**
-	 * Clicks on the element which will open up a new page, waits for that page to open and returns a new page
-	 *
-	 * @param {string} selector CSS selector of the element
-	 * @return {page} New instance of the opened page.
-	 */
-	async clickAndWaitForNewPage( selector ) {
-		const [ newPage ] = await Promise.all( [
-			this.page.context().waitForEvent( 'page' ),
-			this.page.page.click( selector ),
-		] );
-
-		await newPage.waitForLoadState();
-		await newPage.bringToFront();
-		return newPage;
 	}
 }

@@ -1,7 +1,9 @@
-export default class EventbriteBlock {
+import PageActions from '../page-actions';
+
+export default class EventbriteBlock extends PageActions {
 	constructor( blockId, page, eventId ) {
+		super( page );
 		this.blockTitle = EventbriteBlock.title();
-		this.page = page;
 		this.blockSelector = '#block-' + blockId;
 		this.eventId = eventId;
 	}

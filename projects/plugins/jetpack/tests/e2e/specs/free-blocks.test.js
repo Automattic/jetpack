@@ -4,8 +4,8 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import PinterestBlock from '../lib/blocks/pinterest';
-import EventbriteBlock from '../lib/blocks/eventbrite';
+import PinterestBlock from '../lib/pages/blocks/pinterest';
+import EventbriteBlock from '../lib/pages/blocks/eventbrite';
 import { step } from '../lib/env/test-setup';
 
 describe( 'Free blocks', () => {
