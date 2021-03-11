@@ -3,7 +3,7 @@
  */
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import { createRef, useState, useEffect, useCallback } from '@wordpress/element';
+import { createRef, useState, useEffect } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
 import { RichText } from '@wordpress/block-editor';
 
@@ -11,7 +11,7 @@ import { RichText } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import { icon, title } from './';
-import { getUrl, getPaddingTop, getEmbedUrl } from './utils';
+import { getUrl, getPaddingTop, getEmbedUrl, getSelectedGiphyAttributes } from './utils';
 import SearchForm from './components/search-form';
 import Controls from './controls';
 import useFetchGiphyData from './hooks/use-fetch-giphy-data';
@@ -25,32 +25,19 @@ function GifEdit( {
 	const { align, caption, giphyUrl, searchText, paddingTop } = attributes;
 	const classes = classNames( className, `align${ align }` );
 	const [ captionFocus, setCaptionFocus ] = useState( false );
-	const [ selectedItem, setSelectedItem ] = useState( false );
 	const searchFormInputRef = createRef();
 	const { isFetching, giphyData, fetchGiphyData } = useFetchGiphyData();
-
-	const setSelectedGiphy = useCallback( ( item ) => {
-		setAttributes( { giphyUrl: getEmbedUrl( item ), paddingTop: getPaddingTop( item ) } );
-	}, [ selectedItem ] );
 
 	const setSearchInputFocus = () => {
 		searchFormInputRef.current.focus();
 		setCaptionFocus( false );
 	};
 
-	// Handle the effects of receiving an updated API response.
 	useEffect( () => {
 		if ( giphyData && giphyData[ 0 ] ) {
-			setSelectedItem( giphyData[ 0 ] );
+			setAttributes( getSelectedGiphyAttributes( giphyData[ 0 ] ) );
 		}
-	}, [ giphyData, setSelectedItem ] );
-
-	// Handle the side effects of selecting an item from the thumbnail list.
-	useEffect( () => {
-		if ( selectedItem ) {
-			setSelectedGiphy( selectedItem );
-		}
-	}, [ selectedItem, setSelectedGiphy ] );
+	}, [ giphyData, setAttributes ] );
 
 	const onSubmit = ( event ) => {
 		event.preventDefault();
@@ -63,7 +50,7 @@ function GifEdit( {
 	};
 
 	const onChange = ( event ) => setAttributes( { searchText: event.target.value } );
-	const onSelectItem = ( thumbnail ) => setSelectedItem( thumbnail );
+	const onSelectThumbnail = ( thumbnail ) => setAttributes( getSelectedGiphyAttributes( thumbnail ) );
 
 	return (
 		<div className={ classes }>
@@ -102,7 +89,7 @@ function GifEdit( {
 									<button
 										className="wp-block-jetpack-gif_thumbnail-container"
 										key={ thumbnail.id }
-										onClick={ () => onSelectItem( thumbnail ) }
+										onClick={ () => onSelectThumbnail( thumbnail ) }
 										style={ thumbnailStyle }
 									/>
 								);

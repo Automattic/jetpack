@@ -10,11 +10,29 @@ import '@testing-library/jest-dom/extend-expect';
 /**
  * Internal dependencies
  */
-import { getUrl, getPaddingTop, getEmbedUrl, getSearchUrl, getUrlWithId, splitStringAndReturnLastItem } from '../utils';
+import {
+	getUrl,
+	getPaddingTop,
+	getEmbedUrl,
+	getSearchUrl,
+	getUrlWithId,
+	splitStringAndReturnLastItem,
+	getSelectedGiphyAttributes
+} from '../utils';
 import { GIPHY_API_KEY } from '../constants';
 
 
 describe( 'Gif Block utils', () => {
+	const GIPHY_ITEM = {
+		embed_url: 'fuzz',
+		images: {
+			original: {
+				height: 10,
+				width: 10,
+			},
+		},
+	};
+
 	describe( 'getUrl', () => {
 		test( 'returns getSearchUrl where there is no id', () => {
 			expect( getUrl( 'bubble tea' ) ).toEqual( `https://api.giphy.com/v1/gifs/search?q=bubble%20tea&api_key=${ GIPHY_API_KEY }&limit=10` );
@@ -28,21 +46,13 @@ describe( 'Gif Block utils', () => {
 
 	describe( 'getPaddingTop', () => {
 		test( 'returns padding as a percentage', () => {
-			const item = {
-				images: {
-					original: {
-						height: 10,
-						width: 10,
-					},
-				},
-			};
-			expect( getPaddingTop( item ) ).toEqual( '100%' );
+			expect( getPaddingTop( GIPHY_ITEM ) ).toEqual( '100%' );
 		} );
 	} );
 
 	describe( 'getEmbedUrl', () => {
 		test( 'returns embed url property', () => {
-			expect( getEmbedUrl( { embed_url: 'fuzz' } ) ).toEqual( 'fuzz' );
+			expect( getEmbedUrl( GIPHY_ITEM ) ).toEqual( GIPHY_ITEM.embed_url );
 		} );
 
 		test( 'returns undefined if no property found', () => {
@@ -75,6 +85,14 @@ describe( 'Gif Block utils', () => {
 
 		test( 'returns empty string where there are no arguments', () => {
 			expect( splitStringAndReturnLastItem() ).toEqual( '' );
+		} );
+	} );
+
+	describe( 'getSelectedGiphyAttributes', () => {
+		test( 'returns expected object', () => {
+			expect( getSelectedGiphyAttributes( GIPHY_ITEM ) ).toStrictEqual(
+				{ giphyUrl: getEmbedUrl( GIPHY_ITEM ), paddingTop: getPaddingTop( GIPHY_ITEM ) }
+			);
 		} );
 	} );
 } );

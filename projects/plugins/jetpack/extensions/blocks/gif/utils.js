@@ -59,3 +59,5 @@ export const getPaddingTop = ( item ) =>
 	) }%`;
 
 export const getEmbedUrl = ( item ) => item?.embed_url;
+
+export const getSelectedGiphyAttributes = ( item ) => ( { giphyUrl: getEmbedUrl( item ), paddingTop: getPaddingTop( item ) } );
