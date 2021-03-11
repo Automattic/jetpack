@@ -507,7 +507,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( $menu[60], $appearance_menu_item );
-		$this->assertArrayNotHasKey( 'themes.php', $submenu );
+		$this->assertEmpty( $submenu['themes.php'] );
 
 		$themes_submenu_item = array(
 			'Themes',
@@ -515,6 +515,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'https://wordpress.com/themes/' . static::$domain,
 			'Themes',
 		);
+
 		$this->assertContains( $themes_submenu_item, $submenu[ $slug ] );
 
 		$customize_submenu_item = array(

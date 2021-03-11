@@ -408,25 +408,30 @@ class Admin_Menu {
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		$user_can_customize = current_user_can( 'customize' );
-		$appearance_cap     = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
-		$themes_slug        = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+		$user_can_customize  = current_user_can( 'customize' );
+		$appearance_cap      = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
+		$themes_slug         = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
+		$request_uri         = isset( $_SERVER['REQUEST_URI'] ) && esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		$core_customize_slug = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), $request_uri ) ), 'customize.php' );
 		if ( ! $wp_admin_customize ) {
 			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 		} else {
 			// In case this is an api request we will have to add the 'return' querystring via JS.
-			$customize_slug = $this->is_api_request ? 'customize.php' : add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+			$customize_slug = $this->is_api_request ? 'customize.php' : $core_customize_slug;
 		}
 		remove_menu_page( 'themes.php' );
 		remove_submenu_page( 'themes.php', 'themes.php' );
 		remove_submenu_page( 'themes.php', 'theme-editor.php' );
-		remove_submenu_page( 'themes.php', add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ) );
+		$has_customizer = (bool) remove_submenu_page( 'themes.php', $core_customize_slug );
 		remove_submenu_page( 'themes.php', 'custom-header' );
 		remove_submenu_page( 'themes.php', 'custom-background' );
 
 		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), $appearance_cap, $themes_slug, null, 'dashicons-admin-appearance', 60 );
 		add_submenu_page( $themes_slug, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', $themes_slug, null, 0 );
-		add_submenu_page( $themes_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_slug, null, 1 );
+		// Customizer is removed by Gutenberg when FSE is active. Only add it back if it was still there.
+		if ( $has_customizer ) {
+			add_submenu_page( $themes_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_slug, null, 1 );
+		}
 
 		// Maintain id as JS selector.
 		$GLOBALS['menu'][60][5] = 'menu-appearance'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
