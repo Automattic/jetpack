@@ -647,6 +647,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		// Get all licenses stored for a site.
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_licenses',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
+
 		/*
 		 * Get and update the last licensing error message.
 		 */
@@ -3951,6 +3962,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Get a list of the licenses stored for this site.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @return string $licenses List of the licenses stored for this site.
+	 */
+	public static function get_licenses() {
+		return Licensing::instance()->stored_licenses();
 	}
 
 	/**
