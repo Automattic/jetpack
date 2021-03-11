@@ -641,7 +641,7 @@ class Admin_Menu {
 	 * @param string $new_slug Calypso menu slug. (Calypso URL).
 	 */
 	public function migrate_submenus( $old_slug, $new_slug ) {
-		global $submenu, $wp_filter, $_registered_pages;
+		global $submenu, $admin_page_hooks;
 
 		if ( $old_slug !== $new_slug && ! empty( $submenu[ $old_slug ] ) ) {
 			if ( ! empty( $submenu[ $new_slug ] ) ) {
@@ -652,20 +652,36 @@ class Admin_Menu {
 				$submenu[ $new_slug ] = $submenu[ $old_slug ];
 			}
 
-			// Migrate hooks.
-			foreach ( $submenu[ $old_slug ] as $submenu_item ) {
-				$old_hookname = get_plugin_page_hookname( $submenu_item[2], $old_slug );
-				$new_hookname = get_plugin_page_hookname( $submenu_item[2], $new_slug );
-				if ( empty( $old_hookname ) || empty( $new_hookname ) || $old_hookname === $new_hookname || ! isset( $wp_filter[ $old_hookname ] ) ) {
-					continue;
+			// Keep WP Admin URLs pointing to the old slug. See https://core.trac.wordpress.org/browser/trunk/src/wp-admin/menu-header.php?rev=49193#L254.
+			foreach ( $submenu[ $old_slug ] as $i => $submenu_item ) {
+				$menu_file = $old_slug;
+				$menu_hook = get_plugin_page_hook( $submenu_item[2], $old_slug );
+				$sub_file  = $submenu_item[2];
+				$pos       = strpos( $sub_file, '?' );
+				if ( false !== $pos ) {
+					$sub_file = substr( $sub_file, 0, $pos );
 				}
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$wp_filter[ $new_hookname ] = $wp_filter[ $old_hookname ];
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$_registered_pages[ $new_hookname ] = true;
+				if (
+					! empty( $menu_hook ) ||
+					(
+						( 'index.php' !== $submenu_item[2] ) &&
+						file_exists( WP_PLUGIN_DIR . "/$sub_file" ) &&
+						! file_exists( ABSPATH . "/wp-admin/$sub_file" )
+					)
+				) {
+					if ( file_exists( $menu_file ) ) {
+						$sub_item_url    = add_query_arg( array( 'page' => $submenu_item[2] ), $old_slug );
+						$submenu_item[2] = esc_url( $sub_item_url );
+						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+						$submenu[ $new_slug ][ $i ] = $submenu_item;
+					}
+				}
 
-				unset( $wp_filter[ $old_hookname ] );
-				unset( $_registered_pages[ $old_hookname ] );
+				// Migrate page hooks to the new slugs. See https://core.trac.wordpress.org/browser/trunk/src/wp-admin/includes/plugin.php?rev=49193#L1330.
+				if ( isset( $admin_page_hooks[ $old_slug ] ) ) {
+					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					$admin_page_hooks[ $new_slug ] = $admin_page_hooks[ $old_slug ];
+				}
 			}
 
 			unset( $submenu[ $old_slug ] );

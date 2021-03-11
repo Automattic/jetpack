@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Migrates the hooks registered by submenus to the new unified menu slugs
+Admin Menu: Fix Settings submenus registered by third-party plugins
