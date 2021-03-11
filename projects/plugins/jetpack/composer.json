@@ -107,7 +107,8 @@
 				"major": "Major Enhancements",
 				"enhancement": "Enhancements",
 				"compat": "Improved compatibility",
-				"bugfix": "Bug fixes"
+				"bugfix": "Bug fixes",
+				"backend": "Backend and non-user-facing changes"
 			}
 		}
 	}
