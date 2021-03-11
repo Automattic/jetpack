@@ -1,4 +1,3 @@
-Significance: minor
-Type: enhancement
-
-Blocks: refactor Button controls into separate components and add unit tests for the Button block.
+Significance: patch
+Type: compat
+Comment: Button Block: add tests (no public changelog required).
