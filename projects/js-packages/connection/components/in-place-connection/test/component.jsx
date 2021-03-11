@@ -13,9 +13,10 @@ import InPlaceConnection from '../index';
 describe( 'InPlaceConnection', () => {
 	const testProps = {
 		title: 'Sample Title',
-		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
+		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/?something',
 		scrollToIframe: false,
 		hasConnectedOwner: false,
+		source: 'testing',
 	};
 
 	describe( 'Loading state', () => {
@@ -31,7 +32,7 @@ describe( 'InPlaceConnection', () => {
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.equal(
-				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/'
+				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?something&iframe_height=220&iframe_source=testing'
 			);
 		} );
 

@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 require.extensions[ '.svg' ] = () => 1;
 
-require( '@babel/register' );
+require( '@babel/register' )( {
+	ignore: [ /node_modules/ ],
+	only: [ '.', '../../js-packages/' ],
+} );
 
 const program = require( 'commander' ),
 	glob = require( 'glob' ),
