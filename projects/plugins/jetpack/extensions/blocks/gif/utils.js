@@ -24,26 +24,20 @@ export const splitStringAndReturnLastItem = ( str = '', delimiter ) => {
 	return split[ split.length - 1 ];
 };
 
-export const getUrl = ( searchText ) => {
+export const getUrl = ( searchText = '' ) => {
 	let giphyID = null;
-
-	// If search is hardcoded Giphy URL following this pattern: https://giphy.com/embed/4ZFekt94LMhNK
-	if ( searchText.indexOf( '//giphy.com/gifs' ) !== -1 ) {
-		giphyID = splitStringAndReturnLastItem( splitStringAndReturnLastItem( searchText, '/' ), '-' );
-	}
-
-	// If search is hardcoded Giphy URL following this patterh: http://i.giphy.com/4ZFekt94LMhNK.gif
-	if ( searchText.indexOf( '//i.giphy.com' ) !== -1 ) {
-		giphyID = splitStringAndReturnLastItem( searchText, '/' ).replace( '.gif', '' );
-	}
-
+	searchText = searchText.trim();
+	// If search is hardcoded Giphy URL following these patterns:
+	// https://giphy.com/embed/4ZFekt94LMhNK
+	// https://giphy.com/gifs/schittscreek-funny-3og0IIIZVBYV2ZVXFu
+	// http://i.giphy.com/4ZFekt94LMhNK.gif
 	// https://media.giphy.com/media/gt0hYzKlMpfOg/giphy.gif
-	const match = searchText.match(
-		/http[s]?:\/\/media.giphy.com\/media\/([A-Za-z0-9\-.]+)\/giphy.gif/
-	);
+	const embedRegex = /^https?:\/\/(media\.|i\.)?giphy\.com\/(embed|gifs|media)?\/?([-\w]*)(\/giphy)?(\.gif)?$/;
+	const embedMatch = searchText.match( embedRegex );
 
-	if ( match ) {
-		giphyID = match[ 1 ];
+	if ( embedMatch && embedMatch[ 3 ] ) {
+		// Return the ID portion of schittscreek-funny-3og0IIIZVBYV2ZVXFu otherwise the id if no hyphens are present.
+		giphyID = splitStringAndReturnLastItem( embedMatch[ 3 ], '-' );
 	}
 
 	if ( giphyID ) {

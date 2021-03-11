@@ -1,8 +1,4 @@
 /**
- * @jest-environment jsdom
- */
-
-/**
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
@@ -38,9 +34,26 @@ describe( 'Gif Block utils', () => {
 			expect( getUrl( 'bubble tea' ) ).toEqual( `https://api.giphy.com/v1/gifs/search?q=bubble%20tea&api_key=${ GIPHY_API_KEY }&limit=10` );
 		} );
 
-		test( 'returns getUrlWithId where there is an id', () => {
-			expect( getUrl( 'https://giphy.com/gifs/pineapple_kopf' ) ).toEqual( `https://api.giphy.com/v1/gifs/pineapple_kopf?api_key=${ GIPHY_API_KEY }` );
-			expect( getUrl( 'https://i.giphy.com/gifs/banana_gesicht.gif' ) ).toEqual( `https://api.giphy.com/v1/gifs/banana_gesicht?api_key=${ GIPHY_API_KEY }` );
+		test( 'returns trimmed getSearchUrl where there is no id', () => {
+			expect( getUrl( ' bubble bath  ' ) ).toEqual( `https://api.giphy.com/v1/gifs/search?q=bubble%20bath&api_key=${ GIPHY_API_KEY }&limit=10` );
+		} );
+
+		test( 'returns getUrlWithId where there is an expected http URL with an id', () => {
+			expect( getUrl( 'http://giphy.com/embed/tomatenAugen7777aSSSS' ) ).toEqual( `https://api.giphy.com/v1/gifs/tomatenAugen7777aSSSS?api_key=${ GIPHY_API_KEY }` );
+			expect( getUrl( 'http://giphy.com/gifs/pineapple-kopf-ddddd123' ) ).toEqual( `https://api.giphy.com/v1/gifs/ddddd123?api_key=${ GIPHY_API_KEY }` );
+			expect( getUrl( 'http://i.giphy.com/bananaGesicht999999999.gif' ) ).toEqual( `https://api.giphy.com/v1/gifs/bananaGesicht999999999?api_key=${ GIPHY_API_KEY }` );
+			expect( getUrl( 'http://media.giphy.com/media/blaubeerenAugen000/giphy.gif' ) ).toEqual( `https://api.giphy.com/v1/gifs/blaubeerenAugen000?api_key=${ GIPHY_API_KEY }` );
+		} );
+
+		test( 'returns getUrlWithId where there is an expected https URL with an id', () => {
+			expect( getUrl( 'https://giphy.com/embed/tomatenAugen7777aSSSS' ) ).toEqual( `https://api.giphy.com/v1/gifs/tomatenAugen7777aSSSS?api_key=${ GIPHY_API_KEY }` );
+			expect( getUrl( 'https://giphy.com/gifs/pineapple-kopf-ddddd123' ) ).toEqual( `https://api.giphy.com/v1/gifs/ddddd123?api_key=${ GIPHY_API_KEY }` );
+			expect( getUrl( 'https://i.giphy.com/bananaGesicht999999999.gif' ) ).toEqual( `https://api.giphy.com/v1/gifs/bananaGesicht999999999?api_key=${ GIPHY_API_KEY }` );
+			expect( getUrl( 'https://media.giphy.com/media/blaubeerenAugen000/giphy.gif' ) ).toEqual( `https://api.giphy.com/v1/gifs/blaubeerenAugen000?api_key=${ GIPHY_API_KEY }` );
+		} );
+
+		test( 'treats searchText as a query string for other URL-like non-matches', () => {
+			expect( getUrl( 'https://this.does.not/work' ) ).toEqual( `https://api.giphy.com/v1/gifs/search?q=https%3A%2F%2Fthis.does.not%2Fwork&api_key=${ GIPHY_API_KEY }&limit=10` );
 		} );
 	} );
 
@@ -81,6 +94,7 @@ describe( 'Gif Block utils', () => {
 
 		test( 'returns the entire string when no delimiter provided (default String.prototype.split() behaviour)', () => {
 			expect( splitStringAndReturnLastItem( 'the-night-was-dark-and-stormy' ) ).toEqual( 'the-night-was-dark-and-stormy' );
+			expect( splitStringAndReturnLastItem( 'ID1WITHOUT9STUFF' ) ).toEqual( 'ID1WITHOUT9STUFF' );
 		} );
 
 		test( 'returns empty string where there are no arguments', () => {

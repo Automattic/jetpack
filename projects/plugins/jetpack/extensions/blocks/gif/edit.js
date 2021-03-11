@@ -11,7 +11,7 @@ import { RichText } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import { icon, title } from './';
-import { getUrl, getPaddingTop, getEmbedUrl, getSelectedGiphyAttributes } from './utils';
+import { getUrl, getSelectedGiphyAttributes } from './utils';
 import SearchForm from './components/search-form';
 import Controls from './controls';
 import useFetchGiphyData from './hooks/use-fetch-giphy-data';
