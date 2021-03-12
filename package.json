@@ -94,8 +94,11 @@
 		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
 	},
 	"devDependencies": {
+		"@babel/core": "7.12.10",
+		"@babel/register": "7.12.10",
 		"@wordpress/eslint-plugin": "7.4.0",
 		"babel-eslint": "10.1.0",
+		"chai": "4.3.3",
 		"commander": "6.2.1",
 		"concurrently": "5.3.0",
 		"eslint": "7.21.0",
@@ -113,9 +116,15 @@
 		"glob": "7.1.6",
 		"husky": "4.3.8",
 		"jetpack-cli": "file:tools/cli",
+		"jsdom": "16.4.0",
+		"jsdom-global": "3.0.2",
+		"mocha": "8.2.1",
 		"moment": "2.29.1",
+		"nock": "13.0.7",
 		"parse-diff": "0.7.1",
-		"prettier": "npm:wp-prettier@2.0.5"
+		"prettier": "npm:wp-prettier@2.0.5",
+		"sinon": "9.2.4",
+		"sinon-chai": "3.5.0"
 	},
 	"optionalDependencies": {
 		"react": "16.13.1",
