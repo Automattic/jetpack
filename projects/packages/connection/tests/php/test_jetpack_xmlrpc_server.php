@@ -10,6 +10,9 @@ use WorDBless\BaseTestCase;
  * Class to test the legacy Jetpack_XMLRPC_Server class.
  */
 class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
+
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
+
 	/**
 	 * The test user ID
 	 *
@@ -144,9 +147,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			$this->assertInstanceOf( 'IXR_Error', $response );
 			$this->assertEquals( $expected['code'], $response->code );
 
-			// Not using assertContains or assertStringContainsString to work with all phpunit versions.
-			$has_message = strpos( $response->message, sprintf( '[%s]', $expected['message'] ) );
-			$this->assertTrue( false !== $has_message );
+			$this->assertStringContainsString( sprintf( '[%s]', $expected['message'] ), $response->message );
 		}
 	}
 
