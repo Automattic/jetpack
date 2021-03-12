@@ -20,8 +20,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import applyFallbackStyles from './apply-fallback-styles';
-import ButtonBorderPanel from './button-border-panel';
-import ButtonWidthPanel from './button-width-panel';
 import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import usePassthroughAttributes from './use-passthrough-attributes';
@@ -114,12 +112,6 @@ export function ButtonEdit( props ) {
 						isGradientAvailable: IS_GRADIENT_AVAILABLE,
 						...props,
 					} }
-				/>
-				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-				<ButtonWidthPanel
-					align={ align }
-					width={ width }
-					onChange={ newWidth => setAttributes( { width: newWidth } ) }
 				/>
 			</InspectorControls>
 		</div>
