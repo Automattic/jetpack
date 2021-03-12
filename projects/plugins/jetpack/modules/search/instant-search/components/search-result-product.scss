@@ -1,6 +1,6 @@
 @import '../lib/styles/_helper.scss';
 
-$grid-size-large: 16px;
+$item-spacing: 16px;
 $cell-width: 218px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
@@ -10,13 +10,13 @@ $cell-width: 218px;
 }
 
 .jetpack-instant-search__search-result.jetpack-instant-search__search-result-product {
-	margin: 0 $grid-size-large $grid-size-large 0;
+	margin: 0 $item-spacing $item-spacing 0;
 	display: flex;
 	flex-direction: column;
 	position: relative;
 
 	// On mobile and responsive viewports, we allow only a single column.
-	width: calc( 100% - #{$grid-size-large} );
+	width: calc( 100% - #{$item-spacing} );
 
 	@include break-small-up {
 		width: $cell-width;
