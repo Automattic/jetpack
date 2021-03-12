@@ -10,7 +10,6 @@ export default class WpPage extends PageActions {
 		this.expectedSelector = expectedSelector;
 		this.visit = false;
 		this.url = url;
-		this.name = this.constructor.name;
 		this.explicitWaitMS = explicitWaitMS;
 	}
 
@@ -46,9 +45,9 @@ export default class WpPage extends PageActions {
 	 * @param {string} domain Cookie domain
 	 */
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
-		logger.info( `Setting up the cookie for ${ this.name } page on ${ this.page.url() }` );
+		logger.info( `Setting up the cookie for ${ this.pageName } page on ${ this.page.url() }` );
 
-		await this.page.browserContext().addCookies( [
+		await this.page.context().addCookies( [
 			{
 				name: 'store_sandbox',
 				value: sandboxCookieValue,

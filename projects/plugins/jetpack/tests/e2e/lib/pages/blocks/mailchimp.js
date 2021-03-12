@@ -1,9 +1,11 @@
 import LoginPage from '../wpcom/login';
 import ConnectionsPage from '../wpcom/connections';
 import logger from '../../logger';
+import PageActions from '../page-actions';
 
-export default class MailchimpBlock {
+export default class MailchimpBlock extends PageActions {
 	constructor( blockId, page ) {
+		super( page, 'Mailchimp block' );
 		this.blockTitle = MailchimpBlock.title();
 		this.page = page;
 		this.blockSelector = '#block-' + blockId;
@@ -28,10 +30,10 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
-		const formSelector = await this.page.waitForSelector( setupFormSelector );
+		const formSelector = await this.waitForElementToBeVisible( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const wpComTab = await this.page.clickAndWaitForNewPage( setupFormSelector );
+		const wpComTab = await this.clickAndWaitForNewPage( setupFormSelector );
 
 		if ( ! isLoggedIn ) {
 			await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
@@ -49,7 +51,7 @@ export default class MailchimpBlock {
 				await ConnectionsPage.init( wpComTab );
 				loaded = true;
 			} catch ( e ) {
-				logger.info(
+				logger.warn(
 					'ConnectionsPage is not available yet. Attempt: ' + count,
 					' URL: ' + connectionsUrl
 				);
@@ -67,7 +69,7 @@ export default class MailchimpBlock {
 
 		await this.page.bringToFront();
 		const reCheckSelector = this.getSelector( 'button.is-link' );
-		await page.click( reCheckSelector );
+		await this.click( reCheckSelector );
 	}
 
 	getSelector( selector ) {

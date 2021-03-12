@@ -71,35 +71,35 @@ export default class BlockEditorPage extends WpPage {
 	//endregion
 
 	async searchForBlock( searchTerm ) {
-		await this.page.click( this.insertBlockBtnSel );
-		await this.page.type( this.searchBlockFldSel, searchTerm );
+		await this.click( this.insertBlockBtnSel );
+		await this.type( this.searchBlockFldSel, searchTerm );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
 		await this.searchForBlock( blockTitle );
-		await this.page.click( this.blockSel( blockName ) );
+		await this.click( this.blockSel( blockName ) );
 		return await this.getInsertedBlock( blockName );
 	}
 
 	async getInsertedBlock( blockName ) {
-		return ( await this.page.waitForSelector( this.insertedBlockSel( blockName ) ) ).getAttribute(
-			'data-block'
-		);
+		return (
+			await this.waitForElementToBeVisible( this.insertedBlockSel( blockName ) )
+		 ).getAttribute( 'data-block' );
 	}
 
 	async publishPost() {
-		await this.page.click( this.publishPanelToggleBtnSel );
-		await this.page.click( this.publishPostBtnSel );
-		await this.page.waitForSelector( this.postPublishViewPostBtnSel );
+		await this.click( this.publishPanelToggleBtnSel );
+		await this.click( this.publishPostBtnSel );
+		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
-		await this.page.click( this.postPublishViewPostBtnSel );
+		await this.click( this.postPublishViewPostBtnSel );
 	}
 
 	async selectPostTitle() {
-		await this.page.focus( this.postTitleFldSel );
-		await this.page.click( this.postTitleFldSel );
+		await this.focus( this.postTitleFldSel );
+		await this.click( this.postTitleFldSel );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
@@ -109,7 +109,7 @@ export default class BlockEditorPage extends WpPage {
 		}
 		let count = 0;
 		while ( count < 20 && ! block ) {
-			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
+			await this.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
 			await this.reload( { waitUntil: 'domcontentloaded' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;

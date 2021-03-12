@@ -12,12 +12,14 @@ const myCustomLevels = {
 		info: 6,
 		step: 7,
 		action: 8,
-		debug: 9,
-		slack: 10,
+		cli: 9,
+		debug: 10,
+		slack: 11,
 	},
 	colors: {
 		action: 'cyan',
 		step: 'cyan',
+		cli: 'cyanBG black',
 	},
 };
 

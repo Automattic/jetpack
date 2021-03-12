@@ -1,5 +1,8 @@
-export default class SimplePaymentBlock {
+import PageActions from '../page-actions';
+
+export default class SimplePaymentBlock extends PageActions {
 	constructor( blockId, page ) {
+		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
 		this.page = page;
 		this.blockSelector = '#block-' + blockId;
@@ -24,10 +27,10 @@ export default class SimplePaymentBlock {
 		const priceSelector = this.getSelector( '.simple-payments__field-price' );
 		const emailSelector = this.getSelector( '.simple-payments__field-email' );
 
-		await this.page.type( titleSelector, title );
-		await this.page.type( descriptionSelector, description );
-		await this.page.type( priceSelector, price );
-		await this.page.type( emailSelector, email );
+		await this.type( titleSelector, title );
+		await this.type( descriptionSelector, description );
+		await this.type( priceSelector, price );
+		await this.type( emailSelector, email );
 	}
 
 	getSelector( selector ) {

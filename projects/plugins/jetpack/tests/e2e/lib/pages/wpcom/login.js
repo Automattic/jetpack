@@ -8,7 +8,6 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
-import fs from 'fs';
 import { getAccountCredentials } from '../../utils-helper';
 
 export default class LoginPage extends WpPage {
@@ -28,35 +27,32 @@ export default class LoginPage extends WpPage {
 		const submitButtonSelector = '//button[text()="Log In"]';
 
 		try {
-			await this.page.type( usernameSelector, username );
-			await this.page.click( continueButtonSelector );
-			await this.page.waitForSelector( passwordSelector );
+			await this.type( usernameSelector, username );
+			await this.click( continueButtonSelector );
+			await this.waitForElementToBeVisible( passwordSelector );
 			// Even if we wait for the field to become visible Playwright might still type the password too fast
 			// and the first characters will miss the password field. A short wait fixes this
-			await this.page.waitForTimeout( 2000 );
-			await this.page.type( passwordSelector, password );
-			await this.page.click( submitButtonSelector );
+			await this.waitForTimeout( 2000 );
+			await this.type( passwordSelector, password );
+			await this.click( submitButtonSelector );
 
 			await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
-			await this.page.waitForSelector( this.expectedSelector, {
-				state: 'hidden',
-			} );
+			await this.waitForElementToBeHidden( this.expectedSelector );
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.warn( `The login didn't work as expected - retrying now: '${ e }'` );
-				this.page.reload();
+				await this.reload();
 				return await this.login( wpcomUser, { retry: false } );
 			}
 			throw e;
 		}
 
 		// save storage state to reuse later to skip log in
-		const storage = await context.storageState();
-		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
+		await this.saveCurrentStorageState();
 	}
 
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
-		return this.page.isVisible( continueAsUserSelector, { timeout: 2000 } );
+		return this.isElementVisible( continueAsUserSelector, 2000 );
 	}
 }

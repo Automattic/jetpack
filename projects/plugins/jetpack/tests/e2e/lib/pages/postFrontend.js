@@ -23,8 +23,8 @@ export default class PostFrontendPage extends WpPage {
 	async logout() {
 		const accountBarSelector = '#wp-admin-bar-my-account';
 		const logoutOptionSelector = '#wp-admin-bar-logout';
-		await this.page.waitForSelector( accountBarSelector );
-		await this.page.hover( accountBarSelector );
-		await page.click( logoutOptionSelector );
+		await this.waitForElementToBeVisible( accountBarSelector );
+		await this.hover( accountBarSelector );
+		await this.click( logoutOptionSelector );
 	}
 }

@@ -26,7 +26,11 @@ async function execShellCommand( cmd ) {
 			}
 			return resolve( stdout );
 		} );
-		cmdExec.stdout.on( 'data', data => logger.debug( `CLI: ${ data }` ) );
+		cmdExec.stdout.on( 'data', data => {
+			// remove the new line at the end
+			data = data.replace( /\n$/, '' );
+			logger.cli( `${ data }` );
+		} );
 	} );
 }
 
@@ -103,8 +107,6 @@ async function activateModule( page, module ) {
 
 async function execWpCommand( wpCmd ) {
 	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
-
-	logger.info( `CLI ${ cmd }` );
 	const result = await execShellCommand( cmd );
 
 	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.

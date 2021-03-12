@@ -2,7 +2,7 @@ import PageActions from '../page-actions';
 
 export default class EventbriteBlock extends PageActions {
 	constructor( blockId, page, eventId ) {
-		super( page );
+		super( page, 'Eventbrite block' );
 		this.blockTitle = EventbriteBlock.title();
 		this.blockSelector = '#block-' + blockId;
 		this.eventId = eventId;
@@ -24,9 +24,9 @@ export default class EventbriteBlock extends PageActions {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await this.page.type( inputSelector, this.embedUrl() );
-		await this.page.click( descriptionSelector );
-		await this.page.waitForSelector( '.wp-block-jetpack-eventbrite .components-sandbox' );
+		await this.type( inputSelector, this.embedUrl() );
+		await this.click( descriptionSelector );
+		await this.waitForElementToBeVisible( '.wp-block-jetpack-eventbrite .components-sandbox' );
 	}
 
 	getSelector( selector ) {

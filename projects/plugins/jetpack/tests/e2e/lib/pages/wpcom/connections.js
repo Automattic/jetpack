@@ -17,21 +17,21 @@ export default class ConnectionsPage extends WpPage {
 		const mcOptionXpathSelector = `//option[contains(text(), '${ mailchimpList }')]`;
 		const successNoticeSelector = `//span[contains(text(), '${ mailchimpList }')]`;
 
-		await this.page.waitForSelector( loadingIndicatorSelector );
+		await this.waitForElementToBeVisible( loadingIndicatorSelector );
 
-		await this.page.click( mailchimpExpandSelector );
+		await this.click( mailchimpExpandSelector );
 
 		// WPCOM Connections page
-		await this.page.waitForSelector( mcOptionXpathSelector, { state: 'attached' } );
-		await this.page.selectOption( marketingSelectSelector, { label: mailchimpList } );
-		await this.page.waitForSelector( successNoticeSelector );
+		await this.waitForElementToBeAttached( mcOptionXpathSelector );
+		await this.selectOption( marketingSelectSelector, { label: mailchimpList } );
+		await this.waitForElementToBeVisible( successNoticeSelector );
 		await this.page.close();
 	}
 
 	async connectMailchimp() {
 		const mailchimpConnectSelector =
 			'div.mailchimp .foldable-card__summary-expanded button:not([disabled])';
-		const mcPopupPage = await this.page.clickAndWaitForNewPage( mailchimpConnectSelector );
+		const mcPopupPage = await this.clickAndWaitForNewPage( mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page
 		const [ mcLogin, mcPassword ] = getAccountCredentials( 'mailchimpLogin' );

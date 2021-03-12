@@ -12,32 +12,32 @@ export default class JetpackPage extends WpPage {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await this.page.click( connectButtonSelector, { timeout: 60000 } );
+		return await this.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
 		const myPlanButton = "a[href*='my-plan'] span";
-		return await this.page.click( myPlanButton );
+		return await this.click( myPlanButton );
 	}
 
 	async isFree() {
 		const freePlanImage = ".my-plan-card__icon img[src*='free']";
-		return this.page.isVisible( freePlanImage );
+		return this.isElementVisible( freePlanImage );
 	}
 
 	async isComplete() {
 		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
-		return this.page.isVisible( premiumPlanImage );
+		return this.isElementVisible( premiumPlanImage );
 	}
 
 	async isSecurity() {
 		const proPlanImage = ".my-plan-card__icon img[src*='security']";
-		return this.page.isVisible( proPlanImage );
+		return this.isElementVisible( proPlanImage );
 	}
 
 	async isConnected() {
 		const connectionInfo = '.jp-connection-settings__info';
-		return this.page.isVisible( connectionInfo );
+		return this.isElementVisible( connectionInfo );
 	}
 
 	async forceVariation( variation = 'original' ) {
@@ -65,8 +65,8 @@ export default class JetpackPage extends WpPage {
 		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
 
 		logger.step( 'Checking Connect banner is visible' );
-		await this.page.waitForElementToBeVisible( containerSelector );
-		await this.page.waitForElementToBeVisible( buttonSelector );
-		return true;
+		const isCardVisible = await this.isElementVisible( containerSelector );
+		const isConnectButtonVisible = await this.isElementVisible( buttonSelector );
+		return isCardVisible && isConnectButtonVisible;
 	}
 }

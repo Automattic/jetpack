@@ -11,11 +11,11 @@ export default class InPlacePlansPage extends WpPage {
 
 	async selectFreePlan() {
 		const freePlanButton = '.plans-prompt__footer a';
-		return await page.click( freePlanButton );
+		return await this.click( freePlanButton );
 	}
 
 	async selectProPlan() {
 		const freePlanButton = ".plan-features__table-item a[href*='business']";
-		return await page.click( freePlanButton );
+		return await this.click( freePlanButton );
 	}
 }

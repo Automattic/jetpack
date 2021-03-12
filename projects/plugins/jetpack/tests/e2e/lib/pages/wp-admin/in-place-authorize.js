@@ -11,13 +11,13 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
-		await page.waitForSelector( loadingSelector, { state: 'hidden' } );
-
-		return await super.init( page );
+		const thisPage = new this( page );
+		await thisPage.waitForElementToBeHidden( loadingSelector );
+		return thisPage;
 	}
 
 	async getFrame() {
-		const iframeElement = await this.page.waitForSelector( this.expectedSelector );
+		const iframeElement = await this.waitForElementToBeVisible( this.expectedSelector );
 		return await iframeElement.contentFrame();
 	}
 
@@ -29,6 +29,6 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 	}
 
 	async waitToDisappear() {
-		return await this.page.waitForSelector( this.expectedSelector, { state: 'hidden' } );
+		return await this.waitForElementToBeHidden( this.expectedSelector );
 	}
 }
