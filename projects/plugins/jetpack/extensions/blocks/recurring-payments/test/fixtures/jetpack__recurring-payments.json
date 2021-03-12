@@ -1,0 +1,13 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/recurring-payments",
+        "isValid": true,
+        "attributes": {
+            "planId": 12,
+            "align": "right"
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-recurring-payments alignright\"></div>"
+    }
+]
