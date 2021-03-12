@@ -8,22 +8,24 @@
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
-// 👀 Remove any unneeded imports from above.
 
 /**
  * Internal dependencies
  */
-// 👀 Import the edit component you are testing.
-// e.g. import WhatsAppButtonControls from '../controls';
+import InstagramGalleryInspectorControls from '../controls';
 
-describe( '', () => {
+describe( 'InstagramGalleryInspectorControls', () => {
 	const defaultAttributes = {
-		// 👀 Setup default block attributes.
+		accessToken: 'abcdef',
+		columns: 3,
+		count: 9,
+		instagramUser: 'testjetpackuser',
+		spacing: 10,
+		isStackedOnMobile: true,
 	};
 
 	const setAttributes = jest.fn();
 	const defaultProps = {
-		// 👀 Setup default block props.
 		attributes: defaultAttributes,
 		setAttributes,
 		clientId: 1,
@@ -56,7 +58,13 @@ describe( '', () => {
 	 *		expect( screen.getByLabelText( 'Country code' ) ).toBeInTheDocument();
 	 * } );
 	 */
-	test( '', () => {
+	test( 'Renders account settings and allows the connected account to be disconnected', () => {
+		render( <InstagramGalleryInspectorControls { ...defaultProps } /> );
 
+		await waitFor( () => screen.getByText( 'Account Settings' ) );
+
+		userEvent.click( screen.getByText( 'Disconnect your account' ) );
+
+		expect( setAttributes ).toHaveBeenCalledWith( 'hello' );
 	} );
 } );

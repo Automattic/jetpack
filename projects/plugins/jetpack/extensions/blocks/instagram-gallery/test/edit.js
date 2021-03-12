@@ -6,32 +6,57 @@
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event'
-import { render, screen } from '@testing-library/react';
-// 👀 Remove any unneeded imports from above.
+import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '@testing-library/react';
 
 /**
  * Internal dependencies
  */
-// 👀 Import the edit component you are testing.
-// e.g. import WhatsAppButtonEdit from '../edit';
+import { JETPACK_DATA_PATH } from '../../../shared/get-jetpack-data';
+import InstagramGalleryEdit from '../edit';
 
-describe( '', () => {
+jest.mock( '../use-connect-wpcom', () => ( {
+	__esModule: true,
+	default: jest
+		.fn()
+		.mockReturnValue( { isRequestingWpcomConnectUrl: false, wpcomConnectUrl: undefined } ),
+} ) );
+
+describe( 'InstagramGalleryEdit', () => {
 	const defaultAttributes = {
-		// 👀 Setup default block attributes.
+		accessToken: null,
+		align: null,
+		columns: null,
+		count: null,
+		instagramUser: null,
+		isStackedOnMobile: false,
+		spacing: null,
 	};
 
 	const setAttributes = jest.fn();
+	const disconnectFromService = jest.fn();
+
 	const defaultProps = {
-		// 👀 Setup default block props.
 		attributes: defaultAttributes,
+		currentUserConnected: true,
+		disconnectFromService,
+		renderSidebarNotice,
 		setAttributes,
 		clientId: 1,
 	};
 
-	// 👀 Tests setup.
 	beforeEach( () => {
 		setAttributes.mockClear();
+		window.fetch = jest.fn();
+		window[ JETPACK_DATA_PATH ] = {
+			jetpack: {
+				is_current_user_connected: true,
+			},
+		};
+	} );
+
+	afterAll( () => {
+		window.fetch = originalFetch;
 	} );
 
 	/**
@@ -52,7 +77,51 @@ describe( '', () => {
 	 * 		expect( screen.getByText( 'Custom text rendered in block' ) ).toBeInTheDocument();
 	 * } );
 	 */
-	test( '', () => {
+	test( 'renders the Instagram connection placeholder when the user has no existing connection', async () => {
+		window.fetch.mockReturnValue(
+			Promise.resolve( { status: 200, json: () => Promise.resolve( [] ) } )
+		);
 
+		render( <InstagramGalleryEdit { ...defaultProps } /> );
+
+		await waitFor( () =>
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+				'/wpcom/v2/instagram-gallery/connections?_locale=user'
+			)
+		);
+
+		await waitFor( () =>
+			expect(
+				screen.getByText( 'Connect to Instagram to start sharing your images.' )
+			).toBeInTheDocument()
+		);
+
+		await waitFor( () =>
+			expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument()
+		);
+	} );
+
+	test( 'renders the Instagram connection placeholder when the user has no existing connection', async () => {
+		window.fetch.mockReturnValue(
+			Promise.resolve( { status: 200, json: () => Promise.resolve( [] ) } )
+		);
+
+		render( <InstagramGalleryEdit { ...defaultProps } /> );
+
+		await waitFor( () =>
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+				'/wpcom/v2/instagram-gallery/connections?_locale=user'
+			)
+		);
+
+		await waitFor( () =>
+			expect(
+				screen.getByText( 'Connect to Instagram to start sharing your images.' )
+			).toBeInTheDocument()
+		);
+
+		await waitFor( () =>
+			expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument()
+		);
 	} );
 } );
