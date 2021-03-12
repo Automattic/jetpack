@@ -15,7 +15,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
 		entry: {
-			main: path.join( __dirname, '../modules/search/instant-search/index.jsx' ),
+			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
 			'ie11-polyfill-loader': path.join(
 				__dirname,
 				'../modules/search/instant-search/ie11-polyfill.js'
@@ -75,4 +75,11 @@ module.exports = {
 			requestToHandle: defaultRequestToHandle,
 		} ),
 	],
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				vendors: false,
+			},
+		},
+	},
 };

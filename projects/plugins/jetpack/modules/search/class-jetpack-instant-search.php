@@ -65,12 +65,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		$polyfill_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
 		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.css';
 
 		if (
 			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
-			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ||
-			! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path )
+			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path )
 		) {
 			return;
 		}
@@ -90,10 +88,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
-
-		$style_version = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
-		$style_path    = plugins_url( $style_relative_path, $plugin_base_path );
-		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
 
 	/**
