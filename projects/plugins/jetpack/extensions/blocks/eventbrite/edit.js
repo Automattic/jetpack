@@ -94,7 +94,9 @@ class EventbriteEdit extends Component {
 
 		const { editedUrl } = this.state;
 
-		this.setUrl( editedUrl );
+		const trimmedEditedUrl = editedUrl.trim();
+
+		this.setUrl( trimmedEditedUrl );
 
 		this.setState( { editingUrl: false } );
 	};
@@ -215,7 +217,7 @@ class EventbriteEdit extends Component {
 
 	renderInlinePreview() {
 		const { className } = this.props;
-		const { eventId } = this.props.attributes;
+		const { eventId, url } = this.props.attributes;
 
 		if ( ! eventId ) {
 			return;
