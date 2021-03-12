@@ -12,6 +12,7 @@ import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
+import { changelogDefine } from './commands/changelog';
 
 // import { dockerDefine } from "./commands/docker";
 
@@ -35,6 +36,7 @@ export async function cli() {
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
 	argv = watchDefine( argv );
+	argv = changelogDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
 	argv
