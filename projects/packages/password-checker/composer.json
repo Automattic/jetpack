@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
+		"automattic/jetpack-changelogger": "1.1.x-dev",
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "0.2.0"
 	},
@@ -39,6 +40,12 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-password-checker"
+		"mirror-repo": "Automattic/jetpack-password-checker",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "0.1.x-dev"
+		}
 	}
 }
