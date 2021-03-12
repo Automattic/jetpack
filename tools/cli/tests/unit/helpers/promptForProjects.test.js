@@ -6,7 +6,7 @@ import chai from 'chai';
 /**
  * Internal dependencies
  */
-import { promptForProject, promptForType } from '../../../helpers/promptForProject';
+import promptForProject, { promptForType } from '../../../helpers/promptForProject';
 
 describe( 'promptForProject', function () {
 	it( 'should be a function', function () {

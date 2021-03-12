@@ -4,12 +4,12 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-status": "^1.7"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "1.0.x-dev"
+		"automattic/jetpack-changelogger": "1.1.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -44,6 +44,9 @@
 		"mirror-repo": "Automattic/jetpack-redirect",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.5.x-dev"
 		}
 	}
 }

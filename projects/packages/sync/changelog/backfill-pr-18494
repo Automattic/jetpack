@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the Heartbeat package to generate the stats array

@@ -14,7 +14,10 @@ import { useState } from '@wordpress/element';
  * Internal dependencies
  */
 import NumberControl from '../../../shared/components/number-control';
-import { convertSecondsToTimeCode, convertTimeCodeToSeconds } from '../../../shared/components/media-player-control/utils';
+import {
+	convertSecondsToTimeCode,
+	convertTimeCodeToSeconds,
+} from '../../../shared/components/media-player-control/utils';
 
 function validateValue( val, max ) {
 	return Math.max( 0, Math.min( val, max ) );
@@ -81,16 +84,15 @@ export function TimestampControl( {
 			<div className={ `${ className }__timestamp-controls` }>
 				<NumberControl
 					className={ `${ className }__timestamp-control__hour` }
-					label={	shortLabel
-						? _x( 'Hour', 'hour (short form)', 'jetpack' )
-						: _x( 'Hour', 'hour (long form)', 'jetpack' )
+					label={
+						shortLabel
+							? _x( 'Hour', 'hour (short form)', 'jetpack' )
+							: _x( 'Hour', 'hour (long form)', 'jetpack' )
 					}
 					value={ smh[ 0 ] }
 					min={ 0 }
 					max={ 23 }
-					onChange={ hour => (
-						! isDisabled && onChange( setTimestampValue( { hour }, smh ) )
-					) }
+					onChange={ hour => ! isDisabled && onChange( setTimestampValue( { hour }, smh ) ) }
 					disabled={ isDisabled }
 				/>
 
@@ -102,9 +104,7 @@ export function TimestampControl( {
 					value={ smh[ 1 ] }
 					min={ 0 }
 					max={ 59 }
-					onChange={ min => (
-						! isDisabled && onChange( setTimestampValue( { min }, smh ) )
-					) }
+					onChange={ min => ! isDisabled && onChange( setTimestampValue( { min }, smh ) ) }
 					disabled={ isDisabled }
 				/>
 
@@ -116,9 +116,7 @@ export function TimestampControl( {
 					value={ smh[ 2 ] }
 					min={ 0 }
 					max={ 59 }
-					onChange={ sec => (
-						! isDisabled && onChange( setTimestampValue( { sec }, smh ) )
-					) }
+					onChange={ sec => ! isDisabled && onChange( setTimestampValue( { sec }, smh ) ) }
 					disabled={ isDisabled }
 				/>
 			</div>
@@ -129,12 +127,12 @@ export function TimestampControl( {
 				className={ `${ className }__timestamp-range-control` }
 				min={ 0 }
 				max={ duration }
-				onChange={ ( timeInSeconds ) => {
+				onChange={ timeInSeconds => {
 					setRangeValue( timeInSeconds );
 					debouncedSetAttributes( timeInSeconds, onChange );
 				} }
 				withInputField={ false }
-				renderTooltipContent={ ( time ) => convertSecondsToTimeCode( time ) }
+				renderTooltipContent={ time => convertSecondsToTimeCode( time ) }
 			/>
 		</>
 	);
@@ -155,10 +153,45 @@ export function TimestampDropdown( props ) {
 					</Button>
 				);
 			} }
-			renderContent={ () => (
-				<TimestampControl { ...props } />
-			) }
+			renderContent={ () => <TimestampControl { ...props } /> }
 		/>
+	);
+}
+
+function TimestampButton( { className, onPlayback, value } ) {
+	return (
+		<Button
+			className={ className }
+			isTertiary
+			onClick={ () => onPlayback( convertTimeCodeToSeconds( value ) ) }
+		>
+			{ value }
+		</Button>
+	);
+}
+
+function ToggleButton( {
+	className,
+	currentTime,
+	isTimestampButtonVisible,
+	children,
+	onChange,
+	onToggle,
+} ) {
+	return (
+		<Button
+			className={ className }
+			isSmall
+			isTertiary
+			onClick={ () => {
+				onToggle( ! isTimestampButtonVisible );
+				if ( ! isTimestampButtonVisible ) {
+					onChange( convertSecondsToTimeCode( currentTime ), onChange );
+				}
+			} }
+		>
+			{ children }
+		</Button>
 	);
 }
 
@@ -168,57 +201,68 @@ export function TimestampEditControl( {
 	show,
 	value,
 	mediaCurrentTime = 0,
-
 	onChange,
 	onToggle,
 	onPlayback,
 } ) {
-	function TimestampButton() {
-		return (
-			<Button
-				className={ `${ className }__timestamp-label` }
-				isTertiary
-				onClick={ () => onPlayback( convertTimeCodeToSeconds( value ) ) }
-			>
-				{ value }
-			</Button>
-		);
-	}
-
 	if ( ! isSelected ) {
+		// When the block is not either selected,
+		// and the timestamp visible,
+		// render a blank component.
 		if ( ! show ) {
 			return null;
 		}
 
-		return <TimestampButton />;
-	}
-
-	function ToggleButton( { label } ) {
+		// When the block is not selected,
+		// but the timestamp is visible,
+		// render the timestamp button.
 		return (
-			<Button
-				className={ `${ className }__timestamp-button` }
-				isSmall
-				isTertiary
-				onClick={ () => {
-					onToggle( ! show );
-					if ( ! show ) {
-						onChange( convertSecondsToTimeCode( mediaCurrentTime ), onChange );
-					}
-				} }
-			>
-				{ label }
-			</Button>
+			<TimestampButton
+				className={ `${ className }__timestamp-label` }
+				value={ value }
+				onPlayback={ onPlayback }
+			/>
 		);
 	}
 
 	if ( ! show ) {
-		return <ToggleButton label={ __( 'Add timestamp', 'jetpack' ) } />;
+		// When the block is selected,
+		// but the timestamp is not visible,
+		// render the toggle button,
+		// allowing the user adding the timestamp button.
+		return (
+			<ToggleButton
+				className={ `${ className }__timestamp-button` }
+				currentTime={ mediaCurrentTime }
+				onChange={ onChange }
+				onToggle={ onToggle }
+				isTimestampButtonVisible={ show }
+			>
+				{ __( 'Add timestamp', 'jetpack' ) }
+			</ToggleButton>
+		);
 	}
 
+	// When the block is selected,
+	// and the timestamp is  visible,
+	// render the timestamp and toggle buttons.
 	return (
 		<>
-			<TimestampButton />
-			<ToggleButton label={ __( 'Remove', 'jetpack' ) } />
+			<TimestampButton
+				className={ `${ className }__timestamp-label` }
+				value={ value }
+				onPlayback={ onPlayback }
+			/>
+
+			<ToggleButton
+				className={ `${ className }__timestamp-button` }
+				currentTime={ mediaCurrentTime }
+				onChange={ onChange }
+				onToggle={ onToggle }
+				isTimestampButtonVisible={ show }
+			>
+				{ __( 'Remove', 'jetpack' ) }
+			</ToggleButton>
 		</>
 	);
 }

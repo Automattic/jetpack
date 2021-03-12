@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Update icon file used for tests, WP 5.7 no longer silences exif errors.
+
+

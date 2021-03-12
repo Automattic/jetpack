@@ -8,7 +8,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "1.0.x-dev"
+		"automattic/jetpack-changelogger": "1.1.x-dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -48,6 +48,9 @@
 		"mirror-repo": "Automattic/jetpack-autoloader",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "2.10.x-dev"
 		}
 	}
 }

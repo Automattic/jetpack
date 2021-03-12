@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -178,9 +179,9 @@ class Jetpack_Connection_Banner {
 
 		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
-		// Due to the limitation in how 3rd party cookies are handled in Safari,
-		// we're falling back to the original flow on Safari desktop and mobile.
-		if ( $is_safari || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
+		// Due to the limitation in how 3rd party cookies are handled in Safari and Opera,
+		// we're falling back to the original flow.
+		if ( $is_safari || User_Agent_Info::is_opera_desktop() || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
 		} else {
 			$force_variation = 'in_place';

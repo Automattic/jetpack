@@ -71,6 +71,7 @@ class WriteCommand extends Command {
 			->addOption( 'use-significance', null, InputOption::VALUE_REQUIRED, 'When determining the new version, use this significance instead of using the actual change files' )
 			->addOption( 'prerelease', 'p', InputOption::VALUE_REQUIRED, 'When determining the new version, include this prerelease suffix' )
 			->addOption( 'buildinfo', 'b', InputOption::VALUE_REQUIRED, 'When fetching the next version, include this buildinfo suffix' )
+			->addOption( 'release-date', null, InputOption::VALUE_REQUIRED, 'Release date, as a valid PHP date or "unreleased"', 'now' )
 			->addOption( 'default-first-version', null, InputOption::VALUE_NONE, 'If the changelog is currently empty, guess a "first" version instead of erroring' )
 			->addOption( 'deduplicate', null, InputOption::VALUE_REQUIRED, 'Deduplicate new changes against the last N versions', 1 )
 			->addOption( 'prologue', null, InputOption::VALUE_REQUIRED, 'Prologue text for the new changelog entry' )
@@ -182,13 +183,17 @@ EOF
 	protected function addEntry( InputInterface $input, OutputInterface $output, Changelog $changelog, $version, array $changes ) {
 		$output->writeln( 'Creating new changelog entry.', OutputInterface::VERBOSITY_DEBUG );
 		$data = array(
-			'prologue' => (string) $input->getOption( 'prologue' ),
-			'epilogue' => (string) $input->getOption( 'epilogue' ),
-			'link'     => $input->getOption( 'link' ),
-			'changes'  => $changes,
+			'prologue'  => (string) $input->getOption( 'prologue' ),
+			'epilogue'  => (string) $input->getOption( 'epilogue' ),
+			'link'      => $input->getOption( 'link' ),
+			'changes'   => $changes,
+			'timestamp' => (string) $input->getOption( 'release-date' ),
 		);
 		if ( null === $data['link'] && $changelog->getLatestEntry() ) {
 			$data['link'] = Config::link( $changelog->getLatestEntry()->getVersion(), $version );
+		}
+		if ( 'unreleased' === $data['timestamp'] ) {
+			$data['timestamp'] = null;
 		}
 		try {
 			$changelog->addEntry( $this->formatter->newChangelogEntry( $version, $data ) );

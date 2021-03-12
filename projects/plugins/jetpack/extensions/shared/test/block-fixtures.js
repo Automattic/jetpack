@@ -106,6 +106,11 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				}
 
 				const blocksExpected = JSON.parse( blocksExpectedString );
+
+				if ( blocksExpected?.length ) {
+					blocksExpected.forEach( block => checkParseValid( block, basename ) );
+				}
+
 				try {
 					expect( blocksActualNormalized ).toEqual( blocksExpected );
 				} catch ( err ) {
@@ -173,6 +178,15 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 	} );
 }
 /* eslint-disable jest/no-export */
+
+function checkParseValid( block, fixtureName ) {
+	if ( ! block.isValid ) {
+		throw new Error( `Fixture ${ fixtureName } is invalid` );
+	}
+	if ( block.innerBlocks.length > 0 ) {
+		block.innerBlocks.forEach( block => checkParseValid( block, fixtureName ) );
+	}
+}
 
 function registerBlocks( blocks ) {
 	// Need to add a valid category or block registration fails
