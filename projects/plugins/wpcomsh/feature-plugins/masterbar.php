@@ -201,7 +201,7 @@ function wpcomsh_fix_jetpack_menu_item_parent_on_atomic( $parent_file ) {
 	global $hook_suffix;
 
 	// Safety - don't alter anything if Nav Unification is not enabled.
-	if ( ! wpcomsh_activate_nav_unification( false ) ) {
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || ! wpcomsh_activate_nav_unification( false ) ) {
 		return $parent_file;
 	}
 
