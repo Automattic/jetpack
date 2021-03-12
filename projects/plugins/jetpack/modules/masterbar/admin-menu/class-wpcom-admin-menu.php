@@ -38,7 +38,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$wp_admin = $this->should_link_to_wp_admin();
 
-		$this->add_my_home_menu( $wp_admin );
+		$this->add_my_home_menu();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -195,9 +195,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds Upgrades menu.
 	 */
 	public function add_upgrades_menu() {
-		parent::add_upgrades_menu();
+		$menu_slug = parent::add_upgrades_menu();
 
-		add_submenu_page( 'https://wordpress.com/plans/' . $this->domain, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		add_submenu_page( $menu_slug, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
 	}
 
 	/**
@@ -248,14 +248,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) {
+		parent::add_options_menu( $wp_admin );
+
 		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
 		if ( remove_submenu_page( 'options-general.php', 'sharing' ) ) {
 			add_options_page( esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
 		}
-
-		parent::add_options_menu( $wp_admin );
 	}
 
 	/**
@@ -315,5 +315,17 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
+	}
+
+	/**
+	 * Adds Appearance menu.
+	 *
+	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
+		parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+
+		remove_submenu_page( 'themes.php', 'theme-editor.php' );
 	}
 }

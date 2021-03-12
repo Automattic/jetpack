@@ -40,18 +40,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_jetpack_menu() {
 		parent::add_jetpack_menu();
 
-		$parent_slug = 'https://wordpress.com/activity-log/' . $this->domain;
-
 		// Place "Scan" submenu after Backup.
 		$position = 0;
 		global $submenu;
-		foreach ( $submenu[ $parent_slug ] as $submenu_item ) {
-			$position++;
+		foreach ( $submenu['jetpack'] as $submenu_item ) {
+			$position ++;
 			if ( __( 'Backup', 'jetpack' ) === $submenu_item[3] ) {
 				break;
 			}
 		}
-		add_submenu_page( $parent_slug, esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
+		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/' . $this->domain, null, $position );
 	}
 
 	/**
@@ -92,7 +90,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		end( $menu );
 		$position = key( $menu );
 
-		$this->add_admin_menu_separator( ++$position );
+		$this->add_admin_menu_separator( ++ $position );
 
 		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', $menu_slug, null, 'dashicons-wordpress-alt', $position );
 	}
@@ -127,7 +125,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::add_posts_menu();
 
 		// Remove all submenus to mimic the old Calypso navigation.
-		$this->remove_submenus( 'https://wordpress.com/posts/' . $this->domain );
+		$this->remove_submenus( 'edit.php' );
 	}
 
 	/**
@@ -139,20 +137,20 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::add_page_menu();
 
 		// Remove all submenus to mimic the old Calypso navigation.
-		$this->remove_submenus( 'https://wordpress.com/pages/' . $this->domain );
+		$this->remove_submenus( 'edit.php?post_type=page' );
 	}
 
 	/**
 	 * Adds a custom post type menu.
 	 *
 	 * @param string $post_type Custom post type.
-	 * @param bool   $wp_admin  Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_custom_post_type_menu( $post_type, $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		parent::add_custom_post_type_menu( $post_type );
 
 		// Remove all submenus to mimic the old Calypso navigation.
-		$this->remove_submenus( 'https://wordpress.com/types/' . $post_type . '/' . $this->domain );
+		$this->remove_submenus( 'edit.php?post_type=' . $post_type );
 	}
 
 	/**
@@ -164,7 +162,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		parent::add_users_menu();
 
 		// Remove all submenus to mimic the old Calypso navigation.
-		$this->remove_submenus( 'https://wordpress.com/people/team/' . $this->domain );
+		$this->remove_submenus( 'users.php' );
 	}
 
 	/**
@@ -195,18 +193,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function should_link_to_wp_admin() {
 		// Force Calypso links on Jetpack sites since Nav Unification is disabled on WP Admin.
 		return false;
-	}
-
-	/**
-	 * Migrates submenu items from wp-admin menu slugs to Calypso menu slugs.
-	 *
-	 * @param string $old_slug WP-Admin menu slug.
-	 * @param string $new_slug Calypso menu slug. (Calypso URL).
-	 */
-	public function migrate_submenus( $old_slug, $new_slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Do not migrate menu on Jetpack sites, since we don't want WP Admin links.
-		// Instead we remove the submenu since they won't be used.
-		$this->remove_submenus( $old_slug );
 	}
 
 	/**
