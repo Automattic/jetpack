@@ -1,7 +1,7 @@
 <?php
 
 /**
- * So that we have a real class instead of just passing around an array
+ * So that we have a real class instead of just passing around an array.
  */
 class SAL_Token {
 
