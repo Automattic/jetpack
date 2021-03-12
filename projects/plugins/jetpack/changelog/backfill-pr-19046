@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Site Logo: Fix issues when updating logo in the Customizer.

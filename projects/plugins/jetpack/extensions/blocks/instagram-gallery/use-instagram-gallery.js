@@ -71,7 +71,8 @@ export default function useInstagramGallery( {
 				setAttributes( { accessToken: undefined, instagramUser: undefined } );
 				setSelectedAccount( undefined );
 			} );
-	}, [ accessToken, noticeOperations, setAttributes, setSelectedAccount ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ accessToken, setAttributes, setSelectedAccount ] );
 
 	return { images, isLoadingGallery, setImages };
 }

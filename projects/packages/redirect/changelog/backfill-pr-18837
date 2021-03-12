@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Userless Connection: Redirect "userless" users to the "Plans" page
