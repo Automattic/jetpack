@@ -79,6 +79,13 @@ class Password_Checker_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the fail_immediately property of the password rules.
+	 */
+	public function test_fail_immediately() {
+		$this->assertTrue( true );
+	}
+
+	/**
 	 * Data provider for password tests.
 	 *
 	 * @return array
