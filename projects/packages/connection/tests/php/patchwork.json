@@ -1,0 +1,3 @@
+{
+	"redefinable-internals": [ "openssl_verify" ]
+}
