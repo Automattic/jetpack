@@ -194,7 +194,7 @@ async function checkDescription( payload, octokit ) {
 When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	// No PR is too small to include a description of why you made a change
-	const hasLongDescription = body > 10;
+	const hasLongDescription = body.length > 10;
 	comment += `
 - ${
 		! hasLongDescription ? `:red_circle:` : `:white_check_mark:`
