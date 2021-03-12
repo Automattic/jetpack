@@ -182,6 +182,22 @@ function fileNameFormatter( filePath, includeTimestamp = true ) {
 	return path.join( dirname, `${ fileName }${ ext }` );
 }
 
+/**
+ * Extracts a `accountName` configuration from the config file.
+ *
+ * @param {string} accountName one of the keys of `testAccounts` entry in config file
+ *
+ * @return {Array} username and password
+ */
+function getAccountCredentials( accountName ) {
+	const globalConfig = config.get( 'testAccounts' );
+	if ( globalConfig.has( 'testAccounts' ) ) {
+		throw new Error( `${ accountName } not found in config file` );
+	}
+
+	return globalConfig.get( accountName );
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -195,4 +211,5 @@ module.exports = {
 	logDebugLog,
 	logAccessLog,
 	fileNameFormatter,
+	getAccountCredentials,
 };

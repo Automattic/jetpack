@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class Sidebar extends Page {
+export default class Sidebar extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '#adminmenuwrap';
 		super( page, 'Sidebar', { expectedSelector } );

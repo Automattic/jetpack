@@ -30,8 +30,7 @@ export default class PageActions {
 	async waitForPage() {
 		logger.action( `Checking ${ this.pageName } is displayed` );
 		for ( const selector of this.selectors ) {
-			logger.action( `Waiting for element ${ selector } to be visible` );
-			await this.page.waitForSelector( selector );
+			await this.waitForElementToBeVisible( selector );
 		}
 	}
 
@@ -40,7 +39,7 @@ export default class PageActions {
 	 *
 	 * @param {Object} options page.reload options object
 	 */
-	async reload( options = null ) {
+	async reload( options = {} ) {
 		logger.action( 'Reloading page' );
 		await this.page.reload( options );
 		return await this.waitForPage();
@@ -91,6 +90,21 @@ export default class PageActions {
 	async type( selector, text, options = null ) {
 		logger.action( `Type into element ${ selector }` );
 		await this.page.type( selector, text, options );
+	}
+
+	async waitForElementToBeVisible( selector, timeout = 30000 ) {
+		logger.action( `Waiting for element ${ selector } to be visible` );
+		await this.page.waitForSelector( selector, { timeout } );
+	}
+
+	async waitForElementToBeHidden( selector, timeout = 30000 ) {
+		logger.action( `Waiting for element ${ selector } to NOT be displayed` );
+		await this.page.waitForSelector( selector, { state: 'hidden', timeout } );
+	}
+
+	async isElementVisible( selector, timeout = 30000 ) {
+		logger.action( `Checking element ${ selector } is visible` );
+		return await this.page.isVisible( selector, { timeout } );
 	}
 
 	// endregion

@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class JetpackSiteTopicPage extends Page {
+export default class JetpackSiteTopicPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.jetpack-connect__step .site-topic__content';
 		super( page, 'JetpackSiteTopicPage', { expectedSelector } );

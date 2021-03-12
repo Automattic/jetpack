@@ -81,7 +81,7 @@ Tests are kept in `/specs` folder. Every file represents a test suite, which is 
 
 ## Tests Architecture
 
-The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. All the pages are extending the [`Page`](./lib/pages/page.js) class, and don't really have any specific requirements, except maybe the way how page constructors are designed. `expectedSelector` is a CSS selector that identifies the specific page/component. Make sure to pass `page` instance together with the `expectedSelector` to the `super` call as follows:
+The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components. All the pages are extending the [`Page`](lib/pages/wp-page.js) class, and don't really have any specific requirements, except maybe the way how page constructors are designed. `expectedSelector` is a CSS selector that identifies the specific page/component. Make sure to pass `page` instance together with the `expectedSelector` to the `super` call as follows:
 
 ```js
 constructor( page ) {

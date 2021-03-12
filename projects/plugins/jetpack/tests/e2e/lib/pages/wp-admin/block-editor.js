@@ -1,10 +1,10 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 import { getTunnelSiteUrl } from '../../utils-helper';
 
-export default class BlockEditorPage extends Page {
+export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '#editor';
 		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';

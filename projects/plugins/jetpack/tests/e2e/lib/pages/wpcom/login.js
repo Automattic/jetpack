@@ -6,12 +6,12 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 import logger from '../../logger';
 import fs from 'fs';
-import { getAccountCredentials } from '../../env/test-setup';
+import { getAccountCredentials } from '../../utils-helper';
 
-export default class LoginPage extends Page {
+export default class LoginPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
 		const url = getRedirectUrl( 'wpcom-log-in' );

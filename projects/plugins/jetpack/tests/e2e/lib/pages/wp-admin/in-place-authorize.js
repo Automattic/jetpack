@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class InPlaceAuthorizeFrame extends Page {
+export default class InPlaceAuthorizeFrame extends WpPage {
 	constructor( page ) {
 		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
 		super( page, 'InPlaceAuthorizeFrame', { expectedSelector } );

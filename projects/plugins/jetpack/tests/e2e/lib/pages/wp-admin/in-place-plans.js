@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class InPlacePlansPage extends Page {
+export default class InPlacePlansPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.plans-prompt__footer a';
 		super( page, 'InPlacePlansPage', { expectedSelector, explicitWaitMS: 60000 } );

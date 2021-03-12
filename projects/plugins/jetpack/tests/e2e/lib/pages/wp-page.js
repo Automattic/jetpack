@@ -4,7 +4,7 @@
 import logger from '../logger';
 import PageActions from './page-actions';
 
-export default class Page extends PageActions {
+export default class WpPage extends PageActions {
 	constructor( page, pageName, { expectedSelector, url = null, explicitWaitMS = 25000 } ) {
 		super( page, pageName, [ expectedSelector ] );
 		this.expectedSelector = expectedSelector;
@@ -17,9 +17,9 @@ export default class Page extends PageActions {
 	/**
 	 * Static method which initialize a page object. Also waits for `this.expectedSelector` to become visible, which kinda simulates page loads
 	 *
-	 * @param {Page} page Playwright representation of the page.
+	 * @param {page} page Playwright representation of the page.
 	 *
-	 * @return {Page} Instance of the Page Object class
+	 * @return {WpPage} Instance of the Page Object class
 	 */
 	static async init( page ) {
 		const it = new this( page );
@@ -29,7 +29,7 @@ export default class Page extends PageActions {
 
 	/**
 	 *
-	 * @param {Page} page Playwright representation of the page
+	 * @param {page} page Playwright representation of the page
 	 * @param {string} pageURL Page URL
 	 */
 	static async visit( page, pageURL = null ) {

@@ -38,22 +38,6 @@ async function maybePreConnect() {
 	}
 }
 
-/**
- * Extracts a `accountName` configuration from the config file.
- *
- * @param {string} accountName one of the keys of `testAccounts` entry in config file
- *
- * @return {Array} username and password
- */
-export function getAccountCredentials( accountName ) {
-	const globalConfig = config.get( 'testAccounts' );
-	if ( globalConfig.has( 'testAccounts' ) ) {
-		throw new Error( `${ accountName } not found in config file` );
-	}
-
-	return globalConfig.get( accountName );
-}
-
 export const step = async ( stepName, fn ) => {
 	logger.step( `Step: ${ stepName }` );
 	await fn();

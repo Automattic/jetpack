@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class PluginsPage extends Page {
+export default class PluginsPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.search-box';
 		super( page, 'PluginsPage', { expectedSelector } );

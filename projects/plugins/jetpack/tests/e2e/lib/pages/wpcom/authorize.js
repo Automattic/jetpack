@@ -1,10 +1,10 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 import logger from '../../logger';
 
-export default class AuthorizePage extends Page {
+export default class AuthorizePage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.jetpack-connect__logged-in-form';
 		super( page, 'AuthorizePage', { expectedSelector } );

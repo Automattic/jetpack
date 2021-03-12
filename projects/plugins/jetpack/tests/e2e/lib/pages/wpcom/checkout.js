@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class CheckoutPage extends Page {
+export default class CheckoutPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.checkout__content .wp-checkout__review-order-step';
 		super( page, 'CheckoutPage', { expectedSelector } );

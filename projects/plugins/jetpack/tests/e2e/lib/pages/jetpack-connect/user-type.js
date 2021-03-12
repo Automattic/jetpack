@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class JetpackUserTypePage extends Page {
+export default class JetpackUserTypePage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.user-type__connect-step';
 		super( page, 'JetpackUserTypePage', { expectedSelector } );

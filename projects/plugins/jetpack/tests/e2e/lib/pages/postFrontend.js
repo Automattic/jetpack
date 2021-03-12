@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from './page';
+import WpPage from './wp-page';
 
-export default class PostFrontendPage extends Page {
+export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.post';
 		super( page, 'PostFrontendPage', { expectedSelector } );

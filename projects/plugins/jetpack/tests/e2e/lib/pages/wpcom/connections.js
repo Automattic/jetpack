@@ -1,10 +1,10 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { getAccountCredentials } from '../../env/test-setup';
+import WpPage from '../wp-page';
+import { getAccountCredentials } from '../../utils-helper';
 
-export default class ConnectionsPage extends Page {
+export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.connections__sharing-connections';
 		super( page, 'ConnectionsPage', { expectedSelector, explicitWaitMS: 40000 } );

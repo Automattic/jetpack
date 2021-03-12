@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class ThankYouPage extends Page {
+export default class ThankYouPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.current-plan-thank-you';
 		super( page, 'ThankYouPage', { expectedSelector } );

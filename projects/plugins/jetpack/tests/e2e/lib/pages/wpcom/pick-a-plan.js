@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class PickAPlanPage extends Page {
+export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = 'div[data-e2e-product-slug="jetpack_complete"]';
 		super( page, 'PickAPlanPage', { expectedSelector, explicitWaitMS: 40000 } );

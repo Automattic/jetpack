@@ -1,11 +1,11 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 import logger from '../../logger';
 import { takeScreenshot } from '../../reporters/screenshot';
 
-export default class WPLoginPage extends Page {
+export default class WPLoginPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '.login';
 		super( page, 'Login page', { expectedSelector } );

@@ -1,9 +1,10 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
+import logger from '../../logger';
 
-export default class JetpackPage extends Page {
+export default class JetpackPage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = '#jp-plugin-container';
 		super( page, 'JetpackPage', { expectedSelector } );
@@ -11,12 +12,12 @@ export default class JetpackPage extends Page {
 
 	async connect() {
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await page.click( connectButtonSelector, { timeout: 60000 } );
+		return await this.page.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
 		const myPlanButton = "a[href*='my-plan'] span";
-		return await page.click( myPlanButton );
+		return await this.page.click( myPlanButton );
 	}
 
 	async isFree() {
@@ -63,8 +64,9 @@ export default class JetpackPage extends Page {
 		const containerSelector = '.jp-connect-full__container-card';
 		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
 
-		const isCardVisible = await this.page.isVisible( containerSelector );
-		const isConnectButtonVisible = await this.page.isVisible( buttonSelector );
-		return isCardVisible && isConnectButtonVisible;
+		logger.step( 'Checking Connect banner is visible' );
+		await this.page.waitForElementToBeVisible( containerSelector );
+		await this.page.waitForElementToBeVisible( buttonSelector );
+		return true;
 	}
 }
