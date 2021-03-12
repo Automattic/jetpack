@@ -149,10 +149,8 @@ class SubscriptionsComponent extends React.Component {
 				{ ! this.props.isLinked && (
 					<ConnectUserBar
 						feature="subscriptions"
-						text={ __(
-							'Subscriptions feature provided by the WordPress.com cloud. Sign in to view your email followers.',
-							'jetpack'
-						) }
+						featureLabel={ __( 'Subscriptions', 'jetpack' ) }
+						text={ __( 'Sign in to manage your subscriptions settings.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>

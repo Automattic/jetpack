@@ -74,10 +74,8 @@ export const SEO = withModuleSettingsFormHelpers(
 					{ ! this.props.hasConnectedOwner && (
 						<ConnectUserBar
 							feature="monitor"
-							text={ __(
-								'Monitoring provided by the WordPress.com cloud. Sign in to configure personal email alerts.',
-								'jetpack'
-							) }
+							featureLabel={ __( 'SEO', 'jetpack' ) }
+							text={ __( 'Sign in to optimize your site for search engines.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>
