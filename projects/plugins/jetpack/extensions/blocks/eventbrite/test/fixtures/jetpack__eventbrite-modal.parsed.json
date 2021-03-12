@@ -2,7 +2,7 @@
     {
         "blockName": "jetpack/eventbrite",
         "attrs": {
-            "url": "https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883?aff=ebdssbcitybrowse",
+            "url": "https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883",
             "eventId": 144144099883,
             "style": "modal"
         },

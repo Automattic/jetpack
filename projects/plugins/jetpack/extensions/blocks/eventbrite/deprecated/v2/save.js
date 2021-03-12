@@ -5,6 +5,9 @@ import classnames from 'classnames';
 import { RichText, getColorClassName } from '@wordpress/block-editor';
 
 /**
+ * Deprecation reason:
+ * Replaces the Eventbrite block's ModalButtonPreview component with the Button inner block.
+ *
  * Adapted button save function from @wordpress/block-library
  * (Using Gutenberg code that shipped with WordPress 5.3)
  *
