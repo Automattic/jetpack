@@ -51,7 +51,7 @@ class SearchApp extends Component {
 		this.input = createRef();
 		this.state = {
 			overlayOptions: { ...this.props.initialOverlayOptions },
-			showResults: this.props.initialShowResults,
+			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.props.initializeQueryValues();
