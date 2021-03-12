@@ -1,12 +1,6 @@
 @import '../lib/styles/_helper.scss';
 $image-square-size: 128px;
 
-.jetpack-instant-search__search-results-list.is-format-product {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 0;
-}
-
 .jetpack-instant-search__search-result-expanded {
 	display: flex;
 	flex-flow: column;
