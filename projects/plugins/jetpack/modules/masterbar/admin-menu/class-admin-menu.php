@@ -269,7 +269,7 @@ class Admin_Menu {
 	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_appearance_menu( $wp_admin_themes, $wp_admin_customize ) {
+	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
 		if ( ! $wp_admin_customize ) {
 			$customize_url = 'https://wordpress.com/customize/' . $this->domain;
 		} elseif ( $this->is_api_request ) {
@@ -335,7 +335,7 @@ class Admin_Menu {
 				$submenus_to_update = array(
 					'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
 					'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
-					'profile.php'  => 'https://wordpress.com/me/',
+					'profile.php'  => 'https://wordpress.com/me',
 				);
 				$this->update_submenus( 'users.php', $submenus_to_update );
 			}
@@ -344,10 +344,16 @@ class Admin_Menu {
 			remove_submenu_page( 'users.php', 'grofiles-user-settings' );
 			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		} else {
+			if ( ! $wp_admin ) {
+				$submenus_to_update = array(
+					'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
+					'profile.php'  => 'https://wordpress.com/me',
+				);
+				$this->update_submenus( 'profile.php', $submenus_to_update );
+			}
 			remove_submenu_page( 'profile.php', 'grofiles-editor' );
 			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
-
-			$this->update_menu( 'profile.php', 'https://wordpress.com/me/account' );
+			add_submenu_page( 'profile.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		}
 	}
 
