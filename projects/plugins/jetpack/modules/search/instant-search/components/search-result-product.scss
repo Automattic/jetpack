@@ -1,6 +1,7 @@
 @import '../lib/styles/_helper.scss';
 
 $grid-size-large: 16px;
+$cell-width: 218px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
 	display: flex;
@@ -17,33 +18,8 @@ $grid-size-large: 16px;
 	// On mobile and responsive viewports, we allow only a single column.
 	width: calc( 100% - #{$grid-size-large} );
 
-	&:last-child {
-		margin-right: 0;
-	}
-
 	@include break-small-up {
-		// 3 columns on wider viewports
-		width: calc( ( 100% - ( #{$grid-size-large} * 2 ) ) / 3 );
-		margin-right: $grid-size-large;
-
-		&:nth-child( 3n ) {
-			margin-right: 0;
-		}
-	}
-
-	@include break-xlarge-up {
-		// 4 columns on wider viewports
-		width: calc( ( 100% - ( #{$grid-size-large} * 3 ) ) / 4 );
-		margin-right: $grid-size-large;
-
-		// Override styling from break-small-up.
-		&:nth-child( 3n ) {
-			margin-right: $grid-size-large;
-		}
-
-		&:nth-child( 4n ) {
-			margin-right: 0;
-		}
+		width: $cell-width;
 	}
 }
 
@@ -51,20 +27,24 @@ $grid-size-large: 16px;
 	display: block;
 }
 
-.jetpack-instant-search__search-result-product-img,
-.jetpack-instant-search__search-result-product-img--placeholder {
-	// TODO: Add dark mode support in search-app.scss.
+.jetpack-instant-search__search-result-product-img-container {
 	background: $studio-gray-10;
 	border-radius: 5px;
 	color: $color-modal-background;
+	width: $cell-width;
+	height: $cell-width;
+}
+
+.jetpack-instant-search__search-result-product-img,
+.jetpack-instant-search__search-result-product-img--placeholder {
+	// TODO: Add dark mode support in search-app.scss.
 	display: block;
-	height: auto;
-	margin: 0;
+	height: 100%;
 	object-fit: cover;
 	width: 100%;
 }
 
 .jetpack-instant-search__search-result-title.jetpack-instant-search__search-result-product-title {
 	font-size: 1.25em;
-	margin: 0 0 0.25em;
+	margin: 0.25em 0 0;
 }

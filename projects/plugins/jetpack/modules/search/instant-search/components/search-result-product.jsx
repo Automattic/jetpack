@@ -43,21 +43,23 @@ class SearchResultProduct extends Component {
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ this.props.onClick }
 				>
-					{ firstImage ? (
-						<PhotonImage
-							alt=""
-							className="jetpack-instant-search__search-result-product-img"
-							isPhotonEnabled={ this.props.isPhotonEnabled }
-							src={ `//${ firstImage }` }
-						/>
-					) : (
-						<Gridicon
-							className="jetpack-instant-search__search-result-product-img--placeholder"
-							icon="image"
-							style={ {} } // Mandatory. Overrides manual setting of height/width in Gridicon.
-							title={ __( 'Does not have an image', 'jetpack' ) }
-						/>
-					) }
+					<div className="jetpack-instant-search__search-result-product-img-container">
+						{ firstImage ? (
+							<PhotonImage
+								alt=""
+								className="jetpack-instant-search__search-result-product-img"
+								isPhotonEnabled={ this.props.isPhotonEnabled }
+								src={ `//${ firstImage }` }
+							/>
+						) : (
+							<Gridicon
+								className="jetpack-instant-search__search-result-product-img--placeholder"
+								icon="image"
+								style={ {} } // Mandatory. Overrides manual setting of height/width in Gridicon.
+								title={ __( 'Does not have an image', 'jetpack' ) }
+							/>
+						) }
+					</div>
 				</a>
 				<h3 className="jetpack-instant-search__search-result-title jetpack-instant-search__search-result-product-title">
 					<a
