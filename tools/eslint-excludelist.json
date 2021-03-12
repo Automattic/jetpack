@@ -113,7 +113,6 @@
 	"projects/plugins/jetpack/extensions/blocks/eventbrite/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/google-calendar/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/image-compare/edit.js",
-	"projects/plugins/jetpack/extensions/blocks/image-compare/img-upload.js",
 	"projects/plugins/jetpack/extensions/blocks/image-compare/use-debounce.js",
 	"projects/plugins/jetpack/extensions/blocks/image-compare/view.js",
 	"projects/plugins/jetpack/extensions/blocks/opentable/edit.js",
