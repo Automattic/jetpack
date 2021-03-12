@@ -16,6 +16,9 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	buttonWidth: {
+		type: 'string',
+	},
 	submitButtonText: {
 		type: 'string',
 		default: __( 'Subscribe', 'jetpack' ),
