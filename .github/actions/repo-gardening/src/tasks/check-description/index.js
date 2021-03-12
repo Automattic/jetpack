@@ -105,10 +105,17 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		codeFreezeDate = firstTuesdayOfMonth.subtract( 8, 'd' ).format( 'LL' );
 	}
 
+	const capitalizedName = plugin
+		.split( '-' )
+		// Capitalize first letter of each word.
+		.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+		// Spaces between words.
+		.join( ' ' );
+
 	return `
 ******
 
-**${ plugin } plugin:**
+**${ capitalizedName } plugin:**
 - Next scheduled release: _${ releaseDate }_.
 - Scheduled code freeze: _${ codeFreezeDate }_
 `;
@@ -127,6 +134,8 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
 	let pluginInfo;
+
+	debug( `check-description: This PR impacts the following plugins: ${ plugins.join( ', ' ) }` );
 
 	// Get next valid milestone for each plugin.
 	for await ( const plugin of plugins ) {
