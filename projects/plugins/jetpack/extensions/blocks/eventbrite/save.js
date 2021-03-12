@@ -14,7 +14,7 @@ export default function save( { attributes } ) {
 	if ( style === 'modal' ) {
 		return (
 			<div>
-					<InnerBlocks.Content />
+				<InnerBlocks.Content />
 			</div>
 		);
 	}
