@@ -239,8 +239,7 @@ This comment will be updated as you work on your PR and make changes. If you thi
 ******`;
 
 	// If some of the tests are failing, display list of things that could be updated in the PR description to fix things.
-	comment += `
-
+	const recommendations = `
 ${
 	! hasLongDescription
 		? `Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.`
@@ -267,8 +266,19 @@ ${
 \`\`\``
 		: ''
 }
+`;
 
-******`;
+	// If we have some recommendations, add them to our comment.
+	if (
+		// Remove line breaks from the string to facilitate checking if not empty.
+		recommendations.replace( /\r?\n|\r/g, '' ).length > 0
+	) {
+		comment += `${ recommendations }
+
+******
+`;
+	}
+
 	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
 	if ( head.repo.full_name === base.repo.full_name ) {
 		comment += `
