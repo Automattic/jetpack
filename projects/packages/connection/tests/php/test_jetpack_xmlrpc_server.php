@@ -410,7 +410,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			->method( 'isError' )
 			->will( $this->returnValue( empty( $error ) ? false : true ) );
 
-		$xml->expects( $this->exactly( empty( $error ) ? 1 : 0 ) )
+		$xml->expects( $this->exactly( $error ? 0 : 1 ) )
 			->method( 'getResponse' )
 			->will( $this->returnValue( $response ) );
 
