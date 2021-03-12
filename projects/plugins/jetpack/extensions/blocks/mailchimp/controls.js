@@ -9,22 +9,41 @@ import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
  * Internal dependencies
  */
 import MailchimpGroups from './mailchimp-groups';
+import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 
 export function MailChimpBlockControls( {
-	emailPlaceholder,
-	updateEmailPlaceholder,
-	processingLabel,
-	updateProcessingText,
-	successLabel,
-	updateSuccessText,
-	errorLabel,
-	updateErrorText,
-	interests,
+	auditionNotification,
+	clearAudition,
 	setAttributes,
+	emailPlaceholder,
+	processingLabel,
+	successLabel,
+	errorLabel,
+	interests,
 	signupFieldTag,
 	signupFieldValue,
 	connectURL,
 } ) {
+	const updateProcessingText = processing => {
+		setAttributes( { processingLabel: processing } );
+		auditionNotification( NOTIFICATION_PROCESSING );
+	};
+
+	const updateEmailPlaceholder = email => {
+		setAttributes( { emailPlaceholder: email } );
+		clearAudition();
+	};
+
+	const updateSuccessText = success => {
+		setAttributes( { successLabel: success } );
+		auditionNotification( NOTIFICATION_SUCCESS );
+	};
+
+	const updateErrorText = error => {
+		setAttributes( { errorLabel: error } );
+		auditionNotification( NOTIFICATION_ERROR );
+	};
+
 	return (
 		<>
 			<PanelBody title={ __( 'Text Elements', 'jetpack' ) }>

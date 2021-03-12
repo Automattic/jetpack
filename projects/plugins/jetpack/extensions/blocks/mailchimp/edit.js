@@ -18,9 +18,7 @@ const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
 const API_STATE_NOTCONNECTED = 2;
 
-const NOTIFICATION_PROCESSING = 'processing';
-const NOTIFICATION_SUCCESS = 'success';
-const NOTIFICATION_ERROR = 'error';
+import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 
 class MailchimpSubscribeEdit extends Component {
 	constructor() {
@@ -73,30 +71,6 @@ class MailchimpSubscribeEdit extends Component {
 
 	clearAudition = () => {
 		this.setState( { audition: null } );
-	};
-
-	updateProcessingText = processingLabel => {
-		const { setAttributes } = this.props;
-		setAttributes( { processingLabel } );
-		this.auditionNotification( NOTIFICATION_PROCESSING );
-	};
-
-	updateSuccessText = successLabel => {
-		const { setAttributes } = this.props;
-		setAttributes( { successLabel } );
-		this.auditionNotification( NOTIFICATION_SUCCESS );
-	};
-
-	updateErrorText = errorLabel => {
-		const { setAttributes } = this.props;
-		setAttributes( { errorLabel } );
-		this.auditionNotification( NOTIFICATION_ERROR );
-	};
-
-	updateEmailPlaceholder = emailPlaceholder => {
-		const { setAttributes } = this.props;
-		setAttributes( { emailPlaceholder } );
-		this.clearAudition();
 	};
 
 	labelForAuditionType = audition => {
@@ -163,14 +137,12 @@ class MailchimpSubscribeEdit extends Component {
 		const inspectorControls = (
 			<InspectorControls>
 				<MailChimpBlockControls
+					auditionNotification={ this.auditionNotification }
+					clearAudition={ this.clearAudition }
 					emailPlaceholder={ emailPlaceholder }
-					updateEmailPlaceholder={ this.updateEmailPlaceholder }
 					processingLabel={ processingLabel }
-					updateProcessingText={ this.updateProcessingText }
 					successLabel={ successLabel }
-					updateSuccessText={ this.updateSuccessText }
 					errorLabel={ errorLabel }
-					updateErrorText={ this.updateErrorText }
 					interests={ interests }
 					setAttributes={ this.props.setAttributes }
 					signupFieldTag={ signupFieldTag }
