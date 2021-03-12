@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
-const cp = require('child_process');
+import child_process from 'child_process';
+import path from 'path';
+
+/**
+ * Internal dependencies
+ */
+import promptForProject from '../helpers/promptForProject';
 
 /**
  * Command definition for the changelog subcommand.
@@ -10,24 +16,23 @@ const cp = require('child_process');
  *
  * @returns {object} Yargs with the generate commands defined.
  */
-export function changelogDefine(yargs) {
+export function changelogDefine( yargs ) {
 	yargs.command(
-		'changelog [project]',
+		'changelog <cmd> [project]',
 		'Creates a new changelog file for project',
 		yarg => {
 			yarg
-				.positional('type', {
-					describe: 'Type of project being worked on, e.g. package, plugin, etc',
+				.positional( 'cmd', {
+					describe: 'Changelogger command (e.g. add)',
 					type: 'string',
-				})
-				.options('name', {
-					alias: 'n',
-					describe: 'Name of the project',
+				} )
+				.positional( 'project', {
+					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
-				});
+				} );
 		},
 		async argv => {
-			await changeloggerCli(argv);
+			await changeloggerCli( argv );
 		}
 	);
 
@@ -39,7 +44,14 @@ export function changelogDefine(yargs) {
  *
  * @param {object} argv - arguments passed as cli.
  */
-export async function changeloggerCli(argv) {
-	const projDir = './projects/' + argv.project + '/' + argv.name;
-	cp.spawn('vendor/bin/changelogger add', [''], { cwd: projDir, stdio: 'inherit', shell: true });
+export async function changeloggerCli( argv ) {
+	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
+	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
+	argv = await promptForProject( argv );
+	const projDir = path.resolve( `projects/${ argv.project }` );
+	child_process.spawn( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
+		cwd: projDir,
+		stdio: 'inherit',
+		shell: true,
+	} );
 }

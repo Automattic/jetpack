@@ -31,12 +31,12 @@ export async function cli() {
 	 * Let's keep it alphabetical.
 	 */
 	argv = buildDefine( argv );
+	argv = changelogDefine( argv );
 	argv = cliDefine( argv );
 	// argv = dockerDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
 	argv = watchDefine( argv );
-	argv = changelogDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
 	argv
