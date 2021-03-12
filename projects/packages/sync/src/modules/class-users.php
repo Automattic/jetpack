@@ -380,11 +380,7 @@ class Users extends Module {
 			)
 		);
 
-		return new \WP_Error(
-			'password_test_failed',
-			'The password failed at least one strength test.',
-			array( 'failures' => $test_results['test_results']['failed'] )
-		);
+		return $user;
 	}
 
 	/**
