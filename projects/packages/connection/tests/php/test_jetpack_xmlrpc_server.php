@@ -186,26 +186,28 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		);
 		( new Tokens() )->update_user_token( 1, sprintf( '%s.%d', 'token', 1 ), true );
 
-		$server = new Jetpack_XMLRPC_Server();
+		try {
+			$server = new Jetpack_XMLRPC_Server();
 
-		$response = $server->remote_connect(
-			array(
-				'nonce'      => '1234',
-				'local_user' => $this->xmlrpc_admin,
-			)
-		);
+			$response = $server->remote_connect(
+				array(
+					'nonce'      => '1234',
+					'local_user' => $this->xmlrpc_admin,
+				)
+			);
 
-		$this->assertInstanceOf( 'IXR_Error', $response );
-		$this->assertObjectHasAttribute( 'code', $response );
-		$this->assertObjectHasAttribute( 'message', $response );
-		$this->assertEquals( 400, $response->code );
-		$this->assertEquals(
-			'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
-			$response->message
-		);
-
-		foreach ( array( 'blog_token', 'id', 'master_user', 'user_tokens' ) as $option_name ) {
-			Jetpack_Options::delete_option( $option_name );
+			$this->assertInstanceOf( 'IXR_Error', $response );
+			$this->assertObjectHasAttribute( 'code', $response );
+			$this->assertObjectHasAttribute( 'message', $response );
+			$this->assertEquals( 400, $response->code );
+			$this->assertEquals(
+				'Jetpack: [token_fetch_failed] Failed to fetch user token from WordPress.com.',
+				$response->message
+			);
+		} finally {
+			foreach ( array( 'blog_token', 'id', 'master_user', 'user_tokens' ) as $option_name ) {
+				Jetpack_Options::delete_option( $option_name );
+			}
 		}
 	}
 
