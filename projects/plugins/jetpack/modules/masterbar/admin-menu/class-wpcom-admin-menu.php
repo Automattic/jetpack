@@ -198,6 +198,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$menu_slug = parent::add_upgrades_menu();
 
 		add_submenu_page( $menu_slug, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+
+		return $menu_slug;
 	}
 
 	/**
