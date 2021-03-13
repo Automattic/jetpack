@@ -331,17 +331,13 @@ class Helper_Script_Manager {
 	 * @return array Array, with keys specifying the full path of install locations, and values with the equivalent URL.
 	 */
 	public static function get_install_locations() {
-		// Include WordPress root and wp-content.
-		$install_locations = array(
-			\ABSPATH        => \get_site_url(),
-			\WP_CONTENT_DIR => \WP_CONTENT_URL,
+		$upload_dir_info = \wp_upload_dir();
+		// Include uploads folder, wp-content and WordPress root.
+		return array(
+			$upload_dir_info['basedir'] => $upload_dir_info['baseurl'],
+			\WP_CONTENT_DIR             => \WP_CONTENT_URL,
+			\ABSPATH                    => \get_site_url(),
 		);
-
-		// Include uploads folder.
-		$upload_dir_info                                  = \wp_upload_dir();
-		$install_locations[ $upload_dir_info['basedir'] ] = $upload_dir_info['baseurl'];
-
-		return $install_locations;
 	}
 
 }
