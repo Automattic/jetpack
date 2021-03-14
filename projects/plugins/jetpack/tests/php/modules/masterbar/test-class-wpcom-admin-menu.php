@@ -246,7 +246,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_upgrades_menu
 	 */
-	public function test_add_wpcom_upgrades_menu() {
+	public function test_add_upgrades_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
