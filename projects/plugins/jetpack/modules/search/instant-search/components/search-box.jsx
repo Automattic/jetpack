@@ -50,12 +50,19 @@ const SearchBox = props => {
 						id={ inputId }
 						className="search-field jetpack-instant-search__box-input"
 						inputmode="search"
-						onInput={ props.onChange }
+						// IE11 will immediately fire an onChange event when the placeholder contains a unicode character.
+						// Ensure that the search application is visible before invoking the onChange callback to guard against this.
+						onChange={ props.isVisible ? props.onChange : null }
 						ref={ inputRef }
 						placeholder={ __( 'Search…', 'jetpack' ) }
 						type="search"
 						value={ props.searchQuery }
 					/>
+
+					{ typeof props.searchQuery === 'string' && props.searchQuery.length > 0 && (
+						/* Translators: Button is used to clear the search input query. */
+						<input type="button" value={ __( 'clear', 'jetpack' ) } onClick={ props.onClear } />
+					) }
 
 					<button className="screen-reader-text assistive-text">
 						{ __( 'Search', 'jetpack' ) }

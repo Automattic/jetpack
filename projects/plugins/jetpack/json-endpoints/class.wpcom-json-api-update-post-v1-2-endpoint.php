@@ -530,7 +530,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 
-			$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			$insert['post_date'] = isset( $insert['post_date'] ) ? $insert['post_date'] : '';
+
+			$post_id = post_exists( $insert['post_title'], $insert['post_content'], $insert['post_date'], $post_type->name );
+			if ( 0 === $post_id ) {
+				$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			}
 		} else {
 			$insert['ID'] = $post->ID;
 
@@ -850,8 +855,15 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$return['sticky'] = ( true === $sticky );
 		}
 
-		if ( ! empty( $media_results['errors'] ) )
-			$return['media_errors'] = $media_results['errors'];
+		if ( ! empty( $media_results['errors'] ) ) {
+			/*
+			 * Depending on whether the errors array keys are sequential or not
+			 * json_encode would transform this into either an array or an object
+			 * see https://www.php.net/manual/en/function.json-encode.php#example-3967
+			 * We use array_values to always return an array
+			 */
+			$return['media_errors'] = array_values( $media_results['errors'] );
+		}
 
 		if ( 'publish' !== $return['status'] && isset( $input['title'] )) {
 			$sal_site = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );

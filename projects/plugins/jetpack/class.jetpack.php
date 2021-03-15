@@ -799,6 +799,7 @@ class Jetpack {
 
 		// Filters for Sync Callables.
 		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 10, 1 );
+		add_filter( 'jetpack_sync_multisite_callable_whitelist', array( $this, 'filter_sync_multisite_callable_whitelist' ), 10, 1 );
 
 		// Make resources use static domain when possible.
 		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
@@ -1032,7 +1033,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Extend callables with Jetpack Plugin functions.
+	 * Extend Sync callables with Jetpack Plugin functions.
 	 *
 	 * @param array $callables list of callables.
 	 *
@@ -1060,6 +1061,29 @@ class Jetpack {
 			);
 			$callables   = array_merge( $callables, $sso_helpers );
 		}
+
+		return $callables;
+	}
+
+	/**
+	 * Extend Sync multisite callables with Jetpack Plugin functions.
+	 *
+	 * @param array $callables list of callables.
+	 *
+	 * @return array list of callables.
+	 */
+	public function filter_sync_multisite_callable_whitelist( $callables ) {
+
+		// Jetpack Funtions.
+		$jetpack_multisite_callables = array(
+			'network_name'                        => array( 'Jetpack', 'network_name' ),
+			'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
+			'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
+			'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
+			'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
+			'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
+		);
+		$callables                   = array_merge( $callables, $jetpack_multisite_callables );
 
 		return $callables;
 	}
@@ -1170,7 +1194,6 @@ class Jetpack {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
-		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
@@ -1194,6 +1217,7 @@ class Jetpack {
 				$caps = array( 'manage_sites' );
 				break;
 			case 'jetpack_admin_page':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'manage_options' );
 					break;
@@ -2595,6 +2619,7 @@ class Jetpack {
 			'deactivate'                => 'Deactivate',
 			'free'                      => 'Free',
 			'requires_connection'       => 'Requires Connection',
+			'requires_user_connection'  => 'Requires User Connection',
 			'auto_activate'             => 'Auto Activate',
 			'module_tags'               => 'Module Tags',
 			'feature'                   => 'Feature',
@@ -2609,11 +2634,12 @@ class Jetpack {
 			return false;
 		}
 
-		$mod['sort']                 = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
-		$mod['recommendation_order'] = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
-		$mod['deactivate']           = empty( $mod['deactivate'] );
-		$mod['free']                 = empty( $mod['free'] );
-		$mod['requires_connection']  = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		$mod['sort']                     = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
+		$mod['recommendation_order']     = empty( $mod['recommendation_order'] ) ? 20 : (int) $mod['recommendation_order'];
+		$mod['deactivate']               = empty( $mod['deactivate'] );
+		$mod['free']                     = empty( $mod['free'] );
+		$mod['requires_connection']      = ( ! empty( $mod['requires_connection'] ) && 'No' === $mod['requires_connection'] ) ? false : true;
+		$mod['requires_user_connection'] = ( empty( $mod['requires_user_connection'] ) || 'No' === $mod['requires_user_connection'] ) ? false : true;
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
 			$mod['auto_activate'] = 'No';

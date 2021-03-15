@@ -54,6 +54,16 @@ class Posts extends Module {
 	private $import_end = false;
 
 	/**
+	 * Max bytes allowed for post_content => length.
+	 * Current Setting : 5MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_CONTENT_LENGTH = 5000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -432,6 +442,12 @@ class Posts extends Module {
 
 		if ( 0 < strlen( $post->post_password ) ) {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
+		}
+
+		// Explicitly omit post_content when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		if ( strlen( $post->post_content ) >= self::MAX_POST_CONTENT_LENGTH ) {
+			$post->post_content = '';
 		}
 
 		/** This filter is already documented in core. wp-includes/post-template.php */

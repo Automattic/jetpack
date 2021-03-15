@@ -17,7 +17,7 @@ import { dirs, projectTypes, allProjects } from './projectHelpers';
  *
  * @returns {object} argv object with the project property.
  */
-export async function promptForProject( options ) {
+export default async function promptForProject( options ) {
 	const questions = [];
 	let typeAnswer;
 

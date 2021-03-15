@@ -96,7 +96,7 @@ The Jetpack Generate Wizard includes the following for each project:
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
 
 * `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
-* `.version`: If present, updated by `tools/plugin-version.sh`. This should not be included on Composer packages that will be served through Packagist.
+* `.version`: If present, updated by `tools/project-version.sh`. This should not be included on Composer packages that will be served through Packagist.
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. This command or build-production below are required for projects requiring a build step.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. This command or build-development above are required for projects requiring a build step.
@@ -107,10 +107,14 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "https://github.com/Automattic/jetpack-_something_".
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
-* `.extra.version-constants`: When `tools/plugin-version.sh` is updating versions, this specifies PHP constants to replace. The value is an object matching constants to the file (relative to the plugin root) in which the constant is defined.
+* `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
     ```php
     define( 'CONSTANT', 'version' );
+    ```
+  * Class constants may be specified by prefixing the constant name with "::", e.g. `::CONSTANT`. In that case the definition must look like this:
+    ```php
+    const CONSTANT = 'version';
     ```
 * `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
 
@@ -224,3 +228,46 @@ If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extr
 * `tools/create-release-branch.sh` will help you create the correctly named release branch, and will automatically update version numbers and versions of monorepo packages for you. The GitHub Action will then mirror this branch to your plugin's mirror repo.
 * `tools/deploy-to-svn.sh` will prepare a temporary directory with the content of the mirror repo branch that is ready to be pushed to WordPress.org SVN.
 * `tools/revert-release.sh` will prepare a temporary directory that updates the "Stable version" tag in `readme.txt` to the previous version, in case an emergency rollback is required.
+
+## Jetpack Changelogger
+
+The [Jetpack Changelogger](https://packagist.org/packages/automattic/jetpack-changelogger) tool helps in managing a changelog for a project by having each PR drop a specially-formatted "change file" into a changelog directory, which the tool can then process for a release.
+
+As implemented by the Jetpack Monorepo, any PR that touches the Jetpack plugin itself, or anything else in the `/projects` directory will need to add a specially-formatted file to the project's specified `changelog` directory; there is a [command](#using-the-jetpack-changelogger) mentioned below that can help create the change file.
+
+**What does the change file look like?** It’s a text file with a header-and-body format, like HTTP or email. A change file might look like this:
+
+```
+Significance: patch
+Type: compat
+
+Block Editor: update all blocks to be fully compatible with WordPress 5.7.
+```
+
+The “Significance” header specifies the significance of change in the style of [semantic versioning](https://semver.org/): patch, minor, or major.
+
+The “Type” header categorizes the change in the changelog. In Jetpack, for example, our changelog divides changes into “Major Enhancements”, “Enhancements”, “Improved compatibility”, and “Bugfixes”.
+
+The body is separated from the headers by a blank line, and is the text that actually goes into the changelog. This should follow our recommendations for [writing a good changelog entry](./writing-a-good-changelog-entry.md). Feel free to (sparingly) use Markdown in the body text.
+
+### Using the Jetpack Changelogger
+
+The changelogger tool is dev-required by each project via Composer, and after `composer install` may be run to interactively add a change file using:
+
+`vendor/bin/changelogger add`
+
+**Does it matter what the change file is named?** Starting the file name with `.` should not be used. Also consider avoiding names that have extensions like `.php` or `.js` to avoid confusing other tools.
+
+**What if a change is so trivial that it doesn’t need a changelog entry?** The change file is still required. If you specify the significance as “patch”, changelogger will allow the body section to be empty so as to not generate an entry in the changelog. In this case, use the “Comment” header instead, for example:
+
+```
+Significance: patch
+Type: compat
+Comment: Update composer.lock, no need for a changelog entry
+```
+
+**Adding the first PR to a project after a release?** If a PR is the first to Jetpack after a release, version numbers may need to be bumped. This also applies to the first semantic versioning “minor” or “major” change to any projects that use semantic versioning.
+
+The “Linting / Changelogger validity” GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
+
+Within a single project, changlogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
