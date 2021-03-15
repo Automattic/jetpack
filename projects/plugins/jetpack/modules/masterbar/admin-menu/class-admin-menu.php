@@ -268,24 +268,26 @@ class Admin_Menu {
 	 *
 	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @return string The Customizer URL.
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		if ( ! $wp_admin_customize ) {
-			$customize_url = 'https://wordpress.com/customize/' . $this->domain;
-		} elseif ( $this->is_api_request ) {
-			// In case this is an api request we will have to add the 'return' querystring via JS.
-			$customize_url = 'customize.php';
-		} else {
-			$customize_url = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
-		}
-
-		$default_customize_slug          = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
+		$request_uri                     = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$default_customize_slug          = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), $request_uri ) ), 'customize.php' );
 		$default_customize_header_slug_1 = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $default_customize_slug );
 		// TODO: Remove WPCom_Theme_Customizer::modify_header_menu_links() and WPcom_Custom_Header::modify_admin_menu_links().
 		$default_customize_header_slug_2     = admin_url( 'themes.php?page=custom-header' );
 		$default_customize_background_slug_1 = add_query_arg( array( 'autofocus' => array( 'control' => 'background_image' ) ), $default_customize_slug );
 		// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
 		$default_customize_background_slug_2 = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
+
+		if ( ! $wp_admin_customize ) {
+			$customize_url = 'https://wordpress.com/customize/' . $this->domain;
+		} elseif ( $this->is_api_request ) {
+			// In case this is an api request we will have to add the 'return' querystring via JS.
+			$customize_url = 'customize.php';
+		} else {
+			$customize_url = $default_customize_slug;
+		}
 
 		$submenus_to_update = array(
 			$default_customize_slug              => $customize_url,
@@ -306,6 +308,8 @@ class Admin_Menu {
 		}
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );
+
+		return $customize_url;
 	}
 
 	/**

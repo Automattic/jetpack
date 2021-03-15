@@ -209,20 +209,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
 		remove_submenu_page( 'themes.php', 'theme-editor.php' );
 
 		$user_can_customize = current_user_can( 'customize' );
 
 		if ( $user_can_customize ) {
-			if ( ! $wp_admin_customize ) {
-				$customize_url = 'https://wordpress.com/customize/' . $this->domain;
-			} elseif ( $this->is_api_request ) {
-				$customize_url = 'customize.php';
-			} else {
-				$customize_url = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
-			}
 			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
 			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_url );
