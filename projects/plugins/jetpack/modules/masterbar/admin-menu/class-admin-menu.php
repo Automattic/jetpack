@@ -415,7 +415,7 @@ class Admin_Menu {
 			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
 		} else {
 			// In case this is an api request we will have to add the 'return' querystring via JS.
-			$customize_slug = $this->is_api_request ? 'customize.php' : add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
+			$customize_slug = $this->is_api_request ? 'customize.php' : add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 		}
 		remove_menu_page( 'themes.php' );
 		remove_submenu_page( 'themes.php', 'themes.php' );
