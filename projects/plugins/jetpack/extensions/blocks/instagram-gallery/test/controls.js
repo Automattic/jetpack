@@ -7,7 +7,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 /**
  * Internal dependencies
@@ -42,37 +42,38 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		setAttributes.mockClear();
 	} );
 
-	test( 'renders account settings and allows the connected account to be disconnected', async () => {
+	test( 'renders account settings and allows the connected account to be disconnected', () => {
 		render( <InstagramGalleryInspectorControls { ...defaultProps } /> );
 
-		await waitFor( () => screen.getByText( 'Account Settings' ) );
+		expect( screen.getByText( 'Account Settings' ) ).toBeInTheDocument();
+		expect( screen.getByText( '@testjetpackuser' ) ).toBeInTheDocument();
 		userEvent.click( screen.getByText( 'Disconnect your account' ) );
 
 		expect( disconnectFromService ).toHaveBeenCalledWith( 'test-access-token' );
 	} );
 
-	test( 'renders notice that there are no images available', async () => {
+	test( 'renders notice that there are no images available', () => {
 		const propsNoImages = { ...defaultProps, accountImageTotal: 0, shouldRenderSidebarNotice: true };
 		render( <InstagramGalleryInspectorControls { ...propsNoImages } /> );
 
-		await waitFor( () => expect( screen.getAllByText( 'There are currently no posts in your Instagram account.' )[0] ).toBeInTheDocument() );
+		expect( screen.getAllByText( 'There are currently no posts in your Instagram account.' )[0] ).toBeInTheDocument();
 	} );
 
-	test( 'renders notice that there is only one image available', async () => {
+	test( 'renders notice that there is only one image available', () => {
 		const propsOneImage = { ...defaultProps, accountImageTotal: 1, shouldRenderSidebarNotice: true };
 		render( <InstagramGalleryInspectorControls { ...propsOneImage } /> );
 
-		await waitFor( () => expect( screen.getAllByText( 'There is currently only 1 post in your Instagram account.' )[0] ).toBeInTheDocument() );
+		expect( screen.getAllByText( 'There is currently only 1 post in your Instagram account.' )[0] ).toBeInTheDocument();
 	} );
 
-	test( 'renders notice that there is only a small number of images available', async () => {
+	test( 'renders notice that there is only a small number of images available', () => {
 		const propsSmallNumberOfImages = { ...defaultProps, accountImageTotal: 3, shouldRenderSidebarNotice: true };
 		render( <InstagramGalleryInspectorControls { ...propsSmallNumberOfImages } /> );
 
-		await waitFor( () => expect( screen.getAllByText( 'There are currently only 3 posts in your Instagram account.' )[0] ).toBeInTheDocument() );
+		expect( screen.getAllByText( 'There are currently only 3 posts in your Instagram account.' )[0] ).toBeInTheDocument();
 	} );
 
-	test( 'updates count when changing number of posts', async () => {
+	test( 'updates count when changing number of posts', () => {
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, count: 1 } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
@@ -81,7 +82,7 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { count: 15 } );
 	} );
 
-	test( 'updates columns when changing number of columns', async () => {
+	test( 'updates columns when changing number of columns', () => {
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, columns: 0 } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
@@ -90,7 +91,7 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { columns: 3 } );
 	} );
 
-	test( 'updates spacing when changing image spacing', async () => {
+	test( 'updates spacing when changing image spacing', () => {
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, spacing: 0 } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
@@ -99,7 +100,7 @@ describe( 'InstagramGalleryInspectorControls', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { spacing: 5 } );
 	} );
 
-	test( 'updates isStackedOnMobile when toggling stack on mobile', async () => {
+	test( 'updates isStackedOnMobile when toggling stack on mobile', () => {
 		const propsSmallCount = { ...defaultProps, attributes: { ...defaultAttributes, isStackedOnMobile: true } };
 		render( <InstagramGalleryInspectorControls { ...propsSmallCount } /> );
 
