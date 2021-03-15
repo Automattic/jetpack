@@ -12,7 +12,7 @@ require( '@babel/register' )( {
 	only: [
 		function ( path ) {
 			return path.startsWith( basepath );
-		}
+		},
 	],
 } );
 
@@ -74,8 +74,8 @@ if ( program.initfile ) {
 if ( program.args.length ) {
 	program.args.forEach( function ( file ) {
 		if ( file.startsWith( 'glob:' ) ) {
-			glob.sync( file.substring( 5 ) ).forEach( file => {
-				mocha.addFile( file );
+			glob.sync( file.substring( 5 ) ).forEach( file2 => {
+				mocha.addFile( file2 );
 			} );
 		} else {
 			mocha.addFile( file );
