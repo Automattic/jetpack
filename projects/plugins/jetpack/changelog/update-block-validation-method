@@ -1,4 +1,3 @@
 Significance: patch
 Type: enhancement
-
-Block parsing tests: make call for main block settings more robust (no public changelog required)
+Comment: Block parsing tests: make call for main block settings more robust
