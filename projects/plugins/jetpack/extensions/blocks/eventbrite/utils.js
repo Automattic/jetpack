@@ -30,3 +30,17 @@ export function eventIdFromUrl( url ) {
 	const match = url.match( /(\d+)\/?(?:\?[^\/]*)?\s*$/ );
 	return match && match[ 1 ] ? parseInt( match[ 1 ], 10 ) : null;
 }
+
+/**
+ * Returns a normalized URL string from raw input. For now we're just trimming to avoid broken URLs.
+ *
+ * @param   {string} url Eventbrite URL string.
+ * @returns {?string}    Normalized string
+ */
+export function normalizeUrlInput( url = '' ) {
+	if ( ! url || typeof url !== 'string' ) {
+		return null;
+	}
+
+	return url.trim();
+}

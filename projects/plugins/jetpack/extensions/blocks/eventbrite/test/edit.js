@@ -6,53 +6,37 @@
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/react';
-// 👀 Remove any unneeded imports from above.
 
 /**
  * Internal dependencies
  */
-// 👀 Import the edit component you are testing.
-// e.g. import WhatsAppButtonEdit from '../edit';
+import { EventbriteEdit } from '../edit';
 
-describe( '', () => {
+describe( 'Eventbrite Edit', () => {
 	const defaultAttributes = {
-		// 👀 Setup default block attributes.
+		url: '',
 	};
 
 	const setAttributes = jest.fn();
+	const removeAllNotices = jest.fn();
+	const createErrorNotice = jest.fn();
 	const defaultProps = {
-		// 👀 Setup default block props.
 		attributes: defaultAttributes,
+		noticeOperations: {
+			removeAllNotices,
+			createErrorNotice,
+		},
 		setAttributes,
-		clientId: 1,
 	};
 
-	// 👀 Tests setup.
 	beforeEach( () => {
 		setAttributes.mockClear();
 	} );
 
-	/**
-	 * 👀 Write tests specific to this block's edit component.
-	 *
-	 * Tests may cover behaviour such as:
-	 * - Loading correctly
-	 * - Children are rendered
-	 * - Event handler callbacks are called
-	 * - Correct attributes are applied in markup
-	 * - Appropriate CSS classes applied
-	 */
+	test( 'renders form by default', () => {
+		render( <EventbriteEdit { ...defaultProps } /> );
 
-	/**
-	 * 👀 Example:
-	 * test( 'displays with customText attribute', () => {
-	 * 		render( <YourEditComponent { ...defaultProps } /> );
-	 * 		expect( screen.getByText( 'Custom text rendered in block' ) ).toBeInTheDocument();
-	 * } );
-	 */
-	test( '', () => {
-
+		expect( screen.getByPlaceholderText( 'Enter an event URL to embed here…' ) ).toBeInTheDocument();
 	} );
 } );
