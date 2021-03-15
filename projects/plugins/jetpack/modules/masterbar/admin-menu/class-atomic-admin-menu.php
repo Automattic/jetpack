@@ -105,11 +105,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Attempt to get last position.
 		$position = 1000;
 		while ( isset( $menu[ $position ] ) ) {
-			$position ++;
+			$position++;
 		}
 
-		$this->add_admin_menu_separator( ++ $position );
-		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt', ++ $position );
+		$this->add_admin_menu_separator( ++$position );
+		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt', ++$position );
 	}
 
 	/**
