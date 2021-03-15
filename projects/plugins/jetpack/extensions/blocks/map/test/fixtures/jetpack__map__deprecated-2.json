@@ -2,7 +2,7 @@
     {
         "clientId": "_clientId_0",
         "name": "jetpack/map",
-        "isValid": true,
+        "isValid": false,
         "attributes": {
             "points": [],
             "mapDetails": true,
