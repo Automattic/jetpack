@@ -32,6 +32,7 @@ $modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results-content {
 	display: flex;
+	position: relative;
 }
 
 .jetpack-instant-search__search-results-filter-button {
@@ -116,16 +117,15 @@ $modal-max-width-lg: 95%;
 	&.jetpack-instant-search__search-results-secondary--show-as-modal {
 		@include break-large-down() {
 			position: absolute;
-			top: 96px;
-			right: 40px;
-			left: 40px;
+			top: 0;
+			right: 1em;
+			left: 1em;
 
 			background: $color-modal-background;
 			border-radius: 6px;
 			border: 1px solid rgba( 0, 0, 0, 0.1 );
 			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
 			display: block;
-			margin: 16px 0 32px;
 			min-width: 360px;
 			padding: 16px 24px;
 			width: auto;
