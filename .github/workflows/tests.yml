@@ -144,15 +144,6 @@ jobs:
 
       - name: Monorepo install
         run: |
-          echo "::group::Composer"
-          if composer check-platform-reqs --lock; then
-            echo 'Platform reqs pass, running `composer install`'
-            composer install
-          else
-            echo 'Platform reqs failed, running `composer update`'
-            composer update
-          fi
-          echo "::endgroup::"
           echo "::group::Yarn"
           yarn install
           echo "::endgroup::"
