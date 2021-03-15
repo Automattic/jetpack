@@ -59,20 +59,14 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$admin_slug = 'tools.php';
-		$menu_slug  = 'https://wordpress.com/marketing/tools/' . $this->domain;
+		$this->remove_submenus( 'tools.php' );
 
-		remove_menu_page( $admin_slug );
-		$this->remove_submenus( $admin_slug );
-
-		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', $menu_slug, null, 'dashicons-admin-tools', 75 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', $menu_slug );
-		add_submenu_page( $menu_slug, esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
+		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
+		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
 
 		// Import/Export on Jetpack sites is always handled on WP Admin.
-		add_submenu_page( $menu_slug, esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'import.php' );
-		add_submenu_page( $menu_slug, esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'export.php' );
-
+		add_submenu_page( 'tools.php', esc_attr__( 'Import', 'jetpack' ), __( 'Import', 'jetpack' ), 'import', 'import.php' );
+		add_submenu_page( 'tools.php', esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'export.php' );
 	}
 
 	/**
@@ -80,10 +74,8 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_wp_admin_menu() {
 		global $menu;
-		$menu_slug = 'index.php';
 
-		remove_menu_page( $menu_slug );
-		$this->remove_submenus( $menu_slug );
+		$this->remove_submenus( 'index.php' );
 
 		// Attempt to get last position.
 		ksort( $menu );
@@ -91,8 +83,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$position = key( $menu );
 
 		$this->add_admin_menu_separator( ++$position );
-
-		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', $menu_slug, null, 'dashicons-wordpress-alt', $position );
+		$this->update_menu( 'index.php', null, __( 'WP Admin', 'jetpack' ), null, 'dashicons-wordpress-alt', $position );
 	}
 
 	/**
@@ -102,18 +93,11 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$appearance_cap = current_user_can( 'switch_themes' ) ? 'switch_themes' : 'edit_theme_options';
-		$admin_slug     = 'themes.php';
-		$menu_slug      = 'https://wordpress.com/themes/' . $this->domain;
-
 		// Remove all submenus except Themes and Customize to mimic the old Calypso navigation.
-		remove_menu_page( $admin_slug );
-		$this->remove_submenus( $admin_slug );
-		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), $appearance_cap, $menu_slug, null, 'dashicons-admin-appearance', 60 );
-		add_submenu_page( $menu_slug, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', $menu_slug );
-
+		$this->remove_submenus( 'themes.php' );
+		add_submenu_page( 'themes.php', esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
 		// Customize on Jetpack sites is always done on WP Admin (unsupported by Calypso).
-		add_submenu_page( $menu_slug, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', 'customize.php' );
+		add_submenu_page( 'themes.php', esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', 'customize.php' );
 	}
 
 	/**
