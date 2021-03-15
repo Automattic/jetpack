@@ -1,12 +1,20 @@
 @import '../lib/styles/_helper.scss';
 
 $item-spacing: 16px;
-$cell-width: 218px;
+$cell-width: 183px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
 	display: flex;
 	flex-wrap: wrap;
 	padding: 0;
+
+	margin-right: $results-margin-lg - $item-spacing;
+	@include break-medium-down() {
+		margin-right: $results-margin-sm - $item-spacing;
+	}
+	@include break-large-down() {
+		margin-right: $results-margin-md - $item-spacing;
+	}
 }
 
 .jetpack-instant-search__search-result.jetpack-instant-search__search-result-product {
@@ -37,7 +45,7 @@ $cell-width: 218px;
 
 .jetpack-instant-search__search-result-product-img,
 .jetpack-instant-search__search-result-product-img--placeholder {
-	// TODO: Add dark mode support in search-app.scss.
+	border-radius: 5px;
 	display: block;
 	height: 100%;
 	object-fit: cover;
