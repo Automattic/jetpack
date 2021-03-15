@@ -6,6 +6,8 @@ require( '@babel/register' )( {
 	only: [ '.', '../../js-packages/' ],
 } );
 
+require( '@babel/runtime/helpers/interopRequireDefault' );
+
 const program = require( 'commander' ),
 	glob = require( 'glob' ),
 	Mocha = require( 'mocha' ),
