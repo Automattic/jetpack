@@ -345,7 +345,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		} else {
 			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][1][2] );
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][6][2] );
 		}
 	}
 
