@@ -185,13 +185,148 @@ async function getCheckComment( octokit, owner, repo, number ) {
 }
 
 /**
+ * Compose a list item with appropriate status check and passed message
+ *
+ * @param {boolean} isFailure - Boolean condition to determine if check failed.
+ * @param {string} checkMessage - Sentence describing successful check.
+ * @param {string} severity - Optional. Check severity. Could be one of `error`, `warning`, `notice`
+ *
+ * @returns {string} - List item with status emoji and a sentence describing check.
+ */
+function statusEntry( isFailure, checkMessage, severity = 'error' ) {
+	const severityMap = {
+		error: ':red_circle:',
+		warning: ':warning:',
+		notice: ':spiral_notepad:',
+		ok: ':white_check_mark:',
+	};
+	const status = isFailure ? severityMap[ severity ] : severityMap.ok;
+	return `
+	- ${ status } ${ checkMessage }<br>`;
+}
+
+/**
+ * Compose a list of checks for the PR
+ * Covers:
+ * - Short PR description
+ * - Unverified commits
+ * - Missing `[Status]` label
+ * - Missing "Testing instructions"
+ * - Privacy section
+ *
+ * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ *
+ * @returns {string} List of checks with appropriate status emojis.
+ */
+async function getStatusChecks( payload, octokit ) {
+	const { base, body, head, number } = payload.pull_request;
+	const { name: repo, owner } = payload.repository;
+	const ownerLogin = owner.login;
+	// No PR is too small to include a description of why you made a change
+	let checks = statusEntry( body < 10, 'Include a description of your PR changes.' );
+
+	// Check all commits in PR.
+	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
+	const isDirty = await hasUnverifiedCommit( octokit, ownerLogin, repo, number );
+	checks += statusEntry( isDirty, 'All commits were linted before commit.', 'warning' );
+
+	// Use labels please!
+	// Only check this for PRs created by a12s. External contributors cannot add labels.
+	if ( head.repo.full_name === base.repo.full_name ) {
+		const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
+		debug( `check-description: this PR is correctly labeled: ${ isLabeled }` );
+		checks += statusEntry(
+			isLabeled,
+			'Add a "[Status]" label (In Progress, Needs Team Review, ...).'
+		);
+	}
+
+	// Check for testing instructions.
+	checks += statusEntry( body.includes( 'Testing instructions' ), 'Add testing instructions.' );
+
+	// Check if the Privacy section is filled in.
+	const isPrivacySectionFilled = ! body.includes( 'data or activity we track or use' );
+	checks += statusEntry(
+		isPrivacySectionFilled,
+		'Specify whether this PR includes any changes to data or privacy.'
+	);
+
+	debug( `check-description: privacy checked. Status checks so far is ${ checks }` );
+
+	return checks;
+}
+
+/**
+ * Creates or updates a comment on PR.
+ *
+ * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} comment - Comment string
+ */
+async function postComment( payload, octokit, comment ) {
+	const { number } = payload.pull_request;
+	const { name: repo, owner } = payload.repository;
+	const ownerLogin = owner.login;
+	const commentOpts = {
+		owner: ownerLogin,
+		repo,
+		body: comment,
+	};
+
+	const existingComment = await getCheckComment( octokit, ownerLogin, repo, number );
+
+	// If there is a comment already, update it.
+	if ( existingComment !== 0 ) {
+		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
+		await octokit.issues.updateComment(
+			Object.assign( commentOpts, { comment_id: +existingComment } )
+		);
+	} else {
+		// If no comment was published before, publish one now.
+		debug( `check-description: Posting comment to PR #${ number }` );
+		await octokit.issues.createComment( Object.assign( commentOpts, { issue_number: +number } ) );
+	}
+}
+
+/**
+ * Update labels for PRs with failing checks
+ *
+ * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ */
+async function updateLabels( payload, octokit ) {
+	const { number } = payload.pull_request;
+	const { name: repo, owner } = payload.repository;
+	const ownerLogin = owner.login;
+	const labelOpts = {
+		owner: ownerLogin,
+		repo,
+		issue_number: +number,
+	};
+
+	debug( `check-description: some of the checks are failing. Update labels accordingly.` );
+
+	const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
+	if ( hasNeedsReview ) {
+		debug( `check-description: remove existing Needs review label.` );
+		await octokit.issues.removeLabel(
+			Object.assign( labelOpts, { name: '[Status] Needs Review' } )
+		);
+	}
+
+	debug( `check-description: add Needs Author Reply label.` );
+	await octokit.issues.addLabels( labelOpts, { name: '[Status] Needs Author Reply' } );
+}
+
+/**
  * Checks the contents of a PR description.
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { base, body, head, number } = payload.pull_request;
+	const { number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 
@@ -202,44 +337,7 @@ async function checkDescription( payload, octokit ) {
 
 When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
-	// No PR is too small to include a description of why you made a change
-	const hasLongDescription = body.length > 200;
-	comment += `
-- ${
-		! hasLongDescription ? `:red_circle:` : `:white_check_mark:`
-	} Include a description of your PR changes.<br>`;
-
-	// Check all commits in PR.
-	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
-	const isDirty = await hasUnverifiedCommit( octokit, ownerLogin, repo, number );
-	comment += `
-- ${ isDirty ? `:x:` : `:white_check_mark:` } All commits were linted before commit.<br>`;
-
-	// Use labels please!
-	// Only check this for PRs created by a12s. External contributors cannot add labels.
-	if ( head.repo.full_name === base.repo.full_name ) {
-		const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
-		debug( `check-description: this PR is correctly labeled: ${ isLabeled }` );
-		comment += `
-- ${
-			! isLabeled ? `:red_circle:` : `:white_check_mark:`
-		} Add a "[Status]" label (In Progress, Needs Team Review, ...).<br>`;
-	}
-
-	// Check for testing instructions.
-	const hasTesting = body.includes( 'Testing instructions' );
-	comment += `
-- ${ ! hasTesting ? `:red_circle:` : `:white_check_mark:` } Add testing instructions.<br>`;
-
-	// Check if the Privacy section is filled in.
-	const hasPrivacy = body.includes( 'data or activity we track or use' );
-	comment += `
-- ${
-		! hasPrivacy ? `:red_circle:` : `:white_check_mark:`
-	} Specify whether this PR includes any changes to data or privacy.<br>`;
-
-	debug( `check-description: privacy checked. our comment so far is ${ comment }` );
-
+	comment += await getStatusChecks( payload, octokit );
 	comment += `
 
 
@@ -304,51 +402,11 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	}
 
 	// Look for an existing check-description task comment.
-	const existingComment = await getCheckComment( octokit, ownerLogin, repo, number );
-
-	// If there is a comment already, update it.
-	if ( existingComment !== 0 ) {
-		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
-		await octokit.issues.updateComment( {
-			owner: ownerLogin,
-			repo,
-			comment_id: +existingComment,
-			body: comment,
-		} );
-	} else {
-		// If no comment was published before, publish one now.
-		debug( `check-description: Posting comment to PR #${ number }` );
-
-		await octokit.issues.createComment( {
-			owner: ownerLogin,
-			repo,
-			issue_number: +number,
-			body: comment,
-		} );
-	}
+	await postComment( payload, octokit, comment );
 
 	// If some of our checks are failing, remove any "Needs Review" labels and add an Needs Author Reply label.
 	if ( comment.includes( ':red_circle:' ) ) {
-		debug( `check-description: some of the checks are failing. Update labels accordingly.` );
-
-		const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
-		if ( hasNeedsReview ) {
-			debug( `check-description: remove existing Needs review label.` );
-			await octokit.issues.removeLabel( {
-				owner: ownerLogin,
-				repo,
-				issue_number: +number,
-				name: '[Status] Needs Review',
-			} );
-		}
-
-		debug( `check-description: add Needs Author Reply label.` );
-		await octokit.issues.addLabels( {
-			owner: ownerLogin,
-			repo,
-			issue_number: +number,
-			labels: [ '[Status] Needs Author Reply' ],
-		} );
+		await updateLabels( payload, octokit );
 	}
 }
 
