@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Brain\Monkey\Functions;
 use WorDBless\BaseTestCase;
 
 /**
@@ -22,7 +21,6 @@ class Error_Handler_Test extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
-		Functions\when( 'wp_remote_post' )->justReturn( true ); // We don't want to pass errors up to WP.com.
 		$this->error_handler = Error_Handler::get_instance();
 	}
 

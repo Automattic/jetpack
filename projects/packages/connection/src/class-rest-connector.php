@@ -247,13 +247,21 @@ class REST_Connector {
 	/**
 	 * Verifies if the request was signed with the Jetpack Debugger key
 	 *
+	 * @param string|null $pub_key The public key used to verify the signature. Default is the Jetpack Debugger key. This is used for testing purposes.
+	 *
 	 * @return bool
 	 */
-	public static function is_request_signed_by_jetpack_debugger() {
+	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
 		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
+		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'], $_GET['rest_route'] ) ) {
 			return false;
 		}
+
+		// signature timestamp must be within 5min of current time.
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
+			return false;
+		}
+
 		$signature = base64_decode( $_GET['signature'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
 		$signature_data = wp_json_encode(
@@ -269,14 +277,9 @@ class REST_Connector {
 			|| 1 !== openssl_verify(
 				$signature_data,
 				$signature,
-				static::JETPACK__DEBUGGER_PUBLIC_KEY
+				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
 			)
 		) {
-			return false;
-		}
-
-		// signature timestamp must be within 5min of current time.
-		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return false;
 		}
 
