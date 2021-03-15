@@ -23,6 +23,9 @@ echo "::set-output name=build-base::$BUILD_BASE"
 echo "::group::Monorepo setup"
 yarn install
 echo "::endgroup::"
+echo "::group::Jetpack CLI setup"
+(cd tools/cli && yarn install)
+echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
 echo "::endgroup::"
