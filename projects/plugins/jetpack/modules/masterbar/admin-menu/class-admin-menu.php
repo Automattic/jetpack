@@ -146,23 +146,25 @@ class Admin_Menu {
 	public function add_upgrades_menu() {
 		global $menu;
 
-		$menu_slug = null;
+		$menu_exists = false;
 		foreach ( $menu as $item ) {
 			if ( 'paid-upgrades.php' === $item[2] ) {
-				$menu_slug = $item[2];
+				$menu_exists = true;
 				break;
 			}
 		}
 
-		if ( ! $menu_slug ) {
-			$menu_slug = 'https://wordpress.com/plans/' . $this->domain;
-			add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', $menu_slug, null, 'dashicons-cart', 4 );
+		if ( ! $menu_exists ) {
+			add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}
 
-		add_submenu_page( $menu_slug, __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', $menu_slug, null, 5 );
-		add_submenu_page( $menu_slug, __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 15 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 5 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 15 );
 
-		return $menu_slug;
+		if ( ! $menu_exists ) {
+			// Remove the submenu auto-created by Core.
+			remove_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
+		}
 	}
 
 	/**

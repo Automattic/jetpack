@@ -177,9 +177,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Upgrades menu.
 	 */
 	public function add_upgrades_menu() {
-		$menu_slug = parent::add_upgrades_menu();
+		parent::add_upgrades_menu();
 
-		add_submenu_page( $menu_slug, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
 	}
 
 	/**

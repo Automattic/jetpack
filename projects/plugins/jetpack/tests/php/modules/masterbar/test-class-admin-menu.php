@@ -205,13 +205,12 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $menu['4.80608'][2] );
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, array_shift( $submenu[ 'https://wordpress.com/plans/' . static::$domain ] )[2] );
-		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, array_shift( $submenu[ 'https://wordpress.com/plans/' . static::$domain ] )[2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, array_shift( $submenu['paid-upgrades.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, array_shift( $submenu['paid-upgrades.php'] )[2] );
 	}
 
 	/**
