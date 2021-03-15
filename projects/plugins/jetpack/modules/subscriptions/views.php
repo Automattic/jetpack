@@ -258,21 +258,22 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param string $subscribe_email The email to use to prefill the form.
 	 */
 	static function render_widget_subscription_form( $args, $instance, $subscribe_email ) {
-		$show_only_email_and_button = $instance['show_only_email_and_button'];
-		$show_subscribers_total     = (bool) $instance['show_subscribers_total'];
-		$subscribe_text             = empty( $instance['show_only_email_and_button'] ) ?
+		$show_only_email_and_button   = $instance['show_only_email_and_button'];
+		$show_subscribers_total       = (bool) $instance['show_subscribers_total'];
+		$subscribe_text               = empty( $instance['show_only_email_and_button'] ) ?
 			stripslashes( $instance['subscribe_text'] ) :
 			false;
-		$referer                    = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		$source                     = 'widget';
-		$widget_id                  = esc_attr( ! empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
-		$subscribe_button           = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
-		$subscribers_total          = self::fetch_subscriber_count();
-		$subscribe_placeholder      = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
-		$submit_button_classes      = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
-		$submit_button_styles       = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
-		$email_field_classes        = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
-		$email_field_styles         = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
+		$referer                      = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$source                       = 'widget';
+		$widget_id                    = esc_attr( ! empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : wp_rand( 450, 550 ) );
+		$subscribe_button             = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
+		$subscribers_total            = self::fetch_subscriber_count();
+		$subscribe_placeholder        = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
+		$submit_button_classes        = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
+		$submit_button_styles         = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
+		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
+		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -345,7 +346,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					?>
 				</p>
 
-				<p id="subscribe-submit">
+				<p id="subscribe-submit"
+					<?php if ( ! empty( $submit_button_wrapper_styles ) ) { ?>
+						style="<?php echo esc_attr( $submit_button_wrapper_styles ); ?>"
+					<?php }; ?>
+				>
                     <input type="hidden" name="action" value="subscribe"/>
                     <input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
                     <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
@@ -424,7 +429,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                         />
                     </p>
 
-                    <p id="subscribe-submit">
+					<p id="subscribe-submit"
+						<?php if ( ! empty( $submit_button_wrapper_styles ) ) { ?>
+							style="<?php echo esc_attr( $submit_button_wrapper_styles ); ?>"
+						<?php }; ?>
+					>
                         <input type="hidden" name="action" value="subscribe"/>
                         <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
                         <input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>"/>
@@ -762,17 +771,32 @@ function jetpack_do_subscription_form( $instance ) {
 	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
 	// Build up a string with the submit button's classes and styles and set it on the instance
-	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
-	$email_field_classes   = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
-	$style                 = '';
-	$submit_button_styles  = '';
-	$email_field_styles    = '';
+	$submit_button_classes        = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
+	$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+	$style                        = '';
+	$submit_button_styles         = '';
+	$submit_button_wrapper_styles = '';
+	$email_field_styles           = '';
 
 	if ( isset( $instance['custom_background_button_color'] ) && 'undefined' !== $instance['custom_background_button_color'] ) {
 		$submit_button_styles .= 'background: ' . $instance['custom_background_button_color'] . '; ';
 	}
 	if ( isset( $instance['custom_text_button_color'] ) && 'undefined' !== $instance['custom_text_button_color'] ) {
 		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . '; ';
+	}
+	if ( isset( $instance['custom_button_width'] ) && 'undefined' !== $instance['custom_button_width'] ) {
+		$submit_button_wrapper_styles .= 'width: ' . $instance['custom_button_width'] . '; ';
+		$submit_button_wrapper_styles .= 'max-width: 100%; ';
+
+		// Account for custom margins on inline forms.
+		if (
+			! empty( $instance['custom_spacing'] ) &&
+			! ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] )
+		) {
+			$submit_button_styles .= 'width: calc(100% - ' . $instance['custom_spacing'] . 'px); ';
+		} else {
+			$submit_button_styles .= 'width: 100%; ';
+		}
 	}
 
 	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
@@ -840,6 +864,9 @@ function jetpack_do_subscription_form( $instance ) {
 
 	if ( ! empty( $submit_button_styles ) ) {
 		$instance['submit_button_styles'] = trim( $submit_button_styles );
+	}
+	if ( ! empty( $submit_button_wrapper_styles ) ) {
+		$instance['submit_button_wrapper_styles'] = trim( $submit_button_wrapper_styles );
 	}
 	if ( ! empty( $email_field_styles ) ) {
 		$instance['email_field_styles'] = trim( $email_field_styles );

@@ -23,7 +23,7 @@ import { normalizeInstallArgv } from '../normalizeArgv';
  *
  * @returns {object} - The project install task per Listr format.
  */
-export function installProjectTask( argv ) {
+export default function installProjectTask( argv ) {
 	argv = normalizeInstallArgv( argv );
 
 	// This should never happen. Hard exit to avoid errors in consuming code.
