@@ -211,15 +211,22 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
 		parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
+		remove_submenu_page( 'themes.php', 'theme-editor.php' );
+
 		$user_can_customize = current_user_can( 'customize' );
 
 		if ( $user_can_customize ) {
-			$themes_slug    = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
-			$customize_slug = 'https://wordpress.com/customize/' . $this->domain;
+			if ( ! $wp_admin_customize ) {
+				$customize_url = 'https://wordpress.com/customize/' . $this->domain;
+			} elseif ( $this->is_api_request ) {
+				$customize_url = 'customize.php';
+			} else {
+				$customize_url = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), wp_unslash( $_SERVER['REQUEST_URI'] ) ) ), 'customize.php' );
+			}
 			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
 			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
-			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_slug );
-			add_submenu_page( $themes_slug, esc_attr__( 'Edit CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
+			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_url );
+			add_submenu_page( 'themes.php', esc_attr__( 'Edit CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
 	}
 
@@ -317,17 +324,5 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
-	}
-
-	/**
-	 * Adds Appearance menu.
-	 *
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
-
-		remove_submenu_page( 'themes.php', 'theme-editor.php' );
 	}
 }
