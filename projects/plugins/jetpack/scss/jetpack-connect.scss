@@ -12,9 +12,12 @@
 
 	@media (min-width: 491px) {
 		background: #FFFFFF;
-		border: 2px solid #C1D0E8;
-		box-sizing: border-box;
-		border-radius: 6px;
+
+		.jp-jetpack-connect__userless & {
+			border: 2px solid #C1D0E8;
+			box-sizing: border-box;
+			border-radius: 6px;
+		}
 	}
 }
 
