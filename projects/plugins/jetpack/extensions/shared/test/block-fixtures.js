@@ -189,7 +189,7 @@ function checkParseValid( block, fixtureName ) {
 	}
 }
 
-function registerBlocks( blocks ) {
+export function registerBlocks( blocks ) {
 	// Need to add a valid category or block registration fails
 	setCategories( [
 		{
