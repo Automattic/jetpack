@@ -135,6 +135,14 @@ All test commands must return a shell failure status when tests fail and a succe
 
 If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
+The following environment variables are avaliable for all tests:
+
+- `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
+- `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
+- `NODE_VERSION`: The version of Node in use. Same as `.nvmrc`.
+- `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as `.github/php-version`.
+- `TEST_SCRIPT`: The test script being run.
+
 ### Linting
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
@@ -149,9 +157,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 5.6 to 8.0. The PHP version for a run is available in the environment variable `PHP_VERSION`. If you have tests that only need to be run once, run them when `PHP_VERSION` matches `.github/php-version`.
-
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
+Tests are run with a variety of supported PHP versions from 5.6 to 8.0. If you have tests that only need to be run once, run them when `PHP_VERSION` matches `.github/php-version`.
 
 #### PHP tests for non-plugins
 
@@ -180,15 +186,11 @@ Note that WordPress currently requires a version of PHPUnit that does not native
 
 If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
-
 ### E2E tests
 
 **This is not implemented yet!**
 
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
-
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 
 ### Code coverage
 
@@ -201,9 +203,7 @@ Output should be written to the path specified via the `COVERAGE_DIR` environmen
 
 For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run.
-
-There's no need to be concerned about collisions with other projects' coverage files or artifacts, a separate directory is used per project.
+There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
 ## Mirror repositories
 

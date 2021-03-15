@@ -41,6 +41,7 @@ jobs:
       WP_BRANCH: ${{ matrix.wp }}
       PHP_VERSION: ${{ matrix.php }}
       NODE_VERSION: ${{ matrix.node }}
+      MONOREPO_BASE: ${{ github.workspace }}
     strategy:
       fail-fast: false
       matrix:
