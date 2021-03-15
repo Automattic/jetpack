@@ -2,13 +2,13 @@
     {
         "blockName": "jetpack/eventbrite",
         "attrs": {
-            "url": "https://www.eventbrite.com.au/e/berlin-underground-leather-lace-tickets-66855309029",
-            "eventId": 66855309029
+            "url": "https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445",
+            "eventId": 122642642445
         },
         "innerBlocks": [],
-        "innerHTML": "\n<a class=\"wp-block-jetpack-eventbrite eventbrite__direct-link\" href=\"https://www.eventbrite.com.au/e/berlin-underground-leather-lace-tickets-66855309029\">berlin-underground-leather-lace-tickets-66855309029</a>\n",
+        "innerHTML": "\n<a class=\"wp-block-jetpack-eventbrite eventbrite__direct-link\" href=\"https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445\">https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445</a>\n",
         "innerContent": [
-            "\n<a class=\"wp-block-jetpack-eventbrite eventbrite__direct-link\" href=\"https://www.eventbrite.com.au/e/berlin-underground-leather-lace-tickets-66855309029\">berlin-underground-leather-lace-tickets-66855309029</a>\n"
+            "\n<a class=\"wp-block-jetpack-eventbrite eventbrite__direct-link\" href=\"https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445\">https://www.eventbrite.com.au/e/2021-nsw-open-championship-tickets-122642642445</a>\n"
         ]
     },
     {

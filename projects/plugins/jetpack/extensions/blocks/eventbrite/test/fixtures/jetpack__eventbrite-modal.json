@@ -8,7 +8,21 @@
             "eventId": 144144099883,
             "style": "modal"
         },
-        "innerBlocks": [],
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/button",
+                "isValid": true,
+                "attributes": {
+                    "element": "a",
+                    "saveInPostContent": false,
+                    "uniqueId": "eventbrite-widget-id",
+                    "text": "Register"
+                },
+                "innerBlocks": [],
+                "originalContent": ""
+            }
+        ],
         "originalContent": "<div class=\"wp-block-jetpack-eventbrite\"></div>"
     }
 ]
