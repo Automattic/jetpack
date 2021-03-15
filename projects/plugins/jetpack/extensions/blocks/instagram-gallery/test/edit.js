@@ -112,6 +112,39 @@ describe( 'InstagramGalleryEdit', () => {
 		} );
 	} );
 
+	test( 'displays text to tell the user to log out of instagram when there is an existing connection', async () => {
+		// Mock call to the `instagram-gallery/connections` endpoint.
+		window.fetch.mockReturnValue(
+			Promise.resolve( {
+				status: 200,
+				json: () => Promise.resolve( [ { token: '123456', username: 'testjetpackuser' } ] ),
+			} )
+		);
+
+		render( <InstagramGalleryEdit { ...defaultProps } /> );
+
+		await waitFor( () =>
+			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toEqual(
+				'/wpcom/v2/instagram-gallery/connections?_locale=user'
+			)
+		);
+
+		await waitFor( () =>
+			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument()
+		);
+
+		await waitFor( () => userEvent.click( screen.getByLabelText( 'Add a new account' ) ) );
+		await waitFor( () =>
+			expect(
+				screen.getByText(
+					'If you are currently logged in to Instagram on this device, you might need to log out of it first.'
+				)
+			).toBeInTheDocument()
+		);
+
+		await waitFor( () => expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument() );
+	} );
+
 	test( 'renders a gallery when an existing connection is active', async () => {
 		const images = [
 			{
