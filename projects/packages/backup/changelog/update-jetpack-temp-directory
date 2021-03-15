@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Avoid creating jetpack-temp directory in WP root
