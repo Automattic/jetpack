@@ -148,9 +148,11 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 
 	# Workaround for https://github.com/Automattic/jetpack/issues/18695
 	# TODO: Keep dependencies away from built branches and fetch them before publishing on WP-org plugins repository.
-	JSON=$(jq '.replace = ( [ .require | to_entries[] | select( .key | startswith( "ext-" ) | not ) ] | from_entries )' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
-	if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
-		echo "$JSON" > "$BUILD_DIR/composer.json"
+	if [[ "$project" == projects/plugins/* ]]; then
+		JSON=$(jq '.replace = ( [ .require | to_entries[] | select( .key | startswith( "ext-" ) | not ) ] | from_entries )' "$BUILD_DIR/composer.json" | "$BASE/tools/prettier" --parser=json-stringify)
+		if [[ "$JSON" != "$(<"$BUILD_DIR/composer.json")" ]]; then
+			echo "$JSON" > "$BUILD_DIR/composer.json"
+		fi
 	fi
 
 	echo "Build succeeded!"
