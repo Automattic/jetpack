@@ -227,8 +227,21 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_users_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Users on Simple sites are always managed on Calypso.
-		parent::add_users_menu( false );
+		if ( current_user_can( 'list_users' ) ) {
+			$submenus_to_update = array(
+				'users.php'              => 'https://wordpress.com/people/team/' . $this->domain,
+				'grofiles-editor'        => 'https://wordpress.com/me',
+				'grofiles-user-settings' => 'https://wordpress.com/me/account',
+			);
+			$this->update_submenus( 'users.php', $submenus_to_update );
+		} else {
+			$submenus_to_update = array(
+				'grofiles-editor'        => 'https://wordpress.com/me',
+				'grofiles-user-settings' => 'https://wordpress.com/me/account',
+			);
+			$this->update_submenus( 'profile.php', $submenus_to_update );
+		}
+		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
 	}
 
 	/**

@@ -346,8 +346,6 @@ class Admin_Menu {
 				$this->update_submenus( 'users.php', $submenus_to_update );
 			}
 
-			remove_submenu_page( 'users.php', 'grofiles-editor' );
-			remove_submenu_page( 'users.php', 'grofiles-user-settings' );
 			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		} else {
 			if ( ! $wp_admin ) {
@@ -357,8 +355,7 @@ class Admin_Menu {
 				);
 				$this->update_submenus( 'profile.php', $submenus_to_update );
 			}
-			remove_submenu_page( 'profile.php', 'grofiles-editor' );
-			remove_submenu_page( 'profile.php', 'grofiles-user-settings' );
+
 			add_submenu_page( 'profile.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		}
 	}
