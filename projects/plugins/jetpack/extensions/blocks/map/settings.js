@@ -82,6 +82,10 @@ export const settings = {
 			type: 'boolean',
 			default: true,
 		},
+		isStaticMap: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 	supports: {
 		defaultStylePicker: false,

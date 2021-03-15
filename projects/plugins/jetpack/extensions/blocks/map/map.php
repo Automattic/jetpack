@@ -100,6 +100,10 @@ function load_assets( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	if ( ! empty( $attr['isStaticMap'] ) && true === boolval( $attr['isStaticMap'] ) ) {
+		return '<div><img src="https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-122.3486,37.8169,9,0/300x200?access_token=' . $access_token['key'] . '" /></div>';
+	}
+
 	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
 }
 
