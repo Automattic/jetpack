@@ -313,6 +313,19 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// TODO: Remove wpcom_menu (/wp-content/admin-plugins/wpcom-misc.php).
+		$count = '';
+		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
+			$update_data = wp_get_update_data();
+			$count       = sprintf(
+				'<span class="update-plugins count-%s"><span class="plugin-count">%s</span></span>',
+				$update_data['counts']['plugins'],
+				number_format_i18n( $update_data['counts']['plugins'] )
+			);
+		}
+		/* translators: %s: Number of pending plugin updates. */
+		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', 'plugins.php', null, 'dashicons-admin-plugins', 65 );
+
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
 	}
