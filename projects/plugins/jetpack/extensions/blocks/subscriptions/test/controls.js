@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
@@ -122,7 +122,9 @@ describe( 'Inspector controls', () => {
 		test( 'set border radius', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			userEvent.type( screen.getAllByLabelText( 'Border Radius' )[1], '5' );
+			const rangeControlElement = screen.getAllByLabelText( 'Border Radius' )[1];
+			userEvent.clear( rangeControlElement );
+			userEvent.type( rangeControlElement, '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				borderRadius: 5,
@@ -132,7 +134,9 @@ describe( 'Inspector controls', () => {
 		test( 'set border weight', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Border Settings' ), { selector: 'button' } );
-			userEvent.type( screen.getAllByLabelText( 'Border Weight' )[1], '5' );
+			const rangeControlElement = screen.getAllByLabelText( 'Border Weight' )[1];
+			userEvent.clear( rangeControlElement );
+			userEvent.type( rangeControlElement, '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				borderWeight: 5,
@@ -150,7 +154,9 @@ describe( 'Inspector controls', () => {
 		test( 'set space inside', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			userEvent.type( screen.getAllByLabelText( 'Space Inside' )[1], '5' );
+			const rangeControlElement = screen.getAllByLabelText( 'Space Inside' )[1];
+			userEvent.clear( rangeControlElement );
+			userEvent.type( rangeControlElement, '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				padding: 5,
@@ -160,7 +166,9 @@ describe( 'Inspector controls', () => {
 		test( 'set space between', () => {
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			userEvent.click( screen.getByText( 'Spacing Settings' ), { selector: 'button' } );
-			userEvent.type( screen.getAllByLabelText( 'Space Between' )[1], '5' );
+			const rangeControlElement = screen.getAllByLabelText( 'Space Between' )[1];
+			userEvent.clear( rangeControlElement );
+			userEvent.type( rangeControlElement, '5' );
 
 			expect( setAttributes ).toHaveBeenLastCalledWith( {
 				spacing: 5,
