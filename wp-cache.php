@@ -586,10 +586,11 @@ function wp_cache_manager_updates() {
 	if( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'scupdates' ) {
 		if( isset( $_POST[ 'wp_cache_location' ] ) && $_POST[ 'wp_cache_location' ] != '' ) {
 			$dir = realpath( trailingslashit( dirname( $_POST[ 'wp_cache_location' ] ) ) );
-			if ( $dir == false )
+			if ( $dir === realpath( '.' ) || false === $dir ) {
 				$dir = WP_CONTENT_DIR . '/cache/';
-			else
+			} else {
 				$dir = trailingslashit( $dir ) . trailingslashit(wpsc_deep_replace( array( '..', '\\' ), basename( $_POST[ 'wp_cache_location' ] ) ) );
+			}
 			$new_cache_path = $dir;
 		} else {
 			$new_cache_path = WP_CONTENT_DIR . '/cache/';
@@ -598,7 +599,7 @@ function wp_cache_manager_updates() {
 			if ( file_exists( $new_cache_path ) == false )
 				rename( $cache_path, $new_cache_path );
 			$cache_path = $new_cache_path;
-			wp_cache_replace_line('^ *\$cache_path', "\$cache_path = '" . $cache_path . "';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$cache_path', "\$cache_path = " . var_export( $cache_path, true ) . ";", $wp_cache_config_file);
 		}
 
 		if( isset( $_POST[ 'wp_super_cache_late_init' ] ) ) {
