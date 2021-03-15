@@ -2,7 +2,6 @@
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
-
 import { render, screen, act, waitFor } from '@testing-library/react';
 
 // We need to mock InnerBlocks before importing our edit component as it requires the Gutenberg store setup
@@ -33,11 +32,6 @@ const NOT_CONNECTED_RESOLVED_FETCH_PROMISE = Promise.resolve( {
 	connect_url: undefined,
 } );
 
-const CONNECTED_RESOLVED_FETCH_PROMISE = Promise.resolve( {
-	connected: true,
-	connect_url: 'https://mailchimp.com',
-} );
-
 const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
 	status: 200,
 	json: () => NOT_CONNECTED_RESOLVED_FETCH_PROMISE,
@@ -45,10 +39,14 @@ const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
 
 const CONNECTED_FETCH_MOCK_RETURN = Promise.resolve( {
 	status: 200,
-	json: () => CONNECTED_RESOLVED_FETCH_PROMISE,
+	json: () =>
+		Promise.resolve( {
+			connected: true,
+			connect_url: 'https://mailchimp.com',
+		} ),
 } );
 
-describe( '', () => {
+describe( 'Mailchimp block edit component', () => {
 	beforeEach( () => {
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );

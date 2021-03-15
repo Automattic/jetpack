@@ -32,7 +32,7 @@ const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
 	json: () => RESOLVED_FETCH_PROMISE,
 } );
 
-describe( '', () => {
+describe( 'Mailchimp block controls component', () => {
 	beforeEach( () => {
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
