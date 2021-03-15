@@ -417,7 +417,7 @@ class Admin_Menu {
 
 		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
 		if ( ! $is_menu_updated ) {
-			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, $icon, $position );
+			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
 
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
