@@ -1,4 +1,4 @@
-Connection Component
+Connection Package
 =========
 
 The component encapsulates the Connection functionality.
@@ -19,6 +19,7 @@ It includes:
 - *onComplete* - callback, to be executed after connection process has completed.
 - *connectUrl* - string (required), the connection URL.
 - *hasConnectedOwner* - boolean (required), whether the site has a connected owner or not.
+- *source* - string, component location identifier passed to WP.com.
 
 ### Usage
 ```jsx
@@ -33,5 +34,6 @@ import InPlaceConnection from 'in-place-connection';
 	hasConnectedOwner={ this.props.hasConnectedOwner }
 	scrollToIframe={ this.props.scrollToIframe }
 	onComplete={ this.onComplete }
+	source="connect-user-bar"
 />
 ```

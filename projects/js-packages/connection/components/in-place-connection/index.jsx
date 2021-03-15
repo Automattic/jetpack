@@ -22,6 +22,7 @@ import './style.scss';
  * @param {boolean} props.scrollToIframe -- Whether we need to auto-scroll the window upon element rendering.
  * @param {string} props.connectUrl -- The connection URL.
  * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
+ * @param {string} props.source -- Component location identifier passed to WP.com.
  *
  * @returns {React.Component} The in-place connection component.
  */
