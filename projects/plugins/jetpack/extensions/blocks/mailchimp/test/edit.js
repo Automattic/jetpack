@@ -70,7 +70,7 @@ describe( '', () => {
 		processingLabel: 'Processing ...',
 		successLabel: 'Woop woop!',
 		errorLabel: 'Dang!',
-		preview: true,
+		preview: false,
 	};
 	const defaultProps = {
 		attributes,
@@ -96,9 +96,10 @@ describe( '', () => {
 		expect( screen.getByText( 'Re-check Connection' ) ).toBeInTheDocument();
 	} );
 
-	test.only( 'shows set up mailchimp button and recheck connection if not connected', async () => {
+	test( 'shows enter your email message if connected', async () => {
 		window.fetch.mockReturnValue( CONNECTED_FETCH_MOCK_RETURN );
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const connectedProps = { ...defaultProps, attributes: { ...attributes, preview: true } };
+		render( <MailchimpSubscribeEdit { ...connectedProps } /> );
 		await waitFor( () => screen.getByLabelText( 'Enter your email' ) );
 		expect( screen.getByLabelText( 'Enter your email' ) ).toBeInTheDocument();
 	} );
