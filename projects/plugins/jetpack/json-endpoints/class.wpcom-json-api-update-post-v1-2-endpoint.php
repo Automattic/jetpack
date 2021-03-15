@@ -530,7 +530,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 
-			$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			$insert['post_date'] = isset( $insert['post_date'] ) ? $insert['post_date'] : '';
+
+			$post_id = post_exists( $insert['post_title'], $insert['post_content'], $insert['post_date'], $post_type->name );
+			if ( 0 === $post_id ) {
+				$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			}
 		} else {
 			$insert['ID'] = $post->ID;
 

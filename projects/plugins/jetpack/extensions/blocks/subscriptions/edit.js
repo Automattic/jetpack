@@ -23,6 +23,7 @@ import {
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
 	__experimentalUseGradient as useGradient,
 } from '@wordpress/block-editor';
+import { ButtonWidthControl } from '../button/button-width-panel';
 import { useEffect, useState } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 
@@ -92,6 +93,7 @@ function SubscriptionEdit( props ) {
 	const {
 		borderRadius,
 		borderWeight,
+		buttonWidth,
 		padding,
 		spacing,
 		submitButtonText,
@@ -181,6 +183,7 @@ function SubscriptionEdit( props ) {
 		...( buttonOnNewLine
 			? { marginTop: getSpacingStyleValue( spacing ) + 'px' }
 			: { marginLeft: getSpacingStyleValue( spacing ) + 'px' } ),
+		width: buttonWidth,
 	};
 
 	const getSubscriberCount = () => {
@@ -373,6 +376,11 @@ function SubscriptionEdit( props ) {
 						allowReset
 						onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 					/>
+
+					<ButtonWidthControl
+						width={ buttonWidth }
+						onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
+					/>
 				</PanelBody>
 
 				<PanelBody
@@ -417,7 +425,6 @@ function SubscriptionEdit( props ) {
 						) }
 						style={ emailFieldStyles }
 					/>
-
 					<RichText
 						className={ classnames(
 							buttonClasses,
