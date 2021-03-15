@@ -61,7 +61,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-function JetpackContactFormEdit( {
+export function JetpackContactFormEdit( {
 	attributes,
 	setAttributes,
 	siteTitle,
