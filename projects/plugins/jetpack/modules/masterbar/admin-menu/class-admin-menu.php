@@ -411,7 +411,10 @@ class Admin_Menu {
 		// TODO: Replace with proper SVG data url.
 		$icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 32 32' %3E%3Cpath fill='%23a0a5aa' d='M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z'%3E%3C/path%3E%3Cpolygon fill='%23fff' points='15,19 7,19 15,3 '%3E%3C/polygon%3E%3Cpolygon fill='%23fff' points='17,29 17,13 25,13 '%3E%3C/polygon%3E%3C/svg%3E";
 
-		$this->update_menu( 'jetpack', 'jetpack', __( 'Jetpack', 'jetpack' ), 'read', $icon, $position, true );
+		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
+		if ( ! $is_menu_updated ) {
+			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'read', 'jetpack', null, set_url_scheme( $icon ), $position );
+		}
 
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
@@ -432,9 +435,9 @@ class Admin_Menu {
 	 * @param string $cap New menu capability.
 	 * @param string $icon New menu icon.
 	 * @param int    $position New menu position.
-	 * @param bool   $create_if_missing Forces the creation of the menu when missing.
+	 * @return bool Whether the menu has been updated.
 	 */
-	public function update_menu( $slug, $url = null, $title = null, $cap = null, $icon = null, $position = null, $create_if_missing = false ) {
+	public function update_menu( $slug, $url = null, $title = null, $cap = null, $icon = null, $position = null ) {
 		global $menu, $submenu;
 
 		$menu_item     = null;
@@ -449,10 +452,7 @@ class Admin_Menu {
 		}
 
 		if ( ! $menu_item ) {
-			if ( $create_if_missing ) {
-				add_menu_page( esc_attr( $title ), $title, $cap, $url, null, $icon, $position );
-			}
-			return;
+			return false;
 		}
 
 		if ( $title ) {
@@ -473,6 +473,7 @@ class Admin_Menu {
 		}
 
 		if ( $icon ) {
+			$menu_item[4] = 'menu-top';
 			$menu_item[6] = $icon;
 		}
 
@@ -488,6 +489,8 @@ class Admin_Menu {
 		if ( $url && ! empty( $submenu[ $slug ] ) ) {
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
+
+		return true;
 	}
 
 	/**
