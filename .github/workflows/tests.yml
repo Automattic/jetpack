@@ -142,6 +142,15 @@ jobs:
           which jq
           jq --version
 
+      - name: Monorepo install
+        run: |
+          echo "::group::Composer install"
+          composer install
+          echo "::endgroup::"
+          echo "::group::Yarn install"
+          yarn install
+          echo "::endgroup::"
+
       - name: Run project tests
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
