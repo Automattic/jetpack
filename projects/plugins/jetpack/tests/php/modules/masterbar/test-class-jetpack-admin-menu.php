@@ -69,8 +69,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		static::$domain  = ( new Status() )->get_site_suffix();
 		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		static::$menu_data    = get_menu_fixture();
-		static::$submenu_data = get_submenu_fixture();
+		static::$menu_data    = array();
+		static::$submenu_data = array();
 	}
 
 	/**
@@ -99,7 +99,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_jetpack_menu();
 
-		$this->assertSame( 'https://wordpress.com/scan/' . static::$domain, $submenu['jetpack'][4][2] );
+		$this->assertSame( 'https://wordpress.com/scan/' . static::$domain, $submenu['jetpack'][3][2] );
 	}
 
 	/**
@@ -150,10 +150,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_posts_menu
 	 */
 	public function test_add_posts_menu() {
-		global $submenu;
+		global $menu;
 
 		static::$admin_menu->add_posts_menu();
-		$this->assertEmpty( $submenu['edit.php'] );
+
+		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, array_shift( $menu )[2] );
 	}
 
 	/**
@@ -162,10 +163,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_page_menu
 	 */
 	public function test_add_page_menu() {
-		global $submenu;
+		global $menu;
 
 		static::$admin_menu->add_page_menu();
-		$this->assertEmpty( $submenu['edit.php?post_type=page'] );
+
+		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, array_shift( $menu )[2] );
 	}
 
 	/**
@@ -174,10 +176,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $submenu;
+		global $menu;
 
 		static::$admin_menu->add_users_menu();
-		$this->assertEmpty( $submenu['users.php'] );
+
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $menu )[2] );
 	}
 
 	/**
@@ -188,7 +191,9 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function add_feedback_menu() {
 		global $menu;
 
-		$this->assertSame( 'edit.php?post_type=feedback', $menu[45][2] );
+		static::$admin_menu->add_feedback_menu();
+
+		$this->assertSame( 'edit.php?post_type=feedback', array_shift( $menu )[2] );
 	}
 
 	/**
@@ -202,6 +207,6 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu( true );
 
 		// Check Plugins menu always links to Calypso.
-		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, array_shift( $menu )[2] );
 	}
 }
