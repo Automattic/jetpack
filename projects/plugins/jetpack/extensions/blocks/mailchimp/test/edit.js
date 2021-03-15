@@ -9,9 +9,7 @@ import { render, screen, act, waitFor } from '@testing-library/react';
 // to operate
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
-	InnerBlocks: jest.fn().mockReturnValue( () => {
-		return '<button>Mocked button</button>';
-	} ),
+	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
 
 /**
