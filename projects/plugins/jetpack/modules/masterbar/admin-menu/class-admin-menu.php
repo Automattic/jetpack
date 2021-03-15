@@ -430,6 +430,11 @@ class Admin_Menu {
 		remove_submenu_page( 'jetpack', 'stats' );
 		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+
+		if ( ! $is_menu_updated ) {
+			// Remove the submenu auto-created by Core.
+			remove_submenu_page( 'jetpack', 'jetpack' );
+		}
 	}
 
 	/**

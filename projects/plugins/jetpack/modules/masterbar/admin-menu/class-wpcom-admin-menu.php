@@ -316,12 +316,4 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
 	}
-
-	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		parent::add_jetpack_menu();
-		remove_submenu_page( 'jetpack', 'jetpack' );
-	}
 }
