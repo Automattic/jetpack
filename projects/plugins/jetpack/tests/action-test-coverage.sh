@@ -4,7 +4,7 @@ set -eo pipefail
 
 PLUGINDIR="$PWD"
 
-cd "$MONOREPO_BASE"
+cd "$MONOREPO_BASE/projects/plugins/jetpack"
 
 echo "::group::Jetpack yarn install"
 yarn install
