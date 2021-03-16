@@ -8,11 +8,6 @@
  */
 
 /**
- * External dependencies
- */
-import { omit } from 'lodash';
-
-/**
  * Internal dependencies
  */
 import save from './save';
@@ -72,8 +67,9 @@ export default {
 		)
 			.replace( /\s+/g, ' ' )
 			.trim();
+		const { mapStyle, ...newAttributes } = oldAttributes;
 		return {
-			...omit( oldAttributes, 'mapStyle' ),
+			...newAttributes,
 			showFullscreenButton: true,
 			className,
 		};
