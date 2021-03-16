@@ -35,10 +35,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 
-		$wp_admin = $this->should_link_to_wp_admin();
-
-		$this->add_my_home_menu( $wp_admin );
-		$this->add_theme_install_menu( $wp_admin );
+		$this->add_my_home_menu();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -78,6 +75,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds a custom element class for Site Switcher menu item.
 	 *
 	 * @param array $menu Associative array of administration menu items.
+	 *
 	 * @return array
 	 */
 	public function set_browse_sites_link_class( array $menu ) {
@@ -151,6 +149,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds a custom element class and id for Site Card's menu item.
 	 *
 	 * @param array $menu Associative array of administration menu items.
+	 *
 	 * @return array
 	 */
 	public function set_site_card_menu_class( array $menu ) {
@@ -180,7 +179,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_upgrades_menu() {
 		parent::add_upgrades_menu();
 
-		add_submenu_page( 'https://wordpress.com/plans/' . $this->domain, __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
 	}
 
 	/**
@@ -200,27 +199,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) {
-		add_options_page( esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
-
 		parent::add_options_menu( $wp_admin );
+
+		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		// No need to add a menu linking to WP Admin if there is already one.
 		if ( ! $wp_admin ) {
-			$parent_menu_slug = 'https://wordpress.com/settings/general/' . $this->domain;
-			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php' );
-			add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
+			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php' );
+			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 		}
-	}
-
-	/**
-	 * Adds a WordPress.org theme install menu item.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_theme_install_menu( $wp_admin = false ) {
-		$parent_menu_slug = $wp_admin ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
-
-		add_submenu_page( $parent_menu_slug, esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
 
 	/**
@@ -233,9 +220,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// Customize on Atomic sites is always done on WP Admin.
 		parent::add_appearance_menu( $wp_admin_themes, true );
 
-		// Add back the Theme Editor submenu.
-		$parent_slug = $wp_admin_themes ? 'themes.php' : 'https://wordpress.com/themes/' . $this->domain;
-		add_submenu_page( $parent_slug, __( 'Theme Editor', 'jetpack' ), __( 'Theme Editor', 'jetpack' ), 'edit_themes', 'theme-editor.php' );
+		add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
 
 	/**
@@ -251,8 +236,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			return;
 		}
 
-		$parent_menu_slug = 'https://wordpress.com/people/team/' . $this->domain;
-
-		add_submenu_page( $parent_menu_slug, esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
+		add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
 	}
 }
