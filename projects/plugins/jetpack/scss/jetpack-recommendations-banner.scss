@@ -139,32 +139,46 @@
 	margin-bottom: 16px;
 }
 
-.jp-recommendations-banner__continue-button {
-	background: $blue-medium-dark;
-	border-color: $blue-medium-dark;
-	color: white;
-	border-style: solid;
-	border-width: 1px;
-	cursor: pointer;
-	display: inline-block;
-	margin: 0;
-	outline: 0;
-	overflow: hidden;
-	font-size: 0.875rem;
-	text-overflow: ellipsis;
-	vertical-align: top;
-	box-sizing: border-box;
-	border-radius: 3px;
-	padding: 7px 14px 9px;
+.jp-recommendations-banner__choices {
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
 
-	@include breakpoint( '<480px' ) {
-		width: 100%;
+	.jp-recommendations-banner__continue-button {
+		background: $blue-medium-dark;
+		border-color: $blue-medium-dark;
+		color: white;
+		border-style: solid;
+		border-width: 1px;
+		cursor: pointer;
+		display: inline-block;
+		margin: 0 0 8px 0;
+		outline: 0;
+		overflow: hidden;
+		font-size: 0.875rem;
+		text-overflow: ellipsis;
+		vertical-align: top;
+		box-sizing: border-box;
+		border-radius: 3px;
+		padding: 7px 14px 9px;
+
+		@include breakpoint( '<480px' ) {
+			width: 100%;
+		}
+
+		&:hover {
+			background: $blue-grey-dark;
+			border-color: $blue-grey-dark;
+			color: white;
+		}
 	}
 
-	&:hover {
-		background: $blue-grey-dark;
-		border-color: $blue-grey-dark;
-		color: white;
+	.jp-recommendations-banner__dismiss-button {
+		color: $blue-medium-dark;
+		cursor: pointer;
+		text-decoration: underline;
 	}
 }
 
@@ -201,4 +215,17 @@
 .jp-recommendations-banner__illustration-foreground {
 	width: 75%;
 	margin: 10%;
+}
+
+.jp-recommendations-banner__notice-dismiss {
+	color: $blue-medium-dark;
+	top: 10px;
+	right: 10px;
+	padding: 10px 15px 10px 21px;
+
+	&:before {
+		position: absolute;
+		top: 8px;
+		left: 0;
+	}
 }
