@@ -92,6 +92,13 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 
 				// Set the poster attribute for the video tag if a poster image is available.
 				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
+					$poster_url = $video_meta['videopress']['poster'];
+				} elseif ( ! empty( $video_meta['thumb'] ) ) {
+					$video_url  = wp_get_attachment_url( $attachment_id );
+					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
+				}
+
+				if ( $poster_url ) {
 					$poster_width  = esc_attr( $media_file['width'] );
 					$poster_height = esc_attr( $media_file['height'] );
 					$content_width = Jetpack::get_content_width();
@@ -102,7 +109,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 					$media_file = array_merge(
 						$media_file,
 						array(
-							'poster' => $video_meta['videopress']['poster'] . '?resize=' . $poster_width . ',' . $poster_height,
+							'poster' => $poster_url . '?resize=' . $poster_width . ',' . $poster_height,
 						)
 					);
 				}
