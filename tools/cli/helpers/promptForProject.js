@@ -21,8 +21,13 @@ export default async function promptForProject( options ) {
 	const questions = [];
 	let typeAnswer;
 
-	if ( ! options.project || options.project.length === 0 ) {
+	if ( ! options.type ) {
 		typeAnswer = await promptForType();
+	} else {
+		typeAnswer = { type: options.type };
+	}
+
+	if ( ! options.project || options.project.length === 0 ) {
 		questions.push( {
 			type: 'list',
 			name: 'project',
@@ -52,7 +57,6 @@ export default async function promptForProject( options ) {
  */
 export async function promptForType( options = { type: '' } ) {
 	let typeAnswer;
-
 	if ( ! options.type || options.type.length === 0 ) {
 		typeAnswer = await inquirer.prompt( {
 			type: 'list',
