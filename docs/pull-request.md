@@ -22,7 +22,7 @@ Once you know what the first small piece of your feature will be, follow this ge
     - Make sure all required checks (other than "Required review") listed at the bottom of the Pull Request are passing.
     - Make sure your branch merges cleanly and consider rebasing against `master` to keep the branch history short and clean.
     - If there are visual changes, add before and after screenshots in the pull request comments.
-    - Add unit tests, or at a minimum, provide helpful instructions for the reviewer so he or she can test your changes. This will help speed up the review process.
+    - Add unit tests, or at a minimum, provide helpful instructions for the reviewer so they can test your changes. This will help speed up the review process.
     - Check [Coding Standards & Guidelines](coding-guidelines.md) one last time.
 1. Mention that the PR is ready for review. If you have write access, remove the **<span class="label status-in-progress">[Status] In Progress</span>** label from the pull request and add the **<span class="label status-needs-team-review">[Status] Needs Team Review</span>** label - someone on your team will provide feedback on the latest unreviewed changes. The reviewer will also mark the pull request as **<span class="label needs-author-reply">[Status] Needs Author Reply</span>** if they think you need to change anything. You can [learn more about our code reviews here.](code-reviews.md)
 1. Once someone on your team has approved the changes, they'll update the labels from **<span class="label status-needs-team-review">[Status] Needs Team Review</span>** to **<span class="label status-needs-review">[Status] Needs Review</span>** so one of the Jetpack Approvers can do a final review of your Pull Request before it can be merged.
