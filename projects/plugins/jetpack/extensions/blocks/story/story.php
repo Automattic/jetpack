@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Story;
 
 use Automattic\Jetpack\Blocks;
+use Jetpack;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'story';
@@ -77,7 +78,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				}
 				$url         = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
 				$description = ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'];
-				return array_merge(
+				$media_file  = array_merge(
 					$media_file,
 					array(
 						'width'   => absint( $video_meta['width'] ),
@@ -88,6 +89,24 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
+
+				// Set the poster attribute for the video tag if a poster image is available.
+				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
+					$poster_width  = esc_attr( $media_file['width'] );
+					$poster_height = esc_attr( $media_file['height'] );
+					$content_width = Jetpack::get_content_width();
+					if ( is_numeric( $content_width ) ) {
+						$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
+						$poster_width  = $content_width;
+					}
+					$media_file = array_merge(
+						$media_file,
+						array(
+							'poster' => $video_meta['videopress']['poster'] . '?resize=' . $poster_width . ',' . $poster_height,
+						)
+					);
+				}
+				return $media_file;
 			}
 		},
 		$media_files
