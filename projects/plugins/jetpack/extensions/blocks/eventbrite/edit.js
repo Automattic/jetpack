@@ -199,7 +199,7 @@ export class EventbriteEdit extends Component {
 
 	renderInlinePreview() {
 		const { className } = this.props;
-		const { eventId, url } = this.props.attributes;
+		const { eventId } = this.props.attributes;
 
 		if ( ! eventId ) {
 			return;
