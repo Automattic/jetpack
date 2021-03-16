@@ -8,9 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Roles;
 
 /**
  * XMLRPC Methods registration and callbacks
@@ -36,7 +34,6 @@ class Jetpack_XMLRPC_Methods {
 		$methods['jetpack.featuresEnabled']   = array( __CLASS__, 'features_enabled' );
 		$methods['jetpack.disconnectBlog']    = array( __CLASS__, 'disconnect_blog' );
 		$methods['jetpack.jsonAPI']           = array( __CLASS__, 'json_api' );
-		$methods['jetpack.remoteProvision']   = array( __CLASS__, 'remote_provision' );
 
 		return $methods;
 	}
@@ -207,74 +204,5 @@ class Jetpack_XMLRPC_Methods {
 			(string) $nonce,
 			(string) $hmac,
 		);
-	}
-
-	/**
-	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
-	 * register this site so that a plan can be provisioned.
-	 *
-	 * @param array $request An array containing at minimum a nonce key and a local_username key.
-	 *
-	 * @return \WP_Error|array
-	 */
-	public static function remote_provision( $request ) {
-		$server             = new Jetpack_XMLRPC_Server();
-		$connection_manager = new Connection_Manager();
-		$user               = $server->fetch_and_verify_local_user( $request );
-
-		if ( ! $user ) {
-			return $server->error(
-				new WP_Error( 'input_error', __( 'Valid user is required', 'jetpack' ), 400 ),
-				'remote_provision'
-			);
-		}
-
-		if ( is_wp_error( $user ) || is_a( $user, 'IXR_Error' ) ) {
-			return $server->error( $user, 'remote_provision' );
-		}
-
-		$site_icon = get_site_icon_url();
-
-		$auto_enable_sso = ( ! $connection_manager->is_active() || Jetpack::is_module_active( 'sso' ) );
-
-		/** This filter is documented in class.jetpack-cli.php */
-		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
-			$redirect_uri = add_query_arg(
-				array(
-					'action'      => 'jetpack-sso',
-					'redirect_to' => rawurlencode( admin_url() ),
-				),
-				wp_login_url() // TODO: come back to Jetpack dashboard?
-			);
-		} else {
-			$redirect_uri = admin_url();
-		}
-
-		// Generate secrets.
-		$roles   = new Roles();
-		$role    = $roles->translate_user_to_role( $user );
-		$secrets = ( new Secrets() )->generate( 'authorize', $user->ID );
-
-		$response = array(
-			'jp_version'   => JETPACK__VERSION,
-			'redirect_uri' => $redirect_uri,
-			'user_id'      => $user->ID,
-			'user_email'   => $user->user_email,
-			'user_login'   => $user->user_login,
-			'scope'        => $connection_manager->sign_role( $role, $user->ID ),
-			'secret'       => $secrets['secret_1'],
-			'is_active'    => $connection_manager->is_active(),
-		);
-
-		if ( $site_icon ) {
-			$response['site_icon'] = $site_icon;
-		}
-
-		if ( ! empty( $request['onboarding'] ) ) {
-			Jetpack::create_onboarding_token();
-			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
-		}
-
-		return $response;
 	}
 }
