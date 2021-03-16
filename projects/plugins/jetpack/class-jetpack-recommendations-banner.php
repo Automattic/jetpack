@@ -233,7 +233,7 @@ class Jetpack_Recommendations_Banner {
 						class="jp-recommendations-banner__illustration-foreground"
 				/>
 			</div>
-			<span id="jp-recommendations-banner__notice-dismiss" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"/>
+			<span id="jp-recommendations-banner__notice-dismiss" class="notice-dismiss jp-recommendations-banner__notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"><?php esc_attr_e( 'Dismiss', 'jetpack' ); ?></span>
 		</div>
 		<?php
 	}
