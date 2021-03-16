@@ -6,6 +6,7 @@
  * Recommendation Order: 16
  * First Introduced: 4.8
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: General
  * Additional Search Queries: adminbar, masterbar, colorschemes
@@ -38,7 +39,4 @@ if ( jetpack_is_atomic_site() ) {
  */
 if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
 	require_once __DIR__ . '/masterbar/admin-menu/load.php';
-
-	// Ensures Calypsoify does not modify the navigation.
-	add_filter( 'jetpack_calypsoify_override_nav', '__return_false' );
 }

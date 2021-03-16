@@ -6,7 +6,8 @@
       {
           "bullet": " *",
           "dateFormat": "j F Y",
-          "parseAuthors": true
+          "parseAuthors": true,
+          "unreleased": "NOT RELEASED"
       }
   ]
   ~~~~~~~~
@@ -20,7 +21,7 @@
    * Who did this? (me)
    * Not an author: (me).
 
-  ## 0.9 - 2021-02-17
+  ## 0.9 - NOT RELEASED
 
   * Wrong bullet.
 
@@ -83,7 +84,7 @@
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "0.9",
               "link": null,
-              "timestamp": "2021-02-17T00:00:00+0000",
+              "timestamp": null,
               "prologue": "* Wrong bullet.",
               "epilogue": "",
               "changes": []
@@ -110,7 +111,7 @@
    * Who did this? (me)
    * Not an author: (me).
 
-  ## 0.9 - 17 February 2021
+  ## 0.9 - NOT RELEASED
 
   * Wrong bullet.
 
