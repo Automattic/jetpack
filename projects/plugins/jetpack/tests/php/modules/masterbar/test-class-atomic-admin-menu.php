@@ -267,18 +267,12 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_upgrades_menu
 	 */
-	public function test_add_wpcom_upgrades_menu() {
+	public function test_add_upgrades_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$domains_submenu_item = array(
-			'Domains',
-			'manage_options',
-			'https://wordpress.com/domains/manage/' . static::$domain,
-			'Domains',
-		);
-		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/plans/' . static::$domain ] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
 	}
 
 	/**
@@ -289,17 +283,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( false, false );
+		static::$admin_menu->add_tools_menu();
 
-		// Check Export menu always links to WP Admin.
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'export.php',
-			'Export',
-		);
-		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
+		// Check Export menu item always links to WP Admin.
+		$this->assertSame( 'export.php', $submenu['tools.php'][3][2] );
 	}
 
 	/**
@@ -308,32 +295,21 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_options_menu
 	 */
 	public function test_add_options_menu() {
-		global $submenu;
+		global $submenu, $menu;
 
-		$general_submenu_item = array(
-			'Advanced General',
-			'manage_options',
-			'options-general.php',
-			'Advanced General',
-		);
+		static::$admin_menu->add_options_menu();
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
+		$this->assertSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
+		$this->assertSame( 'options-general.php', array_pop( $submenu['options-general.php'] )[2] );
 
-		$writing_submenu_item = array(
-			'Advanced Writing',
-			'manage_options',
-			'options-writing.php',
-			'Advanced Writing',
-		);
-
-		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
+		// Reset.
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
 
 		static::$admin_menu->add_options_menu( true );
-		$this->assertNotContains( $general_submenu_item, $submenu['options-general.php'] );
-		$this->assertNotContains( $writing_submenu_item, $submenu['options-general.php'] );
-
-		static::$admin_menu->add_options_menu( false );
-		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
-		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
-		$this->assertContains( $writing_submenu_item, $submenu[ $slug ] );
+		$last_submenu = array_pop( $submenu['options-general.php'] );
+		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
+		$this->assertNotSame( 'options-general.php', $last_submenu[2] );
 	}
 
 	/**
@@ -347,35 +323,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu( false );
 
 		// Check Plugins menu always links to WP Admin.
-		$this->assertContains( 'plugins.php', $menu[65] );
-	}
-
-	/**
-	 * Tests add_theme_install_menu
-	 *
-	 * @covers ::add_theme_install_menu
-	 */
-	public function test_add_theme_install_menu() {
-		global $submenu;
-
-		$slug         = 'https://wordpress.com/themes/' . static::$domain;
-		$submenu_item = array(
-			'Add New Theme',
-			'install_themes',
-			'theme-install.php',
-			'Add New Theme',
-		);
-		static::$admin_menu->add_appearance_menu( false );
-		static::$admin_menu->add_theme_install_menu( false );
-
-		// Multisite users don't have the `install_themes` capability by default,
-		// so we have to make a dynamic check based on whether the current user can
-		// install themes.
-		if ( current_user_can( 'install_themes' ) ) {
-			$this->assertContains( $submenu_item, $submenu[ $slug ] );
-		} else {
-			$this->assertNotContains( $submenu_item, $submenu[ $slug ] );
-		}
+		$this->assertSame( 'plugins.php', $menu[65][2] );
 	}
 
 	/**
@@ -386,33 +334,18 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/themes/' . static::$domain;
-		static::$admin_menu->add_appearance_menu( false, false );
+		static::$admin_menu->add_appearance_menu();
 
-		// Check Customize menu always links to WP Admin.
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'customize.php?return',
-			'Customize',
-		);
-
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
-
-		// Check Theme Editor is present.
-		$theme_editor_submenu_item = array(
-			'Theme Editor',
-			'edit_themes',
-			'theme-editor.php',
-			'Theme Editor',
-		);
-		// Multisite users don't have the `edit_themes` capability by default,
+		// Multisite users don't have the `install_themes` capability by default,
 		// so we have to make a dynamic check based on whether the current user can
 		// install themes.
 		if ( current_user_can( 'install_themes' ) ) {
-			$this->assertContains( $theme_editor_submenu_item, $submenu[ $slug ] );
+			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
+			// Check Customize menu always links to WP Admin.
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		} else {
-			$this->assertNotContains( $theme_editor_submenu_item, $submenu[ $slug ] );
+			// Check Customize menu always links to WP Admin.
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][6][2] );
 		}
 	}
 
@@ -422,19 +355,16 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $submenu;
+		global $menu, $submenu;
 
-		$submenu_item = array(
-			'Advanced Users Management',
-			'list_users',
-			'users.php',
-			'Advanced Users Management',
-		);
+		static::$admin_menu->add_users_menu();
+		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
+
+		// Reset.
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
 
 		static::$admin_menu->add_users_menu( true );
-		$this->assertNotContains( $submenu_item, $submenu['users.php'] );
-
-		static::$admin_menu->add_users_menu( false );
-		$this->assertContains( $submenu_item, $submenu[ 'https://wordpress.com/people/team/' . static::$domain ] );
+		$this->assertArrayNotHasKey( 2, $submenu['users.php'] );
 	}
 }

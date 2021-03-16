@@ -69,8 +69,8 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		static::$domain  = ( new Status() )->get_site_suffix();
 		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		static::$menu_data    = get_menu_fixture();
-		static::$submenu_data = get_submenu_fixture();
+		static::$menu_data    = array();
+		static::$submenu_data = array();
 	}
 
 	/**
@@ -99,13 +99,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_jetpack_menu();
 
-		$domains_submenu_item = array(
-			'Scan',
-			'manage_options',
-			'https://wordpress.com/scan/' . static::$domain,
-			'Scan',
-		);
-		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/activity-log/' . static::$domain ] );
+		$this->assertSame( 'https://wordpress.com/scan/' . static::$domain, $submenu['jetpack'][2][2] );
 	}
 
 	/**
@@ -116,26 +110,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
 		static::$admin_menu->add_tools_menu( false, false );
 
-		// Check Import menu always links to WP Admin.
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'import.php',
-			'Import',
-		);
-		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
-
-		// Check Export menu always links to WP Admin.
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'export.php',
-			'Export',
-		);
-		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
+		// Check Import/Export menu always links to WP Admin.
+		$this->assertSame( 'export.php', array_pop( $submenu['tools.php'] )[2] );
+		$this->assertSame( 'import.php', array_pop( $submenu['tools.php'] )[2] );
 	}
 
 	/**
@@ -148,16 +127,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_wp_admin_menu();
 
-		$wp_admin_menu_item = array(
-			'WP Admin',
-			'read',
-			'index.php',
-			'WP Admin',
-			'menu-top toplevel_page_index',
-			'toplevel_page_index',
-			'dashicons-wordpress-alt',
-		);
-		$this->assertSame( end( $menu ), $wp_admin_menu_item );
+		$this->assertSame( 'index.php', array_pop( $menu )[2] );
 	}
 
 	/**
@@ -168,17 +138,10 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_appearance_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/themes/' . static::$domain;
 		static::$admin_menu->add_appearance_menu( false, false );
 
 		// Check Customize menu always links to WP Admin.
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'customize.php',
-			'Customize',
-		);
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'customize.php', array_pop( $submenu['themes.php'] )[2] );
 	}
 
 	/**
@@ -187,11 +150,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_posts_menu
 	 */
 	public function test_add_posts_menu() {
-		global $submenu;
+		global $menu;
 
-		$slug = 'https://wordpress.com/posts/' . static::$domain;
 		static::$admin_menu->add_posts_menu();
-		$this->assertEmpty( $submenu[ $slug ] );
+
+		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, array_shift( $menu )[2] );
 	}
 
 	/**
@@ -200,11 +163,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_page_menu
 	 */
 	public function test_add_page_menu() {
-		global $submenu;
+		global $menu;
 
-		$slug = 'https://wordpress.com/pages/' . static::$domain;
 		static::$admin_menu->add_page_menu();
-		$this->assertEmpty( $submenu[ $slug ] );
+
+		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, array_shift( $menu )[2] );
 	}
 
 	/**
@@ -213,11 +176,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $submenu;
+		global $menu;
 
-		$slug = 'https://wordpress.com/people/team/' . static::$domain;
 		static::$admin_menu->add_users_menu();
-		$this->assertEmpty( $submenu[ $slug ] );
+
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $menu )[2] );
 	}
 
 	/**
@@ -228,16 +191,9 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function add_feedback_menu() {
 		global $menu;
 
-		$menu_item = array(
-			'Feedback',
-			'edit_posts',
-			'edit.php?post_type=feedback',
-			'Feedback',
-			'menu-top toplevel_page_index',
-			'toplevel_page_index',
-			'dashicons-feedback',
-		);
-		$this->assertSame( $menu[45], $menu_item );
+		static::$admin_menu->add_feedback_menu();
+
+		$this->assertSame( 'edit.php?post_type=feedback', array_shift( $menu )[2] );
 	}
 
 	/**
@@ -251,6 +207,6 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu( true );
 
 		// Check Plugins menu always links to Calypso.
-		$this->assertContains( 'https://wordpress.com/plugins/' . static::$domain, $menu[65] );
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, array_shift( $menu )[2] );
 	}
 }
