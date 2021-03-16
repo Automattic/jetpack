@@ -128,6 +128,11 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
 
+	# Copy autotagger if enabled
+	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
+
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{
 		# Include unignored files by default.
