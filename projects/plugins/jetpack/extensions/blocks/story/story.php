@@ -73,7 +73,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 			} else {
 				$video_meta = wp_get_attachment_metadata( $attachment_id );
-				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['width'] ) ) {
+				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['height'] ) ) {
 					return $media_file;
 				}
 				$url         = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
