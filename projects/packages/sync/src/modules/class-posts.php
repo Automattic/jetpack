@@ -291,7 +291,7 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter meta arguments so that we don't sync meta_values over 5MB.
+	 * Filter meta arguments so that we don't sync meta_values over MAX_POST_META_LENGTH.
 	 *
 	 * @param array $args action arguments.
 	 *
