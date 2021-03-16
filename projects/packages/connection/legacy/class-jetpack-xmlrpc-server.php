@@ -83,7 +83,7 @@ class Jetpack_XMLRPC_Server {
 			 *
 			 * @param array    $jetpack_methods XML-RPC methods available to the Jetpack Server.
 			 * @param array    $core_methods    Available core XML-RPC methods.
-			 * @param \WP_User $user            Information about a given WordPress user.
+			 * @param \WP_User $user            Information about the user authenticated in the request.
 			 */
 			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $this->user );
 		}
@@ -92,10 +92,11 @@ class Jetpack_XMLRPC_Server {
 		 * Filters the XML-RPC methods available to Jetpack for requests signed both with a blog token or a user token.
 		 *
 		 * @since 3.0.0
+		 * @since 9.6.0 Introduced the $user parameter.
 		 *
 		 * @param array         $jetpack_methods XML-RPC methods available to the Jetpack Server.
 		 * @param array         $core_methods    Available core XML-RPC methods.
-		 * @param \WP_User|bool $user            Information about a given WordPress user. False if authenticated with blog token.
+		 * @param \WP_User|bool $user            Information about the user authenticated in the request. False if authenticated with blog token.
 		 */
 		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods, $this->user );
 	}
