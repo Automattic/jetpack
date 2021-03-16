@@ -311,6 +311,9 @@ class Admin_Menu {
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );
 
+		remove_submenu_page( 'themes.php', 'custom-header' );
+		remove_submenu_page( 'themes.php', 'custom-background' );
+
 		return $customize_url;
 	}
 
