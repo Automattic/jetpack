@@ -3,6 +3,12 @@
  */
 import classnames from 'classnames';
 import { RichText, getColorClassName } from '@wordpress/block-editor';
+import { isEmpty, omit, pick, some } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { createBlock } from '@wordpress/blocks';
 import { _x } from '@wordpress/i18n';
 
 /**
@@ -14,6 +20,16 @@ import { _x } from '@wordpress/i18n';
  * Uses a "button" element rather than "a", since the button opens a modal rather than
  * an external link.
  */
+
+const deprecatedAttributes = [
+	'text',
+	'backgroundColor',
+	'textColor',
+	'customBackgroundColor',
+	'customTextColor',
+	'borderRadius',
+	'useModal',
+];
 
 function saveButton( attributes ) {
 	const {
@@ -98,28 +114,29 @@ export default {
 		},
 	},
 
-	migrate: ( {
-		url,
-		eventId,
-		useModal,
-		text,
-		backgroundColor,
-		textColor,
-		customBackgroundColor,
-		customTextColor,
-		borderRadius,
-	} ) => {
-		return {
-			url,
-			eventId,
-			text,
-			backgroundColor,
-			textColor,
-			customBackgroundColor,
-			customTextColor,
-			borderRadius,
-			style: useModal ? 'modal' : 'inline',
+	migrate: attributes => {
+		const { className } = attributes;
+
+		const newAttributes = {
+			...omit( attributes, [ 'useModal', ...deprecatedAttributes ] ),
+			className: className && className.replace( 'is-style-outline', '' ),
+			style: attributes.useModal ? 'modal' : 'inline',
 		};
+		const buttonAttributes = pick( attributes, deprecatedAttributes );
+
+		const newInnerBlocks = [
+			createBlock( 'jetpack/button', {
+				element: 'a',
+				text:
+					buttonAttributes.text || _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+				...buttonAttributes,
+				uniqueId: 'eventbrite-widget-id',
+				className:
+					className && -1 !== className.indexOf( 'is-style-outline' ) ? 'is-style-outline' : '',
+			} ),
+		];
+
+		return [ newAttributes, newInnerBlocks ];
 	},
 
 	save: function save( { attributes } ) {
@@ -141,4 +158,7 @@ export default {
 			)
 		);
 	},
+	isEligible: ( attributes, innerBlocks ) =>
+		'modal' === attributes.style &&
+		( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ) ),
 };
