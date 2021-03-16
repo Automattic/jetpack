@@ -283,7 +283,7 @@ ${
 	if ( head.repo.full_name === base.repo.full_name ) {
 		comment += `
 
-Once your PR is ready for review, check one last time that all required checks appearing at the bottom of this PR are passing.
+Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
 Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
 Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
 	}
