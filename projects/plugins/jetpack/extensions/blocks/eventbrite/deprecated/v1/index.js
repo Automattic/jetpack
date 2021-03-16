@@ -12,6 +12,24 @@ import { createBlock } from '@wordpress/blocks';
 import { _x } from '@wordpress/i18n';
 
 /**
+ * Deprecation reasons:
+ * 1. Migration of `useModal` (bool) attribute to `style` (string) to determine block layout.
+ * 2. The Eventbrite block's ModalButtonPreview (the return value of saveButton()) has been replaced with the jetpack/button inner block.
+ */
+
+// Deprecated properties relating to the block's button within the layout style.
+const deprecatedButtonAttributes = [
+	'text',
+	'backgroundColor',
+	'textColor',
+	'customBackgroundColor',
+	'customTextColor',
+	'borderRadius',
+];
+
+/**
+ * Deprecated save function.
+ *
  * Adapted button save function from @wordpress/block-library
  * (Using Gutenberg code that shipped with WordPress 5.3)
  *
@@ -20,17 +38,6 @@ import { _x } from '@wordpress/i18n';
  * Uses a "button" element rather than "a", since the button opens a modal rather than
  * an external link.
  */
-
-const deprecatedAttributes = [
-	'text',
-	'backgroundColor',
-	'textColor',
-	'customBackgroundColor',
-	'customTextColor',
-	'borderRadius',
-	'useModal',
-];
-
 function saveButton( attributes ) {
 	const {
 		backgroundColor,
@@ -81,16 +88,22 @@ function saveButton( attributes ) {
 	);
 }
 
+const urlValidator = url => ! url || url.startsWith( 'http' );
+
 export default {
 	attributes: {
 		url: {
 			type: 'string',
+			validator: urlValidator,
 		},
 		eventId: {
 			type: 'number',
 		},
 		useModal: {
 			type: 'boolean',
+		},
+		style: {
+			type: 'string',
 		},
 		// Modal button attributes, used for Button & Modal embed type.
 		text: {
@@ -115,15 +128,26 @@ export default {
 	},
 
 	migrate: attributes => {
-		const { className } = attributes;
+		const { className, style } = attributes;
+
+		let layoutStyle = style;
+
+		// The `useModal` (bool) attribute is deprecated in favour of `style` (string)
+		if ( ! layoutStyle ) {
+			layoutStyle = attributes.useModal ? 'modal' : 'inline';
+		}
 
 		const newAttributes = {
-			...omit( attributes, [ 'useModal', ...deprecatedAttributes ] ),
+			// Remove deprecated attributes.
+			...omit( attributes, [ 'useModal', ...deprecatedButtonAttributes ] ),
 			className: className && className.replace( 'is-style-outline', '' ),
-			style: attributes.useModal ? 'modal' : 'inline',
+			style: layoutStyle,
 		};
-		const buttonAttributes = pick( attributes, deprecatedAttributes );
 
+		// Create an object out of available button deprecated properties.
+		const buttonAttributes = pick( attributes, deprecatedButtonAttributes );
+
+		// Where a block is eligible for migration (and the layout style is 'modal') we'll return a button block.
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
 				element: 'a',
@@ -140,13 +164,13 @@ export default {
 	},
 
 	save: function save( { attributes } ) {
-		const { eventId, useModal, url } = attributes;
+		const { eventId, useModal, url, style } = attributes;
 
 		if ( ! eventId ) {
 			return;
 		}
 
-		if ( useModal ) {
+		if ( useModal || style === 'modal' ) {
 			return saveButton( attributes );
 		}
 
@@ -158,7 +182,16 @@ export default {
 			)
 		);
 	},
-	isEligible: ( attributes, innerBlocks ) =>
-		'modal' === attributes.style &&
-		( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ) ),
+	/*
+		Check for migration eligibility. We need to migrate a deprecated block if they layout style is modal and:
+		1. There are no inner blocks. The latest version contains an inner jetpack/button block.
+		2. The blocks attributes contain deprecated properties.
+	*/
+	isEligible: ( attributes, innerBlocks ) => {
+		const isModal = 'modal' === attributes.style || attributes.useModal;
+		return (
+			isModal &&
+			( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedButtonAttributes ), Boolean ) )
+		);
+	},
 };
