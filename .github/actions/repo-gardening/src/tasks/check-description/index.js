@@ -7,6 +7,9 @@ const moment = require( 'moment' );
  * Internal dependencies
  */
 const debug = require( '../../debug' );
+const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
+const getChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
+const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
 const getPluginNames = require( '../../get-plugin-names' );
@@ -206,6 +209,25 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 }
 
 /**
+ * @param octokit
+ * @param owner
+ * @param repo
+ * @param number
+ */
+async function hasChangelogEntries( octokit, owner, repo, number ) {
+	const files = await getFiles( octokit, owner, repo, number );
+	const affectedProjects = getAffectedChangeloggerProjects( files );
+
+	return affectedProjects.reduce( ( acc, project ) => {
+		const found = files.find( file => file.includes( '/changelog/' ) );
+		if ( ! found ) {
+			acc.push( project );
+		}
+		return acc;
+	}, [] );
+}
+
+/**
  * Compose a list of checks for the PR
  * Covers:
  * - Short PR description
@@ -250,6 +272,13 @@ async function getStatusChecks( payload, octokit ) {
 	checks += statusEntry(
 		isPrivacySectionFilled,
 		'Specify whether this PR includes any changes to data or privacy.'
+	);
+
+	const projectsWithoutChangelog = await hasChangelogEntries( octokit, ownerLogin, repo, number );
+
+	checks += statusEntry(
+		projectsWithoutChangelog.length > 0,
+		'Add changelog entries to affected projects'
 	);
 
 	debug( `check-description: privacy checked. Status checks so far is ${ checks }` );
