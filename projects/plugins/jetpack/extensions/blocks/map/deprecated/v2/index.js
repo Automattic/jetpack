@@ -1,10 +1,11 @@
 /**
- * This deprecation was needed as a showFullscreenButton attributes was
- * added to the block so this needs to be added with a default setting
- * of true to those blocks that don't currently have it set.
+ * This deprecation was needed to remove the mapStyle attribute
+ * and remove any existing is-style settings to prevent conflicts
+ * with the new way of setting the block styles via the className
+ * attribute.
  *
- * The migration method also has to pull in the style changes from
- * deprecation V2 to remove the mapStyle attribute.
+ * The class/style migration needs to also be applied in the v1
+ * deprecation.
  */
 
 /**
@@ -54,6 +55,10 @@ const attributes = {
 	mapHeight: {
 		type: 'integer',
 	},
+	showFullscreenButton: {
+		type: 'boolean',
+		default: true,
+	},
 };
 
 export default {
@@ -70,7 +75,6 @@ export default {
 		const { mapStyle, ...newAttributes } = oldAttributes;
 		return {
 			...newAttributes,
-			showFullscreenButton: true,
 			className,
 		};
 	},
