@@ -1,5 +1,4 @@
 {
-  	"core": "WordPress/WordPress#5.7",
 	"plugins": [ "./plugins/e2e-plan-data-interceptor.php" ],
 	"config": {
 		"WP_DEBUG": true,
