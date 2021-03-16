@@ -113,6 +113,20 @@ class Licensing {
 	}
 
 	/**
+	 * Append a license
+	 *
+	 * @param string $license A jetpack license key.
+	 * @return bool True if the option was updated with the new license, false otherwise.
+	 */
+	public function append_license( $license ) {
+		$licenses = $this->stored_licenses();
+
+		array_push( $licenses, $license );
+
+		return update_option( self::LICENSES_OPTION_NAME, $licenses );
+	}
+
+	/**
 	 * Make an authenticated WP.com XMLRPC multicall request to attach the provided license keys.
 	 *
 	 * @param string[] $licenses License keys to attach.
@@ -216,5 +230,22 @@ class Licensing {
 		if ( $this->connection()->is_connection_owner() ) {
 			$this->attach_stored_licenses();
 		}
+	}
+
+	/**
+	 * Is the current user allowed to use the Licensing Input UI?
+	 *
+	 * @since 9.6.0
+	 * @return bool
+	 */
+	public static function is_licensing_input_enabled() {
+		/**
+		 * Filter that checks if the user is allowed to see the Licensing UI. `true` enables it.
+		 *
+		 * @since 9.6.0
+		 *
+		 * @param bool False by default.
+		 */
+		return apply_filters( 'jetpack_licensing_ui_enabled', false ) && current_user_can( 'jetpack_connect_user' );
 	}
 }

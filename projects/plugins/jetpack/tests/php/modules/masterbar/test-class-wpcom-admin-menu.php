@@ -246,18 +246,12 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_upgrades_menu
 	 */
-	public function test_add_wpcom_upgrades_menu() {
+	public function test_add_upgrades_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$domains_submenu_item = array(
-			'Domains',
-			'manage_options',
-			'https://wordpress.com/domains/manage/' . static::$domain,
-			'Domains',
-		);
-		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/plans/' . static::$domain ] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
 	}
 
 	/**
@@ -266,12 +260,12 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $menu;
+		global $submenu;
 
 		static::$admin_menu->add_users_menu( true );
 
 		// Check that menu always links to Calypso.
-		$this->assertSame( $menu[70][2], 'https://wordpress.com/people/team/' . static::$domain );
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
 	}
 
 	/**
@@ -282,17 +276,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
 		static::$admin_menu->add_tools_menu( false, true );
 
 		// Check Export menu item always links to Calypso.
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'https://wordpress.com/export/' . static::$domain,
-			'Export',
-		);
-		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
 	}
 
 	/**
@@ -303,18 +290,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( false );
+		static::$admin_menu->add_options_menu();
 
-		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
-
-		$sharing_submenu_item = array(
-			'Sharing',
-			'publish_posts',
-			'https://wordpress.com/marketing/sharing-buttons/' . static::$domain,
-			'Sharing Settings',
-		);
-		$this->assertContains( $sharing_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/marketing/sharing-buttons/' . static::$domain, $submenu['options-general.php'][8][2] );
 	}
 
 	/**
@@ -357,6 +336,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu( true );
 
 		// Check Plugins menu always links to Calypso.
-		$this->assertContains( 'https://wordpress.com/plugins/' . static::$domain, $menu[65] );
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 	}
 }
