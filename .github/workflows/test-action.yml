@@ -1,0 +1,25 @@
+name: Action
+on:
+  pull_request: # When a PR is opened, edited, updated, or a label is added.
+  push:
+
+jobs:
+  test:
+    name: "Test action"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.versions.outputs.node-version }}
+
+      - name: Building Action
+        run: npm install
+        working-directory: ./.github/actions/test-action
+
+      - name: "Run the action"
+        uses: ./.github/actions/test-action
+

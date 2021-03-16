@@ -1,0 +1,5 @@
+name: "Repo Gardening"
+description: "Assign, manage milestones, for issues and PRs."
+runs:
+  using: node12
+  main: "index.js"
