@@ -38,7 +38,7 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import { bindCustomizerChanges, isInCustomizer } from '../lib/customize';
+import { bindCustomizerChanges, bindCustomizerMessages, isInCustomizer } from '../lib/customize';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -87,6 +87,7 @@ class SearchApp extends Component {
 
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
+		bindCustomizerMessages( this.showResults );
 
 		window.addEventListener( 'popstate', this.handleHistoryNavigation );
 
