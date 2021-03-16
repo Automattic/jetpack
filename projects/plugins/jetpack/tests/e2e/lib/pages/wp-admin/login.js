@@ -18,8 +18,8 @@ export default class WPLoginPage extends WpPage {
 			await this.toggleSSOLogin();
 		}
 
-		await this.type( '#user_login', username );
-		await this.type( '#user_pass', password );
+		await this.fill( '#user_login', username );
+		await this.fill( '#user_pass', password );
 
 		const navigationPromise = this.page.waitForNavigation();
 		await this.click( '#wp-submit' );

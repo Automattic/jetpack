@@ -37,6 +37,7 @@ export default class PageActions {
 	 */
 	async waitForPage() {
 		logger.action( `Checking ${ this.pageName } is displayed` );
+		await this.waitForDomContentLoaded();
 		for ( const selector of this.selectors ) {
 			await this.waitForElementToBeVisible( selector );
 		}
@@ -62,6 +63,49 @@ export default class PageActions {
 	async waitForTimeout( timeout ) {
 		logger.action( chalk.redBright( `Waiting for ${ timeout } ms` ) );
 		await this.page.waitForTimeout( timeout );
+	}
+
+	/**
+	 * Waits for page to reach the 'networkidle' load state or timeout in given ms
+	 *
+	 * @param {number} timeout
+	 * @return {Promise<void>}
+	 */
+	async waitForNetworkIdle( timeout = this.DEFAULT_TIMEOUT ) {
+		await this.waitForLoadState( 'networkidle', timeout );
+	}
+
+	/**
+	 * Waits for page to reach the 'load' load state or timeout in given ms
+	 *
+	 * @param {number} timeout
+	 * @return {Promise<void>}
+	 */
+	async waitForLoad( timeout = this.DEFAULT_TIMEOUT ) {
+		await this.waitForLoadState( 'load', timeout );
+	}
+
+	/**
+	 * Waits for page to reach the 'domcontentloaded' load state or timeout in given ms
+	 *
+	 * @param {number} timeout
+	 * @return {Promise<void>}
+	 */
+	async waitForDomContentLoaded( timeout = this.DEFAULT_TIMEOUT ) {
+		await this.waitForLoadState( 'domcontentloaded', timeout );
+	}
+
+	/**
+	 * Waits for page to reach the given load state or timeout in given ms
+	 * https://playwright.dev/docs/api/class-page?_highlight=waitforlo#pagewaitforloadstatestate-options
+	 *
+	 * @param {string} state
+	 * @param {number} timeout
+	 * @return {Promise<void>}
+	 */
+	async waitForLoadState( state, timeout ) {
+		logger.action( `Waiting for '${ state }' load state [timeout: ${ timeout } ms]` );
+		await this.page.waitForLoadState( state, timeout );
 	}
 
 	/**
@@ -109,6 +153,17 @@ export default class PageActions {
 	}
 
 	/**
+	 * Clear element's text by typing ''
+	 *
+	 * @param {string} selector the element's selector
+	 * @return {Promise<void>}
+	 */
+	async clear( selector ) {
+		logger.action( `Clearing text value for element ${ selector }` );
+		await page.press( selector, 'Control+ArrowRight' );
+	}
+
+	/**
 	 * Types text in an element in page
 	 *
 	 * @param {string} selector the element's selector
@@ -117,15 +172,29 @@ export default class PageActions {
 	 * @return {Promise<void>}
 	 */
 	async type( selector, text, options = null ) {
-		logger.action( `Type into element '${ selector }'` );
+		logger.action( `Typing into element '${ selector }'` );
+		await this.clear( selector );
 		await this.page.type( selector, text, options );
+	}
+
+	/**
+	 * Fills an editable text type element
+	 *
+	 * @param {string} selector the element's selector
+	 * @param {string} text to be filled in
+	 * @param {Object} options see: https://playwright.dev/docs/api/class-page/#pagefillselector-value-options
+	 * @return {Promise<void>}
+	 */
+	async fill( selector, text, options = null ) {
+		logger.action( `Filling element '${ selector }'` );
+		await this.page.fill( selector, text, options );
 	}
 
 	/**
 	 * Focus an element in page
 	 *
 	 * @param {string} selector the element's selector
-	 * @param {Object} options click options. see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
+	 * @param {Object} options see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
 	 * @return {Promise<void>}
 	 */
 	async focus( selector, options = null ) {

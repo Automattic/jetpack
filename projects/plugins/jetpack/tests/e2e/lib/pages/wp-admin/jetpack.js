@@ -11,33 +11,40 @@ export default class JetpackPage extends WpPage {
 	}
 
 	async connect() {
+		logger.step( 'Starting Jetpack connection' );
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
 		return await this.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
+		logger.step( 'Switching to My Plan tab' );
 		const myPlanButton = "a[href*='my-plan'] span";
 		return await this.click( myPlanButton );
 	}
 
 	async isFree() {
+		logger.step( 'Checking if Free plan is active' );
 		const freePlanImage = ".my-plan-card__icon img[src*='free']";
-		return this.isElementVisible( freePlanImage );
+		return await this.isElementVisible( freePlanImage );
 	}
 
 	async isComplete() {
+		logger.step( 'Checking if Complete plan is active' );
 		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
-		return this.isElementVisible( premiumPlanImage );
+		return await this.isElementVisible( premiumPlanImage );
 	}
 
 	async isSecurity() {
+		logger.step( 'Checking if Security plan is active' );
 		const proPlanImage = ".my-plan-card__icon img[src*='security']";
-		return this.isElementVisible( proPlanImage );
+		return await this.isElementVisible( proPlanImage );
 	}
 
 	async isConnected() {
+		logger.step( 'Checking if Jetpack is connected' );
+		await this.waitForNetworkIdle();
 		const connectionInfo = '.jp-connection-settings__info';
-		return this.isElementVisible( connectionInfo );
+		return await this.isElementVisible( connectionInfo );
 	}
 
 	async forceVariation( variation = 'original' ) {
@@ -61,12 +68,14 @@ export default class JetpackPage extends WpPage {
 	}
 
 	async isConnectBannerVisible() {
+		logger.step( 'Checking if Connect banner is visible' );
+
 		const containerSelector = '.jp-connect-full__container-card';
 		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
 
-		logger.step( 'Checking Connect banner is visible' );
 		const isCardVisible = await this.isElementVisible( containerSelector );
 		const isConnectButtonVisible = await this.isElementVisible( buttonSelector );
+
 		return isCardVisible && isConnectButtonVisible;
 	}
 }

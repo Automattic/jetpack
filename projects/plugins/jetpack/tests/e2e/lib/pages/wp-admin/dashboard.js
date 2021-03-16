@@ -13,7 +13,8 @@ export default class DashboardPage extends WpPage {
 
 	async isConnectBannerVisible() {
 		const selector = ".jp-wpcom-connect__container a[href*='register']";
-		return await this.isElementVisible( selector );
+		const el = await this.waitForElementToBeVisible( selector );
+		return el.isVisible();
 	}
 
 	async connect() {

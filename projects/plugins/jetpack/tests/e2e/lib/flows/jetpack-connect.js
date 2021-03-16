@@ -44,6 +44,7 @@ export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData =
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
+
 	if ( await jetpackPage.isConnected() ) {
 		await jetpackPage.openMyPlan();
 		if ( await jetpackPage.isPlan( plan ) ) {
