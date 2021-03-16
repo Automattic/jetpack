@@ -215,9 +215,14 @@ class Jetpack_Recommendations_Banner {
 							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
 						</div>
 					</form>
-					<a id="jp-recommendations-banner__continue-button" class="jp-recommendations-banner__continue-button">
-						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
-					</a>
+					<div class="jp-recommendations-banner__choices">
+						<a id="jp-recommendations-banner__continue-button" class="jp-recommendations-banner__continue-button">
+							<?php esc_html_e( 'Continue', 'jetpack' ); ?>
+						</a>
+						<a id="jp-recommendations-banner__dismiss-button" class="jp-recommendations-banner__dismiss-button">
+							<?php esc_html_e( 'Not now', 'jetpack' ); ?>
+						</a>
+					</div>
 					<div class="jp-recommendations-banner__continue-description">
 						<?php esc_html_e( 'All of Jetpack’s great features await you and we’ll recommend some of our favorites.', 'jetpack' ); ?>
 					</div>
