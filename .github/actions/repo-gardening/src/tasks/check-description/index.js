@@ -115,7 +115,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		.join( ' ' );
 
 	return `
- ******
+******
 
 **${ capitalizedName } plugin:**
 - Next scheduled release: _${ releaseDate }_.
@@ -204,7 +204,7 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	};
 	const status = isFailure ? severityMap[ severity ] : severityMap.ok;
 	return `
-	 - ${ status } ${ checkMessage }<br>`;
+	- ${ status } ${ checkMessage }<br>`;
 }
 
 /**
@@ -239,55 +239,127 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  * - Missing "Testing instructions"
  * - Privacy section
  *
+ * Note: All the checks should be truthy to resolve as success check.
+ *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  *
  * @returns {string} List of checks with appropriate status emojis.
  */
 async function getStatusChecks( payload, octokit ) {
-	const { base, body, head, number } = payload.pull_request;
+	const { body, number, head, base } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
+
+	const hasLongDescription = body.length > 200;
+	const isClean = ! ( await hasUnverifiedCommit( octokit, ownerLogin, repo, number ) );
+	const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
+	const hasTesting = body.includes( 'Testing instructions' );
+	const hasPrivacy = body.includes( 'data or activity we track or use' );
+	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
+	const isFromContributor = head.repo.full_name === base.repo.full_name;
+
+	return {
+		hasLongDescription,
+		isClean,
+		isLabeled,
+		hasTesting,
+		hasPrivacy,
+		projectsWithoutChangelog,
+		hasChangelogEntries: projectsWithoutChangelog.length === 0,
+		isFromContributor,
+	};
+}
+
+/**
+ * Compose a list of checks for the PR
+ *
+ * @param {object} statusChecks - Map of all checks with boolean as a value
+ *
+ * @returns {string} part of the comment with list of checks
+ */
+async function renderStatusChecks( statusChecks ) {
 	// No PR is too small to include a description of why you made a change
-	let checks = statusEntry( body < 10, 'Include a description of your PR changes.' );
+	let checks = statusEntry(
+		! statusChecks.hasLongDescription,
+		'Include a description of your PR changes.'
+	);
 
 	// Check all commits in PR.
 	// In this case, we use a different failure icon, as we do not consider this a blocker, it should not trigger label changes.
-	const isDirty = await hasUnverifiedCommit( octokit, ownerLogin, repo, number );
-	checks += statusEntry( isDirty, 'All commits were linted before commit.', 'warning' );
+	checks += statusEntry(
+		! statusChecks.isClean,
+		'All commits were linted before commit.',
+		'warning'
+	);
 
 	// Use labels please!
 	// Only check this for PRs created by a12s. External contributors cannot add labels.
-	if ( head.repo.full_name === base.repo.full_name ) {
-		const isLabeled = await hasStatusLabels( octokit, ownerLogin, repo, number );
-		debug( `check-description: this PR is correctly labeled: ${ isLabeled }` );
+	if ( statusChecks.isFromContributor ) {
+		debug( `check-description: this PR is correctly labeled: ${ statusChecks.isLabeled }` );
 		checks += statusEntry(
-			isLabeled,
+			! statusChecks.isLabeled,
 			'Add a "[Status]" label (In Progress, Needs Team Review, ...).'
 		);
 	}
 
 	// Check for testing instructions.
-	checks += statusEntry( body.includes( 'Testing instructions' ), 'Add testing instructions.' );
+	checks += statusEntry( ! statusChecks.hasTesting, 'Add testing instructions.' );
 
 	// Check if the Privacy section is filled in.
-	const isPrivacySectionFilled = ! body.includes( 'data or activity we track or use' );
 	checks += statusEntry(
-		isPrivacySectionFilled,
+		! statusChecks.hasPrivacy,
 		'Specify whether this PR includes any changes to data or privacy.'
 	);
 
-	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
-	debug( `check-description: Changelog entries missing for ${ projectsWithoutChangelog }` );
-
+	debug(
+		`check-description: Changelog entries missing for ${ statusChecks.projectsWithoutChangelog }`
+	);
 	checks += statusEntry(
-		projectsWithoutChangelog.length > 0,
+		! statusChecks.hasChangelogEntries,
 		'Add changelog entries to affected projects'
 	);
 
 	debug( `check-description: privacy checked. Status checks so far is ${ checks }` );
 
 	return checks;
+}
+
+/**
+ * Compose a list of recommendations based on failed checks
+ *
+ * @param {object} statusChecks - Map of all checks with boolean as a value
+ *
+ * @returns {string} part of the comment with recommendations
+ */
+function renderRecommendations( statusChecks ) {
+	const recommendations = {
+		hasLongDescription:
+			'Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.',
+		hasPrivacy: `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
+~~~
+#### Does this pull request change what data or activity we track or use?
+
+My PR adds *x* and *y*.
+~~~`,
+		hasTesting: `Please include detailed testing steps, explaining how to test your change, like so:
+~~~
+#### Testing instructions:
+
+* Go to '..'
+*
+~~~`,
+	};
+
+	// If some of the tests are failing, display list of things that could be updated in the PR description to fix things.
+	return Object.keys( statusChecks ).reduce( ( output, check ) => {
+		// If some of the checks have failed, lets recommend some next steps.
+		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
+			output += `${ recommendations[ check ] }
+
+******`;
+		}
+	}, '' );
 }
 
 /**
@@ -359,27 +431,36 @@ async function updateLabels( payload, octokit ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { number } = payload.pull_request;
+	const { base, head, number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
+	const statusChecks = await getStatusChecks( payload, octokit );
 
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
- When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
-	comment += await getStatusChecks( payload, octokit );
+	comment += renderStatusChecks( statusChecks );
 	comment += `
 
 
- This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
+This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
 
- ******
+******`;
 
- If you are an automattician, once your PR is ready for review add the "[Status] Needs Team review" label and ask someone from your team review the code.
- Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+	comment += renderRecommendations( statusChecks );
+
+	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
+	if ( head.repo.full_name === base.repo.full_name ) {
+		comment += `
+
+Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
+Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
+Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+	}
 
 	// Gather info about the next release for that plugin.
 	const milestoneInfo = await buildMilestoneInfo( octokit, ownerLogin, repo, number );
