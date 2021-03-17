@@ -895,7 +895,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	 * Filter for rest_api_allowed_public_metadata.
 	 * Adds FB's DTP specific metadata.
 	 *
-	 * @param array $keys
+	 * @param array $keys Array of metadata that is accessible by the REST API.
 	 *
 	 * @return array
 	 */
