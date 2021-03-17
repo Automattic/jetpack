@@ -119,7 +119,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 
 **${ capitalizedName } plugin:**
 - Next scheduled release: _${ releaseDate }_.
-- Scheduled code freeze: _${ codeFreezeDate }_
+- Scheduled code freeze: _${ codeFreezeDate }_.
 `;
 }
 
@@ -135,14 +135,14 @@ async function getMilestoneDates( plugin, nextMilestone ) {
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
-	let pluginInfo;
+	let pluginInfo = '';
 
 	debug( `check-description: This PR impacts the following plugins: ${ plugins.join( ', ' ) }` );
 
 	// Get next valid milestone for each plugin.
 	for await ( const plugin of plugins ) {
 		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
-		debug( `check-description: Milestone found: ${ nextMilestone }` );
+		debug( `check-description: Milestone found: ${ JSON.stringify( nextMilestone ) }` );
 
 		debug( `check-description: getting milestone info for ${ plugin }` );
 		const info = await getMilestoneDates( plugin, nextMilestone );
@@ -204,7 +204,7 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	};
 	const status = isFailure ? severityMap[ severity ] : severityMap.ok;
 	return `
-	- ${ status } ${ checkMessage }<br>`;
+- ${ status } ${ checkMessage }<br>`;
 }
 
 /**
@@ -220,9 +220,10 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 async function getChangelogEntries( octokit, owner, repo, number ) {
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
+	debug( `check-description: affected changelogger projects: ${ affectedProjects }` );
 
 	return affectedProjects.reduce( ( acc, project ) => {
-		const found = files.find( file => file.includes( '/changelog/' ) );
+		const found = files.find( file => file.includes( project ) && file.includes( '/changelog/' ) );
 		if ( ! found ) {
 			acc.push( project );
 		}
@@ -278,7 +279,7 @@ async function getStatusChecks( payload, octokit ) {
  *
  * @returns {string} part of the comment with list of checks
  */
-async function renderStatusChecks( statusChecks ) {
+function renderStatusChecks( statusChecks ) {
 	// No PR is too small to include a description of why you made a change
 	let checks = statusEntry(
 		! statusChecks.hasLongDescription,
@@ -355,10 +356,12 @@ My PR adds *x* and *y*.
 	return Object.keys( statusChecks ).reduce( ( output, check ) => {
 		// If some of the checks have failed, lets recommend some next steps.
 		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
-			output += `${ recommendations[ check ] }
+			output += `
+${ recommendations[ check ] }
 
 ******`;
 		}
+		return output;
 	}, '' );
 }
 
@@ -421,7 +424,9 @@ async function updateLabels( payload, octokit ) {
 	}
 
 	debug( `check-description: add Needs Author Reply label.` );
-	await octokit.issues.addLabels( labelOpts, { name: '[Status] Needs Author Reply' } );
+	await octokit.issues.addLabels(
+		Object.assign( labelOpts, { labels: [ '[Status] Needs Author Reply' ] } )
+	);
 }
 
 /**
@@ -431,11 +436,12 @@ async function updateLabels( payload, octokit ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { base, head, number } = payload.pull_request;
+	const { number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 	const statusChecks = await getStatusChecks( payload, octokit );
 
+	debug( `check-description: Status checks: ${ JSON.stringify( statusChecks ) }` );
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.
@@ -454,7 +460,7 @@ This comment will be updated as you work on your PR and make changes. If you thi
 	comment += renderRecommendations( statusChecks );
 
 	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
-	if ( head.repo.full_name === base.repo.full_name ) {
+	if ( statusChecks.isFromContributor ) {
 		comment += `
 
 Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.

@@ -1,62 +1,10 @@
-/* global GitHub */
 const glob = require( 'glob' );
 const fs = require( 'fs' );
 
-const debug = require( './debug' );
-const getFiles = require( './get-files' );
-
-// /**
-//  * Get list of files modified in PR.
-//  *
-//  * @param {GitHub} octokit - Initialized Octokit REST client.
-//  * @param {string} owner   - Repository owner.
-//  * @param {string} repo    - Repository name.
-//  * @param {string} number  - PR number.
-//  *
-//  * @returns {Promise<Array>} Promise resolving to an array of all files modified in  that PR.
-//  */
-//  async function getProjects( octokit, owner, repo, number ) {
-// 	debug( 'get-projects: Get list of files modified in this PR.' );
-// 	const files = await getFiles( octokit, owner, repo, number );
-
-// 	if ( ! files ) {
-// 		throw new Error( 'No files were modified in this PR' );
-// 	}
-
-// 	debug( 'add-labels: Loop through all files modified in this PR and add matching labels.' );
-// }
-
-// /**
-//  * @param file
-//  */
-// async function isProjectFile( file ) {
-// 	const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
-// 		if ( project && project.groups.ptype && project.groups.pname ) {
-// 			return true;
-// 		}
-// 			return false;
-// }
-
-// // // Find projects that use changelogger, and read the relevant config.
-// // $changelogger_projects = array();
-// // foreach ( glob( 'projects/*/*/composer.json' ) as $file ) {
-// // 	$data = json_decode( file_get_contents( $file ), true );
-// // 	if ( 'projects/packages/changelogger/composer.json' !== $file &&
-// // 		! isset( $data['require']['automattic/jetpack-changelogger'] ) &&
-// // 		! isset( $data['require-dev']['automattic/jetpack-changelogger'] )
-// // 	) {
-// // 		continue;
-// // 	}
-// // 	$data  = isset( $data['extra']['changelogger'] ) ? $data['extra']['changelogger'] : array();
-// // 	$data += array(
-// // 		'changelog'   => 'CHANGELOG.md',
-// // 		'changes-dir' => 'changelog',
-// // 	);
-// // 	$changelogger_projects[ substr( $file, 9, -14 ) ] = $data;
-// // }
-
 /**
+ * Returns a list of Projects that use changelogger package
  *
+ * @returns {Array} list of changelogger packages
  */
 function getChangeloggerProjects() {
 	const projects = [];
@@ -76,28 +24,37 @@ function getChangeloggerProjects() {
 }
 
 /**
- * @param file
+ * Returns an object with project type and name
+ *
+ * @param {string} file - File path
+ * @returns {object} Project type and name
  */
 function getProject( file ) {
-	const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
+	const project = file.match( /projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 	if ( project && project.groups.ptype && project.groups.pname ) {
 		return { type: project.groups.ptype, name: project.groups.pname };
 	}
-	return null;
+	return {};
 }
 
 /**
- * @param files
+ * Returns a list of affected projects
+ *
+ * @param {Array} files - List of files
+ * @returns {Array} List of affected projects
  */
 function getAffectedChangeloggerProjects( files ) {
 	const changeloggerProjects = getChangeloggerProjects();
-	return files.reduce( ( acc, file ) => {
+	const projects = files.reduce( ( acc, file ) => {
 		const project = getProject( file );
-		if ( changeloggerProjects.includes( project ) ) {
-			acc.push( file );
+		if ( changeloggerProjects.includes( project.name ) ) {
+			acc.push( project.name );
 		}
 		return acc;
 	}, [] );
+
+	// Filter out non-unique values
+	return [ ...new Set( projects ) ];
 }
 
 module.exports = getAffectedChangeloggerProjects;
