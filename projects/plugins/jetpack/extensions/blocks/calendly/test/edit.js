@@ -9,6 +9,13 @@ import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 
+// Need to mock InnerBlocks before import the CalendlyEdit component as it
+// requires the Gutenberg store setup to operate.
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	InnerBlocks: () => <button>Mocked button</button>,
+} ) );
+
 /**
  * Internal dependencies
  */
@@ -26,7 +33,6 @@ jest.mock(
 		} )
 	} )
 );
-
 describe( 'CalendlyEdit', () => {
 	const defaultAttributes = {
 		backgroundColor: '#ffffff',
@@ -79,7 +85,7 @@ describe( 'CalendlyEdit', () => {
 		const attributes = { ...defaultAttributes, url: 'https://calendly.com/invalid-url' };
 		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
 
-		expect( testEmbedUrl ).toHaveBeenCalledTimes( 1 );
+		expect( testEmbedUrl ).toHaveBeenCalledWith( attributes.url, expect.anything() );
 
 		// Render is supposed to be wrapped in an act call. How do I wait for
 		// testEmbedUrl promise to resolve to check that the appropriate
@@ -134,7 +140,7 @@ describe( 'CalendlyEdit', () => {
 			userEvent.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
 			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
-			expect( testEmbedUrl ).toHaveBeenCalledTimes( 1 );
+			expect( testEmbedUrl ).toHaveBeenCalledWith( 'https://calendly.com/valid-url', expect.anything() );
 		} );
 	} );
 
@@ -154,12 +160,11 @@ describe( 'CalendlyEdit', () => {
 		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-calendly-overlay' );
 	} );
 
-	test.skip( 'renders button preview when link style selected', () => {
-		//
+	test( 'renders button preview when link style selected', () => {
 		const attributes = { ...defaultAttributes, style: 'link' };
 		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
 
-		expect( screen.getByRole( 'button' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Mocked button' } ) ).toBeInTheDocument();
 	} );
 
 	test.skip( 'displays placeholder when no url', () => {
