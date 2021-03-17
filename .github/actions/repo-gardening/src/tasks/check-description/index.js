@@ -278,7 +278,7 @@ async function getStatusChecks( payload, octokit ) {
  *
  * @returns {string} part of the comment with list of checks
  */
-async function renderStatusChecks( statusChecks ) {
+function renderStatusChecks( statusChecks ) {
 	// No PR is too small to include a description of why you made a change
 	let checks = statusEntry(
 		! statusChecks.hasLongDescription,
@@ -437,6 +437,7 @@ async function checkDescription( payload, octokit ) {
 	const ownerLogin = owner.login;
 	const statusChecks = await getStatusChecks( payload, octokit );
 
+	debug( `check-description: STATUS CHECKS: ${ statusChecks }` );
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.
