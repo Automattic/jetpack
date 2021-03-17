@@ -424,7 +424,9 @@ async function updateLabels( payload, octokit ) {
 	}
 
 	debug( `check-description: add Needs Author Reply label.` );
-	await octokit.issues.addLabels( labelOpts, { name: '[Status] Needs Author Reply' } );
+	await octokit.issues.addLabels(
+		Object.assign( labelOpts, { name: '[Status] Needs Author Reply' } )
+	);
 }
 
 /**
