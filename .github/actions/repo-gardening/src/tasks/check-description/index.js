@@ -227,6 +227,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 		}
 		return acc;
 	}, [] );
+	debug( `check-description: getChangelogEntries affectedProjects: ${ files }` );
 	debug( `check-description: getChangelogEntries affectedProjects: ${ affectedProjects }` );
 	debug( `check-description: getChangelogEntries reduce: ${ q }` );
 
@@ -440,7 +441,7 @@ async function checkDescription( payload, octokit ) {
 	const ownerLogin = owner.login;
 	const statusChecks = await getStatusChecks( payload, octokit );
 
-	debug( `check-description: STATUS CHECKS: ${ statusChecks }` );
+	debug( `check-description: STATUS CHECKS: ${ JSON.stringify( statusChecks ) }` );
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.
