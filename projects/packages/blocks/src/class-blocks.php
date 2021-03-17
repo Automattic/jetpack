@@ -78,6 +78,13 @@ class Blocks {
 				}
 			);
 		}
+
+		// Ensure editor styles are registered so that the site editor knows about the style,
+		// so that it can be copied into the editor iframe.
+		if ( ! isset( $args['editor_style'] ) ) {
+			$args['editor_style'] = 'jetpack-blocks-editor';
+		}
+
 		return register_block_type( $slug, $args );
 	}
 
