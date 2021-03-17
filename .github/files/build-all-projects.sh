@@ -78,7 +78,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if node "$BASE"/tools/cli/bin/jetpack build "${SLUG}" -v --production; then
+	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true

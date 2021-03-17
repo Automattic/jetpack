@@ -39,7 +39,7 @@ export const Likes = withModuleSettingsFormHelpers(
 					>
 						<p>
 							{ __(
-								'When WordPress.com users enjoy your content, let them show it with a Like.',
+								'The Like button is a way for people on WordPress.com to show their appreciation for your content.',
 								'jetpack'
 							) }
 						</p>

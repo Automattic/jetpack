@@ -1,0 +1,3 @@
+Significance: patch
+Type: compat
+Comment: WPCOM API: sync with WordPress.com, not something worth mentioning in release changelog for Jetpack site owners.

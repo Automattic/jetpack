@@ -119,10 +119,8 @@ class ActiveCard extends Component {
 				{ userlessMode && (
 					<ConnectUserBar
 						feature={ m.module }
-						text={ __(
-							'The feature is provided by the WordPress.com cloud. Sign in to configure it.',
-							'jetpack'
-						) }
+						featureLabel={ m.name }
+						text={ __( 'Sign in to configure.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>
