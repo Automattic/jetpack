@@ -20,6 +20,7 @@ async function getFiles( octokit, owner, repo, number ) {
 		owner,
 		repo,
 		pull_number: +number,
+		per_page: 100,
 	} ) ) {
 		response.data.map( file => {
 			fileList.push( file.filename );

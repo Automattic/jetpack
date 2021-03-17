@@ -12,11 +12,12 @@ function getChangeloggerProjects() {
 	composerFiles.forEach( file => {
 		const json = JSON.parse( fs.readFileSync( file ) );
 		if (
-			! file.includes( 'changelogger' ) &&
-			( json.require[ 'automattic/jetpack-changelogger' ] ||
-				json[ 'require-dev' ][ 'automattic/jetpack-changelogger' ] )
+			// include changelogger package and any other packages that use changelogger package.
+			file.endsWith( '/projects/packages/changelogger/composer.json' ) ||
+			json.require[ 'automattic/jetpack-changelogger' ] ||
+			json[ 'require-dev' ][ 'automattic/jetpack-changelogger' ]
 		) {
-			projects.push( file.split( '/' ).slice( -2 )[ 0 ] );
+			projects.push( getProject( file ).fullName );
 		}
 	} );
 
@@ -32,7 +33,11 @@ function getChangeloggerProjects() {
 function getProject( file ) {
 	const project = file.match( /projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 	if ( project && project.groups.ptype && project.groups.pname ) {
-		return { type: project.groups.ptype, name: project.groups.pname };
+		return {
+			type: project.groups.ptype,
+			name: project.groups.pname,
+			fullName: `${ project.groups.ptype }/${ project.groups.pname }`,
+		};
 	}
 	return {};
 }
@@ -46,15 +51,14 @@ function getProject( file ) {
 function getAffectedChangeloggerProjects( files ) {
 	const changeloggerProjects = getChangeloggerProjects();
 	const projects = files.reduce( ( acc, file ) => {
-		const project = getProject( file );
-		if ( changeloggerProjects.includes( project.name ) ) {
-			acc.push( `${ project.type }/${ project.name }` );
+		const project = getProject( file ).fullName;
+		if ( ! file.endsWith( 'CHANGELOG.md' ) && changeloggerProjects.includes( project ) ) {
+			acc.add( project );
 		}
 		return acc;
-	}, [] );
+	}, new Set() );
 
-	// Filter out non-unique values
-	return [ ...new Set( projects ) ];
+	return [ ...projects ];
 }
 
 module.exports = getAffectedChangeloggerProjects;
