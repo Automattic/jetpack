@@ -140,6 +140,13 @@ class Jetpack_Comment_Likes {
 			JETPACK__VERSION,
 			true
 		);
+		wp_register_script(
+			'rlt-proxy',
+			Assets::get_file_url_for_environment( '_inc/build/rlt-proxy.min.js', '_inc/rlt-proxy.js' ),
+			array( 'postmessage' ),
+			JETPACK__VERSION,
+			true
+		);
 		wp_enqueue_script(
 			'jetpack_resize',
 			Assets::get_file_url_for_environment(

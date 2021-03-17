@@ -23,10 +23,14 @@ function jetpack_likes_master_iframe() {
 
 	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
+	$protocol = is_ssl() ? 'https' : 'http';
+	$origin   = isset( $_SERVER['HTTP_HOST'] ) ? "$protocol://" . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : null;
+
 	$src = sprintf(
-		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',
+		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s%3$s',
 		$version,
-		$likes_locale
+		$likes_locale,
+		$origin ? '&amp;origin=' . $origin : ''
 	);
 
 	/* translators: The value of %d is not available at the time of output */
