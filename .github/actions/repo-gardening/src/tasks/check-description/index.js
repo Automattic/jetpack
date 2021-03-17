@@ -135,7 +135,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
-	let pluginInfo;
+	let pluginInfo = '';
 
 	debug( `check-description: This PR impacts the following plugins: ${ plugins.join( ', ' ) }` );
 
