@@ -9,6 +9,7 @@ import pluralize from 'pluralize';
  * Internal dependencies
  */
 import promptForProject from '../helpers/promptForProject';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Command definition for the changelog subcommand.
@@ -51,11 +52,14 @@ export async function changeloggerCli( argv ) {
 	validateArgs( argv );
 	argv = await promptForProject( argv );
 	const projDir = path.resolve( `projects/${ argv.project }` );
-	child_process.spawn( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
+	child_process.spawnSync( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
 		cwd: projDir,
 		stdio: 'inherit',
 		shell: true,
 	} );
+	console.log(
+		chalkJetpackGreen( `Changelog for ${argv.project} added!` )
+	);
 }
 
 /** Validate arguments
