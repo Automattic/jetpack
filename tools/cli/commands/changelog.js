@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import chalk from 'chalk';
 import child_process from 'child_process';
 import path from 'path';
 import pluralize from 'pluralize';
@@ -9,7 +10,7 @@ import pluralize from 'pluralize';
  * Internal dependencies
  */
 import promptForProject from '../helpers/promptForProject';
-import { chalkJetpackGreen } from '../helpers/styling.js';
+import { chalkJetpackGreen } from '../helpers/styling';
 
 /**
  * Command definition for the changelog subcommand.
@@ -52,14 +53,23 @@ export async function changeloggerCli( argv ) {
 	validateArgs( argv );
 	argv = await promptForProject( argv );
 	const projDir = path.resolve( `projects/${ argv.project }` );
-	child_process.spawnSync( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
+	const process = child_process.spawnSync( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
 		cwd: projDir,
 		stdio: 'inherit',
 		shell: true,
 	} );
-	console.log(
-		chalkJetpackGreen( `Changelog for ${argv.project} added!` )
-	);
+
+	// Node.js exit code status 0 === success
+	if ( process.status !== 0 ) {
+		console.error(
+			chalk.red( 'Something went wrong! Check your file path?' ),
+			process.error
+		);
+	} else {
+		console.log(
+			chalkJetpackGreen( `Changelog for ${ argv.project} added successfully!` )
+		);
+	}
 }
 
 /** Validate arguments
@@ -72,11 +82,11 @@ function validateArgs ( argv ) {
 		case 'add':
 			break;
 		case 'validate':
-			break;
+			throw new Error( 'Sorry! That command is not supported yet!' );
 		case 'version':
-			break;
+			throw new Error( 'Sorry! That command is not supported yet!' );
 		case 'write':
-			break;
+			throw new Error( 'Sorry! That command is not supported yet!' );
 		default:
 			throw new Error( 'Not a valid command. Use `jetpack changelog --help` for help with changelogger' );
 	}
