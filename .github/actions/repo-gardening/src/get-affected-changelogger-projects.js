@@ -45,13 +45,16 @@ function getProject( file ) {
  */
 function getAffectedChangeloggerProjects( files ) {
 	const changeloggerProjects = getChangeloggerProjects();
-	return files.reduce( ( acc, file ) => {
+	const projects = files.reduce( ( acc, file ) => {
 		const project = getProject( file );
 		if ( changeloggerProjects.includes( project.name ) ) {
-			acc.push( file );
+			acc.push( project.name );
 		}
 		return acc;
 	}, [] );
+
+	// Filter out non-unique values
+	return [ ...new Set( projects ) ];
 }
 
 module.exports = getAffectedChangeloggerProjects;

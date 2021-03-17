@@ -220,18 +220,15 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 async function getChangelogEntries( octokit, owner, repo, number ) {
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
-	const q = affectedProjects.reduce( ( acc, project ) => {
-		const found = files.find( file => file.includes( '/changelog/' ) );
+	debug( `check-description: getChangelogEntries affectedProjects: ${ affectedProjects }` );
+
+	return affectedProjects.reduce( ( acc, project ) => {
+		const found = files.find( file => file.includes( project ) && file.includes( '/changelog/' ) );
 		if ( ! found ) {
 			acc.push( project );
 		}
 		return acc;
 	}, [] );
-	debug( `check-description: getChangelogEntries affectedProjects: ${ files }` );
-	debug( `check-description: getChangelogEntries affectedProjects: ${ affectedProjects }` );
-	debug( `check-description: getChangelogEntries reduce: ${ q }` );
-
-	return q;
 }
 
 /**
