@@ -37,6 +37,9 @@ const deprecatedButtonAttributes = [
  *
  * Uses a "button" element rather than "a", since the button opens a modal rather than
  * an external link.
+ *
+ * @param   { object } attributes - Eventbrite block attributes.
+ * @returns { string }            - Button markup to save.
  */
 function saveButton( attributes ) {
 	const {
