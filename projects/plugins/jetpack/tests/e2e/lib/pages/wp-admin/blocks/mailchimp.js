@@ -1,7 +1,7 @@
-import LoginPage from '../wpcom/login';
-import ConnectionsPage from '../wpcom/connections';
-import logger from '../../logger';
-import PageActions from '../page-actions';
+import LoginPage from '../../wpcom/login';
+import ConnectionsPage from '../../wpcom/connections';
+import logger from '../../../logger';
+import PageActions from '../../page-actions';
 
 export default class MailchimpBlock extends PageActions {
 	constructor( blockId, page ) {

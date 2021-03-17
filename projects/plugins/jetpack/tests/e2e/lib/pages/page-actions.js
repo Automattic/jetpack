@@ -33,7 +33,7 @@ export default class PageActions {
 	}
 
 	/**
-	 * Waits for each of the given selectors to become visible on the page.
+	 * Waits for DOM content load and the for each of the given selectors to become visible on the page.
 	 */
 	async waitForPage() {
 		logger.action( `Checking ${ this.pageName } is displayed` );
@@ -44,7 +44,7 @@ export default class PageActions {
 	}
 
 	/**
-	 * Reloads the page and waits for the expected locators
+	 * Reloads the page and waits for page to be loaded
 	 *
 	 * @param {Object} options page.reload options object
 	 */
@@ -116,6 +116,19 @@ export default class PageActions {
 	async saveCurrentStorageState() {
 		const storage = await this.page.context().storageState();
 		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
+	}
+
+	/**
+	 * Adds a cookie to browser and reloads the page
+	 *
+	 * @param {Object} cookie the cookie object
+	 * @return {Promise<void>}
+	 */
+	async setCookie( cookie ) {
+		logger.step( `Setting up cookie ${ JSON.stringify( cookie ) }` );
+
+		await this.page.context().addCookies( [ cookie ] );
+		return await this.reload();
 	}
 
 	// endregion

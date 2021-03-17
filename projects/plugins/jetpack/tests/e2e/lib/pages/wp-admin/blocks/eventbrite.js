@@ -1,4 +1,4 @@
-import PageActions from '../page-actions';
+import PageActions from '../../page-actions';
 
 export default class EventbriteBlock extends PageActions {
 	constructor( blockId, page, eventId ) {

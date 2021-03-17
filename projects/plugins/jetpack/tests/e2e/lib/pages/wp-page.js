@@ -39,22 +39,16 @@ export default class WpPage extends PageActions {
 	}
 
 	/**
-	 * Adds a cookie to the browser and reloads the page.
+	 * Adds the store_sandbox cookie
 	 *
-	 * @param {string} sandboxCookieValue Cookie to use
+	 * @param {string} sandboxCookieValue Cookie value
 	 * @param {string} domain Cookie domain
 	 */
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
-		logger.info( `Setting up the cookie for ${ this.pageName } page on ${ this.page.url() }` );
-
-		await this.page.context().addCookies( [
-			{
-				name: 'store_sandbox',
-				value: sandboxCookieValue,
-				domain,
-			},
-		] );
-
-		return await this.reload();
+		await this.setCookie( {
+			name: 'store_sandbox',
+			value: sandboxCookieValue,
+			domain,
+		} );
 	}
 }

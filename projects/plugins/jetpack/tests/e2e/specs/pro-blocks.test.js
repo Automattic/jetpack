@@ -3,11 +3,11 @@
  */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
-import MailchimpBlock from '../lib/pages/blocks/mailchimp';
+import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
-import SimplePaymentBlock from '../lib/pages/blocks/simple-payments';
-import WordAdsBlock from '../lib/pages/blocks/word-ads';
+import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
+import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
 import { step } from '../lib/env/test-setup';
 
 describe( 'Paid blocks', () => {
