@@ -8,7 +8,6 @@ const moment = require( 'moment' );
  */
 const debug = require( '../../debug' );
 const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
-const getChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
 const getFiles = require( '../../get-files' );
 const getLabels = require( '../../get-labels' );
 const getNextValidMilestone = require( '../../get-next-valid-milestone' );
@@ -116,7 +115,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		.join( ' ' );
 
 	return `
-******
+ ******
 
 **${ capitalizedName } plugin:**
 - Next scheduled release: _${ releaseDate }_.
@@ -205,16 +204,20 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	};
 	const status = isFailure ? severityMap[ severity ] : severityMap.ok;
 	return `
-	- ${ status } ${ checkMessage }<br>`;
+	 - ${ status } ${ checkMessage }<br>`;
 }
 
 /**
- * @param octokit
- * @param owner
- * @param repo
- * @param number
+ * Returns list of projects with missing changelog entries
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ *
+ * @returns {Array} - list of affected projects without changelog entry
  */
-async function hasChangelogEntries( octokit, owner, repo, number ) {
+async function getChangelogEntries( octokit, owner, repo, number ) {
 	const files = await getFiles( octokit, owner, repo, number );
 	const affectedProjects = getAffectedChangeloggerProjects( files );
 
@@ -274,7 +277,8 @@ async function getStatusChecks( payload, octokit ) {
 		'Specify whether this PR includes any changes to data or privacy.'
 	);
 
-	const projectsWithoutChangelog = await hasChangelogEntries( octokit, ownerLogin, repo, number );
+	const projectsWithoutChangelog = await getChangelogEntries( octokit, ownerLogin, repo, number );
+	debug( `check-description: Changelog entries missing for ${ projectsWithoutChangelog }` );
 
 	checks += statusEntry(
 		projectsWithoutChangelog.length > 0,
@@ -364,65 +368,18 @@ async function checkDescription( payload, octokit ) {
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
-When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+ When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	comment += await getStatusChecks( payload, octokit );
 	comment += `
 
 
-This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
+ This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
 
-******`;
+ ******
 
-	// If some of the tests are failing, display list of things that could be updated in the PR description to fix things.
-	const recommendations = `
-${
-	! hasLongDescription
-		? `Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.`
-		: ''
-}
-${
-	! hasPrivacy
-		? `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
-~~~
-#### Does this pull request change what data or activity we track or use?
-
-My PR adds *x* and *y*.
-~~~`
-		: ''
-}
-${
-	! hasTesting
-		? `Please include detailed testing steps, explaining how to test your change, like so:
-~~~
-#### Testing instructions:
-
-* Go to '..'
-*
-~~~`
-		: ''
-}
-`;
-
-	// If we have some recommendations, add them to our comment.
-	if (
-		// Remove line breaks from the string to facilitate checking if not empty.
-		recommendations.replace( /\r?\n|\r/g, '' ).length > 0
-	) {
-		comment += `${ recommendations }
-
-******
-`;
-	}
-
-	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
-	if ( head.repo.full_name === base.repo.full_name ) {
-		comment += `
-
-Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
-Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
-Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
-	}
+ If you are an automattician, once your PR is ready for review add the "[Status] Needs Team review" label and ask someone from your team review the code.
+ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
 
 	// Gather info about the next release for that plugin.
 	const milestoneInfo = await buildMilestoneInfo( octokit, ownerLogin, repo, number );
