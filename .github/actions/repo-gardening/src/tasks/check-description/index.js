@@ -425,7 +425,7 @@ async function updateLabels( payload, octokit ) {
 
 	debug( `check-description: add Needs Author Reply label.` );
 	await octokit.issues.addLabels(
-		Object.assign( labelOpts, { name: '[Status] Needs Author Reply' } )
+		Object.assign( labelOpts, { labels: '[Status] Needs Author Reply' } )
 	);
 }
 
