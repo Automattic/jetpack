@@ -64,6 +64,16 @@ class Posts extends Module {
 	const MAX_POST_CONTENT_LENGTH = 5000000;
 
 	/**
+	 * Max bytes allowed for post meta_value => length.
+	 * Current Setting : 2MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_META_LENGTH = 2000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -205,6 +215,11 @@ class Posts extends Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
 
+		// meta.
+		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
+
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
@@ -273,6 +288,24 @@ class Posts extends Module {
 	 */
 	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_posts' );
+	}
+
+	/**
+	 * Filter meta arguments so that we don't sync meta_values over MAX_POST_META_LENGTH.
+	 *
+	 * @param array $args action arguments.
+	 *
+	 * @return array filtered action arguments.
+	 */
+	public function trim_post_meta( $args ) {
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		// Explicitly truncate meta_value when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		$serialized_value = maybe_serialize( $meta_value );
+		if ( strlen( $serialized_value ) >= self::MAX_POST_META_LENGTH ) {
+			$meta_value = '';
+		}
+		return array( $meta_id, $object_id, $meta_key, $meta_value );
 	}
 
 	/**

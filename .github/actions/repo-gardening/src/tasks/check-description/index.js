@@ -105,10 +105,17 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		codeFreezeDate = firstTuesdayOfMonth.subtract( 8, 'd' ).format( 'LL' );
 	}
 
+	const capitalizedName = plugin
+		.split( '-' )
+		// Capitalize first letter of each word.
+		.map( word => `${ word[ 0 ].toUpperCase() }${ word.slice( 1 ) }` )
+		// Spaces between words.
+		.join( ' ' );
+
 	return `
 ******
 
-**${ plugin } plugin:**
+**${ capitalizedName } plugin:**
 - Next scheduled release: _${ releaseDate }_.
 - Scheduled code freeze: _${ codeFreezeDate }_
 `;
@@ -127,6 +134,8 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
 	let pluginInfo;
+
+	debug( `check-description: This PR impacts the following plugins: ${ plugins.join( ', ' ) }` );
 
 	// Get next valid milestone for each plugin.
 	for await ( const plugin of plugins ) {
@@ -194,9 +203,10 @@ async function checkDescription( payload, octokit ) {
 When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	// No PR is too small to include a description of why you made a change
+	const hasLongDescription = body.length > 200;
 	comment += `
 - ${
-		body < 10 ? `:red_circle:` : `:white_check_mark:`
+		! hasLongDescription ? `:red_circle:` : `:white_check_mark:`
 	} Include a description of your PR changes.<br>`;
 
 	// Check all commits in PR.
@@ -217,15 +227,15 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 	}
 
 	// Check for testing instructions.
+	const hasTesting = body.includes( 'Testing instructions' );
 	comment += `
-- ${
-		! body.includes( 'Testing instructions' ) ? `:red_circle:` : `:white_check_mark:`
-	} Add testing instructions.<br>`;
+- ${ ! hasTesting ? `:red_circle:` : `:white_check_mark:` } Add testing instructions.<br>`;
 
 	// Check if the Privacy section is filled in.
+	const hasPrivacy = body.includes( 'data or activity we track or use' );
 	comment += `
 - ${
-		! body.includes( 'data or activity we track or use' ) ? `:red_circle:` : `:white_check_mark:`
+		! hasPrivacy ? `:red_circle:` : `:white_check_mark:`
 	} Specify whether this PR includes any changes to data or privacy.<br>`;
 
 	debug( `check-description: privacy checked. our comment so far is ${ comment }` );
@@ -235,10 +245,57 @@ When contributing to Jetpack, we have [a few suggestions](https://github.com/Aut
 
 This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
 
-******
+******`;
 
-If you are an automattician, once your PR is ready for review add the "[Status] Needs Team review" label and ask someone from your team review the code.
+	// If some of the tests are failing, display list of things that could be updated in the PR description to fix things.
+	const recommendations = `
+${
+	! hasLongDescription
+		? `Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.`
+		: ''
+}
+${
+	! hasPrivacy
+		? `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
+~~~
+#### Does this pull request change what data or activity we track or use?
+
+My PR adds *x* and *y*.
+~~~`
+		: ''
+}
+${
+	! hasTesting
+		? `Please include detailed testing steps, explaining how to test your change, like so:
+~~~
+#### Testing instructions:
+
+* Go to '..'
+*
+~~~`
+		: ''
+}
+`;
+
+	// If we have some recommendations, add them to our comment.
+	if (
+		// Remove line breaks from the string to facilitate checking if not empty.
+		recommendations.replace( /\r?\n|\r/g, '' ).length > 0
+	) {
+		comment += `${ recommendations }
+
+******
+`;
+	}
+
+	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
+	if ( head.repo.full_name === base.repo.full_name ) {
+		comment += `
+
+Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
+Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
 Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+	}
 
 	// Gather info about the next release for that plugin.
 	const milestoneInfo = await buildMilestoneInfo( octokit, ownerLogin, repo, number );

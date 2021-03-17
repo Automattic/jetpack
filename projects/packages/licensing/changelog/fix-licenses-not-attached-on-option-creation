@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix stored licenses not being attached on option creation
