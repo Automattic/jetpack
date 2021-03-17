@@ -47,6 +47,27 @@ class Tiled_Gallery {
 	}
 
 	/**
+	 * Registers inline scripts which populate `window.JetpackTiledGalleryOptions` in Javascript.
+	 *   window.JetpackTiledGalleryOptions.isAtomicSite (Boolean)  - Is the site atomic?
+	 *   window.JetpackTiledGalleryOptions.isPrivateSite (Boolean) - Is the site private?
+	 *
+	 * @return void
+	 **/
+	public static function inject_javascript_options() {
+		$options = array(
+			// 'isAtomicSite'  => jetpack_is_atomic_site(),
+			// ################################### WARNING #####################################.
+			'isAtomicSite'  => true, // XXX TODO DEBUG DO NOT MERGE.
+			// ################################### WARNING #####################################.
+			'isPrivateSite' => '-1' === get_option( 'blog_public' ),
+		);
+		wp_register_script( 'tiled-gallery-options', '', array(), 'v0.0-inline', true );
+		wp_enqueue_script( 'tiled-gallery-options' );
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script( 'tiled-gallery-options', 'var JetpackTiledGalleryOptions = JSON.parse( decodeURIComponent( "' . rawurlencode( wp_json_encode( $options ) ) . '" ) );' );
+	}
+
+	/**
 	 * Tiled gallery block registration
 	 *
 	 * @param array  $attr    Array containing the block attributes.
@@ -185,3 +206,4 @@ class Tiled_Gallery {
 }
 
 Tiled_Gallery::register();
+Tiled_Gallery::inject_javascript_options();
