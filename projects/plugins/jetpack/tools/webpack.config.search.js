@@ -89,6 +89,15 @@ module.exports = {
 			} )(),
 		} ),
 		...baseWebpackConfig.plugins,
+		// Replace 'debug' module with a dummy implementation in production
+		...( isDevelopment
+			? []
+			: [
+					new webpack.NormalModuleReplacementPlugin(
+						/^debug$/,
+						path.resolve( __dirname, '../modules/search/instant-search/lib/dummy-debug' )
+					),
+			  ] ),
 		new DependencyExtractionWebpackPlugin( {
 			injectPolyfill: true,
 			useDefaults: false,
