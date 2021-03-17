@@ -118,7 +118,6 @@ describe( 'Mailchimp block controls component', () => {
 	test( 'updates signup field value attribute', async () => {
 		render( <MailChimpBlockControls { ...defaultProps } /> );
 		userEvent.paste( screen.getByLabelText( 'Signup Field Value' ), ' please' );
-		screen.debug();
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			signupFieldValue: 'Sign up please',
 		} );
