@@ -25,5 +25,14 @@
             null,
             "</div>\n"
         ]
+    },
+    {
+        "blockName": null,
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n",
+        "innerContent": [
+            "\n"
+        ]
     }
 ]
