@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Admin Menu: add an inline comment (not worth a changelog entry)
+
+

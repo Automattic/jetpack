@@ -113,10 +113,8 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					{ ! this.props.isLinked && (
 						<ConnectUserBar
 							feature="sharedaddy"
-							text={ __(
-								'Sharing buttons provided by the WordPress.com cloud. Sign in to configure the sharing buttons.',
-								'jetpack'
-							) }
+							featureLabel={ __( 'Sharing Buttons', 'jetpack' ) }
+							text={ __( 'Sign in to add sharing buttons on your site.', 'jetpack' ) }
 						/>
 					) }
 

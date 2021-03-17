@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "206a7775519adf7eadfcf621d1e648e3",
+    "content-hash": "47b63cc8a82ab7053bd22645559358ae",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "f662708969edb26a8acdd7845ee6c92d097d3ed2"
+                "reference": "941fb334722542cb9f45155c9babd6734c6ee3b1"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -35,11 +35,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -61,10 +61,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/abtest",
-                "reference": "88cba470baacd708cdeaa975d96c2c665d568faf"
+                "reference": "5b5ae690655d16c51f7f4732b86522eaad4f56ff"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.24",
+                "automattic/jetpack-connection": "^1.25",
                 "automattic/jetpack-error": "^1.3"
             },
             "require-dev": {
@@ -89,14 +89,14 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -118,7 +118,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "750a02d32a85ec4bd14550cc67a882f5b8f965b1"
+                "reference": "81df84cf7ba03928fd3e5d9fe5168085fcc17981"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -145,11 +145,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -171,7 +171,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "6c3ebd7e09edd636d71e4e87ce316ffbc8f9f567"
+                "reference": "7e7651188ecc0a02a22e6f433bd5a614c930aaff"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -201,11 +201,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
                     "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
                 ],
@@ -266,7 +266,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "0deefeaefb355c075c200207bbc312bd4cedb1fc"
+                "reference": "7d2beb6ef393d0f6a08ba5437e379535f68d255a"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -290,14 +290,14 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -392,7 +392,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "a1285622214531176b61066767260c25937910b7"
+                "reference": "7152acf69517f4b6a79e275489bc042017f5a07e"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
@@ -415,7 +415,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.24.x-dev"
+                    "dev-master": "1.25.x-dev"
                 }
             },
             "autoload": {
@@ -429,14 +429,14 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -458,10 +458,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "70a57319a468fa865c9114a7a4ec54422c9b3356"
+                "reference": "43c14b7a689f14d4a07b1fc3ba711ba28fe98afa"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.24"
+                "automattic/jetpack-connection": "^1.25"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev"
@@ -506,7 +506,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "ef2fb6fcd1f79e6b6b6516c9a4bf401fba57b99a"
+                "reference": "1b3c06f9c4105ca977dd4790ec34bf1d4fdf1f63"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -530,11 +530,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -556,7 +556,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "d112311c1bf01e057d95d0c7f7787e018117ca9d"
+                "reference": "bea33c92dcfa8be4a8ef462e1958bc0a094b8a29"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -579,11 +579,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -605,7 +605,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/error",
-                "reference": "fff48d3d285dcb299cc4fcd9c29298dcde386a7b"
+                "reference": "a83341e31df1e6713507d981f4a1ce57588a0099"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -628,11 +628,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -693,11 +693,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "1ac9a29d97ee0dcbcb5e8a0d399a33bc85b5c6c3"
+                "reference": "3d5e6e516d77b6d1bc13db3720791519674f84bb"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
-                "automattic/jetpack-connection": "^1.24",
+                "automattic/jetpack-connection": "^1.25",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.11",
@@ -739,11 +739,11 @@
                     "yarn build"
                 ],
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -765,7 +765,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "ca815af21ad1360cf5081f422a5733af194b6970"
+                "reference": "acac1b5d31826fd95093537521364834086e1f61"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -801,14 +801,14 @@
                     "yarn build"
                 ],
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -830,10 +830,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "7307122038822613d76aa3c8dc974811fe7f3456"
+                "reference": "f21821753a5c7dc66e06b8117683aef4d94c0097"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.24",
+                "automattic/jetpack-connection": "^1.25",
                 "automattic/jetpack-options": "^1.11"
             },
             "require-dev": {
@@ -848,7 +848,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.3.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -858,14 +858,14 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "post-update-cmd": [
                     "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -887,7 +887,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "a37b01720e4c15ececa53192133a5122d9f87121"
+                "reference": "852db8e92d3a965e84376fcb2927b9ecf629cf49"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -910,11 +910,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -975,7 +975,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "5e98f77f594a785e9309d393814ac7ca267adde5"
+                "reference": "a39ef639b7d1833e38597a5546a97440e7e1e6ad"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -999,11 +999,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1025,7 +1025,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "63a074342c395775eca87c7c5afc501b2e8edc6d"
+                "reference": "71c071fdf66a9726ddf63e2698832ced0e2e899f"
             },
             "require": {
                 "automattic/jetpack-status": "^1.7"
@@ -1052,11 +1052,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1078,7 +1078,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "204d82908358392be04305dcfce93d3be0d90145"
+                "reference": "25bd74812feaca32a8de8fd0862cc671d8edfda1"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -1102,11 +1102,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1128,7 +1128,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "e528f7867762b3359da8e5500d886ce082b1ca05"
+                "reference": "98f78bf34737a6863954895c96903cfc45c1c3a0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "1.1.x-dev",
@@ -1152,11 +1152,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1178,10 +1178,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "f79d7f002b9daaa38c4ea6b89a8c27d3ec103181"
+                "reference": "d1982e19c3f2960dc89c5538986a82a5c827b212"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.24",
+                "automattic/jetpack-connection": "^1.25",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
                 "automattic/jetpack-options": "^1.11",
@@ -1221,7 +1221,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "e4f16272eb09fd66406138580cccf9f312b43f5f"
+                "reference": "574e246688d086fbdca902888ec06b3acbcf7d4c"
             },
             "require": {
                 "automattic/jetpack-options": "^1.11",
@@ -1249,11 +1249,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1275,7 +1275,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "705971e55db88cb8bcc31d650a47512f5d9fc519"
+                "reference": "ed8d3d91a236480f94aceba456f5a1ebde591a92"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
@@ -1305,11 +1305,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1403,7 +1403,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "dff2b641a296f469289f9e9ce09c958665e1e528"
+                "reference": "69b94231de9ccb5b0c244bf05b985c6eacc874ba"
             },
             "require": {
                 "php": ">=5.6",
@@ -1445,11 +1445,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -1507,10 +1507,6 @@
                 "container-interop",
                 "psr"
             ],
-            "support": {
-                "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.1"
-            },
             "time": "2021-03-05T17:36:06+00:00"
         },
         {
@@ -1591,9 +1587,6 @@
                 "console",
                 "terminal"
             ],
-            "support": {
-                "source": "https://github.com/symfony/console/tree/v5.2.5"
-            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2139,9 +2132,6 @@
             ],
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
-            "support": {
-                "source": "https://github.com/symfony/process/tree/v5.2.4"
-            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2301,9 +2291,6 @@
                 "utf-8",
                 "utf8"
             ],
-            "support": {
-                "source": "https://github.com/symfony/string/tree/v5.2.4"
-            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2370,9 +2357,6 @@
             ],
             "description": "Safe replacement to @ for suppressing warnings.",
             "homepage": "https://www.mediawiki.org/wiki/at-ease",
-            "support": {
-                "source": "https://github.com/wikimedia/at-ease/tree/v2.1.0"
-            },
             "time": "2021-02-27T15:53:37+00:00"
         }
     ],

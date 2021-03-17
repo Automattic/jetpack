@@ -78,7 +78,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if node "$BASE"/tools/cli/bin/jetpack build "${SLUG}" -v --production; then
+	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
@@ -131,6 +131,11 @@ for SLUG in "${SLUGS[@]}"; do
 
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
+
+	# Copy autotagger if enabled
+	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{

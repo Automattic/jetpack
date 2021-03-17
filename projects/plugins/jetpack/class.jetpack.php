@@ -727,6 +727,10 @@ class Jetpack {
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
 
+		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-pre-connection-jitms.php';
+		$jetpack_jitm_messages = ( new Jetpack_Pre_Connection_JITMs() );
+		add_filter( 'jetpack_pre_connection_jitms', array( $jetpack_jitm_messages, 'add_pre_connection_jitms' ) );
+
 		/*
 		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
 		 * We should make sure to only do this for front end links.
@@ -799,6 +803,7 @@ class Jetpack {
 
 		// Filters for Sync Callables.
 		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ), 10, 1 );
+		add_filter( 'jetpack_sync_multisite_callable_whitelist', array( $this, 'filter_sync_multisite_callable_whitelist' ), 10, 1 );
 
 		// Make resources use static domain when possible.
 		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
@@ -1032,7 +1037,7 @@ class Jetpack {
 	}
 
 	/**
-	 * Extend callables with Jetpack Plugin functions.
+	 * Extend Sync callables with Jetpack Plugin functions.
 	 *
 	 * @param array $callables list of callables.
 	 *
@@ -1060,6 +1065,29 @@ class Jetpack {
 			);
 			$callables   = array_merge( $callables, $sso_helpers );
 		}
+
+		return $callables;
+	}
+
+	/**
+	 * Extend Sync multisite callables with Jetpack Plugin functions.
+	 *
+	 * @param array $callables list of callables.
+	 *
+	 * @return array list of callables.
+	 */
+	public function filter_sync_multisite_callable_whitelist( $callables ) {
+
+		// Jetpack Funtions.
+		$jetpack_multisite_callables = array(
+			'network_name'                        => array( 'Jetpack', 'network_name' ),
+			'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
+			'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
+			'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
+			'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
+			'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
+		);
+		$callables                   = array_merge( $callables, $jetpack_multisite_callables );
 
 		return $callables;
 	}

@@ -16,11 +16,11 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer install",
+			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
+			"@composer update",
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
