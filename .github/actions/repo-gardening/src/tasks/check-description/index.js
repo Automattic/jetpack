@@ -142,7 +142,7 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	// Get next valid milestone for each plugin.
 	for await ( const plugin of plugins ) {
 		const nextMilestone = await getNextValidMilestone( octokit, owner, repo, plugin );
-		debug( `check-description: Milestone found: ${ nextMilestone }` );
+		debug( `check-description: Milestone found: ${ JSON.stringify( nextMilestone ) }` );
 
 		debug( `check-description: getting milestone info for ${ plugin }` );
 		const info = await getMilestoneDates( plugin, nextMilestone );
