@@ -7,7 +7,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 // Need to mock InnerBlocks before import the CalendlyEdit component as it
 // requires the Gutenberg store setup to operate.
@@ -63,7 +63,7 @@ describe( 'CalendlyEdit', () => {
 		...defaultProps,
 		attributes: {
 			...defaultAttributes,
-			url: undefined,
+			url: '',
 		},
 	};
 
@@ -81,17 +81,13 @@ describe( 'CalendlyEdit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( defaultAttributes );
 	} );
 
-	test.skip( 'set undefined url and displays error when invalid url supplied', async () => {
+	test( 'set undefined url and displays error when invalid url supplied', async () => {
 		const attributes = { ...defaultAttributes, url: 'https://calendly.com/invalid-url' };
 		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
 
 		expect( testEmbedUrl ).toHaveBeenCalledWith( attributes.url, expect.anything() );
 
-		// Render is supposed to be wrapped in an act call. How do I wait for
-		// testEmbedUrl promise to resolve to check that the appropriate
-		// error notice functions were called and url attribute cleared?
-
-		expect( setAttributes ).toHaveBeenCalledWith( { url: undefined } );
+		await waitFor( () => expect( setAttributes ).toHaveBeenCalledWith( { url: undefined } ) );
 		expect( removeAllNotices ).toHaveBeenCalled();
 		expect( createErrorNotice ).toHaveBeenCalled();
 	} );
@@ -106,17 +102,13 @@ describe( 'CalendlyEdit', () => {
 			expect( createErrorNotice ).toHaveBeenCalled();
 		} );
 
-		test.skip( 'displays error notice when updated embed code fails to parse', () => {
+		test( 'displays error notice when updated embed code fails to parse', () => {
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			// I'm getting something wrong here as well. I get a passing test
-			// although there is a warning/error printed stating a component is
-			// changing an uncontrolled input to a controlled input.
-
-			// fireEvent.change( screen.getByRole( 'textbox' ), { target: { value: 'invalid-url' } } );
-			// userEvent.type( screen.getByPlaceholderText( 'Calendly web address or embed code…' ), 'invalid-url' );
-			// screen.getByRole( 'textbox' ).value = 'invalid-url';
-			userEvent.type( screen.getByRole( 'textbox' ), 'invalid-url' );
+			userEvent.paste(
+				screen.getByPlaceholderText( 'Calendly web address or embed code…' ),
+				'invalid-url'
+			);
 			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			expect( removeAllNotices ).toHaveBeenCalled();
@@ -127,20 +119,17 @@ describe( 'CalendlyEdit', () => {
 			// TODO: Work out how to test this dispatched action.
 		} );
 
-		test.skip( 'parsed embed code is tested before updating attributes', () => {
+		test( 'parsed embed code is tested before updating attributes', async () => {
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			// Same uncontrolled to controlled input issue.
-			// In addition parseEmbedCode sets state and should be wrapped in a
-			// call to act(). Not sure how to approach this.
-
-			// fireEvent.change( screen.getByRole( 'textbox' ), { target: { value: 'invalid-url' } } );
-			// userEvent.type( screen.getByPlaceholderText( 'Calendly web address or embed code…' ), 'invalid-url' );
-			// screen.getByRole( 'textbox' ).value = 'invalid-url';
 			userEvent.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
 			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
-
-			expect( testEmbedUrl ).toHaveBeenCalledWith( 'https://calendly.com/valid-url', expect.anything() );
+			await waitFor( () =>
+				expect( testEmbedUrl ).toHaveBeenCalledWith(
+					'https://calendly.com/valid-url',
+					expect.anything()
+				)
+			);
 		} );
 	} );
 
