@@ -204,7 +204,7 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	};
 	const status = isFailure ? severityMap[ severity ] : severityMap.ok;
 	return `
-	- ${ status } ${ checkMessage }<br>`;
+- ${ status } ${ checkMessage }<br>`;
 }
 
 /**
@@ -358,7 +358,8 @@ My PR adds *x* and *y*.
 		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
 			output += `${ recommendations[ check ] }
 
-******`;
+******
+`;
 		}
 		return output;
 	}, '' );
