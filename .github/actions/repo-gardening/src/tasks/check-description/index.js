@@ -434,7 +434,7 @@ async function updateLabels( payload, octokit ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { base, head, number } = payload.pull_request;
+	const { number } = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 	const statusChecks = await getStatusChecks( payload, octokit );
@@ -458,7 +458,7 @@ This comment will be updated as you work on your PR and make changes. If you thi
 	comment += renderRecommendations( statusChecks );
 
 	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).
-	if ( head.repo.full_name === base.repo.full_name ) {
+	if ( statusChecks.isFromContributor ) {
 		comment += `
 
 Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
@@ -469,6 +469,7 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	// Gather info about the next release for that plugin.
 	const milestoneInfo = await buildMilestoneInfo( octokit, ownerLogin, repo, number );
 	if ( milestoneInfo ) {
+		debug( `check-description: milestoneInfo: ${ milestoneInfo }` );
 		comment += milestoneInfo;
 	}
 
