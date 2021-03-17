@@ -48,7 +48,7 @@ function getAffectedChangeloggerProjects( files ) {
 	const projects = files.reduce( ( acc, file ) => {
 		const project = getProject( file );
 		if ( changeloggerProjects.includes( project.name ) ) {
-			acc.push( project.name );
+			acc.push( `${ project.type }/${ project.name }` );
 		}
 		return acc;
 	}, [] );
