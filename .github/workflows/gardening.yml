@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - master # Every time a PR is merged to master.
+  check_suite: # When a check suite has completed.
+    types: [completed]
 
 jobs:
   # review-crew-afk:
