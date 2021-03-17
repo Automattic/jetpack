@@ -1,0 +1,3 @@
+Significance: patch
+Type: compat
+Comment: Added block unit and parsing tests for map block

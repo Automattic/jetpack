@@ -82,6 +82,15 @@ function get_menu_fixture() {
 			'menu-pages',
 			'dashicons-admin-page',
 		),
+		30 => array(
+			'Custom Test Types',
+			'edit_posts',
+			'edit.php?post_type=custom_test_type',
+			'',
+			'menu-top menu-icon-page',
+			'menu-custom_test_type',
+			'dashicons-admin-post',
+		),
 		59 => array(
 			'',
 			'read',
@@ -238,6 +247,18 @@ function get_submenu_fixture() {
 				'post-new.php?post_type=page',
 			),
 		),
+		'edit.php?post_type=custom_test_type'  => array(
+			5  => array(
+				'All Custom Test Types',
+				'edit_pages',
+				'edit.php?post_type=custom_test_type',
+			),
+			10 => array(
+				'Add New',
+				'edit_pages',
+				'post-new.php?post_type=custom_test_type',
+			),
+		),
 		'themes.php'                           => array(
 			5  => array(
 				'Themes',
@@ -247,7 +268,7 @@ function get_submenu_fixture() {
 			6  => array(
 				'Customize',
 				'customize',
-				'customize.php?return=%2Ftrunk%2Fwp-admin%2Fadmin.php%3Fpage%3Djetpack',
+				'customize.php?return',
 				'',
 				'hide-if-no-customize',
 			),
