@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import Listr from 'listr';
 import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
+import pluralize from 'pluralize';
 
 /**
  * Internal dependencies
@@ -14,7 +15,7 @@ import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json';
 import installProjectTask from '../helpers/tasks/installProjectTask';
 import { allProjectsByType } from '../helpers/projectHelpers';
-import { normalizeBuildArgv } from '../helpers/normalizeArgv';
+import { normalizeBuildArgv, normalizeProject } from '../helpers/normalizeArgv';
 import buildProjectTask from '../helpers/tasks/buildProjectTask';
 import projectBuildCommand from '../helpers/projectBuildCommand';
 import listrOpts from '../helpers/tasks/listrOpts';
@@ -125,12 +126,13 @@ function buildAllPackages( options ) {
  */
 export async function buildCli( argv ) {
 	argv = normalizeBuildArgv( argv );
+	argv = normalizeProject( argv );
+	console.log(argv);
 
 	if ( argv.project === 'packages' ) {
 		buildAllPackages( argv );
 		return;
 	}
-
 	argv = await promptForProject( argv );
 	await buildRouter( argv );
 }
@@ -167,4 +169,26 @@ export function buildDefine( yargs ) {
 	);
 
 	return yargs;
+}
+
+function validateProject( argv ) {
+	if ( argv.project ) {
+		switch ( pluralize( argv.project ) ) {
+			case 'plugins':
+				argv.type = 'plugins';
+				argv.project = '';
+				break;
+			case 'packages':
+				argv.type = 'packages';
+				argv.project = '';
+				break;
+			case 'github-action':
+				argv.type = 'github-actions';
+				argv.project = '';
+				break;
+			default:
+				argv.type = argv.project;
+				break;
+		}
+	}
 }

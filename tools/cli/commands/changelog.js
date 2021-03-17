@@ -11,6 +11,7 @@ import pluralize from 'pluralize';
  */
 import promptForProject from '../helpers/promptForProject';
 import { chalkJetpackGreen } from '../helpers/styling';
+import { normalizeProject } from '../helpers/normalizeArgv';
 
 /**
  * Command definition for the changelog subcommand.
@@ -51,6 +52,7 @@ export async function changeloggerCli( argv ) {
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	validateArgs( argv );
+	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	const process = child_process.spawnSync( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
@@ -89,25 +91,5 @@ function validateArgs ( argv ) {
 			throw new Error( 'Sorry! That command is not supported yet!' );
 		default:
 			throw new Error( 'Not a valid command. Use `jetpack changelog --help` for help with changelogger' );
-	}
-	// If someone doesn't pass an entire project, prompt for specifics.
-	if ( argv.project ) {
-		switch ( pluralize( argv.project ) ) {
-			case 'plugins':
-				argv.type = 'plugins';
-				argv.project = '';
-				break;
-			case 'packages':
-				argv.type = 'packages';
-				argv.project = '';
-				break;
-			case 'github-action':
-				argv.type = 'github-actions';
-				argv.project = '';
-				break;
-			default:
-				argv.type = argv.project;
-				break;
-		}
 	}
 }
