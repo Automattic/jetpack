@@ -356,10 +356,10 @@ My PR adds *x* and *y*.
 	return Object.keys( statusChecks ).reduce( ( output, check ) => {
 		// If some of the checks have failed, lets recommend some next steps.
 		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
-			output += `${ recommendations[ check ] }
+			output += `
+${ recommendations[ check ] }
 
-******
-`;
+******`;
 		}
 		return output;
 	}, '' );
