@@ -157,7 +157,7 @@ class Jetpack_Comment_Likes {
 			JETPACK__VERSION,
 			true
 		);
-		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js', __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize', 'rlt-proxy' ), JETPACK__VERSION, true );
 	}
 
 	public function comment_likes( $content, $comment = null ) {

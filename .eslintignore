@@ -18,6 +18,7 @@ projects/plugins/jetpack/_inc/build
 projects/plugins/jetpack/_inc/client/**/test/*.js
 projects/plugins/jetpack/_inc/jetpack-modules.models.js
 projects/plugins/jetpack/_inc/postmessage.js
+projects/plugins/jetpack/_inc/rlt-proxy.js
 
 projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css-preview.js
 projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js
