@@ -28,18 +28,30 @@ function get_dependencies() {
 	// Collect package name→slug mappings.
 	$package_map = array();
 	foreach ( glob( "$base/projects/packages/*/composer.json" ) as $file ) {
+		$slug = substr( $file, $l + 10, -14 );
+		if ( ! isset( $output[ $slug ] ) ) {
+			// Not an actual project (should never happen here, but...).
+			continue;
+		}
+
 		$json = json_decode( file_get_contents( $file ), true );
 		if ( isset( $json['name'] ) ) {
-			$package_map[ $json['name'] ] = substr( $file, $l + 10, -14 );
+			$package_map[ $json['name'] ] = $slug;
 		}
 	}
 
 	// Collect js-package name→slug mappings.
 	$js_package_map = array();
 	foreach ( glob( "$base/projects/js-packages/*/package.json" ) as $file ) {
+		$slug = substr( $file, $l + 10, -13 );
+		if ( ! isset( $output[ $slug ] ) ) {
+			// Not an actual project.
+			continue;
+		}
+
 		$json = json_decode( file_get_contents( $file ), true );
 		if ( isset( $json['name'] ) ) {
-			$js_package_map[ $json['name'] ] = substr( $file, $l + 10, -14 );
+			$js_package_map[ $json['name'] ] = $slug;
 		}
 	}
 
@@ -49,9 +61,9 @@ function get_dependencies() {
 
 		// Collect composer require, require-dev, and .extra.dependencies.
 		$json = json_decode( file_get_contents( "$path/composer.json" ), true );
-		foreach ( $package_map as $package => $p ) {
+		foreach ( $package_map as $package => $pkgslug ) {
 			if ( isset( $json['require'][ $package ] ) || isset( $json['require-dev'][ $package ] ) ) {
-				$deps[] = $p;
+				$deps[] = $pkgslug;
 			}
 		}
 		if ( isset( $json['extra']['dependencies'] ) ) {
@@ -61,9 +73,9 @@ function get_dependencies() {
 		// Collect yarn dependencies and devDependencies.
 		if ( file_exists( "$path/package.json" ) ) {
 			$json = json_decode( file_get_contents( "$path/package.json" ), true );
-			foreach ( $js_package_map as $package => $p ) {
+			foreach ( $js_package_map as $package => $pkgslug ) {
 				if ( isset( $json['dependencies'][ $package ] ) || isset( $json['devDependencies'][ $package ] ) ) {
-					$deps[] = $p;
+					$deps[] = $pkgslug;
 				}
 			}
 		}
