@@ -10,7 +10,17 @@ import '@testing-library/jest-dom/extend-expect';
  */
 import ButtonControls from '../controls';
 
-const defaultAttributes = {};
+// Temporarily mock out the ButtonWidthControl, which is causing errors due to missing
+// dependencies in the jest test runner.
+jest.mock( '../button-width-panel', () => ( {
+    __esModule: true,
+	default: () => <div>Mocked Width Settings</div>,
+} ) );
+
+const defaultAttributes = {
+    align: undefined,
+    width: undefined,
+};
 
 const setAttributes = jest.fn();
 const setBackgroundColor = jest.fn();

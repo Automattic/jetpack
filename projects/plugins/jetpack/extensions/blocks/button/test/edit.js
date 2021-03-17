@@ -13,7 +13,6 @@ import '@testing-library/jest-dom/extend-expect';
  */
 import { ButtonEdit } from '../edit';
 import { __experimentalUseGradient } from '@wordpress/block-editor';
-import userEvent from '@testing-library/user-event';
 
 const defaultAttributes = {
     borderRadius: 15,
