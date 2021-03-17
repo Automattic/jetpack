@@ -7,7 +7,7 @@ function postSectionMessage( expanded ) {
 	// window.wp.customize.previewer.preview is not available until both customize and customize.previewer are ready.
 	window.wp.customize.previewer.preview
 		.targetWindow()
-		.postMessage( { key: 'jetpackSearchSectionOpen', expanded } );
+		.postMessage( { key: 'jetpackSearchSectionOpen', expanded: expanded } ); // Assume ES5 envorinment.
 }
 
 /**
