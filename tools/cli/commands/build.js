@@ -5,7 +5,6 @@ import chalk from 'chalk';
 import Listr from 'listr';
 import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
-import pluralize from 'pluralize';
 
 /**
  * Internal dependencies
@@ -127,7 +126,6 @@ function buildAllPackages( options ) {
 export async function buildCli( argv ) {
 	argv = normalizeBuildArgv( argv );
 	argv = normalizeProject( argv );
-	console.log(argv);
 
 	if ( argv.project === 'packages' ) {
 		buildAllPackages( argv );
@@ -169,26 +167,4 @@ export function buildDefine( yargs ) {
 	);
 
 	return yargs;
-}
-
-function validateProject( argv ) {
-	if ( argv.project ) {
-		switch ( pluralize( argv.project ) ) {
-			case 'plugins':
-				argv.type = 'plugins';
-				argv.project = '';
-				break;
-			case 'packages':
-				argv.type = 'packages';
-				argv.project = '';
-				break;
-			case 'github-action':
-				argv.type = 'github-actions';
-				argv.project = '';
-				break;
-			default:
-				argv.type = argv.project;
-				break;
-		}
-	}
 }

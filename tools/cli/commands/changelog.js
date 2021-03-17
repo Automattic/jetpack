@@ -4,7 +4,6 @@
 import chalk from 'chalk';
 import child_process from 'child_process';
 import path from 'path';
-import pluralize from 'pluralize';
 
 /**
  * Internal dependencies
@@ -63,14 +62,9 @@ export async function changeloggerCli( argv ) {
 
 	// Node.js exit code status 0 === success
 	if ( process.status !== 0 ) {
-		console.error(
-			chalk.red( 'Something went wrong! Check your file path?' ),
-			process.error
-		);
+		console.error( chalk.red( 'Something went wrong! Check your file path?' ), process.error );
 	} else {
-		console.log(
-			chalkJetpackGreen( `Changelog for ${ argv.project} added successfully!` )
-		);
+		console.log( chalkJetpackGreen( `Changelog for ${ argv.project } added successfully!` ) );
 	}
 }
 
@@ -78,7 +72,7 @@ export async function changeloggerCli( argv ) {
  *
  * @param {object} argv - arguments passed to changelogger.
  */
-function validateArgs ( argv ) {
+function validateArgs( argv ) {
 	// make sure we're using a valid command
 	switch ( argv.cmd ) {
 		case 'add':
@@ -90,6 +84,8 @@ function validateArgs ( argv ) {
 		case 'write':
 			throw new Error( 'Sorry! That command is not supported yet!' );
 		default:
-			throw new Error( 'Not a valid command. Use `jetpack changelog --help` for help with changelogger' );
+			throw new Error(
+				'Not a valid command. Use `jetpack changelog --help` for help with changelogger'
+			);
 	}
 }
