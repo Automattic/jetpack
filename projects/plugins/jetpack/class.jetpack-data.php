@@ -1,6 +1,7 @@
 <?php
 /**
  * Deprecated since 9.5.
+ * TEST
  *
  * @deprecated
  * @package automattic/jetpack

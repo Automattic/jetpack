@@ -469,6 +469,8 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 		comment += milestoneInfo;
 	}
 
+	debug( `check-description: COMMENT CONTENTS: ${ comment }` );
+
 	// Look for an existing check-description task comment.
 	await postComment( payload, octokit, comment );
 

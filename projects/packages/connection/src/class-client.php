@@ -1,6 +1,7 @@
 <?php
 /**
  * The Connection Client class file.
+ * TEST
  *
  * @package automattic/jetpack-connection
  */
