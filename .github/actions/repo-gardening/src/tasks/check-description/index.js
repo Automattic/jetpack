@@ -350,6 +350,13 @@ My PR adds *x* and *y*.
 * Go to '..'
 *
 ~~~`,
+		hasChangelogEntries: `Please add missing changelog entries for the following projects: ${ statusChecks.projectsWithoutChangelog.join(
+			', '
+		) }
+
+Go to that project and use \`vendor/bin/changelogger add\` to add a change file.
+Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
+`,
 	};
 
 	// If some of the tests are failing, display list of things that could be updated in the PR description to fix things.
