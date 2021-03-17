@@ -2449,13 +2449,11 @@ class Jetpack {
 
 			$mod_details = self::get_module( $slug );
 
-			if ( null !== $requires_connection && (bool) $requires_connection !==
-$mod_details['requires_connection'] ) {
+			if ( null !== $requires_connection && (bool) $requires_connection !== $mod_details['requires_connection'] ) {
 				continue;
 			}
 
-			if ( null !== $requires_user_connection && (bool) $requires_user_connection !==
-$mod_details['requires_user_connection'] ) {
+			if ( null !== $requires_user_connection && (bool) $requires_user_connection !== $mod_details['requires_user_connection'] ) {
 				continue;
 			}
 
