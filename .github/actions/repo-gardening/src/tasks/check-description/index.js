@@ -115,7 +115,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		.join( ' ' );
 
 	return `
- ******
+******
 
 **${ capitalizedName } plugin:**
 - Next scheduled release: _${ releaseDate }_.
@@ -204,7 +204,7 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	};
 	const status = isFailure ? severityMap[ severity ] : severityMap.ok;
 	return `
-	 - ${ status } ${ checkMessage }<br>`;
+	- ${ status } ${ checkMessage }<br>`;
 }
 
 /**
@@ -359,6 +359,7 @@ My PR adds *x* and *y*.
 
 ******`;
 		}
+		return output;
 	}, '' );
 }
 
@@ -441,13 +442,13 @@ async function checkDescription( payload, octokit ) {
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
- When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	comment += renderStatusChecks( statusChecks );
 	comment += `
 
 
- This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
+This comment will be updated as you work on your PR and make changes. If you think that some of those checks are not needed for your PR, please explain why you think so. Thanks for cooperation :robot:
 
 ******`;
 
