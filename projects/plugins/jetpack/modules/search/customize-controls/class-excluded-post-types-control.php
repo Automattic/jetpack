@@ -31,7 +31,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 		$script_relative_path = 'modules/search/customize-controls/class-excluded-post-types-control.js';
 		$script_version       = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
 		$script_path          = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-		wp_enqueue_script( 'jetpack-instant-search-customizer-excluded-post-types', $script_path, array(), $script_version, true );
+		wp_enqueue_script( 'jetpack-instant-search-customizer-excluded-post-types', $script_path, array( 'customize-controls' ), $script_version, true );
 	}
 
 	/**
