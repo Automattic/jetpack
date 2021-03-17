@@ -12,6 +12,7 @@ const addMilestone = require( './tasks/add-milestone' );
 const addLabels = require( './tasks/add-labels' );
 const checkDescription = require( './tasks/check-description' );
 const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
+const checkTests = require( './tasks/check-tests' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 const ifNotClosed = require( './if-not-closed' );
@@ -39,6 +40,11 @@ const automations = [
 	{
 		event: 'push',
 		task: wpcomCommitReminder,
+	},
+	{
+		event: 'check_suite',
+		action: [ 'completed' ],
+		task: checkTests,
 	},
 ];
 
