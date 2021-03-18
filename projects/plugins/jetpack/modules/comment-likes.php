@@ -9,6 +9,8 @@
  * Auto Activate: No
  * Module Tags: Social
  * Additional Search Queries: like widget, like button, like, likes
+ *
+ * @package Jetpack
  */
 
 use Automattic\Jetpack\Assets;
@@ -18,8 +20,10 @@ Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
 
+/** Jetpack Comment Like Class */
 class Jetpack_Comment_Likes {
 
+	/** Initialize comment like module */
 	public static function init() {
 		static $instance = NULL;
 
@@ -30,6 +34,7 @@ class Jetpack_Comment_Likes {
 		return $instance;
 	}
 
+	/** Construct comment like module */
 	private function __construct() {
 		$this->settings  = new Jetpack_Likes_Settings();
 		$this->blog_id   = Jetpack_Options::get_option( 'id' );
@@ -44,7 +49,7 @@ class Jetpack_Comment_Likes {
 			$active = Jetpack::get_active_modules();
 
 			if ( ! in_array( 'sharedaddy', $active ) && ! in_array( 'publicize', $active ) ) {
-				// we don't have a sharing page yet
+				// we don't have a sharing page yet.
 				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
 			}
 
@@ -71,13 +76,21 @@ class Jetpack_Comment_Likes {
 		}
 	}
 
+	/** Initialize admin section */
 	public function admin_init() {
 		add_filter( 'manage_edit-comments_columns', array( $this, 'add_like_count_column' ) );
 		add_action( 'manage_comments_custom_column', array( $this, 'comment_likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit-comments.php', array( $this, 'enqueue_admin_styles_scripts' ) );
 	}
 
+	/**
+	 * Comment like admin.
+	 *
+	 * @param string $column_name - name of the column.
+	 * @param int    $comment_id - ID of the comment.
+	 */
 	public function comment_likes_edit_column( $column_name, $comment_id ) {
+		do_action(  'qm/debug', 'hi' );
 		if ( 'comment_likes' !== $column_name ) {
 			return;
 		}
