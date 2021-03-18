@@ -5,8 +5,10 @@ import WpPage from '../wp-page';
 
 export default class InPlacePlansPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.plans-prompt__footer a';
-		super( page, 'InPlacePlansPage', { expectedSelector, explicitWaitMS: 60000 } );
+		super( page, {
+			expectedSelectors: [ '.plans-prompt__footer a' ],
+			explicitWaitMS: 60000,
+		} );
 	}
 
 	async selectFreePlan() {

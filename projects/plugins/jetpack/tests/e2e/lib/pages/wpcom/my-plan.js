@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class MyPlanPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.current-plan';
-		super( page, 'MyPlanPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.current-plan' ] } );
 	}
 
 	async returnToWPAdmin() {

@@ -6,9 +6,8 @@ import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class DashboardPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '#dashboard-widgets-wrap';
 		const url = getTunnelSiteUrl() + '/wp-admin';
-		super( page, 'Dashboard page', { expectedSelector, url } );
+		super( page, { expectedSelectors: [ '#dashboard-widgets-wrap' ], url } );
 	}
 
 	async isConnectBannerVisible() {

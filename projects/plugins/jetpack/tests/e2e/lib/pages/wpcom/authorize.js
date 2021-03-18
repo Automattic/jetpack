@@ -6,8 +6,7 @@ import logger from '../../logger';
 
 export default class AuthorizePage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.jetpack-connect__logged-in-form';
-		super( page, 'AuthorizePage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.jetpack-connect__logged-in-form' ] } );
 	}
 
 	async approve( repeat = true ) {
@@ -16,7 +15,7 @@ export default class AuthorizePage extends WpPage {
 			return await Promise.all( [
 				this.click( authorizeButtonSelector ),
 				this.waitToDisappear(),
-				this.page.waitForNavigation( { waitUntil: 'domcontentloaded', timeout: 50000 } ),
+				this.waitForDomContentLoaded( 50000 ),
 			] );
 		} catch ( error ) {
 			if ( repeat ) {

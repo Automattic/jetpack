@@ -3,15 +3,19 @@
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
+import config from 'config';
 import { takeScreenshot } from '../../reporters/screenshot';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.login';
-		super( page, 'Login page', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.login' ] } );
 	}
 
-	async login( username = 'admin', password = 'password', { retry = true } = {} ) {
+	async login(
+		username = config.WP_ADMIN_USER.username,
+		password = config.WP_ADMIN_USER.password,
+		{ retry = true } = {}
+	) {
 		logger.step( 'Log in to wp-admin' );
 		const ssoLoginButton = '.jetpack-sso.button';
 		if ( ( await this.page.$( ssoLoginButton ) ) !== null ) {
@@ -21,22 +25,16 @@ export default class WPLoginPage extends WpPage {
 		await this.fill( '#user_login', username );
 		await this.fill( '#user_pass', password );
 
-		const navigationPromise = this.page.waitForNavigation();
+		const navigationPromise = this.waitForLoad();
 		await this.click( '#wp-submit' );
 		await navigationPromise;
 
 		try {
-			await this.waitForElementToBeHidden( this.expectedSelector );
+			await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.warn( `The WPORG login didn't work as expected - retrying now: '${ e }'` );
-
-				try {
-					const filePath = await takeScreenshot( 'WPORG-login-failed' );
-					logger.slack( { type: 'file', message: filePath } );
-				} catch ( err ) {
-					logger.error( 'There was an error taking a screenshot!' );
-				}
+				await takeScreenshot( this.page, 'WPORG-login-failed', true );
 
 				return await this.login( username, password, { retry: false } );
 			}

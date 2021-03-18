@@ -6,8 +6,10 @@ import { getAccountCredentials } from '../../utils-helper';
 
 export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.connections__sharing-connections';
-		super( page, 'ConnectionsPage', { expectedSelector, explicitWaitMS: 40000 } );
+		super( page, {
+			expectedSelectors: [ '.connections__sharing-connections' ],
+			explicitWaitMS: 40000,
+		} );
 	}
 
 	async selectMailchimpList( mailchimpList = 'e2etesting' ) {

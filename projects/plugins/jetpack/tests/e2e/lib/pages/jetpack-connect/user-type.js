@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class JetpackUserTypePage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.user-type__connect-step';
-		super( page, 'JetpackUserTypePage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.user-type__connect-step' ] } );
 	}
 
 	async selectUserType( userType ) {

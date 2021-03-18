@@ -5,8 +5,10 @@ import WpPage from '../wp-page';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = 'div[data-e2e-product-slug="jetpack_complete"]';
-		super( page, 'PickAPlanPage', { expectedSelector, explicitWaitMS: 40000 } );
+		super( page, {
+			expectedSelectors: [ 'div[data-e2e-product-slug="jetpack_complete"]' ],
+			explicitWaitMS: 40000,
+		} );
 	}
 
 	async waitForPage() {

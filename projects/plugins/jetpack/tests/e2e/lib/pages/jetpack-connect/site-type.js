@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class JetpackSiteTypePage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.jetpack-connect__step .site-type__wrapper';
-		super( page, 'JetpackSiteTypePage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.jetpack-connect__step .site-type__wrapper' ] } );
 	}
 
 	async selectSiteType( type ) {

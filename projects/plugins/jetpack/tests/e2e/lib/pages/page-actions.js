@@ -1,18 +1,18 @@
 import logger from '../logger';
 import fs from 'fs';
 import chalk from 'chalk';
+import { pwBrowserOptions } from '../../playwright.config';
 
 /**
  * This is an abstraction for most important page actions
  * It is supposed to be the base of a page object, extended by any page or page component class
  */
 export default class PageActions {
-	DEFAULT_TIMEOUT = 30000;
-
-	constructor( page, pageName, selectors = [] ) {
+	constructor( page, pageName, selectors, timeoutOverride = null ) {
 		this.page = page;
 		this.selectors = selectors;
-		this.pageName = pageName;
+		this.pageName = pageName ? pageName : this.constructor.name;
+		this.timeout = timeoutOverride ? timeoutOverride : pwBrowserOptions.timeout;
 	}
 
 	// region page functions
@@ -71,7 +71,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<void>}
 	 */
-	async waitForNetworkIdle( timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForNetworkIdle( timeout = this.timeout ) {
 		await this.waitForLoadState( 'networkidle', timeout );
 	}
 
@@ -81,7 +81,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<void>}
 	 */
-	async waitForLoad( timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForLoad( timeout = this.timeout ) {
 		await this.waitForLoadState( 'load', timeout );
 	}
 
@@ -91,7 +91,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<void>}
 	 */
-	async waitForDomContentLoaded( timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForDomContentLoaded( timeout = this.timeout ) {
 		await this.waitForLoadState( 'domcontentloaded', timeout );
 	}
 
@@ -223,7 +223,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<*>} Returns the element handler
 	 */
-	async waitForElementToBeVisible( selector, timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForElementToBeVisible( selector, timeout = this.timeout ) {
 		return await this.waitForElementState( selector, 'visible', timeout );
 	}
 
@@ -234,7 +234,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<*>} Returns the element handler
 	 */
-	async waitForElementToBeAttached( selector, timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForElementToBeAttached( selector, timeout = this.timeout ) {
 		return await this.waitForElementState( selector, 'attached', timeout );
 	}
 
@@ -245,7 +245,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<*>} Returns null
 	 */
-	async waitForElementToBeDetached( selector, timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForElementToBeDetached( selector, timeout = this.timeout ) {
 		return await this.waitForElementState( selector, 'detached', timeout );
 	}
 
@@ -257,7 +257,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<*>} Returns null
 	 */
-	async waitForElementToBeHidden( selector, timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForElementToBeHidden( selector, timeout = this.timeout ) {
 		return await this.waitForElementState( selector, 'hidden', timeout );
 	}
 
@@ -270,7 +270,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<*>} Returns element handler or null if waiting for hidden or detached
 	 */
-	async waitForElementState( selector, state, timeout = this.DEFAULT_TIMEOUT ) {
+	async waitForElementState( selector, state, timeout = this.timeout ) {
 		logger.action(
 			`Waiting for element '${ selector }' to be ${ state } [timeout: ${ timeout } ms]`
 		);
@@ -284,7 +284,7 @@ export default class PageActions {
 	 * @param {number} timeout
 	 * @return {Promise<boolean>} true if element is visible, false otherwise
 	 */
-	async isElementVisible( selector, timeout = this.DEFAULT_TIMEOUT ) {
+	async isElementVisible( selector, timeout = this.timeout ) {
 		logger.action( `Checking if element '${ selector }' is visible` );
 		return await this.page.isVisible( selector, { timeout } );
 	}

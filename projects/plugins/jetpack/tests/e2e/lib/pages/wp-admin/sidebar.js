@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class Sidebar extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '#adminmenuwrap';
-		super( page, 'Sidebar', { expectedSelector } );
+		super( page, { expectedSelectors: [ '#adminmenuwrap' ] } );
 	}
 
 	async selectJetpack() {

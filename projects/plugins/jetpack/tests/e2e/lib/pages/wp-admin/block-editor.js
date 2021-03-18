@@ -6,9 +6,8 @@ import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '#editor';
 		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
-		super( page, 'BlockEditorPage', { expectedSelector, url } );
+		super( page, { expectedSelectors: [ '#editor' ], url } );
 	}
 
 	static async init( page, showWelcomeGuide = false ) {

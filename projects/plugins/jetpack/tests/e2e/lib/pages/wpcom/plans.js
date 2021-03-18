@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class PlansPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.plans-features-main';
-		super( page, 'PlansPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.plans-features-main' ] } );
 	}
 
 	async returnToWPAdmin() {

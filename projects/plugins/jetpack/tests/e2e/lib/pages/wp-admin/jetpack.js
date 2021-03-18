@@ -6,8 +6,7 @@ import logger from '../../logger';
 
 export default class JetpackPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '#jp-plugin-container';
-		super( page, 'JetpackPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '#jp-plugin-container' ] } );
 	}
 
 	async connect() {

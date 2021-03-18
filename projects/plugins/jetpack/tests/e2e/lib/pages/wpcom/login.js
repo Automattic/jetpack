@@ -12,13 +12,17 @@ import { getAccountCredentials } from '../../utils-helper';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.wp-login__container';
 		const url = getRedirectUrl( 'wpcom-log-in' );
-		super( page, '.com Login page', { expectedSelector, url, explicitWaitMS: 45000 } );
+		super( page, {
+			expectedSelectors: [ '.wp-login__container' ],
+			url,
+			explicitWaitMS: 45000,
+		} );
 	}
 
 	async login( wpcomUser, { retry = true } = {} ) {
 		logger.step( 'Log in to Wordpress.com' );
+
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
 		const usernameSelector = '#usernameOrEmail';
@@ -27,17 +31,17 @@ export default class LoginPage extends WpPage {
 		const submitButtonSelector = '//button[text()="Log In"]';
 
 		try {
-			await this.type( usernameSelector, username );
+			await this.fill( usernameSelector, username );
 			await this.click( continueButtonSelector );
 			await this.waitForElementToBeVisible( passwordSelector );
 			// Even if we wait for the field to become visible Playwright might still type the password too fast
 			// and the first characters will miss the password field. A short wait fixes this
 			await this.waitForTimeout( 2000 );
-			await this.type( passwordSelector, password );
+			await this.fill( passwordSelector, password );
 			await this.click( submitButtonSelector );
 
-			await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
-			await this.waitForElementToBeHidden( this.expectedSelector );
+			await this.waitForDomContentLoaded();
+			await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.warn( `The login didn't work as expected - retrying now: '${ e }'` );

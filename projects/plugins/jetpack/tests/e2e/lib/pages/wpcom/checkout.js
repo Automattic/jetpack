@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class CheckoutPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.checkout__content .wp-checkout__review-order-step';
-		super( page, 'CheckoutPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.checkout__content .wp-checkout__review-order-step' ] } );
 	}
 
 	async processPurchase( cardCredentials ) {
@@ -55,7 +54,7 @@ export default class CheckoutPage extends WpPage {
 	}
 
 	async waitToDisappear() {
-		return await this.waitForElementToBeHidden( this.expectedSelector, 5 * 30000 );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ], 5 * 30000 );
 	}
 
 	// Switches to credit-card specific iframe and type the value into relative input

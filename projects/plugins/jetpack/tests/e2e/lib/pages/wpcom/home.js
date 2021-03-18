@@ -8,6 +8,6 @@ export default class HomePage extends WpPage {
 	constructor( page ) {
 		const expectedSelector = 'body';
 		const url = getRedirectUrl( 'wpcom' );
-		super( page, 'HomePage', { expectedSelector, url } );
+		super( page, { expectedSelectors: [ expectedSelector ], url } );
 	}
 }

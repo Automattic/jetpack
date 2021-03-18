@@ -5,20 +5,19 @@ import WpPage from '../wp-page';
 
 export default class PluginsPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.search-box';
-		super( page, 'PluginsPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.search-box' ] } );
 	}
 
 	async deactivateJetpack() {
 		const selector = "tr[data-slug='jetpack'] a[href*='=deactivate']";
-		const navigationPromise = this.page.waitForNavigation();
+		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
 		await navigationPromise;
 	}
 
 	async activateJetpack() {
 		const selector = "tr[data-slug='jetpack'] a[href*='=activate']";
-		const navigationPromise = this.page.waitForNavigation();
+		const navigationPromise = this.waitForLoad();
 		await this.click( selector );
 		await navigationPromise;
 	}

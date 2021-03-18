@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class InPlaceAuthorizeFrame extends WpPage {
 	constructor( page ) {
-		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
-		super( page, 'InPlaceAuthorizeFrame', { expectedSelector } );
+		super( page, { expectedSelectors: [ 'iframe.jp-jetpack-connect__iframe' ] } );
 	}
 
 	static async init( page ) {
@@ -17,7 +16,7 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 	}
 
 	async getFrame() {
-		const iframeElement = await this.waitForElementToBeVisible( this.expectedSelector );
+		const iframeElement = await this.waitForElementToBeVisible( this.selectors[ 0 ] );
 		return await iframeElement.contentFrame();
 	}
 
@@ -29,6 +28,6 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 	}
 
 	async waitToDisappear() {
-		return await this.waitForElementToBeHidden( this.expectedSelector );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 	}
 }

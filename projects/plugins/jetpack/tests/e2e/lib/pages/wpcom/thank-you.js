@@ -5,8 +5,7 @@ import WpPage from '../wp-page';
 
 export default class ThankYouPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.current-plan-thank-you';
-		super( page, 'ThankYouPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.current-plan-thank-you' ] } );
 	}
 
 	async waitForSetupAndProceed() {
@@ -19,6 +18,6 @@ export default class ThankYouPage extends WpPage {
 	}
 
 	async waitToDisappear() {
-		return await this.waitForElementToBeHidden( this.expectedSelector );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 	}
 }

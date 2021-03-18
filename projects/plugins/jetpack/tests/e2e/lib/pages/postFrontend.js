@@ -5,8 +5,7 @@ import WpPage from './wp-page';
 
 export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.post';
-		super( page, 'PostFrontendPage', { expectedSelector } );
+		super( page, { expectedSelectors: [ '.post' ] } );
 	}
 
 	/**
