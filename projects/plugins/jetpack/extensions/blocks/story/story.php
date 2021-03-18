@@ -212,13 +212,20 @@ function render_video( $media ) {
 	}
 
 	if ( ! empty( $poster_url ) ) {
+		$poster_width  = esc_attr( $meta_width );
+		$poster_height = esc_attr( $meta_height );
+		$content_width = Jetpack::get_content_width();
+		if ( is_numeric( $content_width ) ) {
+			$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
+			$poster_width  = $content_width;
+		}
 		return sprintf(
 			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s"%5$s%6$s>',
 			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
 			'wp-block-jetpack-story_image wp-story-image ' .
 			get_image_crop_class( $meta_width, $meta_height ),
-			esc_attr( $poster_url ),
+			esc_attr( $poster_url ) . '?resize=' . $poster_width . ',' . $poster_height,
 			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
 			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
 		);
