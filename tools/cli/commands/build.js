@@ -29,7 +29,7 @@ async function buildRouter( options ) {
 		const data = readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data, options.v ) : false;
 	} else {
-		console.error( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a valid project!' ) );
 	}
 }
 
@@ -125,12 +125,12 @@ function buildAllPackages( options ) {
  */
 export async function buildCli( argv ) {
 	argv = normalizeBuildArgv( argv );
-	argv = normalizeProject( argv );
 
 	if ( argv.project === 'packages' ) {
 		buildAllPackages( argv );
 		return;
 	}
+	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	await buildRouter( argv );
 }

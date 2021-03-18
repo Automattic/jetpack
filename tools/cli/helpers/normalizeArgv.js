@@ -62,24 +62,9 @@ export function normalizeGenerateArgv( argv ) {
  * @returns {object} argv object with standard elements needed to generate a new project.
  */
 export function normalizeProject( argv ) {
-	if ( argv.project ) {
-		switch ( pluralize( argv.project ) ) {
-			case 'plugins':
-				argv.type = 'plugins';
-				argv.project = '';
-				break;
-			case 'packages':
-				argv.type = 'packages';
-				argv.project = '';
-				break;
-			case 'github-action':
-				argv.type = 'github-actions';
-				argv.project = '';
-				break;
-			default:
-				argv.type = argv.project;
-				break;
-		}
+	if ( argv.project && argv.project.indexOf( '/' ) < 0 ) {
+		argv.type = pluralize( argv.project );
+		argv.project = '';
 	}
 	return argv;
 }

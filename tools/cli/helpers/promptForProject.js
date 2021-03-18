@@ -21,13 +21,14 @@ export default async function promptForProject( options ) {
 	const questions = [];
 	let typeAnswer;
 
-	if ( ! options.type ) {
-		typeAnswer = await promptForType();
-	} else {
-		typeAnswer = { type: options.type };
-	}
-
 	if ( ! options.project || options.project.length === 0 ) {
+		if ( ! options.type || options.type.length === 0 ) {
+			typeAnswer = await promptForType();
+		} else if ( ! projectTypes.includes( options.type ) ) {
+			throw new Error( 'Must be an existing project type.' );
+		} else {
+			typeAnswer = { type: options.type };
+		}
 		questions.push( {
 			type: 'list',
 			name: 'project',
