@@ -30,7 +30,7 @@ async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' )
 	for await ( const response of responses ) {
 		// Find a milestone which name is a version number
 		// and it's due dates is earliest in a future
-		const reg = new RegExp( '^' + plugin + '\\/\\d\\.\\d' );
+		const reg = new RegExp( '^' + plugin + '\\/\\d+\\.\\d' );
 		const nextMilestone = response.data
 			.filter( m => m.title.match( reg ) )
 			.sort( ( m1, m2 ) =>
