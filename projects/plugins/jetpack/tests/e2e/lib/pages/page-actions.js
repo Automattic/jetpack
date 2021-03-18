@@ -34,12 +34,16 @@ export default class PageActions {
 
 	/**
 	 * Waits for DOM content load and the for each of the given selectors to become visible on the page.
+	 *
+	 * @param {boolean} checkSelectors whether to check for expected selectors
 	 */
-	async waitForPage() {
-		logger.action( `Checking ${ this.pageName } is displayed` );
+	async waitForPage( checkSelectors = true ) {
+		logger.action( `Waiting for ${ this.pageName }` );
 		await this.waitForDomContentLoaded();
-		for ( const selector of this.selectors ) {
-			await this.waitForElementToBeVisible( selector );
+		if ( checkSelectors ) {
+			for ( const selector of this.selectors ) {
+				await this.waitForElementToBeVisible( selector );
+			}
 		}
 	}
 

@@ -2,11 +2,10 @@
  * Internal dependencies
  */
 import WpPage from '../wp-page';
-import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class DashboardPage extends WpPage {
 	constructor( page ) {
-		const url = getTunnelSiteUrl() + '/wp-admin';
+		const url = `${ siteUrl }/wp-admin`;
 		super( page, { expectedSelectors: [ '#dashboard-widgets-wrap' ], url } );
 	}
 

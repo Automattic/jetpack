@@ -5,10 +5,16 @@ import WpPage from '../wp-page';
 import logger from '../../logger';
 import config from 'config';
 import { takeScreenshot } from '../../reporters/screenshot';
+import PageActions from '../page-actions';
 
 export default class WPLoginPage extends WpPage {
 	constructor( page ) {
-		super( page, { expectedSelectors: [ '.login' ] } );
+		const url = `${ siteUrl }/wp-login.php`;
+		super( page, { expectedSelectors: [ '.login' ], url } );
+	}
+
+	static async isLoggedIn( page ) {
+		return ! ( await new PageActions( page ).isElementVisible( '#user_login' ) );
 	}
 
 	async login(
@@ -25,7 +31,7 @@ export default class WPLoginPage extends WpPage {
 		await this.fill( '#user_login', username );
 		await this.fill( '#user_pass', password );
 
-		const navigationPromise = this.waitForLoad();
+		const navigationPromise = this.waitForDomContentLoaded();
 		await this.click( '#wp-submit' );
 		await navigationPromise;
 
@@ -46,11 +52,13 @@ export default class WPLoginPage extends WpPage {
 	}
 
 	async loginSSO() {
+		logger.step( 'Login SSO' );
 		const ssoLoginButton = '.jetpack-sso.button';
 		return await this.click( ssoLoginButton );
 	}
 
 	async toggleSSOLogin() {
+		logger.step( 'Toggle SSO login' );
 		const ssoToggleButton = '.jetpack-sso-toggle';
 		return await this.click( ssoToggleButton );
 	}

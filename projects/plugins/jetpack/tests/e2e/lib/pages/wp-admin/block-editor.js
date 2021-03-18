@@ -3,31 +3,11 @@
  */
 import WpPage from '../wp-page';
 import logger from '../../logger';
-import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
-		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
+		const url = siteUrl + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
-	}
-
-	static async init( page, showWelcomeGuide = false ) {
-		const it = await super.init( page );
-
-		const isWelcomeGuideActive = await page.evaluate( () =>
-			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
-		);
-
-		if ( showWelcomeGuide !== isWelcomeGuideActive ) {
-			await page.evaluate( () =>
-				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
-			);
-
-			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
-			await it.reload();
-		}
-
-		return it;
 	}
 
 	//region selectors
@@ -69,6 +49,21 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	//endregion
+
+	async resolveWelcomeGuide( show = false ) {
+		const isWelcomeGuideActive = await page.evaluate( () =>
+			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
+		);
+
+		if ( show !== isWelcomeGuideActive ) {
+			await page.evaluate( () =>
+				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
+			);
+
+			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
+			await this.reload();
+		}
+	}
 
 	async searchForBlock( searchTerm ) {
 		logger.step( `Search block: '${ searchTerm }'` );

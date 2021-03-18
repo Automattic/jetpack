@@ -12,7 +12,6 @@ import path from 'path';
 
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
-	const siteUrl = getTunnelSiteUrl();
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
 	const planDatafilePath = path.resolve( config.get( 'configDir' ), 'plan-data.txt' );

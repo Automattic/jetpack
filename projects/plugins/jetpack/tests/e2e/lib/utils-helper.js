@@ -38,13 +38,6 @@ function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
 }
 
-// todo we should only read once and set a global variable
-function getTunnelSiteUrl() {
-	return fs
-		.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
-		.replace( 'http:', 'https:' );
-}
-
 async function resetWordpressInstall() {
 	const cmd = './bin/env.sh reset';
 	await execShellCommand( cmd );
@@ -66,9 +59,8 @@ async function prepareUpdaterTest() {
  */
 function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-	const url = getTunnelSiteUrl();
 
-	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
+	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl }`;
 
 	const response = execSyncShellCommand( cmd );
 	logger.info( response );
@@ -203,7 +195,6 @@ function getAccountCredentials( accountName ) {
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
-	getTunnelSiteUrl,
 	resetWordpressInstall,
 	prepareUpdaterTest,
 	provisionJetpackStartConnection,

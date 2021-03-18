@@ -29,6 +29,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 		// Create a new browser context
 		await this.newContext();
+
+		this.global.siteUrl = fs
+			.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
+			.replace( 'http:', 'https:' );
 	}
 
 	async teardown() {

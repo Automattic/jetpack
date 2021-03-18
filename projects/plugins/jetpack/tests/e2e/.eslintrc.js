@@ -17,6 +17,7 @@ module.exports = {
 		context: true,
 		reporter: true,
 		jpConnect: true,
+		siteUrl: true,
 	},
 	settings: {
 		jest: {

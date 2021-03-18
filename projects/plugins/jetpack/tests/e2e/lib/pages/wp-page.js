@@ -4,7 +4,7 @@
 import PageActions from './page-actions';
 
 export default class WpPage extends PageActions {
-	constructor( page, { pageName, expectedSelectors, url = null, explicitWaitMS = null } ) {
+	constructor( page, { pageName, expectedSelectors, url = undefined, explicitWaitMS = null } ) {
 		super( page, pageName, expectedSelectors, explicitWaitMS );
 		this.url = url;
 	}
@@ -13,25 +13,24 @@ export default class WpPage extends PageActions {
 	 * Static method which initialize a page object and checks the page loaded
 	 *
 	 * @param {page} page Playwright representation of the page.
+	 * @param {boolean} checkSelectors whether to also check for expected selectors
 	 * @return {WpPage} Instance of the Page Object class
 	 */
-	static async init( page ) {
+	static async init( page, checkSelectors = true ) {
 		const it = new this( page );
-		await it.waitForPage();
+		await it.waitForPage( checkSelectors );
 		return it;
 	}
 
 	/**
-	 *
 	 * @param {page} page Playwright type representation of the page
-	 * @param {string} pageURL Page URL
+	 * @param {boolean} checkSelectors whether to also check for expected selectors
 	 */
-	static async visit( page, pageURL = undefined ) {
+	static async visit( page, checkSelectors = true ) {
 		const it = new this( page );
-		const url = pageURL ? pageURL : it.url;
-		await it.goto( url );
+		await it.goto( it.url );
 
-		return this.init( page );
+		return this.init( page, checkSelectors );
 	}
 
 	/**

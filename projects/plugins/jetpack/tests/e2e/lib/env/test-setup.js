@@ -6,7 +6,7 @@ import fs from 'fs';
  * Internal dependencies
  */
 import logger from '../logger';
-import { execWpCommand, getTunnelSiteUrl } from '../utils-helper';
+import { execWpCommand } from '../utils-helper';
 import {
 	connectThroughWPAdmin,
 	loginToWpComIfNeeded,
@@ -14,6 +14,7 @@ import {
 } from '../flows/jetpack-connect';
 import config from 'config';
 import path from 'path';
+import DashboardPage from '../pages/wp-admin/dashboard';
 
 async function maybePreConnect() {
 	const wpComUser = 'defaultUser';
@@ -45,8 +46,4 @@ export const step = async ( stepName, fn ) => {
 
 beforeAll( async () => {
 	await maybePreConnect();
-} );
-
-beforeEach( async () => {
-	await page.goto( getTunnelSiteUrl() + '/wp-admin' );
 } );

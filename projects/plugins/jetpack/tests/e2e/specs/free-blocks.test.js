@@ -9,16 +9,21 @@ import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
 import { step } from '../lib/env/test-setup';
 
 describe( 'Free blocks', () => {
+	let blockEditor;
+
 	beforeAll( async () => {
 		await syncJetpackPlanData( 'free' );
 	} );
 
+	beforeEach( async () => {
+		blockEditor = await BlockEditorPage.visit( page );
+		await blockEditor.resolveWelcomeGuide( false );
+	} );
+
 	it( 'Pinterest block', async () => {
 		const pinId = '180003316347175596';
-		let blockEditor;
 
 		await step( 'Can visit the block editor and add a Pinterest block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			const blockId = await blockEditor.insertBlock(
 				PinterestBlock.name(),
 				PinterestBlock.title()
@@ -39,12 +44,11 @@ describe( 'Free blocks', () => {
 			expect( await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } ) ).toBeTruthy();
 		} );
 	} );
+
 	it( 'Eventbrite block', async () => {
 		const eventId = '112691417062';
-		let blockEditor;
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			const blockId = await blockEditor.insertBlock(
 				EventbriteBlock.name(),
 				EventbriteBlock.title()

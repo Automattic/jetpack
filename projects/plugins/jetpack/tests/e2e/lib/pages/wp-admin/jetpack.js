@@ -6,7 +6,8 @@ import logger from '../../logger';
 
 export default class JetpackPage extends WpPage {
 	constructor( page ) {
-		super( page, { expectedSelectors: [ '#jp-plugin-container' ] } );
+		const url = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
+		super( page, { expectedSelectors: [ '#jp-plugin-container' ], url } );
 	}
 
 	async connect() {
