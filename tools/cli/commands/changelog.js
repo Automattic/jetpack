@@ -22,7 +22,7 @@ import { normalizeProject } from '../helpers/normalizeArgv';
 export function changelogDefine( yargs ) {
 	yargs.command(
 		'changelog <cmd> [project]',
-		'Creates a new changelog file for project',
+		'Runs a changelogger command for a project',
 		yarg => {
 			yarg
 				.positional( 'cmd', {
