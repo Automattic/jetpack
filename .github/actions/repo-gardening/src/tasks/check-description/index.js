@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+const fs = require( 'fs' );
 const moment = require( 'moment' );
 
 /**
@@ -223,7 +224,15 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 	debug( `check-description: affected changelogger projects: ${ affectedProjects }` );
 
 	return affectedProjects.reduce( ( acc, project ) => {
-		const found = files.find( file => file.includes( project ) && file.includes( '/changelog/' ) );
+		const composerFile = process.env.GITHUB_WORKSPACE + `/projects/${ project }/composer.json`;
+		const json = JSON.parse( fs.readFileSync( composerFile ) );
+		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it
+		const customChangelogDir =
+			json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ];
+		const changelogDirectory = customChangelogDir ? customChangelogDir : '/changelog/';
+		const found = files.find(
+			file => file.includes( project ) && file.includes( changelogDirectory )
+		);
 		if ( ! found ) {
 			acc.push( project );
 		}
