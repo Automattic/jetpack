@@ -93,6 +93,9 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class.cli-commands.php';
 }
 
+// Fallback logic for sharing posts from reader to non-gutenframe sites
+require_once __DIR__ . '/share-post/share-post.php';
+
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
 
 require_once __DIR__ . '/class.jetpack-plugin-compatibility.php';
