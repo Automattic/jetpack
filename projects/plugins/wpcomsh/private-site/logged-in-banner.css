@@ -166,3 +166,17 @@
 		display: none;
 	}
 }
+
+[dir='rtl'] .wpcom-launch-banner .launch-banner-image {
+	left: auto;
+	right: 1em;
+	margin-right: auto;
+	margin-left: 1em;
+}
+
+@media (min-width: 661px ) {
+	[dir='rtl'] .wpcom-launch-banner .launch-banner-text {
+		padding-left: 0;
+		padding-right: 170px;
+	}
+}
