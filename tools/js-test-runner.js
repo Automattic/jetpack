@@ -14,6 +14,8 @@ require( '@babel/register' )( {
 			return path.startsWith( basepath );
 		},
 	],
+	presets: [ '@babel/preset-react', [ '@babel/preset-env', { targets: { node: 'current' } } ] ],
+	plugins: [ '@babel/plugin-transform-runtime' ],
 } );
 
 const program = require( 'commander' ),
