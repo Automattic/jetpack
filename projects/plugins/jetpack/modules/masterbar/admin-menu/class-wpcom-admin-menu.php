@@ -36,8 +36,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 
-		$wp_admin = $this->should_link_to_wp_admin();
-
 		$this->add_my_home_menu();
 
 		// Not needed outside of wp-admin.
@@ -46,8 +44,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
-
-		$this->add_gutenberg_menus( $wp_admin );
 
 		ksort( $GLOBALS['menu'] );
 	}
