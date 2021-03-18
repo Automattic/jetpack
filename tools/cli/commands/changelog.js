@@ -17,7 +17,7 @@ import { normalizeProject } from '../helpers/normalizeArgv';
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the generate commands defined.
+ * @returns {object} Yargs with the changelog commands defined.
  */
 export function changelogDefine( yargs ) {
 	yargs.command(
@@ -85,7 +85,9 @@ function validateArgs( argv ) {
 			throw new Error( 'Sorry! That command is not supported yet!' );
 		default:
 			throw new Error(
-				'Not a valid command. Use `jetpack changelog --help` for help with changelogger'
+				`${ chalk.bgRed( 'Unrecognized command:' ) } \`${
+					argv.cmd
+				}\`. Use \`jetpack changelog --help\` for help.`
 			);
 	}
 }
