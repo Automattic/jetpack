@@ -84,13 +84,12 @@ class Jetpack_Comment_Likes {
 	}
 
 	/**
-	 * Comment like admin.
+	 * Displays number of comment likes in comment admin page.
 	 *
 	 * @param string $column_name - name of the column.
 	 * @param int    $comment_id - ID of the comment.
 	 */
 	public function comment_likes_edit_column( $column_name, $comment_id ) {
-		do_action(  'qm/debug', 'hi' );
 		if ( 'comment_likes' !== $column_name ) {
 			return;
 		}
@@ -109,7 +108,8 @@ class Jetpack_Comment_Likes {
 		<?php
 	}
 
-	function enqueue_admin_styles_scripts() {
+	/** Enqueue admin style scripts. */
+	public function enqueue_admin_styles_scripts() {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
 			'comment-like-count',
@@ -122,12 +122,17 @@ class Jetpack_Comment_Likes {
 		);
 	}
 
+	/**
+	 * Adds like count column to admin page.
+	 *
+	 * @param array $columns - column of admin table.
+	 * */
 	public function add_like_count_column( $columns ) {
 		$columns['comment_likes'] = '<span class="vers"></span>';
-
 		return $columns;
 	}
 
+	/** Initialize front end */
 	public function frontend_init() {
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
@@ -137,6 +142,7 @@ class Jetpack_Comment_Likes {
 		add_filter( 'comment_text', array( $this, 'comment_likes' ), 10, 2 );
 	}
 
+	/** Load styling scripts */
 	public function load_styles_register_scripts() {
 		if ( ! $this->settings->is_likes_visible() ) {
 			return;
@@ -166,6 +172,12 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}
 
+	/**
+	 * Display like count.
+	 *
+	 * @param string $content - text content of the comment itself.
+	 * @param object $comment - comment object containing comment data.
+	 * */
 	public function comment_likes( $content, $comment = null ) {
 		if ( empty( $comment ) ) {
 			return $content;
