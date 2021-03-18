@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Authenticate Like and Notification widgets even when third-party cookies are blocked.
