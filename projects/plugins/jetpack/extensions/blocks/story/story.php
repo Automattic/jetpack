@@ -109,7 +109,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 					$media_file = array_merge(
 						$media_file,
 						array(
-							'poster' => $poster_url . '?resize=' . rawurlencode( $poster_width . ',' . $poster_height ),
+							'poster' => add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url ),
 						)
 					);
 				}
@@ -225,7 +225,7 @@ function render_video( $media ) {
 			esc_attr( $description ),
 			'wp-block-jetpack-story_image wp-story-image ' .
 			get_image_crop_class( $meta_width, $meta_height ),
-			esc_attr( $poster_url ) . '?resize=' . rawurlencode( $poster_width . ',' . $poster_height ),
+			add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), esc_attr( $poster_url ) ),
 			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
 			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
 		);
