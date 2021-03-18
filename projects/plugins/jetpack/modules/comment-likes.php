@@ -118,7 +118,8 @@ class Jetpack_Comment_Likes {
 				'modules/comment-likes/comment-like-count.js'
 			),
 			array( 'jquery' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			$in_footer = false
 		);
 	}
 
