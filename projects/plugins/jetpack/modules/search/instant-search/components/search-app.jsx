@@ -87,7 +87,7 @@ class SearchApp extends Component {
 
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
-		bindCustomizerMessages( this.showResults );
+		bindCustomizerMessages( this.toggleResults );
 
 		window.addEventListener( 'popstate', this.handleHistoryNavigation );
 
@@ -239,6 +239,12 @@ class SearchApp extends Component {
 			},
 			isHistoryNav
 		);
+	};
+
+	toggleResults = showResults => {
+		this.setState( { showResults }, () => {
+			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
+		} );
 	};
 
 	onChangeQueryString = isHistoryNav => {

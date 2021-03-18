@@ -39,8 +39,8 @@ export function bindCustomizerMessages( callback ) {
 		if ( event.target !== window || event.data?.key !== 'jetpackSearchSectionOpen' ) {
 			return;
 		}
-		if ( event.data.expanded === true ) {
-			callback();
+		if ( 'expanded' in event.data ) {
+			callback( event.data.expanded );
 		}
 	} );
 }
