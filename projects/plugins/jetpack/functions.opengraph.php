@@ -134,7 +134,7 @@ function jetpack_og_tags() {
 			 */
 			if ( ! empty( $data->post_excerpt ) ) {
 				$tags['og:description'] = jetpack_og_get_description( $data->post_excerpt );
-			} elseif ( strpos( $data->post_content, 'wp:premium-content/container' ) === false ) {
+			} elseif ( ! has_block( 'premium-content/container', $data->post_content ) ) {
 				$excerpt                = explode( '<!--more-->', $data->post_content )[0];
 				$tags['og:description'] = jetpack_og_get_description( $excerpt );
 			}
