@@ -174,8 +174,9 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 						);
 					}
 				} );
-				expect( errors.length ).toEqual( 0 );
-				if ( errors.length ) {
+				try {
+					expect( errors.length ).toEqual( 0 );
+				} catch ( error ) {
 					throw new Error( 'Problem(s) with fixture files:\n\n' + errors.join( '\n' ) );
 				}
 			} );
@@ -193,7 +194,7 @@ function checkParseValid( block, fixtureName ) {
 	}
 }
 
-function registerBlocks( blocks ) {
+export function registerBlocks( blocks ) {
 	// Need to add a valid category or block registration fails
 	setCategories( [
 		{
