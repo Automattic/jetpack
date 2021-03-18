@@ -26,8 +26,7 @@ async function takeScreenshot( page, fileName, logToSlack = false ) {
 			logger.slack( { type: 'file', message: filePath } );
 		}
 	} catch ( error ) {
-		logger.error( 'Failed to take screenshot due to: ' );
-		logger.error( error );
+		logger.error( `Failed to save screenshot: ${ error }` );
 	}
 }
 

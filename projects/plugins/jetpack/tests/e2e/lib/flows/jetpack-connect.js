@@ -85,6 +85,7 @@ export async function doInPlaceConnection() {
 }
 
 export async function syncJetpackPlanData( plan, mockPlanData = true ) {
+	logger.step( `Sync plan data. { plan: ${ plan }, mock: ${ mockPlanData } }` );
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
 	await persistPlanData( planType );
 

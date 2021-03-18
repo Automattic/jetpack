@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import WpPage from '../wp-page';
+import logger from '../../logger';
 import { getTunnelSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends WpPage {
@@ -22,6 +23,7 @@ export default class BlockEditorPage extends WpPage {
 				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
 			);
 
+			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
 			await it.reload();
 		}
 
@@ -59,8 +61,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	get postPublishViewPostBtnSel() {
-		// return `${ this.postPublishBtnSel } a`;
-		return '.post-publish-panel__postpublish-buttons a';
+		return `${ this.postPublishBtnSel } a`;
 	}
 
 	get postTitleFldSel() {
@@ -70,11 +71,13 @@ export default class BlockEditorPage extends WpPage {
 	//endregion
 
 	async searchForBlock( searchTerm ) {
+		logger.step( `Search block: '${ searchTerm }'` );
 		await this.click( this.insertBlockBtnSel );
 		await this.type( this.searchBlockFldSel, searchTerm );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
+		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
 		await this.searchForBlock( blockTitle );
 		await this.click( this.blockSel( blockName ) );
 		return await this.getInsertedBlock( blockName );
@@ -87,12 +90,14 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async publishPost() {
+		logger.step( `Publish post` );
 		await this.click( this.publishPanelToggleBtnSel );
 		await this.click( this.publishPostBtnSel );
 		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
+		logger.step( `View post` );
 		await this.click( this.postPublishViewPostBtnSel );
 	}
 

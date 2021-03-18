@@ -23,13 +23,14 @@ export default class WpPage extends PageActions {
 
 	/**
 	 *
-	 * @param {WpPage} page WpPage type representation of the page
+	 * @param {page} page Playwright type representation of the page
 	 * @param {string} pageURL Page URL
 	 */
-	static async visit( page, pageURL = null ) {
+	static async visit( page, pageURL = undefined ) {
 		const it = new this( page );
 		const url = pageURL ? pageURL : it.url;
-		await page.goto( url );
+		await it.goto( url );
+
 		return this.init( page );
 	}
 

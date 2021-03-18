@@ -16,7 +16,6 @@ export default class LoginPage extends WpPage {
 		super( page, {
 			expectedSelectors: [ '.wp-login__container' ],
 			url,
-			explicitWaitMS: 45000,
 		} );
 	}
 

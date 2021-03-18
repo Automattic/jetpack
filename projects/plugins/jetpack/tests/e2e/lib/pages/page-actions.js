@@ -24,7 +24,7 @@ export default class PageActions {
 	 * @param {Object} options object. see: https://playwright.dev/docs/api/class-page?_highlight=goto#pagegotourl-options
 	 * @return {Promise<void>}
 	 */
-	async goto( url, options = null ) {
+	async goto( url, options = {} ) {
 		if ( ! url ) {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}
@@ -125,7 +125,7 @@ export default class PageActions {
 	 * @return {Promise<void>}
 	 */
 	async setCookie( cookie ) {
-		logger.step( `Setting up cookie ${ JSON.stringify( cookie ) }` );
+		logger.step( `Setting cookie ${ JSON.stringify( cookie ) }` );
 
 		await this.page.context().addCookies( [ cookie ] );
 		return await this.reload();
@@ -142,7 +142,7 @@ export default class PageActions {
 	 * @param {Object} options click options. see: https://playwright.dev/docs/api/class-page#pageclickselector-options
 	 * @return {Promise<void>}
 	 */
-	async click( selector, options = null ) {
+	async click( selector, options = {} ) {
 		logger.action( `Clicking element '${ selector }'` );
 		await this.page.click( selector, options );
 	}
@@ -184,7 +184,7 @@ export default class PageActions {
 	 * @param {Object} options click options. see: https://playwright.dev/docs/api/class-page#pagetypeselector-text-options
 	 * @return {Promise<void>}
 	 */
-	async type( selector, text, options = null ) {
+	async type( selector, text, options = {} ) {
 		logger.action( `Typing into element '${ selector }'` );
 		await this.clear( selector );
 		await this.page.type( selector, text, options );
@@ -198,7 +198,7 @@ export default class PageActions {
 	 * @param {Object} options see: https://playwright.dev/docs/api/class-page/#pagefillselector-value-options
 	 * @return {Promise<void>}
 	 */
-	async fill( selector, text, options = null ) {
+	async fill( selector, text, options = {} ) {
 		logger.action( `Filling element '${ selector }'` );
 		await this.page.fill( selector, text, options );
 	}
@@ -210,7 +210,7 @@ export default class PageActions {
 	 * @param {Object} options see: https://playwright.dev/docs/api/class-page?_highlight=focus#pagefocusselector-options
 	 * @return {Promise<void>}
 	 */
-	async focus( selector, options = null ) {
+	async focus( selector, options = {} ) {
 		logger.action( `Focusing on element '${ selector }'` );
 		await this.page.focus( selector, options );
 	}
