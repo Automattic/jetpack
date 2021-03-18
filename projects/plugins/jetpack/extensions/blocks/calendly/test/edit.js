@@ -22,17 +22,19 @@ jest.mock( '@wordpress/block-editor', () => ( {
 import testEmbedUrl from '../../../shared/test-embed-url';
 import CalendlyEdit from '../edit';
 
-jest.mock(
-	'../../../shared/test-embed-url',
-	() => ( {
-		__esModule: true,
-		default: jest.fn().mockImplementation( ( url ) => {
-			return new Promise( ( resolve, reject ) => {
-				url === 'https://calendly.com/invalid-url' ? reject() : resolve( url );
-			} );
-		} )
-	} )
-);
+jest.mock( '../../../shared/test-embed-url', () => ( {
+	__esModule: true,
+	default: jest.fn().mockImplementation( ( url, setIsResolvingUrl ) => {
+		setIsResolvingUrl( true );
+		return new Promise( ( resolve, reject ) => {
+			if ( url === 'https://calendly.com/username' ) {
+				setIsResolvingUrl( false );
+			}
+			url === 'https://calendly.com/invalid-url' ? reject() : resolve( url );
+		} );
+	} ),
+} ) );
+
 describe( 'CalendlyEdit', () => {
 	const defaultAttributes = {
 		backgroundColor: '#ffffff',
@@ -133,17 +135,18 @@ describe( 'CalendlyEdit', () => {
 		} );
 	} );
 
-	test.skip( 'displays a spinner while the block is embedding', () => {
-		// When internal state is set to resolving url, spinner should be shown.
-		// The setter for this internal state is passed to `testEmbedUrl`
-		// where it is set to true until the promise is resolved.
+	test( 'displays a spinner while the block is embedding', () => {
+		const attributes = { ...defaultAttributes, url: 'https://calendly.com/invalid-url' };
+		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
+
+		expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument();
 	} );
 
-	test( 'renders inline preview with iframe component', () => {
+	test( 'renders inline preview with iframe component', async () => {
 		render( <CalendlyEdit { ...defaultProps } /> );
 
-		const iframe = screen.getByTitle( 'Calendly' );
-
+		let iframe;
+		await waitFor( () => ( iframe = screen.getByTitle( 'Calendly' ) ) );
 		expect( iframe ).toBeInTheDocument();
 		expect( iframe.parentElement ).toHaveClass( 'calendly-style-inline' );
 		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-calendly-overlay' );
@@ -156,12 +159,16 @@ describe( 'CalendlyEdit', () => {
 		expect( screen.getByRole( 'button', { name: 'Mocked button' } ) ).toBeInTheDocument();
 	} );
 
-	test.skip( 'displays placeholder when no url', () => {
+	test( 'displays placeholder when no url', () => {
 		render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
 		expect( screen.getByText( 'Calendly' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Enter your Calendly web address or embed code below.' ) ).toBeInTheDocument();
-		expect( screen.getByPlaceholderText( 'Calendly web address or embed code…' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Enter your Calendly web address or embed code below.' )
+		).toBeInTheDocument();
+		expect(
+			screen.getByPlaceholderText( 'Calendly web address or embed code…' )
+		).toBeInTheDocument();
 		expect( screen.getByText( 'Embed' ) ).toBeInTheDocument();
 
 		const link = screen.getByText( 'Need help finding your embed code?' );
@@ -177,6 +184,8 @@ describe( 'CalendlyEdit', () => {
 		// I'd like to because the state will alter how this behaves for the user.
 		// Without rendering the block toolbar controls don't think I could
 		// simulate via actions made by a user.
-		expect( screen.getByText( 'Enter your Calendly web address or embed code below.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Enter your Calendly web address or embed code below.' )
+		).toBeInTheDocument();
 	} );
 } );
