@@ -6,13 +6,12 @@ import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
-	getTunnelSiteUrl,
 	resetWordpressInstall,
 	execMultipleWpCommands,
 } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
-import DashboardPage from "../lib/pages/wp-admin/dashboard";
+import DashboardPage from '../lib/pages/wp-admin/dashboard';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;

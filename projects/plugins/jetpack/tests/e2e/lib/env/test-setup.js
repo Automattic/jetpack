@@ -14,7 +14,6 @@ import {
 } from '../flows/jetpack-connect';
 import config from 'config';
 import path from 'path';
-import DashboardPage from '../pages/wp-admin/dashboard';
 
 async function maybePreConnect() {
 	const wpComUser = 'defaultUser';

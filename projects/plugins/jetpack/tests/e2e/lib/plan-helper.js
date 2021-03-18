@@ -5,7 +5,7 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { getTunnelSiteUrl, execWpCommand } from './utils-helper';
+import { execWpCommand } from './utils-helper';
 import logger from './logger';
 import config from 'config';
 import path from 'path';

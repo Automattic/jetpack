@@ -8,7 +8,7 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import path from 'path';
 import config from 'config';
-import DashboardPage from "../lib/pages/wp-admin/dashboard";
+import DashboardPage from '../lib/pages/wp-admin/dashboard';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
