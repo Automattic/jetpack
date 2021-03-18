@@ -117,15 +117,12 @@ describe( 'CalendlyEdit', () => {
 			expect( createErrorNotice ).toHaveBeenCalled();
 		} );
 
-		test.skip( 'updates inner button block when new link embed code parsed', () => {
-			// TODO: Work out how to test this dispatched action.
-		} );
-
 		test( 'parsed embed code is tested before updating attributes', async () => {
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
 			userEvent.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
 			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+
 			await waitFor( () =>
 				expect( testEmbedUrl ).toHaveBeenCalledWith(
 					'https://calendly.com/valid-url',
@@ -147,6 +144,7 @@ describe( 'CalendlyEdit', () => {
 
 		let iframe;
 		await waitFor( () => ( iframe = screen.getByTitle( 'Calendly' ) ) );
+
 		expect( iframe ).toBeInTheDocument();
 		expect( iframe.parentElement ).toHaveClass( 'calendly-style-inline' );
 		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-calendly-overlay' );
@@ -175,17 +173,5 @@ describe( 'CalendlyEdit', () => {
 
 		expect( link ).toBeInTheDocument();
 		expect( link.parentElement ).toHaveClass( 'wp-block-jetpack-calendly-learn-more' );
-	} );
-
-	test.skip( 'displays placeholder when url present but it is being edited', () => {
-		render( <CalendlyEdit { ...defaultProps } /> );
-
-		// How do I update state in a non-frowned upon way? Should I even test this?
-		// I'd like to because the state will alter how this behaves for the user.
-		// Without rendering the block toolbar controls don't think I could
-		// simulate via actions made by a user.
-		expect(
-			screen.getByText( 'Enter your Calendly web address or embed code below.' )
-		).toBeInTheDocument();
 	} );
 } );
