@@ -25,7 +25,7 @@ class Jetpack_Comment_Likes {
 
 	/** Initialize comment like module */
 	public static function init() {
-		static $instance = NULL;
+		static $instance = null;
 
 		if ( ! $instance ) {
 			$instance = new Jetpack_Comment_Likes();
@@ -54,12 +54,12 @@ class Jetpack_Comment_Likes {
 			}
 
 			if ( in_array( 'publicize', $active ) && ! in_array( 'sharedaddy', $active ) ) {
-				// we have a sharing page but not the global options area
+				// we have a sharing page but not the global options area.
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if( ! in_array( 'sharedaddy', $active ) ) {
+			if ( ! in_array( 'sharedaddy', $active ) ) {
 				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
@@ -97,11 +97,11 @@ class Jetpack_Comment_Likes {
 		$permalink = get_permalink( get_the_ID() );
 		?>
 		<a
-		   data-comment-id="<?php echo absint( $comment_id ); ?>"
-		   data-blog-id="<?php echo absint( $this->blog_id ); ?>"
-		   class="comment-like-count"
-		   id="comment-like-count-<?php echo absint( $comment_id ); ?>"
-		   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo absint( $comment_id ); ?>"
+		data-comment-id="<?php echo absint( $comment_id ); ?>"
+		data-blog-id="<?php echo absint( $this->blog_id ); ?>"
+		class="comment-like-count"
+		id="comment-like-count-<?php echo absint( $comment_id ); ?>"
+		href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo absint( $comment_id ); ?>"
 		>
 			<span class="like-count">0</span>
 		</a>
@@ -169,7 +169,7 @@ class Jetpack_Comment_Likes {
 			JETPACK__VERSION,
 			true
 		);
-		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js', __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}
 
 	/**
@@ -208,9 +208,9 @@ class Jetpack_Comment_Likes {
 		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $this->blog_id, $comment_id, $uniqid );
 		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $this->blog_id, $comment_id, $uniqid );
 
-		$html = '';
+		$html  = '';
 		$html .= "<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
-		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . "</span></div>";
+		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
 		$html .= "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div></div>';
