@@ -38,8 +38,8 @@ class Jetpack_Search_Customize {
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
 	public function customize_register( $wp_customize ) {
-		require_once __DIR__ . '/customize-controls/class-label-control.php';
-		require_once __DIR__ . '/customize-controls/class-excluded-post-types-control.php';
+		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-label-control.php';
+		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-excluded-post-types-control.php';
 		$section_id     = 'jetpack_search';
 		$setting_prefix = Jetpack_Search_Options::OPTION_PREFIX;
 
