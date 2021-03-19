@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Force-enable the Masterbar module
@@ -140,6 +141,8 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  * @return bool Whether Nav Unification should be enabled.
  */
 function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
+	$user_id = get_current_user_id();
+
 	// Loads for all API requests to the admin-menu endpoint (i.e. Calypso).
 	if ( wpcomsh_is_admin_menu_api_request() ) {
 		return true;
@@ -150,18 +153,27 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 		return false;
 	}
 
+	// Disable for users not connected to WP.com.
+	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+		return false;
+	}
+	$connection_manager = new Connection_Manager( 'jetpack' );
+	if ( ! $connection_manager->is_user_connected( $user_id ) ) {
+		return false;
+	}
+
 	// Check if nav unification has been enabled for current user.
 	$is_nav_unification_enabled = get_user_option( 'wpcom_is_nav_unification_enabled' );
 	if ( $is_nav_unification_enabled ) {
 		if ( isset( $_GET['from'] ) && 'calypso-old-menu' === $_GET['from'] ) {
 			// Disable if user is coming from the old menu in Calypso (useful for avoiding caching issues if a revert is needed).
-			update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', false );
+			update_user_option( $user_id, 'wpcom_is_nav_unification_enabled', false );
 			return false;
 		}
 		return true;
 	} else if ( isset( $_GET['from'] ) && 'calypso-unified-menu' === $_GET['from'] ) {
 		// Enable if user is coming from the unified menu in Calypso.
-		update_user_option( get_current_user_id(), 'wpcom_is_nav_unification_enabled', true );
+		update_user_option( $user_id, 'wpcom_is_nav_unification_enabled', true );
 		return true;
 	}
 
@@ -183,7 +195,7 @@ function wpcomsh_add_woocommerce_install_menu() {
 
 	if ( class_exists( 'Automattic\Jetpack\Status' ) ) {
 		$woocommerce_icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGZpbGw9IiNhMmFhYjIiIGQ9Ik02MTIuMTkyIDQyNi4zMzZjMC02Ljg5Ni0zLjEzNi01MS42LTI4LTUxLjYtMzcuMzYgMC00Ni43MDQgNzIuMjU2LTQ2LjcwNCA4Mi42MjQgMCAzLjQwOCAzLjE1MiA1OC40OTYgMjguMDMyIDU4LjQ5NiAzNC4xOTItLjAzMiA0Ni42NzItNzIuMjg4IDQ2LjY3Mi04OS41MnptMjAyLjE5MiAwYzAtNi44OTYtMy4xNTItNTEuNi0yOC4wMzItNTEuNi0zNy4yOCAwLTQ2LjYwOCA3Mi4yNTYtNDYuNjA4IDgyLjYyNCAwIDMuNDA4IDMuMDcyIDU4LjQ5NiAyNy45NTIgNTguNDk2IDM0LjE5Mi0uMDMyIDQ2LjY4OC03Mi4yODggNDYuNjg4LTg5LjUyek0xNDEuMjk2Ljc2OGMtNjguMjI0IDAtMTIzLjUwNCA1NS40ODgtMTIzLjUwNCAxMjMuOTJ2NjUwLjcyYzAgNjguNDMyIDU1LjI5NiAxMjMuOTIgMTIzLjUwNCAxMjMuOTJoMzM5LjgwOGwxMjMuNTA0IDEyMy45MzZWODk5LjMyOGgyNzguMDQ4YzY4LjIyNCAwIDEyMy41Mi01NS40NzIgMTIzLjUyLTEyMy45MnYtNjUwLjcyYzAtNjguNDMyLTU1LjI5Ni0xMjMuOTItMTIzLjUyLTEyMy45MmgtNzQxLjM2em01MjYuODY0IDQyMi4xNmMwIDU1LjA4OC0zMS4wODggMTU0Ljg4LTEwMi42NCAxNTQuODgtNi4yMDggMC0xOC40OTYtMy42MTYtMjUuNDI0LTYuMDE2LTMyLjUxMi0xMS4xNjgtNTAuMTkyLTQ5LjY5Ni01Mi4zNTItNjYuMjU2IDAgMC0zLjA3Mi0xNy43OTItMy4wNzItNDAuNzUyIDAtMjIuOTkyIDMuMDcyLTQ1LjMyOCAzLjA3Mi00NS4zMjggMTUuNTUyLTc1LjcyOCA0My41NTItMTA2LjczNiA5Ni40NDgtMTA2LjczNiA1OS4wNzItLjAzMiA4My45NjggNTguNTI4IDgzLjk2OCAxMTAuMjA4ek00ODYuNDk2IDMwMi40YzAgMy4zOTItNDMuNTUyIDE0MS4xNjgtNDMuNTUyIDIxMy40MjR2NzUuNzEyYy0yLjU5MiAxMi4wOC00LjE2IDI0LjE0NC0yMS44MjQgMjQuMTQ0LTQ2LjYwOCAwLTg4Ljg4LTE1MS40NzItOTIuMDE2LTE2MS44NC02LjIwOCA2Ljg5Ni02Mi4yNCAxNjEuODQtOTYuNDQ4IDE2MS44NC0yNC44NjQgMC00My41NTItMTEzLjY0OC00Ni42MDgtMTIzLjkzNkMxNzYuNzA0IDQzNi42NzIgMTYwIDMzNC4yMjQgMTYwIDMyNy4zMjhjMC0yMC42NzIgMS4xNTItMzguNzM2IDI2LjA0OC0zOC43MzYgNi4yMDggMCAyMS42IDYuMDY0IDIzLjcxMiAxNy4xNjggMTEuNjQ4IDYyLjAzMiAxNi42ODggMTIwLjUxMiAyOS4xNjggMTg1Ljk2OCAxLjg1NiAyLjkyOCAxLjUwNCA3LjAwOCA0LjU2IDEwLjQzMiAzLjE1Mi0xMC4yODggNjYuOTI4LTE2OC43ODQgOTQuOTYtMTY4Ljc4NCAyMi41NDQgMCAzMC40IDQ0LjU5MiAzMy41MzYgNjEuODI0IDYuMjA4IDIwLjY1NiAxMy4wODggNTUuMjE2IDIyLjQxNiA4Mi43NTIgMC0xMy43NzYgMTIuNDgtMjAzLjEyIDY1LjM5Mi0yMDMuMTIgMTguNTkyLjAzMiAyNi43MDQgNi45MjggMjYuNzA0IDI3LjU2OHpNODcwLjMyIDQyMi45MjhjMCA1NS4wODgtMzEuMDg4IDE1NC44OC0xMDIuNjQgMTU0Ljg4LTYuMTkyIDAtMTguNDQ4LTMuNjE2LTI1LjQyNC02LjAxNi0zMi40MzItMTEuMTY4LTUwLjE3Ni00OS42OTYtNTIuMjg4LTY2LjI1NiAwIDAtMy44ODgtMTcuOTItMy44ODgtNDAuODk2czMuODg4LTQ1LjE4NCAzLjg4OC00NS4xODRjMTUuNTUyLTc1LjcyOCA0My40ODgtMTA2LjczNiA5Ni4zODQtMTA2LjczNiA1OS4xMDQtLjAzMiA4My45NjggNTguNTI4IDgzLjk2OCAxMTAuMjA4eiIvPjwvc3ZnPg==';
-		$woocommerce_slug = 'https://wordpress.com/woocommerce-installation/' . ( new Automattic\Jetpack\Status() )->get_site_suffix();
+		$woocommerce_slug = 'https://wordpress.com/woocommerce-installation/' . ( new Status() )->get_site_suffix();
 		add_menu_page( 'WooCommerce', 'WooCommerce', 'activate_plugins', $woocommerce_slug, null, $woocommerce_icon, '55.5' );
 	}
 }
