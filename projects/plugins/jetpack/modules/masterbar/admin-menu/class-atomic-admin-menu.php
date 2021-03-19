@@ -239,4 +239,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
 	}
+
+	/**
+	 * Also remove the Gutenberg plugin menu.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_gutenberg_menus( $wp_admin = false ) {
+		// Always remove the Gutenberg menu.
+		remove_menu_page( 'gutenberg' );
+		parent::add_gutenberg_menus( $wp_admin );
+	}
 }
