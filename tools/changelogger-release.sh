@@ -15,7 +15,7 @@ function usage {
 		 - Run \`changelogger write\`
 		 - Run \`tools/project-version.sh\`
 
-		Pass \`-b\` to release pass \`--prerelease=beta\`.
+		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
 	EOH
 	exit 1
 }
