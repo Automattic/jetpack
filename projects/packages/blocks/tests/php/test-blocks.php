@@ -7,21 +7,6 @@
  * @package automattic/jetpack-blocks
  */
 
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
-
-/**
- * Helper function to create an empty Jetpack_Gutenberg class for the
- * purposes of tests that depend on its existence.
- */
-function create_jetpack_gutenberg_class() {
-	if ( ! class_exists( '\Jetpack_Gutenberg' ) ) {
-		/**
-		 * Empty class to simulate the existence of the Jetpack_Gutenberg class.
-		 */
-		class Jetpack_Gutenberg {}
-	}
-}
-
 namespace Automattic\Jetpack;
 
 use PHPUnit\Framework\TestCase;
@@ -30,7 +15,6 @@ use PHPUnit\Framework\TestCase;
  * Class Test_Blocks
  */
 class Test_Blocks extends TestCase {
-
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertStringContains;
 
 	/**
@@ -241,7 +225,7 @@ class Test_Blocks extends TestCase {
 	public function test_jetpack_register_block_without_editor_style() {
 		$result = Blocks::jetpack_register_block( 'jetpack/block-without-editor-style' );
 		$this->assertEquals( 'jetpack/block-without-editor-style', $result->name );
-		$this->assertEquals( null, $result->editor_style );
+		$this->assertNull( $result->editor_style );
 	}
 
 	/**
@@ -251,12 +235,15 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_with_editor_style() {
-		// Ensure a Jetpack_Gutenberg class is available.
-		create_jetpack_gutenberg_class();
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$result = Blocks::jetpack_register_block( 'jetpack/block-with-editor-style' );
+			$this->assertEquals( 'jetpack/block-with-editor-style', $result->name );
+			$this->assertEquals( 'jetpack-blocks-editor', $result->editor_style );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+		}
 
-		$result = Blocks::jetpack_register_block( 'jetpack/block-with-editor-style' );
-		$this->assertEquals( 'jetpack/block-with-editor-style', $result->name );
-		$this->assertEquals( 'jetpack-blocks-editor', $result->editor_style );
 	}
 
 	/**
@@ -266,17 +253,18 @@ class Test_Blocks extends TestCase {
 	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
 	public function test_jetpack_register_block_with_existing_editor_style() {
-		// Ensure a Jetpack_Gutenberg class is available.
-		create_jetpack_gutenberg_class();
-
-		$result = Blocks::jetpack_register_block(
-			'jetpack/block-with-existing-editor-style',
-			array(
-				'editor_style' => 'custom-editor-style',
-			)
-		);
-
-		$this->assertEquals( 'jetpack/block-with-existing-editor-style', $result->name );
-		$this->assertEquals( 'custom-editor-style', $result->editor_style );
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$result = Blocks::jetpack_register_block(
+				'jetpack/block-with-existing-editor-style',
+				array(
+					'editor_style' => 'custom-editor-style',
+				)
+			);
+			$this->assertEquals( 'jetpack/block-with-existing-editor-style', $result->name );
+			$this->assertEquals( 'custom-editor-style', $result->editor_style );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+		}
 	}
 }

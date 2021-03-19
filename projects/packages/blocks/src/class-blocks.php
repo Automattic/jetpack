@@ -60,7 +60,7 @@ class Blocks {
 		$feature_name = self::remove_extension_prefix( $slug );
 
 		// This is only useful in Jetpack.
-		if ( class_exists( Jetpack_Gutenberg::class ) ) {
+		if ( ! self::is_standalone_block() ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
 				if ( isset( $args['render_callback'] ) ) {
@@ -159,7 +159,7 @@ class Blocks {
 
 		if (
 			! $version_available
-			&& class_exists( Jetpack_Gutenberg::class ) // This is only useful in Jetpack.
+			&& ! self::is_standalone_block() // This is only useful in Jetpack.
 		) {
 			Jetpack_Gutenberg::set_extension_unavailable(
 				$slug,
@@ -232,5 +232,26 @@ class Blocks {
 
 		/** This filter is documented in 3rd-party/class.jetpack-amp-support.php */
 		return apply_filters( 'jetpack_is_amp_request', $is_amp_request );
+	}
+
+	/**
+	 * Check whether or the block being registered is a standalone block,
+	 * running in a context outside of the Jetpack plugin.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @return bool
+	 */
+	public static function is_standalone_block() {
+		$is_standalone_block = ! class_exists( Jetpack_Gutenberg::class );
+
+		/**
+		 * Returns true if the block is not being registered within a Jetpack plugin context.
+		 *
+		 * @since 9.6.0
+		 *
+		 * @param boolean $is_standalone_block Is the block running standalone versus as part of the Jetpack plugin.
+		 */
+		return apply_filters( 'jetpack_is_standalone_block', $is_standalone_block );
 	}
 }
