@@ -79,7 +79,7 @@ export const SEO = withModuleSettingsFormHelpers(
 			/>
 		);
 
-		handleCustomSeoTitleInput = newCustomSeoTitles => {
+		updateCustomSeoTitleInputState = newCustomSeoTitles => {
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
 		};
 
@@ -168,7 +168,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									<FormFieldset>
 										<CustomSeoTitles
 											customSeoTitles={ customSeoTitles }
-											handleCustomSeoTitleInput={ this.handleCustomSeoTitleInput }
+											updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
 											siteData={ siteData }
 										/>
 									</FormFieldset>

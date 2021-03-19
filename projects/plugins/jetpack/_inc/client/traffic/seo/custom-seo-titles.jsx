@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { __ } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
 
@@ -14,7 +14,7 @@ import Button from 'components/button';
 
 // For context on the seo-tools module's custom SEO title formats, refer to:
 // projects/plugins/jetpack/modules/seo-tools/jetpack-seo-titles.php
-export const customSeoTitles = {
+export const customSeoTitleFormats = {
 	pageTypes: [
 		{ name: 'front_page', label: __( 'Front Page', 'jetpack' ) },
 		{ name: 'posts', label: __( 'Posts', 'jetpack' ) },
@@ -60,7 +60,7 @@ export const stringToTokenizedArray = ( inputValue, pageType ) => {
 		} )
 		.map( value => {
 			let matchedToken = null;
-			Object.keys( customSeoTitles.insertableTokens ).map( token => {
+			Object.keys( customSeoTitleFormats.insertableTokens ).map( token => {
 				if ( value === `[${ token }]` ) {
 					matchedToken = token;
 				}
@@ -68,7 +68,7 @@ export const stringToTokenizedArray = ( inputValue, pageType ) => {
 
 			if (
 				matchedToken &&
-				customSeoTitles.tokensAvailablePerPageType[ pageType ].includes( matchedToken )
+				customSeoTitleFormats.tokensAvailablePerPageType[ pageType ].includes( matchedToken )
 			) {
 				return {
 					type: 'token',
@@ -101,7 +101,7 @@ export const tokenizedArrayToString = arr => {
 };
 
 const getCustomSeoTitleInputPreview = ( pageType, value, siteData ) => {
-	customSeoTitles.tokensAvailablePerPageType[ pageType.name ].forEach( token => {
+	customSeoTitleFormats.tokensAvailablePerPageType[ pageType.name ].forEach( token => {
 		switch ( token ) {
 			case 'site_name':
 				value = value.replace( /\[site_name\]/g, siteData.title );
@@ -152,56 +152,67 @@ const getTokenButtonsForCustomSeoTitleInput = (
 	customSeoTitleInputRef,
 	handleCustomSeoTitleInput
 ) => {
-	return customSeoTitles.tokensAvailablePerPageType[ pageType.name ].map( token => {
+	return customSeoTitleFormats.tokensAvailablePerPageType[ pageType.name ].map( token => {
 		return (
 			<Button
 				className="jp-seo-custom-titles-input-button"
 				compact
-				onClick={ () =>
-					handleTokenButtonClick(
-						customSeoTitleInputRef,
-						pageType,
-						token,
-						handleCustomSeoTitleInput
-					)
-				}
+				onClick={ useCallback(
+					() =>
+						handleTokenButtonClick(
+							customSeoTitleInputRef,
+							pageType,
+							token,
+							handleCustomSeoTitleInput
+						),
+					[ token ]
+				) }
 			>
-				{ customSeoTitles.insertableTokens[ token ] }
+				{ customSeoTitleFormats.insertableTokens[ token ] }
 			</Button>
 		);
 	} );
 };
 
-const CustomSeoTitleInput = props => {
+const CustomSeoTitleInput = ( {
+	pageType,
+	customSeoTitleInputRef,
+	handleCustomSeoTitleInput,
+	value,
+	siteData,
+} ) => {
 	return (
 		<div
-			className={ `jp-seo-custom-titles-input-container-${ props.pageType.name }` }
-			key={ props.pageType.name }
+			className={ `jp-seo-custom-titles-input-container-${ pageType.name }` }
+			key={ pageType.name }
 		>
 			<div className={ `jp-seo-custom-titles-input-controls` }>
 				<FormLabel
 					className={ `jp-seo-custom-titles-input-label` }
-					htmlFor={ `jp-seo-custom-titles-input-${ props.pageType.name }` }
+					htmlFor={ `jp-seo-custom-titles-input-${ pageType.name }` }
 				>
-					<span className="jp-form-label">{ props.pageType.label }</span>
+					<span className="jp-form-label">{ pageType.label }</span>
 				</FormLabel>
 				<div>
 					{ getTokenButtonsForCustomSeoTitleInput(
-						props.pageType,
-						props.customSeoTitleInputRef,
-						props.handleCustomSeoTitleInput
+						pageType,
+						customSeoTitleInputRef,
+						handleCustomSeoTitleInput
 					) }
 				</div>
 			</div>
 			<TextInput
-				id={ `jp-seo-custom-titles-input-${ props.pageType.name }` }
+				id={ `jp-seo-custom-titles-input-${ pageType.name }` }
 				className="jp-seo-custom-titles-input"
-				value={ props.value }
-				onChange={ e => props.handleCustomSeoTitleInput( props.pageType, e.target.value ) }
-				ref={ props.customSeoTitleInputRef }
+				value={ value }
+				onChange={ useCallback(
+					event => handleCustomSeoTitleInput( pageType, event.target.value ),
+					[ handleCustomSeoTitleInput, pageType ]
+				) }
+				ref={ customSeoTitleInputRef }
 			/>
 			<div className={ 'jp-seo-custom-titles-input-preview' }>
-				{ getCustomSeoTitleInputPreview( props.pageType, props.value, props.siteData ) }
+				{ getCustomSeoTitleInputPreview( pageType, value, siteData ) }
 			</div>
 		</div>
 	);
@@ -223,28 +234,35 @@ const CustomSeoTitles = props => {
 		archives: React.createRef(),
 	} );
 
-	const customSeoTitlesAsStrings = customSeoTitles.pageTypes.reduce( ( acc, pageType ) => {
+	const customSeoTitlesAsStrings = customSeoTitleFormats.pageTypes.reduce( ( acc, pageType ) => {
 		acc[ pageType.name ] = tokenizedArrayToString( props.customSeoTitles[ pageType.name ] );
 		return acc;
 	}, {} );
 
-	const handleCustomSeoTitleInput = ( updatedPageType, updatedValue ) => {
-		customSeoTitlesAsStrings[ updatedPageType.name ] = updatedValue;
+	const updateCustomSeoTitleInputState = props.updateCustomSeoTitleInputState;
+	const handleCustomSeoTitleInput = useCallback(
+		( updatedPageType, updatedValue ) => {
+			customSeoTitlesAsStrings[ updatedPageType.name ] = updatedValue;
 
-		const customSeoTitlesAsTokenizedArrays = Object.keys( customSeoTitlesAsStrings ).reduce(
-			( acc, pageType ) => {
-				acc[ pageType ] = stringToTokenizedArray( customSeoTitlesAsStrings[ pageType ], pageType );
-				return acc;
-			},
-			{}
-		);
+			const customSeoTitlesAsTokenizedArrays = Object.keys( customSeoTitlesAsStrings ).reduce(
+				( acc, pageType ) => {
+					acc[ pageType ] = stringToTokenizedArray(
+						customSeoTitlesAsStrings[ pageType ],
+						pageType
+					);
+					return acc;
+				},
+				{}
+			);
 
-		props.handleCustomSeoTitleInput( customSeoTitlesAsTokenizedArrays );
-	};
+			updateCustomSeoTitleInputState( customSeoTitlesAsTokenizedArrays );
+		},
+		[ customSeoTitlesAsStrings, updateCustomSeoTitleInputState ]
+	);
 
 	return (
 		<div className="jp-seo-custom-titles">
-			{ customSeoTitles.pageTypes.map( pageType => {
+			{ customSeoTitleFormats.pageTypes.map( pageType => {
 				return (
 					<CustomSeoTitleInput
 						pageType={ pageType }
