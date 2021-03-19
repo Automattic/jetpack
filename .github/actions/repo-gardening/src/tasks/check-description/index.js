@@ -226,12 +226,13 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 	return affectedProjects.reduce( ( acc, project ) => {
 		const composerFile = process.env.GITHUB_WORKSPACE + `/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
-		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it
-		const customChangelogDir =
-			json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ];
-		const changelogDirectory = customChangelogDir ? customChangelogDir : '/changelog/';
+		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
+		const changelogDir = path.resolve(
+			process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
+			json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] || "changelog"
+		) + '/';
 		const found = files.find(
-			file => file.includes( project ) && file.includes( changelogDirectory )
+			file => file.startsWith( changelogDir )
 		);
 		if ( ! found ) {
 			acc.push( project );
