@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Redirect;
 
+require_once __DIR__ . '/class-base-admin-menu.php';
+
 /**
  * Class Admin_Menu.
  */
