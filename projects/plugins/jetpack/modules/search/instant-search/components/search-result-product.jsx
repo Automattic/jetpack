@@ -50,6 +50,7 @@ class SearchResultProduct extends Component {
 								className="jetpack-instant-search__search-result-product-img"
 								isPhotonEnabled={ this.props.isPhotonEnabled }
 								src={ `//${ firstImage }` }
+								useDiv
 							/>
 						) : (
 							<Gridicon
