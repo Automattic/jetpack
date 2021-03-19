@@ -573,7 +573,6 @@ new Jetpack_JSON_API_Sync_Modify_Health_Endpoint(
 	)
 );
 
-
 $sync_settings_response = array(
 	'dequeue_max_bytes'        => '(int|bool=false) Maximum bytes to read from queue in a single request',
 	'sync_wait_time'           => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',

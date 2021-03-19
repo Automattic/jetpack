@@ -124,10 +124,16 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 
 // POST /sites/%s/sync/health
 class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+
+	/**
+	 * Callback for sync/health endpoint.
+	 *
+	 * @return array|WP_Error result of request.
+	 */
 	protected function result() {
 		$args = $this->input();
 
-		switch( $args['status'] ) {
+		switch ( $args['status'] ) {
 			case Health::STATUS_IN_SYNC:
 			case Health::STATUS_OUT_OF_SYNC:
 				Health::update_status( $args['status'] );
@@ -136,9 +142,9 @@ class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync
 				return new WP_Error( 'invalid_status', 'Invalid Sync Status Provided.' );
 		}
 
-		// re-fetch so we see what's really being stored
+		// re-fetch so we see what's really being stored.
 		return array(
-			'success' => Health::get_status()
+			'success' => Health::get_status(),
 		);
 	}
 }
