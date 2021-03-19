@@ -52,15 +52,15 @@ export async function changeloggerCli( argv ) {
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	validateCmd( argv );
+
 	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	validatePath( argv, projDir );
 
-	const data = child_process.spawnSync( `vendor/bin/changelogger ${ argv.cmd }`, [ '' ], {
+	const data = child_process.spawnSync( `vendor/bin/changelogger`, [ `${ argv.cmd }` ], {
 		cwd: projDir,
 		stdio: 'inherit',
-		shell: true,
 	} );
 
 	// Node.js exit code status 0 === success
