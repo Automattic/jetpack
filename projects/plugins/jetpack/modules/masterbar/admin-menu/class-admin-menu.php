@@ -340,18 +340,16 @@ class Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_users_menu( $wp_admin = false ) {
-		$submenus_to_update = array();
 		if ( current_user_can( 'list_users' ) ) {
+			// We shall add the Calypso user management & add new user screens at all cases ( Calypso & Atomic ).
+			$submenus_to_update = array(
+				'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
+				'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
+			);
 			if ( ! $wp_admin ) {
-				$submenus_to_update = array(
-					'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
-					'profile.php'  => 'https://wordpress.com/me',
-				);
+				$submenus_to_update = array_merge( $submenus_to_update, array( 'profile.php' => 'https://wordpress.com/me' ) );
 			}
-			// We shall add the Calypso User management screen at all cases ( Calypso & Atomic ).
-			$submenus_to_update = array_merge( $submenus_to_update, array( 'users.php' => 'https://wordpress.com/people/team/' . $this->domain ) );
 			$this->update_submenus( 'users.php', $submenus_to_update );
-
 			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		} else {
 			if ( ! $wp_admin ) {
