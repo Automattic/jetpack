@@ -116,7 +116,9 @@ function sedver {
 		EXIT=1
 		LINE=$(grep --line-number --max-count=1 -E "$2" "$1" || true)
 		if [[ -n "$CI" ]]; then
-			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0A%0AYou might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this."
+			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this."
+			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
 		fi
@@ -159,7 +161,9 @@ function jsver {
 		VE=$(jq --arg v "$VER" -n '$v' | sed 's/[.\[\]\\*^$\/()+?{}|]/\\&/g')
 		LINE=$(grep --line-number --max-count=1 -E "^	{$N}\"${X##*.}\": $VE,?$" "$1" || true)
 		if [[ -n "$CI" ]]; then
-			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0A%0AYou might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this."
+			echo "---" # Bracket message containing newlines for better visibility in GH's logs.
+			echo "::error file=${1#$BASE/},line=${LINE%%:*}::Version mismatch, expected $3 but found $VER!%0AYou might use \`tools/project-version.sh -u $VERSION $SLUG\` to fix this."
+			echo "---"
 		else
 			error "${1#$BASE/}:${LINE%%:*}: Version mismatch, expected $3 but found $VER!"
 		fi
