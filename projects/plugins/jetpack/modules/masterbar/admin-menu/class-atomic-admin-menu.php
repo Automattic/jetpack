@@ -20,6 +20,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	protected function __construct() {
 		parent::__construct();
 
+		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+
 		add_action(
 			'admin_menu',
 			function () {
@@ -27,6 +30,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			},
 			0
 		);
+	}
+
+	/**
+	 * Dequeues unnecessary scripts.
+	 */
+	public function dequeue_scripts() {
+		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
 	}
 
 	/**
