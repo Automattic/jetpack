@@ -25,6 +25,12 @@ jobs:
       # Whether any JavaScript files have changed.
       js: ${{ steps.filter.outputs.js }}
 
+      # Whether any lock files have changed.
+      lockfiles: ${{ steps.filter.outputs.lockfiles }}
+
+      # Whether any miscellaneous files related to linting have changed.
+      misc: ${{ steps.filter.outputs.misc }}
+
       # Whether any miscellaneous files related to PHP linting have changed.
       misc_php: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' }}
 
@@ -63,6 +69,15 @@ jobs:
                 - '**.php'
                 - '**.js'
                 - '**.jsx'
+            lockfiles:
+              - 'composer.json'
+              - 'composer.lock'
+              - 'package.json'
+              - 'yarn.lock'
+              - '**/composer.json'
+              - '**/composer.lock'
+              - '**/package.json'
+              - '**/yarn.lock'
             misc_php:
               # If composer or phpcs config changed, there may be a new standard.
               - 'composer.json'
@@ -707,6 +722,7 @@ jobs:
   lock_files:
     name: "Lock files are up to date"
     runs-on: ubuntu-latest
+    if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2021-03-17: Successful runs seem to take 3+ minutes, thanks to yarn building stuff.
     steps:
       - uses: actions/checkout@v2
@@ -773,6 +789,7 @@ jobs:
   monorepo_package_refs:
     name: Monorepo package version refs
     runs-on: ubuntu-latest
+    if: needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 1  # 2021-01-18: Successful runs take just a few seconds
     steps:
       - uses: actions/checkout@v2
