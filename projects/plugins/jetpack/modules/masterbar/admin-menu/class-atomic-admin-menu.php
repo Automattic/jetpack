@@ -232,11 +232,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_users_menu( $wp_admin = false ) {
 		parent::add_users_menu( $wp_admin );
 
-		// No need to add a menu linking to WP Admin if there is already one.
-		if ( $wp_admin ) {
-			return;
-		}
-
 		add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
 	}
 
