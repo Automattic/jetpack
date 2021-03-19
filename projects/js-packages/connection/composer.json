@@ -14,7 +14,7 @@
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
 			"yarn install",
-			"yarn nyc --reporter=clover -x './!(node_modules)/**/test/*.jsx' --report-dir=\"$COVERAGE_DIR\" yarn test"
+			"yarn nyc --report-dir=\"$COVERAGE_DIR\" yarn test"
 		]
 	},
 	"repositories": [

@@ -5,6 +5,7 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
+		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/i18n": "^3.9.0",
 		"prop-types": "^15.7.2"
 	},
