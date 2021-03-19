@@ -38,8 +38,8 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99999 );
-		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99998 );
+		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
