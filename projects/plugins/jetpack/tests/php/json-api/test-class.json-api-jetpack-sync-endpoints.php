@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Sync_Json_Api_Endpoints extends WP_UnitTestCase {
 		$endpoint->api->content_type = 'application/json';
 
 		$response = $endpoint->callback( 'sync/health', $blog_id );
-		$this->assertIsArray( $response );
+
 		$this->assertEquals( 'in_sync', $response['success'] );
 	}
 
