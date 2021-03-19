@@ -578,6 +578,20 @@ class Manager {
 	}
 
 	/**
+	 * Returns true if the site is connected only at a site level.
+	 *
+	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
+	 *
+	 * @access public
+	 * @since 9.6.0
+	 *
+	 * @return bool
+	 */
+	public function is_userless() {
+		return $this->is_connected() && ! $this->has_connected_user() && ! \Jetpack_Options::get_option( 'master_user' );
+	}
+
+	/**
 	 * Checks to see if the connection owner of the site is missing.
 	 *
 	 * @return bool
@@ -1386,6 +1400,11 @@ class Manager {
 	 * @return string|true|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object otherwise.
 	 */
 	public function restore() {
+		// If this is a userless connection we need to trigger a full reconnection as our only secure means of
+		// communication with WPCOM, aka the blog token, is compromised.
+		if ( $this->is_userless() ) {
+			return $this->reconnect();
+		}
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
