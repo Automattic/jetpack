@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Syncrhonization: New sync/health endpoint to allow update of the sync health option.
