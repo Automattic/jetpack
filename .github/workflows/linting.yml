@@ -769,7 +769,7 @@ jobs:
       - run: .github/files/check-lock-files.sh
 
   ## Check that monorepo packages are correctly referenced
-  # Local equivalent: .github/files/check-monorepo-package-versions.sh && .github/files/check-monorepo-package-repos.sh
+  # Local equivalent: tools/check-composer-deps.sh -v && .github/files/check-monorepo-package-repos.sh
   monorepo_package_refs:
     name: Monorepo package version refs
     runs-on: ubuntu-latest
@@ -780,5 +780,5 @@ jobs:
         run: |
           which jq
           jq --version
-      - run: .github/files/check-monorepo-package-versions.sh
+      - run: tools/check-composer-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh

@@ -5,24 +5,26 @@ import { __ } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 import { RawHTML } from '@wordpress/element';
 
+/**
+ * Deprecation reason:
+ *
+ * Block moved from `subscribeButton` attribute to `submitButtonText` when it
+ * had an empty value set.
+ */
 export default {
 	attributes: {
 		subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
 		showSubscribersTotal: { type: 'boolean', default: false },
 	},
-	migrate: attr => {
+	migrate: oldAttributes => {
 		return {
-			subscribeButton: '',
-			submitButtonText: attr.subscribeButton,
-			showSubscribersTotal: attr.showSubscribersTotal,
-			customBackgroundButtonColor: '',
-			customTextButtonColor: '',
-			submitButtonClasses: '',
+			submitButtonText: oldAttributes.subscribeButton,
+			showSubscribersTotal: oldAttributes.showSubscribersTotal,
 		};
 	},
-
 	isEligible: attr => {
-		if ( ! isEmpty( attr.subscribeButton ) ) {
+		// Newer block versions do not have `subscribeButton` attribute.
+		if ( ! attr.hasOwnProperty( 'subscribeButton' ) || ! isEmpty( attr.subscribeButton ) ) {
 			return false;
 		}
 		return true;
