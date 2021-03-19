@@ -24,6 +24,7 @@ class Test_Jetpack_JITM extends TestCase {
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
 		Functions\when( 'site_url' )->justReturn( 'unit-test' );
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
+		Functions\when( 'current_user_can' )->justReturn( true );
 	}
 
 	/**
@@ -35,35 +36,23 @@ class Test_Jetpack_JITM extends TestCase {
 		Monkey\tearDown();
 	}
 
-	public function test_jitm_disabled_by_filter() {
-		Functions\expect( 'apply_filters' )->once()->with(
-			'jetpack_just_in_time_msgs',
-			false
-		)->andReturn( false );
+	public function test_jitm_disabled_by_default() {
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with(	'jetpack_just_in_time_msgs', false );
 
 		$jitm = new JITM();
 		$this->assertFalse( $jitm->register() );
 	}
 
-	public function test_jitm_enabled_by_default() {
-		Functions\expect( 'apply_filters' )->once()->with(
-			'jetpack_just_in_time_msgs',
-			false
-		)->andReturn( true );
+	public function test_jitm_enabled_by_filter() {
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_just_in_time_msgs', false )
+			->andReturn( true );
 
 		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
-	}
-
-	/**
-	 * Pre-connection JITMs are disabled by default,
-	 * unless a filter is used.
-	 */
-	public function test_pre_connection_jitms_disabled() {
-		add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_false' );
-
-		$jitm = new Pre_Connection_JITM();
-		$this->assertEmpty( $jitm->get_messages( '/wp:edit-post:admin_notices/', '', false ) );
 	}
 
 	/**

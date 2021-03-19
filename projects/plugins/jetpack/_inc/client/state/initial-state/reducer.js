@@ -298,6 +298,17 @@ export function showRecommendations( state ) {
 }
 
 /**
+ * Determines if the Jetpack Licensing UI should be displayed
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {boolean} True if the Jetpack Licensing UI should be displayed, false otherwise.
+ */
+export function showLicensingUi( state ) {
+	return get( state.jetpack.initialState.licensing, 'showLicensingUi', false );
+}
+
+/**
  * Check if the site is part of a Multisite network.
  *
  * @param {object} state Global state tree

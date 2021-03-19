@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Git block: Refactored class component into a functional one and added unit tests. No functional/UI changes. Changelog optional.

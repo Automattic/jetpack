@@ -2,6 +2,7 @@
  * External dependencies
  */
 import process from 'process';
+import fs from 'fs';
 import path from 'path';
 import Listr from 'listr';
 import execa from 'execa';
@@ -36,10 +37,20 @@ export default function installProjectTask( argv ) {
 	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
-	const command = ( pkgMgr, verbose ) =>
-		verbose
-			? execa.commandSync( `${ pkgMgr } install`, { cwd: cwd, stdio: 'inherit' } )
-			: execa.command( `${ pkgMgr } install`, { cwd: cwd } );
+	const command = async ( pkgMgr, verbose ) => {
+		// Determine whether 'install' or 'upgrade' is needed. Notes:
+		//  - composer accepts both "update" and "upgrade", while yarn only accepts "upgrade".
+		//  - composer accepts "install" with no lockfile, despite complaining that it wants "update" instead.
+		//  - yarn requires "install" with no lockfile, "upgrade" errors out.
+		let subcommand = 'install';
+		if ( fs.existsSync( path.resolve( cwd, `${ pkgMgr }.lock` ) ) ) {
+			const { stdout } = await execa.command( `git ls-files ${ pkgMgr }.lock`, { cwd: cwd } );
+			subcommand = stdout ? 'install' : 'upgrade';
+		}
+		return verbose
+			? execa.commandSync( `${ pkgMgr } ${ subcommand }`, { cwd: cwd, stdio: 'inherit' } )
+			: execa.command( `${ pkgMgr } ${ subcommand }`, { cwd: cwd } );
+	};
 
 	const task = ( pkgMgr, enabled ) => {
 		return {
@@ -58,9 +69,10 @@ export default function installProjectTask( argv ) {
 	return {
 		title: chalk.yellow( `Installing ${ argv.project }` ),
 		task: () => {
-			return new Listr( [ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ], {
-				opts,
-			} );
+			return new Listr(
+				[ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ],
+				opts
+			);
 		},
 	};
 }

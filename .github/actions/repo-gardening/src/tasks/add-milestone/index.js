@@ -47,11 +47,18 @@ async function addMilestone( payload, octokit ) {
 		return;
 	}
 
+	if ( plugins.length >= 2 ) {
+		debug(
+			`add-milestone: this PR touches multiple plugins, we cannot choose which milestone this should belong to. Aborting.`
+		);
+		return;
+	}
+
 	// Get next valid milestone (we can only add one).
 	const nextMilestone = await getNextValidMilestone( octokit, ownerLogin, repo, plugins[ 0 ] );
 
 	if ( ! nextMilestone ) {
-		throw new Error( 'Could not find a valid milestone' );
+		throw new Error( `Could not find a valid milestone for ${ plugins[ 0 ] }` );
 	}
 
 	debug( `add-milestone: Adding PR #${ prNumber } to milestone #${ nextMilestone.number }` );

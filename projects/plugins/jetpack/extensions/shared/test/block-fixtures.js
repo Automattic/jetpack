@@ -26,7 +26,12 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 	setFixturesDir( fixturesPath );
 
 	const blockBasenames = getAvailableBlockFixturesBasenames();
-	const settings = blocks[ 0 ].settings;
+	let primaryBlockSettings;
+	try {
+		primaryBlockSettings = blocks.find( block => block.name === blockName ).settings;
+	} catch ( err ) {
+		throw new Error( `Settings can't be found for main block under test: ${ blockName }` );
+	}
 
 	if ( process.env.REGENERATE_FIXTURES ) {
 		const fullPath = `${ fixturesPath }/fixtures`;
@@ -155,11 +160,11 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 			} );
 		} );
 
-		if ( settings.deprecated?.length ) {
+		if ( primaryBlockSettings.deprecated?.length ) {
 			test( 'fixture is present for each block deprecation', () => {
 				const nameToFilename = blockNameToFixtureBasename( blockName );
 				const errors = [];
-				settings.deprecated.forEach( ( deprecation, index ) => {
+				primaryBlockSettings.deprecated.forEach( ( deprecation, index ) => {
 					if (
 						deprecation &&
 						! blockBasenames.includes( `${ nameToFilename }__deprecated-${ index + 1 }` )
@@ -169,8 +174,9 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 						);
 					}
 				} );
-				expect( errors.length ).toEqual( 0 );
-				if ( errors.length ) {
+				try {
+					expect( errors.length ).toEqual( 0 );
+				} catch ( error ) {
 					throw new Error( 'Problem(s) with fixture files:\n\n' + errors.join( '\n' ) );
 				}
 			} );
@@ -188,7 +194,7 @@ function checkParseValid( block, fixtureName ) {
 	}
 }
 
-function registerBlocks( blocks ) {
+export function registerBlocks( blocks ) {
 	// Need to add a valid category or block registration fails
 	setCategories( [
 		{

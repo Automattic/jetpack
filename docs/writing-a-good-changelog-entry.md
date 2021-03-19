@@ -2,6 +2,10 @@
 
 Part of our standard [Pull Request process](./monorepo.md#jetpack-changelogger) includes submitting a changelog entry for your changes, which this document provides guidance on.
 
+## How do I create a changelog entry?
+
+**[Follow the instructions here to use the changelogger tool to create a new entry.](./monorepo.md#using-the-jetpack-changelogger)**
+
 ## Do I even need to write a changelog entry?
 
 For Jetpack, our changelog is intended primarily for end users and third-party developers who use our public APIs and packages. Other projects in the Jetpack monorepo also benefit from managing an accurate changelog.

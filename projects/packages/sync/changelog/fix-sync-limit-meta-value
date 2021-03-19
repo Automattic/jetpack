@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Impose a max limit of 2MB on post meta values that are synced.
