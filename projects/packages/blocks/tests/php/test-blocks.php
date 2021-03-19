@@ -217,8 +217,38 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
+	 * Test that by default we are not running in a Jetpack plugin context.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_standalone_block() {
+		$this->assertTrue( Blocks::is_standalone_block() );
+	}
+
+	/**
+	 * Test that we are running in a Jetpack plugin context, and not
+	 * as a standalone block.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_not_standalone_block() {
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$this->assertFalse( Blocks::is_standalone_block() );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+		}
+	}
+
+	/**
 	 * Test to ensure registering a Jetpack block does not add in an editor style dependency,
 	 * when the Jetpack_Gutenberg class is not available.
+	 *
+	 * @since 9.6.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
@@ -231,6 +261,8 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test to ensure registering a Jetpack block adds in an editor style dependency,
 	 * when the Jetpack_Gutenberg class is available.
+	 *
+	 * @since 9.6.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
@@ -249,6 +281,8 @@ class Test_Blocks extends TestCase {
 	/**
 	 * Test to ensure registering a Jetpack block does not override an existing dependency,
 	 * when the Jetpack_Gutenberg class is available.
+	 *
+	 * @since 9.6.0
 	 *
 	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
 	 */
