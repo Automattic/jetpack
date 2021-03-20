@@ -101,7 +101,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				if ( $poster_url ) {
 					$poster_width  = esc_attr( $media_file['width'] );
 					$poster_height = esc_attr( $media_file['height'] );
-					$content_width = intval( Jetpack::get_content_width() );
+					$content_width = (int) Jetpack::get_content_width();
 					if ( is_numeric( $content_width ) ) {
 						$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
 						$poster_width  = $content_width;
@@ -214,7 +214,7 @@ function render_video( $media ) {
 	if ( ! empty( $poster_url ) ) {
 		$poster_width  = esc_attr( $meta_width );
 		$poster_height = esc_attr( $meta_height );
-		$content_width = intval( Jetpack::get_content_width() );
+		$content_width = (int) Jetpack::get_content_width();
 		if ( is_numeric( $content_width ) ) {
 			$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
 			$poster_width  = $content_width;
