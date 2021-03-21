@@ -917,26 +917,26 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	 * - Render the map block based on provided coordinates in metadata
 	 * - [TODO] Improve the title
 	 *
-	 * @param $post
-	 * @param $metadata
+	 * @param $post Post to be inserted.
+	 * @param $metadata Metadata for the post.
 	 *
 	 * @return mixed
 	 */
 	private function dtp_fb_preprocess_post( $post, $metadata ) {
 		$geo_points_metadata = wp_filter_object_list( $metadata, array( 'key' => '_dtp_fb_geo_points' ), 'and', 'value' );
 		if ( ! empty( $geo_points_metadata ) ) {
-			$fb_points = reset( $geo_points_metadata );
+			$fb_points  = reset( $geo_points_metadata );
 			$geo_points = array();
 
 			// Prepare Geo Points so that they match the format expected by the map block.
 			foreach ( $fb_points as $fb_point ) {
-				$geo_points[] = [
+				$geo_points[] = array(
 					'coordinates' => array(
 						'longitude' => $fb_point['longitude'],
-						'latitude' => $fb_point['latitude'],
+						'latitude'  => $fb_point['latitude'],
 					),
-					'title' => $fb_point['name'],
-				];
+					'title'       => $fb_point['name'],
+				);
 			}
 			$map_block = map_block_from_geo_points( $geo_points );
 

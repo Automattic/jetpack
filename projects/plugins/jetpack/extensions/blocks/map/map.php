@@ -183,7 +183,7 @@ function map_block_from_geo_points( $points ) {
 		),
 	);
 
-	$map_block = '<!-- wp:jetpack/map ' . wp_json_encode( $map_block_data ) . ' -->' . PHP_EOL;
+	$map_block  = '<!-- wp:jetpack/map ' . wp_json_encode( $map_block_data ) . ' -->' . PHP_EOL;
 	$map_block .= sprintf(
 		'<div class="wp-block-jetpack-map" data-map-style="default" data-map-details="true" data-points="%1$s" data-zoom="1" data-map-center="%2$s" data-marker-color="red"></div>',
 		esc_html( wp_json_encode( $map_block_data['points'] ) ),
