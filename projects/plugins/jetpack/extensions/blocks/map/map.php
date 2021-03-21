@@ -165,3 +165,31 @@ function render_single_block_page() {
 	exit;
 }
 add_action( 'wp', __NAMESPACE__ . '\render_single_block_page' );
+
+/**
+ * Helper function to generate the markup of the block in PHP.
+ *
+ * @param Array $points - Array containing geo location points.
+ *
+ * @return string Markup for the jetpack/map block.
+ */
+function map_block_from_geo_points( $points ) {
+	$map_block_data = array(
+		'points'    => $points,
+		'zoom'      => 1,
+		'mapCenter' => array(
+			'lng' => $points[0]['coordinates']['longitude'],
+			'lat' => $points[0]['coordinates']['latitude'],
+		),
+	);
+
+	$map_block = '<!-- wp:jetpack/map ' . wp_json_encode( $map_block_data ) . ' -->' . PHP_EOL;
+	$map_block .= sprintf(
+		'<div class="wp-block-jetpack-map" data-map-style="default" data-map-details="true" data-points="%1$s" data-zoom="1" data-map-center="%2$s" data-marker-color="red"></div>',
+		esc_html( wp_json_encode( $map_block_data['points'] ) ),
+		esc_html( wp_json_encode( $map_block_data['mapCenter'] ) )
+	) . PHP_EOL;
+	$map_block .= '<!-- /wp:jetpack/map -->';
+
+	return $map_block;
+}
