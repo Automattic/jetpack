@@ -917,8 +917,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	 * - Render the map block based on provided coordinates in metadata
 	 * - [TODO] Improve the title
 	 *
-	 * @param $post Post to be inserted.
-	 * @param $metadata Metadata for the post.
+	 * @param array $post Post to be inserted.
+	 * @param array $metadata Metadata for the post.
 	 *
 	 * @return mixed
 	 */
