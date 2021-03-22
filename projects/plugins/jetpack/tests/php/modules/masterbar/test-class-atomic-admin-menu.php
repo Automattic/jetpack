@@ -355,18 +355,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
-
-		// Reset.
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
-
-		static::$admin_menu->add_users_menu( true );
-
-		$this->assertArrayHasKey( 2, $submenu['users.php'] );
 	}
 
 	/**
