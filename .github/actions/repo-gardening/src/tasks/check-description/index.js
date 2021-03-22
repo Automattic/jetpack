@@ -375,7 +375,7 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
 		// If some of the checks have failed, lets recommend some next steps.
 		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
 			output += `
-${ recommendations[ check ] }
+:red_circle: **Action required:** ${ recommendations[ check ] }
 
 ******`;
 		}
