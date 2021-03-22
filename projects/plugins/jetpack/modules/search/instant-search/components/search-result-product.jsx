@@ -35,6 +35,8 @@ class SearchResultProduct extends Component {
 				? highlight.title[ 0 ]
 				: __( 'No title', 'jetpack' );
 
+		const hasMatch = Array.isArray( highlight.content ) && highlight.content[ 0 ]?.length > 0;
+
 		return (
 			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
 				<a
@@ -90,18 +92,20 @@ class SearchResultProduct extends Component {
 						rating={ fields[ 'meta._wc_average_rating.double' ] }
 					/>
 				) }
-				<div className="jetpack-instant-search__search-result-product-match">
-					<mark>
-						<Gridicon icon="search" style={ {} } />
-						<span>
-							{ sprintf(
-								/* Translators: the placeholder can be "content" or "comments". */
-								__( 'Keyword found in %s', 'jetpack' ),
-								'comment' in highlight ? __( 'comments', 'jetpack' ) : __( 'content', 'jetpack' )
-							) }
-						</span>
-					</mark>
-				</div>
+				{ hasMatch && (
+					<div className="jetpack-instant-search__search-result-product-match">
+						<mark>
+							<Gridicon icon="search" style={ {} } />
+							<span>
+								{ sprintf(
+									/* Translators: the placeholder can be "content" or "comments". */
+									__( 'Keyword found in %s', 'jetpack' ),
+									'comment' in highlight ? __( 'comments', 'jetpack' ) : __( 'content', 'jetpack' )
+								) }
+							</span>
+						</mark>
+					</div>
+				) }
 			</li>
 		);
 	}
