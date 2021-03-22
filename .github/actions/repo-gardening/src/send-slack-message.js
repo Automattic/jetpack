@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+const debug = require( './debug' );
+
 /* global WebhookPayloadPullRequest */
 
 /**
@@ -70,6 +75,9 @@ async function sendSlackMessage( message, channel, token, payload ) {
 			Accept: 'application/json',
 		},
 	} );
+
+	debug( `send-slack-message: response: ${ JSON.stringify( slackRequest ) }` );
+
 	if ( ! slackRequest.ok ) {
 		return false;
 	}
