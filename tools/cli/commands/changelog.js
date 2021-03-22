@@ -59,7 +59,7 @@ export async function changeloggerCli( argv ) {
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	validatePath( argv, projDir );
 
-	const data = child_process.spawnSync( `vendor/bin/changelogger`, [ `${ argv.cmd }` ], {
+	const data = child_process.spawnSync( `${ argv.cmdPath }`, [ `${ argv.cmd }` ], {
 		cwd: projDir,
 		stdio: 'inherit',
 	} );
@@ -106,7 +106,12 @@ function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
 		throw new Error( chalk.red( `Project doesn't exist! Typo?` ) );
 	}
+	if ( argv.project === 'packages/changelogger' ) {
+		argv.cmdPath = 'bin/changelogger';
+		return;
+	}
 	if ( fs.existsSync( dir + `/vendor/bin/changelogger` ) ) {
+		argv.cmdPath = 'vendor/bin/changelogger';
 		return;
 	}
 	throw new Error(
