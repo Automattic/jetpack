@@ -14,7 +14,8 @@
 	"dependencies": {
 		"@actions/core": "1.2.6",
 		"@actions/github": "4.0.0",
-		"moment": "2.29.1"
+		"moment": "2.29.1",
+		"node-fetch": "2.6.1"
 	},
 	"private": true
 }

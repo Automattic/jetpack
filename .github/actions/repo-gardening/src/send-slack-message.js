@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+const fetch = require( 'node-fetch' );
+
+/**
  * Internal dependencies
  */
 const debug = require( './debug' );
