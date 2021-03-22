@@ -24,6 +24,12 @@ final class Atomic_Persistent_Data {
 		self::$data[$key] = $value;
 	}
 
+	public static function delete( $key ) {
+		if ( isset( self::$data[ $key ] ) ) {
+			unset( self::$data[ $key ] );
+		}
+	}
+
 	public function __get( $key ) {
 		if ( isset( self::$data[$key] ) ) {
 			return self::$data[$key];
