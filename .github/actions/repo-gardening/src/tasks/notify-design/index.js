@@ -84,7 +84,7 @@ async function notifyDesign( payload, octokit ) {
 	}
 
 	// Check if design input was already requested for that PR.
-	const hasBeenRequested = await hasInputRequestedLabel( octokit, ownerLogin, repo, number );
+	const hasBeenRequested = await hasDesignInputRequestedLabel( octokit, ownerLogin, repo, number );
 	if ( hasBeenRequested ) {
 		debug( `notify-design: Design input was already requested for PR #${ number }. Aborting.` );
 		return;
@@ -105,7 +105,7 @@ async function notifyDesign( payload, octokit ) {
 	}
 
 	// Check for a Needs Design label.
-	const isLabeledForReview = await hasDesignReviewLabel( octokit, ownerLogin, repo, number );
+	const isLabeledForReview = await hasNeedsDesignReviewLabel( octokit, ownerLogin, repo, number );
 	if ( isLabeledForReview ) {
 		debug(
 			`notify-design: Found a Needs Design Review label on PR #${ number }. Sending in Slack message.`
