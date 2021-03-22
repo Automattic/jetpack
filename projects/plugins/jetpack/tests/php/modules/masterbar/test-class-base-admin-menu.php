@@ -61,8 +61,10 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
+		$admin_menu = $this->get_concrete_menu_admin();
+
 		// Initialize in setUp so it registers hooks for every test.
-		static::$admin_menu = $this->get_concrete_menu_admin()::get_instance();
+		static::$admin_menu = $admin_menu::get_instance();
 
 		wp_set_current_user( static::$user_id );
 	}
@@ -75,7 +77,9 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_get_instance() {
 
-		$instance = $this->get_concrete_menu_admin()::get_instance();
+		$admin_menu = $this->get_concrete_menu_admin();
+
+		$instance = $admin_menu::get_instance();
 
 		$this->assertInstanceOf( Base_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
