@@ -102,7 +102,7 @@ function error( ...$args ) {
 		)
 	);
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	fprintf( STDERR, "::error::%s\n", $msg );
+	fprintf( STDERR, "---\n::error::%s\n---\n", $msg );
 }
 
 /**
