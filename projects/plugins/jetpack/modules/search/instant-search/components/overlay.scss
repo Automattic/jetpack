@@ -21,7 +21,8 @@ $overlay-horizontal-padding-lg: 3em;
 	opacity: 1;
 	overflow-x: hidden;
 	overflow-y: auto;
-	transition: opacity 0.15s ease-in-out;
+	transition: opacity $overlay-fade-in-time linear;
+	will-change: opacity;
 	z-index: 9999999999999;
 
 	// Override font for Argent theme.
@@ -43,7 +44,8 @@ $overlay-horizontal-padding-lg: 3em;
 	}
 
 	&.is-hidden {
-		transform: translateX( 100vw );
+		opacity: 0;
+		z-index: -9999999999999;
 	}
 
 	*,
