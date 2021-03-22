@@ -246,7 +246,9 @@ class SearchApp extends Component {
 		this.setState( { showResults }, () => {
 			if ( showResults ) {
 				this.preventBodyScroll();
-				// TODO: Figure out why this is necessary
+				// NOTE: Summoned overlay will not automatically be scrolled to the top
+				//       when used in conjuction with slideInUp animation.
+				// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
 				requestAnimationFrame( () => this.scrollOverlayToTop() );
 			} else {
 				// This codepath will only be executed in the Customizer.
