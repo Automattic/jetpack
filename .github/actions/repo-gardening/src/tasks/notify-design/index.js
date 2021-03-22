@@ -41,7 +41,7 @@ async function hasDesignReviewLabel( octokit, owner, repo, number ) {
 async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Design label.
-	return !! labels.find( label => label.match( /^\[Status\]\sNeeds\sDesign$/ ) );
+	return labels.includes( '[Status] Needs Design' );
 }
 
 /**
@@ -57,7 +57,7 @@ async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
 async function hasInputRequestedLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Design Input Requested label.
-	return !! labels.find( label => label.match( /^\[Status\]\sDesign\sInput\sRequested$/ ) );
+	return labels.includes( '[Status] Design Input Requested' );
 }
 
 /**
