@@ -118,15 +118,17 @@ async function notifyDesign( payload, octokit ) {
 		);
 	}
 
-	debug(
-		`notify-design: Adding a label to PR #${ number } to show that design input was requested.`
-	);
-	await octokit.issues.addLabels( {
-		owner: ownerLogin,
-		repo,
-		issue_number: number,
-		labels: [ '[Status] Design Input Requested' ],
-	} );
+	if ( isLabeledForDesign || isLabeledForReview ) {
+		debug(
+			`notify-design: Adding a label to PR #${ number } to show that design input was requested.`
+		);
+		await octokit.issues.addLabels( {
+			owner: ownerLogin,
+			repo,
+			issue_number: number,
+			labels: [ '[Status] Design Input Requested' ],
+		} );
+	}
 }
 
 module.exports = notifyDesign;
