@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Always adds Calypso Users menus when nav unification is enabled.

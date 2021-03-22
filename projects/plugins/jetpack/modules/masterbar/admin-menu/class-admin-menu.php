@@ -341,15 +341,15 @@ class Admin_Menu {
 	 */
 	public function add_users_menu( $wp_admin = false ) {
 		if ( current_user_can( 'list_users' ) ) {
+			// We shall add the Calypso user management & add new user screens at all cases ( Calypso & Atomic ).
+			$submenus_to_update = array(
+				'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
+				'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
+			);
 			if ( ! $wp_admin ) {
-				$submenus_to_update = array(
-					'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
-					'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
-					'profile.php'  => 'https://wordpress.com/me',
-				);
-				$this->update_submenus( 'users.php', $submenus_to_update );
+				$submenus_to_update['profile.php'] = 'https://wordpress.com/me';
 			}
-
+			$this->update_submenus( 'users.php', $submenus_to_update );
 			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		} else {
 			if ( ! $wp_admin ) {
