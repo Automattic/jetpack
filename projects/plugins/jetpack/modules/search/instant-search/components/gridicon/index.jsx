@@ -39,8 +39,9 @@ class Gridicon extends Component {
 	}
 
 	getSVGTitle( icon ) {
-		if ( this.props.title ) {
-			return <title>{ this.props.title }</title>;
+		// Enable overriding title with falsy/truthy values.
+		if ( 'title' in this.props ) {
+			return this.props.title ? <title>{ this.props.title }</title> : null;
 		}
 
 		switch ( icon ) {

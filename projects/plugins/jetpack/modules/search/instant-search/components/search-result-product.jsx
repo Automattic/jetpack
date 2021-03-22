@@ -95,7 +95,7 @@ class SearchResultProduct extends Component {
 				{ hasMatch && (
 					<div className="jetpack-instant-search__search-result-product-match">
 						<mark>
-							<Gridicon icon="search" style={ {} } />
+							<Gridicon icon="search" style={ {} } title={ false } />
 							<span>
 								{ sprintf(
 									/* Translators: the placeholder can be "content" or "comments". */
