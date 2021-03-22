@@ -10,7 +10,7 @@ inputs:
     required: true
     default: ""
   slack_design_channel:
-    description: "Slack channel where messages for the Design team will be sent"
+    description: "Slack channel ID where messages for the Design team will be sent"
     required: true
     default: ""
 runs:

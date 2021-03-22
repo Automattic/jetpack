@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+const { getInput } = require( '@actions/core' );
+
+/**
  * Internal dependencies
  */
 const debug = require( '../../debug' );
@@ -60,13 +65,23 @@ async function hasInputRequestedLabel( octokit, owner, repo, number ) {
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
- * @param {object}                    extraTokens - List of extra tokens passed to the task, including Slack tokens.
  */
-async function notifyDesign( payload, octokit, extraTokens ) {
+async function notifyDesign( payload, octokit ) {
 	const { number, repository } = payload;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;
-	const { slack_design_channel: channel, slack_token } = extraTokens;
+
+	const slackToken = getInput( 'slack_token' );
+	if ( ! slackToken ) {
+		debug( `notify-design: Input slack_token is required but missing. Aborting.` );
+		return;
+	}
+
+	const channel = getInput( 'slack_design_channel' );
+	if ( ! channel ) {
+		debug( `notify-design: Input slack_design_channel is required but missing. Aborting.` );
+		return;
+	}
 
 	// Check if design input was already requested for that PR.
 	const hasBeenRequested = await hasInputRequestedLabel( octokit, ownerLogin, repo, number );
@@ -84,7 +99,7 @@ async function notifyDesign( payload, octokit, extraTokens ) {
 		await sendSlackMessage(
 			`Someone would be interested in input from the Design team on this topic.`,
 			channel,
-			slack_token,
+			slackToken,
 			payload
 		);
 	}
@@ -98,7 +113,7 @@ async function notifyDesign( payload, octokit, extraTokens ) {
 		await sendSlackMessage(
 			`Someone is looking for a review from the design team.`,
 			channel,
-			slack_token,
+			slackToken,
 			payload
 		);
 	}

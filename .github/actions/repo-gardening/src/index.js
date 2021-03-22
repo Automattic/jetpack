@@ -55,23 +55,6 @@ const automations = [
 		return;
 	}
 
-	const slackToken = getInput( 'slack_token' );
-	if ( ! slackToken ) {
-		setFailed( 'main: Input `slack_token` is required' );
-		return;
-	}
-
-	const slackDesignChannelToken = getInput( 'slack_design_channel' );
-	if ( ! slackDesignChannelToken ) {
-		setFailed( 'main: Input `slack_design_channel` is required' );
-		return;
-	}
-
-	const extraTokens = {
-		slackToken,
-		slackDesignChannelToken,
-	};
-
 	// eslint-disable-next-line new-cap
 	const octokit = new getOctokit( token );
 
@@ -88,7 +71,7 @@ const automations = [
 		) {
 			try {
 				debug( `main: Starting task ${ task.name }` );
-				await task( eventPayload, octokit, extraTokens );
+				await task( eventPayload, octokit );
 			} catch ( error ) {
 				setFailed( `main: Task ${ task.name } failed with error: ${ error }` );
 			}
