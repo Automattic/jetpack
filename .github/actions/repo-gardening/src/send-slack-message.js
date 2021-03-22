@@ -76,11 +76,7 @@ async function sendSlackMessage( message, channel, token, payload ) {
 		},
 	} );
 
-	if ( ! slackRequest.ok ) {
-		return false;
-	}
-
-	return true;
+	return !! slackRequest.ok;
 }
 
 module.exports = sendSlackMessage;
