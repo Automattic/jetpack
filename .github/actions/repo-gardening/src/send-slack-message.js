@@ -16,8 +16,8 @@ const debug = require( './debug' );
  * @returns {Promise<boolean>} Promise resolving to a boolean, whether message was successfully posted or not.
  */
 async function sendSlackMessage( message, channel, token, payload ) {
-	const { pull_request } = payload;
-	const { html_url, title, repo, user } = pull_request;
+	const { pull_request, repository } = payload;
+	const { html_url, title, user } = pull_request;
 
 	const slackMessage = {
 		channel,
@@ -36,7 +36,7 @@ async function sendSlackMessage( message, channel, token, payload ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `PR created by ${ user.login } in the [${ repo.name }](${ repo.html_url }) repo.`,
+					text: `PR created by ${ user.login } in the [${ repository.full_name }](${ repository.html_url }) repo.`,
 				},
 			},
 			{
