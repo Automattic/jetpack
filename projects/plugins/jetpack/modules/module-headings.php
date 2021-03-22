@@ -24,7 +24,7 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
 			),
 
-			'class-jetpack-comment-likes' => array(
+			'comment-likes' => array(
 				'name' => _x( 'Comment Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Increase visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
 			),
@@ -263,7 +263,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			'Photos and Videos' => _x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Social` tag:
-			// - modules/class-jetpack-comment-likes.php
+			// - modules/comment-likes.php
 			// - modules/comments.php
 			// - modules/gravatar-hovercards.php
 			// - modules/likes.php

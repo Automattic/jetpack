@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Comment Likes
  * Module Description: Increase visitor engagement by adding a Like button to comments.
