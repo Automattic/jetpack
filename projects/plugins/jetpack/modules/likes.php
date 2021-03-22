@@ -408,12 +408,12 @@ class Jetpack_Likes {
 	}
 
 	/**
-	* Add "Likes" column data to the post edit table in wp-admin.
-	*
-	* @param string $column_name
-	* @param int $post_id
-	*/
-	function likes_edit_column( $column_name, $post_id ) {
+	 * Add "Likes" column data to the post edit table in wp-admin.
+	 *
+	 * @param string $column_name - name of the column.
+	 * @param int    $post_id - the post id.
+	 */
+	public function likes_edit_column( $column_name, $post_id ) {
 		if ( 'likes' == $column_name ) {
 
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -431,12 +431,12 @@ class Jetpack_Likes {
 	}
 
 	/**
-	* Add a "Likes" column header to the post edit table in wp-admin.
-	*
-	* @param array $columns
-	* @return array
-	*/
-	function add_like_count_column( $columns ) {
+	 * Add a "Likes" column header to the post edit table in wp-admin.
+	 *
+	 * @param array $columns - array of columns in wp-admin.
+	 * @return array $columns - column in wp-admin.
+	 */
+	public function add_like_count_column( $columns ) {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
@@ -446,11 +446,17 @@ class Jetpack_Likes {
 		return $columns;
 	}
 
-	function post_likes( $content ) {
+	/**
+	 * Append like button to content.
+	 *
+	 * @param string $content - content of the page.
+	 */
+	public function post_likes( $content ) {
 		$post_id = get_the_ID();
 
-		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() )
+		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
 			return $content;
+		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
@@ -462,11 +468,11 @@ class Jetpack_Likes {
 			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
-		// make sure to include the scripts before the iframe otherwise weird things happen
+		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
 		/**
-		* if the same post appears more then once on a page the page goes crazy
+		* If the same post appears more then once on a page the page goes crazy
 		* we need a slightly more unique id / name for the widget wrapper.
 		*/
 		$uniqid = uniqid();
@@ -486,18 +492,23 @@ class Jetpack_Likes {
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div>';
 
-		// Let's make sure that the script is enqueued
+		// Let's make sure that the script is enqueued.
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
 
 		return $content . $html;
 	}
 
-	function post_flair_service_enabled_like( $classes ) {
+	/** Adds sd-like-enabled CSS class?
+	 *
+	 * @param array $classes - CSS class for post flair, I think.
+	 */
+	public function post_flair_service_enabled_like( $classes ) {
 		$classes[] = 'sd-like-enabled';
 		return $classes;
 	}
 
-	function is_admin_bar_button_visible() {
+	/** Checks if admin bar is visible.*/
+	public function is_admin_bar_button_visible() {
 		global $wp_admin_bar;
 
 		if ( ! is_object( $wp_admin_bar ) )
@@ -524,7 +535,8 @@ class Jetpack_Likes {
 		return (bool) apply_filters( 'jetpack_admin_bar_likes_enabled', true );
 	}
 
-	function admin_bar_likes() {
+	/** Adds like section in admin bar. */
+	public function admin_bar_likes() {
 		global $wp_admin_bar;
 
 		$post_id = get_the_ID();
@@ -547,7 +559,7 @@ class Jetpack_Likes {
 			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
-		// make sure to include the scripts before the iframe otherwise weird things happen
+		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
 		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
@@ -572,6 +584,8 @@ class Jetpack_Likes {
  * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
  * When it is set to 0, we disable likes on the post, regardless of the global setting.
  * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ *
+ * @param array $post - post data we're checking.
  */
 function jetpack_post_likes_get_value( array $post ) {
 	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
@@ -579,22 +593,22 @@ function jetpack_post_likes_get_value( array $post ) {
 	/** This filter is documented in modules/jetpack-likes-settings.php */
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
-	// an empty string: post meta was not set, so go with the global setting
+	// An empty string: post meta was not set, so go with the global setting.
 	if ( "" === $post_likes_switched ) {
 		return $sitewide_likes_enabled;
 	}
 
-	// user overrode the global setting to disable likes
+	// User overrode the global setting to disable likes.
 	elseif ( "0" === $post_likes_switched ) {
 		return false;
 	}
 
-	// user overrode the global setting to enable likes
+	// User overrode the global setting to enable likes.
 	elseif ( "1" === $post_likes_switched ) {
 		return true;
 	}
 
-	// no default fallback, let's stay explicit
+	// No default fallback, let's stay explicit.
 }
 
 /**
@@ -604,6 +618,9 @@ function jetpack_post_likes_get_value( array $post ) {
  * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
  * When it is set to 0, we disable likes on the post, regardless of the global setting.
  * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ *
+ * @param bool   $enable_post_likes - checks if post likes are enabled.
+ * @param object $post_object - object containing post data.
  */
 function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
 	/** This filter is documented in modules/jetpack-likes-settings.php */
@@ -612,11 +629,11 @@ function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
 	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
 
 	if ( $should_switch_status ) {
-		// set the meta to 0 if the user wants to disable likes, 1 if user wants to enable
+		// Set the meta to 0 if the user wants to disable likes, 1 if user wants to enable.
 		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
 		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
 	} else {
-		// unset the meta otherwise
+		// Unset the meta otherwise.
 		return delete_post_meta( $post_object->ID, 'switch_like_status' );
 	}
 }
@@ -656,11 +673,11 @@ function jetpack_post_likes_register_rest_field() {
 add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
 
 // Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
-// restapi_theme_init because they depend on theme support, so let's also hook to that
+// restapi_theme_init because they depend on theme support, so let's also hook to that.
 add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
 
 /**
- * Set the Likes and Sharing Gutenberg extension availability
+ * Set the Likes and Sharing Gutenberg extension availability.
  */
 function jetpack_post_likes_set_extension_availability() {
 	Jetpack_Gutenberg::set_extension_available( 'likes' );
