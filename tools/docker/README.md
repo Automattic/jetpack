@@ -81,16 +81,6 @@ You can use the file `tools/docker/compose-extras.yml` to add mounts or alter th
 
 You can use the file `tools/docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
-### Building on M1 Macs
-
-If you're using the new [M1/Apple Silicon version of Docker](https://docs.docker.com/docker-for-mac/apple-m1/), you will need to add the following to your `tools/docker/compose-extras.yml` file to ensure a successful build:
-
-```
-services:
-  db:
-    platform: linux/x86_64
-```
-
 ## Working with containers
 
 ### Quick install WordPress
