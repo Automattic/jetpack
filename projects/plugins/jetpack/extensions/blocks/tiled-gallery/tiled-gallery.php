@@ -206,4 +206,4 @@ class Tiled_Gallery {
 }
 
 Tiled_Gallery::register();
-add_action( 'init', array( __NAMESPACE__ . '\Tiled_Gallery', 'inject_javascript_options' ) );
+add_action( 'enqueue_block_assets', array( __NAMESPACE__ . '\Tiled_Gallery', 'inject_javascript_options' ) );
