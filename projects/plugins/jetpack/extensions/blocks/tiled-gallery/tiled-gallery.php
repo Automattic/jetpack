@@ -205,4 +205,4 @@ class Tiled_Gallery {
 }
 
 Tiled_Gallery::register();
-add_action( 'init', array( 'Automattic\Jetpack\Extensions\Tiled_Gallery', 'inject_javascript_options' ) );
+add_action( 'init', array( __NAMESPACE__ . '\Tiled_Gallery', 'inject_javascript_options' ) );
