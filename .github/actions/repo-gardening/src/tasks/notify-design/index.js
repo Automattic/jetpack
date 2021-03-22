@@ -25,7 +25,7 @@ const sendSlackMessage = require( '../../send-slack-message' );
 async function hasDesignReviewLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Design Review label.
-	return !! labels.find( label => label.match( /^\[Status\]\sNeeds\sDesign\sReview$/ ) );
+	return labels.includes( '[Status] Needs Design Review' );
 }
 
 /**
