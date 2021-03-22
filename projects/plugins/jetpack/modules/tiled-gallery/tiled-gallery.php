@@ -295,4 +295,4 @@ class Jetpack_Tiled_Gallery {
 	}
 }
 
-add_action( 'init', array( 'Jetpack_Tiled_Gallery', 'init' ) );
+add_action( 'enqueue_block_assets', array( 'Jetpack_Tiled_Gallery', 'init' ) );
