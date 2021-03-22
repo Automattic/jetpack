@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "69b94231de9ccb5b0c244bf05b985c6eacc874ba"
+                "reference": "ae11a2161c4a3b72cfd2dce8e76f820c99fb1937"
             },
             "require": {
                 "php": ">=5.6",
@@ -30,6 +30,7 @@
             ],
             "type": "project",
             "extra": {
+                "autotagger": true,
                 "branch-alias": {
                     "dev-master": "1.1.x-dev"
                 },
