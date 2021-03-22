@@ -15,7 +15,7 @@ export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
 }
 
-const SERVER_OBJECT_NAME = 'JetpackTiledGalleryOptions';
+const SERVER_OBJECT_NAME = 'JetpackWoAData';
 
 /**
  * Build src and srcSet properties which can be used on an <img />

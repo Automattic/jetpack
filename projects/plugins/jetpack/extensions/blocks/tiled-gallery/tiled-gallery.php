@@ -47,9 +47,9 @@ class Tiled_Gallery {
 	}
 
 	/**
-	 * Registers inline scripts which populate `window.JetpackTiledGalleryOptions` in Javascript.
-	 *   window.JetpackTiledGalleryOptions.isAtomicSite (Boolean)  - Is the site atomic?
-	 *   window.JetpackTiledGalleryOptions.isPrivateSite (Boolean) - Is the site private?
+	 * Registers inline scripts which populate `window.JetpackWoAData` in Javascript.
+	 *   window.JetpackWoAData.isAtomicSite (Boolean)  - Is the site atomic?
+	 *   window.JetpackWoAData.isPrivateSite (Boolean) - Is the site private?
 	 *
 	 * @return void
 	 **/
@@ -61,7 +61,7 @@ class Tiled_Gallery {
 			// ################################### WARNING #####################################.
 			'isPrivateSite' => '-1' === get_option( 'blog_public' ),
 		);
-		wp_add_inline_script( 'jetpack-blocks-editor', 'var JetpackTiledGalleryOptions = JSON.parse( decodeURIComponent( "' . rawurlencode( wp_json_encode( $options ) ) . '" ) );' );
+		wp_add_inline_script( 'jetpack-blocks-editor', 'var JetpackWoAData = JSON.parse( decodeURIComponent( "' . rawurlencode( wp_json_encode( $options ) ) . '" ) );' );
 	}
 
 	/**
