@@ -66,7 +66,7 @@ jobs:
 
       - name: Building Action
         run: npm install
-        working-directory: ./.github/actions/repo-gardening
+        working-directory: ./projects/github-actions/repo-gardening
 
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
@@ -74,6 +74,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
-        uses: ./.github/actions/repo-gardening
+        uses: ./projects/github-actions/repo-gardening
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
