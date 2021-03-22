@@ -5,6 +5,14 @@ inputs:
     description: "GitHub access token"
     required: true
     default: ""
+  slack_token:
+    description: "Slack Bot access token"
+    required: true
+    default: ""
+  slack_design_channel:
+    description: "Slack channel where messages for the Design team will be sent"
+    required: true
+    default: ""
 runs:
   using: node12
   main: "src/index.js"
