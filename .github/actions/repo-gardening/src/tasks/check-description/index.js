@@ -236,7 +236,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 			) + '/';
 		const found = files.find( file => file.startsWith( changelogDir ) );
 		if ( ! found ) {
-			acc.push( project );
+			acc.push( `projects/${ project }` );
 		}
 		return acc;
 	}, [] );
