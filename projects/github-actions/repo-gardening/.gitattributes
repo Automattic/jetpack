@@ -1,0 +1,4 @@
+/changelog/**    production-exclude
+/.gitattributes  production-exclude
+/.gitignore      production-exclude
+/yarn.lock       production-exclude export-ignore
