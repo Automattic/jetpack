@@ -224,11 +224,6 @@ class SearchApp extends Component {
 		);
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-		this.preventBodyScroll();
-	};
-
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -241,11 +236,14 @@ class SearchApp extends Component {
 		);
 	};
 
+	// Used for showResults and Customizer integration.
 	toggleResults = showResults => {
 		this.setState( { showResults }, () => {
 			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
 		} );
 	};
+
+	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
