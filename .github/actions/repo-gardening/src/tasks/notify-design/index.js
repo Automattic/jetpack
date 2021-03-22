@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-const { getInput } = require( '@actions/core' );
+const { getInput, setFailed } = require( '@actions/core' );
 
 /**
  * Internal dependencies
@@ -73,13 +73,13 @@ async function notifyDesign( payload, octokit ) {
 
 	const slackToken = getInput( 'slack_token' );
 	if ( ! slackToken ) {
-		debug( `notify-design: Input slack_token is required but missing. Aborting.` );
+		setFailed( `notify-design: Input slack_token is required but missing. Aborting.` );
 		return;
 	}
 
 	const channel = getInput( 'slack_design_channel' );
 	if ( ! channel ) {
-		debug( `notify-design: Input slack_design_channel is required but missing. Aborting.` );
+		setFailed( `notify-design: Input slack_design_channel is required but missing. Aborting.` );
 		return;
 	}
 
