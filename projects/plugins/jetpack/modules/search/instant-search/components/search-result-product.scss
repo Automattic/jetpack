@@ -90,6 +90,18 @@ $item-spacing: 16px;
 	margin: 0.25em 0 0;
 }
 
-.jetpack-instant-search__search-result-product-content {
-	word-wrap: break-word; // Use overflow-wrap once IE11 support is deprecated.
+.jetpack-instant-search__search-result-product-match {
+	font-size: 0.9em;
+	margin-top: 0.25em;
+
+	mark {
+		display: flex;
+		align-items: center;
+	}
+
+	.gridicon {
+		height: 1em;
+		width: 1em;
+		margin-right: 0.25em;
+	}
 }

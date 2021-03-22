@@ -4,12 +4,11 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import SearchResultComments from './search-result-comments';
 import Gridicon from './gridicon';
 import PhotonImage from './photon-image';
 import ProductRatings from './product-ratings';
@@ -91,15 +90,18 @@ class SearchResultProduct extends Component {
 						rating={ fields[ 'meta._wc_average_rating.double' ] }
 					/>
 				) }
-				<div
-					className="jetpack-instant-search__search-result-product-content"
-					//eslint-disable-next-line react/no-danger
-					dangerouslySetInnerHTML={ {
-						__html: highlight.content.join( ' ... ' ),
-					} }
-				/>
-
-				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
+				<div className="jetpack-instant-search__search-result-product-match">
+					<mark>
+						<Gridicon icon="search" style={ {} } />
+						<span>
+							{ sprintf(
+								/* Translators: the placeholder can be "content" or "comments". */
+								__( 'Keyword found in %s', 'jetpack' ),
+								'comment' in highlight ? __( 'comments', 'jetpack' ) : __( 'content', 'jetpack' )
+							) }
+						</span>
+					</mark>
+				</div>
 			</li>
 		);
 	}
