@@ -61,8 +61,7 @@ class Tiled_Gallery {
 			// ################################### WARNING #####################################.
 			'isPrivateSite' => '-1' === get_option( 'blog_public' ),
 		);
-		wp_register_script( 'tiled-gallery-options', '', array(), 'v0.0-inline', true );
-		wp_enqueue_script( 'tiled-gallery-options' );
+		wp_enqueue_script( 'tiled-gallery-options', '', array(), 'v0.0-inline', true );
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
 		wp_add_inline_script( 'tiled-gallery-options', 'var JetpackTiledGalleryOptions = JSON.parse( decodeURIComponent( "' . rawurlencode( wp_json_encode( $options ) ) . '" ) );' );
 	}
