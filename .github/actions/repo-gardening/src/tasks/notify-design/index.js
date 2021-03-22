@@ -22,7 +22,7 @@ const sendSlackMessage = require( '../../send-slack-message' );
  *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
-async function hasDesignReviewLabel( octokit, owner, repo, number ) {
+async function hasNeedsDesignReviewLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Needs Design Review label.
 	return labels.includes( '[Status] Needs Design Review' );
@@ -54,7 +54,7 @@ async function hasNeedsDesignLabel( octokit, owner, repo, number ) {
  *
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
-async function hasInputRequestedLabel( octokit, owner, repo, number ) {
+async function hasDesignInputRequestedLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in the Design Input Requested label.
 	return labels.includes( '[Status] Design Input Requested' );
