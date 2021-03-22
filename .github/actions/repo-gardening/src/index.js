@@ -12,6 +12,7 @@ const addMilestone = require( './tasks/add-milestone' );
 const addLabels = require( './tasks/add-labels' );
 const checkDescription = require( './tasks/check-description' );
 const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
+const notifyDesign = require( './tasks/notify-design' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
 const ifNotClosed = require( './if-not-closed' );
@@ -37,6 +38,11 @@ const automations = [
 		task: ifNotClosed( checkDescription ),
 	},
 	{
+		event: 'pull_request',
+		action: [ 'labeled' ],
+		task: ifNotClosed( notifyDesign ),
+	},
+	{
 		event: 'push',
 		task: wpcomCommitReminder,
 	},
@@ -48,6 +54,23 @@ const automations = [
 		setFailed( 'main: Input `github_token` is required' );
 		return;
 	}
+
+	const slackToken = getInput( 'slack_token' );
+	if ( ! slackToken ) {
+		setFailed( 'main: Input `slack_token` is required' );
+		return;
+	}
+
+	const slackDesignChannelToken = getInput( 'slack_design_channel' );
+	if ( ! slackDesignChannelToken ) {
+		setFailed( 'main: Input `slack_design_channel` is required' );
+		return;
+	}
+
+	const extraTokens = {
+		slackToken,
+		slackDesignChannelToken,
+	};
 
 	// eslint-disable-next-line new-cap
 	const octokit = new getOctokit( token );
@@ -65,7 +88,7 @@ const automations = [
 		) {
 			try {
 				debug( `main: Starting task ${ task.name }` );
-				await task( eventPayload, octokit );
+				await task( eventPayload, octokit, extraTokens );
 			} catch ( error ) {
 				setFailed( `main: Task ${ task.name } failed with error: ${ error }` );
 			}
