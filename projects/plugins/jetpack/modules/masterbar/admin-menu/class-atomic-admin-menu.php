@@ -58,6 +58,24 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Forces Posts menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_posts_menu` in parent class.
+	 *
+	 * @return void
+	 */
+	public function add_posts_menu() {
+		return;
+	}
+
+	/**
+	 * Forces Pages menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_page_menu` in parent class.
+	 */
+	public function add_page_menu() {
+		return;
+	}
+
+	/**
 	 * Adds Plugins menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
