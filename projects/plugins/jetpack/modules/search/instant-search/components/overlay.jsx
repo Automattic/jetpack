@@ -34,6 +34,7 @@ const Overlay = props => {
 
 	return (
 		<div
+			aria-hidden={ ! isVisible }
 			aria-labelledby="jetpack-instant-search__overlay-title"
 			className={ [
 				'jetpack-instant-search',
