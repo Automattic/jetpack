@@ -17,6 +17,7 @@ import stringify from 'fast-json-stable-stringify';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
@@ -140,6 +141,10 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
+	scrollOverlayToTop() {
+		document.querySelector( `.${ OVERLAY_CLASS_NAME }` ).scrollTo( 0, 0, { smooth: true } );
+	}
+
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
@@ -239,7 +244,14 @@ class SearchApp extends Component {
 	// Used for showResults and Customizer integration.
 	toggleResults = showResults => {
 		this.setState( { showResults }, () => {
-			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
+			if ( showResults ) {
+				this.preventBodyScroll();
+				// TODO: Figure out why this is necessary
+				requestAnimationFrame( () => this.scrollOverlayToTop() );
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
 		} );
 	};
 
