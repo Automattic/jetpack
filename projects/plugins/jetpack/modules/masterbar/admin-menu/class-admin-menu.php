@@ -347,7 +347,7 @@ class Admin_Menu {
 				'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
 			);
 			if ( ! $wp_admin ) {
-				$submenus_to_update = array_merge( $submenus_to_update, array( 'profile.php' => 'https://wordpress.com/me' ) );
+				$submenus_to_update['profile.php'] = 'https://wordpress.com/me';
 			}
 			$this->update_submenus( 'users.php', $submenus_to_update );
 			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
