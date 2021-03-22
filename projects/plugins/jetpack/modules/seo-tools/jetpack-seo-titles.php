@@ -301,6 +301,8 @@ class Jetpack_SEO_Titles {
 	 * @return array $result Array of updated title formats, or empty array if no update was performed.
 	 */
 	public static function update_title_formats( $new_formats ) {
+		$new_formats = self::sanitize_title_formats( $new_formats );
+
 		// Empty array signals that custom title shouldn't be used.
 		$empty_formats = array(
 			'front_page' => array(),
