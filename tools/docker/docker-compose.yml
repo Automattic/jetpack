@@ -12,6 +12,7 @@ services:
   db:
     container_name: jetpack_mysql
     image: mysql:5.7
+    platform: linux/x86_64
     volumes:
       - ./data/mysql:/var/lib/mysql
       - ./logs/mysql:/var/log/mysql
