@@ -38,12 +38,13 @@ class Jetpack_Likes {
 		return $instance;
 	}
 
-	function __construct() {
+	/** Constructs Likes class */
+	public function __construct() {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings = new Jetpack_Likes_Settings();
 
 		// We need to run on wp hook rather than init because we check is_amp_endpoint()
-		// when bootstrapping hooks
+		// when bootstrapping hooks.
 		add_action( 'wp', array( &$this, 'action_init' ), 99 );
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -102,10 +103,8 @@ class Jetpack_Likes {
 	 * Set the social_notifications_like option to `on` when the Likes module is activated.
 	 *
 	 * @since 3.7.0
-	 *
-	 * @return null
 	 */
-	function set_social_notifications_like() {
+	public function set_social_notifications_like() {
 		update_option( 'social_notifications_like', 'on' );
 	}
 
@@ -113,13 +112,10 @@ class Jetpack_Likes {
 	 * Delete the social_notifications_like option that was set to `on` on module activation.
 	 *
 	 * @since 3.7.0
-	 *
-	 * @return null
 	 */
-	function delete_social_notifications_like() {
+	public function delete_social_notifications_like() {
 		delete_option( 'social_notifications_like' );
 	}
-
 
 	/**
 	 * Overrides default configuration url
@@ -127,38 +123,38 @@ class Jetpack_Likes {
 	 * @uses admin_url
 	 * @return string module settings URL
 	 */
-	function jetpack_likes_configuration_url() {
+	public function jetpack_likes_configuration_url() {
 		return admin_url( 'options-general.php?page=sharing#likes' );
 	}
 
 	/**
 	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
 	 */
-	function load_jp_css() {
-		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
-		// Jetpack::init()->admin_styles();
+	public function load_jp_css() {
+		/**
+		* Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
+		* Jetpack::init()->admin_styles();
+		*/
 	}
 
 	/**
 	 * Load scripts and styles for front end.
-	 * @return null
 	 */
-	function load_styles_register_scripts() {
+	public function load_styles_register_scripts() {
 		if ( $this->in_jetpack ) {
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 			$this->register_scripts();
 		}
 	}
 
-
 	/**
-     * Stub for is_post_likeable, since some wpcom functions call this directly on the class
+	 * Stub for is_post_likeable, since some wpcom functions call this directly on the class
 	 * Are likes enabled for this post?
-     *
-     * @param int $post_id
-     * @return bool
+	 *
+	 * @param int $post_id - id of the post.
+	 * @return bool
 	 */
-	static function is_post_likeable( $post_id = 0 ) {
+	public static function is_post_likeable( $post_id = 0 ) {
 		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
 		$settings = new Jetpack_Likes_Settings();
 		return $settings->is_post_likeable( $post_id );
@@ -170,7 +166,7 @@ class Jetpack_Likes {
 	 * @deprecated 5.4
 	 * @return bool
 	 */
-	function is_likes_visible() {
+	public function is_likes_visible() {
 		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_likes_visible' );
 
 		$settings = new Jetpack_Likes_Settings();
@@ -179,29 +175,30 @@ class Jetpack_Likes {
 
 	/**
 	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
-	 * @param  string $html row heading for the sharedaddy "which page" setting
-	 * @return string       html with the jetpack-targetable class and likes id. tbody gets closed after the like settings
+	 *
+	 * @param string $html row heading for the sharedaddy "which page" setting.
+	 * @return string $html with the jetpack-targetable class and likes id. tbody gets closed after the like settings
 	 */
-	function configuration_target_area( $html = '' ) {
+	public function configuration_target_area( $html = '' ) {
 		$html = "<tbody id='likes' class='jetpack-targetable'>" . $html;
 		return $html;
 	}
 
 	/**
-	  * Options to be added to the discussion page (see also admin_settings_init, etc below for Sharing settings page)
-	  */
-
-	function admin_discussion_likes_settings_init() {
-		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings
+	 * Options to be added to the discussion page (see also admin_settings_init, etc below for Sharing settings page)
+	 */
+	public function admin_discussion_likes_settings_init() {
+		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings.
 		add_settings_section( 'likes-notifications', __( 'Likes Notifications', 'jetpack' ), array( $this, 'admin_discussion_likes_settings_section' ), 'discussion' );
 		add_settings_field( 'social-notifications', __( 'Email me whenever', 'jetpack' ), array( $this, 'admin_discussion_likes_settings_field' ), 'discussion', 'likes-notifications' );
-		// Register the setting
+		// Register the setting.
 		register_setting( 'discussion', 'social_notifications_like', array( $this, 'admin_discussion_likes_settings_validate' ) );
 	}
 
-	function admin_discussion_likes_settings_section() {
-		// Atypical usage here.  We emit jquery to move likes notification checkbox to be with the rest of the email notification settings
-?>
+	/** Add email notification options to WordPress discussion settings */
+	public function admin_discussion_likes_settings_section() {
+		// Atypical usage here.  We emit jquery to move likes notification checkbox to be with the rest of the email notification settings.
+		?>
 	<script type="text/javascript">
 	jQuery( function( $ )  {
 		var table = $( '#social_notifications_like' ).parents( 'table:first' ),
@@ -217,10 +214,14 @@ class Jetpack_Likes {
 		table.remove();
 	} );
 	</script>
-<?php
+		<?php
 	}
 
-	function admin_likes_get_option( $option ) {
+	/** Check if email notifications for likes is on or off.
+	 *
+	 * @param string $option - which option we're checking (social_notifications_like).
+	 */
+	public function admin_likes_get_option( $option ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$option_setting = get_blog_option( get_current_blog_id(), $option, 'on' );
 		} else {
@@ -230,41 +231,49 @@ class Jetpack_Likes {
 		return (int) ( 'on' == $option_setting );
 	}
 
-	function admin_discussion_likes_settings_field() {
+	/** Display email notification for likes setting in WordPress' discussion settings. */
+	public function admin_discussion_likes_settings_field() {
 		$like = $this->admin_likes_get_option( 'social_notifications_like' );
-?>
+		?>
 		<label><input type="checkbox" id="social_notifications_like" name="social_notifications_like" value="1" <?php checked( $like ); ?> /> <?php esc_html_e( 'Someone likes one of my posts', 'jetpack' ); ?></label>
-<?php
+		<?php
 	}
 
-	function admin_discussion_likes_settings_validate( $input ) {
+	/**
+	 * Validate email notification settings.
+	 *
+	 * @param string $input - determines if checbox is on or off.
+	 */
+	public function admin_discussion_likes_settings_validate( $input ) {
 		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
-		if ( !$input || 'off' == $input )
+		if ( ! $input || 'off' === $input ) {
 			return 'off';
-
-		// Otherwise, return 'on'.
+		}
+		// Otherwise return 'on'.
 		return 'on';
 	}
 
-	function admin_init() {
+	/** Initialize admin settings */
+	public function admin_init() {
 		add_filter( 'manage_posts_columns', array( $this, 'add_like_count_column' ) );
 		add_filter( 'manage_pages_columns', array( $this, 'add_like_count_column' ) );
 		add_action( 'manage_posts_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
 		add_action( 'manage_pages_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
-		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_print_scripts-edit.php', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
-	function action_init() {
+	/** Initialize action */
+	public function action_init() {
 		if ( is_admin() || ! $this->settings->is_likes_visible() ) {
 			return;
 		}
 
 		if ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ||
-			 ( defined( 'APP_REQUEST' ) && APP_REQUEST ) ||
-			 ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
-			 ( defined( 'COOKIE_AUTH_REQUEST' ) && COOKIE_AUTH_REQUEST ) ||
-			 ( defined( 'JABBER_SERVER' ) && JABBER_SERVER ) ) {
+			( defined( 'APP_REQUEST' ) && APP_REQUEST ) ||
+			( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
+			( defined( 'COOKIE_AUTH_REQUEST' ) && COOKIE_AUTH_REQUEST ) ||
+			( defined( 'JABBER_SERVER' ) && JABBER_SERVER ) ) {
 			return;
 		}
 
@@ -291,9 +300,9 @@ class Jetpack_Likes {
 	}
 
 	/**
-	* Register scripts
-	*/
-	function register_scripts() {
+	 * Register scripts.
+	 */
+	public function register_scripts() {
 		wp_register_script(
 			'postmessage',
 			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
@@ -324,10 +333,10 @@ class Jetpack_Likes {
 	}
 
 	/**
-	* Load the CSS needed for the wp-admin area.
-	*/
-	function load_admin_css() {
-	?>
+	 * Load the CSS needed for the wp-admin area.
+	 */
+	public function load_admin_css() {
+		?>
 		<style type="text/css">
 			.vers img { display: none; }
 			.metabox-prefs .vers img { display: inline; }
@@ -367,9 +376,9 @@ class Jetpack_Likes {
 	}
 
 	/**
-	* Load the JS required for loading the like counts.
-	*/
-	function enqueue_admin_scripts() {
+	 * Load the JS required for loading the like counts.
+	 */
+	public function enqueue_admin_scripts() {
 		if ( empty( $_GET['post_type'] ) || 'post' == $_GET['post_type'] || 'page' == $_GET['post_type'] ) {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
