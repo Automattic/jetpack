@@ -3,8 +3,9 @@
  */
 import chalk from 'chalk';
 import child_process from 'child_process';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+import process from 'process';
 
 /**
  * Internal dependencies
@@ -66,6 +67,7 @@ export async function changeloggerCli( argv ) {
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
 		console.error( chalk.red( `Something went wrong! Exit Code: ${ data.status }` ), data.error );
+		process.exit( data.status );
 	} else {
 		console.log( chalkJetpackGreen( `Changelog for ${ argv.project } added successfully!` ) );
 	}
