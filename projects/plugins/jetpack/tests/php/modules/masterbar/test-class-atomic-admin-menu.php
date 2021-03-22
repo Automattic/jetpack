@@ -365,7 +365,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$submenu = static::$submenu_data;
 
 		static::$admin_menu->add_users_menu( true );
-		$this->assertArrayNotHasKey( 2, $submenu['users.php'] );
+
+		$this->assertArrayHasKey( 2, $submenu['users.php'] );
 	}
 
 	/**
