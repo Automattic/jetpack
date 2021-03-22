@@ -10,6 +10,7 @@ const { context, getOctokit } = require( '@actions/github' );
 const assignIssues = require( './tasks/assign-issues' );
 const addMilestone = require( './tasks/add-milestone' );
 const addLabels = require( './tasks/add-labels' );
+const cleanLabels = require( './tasks/clean-labels' );
 const checkDescription = require( './tasks/check-description' );
 const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
 const debug = require( './debug' );
@@ -30,6 +31,10 @@ const automations = [
 		event: 'pull_request',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
 		task: ifNotClosed( addLabels ),
+	},
+	{
+		event: 'push',
+		task: cleanLabels,
 	},
 	{
 		event: 'pull_request',
