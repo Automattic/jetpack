@@ -66,7 +66,9 @@ export async function changeloggerCli( argv ) {
 
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
-		console.error( chalk.red( `Something went wrong! Exit Code: ${ data.status }` ), data.error );
+		console.error(
+			chalk.red( `Changelogger failed to execute command. Please see error above for more info.` )
+		);
 		process.exit( data.status );
 	} else {
 		console.log( chalkJetpackGreen( `Changelog for ${ argv.project } added successfully!` ) );
