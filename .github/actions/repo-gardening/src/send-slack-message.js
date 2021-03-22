@@ -3,11 +3,6 @@
  */
 const fetch = require( 'node-fetch' );
 
-/**
- * Internal dependencies
- */
-const debug = require( './debug' );
-
 /* global WebhookPayloadPullRequest */
 
 /**
@@ -41,7 +36,7 @@ async function sendSlackMessage( message, channel, token, payload ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `PR created by ${ user.login } in the [${ repository.full_name }](${ repository.html_url }) repo.`,
+					text: `PR created by ${ user.login } in the <${ repository.html_url }|${ repository.full_name }> repo.`,
 				},
 			},
 			{
@@ -51,7 +46,7 @@ async function sendSlackMessage( message, channel, token, payload ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `[${ title }](${ html_url })`,
+					text: `<${ html_url }|${ title }>`,
 				},
 				accessory: {
 					type: 'button',
@@ -66,7 +61,7 @@ async function sendSlackMessage( message, channel, token, payload ) {
 				},
 			},
 		],
-		text: `${ message } -- [${ title }](${ html_url })`, // Fallback text for display in notifications.
+		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
 		mrkdwn: true, // Formatting of the fallback text.
 	};
 
@@ -80,8 +75,6 @@ async function sendSlackMessage( message, channel, token, payload ) {
 			Accept: 'application/json',
 		},
 	} );
-
-	debug( `send-slack-message: response: ${ JSON.stringify( slackRequest ) }` );
 
 	if ( ! slackRequest.ok ) {
 		return false;
