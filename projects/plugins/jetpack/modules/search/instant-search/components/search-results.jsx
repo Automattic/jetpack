@@ -62,11 +62,11 @@ class SearchResults extends Component {
 				return __( 'Loading popular results…', 'jetpack' );
 			}
 
-			return sprintf( __( 'Searching…', 'jetpack' ), this.props.query );
+			return __( 'Searching…', 'jetpack' );
 		}
 
 		if ( total === 0 || this.props.hasError ) {
-			return sprintf( __( 'No results found', 'jetpack' ), this.props.query );
+			return __( 'No results found', 'jetpack' );
 		}
 
 		if ( hasQuery && hasCorrectedQuery ) {
