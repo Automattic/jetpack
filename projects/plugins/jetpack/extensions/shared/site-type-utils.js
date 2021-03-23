@@ -11,7 +11,7 @@ import getJetpackData from './get-jetpack-data';
 /**
  * Get the site type from environment
  *
- * @return {(string|null)} Site type
+ * @returns {(string|null)} Site type
  */
 function getSiteType() {
 	return 'object' === typeof window && typeof window._currentSiteType === 'string'
@@ -22,7 +22,7 @@ function getSiteType() {
 /**
  * Check if environment is Simple site.
  *
- * @return {boolean} True for Simple sites.
+ * @returns {boolean} True for Simple sites.
  */
 export function isSimpleSite() {
 	return getSiteType() === 'simple';
@@ -31,7 +31,7 @@ export function isSimpleSite() {
 /**
  * Check if environment is Atomic site.
  *
- * @return {boolean} True for Atomic sites.
+ * @returns {boolean} True for Atomic sites.
  */
 export function isAtomicSite() {
 	return getSiteType() === 'atomic';
