@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { InPlaceConnection } from '@automattic/jetpack-connection';
+import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/helpers';
 
 /**
  * Internal dependencies
@@ -53,6 +54,8 @@ export class AuthIframe extends React.Component {
 		this.props.onAuthorized();
 	};
 
+	onThirdPartyCookiesBlocked = () => thirdPartyCookiesFallbackHelper( this.props.connectUrl );
+
 	render = () => {
 		return (
 			<InPlaceConnection
@@ -65,6 +68,7 @@ export class AuthIframe extends React.Component {
 				scrollToIframe={ this.props.scrollToIframe }
 				onComplete={ this.onComplete }
 				source={ this.props.source }
+				onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
 			/>
 		);
 	};

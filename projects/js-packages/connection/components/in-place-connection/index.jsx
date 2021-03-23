@@ -22,6 +22,7 @@ import './style.scss';
  * @param {boolean} props.scrollToIframe -- Whether we need to auto-scroll the window upon element rendering.
  * @param {string} props.connectUrl -- The connection URL.
  * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
+ * @param {Function} props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
  * @param {string} props.source -- Component location identifier passed to WP.com.
  *
  * @returns {React.Component} The in-place connection component.
@@ -35,6 +36,7 @@ const InPlaceConnection = props => {
 		scrollToIframe,
 		connectUrl,
 		onComplete,
+		onThirdPartyCookiesBlocked,
 		source,
 	} = props;
 	let { height } = props;
@@ -57,8 +59,10 @@ const InPlaceConnection = props => {
 				}
 				break;
 			case 'wpcom_nocookie':
-				// Third-party cookies blocked. Let's redirect.
-				window.location.replace( connectUrl );
+				// Third-party cookies blocked.
+				if ( onThirdPartyCookiesBlocked ) {
+					onThirdPartyCookiesBlocked();
+				}
 				break;
 		}
 	};
@@ -115,6 +119,7 @@ InPlaceConnection.propTypes = {
 	hasConnectedOwner: PropTypes.bool.isRequired,
 	scrollToIframe: PropTypes.bool,
 	onComplete: PropTypes.func,
+	onThirdPartyCookiesBlocked: PropTypes.func,
 	source: PropTypes.string,
 };
 
