@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs-ignore.
 /**
  * Module Name: Likes
  * Module Description: Give visitors an easy way to show they appreciate your content.
@@ -9,6 +9,8 @@
  * Module Tags: Social
  * Feature: Engagement
  * Additional Search Queries: like, likes, wordpress.com
+ *
+ * @package automattic/Jetpack
  */
 
 use Automattic\Jetpack\Assets;
@@ -24,10 +26,13 @@ Assets::add_resource_hint(
 	'dns-prefetch'
 );
 
-include_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-include_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
+require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
+require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
 
+/** Jetpack Like Class */
 class Jetpack_Likes {
+
+	/** Initialize class */
 	public static function init() {
 		static $instance = NULL;
 
@@ -41,7 +46,7 @@ class Jetpack_Likes {
 	/** Constructs Likes class */
 	public function __construct() {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
-		$this->settings = new Jetpack_Likes_Settings();
+		$this->settings   = new Jetpack_Likes_Settings();
 
 		// We need to run on wp hook rather than init because we check is_amp_endpoint()
 		// when bootstrapping hooks.
@@ -50,7 +55,7 @@ class Jetpack_Likes {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
-			add_action( 'jetpack_activate_module_likes',   array( $this, 'set_social_notifications_like' ) );
+			add_action( 'jetpack_activate_module_likes', array( $this, 'set_social_notifications_like' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
@@ -60,18 +65,18 @@ class Jetpack_Likes {
 
 			$active = Jetpack::get_active_modules();
 
-			if ( ! in_array( 'sharedaddy', $active ) && ! in_array( 'publicize', $active ) ) {
-				// we don't have a sharing page yet
+			if ( ! in_array( 'sharedaddy', $active, true ) && ! in_array( 'publicize', $active, true ) ) {
+				// we don't have a sharing page yet.
 				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
 			}
 
-			if ( in_array( 'publicize', $active ) && ! in_array( 'sharedaddy', $active ) ) {
-				// we have a sharing page but not the global options area
+			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+				// we have a sharing page but not the global options area.
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if( ! in_array( 'sharedaddy', $active ) ) {
+			if ( ! in_array( 'sharedaddy', $active, true ) ) {
 				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
@@ -80,14 +85,14 @@ class Jetpack_Likes {
 				add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
 				add_action( 'start_sharing_meta_box_content', array( $this->settings, 'meta_box_content' ) );
 			}
-		} else { // wpcom
+		} else { // wpcom.
 			add_action( 'wpmu_new_blog', array( $this, 'enable_comment_likes' ), 10, 1 );
 			add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
 			add_action( 'end_likes_meta_box_content', array( $this->settings, 'sharing_meta_box_content' ) );
 			add_filter( 'likes_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
 		}
 
-		add_action( 'admin_init', array( $this, 'admin_discussion_likes_settings_init' ) ); // Likes notifications
+		add_action( 'admin_init', array( $this, 'admin_discussion_likes_settings_init' ) ); // Likes notifications.
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_likes' ), 60 );
 
@@ -96,7 +101,7 @@ class Jetpack_Likes {
 		add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
 		add_action( 'edit_attachment', array( $this->settings, 'meta_box_save' ) );
 		add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_init' ), 20 );
-		add_action( 'sharing_admin_update',   array( $this->settings, 'admin_settings_callback' ), 20 );
+		add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_callback' ), 20 );
 	}
 
 	/**
@@ -228,7 +233,7 @@ class Jetpack_Likes {
 			$option_setting = get_option( $option, 'on' );
 		}
 
-		return (int) ( 'on' == $option_setting );
+		return (int) ( 'on' === $option_setting );
 	}
 
 	/** Display email notification for likes setting in WordPress' discussion settings. */
