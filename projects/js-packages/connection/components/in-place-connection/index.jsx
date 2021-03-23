@@ -81,6 +81,10 @@ const InPlaceConnection = props => {
 	// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
 	let src = connectUrl.replace( 'authorize/', 'authorize_iframe/' );
 
+	if ( ! src.includes( '?' ) ) {
+		src += '?';
+	}
+
 	if ( displayTOS ) {
 		src += '&display-tos';
 		height = ( parseInt( height ) + 50 ).toString();
