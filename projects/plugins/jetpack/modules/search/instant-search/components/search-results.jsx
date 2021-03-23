@@ -53,7 +53,7 @@ class SearchResults extends Component {
 
 	getSearchTitle() {
 		const { total = 0, corrected_query = false } = this.props.response;
-		const hasQuery = this.props.query !== '';
+		const hasQuery = this.props.searchQuery !== '';
 		const hasCorrectedQuery = corrected_query !== false;
 		const num = new Intl.NumberFormat().format( total );
 
@@ -79,7 +79,7 @@ class SearchResults extends Component {
 			return sprintf(
 				_n( 'Found %s result', 'Found %s results', total, 'jetpack' ),
 				num,
-				this.props.query
+				this.props.searchQuery
 			);
 		}
 
@@ -137,10 +137,10 @@ class SearchResults extends Component {
 								index={ index }
 								isPhotonEnabled={ this.props.isPhotonEnabled }
 								locale={ this.props.locale }
-								query={ this.props.query }
 								railcar={ this.props.isVisible ? result.railcar : null }
 								result={ result }
 								resultFormat={ this.props.resultFormat }
+								searchQuery={ this.props.searchQuery }
 							/>
 						) ) }
 					</ol>
