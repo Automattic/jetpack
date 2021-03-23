@@ -5,10 +5,14 @@
  * @package automattic/jetpack
  */
 
+// Dummy comment so phpcs sees the above as a file doc comment.
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 /**
  * Test class for the Mixcloud shortcode.
  */
 class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * Runs before every test

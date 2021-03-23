@@ -469,7 +469,6 @@
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.googlemaps.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.gravatar.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.hulu.php",
-	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.inline-pdf.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.instagram.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.kickstarter.php",
 	"projects/plugins/jetpack/tests/php/modules/shortcodes/test-class.mailchimp.php",

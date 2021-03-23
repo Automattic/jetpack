@@ -60,5 +60,5 @@ jobs:
         run: |
           which jq
           jq --version
-      - run: .github/files/check-monorepo-package-versions.sh
+      - run: tools/check-composer-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh

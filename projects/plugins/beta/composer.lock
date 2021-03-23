@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "dff2b641a296f469289f9e9ce09c958665e1e528"
+                "reference": "ae11a2161c4a3b72cfd2dce8e76f820c99fb1937"
             },
             "require": {
                 "php": ">=5.6",
@@ -30,6 +30,7 @@
             ],
             "type": "project",
             "extra": {
+                "autotagger": true,
                 "branch-alias": {
                     "dev-master": "1.1.x-dev"
                 },
@@ -55,11 +56,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [

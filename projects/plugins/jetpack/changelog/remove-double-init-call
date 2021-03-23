@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Revome the later Jetpack::init call.
