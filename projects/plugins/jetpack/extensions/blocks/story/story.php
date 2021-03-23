@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Story;
 
 use Automattic\Jetpack\Blocks;
+use Jetpack;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'story';
@@ -72,12 +73,12 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 			} else {
 				$video_meta = wp_get_attachment_metadata( $attachment_id );
-				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['width'] ) ) {
+				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['height'] ) ) {
 					return $media_file;
 				}
 				$url         = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
 				$description = ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'];
-				return array_merge(
+				$media_file  = array_merge(
 					$media_file,
 					array(
 						'width'   => absint( $video_meta['width'] ),
@@ -88,6 +89,31 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
 				);
+
+				// Set the poster attribute for the video tag if a poster image is available.
+				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
+					$poster_url = $video_meta['videopress']['poster'];
+				} elseif ( ! empty( $video_meta['thumb'] ) ) {
+					$video_url  = wp_get_attachment_url( $attachment_id );
+					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
+				}
+
+				if ( $poster_url ) {
+					$poster_width  = esc_attr( $media_file['width'] );
+					$poster_height = esc_attr( $media_file['height'] );
+					$content_width = (int) Jetpack::get_content_width();
+					if ( is_numeric( $content_width ) ) {
+						$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
+						$poster_width  = $content_width;
+					}
+					$media_file = array_merge(
+						$media_file,
+						array(
+							'poster' => add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url ),
+						)
+					);
+				}
+				return $media_file;
 			}
 		},
 		$media_files
@@ -186,13 +212,20 @@ function render_video( $media ) {
 	}
 
 	if ( ! empty( $poster_url ) ) {
+		$poster_width  = esc_attr( $meta_width );
+		$poster_height = esc_attr( $meta_height );
+		$content_width = (int) Jetpack::get_content_width();
+		if ( is_numeric( $content_width ) ) {
+			$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
+			$poster_width  = $content_width;
+		}
 		return sprintf(
 			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s"%5$s%6$s>',
 			esc_attr( get_the_title( $media['id'] ) ),
 			esc_attr( $description ),
 			'wp-block-jetpack-story_image wp-story-image ' .
 			get_image_crop_class( $meta_width, $meta_height ),
-			esc_attr( $poster_url ),
+			esc_attr( add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url ) ),
 			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
 			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
 		);
@@ -356,7 +389,7 @@ function render_block( $attributes ) {
 				<div class="wp-story-container">
 					<div class="wp-story-meta">
 						<div class="wp-story-icon">
-							<img alt="%4$s" src="%5$s" width="32" height=32>
+							<img alt="%4$s" src="%5$s" width="40" height="40">
 						</div>
 						<div>
 							<div class="wp-story-title">
@@ -381,7 +414,7 @@ function render_block( $attributes ) {
 		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
-		esc_attr( get_site_icon_url( 40, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',

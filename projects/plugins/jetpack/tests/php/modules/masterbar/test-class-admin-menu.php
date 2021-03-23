@@ -82,47 +82,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
-	 */
-	public function test_get_instance() {
-		$instance = Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
-	}
-
-	/**
-	 * Tests add_admin_menu_separator
-	 *
-	 * @covers ::add_admin_menu_separator
-	 */
-	public function test_add_admin_menu_separator() {
-		global $menu;
-
-		// Start with a clean slate.
-		$temp_menu = $menu;
-		$menu      = array();
-
-		static::$admin_menu->add_admin_menu_separator( 15 );
-		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
-
-		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
-		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertContains( 'separator-custom-', $menu[10][2] );
-		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertContains( 'separator-custom-', $menu[15][2] );
-
-		// Restore filtered $menu.
-		$menu = $temp_menu;
-	}
-
-	/**
 	 * Test_Admin_Menu.
 	 *
 	 * @covers ::reregister_menu_items
@@ -134,7 +93,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, 60, 65, 70, 75, 80 ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -427,5 +386,31 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][2][2] );
 		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][3][2] );
 		$this->assertSame( 'https://wordpress.com/jetpack-search/' . static::$domain, $submenu['jetpack'][4][2] );
+	}
+
+	/**
+	 * Tests add_gutenberg_menus
+	 *
+	 * @covers ::add_gutenberg_menus
+	 */
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
+
+		// FSE is no longer where it was put by default.
+		$this->assertArrayNotHasKey( 100, $menu );
+		$this->assertArrayHasKey( 61, $menu );
+
+		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
+		$fse_menu = array(
+			'Site Editor',
+			'edit_theme_options',
+			$fse_link,
+			'Site Editor',
+			'menu-top toplevel_page_' . $fse_link,
+			'toplevel_page_' . $fse_link,
+			'dashicons-layout',
+		);
+		$this->assertSame( $menu[61], $fse_menu );
 	}
 }
