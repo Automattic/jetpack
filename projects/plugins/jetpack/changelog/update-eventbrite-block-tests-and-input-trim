@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Eventbrite block: trimming input value, adding unit tests and fixtures.
