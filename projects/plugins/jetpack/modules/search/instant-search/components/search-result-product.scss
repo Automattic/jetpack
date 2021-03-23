@@ -95,8 +95,9 @@ $item-spacing: 16px;
 	margin-top: 0.25em;
 
 	mark {
-		display: flex;
 		align-items: center;
+		display: flex;
+		font-weight: normal;
 	}
 
 	.gridicon {
