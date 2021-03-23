@@ -10,8 +10,7 @@ import { range } from 'lodash';
  * Internal dependencies
  */
 import { PHOTON_MAX_RESIZE } from '../constants';
-import { isAtomicSite } from '../../../shared/site-type-utils';
-import isPrivateSite from '../../../shared/is-private-site';
+import { isAtomicSite, isPrivateSite } from '../../../shared/site-type-utils';
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
