@@ -73,7 +73,7 @@ class Manager {
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$manager->is_active(),
+			null,
 			$manager->verify_xml_rpc_signature()
 		);
 
@@ -100,14 +100,16 @@ class Manager {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
+	 * @since 9.6.0 Deprecate $is_active param.
+	 *
 	 * @param array                  $request_params incoming request parameters.
-	 * @param Boolean                $is_active whether the connection is currently active.
+	 * @param null                   $deprecated Deprecated. whether the connection is currently active.
 	 * @param Boolean                $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
-		$is_active,
+		$deprecated = null,
 		$is_signed,
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
@@ -149,31 +151,24 @@ class Manager {
 
 		$this->require_jetpack_authentication();
 
-		if ( ! $this->has_connected_owner() ) {
-			// The bootstrap API methods.
-			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+		if ( $is_signed ) {
+			// If the site is connected either at a site or user level and the request is signed, expose the methods.
+			// The callback is responsible to determine whether the request is signed with blog or user token and act accordingly.
+			// The actual API methods.
+			$callback = array( $this->xmlrpc_server, 'xmlrpc_methods' );
 
-			if ( ! $is_signed ) {
-				new XMLRPC_Connector( $this );
-			}
+		} elseif ( $this->has_connected_owner() && ! $is_signed ) {
+			// The jetpack.authorize method should be available for unauthenticated users on a site with an
+			// active Jetpack connection, so that additional users can link their account.
+			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
+
+		} else {
+			// Any other unsigned request should expose the bootstrap methods.
+			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
+			new XMLRPC_Connector( $this );
 		}
 
-		if ( $this->is_connected() ) {
-			// Hack to preserve $HTTP_RAW_POST_DATA.
-			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
-
-			if ( $is_signed ) {
-				// The actual API methods.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
-
-				// The jetpack Provision method is available for blog-token-signed requests.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
-			} else {
-				// The jetpack.authorize method should be available for unauthenticated users on a site with an
-				// active Jetpack connection, so that additional users can link their account.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
-			}
-		}
+		add_filter( 'xmlrpc_methods', $callback );
 
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 		add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
