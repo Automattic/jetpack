@@ -176,19 +176,36 @@ add_action( 'wp', __NAMESPACE__ . '\render_single_block_page' );
 function map_block_from_geo_points( $points ) {
 	$map_block_data = array(
 		'points'    => $points,
-		'zoom'      => 1,
+		'zoom'      => 8,
 		'mapCenter' => array(
 			'lng' => $points[0]['coordinates']['longitude'],
 			'lat' => $points[0]['coordinates']['latitude'],
 		),
 	);
 
+	$list_items = array_map(
+		function( $point ) {
+			$link = add_query_arg(
+				array(
+					'api' => 1,
+					'query' => $point['coordinates']['latitude'] . ',' . $point['coordinates']['longitude'],
+				),
+				'https://www.google.com/maps/search/'
+			);
+			return sprintf( '<li><a href="%s">%s</a></li>', $link, $point['title'] );
+		},
+		$points
+	);
+
 	$map_block  = '<!-- wp:jetpack/map ' . wp_json_encode( $map_block_data ) . ' -->' . PHP_EOL;
 	$map_block .= sprintf(
-		'<div class="wp-block-jetpack-map" data-map-style="default" data-map-details="true" data-points="%1$s" data-zoom="1" data-map-center="%2$s" data-marker-color="red"></div>',
+		'<div class="wp-block-jetpack-map" data-map-style="default" data-map-details="true" data-points="%1$s" data-zoom="%2$d" data-map-center="%3$s" data-marker-color="red" data-show-fullscreen-button="true">',
 		esc_html( wp_json_encode( $map_block_data['points'] ) ),
+		(int) $map_block_data['zoom'],
 		esc_html( wp_json_encode( $map_block_data['mapCenter'] ) )
-	) . PHP_EOL;
+	);
+	$map_block .= '<ul>' . implode( "\n", $list_items ) . '</ul>';
+	$map_block .= '</div>' . PHP_EOL;
 	$map_block .= '<!-- /wp:jetpack/map -->';
 
 	return $map_block;
