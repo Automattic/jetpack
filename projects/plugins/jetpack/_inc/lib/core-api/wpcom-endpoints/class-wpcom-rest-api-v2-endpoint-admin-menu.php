@@ -86,7 +86,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
-
 		return rest_ensure_response( $this->prepare_menu_for_response( $menu ) );
 	}
 
@@ -153,53 +152,59 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'title'      => 'Admin Menu',
 			'type'       => 'object',
 			'properties' => array(
-				'count'    => array(
+				'count'      => array(
 					'description' => 'Core/Plugin/Theme update count or unread comments count.',
 					'type'        => 'integer',
 				),
-				'icon'     => array(
+				'icon'       => array(
 					'description' => 'Menu item icon. Dashicon slug or base64-encoded SVG.',
 					'type'        => 'string',
 				),
-				'slug'     => array(
+				'slug'       => array(
 					'type' => 'string',
 				),
-				'children' => array(
+				'children'   => array(
 					'items' => array(
-						'count'  => array(
+						'count'      => array(
 							'description' => 'Core/Plugin/Theme update count or unread comments count.',
 							'type'        => 'integer',
 						),
-						'parent' => array(
+						'parent'     => array(
 							'type' => 'string',
 						),
-						'slug'   => array(
+						'slug'       => array(
 							'type' => 'string',
 						),
-						'title'  => array(
+						'title'      => array(
 							'type' => 'string',
 						),
-						'type'   => array(
+						'type'       => array(
 							'enum' => array( 'submenu-item' ),
 							'type' => 'string',
 						),
-						'url'    => array(
+						'url'        => array(
 							'format' => 'uri',
 							'type'   => 'string',
+						),
+						'identifier' => array(
+							'type' => 'string',
 						),
 					),
 					'type'  => 'array',
 				),
-				'title'    => array(
+				'title'      => array(
 					'type' => 'string',
 				),
-				'type'     => array(
+				'type'       => array(
 					'enum' => array( 'separator', 'menu-item' ),
 					'type' => 'string',
 				),
-				'url'      => array(
+				'url'        => array(
 					'format' => 'uri',
 					'type'   => 'string',
+				),
+				'identifier' => array(
+					'type' => 'string',
 				),
 			),
 		);
@@ -248,11 +253,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		$item = array(
-			'icon'  => $this->prepare_menu_item_icon( $menu_item[6] ),
-			'slug'  => sanitize_title_with_dashes( $menu_item[2] ),
-			'title' => $menu_item[0],
-			'type'  => 'menu-item',
-			'url'   => $this->prepare_menu_item_url( $url, $parent_slug ),
+			'icon'       => $this->prepare_menu_item_icon( $menu_item[6] ),
+			'slug'       => sanitize_title_with_dashes( $menu_item[2] ),
+			'title'      => $menu_item[0],
+			'type'       => 'menu-item',
+			'url'        => $this->prepare_menu_item_url( $url, $parent_slug ),
+			'identifier' => $this->prepare_menu_item_identifier( $menu_item[5] ),
 		);
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
@@ -282,11 +288,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		$item = array(
-			'parent' => sanitize_title_with_dashes( $menu_item[2] ),
-			'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
-			'title'  => $submenu_item[0],
-			'type'   => 'submenu-item',
-			'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
+			'parent'     => sanitize_title_with_dashes( $menu_item[2] ),
+			'slug'       => sanitize_title_with_dashes( $submenu_item[2] ),
+			'title'      => $submenu_item[0],
+			'type'       => 'submenu-item',
+			'url'        => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
+			'identifier' => $this->prepare_menu_item_identifier( $submenu_item[2] ),
 		);
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
@@ -403,6 +410,98 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
 
 		return $item;
+	}
+
+	/**
+	 * Check if the given string is structured like a domain
+	 *
+	 * @TODO: Support deep nested domains like jp.eu.foo.something.something.wordpress.com
+	 * @param string $domain_name_value The string that will be checked.
+	 *
+	 * @return false|int
+	 */
+	private function is_valid_domain_name( $domain_name_value = '' ) {
+		return preg_match( '/^(http[s]?\:\/\/)?((\w+)\.)?(([\w-]+)?)(\.[\w-]+){1,2}$/', $domain_name_value );
+	}
+
+	/**
+	 * Generate a identifier based on menu or submenu slug
+	 *
+	 * @param string $key Menu or submenu slug.
+	 *
+	 * @return string
+	 */
+	private function generate_identifier( $key ) {
+		$replace_table = array(
+			'http://'  => '',
+			'https://' => '',
+			'-'        => '_',
+			'.php'     => '', // we add this in order to avoid cases where customizer.php can be considered a domain.
+		);
+
+		// Split string on '/' or '?' to account for query strings.
+		$array_of_paths = preg_split( '/(\/|\?)/', strtr( $key, $replace_table ), -1, PREG_SPLIT_NO_EMPTY );
+
+		// Dont touch domain names as these get filtered out next and replace non-alphanumeric characters with an underscore.
+		$parse_query_strings = $this->format_non_domain_identifiers( $array_of_paths );
+
+		$array_without_domains = array_filter(
+			$parse_query_strings,
+			function ( $value ) {
+				return ! $this->is_valid_domain_name( $value );
+			}
+		);
+
+		return sanitize_key( implode( '_', $array_without_domains ) );
+	}
+
+	/**
+	 * Format non-domain identifiers
+	 *
+	 * @param array $paths An array of slug parts.
+	 *
+	 * @return array|null[]|string[]|string[][]
+	 */
+	private function format_non_domain_identifiers( $paths ) {
+		return array_map(
+			function ( $value ) {
+				if ( $this->is_valid_domain_name( $value ) ) {
+					return $value;
+				}
+
+				return preg_replace( '/[^a-z0-9]+/', '_', strtolower( urldecode( $value ) ) );
+			},
+			$paths
+		);
+	}
+
+	/**
+	 * Map known custom identifiers to the newer version
+	 *
+	 * @return string[]
+	 */
+	private function get_known_identifiers() {
+		return array(
+			'menu_dashboard' => 'customer_home',
+			'plans'          => 'plan',
+		);
+	}
+
+	/**
+	 * Transform menu item identifier based on the get_known_identifier list
+	 *
+	 * @param string $key The string value that will be replaced if it's in the known identifier list.
+	 * @return string
+	 */
+	public function prepare_menu_item_identifier( $key ) {
+		$known_identifiers = $this->get_known_identifiers();
+		$identifier        = $this->generate_identifier( $key );
+
+		if ( array_key_exists( $identifier, $known_identifiers ) ) {
+			return $known_identifiers[ $identifier ];
+		}
+
+		return $identifier;
 	}
 }
 

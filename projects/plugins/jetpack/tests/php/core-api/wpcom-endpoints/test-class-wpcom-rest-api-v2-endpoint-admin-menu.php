@@ -154,23 +154,25 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				array( 'Media\'s', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
-					'type'  => 'menu-item',
-					'icon'  => 'dashicons-admin-media',
-					'slug'  => 'upload-php',
-					'title' => 'Media\'s',
-					'url'   => admin_url( 'upload.php' ),
+					'type'       => 'menu-item',
+					'icon'       => 'dashicons-admin-media',
+					'slug'       => 'upload-php',
+					'title'      => 'Media\'s',
+					'url'        => admin_url( 'upload.php' ),
+					'identifier' => 'menu_media',
 				),
 			),
 			// Menu item with update count.
 			array(
 				array( 'Plugin\'s <span class="update-plugins count-5"><span class="plugin-count">5</span></span>', 'moderate_comments', 'plugins.php', '', 'menu-top menu-icon-plugins', 'menu-plugins', 'dashicons-admin-plugins' ),
 				array(
-					'type'  => 'menu-item',
-					'icon'  => 'dashicons-admin-plugins',
-					'slug'  => 'plugins-php',
-					'title' => 'Plugin\'s',
-					'url'   => admin_url( 'plugins.php' ),
-					'count' => 5,
+					'type'       => 'menu-item',
+					'icon'       => 'dashicons-admin-plugins',
+					'slug'       => 'plugins-php',
+					'title'      => 'Plugin\'s',
+					'url'        => admin_url( 'plugins.php' ),
+					'identifier' => 'menu_plugins',
+					'count'      => 5,
 				),
 			),
 			// Hidden menu item.
@@ -223,11 +225,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array( 'Library\'s', 'upload_files', 'upload.php' ),
 				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
-					'parent' => 'upload-php',
-					'slug'   => 'upload-php',
-					'title'  => 'Library\'s',
-					'type'   => 'submenu-item',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'parent'     => 'upload-php',
+					'slug'       => 'upload-php',
+					'title'      => 'Library\'s',
+					'type'       => 'submenu-item',
+					'url'        => 'http://example.org/wp-admin/upload.php',
+					'identifier' => 'upload',
 				),
 			),
 			// Submenu item with update count.
@@ -235,12 +238,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array( 'Library <span class="update-plugins count-15"><span class="update-count">15</span></span>', 'upload_files', 'upload.php' ),
 				array( 'Media', 'upload_files', 'upload.php', '', 'menu-top menu-icon-media', 'menu-media', 'dashicons-admin-media' ),
 				array(
-					'parent' => 'upload-php',
-					'slug'   => 'upload-php',
-					'title'  => 'Library',
-					'type'   => 'submenu-item',
-					'url'    => admin_url( 'upload.php' ),
-					'count'  => 15,
+					'parent'     => 'upload-php',
+					'slug'       => 'upload-php',
+					'title'      => 'Library',
+					'type'       => 'submenu-item',
+					'url'        => admin_url( 'upload.php' ),
+					'identifier' => 'upload',
+					'count'      => 15,
 				),
 			),
 			// Hidden submenu item.
@@ -460,6 +464,48 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			$expected,
 			$prepare_menu_item_url->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $menu_item ) )
 		);
+	}
+
+	/**
+	 * Test if the menu identifiers are correctly formatted.
+	 */
+	public function test_menu_item_identifier() {
+		$object = new WPCOM_REST_API_V2_Endpoint_Admin_Menu();
+
+		$this->assertEquals( 'customer_home', $object->prepare_menu_item_identifier( 'menu-dashboard' ) );
+		$this->assertEquals( 'plan', $object->prepare_menu_item_identifier( 'plans' ) );
+
+		$this->assertEquals(
+			'purchases_subscriptions',
+			$object->prepare_menu_item_identifier( 'https://wordpress.com/purchases/subscriptions/demo.automattic.com' )
+		);
+
+		$this->assertEquals(
+			'customize_autofocus_section_jetpack_custom_css',
+			$object->prepare_menu_item_identifier(
+				'https://wordpress.com/customize/demo.automattic.com?autofocus%5Bsection%5D=jetpack_custom_css'
+			)
+		);
+
+		$this->assertEquals(
+			'menu_users',
+			$object->prepare_menu_item_identifier( 'menu-users' )
+		);
+
+		$this->assertEquals(
+			'toplevel_page_plugins',
+			$object->prepare_menu_item_identifier( 'toplevel_page_plugins' )
+		);
+
+		$this->assertEquals( 'options_reading', $object->prepare_menu_item_identifier( 'options-reading.php' ) );
+
+		$this->assertEquals(
+			'wp_admin_customize_autofocus_section_custom_css',
+			$object->prepare_menu_item_identifier(
+				'https://demo.wpcomstaging.com/wp-admin/customize.php?autofocus%5Bsection%5D=custom_css'
+			)
+		);
+
 	}
 
 	/**
