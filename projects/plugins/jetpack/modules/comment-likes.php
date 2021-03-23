@@ -34,7 +34,7 @@ class Jetpack_Comment_Likes {
 		return $instance;
 	}
 
-	/** Construct comment like module */
+	/** Construct comment like module. */
 	private function __construct() {
 		$this->settings  = new Jetpack_Likes_Settings();
 		$this->blog_id   = Jetpack_Options::get_option( 'id' );
