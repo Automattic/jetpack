@@ -799,3 +799,13 @@ jobs:
           jq --version
       - run: tools/check-composer-deps.sh -v
       - run: .github/files/check-monorepo-package-repos.sh
+
+  ### Checks against project structure, e.g. that composer.json exists.
+  # Local equivalent: `./.github/files/lint-project-structure.sh`
+  project_structure:
+    name: Project structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-03-22: Should only take a few seconds.
+    steps:
+      - uses: actions/checkout@v2
+      - run: .github/files/lint-project-structure.sh

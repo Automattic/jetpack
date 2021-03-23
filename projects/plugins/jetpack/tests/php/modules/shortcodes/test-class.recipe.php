@@ -1,10 +1,14 @@
 <?php
+
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 /**
  * Test class for Jetpack_Recipes
  *
  * @covers Jetpack_Recipes
  */
 class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * The tested instance.
