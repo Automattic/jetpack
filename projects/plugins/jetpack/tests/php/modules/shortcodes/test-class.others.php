@@ -5,10 +5,15 @@
  * @package automattic/jetpack
  */
 
+// Dummy comment so phpcs sees the above as a file doc comment.
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 /**
  * Test Extra embeds available.
  */
 class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
