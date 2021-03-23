@@ -1730,7 +1730,7 @@ class Jetpack {
 	 *
 	 * @since 9.6.0
 	 *
-	 * @return Boolean is the site connection ready to be used?
+	 * @return bool is the site connection ready to be used?
 	 */
 	public static function is_connection_ready() {
 		if ( ( new Status() )->is_no_user_testing_mode() ) {
