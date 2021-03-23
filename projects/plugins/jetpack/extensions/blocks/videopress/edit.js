@@ -172,7 +172,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			this.setState( { isFetchingMedia: true } );
 			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } )
 				.catch( () => {
-					this.fallbackToCore();
+					this.setState( { fallback: true } );
 					return null;
 				} )
 				.finally( () => {
