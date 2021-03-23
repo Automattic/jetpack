@@ -43,6 +43,7 @@ async function cleanLabels( payload, octokit ) {
 
 	if ( ! labelsToRemoveFromPr.length ) {
 		debug( `clean-labels: no labels to remove from #${ number }. Aborting.` );
+	return;
 	}
 
 	debug(
