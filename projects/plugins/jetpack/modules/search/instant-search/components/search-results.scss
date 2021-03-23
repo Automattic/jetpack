@@ -29,10 +29,10 @@ $modal-max-width-lg: 95%;
 	animation-delay: 0s;
 	animation-duration: $search-results-slide-in-time;
 	.jetpack-instant-search__overlay.is-hidden & {
-		animation-name: slideOutDown;
+		animation-name: jetpackSearchSlideOutDown;
 	}
 	.jetpack-instant-search__overlay:not( .is-hidden ) & {
-		animation-name: slideInUp;
+		animation-name: jetpackSearchSlideInUp;
 	}
 }
 
