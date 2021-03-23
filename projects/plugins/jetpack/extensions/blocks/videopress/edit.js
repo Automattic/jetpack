@@ -170,17 +170,24 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			this.setState( { isFetchingMedia: true } );
-			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
-			this.setState( { isFetchingMedia: false } );
+			await apiFetch( { path: `/wp/v2/media/${ id }` } )
+				.then( media => {
+					const { id: currentId } = this.props.attributes;
+					if ( id !== currentId ) {
+						// Video was changed in the editor while fetching data for the previous video;
+						return null;
+					}
 
-			const { id: currentId } = this.props.attributes;
-			if ( id !== currentId ) {
-				// Video was changed in the editor while fetching data for the previous video;
-				return null;
-			}
-
-			this.setState( { media, lastRequestedMediaId: id } );
-			return media;
+					this.setState( { media, lastRequestedMediaId: id } );
+					return media;
+				} )
+				.catch( () => {
+					this.fallbackToCore();
+					return null;
+				} )
+				.finally( () => {
+					this.setState( { isFetchingMedia: false } );
+				} );
 		};
 
 		switchToEditing = () => {
