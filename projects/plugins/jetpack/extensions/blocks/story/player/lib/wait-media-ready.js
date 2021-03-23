@@ -7,6 +7,11 @@ export default async function waitMediaReady( mediaElement, fullLoad = false ) {
 		await new Promise( resolve => {
 			mediaElement.addEventListener( 'load', resolve, { once: true } );
 		} );
+	} else if ( 'video' === elementTag && mediaElement.poster ) {
+		await new Promise( resolve => {
+			mediaElement.addEventListener( 'loadeddata', resolve, { once: true } );
+			mediaElement.load();
+		} );
 	} else if ( 'video' === elementTag || 'audio' === elementTag ) {
 		const src = mediaElement.src;
 		// only load the full video if it's on the same origin
