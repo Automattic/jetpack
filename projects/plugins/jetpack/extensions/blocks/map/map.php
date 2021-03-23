@@ -184,10 +184,10 @@ function map_block_from_geo_points( $points ) {
 	);
 
 	$list_items = array_map(
-		function( $point ) {
+		function ( $point ) {
 			$link = add_query_arg(
 				array(
-					'api' => 1,
+					'api'   => 1,
 					'query' => $point['coordinates']['latitude'] . ',' . $point['coordinates']['longitude'],
 				),
 				'https://www.google.com/maps/search/'
