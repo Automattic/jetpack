@@ -6,20 +6,22 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { getAccountCredentials, isEventuallyVisible } from '../../page-helper';
+import WpPage from '../wp-page';
 import logger from '../../logger';
-import fs from 'fs';
+import { getAccountCredentials } from '../../utils-helper';
 
-export default class LoginPage extends Page {
+export default class LoginPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.wp-login__container';
 		const url = getRedirectUrl( 'wpcom-log-in' );
-		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
+		super( page, {
+			expectedSelectors: [ '.wp-login__container' ],
+			url,
+		} );
 	}
 
 	async login( wpcomUser, { retry = true } = {} ) {
-		logger.debug( 'Log in WPCOM' );
+		logger.step( 'Log in to Wordpress.com' );
+
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
 		const usernameSelector = '#usernameOrEmail';
@@ -28,36 +30,32 @@ export default class LoginPage extends Page {
 		const submitButtonSelector = '//button[text()="Log In"]';
 
 		try {
-			await page.type( usernameSelector, username );
-			await page.click( continueButtonSelector );
-			await page.waitForSelector( passwordSelector, { state: 'visible' } );
+			await this.fill( usernameSelector, username );
+			await this.click( continueButtonSelector );
+			await this.waitForElementToBeVisible( passwordSelector );
 			// Even if we wait for the field to become visible Playwright might still type the password too fast
 			// and the first characters will miss the password field. A short wait fixes this
-			await page.waitForTimeout( 2000 );
-			await page.type( passwordSelector, password );
-			await page.click( submitButtonSelector );
+			await this.waitForTimeout( 2000 );
+			await this.fill( passwordSelector, password );
+			await this.click( submitButtonSelector );
 
-			await this.page.waitForNavigation( { waitUntil: 'domcontentloaded' } );
-			await this.page.waitForSelector( this.expectedSelector, {
-				state: 'hidden',
-				timeout: 30000 /* 30 seconds */,
-			} );
+			await this.waitForDomContentLoaded();
+			await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 		} catch ( e ) {
 			if ( retry === true ) {
-				logger.info( `The login didn't work as expected - retrying now: '${ e }'` );
-				this.reload();
+				logger.warn( `The login didn't work as expected - retrying now: '${ e }'` );
+				await this.reload();
 				return await this.login( wpcomUser, { retry: false } );
 			}
 			throw e;
 		}
 
 		// save storage state to reuse later to skip log in
-		const storage = await context.storageState();
-		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
+		await this.saveCurrentStorageState();
 	}
 
 	async isLoggedIn() {
 		const continueAsUserSelector = '#content .continue-as-user';
-		return isEventuallyVisible( this.page, continueAsUserSelector, 2000 );
+		return this.isElementVisible( continueAsUserSelector, 2000 );
 	}
 }
