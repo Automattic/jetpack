@@ -13,9 +13,9 @@ import InPlaceConnection from '../index';
 describe( 'InPlaceConnection', () => {
 	const testProps = {
 		title: 'Sample Title',
-		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/?something',
+		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		scrollToIframe: false,
-		hasConnectedOwner: false,
+		displayTOS: false,
 		source: 'testing',
 	};
 
@@ -32,7 +32,7 @@ describe( 'InPlaceConnection', () => {
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.equal(
-				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?something&iframe_height=220&iframe_source=testing'
+				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?&iframe_height=220&iframe_source=testing'
 			);
 		} );
 
@@ -46,7 +46,7 @@ describe( 'InPlaceConnection', () => {
 	} );
 
 	describe( 'Secondary user, add "tos" flag to URL', () => {
-		const wrapper = shallow( <InPlaceConnection { ...testProps } hasConnectedOwner={ true } /> );
+		const wrapper = shallow( <InPlaceConnection { ...testProps } displayTOS={ true } /> );
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.contain( '&display-tos' );
