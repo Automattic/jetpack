@@ -21,6 +21,10 @@ describe( 'Jetpack pre-connection', () => {
 		await page.reload();
 	} );
 
+	beforeEach( async () => {
+		await DashboardPage.visit( page );
+	} );
+
 	afterAll( async () => {
 		await execWpCommand(
 			`wp option update jetpack_private_options --format=json < ${ path.resolve(

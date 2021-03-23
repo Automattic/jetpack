@@ -8,71 +8,13 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
+
+require_once __DIR__ . '/class-base-admin-menu.php';
 
 /**
  * Class Admin_Menu.
  */
-class Admin_Menu {
-	/**
-	 * Holds class instances.
-	 *
-	 * @var array
-	 */
-	protected static $instances;
-
-	/**
-	 * Whether the current request is a REST API request.
-	 *
-	 * @var bool
-	 */
-	protected $is_api_request = false;
-
-	/**
-	 * Domain of the current site.
-	 *
-	 * @var string
-	 */
-	protected $domain;
-
-	/**
-	 * Admin_Menu constructor.
-	 */
-	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
-
-		$this->domain = ( new Status() )->get_site_suffix();
-	}
-
-	/**
-	 * Returns class instance.
-	 *
-	 * @return Admin_Menu
-	 */
-	public static function get_instance() {
-		$class = get_called_class();
-
-		if ( empty( static::$instances[ $class ] ) ) {
-			static::$instances[ $class ] = new $class();
-		}
-
-		return static::$instances[ $class ];
-	}
-
-	/**
-	 * Sets up class properties for REST API requests.
-	 *
-	 * @param WP_REST_Response $response Response from the endpoint.
-	 */
-	public function rest_api_init( $response ) {
-		$this->is_api_request = true;
-
-		return $response;
-	}
+class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Create the desired menu output.
@@ -118,6 +60,7 @@ class Admin_Menu {
 
 		$this->add_options_menu( $wp_admin );
 		$this->add_jetpack_menu();
+		$this->add_gutenberg_menus( $wp_admin );
 
 		// Remove Links Manager menu since its usage is discouraged.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -340,15 +283,15 @@ class Admin_Menu {
 	 */
 	public function add_users_menu( $wp_admin = false ) {
 		if ( current_user_can( 'list_users' ) ) {
+			// We shall add the Calypso user management & add new user screens at all cases ( Calypso & Atomic ).
+			$submenus_to_update = array(
+				'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
+				'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
+			);
 			if ( ! $wp_admin ) {
-				$submenus_to_update = array(
-					'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
-					'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
-					'profile.php'  => 'https://wordpress.com/me',
-				);
-				$this->update_submenus( 'users.php', $submenus_to_update );
+				$submenus_to_update['profile.php'] = 'https://wordpress.com/me';
 			}
-
+			$this->update_submenus( 'users.php', $submenus_to_update );
 			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		} else {
 			if ( ! $wp_admin ) {
@@ -438,160 +381,32 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Updates the menu data of the given menu slug.
+	 * Re-adds the Site Editor menu without the (beta) tag, and where we want it.
 	 *
-	 * @param string $slug Slug of the menu to update.
-	 * @param string $url New menu URL.
-	 * @param string $title New menu title.
-	 * @param string $cap New menu capability.
-	 * @param string $icon New menu icon.
-	 * @param int    $position New menu position.
-	 * @return bool Whether the menu has been updated.
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function update_menu( $slug, $url = null, $title = null, $cap = null, $icon = null, $position = null ) {
-		global $menu, $submenu;
-
-		$menu_item     = null;
-		$menu_position = null;
-
-		foreach ( $menu as $i => $item ) {
-			if ( $slug === $item[2] ) {
-				$menu_item     = $item;
-				$menu_position = $i;
-				break;
-			}
-		}
-
-		if ( ! $menu_item ) {
-			return false;
-		}
-
-		if ( $title ) {
-			$menu_item[0] = $title;
-			$menu_item[3] = esc_attr( $title );
-		}
-
-		if ( $cap ) {
-			$menu_item[1] = $cap;
-		}
-
-		// Change parent slug only if there are no submenus (the slug of the 1st submenu will be used if there are submenus).
-		if ( $url ) {
-			remove_submenu_page( $slug, $slug );
-			if ( empty( $submenu[ $slug ] ) ) {
-				$menu_item[2] = $url;
-			}
-		}
-
-		if ( $icon ) {
-			$menu_item[4] = 'menu-top';
-			$menu_item[6] = $icon;
-		}
-
-		if ( $position ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			unset( $menu[ $menu_position ] );
-			$menu_position = $position;
-		}
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $menu_position ] = $menu_item;
-
-		// Only add submenu when there are other submenu items.
-		if ( $url && ! empty( $submenu[ $slug ] ) ) {
-			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Updates the submenus of the given menu slug.
-	 *
-	 * @param string $slug Menu slug.
-	 * @param array  $submenus_to_update Array of new submenu slugs.
-	 */
-	public function update_submenus( $slug, $submenus_to_update ) {
-		global $submenu;
-
-		if ( ! isset( $submenu[ $slug ] ) ) {
+	public function add_gutenberg_menus( $wp_admin = false ) {
+		// We can bail if we don't meet the conditions of the Site Editor.
+		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
 			return;
 		}
 
-		foreach ( $submenu[ $slug ] as $i => $submenu_item ) {
-			if ( array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
-				$submenu_item[2] = $submenus_to_update[ $submenu_item[2] ];
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$submenu[ $slug ][ $i ] = $submenu_item;
-			}
-		}
-	}
+		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
+		remove_menu_page( 'gutenberg-edit-site' );
+		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
+		remove_filter( 'menu_order', 'gutenberg_menu_order' );
 
-	/**
-	 * Remove submenu items from given menu slug.
-	 *
-	 * @param string $slug Menu slug.
-	 */
-	public function remove_submenus( $slug ) {
-		global $submenu;
+		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
 
-		if ( isset( $submenu[ $slug ] ) ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu[ $slug ] = array();
-		}
-	}
-
-	/**
-	 * Adds a menu separator.
-	 *
-	 * @param int    $position The position in the menu order this item should appear.
-	 * @param string $cap Optional. The capability required for this menu to be displayed to the user.
-	 *                         Default: 'read'.
-	 */
-	public function add_admin_menu_separator( $position, $cap = 'read' ) {
-		global $menu;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $position ] = array(
-			'',                                  // Menu title (ignored).
-			$cap,                                // Required capability.
-			wp_unique_id( 'separator-custom-' ), // URL or file (ignored, but must be unique).
-			'',                                  // Page title (ignored).
-			'wp-menu-separator',                 // CSS class. Identifies this item as a separator.
+		add_menu_page(
+			__( 'Site Editor', 'jetpack' ),
+			__( 'Site Editor', 'jetpack' ),
+			'edit_theme_options',
+			$link,
+			$wp_admin ? 'gutenberg_edit_site_page' : null,
+			'dashicons-layout',
+			61 // Just under Appearance.
 		);
-		ksort( $menu );
-	}
-
-	/**
-	 * Enqueues scripts and styles.
-	 */
-	public function enqueue_scripts() {
-		$style_dependencies = array();
-		$rtl                = is_rtl() ? '-rtl' : '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
-		} else {
-			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
-		}
-		wp_enqueue_style(
-			'jetpack-admin-menu',
-			plugins_url( 'admin-menu.css', __FILE__ ),
-			$style_dependencies,
-			JETPACK__VERSION
-		);
-		wp_enqueue_script(
-			'jetpack-admin-menu',
-			plugins_url( 'admin-menu.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-	}
-
-	/**
-	 * Dequeues unnecessary scripts.
-	 */
-	public function dequeue_scripts() {
-		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
 	}
 
 	/**

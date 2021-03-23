@@ -241,7 +241,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new \WP_Error( 'user_unknown', 'User not found.', 404 ), 'remote_authorize' );
 		}
 
-		if ( $this->connection->is_active() && $this->connection->is_user_connected( $request['state'] ) ) {
+		if ( $this->connection->has_connected_owner() && $this->connection->is_user_connected( $request['state'] ) ) {
 			return $this->error( new \WP_Error( 'already_connected', 'User already connected.', 400 ), 'remote_authorize' );
 		}
 
@@ -379,7 +379,7 @@ class Jetpack_XMLRPC_Server {
 
 		$site_icon = get_site_icon_url();
 
-		$auto_enable_sso = ( ! $this->connection->is_active() || Jetpack::is_module_active( 'sso' ) );
+		$auto_enable_sso = ( ! $this->connection->has_connected_owner() || Jetpack::is_module_active( 'sso' ) );
 
 		/** This filter is documented in class.jetpack-cli.php */
 		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
@@ -407,7 +407,7 @@ class Jetpack_XMLRPC_Server {
 			'user_login'   => $user->user_login,
 			'scope'        => $this->connection->sign_role( $role, $user->ID ),
 			'secret'       => $secrets['secret_1'],
-			'is_active'    => $this->connection->is_active(),
+			'is_active'    => $this->connection->has_connected_owner(),
 		);
 
 		if ( $site_icon ) {
@@ -431,7 +431,7 @@ class Jetpack_XMLRPC_Server {
 	 * @return mixed
 	 */
 	public function remote_connect( $request, $ixr_client = false ) {
-		if ( $this->connection->is_active() ) {
+		if ( $this->connection->has_connected_owner() ) {
 			return $this->error(
 				new WP_Error(
 					'already_connected',
@@ -495,7 +495,7 @@ class Jetpack_XMLRPC_Server {
 
 		$this->do_post_authorization();
 
-		return $this->connection->is_active();
+		return $this->connection->has_connected_owner();
 	}
 
 	/**

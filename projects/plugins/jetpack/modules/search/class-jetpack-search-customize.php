@@ -27,6 +27,7 @@ class Jetpack_Search_Customize {
 	 */
 	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
 	}
 
 	/**
@@ -37,8 +38,8 @@ class Jetpack_Search_Customize {
 	 * @param WP_Customize_Manager $wp_customize Customizer instance.
 	 */
 	public function customize_register( $wp_customize ) {
-		require_once __DIR__ . '/customize-controls/class-label-control.php';
-		require_once __DIR__ . '/customize-controls/class-excluded-post-types-control.php';
+		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-label-control.php';
+		require_once dirname( JETPACK__PLUGIN_FILE ) . '/modules/search/customize-controls/class-excluded-post-types-control.php';
 		$section_id     = 'jetpack_search';
 		$setting_prefix = Jetpack_Search_Options::OPTION_PREFIX;
 
@@ -261,5 +262,22 @@ class Jetpack_Search_Customize {
 			)
 		);
 	}
-}
 
+	/**
+	 * Enqueue assets for Customizer controls.
+	 *
+	 * @since 9.6.0
+	 */
+	public function customize_controls_enqueue_scripts() {
+		$script_relative_path = 'modules/search/customize-controls/customize-controls.js';
+		$script_version       = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
+		$script_path          = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+		wp_enqueue_script(
+			'jetpack-instant-search-customizer',
+			$script_path,
+			array( 'customize-controls' ),
+			$script_version,
+			true
+		);
+	}
+}

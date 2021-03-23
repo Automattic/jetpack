@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Migrate locks to update_option to avaoid memcache inconsistencies that can be introduced by delete_option usage.

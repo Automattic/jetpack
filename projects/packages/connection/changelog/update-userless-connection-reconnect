@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+User-less connection: Reconnect without asking the user to connect their WPCOM account
