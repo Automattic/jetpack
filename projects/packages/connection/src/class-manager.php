@@ -79,7 +79,7 @@ class Manager {
 
 		$manager->error_handler = Error_Handler::get_instance();
 
-		if ( $manager->is_active() ) {
+		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		}
 
@@ -246,7 +246,7 @@ class Manager {
 		remove_all_filters( 'authenticate' );
 		remove_all_actions( 'wp_login_failed' );
 
-		if ( $this->is_active() ) {
+		if ( $this->is_connected() ) {
 			// Allow Jetpack authentication.
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
 		}
@@ -1563,7 +1563,7 @@ class Manager {
 				'scope'         => $signed_role,
 				'user_email'    => $user->user_email,
 				'user_login'    => $user->user_login,
-				'is_active'     => $this->is_active(),
+				'is_active'     => $this->is_active(), // TODO Deprecate this.
 				'jp_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'     => $auth_type,
 				'secret'        => $secrets['secret_1'],
@@ -1902,7 +1902,7 @@ class Manager {
 	 */
 	public function xmlrpc_options( $options ) {
 		$jetpack_client_id = false;
-		if ( $this->is_active() ) {
+		if ( $this->is_connected() ) {
 			$jetpack_client_id = \Jetpack_Options::get_option( 'id' );
 		}
 		$options['jetpack_version'] = array(
@@ -2113,14 +2113,14 @@ class Manager {
 	}
 
 	/**
-	 * If connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
+	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
 	 */
 	public function add_stats_to_heartbeat( $stats ) {
 
-		if ( ! $this->is_active() ) {
+		if ( ! $this->is_connected() ) {
 			return $stats;
 		}
 

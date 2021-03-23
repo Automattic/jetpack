@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "ae11a2161c4a3b72cfd2dce8e76f820c99fb1937"
+                "reference": "bf07844a67872b3bb3c0b8c4524ef86bf28cc822"
             },
             "require": {
                 "php": ">=5.6",
