@@ -22,8 +22,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
  
 == Changelog ==
 
-= 1.0.0-alpha =
-* List change here
+<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
  
 == Arbitrary section ==
  

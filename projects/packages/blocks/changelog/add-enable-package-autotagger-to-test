@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Enable GitHub action for auto-tagging releases from monorepo pushes.

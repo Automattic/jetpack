@@ -5,6 +5,7 @@
 
 if ( process.env.E2E_DEBUG ) {
 	process.env.DEBUG = 'pw:browser|api|error';
+	process.env.PWDEBUG = 1;
 }
 
 module.exports = {
