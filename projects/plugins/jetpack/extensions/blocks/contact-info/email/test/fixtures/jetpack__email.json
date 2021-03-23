@@ -1,0 +1,21 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/contact-info",
+        "isValid": true,
+        "attributes": {},
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/email",
+                "isValid": true,
+                "attributes": {
+                    "email": "hello@yourjetpack.blog"
+                },
+                "innerBlocks": [],
+                "originalContent": "<div class=\"wp-block-jetpack-email\"><a href=\"mailto:hello@yourjetpack.blog\">hello@yourjetpack.blog</a></div>"
+            }
+        ],
+        "originalContent": "<div class=\"wp-block-jetpack-contact-info\"></div>"
+    }
+]

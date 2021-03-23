@@ -1,6 +1,6 @@
 .jetpack-social-icons-widget-item {
 	background: #fff;
-	border: 1px solid #e5e5e5;
+	border: 1px solid #dcdcde;
 	cursor: move;
 	margin: 0;
 }
@@ -34,7 +34,7 @@ html[class*='wordpress_com'] .jetpack-social-icons-widget-item.ui-sortable-helpe
 }
 
 .jetpack-social-icons-widget-item.ui-state-placeholder {
-	border-color: #a0a5aa;
+	border-color: #a7aaad;
 	border-style: dashed;
 	margin: 0 0 1px;
 }
@@ -71,7 +71,7 @@ html[class*='wordpress_com'] .jetpack-social-icons-widget-item.ui-sortable-helpe
 }
 
 .jetpack-widget-social-icons-remove-item-button {
-	color: #a00;
+	color: #d63638;
 	text-decoration: none;
 }
 

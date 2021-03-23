@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack\Analyzer;
 
-use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
-
 /**
  * Handy class for persisting a list of objects that support the to_csv_array method
  */

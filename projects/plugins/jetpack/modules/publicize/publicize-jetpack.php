@@ -1,5 +1,6 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 
 class Publicize extends Publicize_Base {
@@ -47,7 +48,7 @@ class Publicize extends Publicize_Base {
 
 	function force_user_connection() {
 		global $current_user;
-		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
+		$user_token        = ( new Tokens() )->get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 
 		// If the user is already connected via Jetpack, then we're good

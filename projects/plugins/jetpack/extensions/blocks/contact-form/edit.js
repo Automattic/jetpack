@@ -24,6 +24,7 @@ import {
 	TextareaControl,
 	TextControl,
 	ToolbarGroup,
+	ToolbarItem,
 	Button,
 	Dropdown,
 	Icon,
@@ -60,7 +61,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-function JetpackContactFormEdit( {
+export function JetpackContactFormEdit( {
 	attributes,
 	setAttributes,
 	siteTitle,
@@ -114,6 +115,17 @@ function JetpackContactFormEdit( {
 			setVariation( defaultVariations[ 0 ] );
 		}
 	} );
+
+	useEffect( () => {
+		if ( to === undefined && postAuthorEmail ) {
+			setAttributes( { to: postAuthorEmail } );
+		}
+
+		if ( subject === undefined && siteTitle !== undefined && postTitle !== undefined ) {
+			const emailSubject = '[' + siteTitle + '] ' + postTitle;
+			setAttributes( { subject: emailSubject } );
+		}
+	}, [ to, postAuthorEmail, subject, siteTitle, postTitle, setAttributes ] );
 
 	const validateEmail = email => {
 		email = email.trim();
@@ -188,19 +200,8 @@ function JetpackContactFormEdit( {
 	};
 
 	const renderFormSettings = () => {
-		let emailAddr = to !== undefined ? to : '';
-
-		if ( to === undefined && postAuthorEmail ) {
-			emailAddr = postAuthorEmail;
-			setAttributes( { to: emailAddr } );
-		}
-
-		let emailSubject = subject !== undefined ? subject : '';
-
-		if ( subject === undefined && siteTitle !== undefined && postTitle !== undefined ) {
-			emailSubject = '[' + siteTitle + '] ' + postTitle;
-			setAttributes( { subject: emailSubject } );
-		}
+		const emailAddr = to !== undefined ? to : '';
+		const emailSubject = subject !== undefined ? subject : '';
 
 		return (
 			<>
@@ -320,21 +321,23 @@ function JetpackContactFormEdit( {
 
 	return (
 		<>
-			{ ToolbarGroup && (
-				<BlockControls>
-					<ToolbarGroup>
-						<Dropdown
-							position="bottom right"
-							className="jetpack-contact-form-settings-selector"
-							contentClassName="jetpack-contact-form__popover"
-							renderToggle={ ( { isOpen, onToggle } ) =>
-								renderFormSettingsToggle( isOpen, onToggle )
-							}
-							renderContent={ () => renderFormSettings() }
-						/>
-					</ToolbarGroup>
-				</BlockControls>
-			) }
+			<BlockControls>
+				<ToolbarGroup>
+					<ToolbarItem>
+						{ () => (
+							<Dropdown
+								position="bottom right"
+								className="jetpack-contact-form-settings-selector"
+								contentClassName="jetpack-contact-form__popover"
+								renderToggle={ ( { isOpen, onToggle } ) =>
+									renderFormSettingsToggle( isOpen, onToggle )
+								}
+								renderContent={ () => renderFormSettings() }
+							/>
+						) }
+					</ToolbarItem>
+				</ToolbarGroup>
+			</BlockControls>
 
 			<InspectorControls>
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>

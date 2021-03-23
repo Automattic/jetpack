@@ -1,18 +1,19 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import WpPage from '../wp-page';
 
-export default class PickAPlanPage extends Page {
+export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = 'div[data-e2e-product-slug="jetpack_complete"]';
-		super( page, { expectedSelector, explicitWaitMS: 40000 } );
+		super( page, {
+			expectedSelectors: [ 'div[data-e2e-product-slug="jetpack_complete"]' ],
+			explicitWaitMS: 40000,
+		} );
 	}
 
 	async waitForPage() {
 		await super.waitForPage();
-		waitForSelector( this.page, '.jetpack-product-card-alt__price-placeholder', { hidden: true } );
+		await this.waitForElementToBeHidden( '.jetpack-product-card-alt__price-placeholder' );
 	}
 
 	async select( product = 'free' ) {
@@ -27,13 +28,13 @@ export default class PickAPlanPage extends Page {
 
 	async selectFreePlan() {
 		const freePlanButton = '[data-e2e-product-slug="free"] a';
-		await this.page.waitFor( 500 );
-		return await waitAndClick( this.page, freePlanButton );
+		await this.waitForTimeout( 500 );
+		return await this.click( freePlanButton );
 	}
 
 	async selectComplete() {
 		const buttonSelector =
 			'div[data-e2e-product-slug="jetpack_complete"] [class*="summary"] button';
-		return await waitAndClick( this.page, buttonSelector );
+		return await this.click( buttonSelector );
 	}
 }

@@ -15,7 +15,7 @@ import Notice from './notice';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
 import SearchResult from './search-result';
-import SearchSidebar from './search-sidebar';
+import SearchSidebar from './sidebar';
 import { getConstrastingColor } from '../lib/colors';
 
 /**
@@ -24,6 +24,33 @@ import { getConstrastingColor } from '../lib/colors';
 import './search-results.scss';
 
 class SearchResults extends Component {
+	state = {
+		shouldShowMobileSecondary: false,
+	};
+
+	toggleMobileSecondary = event => {
+		if (
+			event.type === 'click' ||
+			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
+		) {
+			// Prevent page scroll from pressing spacebar
+			if ( event.key === ' ' ) {
+				event.preventDefault();
+			}
+			this.setState( state => ( {
+				shouldShowMobileSecondary: ! state.shouldShowMobileSecondary,
+			} ) );
+		}
+	};
+
+	hasAnyWidgets() {
+		let widgets = [ ...this.props.widgets ];
+		if ( this.props.widgetOutsideOverlay?.filters?.length > 0 ) {
+			widgets = [ this.props.widgetOutsideOverlay, ...widgets ];
+		}
+		return widgets;
+	}
+
 	getSearchTitle() {
 		const { total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = this.props.query !== '';
@@ -72,32 +99,13 @@ class SearchResults extends Component {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: `
-							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
+							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}
 						`,
 					} }
 				/>
-				<SearchForm
-					className="jetpack-instant-search__search-results-search-form"
-					enableSort={ this.props.enableSort }
-					filters={ this.props.filters }
-					isLoading={ this.props.isLoading }
-					isVisible={ this.props.isVisible }
-					locale={ this.props.locale }
-					postTypes={ this.props.postTypes }
-					onChangeSearch={ this.props.onChangeSearch }
-					onChangeSort={ this.props.onChangeSort }
-					overlayTrigger={ this.props.overlayTrigger }
-					response={ this.props.response }
-					resultFormat={ this.props.resultFormat }
-					searchQuery={ this.props.searchQuery }
-					sort={ this.props.sort }
-					widgets={ this.props.widgets }
-					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
-				/>
-
 				<div className="jetpack-instant-search__search-results-title">
 					{ this.getSearchTitle() }
 				</div>
@@ -127,7 +135,7 @@ class SearchResults extends Component {
 						{ results.map( ( result, index ) => (
 							<SearchResult
 								index={ index }
-								isPrivateSite={ this.props.isPrivateSite }
+								isPhotonEnabled={ this.props.isPhotonEnabled }
 								locale={ this.props.locale }
 								query={ this.props.query }
 								railcar={ this.props.isVisible ? result.railcar : null }
@@ -138,7 +146,7 @@ class SearchResults extends Component {
 					</ol>
 				) }
 				{ hasResults && this.props.hasNextPage && (
-					<div className="jetpack-instant-search__search-pagination">
+					<div className="jetpack-instant-search__search-results-pagination">
 						<ScrollButton
 							enableLoadOnScroll={ this.props.enableLoadOnScroll }
 							isLoading={ this.props.isLoading }
@@ -179,27 +187,81 @@ class SearchResults extends Component {
 
 	render() {
 		return (
-			<main
+			<div
 				aria-hidden={ this.props.isLoading === true }
 				aria-live="polite"
 				className="jetpack-instant-search__search-results"
 			>
-				<button
-					className="jetpack-instant-search__overlay-close"
-					onClick={ this.closeOverlay }
-					onKeyPress={ this.onKeyPressHandler }
-					tabIndex="0"
-					aria-label={ __( 'Close search results', 'jetpack' ) }
-				>
-					<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
-				</button>
-				<div className="jetpack-instant-search__search-results-primary">
-					{ this.renderPrimarySection() }
+				<div className="jetpack-instant-search__search-results-controls">
+					<SearchForm
+						className="jetpack-instant-search__search-results-search-form"
+						enableSort={ this.props.enableSort }
+						filters={ this.props.filters }
+						isLoading={ this.props.isLoading }
+						isVisible={ this.props.isVisible }
+						locale={ this.props.locale }
+						postTypes={ this.props.postTypes }
+						onChangeSearch={ this.props.onChangeSearch }
+						onChangeSort={ this.props.onChangeSort }
+						overlayTrigger={ this.props.overlayTrigger }
+						response={ this.props.response }
+						resultFormat={ this.props.resultFormat }
+						searchQuery={ this.props.searchQuery }
+						sort={ this.props.sort }
+						widgets={ this.props.widgets }
+						widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					>
+						{ this.hasAnyWidgets() && (
+							<div
+								role="button"
+								onClick={ this.toggleMobileSecondary }
+								onKeyDown={ this.toggleMobileSecondary }
+								tabIndex="0"
+								className="jetpack-instant-search__search-results-filter-button"
+							>
+								{ __( 'Filters', 'jetpack' ) }
+								<Gridicon
+									icon="chevron-down"
+									size={ 16 }
+									alt={ __( 'Show search filters', 'jetpack' ) }
+									aria-hidden="true"
+								/>
+								<span className="screen-reader-text assistive-text">
+									{ this.state.shouldShowMobileSecondary
+										? __( 'Hide filters', 'jetpack' )
+										: __( 'Show filters', 'jetpack' ) }
+								</span>
+							</div>
+						) }
+					</SearchForm>
+					<button
+						className="jetpack-instant-search__overlay-close"
+						onClick={ this.closeOverlay }
+						onKeyPress={ this.onKeyPressHandler }
+						tabIndex="0"
+						aria-label={ __( 'Close search results', 'jetpack' ) }
+					>
+						<Gridicon icon="cross" size="24" aria-hidden="true" focusable="false" />
+					</button>
 				</div>
-				<div className="jetpack-instant-search__search-results-secondary">
-					{ this.renderSecondarySection() }
+				<div className="jetpack-instant-search__search-results-content">
+					<div className="jetpack-instant-search__search-results-primary">
+						{ this.renderPrimarySection() }
+					</div>
+					<div
+						className={ [
+							'jetpack-instant-search__search-results-secondary',
+							`${
+								this.state.shouldShowMobileSecondary
+									? 'jetpack-instant-search__search-results-secondary--show-as-modal'
+									: ''
+							} `,
+						].join( ' ' ) }
+					>
+						{ this.renderSecondarySection() }
+					</div>
 				</div>
-			</main>
+			</div>
 		);
 	}
 }

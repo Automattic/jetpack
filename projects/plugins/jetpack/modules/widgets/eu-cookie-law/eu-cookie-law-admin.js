@@ -23,7 +23,7 @@
 		);
 		$document.on( 'widget-updated widget-added', function ( e, widget ) {
 			var widgetId = $( widget ).attr( 'id' );
-			if ( widgetId.indexOf( 'eu_cookie_law_widget' ) !== -1 ) {
+			if ( widgetId && widgetId.indexOf( 'eu_cookie_law_widget' ) !== -1 ) {
 				maybeShowNotice( null, $( '#' + widgetId + ' .eu-cookie-law-widget-policy-url' ) );
 			}
 		} );

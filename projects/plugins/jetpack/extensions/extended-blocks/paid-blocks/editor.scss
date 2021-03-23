@@ -68,7 +68,7 @@ $icon-background-color: #fff;
 }
 
 .jetpack-upgrade-plan__hidden {
-	opacity: 0;
+	visibility: hidden;
 }
 
 // Tweak Banner depending on the context.

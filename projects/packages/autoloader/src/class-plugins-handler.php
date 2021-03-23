@@ -114,7 +114,7 @@ class Plugins_Handler {
 	 */
 	public function get_cached_plugins() {
 		$cached = get_transient( self::TRANSIENT_KEY );
-		if ( false === $cached ) {
+		if ( ! is_array( $cached ) || empty( $cached ) ) {
 			return array();
 		}
 

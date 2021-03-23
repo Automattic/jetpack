@@ -8,6 +8,9 @@ name: Linting
 
 on: pull_request
 
+env:
+  COMPOSER_ROOT_VERSION: "dev-master"
+
 jobs:
 
   ### Job to categorize changed files. Other jobs depend on this to know when they should run.
@@ -17,10 +20,10 @@ jobs:
     timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
     outputs:
       # Whether any PHP files have changed.
-      php: ${{ steps.filter.outputs.php == 'true' }}
+      php: ${{ steps.filter.outputs.php }}
 
       # Whether any JavaScript files have changed.
-      js: ${{ steps.filter.outputs.js == 'true' }}
+      js: ${{ steps.filter.outputs.js }}
 
       # Whether any miscellaneous files related to PHP linting have changed.
       misc_php: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_php == 'true' }}
@@ -96,6 +99,8 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$PHP_FILES" --slurpfile excludes tools/phpcs-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=php_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
       - id: filterJS
         shell: bash
@@ -104,33 +109,18 @@ jobs:
         run: |
           EXCLUDED_FILES=$(jq --argjson files "$JS_FILES" --slurpfile excludes tools/eslint-excludelist.json -nc '$files - ($files - $excludes[0])')
           echo "::set-output name=js_excluded_files::$EXCLUDED_FILES"
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
       - id: filterExcludeList
         shell: bash
         env:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
         run: |
-          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/phpcs-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
+          EXCLUDED_FILES=$(jq --argjson files "$FILES" --slurpfile phpexcludes tools/phpcs-excludelist.json --slurpfile jsexcludes tools/eslint-excludelist.json -nc '$files - ($files - $phpexcludes[0] - $jsexcludes[0])')
           echo "::set-output name=excluded_files::$EXCLUDED_FILES"
-
-      # When the `php_lint` job is skipped, it gets skipped incorrectly. So manually supply the statuses for the required jobs.
-      - name: Hack around Github bug when skipping required matrixed jobs
-        if: steps.filter.outputs.php != 'true' && steps.filter.outputs.misc != 'true' && steps.filter.outputs.misc_php != 'true'
-        shell: bash
-        run: |
-          for v in '5.6' '7.0' '7.4' '8.0'; do
-            curl -v \
-              --url "${GITHUB_API_URL}/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}" \
-              --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-              --header 'content-type: application/json' \
-              --data '{
-                "state": "success",
-                "target_url": "https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}/checks?check_run_id=${{ github.run_id }}",
-                "description": "Test skipped, no changed files",
-                "context": '"\"PHP lint ($v)\""'
-              }'
-          done
-
+          echo "Excluded files:"
+          jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
   ### Runs `php -l` over all PHP files, in all relevant PHP versions
   # Local equivalent: `composer php:lint`
@@ -138,14 +128,12 @@ jobs:
     name: PHP lint (${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: 3  # 2021-01-18: Successful runs seem to take ~1 minute
 
     strategy:
       fail-fast: false
       matrix:
-        # Note, if you add versions here then add them to the hack above too.
         php-versions: [ '5.6', '7.0', '7.4', '8.0' ]
         experimental: [ false ]
 
@@ -162,7 +150,8 @@ jobs:
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -171,8 +160,12 @@ jobs:
 
       - name: Tool versions
         run: |
+          which php
           php --version
+          which composer
           composer --version
+          which jq
+          jq --version
 
       - name: Install dependencies
         run: |
@@ -194,23 +187,32 @@ jobs:
     name: PHP Code Sniffer (non-excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
+    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -219,8 +221,12 @@ jobs:
 
       - name: Tool versions
         run: |
+          which php
           php --version
+          which composer
           composer --version
+          which jq
+          jq --version
 
       - name: Install dependencies
         run: composer install
@@ -237,23 +243,32 @@ jobs:
     name: PHP Compatibility
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.php || needs.changed_files.outputs.misc_php
+    if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc_php == 'true'
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -262,8 +277,12 @@ jobs:
 
       - name: Tool versions
         run: |
+          which php
           php --version
+          which composer
           composer --version
+          which jq
+          jq --version
 
       - name: Install dependencies
         run: composer install
@@ -275,7 +294,7 @@ jobs:
           echo "::remove-matcher owner=phpcs"
 
   ### Runs phpcs-changed on PHP files listed in phpcs-excludelist.json.
-  # Local equivalent: `composer phpcs:changed -- --git-branch=<base> <files...>`
+  # Local equivalent: `composer phpcs:changed -- --git-base=<base> <files...>`
   # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `composer phpcs:changed`
@@ -295,17 +314,26 @@ jobs:
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -314,8 +342,11 @@ jobs:
 
       - name: Tool versions
         run: |
+          which php
           php --version
+          which composer
           composer --version
+          which jq
           jq --version
 
       - name: Install dependencies
@@ -327,7 +358,7 @@ jobs:
           FILES: ${{ needs.changed_files.outputs.php_excluded_files }}
         run: |
           echo "::add-matcher::.github/matchers/phpcs-problem-matcher.json"
-          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]') |
+          composer phpcs:changed -- --report=json --standard=.github/files/php-linting-phpcs.xml --git-base=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]') |
             jq -r '.files | to_entries | .[] | .key as $key | .value.messages[] | [ $key, ":", .line, ":", .column, ": ", .type, " - ", .message, " (", .source, ")" ] | map(tostring) | join("")'
           echo "::remove-matcher owner=phpcs"
 
@@ -337,28 +368,73 @@ jobs:
     name: ESLint (non-excluded files only)
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.js || needs.changed_files.outputs.misc_js
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    if: needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
+    timeout-minutes: 10  # 2021-03-05: Runs now take ~5 minutes due to now installing all composer/yarn deps to ensure valid linting.
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12'
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versions.outputs.php-version }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.versions.outputs.node-version }}
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Use yarn cache
         uses: actions/cache@v2
         with:
-          path: /home/runner/.cache/yarn/v6
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which node
+          node --version
+          which yarn
+          yarn --version
+          which jq
+          jq --version
+
       - run: yarn install
+      - run: yarn jetpack install --all -v # Ensure there are no unresolved import errors.
       - run: yarn lint-required
 
   ### Runs eslint-changed on JS files listed in eslint-excludelist.json.
-  # Local equivalent: `yarn lint-changed --git-branch=<base>`
+  # Local equivalent: `yarn lint-changed --git-base=<base>`
   # `<base>` is the branch this PR is to be merged into, probably `origin/master`.
   #
   # Pre-commit, you might also `git add` the relevant files and run `yarn lint-changed`
@@ -368,7 +444,7 @@ jobs:
     needs: changed_files
     if: needs.changed_files.outputs.js_excluded_files != '[]'
     continue-on-error: true
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
+    timeout-minutes: 10  # 2021-03-05: Taking ~4:30 now due to now installing all composer/yarn deps to ensure valid linting.
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
@@ -378,23 +454,67 @@ jobs:
           fetch-depth: 10
       - uses: ./.github/actions/deepen-to-merge-base
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12'
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versions.outputs.php-version }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.versions.outputs.node-version }}
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Use yarn cache
         uses: actions/cache@v2
         with:
-          path: /home/runner/.cache/yarn/v6
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which node
+          node --version
+          which yarn
+          yarn --version
+          which jq
+          jq --version
+
       - run: yarn install
+      - run: yarn jetpack install --all -v # Ensure there are no unresolved import errors.
       - name: Run eslint-changed
         env:
           FILES: ${{ needs.changed_files.outputs.js_excluded_files }}
-        run: yarn lint-changed --git-branch=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
+        run: yarn lint-changed --git-base=${{ github.event.pull_request.base.sha }} $(jq -rn --argjson files "$FILES" '$files[]')
 
   ### Checks that copied files (e.g. readme, license) are in sync
   # Local equivalent: `./tools/check-copied-files.sh`
@@ -413,44 +533,180 @@ jobs:
     name: Check linter exclude lists
     runs-on: ubuntu-latest
     needs: changed_files
-    if: needs.changed_files.outputs.excludelist
-    timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~3 minutes. Hopefully this will only ever decrease.
-
+    if: needs.changed_files.outputs.excludelist == 'true'
+    timeout-minutes: 10  # 2021-02-04: Canceling out at 5 minutes due to now installing all composer/yarn deps to ensure valid linting.
     steps:
       - uses: actions/checkout@v2
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
-      - uses: actions/setup-node@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: ${{ steps.versions.outputs.node-version }}
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Use yarn cache
         uses: actions/cache@v2
         with:
-          path: /home/runner/.cache/yarn/v6
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which node
+          node --version
+          which yarn
+          yarn --version
+          which jq
+          jq --version
+
       - run: composer install
       - run: yarn install
+      - run: yarn jetpack install --all -v # Ensure there are no unresolved import errors.
 
       - name: Cleanup excludelists
         run: tools/cleanup-excludelists.sh
       - name: Check for changes to exclude lists
         run: .github/files/check-excludelist-diff.js
+
+  ### Checks that changelogger change files are being created.
+  # No good equivalent, since it depends on the diff.
+  changelogger_used:
+    name: Changelogger use
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-02-25: Wild guess.
+    steps:
+      # We don't need full git history, but require-change-file-for-touched-projects.php does need everything up to the merge-base.
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 10
+      - uses: ./.github/actions/deepen-to-merge-base
+
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versions.outputs.php-version }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which jq
+          jq --version
+
+      - name: Check change files are touched for touched projects
+        run: .github/files/require-change-file-for-touched-projects.php --debug
+
+  ### Checks that changelogger change files are valid.
+  # Local equivalent: `./tools/changelogger-validate-all.sh`
+  changelogger_valid:
+    name: Changelogger validity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2021-02-25: Wild guess.
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versions.outputs.php-version }}
+          tools: composer
+          extensions: mysql, imagick
+          coverage: none
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Use composer cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Tool versions
+        run: |
+          which php
+          php --version
+          which composer
+          composer --version
+          which jq
+          jq --version
+
+      - name: Check change file validity
+        run: tools/changelogger-validate-all.sh --debug
+
+  ### Checks against project structure, e.g. that composer.json exists.
+  # Local equivalent: `./.github/files/lint-project-structure.sh`
+  project_structure:
+    name: Project structure
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-03-22: Should only take a few seconds.
+    steps:
+      - uses: actions/checkout@v2
+      - run: .github/files/lint-project-structure.sh

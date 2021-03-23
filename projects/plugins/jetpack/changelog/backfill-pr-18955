@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Beautiful Math: Remove title attribute from generated image.

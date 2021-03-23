@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Site Card: If blogname is empty, replace it with domain name.

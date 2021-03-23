@@ -10,6 +10,12 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
 /**
+ * Contains utilities related to the Jetpack Recommendations.
+ *
+ * @package automattic/jetpack
+ */
+
+/**
  * Jetpack_Recommendations class
  */
 class Jetpack_Recommendations {
@@ -21,8 +27,13 @@ class Jetpack_Recommendations {
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		// Shortcircuit early if we are in offline mode.
-		if ( ( new Status() )->is_offline_mode() ) {
+		// Shortcircuit early if Jetpack is not active or we are in offline mode.
+		if ( ! Jetpack::is_active() || ( new Status() )->is_offline_mode() ) {
+			return false;
+		}
+
+		// No recommendations for Atomic sites, they already get onboarded in Calypso.
+		if ( jetpack_is_atomic_site() ) {
 			return false;
 		}
 
@@ -108,7 +119,7 @@ class Jetpack_Recommendations {
 	public static function get_recommendations_data() {
 		self::initialize_jetpack_recommendations();
 
-		return Jetpack_Options::get_option( 'recommendations_data', (object) array() );
+		return Jetpack_Options::get_option( 'recommendations_data', array() );
 	}
 
 	/**

@@ -17,7 +17,12 @@ import { isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { userCanManageModules } from 'state/initial-state';
-import { isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
+import {
+	isOfflineMode,
+	isUnavailableInOfflineMode,
+	isUnavailableInUserlessMode,
+} from 'state/connection';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -44,13 +49,21 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				results = [];
 			forEach( allModules, ( moduleData, slug ) => {
 				if ( this.props.isModuleFound( slug ) && includes( safelist, slug ) ) {
-					// Not available in offline mode.
-					if (
-						this.props.isOfflineMode &&
-						this.props.isUnavailableInOfflineMode( moduleData.module )
-					) {
+					const isModuleUnavailableInOfflineMode =
+						this.props.isOfflineMode && this.props.isUnavailableInOfflineMode( moduleData.module );
+					const isModuleUnavailableInUserlessMode =
+						! this.props.hasConnectedOwner &&
+						this.props.isUnavailableInUserlessMode( moduleData.module );
+
+					// Not available in offline or userless mode.
+					if ( isUnavailableInOfflineMode || isUnavailableInUserlessMode ) {
 						return results.push(
-							<ActiveCard key={ slug } moduleData={ moduleData } offlineMode={ true } />
+							<ActiveCard
+								key={ slug }
+								moduleData={ moduleData }
+								offlineMode={ isModuleUnavailableInOfflineMode }
+								userlessMode={ isModuleUnavailableInUserlessMode }
+							/>
 						);
 					}
 
@@ -89,17 +102,27 @@ SearchableModules.defaultProps = {
 class ActiveCard extends Component {
 	render() {
 		const m = this.props.moduleData,
-			offlineMode = this.props.offlineMode;
+			offlineMode = this.props.offlineMode,
+			userlessMode = this.props.userlessMode;
 
 		return (
 			<SettingsCard module={ m.module } header={ m.name } action={ m.module } hideButton>
 				<SettingsGroup
 					disableInOfflineMode={ offlineMode }
+					disableInUserlessMode={ userlessMode }
 					module={ { module: m.module } }
 					support={ { link: m.learn_more_button } }
 				>
 					{ m.description }
 				</SettingsGroup>
+
+				{ userlessMode && (
+					<ConnectUserBar
+						feature={ m.module }
+						featureLabel={ m.name }
+						text={ __( 'Sign in to configure.', 'jetpack' ) }
+					/>
+				) }
 			</SettingsCard>
 		);
 	}
@@ -112,5 +135,6 @@ export default connect( state => {
 		canManageModules: userCanManageModules( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInUserlessMode: module_name => isUnavailableInUserlessMode( state, module_name ),
 	};
 } )( SearchableModules );

@@ -1,4 +1,6 @@
-@import '../lib/style-helpers';
+@import '../lib/styles/_helper.scss';
+
+$grid-size-large: 16px;
 
 .jetpack-instant-search__search-results-list.is-format-product {
 	display: flex;
@@ -6,7 +8,7 @@
 	padding: 0;
 }
 
-.jetpack-instant-search__search-result-product {
+.jetpack-instant-search__search-result.jetpack-instant-search__search-result-product {
 	margin: 0 $grid-size-large $grid-size-large 0;
 	display: flex;
 	flex-direction: column;
@@ -19,10 +21,14 @@
 		margin-right: 0;
 	}
 
-	@include break-small {
+	@include break-small-up {
 		// More columns on wider viewports
-		width: calc( ( 100% - ( #{$grid-size-large} * 6 ) ) / 3 );
+		width: calc( ( 100% - ( #{$grid-size-large} * 4 ) ) / 3 );
 		margin-right: 32px;
+
+		&:nth-child( 3n ) {
+			margin-right: 0;
+		}
 	}
 }
 
@@ -31,11 +37,7 @@
 	max-width: 100%;
 }
 
-.jetpack-instant-search__result-product-title {
-	font-size: 1.25rem;
-	line-height: 1.1;
-	margin-bottom: 0.25em;
-	margin-left: 0;
-	margin-top: 0;
-	overflow-wrap: break-word;
+.jetpack-instant-search__search-result-title.jetpack-instant-search__search-result-product-title {
+	font-size: 1.25em;
+	margin: 0 0 0.25em;
 }

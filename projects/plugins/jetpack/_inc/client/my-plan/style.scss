@@ -16,7 +16,7 @@
 	color: $gray-darken-20;
 }
 
-.jp-landing__plan-features-header-checklist-cta-container {
+.jp-landing__plan-features-header-recommendations-cta-container {
 	order: 30;
 	align-self: center;
 	display: flex;
@@ -134,4 +134,10 @@
 	}
 }
 
-@import './my-plan-header/checklist-progress-card/style.scss';
+.jp-landing__plan-features-header-jetpack-license {
+	.dops-button {
+		margin-top: 16px;
+		margin-right: 0px;
+		float: right;
+	}
+}

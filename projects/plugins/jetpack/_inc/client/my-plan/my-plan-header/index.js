@@ -10,18 +10,25 @@ import { find, isEmpty } from 'lodash';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
+import Button from 'components/button';
 import Card from 'components/card';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import { getPlanClass } from 'lib/plans/constants';
-import { getUpgradeUrl, getSiteRawUrl, getDateFormat, showBackups } from 'state/initial-state';
-import ChecklistCta from './checklist-cta';
-import ChecklistProgress from './checklist-progress-card';
+import {
+	getUpgradeUrl,
+	getDateFormat,
+	showBackups,
+	showRecommendations,
+	showLicensingUi,
+} from 'state/initial-state';
+import License from './license';
 import MyPlanCard from '../my-plan-card';
 
 class MyPlanHeader extends React.Component {
@@ -230,39 +237,60 @@ class MyPlanHeader extends React.Component {
 		return <h3 className="jp-landing__card-header">{ title }</h3>;
 	}
 
-	render() {
-		const { plan, siteSlug } = this.props;
+	trackRecommendationsClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'recommendations-button',
+			page: 'my-plan',
+		} );
+	};
 
+	render() {
 		return (
 			<div className="jp-landing__plans">
 				{ this.renderPlan() }
 				{ this.renderProducts() }
-				<Card compact>
-					<ChecklistCta onClick={ this.trackChecklistCtaClick } siteSlug={ siteSlug } />
-				</Card>
-				<ChecklistProgress plan={ plan } />
+				{ this.props.showRecommendations && (
+					<Card compact>
+						<div className="jp-landing__plan-features-header-recommendations-cta-container">
+							<Button
+								href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
+								onClick={ this.trackRecommendationsClick }
+								primary
+							>
+								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
+							</Button>
+						</div>
+					</Card>
+				) }
+				{ this.props.showLicensingUi && (
+					<Card compact>
+						<License />
+					</Card>
+				) }
 			</div>
 		);
 	}
 }
 
 MyPlanHeader.propTypes = {
+	activeProducts: PropTypes.array,
 	plan: PropTypes.string,
-	siteRawUrl: PropTypes.string,
+	purchases: PropTypes.array,
+	siteAdminUrl: PropTypes.string,
 
 	// From connect HoC
-	siteSlug: PropTypes.string,
 	dateFormat: PropTypes.string,
 	displayBackups: PropTypes.bool,
 	plansMainTopUpgradeUrl: PropTypes.string,
-	purchases: PropTypes.array,
+	showRecommendations: PropTypes.bool,
 };
 
 export default connect( state => {
 	return {
-		siteSlug: getSiteRawUrl( state ),
 		dateFormat: getDateFormat( state ),
 		displayBackups: showBackups( state ),
 		plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
+		showRecommendations: showRecommendations( state ),
+		showLicensingUi: showLicensingUi( state ),
 	};
 } )( MyPlanHeader );

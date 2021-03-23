@@ -95,6 +95,20 @@ class Table_Checksum {
 	private $parent_table = null;
 
 	/**
+	 * What field to use for the parent table join, if it has a "parent" table.
+	 *
+	 * @var mixed|null
+	 */
+	private $parent_join_field = null;
+
+	/**
+	 * What field to use for the table join, if it has a "parent" table.
+	 *
+	 * @var mixed|null
+	 */
+	private $table_join_field = null;
+
+	/**
 	 * Table_Checksum constructor.
 	 *
 	 * @param string $table The table to calculate checksums for.
@@ -144,61 +158,73 @@ class Table_Checksum {
 				'filter_values'   => Sync\Settings::get_disallowed_post_types_structured(),
 			),
 			'postmeta'           => array(
-				'table'           => $wpdb->postmeta,
-				'range_field'     => 'post_id',
-				'key_fields'      => array( 'post_id', 'meta_key' ),
-				'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'   => Sync\Settings::get_allowed_post_meta_structured(),
-				'parent_table'    => 'posts',
+				'table'             => $wpdb->postmeta,
+				'range_field'       => 'post_id',
+				'key_fields'        => array( 'post_id', 'meta_key' ),
+				'checksum_fields'   => array( 'meta_key', 'meta_value' ),
+				'filter_values'     => Sync\Settings::get_allowed_post_meta_structured(),
+				'parent_table'      => 'posts',
+				'parent_join_field' => 'ID',
+				'table_join_field'  => 'post_id',
 			),
 			'comments'           => array(
 				'table'           => $wpdb->comments,
 				'range_field'     => 'comment_ID',
 				'key_fields'      => array( 'comment_ID' ),
-				'checksum_fields' => array( 'comment_content' ),
+				'checksum_fields' => array( 'comment_date_gmt' ),
 				'filter_values'   => array(
-					'comment_type' => array(
+					'comment_type'     => array(
 						'operator' => 'IN',
 						'values'   => apply_filters(
 							'jetpack_sync_whitelisted_comment_types',
 							array( '', 'comment', 'trackback', 'pingback', 'review' )
 						),
 					),
+					'comment_approved' => array(
+						'operator' => 'NOT IN',
+						'values'   => array( 'spam' ),
+					),
 				),
-				'filter_sql'      => Sync\Settings::get_comments_filter_sql(),
 			),
 			'commentmeta'        => array(
-				'table'           => $wpdb->commentmeta,
-				'range_field'     => 'comment_id',
-				'key_fields'      => array( 'comment_id', 'meta_key' ),
-				'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'   => Sync\Settings::get_allowed_comment_meta_structured(),
-				'parent_table'    => 'comments',
+				'table'             => $wpdb->commentmeta,
+				'range_field'       => 'comment_id',
+				'key_fields'        => array( 'comment_id', 'meta_key' ),
+				'checksum_fields'   => array( 'meta_key', 'meta_value' ),
+				'filter_values'     => Sync\Settings::get_allowed_comment_meta_structured(),
+				'parent_table'      => 'comments',
+				'parent_join_field' => 'comment_ID',
+				'table_join_field'  => 'comment_id',
 			),
 			'terms'              => array(
 				'table'           => $wpdb->terms,
 				'range_field'     => 'term_id',
 				'key_fields'      => array( 'term_id' ),
 				'checksum_fields' => array( 'term_id', 'name', 'slug' ),
+				'parent_table'    => 'term_taxonomy',
 			),
 			'termmeta'           => array(
 				'table'           => $wpdb->termmeta,
 				'range_field'     => 'term_id',
 				'key_fields'      => array( 'term_id', 'meta_key' ),
 				'checksum_fields' => array( 'meta_key', 'meta_value' ),
-				'parent_table'    => 'terms',
+				'parent_table'    => 'term_taxonomy',
 			),
 			'term_relationships' => array(
-				'table'           => $wpdb->term_relationships,
-				'range_field'     => 'object_id',
-				'key_fields'      => array( 'object_id' ),
-				'checksum_fields' => array( 'object_id', 'term_taxonomy_id' ),
+				'table'             => $wpdb->term_relationships,
+				'range_field'       => 'object_id',
+				'key_fields'        => array( 'object_id' ),
+				'checksum_fields'   => array( 'object_id', 'term_taxonomy_id' ),
+				'parent_table'      => 'term_taxonomy',
+				'parent_join_field' => 'term_taxonomy_id',
+				'table_join_field'  => 'term_taxonomy_id',
 			),
 			'term_taxonomy'      => array(
 				'table'           => $wpdb->term_taxonomy,
 				'range_field'     => 'term_taxonomy_id',
 				'key_fields'      => array( 'term_taxonomy_id' ),
 				'checksum_fields' => array( 'term_taxonomy_id', 'term_id', 'taxonomy', 'description', 'parent' ),
+				'filter_values'   => Sync\Settings::get_blacklisted_taxonomies_structured(),
 			),
 			'links'              => $wpdb->links, // TODO describe in the array format or add exceptions.
 			'options'            => $wpdb->options, // TODO describe in the array format or add exceptions.
@@ -217,6 +243,8 @@ class Table_Checksum {
 		$this->filter_values         = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
 		$this->additional_filter_sql = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
 		$this->parent_table          = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
+		$this->parent_join_field     = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
+		$this->table_join_field      = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
 	}
 
 	/**
@@ -331,7 +359,6 @@ class Table_Checksum {
 
 					$result[] = $prepared_statement;
 					break;
-				// TODO implement other operators if needed.
 			}
 		}
 
@@ -435,7 +462,12 @@ class Table_Checksum {
 		$key_fields = implode( ',', $key_fields );
 
 		// Prepare the checksum fields.
-		$checksum_fields_string = implode( ',', array_merge( $this->checksum_fields, array( $salt ) ) );
+		$checksum_fields = array();
+		// Prefix the fields with the table name, to avoid clashes in queries with sub-queries (e.g. meta tables).
+		foreach ( $this->checksum_fields as $field ) {
+			$checksum_fields[] = $this->table . '.' . $field;
+		}
+		$checksum_fields_string = implode( ',', array_merge( $checksum_fields, array( $salt ) ) );
 
 		$additional_fields = '';
 		if ( $granular_result ) {
@@ -451,10 +483,10 @@ class Table_Checksum {
 		$join_statement = '';
 		if ( $this->parent_table ) {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
-			$parent_filter_query = $parent_table_obj->build_filter_statement( $range_from, $range_to, null, 'parent_table' );
+			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
 			$join_statement = "
-				INNER JOIN {$parent_table_obj->table} as parent_table ON ({$this->table}.{$this->range_field} = parent_table.{$parent_table_obj->range_field} AND {$parent_filter_query})
+				INNER JOIN {$parent_table_obj->table} as parent_table ON ({$this->table}.{$this->table_join_field} = parent_table.{$this->parent_join_field} AND {$parent_filter_query})
 			";
 		}
 

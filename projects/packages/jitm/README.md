@@ -12,3 +12,40 @@ There are 2 main ways to use JITMs:
 ### Usage
 
 Instantiating the JITM Manager will facilitate the display of JITM messages in wp-admin
+
+### Adding Pre-Connection JITMs
+
+Plugins can add pre-connection JITMs uisng the `jetpack_pre_connection_jitms` filter. Each JITM message must be an array and must contain the following keys:
+ * id
+ * message_path
+ * message
+ * description
+ * button_link
+ * button_caption
+
+ If a JITM is missing one of the above keys, the JITM will not be displayed.
+
+ The Jetpack plugin's pre-connection JITMs can be found in the `Jetpack_Pre_Connection_JITMs` class.
+
+ #### Example
+
+
+    function add_preconnection_jitms( $messages ) {
+	    $example_jitm = array(
+			'id'             => 'example-jitm',
+			'message_path'   => '/wp:plugins:admin_notices/',
+			'message'        => __( 'An example message.', 'jetpack' ),
+			'description'    => __( 'An example description.', 'jetpack' ),
+			'button_link'    => 'https://example.com/path',
+			'button_caption' => __( 'Example button text', 'jetpack' ),
+	    );
+
+	    if ( ! is_array( $messages ) ) {
+			return array( $example_jitm );
+	    }
+
+	    return array_merge( $messages, array( $example_jitm ) );
+     }
+
+     add_filter( 'jetpack_pre_connection_jitms', 'add_preconnection_jitms' );
+

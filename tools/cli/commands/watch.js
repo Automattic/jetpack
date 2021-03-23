@@ -8,8 +8,8 @@ import child_process from 'child_process';
 /**
  * Internal dependencies
  */
-import { promptForProject } from '../helpers/promptForProject';
-import { readComposerJson } from '../helpers/readComposerJson';
+import promptForProject from '../helpers/promptForProject';
+import { readComposerJson } from '../helpers/json';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
 
@@ -20,7 +20,7 @@ let output = true;
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the build commands defined.
+ * @returns {object} Yargs with the watch commands defined.
  */
 export function watchDefine( yargs ) {
 	yargs.command(
@@ -58,23 +58,21 @@ export async function watchCli( options ) {
 	if ( options.all ) {
 		output = false;
 		const projects = allProjects();
-		await projects.filter( async project =>
-			hasWatchStep( project, await readComposerJson( project, output ) )
+		await projects.filter( project =>
+			hasWatchStep( project, readComposerJson( project, output ) )
 		);
-		projects.forEach( async project =>
-			watch( project, await readComposerJson( project, output ) )
-		);
+		projects.forEach( project => watch( project, readComposerJson( project, output ) ) );
 		return;
 	}
 
 	options = await promptForProject( options );
 	options = {
+		project: '',
 		...options,
-		project: options.project || '',
 	};
 
 	if ( options.project ) {
-		const data = await readComposerJson( options.project );
+		const data = readComposerJson( options.project );
 		data !== false ? await watch( options.project, data ) : false;
 	} else {
 		console.error( chalk.red( 'You did not choose a project!' ) );

@@ -33,7 +33,7 @@ function membership_checks() {
  * @return bool
  */
 function required_plan_checks() {
-	$availability = \Jetpack_Gutenberg::get_availability();
+	$availability = \Jetpack_Gutenberg::get_cached_availability();
 	$slug         = 'premium-content/container';
 	return ( isset( $availability[ $slug ] ) && $availability[ $slug ]['available'] );
 }

@@ -1,38 +1,33 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import WpPage from '../wp-page';
 
-export default class InPlaceAuthorizeFrame extends Page {
+export default class InPlaceAuthorizeFrame extends WpPage {
 	constructor( page ) {
-		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ 'iframe.jp-jetpack-connect__iframe' ] } );
 	}
 
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
-		await waitForSelector( page, loadingSelector, { hidden: true } );
-
-		return await super.init( page );
+		const thisPage = new this( page );
+		await thisPage.waitForElementToBeHidden( loadingSelector );
+		return thisPage;
 	}
 
 	async getFrame() {
-		const iframeElement = await waitForSelector( this.page, this.expectedSelector );
+		const iframeElement = await this.waitForElementToBeVisible( this.selectors[ 0 ] );
 		return await iframeElement.contentFrame();
 	}
 
 	async approve() {
 		const approveSelector = 'button#approve';
 		const iframe = await this.getFrame();
-		await waitAndClick( iframe, approveSelector );
+		await iframe.click( approveSelector );
 		return this.waitToDisappear();
 	}
 
 	async waitToDisappear() {
-		return await waitForSelector( this.page, this.expectedSelector, {
-			timeout: 45000,
-			hidden: true,
-		} );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 	}
 }

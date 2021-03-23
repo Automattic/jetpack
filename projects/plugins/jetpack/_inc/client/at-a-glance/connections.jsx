@@ -24,6 +24,7 @@ import {
 } from 'state/connection';
 import {
 	userCanDisconnectSite,
+	userCanConnectAccount,
 	getUserGravatar,
 	getUsername,
 	getSiteIcon,
@@ -206,16 +207,18 @@ export class DashConnections extends Component {
 							</DashItem>
 						</div>
 					</div>
-					<div className="jp-at-a-glance__right">
-						<div className="jp-dash-item__interior">
-							<DashItem
-								className="jp-connection-type"
-								label={ _x( 'Account connection', 'Dashboard widget header', 'jetpack' ) }
-							>
-								{ this.userConnection() }
-							</DashItem>
+					{ this.props.userCanConnectAccount && (
+						<div className="jp-at-a-glance__right">
+							<div className="jp-dash-item__interior">
+								<DashItem
+									className="jp-connection-type"
+									label={ _x( 'Account connection', 'Dashboard widget header', 'jetpack' ) }
+								>
+									{ this.userConnection() }
+								</DashItem>
+							</div>
 						</div>
-					</div>
+					) }
 				</div>
 			</div>
 		);
@@ -237,6 +240,7 @@ export default connect( state => {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isOfflineMode: isOfflineMode( state ),
 		userCanDisconnectSite: userCanDisconnectSite( state ),
+		userCanConnectAccount: userCanConnectAccount( state ),
 		userGravatar: getUserGravatar( state ),
 		username: getUsername( state ),
 		isConnectionOwner: isConnectionOwner( state ),

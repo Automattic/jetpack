@@ -4,40 +4,57 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a67bd39e13b6754f2d19b1bacfbdbf0",
+    "content-hash": "30dd08a1e91edc1d74260f96286a8ca7",
     "packages": [],
     "packages-dev": [
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-monorepo",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "f317b84ea3b75512f1767551969f7aa523213785"
+                "reference": "98548854b6bbf45106ed0d96be733371a9ab7c9c"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "mediawiki/mediawiki-codesniffer": "^34.0",
+                "mediawiki/mediawiki-codesniffer": "^35.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "1.1.x-dev",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-codesniffer"
+                "mirror-repo": "Automattic/jetpack-codesniffer",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "2.2.x-dev"
+                }
             },
             "autoload": {
+                "classmap": [
+                    "hacks/"
+                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Sniffs\\": "Jetpack/Sniffs"
                 }
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer update",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "./tests/action-test-php.sh"
                 ]
             },
             "license": [
@@ -281,27 +298,27 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v34.0.0",
+            "version": "v35.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "a7f2480d022e288d9d8b2db827111996bb53e598"
+                "reference": "c305fa16998d742705f9b59358fbb816f524cf9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/a7f2480d022e288d9d8b2db827111996bb53e598",
-                "reference": "a7f2480d022e288d9d8b2db827111996bb53e598",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/c305fa16998d742705f9b59358fbb816f524cf9f",
+                "reference": "c305fa16998d742705f9b59358fbb816f524cf9f",
                 "shasum": ""
             },
             "require": {
-                "composer/semver": "^1.5.2|^3.0.1",
+                "composer/semver": "^1.7.2|^3.2.4",
                 "composer/spdx-licenses": "~1.5.2",
                 "ext-mbstring": "*",
                 "php": ">=7.2.0",
                 "squizlabs/php_codesniffer": "3.5.8"
             },
             "require-dev": {
-                "mediawiki/mediawiki-phan-config": "0.10.4",
+                "mediawiki/mediawiki-phan-config": "0.10.6",
                 "mediawiki/minus-x": "1.1.0",
                 "php-parallel-lint/php-console-highlighter": "0.5.0",
                 "php-parallel-lint/php-parallel-lint": "1.2.0",
@@ -324,9 +341,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v34.0.0"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v35.0.0"
             },
-            "time": "2020-12-05T07:12:58+00:00"
+            "time": "2021-01-28T20:56:31+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
@@ -559,16 +576,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.6.0",
+            "version": "v2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "45c6dcd64da45c2e54e173791f7a91737db106f2"
+                "reference": "c521b6a303fb1c721949c7e4bdc0f3bbd7e5125f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/45c6dcd64da45c2e54e173791f7a91737db106f2",
-                "reference": "45c6dcd64da45c2e54e173791f7a91737db106f2",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/c521b6a303fb1c721949c7e4bdc0f3bbd7e5125f",
+                "reference": "c521b6a303fb1c721949c7e4bdc0f3bbd7e5125f",
                 "shasum": ""
             },
             "require": {
@@ -610,9 +627,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.6.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.7.1"
             },
-            "time": "2021-01-04T18:43:32+00:00"
+            "time": "2021-02-16T15:50:18+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
