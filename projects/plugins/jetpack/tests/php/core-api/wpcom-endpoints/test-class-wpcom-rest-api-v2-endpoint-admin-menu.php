@@ -92,11 +92,11 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
-		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Jetpack' ) );
+		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
 		$menu_item = array_pop( $menu );
 
 		$this->assertNotEmpty( $menu_item );
-		$this->assertSame( $menu_item['children'][0]['slug'], $menu_item['slug'], 'Parent and submenu should be the same.' );
+		$this->assertSame( $menu_item['children'][0]['url'], $menu_item['url'], 'Parent and submenu should be the same.' );
 	}
 
 	/**

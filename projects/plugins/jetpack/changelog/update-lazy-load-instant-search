@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Instant Search: improve performance by lazily loading more of the library

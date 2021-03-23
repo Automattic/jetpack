@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Contact Form: Fix console error for bad setState that did not impact block behavior.
+
+

@@ -1,15 +1,14 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class MyPlanPage extends Page {
+export default class MyPlanPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.current-plan';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ '.current-plan' ] } );
 	}
 
 	async returnToWPAdmin() {
-		return await page.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
+		return await this.click( ".jetpack-checklist__footer a[href*='wp-admin']" );
 	}
 }

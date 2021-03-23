@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JITM package: add a jetpack_pre_connection_jitms filter.

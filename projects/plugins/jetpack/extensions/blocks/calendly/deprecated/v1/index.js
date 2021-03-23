@@ -1,9 +1,4 @@
 /**
- * External dependencies
- */
-import { isEmpty, omit, pick, some } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { createBlock } from '@wordpress/blocks';
@@ -14,17 +9,17 @@ import { __ } from '@wordpress/i18n';
  */
 import colorValidator from '../../../../shared/colorValidator';
 
+/**
+ * Deprecation reason:
+ *
+ * Submit button replaced with Jetpack Button inner block.
+ *
+ * Button properties stored in the Calendly block attributes were made
+ * consistent with the Button block's. The original link content was then
+ * replaced with the Button inner block.
+ */
+
 const urlValidator = url => ! url || url.startsWith( 'https://calendly.com/' );
-const deprecatedAttributes = [
-	'submitButtonText',
-	'submitButtonTextColor',
-	'submitButtonBackgroundColor',
-	'submitButtonClasses',
-	'backgroundButtonColor',
-	'textButtonColor',
-	'customBackgroundButtonColor',
-	'customTextButtonColor',
-];
 const migrateAttributes = oldAttributes => ( {
 	text: oldAttributes.submitButtonText || __( 'Schedule time with me', 'jetpack' ),
 	textColor: oldAttributes.submitButtonTextColor || oldAttributes.textButtonColor,
@@ -91,7 +86,19 @@ export default {
 		},
 	},
 	migrate: attributes => {
-		const newAttributes = omit( attributes, deprecatedAttributes );
+		// Filter out deprecated attributes, collecting the rest in newAttributes.
+		const {
+			submitButtonText,
+			submitButtonTextColor,
+			submitButtonBackgroundColor,
+			submitButtonClasses,
+			backgroundButtonColor,
+			textButtonColor,
+			customBackgroundButtonColor,
+			customTextButtonColor,
+			...newAttributes
+		} = attributes;
+
 		const buttonAttributes = migrateAttributes( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
@@ -103,8 +110,5 @@ export default {
 
 		return [ newAttributes, newInnerBlocks ];
 	},
-	isEligible: ( attributes, innerBlocks ) =>
-		'link' === attributes.style &&
-		( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ) ),
 	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
 };

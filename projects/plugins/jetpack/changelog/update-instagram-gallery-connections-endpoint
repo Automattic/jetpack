@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Instagram Gallery Connections endpoint: merge in permission callback change from wpcom (no user-facing changes)
+
+
