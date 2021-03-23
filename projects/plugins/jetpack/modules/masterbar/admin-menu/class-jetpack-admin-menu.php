@@ -15,6 +15,23 @@ require_once __DIR__ . '/class-admin-menu.php';
 class Jetpack_Admin_Menu extends Admin_Menu {
 
 	/**
+	 * Jetpack_Admin_Menu constructor.
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+	}
+
+	/**
+	 * Dequeues unnecessary scripts.
+	 */
+	public function dequeue_scripts() {
+		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
+	}
+
+	/**
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {

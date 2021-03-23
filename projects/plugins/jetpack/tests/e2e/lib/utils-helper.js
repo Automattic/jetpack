@@ -26,19 +26,16 @@ async function execShellCommand( cmd ) {
 			}
 			return resolve( stdout );
 		} );
-		cmdExec.stdout.on( 'data', data => logger.debug( `CLI: ${ data }` ) );
+		cmdExec.stdout.on( 'data', data => {
+			// remove the new line at the end
+			data = data.replace( /\n$/, '' );
+			logger.cli( `${ data }` );
+		} );
 	} );
 }
 
 function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
-}
-
-// todo we should only read once and set a global variable
-function getTunnelSiteUrl() {
-	return fs
-		.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
-		.replace( 'http:', 'https:' );
 }
 
 async function resetWordpressInstall() {
@@ -62,9 +59,8 @@ async function prepareUpdaterTest() {
  */
 function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-	const url = getTunnelSiteUrl();
 
-	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
+	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl }`;
 
 	const response = execSyncShellCommand( cmd );
 	logger.info( response );
@@ -103,8 +99,6 @@ async function activateModule( page, module ) {
 
 async function execWpCommand( wpCmd ) {
 	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
-
-	logger.info( `CLI ${ cmd }` );
 	const result = await execShellCommand( cmd );
 
 	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
@@ -182,10 +176,25 @@ function fileNameFormatter( filePath, includeTimestamp = true ) {
 	return path.join( dirname, `${ fileName }${ ext }` );
 }
 
+/**
+ * Extracts a `accountName` configuration from the config file.
+ *
+ * @param {string} accountName one of the keys of `testAccounts` entry in config file
+ *
+ * @return {Array} username and password
+ */
+function getAccountCredentials( accountName ) {
+	const globalConfig = config.get( 'testAccounts' );
+	if ( globalConfig.has( 'testAccounts' ) ) {
+		throw new Error( `${ accountName } not found in config file` );
+	}
+
+	return globalConfig.get( accountName );
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
-	getTunnelSiteUrl,
 	resetWordpressInstall,
 	prepareUpdaterTest,
 	provisionJetpackStartConnection,
@@ -195,4 +204,5 @@ module.exports = {
 	logDebugLog,
 	logAccessLog,
 	fileNameFormatter,
+	getAccountCredentials,
 };
