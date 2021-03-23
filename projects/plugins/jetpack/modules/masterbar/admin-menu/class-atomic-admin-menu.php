@@ -20,6 +20,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	protected function __construct() {
 		parent::__construct();
 
+		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+
 		add_action(
 			'admin_menu',
 			function () {
@@ -27,6 +30,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			},
 			0
 		);
+	}
+
+	/**
+	 * Dequeues unnecessary scripts.
+	 */
+	public function dequeue_scripts() {
+		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
 	}
 
 	/**
@@ -45,6 +55,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		ksort( $GLOBALS['menu'] );
+	}
+
+	/**
+	 * Forces Posts menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_posts_menu` in parent class.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_posts_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false; // return explicit `false` to force WPAdmin links.
+	}
+
+	/**
+	 * Forces Pages menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_page_menu` in parent class.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_page_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false; // return explicit `false` to force WPAdmin links.
 	}
 
 	/**

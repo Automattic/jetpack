@@ -82,47 +82,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
-	 */
-	public function test_get_instance() {
-		$instance = Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
-	}
-
-	/**
-	 * Tests add_admin_menu_separator
-	 *
-	 * @covers ::add_admin_menu_separator
-	 */
-	public function test_add_admin_menu_separator() {
-		global $menu;
-
-		// Start with a clean slate.
-		$temp_menu = $menu;
-		$menu      = array();
-
-		static::$admin_menu->add_admin_menu_separator( 15 );
-		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
-
-		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
-		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertContains( 'separator-custom-', $menu[10][2] );
-		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertContains( 'separator-custom-', $menu[15][2] );
-
-		// Restore filtered $menu.
-		$menu = $temp_menu;
-	}
-
-	/**
 	 * Test_Admin_Menu.
 	 *
 	 * @covers ::reregister_menu_items

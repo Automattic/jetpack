@@ -1,5 +1,8 @@
-export default class WordAdsBlock {
+import PageActions from '../../page-actions';
+
+export default class WordAdsBlock extends PageActions {
 	constructor( blockId, page ) {
+		super( page, 'Ad block' );
 		this.blockTitle = WordAdsBlock.title();
 		this.page = page;
 		this.blockSelector = '#block-' + blockId;
@@ -14,9 +17,9 @@ export default class WordAdsBlock {
 	}
 
 	async switchFormat( buttonNumber ) {
-		await this.page.click( '.wp-block-jetpack-wordads__format-picker-icon' );
+		await this.click( '.wp-block-jetpack-wordads__format-picker-icon' );
 		const formatButtonSelector = `.wp-block-jetpack-wordads__format-picker button:nth-child(${ buttonNumber })`;
-		return await this.page.click( formatButtonSelector );
+		return await this.click( formatButtonSelector );
 	}
 
 	getSelector( selector ) {
@@ -24,7 +27,7 @@ export default class WordAdsBlock {
 	}
 
 	async focus() {
-		return await this.page.click( this.getSelector( '.wp-block-jetpack-wordads' ) );
+		return await this.click( this.getSelector( '.wp-block-jetpack-wordads' ) );
 	}
 
 	/**
