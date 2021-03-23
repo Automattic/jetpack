@@ -10,7 +10,7 @@ import { range } from 'lodash';
  * Internal dependencies
  */
 import { PHOTON_MAX_RESIZE } from '../constants';
-import isAtomicSite from '../../../shared/is-atomic-site';
+import { isAtomicSite } from '../../../shared/site-type-utils';
 import isPrivateSite from '../../../shared/is-private-site';
 
 export function isSquareishLayout( layout ) {
