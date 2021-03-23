@@ -116,7 +116,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_posts_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+		if ( $this->should_link_to_wp_admin( 'posts' ) ) {
 			return;
 		}
 
@@ -133,7 +133,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_media_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+		if ( $this->should_link_to_wp_admin( 'media' ) ) {
 			return;
 		}
 
@@ -148,7 +148,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_page_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+		if ( $this->should_link_to_wp_admin( 'pages' ) ) {
 			return;
 		}
 
@@ -414,7 +414,9 @@ class Admin_Menu extends Base_Admin_Menu {
 	 *
 	 * @return bool
 	 */
-	public function should_link_to_wp_admin() {
-		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	public function should_link_to_wp_admin( $context = '' ) {
+		$context = $context ? '_' . $context : '';
+		$default = get_user_option( 'jetpack_admin_menu_link_destination' );
+		return apply_filters( "jetpack_admin_menu_link_destination{$context}", $default );
 	}
 }
