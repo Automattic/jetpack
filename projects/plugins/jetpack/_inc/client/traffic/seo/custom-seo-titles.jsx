@@ -157,16 +157,15 @@ const getTokenButtonsForCustomSeoTitleInput = (
 			<Button
 				className="jp-seo-custom-titles-input-button"
 				compact
-				onClick={ useCallback(
-					() =>
-						handleTokenButtonClick(
-							customSeoTitleInputRef,
-							pageType,
-							token,
-							handleCustomSeoTitleInput
-						),
-					[ token ]
-				) }
+				// eslint-disable-next-line react/jsx-no-bind
+				onClick={ () =>
+					handleTokenButtonClick(
+						customSeoTitleInputRef,
+						pageType,
+						token,
+						handleCustomSeoTitleInput
+					)
+				}
 			>
 				{ customSeoTitleFormats.insertableTokens[ token ] }
 			</Button>
