@@ -26,25 +26,11 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	public static $menu_data;
 
 	/**
-	 * Submenu data fixture.
-	 *
-	 * @var array
-	 */
-	public static $submenu_data;
-
-	/**
 	 * Test domain.
 	 *
 	 * @var string
 	 */
 	public static $domain;
-
-	/**
-	 * Whether this testsuite is run on WP.com.
-	 *
-	 * @var bool
-	 */
-	public static $is_wpcom;
 
 	/**
 	 * Admin menu instance.
@@ -66,10 +52,9 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$domain       = ( new Status() )->get_site_suffix();
-		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$menu_data    = get_menu_fixture();
-		static::$submenu_data = get_submenu_fixture();
+		static::$domain    = ( new Status() )->get_site_suffix();
+		static::$user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
+		static::$menu_data = get_menu_fixture();
 	}
 
 	/**
@@ -77,13 +62,12 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		global $menu, $submenu;
+		global $menu;
 
 		// Initialize in setUp so it registers hooks for every test.
 		static::$admin_menu = Domain_Only_Admin_Menu::get_instance();
 
-		$menu    = static::$menu_data;
-		$submenu = static::$submenu_data;
+		$menu = static::$menu_data;
 
 		wp_set_current_user( static::$user_id );
 	}
