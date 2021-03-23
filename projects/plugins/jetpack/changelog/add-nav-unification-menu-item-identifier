@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Added a 'identifier' property in the Admin Menu API response
