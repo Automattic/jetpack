@@ -35,7 +35,10 @@ class SearchResultProduct extends Component {
 				? highlight.title[ 0 ]
 				: __( 'No title', 'jetpack' );
 
-		const hasMatch = Array.isArray( highlight.content ) && highlight.content[ 0 ]?.length > 0;
+		// TODO: Remove this check once checking result.highlight is more reliable.
+		const hasQuery = this.props.searchQuery !== '';
+		const hasMatch =
+			hasQuery && Array.isArray( highlight.content ) && highlight.content[ 0 ]?.length > 0;
 
 		return (
 			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
