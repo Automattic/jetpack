@@ -11,8 +11,8 @@ set -eo pipefail
 function usage {
 	echo "usage: $0 command"
 	echo "  wp-setup                     Setup wp-config"
-	echo "  gb-prerelease               Pull latest Guteberg pre-prelease"
-	echo "  -h | usage                   output this message"
+	echo "  gb-setup                     Set up Gutenberg plugin"
+	echo "  -h | usage                   Output this message"
 	exit 1
 }
 
