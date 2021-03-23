@@ -10,12 +10,12 @@ import { range } from 'lodash';
  * Internal dependencies
  */
 import { PHOTON_MAX_RESIZE } from '../constants';
+import isAtomicSite from '../../../shared/is-atomic-site';
+import isPrivateSite from '../../../shared/is-private-site';
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
 }
-
-const SERVER_OBJECT_NAME = 'JetpackWoAData';
 
 /**
  * Build src and srcSet properties which can be used on an <img />
@@ -38,13 +38,11 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	}
 
 	// Do not Photonize images that are still uploading, are from localhost, or are private + atomic
-	const isPrivateAtomic =
-		window[ SERVER_OBJECT_NAME ]?.isPrivateSite && window[ SERVER_OBJECT_NAME ]?.isAtomicSite;
 	if (
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
 		/^https?:\/\/.*\.local\//.test( img.url ) ||
-		isPrivateAtomic
+		( isAtomicSite() && isPrivateSite() )
 	) {
 		return { src: img.url };
 	}
