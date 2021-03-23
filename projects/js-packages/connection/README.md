@@ -15,7 +15,7 @@ It includes:
 - *isLoading* - boolean, whether to display the "Loading..." label in the component, defaults to `false`.
 - *width* - string|number, the iframe width, defaults to `100%`.
 - *height* - string|number, the iframe height, defaults to `220`.
-- *scrollToIframe* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `true`.
+- *scrollToIframe* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
 - *onComplete* - callback, to be executed after connection process has completed.
 - *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
 - *connectUrl* - string (required), the connection URL.

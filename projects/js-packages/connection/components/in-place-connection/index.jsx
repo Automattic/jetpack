@@ -127,7 +127,7 @@ InPlaceConnection.defaultProps = {
 	isLoading: false,
 	height: '220',
 	width: '100%',
-	scrollToIframe: true,
+	scrollToIframe: false,
 };
 
 export default InPlaceConnection;
