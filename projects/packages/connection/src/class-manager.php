@@ -149,27 +149,29 @@ class Manager {
 
 		$this->require_jetpack_authentication();
 
-		if ( $is_active ) {
+		if ( ! $this->has_connected_owner() ) {
+			// The bootstrap API methods.
+			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+
+			if ( ! $is_signed ) {
+				new XMLRPC_Connector( $this );
+			}
+		}
+
+		if ( $this->is_connected() ) {
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
 			if ( $is_signed ) {
 				// The actual API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+
+				// The jetpack Provision method is available for blog-token-signed requests.
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
 			} else {
 				// The jetpack.authorize method should be available for unauthenticated users on a site with an
 				// active Jetpack connection, so that additional users can link their account.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
-			}
-		} else {
-			// The bootstrap API methods.
-			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
-
-			if ( $is_signed ) {
-				// The jetpack Provision method is available for blog-token-signed requests.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
-			} else {
-				new XMLRPC_Connector( $this );
 			}
 		}
 
