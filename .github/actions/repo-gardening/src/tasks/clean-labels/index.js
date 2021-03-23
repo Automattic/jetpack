@@ -2,71 +2,62 @@
  * Internal dependencies
  */
 const debug = require( '../../debug' );
-const getAssociatedPullRequest = require( '../../get-associated-pull-request' );
+const getLabels = require( '../../get-labels' );
 
-/* global GitHub, WebhookPayloadPush */
+/* global GitHub, WebhookPayloadPullRequest */
 
 /**
- * Manage labels once a PR has been merged.
+ * Manage labels when a PR gets merged.
  *
- * @param {WebhookPayloadPush} payload - Push event payload.
- * @param {GitHub}             octokit - Initialized Octokit REST client.
+ * @param {WebhookPayloadPullRequest} payload - Pull Request event payload.
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function cleanLabels( payload, octokit ) {
-	const { commits, repository, ref } = payload;
+	const { pull_request, repository, action } = payload;
+	const { number } = pull_request;
 	const { name: repo, owner } = repository;
 	const ownerLogin = owner.login;
 
-	// We should not get to that point as the action is triggered on pushes to master, but...
-	if ( ref !== 'refs/heads/master' ) {
-		debug( 'clean-labels: Commit is not to `master`. Aborting' );
+	// Normally this only gets triggered when PRs get closed, but let's be sure.
+	if ( action !== 'closed' ) {
+		debug( `clean-labels: PR #${ number } is not closed. Aborting.` );
 		return;
 	}
 
-	const prNumber = getAssociatedPullRequest( commits[ 0 ] );
-	if ( ! prNumber ) {
-		debug( 'clean-labels: Commit is not a squashed PR. Aborting' );
-		return;
+	// Get array of all labels on the PR.
+	const labelsOnPr = await getLabels( octokit, ownerLogin, repo, number );
+
+	// List of all labels we want to remove.
+	const labelsToRemove = [
+		'[Status] Ready to Merge',
+		'[Status] Needs Review',
+		'[Status] Needs Team Review',
+		'[Status] In Progress',
+		'[Status] Needs Author Reply',
+		'[Status] Needs Design Review',
+		'[Status] Needs i18n Review',
+		'[Status] String Freeze',
+	];
+
+	const labelsToRemoveFromPr = labelsOnPr.filter( label => labelsToRemove.includes( label ) );
+
+	if ( ! labelsToRemoveFromPr.length ) {
+		debug( `clean-labels: no labels to remove from #${ number }. Aborting.` );
 	}
 
-	debug( `clean-labels: remove the [Status] Ready to merge label from PR #${ prNumber }` );
-	octokit.issues.removeLabel( {
-		owner: ownerLogin,
-		repo,
-		issue_number: prNumber,
-		name: '[Status] Ready to Merge',
-	} );
-
-	debug( `clean-labels: remove the [Status] Needs Review label from PR #${ prNumber }` );
-	octokit.issues.removeLabel( {
-		owner: ownerLogin,
-		repo,
-		issue_number: prNumber,
-		name: '[Status] Needs Review',
-	} );
-
-	debug( `clean-labels: remove the [Status] Needs Team Review label from PR #${ prNumber }` );
-	octokit.issues.removeLabel( {
-		owner: ownerLogin,
-		repo,
-		issue_number: prNumber,
-		name: '[Status] Needs Team Review',
-	} );
-
-	debug( `clean-labels: remove the [Status] In Progress label from PR #${ prNumber }` );
-	octokit.issues.removeLabel( {
-		owner: ownerLogin,
-		repo,
-		issue_number: prNumber,
-		name: '[Status] In Progress',
-	} );
-
-	debug( `clean-labels: remove the [Status] Needs Author Reply label from PR #${ prNumber }` );
-	octokit.issues.removeLabel( {
-		owner: ownerLogin,
-		repo,
-		issue_number: prNumber,
-		name: '[Status] Needs Author Reply',
+	debug(
+		`clean-labels: found some labels that will need to be removed from #${ number }: ${ JSON.stringify(
+			labelsToRemoveFromPr
+		) }`
+	);
+	labelsToRemoveFromPr.map( name => {
+		debug( `clean-labels: removing the ${ name } label from PR #${ number }` );
+		octokit.issues.removeLabel( {
+			owner: ownerLogin,
+			repo,
+			issue_number: number,
+			name,
+		} );
 	} );
 }
 
