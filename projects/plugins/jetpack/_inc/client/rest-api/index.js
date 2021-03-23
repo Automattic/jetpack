@@ -360,6 +360,13 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		updateLicenseKey: license =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/set-license`, postParams, {
+				body: JSON.stringify( { license } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		updateRecommendationsStep: step =>
 			postRequest( `${ apiRoot }jetpack/v4/recommendations/step`, postParams, {
 				body: JSON.stringify( { step } ),

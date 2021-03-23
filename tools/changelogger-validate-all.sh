@@ -25,6 +25,14 @@ if [[ ! -e projects/packages/changelogger/vendor/autoload.php ]]; then
 	(cd projects/packages/changelogger && composer update)
 fi
 
+function err {
+    if [[ -n "$CI" ]]; then
+        echo "::error::$*"
+    else
+        error "$*"
+    fi
+}
+
 EXIT=0
 for FILE in projects/*/*/composer.json; do
 	DIR="${FILE%/composer.json}"
@@ -52,9 +60,9 @@ for FILE in projects/*/*/composer.json; do
 	info "Checking version numbers $SLUG"
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		VER=$($CHANGELOGGER version next --default-first-version --prerelease=alpha) || { echo "$VER"; EXIT=1; continue; }
+		VER=$($CHANGELOGGER version next --default-first-version --prerelease=alpha) || { err "$VER"; EXIT=1; continue; }
 	else
-		VER=$($CHANGELOGGER version current --default-first-version --prerelease=alpha) || { echo "$VER"; EXIT=1; continue; }
+		VER=$($CHANGELOGGER version current --default-first-version --prerelease=alpha) || { err "$VER"; EXIT=1; continue; }
 	fi
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" -c "$VER" "$SLUG"; then
 		EXIT=1

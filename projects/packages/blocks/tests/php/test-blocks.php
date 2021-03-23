@@ -215,4 +215,90 @@ class Test_Blocks extends TestCase {
 		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
 		$this->assertEquals( 'jetpack/doing-it-wrong', $result->name );
 	}
+
+	/**
+	 * Test that by default we are not running in a Jetpack plugin context.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_standalone_block() {
+		$this->assertTrue( Blocks::is_standalone_block() );
+	}
+
+	/**
+	 * Test that we are running in a Jetpack plugin context, and not
+	 * as a standalone block.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_not_standalone_block() {
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$this->assertFalse( Blocks::is_standalone_block() );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+		}
+	}
+
+	/**
+	 * Test to ensure registering a Jetpack block does not add in an editor style dependency,
+	 * when the Jetpack_Gutenberg class is not available.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 */
+	public function test_jetpack_register_block_without_editor_style() {
+		$result = Blocks::jetpack_register_block( 'jetpack/block-without-editor-style' );
+		$this->assertEquals( 'jetpack/block-without-editor-style', $result->name );
+		$this->assertNull( $result->editor_style );
+	}
+
+	/**
+	 * Test to ensure registering a Jetpack block adds in an editor style dependency,
+	 * when the Jetpack_Gutenberg class is available.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 */
+	public function test_jetpack_register_block_with_editor_style() {
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$result = Blocks::jetpack_register_block( 'jetpack/block-with-editor-style' );
+			$this->assertEquals( 'jetpack/block-with-editor-style', $result->name );
+			$this->assertEquals( 'jetpack-blocks-editor', $result->editor_style );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+		}
+
+	}
+
+	/**
+	 * Test to ensure registering a Jetpack block does not override an existing dependency,
+	 * when the Jetpack_Gutenberg class is available.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::jetpack_register_block
+	 */
+	public function test_jetpack_register_block_with_existing_editor_style() {
+		add_filter( 'jetpack_is_standalone_block', '__return_false' );
+		try {
+			$result = Blocks::jetpack_register_block(
+				'jetpack/block-with-existing-editor-style',
+				array(
+					'editor_style' => 'custom-editor-style',
+				)
+			);
+			$this->assertEquals( 'jetpack/block-with-existing-editor-style', $result->name );
+			$this->assertEquals( 'custom-editor-style', $result->editor_style );
+		} finally {
+			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
+		}
+	}
 }

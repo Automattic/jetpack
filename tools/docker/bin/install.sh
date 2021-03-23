@@ -25,6 +25,10 @@ wp --allow-root option update blog_public 0
 # https://wordpress.org/plugins/query-monitor/
 wp --allow-root plugin install query-monitor --activate
 
+# Install Core Control plugin
+# https://wordpress.org/plugins/core-control/
+wp --allow-root plugin install core-control --activate
+
 # Install WP-Control
 # https://wordpress.org/plugins/wp-crontrol/
 wp --allow-root plugin install wp-crontrol --activate
