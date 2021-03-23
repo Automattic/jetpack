@@ -62,16 +62,15 @@ $item-spacing: 16px;
 }
 
 .jetpack-instant-search__search-result-product-img {
-	background-size: cover;
-	background-repeat: no-repeat;
-	background-position: center;
-	border-radius: 5px;
-
+	// Use aspect ratio box trick
+	// See https://css-tricks.com/aspect-ratio-boxes/
 	position: absolute;
 	top: 0;
 	right: 0;
 	bottom: 0;
 	left: 0;
+
+	border-radius: 5px;
 
 	> .gridicon {
 		position: absolute;
