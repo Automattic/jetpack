@@ -14,6 +14,7 @@ import Mosaic from './mosaic';
 import Square from './square';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
 import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
+import { isAtomicSite, isPrivateSite } from '../../../shared/site-type-utils';
 
 export default class Layout extends Component {
 	// This is tricky:
@@ -47,6 +48,9 @@ export default class Layout extends Component {
 
 		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
 
+		const origUrlObject = new URL( img.url );
+		const isRequestAgainstBlog = true; // TODO How do I know if the image is on my own blog?
+		const proxySiteIdOrSlug = 'flarypod.jurassic.tube'; // TODO How do I find my site_id?
 		return (
 			<Image
 				alt={ img.alt }
@@ -66,6 +70,10 @@ export default class Layout extends Component {
 				onRemove={ isSave ? undefined : onRemoveImage( i ) }
 				onSelect={ isSave ? undefined : onSelectImage( i ) }
 				origUrl={ img.url }
+				proxyIsEnabled={ isRequestAgainstBlog && isAtomicSite() && isPrivateSite() }
+				proxySiteIdOrSlug={ proxySiteIdOrSlug }
+				proxyMediaPath={ origUrlObject.pathname }
+				proxyQuery={ origUrlObject.search || '' }
 				setAttributes={ isSave ? undefined : setImageAttributes( i ) }
 				showMovers={ images.length > 1 }
 				srcSet={ srcSet }

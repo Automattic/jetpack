@@ -13,6 +13,7 @@ import { withSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
+import withProxy from './withProxy';
 
 class GalleryImageEdit extends Component {
 	img = createRef();
@@ -169,7 +170,7 @@ class GalleryImageEdit extends Component {
 	}
 }
 
-export default withSelect( ( select, ownProps ) => {
+const GalleryImageEditSelect = withSelect( ( select, ownProps ) => {
 	const { getMedia } = select( 'core' );
 	const { id } = ownProps;
 
@@ -177,3 +178,5 @@ export default withSelect( ( select, ownProps ) => {
 		image: id ? getMedia( id ) : null,
 	};
 } )( GalleryImageEdit );
+
+export default withProxy( GalleryImageEditSelect );
