@@ -35,13 +35,12 @@ export default function ProductRatings( { rating = 0, count = 0, permalink } ) {
 				aria-hidden
 				className="jetpack-instant-search__product-rating-count"
 				href={ permalink + '#reviews' }
-				title={ sprintf(
+			>
+				{ sprintf(
 					/* Translators: the placeholder is the number of product reviews. */
-					_n( '(%s customer review)', '(%s customer reviews)', count, 'jetpack' ),
+					_n( '%s review', '%s reviews', count, 'jetpack' ),
 					count
 				) }
-			>
-				{ count }
 			</a>
 			<span className="screen-reader-text">
 				{ sprintf(
