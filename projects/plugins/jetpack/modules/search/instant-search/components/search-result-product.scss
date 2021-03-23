@@ -44,7 +44,11 @@ $item-spacing: 16px;
 .jetpack-instant-search__search-result-product-img-container {
 	background: $studio-gray-10;
 	border-radius: 5px;
-	color: $color-modal-background;
+	color: transparent;
+
+	.gridicon {
+		fill: $color-modal-background;
+	}
 
 	// Use aspect ratio box trick
 	// See https://css-tricks.com/aspect-ratio-boxes/
