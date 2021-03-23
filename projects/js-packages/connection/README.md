@@ -17,6 +17,7 @@ It includes:
 - *height* - string|number, the iframe height, defaults to `220`.
 - *scrollToIframe* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `true`.
 - *onComplete* - callback, to be executed after connection process has completed.
+- *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
 - *connectUrl* - string (required), the connection URL.
 - *hasConnectedOwner* - boolean (required), whether the site has a connected owner or not.
 - *source* - string, component location identifier passed to WP.com.
@@ -34,6 +35,7 @@ import InPlaceConnection from 'in-place-connection';
 	hasConnectedOwner={ this.props.hasConnectedOwner }
 	scrollToIframe={ this.props.scrollToIframe }
 	onComplete={ this.onComplete }
+	onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
 	source="connect-user-bar"
 />
 ```
