@@ -87,7 +87,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/remote_authorize` endpoint.
 	 */
 	public function test_remote_authorize() {
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		wp_cache_set(
@@ -135,7 +135,7 @@ class Test_REST_Endpoints extends TestCase {
 		remove_filter( 'user_has_cap', $user_caps_filter );
 		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ) );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ) );
 
 		wp_cache_delete( self::USER_ID, 'users' );
 
@@ -268,6 +268,25 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'in_progress', $data['status'] );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+	}
+
+	/**
+	 * Testing the `connection/reconnect` endpoint, userless (full reconnect).
+	 */
+	public function test_connection_reconnect_userless() {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ), 10, 2 );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_userless_options' ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'completed', $data['status'] );
 	}
 
 	/**
@@ -486,6 +505,27 @@ class Test_REST_Endpoints extends TestCase {
 
 	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Site level / user-less connection set-up.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name Option name.
+	 *
+	 * @return mixed
+	 */
+	public function mock_jetpack_userless_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return self::BLOG_TOKEN;
+			case 'id':
+				return self::BLOG_ID;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Full connection set-up.
 	 *
 	 * @param mixed  $value The current option value.
 	 * @param string $name Option name.
@@ -498,6 +538,12 @@ class Test_REST_Endpoints extends TestCase {
 				return self::BLOG_TOKEN;
 			case 'id':
 				return self::BLOG_ID;
+			case 'master_user':
+				return self::USER_ID;
+			case 'user_tokens':
+				return array(
+					self::USER_ID => 'new.usertoken.' . self::USER_ID,
+				);
 		}
 
 		return $value;

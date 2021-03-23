@@ -36,8 +36,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 
-		$wp_admin = $this->should_link_to_wp_admin();
-
 		$this->add_my_home_menu();
 
 		// Not needed outside of wp-admin.
@@ -46,8 +44,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
-
-		$this->add_gutenberg_menus( $wp_admin );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -273,36 +269,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * 1. Remove the Gutenberg plugin menu
-	 * 2. Re-add the Site Editor menu
+	 * Also remove the Gutenberg plugin menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_gutenberg_menus( $wp_admin = false ) {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-
-		// We can bail if we don't meet the conditions of the Site Editor.
-		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
-			return;
-		}
-
-		// Core Gutenberg registers without an explicit position, and we don't want the (beta) tag.
-		remove_menu_page( 'gutenberg-edit-site' );
-		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
-		remove_filter( 'menu_order', 'gutenberg_menu_order' );
-
-		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
-
-		add_menu_page(
-			__( 'Site Editor', 'jetpack' ),
-			__( 'Site Editor', 'jetpack' ),
-			'edit_theme_options',
-			$link,
-			$wp_admin ? 'gutenberg_edit_site_page' : null,
-			'dashicons-layout',
-			61 // Just under Appearance.
-		);
+		parent::add_gutenberg_menus( $wp_admin );
 	}
 
 	/**

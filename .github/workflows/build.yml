@@ -8,7 +8,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # 2021-01-18: Successful runs seem to take 5-7 minutes
+    timeout-minutes: 15  # 2021-03-16: Successful runs seem to take 9-10 minutes now.
 
     # Push also covers pull requests for non-forked repos. So only run on PR for forked PRs.
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
