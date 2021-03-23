@@ -18,7 +18,7 @@ import './style.scss';
  * @param {boolean} props.isLoading -- Whether the element is still loading.
  * @param {string|number} props.width -- Iframe width.
  * @param {string|number} props.height -- Iframe height.
- * @param {boolean} props.hasConnectedOwner -- Whether the site has connection owner connected.
+ * @param {boolean} props.displayTOS -- Whether the site has connection owner connected.
  * @param {boolean} props.scrollToIframe -- Whether we need to auto-scroll the window upon element rendering.
  * @param {string} props.connectUrl -- The connection URL.
  * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
@@ -32,7 +32,7 @@ const InPlaceConnection = props => {
 		title,
 		isLoading,
 		width,
-		hasConnectedOwner,
+		displayTOS,
 		scrollToIframe,
 		connectUrl,
 		onComplete,
@@ -81,7 +81,7 @@ const InPlaceConnection = props => {
 	// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
 	let src = connectUrl.replace( 'authorize/', 'authorize_iframe/' );
 
-	if ( hasConnectedOwner ) {
+	if ( displayTOS ) {
 		src += '&display-tos';
 		height = ( parseInt( height ) + 50 ).toString();
 	}
@@ -116,7 +116,7 @@ InPlaceConnection.propTypes = {
 	width: PropTypes.string,
 	height: PropTypes.string,
 	connectUrl: PropTypes.string.isRequired,
-	hasConnectedOwner: PropTypes.bool.isRequired,
+	displayTOS: PropTypes.bool.isRequired,
 	scrollToIframe: PropTypes.bool,
 	onComplete: PropTypes.func,
 	onThirdPartyCookiesBlocked: PropTypes.func,

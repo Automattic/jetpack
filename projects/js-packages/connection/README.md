@@ -19,7 +19,7 @@ It includes:
 - *onComplete* - callback, to be executed after connection process has completed.
 - *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
 - *connectUrl* - string (required), the connection URL.
-- *hasConnectedOwner* - boolean (required), whether the site has a connected owner or not.
+- *displayTOS* - boolean (required), whether the iframe should display TOS or not.
 - *source* - string, component location identifier passed to WP.com.
 
 ### Usage

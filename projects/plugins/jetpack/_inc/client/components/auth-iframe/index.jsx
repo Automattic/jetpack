@@ -19,6 +19,7 @@ import {
 	authorizeUserInPlaceSuccess,
 	isAuthorizingUserInPlace,
 	hasConnectedOwner,
+	isSiteRegistered,
 } from 'state/connection';
 
 export class AuthIframe extends React.Component {
@@ -30,7 +31,7 @@ export class AuthIframe extends React.Component {
 		width: PropTypes.string,
 		scrollToIframe: PropTypes.bool,
 		onAuthorized: PropTypes.func,
-		hasConnectedOwner: PropTypes.bool,
+		displayTOS: PropTypes.bool,
 		source: PropTypes.string,
 	};
 
@@ -64,7 +65,7 @@ export class AuthIframe extends React.Component {
 				width={ this.props.width }
 				isLoading={ this.props.fetchingConnectUrl }
 				title={ this.props.title }
-				hasConnectedOwner={ this.props.hasConnectedOwner }
+				displayTOS={ this.props.displayTOS }
 				scrollToIframe={ this.props.scrollToIframe }
 				onComplete={ this.onComplete }
 				source={ this.props.source }
@@ -80,7 +81,7 @@ export default connect(
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
 			connectUrl: _getConnectUrl( state ),
 			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
-			hasConnectedOwner: hasConnectedOwner( state ),
+			displayTOS: hasConnectedOwner( state ) || isSiteRegistered( state ), // Display TOS in userless mode and for secondary users.
 		};
 	},
 	dispatch => {
