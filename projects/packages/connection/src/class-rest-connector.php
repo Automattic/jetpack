@@ -46,7 +46,7 @@ class REST_Connector {
 			'jetpack'
 		);
 
-		if ( ! $this->connection->is_active() ) {
+		if ( ! $this->connection->has_connected_owner() ) {
 			// Register a site.
 			register_rest_route(
 				'jetpack/v4',
@@ -153,7 +153,7 @@ class REST_Connector {
 		$connection = new Manager();
 
 		$connection_status = array(
-			'isActive'          => $connection->is_active(),
+			'isActive'          => $connection->is_active(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
@@ -167,6 +167,15 @@ class REST_Connector {
 			),
 			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 		);
+
+		/**
+		 * Filters the connection status data.
+		 *
+		 * @since 9.6.0
+		 *
+		 * @param array An array containing the connection status data.
+		 */
+		$connection_status = apply_filters( 'jetpack_connection_status', $connection_status );
 
 		if ( $rest_response ) {
 			return rest_ensure_response(

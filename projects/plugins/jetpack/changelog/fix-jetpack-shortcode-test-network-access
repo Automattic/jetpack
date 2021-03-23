@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Fix flaky shortcode tests by mocking the network access.
+
+
