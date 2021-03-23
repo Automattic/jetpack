@@ -101,7 +101,7 @@ class Manager {
 	 * Sets up the XMLRPC request handlers.
 	 *
 	 * @param array                  $request_params incoming request parameters.
-	 * @param Boolean                $is_active whether the site-level connection is currently active.
+	 * @param Boolean                $is_active whether the connection is currently active.
 	 * @param Boolean                $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */

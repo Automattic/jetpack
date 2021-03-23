@@ -407,7 +407,7 @@ class Jetpack_XMLRPC_Server {
 			'user_login'   => $user->user_login,
 			'scope'        => $this->connection->sign_role( $role, $user->ID ),
 			'secret'       => $secrets['secret_1'],
-			'is_active'    => $this->connection->has_connected_owner(), // TODO: Confirm this.
+			'is_active'    => $this->connection->has_connected_owner(),
 		);
 
 		if ( $site_icon ) {
