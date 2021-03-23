@@ -716,7 +716,7 @@ jobs:
       - name: Check change file validity
         run: tools/changelogger-validate-all.sh --debug
 
-  ## Checks that lock files are up to date.
+  ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh
   # Note that may modify composer.lock files in your working tree!
   lock_files:
@@ -784,7 +784,7 @@ jobs:
 
       - run: .github/files/check-lock-files.sh
 
-  ## Check that monorepo packages are correctly referenced
+  ### Check that monorepo packages are correctly referenced.
   # Local equivalent: tools/check-composer-deps.sh -v && .github/files/check-monorepo-package-repos.sh
   monorepo_package_refs:
     name: Monorepo package version refs
