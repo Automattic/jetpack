@@ -1,0 +1,34 @@
+name: PR is up-to-date
+on:
+  pull_request_target:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+    tags: [ pr-update-to ]
+
+jobs:
+  check_prs:
+    name: Check PR
+    runs-on: ubuntu-latest
+    if: github.event_name != 'push' || github.ref != 'refs/heads/master'
+    timeout-minutes: 5  # 2021-03-23: The run on push to the tag might take a minute or two.
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./projects/github-actions/pr-is-up-to-date
+        with:
+          tag: pr-update-to
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+
+  check_commit:
+    name: Check master commit
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    timeout-minutes: 5  # 2021-03-23: Should be quick, but let's give it some room.
+    steps:
+      - uses: actions/checkout@v2
+      - name: Wait for prior instances of the workflow to finish
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check whether the tag needs updating
+        run: .github/files/pr-update-to.sh
