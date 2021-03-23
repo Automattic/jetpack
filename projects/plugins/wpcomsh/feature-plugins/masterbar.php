@@ -228,3 +228,6 @@ function wpcomsh_fix_jetpack_menu_item_parent_on_atomic( $parent_file ) {
 	return 'toplevel_page_jetpack' === $hook_suffix ? $jetpack_slug : $parent_file;
 }
 add_filter( 'parent_file', 'wpcomsh_fix_jetpack_menu_item_parent_on_atomic', 100 );
+
+// Temporary hotfixes due to Jetpack monthly release cycle.
+require_once __DIR__ . '/nav-unification-hotfixes.php';
