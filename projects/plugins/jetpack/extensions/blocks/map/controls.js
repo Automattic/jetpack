@@ -162,6 +162,12 @@ export default ( {
 					checked={ attributes.showFullscreenButton }
 					onChange={ value => setAttributes( { showFullscreenButton: value } ) }
 				/>
+				<ToggleControl
+					label={ __( 'Display map as static image', 'jetpack' ) }
+					help={ __( 'Displays the map as a non-interactive static image', 'jetpack' ) }
+					checked={ attributes.isStaticMap }
+					onChange={ value => setAttributes( { isStaticMap: value } ) }
+				/>
 			</PanelBody>
 			{ attributes.points.length ? (
 				<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
