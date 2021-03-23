@@ -168,6 +168,15 @@ class REST_Connector {
 			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 		);
 
+		/**
+		 * Filters the connection status data.
+		 *
+		 * @since 9.6.0
+		 *
+		 * @param array An array containing the connection status data.
+		 */
+		$connection_status = apply_filters( 'jetpack_connection_status', $connection_status );
+
 		if ( $rest_response ) {
 			return rest_ensure_response(
 				$connection_status
