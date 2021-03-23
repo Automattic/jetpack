@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+WordPress.com REST API: allow Facebook Metadata to be saved alongside posts created via the API.
