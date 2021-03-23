@@ -235,7 +235,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 */
 	async saveScreenshot( fileName ) {
 		for ( const page of this.global.context.pages() ) {
-			await takeScreenshot( page, fileName );
+			await takeScreenshot( page, fileName, true );
 		}
 	}
 
