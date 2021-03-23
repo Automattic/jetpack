@@ -34,6 +34,8 @@ configure_wp_env() {
 		yarn wp-env run tests-cli "wp plugin activate gutenberg"
 	fi
 
+configure_wp_env() {
+	yarn wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
 	yarn wp-env run tests-cli wp plugin activate jetpack-dev
 
 	echo
@@ -45,6 +47,8 @@ if [ "${1}" == "start" ]; then
 	start_env
 elif [ "${1}" == "reset" ]; then
 	reset_env
+elif [ "${1}" == "gb-setup" ]; then
+	gb_setup ${2}
 elif [ "${1}" == "usage" ]; then
 	usage
 else

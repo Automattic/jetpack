@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit if any command fails.
-set -e
+set -eo pipefail
 
 #####
 # This script is designed to be running inside the WP container
@@ -34,19 +34,19 @@ function wp_config {
 	" wp-config.php
 }
 
-function gb_prerelease {
-	ZIP_PATH=${2:-"wp-content/gutenberg.zip"}
+function gb_setup {
+	GB_URL=${1}
+	ZIP_PATH=${2}
 
 	rm -rf $ZIP_PATH wp-content/plugins/gutenberg
-	BROWSER_URL=$(curl -s https://api.github.com/repos/Wordpress/gutenberg/releases/latest | grep browser_download_url | cut -d '"' -f 4)
-	curl -L $BROWSER_URL --output $ZIP_PATH
+	curl -L $GB_URL --output $ZIP_PATH
 	echo "Pre-release Gutenberg successfuly downloaded in $ZIP_PATH"
 }
 
 if [ "${1}" == "wp-config" ]; then
 	wp_config
-elif [ "${1}" == "gb-prerelease" ]; then
-	gb_prerelease
+elif [ "${1}" == "gb-setup" ]; then
+	gb_setup ${2} ${3}
 elif [ "${1}" == "usage" ]; then
 	usage
 else
