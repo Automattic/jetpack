@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Branch-alias dev-master rather than dev-monorepo, as we're removing the hack.
