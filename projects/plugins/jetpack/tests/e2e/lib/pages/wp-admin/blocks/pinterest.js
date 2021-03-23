@@ -1,5 +1,8 @@
-export default class PinterestBlock {
+import PageActions from '../../page-actions';
+
+export default class PinterestBlock extends PageActions {
 	constructor( blockId, page, pinId ) {
+		super( page, 'Pinterest block' );
 		this.blockTitle = PinterestBlock.title();
 		this.page = page;
 		this.blockSelector = '#block-' + blockId;
@@ -22,9 +25,9 @@ export default class PinterestBlock {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await this.page.type( inputSelector, this.embedUrl() );
-		await this.page.click( descriptionSelector );
-		await this.page.waitForSelector( '.wp-block-jetpack-pinterest .components-sandbox' );
+		await this.type( inputSelector, this.embedUrl() );
+		await this.click( descriptionSelector );
+		await this.waitForElementToBeVisible( '.wp-block-jetpack-pinterest .components-sandbox' );
 	}
 
 	getSelector( selector ) {
