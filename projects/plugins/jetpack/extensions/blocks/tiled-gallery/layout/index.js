@@ -15,6 +15,8 @@ import Square from './square';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
 import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
 import { isAtomicSite, isPrivateSite } from '../../../shared/site-type-utils';
+import getWpcomBlogId from '../../../shared/wpcom-blog-id';
+import getSiteUrl from '../../../shared/site-url';
 
 export default class Layout extends Component {
 	// This is tricky:
@@ -49,8 +51,18 @@ export default class Layout extends Component {
 		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
 
 		const origUrlObject = new URL( img.url );
-		const isRequestAgainstBlog = true; // TODO How do I know if the image is on my own blog?
-		const proxySiteIdOrSlug = 'flarypod.jurassic.tube'; // TODO How do I find my site_id?
+		const proxySiteIdOrSlug = getWpcomBlogId();
+		const siteUrl = getSiteUrl();
+		const isRequestAgainstBlog = proxySiteIdOrSlug && siteUrl && img.url?.startsWith( siteUrl );
+
+		console.log( {
+			url: img.url,
+			origUrlObject,
+			isRequestAgainstBlog,
+			proxySiteIdOrSlug,
+			siteUrl,
+			version: '5.1',
+		} );
 		return (
 			<Image
 				alt={ img.alt }
