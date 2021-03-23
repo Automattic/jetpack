@@ -20,15 +20,15 @@ function stripQueryString( url ) {
 const PhotonImage = ( {
 	useDiv,
 	src,
-	maxWidth = 300,
-	maxHeight = 300,
+	maxWidth = 600,
+	maxHeight = 600,
 	alt,
-	isPrivateSite,
+	isPhotonEnabled,
 	...otherProps
 } ) => {
 	let srcToDisplay = src;
 
-	if ( ! isPrivateSite ) {
+	if ( isPhotonEnabled ) {
 		const photonSrc = photon( stripQueryString( src ), { resize: `${ maxWidth },${ maxHeight }` } );
 		if ( photonSrc !== null ) {
 			srcToDisplay = photonSrc;

@@ -55,8 +55,10 @@ function render_block( $attributes, $content ) {
 
 	$button_classes = get_button_classes( $attributes );
 	$button_styles  = get_button_styles( $attributes );
+	$wrapper_styles = get_button_wrapper_styles( $attributes );
 
-	$button_attributes = sprintf( ' class="%s" style="%s"', esc_attr( $button_classes ), esc_attr( $button_styles ) );
+	$wrapper_attributes = sprintf( ' class="%s" style="%s"', esc_attr( $classes ), esc_attr( $wrapper_styles ) );
+	$button_attributes  = sprintf( ' class="%s" style="%s"', esc_attr( $button_classes ), esc_attr( $button_styles ) );
 
 	if ( empty( $unique_id ) ) {
 		$button_attributes .= ' data-id-attr="placeholder"';
@@ -77,7 +79,7 @@ function render_block( $attributes, $content ) {
 		: '<' . $element . $button_attributes . '>' . $text . '</' . $element . '>';
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	return '<div class="' . esc_attr( $classes ) . '">' . $button . '</div>';
+	return '<div "' . $wrapper_attributes . '">' . $button . '</div>';
 }
 
 /**
@@ -148,6 +150,7 @@ function get_button_styles( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+	$has_width                   = array_key_exists( 'width', $attributes );
 
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
@@ -169,6 +172,29 @@ function get_button_styles( $attributes ) {
 	// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
+	}
+
+	if ( $has_width ) {
+		$styles[] = sprintf( 'width: %s;', $attributes['width'] );
+		$styles[] = 'max-width: 100%';
+	}
+
+	return implode( ' ', $styles );
+}
+
+/**
+ * Get the Button wrapper block styles.
+ *
+ * @param array $attributes Array containing the block attributes.
+ *
+ * @return string
+ */
+function get_button_wrapper_styles( $attributes ) {
+	$styles    = array();
+	$has_width = array_key_exists( 'width', $attributes );
+
+	if ( $has_width ) {
+		$styles[] = 'max-width: 100%';
 	}
 
 	return implode( ' ', $styles );

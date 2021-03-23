@@ -68,7 +68,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain       = ( new Status() )->get_site_suffix();
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$menu_data    = get_menu_fixture();
+		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
 
@@ -267,18 +267,12 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_upgrades_menu
 	 */
-	public function test_add_wpcom_upgrades_menu() {
+	public function test_add_upgrades_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$domains_submenu_item = array(
-			'Domains',
-			'manage_options',
-			'https://wordpress.com/domains/manage/' . static::$domain,
-			'Domains',
-		);
-		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/plans/' . static::$domain ] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
 	}
 
 	/**
@@ -289,17 +283,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( false, false );
+		static::$admin_menu->add_tools_menu();
 
-		// Check Export menu always links to WP Admin.
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'export.php',
-			'Export',
-		);
-		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
+		// Check Export menu item always links to WP Admin.
+		$this->assertSame( 'export.php', $submenu['tools.php'][3][2] );
 	}
 
 	/**
@@ -308,12 +295,21 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_options_menu
 	 */
 	public function test_add_options_menu() {
-		global $submenu;
+		global $submenu, $menu;
 
-		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( false );
+		static::$admin_menu->add_options_menu();
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
+		$this->assertSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
+		$this->assertSame( 'options-general.php', array_pop( $submenu['options-general.php'] )[2] );
 
-		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
+		// Reset.
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
+
+		static::$admin_menu->add_options_menu( true );
+		$last_submenu = array_pop( $submenu['options-general.php'] );
+		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
+		$this->assertNotSame( 'options-general.php', $last_submenu[2] );
 	}
 
 	/**
@@ -327,34 +323,54 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu( false );
 
 		// Check Plugins menu always links to WP Admin.
-		$this->assertContains( 'plugins.php', $menu[65] );
+		$this->assertSame( 'plugins.php', $menu[65][2] );
 	}
 
 	/**
-	 * Tests add_theme_install_menu
+	 * Tests add_appearance_menu
 	 *
-	 * @covers ::add_theme_install_menu
+	 * @covers ::add_appearance_menu
 	 */
-	public function test_add_theme_install_menu() {
+	public function test_add_appearance_menu() {
 		global $submenu;
 
-		$slug         = 'https://wordpress.com/themes/' . static::$domain;
-		$submenu_item = array(
-			'Add New Theme',
-			'install_themes',
-			'theme-install.php',
-			'Add New Theme',
-		);
-		static::$admin_menu->add_appearance_menu( false );
-		static::$admin_menu->add_theme_install_menu( false );
+		static::$admin_menu->add_appearance_menu();
 
 		// Multisite users don't have the `install_themes` capability by default,
 		// so we have to make a dynamic check based on whether the current user can
 		// install themes.
 		if ( current_user_can( 'install_themes' ) ) {
-			$this->assertContains( $submenu_item, $submenu[ $slug ] );
+			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
+			// Check Customize menu always links to WP Admin.
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		} else {
-			$this->assertNotContains( $submenu_item, $submenu[ $slug ] );
+			// Check Customize menu always links to WP Admin.
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][6][2] );
 		}
+	}
+
+	/**
+	 * Tests add_users_menu
+	 *
+	 * @covers ::add_users_menu
+	 */
+	public function test_add_users_menu() {
+		global $submenu;
+
+		static::$admin_menu->add_users_menu();
+		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
+	}
+
+	/**
+	 * Tests add_gutenberg_menus
+	 *
+	 * @covers ::add_gutenberg_menus
+	 */
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
+
+		// Gutenberg plugin menu should not be visible.
+		$this->assertArrayNotHasKey( 101, $menu );
 	}
 }

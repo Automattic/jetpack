@@ -18,7 +18,6 @@ import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
 import { buildFilterAggregations } from './lib/api';
-import { bindCustomizerChanges } from './lib/customize';
 import store from './store';
 
 const injectSearchApp = () => {
@@ -43,15 +42,14 @@ const injectSearchApp = () => {
 	);
 };
 
-if ( window[ SERVER_OBJECT_NAME ] ) {
-	bindCustomizerChanges();
-}
-
-document.addEventListener( 'DOMContentLoaded', function () {
-	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
+/**
+ * Main function.
+ */
+export function initialize() {
+	if ( window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		initializeTracks();
 		resetTrackingCookies();
 		identifySite( window[ SERVER_OBJECT_NAME ].siteId );
 		injectSearchApp();
 	}
-} );
+}

@@ -36,6 +36,7 @@ class Jetpack_Options {
 				return array(
 					'activated',
 					'active_modules',
+					'active_modules_initialized', // (bool) used to determine that all the default modules were activated, so we know how to act on a reconnection.
 					'allowed_xsite_search_ids', // (array) Array of WP.com blog ids that are allowed to search the content of this site
 					'available_modules',
 					'do_activate',
@@ -71,7 +72,7 @@ class Jetpack_Options {
 					'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
-					'dismissed_wizard_banner',     // (int) True if the Wizard banner has been dismissed.
+					'dismissed_wizard_banner',     // (int) (DEPRECATED) True if the Wizard banner has been dismissed.
 				);
 
 			case 'private':

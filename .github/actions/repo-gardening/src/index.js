@@ -10,8 +10,12 @@ const { context, getOctokit } = require( '@actions/github' );
 const assignIssues = require( './tasks/assign-issues' );
 const addMilestone = require( './tasks/add-milestone' );
 const addLabels = require( './tasks/add-labels' );
+const checkDescription = require( './tasks/check-description' );
+const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
+const notifyDesign = require( './tasks/notify-design' );
 const debug = require( './debug' );
 const ifNotFork = require( './if-not-fork' );
+const ifNotClosed = require( './if-not-closed' );
 
 const automations = [
 	{
@@ -26,7 +30,21 @@ const automations = [
 	{
 		event: 'pull_request',
 		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
-		task: addLabels,
+		task: ifNotClosed( addLabels ),
+	},
+	{
+		event: 'pull_request',
+		action: [ 'opened', 'reopened', 'synchronize', 'edited', 'labeled' ],
+		task: ifNotClosed( checkDescription ),
+	},
+	{
+		event: 'pull_request',
+		action: [ 'labeled' ],
+		task: ifNotClosed( notifyDesign ),
+	},
+	{
+		event: 'push',
+		task: wpcomCommitReminder,
 	},
 ];
 

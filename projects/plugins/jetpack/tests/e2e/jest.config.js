@@ -3,15 +3,34 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
-process.env.JEST_PLAYWRIGHT_CONFIG = 'jest-playwright.config.js';
+if ( process.env.E2E_DEBUG ) {
+	process.env.DEBUG = 'pw:browser|api|error';
+	process.env.PWDEBUG = 1;
+}
 
 module.exports = {
-	preset: 'jest-playwright-preset',
-	globalTeardown: './lib/global-teardown.js',
-	setupFilesAfterEnv: [
-		'jest-allure/dist/setup',
-		'<rootDir>/lib/setup-env.js',
-		'expect-playwright',
+	testEnvironment: '<rootDir>/lib/env/playwright-environment.js',
+	globalSetup: '<rootDir>/lib/env/global-setup.js',
+	globalTeardown: '<rootDir>/lib/env/global-teardown.js',
+	setupFilesAfterEnv: [ '<rootDir>/lib/env/test-setup.js', '<rootDir>/jest.setup.js' ],
+	testRunner: 'jest-circus/runner',
+	reporters: [
+		'default',
+		[
+			'jest-junit',
+			{
+				suiteName: 'Jetpack E2E tests',
+				outputDirectory: 'output/reports',
+				outputName: 'junit-results.xml',
+				uniqueOutputName: 'true',
+			},
+		],
+		[
+			'jest-stare',
+			{
+				resultDir: `output/reports/jest-stare`,
+				reportTitle: 'Jetpack E2E tests',
+			},
+		],
 	],
-	testRunner: 'jasmine2',
 };

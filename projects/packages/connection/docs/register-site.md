@@ -1,14 +1,14 @@
 # Register the site / Create blog token
 
-This means registering the site with WordPress.com. It will create a "site (or 'blog') token" on both sides, establishing a secure two-way communication path. 
+This means registering the site with WordPress.com. It will create a "site (or 'blog') token" on both sides, establishing a secure two-way communication path.
 
-The blog token is required in order to [authenticate at a user level](authorize-user.md) later (link to user auth docs here), so let's learn the simplest way we can do that in your plugin. 
+The blog token is required in order to [authenticate at a user level](authorize-user.md) later (link to user auth docs here), so let's learn the simplest way we can do that in your plugin.
 
 ### Install the right packages
 
 First, let's make sure that the `automattic/jetpack-connection` package is set up in your composer.json file:
 
-At minimum you need three things. One is the `automattic/jetpack-autoloader` package, which will ensure that you're not colliding with any other plugins on the site that may be including the same packages. Two, of course, is the `automattic/jetpack-connection` package. Third is our `automattic/jetpack-config` package that will be your tool for initializing the packages. 
+At minimum you need three things. One is the `automattic/jetpack-autoloader` package, which will ensure that you're not colliding with any other plugins on the site that may be including the same packages. Two, of course, is the `automattic/jetpack-connection` package. Third is our `automattic/jetpack-config` package that will be your tool for initializing the packages.
 
 We recommend that you always use the latest published versions of our packages, but you can also run our latest master branch builds:
 ```
@@ -71,11 +71,11 @@ function your_plugin_register_site() {
 	check_admin_referer( 'register-site' );
 	$manager = new Manager( 'plugin-slug' );
 
-	// Mark the plugin connection as enabled, in case it was disabled earlier. 
+	// Mark the plugin connection as enabled, in case it was disabled earlier.
 	$manager->enable_plugin();
 
 	// If the token doesn't exist (see "Soft and Hard Disconnect" section below), we need to register the site.
-	if ( ! $manager->get_access_token() ) {
+	if ( ! ( new Tokens() )->get_access_token() ) {
 		$manager->register();
 	}
 
@@ -97,11 +97,11 @@ How are people supposed to register without something to click? I guess they wou
 
 ### Voila!
 
-And that's it! You've just created a button that will register a WordPress site with WordPress.com. Now the only thing left to do is [authorize the user](authorize-user.md). 
+And that's it! You've just created a button that will register a WordPress site with WordPress.com. Now the only thing left to do is [authorize the user](authorize-user.md).
 
 ### Disconnect the site
 
-When disconnecting the site, we recommend also clearing the remaining user tokens, since those won't work anyway and may cause problems on reconnection. 
+When disconnecting the site, we recommend also clearing the remaining user tokens, since those won't work anyway and may cause problems on reconnection.
 
 ```php
 use Automattic\Jetpack\Connection\Manager;
@@ -179,7 +179,7 @@ However, the user explicitly requested the plugin to be disabled, so you need to
 ```php
 $manager = new Manager( 'plugin-slug' );
 
-if ( $manager->is_plugin_enabled() && $manager->get_access_token() ) {
+if ( $manager->is_plugin_enabled() && ( new Tokens() )->get_access_token() ) {
 	// Perform the API requests.
 } else {
 	// Assume the plugin is disconnected, no matter if the tokens actually exist.
@@ -193,7 +193,7 @@ If the plugin was *softly* disconnected, removing the flag is enough for it to w
 $manager = new Manager( 'plugin-slug' );
 $manager->enable_plugin();
 
-if ( ! $manager->get_access_token() ) {
+if ( ! ( new Tokens() )->get_access_token() ) {
     $manager->register();
 }
 ```

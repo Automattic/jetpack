@@ -1,6 +1,9 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * Verify that [gravatar] exists.
@@ -22,7 +25,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertNotEquals( $content, $shortcode_content );
-		$this->assertEquals( '', $shortcode_content );
+		$this->assertSame( '', $shortcode_content );
 	}
 
 	/**
@@ -44,11 +47,13 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_gravatar_profile() {
-		$email = 'user@example.org';
+		$email   = 'user@example.org';
 		$content = "[gravatar_profile who='$email']";
-		$user = $this->factory->user->create_and_get( array(
-			'user_email' => $email,
-		) );
+		$user    = $this->factory->user->create_and_get(
+			array(
+				'user_email' => $email,
+			)
+		);
 		wp_set_current_user( $user->ID );
 
 		$shortcode_content = do_shortcode( $content );

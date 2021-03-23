@@ -316,10 +316,10 @@ class Jetpack_Debugger {
 			}
 
 			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea, #debug_info_div {
-				border: 1px solid #e5e5e5;
+				border: 1px solid #dcdcde;
 				border-radius: 11px;
 				box-shadow: inset 0 1px 1px rgba(0,0,0,0.1);
-				color: #666;
+				color: #646970;
 				font-size: 14px;
 				padding: 10px;
 				width: 97%;
@@ -339,7 +339,7 @@ class Jetpack_Debugger {
 				height: auto !important;
 				margin: 0 0 2em 10px !important;
 				padding: 8px 16px !important;
-				background-color: #ddd;
+				background-color: #dcdcde;
 				border: 1px solid rgba(0,0,0,0.05);
 				border-top-color: rgba(255,255,255,0.1);
 				border-bottom-color: rgba(0,0,0,0.15);

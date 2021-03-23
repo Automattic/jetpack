@@ -16,7 +16,7 @@ import {
 import { check, people } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import { useMemo, useState, useEffect, Component } from '@wordpress/element';
+import { useMemo, useState, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -27,9 +27,13 @@ import {
 	getPlainText,
 } from '../../conversation/utils';
 
-const EDIT_MODE_ADDING = 'is-adding';
-const EDIT_MODE_SELECTING = 'is-selecting';
-const EDIT_MODE_EDITING = 'is-editing';
+const EDIT_MODE_READY = 'is-participant-ready';
+const EDIT_MODE_ADDING = 'is-participant-adding';
+const EDIT_MODE_ADDED = 'was-participant-added';
+const EDIT_MODE_SELECTING = 'is-participant-selecting';
+const EDIT_MODE_SELECTED = 'was-participant-selected';
+const EDIT_MODE_EDITING = 'is-participant-editing';
+const EDIT_MODE_EDITED = 'was-participant-edited';
 
 function ParticipantsMenu( { participants, className, onSelect, slug, onClose } ) {
 	return (
@@ -102,7 +106,7 @@ const DetectOutside = withFocusOutside(
  * @param {Array} participants - Conversation participants list.
  * @returns {object} Participants autocompleter.
  */
-function refreshAutocompleter( participants ) {
+function freshAutocompleter( participants ) {
 	return {
 		name: 'jetpack/conversation-participants',
 		triggerPrefix: '',
@@ -151,9 +155,7 @@ export function SpeakerEditControl( {
 	onAdd,
 	onClean,
 } ) {
-	const [ editingMode, setEditingMode ] = useState(
-		participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING
-	);
+	const [ editingMode, setEditingMode ] = useState( EDIT_MODE_READY );
 
 	function editSpeakerHandler() {
 		if ( ! label ) {
@@ -165,10 +167,11 @@ export function SpeakerEditControl( {
 		if ( participant && participant.label !== label ) {
 			// Check if the participant label exists, but it isn't the current one.
 			if ( participantExists && participantExists.slug !== participant.slug ) {
+				setEditingMode( EDIT_MODE_SELECTED );
 				return onSelect( participantExists );
 			}
 
-			setEditingMode( EDIT_MODE_EDITING );
+			setEditingMode( EDIT_MODE_EDITED );
 			return onUpdate( {
 				...participant,
 				label: getPlainText( label, true ),
@@ -177,13 +180,13 @@ export function SpeakerEditControl( {
 
 		// Select the speaker but from the current label value.
 		if ( participantExists ) {
-			setEditingMode( EDIT_MODE_SELECTING );
+			setEditingMode( EDIT_MODE_SELECTED );
 			return onSelect( participantExists );
 		}
 
 		// Add a new speaker.
 		onAdd( getPlainText( label, true ) );
-		return setEditingMode( EDIT_MODE_ADDING );
+		return setEditingMode( EDIT_MODE_ADDED );
 	}
 
 	/**
@@ -228,31 +231,35 @@ export function SpeakerEditControl( {
 
 	// Keep autocomplete options udated.
 	const autocompleter = useMemo( () => {
-		if ( editingMode === EDIT_MODE_EDITING ) {
+		// No autocomplete when no edit mode defined.
+		if ( ! editingMode ) {
 			return [];
 		}
 
-		return [ refreshAutocompleter( participants ) ];
-	}, [ participants, editingMode ] );
+		// SHow Autocomplete only when
+		// adding a selecting a/the participant.
+		if (
+			editingMode !== EDIT_MODE_ADDING &&
+			editingMode !== EDIT_MODE_SELECTING
+		) {
+			return [];
+		}
 
-	useEffect( () => {
-		setEditingMode( participant ? EDIT_MODE_SELECTING : EDIT_MODE_ADDING );
-	}, [ participant ] );
+		return [ freshAutocompleter( participants ) ];
+	}, [ participants, editingMode ] );
 
 	return (
 		<DetectOutside
 			className={ classNames( className, {
 				'has-bold-style': label?.length,
-				'is-adding-participant': editingMode === EDIT_MODE_ADDING,
-				'is-editing-participant': editingMode === EDIT_MODE_EDITING,
-				'is-selecting-participant': editingMode === EDIT_MODE_SELECTING,
+				[ editingMode ]: editingMode,
 			} ) }
 			onFocusOutside={ editSpeakerHandler }
 		>
 			<RichText
 				tagName="div"
 				value={ label }
-				formattingControls={ [] }
+				allowedFormats={ [] }
 				withoutInteractiveFormatting={ true }
 				onChange={ onChangeHandler }
 				placeholder={ __( 'Speaker', 'jetpack' ) }
@@ -267,7 +274,7 @@ export function SpeakerEditControl( {
 					if ( replacedParticipant ) {
 						const { label: newLabel } = replacedParticipant;
 						onParticipantChange( newLabel );
-						setEditingMode( EDIT_MODE_SELECTING );
+						setEditingMode( EDIT_MODE_SELECTED );
 						return onSelect( replacedParticipant );
 					}
 

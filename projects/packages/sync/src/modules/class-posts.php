@@ -54,6 +54,26 @@ class Posts extends Module {
 	private $import_end = false;
 
 	/**
+	 * Max bytes allowed for post_content => length.
+	 * Current Setting : 5MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_CONTENT_LENGTH = 5000000;
+
+	/**
+	 * Max bytes allowed for post meta_value => length.
+	 * Current Setting : 2MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_META_LENGTH = 2000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -195,6 +215,11 @@ class Posts extends Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
 
+		// meta.
+		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
+
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
@@ -263,6 +288,24 @@ class Posts extends Module {
 	 */
 	public function get_full_sync_actions() {
 		return array( 'jetpack_full_sync_posts' );
+	}
+
+	/**
+	 * Filter meta arguments so that we don't sync meta_values over MAX_POST_META_LENGTH.
+	 *
+	 * @param array $args action arguments.
+	 *
+	 * @return array filtered action arguments.
+	 */
+	public function trim_post_meta( $args ) {
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		// Explicitly truncate meta_value when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		$serialized_value = maybe_serialize( $meta_value );
+		if ( strlen( $serialized_value ) >= self::MAX_POST_META_LENGTH ) {
+			$meta_value = '';
+		}
+		return array( $meta_id, $object_id, $meta_key, $meta_value );
 	}
 
 	/**
@@ -434,6 +477,12 @@ class Posts extends Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 
+		// Explicitly omit post_content when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		if ( strlen( $post->post_content ) >= self::MAX_POST_CONTENT_LENGTH ) {
+			$post->post_content = '';
+		}
+
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
 			global $shortcode_tags;
@@ -570,16 +619,6 @@ class Posts extends Module {
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
-
-		/*
-		 * WP 5.6 introduced the wp_after_insert_post hook that triggers when
-		 * the post, meta and terms has been updated. We are migrating send_published
-		 * function to this hook to ensure we have all data for WP.com functionality.
-		 * @todo: remove full if statement when WordPress 5.6 is the minimum required version.
-		 */
-		if ( ! function_exists( 'wp_after_insert_post' ) ) {
-			$this->send_published( $post_ID, $post );
-		}
 	}
 
 	/**

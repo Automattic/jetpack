@@ -1,0 +1,26 @@
+[
+    {
+        "blockName": "jetpack/simple-payments",
+        "attrs": {
+            "email": "bob@bob.com",
+            "featuredMediaId": 11,
+            "multiple": true,
+            "price": 10,
+            "productId": 573
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"jetpack-simple-payments-wrapper jetpack-simple-payments-573\">\n\t<div class=\"jetpack-simple-payments-product\">\n\t\t<div class=\"jetpack-simple-payments-product-image\">\n\t\t\t<div class=\"jetpack-simple-payments-image\">\n\t\t\t\t<figure>\n\t\t\t\t\t<img src=\"https://bob.com/2019/08/headphones.jpg\" alt=\"Placeholder Image\" />\n\t\t\t\t</figure>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"jetpack-simple-payments-details\">\n\t\t\t<div class=\"jetpack-simple-payments-title\"><p>Headphones</p></div>\n\t\t\t<div class=\"jetpack-simple-payments-description\"><p>Green headphines</p></div>\n\t\t\t<div class=\"jetpack-simple-payments-price\"><p>$10.00</p></div>\n\t\t\t<a\n\t\t\t\tclass=\"jetpack-simple-payments-purchase\"\n\t\t\t\thref=\"https://gdnzpbd2.wordpress.com/?p=572\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t\trel=\"noopener noreferrer\"\n\t\t\t\t>Click here to purchase.</a\n\t\t\t>\n\t\t</div>\n\t</div>\n</div>\n",
+        "innerContent": [
+            "\n<div class=\"jetpack-simple-payments-wrapper jetpack-simple-payments-573\">\n\t<div class=\"jetpack-simple-payments-product\">\n\t\t<div class=\"jetpack-simple-payments-product-image\">\n\t\t\t<div class=\"jetpack-simple-payments-image\">\n\t\t\t\t<figure>\n\t\t\t\t\t<img src=\"https://bob.com/2019/08/headphones.jpg\" alt=\"Placeholder Image\" />\n\t\t\t\t</figure>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class=\"jetpack-simple-payments-details\">\n\t\t\t<div class=\"jetpack-simple-payments-title\"><p>Headphones</p></div>\n\t\t\t<div class=\"jetpack-simple-payments-description\"><p>Green headphines</p></div>\n\t\t\t<div class=\"jetpack-simple-payments-price\"><p>$10.00</p></div>\n\t\t\t<a\n\t\t\t\tclass=\"jetpack-simple-payments-purchase\"\n\t\t\t\thref=\"https://gdnzpbd2.wordpress.com/?p=572\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t\trel=\"noopener noreferrer\"\n\t\t\t\t>Click here to purchase.</a\n\t\t\t>\n\t\t</div>\n\t</div>\n</div>\n"
+        ]
+    },
+    {
+        "blockName": null,
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n\n<div class=\"jetpack-simple-payments-wrapper jetpack-simple-payments-573\">\n\t<div className=\"jetpack-simple-payments-product\">\n\t\t<div className=\"jetpack-simple-payments-product-image\">\n\t\t\t<div className=\"jetpack-simple-payments-image\">\n\t\t\t\t<figure>\n\t\t\t\t\t<img src=\"{\" featuredMediaUrl } alt=\"{\" featuredMediaTitle } />\n\t\t\t\t</figure>\n\t\t\t</div>\n\t\t</div>\n\t\t<div className=\"jetpack-simple-payments-details\">\n\t\t\t<div className=\"jetpack-simple-payments-title\"><p>{ title }</p></div>\n\t\t\t<div className=\"jetpack-simple-payments-description\"><p>{ content }</p></div>\n\t\t\t<div className=\"jetpack-simple-payments-price\"></div><p>$10.00</p>\n\t\t\t</div>\n\t\t\t<a\n\t\t\t\tclassName=\"jetpack-simple-payments-purchase\"\n\t\t\t\thref=\"\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t\trel=\"noopener noreferrer\"\n\t\t\t>\n\t\t\t\t{ postLinkText }\n\t\t\t</a>\n\t\t</div>\n\t</div>\n</div>\n",
+        "innerContent": [
+            "\n\n<div class=\"jetpack-simple-payments-wrapper jetpack-simple-payments-573\">\n\t<div className=\"jetpack-simple-payments-product\">\n\t\t<div className=\"jetpack-simple-payments-product-image\">\n\t\t\t<div className=\"jetpack-simple-payments-image\">\n\t\t\t\t<figure>\n\t\t\t\t\t<img src=\"{\" featuredMediaUrl } alt=\"{\" featuredMediaTitle } />\n\t\t\t\t</figure>\n\t\t\t</div>\n\t\t</div>\n\t\t<div className=\"jetpack-simple-payments-details\">\n\t\t\t<div className=\"jetpack-simple-payments-title\"><p>{ title }</p></div>\n\t\t\t<div className=\"jetpack-simple-payments-description\"><p>{ content }</p></div>\n\t\t\t<div className=\"jetpack-simple-payments-price\"></div><p>$10.00</p>\n\t\t\t</div>\n\t\t\t<a\n\t\t\t\tclassName=\"jetpack-simple-payments-purchase\"\n\t\t\t\thref=\"\"\n\t\t\t\ttarget=\"_blank\"\n\t\t\t\trel=\"noopener noreferrer\"\n\t\t\t>\n\t\t\t\t{ postLinkText }\n\t\t\t</a>\n\t\t</div>\n\t</div>\n</div>\n"
+        ]
+    }
+]

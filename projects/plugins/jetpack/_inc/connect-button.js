@@ -9,10 +9,7 @@ jQuery( document ).ready( function ( $ ) {
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph, .jp-connect-full__testimonial'
 	);
 	// Sections that only show up in the "Authorize user" screen
-	var authenticationHelpSections = $( '#jp-authenticate-no_user_test_mode' );
 	var connectButtonFrom = '';
-
-	authenticationHelpSections.hide();
 
 	connectButton.on( 'click', function ( event ) {
 		event.preventDefault();
@@ -100,11 +97,17 @@ jQuery( document ).ready( function ( $ ) {
 		},
 		handleConnectionSuccess: function ( data ) {
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
-			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
+			jetpackConnectIframe.attr(
+				'src',
+				data.authorizeUrl +
+					'&from=' +
+					connectButtonFrom +
+					'&iframe_source=jetpack-connect-main' +
+					( jpConnect.isUserless ? '&userless=1' : '' )
+			);
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
-				authenticationHelpSections.show();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );

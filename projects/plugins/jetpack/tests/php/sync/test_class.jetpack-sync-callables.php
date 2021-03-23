@@ -19,6 +19,16 @@ function jetpack_foo_is_callable() {
 }
 
 /**
+ * Returns an anonymous function for use in testing .
+ */
+function jetpack_foo_is_anon_callable() {
+	$function = function () {
+		return 'red';
+	};
+	return $function;
+}
+
+/**
  * Testing Functions
  */
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
@@ -43,6 +53,18 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
+	}
+
+	/**
+	 * Verify that when a callable returns an anonymous function we don't fatal.
+	 */
+	public function test_anonymous_function_callable() {
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo_anon' => 'jetpack_foo_is_anon_callable' ) );
+
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo_anon' );
+		$this->assertEquals( null, $synced_value );
 	}
 
 	public function test_sync_jetpack_updates() {
