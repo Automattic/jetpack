@@ -73,7 +73,7 @@ class Manager {
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$manager->is_connected(),
+			$manager->is_active(), // TODO deprecate this.
 			$manager->verify_xml_rpc_signature()
 		);
 
@@ -149,7 +149,6 @@ class Manager {
 
 		$this->require_jetpack_authentication();
 
-		// TODO Check this more.
 		if ( $is_active ) {
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );

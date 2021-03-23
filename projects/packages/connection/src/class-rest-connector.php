@@ -153,7 +153,7 @@ class REST_Connector {
 		$connection = new Manager();
 
 		$connection_status = array(
-			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
+			'isActive'          => $connection->is_active(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
