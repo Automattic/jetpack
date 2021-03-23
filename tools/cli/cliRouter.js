@@ -42,6 +42,7 @@ export async function cli() {
 	argv
 		.showHelpOnFail( true )
 		.demandCommand()
+		.strictCommands()
 		.version( false )
 		.options( {
 			v: {
