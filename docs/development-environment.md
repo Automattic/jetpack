@@ -66,7 +66,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 ## Installing development tools
 
 ### Minimum required versions
- * Node.js - LTS (Currently 10, see engines section of package.json)
+ * Node.js - LTS (Currently 12, see engines section of package.json)
  * Yarn - 1.3 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
  * Composer - 1.9.0
@@ -237,25 +237,11 @@ To get started, there are several ways to run the unit tests, depending on how y
 	yarn docker:phpunit:multisite --filter=Protect
 	```
  
-    For all package unit tests
-    ```sh
-    yarn docker:phpunit:package
-    ```
-    
-    For a specific package's tests
-    ```sh
-    yarn docker:phpunit:package autoloader
-    ```
-    
-    If you need to clear out a particular package's composer.lock
-    ```sh
-    yarn docker:phpunit:package autoloader -c
-    ```
-    
-    To run all package unit tests and clear all composer.lock files within
-    ```sh
-    yarn docker:phpunit:package -c
-    ```
+	To run tests for specific packages, you can run the tests locally, from within the package's directory:
+	```sh
+	cd projects/packages/assets
+	composer phpunit
+	```
 
 * ### VVV & Local Installs
 

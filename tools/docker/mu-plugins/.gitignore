@@ -5,4 +5,5 @@
 !fix-monorepo-plugin_url.php
 !jetpack-debug-helper-loader.php
 !/jetpack-debug-helper
-
+!connection-ui-activator.php
+!userless-connection-activator.php

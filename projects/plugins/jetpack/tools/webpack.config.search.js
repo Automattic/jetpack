@@ -8,6 +8,7 @@ const {
 	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/util' );
 const path = require( 'path' );
+const webpack = require( 'webpack' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -15,12 +16,17 @@ const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
 		entry: {
-			main: path.join( __dirname, '../modules/search/instant-search/index.jsx' ),
+			main: path.join( __dirname, '../modules/search/instant-search/loader.js' ),
 			'ie11-polyfill-loader': path.join(
 				__dirname,
 				'../modules/search/instant-search/ie11-polyfill.js'
 			),
-			'ie11-polyfill-payload': [ 'core-js', 'regenerator-runtime/runtime' ],
+			'ie11-polyfill-payload': [
+				'core-js',
+				'regenerator-runtime/runtime',
+				'whatwg-fetch',
+				'abortcontroller-polyfill/dist/polyfill-patch-fetch',
+			],
 		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
 		'output-filename': 'jp-search-[name].bundle.js',
@@ -67,7 +73,31 @@ module.exports = {
 	},
 	devtool: isDevelopment ? 'source-map' : false,
 	plugins: [
+		new webpack.DefinePlugin( {
+			// Replace palette colors as individual literals in the bundle.
+			PALETTE: ( () => {
+				const colors = require( '@automattic/color-studio' ).colors;
+				const stringifiedColors = {};
+
+				// DefinePlugin replaces the values as unescaped text.
+				// We therefore need to double-quote each value, to ensure it ends up as a string.
+				for ( const color in colors ) {
+					stringifiedColors[ color ] = `"${ colors[ color ] }"`;
+				}
+
+				return stringifiedColors;
+			} )(),
+		} ),
 		...baseWebpackConfig.plugins,
+		// Replace 'debug' module with a dummy implementation in production
+		...( isDevelopment
+			? []
+			: [
+					new webpack.NormalModuleReplacementPlugin(
+						/^debug$/,
+						path.resolve( __dirname, '../modules/search/instant-search/lib/dummy-debug' )
+					),
+			  ] ),
 		new DependencyExtractionWebpackPlugin( {
 			injectPolyfill: true,
 			useDefaults: false,
@@ -75,4 +105,11 @@ module.exports = {
 			requestToHandle: defaultRequestToHandle,
 		} ),
 	],
+	optimization: {
+		splitChunks: {
+			cacheGroups: {
+				vendors: false,
+			},
+		},
+	},
 };

@@ -27,7 +27,7 @@ div.sharedaddy h3.sd-title:before {
 	display: block;
 	width: 100%;
 	min-width: 30px;
-	border-top: 1px solid #ddd;
+	border-top: 1px solid #dcdcde;
 	margin-bottom: 1em;
 }
 
@@ -134,7 +134,7 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 }
 
 div.sd-box {
-	border-top: 1px solid #ddd;
+	border-top: 1px solid #dcdcde;
 	border-top: 1px solid rgba(0,0,0,.13);
 }
 

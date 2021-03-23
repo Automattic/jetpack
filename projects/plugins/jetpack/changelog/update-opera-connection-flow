@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Connection Flow: Resolve issue that prevented connections from Opera.

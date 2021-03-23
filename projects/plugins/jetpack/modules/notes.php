@@ -5,11 +5,14 @@
  * Sort Order: 13
  * First Introduced: 1.9
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Other
  * Feature: General
  * Additional Search Queries: notification, notifications, toolbar, adminbar, push, comments
  */
+
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 
@@ -202,7 +205,7 @@ class Jetpack_Notifications {
 	}
 
 	function print_js() {
-		$link_accounts_url = is_user_logged_in() && !Jetpack::is_user_connected() ? Jetpack::admin_url() : false;
+		$link_accounts_url = is_user_logged_in() && ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ? Jetpack::admin_url() : false;
 ?>
 <script data-ampdevmode type="text/javascript">
 /* <![CDATA[ */

@@ -256,7 +256,17 @@ class Functions {
 	 * @return array Array of allowed metadata.
 	 */
 	public static function rest_api_allowed_public_metadata() {
-		/** This filter is documented in json-endpoints/class.wpcom-json-api-post-endpoint.php */
+		/**
+		 * Filters the meta keys accessible by the REST API.
+		 *
+		 * @see https://developer.wordpress.com/2013/04/26/custom-post-type-and-metadata-support-in-the-rest-api/
+		 *
+		 * @module json-api
+		 *
+		 * @since 2.2.3
+		 *
+		 * @param array $whitelisted_meta Array of metadata that is accessible by the REST API.
+		 */
 		return apply_filters( 'rest_api_allowed_public_metadata', array() );
 	}
 
@@ -634,5 +644,46 @@ class Functions {
 		}
 
 		return $theme_support;
+	}
+
+	/**
+	 * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
+	 *
+	 * @since 9.5.0
+	 *
+	 * @param array|obj $any        Source data to be cleaned up.
+	 * @param array     $seen_nodes Built array of nodes.
+	 *
+	 * @return array
+	 */
+	public static function json_wrap( &$any, $seen_nodes = array() ) {
+		if ( is_object( $any ) ) {
+			$input        = get_object_vars( $any );
+			$input['__o'] = 1;
+		} else {
+			$input = &$any;
+		}
+
+		if ( is_array( $input ) ) {
+			$seen_nodes[] = &$any;
+
+			$return = array();
+
+			foreach ( $input as $k => &$v ) {
+				if ( ( is_array( $v ) || is_object( $v ) ) ) {
+					if ( in_array( $v, $seen_nodes, true ) ) {
+						continue;
+					}
+					$return[ $k ] = self::json_wrap( $v, $seen_nodes );
+				} else {
+					$return[ $k ] = $v;
+				}
+			}
+
+			return $return;
+		}
+
+		return $any;
+
 	}
 }
