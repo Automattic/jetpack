@@ -171,7 +171,7 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 			return false;
 		}
 		return true;
-	} else if ( isset( $_GET['from'] ) && 'calypso-unified-menu' === $_GET['from'] ) {
+	} elseif ( isset( $_GET['from'] ) && 'calypso-unified-menu' === $_GET['from'] ) {
 		// Enable if user is coming from the unified menu in Calypso.
 		update_user_option( $user_id, 'wpcom_is_nav_unification_enabled', true );
 		return true;

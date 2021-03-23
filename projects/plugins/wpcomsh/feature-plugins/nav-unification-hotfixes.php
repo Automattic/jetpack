@@ -8,7 +8,8 @@
 
 use Automattic\Jetpack\Status;
 
- /**
+
+/**
  * Makes Calypso Users menu always visible in Atomic.
  * Can be removed after Jetpack 9.6 release.
  */
@@ -22,17 +23,17 @@ function wpcomsh_add_calypso_users_menu() {
 	if ( version_compare( JETPACK__VERSION, '9.6-alpha', '>=' ) ) {
 		return;
 	}
-	
+
 	// Safety - don't alter anything if Nav Unification is not enabled.
 	if ( ! wpcomsh_activate_nav_unification( false ) ) {
 		return;
 	}
 
 	// Whether Advanced Dashboard toggle is enabled.
-	$wp_admin = get_user_option( 'jetpack_admin_menu_link_destination' );;
+	$wp_admin = get_user_option( 'jetpack_admin_menu_link_destination' );
 
 	if ( $wp_admin ) {
-		$site_domain  = ( new Status() )->get_site_suffix();
+		$site_domain        = ( new Status() )->get_site_suffix();
 		$submenus_to_update = array(
 			'user-new.php' => 'https://wordpress.com/people/new/' . $site_domain,
 			'users.php'    => 'https://wordpress.com/people/team/' . $site_domain,
@@ -45,6 +46,48 @@ function wpcomsh_add_calypso_users_menu() {
 
 }
 add_action( 'admin_menu', 'wpcomsh_add_calypso_users_menu' );
+
+/**
+ * Hotfix: force Posts and Pages to point to WPAdmin on Atomic.
+ * Full fix will be deployed to Jetpack in:
+ * https://github.com/Automattic/jetpack/pull/19240.
+ *
+ * See: https://github.com/Automattic/wp-calypso/issues/51283.
+ *
+ * @return void
+ */
+function wpcomsh_force_wpadmin_posts_pages_on_atomic() {
+
+	// Do not run if Jetpack is not enabled.
+	if ( ! defined( 'JETPACK__VERSION' ) ) {
+		return;
+	}
+
+	// Safety - don't alter anything if Nav Unification is not enabled.
+	if ( ! wpcomsh_activate_nav_unification( false ) ) {
+		return;
+	}
+
+	$site_domain = ( new Status() )->get_site_suffix();
+
+	wpcomsh_update_submenus(
+		'edit.php',
+		array(
+			'https://wordpress.com/posts/' . $site_domain => 'edit.php',
+			'https://wordpress.com/post/' . $site_domain  => 'post-new.php',
+		)
+	);
+
+	wpcomsh_update_submenus(
+		'edit.php?post_type=page',
+		array(
+			'https://wordpress.com/pages/' . $site_domain => 'edit.php?post_type=page',
+			'https://wordpress.com/page/' . $site_domain  => 'post-new.php?post_type=page',
+		)
+	);
+}
+
+add_action( 'admin_menu', 'wpcomsh_force_wpadmin_posts_pages_on_atomic', 99999999999999 );
 
 
 /**
