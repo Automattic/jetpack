@@ -149,6 +149,7 @@ class Manager {
 
 		$this->require_jetpack_authentication();
 
+		// TODO Check this more.
 		if ( $is_active ) {
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
@@ -1566,7 +1567,7 @@ class Manager {
 				'scope'         => $signed_role,
 				'user_email'    => $user->user_email,
 				'user_login'    => $user->user_login,
-				'is_active'     => $this->is_connected(), // TODO Confirm this.
+				'is_active'     => $this->is_active(), // TODO Deprecate this.
 				'jp_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'     => $auth_type,
 				'secret'        => $secrets['secret_1'],

@@ -46,7 +46,7 @@ class REST_Connector {
 			'jetpack'
 		);
 
-		if ( ! $this->connection->is_connected() ) {
+		if ( ! $this->connection->has_connected_owner() ) {
 			// Register a site.
 			register_rest_route(
 				'jetpack/v4',
@@ -153,7 +153,7 @@ class REST_Connector {
 		$connection = new Manager();
 
 		$connection_status = array(
-			'isActive'          => $connection->is_connected(),
+			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
