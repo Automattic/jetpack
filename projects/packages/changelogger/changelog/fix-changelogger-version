@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Bump version number. #19242 did a release while #19252 was merged on the basis of pre-release check runs so it didn't get bumped with the latter.
+
+
