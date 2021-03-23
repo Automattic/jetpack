@@ -23,7 +23,7 @@ import './product-ratings.scss';
  * @param {number} props.rating - Average rating out of five.
  * @returns {object} Product rating component.
  */
-export default function ProductRatings( { rating = 0, count = 0 } ) {
+export default function ProductRatings( { rating = 0, count = 0, permalink } ) {
 	return (
 		<div className="jetpack-instant-search__product-rating">
 			<span aria-hidden className="jetpack-instant-search__product-rating-stars">
@@ -31,9 +31,10 @@ export default function ProductRatings( { rating = 0, count = 0 } ) {
 					.fill( <Gridicon size={ 16 } icon="star-outline" /> )
 					.fill( <Gridicon size={ 16 } icon="star" />, 0, rating ) }
 			</span>{ ' ' }
-			<span
+			<a
 				aria-hidden
 				className="jetpack-instant-search__product-rating-count"
+				href={ permalink + '#reviews' }
 				title={ sprintf(
 					/* Translators: the placeholder is the number of product reviews. */
 					_n( '(%s customer review)', '(%s customer reviews)', count, 'jetpack' ),
@@ -41,7 +42,7 @@ export default function ProductRatings( { rating = 0, count = 0 } ) {
 				) }
 			>
 				{ count }
-			</span>
+			</a>
 			<span className="screen-reader-text">
 				{ sprintf(
 					/* Translators: the first placeholder is the average product rating out of 5; the second is the number of product reviews. */

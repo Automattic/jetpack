@@ -71,6 +71,7 @@ class SearchResultProduct extends Component {
 					<ProductRatings
 						count={ fields[ 'meta._wc_review_count.long' ] }
 						rating={ fields[ 'meta._wc_average_rating.double' ] }
+						permalink={ `//${ fields[ 'permalink.url.raw' ] }` }
 					/>
 				) }
 				<div
