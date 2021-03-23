@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds is_connection_ready method to Jetpack class
