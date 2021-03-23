@@ -58,6 +58,26 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Forces Posts menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_posts_menu` in parent class.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_posts_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false; // return explicit `false` to force WPAdmin links.
+	}
+
+	/**
+	 * Forces Pages menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_page_menu` in parent class.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_page_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return false; // return explicit `false` to force WPAdmin links.
+	}
+
+	/**
 	 * Adds Plugins menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
