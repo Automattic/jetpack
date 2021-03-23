@@ -34,7 +34,7 @@ class Jetpack_Likes {
 
 	/** Initialize class */
 	public static function init() {
-		static $instance = NULL;
+		static $instance = null;
 
 		if ( ! $instance ) {
 			$instance = new Jetpack_Likes();
@@ -299,7 +299,7 @@ class Jetpack_Likes {
 
 			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array(), JETPACK__VERSION, true );
 			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, true );
-			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js', __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
 	}
@@ -384,7 +384,7 @@ class Jetpack_Likes {
 	 * Load the JS required for loading the like counts.
 	 */
 	public function enqueue_admin_scripts() {
-		if ( empty( $_GET['post_type'] ) || 'post' == $_GET['post_type'] || 'page' == $_GET['post_type'] ) {
+		if ( empty( $_GET['post_type'] ) || 'post' === $_GET['post_type'] || 'page' === $_GET['post_type'] ) {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
@@ -393,7 +393,8 @@ class Jetpack_Likes {
 						'modules/likes/post-count.js'
 					),
 					array( 'jquery' ),
-					JETPACK__VERSION
+					JETPACK__VERSION,
+					$in_footer = false
 				);
 				wp_enqueue_script(
 					'likes-post-count-jetpack',
@@ -402,12 +403,13 @@ class Jetpack_Likes {
 						'modules/likes/post-count-jetpack.js'
 					),
 					array( 'likes-post-count' ),
-					JETPACK__VERSION
+					JETPACK__VERSION,
+					$in_footer = false
 				);
 			} else {
-				wp_enqueue_script( 'jquery.wpcom-proxy-request', "/wp-content/js/jquery/jquery.wpcom-proxy-request.js", array('jquery'), NULL, true );
-				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
-				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', dirname( __FILE__ ) ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION );
+				wp_enqueue_script( 'jquery.wpcom-proxy-request', '/wp-content/js/jquery/jquery.wpcom-proxy-request.js', array( 'jquery' ), null, true );
+				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __DIR__ ) ), array( 'jquery' ), JETPACK__VERSION, $in_footer = false );
+				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', dirname( __DIR__ ) ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION, $in_footer = false );
 			}
 		}
 	}
@@ -419,7 +421,7 @@ class Jetpack_Likes {
 	 * @param int    $post_id - the post id.
 	 */
 	public function likes_edit_column( $column_name, $post_id ) {
-		if ( 'likes' == $column_name ) {
+		if ( 'likes' === $column_name ) {
 
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$blog_id = get_current_blog_id();
@@ -427,7 +429,8 @@ class Jetpack_Likes {
 				$blog_id = Jetpack_Options::get_option( 'id' );
 			}
 
-			$permalink = get_permalink( get_the_ID() ); ?>
+			$permalink = get_permalink( get_the_ID() );
+			?>
 			<a title="" data-post-id="<?php echo (int) $post_id; ?>" class="post-com-count post-like-count" id="post-like-count-<?php echo (int) $post_id; ?>" data-blog-id="<?php echo (int) $blog_id; ?>" href="<?php echo esc_url( $permalink ); ?>#like-<?php echo (int) $post_id; ?>">
 				<span class="comment-count">0</span>
 			</a>
@@ -446,7 +449,7 @@ class Jetpack_Likes {
 		unset( $columns['date'] );
 
 		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /><span class="screen-reader-text">' . __( 'Likes', 'jetpack' ) . '</span></span>';
-		$columns['date'] = $date;
+		$columns['date']  = $date;
 
 		return $columns;
 	}
@@ -464,14 +467,14 @@ class Jetpack_Likes {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
+			$blog_id  = get_current_blog_id();
 			$bloginfo = get_blog_details( (int) $blog_id );
-			$domain = $bloginfo->domain;
+			$domain   = $bloginfo->domain;
 		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
-			$url = home_url();
+			$blog_id   = Jetpack_Options::get_option( 'id' );
+			$url       = home_url();
 			$url_parts = wp_parse_url( $url );
-			$domain = $url_parts['host'];
+			$domain    = $url_parts['host'];
 		}
 		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
@@ -482,9 +485,9 @@ class Jetpack_Likes {
 		*/
 		$uniqid = uniqid();
 
-		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post_id, $domain, $uniqid );
-		$name = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
-		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
+		$src      = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post_id, $domain, $uniqid );
+		$name     = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
+		$wrapper  = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$headline = sprintf(
 			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
 			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
@@ -516,17 +519,21 @@ class Jetpack_Likes {
 	public function is_admin_bar_button_visible() {
 		global $wp_admin_bar;
 
-		if ( ! is_object( $wp_admin_bar ) )
+		if ( ! is_object( $wp_admin_bar ) ) {
 			return false;
+		}
 
-		if ( ( ! is_singular( 'post' ) && ! is_attachment() && ! is_page() ) )
+		if ( ( ! is_singular( 'post' ) && ! is_attachment() && ! is_page() ) ) {
 			return false;
+		}
 
-		if ( ! $this->settings->is_likes_visible() )
+		if ( ! $this->settings->is_likes_visible() ) {
 			return false;
+		}
 
-		if ( ! $this->settings->is_post_likeable() )
+		if ( ! $this->settings->is_post_likeable() ) {
 			return false;
+		}
 
 		/**
 		 * Filters whether the Like button is enabled in the admin bar.
@@ -551,18 +558,18 @@ class Jetpack_Likes {
 		}
 
 		$protocol = 'http';
-		if ( is_ssl() )
+		if ( is_ssl() ) {
 			$protocol = 'https';
-
+		}
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
+			$blog_id  = get_current_blog_id();
 			$bloginfo = get_blog_details( (int) $blog_id );
-			$domain = $bloginfo->domain;
+			$domain   = $bloginfo->domain;
 		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
-			$url = home_url();
+			$blog_id   = Jetpack_Options::get_option( 'id' );
+			$url       = home_url();
 			$url_parts = wp_parse_url( $url );
-			$domain = $url_parts['host'];
+			$domain    = $url_parts['host'];
 		}
 		// Make sure to include the scripts before the iframe otherwise weird things happen.
 		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
@@ -572,10 +579,10 @@ class Jetpack_Likes {
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 
 		$node = array(
-				'id'   => 'admin-bar-likes-widget',
-				'meta' => array(
-							'html' => $html
-				)
+			'id'   => 'admin-bar-likes-widget',
+			'meta' => array(
+				'html' => $html,
+			),
 		);
 
 		$wp_admin_bar->add_node( $node );
@@ -599,20 +606,13 @@ function jetpack_post_likes_get_value( array $post ) {
 	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 
 	// An empty string: post meta was not set, so go with the global setting.
-	if ( "" === $post_likes_switched ) {
+	if ( '' === $post_likes_switched ) {
 		return $sitewide_likes_enabled;
-	}
-
-	// User overrode the global setting to disable likes.
-	elseif ( "0" === $post_likes_switched ) {
+	} elseif ( '0' === $post_likes_switched ) { // User overrode the global setting to disable likes.
 		return false;
-	}
-
-	// User overrode the global setting to enable likes.
-	elseif ( "1" === $post_likes_switched ) {
+	} elseif ( '1' === $post_likes_switched ) { // User overrode the global setting to enable likes.
 		return true;
 	}
-
 	// No default fallback, let's stay explicit.
 }
 
