@@ -109,10 +109,9 @@ export async function loginToWpSite( mockPlanData ) {
 
 	if ( await WPLoginPage.isLoggedIn( page ) ) {
 		logger.step( 'Already logged in!' );
-		return;
+	} else {
+		await ( await WPLoginPage.init( page ) ).login();
 	}
-
-	await ( await WPLoginPage.init( page ) ).login();
 
 	if ( ! mockPlanData ) {
 		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments(
@@ -160,13 +159,12 @@ export async function connectThroughJetpackStart( {
 	const nextUrl = provisionJetpackStartConnection();
 	// sometimes after clicking on Approve button below user being redirected to wp-login page
 	// maybe waiting for a bit will help?
-	await page.waitForTimeout( 10000 );
+	await loginPage.waitForTimeout( 10000 );
 
 	// We cannot use AuthorizePage.visit because of the dynamic url
 	await loginPage.goto( nextUrl );
-	const authorizePage = AuthorizePage.init( page );
 
-	await authorizePage.approve();
+	await ( await AuthorizePage.init( page ) ).approve();
 	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
 	await ( await WPLoginPage.visit( page ) ).login();
 	await ( await Sidebar.init( page ) ).selectJetpack();
