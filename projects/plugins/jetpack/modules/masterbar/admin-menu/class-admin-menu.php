@@ -76,6 +76,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function should_disable_links_manager() {
 		// The max ID number of the auto-generated links.
+		// See /wp-content/mu-plugins/wpcom-wp-install-defaults.php in WP.com.
 		$max_default_id = 10;
 
 		$link_manager_links = get_bookmarks(
