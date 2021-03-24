@@ -2,6 +2,7 @@
  * External dependencies
  */
 const moment = require( 'moment' );
+const compareVersions = require( 'compare-versions' );
 
 /* global GitHub, OktokitIssuesListMilestonesForRepoResponseItem */
 
@@ -29,10 +30,12 @@ async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' )
 	for await ( const response of responses ) {
 		// Find a milestone which name is a version number
 		// and it's due dates is earliest in a future
-		const reg = new RegExp( plugin + '/d.d' );
+		const reg = new RegExp( '^' + plugin + '\\/\\d+\\.\\d' );
 		const nextMilestone = response.data
 			.filter( m => m.title.match( reg ) )
-			.sort( ( m1, m2 ) => parseFloat( m1.title ) - parseFloat( m2.title ) )
+			.sort( ( m1, m2 ) =>
+				compareVersions( m1.title.split( '/' )[ 1 ], m2.title.split( '/' )[ 1 ] )
+			)
 			.find( milestone => milestone.due_on && moment( milestone.due_on ) > moment() );
 
 		return nextMilestone;

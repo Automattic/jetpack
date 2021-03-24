@@ -253,7 +253,7 @@ class MyPlanBody extends React.Component {
 					</div>
 					<div className="jp-landing__plan-features-text">
 						<h3 className="jp-landing__plan-features-title">
-							{ __( 'Instant Search and Filtering', 'jetpack' ) }
+							{ __( 'Instant search and filtering', 'jetpack' ) }
 						</h3>
 						<p>
 							{ __(

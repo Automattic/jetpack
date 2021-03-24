@@ -20,8 +20,8 @@
 		"test": "mocha tests/runner.js --require esm"
 	},
 	"dependencies": {
-		"@octokit/auth": "3.0.2",
-		"@octokit/rest": "18.1.1",
+		"@octokit/auth": "3.0.3",
+		"@octokit/rest": "18.3.4",
 		"chalk": "4.1.0",
 		"configstore": "5.0.1",
 		"esm": "3.2.25",
@@ -35,7 +35,7 @@
 		"yargs": "16.2.0"
 	},
 	"devDependencies": {
-		"chai": "4.2.0",
+		"chai": "4.3.3",
 		"mocha": "8.2.1",
 		"yargs-parser": "20.2.4"
 	}

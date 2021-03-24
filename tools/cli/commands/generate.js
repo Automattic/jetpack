@@ -157,11 +157,6 @@ export function getQuestions( type ) {
 			message: 'Succinctly describe your project:',
 		},
 		{
-			type: 'confirm',
-			name: 'monorepo',
-			message: 'Does your project rely on Composer/PHP packages found in the monorepo?',
-		},
-		{
 			type: 'checkbox',
 			name: 'buildScripts',
 			message: 'Does your project require build steps?',
@@ -197,7 +192,7 @@ export function getQuestions( type ) {
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: '1.0.0-alpha',
+			default: '0.1.0-alpha',
 		},
 	];
 	const extensionQuestions = [];
@@ -328,18 +323,18 @@ function createPackageJson( packageJson, answers ) {
  */
 async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
-	composerJson.name = 'automattic/' + answers.name;
-	if ( answers.monorepo ) {
-		composerJson.repositories = [
-			{
-				type: 'path',
-				url: '../*',
-				options: {
-					monorepo: true,
-				},
-			},
-		];
+
+	// Add the name.
+	let name;
+	switch ( answers.type ) {
+		case 'github-action':
+			name = 'action-' + answers.name;
+			break;
+		default:
+			name = 'jetpack-' + answers.name;
 	}
+	composerJson.name = 'automattic/' + name;
+
 	if ( answers.buildScripts && answers.buildScripts.includes( 'production' ) ) {
 		composerJson.scripts[ 'build-production' ] =
 			"echo 'Add your build step to composer.json, please!'";
@@ -357,7 +352,7 @@ async function createComposerJson( composerJson, answers ) {
 	try {
 		if ( answers.mirrorrepo ) {
 			// For testing, add a third arg here for the org.
-			await mirrorRepo( composerJson, answers.name );
+			await mirrorRepo( composerJson, name );
 		}
 	} catch ( e ) {
 		// This means we couldn't create the mirror repo or something else failed, GitHub API is down, etc.
@@ -433,9 +428,12 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
  * @param {string} org - Repo owner.
  */
 function addMirrorRepo( composerJson, name, org ) {
-	composerJson.extra = {
-		'mirror-repo': org + '/' + name,
-	};
+	composerJson.extra = composerJson.extra || {};
+	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
+	composerJson.extra.changelogger = composerJson.extra.changelogger || {};
+	composerJson.extra.changelogger[
+		'link-template'
+	] = `https://github.com/${ org }/${ name }/compare/v\${old}...v\${new}`;
 }
 
 /**
@@ -482,7 +480,7 @@ function createPluginHeader( answers ) {
 		'<?php\n' +
 		'/**\n' +
 		' *\n' +
-		` * Plugin Name: ${ answers.name }\n` +
+		` * Plugin Name: Jetpack ${ answers.name }\n` +
 		' * Plugin URI: TBD\n' +
 		` * Description: ${ answers.description }\n` +
 		` * Version: ${ answers.version }\n` +
@@ -491,7 +489,7 @@ function createPluginHeader( answers ) {
 		' * License: GPLv2 or later\n' +
 		' * Text Domain: jetpack\n' +
 		' *\n' +
-		` * @package automattic/${ answers.name }\n` +
+		` * @package automattic/jetpack-${ answers.name }\n` +
 		' */\n' +
 		'\n' +
 		'// Code some good stuff!\n';
@@ -507,7 +505,7 @@ function createPluginHeader( answers ) {
  */
 function createReadMeTxt( answers ) {
 	const content =
-		`=== ${ answers.name } ===\n` +
+		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 5.5\n' +

@@ -1,0 +1,24 @@
+[
+    {
+        "blockName": "jetpack/related-posts",
+        "attrs": {
+            "postLayout": "list",
+            "displayDate": false,
+            "displayThumbnails": true,
+            "displayContext": true,
+            "postsToShow": 4
+        },
+        "innerBlocks": [],
+        "innerHTML": "",
+        "innerContent": []
+    },
+    {
+        "blockName": null,
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n\n",
+        "innerContent": [
+            "\n\n"
+        ]
+    }
+]

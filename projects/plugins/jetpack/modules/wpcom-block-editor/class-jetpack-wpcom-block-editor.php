@@ -36,6 +36,19 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Jetpack_WPCOM_Block_Editor constructor.
 	 */
 	private function __construct() {
+		add_action( 'init', array( $this, 'init_actions' ) );
+	}
+
+	/**
+	 * Add in all hooks.
+	 */
+	public function init_actions() {
+		// Bail early if Jetpack's block editor extensions are disabled on the site.
+		/* This filter is documented in class.jetpack-gutenberg.php */
+		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
+			return;
+		}
+
 		if ( $this->is_iframed_block_editor() ) {
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );

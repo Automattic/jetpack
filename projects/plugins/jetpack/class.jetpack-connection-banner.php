@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -178,9 +179,9 @@ class Jetpack_Connection_Banner {
 
 		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
-		// Due to the limitation in how 3rd party cookies are handled in Safari,
-		// we're falling back to the original flow on Safari desktop and mobile.
-		if ( $is_safari || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
+		// Due to the limitation in how 3rd party cookies are handled in Safari and Opera,
+		// we're falling back to the original flow.
+		if ( $is_safari || User_Agent_Info::is_opera_desktop() || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
 		} else {
 			$force_variation = 'in_place';
@@ -205,6 +206,7 @@ class Jetpack_Connection_Banner {
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
+				'isUserless'            => ( new Status() )->is_no_user_testing_mode() && ! Jetpack::connection()->has_connected_owner(),
 			)
 		);
 	}
@@ -386,8 +388,10 @@ class Jetpack_Connection_Banner {
 		} else {
 			$bottom_connect_url_from = 'landing-page-bottom';
 		}
+
+		$is_no_user_testing_mode = ( new Status() )->is_no_user_testing_mode() && ! Jetpack::connection()->has_connected_owner();
 		?>
-		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
+		<div class="jp-connect-full__container <?php echo $is_no_user_testing_mode ? 'jp-jetpack-connect__userless' : ''; ?>"><div class="jp-connect-full__container-card">
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<?php
@@ -412,12 +416,6 @@ class Jetpack_Connection_Banner {
 				<div class="jp-connect-full__step-header">
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
 				</div>
-
-				<?php if ( ( new Status() )->is_no_user_testing_mode() ) : ?>
-					<div id="jp-authenticate-no_user_test_mode">
-						<a href="<?php echo esc_url( Jetpack::admin_url() ); ?>">Skip user authentication</a>
-					</div>
-				<?php endif; ?>
 
 				<p class="jp-connect-full__tos-blurb">
 					<?php jetpack_render_tos_blurb(); ?>

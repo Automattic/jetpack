@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Calypsoify: Move all initialisation to the admin_init hook
