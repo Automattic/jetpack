@@ -1722,6 +1722,24 @@ class Jetpack {
 	}
 
 	/**
+	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI
+	 *
+	 * This method was introduced just before the release of the possibility to use Jetpack without a user connection, while
+	 * it was available only when no_user_testing_mode was enabled. In the near future, this will return is_connected for all
+	 * users and this option will be available by default for everybody.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @return bool is the site connection ready to be used?
+	 */
+	public static function is_connection_ready() {
+		if ( ( new Status() )->is_no_user_testing_mode() ) {
+			return self::connection()->is_connected();
+		}
+		return (bool) self::connection()->has_connected_owner();
+	}
+
+	/**
 	 * Make an API call to WordPress.com for plan status
 	 *
 	 * @deprecated 7.2.0 Use Jetpack_Plan::refresh_from_wpcom.
