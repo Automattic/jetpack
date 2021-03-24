@@ -192,7 +192,7 @@ function map_block_from_geo_points( $points ) {
 				),
 				'https://www.google.com/maps/search/'
 			);
-			return sprintf( '<li><a href="%s">%s</a></li>', $link, $point['title'] );
+			return sprintf( '<li><a href="%s">%s</a></li>', esc_url( $link ), $point['title'] );
 		},
 		$points
 	);
