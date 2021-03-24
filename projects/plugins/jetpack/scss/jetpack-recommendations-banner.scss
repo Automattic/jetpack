@@ -1,3 +1,4 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../_inc/client/scss/calypso-colors';
 @import '../_inc/client/scss/mixin_breakpoint';
 
@@ -204,16 +205,34 @@
 }
 
 .jp-recommendations-banner__notice-dismiss {
-	color: $blue-medium-dark;
-	line-height: 1.23076923; /* Chrome rounding, needs to be 16px equivalent */
-	top: 10px;
-	right: 10px;
-	padding: 10px 15px 10px 21px;
+	background: 0 0;
+	border: none;
+	color: $studio-gray-40;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 16px;
+	margin: 0;
+	padding: 21px 16px 5px 28px;
+	position: absolute;
+	top: 16px;
+	right: 16px;
 
-	&:before {
-		color: $gray-dark;
-		position: absolute;
-		top: 8px;
-		left: 0;
+	@include breakpoint( '<480px' ) {
+		padding: 5px 0 5px 28px;
+	}
+
+	&:hover, &:active {
+		color: $studio-gray-100;
+		text-decoration: underline;
+	}
+
+	.jp-recommendations-banner__svg-dismiss {
+		color: $studio-gray-40;
+		height: 1em;
+		width: 1em;
+
+		&:hover, &:active {
+			color: $studio-gray-100;
+		}
 	}
 }

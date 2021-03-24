@@ -233,7 +233,10 @@ class Jetpack_Recommendations_Banner {
 						class="jp-recommendations-banner__illustration-foreground"
 				/>
 			</div>
-			<span id="jp-recommendations-banner__notice-dismiss" class="notice-dismiss jp-recommendations-banner__notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"><?php esc_attr_e( 'Dismiss', 'jetpack' ); ?></span>
+			<span id="jp-recommendations-banner__notice-dismiss" class="jp-recommendations-banner__notice-dismiss">
+				<svg class="jp-recommendations-banner__svg-dismiss" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" role="img" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg>
+				<?php esc_attr_e( 'Dismiss', 'jetpack' ); ?>
+			</span>
 		</div>
 		<?php
 	}
