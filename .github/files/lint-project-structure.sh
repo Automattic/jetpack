@@ -86,4 +86,8 @@ for PROJECT in projects/*/*; do
 
 done
 
+# - Renovate should ignore all monorepo packages.
+debug "Checking renovate ignore list"
+tools/check-renovate-ignore-list.js
+
 exit $EXIT
