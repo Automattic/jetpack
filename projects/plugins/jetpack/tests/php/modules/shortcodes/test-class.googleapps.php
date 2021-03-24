@@ -1,6 +1,9 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	function test_presentation_variation_1() {
 		$embed     = '<iframe src="https://docs.google.com/present/embed?id=dhfhrphh_123drp8s65c&interval=15&autoStart=true&loop=true&size=l" frameborder="0" width="700" height="559"></iframe>';
