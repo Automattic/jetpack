@@ -118,6 +118,7 @@ class Container {
 
 		// Register any classes that we will use elsewhere.
 		require_once __DIR__ . '/class-version-loader.php';
+		require_once __DIR__ . '/class-shutdown-handler.php';
 	}
 
 	/**

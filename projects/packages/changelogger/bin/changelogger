@@ -11,10 +11,27 @@ if ( 'cli' !== php_sapi_name() ) {
 	return;
 }
 
-// Find the Composer autoloader. Load it, then run the application.
-foreach ( array( '/../../autoload.php', '/../vendor/autoload.php', '/vendor/autoload.php' ) as $file ) {
-	if ( file_exists( __DIR__ . $file ) ) {
-		require __DIR__ . $file;
+$files = array(
+	// Pulled in via Composer?
+	__DIR__ . '/../../../autoload.php',
+	// Local repo?
+	__DIR__ . '/../vendor/autoload.php',
+	// Pulled in via Composer, but not symlinked from vendor/bin/?
+	__DIR__ . '/../autoload.php',
+);
+// Also check relative to the executed path if "vendor" is part of it,
+// in case composer symlinked it somewhere.
+if ( ! empty( $argv[0] ) ) {
+	$pos = strrpos( $argv[0], DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR );
+	if ( false !== $pos ) {
+		$files[] = substr( $argv[0], 0, $pos ) . '/vendor/autoload.php';
+	} elseif ( substr( $argv[0], 0, 7 ) === 'vendor' . DIRECTORY_SEPARATOR ) {
+		$files[] = './vendor/autoload.php';
+	}
+}
+foreach ( $files as $file ) {
+	if ( file_exists( $file ) ) {
+		require $file;
 		$app = new Automattic\Jetpack\Changelogger\Application();
 		exit( $app->run() );
 	}

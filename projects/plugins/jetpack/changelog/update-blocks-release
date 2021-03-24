@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Update composer.lock for updated changelogger dependency version
+
+

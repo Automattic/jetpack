@@ -33,6 +33,13 @@ class KeepAChangelogParser extends Parser {
 	private $dateFormat = 'Y-m-d';
 
 	/**
+	 * String used as the date for an unreleased version.
+	 *
+	 * @var string
+	 */
+	private $unreleased = 'unreleased';
+
+	/**
 	 * If true, try to parse authors from entries.
 	 *
 	 * @var bool
@@ -46,6 +53,7 @@ class KeepAChangelogParser extends Parser {
 	 *  - bullet: (string) Bullet for changes. Default '-'.
 	 *  - dateFormat: (string) Date format to use in output. Default 'Y-m-d'.
 	 *  - parseAuthors: (bool) Try to parse authors out of change entries. Default false.
+	 *  - unreleased: (string) String used as the date for an unreleased version.
 	 */
 	public function __construct( array $config = array() ) {
 		if ( ! empty( $config['bullet'] ) ) {
@@ -55,6 +63,9 @@ class KeepAChangelogParser extends Parser {
 			$this->dateFormat = $config['dateFormat'];
 		}
 		$this->parseAuthors = ! empty( $config['parseAuthors'] );
+		if ( ! empty( $config['unreleased'] ) ) {
+			$this->unreleased = $config['unreleased'];
+		}
 	}
 
 	/**
@@ -174,13 +185,19 @@ class KeepAChangelogParser extends Parser {
 				$link                  = $links[ $version ];
 				$usedlinks[ $version ] = true;
 			}
-			try {
-				$timestamp = new DateTime( $timestamp, new DateTimeZone( 'UTC' ) );
-			} catch ( \Exception $ex ) {
-				throw new InvalidArgumentException( "Heading has an invalid timestamp: $heading", 0, $ex );
-			}
-			if ( strtotime( $m[2], 0 ) !== strtotime( $m[2], 1000000000 ) ) {
-				throw new InvalidArgumentException( "Heading has a relative timestamp: $heading" );
+			if ( $timestamp === $this->unreleased ) {
+				$timestamp      = null;
+				$entryTimestamp = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			} else {
+				try {
+					$timestamp = new DateTime( $timestamp, new DateTimeZone( 'UTC' ) );
+				} catch ( \Exception $ex ) {
+					throw new InvalidArgumentException( "Heading has an invalid timestamp: $heading", 0, $ex );
+				}
+				if ( strtotime( $m[2], 0 ) !== strtotime( $m[2], 1000000000 ) ) {
+					throw new InvalidArgumentException( "Heading has a relative timestamp: $heading" );
+				}
+				$entryTimestamp = $timestamp;
 			}
 			$entry     = $this->newChangelogEntry(
 				$version,
@@ -254,7 +271,7 @@ class KeepAChangelogParser extends Parser {
 								'subheading' => $subheading,
 								'author'     => $author,
 								'content'    => $change,
-								'timestamp'  => $timestamp,
+								'timestamp'  => $entryTimestamp,
 							)
 						)
 					);
@@ -301,7 +318,8 @@ class KeepAChangelogParser extends Parser {
 			} else {
 				$ret .= $entry->getVersion();
 			}
-			$ret .= ' - ' . $entry->getTimestamp()->format( $this->dateFormat ) . "\n";
+			$timestamp = $entry->getTimestamp();
+			$ret      .= ' - ' . ( null === $timestamp ? $this->unreleased : $timestamp->format( $this->dateFormat ) ) . "\n";
 
 			$prologue = trim( $entry->getPrologue() );
 			if ( '' !== $prologue ) {

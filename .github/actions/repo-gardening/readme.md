@@ -7,6 +7,8 @@ Here is the current list of tasks handled by this action:
 - Assign Issues: Adds assignee for issues which are being worked on, and adds the "In Progress" label.
 - Add Milestone: Adds a valid milestone to all PRs that get merged and don't already include a milestone.
 - Check Description: Checks the contents of a PR description, and ensure it matches our recommendations.
+- Add Labels: Adds labels to PRs that touch specific features.
+- WordPress.com Commit Reminder: Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 
 ## Build your own
 

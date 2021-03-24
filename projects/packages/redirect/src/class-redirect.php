@@ -44,7 +44,7 @@ class Redirect {
 		$url           = 'https://jetpack.com/redirect/';
 		$site_suffix   = ( new Status() )->get_site_suffix();
 		$args          = wp_parse_args( $args, array( 'site' => $site_suffix ) );
-		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
+		$accepted_args = array( 'site', 'path', 'query', 'anchor', 'unlinked' );
 
 		$source_key = 'source';
 		$is_url     = false;

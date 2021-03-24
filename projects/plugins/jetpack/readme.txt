@@ -239,6 +239,28 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 
 == Changelog ==
 
+= 9.5.2 = 
+
+* Release date: March 16, 2021
+
+**Improved compatibility**
+
+* Block Editor: avoid conflicts between multiple Jetpack blocks and Gutenberg version 10.1.0.
+
+**Bug fixes**
+
+* Instant Search: prevent IE11 from spawning overlay on load.
+* WordPress.com Toolbar and customizations: fix multiple issues causing navigation panel discrepancies between the WP-Admin dashboard and the WordPress.com dashboard.
+
+= 9.5.1 =
+
+* Release date: March 4, 2021
+
+**Bug fixes**
+
+* Sharing: avoid potential conflicts with the Blog Posts Block from Newspack.
+* Subscriptions Block: avoid validation errors when customizing font size on a site using the Gutenberg plugin.
+
 = 9.5 =
 
 * Release date: March 2, 2021

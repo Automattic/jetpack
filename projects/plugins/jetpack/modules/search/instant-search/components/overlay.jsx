@@ -14,7 +14,10 @@ import './overlay.scss';
 
 const callOnEscapeKey = callback => event => {
 	// IE11 uses 'Esc'
-	( event.key === 'Escape' || event.key === 'Esc' ) && callback();
+	if ( event.key === 'Escape' || event.key === 'Esc' ) {
+		event.preventDefault();
+		callback();
+	}
 };
 
 const Overlay = props => {

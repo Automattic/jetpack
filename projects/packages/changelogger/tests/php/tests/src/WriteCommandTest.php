@@ -148,18 +148,31 @@ class WriteCommandTest extends CommandTestCase {
 			),
 			'Run with extra command line args'             => array(
 				array(
-					'--prerelease' => 'dev',
-					'--buildinfo'  => 'g1234567',
-					'--prologue'   => 'Prologue for the new entry',
-					'--epilogue'   => 'Epilogue for the new entry',
-					'--link'       => 'https://example.org/link',
+					'--prerelease'   => 'dev',
+					'--buildinfo'    => 'g1234567',
+					'--prologue'     => 'Prologue for the new entry',
+					'--epilogue'     => 'Epilogue for the new entry',
+					'--link'         => 'https://example.org/link',
+					'--release-date' => '2021-02-06',
 				),
 				array(),
 				array(),
 				0,
 				array( '/^$/' ),
 				true,
-				"# Changelog\n\n## [1.0.2-dev+g1234567] - $date\n\nPrologue for the new entry\n\n### Fixed\n- Fixed a thing.\n\nEpilogue for the new entry\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.2-dev+g1234567]: https://example.org/link\n",
+				"# Changelog\n\n## [1.0.2-dev+g1234567] - 2021-02-06\n\nPrologue for the new entry\n\n### Fixed\n- Fixed a thing.\n\nEpilogue for the new entry\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n\n[1.0.2-dev+g1234567]: https://example.org/link\n",
+			),
+			'Run with extra command line args (2)'         => array(
+				array(
+					'--prerelease'   => 'alpha',
+					'--release-date' => 'unreleased',
+				),
+				array(),
+				array(),
+				0,
+				array( '/^$/' ),
+				true,
+				"# Changelog\n\n## 1.0.2-alpha - unreleased\n### Fixed\n- Fixed a thing.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 
 			'Invalid formatter'                            => array(
