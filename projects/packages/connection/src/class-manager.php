@@ -158,7 +158,7 @@ class Manager {
 			$callback = array( $this->xmlrpc_server, 'xmlrpc_methods' );
 
 			// Hack to preserve $HTTP_RAW_POST_DATA.
-			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
 		} elseif ( $this->has_connected_owner() && ! $is_signed ) {
 			// The jetpack.authorize method should be available for unauthenticated users on a site with an
