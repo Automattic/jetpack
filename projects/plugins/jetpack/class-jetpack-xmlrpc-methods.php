@@ -82,7 +82,7 @@ class Jetpack_XMLRPC_Methods {
 	 *
 	 * @return boolean
 	 */
-	public function disconnect_blog() {
+	public static function disconnect_blog() {
 
 		/**
 		 * Fired when we want to log an event to the Jetpack event log.
@@ -103,7 +103,7 @@ class Jetpack_XMLRPC_Methods {
 	 *
 	 * @param array $args request arguments.
 	 */
-	public function json_api( $args = array() ) {
+	public static function json_api( $args = array() ) {
 		$json_api_args        = $args[0];
 		$verify_api_user_args = $args[1];
 
@@ -129,17 +129,6 @@ class Jetpack_XMLRPC_Methods {
 				return false;
 			}
 		}
-
-		/* phpcs:ignore
-		 debugging
-		error_log( "-- begin json api via jetpack debugging -- " );
-		error_log( "METHOD: $method" );
-		error_log( "URL: $url" );
-		error_log( "POST BODY: $post_body" );
-		error_log( "VERIFY_ARGS: " . print_r( $verify_api_user_args, 1 ) );
-		error_log( "VERIFIED USER_ID: " . (int) $user_id );
-		error_log( "-- end json api via jetpack debugging -- " );
-		*/
 
 		if ( 'en' !== $locale ) {
 			// .org mo files are named slightly different from .com, and all we have is this the locale -- try to guess them.
