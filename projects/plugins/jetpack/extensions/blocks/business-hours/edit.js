@@ -16,7 +16,7 @@ import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 import { icon } from '.';
 
-const defaultLocalization = {
+export const defaultLocalization = {
 	days: {
 		Sun: __( 'Sunday', 'jetpack' ),
 		Mon: __( 'Monday', 'jetpack' ),

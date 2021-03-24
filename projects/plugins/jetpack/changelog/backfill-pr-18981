@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Podcast Player Block: Fix compatibility with the AMP plugin in the Customizer preview.

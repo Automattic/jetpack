@@ -1,3 +1,7 @@
+// Needed to use transpiled generator functions.
+// See: https://babeljs.io/docs/en/babel-polyfill for details.
+require( 'regenerator-runtime/runtime' );
+
 if ( ! window.matchMedia ) {
 	Object.defineProperty( window, 'matchMedia', {
 		writable: true,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Instant Search: ensure Escape key always closes search modal

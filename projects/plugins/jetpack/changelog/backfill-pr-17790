@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Markdown: Avoid processing URLs that may include Markdown syntax.

@@ -37,11 +37,12 @@ class ChangelogEntryTest extends TestCase {
 		$this->assertSame( '', $entry->getPrologue() );
 		$this->assertSame( '', $entry->getEpilogue() );
 
-		$this->assertSame( $entry, $entry->setVersion( '2.0' )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' ) );
+		$this->assertSame( $entry, $entry->setVersion( '2.0' )->setTimestamp( null )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' ) );
 		$this->assertSame( 'https://example.org', $entry->getLink() );
 		$this->assertSame( '2.0', $entry->getVersion() );
 		$this->assertSame( 'Foo', $entry->getPrologue() );
 		$this->assertSame( 'Bar', $entry->getEpilogue() );
+		$this->assertNull( $entry->getTimestamp() );
 
 		$this->assertSame( $entry, $entry->setVersion( 111 )->setPrologue( 222 )->setEpilogue( 333 )->setLink( '' ) );
 		$this->assertSame( '111', $entry->getVersion() );
@@ -230,11 +231,11 @@ class ChangelogEntryTest extends TestCase {
 	 */
 	public function provideJson() {
 		return array(
-			'Basic serialization'              => array(
+			'Basic serialization'               => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18' ),
 			),
-			'Serialization with data'          => array(
+			'Serialization with data'           => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":"https:\\/\\/example.org","timestamp":"2021-02-18T12:07:16-0500","prologue":"Foo","epilogue":"Bar","changes":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-17T00:00:00+0000","subheading":"","author":"","content":""},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}]}',
 				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18T12:07:16-0500' )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' )->setChanges(
 					array(
@@ -243,15 +244,19 @@ class ChangelogEntryTest extends TestCase {
 					)
 				),
 			),
-			'Bad unserialization, no class'    => array(
+			'Serialization with null timestamp' => array(
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":null,"timestamp":null,"prologue":"","epilogue":"","changes":[]}',
+				new ChangelogEntry( '1.0', array( 'timestamp' => null ) ),
+			),
+			'Bad unserialization, no class'     => array(
 				'{"version":"1.0","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				'Invalid data',
 			),
-			'Bad unserialization, no version'  => array(
+			'Bad unserialization, no version'   => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","link":null,"timestamp":"2021-02-18T00:00:00+0000","prologue":"","epilogue":"","changes":[]}',
 				'Invalid data',
 			),
-			'Bad unserialization, wrong class' => array(
+			'Bad unserialization, wrong class'  => array(
 				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\Changelog","version":"1.0","prologue":"","epilogue":"","entries":[]}',
 				'Cannot instantiate Automattic\\Jetpack\\Changelog\\Changelog via Automattic\\Jetpack\\Changelog\\ChangelogEntry::jsonUnserialize',
 			),

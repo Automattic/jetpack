@@ -345,9 +345,9 @@ class Sender {
 		// Return early if we've gotten a retry-after header response.
 		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
 		if ( $retry_time ) {
-			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			// If expired update to false but don't send. Send will occurr in new request to avoid race conditions.
 			if ( microtime( true ) > $retry_time ) {
-				delete_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
+				update_option( Actions::RETRY_AFTER_PREFIX . $queue->id, false, false );
 			}
 			return new \WP_Error( 'retry_after' );
 		}
