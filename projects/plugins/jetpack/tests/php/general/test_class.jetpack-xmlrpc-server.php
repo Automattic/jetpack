@@ -55,7 +55,8 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_xmlrpc_remote_provision_fails_no_local_user() {
-		$response = Jetpack_XMLRPC_Methods::remote_provision( array( 'nonce' => '12345' ) );
+		$server   = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array( 'nonce' => '12345' ) );
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 400, $response->code );
 		$this->assertContains( '[local_user_missing]', $response->message );
@@ -65,12 +66,13 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	 * Test test_remote_provision_error_nonexistent_user
 	 */
 	public function test_remote_provision_error_nonexistent_user() {
-		$response = Jetpack_XMLRPC_Methods::remote_provision( array() );
+		$server   = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array() );
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertContains( 'local_user_missing', $response->message );
 
-		$response = Jetpack_XMLRPC_Methods::remote_provision( array( 'local_user' => 'nonexistent' ) );
+		$response = $server->remote_provision( array( 'local_user' => 'nonexistent' ) );
 
 		$this->assertInstanceOf( 'IXR_Error', $response );
 		$this->assertEquals( 'Jetpack: [input_error] Valid user is required', $response->message );
@@ -80,7 +82,8 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	 * Test test_remote_provision_success
 	 */
 	public function test_remote_provision_success() {
-		$response = Jetpack_XMLRPC_Methods::remote_provision( array( 'local_user' => 1 ) );
+		$server   = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array( 'local_user' => 1 ) );
 
 		$this->assertInternalType( 'array', $response );
 
