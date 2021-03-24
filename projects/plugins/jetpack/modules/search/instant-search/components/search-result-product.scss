@@ -71,6 +71,9 @@ $item-spacing: 16px;
 	left: 0;
 
 	border-radius: 5px;
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
 
 	> .gridicon {
 		position: absolute;
