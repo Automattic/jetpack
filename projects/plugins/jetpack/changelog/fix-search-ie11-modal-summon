@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Instant Search:  Prevent IE11 from spawning overlay on load.

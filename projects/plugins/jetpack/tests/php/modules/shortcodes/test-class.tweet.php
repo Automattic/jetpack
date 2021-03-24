@@ -1,6 +1,10 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+
 	public function setUp() {
 		parent::setUp();
 
@@ -21,7 +25,7 @@ class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 			return $response;
 		}
 
-		$oembed_query = wp_parse_url( $url, PHP_URL_QUERY );
+		$oembed_query      = wp_parse_url( $url, PHP_URL_QUERY );
 		$oembed_query_args = null;
 		wp_parse_str( $oembed_query, $oembed_query_args );
 		if ( ! isset( $oembed_query_args['url'] ) ) {
@@ -58,7 +62,7 @@ BODY;
 			'response' => array(
 				'code' => 200,
 			),
-			'body' => $body,
+			'body'     => $body,
 		);
 	}
 
@@ -91,7 +95,7 @@ BODY;
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_tweet_card() {
-		$content = "[tweet https://twitter.com/jetpack/status/759034293385502721]";
+		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -105,7 +109,7 @@ BODY;
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_tweet_card_parameters() {
-		$content = "[tweet https://twitter.com/jetpack/status/759034293385502721 align=right lang=es]";
+		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721 align=right lang=es]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -119,7 +123,7 @@ BODY;
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_tweet_id_only() {
-		$content = "[tweet 759034293385502721]";
+		$content = '[tweet 759034293385502721]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -133,7 +137,7 @@ BODY;
 	 * @since 4.6.0
 	 */
 	public function test_shortcode_tweet_partner_id() {
-		$content = "[tweet 759034293385502721]";
+		$content = '[tweet 759034293385502721]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -147,7 +151,7 @@ BODY;
 	 * @since 7.4.0
 	 */
 	public function test_shortcodes_tweet_card_via_oembed_http_request() {
-		$content = "[tweet https://twitter.com/jetpack/status/759034293385502721]";
+		$content = '[tweet https://twitter.com/jetpack/status/759034293385502721]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -172,23 +176,23 @@ BODY;
 			),
 			'id_in_attributes'      => array(
 				'[tweet ' . $tweet_id . ']',
-				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+				'<amp-twitter data-tweetid="' . $tweet_id . '" layout="responsive" width="' . $default_width . '" height="' . $default_height . '"></amp-twitter>',
 			),
 			'width_in_attributes'   => array(
 				'[tweet ' . $tweet_id . ' width=300]',
-				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="300" height="' . $default_height .'"></amp-twitter>',
+				'<amp-twitter data-tweetid="' . $tweet_id . '" layout="responsive" width="300" height="' . $default_height . '"></amp-twitter>',
 			),
 			'0_width_in_attributes' => array(
 				'[tweet ' . $tweet_id . ' width=0]',
-				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+				'<amp-twitter data-tweetid="' . $tweet_id . '" layout="responsive" width="' . $default_width . '" height="' . $default_height . '"></amp-twitter>',
 			),
 			'id_as_part_of_url'     => array(
 				'[tweet https://twitter.com/jetpack/status/' . $tweet_id . ']',
-				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+				'<amp-twitter data-tweetid="' . $tweet_id . '" layout="responsive" width="' . $default_width . '" height="' . $default_height . '"></amp-twitter>',
 			),
 			'id_in_tweet_attribute' => array(
 				'[tweet tweet=' . $tweet_id . ']',
-				'<amp-twitter data-tweetid="'. $tweet_id .'" layout="responsive" width="' . $default_width . '" height="' . $default_height .'"></amp-twitter>',
+				'<amp-twitter data-tweetid="' . $tweet_id . '" layout="responsive" width="' . $default_width . '" height="' . $default_height . '"></amp-twitter>',
 			),
 		);
 	}

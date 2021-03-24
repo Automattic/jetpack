@@ -1,0 +1,3 @@
+Significance: patch
+Type: compat
+Comment: Temporary fix for E2E tests wp-env failure in WP 5.7 docker image.

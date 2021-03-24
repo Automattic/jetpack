@@ -16,7 +16,7 @@ import {
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { ENTER } from '@wordpress/keycodes';
 
-const Rating = ( { id, setRating, children } ) => {
+export const Rating = ( { id, setRating, children } ) => {
 	const setNewRating = newRating => () => setRating( newRating );
 	const maybeSetNewRating = newRating => ( { keyCode } ) =>
 		keyCode === ENTER ? setRating( newRating ) : null;

@@ -73,22 +73,19 @@ class Manager {
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$manager->is_active(),
+			$manager->is_active(), // TODO deprecate this.
 			$manager->verify_xml_rpc_signature()
 		);
 
 		$manager->error_handler = Error_Handler::get_instance();
 
-		if ( $manager->is_active() ) {
+		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		}
 
 		add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
 
-		add_action( 'jetpack_clean_nonces', array( $manager, 'clean_nonces' ) );
-		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
-			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
-		}
+		( new Nonce_Handler() )->init_schedule();
 
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
 
@@ -252,7 +249,7 @@ class Manager {
 		remove_all_filters( 'authenticate' );
 		remove_all_actions( 'wp_login_failed' );
 
-		if ( $this->is_active() ) {
+		if ( $this->is_connected() ) {
 			// Allow Jetpack authentication.
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
 		}
@@ -442,7 +439,7 @@ class Manager {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// Use up the nonce regardless of whether the signature matches.
-		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
+		if ( ! ( new Nonce_Handler() )->add( $timestamp, $nonce ) ) {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
@@ -578,6 +575,20 @@ class Manager {
 	 */
 	public function has_connected_owner() {
 		return (bool) $this->get_connection_owner_id();
+	}
+
+	/**
+	 * Returns true if the site is connected only at a site level.
+	 *
+	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
+	 *
+	 * @access public
+	 * @since 9.6.0
+	 *
+	 * @return bool
+	 */
+	public function is_userless() {
+		return $this->is_connected() && ! $this->has_connected_user() && ! \Jetpack_Options::get_option( 'master_user' );
 	}
 
 	/**
@@ -1059,44 +1070,13 @@ class Manager {
 	 * @param int    $timestamp the current request timestamp.
 	 * @param string $nonce the nonce value.
 	 * @return bool whether the nonce is unique or not.
+	 *
+	 * @deprecated since 9.5.0
+	 * @see Nonce_Handler::add()
 	 */
 	public function add_nonce( $timestamp, $nonce ) {
-		global $wpdb;
-		static $nonces_used_this_request = array();
-
-		if ( isset( $nonces_used_this_request[ "$timestamp:$nonce" ] ) ) {
-			return $nonces_used_this_request[ "$timestamp:$nonce" ];
-		}
-
-		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce.
-		$timestamp = (int) $timestamp;
-		$nonce     = esc_sql( $nonce );
-
-		// Raw query so we can avoid races: add_option will also update.
-		$show_errors = $wpdb->show_errors( false );
-
-		$old_nonce = $wpdb->get_row(
-			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
-		);
-
-		if ( is_null( $old_nonce ) ) {
-			$return = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
-					"jetpack_nonce_{$timestamp}_{$nonce}",
-					time(),
-					'no'
-				)
-			);
-		} else {
-			$return = false;
-		}
-
-		$wpdb->show_errors( $show_errors );
-
-		$nonces_used_this_request[ "$timestamp:$nonce" ] = $return;
-
-		return $return;
+		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::add' );
+		return ( new Nonce_Handler() )->add( $timestamp, $nonce );
 	}
 
 	/**
@@ -1105,27 +1085,13 @@ class Manager {
 	 * @todo Properly prepare the query before executing it.
 	 *
 	 * @param bool $all whether to clean even non-expired nonces.
+	 *
+	 * @deprecated since 9.5.0
+	 * @see Nonce_Handler::clean_all()
 	 */
 	public function clean_nonces( $all = false ) {
-		global $wpdb;
-
-		$sql      = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
-
-		if ( true !== $all ) {
-			$sql       .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
-			$sql_args[] = time() - 3600;
-		}
-
-		$sql .= ' ORDER BY `option_id` LIMIT 100';
-
-		$sql = $wpdb->prepare( $sql, $sql_args ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-		for ( $i = 0; $i < 1000; $i++ ) {
-			if ( ! $wpdb->query( $sql ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				break;
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-9.5.0', 'Automattic\\Jetpack\\Connection\\Nonce_Handler::clean_all' );
+		( new Nonce_Handler() )->clean_all( $all ? PHP_INT_MAX : ( time() - Nonce_Handler::LIFETIME ) );
 	}
 
 	/**
@@ -1137,10 +1103,10 @@ class Manager {
 	 * @param array    $args    Adds the context to the cap. Typically the object ID.
 	 */
 	public function jetpack_connection_custom_caps( $caps, $cap, $user_id, $args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$is_offline_mode = ( new Status() )->is_offline_mode();
 		switch ( $cap ) {
 			case 'jetpack_connect':
 			case 'jetpack_reconnect':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'do_not_allow' );
 					break;
@@ -1158,6 +1124,7 @@ class Manager {
 				$caps = apply_filters( 'jetpack_disconnect_cap', array( 'manage_options' ) );
 				break;
 			case 'jetpack_connect_user':
+				$is_offline_mode = ( new Status() )->is_offline_mode();
 				if ( $is_offline_mode ) {
 					$caps = array( 'do_not_allow' );
 					break;
@@ -1433,6 +1400,11 @@ class Manager {
 	 * @return string|true|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object otherwise.
 	 */
 	public function restore() {
+		// If this is a userless connection we need to trigger a full reconnection as our only secure means of
+		// communication with WPCOM, aka the blog token, is compromised.
+		if ( $this->is_userless() ) {
+			return $this->reconnect();
+		}
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
@@ -1594,7 +1566,7 @@ class Manager {
 				'scope'         => $signed_role,
 				'user_email'    => $user->user_email,
 				'user_login'    => $user->user_login,
-				'is_active'     => $this->is_active(),
+				'is_active'     => $this->is_active(), // TODO Deprecate this.
 				'jp_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'     => $auth_type,
 				'secret'        => $secrets['secret_1'],
@@ -1708,9 +1680,7 @@ class Manager {
 
 		\Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
 
-		// Start nonce cleaner.
-		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		( new Nonce_Handler() )->reschedule();
 
 		return 'authorized';
 	}
@@ -1935,7 +1905,7 @@ class Manager {
 	 */
 	public function xmlrpc_options( $options ) {
 		$jetpack_client_id = false;
-		if ( $this->is_active() ) {
+		if ( $this->is_connected() ) {
 			$jetpack_client_id = \Jetpack_Options::get_option( 'id' );
 		}
 		$options['jetpack_version'] = array(
@@ -2146,14 +2116,14 @@ class Manager {
 	}
 
 	/**
-	 * If connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
+	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
 	 */
 	public function add_stats_to_heartbeat( $stats ) {
 
-		if ( ! $this->is_active() ) {
+		if ( ! $this->is_connected() ) {
 			return $stats;
 		}
 

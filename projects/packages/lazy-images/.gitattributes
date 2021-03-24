@@ -9,6 +9,7 @@ webpack.config.js export-ignore
 /src/js/lazy-images.min.js                    production-include
 
 # Files to exclude from the mirror repo
+/changelog/**    production-exclude
 .eslintrc.js      production-exclude
 .gitignore        production-exclude
 phpunit.xml.dist  production-exclude

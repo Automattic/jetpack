@@ -449,9 +449,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 				a:focus {
 					color: #124964;
-					-webkit-box-shadow: 0 0 0 1px #5b9dd9,
+					-webkit-box-shadow: 0 0 0 1px #4f94d4,
 					0 0 2px 1px rgba(30, 140, 190, .8);
-					box-shadow: 0 0 0 1px #5b9dd9,
+					box-shadow: 0 0 0 1px #4f94d4,
 					0 0 2px 1px rgba(30, 140, 190, .8);
 					outline: none;
 				}
