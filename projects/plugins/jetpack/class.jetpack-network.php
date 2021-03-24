@@ -561,7 +561,7 @@ class Jetpack_Network {
 
 		// We should be, but ensure we are on the main blog.
 		switch_to_blog( $current_site->blog_id );
-		$main_active = $jp->is_active();
+		$main_active = $jp->is_connection_ready();
 		restore_current_blog();
 
 		// If we are in dev mode, just show the notice and bail.
