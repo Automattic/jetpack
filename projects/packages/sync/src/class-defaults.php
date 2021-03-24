@@ -655,14 +655,7 @@ class Defaults {
 	 *
 	 * @var array multsite callables whitelisted
 	 */
-	public static $default_multisite_callable_whitelist = array(
-		'network_name'                        => array( 'Jetpack', 'network_name' ),
-		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
-		'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
-		'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
-		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
-		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
-	);
+	public static $default_multisite_callable_whitelist = array();
 
 	/**
 	 * Get array of multisite callables whitelisted.

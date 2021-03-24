@@ -92,6 +92,9 @@ class Meta extends Module {
 		$meta_object = null;
 		if ( ! is_null( $meta ) ) {
 			$meta_object = (array) $meta;
+			if ( 'post' === $object_type && strlen( $meta_object['meta_value'] ) >= Posts::MAX_POST_META_LENGTH ) {
+				$meta_object['meta_value'] = '';
+			}
 			$meta_object = array(
 				'meta_type'  => $object_type,
 				'meta_id'    => $meta_object['meta_id'],

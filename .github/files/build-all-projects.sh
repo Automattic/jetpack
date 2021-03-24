@@ -27,16 +27,22 @@ echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
 echo "::endgroup::"
 
+echo "::group::Determining build order"
+TMP="$(tools/get-build-order.php)"
+SLUGS=()
+mapfile -t SLUGS <<<"$TMP"
+echo "::endgroup::"
+
 EXIT=0
 
 REPO="$(jq --arg path "$BUILD_BASE/*/*" -nc '{ type: "path", url: $path, options: { monorepo: true } }')"
 
 touch "$BUILD_BASE/mirrors.txt"
-for project in projects/packages/* projects/plugins/* projects/github-actions/*; do
-	PROJECT_DIR="${BASE}/${project}"
+for SLUG in "${SLUGS[@]}"; do
+	PROJECT_DIR="${BASE}/projects/${SLUG}"
 	[[ -d "$PROJECT_DIR" ]] || continue # We are only interested in directories (i.e. projects)
 
-	printf "\n\n\e[7m Project: %s \e[0m\n" "$project"
+	printf "\n\n\e[7m Project: %s \e[0m\n" "$SLUG"
 
 	cd "${PROJECT_DIR}"
 
@@ -72,9 +78,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 			OLDLOCK=
 		fi
 	fi
-	# Need to remove the "projects/" from the string since the CLI only looks for {type}/{project-name}.
-	SLUG="${project#projects/}"
-	if node "$BASE"/tools/cli/bin/jetpack build "${SLUG}" -v --production; then
+	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
@@ -109,7 +113,7 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 			echo "::group::Updating changelog"
-			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --no-interaction --yes -vvv; then
+			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --release-date=unreleased --no-interaction --yes -vvv; then
 				echo "::endgroup::"
 				echo "::error::Changelog update for ${GIT_SLUG} failed"
 				EXIT=1
@@ -127,6 +131,11 @@ for project in projects/packages/* projects/plugins/* projects/github-actions/*;
 
 	# Copy standard .github
 	cp -r "$BASE/.github/files/mirror-.github" "$BUILD_DIR/.github"
+
+	# Copy autotagger if enabled
+	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
+		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
+	fi
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{

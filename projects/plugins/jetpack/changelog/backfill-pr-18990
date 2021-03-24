@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Jetpack Search: only use site accelerator for displaying images if it is enabled on the site.

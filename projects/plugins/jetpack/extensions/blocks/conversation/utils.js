@@ -1,4 +1,3 @@
-
 /**
  * WordPress dependencies
  */
@@ -7,12 +6,14 @@ import { escapeHTML } from '@wordpress/escape-html';
 import { __ } from '@wordpress/i18n';
 
 export function getParticipantBySlug( participants, participantSlug ) {
-	const part = participants.filter( ( { slug } ) => ( slug === participantSlug ) );
+	const part = participants.filter( ( { slug } ) => slug === participantSlug );
 	return part?.length ? part[ 0 ] : null;
 }
 
-export function getParticipantByLabel ( participants, participantLabel ) {
-	const part = participants.filter( ( { label } ) => ( label?.toLowerCase() === participantLabel?.toLowerCase() ) );
+export function getParticipantByLabel( participants, participantLabel ) {
+	const part = participants.filter(
+		( { label } ) => label?.toLowerCase() === participantLabel?.toLowerCase()
+	);
 	return part?.length ? part[ 0 ] : null;
 }
 
@@ -113,19 +114,19 @@ export function SRT_parse( content ) {
 	while ( ( matches = srtFormatRegExp.exec( content ) ) !== null ) {
 		result.dialogues.push( {
 			timestamp: matches[ 2 ],
-			content: matches[ 4 ]
+			content: matches[ 4 ],
 		} );
 	}
 
 	return result;
 }
 
-export function TXT_parse ( content ) {
+export function TXT_parse( content ) {
 	const result = {
 		dialogues: [],
 		conversation: {
 			speakers: [],
-		}
+		},
 	};
 
 	// Pick vallid parsers testing the content.
@@ -140,10 +141,7 @@ export function TXT_parse ( content ) {
 	let matches;
 	while ( ( matches = parser.re.exec( content ) ) != null ) {
 		const speakerName = matches[ parser?.indexes?.speaker || 1 ] || '';
-		if (
-			speakerName?.length &&
-			result.conversation.speakers.indexOf( speakerName ) < 0
-		) {
+		if ( speakerName?.length && result.conversation.speakers.indexOf( speakerName ) < 0 ) {
 			result.conversation.speakers.push( speakerName );
 		}
 
@@ -174,10 +172,8 @@ export function parseTranscriptFile( file, fn ) {
 	const fileExtension = pickExtensionFromFileName( file?.name );
 
 	const reader = new FileReader();
-	reader.addEventListener( 'load', ( ev ) => {
-		const rawData = ev.target.result
-			? ev.target.result.replace( /\r\n|\r|\n/g, '\n' )
-			: null;
+	reader.addEventListener( 'load', ev => {
+		const rawData = ev.target.result ? ev.target.result.replace( /\r\n|\r|\n/g, '\n' ) : null;
 
 		if ( ! rawData?.length ) {
 			return fn( {}, __( 'Transcript content is empty', 'jetpack' ) );

@@ -4,7 +4,14 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
-import { Panel, PanelBody, withNotices, Placeholder, FormFileUpload, Button } from '@wordpress/components';
+import {
+	Panel,
+	PanelBody,
+	withNotices,
+	Placeholder,
+	FormFileUpload,
+	Button,
+} from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 
 /**
@@ -33,7 +40,7 @@ function ConversationEdit( {
 	noticeUI,
 	clientId,
 	noticeOperations,
- } ) {
+} ) {
 	const { participants = [], showTimestamps, skipUpload } = attributes;
 	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
 	const { insertBlocks } = useDispatch( 'core/block-editor' );
@@ -128,8 +135,9 @@ function ConversationEdit( {
 
 		// Check file MAX size.
 		if (
-			transcriptFile?.size && transcriptFile.size <= 0 || // min size
-			! transcriptFile?.size || transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE // max size
+			( transcriptFile?.size && transcriptFile.size <= 0 ) || // min size
+			! transcriptFile?.size ||
+			transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE // max size
 		) {
 			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file size.', 'jetpack' ) );
 		}
@@ -142,12 +150,14 @@ function ConversationEdit( {
 		// Check format by extension.
 		const fileExtension = pickExtensionFromFileName( transcriptFile?.name );
 		if ( ! isAcceptedTranscriptExtension( fileExtension ) ) {
-			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file extension.', 'jetpack' ) );
+			return showTranscriptProcessErrorMessage(
+				__( 'Invalid transcript file extension.', 'jetpack' )
+			);
 		}
 
 		setIsProcessingFile( true );
 
-		parseTranscriptFile( transcriptFile, function( { conversation, dialogues }, err ) {
+		parseTranscriptFile( transcriptFile, function ( { conversation, dialogues }, err ) {
 			if ( err ) {
 				return showTranscriptProcessErrorMessage( err );
 			}
@@ -157,11 +167,11 @@ function ConversationEdit( {
 				skipUpload: ! conversation?.length,
 			} );
 
-			const dialogueBlocksTemplate = dialogues.map( ( dialogue ) => (
+			const dialogueBlocksTemplate = dialogues.map( dialogue =>
 				dialogue.slug || dialogue.timestamp
 					? [ 'jetpack/dialogue', dialogue ]
 					: [ 'core/paragraph', dialogue ]
-			) );
+			);
 
 			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
 			insertBlocks( dialogueBlocks, 0, clientId );

@@ -15,7 +15,7 @@
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "0.2.0",
 		"brain/monkey": "2.6.0",
-		"automattic/jetpack-changelogger": "1.0.x-dev"
+		"automattic/jetpack-changelogger": "1.1.x-dev"
 	},
 	"autoload": {
 		"files": [
@@ -28,12 +28,12 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer install",
+			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"test-coverage": [
-			"@composer install",
+			"@composer update",
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
@@ -57,7 +57,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.24.x-dev"
+			"dev-master": "1.25.x-dev"
 		}
 	}
 }

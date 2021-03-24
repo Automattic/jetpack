@@ -107,10 +107,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ ! this.props.isLinked && (
 						<ConnectUserBar
 							feature="publicize"
-							text={ __(
-								'Publicize provided by the WordPress.com cloud. Sign in to configure the publicize connections.',
-								'jetpack'
-							) }
+							featureLabel={ __( 'Publicize', 'jetpack' ) }
+							text={ __( 'Sign in to connect your social media accounts.', 'jetpack' ) }
 						/>
 					) }
 
