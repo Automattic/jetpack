@@ -229,14 +229,17 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
 		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
-			path.resolve(
-				process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
-				( json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] ) ||
-					'changelog'
+			path.relative(
+				process.env.GITHUB_WORKSPACE,
+				path.resolve(
+					process.env.GITHUB_WORKSPACE + `/projects/${ project }`,
+					( json.extra && json.extra.changelogger && json.extra.changelogger[ 'changes-dir' ] ) ||
+						'changelog'
+				)
 			) + '/';
 		const found = files.find( file => file.startsWith( changelogDir ) );
 		if ( ! found ) {
-			acc.push( project );
+			acc.push( `projects/${ project }` );
 		}
 		return acc;
 	}, [] );
@@ -375,7 +378,7 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
 		// If some of the checks have failed, lets recommend some next steps.
 		if ( ! statusChecks[ check ] && recommendations[ check ] ) {
 			output += `
-${ recommendations[ check ] }
+:red_circle: **Action required:** ${ recommendations[ check ] }
 
 ******`;
 		}
@@ -405,13 +408,17 @@ async function postComment( payload, octokit, comment ) {
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
-		await octokit.issues.updateComment(
-			Object.assign( commentOpts, { comment_id: +existingComment } )
-		);
+		await octokit.issues.updateComment( {
+			...commentOpts,
+			comment_id: +existingComment,
+		} );
 	} else {
 		// If no comment was published before, publish one now.
 		debug( `check-description: Posting comment to PR #${ number }` );
-		await octokit.issues.createComment( Object.assign( commentOpts, { issue_number: +number } ) );
+		await octokit.issues.createComment( {
+			...commentOpts,
+			issue_number: +number,
+		} );
 	}
 }
 
@@ -436,15 +443,17 @@ async function updateLabels( payload, octokit ) {
 	const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
 	if ( hasNeedsReview ) {
 		debug( `check-description: remove existing Needs review label.` );
-		await octokit.issues.removeLabel(
-			Object.assign( labelOpts, { name: '[Status] Needs Review' } )
-		);
+		await octokit.issues.removeLabel( {
+			...labelOpts,
+			name: '[Status] Needs Review',
+		} );
 	}
 
 	debug( `check-description: add Needs Author Reply label.` );
-	await octokit.issues.addLabels(
-		Object.assign( labelOpts, { labels: [ '[Status] Needs Author Reply' ] } )
-	);
+	await octokit.issues.addLabels( {
+		...labelOpts,
+		labels: [ '[Status] Needs Author Reply' ],
+	} );
 }
 
 /**

@@ -14,6 +14,7 @@ module.exports = {
 		headless: HEADLESS !== 'false' && ! E2E_DEBUG,
 		slowMo: parseInt( SLOWMO, 10 ) || 0,
 		devtools: HEADLESS === 'false',
+		timeout: 20000,
 	},
 	pwContextOptions: {
 		recordVideo,
