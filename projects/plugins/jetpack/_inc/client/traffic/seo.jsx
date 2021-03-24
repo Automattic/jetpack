@@ -10,7 +10,6 @@ import SocialLogo from 'social-logos';
 /**
  * Internal dependencies
  */
-import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -45,10 +44,6 @@ export const SEO = withModuleSettingsFormHelpers(
 			frontPageMetaSuggestedLength: 159,
 			moduleOptionsArray: [ 'advanced_seo_front_page_description', 'advanced_seo_title_formats' ],
 			siteIconPreviewSize: 512,
-		};
-
-		trackConfigureClick = () => {
-			analytics.tracks.recordJetpackClick( 'configure-seo' );
 		};
 
 		SocialPreviewGoogle = siteData => (
