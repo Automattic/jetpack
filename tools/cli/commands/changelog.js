@@ -34,6 +34,21 @@ export function changelogDefine( yargs ) {
 				.positional( 'project', {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
+				} )
+				.option( 'significance', {
+					alias: 's',
+					describe: 'Significance of changes (patch, minor, major)',
+					type: 'string',
+				} )
+				.option( 'type', {
+					alias: 't',
+					describe: 'Type of change',
+					type: 'string',
+				} )
+				.option( 'changelog', {
+					alias: 'c',
+					describe: 'Changelog message)',
+					type: 'string',
 				} );
 		},
 		async argv => {
@@ -50,6 +65,7 @@ export function changelogDefine( yargs ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
+	console.log( argv );
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	validateCmd( argv );
@@ -59,7 +75,26 @@ export async function changeloggerCli( argv ) {
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	validatePath( argv, projDir );
 
-	const data = child_process.spawnSync( `${ argv.cmdPath }`, [ `${ argv.cmd }` ], {
+	const data = child_process.spawn(
+		`${ argv.cmdPath }`,
+		[ `${ argv.cmd }`, `${ argv.significance }` ],
+		{
+			cwd: projDir,
+			stdio: 'inherit',
+		}
+	);
+
+	child_process.spawn( `${ argv.significance }`, [], {
+		cwd: projDir,
+		stdio: 'inherit',
+	} );
+
+	child_process.spawn( `${ argv.type }`, [], {
+		cwd: projDir,
+		stdio: 'inherit',
+	} );
+
+	child_process.spawn( `${ argv.changelog }`, [], {
 		cwd: projDir,
 		stdio: 'inherit',
 	} );
