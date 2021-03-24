@@ -31,6 +31,11 @@ $item-spacing: 16px;
 		margin-right: $item-spacing;
 	}
 
+	@include break-medium-up {
+		$column-count: 4;
+		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	}
+
 	@include break-xlarge-up {
 		$column-count: 5;
 		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
