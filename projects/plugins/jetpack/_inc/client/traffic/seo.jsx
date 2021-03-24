@@ -20,22 +20,26 @@ import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import FoldableCard from 'components/foldable-card';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 import SimpleNotice from 'components/notice';
+import { isFetchingPluginsData, isPluginActive } from '../state/site/plugins/reducer';
 
-export const conflictingSeoPlugins = [
-	'Yoast SEO',
-	'Yoast SEO Premium',
-	'All In One SEO Pack',
-	'All in One SEO Pack Pro',
+export const conflictingSeoPluginsList = [
+	{
+		name: 'Yoast SEO',
+		slug: 'wordpress-seo/wp-seo.php',
+	},
+	{
+		name: 'Yoast SEO Premium',
+		slug: 'wordpress-seo-premium/wp-seo-premium.php',
+	},
+	{
+		name: 'All In One SEO Pack',
+		slug: 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+	},
+	{
+		name: 'All in One SEO Pack Pro',
+		slug: 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
+	},
 ];
-
-// Returns first conflicting plugin
-export const getConflictingSeoPlugin = plugins => {
-	const conflictingPlugins = Object.keys( plugins ).filter( plugin => {
-		return plugins[ plugin ].active && conflictingSeoPlugins.includes( plugins[ plugin ].Name );
-	} );
-
-	return plugins[ conflictingPlugins[ 0 ] ];
-};
 
 export const SEO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -81,8 +85,6 @@ export const SEO = withModuleSettingsFormHelpers(
 		render() {
 			const seo = this.props.getModule( 'seo-tools' );
 			const isSeoActive = this.props.getOptionValue( seo.module );
-			const isFetchingPluginsData = this.props.pluginsData.requests.isFetchingPluginsData;
-			const hasConflictingSeoPlugin = getConflictingSeoPlugin( this.props.pluginsData.items );
 			const frontPageMetaDescription = this.props.getOptionValue(
 				'advanced_seo_front_page_description'
 			);
@@ -98,6 +100,14 @@ export const SEO = withModuleSettingsFormHelpers(
 					? `${ this.props.siteData.icon.img }?s=${ this.constants.siteIconPreviewSize }`
 					: '',
 			};
+
+			const conflictingSeoPlugins = conflictingSeoPluginsList.reduce( ( acc, plugin ) => {
+				if ( isPluginActive( this.props.state, plugin.slug ) ) {
+					acc.push( plugin );
+				}
+				return acc;
+			}, [] );
+			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0 ? true : false;
 
 			return (
 				<SettingsCard
@@ -125,7 +135,7 @@ export const SEO = withModuleSettingsFormHelpers(
 								{ sprintf(
 									/* translators: %s is the name of conflicting SEO plugin */
 									__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
-									hasConflictingSeoPlugin.Name
+									conflictingSeoPlugins[ 0 ].name
 								) }
 							</SimpleNotice>
 						) }
@@ -150,7 +160,7 @@ export const SEO = withModuleSettingsFormHelpers(
 					</SettingsGroup>
 					{ isSeoActive &&
 						! this.props.isOfflineMode &&
-						! isFetchingPluginsData &&
+						! isFetchingPluginsData( this.props.state ) &&
 						! hasConflictingSeoPlugin && (
 							<div>
 								<SettingsGroup>
@@ -256,6 +266,6 @@ export const SEO = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		siteData: state.jetpack.siteData.data,
-		pluginsData: state.jetpack.pluginsData,
+		state,
 	};
 } )( SEO );
