@@ -20,8 +20,8 @@ function stripQueryString( url ) {
 const PhotonImage = ( {
 	useDiv,
 	src,
-	maxWidth = 300,
-	maxHeight = 300,
+	maxWidth = 600,
+	maxHeight = 600,
 	alt,
 	isPhotonEnabled,
 	...otherProps

@@ -1191,7 +1191,10 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The tweet URL. Empty string if there is none available.
 	 */
 	private static function extract_tweet_from_block( $block ) {
-		if ( 'core/embed' === $block['blockName'] && 'twitter' === $block['attrs']['providerNameSlug'] ) {
+		if (
+			'core/embed' === $block['blockName']
+			&& ( isset( $block['attrs']['providerNameSlug'] ) && 'twitter' === $block['attrs']['providerNameSlug'] )
+		) {
 			return $block['attrs']['url'];
 		}
 
@@ -1212,7 +1215,10 @@ class Jetpack_Tweetstorm_Helper {
 		}
 
 		// Twitter embeds are handled in ::extract_tweet_from_block().
-		if ( 'core/embed' === $block['blockName'] && 'twitter' === $block['attrs']['providerNameSlug'] ) {
+		if (
+			'core/embed' === $block['blockName']
+			&& ( isset( $block['attrs']['providerNameSlug'] ) && 'twitter' === $block['attrs']['providerNameSlug'] )
+		) {
 			return '';
 		}
 

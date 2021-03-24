@@ -20,9 +20,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import applyFallbackStyles from './apply-fallback-styles';
-import ButtonBorderPanel from './button-border-panel';
-import ButtonColorsPanel from './button-colors-panel';
-import ButtonWidthPanel from './button-width-panel';
+import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
@@ -37,18 +35,8 @@ const usePrevious = value => {
 	return ref.current;
 };
 
-function ButtonEdit( {
-	attributes,
-	backgroundColor,
-	className,
-	clientId,
-	fallbackBackgroundColor,
-	fallbackTextColor,
-	setAttributes,
-	setBackgroundColor,
-	setTextColor,
-	textColor,
-} ) {
+export function ButtonEdit( props ) {
+	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
 	const { align, borderRadius, element, placeholder, text, width } = attributes;
 	const previousAlign = usePrevious( align );
 
@@ -117,23 +105,13 @@ function ButtonEdit( {
 				withoutInteractiveFormatting
 			/>
 			<InspectorControls>
-				<ButtonColorsPanel
+				<ButtonControls
 					{ ...{
-						backgroundColor,
-						fallbackBackgroundColor,
-						fallbackTextColor,
 						gradientValue,
-						setBackgroundColor,
 						setGradient,
-						setTextColor,
-						textColor,
+						isGradientAvailable: IS_GRADIENT_AVAILABLE,
+						...props,
 					} }
-				/>
-				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
-				<ButtonWidthPanel
-					align={ align }
-					width={ width }
-					onChange={ newWidth => setAttributes( { width: newWidth } ) }
 				/>
 			</InspectorControls>
 		</div>

@@ -1,0 +1,23 @@
+name: Auto-tagger
+
+on:
+  push:
+    branches: [ 'master' ]
+
+jobs:
+  tag:
+    name: Tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Tag
+        run: |
+          VER=$(sed -nEe 's/^## \[?([^]]*)\]? - .*/\1/;T;p;q' CHANGELOG.md || true)
+          echo "Version from changelog is ${VER:-<unknown>}"
+          if [[ "$VER" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+            git config --global user.name "matticbot"
+            git config --global user.email "matticbot@users.noreply.github.com"
+            git remote set-url origin "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+            git tag "v$VER"
+            git push --tags
+          fi

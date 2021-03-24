@@ -4,15 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import {
-	Button,
-	ExternalLink,
-	PanelBody,
-	Placeholder,
-	Spinner,
-	TextControl,
-	withNotices,
-} from '@wordpress/components';
+import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
@@ -20,15 +12,13 @@ import { Fragment, Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { icon, innerButtonBlock } from '.';
-import MailchimpGroups from './mailchimp-groups';
+import { MailChimpBlockControls } from './controls';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
 const API_STATE_NOTCONNECTED = 2;
 
-const NOTIFICATION_PROCESSING = 'processing';
-const NOTIFICATION_SUCCESS = 'success';
-const NOTIFICATION_ERROR = 'error';
+import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 
 class MailchimpSubscribeEdit extends Component {
 	constructor() {
@@ -83,30 +73,6 @@ class MailchimpSubscribeEdit extends Component {
 		this.setState( { audition: null } );
 	};
 
-	updateProcessingText = processingLabel => {
-		const { setAttributes } = this.props;
-		setAttributes( { processingLabel } );
-		this.auditionNotification( NOTIFICATION_PROCESSING );
-	};
-
-	updateSuccessText = successLabel => {
-		const { setAttributes } = this.props;
-		setAttributes( { successLabel } );
-		this.auditionNotification( NOTIFICATION_SUCCESS );
-	};
-
-	updateErrorText = errorLabel => {
-		const { setAttributes } = this.props;
-		setAttributes( { errorLabel } );
-		this.auditionNotification( NOTIFICATION_ERROR );
-	};
-
-	updateEmailPlaceholder = emailPlaceholder => {
-		const { setAttributes } = this.props;
-		setAttributes( { emailPlaceholder } );
-		this.clearAudition();
-	};
-
 	labelForAuditionType = audition => {
 		const { attributes } = this.props;
 		const { processingLabel, successLabel, errorLabel } = attributes;
@@ -158,7 +124,7 @@ class MailchimpSubscribeEdit extends Component {
 					'jetpack'
 				) }
 			>
-				<Button isDefault isLarge href={ connectURL } target="_blank">
+				<Button isSecondary isLarge href={ connectURL } target="_blank">
 					{ __( 'Set up Mailchimp form', 'jetpack' ) }
 				</Button>
 				<div className={ `${ classPrefix }-recheck` }>
@@ -170,69 +136,19 @@ class MailchimpSubscribeEdit extends Component {
 		);
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Text Elements', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Email Placeholder', 'jetpack' ) }
-						value={ emailPlaceholder }
-						onChange={ this.updateEmailPlaceholder }
-					/>
-				</PanelBody>
-				<PanelBody title={ __( 'Notifications', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Processing text', 'jetpack' ) }
-						value={ processingLabel }
-						onChange={ this.updateProcessingText }
-					/>
-					<TextControl
-						label={ __( 'Success text', 'jetpack' ) }
-						value={ successLabel }
-						onChange={ this.updateSuccessText }
-					/>
-					<TextControl
-						label={ __( 'Error text', 'jetpack' ) }
-						value={ errorLabel }
-						onChange={ this.updateErrorText }
-					/>
-				</PanelBody>
-				<PanelBody title={ __( 'Mailchimp Groups', 'jetpack' ) }>
-					<MailchimpGroups
-						interests={ interests }
-						onChange={ ( id, checked ) => {
-							// Create a Set to insure no duplicate interests
-							const deDupedInterests = [ ...new Set( [ ...interests, id ] ) ];
-							// Filter the clicked interest based on checkbox's state.
-							const updatedInterests = deDupedInterests.filter( item =>
-								item === id && ! checked ? false : item
-							);
-							setAttributes( {
-								interests: updatedInterests,
-							} );
-						} }
-					/>
-					<ExternalLink href="https://mailchimp.com/help/send-groups-audience/">
-						{ __( 'Learn about groups', 'jetpack' ) }
-					</ExternalLink>
-				</PanelBody>
-				<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Signup Field Tag', 'jetpack' ) }
-						placeholder={ __( 'SIGNUP', 'jetpack' ) }
-						value={ signupFieldTag }
-						onChange={ value => setAttributes( { signupFieldTag: value } ) }
-					/>
-					<TextControl
-						label={ __( 'Signup Field Value', 'jetpack' ) }
-						placeholder={ __( 'website', 'jetpack' ) }
-						value={ signupFieldValue }
-						onChange={ value => setAttributes( { signupFieldValue: value } ) }
-					/>
-					<ExternalLink href="https://mailchimp.com/help/determine-webpage-signup-location/">
-						{ __( 'Learn about signup location tracking', 'jetpack' ) }
-					</ExternalLink>
-				</PanelBody>
-				<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>
-					<ExternalLink href={ connectURL }>{ __( 'Manage Connection', 'jetpack' ) }</ExternalLink>
-				</PanelBody>
+				<MailChimpBlockControls
+					auditionNotification={ this.auditionNotification }
+					clearAudition={ this.clearAudition }
+					emailPlaceholder={ emailPlaceholder }
+					processingLabel={ processingLabel }
+					successLabel={ successLabel }
+					errorLabel={ errorLabel }
+					interests={ interests }
+					setAttributes={ this.props.setAttributes }
+					signupFieldTag={ signupFieldTag }
+					signupFieldValue={ signupFieldValue }
+					connectURL={ connectURL }
+				/>
 			</InspectorControls>
 		);
 		const blockClasses = classnames( className, {
