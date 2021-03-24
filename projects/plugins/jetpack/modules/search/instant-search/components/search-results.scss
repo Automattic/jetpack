@@ -9,6 +9,7 @@ $modal-max-width-lg: 95%;
 	min-height: 100%;
 	margin: 0 auto;
 	max-width: $modal-max-width;
+	position: relative;
 	z-index: 10;
 
 	@include break-small-down() {
@@ -27,7 +28,6 @@ $modal-max-width-lg: 95%;
 
 .jetpack-instant-search__search-results-controls {
 	display: flex;
-	position: relative;
 }
 
 .jetpack-instant-search__search-results-content {
@@ -42,7 +42,7 @@ $modal-max-width-lg: 95%;
 	cursor: pointer;
 	display: flex;
 	font-size: 12px;
-	margin-right: 6px;
+	margin: 0;
 	padding: 8px;
 	text-decoration: none;
 	transition: background-color 0.25s ease-in-out;
@@ -54,19 +54,10 @@ $modal-max-width-lg: 95%;
 	@include break-small-up() {
 		padding: 10px 14px;
 		font-size: 13px;
-		margin-right: 16px;
 	}
 
 	@include break-large-up() {
 		display: none;
-	}
-
-	@include break-medium-down() {
-		margin-right: $results-margin-sm;
-	}
-
-	@include break-large-down() {
-		margin-right: $results-margin-md;
 	}
 
 	&:hover,
@@ -179,7 +170,7 @@ $modal-max-width-lg: 95%;
 .jetpack-instant-search__search-results-title {
 	@include break-large-up() {
 		// Account for .jetpack-instant-search__search-form-controls.
-		padding-right: 200px;
+		padding-right: 210px;
 	}
 }
 
