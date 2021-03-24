@@ -52,12 +52,7 @@ function stats_load() {
 	// Map stats caps.
 	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 3 );
 
-	if ( isset( $_GET['oldwidget'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// Old one.
-		add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
-	} else {
-		add_action( 'admin_init', 'stats_merged_widget_admin_init' );
-	}
+	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
 
 	add_filter( 'jetpack_xmlrpc_unauthenticated_methods', 'stats_xmlrpc_methods' );
 
@@ -80,7 +75,6 @@ function stats_load() {
 function stats_merged_widget_admin_init() {
 	if ( current_user_can( 'view_stats' ) ) {
 		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
-		add_action( 'wp_dashboard_setup', 'stats_register_widget_control_callback' ); // Hacky but works.
 		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
 	}
 }
@@ -1017,23 +1011,6 @@ function stats_xmlrpc_methods( $methods ) {
 }
 
 /**
- * Register Stats Dashboard Widget.
- *
- * @access public
- * @return void
- */
-function stats_register_dashboard_widget() {
-	if ( ! current_user_can( 'view_stats' ) ) {
-		return;
-	}
-
-	// With wp_dashboard_empty: we load in the content after the page load via JS.
-	wp_add_dashboard_widget( 'dashboard_stats', __( 'Site Stats', 'jetpack' ), 'wp_dashboard_empty', 'stats_dashboard_widget_control' );
-
-	add_action( 'admin_head', 'stats_dashboard_head' );
-}
-
-/**
  * Stats Dashboard Widget Options.
  *
  * @access public
@@ -1166,16 +1143,6 @@ function stats_jetpack_dashboard_widget() {
 		</div>
 	</div>
 	<?php
-}
-
-/**
- * Register Stats Widget Control Callback.
- *
- * @access public
- * @return void
- */
-function stats_register_widget_control_callback() {
-	$GLOBALS['wp_dashboard_control_callbacks']['dashboard_stats'] = 'stats_dashboard_widget_control';
 }
 
 /**
