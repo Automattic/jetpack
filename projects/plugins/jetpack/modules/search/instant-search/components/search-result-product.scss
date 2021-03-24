@@ -8,11 +8,11 @@ $item-spacing: 16px;
 	padding: 0 0 3em;
 
 	margin-right: $results-margin-lg - $item-spacing;
-	@include break-medium-down() {
-		margin-right: $results-margin-sm - $item-spacing;
-	}
 	@include break-large-down() {
 		margin-right: $results-margin-md - $item-spacing;
+	}
+	@include break-medium-down() {
+		margin-right: $results-margin-sm - $item-spacing;
 	}
 }
 

@@ -164,12 +164,13 @@ $modal-max-width-lg: 95%;
 	margin: 0.5em $results-margin-lg 1.5em;
 	padding: 0;
 
-	@include break-medium-down() {
-		margin-left: $results-margin-sm;
-	}
 	@include break-large-down() {
 		margin-left: $results-margin-md;
 	}
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+	}
+
 	@include break-large-up() {
 		margin-top: 32px;
 	}
