@@ -507,6 +507,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$media_id_string = join( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
 		}
 
+		if ( in_array( '_dtp_fb', wp_list_pluck( $metadata, 'key' ), true ) ) {
+			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'dtp_fb_allowed_metadata' ) );
+		}
+
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
@@ -530,7 +534,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 
-			$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			$insert['post_date'] = isset( $insert['post_date'] ) ? $insert['post_date'] : '';
+
+			$post_id = post_exists( $insert['post_title'], $insert['post_content'], $insert['post_date'], $post_type->name );
+			if ( 0 === $post_id ) {
+				$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			}
 		} else {
 			$insert['ID'] = $post->ID;
 
@@ -880,5 +889,17 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		return ! empty( $type ) && ! in_array( $type, array( 'post', 'revision' ) );
+	}
+
+	/**
+	 * Filter for rest_api_allowed_public_metadata.
+	 * Adds FB's DTP specific metadata.
+	 *
+	 * @param array $keys Array of metadata that is accessible by the REST API.
+	 *
+	 * @return array
+	 */
+	public function dtp_fb_allowed_metadata( $keys ) {
+		return array_merge( $keys, array( '_dtp_fb', '_dtp_fb_geo_points' ) );
 	}
 }

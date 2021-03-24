@@ -116,6 +116,17 @@ export function JetpackContactFormEdit( {
 		}
 	} );
 
+	useEffect( () => {
+		if ( to === undefined && postAuthorEmail ) {
+			setAttributes( { to: postAuthorEmail } );
+		}
+
+		if ( subject === undefined && siteTitle !== undefined && postTitle !== undefined ) {
+			const emailSubject = '[' + siteTitle + '] ' + postTitle;
+			setAttributes( { subject: emailSubject } );
+		}
+	}, [ to, postAuthorEmail, subject, siteTitle, postTitle, setAttributes ] );
+
 	const validateEmail = email => {
 		email = email.trim();
 
@@ -189,19 +200,8 @@ export function JetpackContactFormEdit( {
 	};
 
 	const renderFormSettings = () => {
-		let emailAddr = to !== undefined ? to : '';
-
-		if ( to === undefined && postAuthorEmail ) {
-			emailAddr = postAuthorEmail;
-			setAttributes( { to: emailAddr } );
-		}
-
-		let emailSubject = subject !== undefined ? subject : '';
-
-		if ( subject === undefined && siteTitle !== undefined && postTitle !== undefined ) {
-			emailSubject = '[' + siteTitle + '] ' + postTitle;
-			setAttributes( { subject: emailSubject } );
-		}
+		const emailAddr = to !== undefined ? to : '';
+		const emailSubject = subject !== undefined ? subject : '';
 
 		return (
 			<>

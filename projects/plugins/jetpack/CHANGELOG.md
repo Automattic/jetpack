@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 9.5.2 - 2021-03-16
+### Improved compatibility
+- Block Editor: avoid conflicts between multiple Jetpack blocks and Gutenberg version 10.1.0.
+
+### Bug fixes
+- Instant Search: prevent IE11 from spawning overlay on load.
+- WordPress.com Toolbar and customizations: fix multiple issues causing navigation panel discrepancies between the WP-Admin dashboard and the WordPress.com dashboard.
+
 ## 9.5.1 - 2021-03-04
 ### Bug fixes
 - Sharing: avoid potential conflicts with the Blog Posts Block from Newspack.

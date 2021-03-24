@@ -91,6 +91,7 @@ The Jetpack Generate Wizard includes the following for each project:
 * Check things over to make sure it looks correct
 * If your project requires a build step, add steps to `composer.json` and `package.json`
 * Create a mirror repo if necessary. See [Mirror repositories](#mirror-repositories).
+
 ## Project structure
 
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
@@ -104,6 +105,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
+* `.extra.autotagger`: Set true to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "https://github.com/Automattic/jetpack-_something_".
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
@@ -135,6 +137,14 @@ All test commands must return a shell failure status when tests fail and a succe
 
 If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
+The following environment variables are avaliable for all tests:
+
+- `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
+- `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
+- `NODE_VERSION`: The version of Node in use. Same as `.nvmrc`.
+- `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as `.github/php-version`.
+- `TEST_SCRIPT`: The test script being run.
+
 ### Linting
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
@@ -149,9 +159,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 5.6 to 8.0. The PHP version for a run is available in the environment variable `PHP_VERSION`. If you have tests that only need to be run once, run them when `PHP_VERSION` matches `.github/php-version`.
-
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
+Tests are run with a variety of supported PHP versions from 5.6 to 8.0. If you have tests that only need to be run once, run them when `PHP_VERSION` matches `.github/php-version`.
 
 #### PHP tests for non-plugins
 
@@ -180,15 +188,11 @@ Note that WordPress currently requires a version of PHPUnit that does not native
 
 If a project contains JavaScript tests, it must define `.scripts.test-js` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
 
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
-
 ### E2E tests
 
 **This is not implemented yet!**
 
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
-
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 
 ### Code coverage
 
@@ -201,9 +205,7 @@ Output should be written to the path specified via the `COVERAGE_DIR` environmen
 
 For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
-If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified in the environemnt variable `ARTIFACTS_DIR` and they will be uploaded to GitHub after the test run.
-
-There's no need to be concerned about collisions with other projects' coverage files or artifacts, a separate directory is used per project.
+There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
 ## Mirror repositories
 
@@ -220,6 +222,20 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 4. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
 5. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
    * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
+
+### Autotagger
+
+If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to master, and create the tag if that version has no prerelease or build suffix.
+
+This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
+
+1. (optional) Go to the [monorepo's branch settings page](https://github.com/Automattic/jetpack/settings/branches), and turn on "Require branches to be up to date before merging" for the master branch.
+2. Use `tools/changelogger-release.sh` to create a PR rolling the change files into a new changelog entry.
+3. Push and merge that PR.
+4. If you turned on "Require branches to be up to date before merging" in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
+   * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
+5. Verify that the Build workflow run for your PR's merge to master succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Amaster) will show the runs of that workflow for all merges to master.
+   * If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
 
 ## Plugin release tooling
 

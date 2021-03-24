@@ -12,14 +12,5 @@
         "innerContent": [
             "\n<figure class=\"wp-block-jetpack-rating-star is-style-outlined\" style=\"text-align:left\"><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span></figure>\n"
         ]
-    },
-    {
-        "blockName": null,
-        "attrs": {},
-        "innerBlocks": [],
-        "innerHTML": "\n",
-        "innerContent": [
-            "\n"
-        ]
     }
 ]

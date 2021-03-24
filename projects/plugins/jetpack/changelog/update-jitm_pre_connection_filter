@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+JITMs: add pre-connection JITMs using the jetpack_pre_connection_jitms filter.
