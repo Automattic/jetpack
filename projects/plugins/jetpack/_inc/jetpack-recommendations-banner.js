@@ -4,9 +4,7 @@
 	var recommendationsBanner = $( '#jp-recommendations-banner-main' );
 	var recommendationsBannerForm = $( '#jp-recommendations-banner__form' );
 	var recommendationsBannerContinue = $( '#jp-recommendations-banner__continue-button' );
-	var recommendationsBannerDismiss = $(
-		'#jp-recommendations-banner__notice-dismiss, #jp-recommendations-banner__dismiss-button'
-	);
+	var recommendationsBannerDismiss = $( '#jp-recommendations-banner__notice-dismiss' );
 
 	recommendationsBannerForm.on( 'change', function ( event ) {
 		if (
