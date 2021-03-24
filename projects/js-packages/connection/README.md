@@ -1,9 +1,9 @@
 Connection Package
 =========
 
-The component encapsulates the Connection functionality.
+The package encapsulates the Connection functionality.
 
-## Component InPlaceConnection
+## Component `InPlaceConnection`
 It includes:
 - the `iframe` HTML element
 - connection URL handling
@@ -27,15 +27,32 @@ It includes:
 import InPlaceConnection from 'in-place-connection';
 
 <InPlaceConnection
-	connectUrl={ this.props.connectUrl }
-	height={ this.props.height }
-	width={ this.props.width}
-	isLoading={ this.props.fetchingConnectUrl }
-	title={ this.props.title }
+	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
+	height="600"
+	width="400"
+	isLoading={ false }
+	title="Sample Connection"
 	displayTOS={ false }
-	scrollToIframe={ this.props.scrollToIframe }
-	onComplete={ this.onComplete }
-	onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
-	source="connect-user-bar"
+	scrollToIframe={ false }
+	onComplete={ () => alert( 'Connected' ) }
+	onThirdPartyCookiesBlocked={ () => window.location.replace( 'https://example.org/fallback-url/' ) }
+	source="sample-connection-form"
+/>
+```
+
+## Helper `thirdPartyCookiesFallback`
+The helper encapsulates the redirect to the fallback URL you provide.
+
+### Parameters
+- *fallbackURL* - string (required), the URL to be redirected to (usually WP.com "authorize" URL)
+
+### Usage
+```jsx
+import InPlaceConnection from 'in-place-connection';
+import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/helpers';
+
+<InPlaceConnection
+	onThirdPartyCookiesBlocked={ () => thirdPartyCookiesFallbackHelper( 'https://example.org/fallback-url/' ) }
+	// Other properties.
 />
 ```
