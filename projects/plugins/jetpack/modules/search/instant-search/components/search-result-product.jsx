@@ -37,8 +37,12 @@ class SearchResultProduct extends Component {
 
 		// TODO: Remove this check once checking result.highlight is more reliable.
 		const hasQuery = this.props.searchQuery !== '';
+		const titleHasMark = title.includes( '<mark>' );
 		const hasMatch =
-			hasQuery && Array.isArray( highlight.content ) && highlight.content[ 0 ]?.length > 0;
+			hasQuery &&
+			! titleHasMark &&
+			Array.isArray( highlight.content ) &&
+			highlight.content[ 0 ]?.length > 0;
 
 		return (
 			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-product">
