@@ -160,7 +160,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
+		if ( ! Jetpack::is_connection_ready() || ! $this->is_search_supported() ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *

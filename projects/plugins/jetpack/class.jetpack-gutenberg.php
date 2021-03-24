@@ -523,7 +523,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! ( new Status() )->is_offline_mode() ) {
+		if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 
@@ -726,7 +726,7 @@ class Jetpack_Gutenberg {
 			array(
 				'available_blocks' => self::get_availability(),
 				'jetpack'          => array(
-					'is_active'                 => Jetpack::is_active(),
+					'is_active'                 => Jetpack::is_connection_ready(),
 					'is_current_user_connected' => $is_current_user_connected,
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),

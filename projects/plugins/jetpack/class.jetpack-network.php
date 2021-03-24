@@ -491,11 +491,11 @@ class Jetpack_Network {
 	 * @param Object $token the received token.
 	 */
 	public function filter_register_user_token( $token ) {
-		$is_master_user = ! Jetpack::is_active();
+		$is_connection_owner = ! $this->connection->has_connected_owner();
 		( new Tokens() )->update_user_token(
 			get_current_user_id(),
 			sprintf( '%s.%d', $token->secret, get_current_user_id() ),
-			$is_master_user
+			$is_connection_owner
 		);
 	}
 
@@ -604,7 +604,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function network_admin_page_header() {
-		$is_connected = Jetpack::is_active();
+		$is_connected = Jetpack::is_connection_ready();
 
 		$data = array(
 			'is_connected' => $is_connected,
