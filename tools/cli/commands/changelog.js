@@ -35,6 +35,11 @@ export function changelogDefine( yargs ) {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
 				} )
+				.option( 'file', {
+					alias: 'f',
+					describe: 'Name of changelog file',
+					type: 'string',
+				} )
 				.option( 'significance', {
 					alias: 's',
 					describe: 'Significance of changes (patch, minor, major)',
@@ -147,6 +152,9 @@ function compileArgs( argv ) {
 	if ( argv.cmd ) {
 		argv.args.push( `${ argv.cmd }` );
 	}
+	if ( argv.file ) {
+		argv.args.push( `-f${ argv.file }` );
+	}
 	if ( argv.significance ) {
 		argv.args.push( `-s${ argv.significance }` );
 	}
@@ -159,7 +167,7 @@ function compileArgs( argv ) {
 	if ( argv.args.length >= 4 ) {
 		argv.args.push( '--no-interaction' );
 		return;
-	} else if ( argv.args.length > 1 ) {
+	} else if ( argv.args.length > 2 ) {
 		console.error(
 			chalk.bgRed(
 				'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
