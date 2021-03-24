@@ -4,7 +4,7 @@
 	"prHourlyLimit": 1,
 	"supportPolicy": [ "lts_latest" ],
 	"timezone": "UTC",
-	"schedule": [ "every weekend" ],
+	"schedule": [ "before 3am on the first day of the month" ],
 	"updateNotScheduled": false,
 	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ],
 	"packageRules": [
@@ -14,12 +14,29 @@
 			"prPriority": 1
 		},
 		{
-			"depTypeList": [ "monorepo:wordpress", "monorepo:react" ],
-			"groupName": "React and WordPress monorepos"
+			"groupName": "React and WordPress monorepos",
+			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
-			"paths": [ "packages/codesniffer/composer.json" ],
+			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
+		},
+		{
+			"groupName": "Instant Search Dependency Updates",
+			"matchPackageNames": [
+				"cache",
+				"preact",
+				"progress-event",
+				"q-flat",
+				"qss",
+				"strip",
+				"uuid",
+				"@testing-library/preact"
+			],
+			"reviewers": "team:jetpack-search",
+			"labels": [ "Search", "Instant Search" ]
 		}
-	]
+	],
+	"dependencyDashboard": true,
+	"dependencyDashboardTitle": "Renovate Dependency Updates"
 }
