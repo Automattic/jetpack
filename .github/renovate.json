@@ -37,6 +37,6 @@
 			"labels": [ "Search", "Instant Search" ]
 		}
 	],
-	"masterIssue": true,
-	"masterIssueTitle": "Renovate Dependency Updates"
+	"dependencyDashboard": true,
+	"dependencyDashboardTitle": "Renovate Dependency Updates"
 }
