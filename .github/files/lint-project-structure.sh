@@ -10,7 +10,7 @@ BASE=$PWD
 
 if [[ -n "$CI" ]]; then
 	function debug {
-		blue "%@"
+		blue "$@"
 	}
 fi
 
