@@ -1,4 +1,4 @@
-<?php // phpcs-ignore.
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Likes
  * Module Description: Give visitors an easy way to show they appreciate your content.
