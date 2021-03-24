@@ -42,7 +42,7 @@ class SearchResultProduct extends Component {
 						<PhotonImage
 							alt=""
 							className="jetpack-instant-search__search-result-product-img"
-							isPrivateSite={ this.props.isPrivateSite }
+							isPhotonEnabled={ this.props.isPhotonEnabled }
 							src={ `//${ firstImage }` }
 						/>
 					) : (

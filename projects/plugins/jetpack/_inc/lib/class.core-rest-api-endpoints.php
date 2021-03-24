@@ -675,6 +675,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
+		// Return all module settings.
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/set-license',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::set_jetpack_license',
+				'permission_callback' => __CLASS__ . '::set_jetpack_license_key_permission_check',
+				'args'                => array(
+					'license' => array(
+						'required'          => true,
+						'type'              => 'string',
+						'validate_callback' => __CLASS__ . '::validate_string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
+
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -3961,6 +3980,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Set a Jetpack license
+	 *
+	 * @since 9.6.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return WP_REST_Response|WP_Error A response object if the option was successfully updated, or a WP_Error if it failed.
+	 */
+	public static function set_jetpack_license( $request ) {
+		$license = trim( sanitize_text_field( $request['license'] ) );
+
+		if ( Licensing::instance()->append_license( $license ) ) {
+			return rest_ensure_response( array( 'code' => 'success' ) );
+		}
+
+		return new WP_Error(
+			'setting_license_key_failed',
+			esc_html__( 'Could not set this license key. Please try again.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
 	 * Returns the Jetpack CRM data.
 	 *
 	 * @return WP_REST_Response A response object containing the Jetpack CRM data.
@@ -4022,6 +4064,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 			self::$user_permissions_error_msg,
 			array( 'status' => rest_authorization_required_code() )
 		);
+	}
+
+	/**
+	 * Verify that the user can set a Jetpack license key
+	 *
+	 * @since 9.5.0
+	 *
+	 * @return bool|WP_Error True if user is able to set a Jetpack license key
+	 */
+	public static function set_jetpack_license_key_permission_check() {
+		if ( Licensing::instance()->is_licensing_input_enabled() ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_set_jetpack_license_key', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+
 	}
 
 } // class end
