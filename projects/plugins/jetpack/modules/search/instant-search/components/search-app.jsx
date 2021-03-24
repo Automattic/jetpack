@@ -320,7 +320,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
-					hasOtherWidgets={ this.props.options.hasOtherWidgets }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body
