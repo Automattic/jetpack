@@ -662,7 +662,7 @@ class Jetpack_Gutenberg {
 		$status = new Status();
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! $status->is_offline_mode() && Jetpack::is_active() ) {
+		if ( ! $status->is_offline_mode() && Jetpack::is_connection_ready() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 

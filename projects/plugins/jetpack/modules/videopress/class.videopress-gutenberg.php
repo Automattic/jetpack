@@ -132,7 +132,7 @@ class VideoPress_Gutenberg {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
-		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+		} elseif ( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) {
 			/**
 			 * We're intentionally not using `get_current_blog_id` because it was returning unexpected values.
 			 *
