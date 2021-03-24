@@ -105,7 +105,7 @@ class SearchResultProduct extends Component {
 							<span>
 								{ sprintf(
 									/* Translators: the placeholder can be "content" or "comments". */
-									__( 'Keyword found in %s', 'jetpack' ),
+									__( 'Matches %s', 'jetpack' ),
 									'comment' in highlight ? __( 'comments', 'jetpack' ) : __( 'content', 'jetpack' )
 								) }
 							</span>
