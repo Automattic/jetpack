@@ -90,8 +90,5 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true
-	},
-	"require": {
-		"automattic/jetpack-password-checker": "0.1.x-dev"
 	}
 }
