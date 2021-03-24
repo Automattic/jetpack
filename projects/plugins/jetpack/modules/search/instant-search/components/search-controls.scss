@@ -28,7 +28,6 @@
 	}
 
 	@include break-large-up() {
-		// 28px for select, 32px for regular?
 		margin-top: 32px;
 		position: absolute;
 		right: $sidebar-width;
