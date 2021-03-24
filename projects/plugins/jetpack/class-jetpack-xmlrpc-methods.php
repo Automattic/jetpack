@@ -73,7 +73,7 @@ class Jetpack_XMLRPC_Methods {
 	 *
 	 * @return string The current Jetpack version number
 	 */
-	public function test_connection() {
+	public static function test_connection() {
 		return JETPACK__VERSION;
 	}
 
