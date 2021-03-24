@@ -8,6 +8,50 @@
 
 use Automattic\Jetpack\Status;
 
+/**
+ * Deprecates gracefully Links menu item.
+ * Can be removed after Jetpack 9.6 release.
+ */
+function wpcomsh_remove_links_manager_gracefully() {
+	// Do not run if Jetpack is not enabled.
+	if ( ! defined( 'JETPACK__VERSION' ) ) {
+		return;
+	}
+
+	// Do not clash with the fix already shipped in Jetpack 9.6.
+	if ( version_compare( JETPACK__VERSION, '9.6-alpha', '>=' ) ) {
+		return;
+	}
+
+	// Safety - don't alter anything if Nav Unification is not enabled.
+	if ( ! wpcomsh_activate_nav_unification( false ) ) {
+		return;
+	}
+
+	// Add the menu back in.
+	add_menu_page( __( 'Links', 'wpcomsh' ), __( 'Links', 'wpcomsh' ), 'manage_links', 'link-manager.php', null, 'dashicons-admin-links', 6 );
+
+	// The max ID number of the auto-generated links.
+	$max_default_id = 10;
+
+	$link_manager_links = get_bookmarks(
+		array(
+			'orderby' => 'link_id',
+			'order'   => 'DESC',
+			'limit'   => $max_default_id,
+		)
+	);
+
+	// Ordered links by ID descending, check if the first ID is more than $max_default_id.
+	if ( count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
+		return;
+	}
+
+	// Remove the Links menu item if user has added their own Links.
+	remove_menu_page( 'link-manager.php' );
+}
+add_action( 'admin_menu', 'wpcomsh_remove_links_manager_gracefully' );
+
 
 /**
  * Makes Calypso Users menu always visible in Atomic.
