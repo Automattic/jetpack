@@ -54,6 +54,7 @@ for PROJECT in projects/*/*; do
 	# - composer.json must require-dev (or just require) changelogger.
 	# - Changelogger's changes-dir must have a .gitkeep.
 	# - Changelogger's changes-dir must be production-excluded.
+	# - Packages must have a dev-master branch-alias.
 	if [[ ! -e "$PROJECT/composer.json" ]]; then
 		EXIT=1
 		echo "::error file=$PROJECT/composer.json::Project $SLUG does not contain composer.json."
@@ -75,6 +76,10 @@ for PROJECT in projects/*/*; do
 				EXIT=1
 				echo "::error file=$PROJECT/.gitattributes::Files in $PROJECT/$CHANGES_DIR/ must have git attribute production-exclude."
 			fi
+		fi
+		if [[ "$TYPE" == "packages" ]] && ! jq -e '.extra["branch-alias"]["dev-master"]' "$PROJECT/composer.json" >/dev/null; then
+			EXIT=1
+			echo "::error file=$PROJECT/composer.json::Package $SLUG should set \`.extra.branch-alias.dev-master\` in composer.json."
 		fi
 	fi
 
