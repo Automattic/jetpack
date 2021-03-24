@@ -14,16 +14,16 @@
 			"prPriority": 1
 		},
 		{
-			"depTypeList": [ "monorepo:wordpress", "monorepo:react" ],
-			"groupName": "React and WordPress monorepos"
+			"groupName": "React and WordPress monorepos",
+			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
-			"paths": [ "packages/codesniffer/composer.json" ],
+			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
 		},
 		{
 			"groupName": "Instant Search Dependency Updates",
-			"packageNames": [
+			"matchPackageNames": [
 				"cache",
 				"preact",
 				"progress-event",
