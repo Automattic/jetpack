@@ -12,6 +12,7 @@ import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
+import { changelogDefine } from './commands/changelog';
 
 // import { dockerDefine } from "./commands/docker";
 
@@ -30,6 +31,7 @@ export async function cli() {
 	 * Let's keep it alphabetical.
 	 */
 	argv = buildDefine( argv );
+	argv = changelogDefine( argv );
 	argv = cliDefine( argv );
 	// argv = dockerDefine( argv );
 	argv = generateDefine( argv );
@@ -40,6 +42,7 @@ export async function cli() {
 	argv
 		.showHelpOnFail( true )
 		.demandCommand()
+		.strictCommands()
 		.version( false )
 		.options( {
 			v: {
