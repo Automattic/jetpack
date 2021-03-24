@@ -33,7 +33,7 @@
 				"uuid",
 				"@testing-library/preact"
 			],
-			"reviewers": "team:@Automattic/jetpack-search",
+			"reviewers": "team:jetpack-search",
 			"labels": [ "Search", "Instant Search" ]
 		}
 	],
