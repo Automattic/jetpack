@@ -1,4 +1,4 @@
-@keyframes jetpackSearchSlideInUp {
+@keyframes jetpack-search-slide-in-up {
 	from {
 		transform: translate3d( 0, 100vh, 0 );
 		visibility: visible;
@@ -9,7 +9,7 @@
 	}
 }
 
-@keyframes jetpackSearchSlideOutDown {
+@keyframes jetpack-search-slide-out-down {
 	from {
 		transform: translate3d( 0, 0, 0 );
 	}
@@ -20,7 +20,7 @@
 	}
 }
 
-@keyframes jetpackSearchFadeIn {
+@keyframes jetpack-search-fade-in {
 	from {
 		opacity: 0;
 	}
@@ -30,7 +30,7 @@
 	}
 }
 
-@keyframes jetpackSearchFadeOut {
+@keyframes jetpack-search-fade-out {
 	from {
 		opacity: 1;
 	}
