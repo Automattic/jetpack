@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Instagram Gallery Block: Add unit and fixture tests (no user facing change, changelog entry not required)
+
+

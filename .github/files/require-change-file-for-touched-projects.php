@@ -128,12 +128,14 @@ ksort( $touched_projects );
 $exit = 0;
 foreach ( $touched_projects as $slug => $files ) {
 	if ( empty( $ok_projects[ $slug ] ) ) {
+		printf( "---\n" ); // Bracket message containing newlines for better visibility in GH's logs.
 		printf(
 			"::error::Project %s is being changed, but no change file in %s is touched!%%0A%%0AGo to that project and use `%s add` to add a change file.%%0AGuidelines: https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md\n",
 			$slug,
 			"projects/$slug/{$changelogger_projects[ $slug ]['changes-dir']}/",
 			'packages/changelogger' === $slug ? 'bin/changelogger' : 'vendor/bin/changelogger'
 		);
+		printf( "---\n" );
 		$exit = 1;
 	}
 }

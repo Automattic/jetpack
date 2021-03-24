@@ -4,7 +4,7 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 
-export default function save( { attributes: { url } } ) {
+export default function save() {
 	return (
 		<div>
 			<InnerBlocks.Content />

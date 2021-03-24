@@ -30,7 +30,7 @@ class Jetpack_Calypsoify {
 	 * Jetpack_Calypsoify constructor.
 	 */
 	private function __construct() {
-		add_action( 'wp_loaded', array( $this, 'setup' ) );
+		add_action( 'admin_init', array( $this, 'setup' ), 4 );
 	}
 
 	/**
@@ -66,7 +66,7 @@ class Jetpack_Calypsoify {
 	public function setup() {
 		$this->is_calypsoify_enabled = isset( $_GET['calypsoify'] ) && 1 === (int) $_GET['calypsoify'] && $this->is_page_gutenberg(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		add_action( 'admin_init', array( $this, 'check_meta' ), 4 );
+		$this->check_meta();
 
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_for_gutenberg' ), 100 );
