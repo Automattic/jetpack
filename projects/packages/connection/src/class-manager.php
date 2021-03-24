@@ -168,7 +168,9 @@ class Manager {
 		} else {
 			// Any other unsigned request should expose the bootstrap methods.
 			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
-			new XMLRPC_Connector( $this );
+			if ( ! $this->is_connected() ) {
+				new XMLRPC_Connector( $this );
+			}
 		}
 
 		add_filter( 'xmlrpc_methods', $callback );
