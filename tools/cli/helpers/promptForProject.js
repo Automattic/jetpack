@@ -17,12 +17,18 @@ import { dirs, projectTypes, allProjects } from './projectHelpers';
  *
  * @returns {object} argv object with the project property.
  */
-export async function promptForProject( options ) {
+export default async function promptForProject( options ) {
 	const questions = [];
 	let typeAnswer;
 
 	if ( ! options.project || options.project.length === 0 ) {
-		typeAnswer = await promptForType();
+		if ( ! options.type || options.type.length === 0 ) {
+			typeAnswer = await promptForType();
+		} else if ( ! projectTypes.includes( options.type ) ) {
+			throw new Error( 'Must be an existing project type.' );
+		} else {
+			typeAnswer = { type: options.type };
+		}
 		questions.push( {
 			type: 'list',
 			name: 'project',
@@ -52,7 +58,6 @@ export async function promptForProject( options ) {
  */
 export async function promptForType( options = { type: '' } ) {
 	let typeAnswer;
-
 	if ( ! options.type || options.type.length === 0 ) {
 		typeAnswer = await inquirer.prompt( {
 			type: 'list',

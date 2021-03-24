@@ -3,18 +3,25 @@
  */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
-import MailchimpBlock from '../lib/blocks/mailchimp';
+import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
-import SimplePaymentBlock from '../lib/blocks/simple-payments';
-import WordAdsBlock from '../lib/blocks/word-ads';
+import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
+import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
 import { step } from '../lib/env/test-setup';
 
 describe( 'Paid blocks', () => {
+	let blockEditor;
+
 	beforeAll( async () => {
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
+	} );
+
+	beforeEach( async () => {
+		blockEditor = await BlockEditorPage.visit( page );
+		await blockEditor.resolveWelcomeGuide( false );
 	} );
 
 	afterAll( async () => {
@@ -25,11 +32,9 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'MailChimp Block', async () => {
-		let blockEditor;
 		let blockId;
 
 		await step( 'Can visit the block editor and add a MailChimp block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			blockId = await blockEditor.insertBlock( MailchimpBlock.name(), MailchimpBlock.title() );
 		} );
 
@@ -48,11 +53,9 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'Pay with PayPal', async () => {
-		let blockEditor;
 		let blockId;
 
 		await step( 'Can visit the block editor and add a Pay with PayPal block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
 
 			blockId = await blockEditor.insertBlock(
@@ -79,11 +82,9 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'WordAds block', async () => {
-		let blockEditor;
 		let blockId;
 
 		await step( 'Can visit the block editor and add a WordAds block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			blockId = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.selectPostTitle();

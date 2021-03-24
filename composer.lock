@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "30dd08a1e91edc1d74260f96286a8ca7",
+    "content-hash": "b99c78cae0acf6be44b5ced91e706f0e",
     "packages": [],
     "packages-dev": [
         {
@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "4b69c92ad4a2241d267fcac82c83fb4237829c29"
+                "reference": "98548854b6bbf45106ed0d96be733371a9ab7c9c"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -46,11 +46,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -576,16 +576,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.7.1",
+            "version": "v2.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "c521b6a303fb1c721949c7e4bdc0f3bbd7e5125f"
+                "reference": "86b45aab347b560a1594cee22d16f977ca88b2e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/c521b6a303fb1c721949c7e4bdc0f3bbd7e5125f",
-                "reference": "c521b6a303fb1c721949c7e4bdc0f3bbd7e5125f",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/86b45aab347b560a1594cee22d16f977ca88b2e0",
+                "reference": "86b45aab347b560a1594cee22d16f977ca88b2e0",
                 "shasum": ""
             },
             "require": {
@@ -627,9 +627,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.7.1"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.8.1"
             },
-            "time": "2021-02-16T15:50:18+00:00"
+            "time": "2021-03-22T22:57:09+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

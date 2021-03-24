@@ -1,9 +1,13 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 /**
  * @covers ::shortcode_ted
  */
 class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
+
 	public function setUp() {
 		parent::setUp();
 

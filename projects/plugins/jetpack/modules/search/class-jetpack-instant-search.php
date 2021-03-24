@@ -65,12 +65,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		$polyfill_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
 		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.css';
 
 		if (
 			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
-			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ||
-			! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path )
+			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path )
 		) {
 			return;
 		}
@@ -90,10 +88,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
-
-		$style_version = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
-		$style_path    = plugins_url( $style_relative_path, $plugin_base_path );
-		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
 
 	/**
@@ -170,7 +164,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
-				'resultFormat'    => get_option( $prefix . 'result_format', 'minimal' ),
+				'resultFormat'    => get_option( $prefix . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_MINIMAL ),
 				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),
 
@@ -448,10 +442,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		// Set default result format to "expanded".
-		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'expanded' );
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_EXPANDED );
 
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
+		$this->auto_config_woo_result_format();
 	}
 
 	/**
@@ -611,6 +606,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		return $settings;
 	}
+
 	/**
 	 * Automatically configure post types to exclude from one of the search widgets
 	 *
@@ -641,5 +637,23 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
 			update_option( Jetpack_Search_Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
 		}
+	}
+
+	/**
+	 * Automatically set result format to 'product' if WooCommerce is installed
+	 *
+	 * @since  9.6.0
+	 */
+	public function auto_config_woo_result_format() {
+		if ( ! method_exists( 'Jetpack', 'get_active_plugins' ) ) {
+			return false;
+		}
+
+		// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ) ) {
+			return false;
+		}
+
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_PRODUCT );
 	}
 }

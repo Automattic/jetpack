@@ -420,6 +420,10 @@ class Actions {
 		}
 
 		if ( ! $result ) {
+			if ( false === $retry_after ) {
+				// We received a non standard response from WP.com, lets backoff from sending requests for 1 minute.
+				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 60, false );
+			}
 			return $rpc->get_jetpack_error();
 		}
 
