@@ -32,7 +32,7 @@ import InPlaceConnection from 'in-place-connection';
 	width={ this.props.width}
 	isLoading={ this.props.fetchingConnectUrl }
 	title={ this.props.title }
-	hasConnectedOwner={ this.props.hasConnectedOwner }
+	displayTOS={ false }
 	scrollToIframe={ this.props.scrollToIframe }
 	onComplete={ this.onComplete }
 	onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
