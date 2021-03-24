@@ -18,7 +18,7 @@ const PhotonImage = props => {
 		maxHeight = 600,
 		maxWidth = 600,
 		src: originalSrc,
-		useDiv,
+		lazyLoad = true,
 		...otherProps
 	} = props;
 
@@ -34,7 +34,7 @@ const PhotonImage = props => {
 		}
 
 		let observer = null;
-		if ( 'IntersectionObserver' in window ) {
+		if ( lazyLoad && 'IntersectionObserver' in window ) {
 			observer = new window.IntersectionObserver( ( entries, obs ) => {
 				for ( const entry of entries ) {
 					if ( entry.isIntersecting ) {
@@ -50,7 +50,7 @@ const PhotonImage = props => {
 		return () => {
 			observer?.disconnect();
 		};
-	}, [ src ] );
+	}, [ lazyLoad, src ] );
 
 	return <img alt={ alt } ref={ image } src={ lazySrc } { ...otherProps } />;
 };
