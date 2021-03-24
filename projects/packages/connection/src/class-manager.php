@@ -73,7 +73,7 @@ class Manager {
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			null,
+			$manager->has_connected_owner(),
 			$manager->verify_xml_rpc_signature()
 		);
 
@@ -103,13 +103,13 @@ class Manager {
 	 * @since 9.6.0 Deprecate $is_active param.
 	 *
 	 * @param array                  $request_params incoming request parameters.
-	 * @param null                   $deprecated Deprecated. whether the connection is currently active.
-	 * @param Boolean                $is_signed whether the signature check has been successful.
+	 * @param bool                   $has_connected_owner Whether the site has a connected owner.
+	 * @param bool                   $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
-		$deprecated = null,
+		$has_connected_owner,
 		$is_signed,
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
@@ -160,7 +160,7 @@ class Manager {
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-		} elseif ( $this->has_connected_owner() && ! $is_signed ) {
+		} elseif ( $has_connected_owner && ! $is_signed ) {
 			// The jetpack.authorize method should be available for unauthenticated users on a site with an
 			// active Jetpack connection, so that additional users can link their account.
 			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
