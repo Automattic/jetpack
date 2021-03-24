@@ -133,46 +133,45 @@ const getCustomSeoTitleInputPreview = ( pageType, value, siteData ) => {
 	);
 };
 
-const handleTokenButtonClick = (
-	customSeoTitleInputRef,
+const SEOTokenButton = ( {
 	pageType,
+	customSeoTitleInputRef,
+	handleCustomSeoTitleInput,
 	token,
-	handleCustomSeoTitleInput
-) => {
-	const inputRef = customSeoTitleInputRef.current;
-	inputRef.focus();
+} ) => {
+	const handleTokenButtonClick = useCallback( () => {
+		const inputRef = customSeoTitleInputRef.current;
+		inputRef.focus();
 
-	const textToInsert = `[${ token }]`;
-	const cursorPos = inputRef.refs.textField.selectionStart;
-	const strBeforeCursor = inputRef.props.value.substring( 0, cursorPos );
-	const strAfterCursor = inputRef.props.value.substring( cursorPos, inputRef.props.value.length );
-	const newString = strBeforeCursor + textToInsert + strAfterCursor;
+		const textToInsert = `[${ token }]`;
+		const cursorPos = inputRef.refs.textField.selectionStart;
+		const strBeforeCursor = inputRef.props.value.substring( 0, cursorPos );
+		const strAfterCursor = inputRef.props.value.substring( cursorPos, inputRef.props.value.length );
+		const newString = strBeforeCursor + textToInsert + strAfterCursor;
 
-	handleCustomSeoTitleInput( pageType, newString );
+		handleCustomSeoTitleInput( pageType, newString );
+	}, [ pageType, customSeoTitleInputRef, handleCustomSeoTitleInput, token ] );
+
+	return (
+		<Button
+			className="jp-seo-custom-titles-input-button"
+			compact
+			onClick={ handleTokenButtonClick }
+		>
+			{ customSeoTitleFormats.insertableTokens[ token ] }
+		</Button>
+	);
 };
 
-const getTokenButtonsForCustomSeoTitleInput = (
-	pageType,
-	customSeoTitleInputRef,
-	handleCustomSeoTitleInput
-) => {
+const SEOTokenButtonList = ( pageType, customSeoTitleInputRef, handleCustomSeoTitleInput ) => {
 	return customSeoTitleFormats.tokensAvailablePerPageType[ pageType.name ].map( token => {
 		return (
-			<Button
-				className="jp-seo-custom-titles-input-button"
-				compact
-				// eslint-disable-next-line react/jsx-no-bind
-				onClick={ () =>
-					handleTokenButtonClick(
-						customSeoTitleInputRef,
-						pageType,
-						token,
-						handleCustomSeoTitleInput
-					)
-				}
-			>
-				{ customSeoTitleFormats.insertableTokens[ token ] }
-			</Button>
+			<SEOTokenButton
+				pageType={ pageType }
+				customSeoTitleInputRef={ customSeoTitleInputRef }
+				handleCustomSeoTitleInput={ handleCustomSeoTitleInput }
+				token={ token }
+			/>
 		);
 	} );
 };
@@ -197,11 +196,7 @@ const CustomSeoTitleInput = ( {
 					<span className="jp-form-label">{ pageType.label }</span>
 				</FormLabel>
 				<div>
-					{ getTokenButtonsForCustomSeoTitleInput(
-						pageType,
-						customSeoTitleInputRef,
-						handleCustomSeoTitleInput
-					) }
+					{ SEOTokenButtonList( pageType, customSeoTitleInputRef, handleCustomSeoTitleInput ) }
 				</div>
 			</div>
 			<TextInput
