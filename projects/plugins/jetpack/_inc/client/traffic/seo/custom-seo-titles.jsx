@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React, { useState, useCallback } from 'react';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
 
 /**
@@ -126,7 +126,11 @@ const getCustomSeoTitleInputPreview = ( pageType, value, siteData ) => {
 		}
 	} );
 
-	return __( 'Preview: ', 'jetpack' ) + value;
+	return sprintf(
+		/* translators: %s is the preview text for a custom SEO input */
+		__( 'Preview: %s', 'jetpack' ),
+		value
+	);
 };
 
 const handleTokenButtonClick = (
