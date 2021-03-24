@@ -190,13 +190,13 @@ $modal-max-width-lg: 95%;
 	margin-right: $results-margin-lg;
 	padding: 0;
 
-	@include break-medium-down() {
-		margin-left: $results-margin-sm;
-		margin-right: $results-margin-sm;
-	}
 	@include break-large-down() {
 		margin-left: $results-margin-md;
 		margin-right: $results-margin-md;
+	}
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
 	}
 
 	// Accessibility improvement for VoiceOVer
