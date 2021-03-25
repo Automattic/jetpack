@@ -254,6 +254,8 @@ function stats_footer() {
  * @param array $data Array of data for the JS stats tracker.
  */
 function stats_render_footer( $data ) {
+	// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
 	$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
 	$data_stats_array = stats_array( $data );
 
@@ -266,6 +268,7 @@ function stats_render_footer( $data ) {
 </script>
 
 END;
+	// phpcs:enable
 	print $stats_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
@@ -1258,7 +1261,7 @@ function stats_dashboard_widget_content() {
 
 	$post_ids = array();
 
-	$csv_end_date = date( 'Y-m-d', current_time( 'timestamp' ) );
+	$csv_end_date = gmdate( 'Y-m-d' );
 	$csv_args     = array(
 		'top'    => "&limit=8&end=$csv_end_date",
 		'search' => "&limit=5&end=$csv_end_date",
@@ -1378,8 +1381,14 @@ function stats_print_wp_remote_error( $get, $url ) {
 	<div class="wrap">
 	<p>
 	<?php
-		/* translators: placeholder is an URL for a support site. */
-		printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' );
+		printf(
+			/* translators: placeholder is an a href for a support site. */
+			esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
+			sprintf(
+				'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
+				esc_html__( 'Jetpack Support', 'jetpack' )
+			)
+		);
 	?>
 		</p>
 	<pre>
