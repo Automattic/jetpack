@@ -480,8 +480,20 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__connection_token_health() {
 		$name = __FUNCTION__;
 
-		$m                = new Connection_Manager();
-		$user_id          = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+		$m       = new Connection_Manager();
+		$user_id = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+
+		// If no current user or blog owner, this site must be running user-less. Blog token will be validated in its own test.
+		if ( ! $user_id ) {
+			l( 'skip' );
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'There\'s no user token to be checked.', 'jetpack' ),
+				)
+			);
+		}
+
 		$validated_tokens = ( new Tokens() )->validate( $user_id );
 
 		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
@@ -508,6 +520,25 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$connection_error = __( 'Invalid Jetpack connection tokens.', 'jetpack' );
 
 		return self::connection_failing_test( $name, $connection_error );
+	}
+
+	/**
+	 * Tests blog token against wp.com's check-token-health endpoint.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @return array Test results.
+	 */
+	protected function test__connection_blog_token_health() {
+		$name  = __FUNCTION__;
+		$valid = ( new Tokens() )->validate_blog_token();
+
+		if ( ! $valid ) {
+			return self::connection_failing_test( $name, __( 'Blog token validation failed.', 'jetpack' ) );
+		} else {
+			return self::passing_test( array( 'name' => $name ) );
+		}
+
 	}
 
 	/**
