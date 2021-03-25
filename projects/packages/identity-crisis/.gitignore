@@ -1,1 +1,4 @@
 wordpress
+/build
+/node_modules
+/.cache
