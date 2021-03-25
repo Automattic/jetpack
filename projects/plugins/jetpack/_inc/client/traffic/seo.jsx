@@ -195,7 +195,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									<SettingsGroup>
 										<p>
 											{ __(
-												'Craft a description of your Website up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
+												'Craft a description of your Website: up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
 												'jetpack'
 											) }
 										</p>
