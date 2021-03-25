@@ -28,8 +28,9 @@ export function changelogDefine( yargs ) {
 		yarg => {
 			yarg
 				.positional( 'cmd', {
-					describe: 'Changelogger command (e.g. add)',
+					describe: 'Changelogger command',
 					type: 'string',
+					choices: [ 'add', 'validate', 'write', 'version' ],
 				} )
 				.positional( 'project', {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
