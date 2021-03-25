@@ -36,9 +36,10 @@ class SearchResultProduct extends Component {
 				: __( 'No title', 'jetpack' );
 
 		// TODO: Remove this check once checking result.highlight is more reliable.
-		const hasQuery = this.props.searchQuery !== '';
+		const hasQuery =
+			typeof this.props.searchQuery === 'string' && this.props.searchQuery.trim() !== '';
 		const titleHasMark = title.includes( '<mark>' );
-		const hasMatch =
+		const showMatchHint =
 			hasQuery &&
 			! titleHasMark &&
 			Array.isArray( highlight.content ) &&
@@ -98,7 +99,7 @@ class SearchResultProduct extends Component {
 						rating={ fields[ 'meta._wc_average_rating.double' ] }
 					/>
 				) }
-				{ hasMatch && (
+				{ showMatchHint && (
 					<div className="jetpack-instant-search__search-result-product-match">
 						<mark>
 							<Gridicon icon="search" style={ {} } title={ false } />
