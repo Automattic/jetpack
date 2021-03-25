@@ -3,8 +3,13 @@
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
-import { addQueryArgs } from '@wordpress/url';
+//import apiFetch from '@wordpress/api-fetch';
+//import { addQueryArgs } from '@wordpress/url';
+
+/**
+ * Internal dependencies
+ */
+import wpcomProxyRequest from '../../../../modules/search/instant-search/external/wpcom-proxy-request'; // Unsure about reaching this far "over", but this file may be removed soonish:  https://github.com/Automattic/jetpack/issues/19308
 
 const cache = {};
 const cacheResponse = ( requestId, blob, freshness ) => {
@@ -32,6 +37,14 @@ const withProxy = WrappedComponent => props => {
 	const requestId = 'tiled-gallery-proxied-image-';
 	useEffect( () => {
 		if ( ! proxyIsEnabled || imageObjectUrl || isFetching || isError ) {
+			console.log( 'Deciding not to fetch' );
+			console.log( {
+				proxyIsEnabled,
+				imageObjectUrl,
+				isFetching,
+				isError,
+			} );
+
 			return;
 		}
 		if ( cache[ requestId ] ) {
@@ -55,6 +68,43 @@ const withProxy = WrappedComponent => props => {
 			// fetch(
 			// 	'https://public-api.wordpress.com/wpcom/v2/sites/testsitemmrtag.wordpress.com/atomic-auth-proxy/file/wp-content/uploads/2021/03/drone-4.jpg?resize=214%2C214'
 			// )
+			const responseHandler = data => {
+				setIsFetching( false );
+
+				if ( data.ok ) {
+					cacheResponse( requestId, data );
+					setImageObjectUrl( URL.createObjectURL( data ) );
+					console.log( 'got image from API', { requestId, imageObjectUrl, data } );
+				} else {
+					console.log( 'Got non-200 response', { data } );
+					setIsError( true );
+				}
+			};
+			const errorHandler = error => {
+				console.log( { error } );
+				setIsFetching( false );
+				setIsError( true );
+				console.error( 'Fetch failed', error );
+			};
+
+			console.log( 'Fetching via wpcomProxyRequest...' );
+			const pathForPublicApi =
+				'/sites/mmrtt1.wpcomstaging.com/atomic-auth-proxy/file?path=/wp-content/uploads/2020/09/qi-bin-w4hbafegiac-unsplash.jpg&ssl=1&resize=219%2C219';
+			// const ppr = promiseifedProxyRequest( wpcomProxyRequest, pathForPublicApi )
+			// 	.then( responseHandler )
+			// 	.catch( errorHandler );
+			// console.log( { ppr } );
+			const xhr = wpcomProxyRequest( { path: pathForPublicApi, apiVersion: '2' } );
+			console.log( { xhr } );
+			xhr.then( responseHandler ).catch( errorHandler );
+			console.log( { xhr } );
+			// wpcomProxyRequest.then( ( { default: proxyRequest } ) => {
+			// return promiseifedProxyRequest( proxyRequest, pathForPublicApi )
+			// .then( responseHandler )
+			// .catch( errorHandler );
+			// } );
+
+			/*
 			fetch(
 				'https://public-api.wordpress.com/wpcom/v2/sites/flarypod.jurassic.tube/atomic-auth-proxy/file/wp-content/uploads/2021/03/drone-2-1.jpg?resize=214%2C214'
 			)
@@ -76,6 +126,7 @@ const withProxy = WrappedComponent => props => {
 					setIsError( true );
 					console.error( 'Fetch failed', error );
 				} );
+                */
 		}
 	}, [ proxyIsEnabled, imageObjectUrl, isFetching, isError, proxyQuery ] );
 
@@ -84,5 +135,25 @@ const withProxy = WrappedComponent => props => {
 	}
 	return <WrappedComponent { ...restProps } />;
 };
+
+/**
+ * Turn a proxy request into a promise
+ *
+ * @param {Function} proxyRequest - The wpcom-proxy-request function
+ * @param {string} path - The API path to use
+ * @returns {Promise} A promise to a proxy request response
+ */
+function promiseifedProxyRequest( proxyRequest, path ) {
+	return new Promise( function ( resolve, reject ) {
+		console.log( 'Calling proxyRequest...' );
+		proxyRequest( { path, apiVersion: '2' }, function ( err, body, headers ) {
+			console.log( { err, body, headers } );
+			if ( err ) {
+				reject( err );
+			}
+			resolve( body, headers );
+		} );
+	} );
+}
 
 export default createHigherOrderComponent( withProxy, 'withProxy' );
