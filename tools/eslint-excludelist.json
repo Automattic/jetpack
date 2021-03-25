@@ -166,7 +166,6 @@
 	"projects/plugins/jetpack/extensions/shared/get-validated-attributes.js",
 	"projects/plugins/jetpack/extensions/shared/plan-upgrade-notification.js",
 	"projects/plugins/jetpack/extensions/shared/public-path.js",
-	"projects/plugins/jetpack/extensions/shared/site-type-utils.js",
 	"projects/plugins/jetpack/modules/.eslintrc.js",
 	"projects/plugins/jetpack/modules/calypsoify/mods-gutenberg.js",
 	"projects/plugins/jetpack/modules/carousel/jetpack-carousel.js",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move Jetpack specific XMLRPC methods from the Connection package into the plugin

@@ -455,14 +455,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$business_address = is_array( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
 
 					$response[ $setting ] = array(
-						'siteTitle' => $this->decode_special_characters( get_option( 'blogname' ) ),
-						'siteDescription' => $this->decode_special_characters( get_option( 'blogdescription' ) ),
-						'siteType' => get_option( 'jpo_site_type' ),
-						'homepageFormat' => get_option( 'jpo_homepage_format' ),
-						'addContactForm' => (int) get_option( 'jpo_contact_page' ),
-						'businessAddress' => $business_address,
+						'siteTitle'          => $this->decode_special_characters( get_option( 'blogname' ) ),
+						'siteDescription'    => $this->decode_special_characters( get_option( 'blogdescription' ) ),
+						'siteType'           => get_option( 'jpo_site_type' ),
+						'homepageFormat'     => get_option( 'jpo_homepage_format' ),
+						'addContactForm'     => (int) get_option( 'jpo_contact_page' ),
+						'businessAddress'    => $business_address,
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
-						'stats' => Jetpack::is_active() && Jetpack::is_module_active( 'stats' ),
+						'stats'              => Jetpack::is_connection_ready() && Jetpack::is_module_active( 'stats' ),
 					);
 					break;
 
@@ -1122,7 +1122,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( ! empty( $data['stats'] ) ) {
-			if ( Jetpack::is_active() ) {
+			if ( Jetpack::is_connection_ready() ) {
 				$stats_module_active = Jetpack::is_module_active( 'stats' );
 				if ( ! $stats_module_active ) {
 					$stats_module_active = Jetpack::activate_module( 'stats', false, false );
