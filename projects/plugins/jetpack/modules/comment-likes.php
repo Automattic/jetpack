@@ -17,13 +17,17 @@ use Automattic\Jetpack\Assets;
 
 Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
+require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
+require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 
-/** Jetpack Comment Like Class */
+/**
+ * Jetpack Comment Like Class
+ */
 class Jetpack_Comment_Likes {
 
-	/** Initialize comment like module */
+	/**
+	 * Initialize comment like module
+	 */
 	public static function init() {
 		static $instance = null;
 
@@ -34,7 +38,9 @@ class Jetpack_Comment_Likes {
 		return $instance;
 	}
 
-	/** Construct comment like module. */
+	/**
+	 * Construct comment like module.
+	 */
 	private function __construct() {
 		$this->settings  = new Jetpack_Likes_Settings();
 		$this->blog_id   = Jetpack_Options::get_option( 'id' );
@@ -76,7 +82,9 @@ class Jetpack_Comment_Likes {
 		}
 	}
 
-	/** Initialize admin section */
+	/**
+	 * Initialize admin section
+	 */
 	public function admin_init() {
 		add_filter( 'manage_edit-comments_columns', array( $this, 'add_like_count_column' ) );
 		add_action( 'manage_comments_custom_column', array( $this, 'comment_likes_edit_column' ), 10, 2 );
@@ -86,8 +94,8 @@ class Jetpack_Comment_Likes {
 	/**
 	 * Displays number of comment likes in comment admin page.
 	 *
-	 * @param string $column_name - name of the column.
-	 * @param int    $comment_id - ID of the comment.
+	 * @param string $column_name name of the column.
+	 * @param int    $comment_id ID of the comment.
 	 */
 	public function comment_likes_edit_column( $column_name, $comment_id ) {
 		if ( 'comment_likes' !== $column_name ) {
@@ -108,7 +116,9 @@ class Jetpack_Comment_Likes {
 		<?php
 	}
 
-	/** Enqueue admin style scripts. */
+	/**
+	 * Enqueue admin style scripts.
+	 */
 	public function enqueue_admin_styles_scripts() {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
@@ -126,14 +136,16 @@ class Jetpack_Comment_Likes {
 	/**
 	 * Adds like count column to admin page.
 	 *
-	 * @param array $columns - column of admin table.
-	 * */
+	 * @param array $columns column of admin table.
+	 */
 	public function add_like_count_column( $columns ) {
 		$columns['comment_likes'] = '<span class="vers"></span>';
 		return $columns;
 	}
 
-	/** Initialize front end */
+	/**
+	 * Initialize front end
+	 */
 	public function frontend_init() {
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
@@ -143,7 +155,9 @@ class Jetpack_Comment_Likes {
 		add_filter( 'comment_text', array( $this, 'comment_likes' ), 10, 2 );
 	}
 
-	/** Load styling scripts */
+	/**
+	 * Load styling scripts
+	 */
 	public function load_styles_register_scripts() {
 		if ( ! $this->settings->is_likes_visible() ) {
 			return;
@@ -176,9 +190,9 @@ class Jetpack_Comment_Likes {
 	/**
 	 * Display like count.
 	 *
-	 * @param string $content - text content of the comment itself.
-	 * @param object $comment - comment object containing comment data.
-	 * */
+	 * @param string $content text content of the comment itself.
+	 * @param object $comment comment object containing comment data.
+	 */
 	public function comment_likes( $content, $comment = null ) {
 		if ( empty( $comment ) ) {
 			return $content;
