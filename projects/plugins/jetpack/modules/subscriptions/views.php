@@ -238,9 +238,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 
 			$border_color = isset( $themecolors['border'] ) ? " #{$themecolors['border']}" : '';
-			echo sprintf( "<div style='border: 1px solid%s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>", esc_attr( $border_color ) );
-			echo wp_kses_post( $message );
-			echo '</div>';
+			printf(
+				'<div style="border: 1px solid%1$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%2$s</div>',
+				esc_attr( $border_color ),
+				wp_kses_post( $message )
+			);
 		}
 	}
 
