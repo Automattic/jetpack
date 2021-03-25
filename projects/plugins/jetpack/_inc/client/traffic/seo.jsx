@@ -14,6 +14,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const SEO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -34,6 +35,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
+						disableInUserlessMode
 						module={ { module: 'seo-tools' } }
 						support={ {
 							text: __(
@@ -67,6 +69,14 @@ export const SEO = withModuleSettingsFormHelpers(
 						>
 							{ __( 'Customize your SEO settings', 'jetpack' ) }
 						</Card>
+					) }
+
+					{ ! this.props.hasConnectedOwner && (
+						<ConnectUserBar
+							feature="monitor"
+							featureLabel={ __( 'SEO', 'jetpack' ) }
+							text={ __( 'Sign in to optimize your site for search engines.', 'jetpack' ) }
+						/>
 					) }
 				</SettingsCard>
 			);

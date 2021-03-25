@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleAvailable } from 'state/modules';
-import { isOfflineMode } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
 import DashItem from 'components/dash-item';
 
 class DashMonitor extends Component {
@@ -35,8 +35,10 @@ class DashMonitor extends Component {
 		this.props.updateOptions( { monitor: true } );
 	};
 
+	connect = () => this.props.authorizeUserInPlace();
+
 	getContent() {
-		const labelName = __( 'Downtime monitor', 'jetpack' );
+		const labelName = __( 'Downtime monitoring', 'jetpack' );
 
 		const support = {
 			text: __(
@@ -59,6 +61,21 @@ class DashMonitor extends Component {
 			);
 		}
 
+		const activateMessage = this.props.hasConnectedOwner
+			? createInterpolateElement(
+					__(
+						'<a>Activate Monitor</a> to receive email notifications if your site goes down.',
+						'jetpack'
+					),
+					{
+						a: <a href="javascript:void(0)" onClick={ this.activateAndTrack } />,
+					}
+			  )
+			: __(
+					'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
+					'jetpack'
+			  );
+
 		return (
 			<DashItem
 				label={ labelName }
@@ -69,16 +86,19 @@ class DashMonitor extends Component {
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode.', 'jetpack' )
-						: createInterpolateElement(
-								__(
-									'<a>Activate Monitor</a> to receive email notifications if your site goes down.',
-									'jetpack'
-								),
-								{
-									a: <a href="javascript:void(0)" onClick={ this.activateAndTrack } />,
-								}
-						  ) }
+						: activateMessage }
 				</p>
+
+				{ ! this.props.isOfflineMode && ! this.props.hasConnectedOwner && (
+					<p className="jp-dash-item__description jp-dash-item__connect">
+						{ createInterpolateElement(
+							__( '<a>Connect your WordPress.com</a> account to use this feature.', 'jetpack' ),
+							{
+								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+							}
+						) }
+					</p>
+				) }
 			</DashItem>
 		);
 	}
@@ -88,7 +108,15 @@ class DashMonitor extends Component {
 	}
 }
 
-export default connect( state => ( {
-	isOfflineMode: isOfflineMode( state ),
-	isModuleAvailable: isModuleAvailable( state, 'monitor' ),
-} ) )( DashMonitor );
+export default connect(
+	state => ( {
+		isOfflineMode: isOfflineMode( state ),
+		isModuleAvailable: isModuleAvailable( state, 'monitor' ),
+		hasConnectedOwner: hasConnectedOwner( state ),
+	} ),
+	dispatch => ( {
+		authorizeUserInPlace: () => {
+			return dispatch( authorizeUserInPlace() );
+		},
+	} )
+)( DashMonitor );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Reformatting of the changelog and use of the changelogger tool, not of interest to users.
+
+
