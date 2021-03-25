@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import pluralize from 'pluralize';
+
+/**
  * Normalize the argv used for the install command.
  *
  * @param {object} argv - The argvs for the install command.
@@ -47,4 +52,19 @@ export function normalizeGenerateArgv( argv ) {
 		// Override from `argv`.
 		...argv,
 	};
+}
+
+/**
+ * Normalize argv when passing an incomplete project as a parameter
+ *
+ * @param {object} argv - The argvs for the generate command.
+ *
+ * @returns {object} argv object with standard elements needed to generate a new project.
+ */
+export function normalizeProject( argv ) {
+	if ( argv.project && argv.project.indexOf( '/' ) < 0 ) {
+		argv.type = pluralize( argv.project );
+		argv.project = '';
+	}
+	return argv;
 }

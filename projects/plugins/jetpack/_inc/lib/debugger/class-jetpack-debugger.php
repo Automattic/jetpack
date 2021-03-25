@@ -40,7 +40,7 @@ class Jetpack_Debugger {
 		}
 
 		if ( isset( $_GET['disconnect'] ) && $_GET['disconnect'] ) {
-			if ( Jetpack::is_active() ) {
+			if ( Jetpack::is_connection_ready() ) {
 				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
@@ -152,7 +152,7 @@ class Jetpack_Debugger {
 							<li>- <?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block XMLRPC.', 'jetpack' ); ?></li>
 						</ul>
 					</li>
-					<?php if ( current_user_can( 'jetpack_disconnect' ) && Jetpack::is_active() ) : ?>
+					<?php if ( current_user_can( 'jetpack_disconnect' ) && Jetpack::is_connection_ready() ) : ?>
 						<li>
 							<strong><em><?php esc_html_e( 'A connection problem with WordPress.com.', 'jetpack' ); ?></em></strong>
 							<?php
@@ -202,7 +202,7 @@ class Jetpack_Debugger {
 				?>
 						</p>
 				<hr />
-				<?php if ( Jetpack::is_active() ) : ?>
+				<?php if ( Jetpack::is_connection_ready() ) : ?>
 					<div id="connected-user-details">
 						<h3><?php esc_html_e( 'More details about your Jetpack settings', 'jetpack' ); ?></h3>
 						<p>
@@ -237,7 +237,7 @@ class Jetpack_Debugger {
 				<?php
 				if (
 					current_user_can( 'jetpack_manage_modules' )
-					&& ( ( new Status() )->is_offline_mode() || Jetpack::is_active() )
+					&& ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() )
 				) {
 					printf(
 						wp_kses(
