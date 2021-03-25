@@ -71,15 +71,16 @@ export function changelogDefine( yargs ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
-	//console.log( argv );
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
-	validateCmd( argv );
+	const commandData = {};
 	compileArgs( argv );
 	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
+	parseCmd( argv, commandData );
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	validatePath( argv, projDir );
+
 	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
 		cwd: projDir,
 		stdio: 'inherit',
@@ -87,26 +88,31 @@ export async function changeloggerCli( argv ) {
 
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
-		console.error(
-			chalk.red( `Changelogger failed to execute command. Please see error above for more info.` )
-		);
+		console.error( chalk.red( commandData.error ) );
 		process.exit( data.status );
 	} else {
-		console.log( chalkJetpackGreen( `Changelog for ${ argv.project } added successfully!` ) );
+		console.log( chalkJetpackGreen( commandData.success ) );
 	}
 }
 
-/** Validate arguments
+/**
+ * Set command specific data based on command passed.
  *
  * @param {object} argv - arguments passed to changelogger.
+ * @param {object} commandData - data we want to return to the process.
  */
-function validateCmd( argv ) {
+function parseCmd( argv, commandData ) {
 	// make sure we're using a valid command
 	switch ( argv.cmd ) {
 		case 'add':
+			commandData.success = `Changelog for ${ argv.project } added successfully!`;
+			commandData.error = `Changelogger couldn't be executed correctly. See error.`;
+			// @todo Set argument list here and pass to compileArgs. Loop through args and push to argv.args array.
 			break;
 		case 'validate':
-			throw new Error( 'Sorry! That command is not supported yet!' );
+			commandData.problem = `Changelog validation failed. See above.`;
+			commandData.error = `Validation for ${ argv.project } completed succesfully!`;
+			break;
 		case 'version':
 			throw new Error( 'Sorry! That command is not supported yet!' );
 		case 'write':
@@ -144,7 +150,8 @@ function validatePath( argv, dir ) {
 	);
 }
 
-/** Add arguments we're passing onto child process to args array.
+/**
+ * Add arguments we're passing onto child process to args array.
  *
  * @param {object} argv - arguments passed to the wizard.
  */
