@@ -29,7 +29,7 @@
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"NODE_ENV='production' yarn build"
 		],
 		"phpunit": [
 			"@composer install",
