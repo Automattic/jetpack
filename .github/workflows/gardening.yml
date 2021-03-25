@@ -65,7 +65,7 @@ jobs:
           jq --version
 
       - name: Building Action
-        run: npm install
+        run: composer build-development
         working-directory: ./projects/github-actions/repo-gardening
 
       - name: Wait for prior instances of the workflow to finish
