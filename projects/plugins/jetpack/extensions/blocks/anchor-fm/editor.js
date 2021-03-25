@@ -12,6 +12,7 @@ import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { external, Icon } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 import { registerPlugin } from '@wordpress/plugins';
+import { Button } from '@wordpress/components';
 import '@wordpress/notices';
 
 /**
@@ -75,11 +76,17 @@ const ConvertToAudio = () => {
 					'jetpack'
 				) }
 			</p>
-			<div role="link" tabIndex={ 0 } onClick={ handleClick } onKeyDown={ handleClick }>
-				<a href="https://anchor.fm/wordpressdotcom" target="_top">
-					{ __( 'Create a podcast episode', 'jetpack' ) }
+			<div
+				role="link"
+				className="post-publish-panel__postpublish-buttons"
+				tabIndex={ 0 }
+				onClick={ handleClick }
+				onKeyDown={ handleClick }
+			>
+				<Button isPrimary href="https://anchor.fm/wordpressdotcom" target="_top">
+					{ __( 'Create a podcast episode', 'jetpack' ) }{ ' ' }
 					<Icon icon={ external } className="anchor-post-publish-outbound-link__external_icon" />
-				</a>
+				</Button>
 			</div>
 		</PluginPostPublishPanel>
 	);

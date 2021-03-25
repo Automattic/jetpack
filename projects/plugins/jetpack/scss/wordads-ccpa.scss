@@ -153,7 +153,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 		margin: 0 !important;
 		border: none !important;
 		background: none !important;
-		color: #555d66 !important;
+		color: #50575e !important;
 		position: relative !important;
 		overflow: hidden !important;
 		border-radius: 4px !important;
@@ -181,7 +181,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	.components-icon-button:not(:disabled):not([aria-disabled="true"]):not(.is-default) {
 		&:hover, &:focus {
 			background-color: #fff !important;
-			color: #191e23 !important;
+			color: #1d2327 !important;
 			box-shadow: inset 0 0 0 1px #e2e4e7, inset 0 0 0 2px #fff, 0 1px 1px rgba(25, 30, 35, 0.2) !important;
 		}
 	}
@@ -189,8 +189,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 	.components-icon-button:not(:disabled):not([aria-disabled="true"]):not(.is-default):active {
 		outline: none !important;
 		background-color: #fff !important;
-		color: #191e23 !important;
-		box-shadow: inset 0 0 0 1px #ccd0d4, inset 0 0 0 2px #fff !important;
+		color: #1d2327 !important;
+		box-shadow: inset 0 0 0 1px #c3c4c7, inset 0 0 0 2px #fff !important;
 	}
 
 	.components-icon-button[aria-disabled="true"]:focus, .components-icon-button:disabled:focus {
@@ -226,7 +226,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	.components-form-toggle .components-form-toggle__off {
-		color: #6c7781 !important;
+		color: #787c82 !important;
 		fill: currentColor !important;
 		right: 6px !important;
 		width: 6px !important;
@@ -243,7 +243,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 		box-sizing: border-box !important;
 		vertical-align: top !important;
 		background-color: #fff !important;
-		border: 2px solid #6c7781 !important;
+		border: 2px solid #787c82 !important;
 		width: 36px !important;
 		height: 18px !important;
 		border-radius: 9px !important;
@@ -266,8 +266,8 @@ body.admin-bar .cleanslate .components-modal__frame {
 		height: 10px !important;
 		border-radius: 50% !important;
 		transition: 0.1s transform ease !important;
-		background-color: #6c7781 !important;
-		border: 5px solid #6c7781 !important;
+		background-color: #787c82 !important;
+		border: 5px solid #787c82 !important;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -277,16 +277,16 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	.components-form-toggle:hover .components-form-toggle__track {
-		border: 2px solid #555d66 !important;
+		border: 2px solid #50575e !important;
 	}
 
 	.components-form-toggle:hover .components-form-toggle__thumb {
-		background-color: #555d66 !important;
-		border: 5px solid #6c7781 !important;
+		background-color: #50575e !important;
+		border: 5px solid #787c82 !important;
 	}
 
 	.components-form-toggle:hover .components-form-toggle__off {
-		color: #555d66 !important;
+		color: #50575e !important;
 	}
 
 	.components-form-toggle.is-checked .components-form-toggle__track {
@@ -296,7 +296,7 @@ body.admin-bar .cleanslate .components-modal__frame {
 	}
 
 	.components-form-toggle__input:focus + .components-form-toggle__track {
-		box-shadow: 0 0 0 2px #fff, 0 0 0 3px #6c7781 !important;
+		box-shadow: 0 0 0 2px #fff, 0 0 0 3px #787c82 !important;
 		outline: 2px solid transparent !important;
 		outline-offset: 2px !important;
 	}

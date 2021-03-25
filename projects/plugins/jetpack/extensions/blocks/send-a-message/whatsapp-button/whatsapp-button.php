@@ -39,7 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	Jetpack_Gutenberg::load_styles_as_required( PARENT_NAME . '/' . FEATURE_NAME );
+	Jetpack_Gutenberg::load_styles_as_required( PARENT_NAME );
 
 	return $content;
 }

@@ -1,4 +1,4 @@
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports, addColors } from 'winston';
 import config from 'config';
 import path from 'path';
 
@@ -10,10 +10,26 @@ const myCustomLevels = {
 		warn: 4,
 		notice: 5,
 		info: 6,
-		debug: 7,
-		slack: 9,
+		step: 7,
+		action: 8,
+		cli: 9,
+		debug: 10,
+		slack: 11,
+	},
+	colors: {
+		action: 'cyan',
+		step: 'cyan',
+		cli: 'cyanBG black',
 	},
 };
+
+addColors( myCustomLevels.colors );
+
+let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
+
+if ( process.env.CI ) {
+	consoleLogLevel = 'error';
+}
 
 /**
  * Log only the messages the match `level`.
@@ -38,7 +54,8 @@ const stringFormat = format.combine(
 		}
 
 		return msg;
-	} )
+	} ),
+	format.uncolorize()
 );
 
 const logger = createLogger( {
@@ -58,10 +75,12 @@ const logger = createLogger( {
 		//
 		new transports.File( {
 			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-json.log' ),
+			format: format.uncolorize(),
 		} ),
 		new transports.File( {
 			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
 			format: stringFormat,
+			level: 'debug',
 		} ),
 		// Slack specific logging transport that is used later to send a report to slack.
 		new transports.File( {
@@ -88,20 +107,22 @@ const logger = createLogger( {
 					}
 
 					return JSON.stringify( info );
+				} ),
+				format.uncolorize()
+			),
+		} ),
+
+		new transports.Console( {
+			format: format.combine(
+				format.timestamp(),
+				format.colorize(),
+				format.printf( ( { level, message, timestamp } ) => {
+					return `${ timestamp } ${ level }: ${ message }`;
 				} )
 			),
+			level: consoleLogLevel,
 		} ),
 	],
 } );
-
-// If we're running tests locally with debug enabled then **ALSO** log to the `console`
-// with the colorized simple format.
-if ( process.env.E2E_DEBUG || ! process.env.CI ) {
-	logger.add(
-		new transports.Console( {
-			format: stringFormat,
-		} )
-	);
-}
 
 export default logger;

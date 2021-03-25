@@ -260,7 +260,7 @@ export const SettingsCard = props => {
 
 			case FEATURE_WORDADS_JETPACK:
 				if (
-					! hasPremiumOrBetter ||
+					! hasPremiumOrBetter &&
 					-1 === props.activeFeatures.indexOf( FEATURE_WORDADS_JETPACK )
 				) {
 					return false;

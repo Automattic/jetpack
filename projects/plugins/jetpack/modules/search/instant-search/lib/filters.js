@@ -1,8 +1,3 @@
-// NOTE: We only import the difference package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import difference from 'lodash/difference';
-
 /**
  * Internal dependencies
  */
@@ -68,7 +63,8 @@ export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?
  * @returns {string[]} filterKeys
  */
 export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
-	return difference( getFilterKeys(), getSelectableFilterKeys( widgets ) );
+	const selectable = getSelectableFilterKeys( widgets );
+	return getFilterKeys().filter( key => ! selectable.includes( key ) );
 }
 
 /**

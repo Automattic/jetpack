@@ -1,8 +1,11 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 use Automattic\Jetpack\Constants;
 
 class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * Mock global $content_width value.
@@ -20,22 +23,7 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 		// specifically covers that.
 		Constants::set_constant( 'JETPACK_INSTAGRAM_EMBED_TOKEN', 'test' );
 
-		// Back compat for PHPUnit 3!
-		// @todo Remove this when WP's PHP version bumps.
-		if ( is_callable( array( $this, 'getGroups' ) ) ) {
-			$groups = $this->getGroups();
-		} else {
-			$annotations = $this->getAnnotations();
-			$groups = array();
-			foreach ( $annotations as $source ) {
-				if ( ! isset( $source['group'] ) ) {
-					continue;
-				}
-				$groups = array_merge( $groups, $source['group'] );
-			}
-		}
-
-		if ( in_array( 'external-http', $groups ) ) {
+		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {

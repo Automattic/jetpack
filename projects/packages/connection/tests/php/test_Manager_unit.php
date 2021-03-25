@@ -40,8 +40,14 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_access_token', 'get_connection_owner_id' ) )
+			->setMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
 			->getMock();
+
+		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->setMethods( array( 'get_access_token' ) )
+			->getMock();
+
+		$this->manager->method( 'get_tokens' )->will( $this->returnValue( $this->tokens ) );
 
 		$this->user_id = wp_insert_user(
 			array(
@@ -61,6 +67,7 @@ class ManagerTest extends TestCase {
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
 		unset( $this->manager );
+		unset( $this->tokens );
 		Constants::clear_constants();
 	}
 
@@ -74,7 +81,7 @@ class ManagerTest extends TestCase {
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
@@ -87,7 +94,7 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_not_connected() {
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( false ) );
 
@@ -185,7 +192,7 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( false ) );
 
@@ -204,7 +211,7 @@ class ManagerTest extends TestCase {
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
@@ -221,7 +228,7 @@ class ManagerTest extends TestCase {
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
@@ -329,20 +336,19 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$manager = ( new Manager() );
 		// Missing secret.
 		$invalid_token_error = new WP_Error( 'invalid_token' );
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Secret is null.
 		$access_token->secret = null;
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Secret is empty.
 		$access_token->secret = '';
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Valid secret.
 		$access_token->secret = 'abcd.1234';
 
-		$signed_token = $manager->get_signed_token( $access_token );
+		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
 		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );

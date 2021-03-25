@@ -26,8 +26,8 @@
 }
 
 // New JITMS - modified calypso banner styles
-$blue-grey-light:        #f3f5f6;
-$blue-medium-dark:       #0071a1;
+$blue-grey-light:        #f6f7f7;
+$blue-medium-dark:       #2271b1;
 
 .jitm-button {
 	background: $blue-grey-light;
@@ -52,9 +52,9 @@ $blue-medium-dark:       #0071a1;
 	appearance: none;
 	text-align: center;
 	min-width: 90px;
-	
+
 	&:hover {
-		background: #f1f1f1;
+		background: #f0f0f1;
 		border-color: $blue-grey-dark;
 		color: $blue-grey-dark;
 	}

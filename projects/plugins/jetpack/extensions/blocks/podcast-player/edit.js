@@ -15,6 +15,7 @@ import {
 	Placeholder,
 	RangeControl,
 	TextControl,
+	ToolbarButton,
 	ToolbarGroup,
 	withNotices,
 	ToggleControl,
@@ -152,7 +153,7 @@ const PodcastPlayerEdit = ( {
 				}
 			);
 		}, 300 ),
-		[ replaceWithEmbedBlock, createErrorNotice, removeAllNotices, setAttributes ]
+		[ replaceWithEmbedBlock, setAttributes ]
 	);
 
 	useEffect( () => {
@@ -294,12 +295,12 @@ const PodcastPlayerEdit = ( {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<Button
+					<ToolbarButton
 						aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
 						onClick={ () => dispatch( { type: actions.START_EDITING } ) }
 					>
 						{ __( 'Replace', 'jetpack' ) }
-					</Button>
+					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>

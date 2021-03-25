@@ -35,3 +35,20 @@
 		@content;
 	}
 }
+@mixin remove-button-styling() {
+	appearance: none;
+	background: none;
+	border: none;
+	margin: 0;
+	outline: none;
+	padding: 0;
+	text-decoration: none;
+
+	&:hover,
+	&:focus {
+		appearance: none;
+		background: none;
+		box-shadow: none;
+		outline: none;
+	}
+}

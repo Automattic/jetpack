@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: jetpack Sync :: Migrate Jetpack multisite callables into the plugin vs defining them in the sync package. No functional change.
+
+

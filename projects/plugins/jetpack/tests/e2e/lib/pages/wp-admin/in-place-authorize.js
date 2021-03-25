@@ -1,23 +1,22 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class InPlaceAuthorizeFrame extends Page {
+export default class InPlaceAuthorizeFrame extends WpPage {
 	constructor( page ) {
-		const expectedSelector = 'iframe.jp-jetpack-connect__iframe';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ 'iframe.jp-jetpack-connect__iframe' ] } );
 	}
 
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
-		await page.waitForSelector( loadingSelector, { state: 'hidden' } );
-
-		return await super.init( page );
+		const thisPage = new this( page );
+		await thisPage.waitForElementToBeHidden( loadingSelector );
+		return thisPage;
 	}
 
 	async getFrame() {
-		const iframeElement = await this.page.waitForSelector( this.expectedSelector );
+		const iframeElement = await this.waitForElementToBeVisible( this.selectors[ 0 ] );
 		return await iframeElement.contentFrame();
 	}
 
@@ -29,6 +28,6 @@ export default class InPlaceAuthorizeFrame extends Page {
 	}
 
 	async waitToDisappear() {
-		return await this.page.waitForSelector( this.expectedSelector, { state: 'hidden' } );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 	}
 }

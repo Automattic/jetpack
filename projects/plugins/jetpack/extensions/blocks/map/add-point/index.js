@@ -17,7 +17,7 @@ export class AddPoint extends Component {
 		return (
 			<Button className="component__add-point">
 				{ __( 'Add marker', 'jetpack' ) }
-				<Popover className="component__add-point__popover">
+				<Popover className="component__add-point__popover" position="bottom center">
 					<Button className="component__add-point__close" onClick={ onClose }>
 						<Dashicon icon="no" />
 					</Button>
