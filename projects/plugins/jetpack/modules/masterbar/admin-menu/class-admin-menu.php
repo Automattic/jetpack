@@ -62,11 +62,37 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_jetpack_menu();
 		$this->add_gutenberg_menus( $wp_admin );
 
-		// Remove Links Manager menu since its usage is discouraged.
+		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
-		remove_menu_page( 'link-manager.php' );
+		if ( $this->should_disable_links_manager() ) {
+			remove_menu_page( 'link-manager.php' );
+		}
 
 		ksort( $GLOBALS['menu'] );
+	}
+
+	/**
+	 * Check if Links Manager is being used.
+	 */
+	public function should_disable_links_manager() {
+		// The max ID number of the auto-generated links.
+		// See /wp-content/mu-plugins/wpcom-wp-install-defaults.php in WP.com.
+		$max_default_id = 10;
+
+		$link_manager_links = get_bookmarks(
+			array(
+				'orderby' => 'link_id',
+				'order'   => 'DESC',
+				'limit'   => $max_default_id,
+			)
+		);
+
+		// Ordered links by ID descending, check if the first ID is more than $max_default_id.
+		if ( count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

@@ -336,20 +336,19 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$manager = ( new Manager() );
 		// Missing secret.
 		$invalid_token_error = new WP_Error( 'invalid_token' );
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Secret is null.
 		$access_token->secret = null;
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Secret is empty.
 		$access_token->secret = '';
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Valid secret.
 		$access_token->secret = 'abcd.1234';
 
-		$signed_token = $manager->get_signed_token( $access_token );
+		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
 		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );

@@ -58,6 +58,9 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-xmlrpc-methods.php';
+Jetpack_XMLRPC_Methods::init();
+
 jetpack_require_lib( 'class-jetpack-recommendations' );
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-recommendations-banner.php';
 
