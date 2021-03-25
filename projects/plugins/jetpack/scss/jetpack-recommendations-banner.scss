@@ -189,9 +189,9 @@
 		right: 0;
 	}
 
-	@include breakpoint( '<960px' ) {
+	/*@include breakpoint( '<960px' ) {
 		display: none;
-	}
+	}*/
 }
 
 .jp-recommendations-banner__illustration-background {
@@ -207,34 +207,25 @@
 .jp-recommendations-banner__notice-dismiss {
 	background: 0 0;
 	border: none;
-	color: $studio-gray-40;
+	color: $studio-gray-70;
 	cursor: pointer;
-	display: inline-block;
+	display: flex;
 	font-size: 16px;
+	line-height: 1.5;
 	margin: 0;
-	padding: 21px 16px 5px 28px;
+	padding: 32px 32px 32px 0;
 	float: right;
-	/*position: absolute;
-	top: 16px;
-	right: 16px;*/
-
-	@include breakpoint( '<480px' ) {
-		padding: 5px 0 5px 28px;
-	}
 
 	&:hover, &:active {
 		color: $studio-gray-100;
-		text-decoration: underline;
+
+		.jp-recommendations-banner__svg-dismiss {
+			fill: $studio-gray-100;
+		}
 	}
 
 	.jp-recommendations-banner__svg-dismiss {
-		fill: $studio-gray-40;
-		height: 1em;
-		width: 1em;
-		margin-right: 8px;
-
-		&:hover, &:active {
-			fill: $studio-gray-100;
-		}
+		fill: $studio-gray-70;
+		margin-right: 4px;
 	}
 }
