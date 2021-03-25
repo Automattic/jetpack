@@ -57,7 +57,7 @@ if ( missing.length ) {
 const extra = list.filter( v => ! packages.includes( v ) );
 if ( extra.length ) {
 	error(
-		`Renovate's "Monorepo packages" ignore list contains extra packages: ${ extra.join(
+		`Renovate's "Monorepo packages" ignore list in .github/renovate.json contains extra packages: ${ extra.join(
 			', '
 		) }\nIf you want to ignore non-monorepo packages, do that in a separate group in .github/renovate.json.`
 	);
