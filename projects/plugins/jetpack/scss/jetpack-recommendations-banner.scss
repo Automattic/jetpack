@@ -213,9 +213,10 @@
 	font-size: 16px;
 	margin: 0;
 	padding: 21px 16px 5px 28px;
-	position: absolute;
+	float: right;
+	/*position: absolute;
 	top: 16px;
-	right: 16px;
+	right: 16px;*/
 
 	@include breakpoint( '<480px' ) {
 		padding: 5px 0 5px 28px;
@@ -227,12 +228,13 @@
 	}
 
 	.jp-recommendations-banner__svg-dismiss {
-		color: $studio-gray-40;
+		fill: $studio-gray-40;
 		height: 1em;
 		width: 1em;
+		margin-right: 8px;
 
 		&:hover, &:active {
-			color: $studio-gray-100;
+			fill: $studio-gray-100;
 		}
 	}
 }
