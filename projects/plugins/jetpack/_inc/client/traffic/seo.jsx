@@ -163,56 +163,71 @@ export const SEO = withModuleSettingsFormHelpers(
 						! isFetchingPluginsData( this.props.state ) &&
 						! hasConflictingSeoPlugin && (
 							<div>
-								<SettingsGroup>
-									<p>
-										{ __(
-											'You can set the structure of page titles for different sections of your site. Doing this will change the way your site title is displayed in search engines, social media sites, and browser tabs.',
-											'jetpack'
-										) }
-									</p>
-									<FormFieldset>
-										<CustomSeoTitles
-											customSeoTitles={ customSeoTitles }
-											updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
-											siteData={ siteData }
-										/>
-									</FormFieldset>
-								</SettingsGroup>
-								<SettingsGroup>
-									<p>
-										{ __(
-											'Craft a description of your Website up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
-											'jetpack'
-										) }
-									</p>
-									<FormLabel htmlFor="jp-seo-front-page-description">
-										<span className="jp-form-label-wide">
-											{ __( 'Front Page Meta Description', 'jetpack' ) }
-										</span>
-									</FormLabel>
-									<div className="jp-seo-front-page-description-container">
-										<FormTextarea
-											name="advanced_seo_front_page_description"
-											id="jp-seo-front-page-description"
-											className="jp-form-textarea-wide"
-											maxLength={ this.constants.frontPageMetaMaxLength }
-											value={ frontPageMetaDescription }
-											onChange={ this.props.onOptionChange }
-										/>
-										<div className="jp-seo-front-page-description-count">
-											{ sprintf(
-												/* translators: placeholder is number of characters */
-												_n(
-													'%d character',
-													'%d characters',
-													frontPageMetaDescription.length,
-													'jetpack'
-												),
-												frontPageMetaDescription.length
+								<FoldableCard
+									header={ __(
+										'Expand to customize the page title structures of your site.',
+										'jetpack'
+									) }
+									clickableHeader={ true }
+									className="jp-seo-custom-titles-card"
+								>
+									<SettingsGroup>
+										<p>
+											{ __(
+												'You can set the structure of page titles for different sections of your site. Doing this will change the way your site title is displayed in search engines, social media sites, and browser tabs.',
+												'jetpack'
 											) }
+										</p>
+										<FormFieldset>
+											<CustomSeoTitles
+												customSeoTitles={ customSeoTitles }
+												updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
+												siteData={ siteData }
+											/>
+										</FormFieldset>
+									</SettingsGroup>
+								</FoldableCard>
+								<FoldableCard
+									header={ __( 'Expand to edit your front page meta description.', 'jetpack' ) }
+									clickableHeader={ true }
+									className="jp-seo-front-page-description-card"
+								>
+									<SettingsGroup>
+										<p>
+											{ __(
+												'Craft a description of your Website up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
+												'jetpack'
+											) }
+										</p>
+										<FormLabel htmlFor="jp-seo-front-page-description">
+											<span className="jp-form-label-wide">
+												{ __( 'Front Page Meta Description', 'jetpack' ) }
+											</span>
+										</FormLabel>
+										<div className="jp-seo-front-page-description-container">
+											<FormTextarea
+												name="advanced_seo_front_page_description"
+												id="jp-seo-front-page-description"
+												className="jp-form-textarea-wide"
+												maxLength={ this.constants.frontPageMetaMaxLength }
+												value={ frontPageMetaDescription }
+												onChange={ this.props.onOptionChange }
+											/>
+											<div className="jp-seo-front-page-description-count">
+												{ sprintf(
+													/* translators: placeholder is number of characters */
+													_n(
+														'%d character',
+														'%d characters',
+														frontPageMetaDescription.length,
+														'jetpack'
+													),
+													frontPageMetaDescription.length
+												) }
+											</div>
 										</div>
-									</div>
-								</SettingsGroup>
+									</SettingsGroup>
+								</FoldableCard>
 								<FoldableCard
 									header={ __(
 										'Expand to preview how the SEO settings will look for your homepage on Google, Facebook, and Twitter.',

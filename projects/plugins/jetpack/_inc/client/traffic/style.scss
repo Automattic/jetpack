@@ -104,6 +104,10 @@
 }
 
 .jp-seo-front-page-description {
+	&-card {
+		margin-bottom: 0 !important;
+	}
+
 	&-container {
 		background: $gray-light;
 		border-radius: 4px;
@@ -135,6 +139,10 @@
 }
 
 .jp-seo-custom-titles {
+	&-card {
+		margin-bottom: 0 !important;
+	}
+
 	&-input[type="text"] {
 		margin-top: 0.25rem;
 	}
