@@ -252,13 +252,15 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$url                = $first_submenu_item[2];
 		}
 
+		$menu_identifier = $menu_item[5];
+
 		$item = array(
 			'icon'       => $this->prepare_menu_item_icon( $menu_item[6] ),
 			'slug'       => sanitize_title_with_dashes( $menu_item[2] ),
 			'title'      => $menu_item[0],
 			'type'       => 'menu-item',
 			'url'        => $this->prepare_menu_item_url( $url, $parent_slug ),
-			'identifier' => $this->prepare_menu_item_identifier( $menu_item[5] ),
+			'identifier' => $this->prepare_menu_item_identifier( $menu_identifier ),
 		);
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
@@ -287,13 +289,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			return array();
 		}
 
+		$slug = $submenu_item[2];
+
 		$item = array(
 			'parent'     => sanitize_title_with_dashes( $menu_item[2] ),
-			'slug'       => sanitize_title_with_dashes( $submenu_item[2] ),
+			'slug'       => sanitize_title_with_dashes( $slug ),
 			'title'      => $submenu_item[0],
 			'type'       => 'submenu-item',
-			'url'        => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
-			'identifier' => $this->prepare_menu_item_identifier( $submenu_item[2] ),
+			'url'        => $this->prepare_menu_item_url( $slug, $menu_item[2] ),
+			// submenus don't have an identifier, we'll use the slug.
+			'identifier' => $this->prepare_menu_item_identifier( $slug ),
 		);
 
 		$parsed_item = $this->parse_menu_item( $item['title'] );
@@ -433,20 +438,23 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 */
 	private function generate_identifier( $key ) {
 		$replace_table = array(
-			'http://'  => '',
-			'https://' => '',
-			'-'        => '_',
-			'.php'     => '', // we add this in order to avoid cases where customizer.php can be considered a domain.
+			'http://'        => '',
+			'https://'       => '',
+			'.php'           => '', // we add this in order to avoid cases where customizer.php can be considered a domain.
+			'toplevel_page_' => '',
 		);
 
+		// Replace strings with the ones from the $replace_table.
+		$path_with_table_strings = strtr( $key, $replace_table );
+
 		// Split string on '/' or '?' to account for query strings.
-		$array_of_paths = preg_split( '/(\/|\?)/', strtr( $key, $replace_table ), -1, PREG_SPLIT_NO_EMPTY );
+		$array_of_paths = preg_split( '/(\/|\?)/', $path_with_table_strings, -1, PREG_SPLIT_NO_EMPTY );
 
 		// Dont touch domain names as these get filtered out next and replace non-alphanumeric characters with an underscore.
-		$parse_query_strings = $this->format_non_domain_identifiers( $array_of_paths );
+		$parsed_query_strings = $this->format_non_domain_identifiers( $array_of_paths );
 
 		$array_without_domains = array_filter(
-			$parse_query_strings,
+			$parsed_query_strings,
 			function ( $value ) {
 				return ! $this->is_valid_domain_name( $value );
 			}
@@ -457,6 +465,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 	/**
 	 * Format non-domain identifiers
+	 *
+	 * It replaces non alphanumeric characters with underscores in paths that don't follow a domain-like structure.
+	 *
+	 * e.g. Given an array like ['test-test, 'example-domain.com'] will become ['test_test', 'example-domain.com']
 	 *
 	 * @param array $paths An array of slug parts.
 	 *

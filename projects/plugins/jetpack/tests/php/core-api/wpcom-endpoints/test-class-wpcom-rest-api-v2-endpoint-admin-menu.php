@@ -477,13 +477,18 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 
 		$this->assertEquals(
 			'purchases_subscriptions',
-			$object->prepare_menu_item_identifier( 'https://wordpress.com/purchases/subscriptions/demo.automattic.com' )
+			$object->prepare_menu_item_identifier( 'https://wordpress.com/purchases/subscriptions/demo.wordpress.com' )
+		);
+
+		$this->assertEquals(
+			'purchases_subscriptions',
+			$object->prepare_menu_item_identifier( 'https://wordpress.com/purchases/subscriptions/demo-site.wordpress.com' )
 		);
 
 		$this->assertEquals(
 			'customize_autofocus_section_jetpack_custom_css',
 			$object->prepare_menu_item_identifier(
-				'https://wordpress.com/customize/demo.automattic.com?autofocus%5Bsection%5D=jetpack_custom_css'
+				'https://wordpress.com/customize/demo.wordpress.com?autofocus%5Bsection%5D=jetpack_custom_css'
 			)
 		);
 
