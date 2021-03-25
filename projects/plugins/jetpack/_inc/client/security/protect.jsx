@@ -95,7 +95,7 @@ export const Protect = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ _x( 'Brute force attack protection', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Protect', 'Settings header', 'jetpack' ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
 					<SettingsGroup
@@ -182,7 +182,7 @@ export const Protect = withModuleSettingsFormHelpers(
 					{ ! this.props.hasConnectedOwner && (
 						<ConnectUserBar
 							feature="protect"
-							featureLabel={ __( 'Brute Force Attack Protection', 'jetpack' ) }
+							featureLabel={ __( 'Protect', 'jetpack' ) }
 							text={ __( 'Sign in to set up brute force attack protection.', 'jetpack' ) }
 						/>
 					) }
