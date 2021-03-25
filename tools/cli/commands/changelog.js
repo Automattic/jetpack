@@ -34,6 +34,26 @@ export function changelogDefine( yargs ) {
 				.positional( 'project', {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
+				} )
+				.option( 'file', {
+					alias: 'f',
+					describe: 'Name of changelog file',
+					type: 'string',
+				} )
+				.option( 'significance', {
+					alias: 's',
+					describe: 'Significance of changes (patch, minor, major)',
+					type: 'string',
+				} )
+				.option( 'type', {
+					alias: 't',
+					describe: 'Type of change',
+					type: 'string',
+				} )
+				.option( 'entry', {
+					alias: 'e',
+					describe: 'Changelog entry',
+					type: 'string',
 				} );
 		},
 		async argv => {
@@ -50,16 +70,16 @@ export function changelogDefine( yargs ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
+	//console.log( argv );
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	validateCmd( argv );
-
+	compileArgs( argv );
 	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	validatePath( argv, projDir );
-
-	const data = child_process.spawnSync( `${ argv.cmdPath }`, [ `${ argv.cmd }` ], {
+	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
 		cwd: projDir,
 		stdio: 'inherit',
 	} );
@@ -121,4 +141,37 @@ function validatePath( argv, dir ) {
 			`Path to changelogger script doesn't exist. Try running 'jetpack install ${ argv.project }' first!`
 		)
 	);
+}
+
+/** Add arguments we're passing onto child process to args array.
+ *
+ * @param {object} argv - arguments passed to the wizard.
+ */
+function compileArgs( argv ) {
+	argv.args = [];
+	if ( argv.cmd ) {
+		argv.args.push( `${ argv.cmd }` );
+	}
+	if ( argv.file ) {
+		argv.args.push( `-f${ argv.file }` );
+	}
+	if ( argv.significance ) {
+		argv.args.push( `-s${ argv.significance }` );
+	}
+	if ( argv.type ) {
+		argv.args.push( `-t${ argv.type }` );
+	}
+	if ( argv.entry ) {
+		argv.args.push( `-e${ argv.entry }` );
+	}
+	if ( argv.args.length >= 4 ) {
+		argv.args.push( '--no-interaction' );
+		return;
+	} else if ( argv.args.length > 2 ) {
+		console.error(
+			chalk.bgRed(
+				'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
+			)
+		);
+	}
 }
