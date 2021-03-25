@@ -730,6 +730,7 @@ class Jetpack_Gutenberg {
 					'is_current_user_connected' => $is_current_user_connected,
 					/** This filter is documented in class.jetpack-gutenberg.php */
 					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+					'is_private_site'           => '-1' === get_option( 'blog_public' ),
 				),
 				'siteFragment'     => $status->get_site_suffix(),
 				'adminUrl'         => esc_url( admin_url() ),
