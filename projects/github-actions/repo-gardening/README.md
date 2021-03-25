@@ -4,11 +4,13 @@ This action includes multiple different tasks to automate some of the things we 
 
 Here is the current list of tasks handled by this action:
 
-- Assign Issues: Adds assignee for issues which are being worked on, and adds the "In Progress" label.
-- Add Milestone: Adds a valid milestone to all PRs that get merged and don't already include a milestone.
-- Check Description: Checks the contents of a PR description, and ensure it matches our recommendations.
-- Add Labels: Adds labels to PRs that touch specific features.
-- WordPress.com Commit Reminder: Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
+- Assign Issues (`assignIssues`): Adds assignee for issues which are being worked on, and adds the "In Progress" label.
+- Add Milestone (`addMilestone`): Adds a valid milestone to all PRs that get merged and don't already include a milestone.
+- Check Description (`checkDescription`): Checks the contents of a PR description, and ensure it matches our recommendations.
+- Add Labels (`addLabels`): Adds labels to PRs that touch specific features.
+- Clean Labels (`cleanLabels`): Removes Status labels once a PR has been merged.
+- WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
+- Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 
 ## Build your own
 
