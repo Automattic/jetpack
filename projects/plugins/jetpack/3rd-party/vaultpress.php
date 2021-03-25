@@ -53,7 +53,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
  */
 function jetpack_vaultpress_rewind_check() {
 	if (
-		Jetpack::is_active() &&
+		Jetpack::is_connection_ready() &&
 		Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) &&
 		Jetpack::is_rewind_enabled()
 	) {
