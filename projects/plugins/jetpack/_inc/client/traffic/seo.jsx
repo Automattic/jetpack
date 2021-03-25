@@ -20,7 +20,7 @@ import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import FoldableCard from 'components/foldable-card';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 import SimpleNotice from 'components/notice';
-import { isFetchingPluginsData, isPluginActive } from '../state/site/plugins/reducer';
+import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 
 export const conflictingSeoPluginsList = [
 	{
