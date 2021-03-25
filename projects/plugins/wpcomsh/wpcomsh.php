@@ -99,6 +99,9 @@ require_once __DIR__ . '/class.jetpack-plugin-compatibility.php';
 
 require_once __DIR__ . '/support-session.php';
 
+// Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
+require_once __DIR__ . '/share-post/share-post.php';
+
 // Jetpack Token Resilience.
 require_once __DIR__ . '/jetpack-token-resilience/class-wpcomsh-blog-token-resilience.php';
 
