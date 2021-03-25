@@ -41,6 +41,7 @@ $modal-max-width-lg: 95%;
 	color: $color-text-lighter;
 	cursor: pointer;
 	display: flex;
+	flex-shrink: 0;
 	font-size: 12px;
 	margin: 0;
 	padding: 8px;
