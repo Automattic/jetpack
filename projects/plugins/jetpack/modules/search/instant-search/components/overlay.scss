@@ -49,7 +49,6 @@ $overlay-horizontal-padding-lg: 3em;
 		opacity: 0;
 		transform: translate3d( 0, 100vh, 0 );
 		transition-delay: 0s, $search-results-slide-in-time, $search-results-slide-in-time;
-		z-index: -9999999999999;
 	}
 
 	*,
