@@ -26,13 +26,17 @@ Assets::add_resource_hint(
 	'dns-prefetch'
 );
 
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
+require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
+require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 
-/** Jetpack Like Class */
+/**
+ * Jetpack Like Class
+ */
 class Jetpack_Likes {
 
-	/** Initialize class */
+	/**
+	 * Initialize class
+	 */
 	public static function init() {
 		static $instance = null;
 
@@ -43,7 +47,9 @@ class Jetpack_Likes {
 		return $instance;
 	}
 
-	/** Constructs Likes class */
+	/**
+	 * Constructs Likes class
+	 */
 	public function __construct() {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings   = new Jetpack_Likes_Settings();
@@ -156,7 +162,7 @@ class Jetpack_Likes {
 	 * Stub for is_post_likeable, since some wpcom functions call this directly on the class
 	 * Are likes enabled for this post?
 	 *
-	 * @param int $post_id - id of the post.
+	 * @param int $post_id id of the post.
 	 * @return bool
 	 */
 	public static function is_post_likeable( $post_id = 0 ) {
@@ -408,8 +414,8 @@ class Jetpack_Likes {
 				);
 			} else {
 				wp_enqueue_script( 'jquery.wpcom-proxy-request', '/wp-content/js/jquery/jquery.wpcom-proxy-request.js', array( 'jquery' ), JETPACK__VERSION, true );
-				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __DIR__ ) ), array( 'jquery' ), JETPACK__VERSION, $in_footer = false );
-				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', dirname( __DIR__ ) ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION, $in_footer = false );
+				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', __DIR__ ), array( 'jquery' ), JETPACK__VERSION, $in_footer = false );
+				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', __DIR__ ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION, $in_footer = false );
 			}
 		}
 	}
@@ -442,7 +448,6 @@ class Jetpack_Likes {
 	 * Add a "Likes" column header to the post edit table in wp-admin.
 	 *
 	 * @param array $columns - array of columns in wp-admin.
-	 * @return array $columns - column in wp-admin.
 	 */
 	public function add_like_count_column( $columns ) {
 		$date = $columns['date'];
@@ -506,9 +511,10 @@ class Jetpack_Likes {
 		return $content . $html;
 	}
 
-	/** Adds sd-like-enabled CSS class?
+	/**
+	 * Adds sd-like-enabled CSS class
 	 *
-	 * @param array $classes - CSS class for post flair, I think.
+	 * @param array $classes CSS class for post flair.
 	 */
 	public function post_flair_service_enabled_like( $classes ) {
 		$classes[] = 'sd-like-enabled';
