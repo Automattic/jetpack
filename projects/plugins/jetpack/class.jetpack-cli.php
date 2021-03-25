@@ -132,7 +132,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		/* translators: %s is the site URL */
 		WP_CLI::line( sprintf( __( 'Testing connection for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 
@@ -185,7 +185,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @synopsis <blog|user> [<user_identifier>]
 	 */
 	public function disconnect( $args, $assoc_args ) {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			WP_CLI::success( __( 'The site is not currently connected, so nothing to do!', 'jetpack' ) );
 			return;
 		}
@@ -1241,7 +1241,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @synopsis <rebuild> [--purge]
 	 */
 	public function sitemap( $args, $assoc_args ) {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 		if ( ! Jetpack::is_module_active( 'sitemaps' ) ) {
@@ -1278,14 +1278,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'A non-empty token argument must be passed.', 'jetpack' ) );
 		}
 
-		$is_master_user  = ! Jetpack::is_active();
-		$current_user_id = get_current_user_id();
+		$is_connection_owner = ! Jetpack::connection()->has_connected_owner();
+		$current_user_id     = get_current_user_id();
 
-		( new Tokens() )->update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_master_user );
+		( new Tokens() )->update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_connection_owner );
 
 		WP_CLI::log( wp_json_encode( $named_args ) );
 
-		if ( $is_master_user ) {
+		if ( $is_connection_owner ) {
 			/**
 			 * Auto-enable SSO module for new Jetpack Start connections
 			*
@@ -1337,7 +1337,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack call_api --resource='/sites/%d'
 	 */
 	public function call_api( $args, $named_args ) {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 
@@ -1436,7 +1436,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack updload_ssh_creds --host=example.com --ssh-user=example --kpri=key
 	 */
 	public function upload_ssh_creds( $args, $named_args ) {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
 
@@ -1616,8 +1616,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack publicize disconnect twitter
 	 */
 	public function publicize( $args, $named_args ) {
-		if ( ! Jetpack::is_active() ) {
-			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		if ( ! Jetpack::connection()->has_connected_owner() ) {
+			WP_CLI::error( __( 'Publicize requires a user-level connection to WordPress.com', 'jetpack' ) );
 		}
 
 		if ( ! Jetpack::is_module_active( 'publicize' ) ) {
