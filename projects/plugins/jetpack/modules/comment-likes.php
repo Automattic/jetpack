@@ -10,7 +10,7 @@
  * Module Tags: Social
  * Additional Search Queries: like widget, like button, like, likes
  *
- * @package automattic/Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
