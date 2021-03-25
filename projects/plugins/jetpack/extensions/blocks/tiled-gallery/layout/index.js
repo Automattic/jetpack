@@ -53,15 +53,22 @@ export default class Layout extends Component {
 		const origUrlObject = new URL( img.url );
 		const proxySiteIdOrSlug = getWpcomBlogId();
 		const siteUrl = getSiteUrl();
-		const isRequestAgainstBlog = proxySiteIdOrSlug && siteUrl && img.url?.startsWith( siteUrl );
+		const isRequestAgainstBlog =
+			proxySiteIdOrSlug &&
+			siteUrl &&
+			( img.url?.startsWith( siteUrl ) || img.url?.startsWith( 'blob:' + siteUrl ) );
 
 		console.log( {
-			url: img.url,
-			origUrlObject,
+			siteUrl,
+			imgUrl: img.url,
+			match: img.url?.startsWith( siteUrl ),
 			isRequestAgainstBlog,
 			proxySiteIdOrSlug,
-			siteUrl,
-			version: '5.1',
+			isAtomic: isAtomicSite(),
+			isPrivate: isPrivateSite(),
+			proxyIsEnabled: isRequestAgainstBlog && isAtomicSite() && isPrivateSite(),
+			origUrlObject,
+			version: '6.0',
 		} );
 		return (
 			<Image
