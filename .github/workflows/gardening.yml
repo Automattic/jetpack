@@ -1,7 +1,7 @@
 name: Gardening
 on:
-  pull_request: # When a PR is opened, edited, updated, or a label is added.
-    types: [opened, synchronize, labeled, edited]
+  pull_request: # When a PR is opened, edited, updated, closed, or a label is added.
+    types: [opened, synchronize, labeled, edited, closed]
   push:
     branches:
       - master # Every time a PR is merged to master.
@@ -77,3 +77,5 @@ jobs:
         uses: ./projects/github-actions/repo-gardening
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}

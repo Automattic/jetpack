@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if (
 	is_admin() &&
-	Jetpack::is_active() &&
+	Jetpack::is_connection_ready() &&
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 	apply_filters( 'jetpack_show_promotions', true ) &&
 	// Disable feature hints when plugins cannot be installed.
