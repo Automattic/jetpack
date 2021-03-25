@@ -152,8 +152,8 @@ class Licensing {
 	 * @return array|WP_Error Results for each license (which may include WP_Error instances) or a WP_Error instance.
 	 */
 	public function attach_licenses( array $licenses ) {
-		if ( ! $this->connection()->is_active() ) {
-			return new WP_Error( 'not_connected', __( 'Jetpack is not connected.', 'jetpack' ) );
+		if ( ! $this->connection()->has_connected_owner() ) {
+			return new WP_Error( 'not_connected', __( 'Jetpack doesn\'t have a connected owner.', 'jetpack' ) );
 		}
 
 		if ( empty( $licenses ) ) {
