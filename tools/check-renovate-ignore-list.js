@@ -48,7 +48,7 @@ const list = JSON.parse( fs.readFileSync( '.github/renovate.json', 'utf8' ) ).pa
 const missing = packages.filter( v => ! list.includes( v ) );
 if ( missing.length ) {
 	error(
-		`The following packages need to be added to renovate's "Monorepo packages" ignore list: ${ missing.join(
+		`The following packages need to be added to renovate's "Monorepo packages" ignore list in .github/renovate.json: ${ missing.join(
 			', '
 		) }`
 	);
@@ -59,14 +59,14 @@ if ( extra.length ) {
 	error(
 		`Renovate's "Monorepo packages" ignore list contains extra packages: ${ extra.join(
 			', '
-		) }\nIf you want to ignore non-monorepo packages, do that in a separate group.`
+		) }\nIf you want to ignore non-monorepo packages, do that in a separate group in .github/renovate.json.`
 	);
 }
 
 const sorted = [ ...new Set( list ) ].sort();
 if ( list.length !== sorted.length || ! list.every( ( v, k ) => v === sorted[ k ] ) ) {
 	error(
-		`Renovate's "Monorepo packages" ignore list should be sorted and should not contain duplicate package names.`
+		`Renovate's "Monorepo packages" ignore list in .github/renovate.json should be sorted alphabetically and should not contain duplicate package names.`
 	);
 }
 
