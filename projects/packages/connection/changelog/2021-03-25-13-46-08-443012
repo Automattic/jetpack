@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+add option to token validate not validate user token

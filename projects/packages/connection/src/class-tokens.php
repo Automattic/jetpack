@@ -35,7 +35,7 @@ class Tokens {
 	/**
 	 * Perform the API request to validate the blog and user tokens.
 	 *
-	 * @param int|null $user_id ID of the user we need to validate token for. Current user's ID by default.
+	 * @param int|bool|null $user_id ID of the user we need to validate token for. False if we don't want to validate the user token. Current user's ID by default.
 	 *
 	 * @return array|false|WP_Error The API response: `array( 'blog_token_is_healthy' => true|false, 'user_token_is_healthy' => true|false )`.
 	 */
@@ -52,14 +52,18 @@ class Tokens {
 			'sites/' . $blog_id . '/jetpack-token-health'
 		);
 
-		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
 		$blog_token = $this->get_access_token();
 		$method     = 'POST';
 		$body       = array(
-			'user_token' => $this->get_signed_token( $user_token ),
 			'blog_token' => $this->get_signed_token( $blog_token ),
 		);
-		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
+
+		if ( false !== $user_id ) {
+			$user_token         = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
+			$body['user_token'] = $this->get_signed_token( $user_token );
+		}
+
+		$response = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
 
 		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;

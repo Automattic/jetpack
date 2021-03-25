@@ -480,8 +480,10 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__connection_token_health() {
 		$name = __FUNCTION__;
 
-		$m                = new Connection_Manager();
-		$user_id          = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+		$m       = new Connection_Manager();
+		$user_id = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+
+		// If no user is logged in and no connection owner is found, $user_id will be false and we will not try to validate it.
 		$validated_tokens = ( new Tokens() )->validate( $user_id );
 
 		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
