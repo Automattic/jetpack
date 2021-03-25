@@ -485,7 +485,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		// If no current user or blog owner, this site must be running user-less. Blog token will be validated in its own test.
 		if ( ! $user_id ) {
-			l( 'skip' );
 			return self::skipped_test(
 				array(
 					'name'              => $name,
