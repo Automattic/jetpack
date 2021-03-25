@@ -140,7 +140,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		}
 
 		$slug       = 'edit.php?post_type=' . $post_type;
-		$name       = $ptype_obj->labels->menu_name;
+		$name       = __( 'Contact Form', 'jetpack' );
 		$capability = $ptype_obj->cap->edit_posts;
 		$icon       = $ptype_obj->menu_icon;
 		$position   = 45; // Before Jetpack.
