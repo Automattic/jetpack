@@ -41,6 +41,7 @@ jobs:
       WP_BRANCH: ${{ matrix.wp }}
       PHP_VERSION: ${{ matrix.php }}
       NODE_VERSION: ${{ matrix.node }}
+      MONOREPO_BASE: ${{ github.workspace }}
     strategy:
       fail-fast: false
       matrix:
@@ -141,6 +142,12 @@ jobs:
           yarn --version
           which jq
           jq --version
+
+      - name: Monorepo install
+        run: |
+          echo "::group::Yarn"
+          yarn install
+          echo "::endgroup::"
 
       - name: Run project tests
         env:

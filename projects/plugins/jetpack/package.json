@@ -40,11 +40,11 @@
 		"fixtures:test": "jest validate.js",
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"test-adminpage": "yarn test-client && yarn test-gui",
-		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js",
+		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client ../../../tools/js-test-runner.js glob:_inc/client/state/**/test/*.js",
 		"test-extensions": "jest extensions",
-		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js gui",
-		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js lib",
-		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js modules",
+		"test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client ../../../tools/js-test-runner.js --jsdom --initfile=_inc/client/test/main.js glob:_inc/client/**/test/component.js",
+		"test-lib": "NODE_ENV=test NODE_PATH=tests:_inc/client ../../../tools/js-test-runner.js --jsdom glob:_inc/client/lib/**/test/*.js",
+		"test-modules": "NODE_ENV=test NODE_PATH=tests:_inc/client ../../../tools/js-test-runner.js --jsdom glob:modules/**/test-*.js",
 		"test-search": "yarn concurrently 'yarn test-search-scripts' 'yarn test-search-size'",
 		"test-search-scripts": "jest modules/search",
 		"test-search-size": "NODE_ENV=production BABEL_ENV=production yarn build-search && size-limit",
@@ -87,7 +87,7 @@
 		"@wordpress/i18n": "3.9.0",
 		"@wordpress/icons": "2.7.0",
 		"@wordpress/url": "2.11.0",
-		"axios": "0.21.1",
+		"abortcontroller-polyfill": "1.7.1",
 		"babel-jest": "26.6.3",
 		"babel-loader": "8.2.2",
 		"bounding-client-rect": "1.0.5",
@@ -149,7 +149,8 @@
 		"url-polyfill": "1.1.12",
 		"uuid": "8.3.2",
 		"webpack": "4.46.0",
-		"webpack-cli": "4.5.0"
+		"webpack-cli": "4.5.0",
+		"whatwg-fetch": "3.6.2"
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "2.4.0",
@@ -210,7 +211,7 @@
 		"react-dom": "16.13.1"
 	},
 	"engines": {
-		"node": "^12.21.0",
+		"node": "^14.16.0",
 		"yarn": "^1.3.2"
 	}
 }

@@ -10,6 +10,7 @@ import { range } from 'lodash';
  * Internal dependencies
  */
 import { PHOTON_MAX_RESIZE } from '../constants';
+import { isAtomicSite, isPrivateSite } from '../../../shared/site-type-utils';
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
@@ -18,16 +19,16 @@ export function isSquareishLayout( layout ) {
 /**
  * Build src and srcSet properties which can be used on an <img />
  *
- * @param {Object} img        Image
- * @param {number} img.height Image height
- * @param {string} img.url    Image URL
- * @param {number} img.width  Image width
+ * @param {Object} img -        Image
+ * @param {number} img.height - Image height
+ * @param {string} img.url -    Image URL
+ * @param {number} img.width -  Image width
  *
- * @param {Object} galleryAtts Gallery attributes relevant for image optimization.
- * @param {string} galleryAtts.layoutStyle Gallery layout. 'rectangular', 'circle', etc.
- * @param {number} galleryAtts.columns     Gallery columns. Not applicable for all layouts.
+ * @param {Object} galleryAtts - Gallery attributes relevant for image optimization.
+ * @param {string} galleryAtts.layoutStyle - Gallery layout. 'rectangular', 'circle', etc.
+ * @param {number} galleryAtts.columns -     Gallery columns. Not applicable for all layouts.
  *
- * @return {Object} Returns an object. If possible, the object will include `src` and `srcSet`
+ * @returns {Object} Returns an object. If possible, the object will include `src` and `srcSet`
  *                  properties {string} for use on an image.
  */
 export function photonizedImgProps( img, galleryAtts = {} ) {
@@ -35,11 +36,12 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		return {};
 	}
 
-	// Do not Photonize images that are still uploading or from localhost
+	// Do not Photonize images that are still uploading, are from localhost, or are private + atomic
 	if (
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
-		/^https?:\/\/.*\.local\//.test( img.url )
+		/^https?:\/\/.*\.local\//.test( img.url ) ||
+		( isAtomicSite() && isPrivateSite() )
 	) {
 		return { src: img.url };
 	}
@@ -131,10 +133,10 @@ function isWpcomFilesUrl( url ) {
  * If we pass all images through Photon servers, some images are unreachable. *.files.wordpress.com
  * is already photon-like so we can pass it the same parameters for image resizing.
  *
- * @param  {string} url  Image url
- * @param  {Object} opts Options to pass to photon
+ * @param  {string} url -  Image url
+ * @param  {Object} opts - Options to pass to photon
  *
- * @return {string}      Url string with options applied
+ * @returns {string}      Url string with options applied
  */
 function photonWpcomImage( url, opts = {} ) {
 	// Adhere to the same options API as the photon.js lib

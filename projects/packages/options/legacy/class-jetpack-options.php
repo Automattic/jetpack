@@ -36,6 +36,7 @@ class Jetpack_Options {
 				return array(
 					'activated',
 					'active_modules',
+					'active_modules_initialized', // (bool) used to determine that all the default modules were activated, so we know how to act on a reconnection.
 					'allowed_xsite_search_ids', // (array) Array of WP.com blog ids that are allowed to search the content of this site
 					'available_modules',
 					'do_activate',

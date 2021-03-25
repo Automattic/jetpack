@@ -46,9 +46,9 @@ class Lock {
 		$locked_time = get_option( $lock_name );
 
 		if ( $locked_time ) {
-			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			// If expired update to false but don't send. Send will occurr in new request to avoid race conditions.
 			if ( microtime( true ) > $locked_time ) {
-				delete_option( $lock_name );
+				update_option( $lock_name, false, false );
 			}
 			return false;
 		}
@@ -71,7 +71,7 @@ class Lock {
 
 		// Only remove lock if current value matches our lock.
 		if ( true === $lock_expiration || (string) get_option( $lock_name ) === (string) $lock_expiration ) {
-			delete_option( $lock_name );
+			update_option( $lock_name, false, false );
 		}
 	}
 }
