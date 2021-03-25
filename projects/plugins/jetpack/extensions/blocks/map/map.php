@@ -98,13 +98,102 @@ function load_assets( $attr, $content ) {
 		);
 	}
 
+	// TODO: See if we can skip loading JS if the $attr['isStaticMap'] attribute is set.
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	if ( ! empty( $attr['isStaticMap'] ) && true === boolval( $attr['isStaticMap'] ) ) {
-		return '<div><img src="https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/-122.3486,37.8169,9,0/300x200?access_token=' . $access_token['key'] . '" /></div>';
+		return render_static_map_image_block( $attr, $content, $access_token['key'] );
 	}
 
 	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
+}
+
+/**
+ * Render a map image using the Mapbox Static Images API
+ *
+ * @param array  $attr             Array containing the map block attributes.
+ * @param string $content          String containing the map block content.
+ * @param string $access_token_key Mapbox access token key to be used for the static image API request.
+ *
+ * @return string Block content markup containing a static image URL.
+ */
+function render_static_map_image_block( $attr, $content, $access_token_key ) {
+	// Set default and passed in values to be used in generating the image url.
+	$width        = 1000;
+	$height       = isset( $attr['mapHeight'] ) && is_numeric( $attr['mapHeight'] ) ? $attr['mapHeight'] : 400;
+	$zoom         = isset( $attr['zoom'] ) && is_numeric( $attr['zoom'] ) ? $attr['zoom'] : 13;
+	$bearing      = 0;
+	$longitude    = is_numeric( $attr['mapCenter']['lng'] ) ? $attr['mapCenter']['lng'] : -122.41941550000001;
+	$latitude     = is_numeric( $attr['mapCenter']['lat'] ) ? $attr['mapCenter']['lat'] : 37.7749295;
+	$show_streets = isset( $attr['mapDetails'] ) && false === $attr['mapDetails'] ? false : true;
+	$marker_color = 'ff0000'; // Default to bright red.
+
+	// Use custom marker color if provided colour is a valid hex code.
+	if ( isset( $attr['markerColor'] ) ) {
+		$stripped_color = str_replace( '#', '', $attr['markerColor'] );
+		if ( \ctype_xdigit( $stripped_color ) ) {
+			$marker_color = $stripped_color;
+		}
+	}
+
+	// Generate slug for all markers on the map.
+	$markers_slug = '';
+	if ( ! empty( $attr['points'] ) ) {
+		foreach ( $attr['points'] as $point ) {
+			$marker  = empty( $markers_slug ) ? '' : ',';
+			$marker .= 'pin-s+' . $marker_color;
+			if (
+				is_numeric( $point['coordinates']['longitude'] ) &&
+				is_numeric( $point['coordinates']['latitude'] )
+			) {
+				$marker       .= sprintf(
+					'(%s,%s)',
+					$point['coordinates']['longitude'],
+					$point['coordinates']['latitude']
+				);
+				$markers_slug .= $marker;
+			}
+		}
+	}
+	if ( ! empty( $markers_slug ) ) {
+		$markers_slug .= '/';
+	}
+
+	// Set the type of map or map style, known in the Static Image API as an overlay.
+	// Default to basic / street overlay.
+	$overlay = 'streets-v11';
+	if ( isset( $attr['className'] ) ) {
+		if ( 'is-style-satellite' === $attr['className'] ) {
+			if ( $show_streets ) {
+				$overlay = 'satellite-streets-v11';
+			} else {
+				$overlay = 'satellite-v9';
+			}
+		}
+
+		if ( 'is-style-black_and_white' === $attr['className'] ) {
+			$overlay = 'light-v10';
+		}
+
+		if ( 'is-style-terrain' === $attr['className'] ) {
+			$overlay = 'outdoors-v11';
+		}
+	}
+
+	// Generate a Mapbox Image API URL in the appropriate format:
+	// https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+555555(-77,52),pin-s+555555(-77.5,54)/-77.25,53.0116,6,0/1000x4002x?access_token=YOUR_MAPBOX_ACCESS_TOKEN.
+
+	$url_base       = 'https://api.mapbox.com/styles/v1/mapbox';
+	$url_with_paths = "{$url_base}/{$overlay}/static/{$markers_slug}{$longitude},{$latitude},{$zoom},{$bearing}/{$width}x{$height}@2x";
+
+	$url = add_query_arg(
+		array(
+			'access_token' => $access_token_key,
+		),
+		$url_with_paths
+	);
+
+	return '<div class="wp-block-jetpack-map--static_image"><img src="' . $url . '" /></div>';
 }
 
 /**

@@ -24,3 +24,11 @@
 		border-radius: 0;
 	}
 }
+
+.wp-block-jetpack-map--static_image {
+	img {
+		display: block;
+		margin: 0 auto;
+		max-width: 100%;
+	}
+}
