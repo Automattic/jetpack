@@ -360,6 +360,12 @@ async function createComposerJson( composerJson, answers ) {
 		// Output to console instructions on how to add it.
 		// Since we're catching an errors here, it'll continue executing.
 	}
+
+	if ( answers.type === 'package' ) {
+		composerJson.extra = composerJson.extra || {};
+		composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
+		composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
+	}
 }
 
 /**

@@ -463,12 +463,21 @@ async function updateLabels( payload, octokit ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { number } = payload.pull_request;
+	const {
+		number,
+		user: { login: author },
+	} = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 	const statusChecks = await getStatusChecks( payload, octokit );
 
 	debug( `check-description: Status checks: ${ JSON.stringify( statusChecks ) }` );
+
+	if ( author === 'renovate[bot]' ) {
+		debug( `check-description: PR was created by ${ author }, skipping` );
+		return;
+	}
+
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.
