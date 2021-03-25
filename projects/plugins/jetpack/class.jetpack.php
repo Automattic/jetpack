@@ -425,7 +425,7 @@ class Jetpack {
 	 * Must never be called statically
 	 */
 	function plugin_upgrade() {
-		if ( self::is_active() ) {
+		if ( self::is_connection_ready() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
 				// Prevent multiple upgrades at once - only a single process should trigger
@@ -868,7 +868,7 @@ class Jetpack {
 			$network->set_connection( $this->connection_manager );
 		}
 
-		if ( $this->connection_manager->is_active() ) {
+		if ( self::is_connection_ready() ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
 
 			Jetpack_Heartbeat::init();
@@ -884,7 +884,7 @@ class Jetpack {
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
-		if ( self::is_active() ) {
+		if ( self::is_connection_ready() ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
@@ -1722,6 +1722,24 @@ class Jetpack {
 	}
 
 	/**
+	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI
+	 *
+	 * This method was introduced just before the release of the possibility to use Jetpack without a user connection, while
+	 * it was available only when no_user_testing_mode was enabled. In the near future, this will return is_connected for all
+	 * users and this option will be available by default for everybody.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @return bool is the site connection ready to be used?
+	 */
+	public static function is_connection_ready() {
+		if ( ( new Status() )->is_no_user_testing_mode() ) {
+			return self::connection()->is_connected();
+		}
+		return (bool) self::connection()->has_connected_owner();
+	}
+
+	/**
 	 * Make an API call to WordPress.com for plan status
 	 *
 	 * @deprecated 7.2.0 Use Jetpack_Plan::refresh_from_wpcom.
@@ -1965,7 +1983,7 @@ class Jetpack {
 	public static function load_modules() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 		if (
-			! self::is_active()
+			! self::is_connection_ready()
 			&& ! $is_offline_mode
 			&& ! self::is_onboarding()
 			&& (
@@ -2348,7 +2366,7 @@ class Jetpack {
 	}
 
 	public static function activate_new_modules( $redirect = false ) {
-		if ( ! self::is_active() && ! ( new Status() )->is_offline_mode() ) {
+		if ( ! self::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
 			return;
 		}
 
@@ -3119,7 +3137,7 @@ class Jetpack {
 		$module_data = self::get_module( $module );
 
 		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_active() ) {
+		if ( ! self::is_connection_ready() ) {
 			if ( ! $is_offline_mode && ! self::is_onboarding() ) {
 				return false;
 			}
@@ -3674,7 +3692,7 @@ p {
 		}
 
 		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_active() && ! $is_offline_mode ) {
+		if ( ! self::is_connection_ready() && ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
 			/** Already documented in automattic/jetpack-connection::src/class-client.php */
 		} elseif ( ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) && ! apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
@@ -3695,7 +3713,7 @@ p {
 		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
-		if ( self::is_active() || $is_offline_mode ) {
+		if ( self::is_connection_ready() || $is_offline_mode ) {
 			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
@@ -3709,7 +3727,7 @@ p {
 	function admin_body_class( $admin_body_class = '' ) {
 		$classes = explode( ' ', trim( $admin_body_class ) );
 
-		$classes[] = self::is_active() ? 'jetpack-connected' : 'jetpack-disconnected';
+		$classes[] = self::is_connection_ready() ? 'jetpack-connected' : 'jetpack-disconnected';
 
 		$admin_body_class = implode( ' ', array_unique( $classes ) );
 		return " $admin_body_class ";
@@ -4088,7 +4106,7 @@ p {
 
 		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), 'Jetpack' ) );
 
-		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_active() || ( new Status() )->is_offline_mode() ) ) {
+		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
 				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack#/settings' ), __( 'Settings', 'jetpack' ) ) ),
@@ -4110,7 +4128,7 @@ p {
 	public function deactivate_dialog( $hook ) {
 		if (
 			'plugins.php' === $hook
-			&& self::is_active()
+			&& self::is_connection_ready()
 		) {
 
 			$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
@@ -4313,7 +4331,7 @@ p {
 						exit;
 					}
 
-					if ( static::is_active() && static::connection()->is_user_connected() ) {
+					if ( static::connection()->is_connected() && static::connection()->is_user_connected() ) {
 						// The user is either already connected, or finished the connection process.
 						wp_safe_redirect( $dest_url );
 						exit;
@@ -6168,7 +6186,7 @@ endif;
 	 * @return array|bool Array of options that are in a crisis, or false if everything is OK.
 	 */
 	public static function check_identity_crisis() {
-		if ( ! self::is_active() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
+		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
 
@@ -6861,7 +6879,7 @@ endif;
 		}
 
 		// We do not want to use the imploded file in dev mode, or if not connected
-		if ( ( new Status() )->is_offline_mode() || ! self::is_active() ) {
+		if ( ( new Status() )->is_offline_mode() || ! self::is_connection_ready() ) {
 			if ( ! $travis_test ) {
 				return;
 			}
@@ -7023,7 +7041,7 @@ endif;
 	}
 
 	public function wp_dashboard_setup() {
-		if ( self::is_active() ) {
+		if ( self::is_connection_ready() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
 		}
 
@@ -7050,7 +7068,7 @@ endif;
 			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
 
 			// If we're inactive and not in offline mode, sort our box to the top.
-			if ( ! self::is_active() && ! ( new Status() )->is_offline_mode() ) {
+			if ( ! self::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
 				global $wp_meta_boxes;
 
 				$dashboard = $wp_meta_boxes['dashboard']['normal']['core'];
@@ -7297,7 +7315,8 @@ endif;
 	 * @return bool|int|mixed
 	 */
 	public static function is_rewind_enabled() {
-		if ( ! self::is_active() ) {
+		// Rewind is a paid feature, therefore requires a user-level connection.
+		if ( ! static::connection()->has_connected_owner() ) {
 			return false;
 		}
 
@@ -7485,14 +7504,14 @@ endif;
 	/**
 	 * Checks if a Jetpack site is both active and not in offline mode.
 	 *
-	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
+	 * This is a DRY function to avoid repeating `Jetpack::is_connection_ready && ! Automattic\Jetpack\Status->is_offline_mode`.
 	 *
 	 * @since 8.8.0
 	 *
 	 * @return bool True if Jetpack is active and not in offline mode.
 	 */
 	public static function is_active_and_not_offline_mode() {
-		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
+		if ( ! self::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 		return true;

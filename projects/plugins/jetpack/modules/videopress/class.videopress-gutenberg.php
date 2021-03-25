@@ -66,7 +66,7 @@ class VideoPress_Gutenberg {
 
 		// It is available on Jetpack Sites having the module active.
 		if (
-			method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active()
+			method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready()
 			&& method_exists( 'Jetpack', 'is_module_active' )
 			&& method_exists( 'Jetpack_Plan', 'supports' )
 		) {
@@ -132,7 +132,7 @@ class VideoPress_Gutenberg {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
-		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+		} elseif ( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) {
 			/**
 			 * We're intentionally not using `get_current_blog_id` because it was returning unexpected values.
 			 *
@@ -176,8 +176,8 @@ class VideoPress_Gutenberg {
 	 * uploaded against the WP.com API media endpoint and thus transcoded by VideoPress.
 	 */
 	public function override_video_upload() {
-		// Bail if Jetpack or VideoPress is not active.
-		if ( ! Jetpack::is_active() || ! Jetpack::is_module_active( 'videopress' ) ) {
+		// Bail if Jetpack is not connected or VideoPress module is not active.
+		if ( ! Jetpack::is_connection_ready() || ! Jetpack::is_module_active( 'videopress' ) ) {
 			return;
 		}
 

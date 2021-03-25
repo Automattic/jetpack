@@ -142,9 +142,11 @@ for SLUG in "${SLUGS[@]}"; do
 				error "$M: Must depend on monorepo package $PKG version $VER"
 			fi
 		done < <( jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | .key + " " + ( $packages[.key] | join( " or " ) )' "$FILE" )
-		if [[ "$EXIT" != "0" ]]; then
-			jetpackGreen 'You might use `tools/check-composer-deps.sh -u` to fix these errors.'
-		fi
 	fi
 done
+
+if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
+	jetpackGreen 'You might use `tools/check-composer-deps.sh -u` to fix these errors.'
+fi
+
 exit $EXIT
