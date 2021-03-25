@@ -3,7 +3,7 @@
 // @todo Fix performance issues before shipping.
 //add_action( 'widgets_init', 'follow_button_register_widget' );
 function follow_button_register_widget() {
-	if ( Jetpack::is_active() ) {
+	if ( Jetpack::is_connection_ready() ) {
 		register_widget( 'Jetpack_Follow_Button_Widget' );
 	}
 }
@@ -61,7 +61,7 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 			class="wordpress-follow-button"
 			href="<?php echo esc_url( home_url() ); ?>"
 			data-blog="<?php echo esc_url( home_url() ); ?>"
-			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>" 
+			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>"
 									<?php
 									if ( ! empty( $attributes ) ) {
 										echo implode( ' ', $attributes );}
