@@ -110,8 +110,8 @@ function parseCmd( argv, commandData ) {
 			// @todo Set argument list here and pass to compileArgs. Loop through args and push to argv.args array.
 			break;
 		case 'validate':
-			commandData.problem = `Changelog validation failed. See above.`;
-			commandData.error = `Validation for ${ argv.project } completed succesfully!`;
+			commandData.success = `Validation for ${ argv.project } completed succesfully!`;
+			commandData.error = `Changelog validation failed. See above.`;
 			break;
 		case 'version':
 			throw new Error( 'Sorry! That command is not supported yet!' );
