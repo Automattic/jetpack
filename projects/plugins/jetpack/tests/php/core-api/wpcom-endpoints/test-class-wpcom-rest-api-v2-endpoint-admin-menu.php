@@ -498,7 +498,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		);
 
 		$this->assertEquals(
-			'toplevel_page_plugins',
+			'plugins',
 			$object->prepare_menu_item_identifier( 'toplevel_page_plugins' )
 		);
 
