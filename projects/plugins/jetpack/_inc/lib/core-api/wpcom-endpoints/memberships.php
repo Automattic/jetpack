@@ -259,6 +259,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	}
 }
 
-if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
+if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Memberships' );
 }

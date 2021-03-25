@@ -1,11 +1,14 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 /**
  * Test class for CrowdsignalShortcode
  *
  * @covers CrowdsignalShortcode
  */
 class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	public function setUp() {
 		parent::setUp();

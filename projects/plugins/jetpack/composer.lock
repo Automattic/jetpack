@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8bb57942d24c532610ae4929d1a77747",
+    "content-hash": "0fe7bbaf2a44242019e6a91b879d6182",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -266,21 +266,22 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "7d2beb6ef393d0f6a08ba5437e379535f68d255a"
+                "reference": "da3a0fcda34764ea7718e32a1cd77fbd1eb72fcb"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "1.1.x-dev",
+                "automattic/jetpack-changelogger": "^1.1",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-blocks",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-blocks/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -1020,6 +1021,59 @@
             }
         },
         {
+            "name": "automattic/jetpack-password-checker",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/password-checker",
+                "reference": "b699324570d4e855ba71488f985fab8d815174b7"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "1.1.x-dev",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-password-checker",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer update",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer update",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Password Checker.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-redirect",
             "version": "dev-master",
             "dist": {
@@ -1403,7 +1457,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "69b94231de9ccb5b0c244bf05b985c6eacc874ba"
+                "reference": "bf07844a67872b3bb3c0b8c4524ef86bf28cc822"
             },
             "require": {
                 "php": ">=5.6",
@@ -1420,6 +1474,7 @@
             ],
             "type": "project",
             "extra": {
+                "autotagger": true,
                 "branch-alias": {
                     "dev-master": "1.1.x-dev"
                 },
@@ -1507,6 +1562,10 @@
                 "container-interop",
                 "psr"
             ],
+            "support": {
+                "issues": "https://github.com/php-fig/container/issues",
+                "source": "https://github.com/php-fig/container/tree/1.1.1"
+            },
             "time": "2021-03-05T17:36:06+00:00"
         },
         {
@@ -1587,6 +1646,9 @@
                 "console",
                 "terminal"
             ],
+            "support": {
+                "source": "https://github.com/symfony/console/tree/v5.2.5"
+            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2132,6 +2194,9 @@
             ],
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/process/tree/v5.2.4"
+            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2291,6 +2356,9 @@
                 "utf-8",
                 "utf8"
             ],
+            "support": {
+                "source": "https://github.com/symfony/string/tree/v5.2.4"
+            },
             "funding": [
                 {
                     "url": "https://symfony.com/sponsor",
@@ -2357,6 +2425,9 @@
             ],
             "description": "Safe replacement to @ for suppressing warnings.",
             "homepage": "https://www.mediawiki.org/wiki/at-ease",
+            "support": {
+                "source": "https://github.com/wikimedia/at-ease/tree/v2.1.0"
+            },
             "time": "2021-02-27T15:53:37+00:00"
         }
     ],
@@ -2383,6 +2454,7 @@
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
+        "automattic/jetpack-password-checker": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-status": 20,
