@@ -189,9 +189,21 @@
 		right: 0;
 	}
 
-	/*@include breakpoint( '<960px' ) {
-		display: none;
-	}*/
+	@media (min-width: 1152px) {
+		overflow: hidden;
+	}
+
+	@media (max-width: 1688px) {
+		img {
+			bottom: -24px;
+		}
+	}
+
+	@media (max-width: 1600px) {
+		img {
+			bottom: 0;
+		}
+	}
 }
 
 .jp-recommendations-banner__illustration-background {
