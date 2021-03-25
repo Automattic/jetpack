@@ -117,7 +117,7 @@ class Test_Licensing extends BaseTestCase {
 	public function test_attach_licenses__without_connection() {
 		$connection = $this->createMock( Connection_Manager::class );
 
-		$connection->method( 'is_active' )->willReturn( false );
+		$connection->method( 'has_connected_owner' )->willReturn( false );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
@@ -138,7 +138,7 @@ class Test_Licensing extends BaseTestCase {
 	public function test_attach_licenses__empty_input() {
 		$connection = $this->createMock( Connection_Manager::class );
 
-		$connection->method( 'is_active' )->willReturn( true );
+		$connection->method( 'has_connected_owner' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
@@ -158,7 +158,7 @@ class Test_Licensing extends BaseTestCase {
 
 		$connection = $this->createMock( Connection_Manager::class );
 
-		$connection->method( 'is_active' )->willReturn( true );
+		$connection->method( 'has_connected_owner' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
@@ -194,7 +194,7 @@ class Test_Licensing extends BaseTestCase {
 
 		$connection = $this->createMock( Connection_Manager::class );
 
-		$connection->method( 'is_active' )->willReturn( true );
+		$connection->method( 'has_connected_owner' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,

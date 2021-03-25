@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JITM: Use is_connected instead of is_active to instantiate Pre/Post_Connection_JITM

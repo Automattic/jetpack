@@ -14,14 +14,5 @@
         "innerContent": [
             "\n<div class=\"wp-block-jetpack-eventbrite wp-block-button\"><a class=\"wp-block-button__link has-text-color has-pink-color has-background has-black-background-color no-border-radius\" href=\"https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883\" id=\"eventbrite-widget-144144099883\" rel=\"noopener noreferrer\" role=\"button\" target=\"_blank\">Register</a></div>\n"
         ]
-    },
-    {
-        "blockName": null,
-        "attrs": {},
-        "innerBlocks": [],
-        "innerHTML": "\n",
-        "innerContent": [
-            "\n"
-        ]
     }
 ]

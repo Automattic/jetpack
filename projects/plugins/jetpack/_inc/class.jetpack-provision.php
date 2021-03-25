@@ -36,7 +36,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
 		// functions/callables so that we can test if this site is in IDC.
-		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
+		if ( Jetpack::is_connection_ready() && ! Jetpack::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
 			Actions::do_full_sync( array( 'functions' => true ) );
 			Actions::$sender->do_full_sync();
 		}
@@ -68,7 +68,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 		$site_icon = get_site_icon_url();
 
-		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
+		$auto_enable_sso = ( ! Jetpack::connection()->has_connected_owner() || Jetpack::is_module_active( 'sso' ) );
 
 		/** This filter is documented in class.jetpack-cli.php */
 		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {

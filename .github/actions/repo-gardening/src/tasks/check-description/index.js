@@ -408,13 +408,17 @@ async function postComment( payload, octokit, comment ) {
 	// If there is a comment already, update it.
 	if ( existingComment !== 0 ) {
 		debug( `check-description: update comment ID ${ existingComment } with our new remarks` );
-		await octokit.issues.updateComment(
-			Object.assign( commentOpts, { comment_id: +existingComment } )
-		);
+		await octokit.issues.updateComment( {
+			...commentOpts,
+			comment_id: +existingComment,
+		} );
 	} else {
 		// If no comment was published before, publish one now.
 		debug( `check-description: Posting comment to PR #${ number }` );
-		await octokit.issues.createComment( Object.assign( commentOpts, { issue_number: +number } ) );
+		await octokit.issues.createComment( {
+			...commentOpts,
+			issue_number: +number,
+		} );
 	}
 }
 
@@ -439,15 +443,17 @@ async function updateLabels( payload, octokit ) {
 	const hasNeedsReview = await hasNeedsReviewLabel( octokit, ownerLogin, repo, number );
 	if ( hasNeedsReview ) {
 		debug( `check-description: remove existing Needs review label.` );
-		await octokit.issues.removeLabel(
-			Object.assign( labelOpts, { name: '[Status] Needs Review' } )
-		);
+		await octokit.issues.removeLabel( {
+			...labelOpts,
+			name: '[Status] Needs Review',
+		} );
 	}
 
 	debug( `check-description: add Needs Author Reply label.` );
-	await octokit.issues.addLabels(
-		Object.assign( labelOpts, { labels: [ '[Status] Needs Author Reply' ] } )
-	);
+	await octokit.issues.addLabels( {
+		...labelOpts,
+		labels: [ '[Status] Needs Author Reply' ],
+	} );
 }
 
 /**
@@ -457,12 +463,21 @@ async function updateLabels( payload, octokit ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function checkDescription( payload, octokit ) {
-	const { number } = payload.pull_request;
+	const {
+		number,
+		user: { login: author },
+	} = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
 	const statusChecks = await getStatusChecks( payload, octokit );
 
 	debug( `check-description: Status checks: ${ JSON.stringify( statusChecks ) }` );
+
+	if ( author === 'renovate[bot]' ) {
+		debug( `check-description: PR was created by ${ author }, skipping` );
+		return;
+	}
+
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.
