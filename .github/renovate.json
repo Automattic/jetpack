@@ -9,6 +9,42 @@
 	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ],
 	"packageRules": [
 		{
+			"groupName": "Monorepo packages",
+			"matchPackageNames": [
+				"automattic/jetpack-a8c-mc-stats",
+				"automattic/jetpack-abtest",
+				"automattic/jetpack-analyzer",
+				"automattic/jetpack-assets",
+				"automattic/jetpack-autoloader",
+				"automattic/jetpack-backup",
+				"automattic/jetpack-blocks",
+				"automattic/jetpack-changelogger",
+				"automattic/jetpack-codesniffer",
+				"automattic/jetpack-compat",
+				"automattic/jetpack-config",
+				"automattic/jetpack-connection",
+				"automattic/jetpack-connection-ui",
+				"automattic/jetpack-constants",
+				"automattic/jetpack-device-detection",
+				"automattic/jetpack-error",
+				"automattic/jetpack-heartbeat",
+				"automattic/jetpack-jitm",
+				"automattic/jetpack-lazy-images",
+				"automattic/jetpack-licensing",
+				"automattic/jetpack-logo",
+				"automattic/jetpack-options",
+				"automattic/jetpack-partner",
+				"automattic/jetpack-password-checker",
+				"automattic/jetpack-redirect",
+				"automattic/jetpack-roles",
+				"automattic/jetpack-status",
+				"automattic/jetpack-sync",
+				"automattic/jetpack-terms-of-service",
+				"automattic/jetpack-tracking"
+			],
+			"enabled": false
+		},
+		{
 			"extends": "monorepo:wordpress",
 			"separateMajorMinor": false,
 			"prPriority": 1

@@ -1617,7 +1617,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_param', esc_html__( 'Invalid Parameter', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
-		if ( Jetpack::is_active() ) {
+		if ( Jetpack::is_connection_ready() ) {
 			Jetpack::disconnect();
 			return rest_ensure_response( array( 'code' => 'success' ) );
 		}
@@ -3482,7 +3482,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// Only check a remote option if Jetpack is connected.
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			return false;
 		}
 
