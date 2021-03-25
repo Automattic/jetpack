@@ -407,7 +407,7 @@ class Jetpack_Likes {
 					$in_footer = false
 				);
 			} else {
-				wp_enqueue_script( 'jquery.wpcom-proxy-request', '/wp-content/js/jquery/jquery.wpcom-proxy-request.js', array( 'jquery' ), null, true );
+				wp_enqueue_script( 'jquery.wpcom-proxy-request', '/wp-content/js/jquery/jquery.wpcom-proxy-request.js', array( 'jquery' ), JETPACK__VERSION, true );
 				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __DIR__ ) ), array( 'jquery' ), JETPACK__VERSION, $in_footer = false );
 				wp_enqueue_script( 'likes-post-count-wpcom', plugins_url( 'likes/post-count-wpcom.js', dirname( __DIR__ ) ), array( 'likes-post-count', 'jquery.wpcom-proxy-request' ), JETPACK__VERSION, $in_footer = false );
 			}
