@@ -10,7 +10,7 @@
  * Feature: Engagement
  * Additional Search Queries: like, likes, wordpress.com
  *
- * @package automattic/Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
@@ -50,7 +50,7 @@ class Jetpack_Likes {
 
 		// We need to run on wp hook rather than init because we check is_amp_endpoint()
 		// when bootstrapping hooks.
-		add_action( 'wp', array( &$this, 'action_init' ), 99 );
+		add_action( 'wp', array( $this, 'action_init' ), 99 );
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
@@ -60,7 +60,7 @@ class Jetpack_Likes {
 
 			Jetpack::enable_module_configurable( __FILE__ );
 			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
+			add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
 			$active = Jetpack::get_active_modules();
@@ -290,11 +290,11 @@ class Jetpack_Likes {
 		}
 
 		if ( $this->in_jetpack ) {
-			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
-			add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
+			add_filter( 'the_content', array( $this, 'post_likes' ), 30, 1 );
+			add_filter( 'the_excerpt', array( $this, 'post_likes' ), 30, 1 );
 
 		} else {
-			add_filter( 'post_flair', array( &$this, 'post_likes' ), 30, 1 );
+			add_filter( 'post_flair', array( $this, 'post_likes' ), 30, 1 );
 			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
 
 			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array(), JETPACK__VERSION, true );
