@@ -483,9 +483,19 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function test__connection_token_health() {
 		$m       = new Connection_Manager();
-		$user_id = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+		$user_id = get_current_user_id();
 
-		if ( $user_id && $m->is_user_connected( $user_id ) ) {
+		// Check if there's a connected logged in user.
+		if ( $user_id && ! $m->is_user_connected( $user_id ) ) {
+				$user_id = false;
+		}
+
+		// If no logged in user to check, let's see if there's a master_user set.
+		if ( ! $user_id ) {
+				$user_id = Jetpack_Options::get_option( 'master_user' );
+		}
+
+		if ( $user_id ) {
 			return $this->check_tokens_health( $user_id );
 		} else {
 			return $this->check_blog_token_health();
