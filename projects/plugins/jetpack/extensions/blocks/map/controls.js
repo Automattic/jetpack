@@ -22,6 +22,7 @@ import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-edit
  */
 import Locations from './locations';
 import { settings } from './settings.js';
+import { getMapboxImageUrl } from './update-image';
 
 export default ( {
 	attributes,
@@ -72,6 +73,11 @@ export default ( {
 		setTimeout( mapRef.current.sizeMap, 0 );
 	};
 
+	const updateImage = () => {
+		const url = getMapboxImageUrl( attributes, state.apiKey );
+		console.log( url );
+	};
+
 	if ( context === 'toolbar' ) {
 		return (
 			<>
@@ -86,6 +92,11 @@ export default ( {
 						label={ __( 'Add a marker', 'jetpack' ) }
 						onClick={ setPointVisibility }
 					/>
+					{ attributes.isStaticMap && (
+						<ToolbarButton icon={ settings.markerIcon } onClick={ updateImage }>
+							{ __( 'Update Image', 'jetpack' ) }
+						</ToolbarButton>
+					) }
 				</ToolbarGroup>
 			</>
 		);
@@ -161,6 +172,12 @@ export default ( {
 					help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
 					checked={ attributes.showFullscreenButton }
 					onChange={ value => setAttributes( { showFullscreenButton: value } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Display map as static image', 'jetpack' ) }
+					help={ __( 'Displays the map as a non-interactive static image', 'jetpack' ) }
+					checked={ attributes.isStaticMap }
+					onChange={ value => setAttributes( { isStaticMap: value } ) }
 				/>
 			</PanelBody>
 			{ attributes.points.length ? (
