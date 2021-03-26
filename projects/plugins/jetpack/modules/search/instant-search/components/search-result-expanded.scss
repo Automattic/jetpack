@@ -85,6 +85,9 @@ $image-square-size: 128px;
 	right: 0;
 	bottom: 0;
 	left: 0;
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
 }
 
 .jetpack-instant-search__search-result-expanded__image {
