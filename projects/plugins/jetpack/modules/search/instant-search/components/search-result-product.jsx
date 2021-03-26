@@ -52,7 +52,13 @@ class SearchResultProduct extends Component {
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ this.props.onClick }
 				>
-					<div className="jetpack-instant-search__search-result-product-img-container">
+					<div
+						className={ `jetpack-instant-search__search-result-product-img-container ${
+							firstImage
+								? ''
+								: 'jetpack-instant-search__search-result-product-img-container--placeholder'
+						}` }
+					>
 						{ firstImage ? (
 							<PhotonImage
 								alt={ title }

@@ -59,9 +59,12 @@ $item-spacing: 16px;
 }
 
 .jetpack-instant-search__search-result-product-img-container {
-	background: $studio-gray-10;
 	border-radius: 5px;
 	color: transparent;
+
+	&.jetpack-instant-search__search-result-product-img-container--placeholder {
+		background: $studio-gray-10;
+	}
 
 	.gridicon {
 		fill: $color-modal-background;
