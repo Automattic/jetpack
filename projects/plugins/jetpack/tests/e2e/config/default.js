@@ -1,5 +1,6 @@
 const outputDir = './output';
 const configDir = './config';
+const tempDir = `${ configDir }/tmp`;
 const config = {
 	WP_ADMIN_USER: {
 		username: 'admin',
@@ -18,16 +19,17 @@ const config = {
 	dirs: {
 		config: configDir,
 		output: outputDir,
+		temp: tempDir,
 		screenshots: `./${ outputDir }/screenshots`,
 		videos: `./${ outputDir }/videos`,
 		logs: `./${ outputDir }/logs`,
 		reports: `./${ outputDir }/reports`,
 	},
 	temp: {
-		storage: `${ configDir }/tmp/storage.json`,
-		tunnels: `${ configDir }/tmp/e2e-tunnels.txt`,
-		jetpackPrivateOptions: `${ configDir }/tmp/jetpack-private-options.json`,
-		planData: `${ configDir }/tmp/plan-data.json`,
+		storage: `${ tempDir }/storage.json`,
+		tunnels: `${ tempDir }/e2e-tunnels.txt`,
+		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
+		planData: `${ tempDir }/plan-data.json`,
 	},
 	consoleIgnore: [
 		'This is a global warning',
