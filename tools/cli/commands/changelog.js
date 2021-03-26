@@ -59,6 +59,15 @@ export function changelogDefine( yargs ) {
 				.option( 'gh-action', {
 					describe: 'Output errors as github action',
 					type: 'bool',
+				} )
+				.option( 'base-dir', {
+					describe: 'Determines relative directory to show errors',
+					type: 'bool',
+				} )
+				.option( 'no-strict', {
+					alias: 'strict',
+					describe: 'Will not return failure code for only warnings',
+					type: 'bool',
 				} );
 		},
 		async argv => {
@@ -148,6 +157,10 @@ function parseCmd( argv, commandData ) {
 					commandData.args.push( `--${ arg }` );
 				}
 			}
+
+			if ( commandData.args.includes( '--basedir' ) ) {
+				commandData.args.push( argv.basedir );
+			}
 			break;
 		case 'version':
 			throw new Error( 'Sorry! That command is not supported yet!' );
@@ -161,8 +174,8 @@ function parseCmd( argv, commandData ) {
 			);
 	}
 
-	// If we're specifying a file, pass that on
-	// (I believe this is used by all commands, but we can move it back to add if necessary )
+	// If we're specifying a file, pass that on to changelogger.
+	// (I believe this is used by all commands, but we can move it back to `add` if necessary )
 	if ( argv.file ) {
 		commandData.args.push( `-f${ argv.file }` );
 	}
