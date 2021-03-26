@@ -165,6 +165,29 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/connection` endpoint jetpack_connection_status filter.
+	 */
+	public function test_connection_jetpack_connection_status_filter() {
+		add_filter(
+			'jetpack_connection_status',
+			function ( $status_data ) {
+				$this->assertTrue( is_array( $status_data ) );
+				return array();
+			}
+		);
+		try {
+			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
+
+			$response = $this->server->dispatch( $this->request );
+			$data     = $response->get_data();
+
+			$this->assertSame( array(), $data );
+		} finally {
+			remove_all_filters( 'jetpack_connection_status' );
+		}
+	}
+
+	/**
 	 * Testing the `/jetpack/v4/connection/plugins` endpoint.
 	 */
 	public function test_connection_plugins() {
