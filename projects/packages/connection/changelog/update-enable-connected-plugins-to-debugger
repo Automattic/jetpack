@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Make connected_plugins REST endpoint available for the Jetpack Debugger

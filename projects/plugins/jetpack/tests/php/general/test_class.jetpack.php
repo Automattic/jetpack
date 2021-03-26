@@ -837,19 +837,19 @@ EXPECTED;
 	 * Mocked `setup_xmlrpc_handlers`.
 	 *
 	 * @param array         $request_params Incoming request parameters.
-	 * @param bool          $is_active Whether the connection is currently active.
+	 * @param bool          $has_connected_owner Whether the site has a connected owner.
 	 * @param bool          $is_signed Whether the signature check has been successful.
 	 * @param WP_User|false $user User for the mocked Jetpack_XMLRPC_Server.
 	 * @return bool
 	 */
-	private function mocked_setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $user = false ) {
+	private function mocked_setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $user = false ) {
 		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
 
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 
 		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
-		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $xmlrpc_server );
+		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $xmlrpc_server );
 	}
 
 	/**
@@ -883,6 +883,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 			'jetpack.idcUrlValidation',
 			'jetpack.unlinkUser',
@@ -917,6 +918,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 
 			'jetpack.testAPIUserCode',
@@ -969,6 +971,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 
 			'jetpack.testAPIUserCode',
@@ -1050,14 +1053,28 @@ EXPECTED;
 		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
 		$required = array(
+			'jetpack.verifyAction',
+			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.remoteConnect',
-			'jetpack.getUser',
+			'jetpack.jsonAPI',
+
+			'jetpack.disconnectBlog',
+			'jetpack.unlinkUser',
+			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
+
+			'jetpack.syncObject',
 		);
 
-		// Nothing else is allowed.
-		$allowed = array();
+		$allowed = array(
+			'jetpack.subscriptions.subscribe',
+			'jetpack.updatePublicizeConnections',
+			'jetpack.getHeartbeatData',
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}

@@ -1,0 +1,39 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__search-form-controls {
+	display: flex;
+	align-items: center;
+
+	line-height: 1.3;
+	margin-top: 16px;
+	z-index: 1;
+
+	margin-left: $results-margin-lg;
+	margin-right: $results-margin-lg;
+
+	@include break-large-down() {
+		margin-left: $results-margin-md;
+		margin-right: $results-margin-md;
+
+		position: relative;
+		left: 0;
+		right: 0;
+
+		flex-direction: row-reverse;
+		justify-content: space-between;
+	}
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
+	}
+
+	@include break-large-up() {
+		margin-top: 32px;
+		position: absolute;
+		right: $sidebar-width;
+	}
+
+	.jetpack-instant-search__overlay--no-sidebar & {
+		right: $results-margin-lg;
+	}
+}
