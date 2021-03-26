@@ -3,7 +3,6 @@
  */
 import React, { Component } from 'react';
 import { includes } from 'lodash';
-import classNames from 'classnames';
 import { __, _x, sprintf } from '@wordpress/i18n';
 
 /**
@@ -108,9 +107,6 @@ export const Protect = withModuleSettingsFormHelpers(
 						<FoldableCard
 							onOpen={ this.trackOpenCard }
 							header={ toggle }
-							className={ classNames( {
-								'jp-foldable-settings-disable': unavailableInOfflineMode,
-							} ) }
 						>
 							<SettingsGroup
 								hasChild
