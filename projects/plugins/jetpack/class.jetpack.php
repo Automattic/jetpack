@@ -1715,6 +1715,13 @@ class Jetpack {
 	 * Is Jetpack active?
 	 * The method only checks if there's an existing token for the master user. It doesn't validate the token.
 	 *
+	 * This method is deprecated since 9.6.0. Please use one of the methods provided by the Manager class in the Connection package,
+	 * or Jetpack::is_connection_ready if you want to know when the Jetpack plugin starts considering the connection ready to be used.
+	 *
+	 * Since this method has a wide spread use, we decided not to throw any deprecation warnings for now.
+	 *
+	 * @deprecated 9.6.0
+	 *
 	 * @return bool
 	 */
 	public static function is_active() {
