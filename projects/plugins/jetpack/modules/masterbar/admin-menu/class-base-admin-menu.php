@@ -210,7 +210,7 @@ abstract class Base_Admin_Menu {
 			if ( $is_wpcom ) {
 				$css_path = 'rtl/admin-menu-rtl.css';
 			} else {
-				$css_path = 'rtl/admin-menu.css';
+				$css_path = 'admin-menu-rtl.css';
 			}
 		} else {
 			$css_path = 'admin-menu.css';
