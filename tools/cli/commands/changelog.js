@@ -57,16 +57,16 @@ export function changelogDefine( yargs ) {
 					type: 'string',
 				} )
 				.option( 'gh-action', {
-					describe: 'Output errors as github action',
+					describe: 'Output validation issues using GitHub Action command syntax.',
 					type: 'bool',
 				} )
 				.option( 'base-dir', {
-					describe: 'Determines relative directory to show errors',
+					describe: 'Output file paths in this directory relative to it.',
 					type: 'bool',
 				} )
 				.option( 'no-strict', {
 					alias: 'strict',
-					describe: 'Will not return failure code for only warnings',
+					describe: 'Do not exit with a failure code if only warnings are found.',
 					type: 'bool',
 				} );
 		},
@@ -178,6 +178,9 @@ function parseCmd( argv, commandData ) {
 	// (I believe this is used by all commands, but we can move it back to `add` if necessary )
 	if ( argv.file ) {
 		commandData.args.push( `-f${ argv.file }` );
+	}
+	if ( argv.v ) {
+		commandData.args.push( '-v' );
 	}
 }
 
