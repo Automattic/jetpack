@@ -1,3 +1,5 @@
+const outputDir = './output';
+const configDir = './config';
 const config = {
 	WP_ADMIN_USER: {
 		username: 'admin',
@@ -13,12 +15,20 @@ const config = {
 		cardCountryCode: 'TR', // using Turkey to force Stripe as payment processor
 		cardPostCode: '4000',
 	},
-	configDir: './config',
-	testOutputDir: './output',
-	screenshotsDir: './output/screenshots',
-	videosDir: './output/videos',
-	logsDir: './output/logs',
-	reportsDir: './output/reports',
+	dirs: {
+		config: configDir,
+		output: outputDir,
+		screenshots: `./${ outputDir }/screenshots`,
+		videos: `./${ outputDir }/videos`,
+		logs: `./${ outputDir }/logs`,
+		reports: `./${ outputDir }/reports`,
+	},
+	temp: {
+		storage: `${ configDir }/tmp/storage.json`,
+		tunnels: `${ configDir }/tmp/e2e-tunnels.txt`,
+		jetpackPrivateOptions: `${ configDir }/tmp/jetpack-private-options.json`,
+		planData: `${ configDir }/tmp/plan-data.json`,
+	},
 	consoleIgnore: [
 		'This is a global warning',
 		'A cookie associated with a cross-site resource',
@@ -27,6 +37,10 @@ const config = {
 		'is deprecated',
 		'SharedArrayBuffer will require cross-origin isolation as of M91, around May 2021',
 	],
+	repository: {
+		url: 'https://github.com/Automattic/jetpack',
+		mainBranch: 'master',
+	},
 };
 
 module.exports = config;

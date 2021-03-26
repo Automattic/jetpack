@@ -2,7 +2,6 @@ import localtunnel from 'localtunnel';
 import config from 'config';
 import fs from 'fs';
 import axios from 'axios';
-import path from 'path';
 
 import logger from '../logger';
 
@@ -27,13 +26,13 @@ export default class TunnelManager {
 		await this.newTunnel( tunnelConfig );
 
 		if ( tunnelConfig.subdomain && this.subdomain !== tunnelConfig.subdomain ) {
-			logger.info( `#### Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
+			logger.error( `Failed to get ${ tunnelConfig.subdomain } subdomain. Retrying` );
 			await this.close();
 			await this.newTunnel( tunnelConfig );
 		}
 
 		if ( ! oneOff ) {
-			fs.writeFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), this.url );
+			fs.writeFileSync( config.get( 'temp.tunnels' ), this.url );
 		}
 
 		return this.url;
@@ -71,10 +70,7 @@ export default class TunnelManager {
 
 		// use already created subdomain if found
 		try {
-			const urlFromFile = fs.readFileSync(
-				path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ),
-				'utf8'
-			);
+			const urlFromFile = fs.readFileSync( config.get( 'temp.tunnels' ), 'utf8' );
 			if ( urlFromFile && urlFromFile.length > 1 ) {
 				const subdomain = this.getSubdomain( urlFromFile );
 				tunnelConfig.subdomain = subdomain;

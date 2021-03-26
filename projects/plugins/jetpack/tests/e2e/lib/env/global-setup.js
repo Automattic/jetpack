@@ -3,6 +3,7 @@ const mkdirp = require( 'mkdirp' );
 const path = require( 'path' );
 const fs = require( 'fs' );
 const os = require( 'os' );
+const config = require( 'config' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
 import TunnelManager from './tunnel-manager';
 
@@ -16,7 +17,7 @@ module.exports = async function () {
 	// Create the file used to save browser storage to skip login actions
 	// If the file is missing Playwright context creation will fail
 	// If the file already exists the content gets overwritten with an empty object
-	fs.writeFileSync( 'config/storage.json', '{}' );
+	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
 
 	// Launch a browser server that client can connect to
 	global.browser = await chromium.launchServer( pwBrowserOptions );
