@@ -15,6 +15,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'init', 'jetpack_instagram_enable_embeds' );
@@ -248,7 +249,7 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url, $args ) {
 
 	// If we don't have an access token, we go through the WP.com proxy instead.
 	// To that end, we need to make sure that we're connected to WP.com.
-	if ( ! Jetpack::is_active_and_not_offline_mode() ) {
+	if ( ! Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
 		return $provider;
 	}
 

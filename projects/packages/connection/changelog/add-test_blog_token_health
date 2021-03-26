@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add new test for blog token health to support user-less sites

@@ -111,7 +111,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_offline_mode();
+		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -213,7 +213,7 @@ class Jetpack_Admin {
 
 		uasort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
 		}
 
@@ -249,7 +249,7 @@ class Jetpack_Admin {
 		if ( ( new Status() )->is_offline_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
-			if ( ! Jetpack::is_active() ) {
+			if ( ! Jetpack::is_connection_ready() ) {
 				return false;
 			}
 

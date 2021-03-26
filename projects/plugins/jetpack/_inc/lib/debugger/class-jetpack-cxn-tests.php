@@ -77,7 +77,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return Jetpack::is_active() && ! ( new Status() )->is_offline_mode();
+		return Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode();
 	}
 
 	/**
@@ -471,17 +471,70 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Tests blog and current user's token against wp.com's check-token-health endpoint.
+	 * Tests the health of the Connection tokens.
+	 *
+	 * This will always check the blog token health. It will also check the user token health if
+	 * a user is logged in and connected, or if there's a connected owner.
 	 *
 	 * @since 9.0.0
+	 * @since 9.6.0 Checks only blog token if current user not connected or site does not have a connected owner.
 	 *
 	 * @return array Test results.
 	 */
 	protected function test__connection_token_health() {
-		$name = __FUNCTION__;
+		$name    = __FUNCTION__;
+		$m       = new Connection_Manager();
+		$user_id = get_current_user_id();
 
-		$m                = new Connection_Manager();
-		$user_id          = get_current_user_id() ? get_current_user_id() : $m->get_connection_owner_id();
+		// Check if there's a connected logged in user.
+		if ( $user_id && ! $m->is_user_connected( $user_id ) ) {
+				$user_id = false;
+		}
+
+		// If no logged in user to check, let's see if there's a master_user set.
+		if ( ! $user_id ) {
+				$user_id = Jetpack_Options::get_option( 'master_user' );
+			if ( $user_id && ! $m->is_user_connected( $user_id ) ) {
+				return self::connection_failing_test( $name, __( 'Missing token for the connection owner.', 'jetpack' ) );
+			}
+		}
+
+		if ( $user_id ) {
+			return $this->check_tokens_health( $user_id );
+		} else {
+			return $this->check_blog_token_health();
+		}
+	}
+
+	/**
+	 * Tests blog and user's token against wp.com's check-token-health endpoint.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @return array Test results.
+	 */
+	protected function check_blog_token_health() {
+		$name  = 'test__connection_token_health';
+		$valid = ( new Tokens() )->validate_blog_token();
+
+		if ( ! $valid ) {
+			return self::connection_failing_test( $name, __( 'Blog token validation failed.', 'jetpack' ) );
+		} else {
+			return self::passing_test( array( 'name' => $name ) );
+		}
+	}
+
+	/**
+	 * Tests blog token against wp.com's check-token-health endpoint.
+	 *
+	 * @since 9.6.0
+	 *
+	 * @param int $user_id The user ID to check the tokens for.
+	 *
+	 * @return array Test results.
+	 */
+	protected function check_tokens_health( $user_id ) {
+		$name             = 'test__connection_token_health';
 		$validated_tokens = ( new Tokens() )->validate( $user_id );
 
 		if ( ! is_array( $validated_tokens ) || count( array_diff_key( array_flip( array( 'blog_token', 'user_token' ) ), $validated_tokens ) ) ) {
@@ -521,7 +574,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 
 		$status = new Status();
-		if ( ! Jetpack::is_active() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_connection_ready() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( array( 'name' => $name ) );
 		}
 
@@ -889,7 +942,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = 'test__wpcom_self_test';
 
 		$status = new Status();
-		if ( ! Jetpack::is_active() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! Jetpack::is_connection_ready() || $status->is_offline_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( array( 'name' => $name ) );
 		}
 

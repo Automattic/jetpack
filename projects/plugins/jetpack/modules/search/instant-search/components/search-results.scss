@@ -9,6 +9,7 @@ $modal-max-width-lg: 95%;
 	min-height: 100%;
 	margin: 0 auto;
 	max-width: $modal-max-width;
+	position: relative;
 	z-index: 10;
 
 	@include break-small-down() {
@@ -22,17 +23,16 @@ $modal-max-width-lg: 95%;
 	mark {
 		color: $color-text;
 		background: $color-mark-background-default;
-		padding: 3px 2px;
 	}
 }
 
 .jetpack-instant-search__search-results-controls {
 	display: flex;
-	position: relative;
 }
 
 .jetpack-instant-search__search-results-content {
 	display: flex;
+	position: relative;
 }
 
 .jetpack-instant-search__search-results-filter-button {
@@ -42,7 +42,7 @@ $modal-max-width-lg: 95%;
 	cursor: pointer;
 	display: flex;
 	font-size: 12px;
-	margin-right: 6px;
+	margin: 0;
 	padding: 8px;
 	text-decoration: none;
 	transition: background-color 0.25s ease-in-out;
@@ -54,19 +54,10 @@ $modal-max-width-lg: 95%;
 	@include break-small-up() {
 		padding: 10px 14px;
 		font-size: 13px;
-		margin-right: 16px;
 	}
 
 	@include break-large-up() {
 		display: none;
-	}
-
-	@include break-medium-down() {
-		margin-right: $results-margin-sm;
-	}
-
-	@include break-large-down() {
-		margin-right: $results-margin-md;
 	}
 
 	&:hover,
@@ -117,16 +108,15 @@ $modal-max-width-lg: 95%;
 	&.jetpack-instant-search__search-results-secondary--show-as-modal {
 		@include break-large-down() {
 			position: absolute;
-			top: 96px;
-			right: 40px;
-			left: 40px;
+			top: 0;
+			right: 1em;
+			left: 1em;
 
 			background: $color-modal-background;
 			border-radius: 6px;
 			border: 1px solid rgba( 0, 0, 0, 0.1 );
 			box-shadow: 0 2px 3px rgba( 0, 0, 0, 0.1 );
 			display: block;
-			margin: 16px 0 32px;
 			min-width: 360px;
 			padding: 16px 24px;
 			width: auto;
@@ -165,12 +155,13 @@ $modal-max-width-lg: 95%;
 	margin: 0.5em $results-margin-lg 1.5em;
 	padding: 0;
 
-	@include break-medium-down() {
-		margin-left: $results-margin-sm;
-	}
 	@include break-large-down() {
 		margin-left: $results-margin-md;
 	}
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+	}
+
 	@include break-large-up() {
 		margin-top: 32px;
 	}
@@ -179,7 +170,7 @@ $modal-max-width-lg: 95%;
 .jetpack-instant-search__search-results-title {
 	@include break-large-up() {
 		// Account for .jetpack-instant-search__search-form-controls.
-		padding-right: 200px;
+		padding-right: 210px;
 	}
 }
 
@@ -190,13 +181,13 @@ $modal-max-width-lg: 95%;
 	margin-right: $results-margin-lg;
 	padding: 0;
 
-	@include break-medium-down() {
-		margin-left: $results-margin-sm;
-		margin-right: $results-margin-sm;
-	}
 	@include break-large-down() {
 		margin-left: $results-margin-md;
 		margin-right: $results-margin-md;
+	}
+	@include break-medium-down() {
+		margin-left: $results-margin-sm;
+		margin-right: $results-margin-sm;
 	}
 
 	// Accessibility improvement for VoiceOVer
@@ -227,6 +218,13 @@ $modal-max-width-lg: 95%;
 	width: 60px;
 	border-bottom: 1px solid $color-layout-borders;
 
+	// Override 2021 styling
+	.theme-twentytwentyone & {
+		&:not( :hover ):not( :active ):not( .has-background ) {
+			background-color: transparent;
+		}
+	}
+
 	&:focus {
 		outline: 1px dotted;
 	}
@@ -236,6 +234,7 @@ $modal-max-width-lg: 95%;
 	}
 	&:focus,
 	&:hover {
+		border-color: $color-layout-borders;
 		svg.gridicon {
 			fill: $color-text-light;
 		}
