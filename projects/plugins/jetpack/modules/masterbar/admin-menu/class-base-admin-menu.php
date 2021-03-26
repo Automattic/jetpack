@@ -203,16 +203,12 @@ abstract class Base_Admin_Menu {
 			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
 		}
 		if ( is_rtl() ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				wp_enqueue_style( 'jetpack-admin-menu', $this->wpcom_static_url( '/wp-content/mu-plugins/masterbar/admin-menu/rtl/admin-menu-rtl.css' ), array(), JETPACK__VERSION );
-			} else {
-				wp_enqueue_style(
-					'jetpack-admin-menu',
-					plugins_url( 'admin-menu-rtl.css', __FILE__ ),
-					$style_dependencies,
-					JETPACK__VERSION
-				);
-			}
+			wp_enqueue_style(
+				'jetpack-admin-menu',
+				plugins_url( 'admin-menu-rtl.css', __FILE__ ),
+				$style_dependencies,
+				JETPACK__VERSION
+			);
 		} else {
 			wp_enqueue_style(
 				'jetpack-admin-menu',
