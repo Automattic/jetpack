@@ -484,12 +484,15 @@ class Manager {
 	/**
 	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI.
 	 *
+	 * This method is deprecated since Jetpack 9.6.0. Please use has_connected_owner instead.
+	 *
+	 * Since this method has a wide spread use, we decided not to throw any deprecation warnings for now.
+	 *
+	 * @deprecated 9.6.0
+	 * @see Manager::has_connected_owner
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			return $this->is_connected();
-		}
 		return (bool) $this->get_tokens()->get_access_token( true );
 	}
 
