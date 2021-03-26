@@ -32,6 +32,7 @@ function get_admin_menu_class() {
 		}
 
 		// P2 sites.
+		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
 		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
 			require_once __DIR__ . '/class-p2-admin-menu.php';
 			return __NAMESPACE__ . '\P2_Admin_Menu';
