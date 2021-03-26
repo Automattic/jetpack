@@ -171,7 +171,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'enableInfScroll' => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
 				'resultFormat'    => get_option( $prefix . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_MINIMAL ),
 				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),

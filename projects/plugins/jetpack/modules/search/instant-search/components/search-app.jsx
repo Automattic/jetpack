@@ -182,12 +182,7 @@ class SearchApp extends Component {
 		}
 
 		this.props.setSearchQuery( event.target.value );
-		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
-			this.showResults();
-		}
-		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
-			this.props.response?.results && this.showResults();
-		}
+		this.showResults();
 	}, 200 );
 
 	handleFilterInputClick = event => {
@@ -311,7 +306,6 @@ class SearchApp extends Component {
 					onChangeSearch={ this.props.setSearchQuery }
 					onChangeSort={ this.props.setSort }
 					onLoadNextPage={ this.loadNextPage }
-					overlayTrigger={ this.state.overlayOptions.overlayTrigger }
 					postTypes={ this.props.options.postTypes }
 					response={ this.props.response }
 					resultFormat={ resultFormat }
