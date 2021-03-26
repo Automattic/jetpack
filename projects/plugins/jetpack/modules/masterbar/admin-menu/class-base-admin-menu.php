@@ -196,27 +196,32 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$rtl = is_rtl() ? '-rtl' : '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+		if ( $is_wpcom ) {
 			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		} elseif ( is_rtl() ) {
+			$style_dependencies = array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' );
 		} else {
-			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+			$style_dependencies = array( 'a8c-wpcom-masterbar-rtl', 'a8c-wpcom-masterbar-overrides-rtl' );
 		}
+
 		if ( is_rtl() ) {
-			wp_enqueue_style(
-				'jetpack-admin-menu',
-				plugins_url( 'admin-menu-rtl.css', __FILE__ ),
-				$style_dependencies,
-				JETPACK__VERSION
-			);
+			if ( $is_wpcom ) {
+				$css_path = 'rtl/admin-menu-rtl.css';
+			} else {
+				$css_path = 'rtl/admin-menu.css';
+			}
 		} else {
-			wp_enqueue_style(
-				'jetpack-admin-menu',
-				plugins_url( 'admin-menu.css', __FILE__ ),
-				$style_dependencies,
-				JETPACK__VERSION
-			);
+			$css_path = 'admin-menu.css';
 		}
+
+		wp_enqueue_style(
+			'jetpack-admin-menu',
+			plugins_url( $css_path, __FILE__ ),
+			$style_dependencies,
+			JETPACK__VERSION
+		);
 
 		wp_enqueue_script(
 			'jetpack-admin-menu',
