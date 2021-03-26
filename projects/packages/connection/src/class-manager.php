@@ -484,7 +484,7 @@ class Manager {
 	/**
 	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI.
 	 *
-	 * This method is deprecated since Jetpack 9.6.0. Please use one has_connected_owner instead.
+	 * This method is deprecated since Jetpack 9.6.0. Please use has_connected_owner instead.
 	 *
 	 * Since this method has a wide spread use, we decided not to throw any deprecation warnings for now.
 	 *
