@@ -6,6 +6,7 @@
 	"timezone": "UTC",
 	"schedule": [ "before 3am on the first day of the month" ],
 	"updateNotScheduled": false,
+	"gitIgnoreAuthors": [ "matticbot@users.noreply.github.com" ],
 	"ignoreDeps": [ "mockery/mockery", "php-mock/php-mock", "phpunit/phpunit" ],
 	"packageRules": [
 		{
