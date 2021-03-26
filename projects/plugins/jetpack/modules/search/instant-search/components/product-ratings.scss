@@ -5,6 +5,9 @@
 	fill: $studio-yellow-20;
 }
 
-.jetpack-instant-search__product-rating-count {
+.jetpack-instant-search a.jetpack-instant-search__product-rating-count {
+	color: $color-text-lighter;
+	font-size: 0.9em;
+	text-decoration: underline;
 	vertical-align: text-top;
 }

@@ -8,7 +8,7 @@
 		"automattic/jetpack-options": "^1.11"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.1"
 	},
 	"autoload": {
 		"classmap": [
