@@ -25,11 +25,9 @@
 	@include break-medium-down() {
 		margin-left: $results-margin-sm;
 		margin-right: $results-margin-sm;
-		margin-bottom: 1em;
 	}
 
 	@include break-large-up() {
-		margin-top: 32px;
 		position: absolute;
 		right: $sidebar-width;
 	}
