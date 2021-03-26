@@ -23,7 +23,9 @@ export const SEO = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const isActive = this.props.getOptionValue( 'seo-tools' );
+			const hasConnectedOwner = this.props.hasConnectedOwner,
+				isActive = this.props.getOptionValue( 'seo-tools' ),
+				isOfflineMode = this.props.isOfflineMode;
 
 			return (
 				<SettingsCard
@@ -60,7 +62,7 @@ export const SEO = withModuleSettingsFormHelpers(
 							{ __( 'Customize your SEO settings', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
-					{ isActive && ! this.props.isOfflineMode && (
+					{ isActive && ! isOfflineMode && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
@@ -71,7 +73,7 @@ export const SEO = withModuleSettingsFormHelpers(
 						</Card>
 					) }
 
-					{ ! this.props.hasConnectedOwner && (
+					{ ! hasConnectedOwner && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="monitor"
 							featureLabel={ __( 'SEO', 'jetpack' ) }

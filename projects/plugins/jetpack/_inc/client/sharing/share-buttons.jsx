@@ -110,7 +110,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 					</SettingsGroup>
 
-					{ ! this.props.isLinked && (
+					{ ! isLinked && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="sharedaddy"
 							featureLabel={ __( 'Sharing Buttons', 'jetpack' ) }

@@ -104,10 +104,7 @@ export const Protect = withModuleSettingsFormHelpers(
 						module={ this.props.getModule( 'protect' ) }
 						className="foldable-wrapper"
 					>
-						<FoldableCard
-							onOpen={ this.trackOpenCard }
-							header={ toggle }
-						>
+						<FoldableCard onOpen={ this.trackOpenCard } header={ toggle }>
 							<SettingsGroup
 								hasChild
 								module={ this.props.getModule( 'protect' ) }
@@ -175,7 +172,7 @@ export const Protect = withModuleSettingsFormHelpers(
 						</FoldableCard>
 					</SettingsGroup>
 
-					{ ! this.props.hasConnectedOwner && (
+					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
 						<ConnectUserBar
 							feature="protect"
 							featureLabel={ __( 'Protect', 'jetpack' ) }
