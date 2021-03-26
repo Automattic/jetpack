@@ -193,7 +193,17 @@ function render_static_map_image_block( $attr, $content, $access_token_key ) {
 		$url_with_paths
 	);
 
-	return '<div class="wp-block-jetpack-map--static_image"><img src="' . $url . '" /></div>';
+	// Set alignment class to support wide and full width alignment.
+	$class_names = 'wp-block-jetpack-map--static_image';
+	if ( isset( $attr['align'] ) ) {
+		$class_names .= ' align' . esc_attr( $attr['align'] );
+	}
+
+	return sprintf(
+		'<div class="%s"><img src="%s" /></div>',
+		$class_names,
+		$url
+	);
 }
 
 /**
