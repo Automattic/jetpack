@@ -13,6 +13,10 @@ inputs:
     description: "Slack channel ID where messages for the Design team will be sent"
     required: true
     default: ""
+  tasks:
+    description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
+    required: false
+    default: "all"
 runs:
   using: node12
   main: "src/index.js"
