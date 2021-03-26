@@ -482,7 +482,7 @@ class Identity_Crisis {
 	public function enqueue_admin_bar_css() {
 		wp_enqueue_style(
 			'jetpack-idc-admin-bar-css',
-			plugins_url( 'css/jetpack-idc-admin-bar.css', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/jetpack-idc-admin-bar.css', JETPACK__PLUGIN_FILE ),
 			array( 'dashicons' ),
 			JETPACK__VERSION
 		);
@@ -496,7 +496,7 @@ class Identity_Crisis {
 	public function enqueue_idc_notice_files() {
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/build/idc-notice.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
@@ -528,7 +528,7 @@ class Identity_Crisis {
 
 		wp_enqueue_style(
 			'jetpack-idc-css',
-			plugins_url( 'css/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
 			array( 'jetpack-dops-style' ),
 			JETPACK__VERSION
 		);
