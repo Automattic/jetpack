@@ -252,6 +252,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  * - Unverified commits
  * - Missing `[Status]` label
  * - Missing "Testing instructions"
+ * - Missing Changelog entry
  * - Privacy section
  *
  * Note: All the checks should be truthy to resolve as success check.
