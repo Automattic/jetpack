@@ -76,7 +76,11 @@ export default class TunnelManager {
 				tunnelConfig.subdomain = subdomain;
 			}
 		} catch ( error ) {
-			logger.error( error );
+			if ( error.code === 'ENOENT' ) {
+				logger.warn( "Tunnels file doesn't exist" );
+			} else {
+				logger.error( error );
+			}
 		}
 
 		return tunnelConfig;

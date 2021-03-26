@@ -13,7 +13,6 @@ import {
 	loginToWpSite,
 } from '../flows/jetpack-connect';
 import config from 'config';
-import path from 'path';
 
 async function maybePreConnect() {
 	const wpComUser = 'defaultUser';
