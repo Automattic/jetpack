@@ -55,6 +55,10 @@ export function changelogDefine( yargs ) {
 					alias: 'e',
 					describe: 'Changelog entry',
 					type: 'string',
+				} )
+				.option( 'gh-action', {
+					describe: 'Output errors as github action',
+					type: 'bool',
 				} );
 		},
 		async argv => {
@@ -74,14 +78,13 @@ export async function changeloggerCli( argv ) {
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	const commandData = {};
-	compileArgs( argv );
 	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	parseCmd( argv, commandData );
 	const projDir = path.resolve( `projects/${ argv.project }` );
 	validatePath( argv, projDir );
 
-	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
+	const data = child_process.spawnSync( `${ argv.cmdPath }`, commandData.args, {
 		cwd: projDir,
 		stdio: 'inherit',
 	} );
@@ -102,16 +105,49 @@ export async function changeloggerCli( argv ) {
  * @param {object} commandData - data we want to return to the process.
  */
 function parseCmd( argv, commandData ) {
-	// make sure we're using a valid command
+	const parsedArgKey = Object.keys( argv );
+	let acceptedArgs;
 	switch ( argv.cmd ) {
 		case 'add':
+			acceptedArgs = [ 's', 't', 'e' ]; //significance, type, excerpt
 			commandData.success = `Changelog for ${ argv.project } added successfully!`;
 			commandData.error = `Changelogger couldn't be executed correctly. See error.`;
-			// @todo Set argument list here and pass to compileArgs. Loop through args and push to argv.args array.
+			commandData.args = [ argv.cmd ];
+
+			// Check passed arguments against accepted args and add them to our command.
+			for ( const arg of parsedArgKey ) {
+				if ( acceptedArgs.includes( arg ) ) {
+					commandData.args.push( `-${ arg }${ argv[ arg ] }` );
+				}
+			}
+
+			// If no args or passed, or not all accepted arguments are passed, default to non-interactive mode.
+			if ( commandData.args.length === 1 ) {
+				break;
+			}
+			if ( commandData.args.length !== acceptedArgs.length + 1 ) {
+				console.error(
+					chalk.bgRed(
+						'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
+					)
+				);
+				break;
+			}
+
+			commandData.args.push( '--no-interaction' );
 			break;
 		case 'validate':
+			acceptedArgs = [ 'gh-action', `basedir`, 'no-strict' ];
 			commandData.success = `Validation for ${ argv.project } completed succesfully!`;
 			commandData.error = `Changelog validation failed. See above.`;
+			commandData.args = [ argv.cmd ];
+
+			// Format command data based on passed arguments
+			for ( const arg of parsedArgKey ) {
+				if ( acceptedArgs.includes( arg ) ) {
+					commandData.args.push( `--${ arg }` );
+				}
+			}
 			break;
 		case 'version':
 			throw new Error( 'Sorry! That command is not supported yet!' );
@@ -123,6 +159,12 @@ function parseCmd( argv, commandData ) {
 					argv.cmd
 				}\`. Use \`jetpack changelog --help\` for help.`
 			);
+	}
+
+	// If we're specifying a file, pass that on
+	// (I believe this is used by all commands, but we can move it back to add if necessary )
+	if ( argv.file ) {
+		commandData.args.push( `-f${ argv.file }` );
 	}
 }
 
@@ -148,38 +190,4 @@ function validatePath( argv, dir ) {
 			`Path to changelogger script doesn't exist. Try running 'jetpack install ${ argv.project }' first!`
 		)
 	);
-}
-
-/**
- * Add arguments we're passing onto child process to args array.
- *
- * @param {object} argv - arguments passed to the wizard.
- */
-function compileArgs( argv ) {
-	argv.args = [];
-	if ( argv.cmd ) {
-		argv.args.push( `${ argv.cmd }` );
-	}
-	if ( argv.file ) {
-		argv.args.push( `-f${ argv.file }` );
-	}
-	if ( argv.significance ) {
-		argv.args.push( `-s${ argv.significance }` );
-	}
-	if ( argv.type ) {
-		argv.args.push( `-t${ argv.type }` );
-	}
-	if ( argv.entry ) {
-		argv.args.push( `-e${ argv.entry }` );
-	}
-	if ( argv.args.length >= 4 ) {
-		argv.args.push( '--no-interaction' );
-		return;
-	} else if ( argv.args.length > 2 ) {
-		console.error(
-			chalk.bgRed(
-				'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
-			)
-		);
-	}
 }
