@@ -200,13 +200,13 @@ abstract class Base_Admin_Menu {
 
 		if ( $is_wpcom ) {
 			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
-		} elseif ( is_rtl() ) {
+		} elseif ( $this->is_rtl() ) {
 			$style_dependencies = array( 'a8c-wpcom-masterbar-rtl', 'a8c-wpcom-masterbar-overrides-rtl' );
 		} else {
 			$style_dependencies = array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' );
 		}
 
-		if ( is_rtl() ) {
+		if ( $this->is_rtl() ) {
 			if ( $is_wpcom ) {
 				$css_path = 'rtl/admin-menu-rtl.css';
 			} else {
@@ -244,6 +244,13 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu[ $slug ] = array();
 		}
+	}
+
+	/**
+	 * Determines whether the current locale is right-to-left (RTL).
+	 */
+	public function is_rtl() {
+		return is_rtl();
 	}
 
 	/**

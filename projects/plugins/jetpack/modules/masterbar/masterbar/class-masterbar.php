@@ -99,18 +99,21 @@ class Masterbar {
 			return;
 		}
 
-		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
+		$this->user_data           = $connection_manager->get_connected_user_data( $this->user_id );
+		$this->user_login          = $this->user_data['login'];
+		$this->user_email          = $this->user_data['email'];
+		$this->display_name        = $this->user_data['display_name'];
+		$this->user_site_count     = $this->user_data['site_count'];
+		$this->user_text_direction = $this->user_data['text_direction'];
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
 		// request. Although `get_connected_user_data` tries to save the data for
 		// future uses on a transient, the data is not guaranteed to be cached.
 		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
-			update_user_option( get_current_user_id(), 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] );
+			$user_id = get_current_user_id();
+			update_user_option( $user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] );
+			update_user_option( $user_id, 'jetpack_text_direction', $this->user_text_direction );
 		}
 
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
@@ -167,9 +170,6 @@ class Masterbar {
 
 		// Used for display purposes and for building WP Admin links.
 		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
-
-		// We need to use user's setting here, instead of relying on current blog's text direction.
-		$this->user_text_direction = $this->user_data['text_direction'];
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 

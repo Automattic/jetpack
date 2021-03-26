@@ -32,6 +32,13 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Determines whether the current locale is right-to-left (RTL).
+	 */
+	public function is_rtl() {
+		return 'rtl' === get_user_option( 'jetpack_text_direction' );
+	}
+
+	/**
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
