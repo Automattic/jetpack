@@ -482,6 +482,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function test__connection_token_health() {
+		$name    = __FUNCTION__;
 		$m       = new Connection_Manager();
 		$user_id = get_current_user_id();
 
@@ -493,6 +494,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		// If no logged in user to check, let's see if there's a master_user set.
 		if ( ! $user_id ) {
 				$user_id = Jetpack_Options::get_option( 'master_user' );
+			if ( $user_id && ! $m->is_user_connected( $user_id ) ) {
+				return self::connection_failing_test( $name, __( 'Missing token for the connection owner.', 'jetpack' ) );
+			}
 		}
 
 		if ( $user_id ) {
