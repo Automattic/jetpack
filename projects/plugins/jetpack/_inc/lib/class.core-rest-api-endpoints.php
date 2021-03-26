@@ -778,6 +778,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
 		}
 
+		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		if ( ! $user_connected ) {
+			$response = array(
+				'hide_upsell' => true,
+			);
+
+			return $response;
+		}
+
 		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			$request_path,
