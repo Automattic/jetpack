@@ -34,7 +34,6 @@ export function isSimpleSite() {
  * @returns {boolean} True for Atomic sites.
  */
 export function isAtomicSite() {
-	return true;
 	return getSiteType() === 'atomic';
 }
 
