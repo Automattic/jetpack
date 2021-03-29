@@ -7,6 +7,7 @@ import {
 	ButtonGroup,
 	ExternalLink,
 	PanelBody,
+	Notice,
 	TextControl,
 	ToggleControl,
 	ToolbarButton,
@@ -14,9 +15,15 @@ import {
 	RangeControl,
 	BaseControl,
 } from '@wordpress/components';
+import { getBlobByURL } from '@wordpress/blob';
+import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 
-import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-editor';
+import {
+	BlockAlignmentToolbar,
+	PanelColorSettings,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -45,7 +52,24 @@ export default ( {
 		setTimeout( mapRef.current.sizeMap, 0 );
 	};
 
+	const mediaUpload = useSelect( select => {
+		const { getSettings } = select( blockEditorStore );
+		return getSettings().mediaUpload;
+	} );
+
 	const [ mapboxStaticImageBlob, setMapboxStaticImageBlob ] = useState( null );
+	const [ uploadErrorMsg, setUploadErrorMsg ] = useState( null );
+
+	const updateImageAttributes = image => {
+		if ( ! image?.id ) {
+			return;
+		}
+		const url = image?.sizes?.large?.url || image?.media_details?.sizes?.full?.source_url || '';
+		setAttributes( {
+			staticMapId: image.id,
+			staticMapImageUrl: url,
+		} );
+	};
 
 	const updateImage = async () => {
 		const url = getMapboxImageUrl( attributes, state.apiKey );
@@ -53,6 +77,29 @@ export default ( {
 			const mapboxImageBlob = await requestMapboxImage( url );
 			if ( mapboxImageBlob ) {
 				setMapboxStaticImageBlob( mapboxImageBlob );
+
+				const file = getBlobByURL( mapboxImageBlob );
+				console.log( 'mapboxImageBlob', mapboxImageBlob );
+				console.log( file );
+
+				if ( file ) {
+					file.name = 'mapbox-cached-image';
+					file.name += file.type === 'image/png' ? '.png' : '';
+					file.name += file.type === 'image/jpeg' ? '.jpg' : '';
+					mediaUpload( {
+						filesList: [ file ],
+						onFileChange: ( [ image ] ) => {
+							console.log( 'upload result:' );
+							console.log( image );
+							updateImageAttributes( image );
+						},
+						allowedTypes: [ 'image' ],
+						onError: message => {
+							setUploadErrorMsg( message );
+							console.log( message );
+						},
+					} );
+				}
 			}
 		}
 	};
@@ -120,16 +167,28 @@ export default ( {
 			/>
 			{ attributes.isStaticMap && (
 				<PanelBody title={ __( 'Debugging the static image', 'jetpack' ) }>
-					<div>
-						<p>{ mapboxStaticImageBlob }</p>
-						<img alt="static version of the map" src={ mapboxStaticImageBlob } />
-					</div>
+					{ mapboxStaticImageBlob && (
+						<div>
+							<p>Temporary blob url: { mapboxStaticImageBlob }</p>
+							<img alt="static version of the map" src={ mapboxStaticImageBlob } />
+						</div>
+					) }
+
+					{ uploadErrorMsg && <Notice> { uploadErrorMsg } </Notice> }
 
 					<ButtonGroup>
 						<Button type="button" onClick={ updateImage }>
 							{ __( 'Update Image', 'jetpack' ) }
 						</Button>
 					</ButtonGroup>
+
+					{ attributes.staticMapId && (
+						<div>
+							<hr />
+							<p>Id: { attributes.staticMapId }</p>
+							<img alt="static version of the map" src={ attributes.staticMapImageUrl } />
+						</div>
+					) }
 				</PanelBody>
 			) }
 			<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>

@@ -24,6 +24,7 @@ class MapSave extends Component {
 			scrollToZoom,
 			mapHeight,
 			showFullscreenButton,
+			staticMapImageUrl,
 		} = attributes;
 		const mapStyle = getActiveStyleName( settings.styles, className );
 		const pointsList = points.map( ( point, index ) => {
@@ -36,6 +37,15 @@ class MapSave extends Component {
 			);
 		} );
 		const alignClassName = align ? `align${ align }` : null;
+
+		if ( staticMapImageUrl ) {
+			return (
+				<div className={ alignClassName } data-jetpack-block-initialized>
+					<img alt="" src={ staticMapImageUrl } />
+				</div>
+			);
+		}
+
 		// All camelCase attribute names converted to snake_case data attributes
 		return (
 			<div

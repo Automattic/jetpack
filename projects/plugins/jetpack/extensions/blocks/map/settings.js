@@ -86,6 +86,12 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		staticMapId: {
+			type: 'number',
+		},
+		staticMapImageUrl: {
+			type: 'string',
+		},
 	},
 	supports: {
 		defaultStylePicker: false,

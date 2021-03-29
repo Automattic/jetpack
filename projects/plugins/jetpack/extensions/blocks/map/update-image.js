@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createBlobURL } from '@wordpress/blob';
 
 /**
  * Internal dependencies
@@ -14,7 +15,9 @@ export const getMapboxImageUrl = ( attributes, token ) => {
 	const longitude = attributes.mapCenter.lng ?? -122.41941550000001;
 	const latitude = attributes.mapCenter.lat ?? 37.7749295;
 	// const showStreets = attributes.mapDetails ?? true;
-	const markerColor = attributes.markerColor ? attributes.markerColor.replace( '#', '' ) : 'ff0000';
+	const markerColor = attributes?.markerColor?.match( /^#[0-9abcdef]{6}$/ )
+		? attributes.markerColor.replace( '#', '' )
+		: 'ff0000';
 	const overlay = 'streets-v11';
 	let markersSlug = '';
 
@@ -53,7 +56,7 @@ export const requestMapboxImage = async url => {
 				return response.blob();
 			} )
 			.then( imgBlob => {
-				return window.URL.createObjectURL( imgBlob );
+				return createBlobURL( imgBlob );
 			} )
 			.catch( err => {
 				console.log( err );
