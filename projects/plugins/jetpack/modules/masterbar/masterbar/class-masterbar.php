@@ -76,7 +76,7 @@ class Masterbar {
 	 */
 	private $primary_site_slug;
 	/**
-	 * Whether the text direction is RLT (based on connected WordPress.com user's interface settings).
+	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
 	 * @var string
 	 */
