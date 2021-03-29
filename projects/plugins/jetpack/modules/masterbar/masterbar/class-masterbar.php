@@ -78,7 +78,7 @@ class Masterbar {
 	/**
 	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
-	 * @var string
+	 * @var boolean
 	 */
 	private $is_rtl;
 	/**
