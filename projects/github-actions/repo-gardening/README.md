@@ -66,7 +66,7 @@ jobs:
 The action relies on 4 parameters. 
 
 - `GITHUB_TOKEN` is automatically created by GitHub to be used by the action. You do not have to deal with it.
-- `tasks` is an optional parameter you can specify when setting up the action. It allows you to run selected tasks instead of the full suite. You can find the list of the different tasks (and what event it's attached to) in `src/index.js`.
+- `tasks` allows for running selected tasks instead of the full suite. The value is a comma-separated list of task identifiers. You can find the list of the different tasks (and what event it's attached to) in `src/index.js`.
 
 The last 2 parameters are stored as [secrets in your GitHub repository](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository):
 
