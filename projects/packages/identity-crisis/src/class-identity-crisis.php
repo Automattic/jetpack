@@ -494,10 +494,13 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function enqueue_idc_notice_files() {
+		$build_assets                   = require_once __DIR__ . '/../build/index.asset.php';
+		$build_assets['dependencies'][] = 'jquery';
+
 		wp_enqueue_script(
 			'jetpack-idc-js',
 			Assets::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/build/idc-notice.js' ),
-			array( 'jquery' ),
+			$build_assets['dependencies'],
 			JETPACK__VERSION,
 			true
 		);
@@ -528,10 +531,11 @@ class Identity_Crisis {
 
 		wp_enqueue_style(
 			'jetpack-idc-css',
-			plugins_url( '_inc/build/jetpack-idc.css', JETPACK__PLUGIN_FILE ),
+			plugin_dir_url( __DIR__ ) . 'build/jetpack-idc.css',
 			array( 'jetpack-dops-style' ),
 			JETPACK__VERSION
 		);
+		wp_style_add_data( 'jetpack-idc-css', 'rtl', plugin_dir_url( __DIR__ ) . 'build/jetpack-idc-rtl.css' );
 
 		// Required for Tracks.
 		wp_enqueue_script(
