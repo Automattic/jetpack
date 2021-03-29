@@ -109,7 +109,7 @@
 				"enhancement": "Enhancements",
 				"compat": "Improved compatibility",
 				"bugfix": "Bug fixes",
-				"backend": "Backend and non-user-facing changes"
+				"other": "Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->"
 			}
 		}
 	}
