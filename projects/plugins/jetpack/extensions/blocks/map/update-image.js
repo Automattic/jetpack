@@ -6,6 +6,8 @@ import { createBlobURL } from '@wordpress/blob';
 /**
  * Internal dependencies
  */
+import { settings } from './settings';
+import { getActiveStyleName } from '../../shared/block-styles';
 
 export const getMapboxImageUrl = ( attributes, token ) => {
 	const width = 1000;
@@ -18,10 +20,21 @@ export const getMapboxImageUrl = ( attributes, token ) => {
 	const markerColor = attributes?.markerColor?.match( /^#[0-9abcdef]{6}$/ )
 		? attributes.markerColor.replace( '#', '' )
 		: 'ff0000';
-	const overlay = 'streets-v11';
-	let markersSlug = '';
 
-	// TODO: Add overlay switching logic.
+	// Switch overlay based on selected className and mapDetails settings.
+	let overlay = 'streets-v11';
+	const mapStyle = getActiveStyleName( settings.styles, attributes.className );
+	if ( mapStyle === 'satellite' && attributes.mapDetails ) {
+		overlay = 'satellite-streets-v11';
+	} else if ( mapStyle === 'satellite' ) {
+		overlay = 'satellite-v9';
+	} else if ( mapStyle === 'black_and_white' ) {
+		overlay = 'light-v10';
+	} else if ( mapStyle === 'terrain' ) {
+		overlay = 'outdoors-v11';
+	}
+
+	let markersSlug = '';
 
 	// Generate slug for all markers on the map.
 	if ( attributes.points?.length ) {
