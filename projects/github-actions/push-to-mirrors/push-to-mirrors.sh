@@ -24,8 +24,10 @@
 set -eo pipefail
 
 if [[ -n "$CI" ]]; then
-	git config --global user.name "$USER_NAME"
-	git config --global user.email "${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
+	export GIT_AUTHOR_NAME="$USER_NAME"
+	export GIT_AUTHOR_EMAIL="${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
+	export GIT_COMMITTER_NAME="$USER_NAME"
+	export GIT_COMMITTER_EMAIL="${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
 fi
 
 if [[ -z "$BUILD_BASE" ]]; then

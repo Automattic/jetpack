@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Do not use is_active to determine the XMLRPC methods that should be registered

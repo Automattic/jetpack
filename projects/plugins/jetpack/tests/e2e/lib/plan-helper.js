@@ -5,17 +5,16 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { getTunnelSiteUrl, execWpCommand } from './utils-helper';
+import { execWpCommand } from './utils-helper';
 import logger from './logger';
 import config from 'config';
 import path from 'path';
 
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
-	const siteUrl = getTunnelSiteUrl();
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
-	const planDatafilePath = path.resolve( config.get( 'configDir' ), 'plan-data.txt' );
+	const planDatafilePath = path.resolve( config.get( 'temp.planData' ) );
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
@@ -503,7 +502,7 @@ export async function syncPlanData( page ) {
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
-		logger.info( `!!! PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
+		logger.info( `PLANS: frontend: ${ frPlan }, backend: ${ bkPlan.product_slug }` );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 

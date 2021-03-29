@@ -1,16 +1,15 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
+import WpPage from '../wp-page';
 
-export default class JetpackUserTypePage extends Page {
+export default class JetpackUserTypePage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.user-type__connect-step';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ '.user-type__connect-step' ] } );
 	}
 
 	async selectUserType( userType ) {
 		const userTypeSelector = `button[data-e2e-slug='${ userType }']`;
-		return await page.click( userTypeSelector );
+		return await this.click( userTypeSelector );
 	}
 }

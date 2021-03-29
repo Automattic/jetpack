@@ -16,7 +16,8 @@
 		"@actions/github": "4.0.0",
 		"compare-versions": "3.6.0",
 		"glob": "7.1.6",
-		"moment": "2.29.1"
+		"moment": "2.29.1",
+		"node-fetch": "2.6.1"
 	},
 	"private": true
 }

@@ -41,7 +41,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// If this is the first time the user is viewing the admin, don't show JITMs.
 		// This filter is added just in time because this function is called on admin_menu
 		// and JITMs are initialized on admin_init
-		if ( Jetpack::is_active() && ! Jetpack_Options::get_option( 'first_admin_view', false ) ) {
+		if ( Jetpack::is_connection_ready() && ! Jetpack_Options::get_option( 'first_admin_view', false ) ) {
 			Jetpack_Options::update_option( 'first_admin_view', true );
 			add_filter( 'jetpack_just_in_time_msgs', '__return_false' );
 		}
@@ -55,7 +55,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
-		if ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
 			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null' );
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
@@ -67,7 +67,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) && current_user_can( 'edit_posts' ) ) {
+		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) && current_user_can( 'edit_posts' ) ) {
 			add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/settings', '__return_null' );
 		}
 	}
@@ -162,7 +162,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			true
 		);
 
-		if ( ! $is_offline_mode && Jetpack::is_active() ) {
+		if ( ! $is_offline_mode && Jetpack::is_connection_ready() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}

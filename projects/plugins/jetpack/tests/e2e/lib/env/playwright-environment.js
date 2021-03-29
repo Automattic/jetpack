@@ -7,6 +7,7 @@ const chalk = require( 'chalk' );
 const logger = require( '../logger' ).default;
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
+const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
@@ -28,6 +29,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 		// Create a new browser context
 		await this.newContext();
+
+		this.global.siteUrl = fs
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
+			.replace( 'http:', 'https:' );
 	}
 
 	async teardown() {
@@ -223,25 +228,14 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	}
 
 	/**
-	 * Takes a screenshot of the current page and saves it
+	 * Takes screenshots of all open pages and saves
 	 *
 	 * @param {string} fileName screenshot file name
 	 * @return {Promise<void>}
 	 */
 	async saveScreenshot( fileName ) {
 		for ( const page of this.global.context.pages() ) {
-			try {
-				const filePath = path.resolve(
-					config.screenshotsDir,
-					`${ fileNameFormatter( fileName ) }.png`
-				);
-				await page.screenshot( { path: filePath, fullPage: true } );
-				logger.debug( `Screenshot saved: ${ filePath }` );
-				logger.slack( { type: 'file', message: filePath } );
-			} catch ( error ) {
-				logger.error( 'Failed to take screenshot due to: ' );
-				logger.error( error );
-			}
+			await takeScreenshot( page, fileName, true );
 		}
 	}
 
@@ -256,7 +250,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			try {
 				const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 				fileName = `${ fileNameFormatter( fileName ) }.html`;
-				const filePath = path.resolve( config.logsDir, fileName );
+				const filePath = path.resolve( config.get( 'dirs.logs' ), fileName );
 				fs.writeFileSync( filePath, bodyHTML );
 				logger.debug( `Page saved: ${ filePath }` );
 			} catch ( error ) {
