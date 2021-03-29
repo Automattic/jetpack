@@ -611,7 +611,6 @@ function stats_reports_page( $main_chart_only = false ) {
 			 * @param string $args URL of external resource.
 			 */
 			$static_url = apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" );
-																					);
 			?>
 			</h2>
 		</div>
