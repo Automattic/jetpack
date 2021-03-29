@@ -6,6 +6,7 @@ import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import inquirer from 'inquirer';
 
 /**
  * Internal dependencies
@@ -15,23 +16,83 @@ import { chalkJetpackGreen } from '../helpers/styling';
 import { normalizeProject } from '../helpers/normalizeArgv';
 
 /**
- * Command definition for the changelog subcommand.
+ * Comand definition for changelog subcommand.
  *
- * @param {object} yargs - The Yargs dependency.
- *
+ * @param {yargs} yargs - The Yargs dependency.
  * @returns {object} Yargs with the changelog commands defined.
  */
 export function changelogDefine( yargs ) {
 	yargs.command(
 		[ 'changelog <cmd> [project]', 'changelogger' ],
-		'Runs a changelogger command for a project',
+		'Runs a changelogger add command for a project',
 		yarg => {
 			yarg
-				.positional( 'cmd', {
-					describe: 'Changelogger command',
+				.positional( 'command', {
+					describe: 'Command for changelog script to run',
 					type: 'string',
 					choices: [ 'add', 'validate', 'write', 'version' ],
 				} )
+				.positional( 'project', {
+					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+					type: 'string',
+				} );
+		},
+		async argv => {
+			await changelogRouter( argv );
+		}
+	);
+
+	return yargs;
+}
+
+/**
+ * Routes Changelog Command to correct place.
+ *
+ * @param {argv} argv - the arguments passed.
+ */
+function changelogRouter( argv ) {
+	if ( ! argv.cmd ) {
+		argv.cmd = promptCommand( argv );
+	}
+	switch ( argv.cmd ) {
+		case 'add':
+			changelogAdd( argv );
+			break;
+		case 'validate':
+			changelogValidate( argv );
+			break;
+		default:
+			throw new Error( 'Command not implemented yet!' );
+	}
+}
+
+/**
+ * Prompts for changelog command if not passed one.
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+async function promptCommand( argv ) {
+	argv.cmd = await inquirer.prompt( {
+		type: 'list',
+		name: 'type',
+		message: 'What type of project are you working on today?',
+		choices: [ 'add', 'verify', 'write', 'version' ],
+	} );
+	return argv;
+}
+/**
+ * Comand definition for changelog add subcommand.
+ *
+ * @param {yargs} yargs - The Yargs dependency.
+ * @returns {object} Yargs with the changelog commands defined.
+ */
+export function changelogAddDefine( yargs ) {
+	yargs.command(
+		[ 'changelog add [project]', 'changelogger' ],
+		'Runs a changelogger add command for a project',
+		yarg => {
+			yarg
 				.positional( 'project', {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
@@ -55,6 +116,31 @@ export function changelogDefine( yargs ) {
 					alias: 'e',
 					describe: 'Changelog entry',
 					type: 'string',
+				} );
+		},
+		async argv => {
+			await changelogAdd( argv );
+		}
+	);
+
+	return yargs;
+}
+
+/**
+ * Comand definition for changelog validate subcommand.
+ *
+ * @param {yargs} yargs - The Yargs dependency.
+ * @returns {object} Yargs with the changelog commands defined.
+ */
+export function changelogValidateDefine( yargs ) {
+	yargs.command(
+		[ 'changelog validate [project]', 'changelogger' ],
+		'Runs a changelogger validate command to validate changelog files for a project',
+		yarg => {
+			yarg
+				.positional( 'project', {
+					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+					type: 'string',
 				} )
 				.option( 'gh-action', {
 					describe: 'Output validation issues using GitHub Action command syntax.',
@@ -71,11 +157,82 @@ export function changelogDefine( yargs ) {
 				} );
 		},
 		async argv => {
-			await changeloggerCli( argv );
+			await changelogValidate( argv );
 		}
 	);
 
 	return yargs;
+}
+
+/**
+ * Changelog add script.
+ *
+ * @param {object} argv - arguments passed as cli.
+ */
+export async function changelogAdd( argv ) {
+	argv = await validateProject( argv );
+	const parsedArgKey = Object.keys( argv );
+	const acceptedArgs = [ 's', 't', 'e', 'f' ]; //significance, type, excerpt, file
+	argv.success = `Changelog for ${ argv.project } added successfully!`;
+	argv.error = `Changelogger couldn't be executed correctly. See error.`;
+	argv.args = [ 'add' ];
+
+	// Check passed arguments against accepted args and add them to our command.
+	for ( const arg of parsedArgKey ) {
+		if ( acceptedArgs.includes( arg ) ) {
+			argv.args.push( `-${ arg }${ argv[ arg ] }` );
+		}
+	}
+	if ( argv.v ) {
+		argv.args.push( '-v' );
+	}
+
+	// Check if we have all required args for a passthrough, otherwise default to interactive mode.
+	if ( argv.s && argv.t && argv.e ) {
+		argv.args.push( '--no-interaction' );
+		changeloggerCli( argv );
+		return;
+	}
+	if ( argv.args.length > 1 ) {
+		console.error(
+			chalk.bgRed(
+				'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
+			)
+		);
+		changeloggerCli( argv );
+		return;
+	}
+	changeloggerCli( argv );
+}
+
+/**
+ * Changelog validate script.
+ *
+ * @param {object} argv - arguments passed as cli.
+ */
+export async function changelogValidate( argv ) {
+	argv = await validateProject( argv );
+	const parsedArgKey = Object.keys( argv );
+	const acceptedArgs = [ 'gh-action', `basedir`, 'no-strict' ];
+	argv.success = `Validation for ${ argv.project } completed succesfully!`;
+	argv.error = `Changelog validation failed. See above.`;
+	argv.args = [ 'validate' ];
+
+	// Add any options we're passing onto the command.
+	for ( const arg of parsedArgKey ) {
+		if ( acceptedArgs.includes( arg ) ) {
+			argv.args.push( `--${ arg }` );
+		}
+	}
+
+	if ( argv.args.includes( '--basedir' ) ) {
+		argv.args.push( argv.basedir );
+	}
+
+	if ( argv.v ) {
+		argv.args.push( '-v' );
+	}
+	changeloggerCli( argv );
 }
 
 /**
@@ -84,104 +241,36 @@ export function changelogDefine( yargs ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
+	console.log( argv );
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
-	const commandData = {};
-	argv = normalizeProject( argv );
-	argv = await promptForProject( argv );
-	parseCmd( argv, commandData );
-	const projDir = path.resolve( `projects/${ argv.project }` );
-	validatePath( argv, projDir );
-
-	const data = child_process.spawnSync( `${ argv.cmdPath }`, commandData.args, {
-		cwd: projDir,
+	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
+		cwd: argv.cwd,
 		stdio: 'inherit',
 	} );
 
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
-		console.error( chalk.red( commandData.error ) );
+		console.error( chalk.red( argv.error ) );
 		process.exit( data.status );
 	} else {
-		console.log( chalkJetpackGreen( commandData.success ) );
+		console.log( chalkJetpackGreen( argv.success ) );
 	}
 }
 
 /**
- * Set command specific data based on command passed.
+ * Make sure we're working with a valid project,
+ * prompt for one if we're not.
  *
- * @param {object} argv - arguments passed to changelogger.
- * @param {object} commandData - data we want to return to the process.
+ * @param {object} argv - arguments passed as cli.
+ * @returns {object} argv - arguments with project added.
  */
-function parseCmd( argv, commandData ) {
-	const parsedArgKey = Object.keys( argv );
-	let acceptedArgs;
-	switch ( argv.cmd ) {
-		case 'add':
-			acceptedArgs = [ 's', 't', 'e' ]; //significance, type, excerpt
-			commandData.success = `Changelog for ${ argv.project } added successfully!`;
-			commandData.error = `Changelogger couldn't be executed correctly. See error.`;
-			commandData.args = [ argv.cmd ];
-
-			// Check passed arguments against accepted args and add them to our command.
-			for ( const arg of parsedArgKey ) {
-				if ( acceptedArgs.includes( arg ) ) {
-					commandData.args.push( `-${ arg }${ argv[ arg ] }` );
-				}
-			}
-
-			// If no args or passed, or not all accepted arguments are passed, default to non-interactive mode.
-			if ( commandData.args.length === 1 ) {
-				break;
-			}
-			if ( commandData.args.length !== acceptedArgs.length + 1 ) {
-				console.error(
-					chalk.bgRed(
-						'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
-					)
-				);
-				break;
-			}
-
-			commandData.args.push( '--no-interaction' );
-			break;
-		case 'validate':
-			acceptedArgs = [ 'gh-action', `basedir`, 'no-strict' ];
-			commandData.success = `Validation for ${ argv.project } completed succesfully!`;
-			commandData.error = `Changelog validation failed. See above.`;
-			commandData.args = [ argv.cmd ];
-
-			// Format command data based on passed arguments
-			for ( const arg of parsedArgKey ) {
-				if ( acceptedArgs.includes( arg ) ) {
-					commandData.args.push( `--${ arg }` );
-				}
-			}
-
-			if ( commandData.args.includes( '--basedir' ) ) {
-				commandData.args.push( argv.basedir );
-			}
-			break;
-		case 'version':
-			throw new Error( 'Sorry! That command is not supported yet!' );
-		case 'write':
-			throw new Error( 'Sorry! That command is not supported yet!' );
-		default:
-			throw new Error(
-				`${ chalk.bgRed( 'Unrecognized command:' ) } \`${
-					argv.cmd
-				}\`. Use \`jetpack changelog --help\` for help.`
-			);
-	}
-
-	// If we're specifying a file, pass that on to changelogger.
-	// (I believe this is used by all commands, but we can move it back to `add` if necessary )
-	if ( argv.file ) {
-		commandData.args.push( `-f${ argv.file }` );
-	}
-	if ( argv.v ) {
-		commandData.args.push( '-v' );
-	}
+export async function validateProject( argv ) {
+	argv = normalizeProject( argv );
+	argv = await promptForProject( argv );
+	argv.cwd = path.resolve( `projects/${ argv.project }` );
+	validatePath( argv, argv.cwd );
+	return argv;
 }
 
 /** Validate that the vendor/bin/changelogger file exists
