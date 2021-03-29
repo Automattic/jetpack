@@ -38,7 +38,7 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import { bindCustomizerChanges, isInCustomizer } from '../lib/customize';
+import { bindCustomizerChanges, bindCustomizerMessages, isInCustomizer } from '../lib/customize';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -51,7 +51,7 @@ class SearchApp extends Component {
 		this.input = createRef();
 		this.state = {
 			overlayOptions: { ...this.props.initialOverlayOptions },
-			showResults: this.props.initialShowResults,
+			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.props.initializeQueryValues();
@@ -87,6 +87,7 @@ class SearchApp extends Component {
 
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
+		bindCustomizerMessages( this.toggleResults );
 
 		window.addEventListener( 'popstate', this.handleHistoryNavigation );
 
@@ -240,6 +241,12 @@ class SearchApp extends Component {
 		);
 	};
 
+	toggleResults = showResults => {
+		this.setState( { showResults }, () => {
+			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
+		} );
+	};
+
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
 
@@ -313,6 +320,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body

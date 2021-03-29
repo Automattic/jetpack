@@ -126,13 +126,11 @@ export const SSO = withModuleSettingsFormHelpers(
 						</FormFieldset>
 					</SettingsGroup>
 
-					{ ! this.props.hasConnectedOwner && (
+					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
 						<ConnectUserBar
 							feature="sso"
-							text={ __(
-								'WordPress.com login provided by the WordPress.com cloud. Sign in to configure the WordPress.com login.',
-								'jetpack'
-							) }
+							featureLabel={ __( 'Secure Sign-On', 'jetpack' ) }
+							text={ __( 'Sign in to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

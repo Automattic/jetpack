@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+add deprecation notice and remove user-less check in is_active

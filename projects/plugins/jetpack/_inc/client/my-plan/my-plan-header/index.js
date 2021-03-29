@@ -26,7 +26,9 @@ import {
 	getDateFormat,
 	showBackups,
 	showRecommendations,
+	showLicensingUi,
 } from 'state/initial-state';
+import License from './license';
 import MyPlanCard from '../my-plan-card';
 
 class MyPlanHeader extends React.Component {
@@ -260,6 +262,11 @@ class MyPlanHeader extends React.Component {
 						</div>
 					</Card>
 				) }
+				{ this.props.showLicensingUi && (
+					<Card compact>
+						<License />
+					</Card>
+				) }
 			</div>
 		);
 	}
@@ -284,5 +291,6 @@ export default connect( state => {
 		displayBackups: showBackups( state ),
 		plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
 		showRecommendations: showRecommendations( state ),
+		showLicensingUi: showLicensingUi( state ),
 	};
 } )( MyPlanHeader );

@@ -73,13 +73,13 @@ class Manager {
 
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$manager->is_active(),
+			$manager->has_connected_owner(),
 			$manager->verify_xml_rpc_signature()
 		);
 
 		$manager->error_handler = Error_Handler::get_instance();
 
-		if ( $manager->is_active() ) {
+		if ( $manager->is_connected() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		}
 
@@ -100,14 +100,16 @@ class Manager {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
+	 * @since 9.6.0 Deprecate $is_active param.
+	 *
 	 * @param array                  $request_params incoming request parameters.
-	 * @param Boolean                $is_active whether the connection is currently active.
-	 * @param Boolean                $is_signed whether the signature check has been successful.
+	 * @param bool                   $has_connected_owner Whether the site has a connected owner.
+	 * @param bool                   $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
 	 */
 	public function setup_xmlrpc_handlers(
 		$request_params,
-		$is_active,
+		$has_connected_owner,
 		$is_signed,
 		\Jetpack_XMLRPC_Server $xmlrpc_server = null
 	) {
@@ -149,29 +151,27 @@ class Manager {
 
 		$this->require_jetpack_authentication();
 
-		if ( $is_active ) {
+		if ( $is_signed ) {
+			// If the site is connected either at a site or user level and the request is signed, expose the methods.
+			// The callback is responsible to determine whether the request is signed with blog or user token and act accordingly.
+			// The actual API methods.
+			$callback = array( $this->xmlrpc_server, 'xmlrpc_methods' );
+
 			// Hack to preserve $HTTP_RAW_POST_DATA.
 			add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-			if ( $is_signed ) {
-				// The actual API methods.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
-			} else {
-				// The jetpack.authorize method should be available for unauthenticated users on a site with an
-				// active Jetpack connection, so that additional users can link their account.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' ) );
-			}
-		} else {
-			// The bootstrap API methods.
-			add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+		} elseif ( $has_connected_owner && ! $is_signed ) {
+			// The jetpack.authorize method should be available for unauthenticated users on a site with an
+			// active Jetpack connection, so that additional users can link their account.
+			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
 
-			if ( $is_signed ) {
-				// The jetpack Provision method is available for blog-token-signed requests.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'provision_xmlrpc_methods' ) );
-			} else {
-				new XMLRPC_Connector( $this );
-			}
+		} else {
+			// Any other unsigned request should expose the bootstrap methods.
+			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
+			new XMLRPC_Connector( $this );
 		}
+
+		add_filter( 'xmlrpc_methods', $callback );
 
 		// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 		add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
@@ -249,7 +249,7 @@ class Manager {
 		remove_all_filters( 'authenticate' );
 		remove_all_actions( 'wp_login_failed' );
 
-		if ( $this->is_active() ) {
+		if ( $this->is_connected() ) {
 			// Allow Jetpack authentication.
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
 		}
@@ -484,12 +484,15 @@ class Manager {
 	/**
 	 * Returns true if the current site is connected to WordPress.com and has the minimum requirements to enable Jetpack UI.
 	 *
+	 * This method is deprecated since Jetpack 9.6.0. Please use has_connected_owner instead.
+	 *
+	 * Since this method has a wide spread use, we decided not to throw any deprecation warnings for now.
+	 *
+	 * @deprecated 9.6.0
+	 * @see Manager::has_connected_owner
 	 * @return Boolean is the site connected?
 	 */
 	public function is_active() {
-		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			return $this->is_connected();
-		}
 		return (bool) $this->get_tokens()->get_access_token( true );
 	}
 
@@ -575,6 +578,20 @@ class Manager {
 	 */
 	public function has_connected_owner() {
 		return (bool) $this->get_connection_owner_id();
+	}
+
+	/**
+	 * Returns true if the site is connected only at a site level.
+	 *
+	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
+	 *
+	 * @access public
+	 * @since 9.6.0
+	 *
+	 * @return bool
+	 */
+	public function is_userless() {
+		return $this->is_connected() && ! $this->has_connected_user() && ! \Jetpack_Options::get_option( 'master_user' );
 	}
 
 	/**
@@ -1386,6 +1403,11 @@ class Manager {
 	 * @return string|true|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object otherwise.
 	 */
 	public function restore() {
+		// If this is a userless connection we need to trigger a full reconnection as our only secure means of
+		// communication with WPCOM, aka the blog token, is compromised.
+		if ( $this->is_userless() ) {
+			return $this->reconnect();
+		}
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
@@ -1547,7 +1569,7 @@ class Manager {
 				'scope'         => $signed_role,
 				'user_email'    => $user->user_email,
 				'user_login'    => $user->user_login,
-				'is_active'     => $this->is_active(),
+				'is_active'     => $this->is_active(), // TODO Deprecate this.
 				'jp_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'     => $auth_type,
 				'secret'        => $secrets['secret_1'],
@@ -1886,7 +1908,7 @@ class Manager {
 	 */
 	public function xmlrpc_options( $options ) {
 		$jetpack_client_id = false;
-		if ( $this->is_active() ) {
+		if ( $this->is_connected() ) {
 			$jetpack_client_id = \Jetpack_Options::get_option( 'id' );
 		}
 		$options['jetpack_version'] = array(
@@ -2097,14 +2119,14 @@ class Manager {
 	}
 
 	/**
-	 * If connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
+	 * If the site-level connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
 	 *
 	 * @param array $stats The Heartbeat stats array.
 	 * @return array $stats
 	 */
 	public function add_stats_to_heartbeat( $stats ) {
 
-		if ( ! $this->is_active() ) {
+		if ( ! $this->is_connected() ) {
 			return $stats;
 		}
 

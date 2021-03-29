@@ -8,19 +8,8 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import { BlockControls, BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
-import {
-	Button,
-	ExternalLink,
-	Notice,
-	PanelBody,
-	Placeholder,
-	Spinner,
-	ToggleControl,
-	ToolbarButton,
-	ToolbarGroup,
-	withNotices,
-} from '@wordpress/components';
+import { BlockIcon, InnerBlocks } from '@wordpress/block-editor';
+import { Button, ExternalLink, Placeholder, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
@@ -35,11 +24,11 @@ import icon from './icon';
 import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getAttributesFromEmbedCode } from './utils';
-import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
 import testEmbedUrl from '../../shared/test-embed-url';
+import CalendlyControls from './controls';
 
-function CalendlyEdit( props ) {
+export function CalendlyEdit( props ) {
 	const {
 		attributes,
 		className,
@@ -58,7 +47,6 @@ function CalendlyEdit( props ) {
 
 	const {
 		backgroundColor,
-		submitButtonText,
 		hideEventTypeDetails,
 		primaryColor,
 		textColor,
@@ -129,31 +117,6 @@ function CalendlyEdit( props ) {
 			} );
 	};
 
-	const embedCodeForm = (
-		<>
-			<form onSubmit={ parseEmbedCode }>
-				<input
-					type="text"
-					id="embedCode"
-					onChange={ event => setEmbedCode( event.target.value ) }
-					placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-					value={ embedCode }
-					className="components-placeholder__input"
-				/>
-				<div>
-					<Button isSecondary isLarge type="submit">
-						{ _x( 'Embed', 'button label', 'jetpack' ) }
-					</Button>
-				</div>
-			</form>
-			<div className={ `${ defaultClassName }-learn-more` }>
-				<ExternalLink href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview">
-					{ __( 'Need help finding your embed code?', 'jetpack' ) }
-				</ExternalLink>
-			</div>
-		</>
-	);
-
 	const blockEmbedding = (
 		<div className="wp-block-embed is-loading">
 			<Spinner />
@@ -168,7 +131,26 @@ function CalendlyEdit( props ) {
 			icon={ <BlockIcon icon={ icon } /> }
 			notices={ noticeUI }
 		>
-			{ embedCodeForm }
+			<form onSubmit={ parseEmbedCode }>
+				<input
+					type="text"
+					id="embedCode"
+					onChange={ event => setEmbedCode( event.target.value ) }
+					placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
+					value={ embedCode }
+					className="components-placeholder__input"
+				/>
+				<div>
+					<Button isSecondary type="submit">
+						{ _x( 'Embed', 'button label', 'jetpack' ) }
+					</Button>
+				</div>
+			</form>
+			<div className={ `${ defaultClassName }-learn-more` }>
+				<ExternalLink href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview">
+					{ __( 'Need help finding your embed code?', 'jetpack' ) }
+				</ExternalLink>
+			</div>
 		</Placeholder>
 	);
 
@@ -215,89 +197,13 @@ function CalendlyEdit( props ) {
 		/>
 	);
 
-	const linkPreview = (
-		<>
-			<a style={ { alignSelf: 'flex-start', border: 'none' } } className="wp-block-button__link">
-				{ submitButtonText }
-			</a>
-		</>
-	);
-
-	const blockPreview = ( previewStyle, disabled ) => {
+	const blockPreview = previewStyle => {
 		if ( previewStyle === 'inline' ) {
 			return inlinePreview;
 		}
 
-		if ( disabled ) {
-			return linkPreview;
-		}
-
 		return buttonPreview;
 	};
-
-	const styleOptions = [
-		{ value: 'inline', label: __( 'Inline', 'jetpack' ) },
-		{ value: 'link', label: __( 'Link', 'jetpack' ) },
-	];
-
-	const inspectorControls = (
-		<>
-			{ url && ! isEditingUrl && (
-				<BlockControls>
-					<ToolbarGroup>
-						<ToolbarButton onClick={ () => setIsEditingUrl( true ) }>
-							{ __( 'Edit', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				</BlockControls>
-			) }
-			{ url && (
-				<BlockStylesSelector
-					clientId={ clientId }
-					styleOptions={ styleOptions }
-					onSelectStyle={ setAttributes }
-					activeStyle={ style }
-					attributes={ attributes }
-					viewportWidth={ 500 }
-				/>
-			) }
-			<InspectorControls>
-				<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-					<form
-						onSubmit={ parseEmbedCode }
-						className={ `${ defaultClassName }-embed-form-sidebar` }
-					>
-						<input
-							type="text"
-							id="embedCode"
-							onChange={ event => setEmbedCode( event.target.value ) }
-							placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-							value={ embedCode }
-							className="components-placeholder__input"
-						/>
-						<div>
-							<Button isSecondary isLarge type="submit">
-								{ _x( 'Embed', 'button label', 'jetpack' ) }
-							</Button>
-						</div>
-					</form>
-
-					<ToggleControl
-						label={ __( 'Hide Event Type Details', 'jetpack' ) }
-						checked={ hideEventTypeDetails }
-						onChange={ () => setAttributes( { hideEventTypeDetails: ! hideEventTypeDetails } ) }
-					/>
-				</PanelBody>
-				{ url && (
-					<Notice className={ `${ defaultClassName }-color-notice` } isDismissible={ false }>
-						<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
-							{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
-						</ExternalLink>
-					</Notice>
-				) }
-			</InspectorControls>
-		</>
-	);
 
 	if ( isResolvingUrl ) {
 		return blockEmbedding;
@@ -307,7 +213,17 @@ function CalendlyEdit( props ) {
 
 	return (
 		<div className={ classes }>
-			{ inspectorControls }
+			<CalendlyControls
+				{ ...{
+					...props,
+					defaultClassName,
+					embedCode,
+					isEditingUrl,
+					parseEmbedCode,
+					setEmbedCode,
+					setIsEditingUrl,
+				} }
+			/>
 			{ url && ! isEditingUrl ? blockPreview( style ) : blockPlaceholder }
 		</div>
 	);

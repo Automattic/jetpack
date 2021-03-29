@@ -21,7 +21,7 @@ async function getPluginNames( octokit, owner, repo, number ) {
 	labels.map( label => {
 		const plugin = label.match( /^\[Plugin\]\s(?<pluginName>[^/]*)$/ );
 		if ( plugin && plugin.groups.pluginName ) {
-			plugins.push( plugin.groups.pluginName.toLowerCase() );
+			plugins.push( plugin.groups.pluginName.replace( /\s+/, '-' ).toLowerCase() );
 		}
 	} );
 

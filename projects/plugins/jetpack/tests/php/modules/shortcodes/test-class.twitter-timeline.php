@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 /**
  * Shortcode for Twitter Timeline
  *
@@ -9,6 +11,7 @@
  * <a class="twitter-timeline" data-partner="jetpack" data-width="100" data-height="100" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>
  */
 class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * @author scotchfield

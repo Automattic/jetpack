@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -16,7 +16,17 @@ const ConnectUserFrame = props => {
 	return (
 		<div className="jp-connect-user-frame">
 			<div className="jp-connect-user-frame__left">
-				<h2>{ __( 'Unlock Monitoring and more amazing features', 'jetpack' ) }</h2>
+				{ props.featureLabel ? (
+					<h2>
+						{ sprintf(
+							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							__( 'Unlock %s and other features', 'jetpack' ),
+							props.featureLabel
+						) }
+					</h2>
+				) : (
+					<h2>{ __( 'Unlock this and other features', 'jetpack' ) }</h2>
+				) }
 
 				<ul>
 					<li>
@@ -25,7 +35,7 @@ const ConnectUserFrame = props => {
 					</li>
 					<li>
 						<Gridicon icon="checkmark-circle" />{ ' ' }
-						{ __( 'Automatically share your content on social media', 'jetpack' ) }
+						{ __( 'Automatically promote your posts on social media', 'jetpack' ) }
 					</li>
 					<li>
 						<Gridicon icon="checkmark-circle" />{ ' ' }
@@ -33,11 +43,11 @@ const ConnectUserFrame = props => {
 					</li>
 					<li>
 						<Gridicon icon="checkmark-circle" />{ ' ' }
-						{ __( 'Receive notifications about new likes and comments', 'jetpack' ) }
+						{ __( 'Receive notifications of likes and comments', 'jetpack' ) }
 					</li>
 					<li>
 						<Gridicon icon="checkmark-circle" />{ ' ' }
-						{ __( 'Let visitors share your content on social media', 'jetpack' ) }
+						{ __( 'Let visitors easily share your content', 'jetpack' ) }
 					</li>
 				</ul>
 
@@ -73,6 +83,7 @@ const ConnectUserFrame = props => {
 
 ConnectUserFrame.propTypes = {
 	source: PropTypes.string,
+	featureLabel: PropTypes.string,
 };
 
 export default ConnectUserFrame;

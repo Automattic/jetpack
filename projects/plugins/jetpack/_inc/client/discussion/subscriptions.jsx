@@ -146,13 +146,11 @@ class SubscriptionsComponent extends React.Component {
 				</SettingsGroup>
 				{ getSubClickableCard() }
 
-				{ ! this.props.isLinked && (
+				{ ! this.props.isLinked && ! this.props.isOfflineMode && (
 					<ConnectUserBar
 						feature="subscriptions"
-						text={ __(
-							'Subscriptions feature provided by the WordPress.com cloud. Sign in to view your email followers.',
-							'jetpack'
-						) }
+						featureLabel={ __( 'Subscriptions', 'jetpack' ) }
+						text={ __( 'Sign in to manage your subscriptions settings.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>

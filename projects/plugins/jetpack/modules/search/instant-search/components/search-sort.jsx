@@ -41,9 +41,9 @@ export default class SearchSort extends Component {
 		// If there are more than 3 sort options, use a select
 		if ( sortOptions.size > 3 ) {
 			return (
-				<div className="jetpack-instant-search__search-sort">
+				<div className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-select">
 					<label htmlFor="jetpack-instant-search__search-sort-select">
-						{ __( 'Sort by: ', 'jetpack' ) }
+						{ __( 'Sort:', 'jetpack' ) }
 					</label>
 					<select
 						id="jetpack-instant-search__search-sort-select"
@@ -65,7 +65,7 @@ export default class SearchSort extends Component {
 		}
 
 		return (
-			<div className="jetpack-instant-search__search-sort">
+			<div className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-links">
 				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack' ) }</div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<a

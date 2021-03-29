@@ -28,6 +28,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		render() {
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
+				isOfflineMode = this.props.isOfflineMode,
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
@@ -104,13 +105,11 @@ export const Publicize = withModuleSettingsFormHelpers(
 						</SettingsGroup>
 					) }
 
-					{ ! this.props.isLinked && (
+					{ ! isLinked && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="publicize"
-							text={ __(
-								'Publicize provided by the WordPress.com cloud. Sign in to configure the publicize connections.',
-								'jetpack'
-							) }
+							featureLabel={ __( 'Publicize', 'jetpack' ) }
+							text={ __( 'Sign in to connect your social media accounts.', 'jetpack' ) }
 						/>
 					) }
 

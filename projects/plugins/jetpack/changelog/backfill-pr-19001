@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: No changelog entry needed; this should be a seamless under-the-hood change.
+
+

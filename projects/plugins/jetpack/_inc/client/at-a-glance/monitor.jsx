@@ -38,7 +38,7 @@ class DashMonitor extends Component {
 	connect = () => this.props.authorizeUserInPlace();
 
 	getContent() {
-		const labelName = __( 'Downtime monitor', 'jetpack' );
+		const labelName = __( 'Downtime monitoring', 'jetpack' );
 
 		const support = {
 			text: __(
@@ -72,7 +72,7 @@ class DashMonitor extends Component {
 					}
 			  )
 			: __(
-					'Get alerts when your site goes offline, we’ll let you know when it’s back up, too.',
+					'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.',
 					'jetpack'
 			  );
 
@@ -92,7 +92,7 @@ class DashMonitor extends Component {
 				{ ! this.props.isOfflineMode && ! this.props.hasConnectedOwner && (
 					<p className="jp-dash-item__description jp-dash-item__connect">
 						{ createInterpolateElement(
-							__( '<a>Connect your WordPress.com</a> user account to use this feature', 'jetpack' ),
+							__( '<a>Connect your WordPress.com</a> account to use this feature.', 'jetpack' ),
 							{
 								a: <a href="javascript:void(0)" onClick={ this.connect } />,
 							}
