@@ -20,6 +20,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 	public function reregister_menu_items() {
 		parent::reregister_menu_items();
 		$this->remove_menus();
+		$this->add_p2_editor_menu();
 	}
 
 	/**
@@ -60,11 +61,20 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 			'https://wordpress.com/settings/general/' . $this->domain,
 			'https://wordpress.com/marketing/sharing-buttons/' . $this->domain
 		);
-
-		if ( $this->is_api_request ) {
-			// This menu page is only added on WP Admin.
-			add_menu_page( 'P2 Editor', 'P2 Editor', 'manage_options', 'p2editor', '', 'dashicons-admin-multisite' );
-		}
 	}
 
+	/**
+	 * Adds the P2 Editor menu.
+	 */
+	public function add_p2_editor_menu() {
+		/** This action is documented in `wp-content/plugins/p2-editor/classes/p2-editor-admin.php` */
+		if ( apply_filters( 'p2tenberg_admin_patterns', apply_filters( 'p2editor_admin_patterns', true ) ) !== true ) {
+			return;
+		}
+
+		// Add the menu only in Calypso (it already exists in WP Admin).
+		if ( $this->is_api_request ) {
+			add_menu_page( esc_attr__( 'P2 Editor', 'jetpack' ), __( 'P2 Editor', 'jetpack' ), 'manage_options', 'p2editor', '', 'dashicons-admin-multisite' );
+		}
+	}
 }
