@@ -67,12 +67,8 @@ The action relies on 4 parameters.
 
 - `GITHUB_TOKEN` is automatically created by GitHub to be used by the action. You do not have to deal with it.
 - `tasks` allows for running selected tasks instead of the full suite. The value is a comma-separated list of task identifiers. You can find the list of the different tasks (and what event it's attached to) in `src/index.js`.
-
-The last 2 parameters are stored as [secrets in your GitHub repository](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository):
-
-
-- `SLACK_TOKEN` is the Auth token of a bot that is installed on your Slack workspace.
-- `SLACK_DESIGN_CHANNEL` is the public channel's ID where you'll want messages to be posted for your design team.
+- `slack_token` is the Auth token of a bot that is installed on your Slack workspace. The token should be stored in a [secret](https://docs.github.com/en/actions/reference/encrypted-secrets#creating-encrypted-secrets-for-a-repository).
+- `slack_design_channel` is the Slack public channel ID where messages for the design team will be posted. Again, the value should be stored in a secret.
 
 To create a bot and get your `SLACK_TOKEN`, follow [the general instructions here](https://slack.com/intl/en-hu/help/articles/115005265703-Create-a-bot-for-your-workspace):
 
