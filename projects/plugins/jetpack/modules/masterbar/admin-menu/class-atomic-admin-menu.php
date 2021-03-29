@@ -41,9 +41,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
+	 *
+	 * Performs the check against the current locale set on the WordPress.com's account settings.
+	 * See `Masterbar::__construct` in `modules/masterbar/masterbar/class-masterbar.php`.
 	 */
 	public function is_rtl() {
-		return 'rtl' === get_user_option( 'jetpack_text_direction' );
+		return get_user_option( 'jetpack_wpcom_is_rtl' );
 	}
 
 	/**
