@@ -70,12 +70,12 @@ const automations = [
 
 	debug( `main: Received event = '${ context.eventName }', action = '${ eventPayload.action }'` );
 
-	const taskList = getInput( 'tasks' );
+	const taskList = ( getInput( 'tasks' ) || 'all' ).split( ',' ).map( v => v.trim() );
 
 	for ( const { event, action, task } of automations ) {
 		// If the action provided a custom list of tasks to run
 		// and if the task is not one of them, bail.
-		if ( taskList && taskList !== 'all' && ! taskList.split( ',' ).includes( task.name ) ) {
+		if ( ! taskList.includes( 'all' ) && ! taskList.includes( task.name ) ) {
 			continue;
 		}
 
