@@ -23,7 +23,7 @@ Some of the tasks are may not satisfy your needs. If that's the case, you can us
 In the example below, we'll set up the action to run 2 tasks (`cleanLabels` and `notifyDesign`):
 
 ```yml
-name: Clean Labels and notify design
+name: Repo Gardening
 
 on:
   # We need to listen to all these events to catch all scenarios
