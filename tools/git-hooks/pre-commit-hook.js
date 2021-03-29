@@ -198,6 +198,26 @@ function runEslintChanged( toLintFiles ) {
 	}
 }
 
+/** Run phpcs:lint
+ *
+ * @param {Array} toLintFiles - List of files to lint
+ */
+function runPHPCSLinter( toLintFiles ) {
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
+	const phpcsLintResult = spawnSync( 'composer', [ 'php:lint', ...toLintFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( phpcsLintResult && phpcsLintResult.status ) {
+		checkFailed( 'PHPCS found linting/syntax errors!\n' );
+		exit( exitCode );
+	}
+}
+
 /**
  * Runs PHPCS against checked PHP files. Exits if the check fails.
  */
@@ -345,6 +365,8 @@ if ( phpFiles.length > 0 ) {
 		shell: true,
 		stdio: 'inherit',
 	} );
+
+	runPHPCSLinter( phpFiles );
 }
 
 if ( phpLintResult && phpLintResult.status ) {
