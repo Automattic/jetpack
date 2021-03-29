@@ -3,7 +3,6 @@
  */
 import React, { Component } from 'react';
 import { includes } from 'lodash';
-import classNames from 'classnames';
 import { __, _x, sprintf } from '@wordpress/i18n';
 
 /**
@@ -105,13 +104,7 @@ export const Protect = withModuleSettingsFormHelpers(
 						module={ this.props.getModule( 'protect' ) }
 						className="foldable-wrapper"
 					>
-						<FoldableCard
-							onOpen={ this.trackOpenCard }
-							header={ toggle }
-							className={ classNames( {
-								'jp-foldable-settings-disable': unavailableInOfflineMode,
-							} ) }
-						>
+						<FoldableCard onOpen={ this.trackOpenCard } header={ toggle }>
 							<SettingsGroup
 								hasChild
 								module={ this.props.getModule( 'protect' ) }
@@ -179,7 +172,7 @@ export const Protect = withModuleSettingsFormHelpers(
 						</FoldableCard>
 					</SettingsGroup>
 
-					{ ! this.props.hasConnectedOwner && (
+					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
 						<ConnectUserBar
 							feature="protect"
 							featureLabel={ __( 'Protect', 'jetpack' ) }
