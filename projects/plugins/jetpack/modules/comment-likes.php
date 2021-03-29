@@ -129,7 +129,7 @@ class Jetpack_Comment_Likes {
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			$in_footer = false
+			false
 		);
 	}
 
