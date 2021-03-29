@@ -41,3 +41,25 @@ export const getMapboxImageUrl = ( attributes, token ) => {
 
 	return `${ urlWithPaths }?access_token=${ token }`;
 };
+
+export const requestMapboxImage = async url => {
+	const getMapboxImage = mapboxUrl => {
+		return fetch( mapboxUrl )
+			.then( response => {
+				if ( ! response.ok ) {
+					// TODO: Handle each of the error cases here, particular rate limiting.
+					throw new Error( 'Failed' );
+				}
+				return response.blob();
+			} )
+			.then( imgBlob => {
+				return window.URL.createObjectURL( imgBlob );
+			} )
+			.catch( err => {
+				console.log( err );
+				return false;
+			} );
+	};
+	const result = await getMapboxImage( url );
+	return result;
+};

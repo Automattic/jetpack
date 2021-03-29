@@ -14,6 +14,7 @@ import {
 	RangeControl,
 	BaseControl,
 } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 
 import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-editor';
 
@@ -22,7 +23,7 @@ import { BlockAlignmentToolbar, PanelColorSettings } from '@wordpress/block-edit
  */
 import Locations from './locations';
 import { settings } from './settings.js';
-import { getMapboxImageUrl } from './update-image';
+import { getMapboxImageUrl, requestMapboxImage } from './update-image';
 
 export default ( {
 	attributes,
@@ -42,6 +43,18 @@ export default ( {
 
 		// Allow one cycle for alignment change to take effect
 		setTimeout( mapRef.current.sizeMap, 0 );
+	};
+
+	const [ mapboxStaticImageBlob, setMapboxStaticImageBlob ] = useState( null );
+
+	const updateImage = async () => {
+		const url = getMapboxImageUrl( attributes, state.apiKey );
+		if ( url ) {
+			const mapboxImageBlob = await requestMapboxImage( url );
+			if ( mapboxImageBlob ) {
+				setMapboxStaticImageBlob( mapboxImageBlob );
+			}
+		}
 	};
 
 	/**
@@ -73,11 +86,6 @@ export default ( {
 		setTimeout( mapRef.current.sizeMap, 0 );
 	};
 
-	const updateImage = () => {
-		const url = getMapboxImageUrl( attributes, state.apiKey );
-		console.log( url );
-	};
-
 	if ( context === 'toolbar' ) {
 		return (
 			<>
@@ -92,11 +100,6 @@ export default ( {
 						label={ __( 'Add a marker', 'jetpack' ) }
 						onClick={ setPointVisibility }
 					/>
-					{ attributes.isStaticMap && (
-						<ToolbarButton icon={ settings.markerIcon } onClick={ updateImage }>
-							{ __( 'Update Image', 'jetpack' ) }
-						</ToolbarButton>
-					) }
 				</ToolbarGroup>
 			</>
 		);
@@ -115,6 +118,20 @@ export default ( {
 					},
 				] }
 			/>
+			{ attributes.isStaticMap && (
+				<PanelBody title={ __( 'Debugging the static image', 'jetpack' ) }>
+					<div>
+						<p>{ mapboxStaticImageBlob }</p>
+						<img alt="static version of the map" src={ mapboxStaticImageBlob } />
+					</div>
+
+					<ButtonGroup>
+						<Button type="button" onClick={ updateImage }>
+							{ __( 'Update Image', 'jetpack' ) }
+						</Button>
+					</ButtonGroup>
+				</PanelBody>
+			) }
 			<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
 				<BaseControl
 					label={ __( 'Height in pixels', 'jetpack' ) }
