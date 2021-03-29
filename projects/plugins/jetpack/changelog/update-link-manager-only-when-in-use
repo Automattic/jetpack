@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Only remove the Links menu item if the user has added their own links. Auto-generated default links will not be counted in order to deprecate this feature.

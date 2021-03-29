@@ -15446,6 +15446,13 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
+social-logos@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/social-logos/-/social-logos-2.3.0.tgz#4e2e2b857da3a6acb151578ec9022d0e2149675c"
+  integrity sha512-md5+ZgxAvODCQpMMhe8h7QtmmUIKLI78xjL3tfxTTqzzGIT7NaeVIiiLla/aF5kktxN1W7UGvEbse3Dn4CdYmw==
+  dependencies:
+    prop-types "^15.5.7"
+
 sort-keys@^1.0.0:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/sort-keys/-/sort-keys-1.1.2.tgz#441b6d4d346798f1b4e49e8920adfba0e543f9ad"

@@ -622,7 +622,7 @@ jobs:
   changelogger_used:
     name: Changelogger use
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2021-02-25: Wild guess.
+    timeout-minutes: 5  # 2021-03-24: Takes about a minute.
     steps:
       # We don't need full git history, but require-change-file-for-touched-projects.php does need everything up to the merge-base.
       - uses: actions/checkout@v2
@@ -674,7 +674,7 @@ jobs:
   changelogger_valid:
     name: Changelogger validity
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2021-02-25: Wild guess.
+    timeout-minutes: 5  # 2021-03-24: Takes about a minute
     steps:
       - uses: actions/checkout@v2
 
@@ -807,7 +807,40 @@ jobs:
   project_structure:
     name: Project structure
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-03-22: Should only take a few seconds.
+    timeout-minutes: 5  # 2021-03-24: Yarn stuff takes about a minute.
     steps:
       - uses: actions/checkout@v2
+
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ steps.versions.outputs.node-version }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Use yarn cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Tool versions
+        run: |
+          which node
+          node --version
+          which yarn
+          yarn --version
+          which jq
+          jq --version
+
+      - run: yarn install
       - run: .github/files/lint-project-structure.sh

@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Search: hide "filters" menu on mobile if there are no filters to display

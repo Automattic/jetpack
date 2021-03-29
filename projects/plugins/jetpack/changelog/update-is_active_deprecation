@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Deprecate is_active and add filter to the Connection Status API
