@@ -28,7 +28,6 @@
 	}
 
 	@include break-large-up() {
-		margin-top: 32px;
 		position: absolute;
 		right: $sidebar-width;
 	}
