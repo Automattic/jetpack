@@ -24,6 +24,7 @@ class MapSave extends Component {
 			scrollToZoom,
 			mapHeight,
 			showFullscreenButton,
+			isStaticMap,
 			staticMapImageUrl,
 		} = attributes;
 		const mapStyle = getActiveStyleName( settings.styles, className );
@@ -38,7 +39,7 @@ class MapSave extends Component {
 		} );
 		const alignClassName = align ? `align${ align }` : null;
 
-		if ( staticMapImageUrl ) {
+		if ( isStaticMap && staticMapImageUrl ) {
 			return (
 				<div className={ alignClassName } data-jetpack-block-initialized>
 					<img alt="" src={ staticMapImageUrl } />
