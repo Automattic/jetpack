@@ -142,7 +142,13 @@ class SearchApp extends Component {
 	}
 
 	scrollOverlayToTop() {
-		document.querySelector( `.${ OVERLAY_CLASS_NAME }` ).scrollTo( 0, 0, { smooth: true } );
+		const overlay = document.querySelector( `.${ OVERLAY_CLASS_NAME }` );
+		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
+		if ( overlay.scrollTo ) {
+			overlay.scrollTo( 0, 0, { smooth: true } );
+		} else {
+			overlay.scrollTop = 0;
+		}
 	}
 
 	getResultFormat = () => {
