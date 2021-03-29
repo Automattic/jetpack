@@ -89,6 +89,7 @@ class DashProtect extends Component {
 				module="protect"
 				support={ support }
 				className="jp-dash-item__is-inactive"
+				noToggle={ ! this.props.hasConnectedOwner }
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }

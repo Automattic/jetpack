@@ -41,6 +41,7 @@ $modal-max-width-lg: 95%;
 	color: $color-text-lighter;
 	cursor: pointer;
 	display: flex;
+	flex-shrink: 0;
 	font-size: 12px;
 	margin: 0;
 	padding: 8px;
@@ -152,18 +153,17 @@ $modal-max-width-lg: 95%;
 	line-height: 1.3;
 	word-break: break-word;
 
-	margin: 0.5em $results-margin-lg 1.5em;
+	margin: 1em $results-margin-lg 1.5em;
 	padding: 0;
 
 	@include break-large-down() {
 		margin-left: $results-margin-md;
+		margin-right: $results-margin-md;
+		margin-bottom: 1em;
 	}
 	@include break-medium-down() {
 		margin-left: $results-margin-sm;
-	}
-
-	@include break-large-up() {
-		margin-top: 32px;
+		margin-right: $results-margin-sm;
 	}
 }
 
