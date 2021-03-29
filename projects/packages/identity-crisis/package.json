@@ -27,7 +27,14 @@
 	},
 	"devDependencies": {
 		"@wordpress/dependency-extraction-webpack-plugin": "2.9.0",
-		"babel-minify-webpack-plugin": "0.3.1"
+		"babel-minify-webpack-plugin": "0.3.1",
+		"gulp-append-prepend": "1.0.9",
+		"gulp-autoprefixer": "7.0.1",
+		"gulp-clean-css": "4.3.0",
+		"gulp-rename": "2.0.0",
+		"gulp-rtlcss": "1.4.1",
+		"gulp-sass": "4.1.0",
+		"gulp-sourcemaps": "3.0.0"
 	},
 	"engines": {
 		"node": "^14.16.0",
