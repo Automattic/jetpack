@@ -42,22 +42,13 @@ const withProxy = WrappedComponent => props => {
 		} else {
 			// Not in cache, send a request
 			setIsFetching( true );
-			const safeQuery = ( proxyQuery || '' ).replace( /^\?/, '' );
-			/*
-			apiFetch( {
-				//path: `/sites/${ proxySiteIdOrSlug }/atomic-auth-proxy/file?path=${ proxyMediaPath }&${ safeQuery }`,
-				//path: `https://public-api.wordpress.com/sites/${ proxySiteIdOrSlug }/atomic-auth-proxy/file?path=${ proxyMediaPath }&${ safeQuery }`,
-				apiNamespace: 'wpcom/v2',
-			} )
-            */
+			//const safeQuery = ( proxyQuery || '' ).replace( /^\?/, '' );
 			//testsitemmrtag.files.wordpress.com/2021/03/drone-4.jpg?resize=750x750
-			// https://flarypod.jurassic.tube/wp-content/uploads/2021/03/drone-2-1.jpg
 			// fetch(
 			// 	'https://public-api.wordpress.com/wpcom/v2/sites/testsitemmrtag.wordpress.com/atomic-auth-proxy/file/wp-content/uploads/2021/03/drone-4.jpg?resize=214%2C214'
 			// )
-			fetch(
-				'https://public-api.wordpress.com/wpcom/v2/sites/flarypod.jurassic.tube/atomic-auth-proxy/file/wp-content/uploads/2021/03/drone-2-1.jpg?resize=214%2C214'
-			)
+			console.log( 'apifetching..' );
+			apiFetch( { path: '/wpcom/v2/joltw/file?path=/wp-content/uploads/2021/03/drone-2-1.jpg' } )
 				.then( data => {
 					setIsFetching( false );
 
