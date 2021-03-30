@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Replace usage of deprecated is_active method
-- Update dependency versions.
 - Update package dependencies.
 
 ### Fixed

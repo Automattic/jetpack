@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Sync: Use the new Password_Checker package instead of Jetpack_Password_Checker.
-- Update dependency versions.
 - Update package dependencies.
 - Use the Heartbeat package to generate the stats array
 

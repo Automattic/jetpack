@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Connection UI: remove .github directory from production package
 - Pin dependencies
-- Update dependency versions.
 - Update Node to match latest LTS 12
 - Update package dependencies.
 

@@ -13,8 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use is_connected instead of is_active to instantiate Pre/Post_Connection_JITM
 - Add a jetpack_pre_connection_jitms filter.
 - Update colors to match upcoming WP 5.7 color changes
-- Update dependency eslint to v7.21.0
-- Update dependency versions.
 - Update Node to match latest LTS 12
 - Update package dependencies.
 

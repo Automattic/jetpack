@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Composer alias for dev-master, to improve dependencies
 
 ### Changed
-- Update dependency eslint to v7.21.0
 - Update package dependencies.
 
 ### Fixed
