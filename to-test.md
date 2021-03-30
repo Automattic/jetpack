@@ -8,6 +8,16 @@
 
 ### Blocks
 
+
+#### Star Rating Block
+
+You should now be able to select 0 stars in a star rating block. To test this, try the following:
+
+1. Create a new post and add a Rating block.
+2. Click on the first star multiple times. The star should change from 1 star to 0.5 stars to 0 stars, then back to 1 star.
+3. Try different changing from different star ratings and make sure the behavior is correct.
+4. Set a star rating block to 0 stars and publish the post. Make sure that the published block displays correctly.
+
 #### Video Block
 
 In this release, we now handle deleted videos better. To test this, you'll need:
