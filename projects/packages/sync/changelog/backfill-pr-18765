@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update Sync Queue so that serialize is wrapped to catch errors

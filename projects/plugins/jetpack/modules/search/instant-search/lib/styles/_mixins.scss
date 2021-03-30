@@ -35,6 +35,29 @@
 		@content;
 	}
 }
+
+@mixin break-xlarge-up() {
+	@media ( min-width: #{ ( $break-xl ) } ) {
+		@content;
+	}
+}
+@mixin break-xlarge-down() {
+	@media ( max-width: #{ ( $break-xl - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-xxlarge-up() {
+	@media ( min-width: #{ ( $break-xxl ) } ) {
+		@content;
+	}
+}
+@mixin break-xxlarge-down() {
+	@media ( max-width: #{ ( $break-xxl - .02px ) } ) {
+		@content;
+	}
+}
+
 @mixin remove-button-styling() {
 	appearance: none;
 	background: none;
@@ -43,6 +66,7 @@
 	outline: none;
 	padding: 0;
 	text-decoration: none;
+	text-transform: none;
 
 	&:hover,
 	&:focus {

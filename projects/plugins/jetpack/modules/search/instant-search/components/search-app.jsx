@@ -17,6 +17,7 @@ import stringify from 'fast-json-stable-stringify';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
@@ -140,6 +141,16 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
+	scrollOverlayToTop() {
+		const overlay = document.querySelector( `.${ OVERLAY_CLASS_NAME }` );
+		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
+		if ( overlay.scrollTo ) {
+			overlay.scrollTo( 0, 0, { smooth: true } );
+		} else {
+			overlay.scrollTop = 0;
+		}
+	}
+
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
@@ -224,11 +235,6 @@ class SearchApp extends Component {
 		);
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-		this.preventBodyScroll();
-	};
-
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -241,11 +247,23 @@ class SearchApp extends Component {
 		);
 	};
 
+	// Used for showResults and Customizer integration.
 	toggleResults = showResults => {
 		this.setState( { showResults }, () => {
-			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
+			if ( showResults ) {
+				this.preventBodyScroll();
+				// NOTE: Summoned overlay will not automatically be scrolled to the top
+				//       when used in conjuction with slideInUp animation.
+				// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
+				requestAnimationFrame( () => this.scrollOverlayToTop() );
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
 		} );
 	};
+
+	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
@@ -320,6 +338,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body

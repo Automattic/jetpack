@@ -25,6 +25,7 @@ import {
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
+import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
 
 const mergeArrays = ( x, y ) => {
@@ -187,6 +188,8 @@ const isStepEligibleToShow = ( state, step ) => {
 			return true;
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
+		case 'monitor':
+			return hasConnectedOwner( state ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -255,6 +258,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	switch ( slug ) {
 		case 'woocommerce':
 			return true === getDataByKey( state, 'site-type-store' );
+		case 'monitor':
+			return hasConnectedOwner( state );
 		default:
 			return true;
 	}

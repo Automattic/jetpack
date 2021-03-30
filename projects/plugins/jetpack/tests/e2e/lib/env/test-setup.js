@@ -13,7 +13,6 @@ import {
 	loginToWpSite,
 } from '../flows/jetpack-connect';
 import config from 'config';
-import path from 'path';
 
 async function maybePreConnect() {
 	const wpComUser = 'defaultUser';
@@ -31,10 +30,7 @@ async function maybePreConnect() {
 
 	if ( status !== 'already_connected' ) {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-		fs.writeFileSync(
-			path.resolve( config.get( 'configDir' ), 'jetpack-private-options.txt' ),
-			result.trim()
-		);
+		fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
 	}
 }
 
