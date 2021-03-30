@@ -33,7 +33,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		) {
 			require_lib( 'wpforteams' );
 
-			if ( \WPForTeams\is_part_of_active_workspace( get_current_blog_id() ) ) {
+			if ( \WPForTeams\Workspace\is_part_of_active_workspace( get_current_blog_id() ) ) {
 				remove_menu_page( 'https://wordpress.com/plans/' . $this->domain );
 			}
 		}
