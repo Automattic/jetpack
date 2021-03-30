@@ -12,6 +12,7 @@
 		{
 			"groupName": "Monorepo packages",
 			"matchPackageNames": [
+				"@automattic/jetpack-connection",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
 				"automattic/jetpack-analyzer",

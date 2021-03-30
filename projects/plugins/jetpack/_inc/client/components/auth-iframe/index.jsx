@@ -6,8 +6,7 @@ import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { InPlaceConnection } from '@automattic/jetpack-connection';
-import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/helpers';
+import { InPlaceConnection, thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -55,7 +54,9 @@ export class AuthIframe extends React.Component {
 		this.props.onAuthorized();
 	};
 
-	onThirdPartyCookiesBlocked = () => thirdPartyCookiesFallbackHelper( this.props.connectUrl );
+	onThirdPartyCookiesBlocked = () => {
+		thirdPartyCookiesFallbackHelper( this.props.connectUrl );
+	};
 
 	render = () => {
 		return (
