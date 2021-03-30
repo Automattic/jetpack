@@ -59,6 +59,15 @@ Once you're set with this, try the following:
 7. Update your post.
 8. Visit post, the video should be displayed properly.
 
+### Connections Flows
+
+We continue to improve connection flows for a better first experience with the plugin. You can test a few things here:
+
+1. Add the following snippet to your site before you connect the site to WordPress.com: `add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );`
+1. You should see messages appear under the Media, Appearance > Widgets, and Posts pages (only if you have at least 5 published posts) before you connect your site to your WordPress.com account.
+1. Those messages should not be displayed anymore once you've connected your site.
+1. Check the "Recommendations" banner that appears on the main dashboard page and the main Plugins page once you've connected your site to WordPress.com; you should be able to either dismiss it easily (and it should not come back after that), or start the Recommendations process from there.
+
 ### Password Checker
 * Check the `password-checker` [README.md](https://github.com/Automattic/jetpack/blob/master/projects/packages/password-checker/README.md) for more in-depth examples.
 
