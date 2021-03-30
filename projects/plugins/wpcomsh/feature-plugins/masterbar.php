@@ -205,5 +205,25 @@ function wpcomsh_add_woocommerce_install_menu() {
 }
 add_action( 'admin_menu', 'wpcomsh_add_woocommerce_install_menu' );
 
+/**
+ * Adds the Plugins menu when the site has a non-supported WPCOM plan, i.e. not business or ecommerce. On these sites,
+ * the Plugins menu links to the Calypso plugins page.
+ */
+function wpcomsh_add_plugins_menu_non_supported_plans() {
+	// Safety - don't alter anything if Nav Unification is not enabled.
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || ! wpcomsh_activate_nav_unification( false ) ) {
+		return;
+	}
+
+	if ( current_user_can( 'activate_plugins' ) ) {
+		// The site will have the normal wp-admin Plugins menu.
+		return;
+	}
+
+	$plugins_slug = 'https://wordpress.com/plugins/' . ( new Automattic\Jetpack\Status() )->get_site_suffix();
+	add_menu_page( 'Plugins', 'Plugins', 'manage_options', $plugins_slug, null, 'dashicons-admin-plugins', '65' );
+}
+add_action( 'admin_menu', 'wpcomsh_add_plugins_menu_non_supported_plans' );
+
 // Temporary hotfixes due to Jetpack monthly release cycle.
 require_once __DIR__ . '/nav-unification-hotfixes.php';
