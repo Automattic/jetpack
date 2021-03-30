@@ -37,6 +37,22 @@ class VideoPress_Gutenberg {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
 	}
 
+	private static function get_blog_id() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return get_current_blog_id();
+		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+			/**
+			 * We're intentionally not using `get_current_blog_id` because it was returning unexpected values.
+			 *
+			 * @see https://github.com/Automattic/jetpack/pull/11193#issuecomment-457883886
+			 * @see https://github.com/Automattic/jetpack/pull/11193/commits/215cf789f3d8bd03ff9eb1bbdb693acb8831d273
+			 */
+			return Jetpack_Options::get_option( 'id' );
+		}
+
+		return null;
+	}
+
 	/**
 	 * Used to check whether VideoPress is enabled for given site.
 	 *
@@ -48,6 +64,17 @@ class VideoPress_Gutenberg {
 	 * unavailable (key `unavailable_reason`)
 	 */
 	public function check_videopress_availability() {
+		if (
+			defined( 'IS_WPCOM' ) && IS_WPCOM &&
+			function_exists( 'require_lib' )
+		) {
+			require_lib( 'wpforteams' );
+
+			if ( WPForTeams\Workspace\is_part_of_active_workspace( self::get_blog_id() ) ) {
+				return array( 'available' => true );
+			}
+		}
+
 		// It is available on Simple Sites having the appropriate a plan.
 		if (
 			defined( 'IS_WPCOM' ) && IS_WPCOM
@@ -130,17 +157,7 @@ class VideoPress_Gutenberg {
 			return $content;
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
-		} elseif ( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) {
-			/**
-			 * We're intentionally not using `get_current_blog_id` because it was returning unexpected values.
-			 *
-			 * @see https://github.com/Automattic/jetpack/pull/11193#issuecomment-457883886
-			 * @see https://github.com/Automattic/jetpack/pull/11193/commits/215cf789f3d8bd03ff9eb1bbdb693acb8831d273
-			 */
-			$blog_id = Jetpack_Options::get_option( 'id' );
-		}
+		$blog_id = self::get_blog_id();
 
 		if ( ! isset( $blog_id ) ) {
 			return $content;
