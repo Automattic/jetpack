@@ -23,7 +23,7 @@ import './style.scss';
  * @param {string} props.connectUrl -- The connection URL.
  * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
  * @param {Function} props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
- * @param {string} props.source -- Component location identifier passed to WP.com.
+ * @param {string} props.location -- Component location identifier passed to WP.com.
  *
  * @returns {React.Component} The in-place connection component.
  */
@@ -37,7 +37,7 @@ const InPlaceConnection = props => {
 		connectUrl,
 		onComplete,
 		onThirdPartyCookiesBlocked,
-		source,
+		location,
 	} = props;
 	let { height } = props;
 
@@ -102,8 +102,8 @@ const InPlaceConnection = props => {
 
 	src += '&iframe_height=' + parseInt( height );
 
-	if ( source ) {
-		src += '&iframe_source=' + source;
+	if ( location ) {
+		src += '&iframe_source=' + location;
 	}
 
 	return (
@@ -134,7 +134,7 @@ InPlaceConnection.propTypes = {
 	scrollToIframe: PropTypes.bool,
 	onComplete: PropTypes.func,
 	onThirdPartyCookiesBlocked: PropTypes.func,
-	source: PropTypes.string,
+	location: PropTypes.string,
 };
 
 InPlaceConnection.defaultProps = {

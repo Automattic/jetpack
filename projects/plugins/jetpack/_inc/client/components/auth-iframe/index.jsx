@@ -31,7 +31,7 @@ export class AuthIframe extends React.Component {
 		scrollToIframe: PropTypes.bool,
 		onAuthorized: PropTypes.func,
 		displayTOS: PropTypes.bool,
-		source: PropTypes.string,
+		location: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -75,7 +75,7 @@ export class AuthIframe extends React.Component {
 				displayTOS={ this.props.displayTOS }
 				scrollToIframe={ this.props.scrollToIframe }
 				onComplete={ this.onComplete }
-				source={ this.props.source }
+				location={ this.props.location }
 				onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
 			/>
 		);

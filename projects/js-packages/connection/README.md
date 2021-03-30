@@ -20,7 +20,7 @@ It includes:
 - *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
 - *connectUrl* - string (required), the connection URL.
 - *displayTOS* - boolean (required), whether the iframe should display TOS or not.
-- *source* - string, component location identifier passed to WP.com.
+- *location* - string, component location identifier passed to WP.com.
 
 ### Usage
 ```jsx
@@ -36,7 +36,7 @@ import InPlaceConnection from 'in-place-connection';
 	scrollToIframe={ false }
 	onComplete={ () => alert( 'Connected' ) }
 	onThirdPartyCookiesBlocked={ () => window.location.replace( 'https://example.org/fallback-url/' ) }
-	source="sample-connection-form"
+	location="sample-connection-form"
 />
 ```
 

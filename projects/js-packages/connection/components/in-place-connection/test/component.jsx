@@ -16,7 +16,7 @@ describe( 'InPlaceConnection', () => {
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		scrollToIframe: false,
 		displayTOS: false,
-		source: 'testing',
+		location: 'testing',
 	};
 
 	describe( 'Loading state', () => {
