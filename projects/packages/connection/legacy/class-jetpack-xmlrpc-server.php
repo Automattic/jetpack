@@ -55,13 +55,12 @@ class Jetpack_XMLRPC_Server {
 	public function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
 			'jetpack.verifyAction'     => array( $this, 'verify_action' ),
-			'jetpack.getUser'          => array( $this, 'get_user' ),
-			'jetpack.remoteRegister'   => array( $this, 'remote_register' ),
-			'jetpack.remoteProvision'  => array( $this, 'remote_provision' ),
 			'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 			'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
 			'jetpack.testConnection'   => array( $this, 'test_connection' ),
 		);
+
+		$jetpack_methods = array_merge( $jetpack_methods, $this->provision_xmlrpc_methods() );
 
 		$this->user = $this->login();
 

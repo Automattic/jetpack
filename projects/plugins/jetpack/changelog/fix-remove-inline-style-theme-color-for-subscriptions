@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions Block: allow block to override color styles, falling back to theme defaults.

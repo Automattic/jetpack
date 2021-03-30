@@ -31,7 +31,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.newContext();
 
 		this.global.siteUrl = fs
-			.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
 			.replace( 'http:', 'https:' );
 	}
 
@@ -250,7 +250,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			try {
 				const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 				fileName = `${ fileNameFormatter( fileName ) }.html`;
-				const filePath = path.resolve( config.logsDir, fileName );
+				const filePath = path.resolve( config.get( 'dirs.logs' ), fileName );
 				fs.writeFileSync( filePath, bodyHTML );
 				logger.debug( `Page saved: ${ filePath }` );
 			} catch ( error ) {

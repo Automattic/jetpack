@@ -154,3 +154,9 @@
 .wp-block-premium-content-login-button {
 	display: inline-block;
 }
+
+.wp-block[data-align='center'] > .wp-block-premium-content-login-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
