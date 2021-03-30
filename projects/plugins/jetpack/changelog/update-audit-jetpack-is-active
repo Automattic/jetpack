@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Jetpack: Audit and replace Jetpack:is_active with user-less in mind.
