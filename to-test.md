@@ -8,6 +8,16 @@
 
 ### Blocks
 
+### Password Checker
+* Check the `password-checker` [README.md](https://github.com/Automattic/jetpack/blob/master/projects/packages/password-checker/README.md) for more in-depth examples.
 
+Usage:
+```php
+use Automattic\Jetpack\Password_Checker;
+
+$user = new WP_User( 1 );
+$password_checker = new Password_Checker( $user );
+$password_checker->test( '123', true );
+```
 
 **Thank you for all your help!**
