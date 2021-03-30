@@ -8,6 +8,24 @@
 
 ### Blocks
 
+#### Video Block
+
+In this release, we now handle deleted videos better. To test this, you'll need:
+
+- A Paid Jetpack plan
+- The Videos option should be active under Jetpack > Settings > Performance
+
+Once you're set with this, try the following:
+
+1. Create a post and insert a Video block.
+2. Upload a new video.
+3. Publish the post.
+4. Go to the Media Library and permanently delete the video.
+5. Revisit the post in the editor. You will see a black placeholder. Clicking the block should allow you to access the normal block controls so you can delete the block/replace the video file.
+6. Add a new video file instead of the now missing.
+7. Update your post.
+8. Visit post, the video should be displayed properly.
+
 ### Password Checker
 * Check the `password-checker` [README.md](https://github.com/Automattic/jetpack/blob/master/projects/packages/password-checker/README.md) for more in-depth examples.
 
