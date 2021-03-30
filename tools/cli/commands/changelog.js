@@ -22,9 +22,10 @@ import { normalizeProject } from '../helpers/normalizeArgv';
  * @returns {object} Yargs with the changelog commands defined.
  */
 export function changelogDefine( yargs ) {
+	// Main Changelog command
 	yargs.command(
 		'changelog [cmd]',
-		'Runs the changelogger command',
+		'Runs the changelogger wizard',
 		yarg => {
 			yarg
 				.positional( 'cmd', {
@@ -36,6 +37,7 @@ export function changelogDefine( yargs ) {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
 				} )
+				// Changelog add subcommand
 				.command(
 					'add [project]',
 					'Runs a changelogger add command for a project',
@@ -70,6 +72,7 @@ export function changelogDefine( yargs ) {
 						await changelogAdd( argv );
 					}
 				)
+				// Changelog validate subscommand
 				.command(
 					'validate [project]',
 					'Runs a changelogger validate command to validate changelog files for a project',
