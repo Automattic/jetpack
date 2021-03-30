@@ -18,6 +18,10 @@ You should now be able to select 0 stars in a star rating block. To test this, t
 3. Try different changing from different star ratings and make sure the behavior is correct.
 4. Set a star rating block to 0 stars and publish the post. Make sure that the published block displays correctly.
 
+#### Tiled Gallery Block
+
+We've improved the Tiled Gallery block so editing existing galleries does not create any errors. To test this, it's easier if there are already existing galleries on your site, using the tiled gallery block. Try editing posts containing such galleries; you should not see any errors or broken tiled gallery block in the editor.
+
 #### Video Block
 
 In this release, we now handle deleted videos better. To test this, you'll need:
