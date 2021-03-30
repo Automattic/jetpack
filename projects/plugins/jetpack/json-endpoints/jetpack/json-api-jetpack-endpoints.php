@@ -551,7 +551,7 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint(
 	)
 );
 
-// POST /sites/%s/sync/health
+// POST /sites/%s/sync/health .
 new Jetpack_JSON_API_Sync_Modify_Health_Endpoint(
 	array(
 		'description'             => 'Update sync health',

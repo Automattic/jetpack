@@ -122,7 +122,10 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 	}
 }
 
-// POST /sites/%s/sync/health
+// POST /sites/%s/sync/health .
+/**
+ * POST /sites/%s/sync/health
+ */
 class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 
 	/**
