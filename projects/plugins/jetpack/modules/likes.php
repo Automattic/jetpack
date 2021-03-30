@@ -390,7 +390,7 @@ class Jetpack_Likes {
 	 * Load the JS required for loading the like counts.
 	 */
 	public function enqueue_admin_scripts() {
-		if ( empty( $_GET['post_type'] ) || 'post' === $_GET['post_type'] || 'page' === $_GET['post_type'] ) {
+		if ( empty( $_GET['post_type'] ) || 'post' === $_GET['post_type'] || 'page' === $_GET['post_type'] ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
