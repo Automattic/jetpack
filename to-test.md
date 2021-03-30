@@ -68,18 +68,6 @@ We continue to improve connection flows for a better first experience with the p
 1. Those messages should not be displayed anymore once you've connected your site.
 1. Check the "Recommendations" banner that appears on the main dashboard page and the main Plugins page once you've connected your site to WordPress.com; you should be able to either dismiss it easily (and it should not come back after that), or start the Recommendations process from there.
 
-### Password Checker
-* Check the `password-checker` [README.md](https://github.com/Automattic/jetpack/blob/master/projects/packages/password-checker/README.md) for more in-depth examples.
-
-Usage:
-```php
-use Automattic\Jetpack\Password_Checker;
-
-$user = new WP_User( 1 );
-$password_checker = new Password_Checker( $user );
-$password_checker->test( '123', true );
-```
-
 ### SEO Tools
 
 Until now, one had to go to the WordPress.com dashboard to change their SEO settings once the feature was enabled. That's no longer necessary. You can now manage all settings from your Jetpack dashboard:
