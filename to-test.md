@@ -8,6 +8,15 @@
 
 ### Blocks
 
+#### Payment, Revue, Subscription Blocks
+
+We've added a new "width" option to the buttons that can be added via multiple blocks in Jetpack; Payment, Revue, Subscription. To test this:
+
+1. Create a new post and add one of those blocks.
+2. Click on the button and try to customize its settings.
+3. See how those settings look like on the frontend.
+4. See that settings do not cause any issues when coming back to edit an existing post with such a button.
+5. Try playing with both the percentage option and the pixel option for the button's width settings.
 
 #### Star Rating Block
 
