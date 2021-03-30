@@ -12,7 +12,7 @@ import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
-import { changelogDefine, changelogAddDefine, changelogValidateDefine } from './commands/changelog';
+import { changelogDefine } from './commands/changelog';
 
 // import { dockerDefine } from "./commands/docker";
 
@@ -32,8 +32,6 @@ export async function cli() {
 	 */
 	argv = buildDefine( argv );
 	argv = changelogDefine( argv );
-	argv = changelogAddDefine( argv );
-	argv = changelogValidateDefine( argv );
 	argv = cliDefine( argv );
 	// argv = dockerDefine( argv );
 	argv = generateDefine( argv );

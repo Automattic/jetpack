@@ -23,25 +23,85 @@ import { normalizeProject } from '../helpers/normalizeArgv';
  */
 export function changelogDefine( yargs ) {
 	yargs.command(
-		[ 'changelog <cmd> [project]', 'changelogger' ],
-		'Runs a changelogger add command for a project',
+		'changelog [cmd]',
+		'Runs the changelogger command',
 		yarg => {
 			yarg
-				.positional( 'command', {
+				.positional( 'cmd', {
 					describe: 'Command for changelog script to run',
 					type: 'string',
 					choices: [ 'add', 'validate', 'write', 'version' ],
 				} )
-				.positional( 'project', {
+				.options( 'project', {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
-				} );
+				} )
+				.command(
+					'add [project]',
+					'Runs a changelogger add command for a project',
+					yargAdd => {
+						yargAdd
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'file', {
+								alias: 'f',
+								describe: 'Name of changelog file',
+								type: 'string',
+							} )
+							.option( 'significance', {
+								alias: 's',
+								describe: 'Significance of changes (patch, minor, major)',
+								type: 'string',
+							} )
+							.option( 'type', {
+								alias: 't',
+								describe: 'Type of change',
+								type: 'string',
+							} )
+							.option( 'entry', {
+								alias: 'e',
+								describe: 'Changelog entry',
+								type: 'string',
+							} );
+					},
+					async argv => {
+						await changelogAdd( argv );
+					}
+				)
+				.command(
+					'validate [project]',
+					'Runs a changelogger validate command to validate changelog files for a project',
+					yargValidate => {
+						yargValidate
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'gh-action', {
+								describe: 'Output validation issues using GitHub Action command syntax.',
+								type: 'bool',
+							} )
+							.option( 'base-dir', {
+								describe: 'Output file paths in this directory relative to it.',
+								type: 'bool',
+							} )
+							.option( 'no-strict', {
+								alias: 'strict',
+								describe: 'Do not exit with a failure code if only warnings are found.',
+								type: 'bool',
+							} );
+					},
+					async argv => {
+						await changelogValidate( argv );
+					}
+				);
 		},
 		async argv => {
 			await changelogRouter( argv );
 		}
 	);
-
 	return yargs;
 }
 
@@ -50,9 +110,9 @@ export function changelogDefine( yargs ) {
  *
  * @param {argv} argv - the arguments passed.
  */
-function changelogRouter( argv ) {
+async function changelogRouter( argv ) {
 	if ( ! argv.cmd ) {
-		argv.cmd = promptCommand( argv );
+		argv = await promptCommand( argv );
 	}
 	switch ( argv.cmd ) {
 		case 'add':
@@ -73,95 +133,14 @@ function changelogRouter( argv ) {
  * @returns {argv}.
  */
 async function promptCommand( argv ) {
-	argv.cmd = await inquirer.prompt( {
+	const response = await inquirer.prompt( {
 		type: 'list',
-		name: 'type',
+		name: 'cmd',
 		message: 'What type of project are you working on today?',
-		choices: [ 'add', 'verify', 'write', 'version' ],
+		choices: [ 'add', 'validate', 'write', 'version' ],
 	} );
+	argv.cmd = response.cmd;
 	return argv;
-}
-/**
- * Comand definition for changelog add subcommand.
- *
- * @param {yargs} yargs - The Yargs dependency.
- * @returns {object} Yargs with the changelog commands defined.
- */
-export function changelogAddDefine( yargs ) {
-	yargs.command(
-		[ 'changelog add [project]', 'changelogger' ],
-		'Runs a changelogger add command for a project',
-		yarg => {
-			yarg
-				.positional( 'project', {
-					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
-					type: 'string',
-				} )
-				.option( 'file', {
-					alias: 'f',
-					describe: 'Name of changelog file',
-					type: 'string',
-				} )
-				.option( 'significance', {
-					alias: 's',
-					describe: 'Significance of changes (patch, minor, major)',
-					type: 'string',
-				} )
-				.option( 'type', {
-					alias: 't',
-					describe: 'Type of change',
-					type: 'string',
-				} )
-				.option( 'entry', {
-					alias: 'e',
-					describe: 'Changelog entry',
-					type: 'string',
-				} );
-		},
-		async argv => {
-			await changelogAdd( argv );
-		}
-	);
-
-	return yargs;
-}
-
-/**
- * Comand definition for changelog validate subcommand.
- *
- * @param {yargs} yargs - The Yargs dependency.
- * @returns {object} Yargs with the changelog commands defined.
- */
-export function changelogValidateDefine( yargs ) {
-	yargs.command(
-		[ 'changelog validate [project]', 'changelogger' ],
-		'Runs a changelogger validate command to validate changelog files for a project',
-		yarg => {
-			yarg
-				.positional( 'project', {
-					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
-					type: 'string',
-				} )
-				.option( 'gh-action', {
-					describe: 'Output validation issues using GitHub Action command syntax.',
-					type: 'bool',
-				} )
-				.option( 'base-dir', {
-					describe: 'Output file paths in this directory relative to it.',
-					type: 'bool',
-				} )
-				.option( 'no-strict', {
-					alias: 'strict',
-					describe: 'Do not exit with a failure code if only warnings are found.',
-					type: 'bool',
-				} );
-		},
-		async argv => {
-			await changelogValidate( argv );
-		}
-	);
-
-	return yargs;
 }
 
 /**
@@ -241,7 +220,6 @@ export async function changelogValidate( argv ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
-	console.log( argv );
 	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
 	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
