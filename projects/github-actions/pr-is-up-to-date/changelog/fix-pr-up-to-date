@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Don't fail sanity check if tag is at master.
