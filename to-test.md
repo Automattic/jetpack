@@ -6,6 +6,16 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
+### Instant Search
+
+This release brings a lot of changes to the Instant Search feature; we would recommend looking at every aspect of the feature to see how things work:
+
+1. Purchase a Search plan.
+2. Go to Jetpack > Settings > Performance, enable Instant Search.
+3. Go to Appearance > Customize > Jetpack Search and play with the different Jetpack Search settings.
+4. Try the same on a site with WooCommerce products and reviews if possible.
+5. Save your changes and see how the search overlay behaves on the frontend of your site.
+
 ### Blocks
 
 #### Payment, Revue, Subscription Blocks
