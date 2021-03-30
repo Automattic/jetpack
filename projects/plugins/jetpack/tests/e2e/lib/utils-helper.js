@@ -123,8 +123,8 @@ async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
-	const filename = `logs/debug_${ escapedDate }.log`;
-	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), log );
+	const filename = `debug_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), log );
 
 	const lines = log.split( '\n' );
 	log = lines
@@ -149,8 +149,8 @@ async function logAccessLog() {
 	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
-	const filename = `logs/access_${ escapedDate }.log`;
-	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), apacheLog );
+	const filename = `access_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), apacheLog );
 	logger.slack( { type: 'debuglog', message: apacheLog } );
 }
 
