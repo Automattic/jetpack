@@ -195,9 +195,9 @@ export async function changelogAdd( argv ) {
 export async function changelogValidate( argv ) {
 	argv = await validateProject( argv );
 	const parsedArgKey = Object.keys( argv );
-	const acceptedArgs = [ 'gh-action', `basedir`, 'no-strict' ];
+	const acceptedArgs = [ 'gh-action', 'basedir', 'no-strict' ];
 	argv.success = `Validation for ${ argv.project } completed succesfully!`;
-	argv.error = `Changelog validation failed. See above.`;
+	argv.error = 'Changelog validation failed. See above.';
 	argv.args = [ 'validate' ];
 
 	// Add any options we're passing onto the command.
@@ -254,7 +254,8 @@ export async function validateProject( argv ) {
 	return argv;
 }
 
-/** Validate that the vendor/bin/changelogger file exists
+/**
+ * Validate that the vendor/bin/changelogger file exists
  *
  * @param {object} argv - arguments passed to the wizard.
  * @param {string} dir - path to file we're adding changlog too.
