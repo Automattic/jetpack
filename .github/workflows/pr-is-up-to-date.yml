@@ -26,6 +26,8 @@ jobs:
     timeout-minutes: 5  # 2021-03-23: Should be quick, but let's give it some room.
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
         env:
