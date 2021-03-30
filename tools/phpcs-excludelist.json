@@ -351,7 +351,6 @@
 	"projects/plugins/jetpack/modules/videopress/class.videopress-ajax.php",
 	"projects/plugins/jetpack/modules/videopress/class.videopress-cli.php",
 	"projects/plugins/jetpack/modules/videopress/class.videopress-edit-attachment.php",
-	"projects/plugins/jetpack/modules/videopress/class.videopress-gutenberg.php",
 	"projects/plugins/jetpack/modules/videopress/class.videopress-options.php",
 	"projects/plugins/jetpack/modules/videopress/class.videopress-player.php",
 	"projects/plugins/jetpack/modules/videopress/class.videopress-scheduler.php",
