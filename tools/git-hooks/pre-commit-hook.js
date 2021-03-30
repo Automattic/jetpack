@@ -198,22 +198,22 @@ function runEslintChanged( toLintFiles ) {
 	}
 }
 
-/** Run phpcs:lint
+/** Run php:lint
  *
  * @param {Array} toLintFiles - List of files to lint
  */
-function runPHPCSLinter( toLintFiles ) {
+function runPHPLinter( toLintFiles ) {
 	if ( ! toLintFiles.length ) {
 		return;
 	}
 
-	const phpcsLintResult = spawnSync( 'composer', [ 'php:lint', ...toLintFiles ], {
+	const phpLintResult = spawnSync( 'composer', [ 'php:lint', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 
-	if ( phpcsLintResult && phpcsLintResult.status ) {
-		checkFailed( 'PHPCS found linting/syntax errors!\n' );
+	if ( phpLintResult && phpLintResult.status ) {
+		checkFailed( 'PHP found linting/syntax errors!\n' );
 		exit( exitCode );
 	}
 }
@@ -366,7 +366,7 @@ if ( phpFiles.length > 0 ) {
 		stdio: 'inherit',
 	} );
 
-	runPHPCSLinter( phpFiles );
+	runPHPLinter( phpFiles );
 }
 
 if ( phpLintResult && phpLintResult.status ) {
