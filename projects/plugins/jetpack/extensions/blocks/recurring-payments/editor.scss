@@ -17,8 +17,22 @@
 			max-width: 500px;
 			p {
 				font-size: 13px;
-				margin: 0 0 10px;
+				margin: 20px 0 10px;
 			}
+
+			p:first-child {
+				margin-top: 0;
+			}
+		}
+
+		&__instructions {
+			.components-select-control__input {
+				padding: 0 24px 0 8px;
+			}
+		}
+
+		label {
+			font-size: 13px;
 		}
 	}
 
@@ -47,6 +61,7 @@
 
 		&__field-button {
 			margin-right: 4px;
+			margin-top: 20px;
 		}
 
 		&__field-error .components-text-control__input {
@@ -62,6 +77,14 @@
 		&__price-container {
 			display: flex;
 			flex-wrap: wrap;
+
+			.components-input-control__container {
+				top: 4px;
+			}
+
+			p {
+				margin-top: 0;
+			}
 		}
 	}
 
