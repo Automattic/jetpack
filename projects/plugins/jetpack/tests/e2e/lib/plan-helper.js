@@ -14,7 +14,7 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteId = await getSiteId();
 	const planData = getPlanData( siteId, siteUrl, planType );
-	const planDatafilePath = path.resolve( config.get( 'configDir' ), 'plan-data.txt' );
+	const planDatafilePath = path.resolve( config.get( 'temp.planData' ) );
 
 	fs.writeFileSync( planDatafilePath, JSON.stringify( planData ) );
 
