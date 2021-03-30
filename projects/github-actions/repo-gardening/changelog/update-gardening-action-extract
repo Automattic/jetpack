@@ -1,0 +1,3 @@
+Significance: patch
+Type: added
+Comment: Initial release. Already in CHANGELOG.md, but the tooling requires a change file for the PR.

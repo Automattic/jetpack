@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 
 export const SERVER_OBJECT_NAME = 'JetpackInstantSearchOptions';
+export const OVERLAY_CLASS_NAME = 'jetpack-instant-search__overlay';
 export const SORT_DIRECTION_ASC = 'ASC';
 export const SORT_DIRECTION_DESC = 'DESC';
 export const RESULT_FORMAT_EXPANDED = 'expanded';

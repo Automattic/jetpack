@@ -32,6 +32,7 @@ export default function installProjectTask( argv ) {
 		console.error( 'You cannot create an install task for nothing.' );
 		process.exit( 1 );
 	}
+	const yarnCacheFile = path.resolve( process.cwd(), '.yarn-cache-lock' );
 	const cwd = argv.root ? process.cwd() : path.resolve( `projects/${ argv.project }` );
 	const composerEnabled = argv.root ? true : Boolean( readComposerJson( argv.project, false ) );
 	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
@@ -47,9 +48,16 @@ export default function installProjectTask( argv ) {
 			const { stdout } = await execa.command( `git ls-files ${ pkgMgr }.lock`, { cwd: cwd } );
 			subcommand = stdout ? 'install' : 'upgrade';
 		}
+		let args = '';
+		if ( pkgMgr === 'yarn' ) {
+			// Yarn's own cache access is not multi-process safe, and yarn isn't being developed anymore (they want
+			// to replace it with "berry" aka "yarn 2") so we'll have to go with the poor mutex workaround.
+			// See https://github.com/yarnpkg/yarn/issues/683
+			args += ` --mutex=file:${ yarnCacheFile }`;
+		}
 		return verbose
-			? execa.commandSync( `${ pkgMgr } ${ subcommand }`, { cwd: cwd, stdio: 'inherit' } )
-			: execa.command( `${ pkgMgr } ${ subcommand }`, { cwd: cwd } );
+			? execa.commandSync( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd, stdio: 'inherit' } )
+			: execa.command( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd } );
 	};
 
 	const task = ( pkgMgr, enabled ) => {

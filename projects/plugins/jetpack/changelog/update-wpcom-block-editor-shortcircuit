@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-WordPress.com Block Editor: disable if all Jetpack blocks are disabled via a filter.
