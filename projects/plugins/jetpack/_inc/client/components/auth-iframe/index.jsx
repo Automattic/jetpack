@@ -42,6 +42,9 @@ export class AuthIframe extends React.Component {
 		onAuthorized: noop,
 	};
 
+	/**
+	 * Authentication completed, adjust the state.
+	 */
 	onComplete = () => {
 		// Dispatch successful authorization.
 		this.props.authorizeUserInPlaceSuccess();
@@ -54,9 +57,12 @@ export class AuthIframe extends React.Component {
 		this.props.onAuthorized();
 	};
 
-	onThirdPartyCookiesBlocked = () => {
-		thirdPartyCookiesFallbackHelper( this.props.connectUrl );
-	};
+	/**
+	 * Third-party cookies are disabled, using the fallback.
+	 *
+	 * @returns {void}
+	 */
+	onThirdPartyCookiesBlocked = () => thirdPartyCookiesFallbackHelper( this.props.connectUrl );
 
 	render = () => {
 		return (

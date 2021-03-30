@@ -44,6 +44,11 @@ const InPlaceConnection = props => {
 	const iframeWrapRef = useRef();
 	const iframeRef = useRef();
 
+	/**
+	 * Handles messages received from inside the iframe.
+	 *
+	 * @param {object} e -- Event object.
+	 */
 	const receiveData = e => {
 		if ( e.source !== iframeRef.current.contentWindow ) {
 			return;
@@ -67,15 +72,20 @@ const InPlaceConnection = props => {
 		}
 	};
 
-	useEffect( () => {
-		// Scroll to the iframe container
-		if ( scrollToIframe ) {
-			window.scrollTo( 0, iframeWrapRef.current.offsetTop - 10 );
-		}
+	useEffect(
+		/**
+		 * The component initialization.
+		 */
+		() => {
+			// Scroll to the iframe container
+			if ( scrollToIframe ) {
+				window.scrollTo( 0, iframeWrapRef.current.offsetTop - 10 );
+			}
 
-		// Add an event listener to identify successful authorization via iframe.
-		window.addEventListener( 'message', receiveData );
-	} );
+			// Add an event listener to identify successful authorization via iframe.
+			window.addEventListener( 'message', receiveData );
+		}
+	);
 
 	// The URL looks like https://jetpack.wordpress.com/jetpack.authorize_iframe/1/. We need to include the trailing
 	// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
