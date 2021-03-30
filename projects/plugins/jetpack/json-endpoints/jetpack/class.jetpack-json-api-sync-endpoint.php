@@ -123,10 +123,10 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 }
 
 // POST /sites/%s/sync/health .
+//phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 /**
  * POST /sites/%s/sync/health
  */
-//phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound
 class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 
 	/**
