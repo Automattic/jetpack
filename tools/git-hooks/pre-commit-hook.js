@@ -330,8 +330,11 @@ function exit( exitCodePassed ) {
 	process.exit( exitCodePassed );
 }
 
+// Start of pre-commit checks execution.
+
 runCheckCopiedFiles();
 runCheckRenovateIgnoreList();
+sortPackageJson( jsFiles );
 
 dirtyFiles.forEach( file =>
 	console.log(
@@ -339,7 +342,7 @@ dirtyFiles.forEach( file =>
 	)
 );
 
-sortPackageJson( jsFiles );
+// Start JS work—linting, prettify, etc.
 
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
@@ -359,18 +362,21 @@ if ( jsOnlyFiles.length > 0 ) {
 	runEslintChanged( jsOnlyFiles );
 }
 
-let phpLintResult;
+// Start PHP work.
+
 if ( phpFiles.length > 0 ) {
-	phpLintResult = spawnSync( 'composer', [ 'phpcs:compatibility', ...phpFiles ], {
+	runPHPLinter( phpFiles );
+}
+
+if ( phpFiles.length > 0 ) {
+	const phpLintResult = spawnSync( 'composer', [ 'phpcs:compatibility', ...phpFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
 
-	runPHPLinter( phpFiles );
-}
-
-if ( phpLintResult && phpLintResult.status ) {
-	checkFailed();
+	if ( phpLintResult && phpLintResult.status ) {
+		checkFailed();
+	}
 }
 
 if ( phpcsFiles.length > 0 ) {
