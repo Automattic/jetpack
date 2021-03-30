@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Block Editor functionality for VideoPress users.
  *
@@ -37,6 +37,11 @@ class VideoPress_Gutenberg {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
 	}
 
+	/**
+	 * Get site's ID.
+	 *
+	 * @return int $blog_id Site ID.
+	 */
 	private static function get_blog_id() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return get_current_blog_id();
