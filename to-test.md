@@ -80,4 +80,15 @@ $password_checker = new Password_Checker( $user );
 $password_checker->test( '123', true );
 ```
 
+### SEO Tools
+
+Until now, one had to go to the WordPress.com dashboard to change their SEO settings once the feature was enabled. That's no longer necessary. You can now manage all settings from your Jetpack dashboard:
+
+1. Connect your site to your WordPress.com account
+1. Go to Jetpack > Settings > Traffic
+1. Enable the SEO Tools feature
+1. Play with the different settings, save your changes, and ensure saving works well.
+1. Ensure your settings are reflected on your site's frontend.
+1. Try to activate another SEO plugin such as Yoast SEO or All In One SEO; the SEO settings should then be disabled.
+
 **Thank you for all your help!**
