@@ -24,7 +24,7 @@ import { normalizeProject } from '../helpers/normalizeArgv';
 export function changelogDefine( yargs ) {
 	// Main Changelog command
 	yargs.command(
-		'changelog [cmd]',
+		[ 'changelog [cmd]', 'changelogger [cmd]' ],
 		'Runs the changelogger wizard',
 		yarg => {
 			yarg
@@ -139,7 +139,7 @@ async function promptCommand( argv ) {
 	const response = await inquirer.prompt( {
 		type: 'list',
 		name: 'cmd',
-		message: 'What type of project are you working on today?',
+		message: 'What changelogger command do you want to run?',
 		choices: [ 'add', 'validate', 'write', 'version' ],
 	} );
 	argv.cmd = response.cmd;
@@ -154,7 +154,7 @@ async function promptCommand( argv ) {
 export async function changelogAdd( argv ) {
 	argv = await validateProject( argv );
 	const parsedArgKey = Object.keys( argv );
-	const acceptedArgs = [ 's', 't', 'e', 'f' ]; //significance, type, excerpt, file
+	const acceptedArgs = [ 's', 't', 'e', 'f' ]; //significance, type, entry, file
 	argv.success = `Changelog for ${ argv.project } added successfully!`;
 	argv.error = `Changelogger couldn't be executed correctly. See error.`;
 	argv.args = [ 'add' ];
