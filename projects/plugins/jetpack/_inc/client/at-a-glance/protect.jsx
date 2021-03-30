@@ -89,6 +89,7 @@ class DashProtect extends Component {
 				module="protect"
 				support={ support }
 				className="jp-dash-item__is-inactive"
+				noToggle={ ! this.props.hasConnectedOwner }
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }
@@ -97,7 +98,7 @@ class DashProtect extends Component {
 						! this.props.hasConnectedOwner &&
 						createInterpolateElement(
 							__(
-								'<a>Connect your WordPress.com</a> to keep your site protected from malicious sign in attempts.',
+								'<a>Connect your WordPress.com</a> account to keep your site protected from malicious sign in attempts.',
 								'jetpack'
 							),
 							{

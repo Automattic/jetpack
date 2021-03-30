@@ -15,7 +15,6 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
-import ConnectUserBar from 'components/connect-user-bar';
 import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
 import FoldableCard from 'components/foldable-card';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
@@ -83,12 +82,14 @@ export const SEO = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const seo = this.props.getModule( 'seo-tools' );
-			const isSeoActive = this.props.getOptionValue( seo.module );
-			const frontPageMetaDescription = this.props.getOptionValue(
-				'advanced_seo_front_page_description'
-			);
-			const customSeoTitles = this.props.getOptionValue( 'advanced_seo_title_formats' );
+			const isOfflineMode = this.props.isOfflineMode,
+				seo = this.props.getModule( 'seo-tools' ),
+				isSeoActive = this.props.getOptionValue( seo.module ),
+				customSeoTitles = this.props.getOptionValue( 'advanced_seo_title_formats' ),
+				frontPageMetaDescription = this.props.getOptionValue(
+					'advanced_seo_front_page_description'
+				);
+
 			const siteData = {
 				title: this.props.siteData.name || '',
 				tagline: this.props.siteData.description || '',
@@ -107,7 +108,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				}
 				return acc;
 			}, [] );
-			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0 ? true : false;
+			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
 
 			return (
 				<SettingsCard
@@ -120,7 +121,6 @@ export const SEO = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
-						disableInUserlessMode
 						module={ { module: 'seo-tools' } }
 						support={ {
 							text: __(
@@ -159,7 +159,7 @@ export const SEO = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isSeoActive &&
-						! this.props.isOfflineMode &&
+						! isOfflineMode &&
 						! isFetchingPluginsData( this.props.state ) &&
 						! hasConflictingSeoPlugin && (
 							<div>
@@ -264,14 +264,6 @@ export const SEO = withModuleSettingsFormHelpers(
 								</FoldableCard>
 							</div>
 						) }
-
-					{ ! this.props.hasConnectedOwner && (
-						<ConnectUserBar
-							feature="monitor"
-							featureLabel={ __( 'SEO', 'jetpack' ) }
-							text={ __( 'Sign in to optimize your site for search engines.', 'jetpack' ) }
-						/>
-					) }
 				</SettingsCard>
 			);
 		}
