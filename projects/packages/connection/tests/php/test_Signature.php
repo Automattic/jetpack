@@ -160,7 +160,6 @@ class SignatureTest extends TestCase {
 	/**
 	 * Test sanitize_host_post method
 	 *
-	 * @group leo
 	 * @dataProvider sanitize_host_post_data_provider
 	 *
 	 * @param mixed  $input the input to the method.

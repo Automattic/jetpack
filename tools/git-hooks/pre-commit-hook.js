@@ -288,6 +288,19 @@ function runCheckCopiedFiles() {
 }
 
 /**
+ * Check that renovate's ignore list is up to date.
+ */
+function runCheckRenovateIgnoreList() {
+	const result = spawnSync( './tools/check-renovate-ignore-list.js', [], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( result && result.status ) {
+		checkFailed( '' );
+	}
+}
+
+/**
  * Exit script
  *
  * @param {number} exitCodePassed - Shell exit code.
@@ -298,6 +311,7 @@ function exit( exitCodePassed ) {
 }
 
 runCheckCopiedFiles();
+runCheckRenovateIgnoreList();
 
 dirtyFiles.forEach( file =>
 	console.log(

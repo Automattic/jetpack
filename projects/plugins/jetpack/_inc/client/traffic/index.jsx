@@ -20,7 +20,7 @@ import {
 } from 'state/connection';
 import { isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
-import { SEO } from './seo';
+import SEO from './seo';
 import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';

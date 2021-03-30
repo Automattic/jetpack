@@ -146,7 +146,7 @@ class SubscriptionsComponent extends React.Component {
 				</SettingsGroup>
 				{ getSubClickableCard() }
 
-				{ ! this.props.isLinked && (
+				{ ! this.props.isLinked && ! this.props.isOfflineMode && (
 					<ConnectUserBar
 						feature="subscriptions"
 						featureLabel={ __( 'Subscriptions', 'jetpack' ) }

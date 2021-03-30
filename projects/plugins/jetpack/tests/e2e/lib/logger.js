@@ -1,4 +1,4 @@
-import { createLogger, format, transports } from 'winston';
+import { createLogger, format, transports, addColors } from 'winston';
 import config from 'config';
 import path from 'path';
 
@@ -10,10 +10,20 @@ const myCustomLevels = {
 		warn: 4,
 		notice: 5,
 		info: 6,
-		debug: 7,
-		slack: 9,
+		step: 7,
+		action: 8,
+		cli: 9,
+		debug: 10,
+		slack: 11,
+	},
+	colors: {
+		action: 'cyan',
+		step: 'cyan',
+		cli: 'cyanBG black',
 	},
 };
+
+addColors( myCustomLevels.colors );
 
 let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
 
@@ -44,7 +54,8 @@ const stringFormat = format.combine(
 		}
 
 		return msg;
-	} )
+	} ),
+	format.uncolorize()
 );
 
 const logger = createLogger( {
@@ -63,15 +74,17 @@ const logger = createLogger( {
 		// - Write all logs error (and below) to `quick-start-error.log`.
 		//
 		new transports.File( {
-			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-json.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-json.log' ),
+			format: format.uncolorize(),
 		} ),
 		new transports.File( {
-			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-simple.log' ),
 			format: stringFormat,
+			level: 'debug',
 		} ),
 		// Slack specific logging transport that is used later to send a report to slack.
 		new transports.File( {
-			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-slack.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-slack.log' ),
 			level: 'slack',
 
 			format: format.combine(
@@ -94,14 +107,15 @@ const logger = createLogger( {
 					}
 
 					return JSON.stringify( info );
-				} )
+				} ),
+				format.uncolorize()
 			),
 		} ),
 
 		new transports.Console( {
 			format: format.combine(
 				format.timestamp(),
-				format.cli(),
+				format.colorize(),
 				format.printf( ( { level, message, timestamp } ) => {
 					return `${ timestamp } ${ level }: ${ message }`;
 				} )

@@ -307,22 +307,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
-
-		// FSE is no longer where it was put by default.
-		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 61, $menu );
-
-		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
-		$fse_menu = array(
-			'Site Editor',
-			'edit_theme_options',
-			$fse_link,
-			'Site Editor',
-			'menu-top toplevel_page_' . $fse_link,
-			'toplevel_page_' . $fse_link,
-			'dashicons-layout',
-		);
-		$this->assertSame( $menu[61], $fse_menu );
 	}
 
 	/**

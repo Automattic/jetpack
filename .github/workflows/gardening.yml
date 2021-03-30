@@ -1,7 +1,7 @@
 name: Gardening
 on:
-  pull_request: # When a PR is opened, edited, updated, or a label is added.
-    types: [opened, synchronize, labeled, edited]
+  pull_request: # When a PR is opened, edited, updated, closed, or a label is added.
+    types: [opened, synchronize, labeled, edited, closed]
   push:
     branches:
       - master # Every time a PR is merged to master.
@@ -65,8 +65,8 @@ jobs:
           jq --version
 
       - name: Building Action
-        run: npm install
-        working-directory: ./.github/actions/repo-gardening
+        run: composer build-development
+        working-directory: ./projects/github-actions/repo-gardening
 
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
@@ -74,6 +74,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
-        uses: ./.github/actions/repo-gardening
+        uses: ./projects/github-actions/repo-gardening
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+          slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}

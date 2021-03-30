@@ -147,7 +147,7 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 			/**
 			 * If Jetpack is not active or in offline mode, we don't want to update widget data.
 			 */
-			if ( ! Jetpack::is_active() && ! ( new Status() )->is_offline_mode() ) {
+			if ( ! Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() ) {
 				return false;
 			}
 

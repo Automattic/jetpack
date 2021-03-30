@@ -157,11 +157,6 @@ export function getQuestions( type ) {
 			message: 'Succinctly describe your project:',
 		},
 		{
-			type: 'confirm',
-			name: 'monorepo',
-			message: 'Does your project rely on Composer/PHP packages found in the monorepo?',
-		},
-		{
 			type: 'checkbox',
 			name: 'buildScripts',
 			message: 'Does your project require build steps?',
@@ -197,7 +192,7 @@ export function getQuestions( type ) {
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: '1.0.0-alpha',
+			default: '0.1.0-alpha',
 		},
 	];
 	const extensionQuestions = [];
@@ -333,24 +328,13 @@ async function createComposerJson( composerJson, answers ) {
 	let name;
 	switch ( answers.type ) {
 		case 'github-action':
-			name = 'automattic/action-' + answers.name;
+			name = 'action-' + answers.name;
 			break;
 		default:
-			name = 'automattic/jetpack-' + answers.name;
+			name = 'jetpack-' + answers.name;
 	}
-	composerJson.name = name;
+	composerJson.name = 'automattic/' + name;
 
-	if ( answers.monorepo ) {
-		composerJson.repositories = [
-			{
-				type: 'path',
-				url: '../*',
-				options: {
-					monorepo: true,
-				},
-			},
-		];
-	}
 	if ( answers.buildScripts && answers.buildScripts.includes( 'production' ) ) {
 		composerJson.scripts[ 'build-production' ] =
 			"echo 'Add your build step to composer.json, please!'";
@@ -375,6 +359,12 @@ async function createComposerJson( composerJson, answers ) {
 		// Add error handling for mirror repo couldn't be created or verified.
 		// Output to console instructions on how to add it.
 		// Since we're catching an errors here, it'll continue executing.
+	}
+
+	if ( answers.type === 'package' ) {
+		composerJson.extra = composerJson.extra || {};
+		composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
+		composerJson.extra[ 'branch-alias' ][ 'dev-master' ] = '0.1.x-dev';
 	}
 }
 
@@ -444,9 +434,12 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
  * @param {string} org - Repo owner.
  */
 function addMirrorRepo( composerJson, name, org ) {
-	composerJson.extra = {
-		'mirror-repo': org + '/' + name,
-	};
+	composerJson.extra = composerJson.extra || {};
+	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
+	composerJson.extra.changelogger = composerJson.extra.changelogger || {};
+	composerJson.extra.changelogger[
+		'link-template'
+	] = `https://github.com/${ org }/${ name }/compare/v\${old}...v\${new}`;
 }
 
 /**
