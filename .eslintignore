@@ -36,6 +36,3 @@ projects/*/*/vendor
 projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
 projects/packages/*/wordpress
-
-### GitHub Actions
-projects/github-actions/repo-gardening/dist/
