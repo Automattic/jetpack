@@ -551,6 +551,28 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint(
 	)
 );
 
+// POST /sites/%s/sync/health .
+new Jetpack_JSON_API_Sync_Modify_Health_Endpoint(
+	array(
+		'description'             => 'Update sync health',
+		'method'                  => 'POST',
+		'group'                   => '__do_not_document',
+		'path'                    => '/sites/%s/sync/health',
+		'stat'                    => 'write-sync-health',
+		'allow_jetpack_site_auth' => true,
+		'path_labels'             => array(
+			'$site' => '(int|string) The site ID, The site domain',
+		),
+		'request_format'          => array(
+			'status' => '(string) Sync Health Status of site',
+		),
+		'response_format'         => array(
+			'response' => '(string) Current Sync Health ',
+		),
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/health',
+	)
+);
+
 $sync_settings_response = array(
 	'dequeue_max_bytes'        => '(int|bool=false) Maximum bytes to read from queue in a single request',
 	'sync_wait_time'           => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',
