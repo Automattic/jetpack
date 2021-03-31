@@ -79,3 +79,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
           slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}
+          slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
