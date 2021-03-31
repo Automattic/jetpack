@@ -74,6 +74,10 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
+"@automattic/jetpack-connection@link:../../js-packages/connection":
+  version "0.0.0"
+  uid ""
+
 "@automattic/mini-css-extract-plugin-with-rtl@0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@automattic/mini-css-extract-plugin-with-rtl/-/mini-css-extract-plugin-with-rtl-0.8.0.tgz#0e0dc9afc43a2d6a82c199aef211565e1211fcac"
