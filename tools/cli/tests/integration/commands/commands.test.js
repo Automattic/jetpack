@@ -30,4 +30,7 @@ describe( 'verify commands are available', function () {
 	it( 'watch command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack watch [project]' );
 	} );
+	it( 'completion command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack completion' );
+	} );
 } );
