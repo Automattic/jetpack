@@ -23,7 +23,6 @@
 		}
 	],
 	"extra": {
-		"autotagger": true,
 		"mirror-repo": "Automattic/action-repo-gardening",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/action-repo-gardening/compare/v${old}...v${new}"
