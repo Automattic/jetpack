@@ -187,8 +187,7 @@ class Admin_Color_Schemes {
 	public function enqueue_core_color_schemes_overrides() {
 		$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
 		$color_scheme       = get_user_option( 'admin_color' );
-		$dependencies       = array();
-		$rtl                = is_rtl() ? '-rtl' : '';
+		$rtl                = get_user_option( 'jetpack_wpcom_is_rtl' ) ? '-rtl' : '';
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css', 'notes-admin-bar-rest' . $rtl );
 		} else {

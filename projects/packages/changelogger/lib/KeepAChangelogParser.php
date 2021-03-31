@@ -332,6 +332,7 @@ class KeepAChangelogParser extends Parser {
 				} else {
 					$heading = substr( $ret, -2 ) === "\n\n" ? '' : "\n";
 				}
+				$post = '';
 				foreach ( $changes as $change ) {
 					$text = trim( $change->getContent() );
 					if ( '' !== $text ) {
@@ -340,9 +341,10 @@ class KeepAChangelogParser extends Parser {
 						}
 						$ret    .= $heading . $bullet . str_replace( "\n", "\n$indent", $text ) . "\n";
 						$heading = '';
+						$post    = "\n";
 					}
 				}
-				$ret .= "\n";
+				$ret .= $post;
 			}
 
 			$epilogue = trim( $entry->getEpilogue() );

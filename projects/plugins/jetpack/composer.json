@@ -109,7 +109,8 @@
 				"major": "Major Enhancements",
 				"enhancement": "Enhancements",
 				"compat": "Improved compatibility",
-				"bugfix": "Bug fixes"
+				"bugfix": "Bug fixes",
+				"other": "Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->"
 			}
 		}
 	}
