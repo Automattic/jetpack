@@ -18,6 +18,21 @@ import { chalkJetpackGreen } from '../styling';
 import { normalizeInstallArgv } from '../normalizeArgv';
 
 /**
+ * Test if a lockfile is checked in.
+ *
+ * @param {string} cwd - Path being processed.
+ * @param {string} lockFile - Lock file name.
+ * @returns {boolean} - Whether the lock file exists and is checked in.
+ */
+async function hasLockFile( cwd, lockFile ) {
+	if ( ! fs.existsSync( path.resolve( cwd, lockFile ) ) ) {
+		return false;
+	}
+	const { stdout } = await execa.command( `git ls-files ${ lockFile }`, { cwd: cwd } );
+	return !! stdout;
+}
+
+/**
  * Preps the task for an individual project.
  *
  * @param {object} argv - Argv object for an install command. Must contain project and root at least.
@@ -39,21 +54,26 @@ export default function installProjectTask( argv ) {
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
 	const command = async ( pkgMgr, verbose ) => {
-		// Determine whether 'install' or 'upgrade' is needed. Notes:
-		//  - composer accepts both "update" and "upgrade", while yarn only accepts "upgrade".
-		//  - composer accepts "install" with no lockfile, despite complaining that it wants "update" instead.
-		//  - yarn requires "install" with no lockfile, "upgrade" errors out.
-		let subcommand = 'install';
-		if ( fs.existsSync( path.resolve( cwd, `${ pkgMgr }.lock` ) ) ) {
-			const { stdout } = await execa.command( `git ls-files ${ pkgMgr }.lock`, { cwd: cwd } );
-			subcommand = stdout ? 'install' : 'upgrade';
-		}
+		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
+		// For yarn, always use 'install' ('upgrade' has weird behavior), removing any stale local lockfile first.
+		let subcommand;
 		let args = '';
-		if ( pkgMgr === 'yarn' ) {
+		if ( pkgMgr === 'composer' ) {
+			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
+		} else if ( pkgMgr === 'yarn' ) {
+			subcommand = 'install';
+			if (
+				! ( await hasLockFile( cwd, 'yarn.lock' ) ) &&
+				fs.existsSync( path.resolve( cwd, 'yarn.lock' ) )
+			) {
+				fs.unlinkSync( path.resolve( cwd, 'yarn.lock' ) );
+			}
 			// Yarn's own cache access is not multi-process safe, and yarn isn't being developed anymore (they want
 			// to replace it with "berry" aka "yarn 2") so we'll have to go with the poor mutex workaround.
 			// See https://github.com/yarnpkg/yarn/issues/683
 			args += ` --mutex=file:${ yarnCacheFile }`;
+		} else {
+			throw new Error( `Unknown package manager ${ pkgMgr }` );
 		}
 		return verbose
 			? execa.commandSync( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd, stdio: 'inherit' } )

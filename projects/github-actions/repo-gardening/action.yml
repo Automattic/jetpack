@@ -19,4 +19,4 @@ inputs:
     default: "all"
 runs:
   using: node12
-  main: "src/index.js"
+  main: "dist/index.js"
