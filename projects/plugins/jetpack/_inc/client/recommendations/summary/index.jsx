@@ -136,7 +136,7 @@ const SummaryComponent = props => {
 				sidebarCard = upsell.hide_upsell ? (
 					<ProductCardUpsellNoPrice upgradeUrl={ upgradeUrl } />
 				) : (
-					<ProductCardUpsell upsell={ upsell } upgradeUrl={ upgradeUrl } />
+					<ProductCardUpsell { ...upsell } upgradeUrl={ upgradeUrl } />
 				);
 				break;
 			case 'one-click-restores':
