@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tokens: Fix token validation logic.
