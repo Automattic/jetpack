@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2021-03-31
 ### Added
 - Add a new task to notify Editorial team when we want their feedback.
+- Added autotagger action to simplify releases
 
 ### Changed
 - Automatically add "JS Package" PR label.
