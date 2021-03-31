@@ -219,11 +219,18 @@ class Jetpack_Recommendations_Banner {
 						<?php esc_html_e( 'Continue', 'jetpack' ); ?>
 					</a>
 					<div class="jp-recommendations-banner__continue-description">
-						<?php esc_html_e( 'All of Jetpack’s great features await you and we’ll recommend some of our favorites.', 'jetpack' ); ?>
+						<?php esc_html_e( 'The following Jetpack recommendations are available to you later in the Jetpack dashboard.', 'jetpack' ); ?>
 					</div>
 				</div>
 			</div>
 			<div class="jp-recommendations-banner__illustration-container">
+				<div id="jp-recommendations-banner__notice-dismiss" class="jp-recommendations-banner__notice-dismiss">
+					<svg class="jp-recommendations-banner__svg-dismiss" width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<mask id="jp-dismiss-mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="21" height="20">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M12.5232 2C7.02034 2 2.57227 6.47 2.57227 12C2.57227 17.53 7.02034 22 12.5232 22C18.0261 22 22.4742 17.53 22.4742 12C22.4742 6.47 18.0261 2 12.5232 2ZM15.1005 8L12.5232 10.59L9.94591 8L8.54283 9.41L11.1201 12L8.54283 14.59L9.94591 16L12.5232 13.41L15.1005 16L16.5036 14.59L13.9263 12L16.5036 9.41L15.1005 8ZM4.56245 12C4.56245 16.41 8.13484 20 12.5232 20C16.9116 20 20.484 16.41 20.484 12C20.484 7.59 16.9116 4 12.5232 4C8.13484 4 4.56245 7.59 4.56245 12Z" />
+						</mask><g mask="url(#jp-dismiss-mask0)"><rect x="0.582031" width="23.8823" height="24" /></g></svg>
+					<span><?php esc_attr_e( 'Dismiss', 'jetpack' ); ?></span>
+				</div>
 				<img
 						src="<?php echo esc_url( plugins_url( 'images/recommendations/background.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); ?>"
 						class="jp-recommendations-banner__illustration-background"
@@ -233,7 +240,6 @@ class Jetpack_Recommendations_Banner {
 						class="jp-recommendations-banner__illustration-foreground"
 				/>
 			</div>
-			<span id="jp-recommendations-banner__notice-dismiss" class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>"/>
 		</div>
 		<?php
 	}

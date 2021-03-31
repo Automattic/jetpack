@@ -78,6 +78,19 @@ SCRIPT="
 ENTRY=$(sed -n -E -e "$SCRIPT" "$PLUGIN_DIR/CHANGELOG.md")
 [[ -z "$ENTRY" ]] && die "Failed to find requested section in CHANGELOG.md"
 
+# Strip unwanted sections.
+SCRIPT="
+	:a
+	/^#### .* This section will not be copied to readme\.txt/ {
+		:b
+		n
+		/^#/ ba
+		bb
+	}
+	p
+"
+ENTRY=$(sed -n -E -e "$SCRIPT" <<<"$ENTRY")
+
 # Generate the replacement readme.txt.
 ENTRY=$'\n'"$ENTRY"
 SCRIPT="

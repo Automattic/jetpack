@@ -44,12 +44,12 @@ class SearchResults extends Component {
 		}
 	};
 
-	hasAnyWidgets() {
+	hasFilterOptions() {
 		let widgets = [ ...this.props.widgets ];
 		if ( this.props.widgetOutsideOverlay?.filters?.length > 0 ) {
 			widgets = [ this.props.widgetOutsideOverlay, ...widgets ];
 		}
-		return widgets;
+		return widgets.length > 0;
 	}
 
 	getSearchTitle() {
@@ -217,7 +217,7 @@ class SearchResults extends Component {
 					resultFormat={ this.props.resultFormat }
 					sort={ this.props.sort }
 				>
-					{ this.hasAnyWidgets() && (
+					{ ( this.hasFilterOptions() || this.props.hasNonSearchWidgets ) && (
 						<div
 							role="button"
 							onClick={ this.toggleMobileSecondary }

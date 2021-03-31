@@ -76,11 +76,11 @@ class Masterbar {
 	 */
 	private $primary_site_slug;
 	/**
-	 * Text direction (ltr or rtl) based on connected WordPress.com user's interface settings.
+	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
 	 *
-	 * @var string
+	 * @var boolean
 	 */
-	private $user_text_direction;
+	private $is_rtl;
 	/**
 	 * Number of sites owned by connected WordPress.com user.
 	 *
@@ -104,13 +104,15 @@ class Masterbar {
 		$this->user_email      = $this->user_data['email'];
 		$this->display_name    = $this->user_data['display_name'];
 		$this->user_site_count = $this->user_data['site_count'];
+		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
 		// request. Although `get_connected_user_data` tries to save the data for
 		// future uses on a transient, the data is not guaranteed to be cached.
+		update_user_option( $this->user_id, 'jetpack_wpcom_is_rtl', $this->is_rtl );
 		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
-			update_user_option( get_current_user_id(), 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] );
+			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] );
 		}
 
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
@@ -168,9 +170,6 @@ class Masterbar {
 		// Used for display purposes and for building WP Admin links.
 		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
 
-		// We need to use user's setting here, instead of relying on current blog's text direction.
-		$this->user_text_direction = $this->user_data['text_direction'];
-
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
@@ -181,7 +180,7 @@ class Masterbar {
 		add_action( 'wp_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 
-		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl() ) {
+		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl ) {
 			// Override Notification module to include RTL styles.
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
@@ -250,18 +249,11 @@ class Masterbar {
 	}
 
 	/**
-	 * Check if the user settings are for an RTL language or not.
-	 */
-	public function is_rtl() {
-		return 'rtl' === $this->user_text_direction ? true : false;
-	}
-
-	/**
 	 * Enqueue our own CSS and JS to display our custom admin bar.
 	 */
 	public function add_styles_and_scripts() {
 
-		if ( $this->is_rtl() ) {
+		if ( $this->is_rtl ) {
 			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
 			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ), array(), JETPACK__VERSION );
 		} else {
@@ -413,7 +405,7 @@ class Masterbar {
 						 <span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
 						 <span class="noticon noticon-bell"></span>',
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="' . esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl() ? 'rtl' : 'ltr' ) . '">' .
+					'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="' . esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl ? 'rtl' : 'ltr' ) . '">' .
 								'<div class="wpnt-notes-panel-header">' .
 								'<span class="wpnt-notes-header">' .
 								esc_html__( 'Notifications', 'jetpack' ) .

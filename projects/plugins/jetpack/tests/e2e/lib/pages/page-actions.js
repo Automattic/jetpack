@@ -1,6 +1,7 @@
 import logger from '../logger';
 import fs from 'fs';
 import chalk from 'chalk';
+import config from 'config';
 import { pwBrowserOptions } from '../../playwright.config';
 
 /**
@@ -119,7 +120,7 @@ export default class PageActions {
 	 */
 	async saveCurrentStorageState() {
 		const storage = await this.page.context().storageState();
-		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
+		fs.writeFileSync( config.get( 'temp.storage' ), JSON.stringify( storage ) );
 	}
 
 	/**

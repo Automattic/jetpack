@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1] - 2021-03-30
+### Added
+- Composer alias for dev-master, to improve dependencies
+
+### Changed
+- Use is_connected instead of is_active to instantiate Pre/Post_Connection_JITM
+- Add a jetpack_pre_connection_jitms filter.
+- Update colors to match upcoming WP 5.7 color changes
+- Update Node to match latest LTS 12
+- Update package dependencies.
+
+### Fixed
+- Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.
+
 ## [1.14.0] - 2021-02-23
 
 - Recommendations: Hide JITMs when banner is displaying
@@ -234,6 +248,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[1.14.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.5...v1.14.0
 [1.13.5]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.4...v1.13.5
 [1.13.4]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.3...v1.13.4

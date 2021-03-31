@@ -126,7 +126,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						</FormFieldset>
 					</SettingsGroup>
 
-					{ ! this.props.hasConnectedOwner && (
+					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
 						<ConnectUserBar
 							feature="sso"
 							featureLabel={ __( 'Secure Sign-On', 'jetpack' ) }
