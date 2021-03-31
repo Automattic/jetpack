@@ -177,6 +177,22 @@ export function isSiteConnected( state ) {
 }
 
 /**
+ * Checks if the site is registered with WordPress.com.
+ *
+ * @param {object} state -- Global state tree
+ * @returns {boolean} True if site is registered WordPress.com (has blog token). False if site is in Offline Mode or there's no connection data.
+ */
+export function isSiteRegistered( state ) {
+	if (
+		'object' !== typeof state.jetpack.connection.status.siteConnected ||
+		true === state.jetpack.connection.status.siteConnected.offlineMode.isActive
+	) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnected.isRegistered;
+}
+
+/**
  * Returns an object with information about the Offline Mode.
  *
  * @param  {Object}      state Global state tree

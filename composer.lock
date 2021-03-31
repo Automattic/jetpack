@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "8a713076c31ab1848280d882ff5dee9531722b3a"
+                "reference": "1cc87ddd97fa61effcc4b0790747916f13a89bf6"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -28,6 +28,7 @@
             },
             "type": "phpcodesniffer-standard",
             "extra": {
+                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-codesniffer",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
