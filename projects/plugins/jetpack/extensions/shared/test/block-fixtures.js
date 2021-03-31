@@ -33,13 +33,12 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 		throw new Error( `Settings can't be found for main block under test: ${ blockName }` );
 	}
 
-	if ( process.env.REGENERATE_FIXTURES ) {
-		const fullPath = `${ fixturesPath }/fixtures`;
-		const regex = /[.]json|serialized\.html$/;
-		fs.readdirSync( fullPath )
-			.filter( file => regex.test( file ) )
-			.forEach( file => fs.unlinkSync( `${ fullPath }/${ file }` ) );
-	}
+	// Delete the existing fixture files
+	const fullPath = `${ fixturesPath }/fixtures`;
+	const regex = /[.]json|serialized\.html$/;
+	fs.readdirSync( fullPath )
+		.filter( file => regex.test( file ) )
+		.forEach( file => fs.unlinkSync( `${ fullPath }/${ file }` ) );
 
 	describe( 'Test block content parsing', () => {
 		blockBasenames.forEach( basename => {
@@ -60,11 +59,9 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				let parserOutputExpectedString;
 				if ( parsedJSONFixtureContent ) {
 					parserOutputExpectedString = parsedJSONFixtureContent;
-				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
+				} else {
 					parserOutputExpectedString = JSON.stringify( parserOutputActual, null, 4 ) + '\n';
 					writeBlockFixtureParsedJSON( basename, parserOutputExpectedString );
-				} else {
-					throw new Error( `Missing fixture file: ${ parsedJSONFixtureFileName }` );
 				}
 
 				const parserOutputExpected = JSON.parse( parserOutputExpectedString );
@@ -103,11 +100,9 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 
 				if ( jsonFixtureContent ) {
 					blocksExpectedString = jsonFixtureContent;
-				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
+				} else {
 					blocksExpectedString = JSON.stringify( blocksActualNormalized, null, 4 ) + '\n';
 					writeBlockFixtureJSON( basename, blocksExpectedString );
-				} else {
-					throw new Error( `Missing fixture file: ${ jsonFixtureFileName }` );
 				}
 
 				const blocksExpected = JSON.parse( blocksExpectedString );
@@ -139,11 +134,9 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				let serializedExpected;
 				if ( serializedHTMLFixtureContent ) {
 					serializedExpected = serializedHTMLFixtureContent;
-				} else if ( process.env.GENERATE_MISSING_FIXTURES ) {
+				} else {
 					serializedExpected = serializedActual;
 					writeBlockFixtureSerializedHTML( basename, serializedExpected );
-				} else {
-					throw new Error( `Missing fixture file: ${ serializedHTMLFileName }` );
 				}
 
 				try {

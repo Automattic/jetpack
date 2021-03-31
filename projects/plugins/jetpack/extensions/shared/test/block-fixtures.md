@@ -44,7 +44,7 @@ For each deprecation a fixture should exist with the filename format
 `jetpack__whatsapp-button__deprecated-1.html`, with the number relating to the deprecation version.
 
 Ideally all important attributes and features of the block should be tested
-this way, for example with a gallery block where adding a  `linkTo` attribute may significantly change the saved content of the block there might be a fixture that has the image tag wrapped in a `<a>` and named `jetpack__tiled-gallery__link-to-attachment.html`.
+this way, for example with a gallery block where adding a `linkTo` attribute may significantly change the saved content of the block there might be a fixture that has the image tag wrapped in a `<a>` and named `jetpack__tiled-gallery__link-to-attachment.html`.
 
 ## Creating fixtures
 
@@ -65,13 +65,13 @@ jetpack plugin project:
 For a single block:
 
 ```sh
-yarn fixtures:generate `path\to\block\test\validate.js`
+yarn jest `path\to\block\test\validate.js`
 ```
 
 For all blocks:
 
 ```sh
-yarn fixtures:generate
+yarn fixtures:test
 ```
 
 When using this command, please be sure to manually verify that the
@@ -88,27 +88,13 @@ In the case of deprecations, the content of the `.json` and `.serialized.html` f
 
 ## Updating fixtures
 
-The process for updating fixtures for existing tests is similar to that for creating them:
-
-Run the command to regenerate the files:
-
-For a single block:
-
-```sh
-yarn fixtures:regenerate `path\to\block\test\validate.js`
-```
-
-For all blocks:
-
-```sh
-yarn fixtures:regenerate
-```
+The process for updating fixtures for existing tests is the same as for creating them
 
 After regenerating fixtures, check that the content of the `.parsed.json` and `.serialized.html` files are as expected. An error should be thrown if any of the fixtures are invalid after parsing.
 
 ## Running the tests
 
-The fixture tests will be run as part of running the `fixtures:generate` and `fixtures:regenerate` scripts and also as part of the `yarn test-extensions` test run. They can also be run independently with `yarn fixtures:test`
+The fixture tests will be run as part of running the `fixtures:test` script and also as part of the `yarn test-extensions` test run.
 
 ## Related
 
