@@ -110,7 +110,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$active_user_subscriptions = WPCOM_Store::get_user_subscriptions( $user_id, get_current_blog_id() );
 			if ( ! empty( $active_user_subscriptions ) ) {
 				$product_names = array_values( wp_list_pluck( $active_user_subscriptions, 'product_name' ) );
-				$error = new WP_Error( 'user_has_active_subscriptions', 'User has active subscriptions' );
+				$error         = new WP_Error( 'user_has_active_subscriptions', 'User has active subscriptions' );
 				$error->add_data( $product_names, 'additional_data' );
 				return $error;
 			}
