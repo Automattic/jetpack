@@ -38,7 +38,7 @@
 		"automattic/jetpack-sync": "1.21.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.13.x-dev",
-		"nojimage/twitter-text-php": "3.1.1"
+		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.1.x-dev"
@@ -108,7 +108,8 @@
 				"major": "Major Enhancements",
 				"enhancement": "Enhancements",
 				"compat": "Improved compatibility",
-				"bugfix": "Bug fixes"
+				"bugfix": "Bug fixes",
+				"other": "Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->"
 			}
 		}
 	}

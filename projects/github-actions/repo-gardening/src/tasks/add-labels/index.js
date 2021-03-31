@@ -109,6 +109,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 				'github-actions': 'Action',
 				packages: 'Package',
 				plugins: 'Plugin',
+				'js-packages': 'JS Package',
 			}[ project.groups.ptype ];
 			if ( prefix === undefined ) {
 				const err = new Error(
