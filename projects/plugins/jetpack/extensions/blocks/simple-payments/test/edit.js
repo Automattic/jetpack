@@ -125,11 +125,11 @@ describe( 'Edit component', () => {
 		const notSelectedProps = {
 			...props,
 			isSelected: false,
-			attributes: { email: 'bob@bob.com', currency: 'USD', price: 10.00, title: 'White TShirt' },
+			attributes: { email: 'bob@bob.com', currency: 'USD', price: 10.0, title: 'White TShirt' },
 		};
 		render( <SimplePaymentsEdit { ...notSelectedProps } /> );
 
 		expect( screen.getByText( 'White TShirt' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$10.00' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'US$10.00' ) ).toBeInTheDocument();
 	} );
 } );

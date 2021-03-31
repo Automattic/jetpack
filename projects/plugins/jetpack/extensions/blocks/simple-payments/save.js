@@ -20,7 +20,10 @@ export default function Save( { attributes } ) {
 	}
 
 	return (
-		<div className={ `jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }` }>
+		<div
+			className={ `jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }` }
+			style="color:red"
+		>
 			<div className="jetpack-simple-payments-product">
 				{ featuredMediaUrl && (
 					<div className="jetpack-simple-payments-product-image">
