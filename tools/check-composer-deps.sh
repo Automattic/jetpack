@@ -81,10 +81,11 @@ if $UPDATE; then
 		ARGS=()
 		ARGS=( add --no-interaction --significance=patch )
 		if [[ "$SLUG" == "plugins/jetpack" ]]; then
-			ARGS+=( --type=compat --entry= --comment="${2:-$3}" )
+			ARGS+=( --type=other )
 		else
-			ARGS+=( --type=changed --entry="$2" --comment="$3" )
+			ARGS+=( --type=changed )
 		fi
+		ARGS+=( --entry="$2" --comment="$3" )
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
