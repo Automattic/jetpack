@@ -1,5 +1,8 @@
 name: Build
-on: [ push, pull_request ]
+on:
+  push:
+    tags-ignore: [ '**' ]
+  pull_request:
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"
