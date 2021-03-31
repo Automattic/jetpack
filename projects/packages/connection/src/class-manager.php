@@ -1400,7 +1400,7 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
-	 * @return string|true|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object otherwise.
+	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
 	public function restore() {
 		// If this is a userless connection we need to trigger a full reconnection as our only secure means of
@@ -1411,8 +1411,16 @@ class Manager {
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
-		$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
-		$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
+		// If token validation failed, trigger a full reconnection.
+		if ( is_array( $validate_tokens_response ) &&
+			isset( $validate_tokens_response['blog_token']['is_healthy'] ) &&
+			isset( $validate_tokens_response['user_token']['is_healthy'] ) ) {
+			$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
+			$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
+		} else {
+			$blog_token_healthy = false;
+			$user_token_healthy = false;
+		}
 
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
 		if ( $blog_token_healthy === $user_token_healthy ) {
@@ -2029,13 +2037,6 @@ class Manager {
 		return $this->plugin->is_enabled();
 	}
 
-	/**
-	 * Perform the API request to refresh the blog token.
-	 * Note that we are making this request on behalf of the Jetpack master user,
-	 * given they were (most probably) the ones that registered the site at the first place.
-	 *
-	 * @return WP_Error|bool The result of updating the blog_token option.
-	 */
 	/**
 	 * Perform the API request to refresh the blog token.
 	 * Note that we are making this request on behalf of the Jetpack master user,
