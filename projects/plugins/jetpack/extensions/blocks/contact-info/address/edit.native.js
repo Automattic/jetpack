@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import stylesEditor from '../editor.scss';
 import styles from '../style.scss';
 
-const AddressEdit = (props) => {
+const AddressEdit = props => {
 	const {
 		attributes: {
 			address,
@@ -69,18 +69,19 @@ const AddressEdit = (props) => {
 		},
 	];
 
-	const textInputRefs = textData.map( _ => useRef(null) );
-	const [textInputsSelected, setTextInputsSelected] = useState(textData.map( _ => false ));
-	useEffect(() => {
-		if (isSelected) {
+	/* eslint-disable-next-line react-hooks/rules-of-hooks */
+	const textInputRefs = textData.map( () => useRef( null ) );
+	const [ textInputsSelected, setTextInputsSelected ] = useState( textData.map( () => false ) );
+	useEffect( () => {
+		if ( isSelected ) {
 			return;
 		}
 
-		textInputRefs.forEach(ref => ref?.current?.blur());
-	}, [isSelected]);
+		textInputRefs.forEach( ref => ref?.current?.blur() );
+	}, [ isSelected, textInputRefs ] );
 
-	const preventEnterKey = (event) => {
-		if (event.key === 'Enter') {
+	const preventEnterKey = event => {
+		if ( event.key === 'Enter' ) {
 			event.preventDefault();
 		}
 	};
@@ -109,23 +110,23 @@ const AddressEdit = (props) => {
 		styles.blockEditorPlainTextDark
 	);
 
-	const onFocusTextInput = (index) => () => {
-		if (index < textInputsSelected.length) {
-			const newTextInputsSelected = [...textInputsSelected];
-			newTextInputsSelected[index] = true;
-			setTextInputsSelected(newTextInputsSelected);
+	const onFocusTextInput = index => () => {
+		if ( index < textInputsSelected.length ) {
+			const newTextInputsSelected = [ ...textInputsSelected ];
+			newTextInputsSelected[ index ] = true;
+			setTextInputsSelected( newTextInputsSelected );
 		}
 		onFocus();
 	};
 
-	const onBlurTextInput = (index) => () => {
-		if (index >= textInputsSelected.length) {
+	const onBlurTextInput = index => () => {
+		if ( index >= textInputsSelected.length ) {
 			return;
 		}
 
-		const newTextInputsSelected = [...textInputsSelected];
-		newTextInputsSelected[index] = false;
-		setTextInputsSelected(newTextInputsSelected);
+		const newTextInputsSelected = [ ...textInputsSelected ];
+		newTextInputsSelected[ index ] = false;
+		setTextInputsSelected( newTextInputsSelected );
 	};
 
 	const textInput = ( value, placeholder, key, index ) => (
@@ -140,16 +141,18 @@ const AddressEdit = (props) => {
 			aria-label={ placeholder }
 			onChange={ newValue => setAttributes( { [ key ]: newValue } ) }
 			onKeyDown={ preventEnterKey }
-			onBlur={ onBlurTextInput(index) }
-			onFocus={ onFocusTextInput(index) }
+			onBlur={ onBlurTextInput( index ) }
+			onFocus={ onFocusTextInput( index ) }
 			key={ `address-child-${ key }` }
-			ref={textInputRefs[index]}
+			ref={ textInputRefs[ index ] }
 		/>
 	);
 
 	return (
 		<View>
-			{ textData.map( (data, index) => textInput( data.value, data.placeholder, data.key, index ) ) }
+			{ textData.map( ( data, index ) =>
+				textInput( data.value, data.placeholder, data.key, index )
+			) }
 			{ externalLink }
 		</View>
 	);
