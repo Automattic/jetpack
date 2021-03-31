@@ -217,3 +217,44 @@ function wpcomsh_update_submenus( $slug, $submenus_to_update ) {
 		}
 	}
 }
+
+/**
+ * Enqueue the styles needed by nav unification on AMP requests.
+ *
+ * Can be removed after Jetpack 9.6 release.
+ */
+function wpcomsh_enqueue_admin_menu_styles_on_amp_requests() {
+	// Do not run if Jetpack is disabled.
+	if ( ! defined( 'JETPACK__VERSION' ) ) {
+		return;
+	}
+
+	// Do not clash with the fix already shipped in Jetpack 9.6.
+	if ( version_compare( JETPACK__VERSION, '9.6-alpha', '>=' ) ) {
+		return;
+	}
+
+	// Safety - don't alter anything if Nav Unification is not enabled.
+	if ( ! wpcomsh_activate_nav_unification( false ) ) {
+		return;
+	}
+
+	// Do not run when AMP is disabled.
+	if (
+		! class_exists( 'Jetpack_AMP_Support' )
+		|| ! Jetpack_AMP_Support::is_amp_request()
+	) {
+		return;
+	}
+
+	$text_direction = get_user_option( 'jetpack_text_direction' );
+	$is_rtl         = 'rtl' === $text_direction;
+	if ( $is_rtl ) {
+		$css_path = '//s0.wp.com/wp-content/mu-plugins/masterbar/admin-menu/rtl/admin-menu-rtl.css';
+	} else {
+		$css_path = plugins_url( 'modules/masterbar/admin-menu/admin-menu.css', JETPACK__PLUGIN_FILE );
+	}
+
+	wp_enqueue_style( 'jetpack-admin-menu', $css_path, array(), WPCOMSH_VERSION );
+}
+add_action( 'admin_enqueue_scripts', 'wpcomsh_enqueue_admin_menu_styles_on_amp_requests' );
