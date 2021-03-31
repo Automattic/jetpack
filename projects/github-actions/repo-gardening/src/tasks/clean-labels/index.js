@@ -34,9 +34,14 @@ async function cleanLabels( payload, octokit ) {
 		'[Status] Needs Team Review',
 		'[Status] In Progress',
 		'[Status] Needs Author Reply',
+		'[Status] Needs Design',
 		'[Status] Needs Design Review',
+		'[Status] Design Input Requested',
 		'[Status] Needs i18n Review',
 		'[Status] String Freeze',
+		'[Status] Needs Copy',
+		'[Status] Needs Copy Review',
+		'[Status] Editorial Input Requested',
 	];
 
 	const labelsToRemoveFromPr = labelsOnPr.filter( label => labelsToRemove.includes( label ) );
