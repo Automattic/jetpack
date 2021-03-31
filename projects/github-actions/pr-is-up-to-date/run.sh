@@ -2,6 +2,11 @@
 
 set -eo pipefail
 
+function git {
+	printf "\e[32m%s\e[0m\n" "/usr/bin/git $*" >&2
+	/usr/bin/git "$@"
+}
+
 function die {
 	echo "::error::$*"
 	exit 1
@@ -62,13 +67,18 @@ echo "::endgroup::"
 echo "Tag $TAG points to $TAG_COMMIT"
 
 echo "::group::Sanity check"
-git fetch --shallow-exclude="$TAG" origin "$BRANCH"
+git fetch --depth=1 origin "$BRANCH"
 git repack -d  # Work around a git bug
-git fetch --deepen=1 origin "$BRANCH"
-echo "::endgroup::"
 if ! git merge-base --is-ancestor "$TAG_COMMIT" "origin/$BRANCH"; then
-	die "Tag $TAG is not an ancestor of $BRANCH! Aborting."
+	git fetch --shallow-exclude="$TAG" origin "$BRANCH"
+	git repack -d  # Work around a git bug
+	git fetch --deepen=1 origin "$BRANCH"
+	if ! git merge-base --is-ancestor "$TAG_COMMIT" "origin/$BRANCH"; then
+		echo "::endgroup::"
+		die "Tag $TAG is not an ancestor of $BRANCH! Aborting."
+	fi
 fi
+echo "::endgroup::"
 
 function do_fetch {
 	local PR REFS=()
@@ -88,20 +98,24 @@ function process_prs {
 		if git merge-base --is-ancestor "$TAG_COMMIT" "$COMMIT"; then
 			printf "\e[1;32mPR $PR is up to date\e[0m\n"
 			if $NOTIFY_SUCCESS && [[ -n "$CI" ]]; then
+				echo "::group::Setting successful status check"
 				curl -v \
 					--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT}" \
 					--header "authorization: Bearer $API_TOKEN" \
 					--header 'content-type: application/json' \
 					--data "$DATA_OK"
+				echo "::endgroup::"
 			fi
 		else
 			printf "\e[1;31mPR $PR is outdated\e[0m\n"
 			if [[ -n "$CI" ]]; then
+				echo "::group::Setting failed status check"
 				curl -v \
 					--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${COMMIT}" \
 					--header "authorization: Bearer $API_TOKEN" \
 					--header 'content-type: application/json' \
 					--data "$DATA_FAIL"
+				echo "::endgroup::"
 			fi
 		fi
 	done
@@ -109,8 +123,7 @@ function process_prs {
 
 NOTIFY_SUCCESS=false
 case "$GITHUB_EVENT_NAME" in
-	pull_request)
-	pull_request_target)
+	pull_request|pull_request_target)
 		NOTIFY_SUCCESS=true
 		echo "::group::Fetching PR $PR"
 		do_fetch "$PR"

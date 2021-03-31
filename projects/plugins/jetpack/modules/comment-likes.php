@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Comment Likes
  * Module Description: Increase visitor engagement by adding a Like button to comments.
@@ -9,19 +9,27 @@
  * Auto Activate: No
  * Module Tags: Social
  * Additional Search Queries: like widget, like button, like, likes
+ *
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
 
 Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
-require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
+require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
+require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 
+/**
+ * Jetpack Comment Like Class
+ */
 class Jetpack_Comment_Likes {
 
+	/**
+	 * Initialize comment like module
+	 */
 	public static function init() {
-		static $instance = NULL;
+		static $instance = null;
 
 		if ( ! $instance ) {
 			$instance = new Jetpack_Comment_Likes();
@@ -30,6 +38,9 @@ class Jetpack_Comment_Likes {
 		return $instance;
 	}
 
+	/**
+	 * Construct comment like module.
+	 */
 	private function __construct() {
 		$this->settings  = new Jetpack_Likes_Settings();
 		$this->blog_id   = Jetpack_Options::get_option( 'id' );
@@ -43,18 +54,18 @@ class Jetpack_Comment_Likes {
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
 			$active = Jetpack::get_active_modules();
 
-			if ( ! in_array( 'sharedaddy', $active ) && ! in_array( 'publicize', $active ) ) {
-				// we don't have a sharing page yet
+			if ( ! in_array( 'sharedaddy', $active, true ) && ! in_array( 'publicize', $active, true ) ) {
+				// we don't have a sharing page yet.
 				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
 			}
 
-			if ( in_array( 'publicize', $active ) && ! in_array( 'sharedaddy', $active ) ) {
-				// we have a sharing page but not the global options area
+			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+				// we have a sharing page but not the global options area.
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if( ! in_array( 'sharedaddy', $active ) ) {
+			if ( ! in_array( 'sharedaddy', $active, true ) ) {
 				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
@@ -67,16 +78,25 @@ class Jetpack_Comment_Likes {
 			add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
 			add_action( 'edit_attachment', array( $this->settings, 'meta_box_save' ) );
 			add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_init' ), 20 );
-			add_action( 'sharing_admin_update',   array( $this->settings, 'admin_settings_callback' ), 20 );
+			add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_callback' ), 20 );
 		}
 	}
 
+	/**
+	 * Initialize admin section
+	 */
 	public function admin_init() {
 		add_filter( 'manage_edit-comments_columns', array( $this, 'add_like_count_column' ) );
 		add_action( 'manage_comments_custom_column', array( $this, 'comment_likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit-comments.php', array( $this, 'enqueue_admin_styles_scripts' ) );
 	}
 
+	/**
+	 * Displays number of comment likes in comment admin page.
+	 *
+	 * @param string $column_name name of the column.
+	 * @param int    $comment_id ID of the comment.
+	 */
 	public function comment_likes_edit_column( $column_name, $comment_id ) {
 		if ( 'comment_likes' !== $column_name ) {
 			return;
@@ -85,18 +105,21 @@ class Jetpack_Comment_Likes {
 		$permalink = get_permalink( get_the_ID() );
 		?>
 		<a
-		   data-comment-id="<?php echo absint( $comment_id ); ?>"
-		   data-blog-id="<?php echo absint( $this->blog_id ); ?>"
-		   class="comment-like-count"
-		   id="comment-like-count-<?php echo absint( $comment_id ); ?>"
-		   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo absint( $comment_id ); ?>"
+		data-comment-id="<?php echo absint( $comment_id ); ?>"
+		data-blog-id="<?php echo absint( $this->blog_id ); ?>"
+		class="comment-like-count"
+		id="comment-like-count-<?php echo absint( $comment_id ); ?>"
+		href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo absint( $comment_id ); ?>"
 		>
 			<span class="like-count">0</span>
 		</a>
 		<?php
 	}
 
-	function enqueue_admin_styles_scripts() {
+	/**
+	 * Enqueue admin style scripts.
+	 */
+	public function enqueue_admin_styles_scripts() {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
 			'comment-like-count',
@@ -105,16 +128,24 @@ class Jetpack_Comment_Likes {
 				'modules/comment-likes/comment-like-count.js'
 			),
 			array( 'jquery' ),
-			JETPACK__VERSION
+			JETPACK__VERSION,
+			false
 		);
 	}
 
+	/**
+	 * Adds like count column to admin page.
+	 *
+	 * @param array $columns column of admin table.
+	 */
 	public function add_like_count_column( $columns ) {
 		$columns['comment_likes'] = '<span class="vers"></span>';
-
 		return $columns;
 	}
 
+	/**
+	 * Initialize front end
+	 */
 	public function frontend_init() {
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
@@ -124,6 +155,9 @@ class Jetpack_Comment_Likes {
 		add_filter( 'comment_text', array( $this, 'comment_likes' ), 10, 2 );
 	}
 
+	/**
+	 * Load styling scripts
+	 */
 	public function load_styles_register_scripts() {
 		if ( ! $this->settings->is_likes_visible() ) {
 			return;
@@ -150,9 +184,15 @@ class Jetpack_Comment_Likes {
 			JETPACK__VERSION,
 			true
 		);
-		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js', __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}
 
+	/**
+	 * Display like count.
+	 *
+	 * @param string $content text content of the comment itself.
+	 * @param object $comment comment object containing comment data.
+	 */
 	public function comment_likes( $content, $comment = null ) {
 		if ( empty( $comment ) ) {
 			return $content;
@@ -183,9 +223,9 @@ class Jetpack_Comment_Likes {
 		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $this->blog_id, $comment_id, $uniqid );
 		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $this->blog_id, $comment_id, $uniqid );
 
-		$html = '';
+		$html  = '';
 		$html .= "<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
-		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . "</span></div>";
+		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
 		$html .= "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div></div>';
