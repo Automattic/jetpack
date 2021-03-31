@@ -38,8 +38,9 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99998 );
-		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
+		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
+		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
@@ -247,6 +248,44 @@ abstract class Base_Admin_Menu {
 	 */
 	public function is_rtl() {
 		return is_rtl();
+	}
+
+	/**
+	 * Checks for any SVG icons in the menu, and overrides things so that
+	 * we can display the icon in the correct colour for the theme.
+	 */
+	public function override_svg_icons() {
+		global $menu;
+		$svg_items = array();
+		foreach ( $menu as $idx => $menu_item ) {
+			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+				$svg_items[] = array(
+					'icon' => $menu[ $idx ][6],
+					'id'   => $menu[ $idx ][5],
+				);
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $idx ][6] = 'none';
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $idx ][4] .= ' menu-svg-icon';
+			}
+		}
+		if ( count( $svg_items ) > 0 ) {
+			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
+			foreach ( $svg_items as $svg_item ) {
+				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
+			}
+			$styles .= '@supports ( mask-image: none ) or ( -webkit-mask-image: none ) { ';
+			$styles .= '.menu-svg-icon .wp-menu-image { background-image: none; background-color: currentColor; opacity: .6; mask-position: center center; mask-repeat: no-repeat } a.menu-svg-icon:hover .wp-menu-image { opacity: 1 }';
+			foreach ( $svg_items as $svg_item ) {
+				$styles .= sprintf( '#%s .wp-menu-image { background-image: none; mask-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
+			}
+			$styles .= '}';
+
+			wp_register_style( 'svg-menu-overrides', false, array(), '20210331' );
+			wp_enqueue_style( 'svg-menu-overrides' );
+			wp_add_inline_style( 'svg-menu-overrides', $styles );
+		}
+		l( $svg_items );
 	}
 
 	/**
