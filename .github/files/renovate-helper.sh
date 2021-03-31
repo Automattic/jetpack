@@ -88,10 +88,11 @@ for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(proje
 	ARGS=()
 	ARGS=( add --no-interaction --significance=patch )
 	if [[ "$SLUG" == "plugins/jetpack" ]]; then
-		ARGS+=( --type=compat --entry= --comment="Updating dependencies" )
+		ARGS+=( --type=other )
 	else
-		ARGS+=( --type=changed --entry="Updated package dependencies" )
+		ARGS+=( --type=changed )
 	fi
+	ARGS+=( --entry="Updated package dependencies" )
 
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then

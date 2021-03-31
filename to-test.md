@@ -1,4 +1,4 @@
-## 9.5
+## 9.6
 
 ### Before you start
 
@@ -6,54 +6,77 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
+### Instant Search
+
+This release brings a lot of changes to the Instant Search feature; we would recommend looking at every aspect of the feature to see how things work:
+
+1. Purchase a Search plan.
+2. Go to Jetpack > Settings > Performance, enable Instant Search.
+3. Go to Appearance > Customize > Jetpack Search and play with the different Jetpack Search settings.
+4. Try the same on a site with WooCommerce products and reviews if possible.
+5. Save your changes and see how the search overlay behaves on the frontend of your site.
+
 ### Blocks
 
-We've updated several blocks to ensure full compatibility with the upcoming version of WordPress, 5.7. To test those changes, you'll want to try inserting different blocks on your site, whether it runs WordPress 5.6 or WordPress 5.7 Beta. You'll want to take extra attention to the toolbar buttons that appear above each block in the editor. Those toolbars should keep working just like before. Here is a full list of the blocks that were updated:
+#### Payment, Revue, Subscription Blocks
 
-- Business Hours
-- Calendly
-- Contact Form
-- Donations
-- Eventbrite
-- Gathering Tweetstorms ("unroll" feature appearing in the toolbar when embedding a Twitter thread)
-- Map
-- Pay With Paypal
-- Payments
-- Pinterest
-- Podcast Player
-- Premium Content
-- Publicize
-- WhatsApp
-- Slideshow
-- Tiled Gallery
-- Video
+We've added a new "width" option to the buttons that can be added via multiple blocks in Jetpack; Payment, Revue, Subscription. To test this:
 
+1. Create a new post and add one of those blocks.
+2. Click on the button and try to customize its settings.
+3. See how those settings look like on the frontend.
+4. See that settings do not cause any issues when coming back to edit an existing post with such a button.
+5. Try playing with both the percentage option and the pixel option for the button's width settings.
 
-### Dashboard
+#### Star Rating Block
 
-This release introduces a new banner, appearing in the main dashboard and on the Plugins page once you've connected Jetpack to WordPress.com. To test, try the following:
+You should now be able to select 0 stars in a star rating block. To test this, try the following:
 
-* On a new site visit wp-admin. Verify that the dashboard banner displays.
-* Do one of the following:
-    * Select some options and click continue. If you chose store, verify that you are taken to the WooCommerce prompt. If not, verify that you are taken to the Monitor prompt. Return to the wp-admin dashboard and verify that the dashboard banner does not display.
-    * Dismiss the banner and reload the page, verifying that it does not display.
+1. Create a new post and add a Rating block.
+2. Click on the first star multiple times. The star should change from 1 star to 0.5 stars to 0 stars, then back to 1 star.
+3. Try different changing from different star ratings and make sure the behavior is correct.
+4. Set a star rating block to 0 stars and publish the post. Make sure that the published block displays correctly.
 
-### Tiled Galleries
+#### Tiled Gallery Block
 
-Tiled Galleries now work without the need of jQuery. To test that the galleries still work, try the following:
+We've improved the Tiled Gallery block so editing existing galleries does not create any errors. To test this, it's easier if there are already existing galleries on your site, using the tiled gallery block. Try editing posts containing such galleries; you should not see any errors or broken tiled gallery block in the editor.
 
-1. Follow [instructions to set up tiled galleries](https://jetpack.com/support/tiled-galleries/).
-2. Create 2 new posts:
-    - One using a classic block, and a tiled gallery in that block
-    - One using a Tiled Gallery block
-3. Ensure that in both scenarios, tiled galleries still work, regardless of the gallery type (square, circle, colunmns...) you choose.
+#### Video Block
 
-### Related Posts
+In this release, we now handle deleted videos better. To test this, you'll need:
 
-We've also worked on improving the performance of Related Posts. To test that they still work, try the following:
+- A Paid Jetpack plan
+- The Videos option should be active under Jetpack > Settings > Performance
 
-1. Enable Related posts under Jetpack > Settings
-2. Ensure that related posts appear at the bottom of your posts, when you have a sufficient amount of posts and when those posts have been synced with WordPress.com.
-3. Ensure that Related Posts blocks added to any post are displayed properly.
+Once you're set with this, try the following:
+
+1. Create a post and insert a Video block.
+2. Upload a new video.
+3. Publish the post.
+4. Go to the Media Library and permanently delete the video.
+5. Revisit the post in the editor. You will see a black placeholder. Clicking the block should allow you to access the normal block controls so you can delete the block/replace the video file.
+6. Add a new video file instead of the now missing.
+7. Update your post.
+8. Visit post, the video should be displayed properly.
+
+### Connections Flows
+
+We continue to improve connection flows for a better first experience with the plugin. You can test a few things here:
+
+1. Add the following snippet to your site before you connect the site to WordPress.com: `add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );`
+1. You should see messages appear under the Media, Appearance > Widgets, and Posts pages (only if you have at least 5 published posts) before you connect your site to your WordPress.com account.
+1. Those messages should not be displayed anymore once you've connected your site.
+1. Check the "Recommendations" banner that appears on the main dashboard page and the main Plugins page once you've connected your site to WordPress.com; you should be able to either dismiss it easily (and it should not come back after that), or start the Recommendations process from there.
+
+### SEO Tools
+
+Until now, one had to go to the WordPress.com dashboard to change their SEO settings once the feature was enabled. That's no longer necessary. You can now manage all settings from your Jetpack dashboard:
+
+1. Connect your site to your WordPress.com account
+1. Go to Jetpack > Settings > Traffic
+1. Enable the SEO Tools feature
+1. Play with the different settings, save your changes, and ensure saving works well.
+1. Ensure your settings are reflected on your site's frontend.
+1. Try to activate another SEO plugin such as Yoast SEO or All In One SEO; the SEO settings should then be disabled.
 
 **Thank you for all your help!**
