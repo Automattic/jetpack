@@ -54,12 +54,18 @@ class Tokens {
 
 		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
 		$blog_token = $this->get_access_token();
-		$method     = 'POST';
-		$body       = array(
+
+		// Cannot validate non-existent tokens.
+		if ( false === $user_token || false === $blog_token ) {
+			return false;
+		};
+
+		$method   = 'POST';
+		$body     = array(
 			'user_token' => $this->get_signed_token( $user_token ),
 			'blog_token' => $this->get_signed_token( $blog_token ),
 		);
-		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
+		$response = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
 
 		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
