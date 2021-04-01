@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-backups",
+	"name": "automattic/jetpack-backup",
 	"description": "Easily restore or download a backup of your site from a specific moment in time.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",

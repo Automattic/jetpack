@@ -1,4 +1,4 @@
-=== Jetpack Backups ===
+=== Jetpack Backup ===
 Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 5.5
