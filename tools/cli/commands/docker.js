@@ -10,10 +10,9 @@ import chalk from 'chalk';
  * @param {object} argv - Arguments passed.
  */
 const defaultDockerCmdHandler = argv => {
+	const args = process.argv.slice( 4 ); // node yarn docker <cmd> [args..]
 	try {
-		child_process.spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }` ], {
-			stdio: 'inherit',
-		} );
+		child_process.spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }`, ...args ], { stdio: 'inherit' } );
 	} catch ( error ) {
 		console.error( chalk.bgRed( `Failed to execute command docker:${ argv._[ 1 ] }. Error:` ) );
 		console.log( error );
@@ -149,7 +148,7 @@ export function dockerDefine( yargs ) {
 					handler: defaultDockerCmdHandler,
 				} )
 				.command( {
-					command: 'wp',
+					command: 'wp [args..]',
 					description: 'pass commands to wp-cli',
 					handler: defaultDockerCmdHandler,
 				} );
