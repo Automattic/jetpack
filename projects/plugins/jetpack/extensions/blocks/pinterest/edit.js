@@ -46,7 +46,7 @@ function PinterestEdit( {
 	/**
 	 * Wrapper for noticeOperations.removeAllNotices.
 	 */
-	const removeAllNotices = noticeOperations.removeAllNotices();
+	const removeAllNotices = () => noticeOperations.removeAllNotices();
 
 	/**
 	 * Submit handler for the url editing form.
