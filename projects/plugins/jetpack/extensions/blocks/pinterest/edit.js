@@ -113,6 +113,8 @@ function PinterestEdit( {
 	}
 
 	const pinterestEmbedType = pinType( url );
+	// TODO: try to catch invalid pinterest URLs as well, e.g., https://www.pinterest.com.au/pin/this-is-the-furniture-every-pet-parent-needs--710161434992927062/.
+	// They render nothing.
 
 	if ( isEditing || ! url || ( url && ! pinterestEmbedType ) ) {
 		return (
