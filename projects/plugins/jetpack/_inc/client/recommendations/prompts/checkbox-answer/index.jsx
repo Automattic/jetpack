@@ -44,9 +44,11 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 			tabIndex={ 0 }
 		>
 			<div className="jp-checkbox-answer__checkbox">
-				<input type="checkbox" checked={ checked } tabIndex={ -1 } />
+				<input id={ answerKey } type="checkbox" defaultChecked={ checked } tabIndex={ -1 } />
 			</div>
-			<div className="jp-checkbox-answer__title">{ title }</div>
+			<label htmlFor={ answerKey } className="jp-checkbox-answer__title">
+				{ title }
+			</label>
 			<div
 				className="jp-checkbox-answer__info"
 				onClick={ stopEventPropagation }
