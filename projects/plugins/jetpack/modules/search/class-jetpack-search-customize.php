@@ -158,7 +158,7 @@ class Jetpack_Search_Customize {
 				$wp_customize,
 				$id,
 				array(
-					'description' => __( 'Choose post types to exclude from search results. For search to work properly, please leave at least one post type unchecked.', 'jetpack' ),
+					'description' => __( 'Choose post types to exclude from search results. You must leave at least one post type unchecked.', 'jetpack' ),
 					'label'       => __( 'Excluded Post Types', 'jetpack' ),
 					'section'     => $section_id,
 				)
