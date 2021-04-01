@@ -9,9 +9,9 @@ import sinon from 'sinon';
  * Internal dependencies
  */
 import { SiteTypeQuestion } from '../index';
-import { fireEvent, render, screen } from '../../../summary/test/test-utils';
 import analytics from 'lib/analytics';
 import * as recommendationsActions from 'state/recommendations/actions';
+import { fireEvent, render, screen } from 'test/test-utils';
 
 function buildInitialState() {
 	return {
@@ -20,24 +20,9 @@ function buildInitialState() {
 				recommendationsStep: 'site-type-question',
 				siteTitle: 'Test Site',
 			},
-			// && state.jetpack.pluginsData.items[ plugin ].active
 			pluginsData: {
 				items: {
 					'jetpack/jetpack.php': {
-						Name: 'Jetpack by WordPress.com',
-						PluginURI: 'https://jetpack.com',
-						Version: '9.6-alpha',
-						Description:
-							'Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.',
-						Author: 'Automattic',
-						AuthorURI: 'https://jetpack.com',
-						TextDomain: 'jetpack',
-						DomainPath: '',
-						Network: false,
-						RequiresWP: '5.6',
-						RequiresPHP: '5.6',
-						Title: 'Jetpack by WordPress.com',
-						AuthorName: 'Automattic',
 						active: true,
 					},
 				},

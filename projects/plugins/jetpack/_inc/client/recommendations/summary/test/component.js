@@ -10,8 +10,8 @@ import sinon from 'sinon';
  */
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
-import { render, screen } from './test-utils';
 import * as recommendationActions from 'state/recommendations/actions';
+import { render, screen } from 'test/test-utils';
 
 describe( 'Recommendations – Summary', () => {
 	sinon.stub( recommendationActions, 'updateRecommendationsStep' ).returns( { type: '', step: 2 } );
