@@ -2,10 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import {
-	ToolbarButton,
-	ToolbarGroup,
-} from '@wordpress/components';
+import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { BlockControls } from '@wordpress/block-editor';
 
 export default function PinterestControls( { setEditingState } ) {
@@ -16,7 +13,7 @@ export default function PinterestControls( { setEditingState } ) {
 					className="components-toolbar__control"
 					label={ __( 'Edit URL', 'jetpack' ) }
 					icon="edit"
-					onClick={ () => setEditingState() }
+					onClick={ () => setEditingState( true ) }
 				/>
 			</ToolbarGroup>
 		</BlockControls>
