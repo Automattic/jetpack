@@ -6,7 +6,7 @@ function rewindFixture( rewindStatus ) {
 	};
 }
 
-function siteDataFixture( { productSlug }) {
+function siteDataFixture( { productSlug } ) {
 	return {
 		data: {
 			plan: {
@@ -39,14 +39,19 @@ function upsellFixture( { hideUpsell } ) {
 
 /**
  * Build an object that can be use as a Redux store initial state.
- * 
+ *
  * @param {object} options
  * @param {boolean} options.hideUpsell – whether to show the upsell product card
  * @param {string} options.productSlug – product slug of the site's plan
  * @param {object} options.rewindStatus – rewind status of the site
  * @returns {object} – initial Redux state
  */
-export function buildInitialState( { hideUpsell = false, productSlug, rewindStatus = { state: 'unavailable' } } = {} ) {
+export function buildInitialState( {
+	enabledRecommendations = {},
+	hideUpsell = false,
+	productSlug,
+	rewindStatus = { state: 'unavailable' },
+} = {} ) {
 	return {
 		jetpack: {
 			initialState: {
@@ -62,14 +67,18 @@ export function buildInitialState( { hideUpsell = false, productSlug, rewindStat
 				},
 			},
 			pluginsData: {
-				items: [],
+				items: {
+					'jetpack/jetpack.php': {
+						active: true,
+					},
+				},
 			},
 			recommendations: {
 				upsell: upsellFixture( { hideUpsell } ),
 			},
 			rewind: rewindFixture( rewindStatus ),
 			settings: {
-				items: [],
+				items: enabledRecommendations,
 			},
 			siteData: siteDataFixture( { productSlug } ),
 		},

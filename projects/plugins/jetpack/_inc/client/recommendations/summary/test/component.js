@@ -11,10 +11,10 @@ import sinon from 'sinon';
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
 import * as recommendationActions from 'state/recommendations/actions';
-import { render, screen } from 'test/test-utils';
+import { render, screen, within } from 'test/test-utils';
 
 describe( 'Recommendations – Summary', () => {
-	sinon.stub( recommendationActions, 'updateRecommendationsStep' ).returns( { type: '', step: 2 } );
+	sinon.stub( recommendationActions, 'updateRecommendationsStep' ).returns( { type: 'dummy' } );
 
 	describe( 'Loading cards when fetching data', () => {
 		it( "shows loading card when site's plan is being fetched", () => {
@@ -34,46 +34,81 @@ describe( 'Recommendations – Summary', () => {
 		} );
 	} );
 
-	describe( "Sidebar's upsell card on site with Jetpack Free", () => {
-		it( 'shows the upsell no price card when hide_upsell is true', () => {
-			render( <SummaryFeature />, {
-				initialState: buildInitialState( { hideUpsell: true, productSlug: 'jetpack_free' } ),
+	describe( 'Sidebar', () => {
+		describe( 'Site with Jetpack Free', () => {
+			it( 'shows the upsell no price card when hide_upsell is true', () => {
+				render( <SummaryFeature />, {
+					initialState: buildInitialState( { hideUpsell: true, productSlug: 'jetpack_free' } ),
+				} );
+
+				expect( screen.getByText( 'Recommended premium product' ) ).to.be.not.null;
+				expect( screen.getByText( 'Powerful security, performance, and marketing' ) ).to.be.not
+					.null;
 			} );
 
-			expect( screen.getByText( 'Recommended premium product' ) ).to.be.not.null;
-			expect( screen.getByText( 'Powerful security, performance, and marketing' ) ).to.be.not.null;
+			it( 'shows the upsell card when hide_upsell is false', () => {
+				render( <SummaryFeature />, {
+					initialState: buildInitialState( { productSlug: 'jetpack_free' } ),
+				} );
+
+				expect( screen.getByText( 'Backup Daily' ) ).to.be.not.null;
+			} );
 		} );
 
-		it( 'shows the upsell card when hide_upsell is false', () => {
-			render( <SummaryFeature />, {
-				initialState: buildInitialState( { productSlug: 'jetpack_free' } ),
+		describe( 'Site with paid plan (Rewind enabled)', () => {
+			it( 'shows one click restores card when waiting for credentials', () => {
+				render( <SummaryFeature />, {
+					initialState: buildInitialState( {
+						productSlug: 'jetpack_backup_daily',
+						rewindStatus: { state: 'awaiting_credentials' },
+					} ),
+				} );
+
+				expect( screen.getAllByText( 'Enable one-click restores' ) ).to.be.not.null;
 			} );
 
-			expect( screen.getByText( 'Backup Daily' ) ).to.be.not.null;
+			it( 'show manage security card when active or provisioning', () => {
+				render( <SummaryFeature />, {
+					initialState: buildInitialState( {
+						productSlug: 'jetpack_backup_daily',
+						rewindStatus: { state: 'active' },
+					} ),
+				} );
+
+				expect( screen.getByText( 'Manage your security on Jetpack.com' ) ).to.be.not.null;
+			} );
 		} );
 	} );
 
-	describe( "Sidebar's card on site with Rewind enabled (paid plan included)", () => {
-		it( 'shows one click restores card when waiting for credentials', () => {
+	describe( 'Content', () => {
+		it( 'shows the enabled recommendations', () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( {
-					productSlug: 'jetpack_backup_daily',
-					rewindStatus: { state: 'awaiting_credentials' },
+					productSlug: 'jetpack_free',
+					enabledRecommendations: { monitor: true },
 				} ),
 			} );
 
-			expect( screen.getAllByText( 'Enable one-click restores' ) ).to.be.not.null;
+			const enabledFeatures = screen.getByRole( 'region', { name: /recommendations enabled/i } );
+
+			expect( enabledFeatures ).to.be.not.null;
+			expect( within( enabledFeatures ).getByText( 'Downtime Monitoring' ) ).to.be.not.null;
 		} );
 
-		it( 'show manage security card when active or provisioning', () => {
+		it( 'shows the skipped recommendations', () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( {
-					productSlug: 'jetpack_backup_daily',
-					rewindStatus: { state: 'active' },
+					productSlug: 'jetpack_free',
+					enabledRecommendations: { monitor: true },
 				} ),
 			} );
 
-			expect( screen.getByText( 'Manage your security on Jetpack.com' ) ).to.be.not.null;
+			const skippedFeatures = screen.getByRole( 'region', { name: /recommendations skipped/i } );
+
+			expect( skippedFeatures ).to.be.not.null;
+			expect( within( skippedFeatures ).getByText( 'Site Accelerator' ) ).to.be.not.null;
+			expect( within( skippedFeatures ).getByText( 'Related Posts' ) ).to.be.not.null;
+			expect( within( skippedFeatures ).getByText( 'Creative Mail' ) ).to.be.not.null;
 		} );
 	} );
 } );
