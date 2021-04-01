@@ -6,6 +6,7 @@
  * @since 8.4.0
  */
 
+/** Include comment-likes.php module */
 require dirname( __FILE__ ) . '/../../../../modules/comment-likes.php';
 
 /**

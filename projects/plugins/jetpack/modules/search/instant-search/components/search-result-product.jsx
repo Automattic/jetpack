@@ -36,9 +36,10 @@ class SearchResultProduct extends Component {
 				: __( 'No title', 'jetpack' );
 
 		// TODO: Remove this check once checking result.highlight is more reliable.
-		const hasQuery = this.props.searchQuery !== '';
+		const hasQuery =
+			typeof this.props.searchQuery === 'string' && this.props.searchQuery.trim() !== '';
 		const titleHasMark = title.includes( '<mark>' );
-		const hasMatch =
+		const showMatchHint =
 			hasQuery &&
 			! titleHasMark &&
 			Array.isArray( highlight.content ) &&
@@ -51,7 +52,13 @@ class SearchResultProduct extends Component {
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ this.props.onClick }
 				>
-					<div className="jetpack-instant-search__search-result-product-img-container">
+					<div
+						className={ `jetpack-instant-search__search-result-product-img-container ${
+							firstImage
+								? ''
+								: 'jetpack-instant-search__search-result-product-img-container--placeholder'
+						}` }
+					>
 						{ firstImage ? (
 							<PhotonImage
 								alt={ title }
@@ -99,7 +106,7 @@ class SearchResultProduct extends Component {
 						permalink={ `//${ fields[ 'permalink.url.raw' ] }` }
 					/>
 				) }
-				{ hasMatch && (
+				{ showMatchHint && (
 					<div className="jetpack-instant-search__search-result-product-match">
 						<mark>
 							<Gridicon icon="search" style={ {} } title={ false } />

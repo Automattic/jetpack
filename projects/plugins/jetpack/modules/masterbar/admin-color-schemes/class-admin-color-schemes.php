@@ -187,18 +187,11 @@ class Admin_Color_Schemes {
 	public function enqueue_core_color_schemes_overrides() {
 		$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
 		$color_scheme       = get_user_option( 'admin_color' );
-		$dependencies       = array();
-		$rtl                = is_rtl() ? '-rtl' : '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css', 'notes-admin-bar-rest' . $rtl );
-		} else {
-			$dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
-		}
 		if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
 			wp_enqueue_style(
 				'jetpack-core-color-schemes-overrides',
 				$this->get_admin_color_scheme_url( $color_scheme ),
-				$dependencies,
+				array(),
 				JETPACK__VERSION
 			);
 		}

@@ -313,6 +313,26 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `connection/reconnect` endpoint when the token validation request fails.
+	 */
+	public function test_connection_reconnect_when_token_validation_request_fails() {
+		$this->setup_reconnect_test( 'token_validation_failed' );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		$this->shutdown_reconnect_test( 'token_validation_failed' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'in_progress', $data['status'] );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+	}
+
+	/**
 	 * This filter callback allow us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
@@ -403,6 +423,30 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return $this->build_validate_tokens_response( null );
+	}
+
+	/**
+	 * Intercept the `jetpack-token-health` API request sent to WP.com, and mock failed response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_validate_tokens_request_failed( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+			return $response;
+		}
+
+		return array(
+			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
+			'response' => array(
+				'code'    => 500,
+				'message' => 'failed',
+			),
+		);
 	}
 
 	/**
@@ -613,6 +657,17 @@ class Test_REST_Endpoints extends TestCase {
 					3
 				);
 				break;
+			case 'token_validation_failed':
+				add_filter(
+					'pre_http_request',
+					array(
+						$this,
+						'intercept_validate_tokens_request_failed',
+					),
+					10,
+					3
+				);
+				break;
 			case null:
 				add_filter(
 					'pre_http_request',
@@ -652,6 +707,16 @@ class Test_REST_Endpoints extends TestCase {
 					array(
 						$this,
 						'intercept_validate_tokens_request_invalid_user_token',
+					),
+					10
+				);
+				break;
+			case 'token_validation_failed':
+				remove_filter(
+					'pre_http_request',
+					array(
+						$this,
+						'intercept_validate_tokens_request_failed',
 					),
 					10
 				);

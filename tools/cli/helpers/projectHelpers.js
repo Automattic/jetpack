@@ -10,7 +10,7 @@ export const dirs = ( source, prefix = '' ) =>
 		.filter( dirent => dirent.isDirectory() )
 		.map( dirent => prefix + dirent.name );
 
-export const projectTypes = [ 'github-actions', 'packages', 'plugins' ];
+export const projectTypes = [ 'github-actions', 'packages', 'plugins', 'js-packages' ];
 // export const projectTypes = [ 'editor-extensions', 'github-actions', 'packages', 'plugins' ], // Swap out line above once there's editor-extensions in place.
 
 /**

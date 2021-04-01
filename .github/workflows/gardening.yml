@@ -65,8 +65,8 @@ jobs:
           jq --version
 
       - name: Building Action
-        run: npm install
-        working-directory: ./.github/actions/repo-gardening
+        run: composer build-development
+        working-directory: ./projects/github-actions/repo-gardening
 
       - name: Wait for prior instances of the workflow to finish
         uses: softprops/turnstyle@v1
@@ -74,8 +74,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: "Run the action (assign, manage milestones, for issues and PRs)"
-        uses: ./.github/actions/repo-gardening
+        uses: ./projects/github-actions/repo-gardening
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
           slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}
+          slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
