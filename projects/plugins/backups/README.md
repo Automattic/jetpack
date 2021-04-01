@@ -1,8 +1,8 @@
-# backups
+# Backups
 
 Easily restore or download a backup of your site from a specific moment in time.
 
-## How to install backups
+## How to install Backups
 
 ### Installation From Git Repo
 

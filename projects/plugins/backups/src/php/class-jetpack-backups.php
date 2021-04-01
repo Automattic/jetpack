@@ -5,8 +5,6 @@
  * @package automattic/jetpack-backups
  */
 
-use Automattic\Jetpack\ConnectionUI as ConnectionUI;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -29,9 +27,6 @@ class Jetpack_Backups {
 		if ( ! is_admin() ) {
 			return;
 		}
-
-		// Todo: Figure out how to load in the ConnectionUI()
-		// new ConnectionUI();
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
