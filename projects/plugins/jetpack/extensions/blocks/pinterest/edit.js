@@ -106,7 +106,7 @@ function PinterestEdit( {
 		}
 		// Disabling for setErrorNotice and removeAllNotices for now until we can further refactor.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ pinterestUrl, hasTestUrlError, setAttributes, removeAllNotices ] );
+	}, [ pinterestUrl, hasTestUrlError, setAttributes ] );
 
 	if ( isFetching ) {
 		return <LoadingContainer />;
