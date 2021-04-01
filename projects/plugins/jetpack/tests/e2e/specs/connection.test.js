@@ -32,8 +32,7 @@ describe( 'Connection', () => {
 	afterAll( async () => {
 		await execWpCommand(
 			`'wp option update jetpack_private_options --format=json < ${ path.resolve(
-				config.get( 'configDir' ),
-				'jetpack-private-options.txt'
+				config.get( 'temp.jetpackPrivateOptions' )
 			) }'`
 		);
 	} );

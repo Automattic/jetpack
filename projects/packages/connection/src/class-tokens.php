@@ -54,12 +54,18 @@ class Tokens {
 
 		$user_token = $this->get_access_token( $user_id ? $user_id : get_current_user_id() );
 		$blog_token = $this->get_access_token();
-		$method     = 'POST';
-		$body       = array(
+
+		// Cannot validate non-existent tokens.
+		if ( false === $user_token || false === $blog_token ) {
+			return false;
+		};
+
+		$method   = 'POST';
+		$body     = array(
 			'user_token' => $this->get_signed_token( $user_token ),
 			'blog_token' => $this->get_signed_token( $blog_token ),
 		);
-		$response   = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
+		$response = Client::_wp_remote_request( $url, compact( 'body', 'method' ) );
 
 		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
@@ -68,6 +74,36 @@ class Tokens {
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		return $body ? $body : false;
+	}
+
+	/**
+	 * Perform the API request to validate only the blog.
+	 *
+	 * @return bool|WP_Error Boolean with the test result. WP_Error if test cannot be performed.
+	 */
+	public function validate_blog_token() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
+		$url = sprintf(
+			'%s/%s/v%s/%s',
+			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
+			'wpcom',
+			'2',
+			'sites/' . $blog_id . '/jetpack-token-health/blog'
+		);
+
+		$method   = 'GET';
+		$response = Client::remote_request( compact( 'url', 'method' ) );
+
+		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return is_array( $body ) && isset( $body['is_healthy'] ) && true === $body['is_healthy'];
 	}
 
 	/**

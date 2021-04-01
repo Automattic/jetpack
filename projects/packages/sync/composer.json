@@ -12,7 +12,7 @@
 		"automattic/jetpack-status": "^1.7"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -31,6 +31,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-sync",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"

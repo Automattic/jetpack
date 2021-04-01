@@ -246,15 +246,31 @@ class Jetpack_Admin {
 			return false;
 		}
 
+		/*
+		 * In Offline mode, modules that require a site or user
+		 * level connection should be unavailable.
+		 */
 		if ( ( new Status() )->is_offline_mode() ) {
-			return ! ( $module['requires_connection'] );
-		} else {
-			if ( ! Jetpack::is_connection_ready() ) {
-				return false;
-			}
-
-			return Jetpack_Plan::supports( $module['module'] );
+			return ! ( $module['requires_connection'] || $module['requires_user_connection'] );
 		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return false;
+		}
+
+		/*
+		 * Jetpack connected at a site level only. Make sure to make
+		 * modules that require a user connection unavailable.
+		 */
+		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
+			return false;
+		}
+
+		return Jetpack_Plan::supports( $module['module'] );
+
 	}
 
 	function handle_unrecognized_action( $action ) {

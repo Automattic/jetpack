@@ -9,6 +9,8 @@ import { __ } from '@wordpress/i18n';
  */
 import edit from './edit';
 import save from './save';
+import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 
 const name = 'premium-content/login-button';
 
@@ -31,29 +33,7 @@ const settings = {
 		'jetpack'
 	),
 	category: 'grow',
-	attributes: {
-		text: {
-			type: 'string',
-			source: 'html',
-			selector: 'a',
-			default: __( 'Log in', 'jetpack' ),
-		},
-		borderRadius: {
-			type: 'number',
-		},
-		backgroundColor: {
-			type: 'string',
-		},
-		textColor: {
-			type: 'string',
-		},
-		gradient: {
-			type: 'string',
-		},
-		style: {
-			type: 'object',
-		},
-	},
+	attributes,
 	icon,
 	keywords: [ __( 'link', 'jetpack' ) ],
 	supports: {
@@ -69,6 +49,7 @@ const settings = {
 	],
 	edit,
 	save,
+	deprecated: [ deprecatedV1 ],
 };
 
 export { name, settings };

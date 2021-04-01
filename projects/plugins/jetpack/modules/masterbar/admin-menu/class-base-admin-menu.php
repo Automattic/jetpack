@@ -196,18 +196,33 @@ abstract class Base_Admin_Menu {
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$rtl = is_rtl() ? '-rtl' : '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+		if ( $is_wpcom ) {
 			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		} elseif ( $this->is_rtl() ) {
+			$style_dependencies = array( 'a8c-wpcom-masterbar-rtl', 'a8c-wpcom-masterbar-overrides-rtl' );
 		} else {
-			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+			$style_dependencies = array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' );
 		}
+
+		if ( $this->is_rtl() ) {
+			if ( $is_wpcom ) {
+				$css_path = 'rtl/admin-menu-rtl.css';
+			} else {
+				$css_path = 'admin-menu-rtl.css';
+			}
+		} else {
+			$css_path = 'admin-menu.css';
+		}
+
 		wp_enqueue_style(
 			'jetpack-admin-menu',
-			plugins_url( 'admin-menu.css', __FILE__ ),
+			plugins_url( $css_path, __FILE__ ),
 			$style_dependencies,
 			JETPACK__VERSION
 		);
+
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
@@ -229,6 +244,13 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$submenu[ $slug ] = array();
 		}
+	}
+
+	/**
+	 * Determines whether the current locale is right-to-left (RTL).
+	 */
+	public function is_rtl() {
+		return is_rtl();
 	}
 
 	/**

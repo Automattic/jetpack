@@ -10,9 +10,7 @@ import config from 'config';
  * Goes through the messages in slack-specific log, and send these messages into slack
  */
 async function processSlackLog() {
-	const log = readFileSync(
-		path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-slack.log' )
-	).toString();
+	const log = readFileSync( path.resolve( config.get( 'dirs.logs' ), 'e2e-slack.log' ) ).toString();
 	const slack = new SlackReporter();
 	const messages = getMessages( log );
 
@@ -48,7 +46,7 @@ async function processSlackLog() {
 	}
 
 	await slack.sendFileToSlack(
-		path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
+		path.resolve( config.get( 'dirs.logs' ), 'e2e-simple.log' ),
 		options
 	);
 }
