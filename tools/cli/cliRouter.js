@@ -41,7 +41,7 @@ export async function cli() {
 	argv
 		.showHelpOnFail( true )
 		.demandCommand()
-		.strictCommands()
+		.recommendCommands()
 		.completion( 'completion', 'Generate bash/zsh completions' )
 		.version( false )
 		.options( {

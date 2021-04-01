@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import child_process from 'child_process';
+import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 
 /**
@@ -10,10 +10,9 @@ import chalk from 'chalk';
  * @param {object} argv - Arguments passed.
  */
 const defaultDockerCmdHandler = argv => {
+	const args = process.argv.slice( 4 ); // node yarn docker <cmd> [args..]
 	try {
-		child_process.spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }` ], {
-			stdio: 'inherit',
-		} );
+		spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }`, ...args ], { stdio: 'inherit' } );
 	} catch ( error ) {
 		console.error( chalk.bgRed( `Failed to execute command docker:${ argv._[ 1 ] }. Error:` ) );
 		console.log( error );
@@ -153,13 +152,6 @@ export function dockerDefine( yargs ) {
 					description: 'pass commands to wp-cli',
 					handler: defaultDockerCmdHandler,
 				} );
-		},
-		handler: argv => {
-			yargs.showHelp();
-			console.error( chalk.bgRed( '\nUnknown command:' ), argv.cmd );
-			if ( argv.v ) {
-				console.log( argv );
-			}
 		},
 	} );
 
