@@ -3,7 +3,7 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { SandBox, Button, withNotices } from '@wordpress/components';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -46,7 +46,7 @@ function PinterestEdit( {
 	/**
 	 * Wrapper for noticeOperations.removeAllNotices.
 	 */
-	const removeAllNotices = useCallback( () => noticeOperations.removeAllNotices(), [] );
+	const removeAllNotices = noticeOperations.removeAllNotices();
 
 	/**
 	 * Submit handler for the url editing form.
@@ -93,7 +93,7 @@ function PinterestEdit( {
 		}
 	}, [ isSelected, isInteractive ] );
 
-	// Listen out for changes to pinterestUrl after we've tested the url via `testUrl()`.
+	// Listen out for changes to after we've tested the url via `testUrl()`.
 	useEffect( () => {
 		setAttributes( { url: pinterestUrl } );
 		removeAllNotices();
@@ -104,6 +104,8 @@ function PinterestEdit( {
 		if ( hasTestUrlError ) {
 			setErrorNotice();
 		}
+		// Disabling for setErrorNotice and removeAllNotices for now until we can further refactor.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ pinterestUrl, hasTestUrlError, setAttributes, removeAllNotices ] );
 
 	if ( isFetching ) {
