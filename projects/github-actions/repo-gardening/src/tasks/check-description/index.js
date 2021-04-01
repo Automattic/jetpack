@@ -515,7 +515,8 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	await postComment( payload, octokit, comment );
 
 	// If some of our checks are failing, remove any "Needs Review" labels and add an Needs Author Reply label.
-	if ( comment.includes( ':red_circle:' ) ) {
+	// This is not available to external contributors, who cannot add labels.
+	if ( comment.includes( ':red_circle:' ) && statusChecks.isFromContributor ) {
 		await updateLabels( payload, octokit );
 	}
 }
