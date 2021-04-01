@@ -1,0 +1,26 @@
+{
+	"name": "automattic/sync-tester",
+	"description": "test the sync changes",
+	"type": "package",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Automattic, Inc.",
+			"email": "support@jetpack.com"
+		}
+	],
+	"minimum-stability": "dev",
+	"require": {
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-sync": "@dev"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../../projects/packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	]
+}
