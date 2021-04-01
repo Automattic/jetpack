@@ -32,6 +32,7 @@ export async function cli() {
 	argv = buildDefine( argv );
 	argv = changelogDefine( argv );
 	argv = cliDefine( argv );
+	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
 	argv = dockerDefine( argv );
 	argv = generateDefine( argv );
 	argv = installDefine( argv );
