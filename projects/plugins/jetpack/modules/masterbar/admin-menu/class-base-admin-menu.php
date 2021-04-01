@@ -281,9 +281,16 @@ abstract class Base_Admin_Menu {
 				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
 			}
 			$styles .= '@supports ( mask-image: none ) or ( -webkit-mask-image: none ) { ';
-			$styles .= '.menu-svg-icon .wp-menu-image { background-image: none; } .menu-svg-icon .wp-menu-image::before { background-color: currentColor; mask-position: center center; mask-repeat: no-repeat; content:"" } ';
+			$styles .= '.menu-svg-icon .wp-menu-image { background-image: none; } ';
+			$styles .= '.menu-svg-icon .wp-menu-image::before { background-color: currentColor; mask-position: center center; mask-repeat: no-repeat; -webkit-mask-position: center center; -webkit-mask-repeat: no-repeat; content:"" } ';
 			foreach ( $svg_items as $svg_item ) {
-				$styles .= sprintf( '#%s .wp-menu-image { background-image: none; } #%s .wp-menu-image::before{ mask-image: url( "%s" ) }', $svg_item['id'], $svg_item['id'], $svg_item['icon'] );
+				$styles .= sprintf(
+					'#%s .wp-menu-image { background-image: none; } #%s .wp-menu-image::before{ mask-image: url( "%s" ); -webkit-mask-image: url( "%s" ) }',
+					$svg_item['id'],
+					$svg_item['id'],
+					$svg_item['icon'],
+					$svg_item['icon']
+				);
 			}
 			$styles .= '}';
 
@@ -291,7 +298,6 @@ abstract class Base_Admin_Menu {
 			wp_enqueue_style( 'svg-menu-overrides' );
 			wp_add_inline_style( 'svg-menu-overrides', $styles );
 		}
-		l( $svg_items );
 	}
 
 	/**
