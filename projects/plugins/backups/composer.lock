@@ -180,7 +180,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "cc32a6e17225f1d51ffd56cf56388681dd7094fb"
+                "reference": "06367c179b53d90a3820dfa95dbe43f4a522c7a4"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.25"
@@ -190,6 +190,7 @@
             },
             "type": "library",
             "extra": {
+                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-connection-ui",
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-connection-ui/compare/v${old}...v${new}"
