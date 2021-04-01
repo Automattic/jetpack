@@ -63,9 +63,11 @@ describe( 'Recommendations – Site Type', () => {
 	} );
 
 	it( 'updates the state of a question when an answer is clicked', () => {
-		sinon.stub( recommendationsActions, 'updateRecommendationsData' ).returns( {
-			type: 'dummy',
-		} );
+		const updateRecommendationsDataStub = sinon
+			.stub( recommendationsActions, 'updateRecommendationsData' )
+			.returns( {
+				type: 'dummy',
+			} );
 
 		render( <SiteTypeQuestion />, {
 			initialState: buildInitialState(),
@@ -75,11 +77,14 @@ describe( 'Recommendations – Site Type', () => {
 		expect( personalCheckbox.checked ).to.be.false;
 		fireEvent.click( personalCheckbox );
 		expect( personalCheckbox.checked ).to.be.true;
+
+		updateRecommendationsDataStub.restore();
 	} );
 
 	it( 'saves the answers when clicking on continue', () => {
 		const saveRecommendationsStub = sinon.stub( recommendationsActions, 'saveRecommendationsData' );
 		saveRecommendationsStub.returns( { type: 'dummy' } );
+		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 
 		render( <SiteTypeQuestion />, {
 			initialState: buildInitialState(),
@@ -91,9 +96,14 @@ describe( 'Recommendations – Site Type', () => {
 		expect( saveRecommendationsStub.callCount ).to.be.equal( 0 );
 		fireEvent.click( continueLink );
 		expect( saveRecommendationsStub.callCount ).to.be.equal( 1 );
+
+		saveRecommendationsStub.restore();
+		recordEventStub.restore();
 	} );
 
 	it( 'tracks the event (answers included) when clicking on continue', () => {
+		const saveRecommendationsStub = sinon.stub( recommendationsActions, 'saveRecommendationsData' );
+		saveRecommendationsStub.returns( { type: 'dummy' } );
 		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 
 		render( <SiteTypeQuestion />, {
@@ -111,5 +121,8 @@ describe( 'Recommendations – Site Type', () => {
 				other: false,
 			} ).callCount
 		).to.be.equal( 1 );
+
+		recordEventStub.restore();
+		saveRecommendationsStub.restore();
 	} );
 } );
