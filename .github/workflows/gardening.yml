@@ -7,7 +7,7 @@ on:
 
 jobs:
   repo-gardening:
-    name: 'Assign issues, Clean up labels, and notify Design when necessary'
+    name: 'Assign issues, Clean up labels, and notify Design and Editorial when necessary'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -26,9 +26,10 @@ jobs:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'Run gardening action'
-       uses: automattic/action-repo-gardening@master
+       uses: automattic/action-repo-gardening@v1.1.0
        with:
          github_token: ${{ secrets.GITHUB_TOKEN }}
          slack_token: ${{ secrets.SLACK_TOKEN }}
          slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}
-         tasks: 'assignIssues,cleanLabels,notifyDesign'
+         slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
+         tasks: 'assignIssues,cleanLabels,notifyDesign,notifyEditorial'
