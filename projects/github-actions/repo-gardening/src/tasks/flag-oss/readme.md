@@ -1,6 +1,6 @@
 # Flag OSS
 
-Flags PRs opened by external contributors (not from a branch on the main repo), and adds the "OSS Citizen" label.
+Flags PRs opened by external contributors (not from a branch on the main repo), adds the "OSS Citizen" label, and posts a Slack message to your team channel to let everyone know you've got a contribution from an external contributor.
 
 ## Rationale
 
