@@ -12,9 +12,10 @@ function die {
 
 function update_tag {
 	echo 'Updating tag!'
-	git config --global user.name "matticbot"
-	git config --global user.email "matticbot@users.noreply.github.com"
-	git remote set-url origin "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+	export GIT_AUTHOR_NAME=matticbot
+	export GIT_AUTHOR_EMAIL=matticbot@users.noreply.github.com
+	export GIT_COMMITTER_NAME=matticbot
+	export GIT_COMMITTER_EMAIL=matticbot@users.noreply.github.com
 	git tag --force pr-update-to HEAD
 	git push --force origin pr-update-to
 	exit 0
