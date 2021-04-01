@@ -171,9 +171,9 @@ class Grunion_Contact_Form_Plugin {
 		register_post_type(
 			'feedback', array(
 				'labels'                => array(
-					'name'               => __( 'Feedback', 'jetpack' ),
-					'singular_name'      => __( 'Feedback', 'jetpack' ),
-					'search_items'       => __( 'Search Feedback', 'jetpack' ),
+					'name'               => __( 'Contact Form', 'jetpack' ),
+					'singular_name'      => __( 'Contact Form', 'jetpack' ),
+					'search_items'       => __( 'Search Contact Form Feedback', 'jetpack' ),
 					'not_found'          => __( 'No feedback found', 'jetpack' ),
 					'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
 				),
