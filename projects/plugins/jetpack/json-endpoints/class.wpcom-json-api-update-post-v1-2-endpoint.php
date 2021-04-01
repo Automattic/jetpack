@@ -943,6 +943,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$post['post_content'] = $map_block . $post['post_content'];
 		}
 
+		$post['post_format'] = 'aside';
+
 		return $post;
 	}
 }
