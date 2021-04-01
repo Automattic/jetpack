@@ -91,4 +91,40 @@ describe( 'Recommendations – Site Type', () => {
 		fireEvent.click( personalCheckbox );
 		expect( personalCheckbox.checked ).to.be.true;
 	} );
+
+	it( 'saves the answers when clicking on continue', () => {
+		const saveRecommendationsStub = sinon.stub( recommendationsActions, 'saveRecommendationsData' );
+		saveRecommendationsStub.returns( { type: 'dummy' } );
+
+		render( <SiteTypeQuestion />, {
+			initialState: buildInitialState(),
+		} );
+
+		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
+		expect( continueLink.href ).to.have.string( '/recommendations/woocommerce' );
+
+		expect( saveRecommendationsStub.callCount ).to.be.equal( 0 );
+		fireEvent.click( continueLink );
+		expect( saveRecommendationsStub.callCount ).to.be.equal( 1 );
+	} );
+
+	it( 'tracks the event (answers included) when clicking on continue', () => {
+		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
+
+		render( <SiteTypeQuestion />, {
+			initialState: buildInitialState(),
+		} );
+
+		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
+		expect( recordEventStub.callCount ).to.be.equal( 0 );
+		fireEvent.click( continueLink );
+		expect(
+			recordEventStub.withArgs( 'jetpack_recommendations_site_type_answered', {
+				personal: false,
+				business: true,
+				store: true,
+				other: false,
+			} ).callCount
+		).to.be.equal( 1 );
+	} );
 } );
