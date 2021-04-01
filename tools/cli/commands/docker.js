@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import child_process from 'child_process';
+import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 
 /**
@@ -12,7 +12,7 @@ import chalk from 'chalk';
 const defaultDockerCmdHandler = argv => {
 	const args = process.argv.slice( 4 ); // node yarn docker <cmd> [args..]
 	try {
-		child_process.spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }`, ...args ], { stdio: 'inherit' } );
+		spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }`, ...args ], { stdio: 'inherit' } );
 	} catch ( error ) {
 		console.error( chalk.bgRed( `Failed to execute command docker:${ argv._[ 1 ] }. Error:` ) );
 		console.log( error );
