@@ -12,13 +12,22 @@ describe( 'verify commands are available', function () {
 	it( 'build command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack build [project]' );
 	} );
+	it( 'changelog command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack changelog <cmd> [project]' );
+	} );
 	it( 'cli command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack cli <cmd>' );
 	} );
-	it( 'watch command exists', () => {
-		chai.expect( test ).to.contain( 'jetpack watch [project]' );
+	it( 'docker command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack docker <cmd>' );
+	} );
+	it( 'generate command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack generate [type]' );
 	} );
 	it( 'install command exists', () => {
 		chai.expect( test ).to.contain( 'jetpack install [project]' );
+	} );
+	it( 'watch command exists', () => {
+		chai.expect( test ).to.contain( 'jetpack watch [project]' );
 	} );
 } );
