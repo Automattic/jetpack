@@ -282,7 +282,9 @@ abstract class Base_Admin_Menu {
 			}
 			$styles .= '@supports ( mask-image: none ) or ( -webkit-mask-image: none ) { ';
 			$styles .= '.menu-svg-icon .wp-menu-image { background-image: none; } ';
-			$styles .= '.menu-svg-icon .wp-menu-image::before { background-color: currentColor; mask-position: center center; mask-repeat: no-repeat; -webkit-mask-position: center center; -webkit-mask-repeat: no-repeat; content:"" } ';
+			$styles .= '.menu-svg-icon .wp-menu-image::before { background-color: currentColor; ';
+			$styles .= 'mask-size: contain; mask-position: center center; mask-repeat: no-repeat; ';
+			$styles .= '-webkit-mask-size: contain; -webkit-mask-position: center center; -webkit-mask-repeat: no-repeat; content:"" } ';
 			foreach ( $svg_items as $svg_item ) {
 				$styles .= sprintf(
 					'#%s .wp-menu-image { background-image: none; } #%s .wp-menu-image::before{ mask-image: url( "%s" ); -webkit-mask-image: url( "%s" ) }',
