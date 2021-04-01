@@ -38,10 +38,11 @@ configure_wp_env() {
 
 tunnel() {
 	if [ "${1}" == "on" ]; then
-		echo "Starting tunnel"
-		pm2 start "$(dirname "$0")/tunnel.js"
+		echo "Opening tunnel"
+		export NODE_ENV=test
+		pm2 start "$(dirname "$0")/tunnel.js" --env test
 	else
-		echo "Stopping tunnel"
+		echo "Closing tunnel"
 		pm2 delete tunnel
 	fi
 }
