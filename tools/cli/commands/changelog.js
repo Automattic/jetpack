@@ -124,8 +124,12 @@ async function changelogRouter( argv ) {
 		case 'validate':
 			changelogValidate( argv );
 			break;
+		case 'write':
+		case 'version':
+			console.error( chalk.red( 'Command not yet implemented!' ) );
+			process.exit( 1 );
 		default:
-			throw new Error( 'Command not implemented yet!' );
+			throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
 	}
 }
 
@@ -140,7 +144,7 @@ async function promptCommand( argv ) {
 		type: 'list',
 		name: 'cmd',
 		message: 'What changelogger command do you want to run?',
-		choices: [ 'add', 'validate', 'write', 'version' ],
+		choices: [ 'add', 'validate', 'version', 'write' ],
 	} );
 	argv.cmd = response.cmd;
 	return argv;
