@@ -165,8 +165,6 @@ abstract class Jetpack_Admin_Page {
 		return /** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_enabled', true ) &&
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_jsonp_enabled', true ) &&
-			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_authentication_errors', true );
 	}
 
