@@ -3,11 +3,12 @@
 # Exit if any command fails.
 set -e
 
-function usage {
+function usage() {
 	echo "usage: $0 command"
 	echo "  start                        Setup the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
-	echo "  -h | usage                   output this message"
+	echo "  tunnel on|off                Starts or stops a local tunnel"
+	echo "  -h | usage                   Output this message"
 	exit 1
 }
 
@@ -35,12 +36,22 @@ configure_wp_env() {
 	echo
 }
 
+tunnel() {
+	if [ "${1}" == "on" ]; then
+		echo "Starting tunnel"
+		pm2 start "$(dirname "$0")/tunnel.js"
+	else
+		echo "Stopping tunnel"
+		pm2 delete tunnel
+	fi
+}
+
 if [ "${1}" == "start" ]; then
 	start_env
 elif [ "${1}" == "reset" ]; then
 	reset_env
-elif [ "${1}" == "usage" ]; then
-	usage
+elif [ "${1}" == "tunnel" ] && { [ "${2}" == "on" ] || [ "${2}" == "off" ]; }; then
+	tunnel "$2"
 else
 	usage
 fi

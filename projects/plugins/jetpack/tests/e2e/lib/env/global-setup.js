@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const os = require( 'os' );
 const config = require( 'config' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
-import TunnelManager from './tunnel-manager';
+import logger from '../logger';
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
@@ -20,10 +20,11 @@ module.exports = async function () {
 	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
 
 	// Create tunnel. Make it global so we can access it in global-teardown
-	global.tunnelManager = new TunnelManager();
-	await global.tunnelManager.create( process.env.SKIP_CONNECT );
+	// global.tunnelManager = new TunnelManager();
+	// await global.tunnelManager.create( process.env.SKIP_CONNECT );
 
 	// Launch a browser server that client can connect to
+	logger.debug( 'Launching PW server' );
 	global.browser = await chromium.launchServer( pwBrowserOptions );
 	mkdirp.sync( TMP_DIR );
 	fs.writeFileSync( path.join( TMP_DIR, 'wsEndpoint' ), global.browser.wsEndpoint() );
