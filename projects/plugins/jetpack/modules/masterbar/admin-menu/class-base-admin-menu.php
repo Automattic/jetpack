@@ -198,14 +198,6 @@ abstract class Base_Admin_Menu {
 	public function enqueue_scripts() {
 		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
-		if ( $is_wpcom ) {
-			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
-		} elseif ( $this->is_rtl() ) {
-			$style_dependencies = array( 'a8c-wpcom-masterbar-rtl', 'a8c-wpcom-masterbar-overrides-rtl' );
-		} else {
-			$style_dependencies = array( 'a8c-wpcom-masterbar', 'a8c-wpcom-masterbar-overrides' );
-		}
-
 		if ( $this->is_rtl() ) {
 			if ( $is_wpcom ) {
 				$css_path = 'rtl/admin-menu-rtl.css';
@@ -219,7 +211,7 @@ abstract class Base_Admin_Menu {
 		wp_enqueue_style(
 			'jetpack-admin-menu',
 			plugins_url( $css_path, __FILE__ ),
-			$style_dependencies,
+			array(),
 			JETPACK__VERSION
 		);
 
