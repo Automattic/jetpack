@@ -19,10 +19,16 @@ import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 import './style.scss';
 
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
-	const toggleCheckbox = useCallback( () => {
-		const newCheckedValue = ! checked;
-		updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
-	}, [ answerKey, checked, updateCheckboxAnswer ] );
+	const toggleCheckbox = useCallback(
+		e => {
+			if ( e.target.type !== 'checkbox' ) {
+				return;
+			}
+			const newCheckedValue = ! checked;
+			updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
+		},
+		[ answerKey, checked, updateCheckboxAnswer ]
+	);
 
 	const stopEventPropagation = useCallback( e => {
 		e.stopPropagation();
