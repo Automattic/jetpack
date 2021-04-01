@@ -148,17 +148,10 @@ export function dockerDefine( yargs ) {
 					handler: defaultDockerCmdHandler,
 				} )
 				.command( {
-					command: 'wp [args..]',
+					command: 'wp',
 					description: 'pass commands to wp-cli',
 					handler: defaultDockerCmdHandler,
 				} );
-		},
-		handler: argv => {
-			yargs.showHelp();
-			console.error( chalk.bgRed( '\nUnknown command:' ), argv.cmd );
-			if ( argv.v ) {
-				console.log( argv );
-			}
 		},
 	} );
 

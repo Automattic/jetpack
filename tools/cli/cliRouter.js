@@ -41,7 +41,7 @@ export async function cli() {
 	argv
 		.showHelpOnFail( true )
 		.demandCommand()
-		.strictCommands()
+		.recommendCommands()
 		.version( false )
 		.options( {
 			v: {
