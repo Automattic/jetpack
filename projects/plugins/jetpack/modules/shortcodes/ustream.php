@@ -1,6 +1,6 @@
 <?php
 /**
- * Ustream.tv shortcode
+ * Ustream.tv shortcode and another change
  *
  * Example:
  * [ustream id=1524 live=1]
