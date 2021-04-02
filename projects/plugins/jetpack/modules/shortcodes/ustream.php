@@ -1,6 +1,7 @@
 <?php
 /**
- * Ustream.tv shortcode
+ * Ustream.tv shortcode being changed in Jetpack,
+ * and those changes get ported back to WordPress.com
  *
  * Example:
  * [ustream id=1524 live=1]
