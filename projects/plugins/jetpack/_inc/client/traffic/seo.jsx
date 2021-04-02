@@ -110,6 +110,16 @@ export const SEO = withModuleSettingsFormHelpers(
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
 
+			let frontPageMetaCharCountStyle;
+			if ( frontPageMetaDescription.length >= this.constants.frontPageMetaMaxLength ) {
+				frontPageMetaCharCountStyle = 'jp-seo-front-page-description-count-max';
+			} else {
+				frontPageMetaCharCountStyle =
+					frontPageMetaDescription.length > this.constants.frontPageMetaSuggestedLength
+						? 'jp-seo-front-page-description-count-warn'
+						: '';
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -213,7 +223,9 @@ export const SEO = withModuleSettingsFormHelpers(
 												value={ frontPageMetaDescription }
 												onChange={ this.props.onOptionChange }
 											/>
-											<div className="jp-seo-front-page-description-count">
+											<div
+												className={ `jp-seo-front-page-description-count ${ frontPageMetaCharCountStyle }` }
+											>
 												{ sprintf(
 													/* translators: placeholder is number of characters */
 													_n(
@@ -224,6 +236,9 @@ export const SEO = withModuleSettingsFormHelpers(
 													),
 													frontPageMetaDescription.length
 												) }
+												{ frontPageMetaDescription.length >=
+													this.constants.frontPageMetaMaxLength &&
+													' - ' + __( 'Maximum characters reached.', 'jetpack' ) }
 											</div>
 										</div>
 									</SettingsGroup>

@@ -116,6 +116,19 @@
 	&-count {
 		padding: 0 0 0.25rem 0.25rem;
 	}
+
+	&-count-warn {
+		background-color: $alert-yellow;
+		font-weight: $bold;
+		border-radius: 4px;
+	}
+
+	&-count-max {
+		background-color: $alert-red;
+		font-weight: $bold;
+		border-radius: 4px;
+		color: white;
+	}
 }
 
 .jp-seo-social-previews {
