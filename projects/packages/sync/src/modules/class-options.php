@@ -365,7 +365,8 @@ class Options extends Module {
 		$url = get_site_icon_url();
 
 		$jetpack_url = \Jetpack_Options::get_option( 'site_icon_url' );
-		if ( function_exists( 'jetpack_site_icon_url' ) || ( defined( 'JETPACK__PLUGIN_DIR' ) && include_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' ) ) {
+		if ( function_exists( 'jetpack_site_icon_url' ) || defined( 'JETPACK__PLUGIN_DIR' ) ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php';
 			$jetpack_url = jetpack_site_icon_url();
 		}
 
