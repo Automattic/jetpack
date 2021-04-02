@@ -251,7 +251,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
+		$paid_upgrades_submenu = array_pop( $submenu['paid-upgrades.php'] );
+
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $paid_upgrades_submenu[1] );
+		$this->assertSame( 'https://wordpress.com/email/' . static::$domain, $paid_upgrades_submenu[2] );
 	}
 
 	/**
