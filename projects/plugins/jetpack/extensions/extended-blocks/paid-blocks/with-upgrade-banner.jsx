@@ -25,7 +25,8 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
 		const requiredPlan = getRequiredPlan( props?.name );
-		if ( ! requiredPlan ) {
+
+		if ( ! requiredPlan || ! props?.attributes?.shouldDisplayUpgradeNudge ) {
 			return <BlockListBlock { ...props } />;
 		}
 
