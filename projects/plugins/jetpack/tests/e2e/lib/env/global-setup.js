@@ -19,10 +19,6 @@ module.exports = async function () {
 	// If the file already exists the content gets overwritten with an empty object
 	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
 
-	// Create tunnel. Make it global so we can access it in global-teardown
-	// global.tunnelManager = new TunnelManager();
-	// await global.tunnelManager.create( process.env.SKIP_CONNECT );
-
 	// Launch a browser server that client can connect to
 	logger.debug( 'Launching PW server' );
 	global.browser = await chromium.launchServer( pwBrowserOptions );
