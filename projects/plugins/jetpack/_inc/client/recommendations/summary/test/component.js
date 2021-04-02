@@ -92,33 +92,33 @@ describe( 'Recommendations – Summary', () => {
 	} );
 
 	describe( 'Content', () => {
-		it( 'shows the enabled recommendations', () => {
+		it( 'shows the enabled recommendation (Related Posts)', () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( {
+					enabledRecommendations: { 'related-posts': true },
 					productSlug: 'jetpack_free',
-					enabledRecommendations: { monitor: true },
 				} ),
 			} );
 
 			const enabledFeatures = screen.getByRole( 'region', { name: /recommendations enabled/i } );
 
 			expect( enabledFeatures ).to.be.not.null;
-			expect( within( enabledFeatures ).getByText( 'Downtime Monitoring' ) ).to.be.not.null;
+			expect( within( enabledFeatures ).getByText( 'Related Posts' ) ).to.be.not.null;
 		} );
 
-		it( 'shows the skipped recommendations', () => {
+		it( 'shows the skipped recommendations (Monitor, Site Accelerator, and Creative Mail)', () => {
 			render( <SummaryFeature />, {
 				initialState: buildInitialState( {
+					enabledRecommendations: { 'related-posts': true },
 					productSlug: 'jetpack_free',
-					enabledRecommendations: { monitor: true },
 				} ),
 			} );
 
 			const skippedFeatures = screen.getByRole( 'region', { name: /recommendations skipped/i } );
 
 			expect( skippedFeatures ).to.be.not.null;
+			expect( within( skippedFeatures ).getByText( 'Downtime Monitoring' ) ).to.be.not.null;
 			expect( within( skippedFeatures ).getByText( 'Site Accelerator' ) ).to.be.not.null;
-			expect( within( skippedFeatures ).getByText( 'Related Posts' ) ).to.be.not.null;
 			expect( within( skippedFeatures ).getByText( 'Creative Mail' ) ).to.be.not.null;
 		} );
 	} );

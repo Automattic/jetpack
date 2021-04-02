@@ -60,6 +60,11 @@ export function buildInitialState( {
 				},
 			},
 			connection: {
+				status: {
+					siteConnected: {
+						hasConnectedOwner: true,
+					},
+				},
 				user: {
 					currentUser: {
 						isConnected: true,
