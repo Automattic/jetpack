@@ -25,7 +25,7 @@ export default function WhatsAppButtonEdit( {
 
 	// This needs to get refactored out somewhere so that it is automatically applied to
 	// all paid blocks, and does not run on every render.
-	const availability = getJetpackExtensionAvailability( 'send-a-message' );
+	const availability = getJetpackExtensionAvailability( 'whatsapp-button' );
 	const hasOwnUpgradeNudge =
 		! availability.available && availability.unavailableReason === 'missing_plan';
 
