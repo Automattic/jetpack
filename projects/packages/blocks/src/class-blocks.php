@@ -70,13 +70,38 @@ class Blocks {
 				$args['attributes'] = array_merge(
 					$args['attributes'],
 					array(
-						// Indicates that this block should display an upgrade nudge on the frontend when applicable.
-						'shouldDisplayFrontendBanner' => array(
+						// Indicates that the block or one of its parents is displaying the nudge.
+						'isUpgradeNudgeDisplayed'   => array(
 							'type'    => 'boolean',
-							'default' => true,
+							'default' => 'false',
+						),
+						// Indicates that this block is displaying the nudge.
+						'shouldDisplayUpgradeNudge' => array(
+							'type'    => 'boolean',
+							'default' => 'true',
 						),
 					)
 				);
+
+				// Set up context.
+				if ( ! isset( $args['provides_context'] ) ) {
+					$args['provides_context'] = array();
+				}
+				$args['provides_context'] = array_merge(
+					$args['provides_context'],
+					array(
+						'jetpack/isUpgradeNudgeDisplayed' => 'isUpgradeNudgeDisplayed',
+					)
+				);
+
+				if ( ! isset( $args['uses_context'] ) ) {
+					$args['uses_context'] = array();
+				}
+				array_push(
+					$args['uses_context'],
+					'jetpack/isUpgradeNudgeDisplayed'
+				);
+
 				if ( isset( $args['render_callback'] ) ) {
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 				}

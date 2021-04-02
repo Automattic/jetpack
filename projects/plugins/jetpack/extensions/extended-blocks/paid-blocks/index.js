@@ -40,6 +40,20 @@ const jetpackPaidBlock = ( settings, name ) => {
 		if ( ! isStillUsableWithFreePlan( name ) ) {
 			settings.icon = renderPaidIcon( settings.icon );
 		}
+
+		// Add the attributes for rendering upgrade nudges.
+		if ( ! settings.attributes.isUpgradeNudgeDisplayed ) {
+			settings.attributes.isUpgradeNudgeDisplayed = {
+				type: 'boolean',
+				default: false,
+			};
+		}
+		if ( ! settings.attributes.shouldDisplayUpgradeNudge ) {
+			settings.attributes.shouldDisplayUpgradeNudge = {
+				type: 'boolean',
+				default: true,
+			};
+		}
 	}
 
 	return settings;
