@@ -1088,7 +1088,7 @@ class Jetpack_Gutenberg {
 	 * @param callable $render_callback The render_callback that will be called if the block is available.
 	 */
 	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
-		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
+		return function ( $prepared_attributes, $block_content, $block ) use ( $render_callback, $slug ) {
 			$availability = self::get_cached_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
@@ -1096,13 +1096,19 @@ class Jetpack_Gutenberg {
 			}
 
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
-			if (
-				isset( $availability[ $bare_slug ] ) &&
-				self::should_show_frontend_preview( $availability[ $bare_slug ] )
-			) {
-				$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
-				$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
-				return $upgrade_nudge . $block_preview;
+			$upgrade_nudge = '';
+			if ( isset( $availability[ $bare_slug ] ) ) {
+				if ( self::should_show_frontend_preview( $availability[ $bare_slug ] ) ) {
+					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
+
+					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
+					if ( ! $block->context['jetpack/isUpgradeNudgeDisplayed'] ) {
+						$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
+						return $upgrade_nudge . $block_preview;
+					}
+
+					return $block_preview;
+				}
 			}
 
 			return null;
