@@ -3,16 +3,16 @@ const config = require( 'config' );
 const localtunnel = require( 'localtunnel' );
 
 ( async () => {
-	console.log( 'Opening tunnel' );
-
-	console.log( JSON.stringify( config, null, 2 ) );
 	const conf = config.get( 'tunnel' );
+	const tunnelConfig = { host: conf.host, port: conf.port };
 
-	// re-use subdomain
+	// Try to re-use the subdomain by using the tunnel url saved in file.
+	// If a valid url is not found do not fail, but create a tunnel
+	// with a randomly assigned subdomain (default option)
 	try {
 		const urlFromFile = fs.readFileSync( config.get( 'temp.tunnels' ), 'utf8' );
 		if ( new URL( urlFromFile ) ) {
-			conf.subdomain = getSubdomain( urlFromFile );
+			tunnelConfig.subdomain = urlFromFile.replace( /.*?:\/\//g, '' ).split( '.' )[ 0 ];
 		}
 	} catch ( error ) {
 		if ( error.code === 'ENOENT' ) {
@@ -22,13 +22,11 @@ const localtunnel = require( 'localtunnel' );
 		}
 	}
 
-	const tunnel = await localtunnel( conf );
+	const tunnel = await localtunnel( tunnelConfig );
 
 	tunnel.on( 'close', () => {
-		console.log( 'Tunnel is closed' );
+		console.log( 'Tunnel closed' );
 	} );
-} )();
 
-function getSubdomain( url ) {
-	return url.replace( /.*?:\/\//g, '' ).split( '.' )[ 0 ];
-}
+	console.log( 'Tunnel open' );
+} )();

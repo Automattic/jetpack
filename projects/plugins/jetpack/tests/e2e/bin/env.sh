@@ -40,10 +40,12 @@ tunnel() {
 	if [ "${1}" == "on" ]; then
 		echo "Opening tunnel"
 		export NODE_ENV=test
-		pm2 start "$(dirname "$0")/tunnel.js" --env test
-	else
+		pm2 start "$(dirname "$0")/tunnel.js" --log ./output/logs/tunnel.log
+	elif [ "${1}" == "off" ]; then
 		echo "Closing tunnel"
 		pm2 delete tunnel
+	else
+		usage
 	fi
 }
 
@@ -51,7 +53,7 @@ if [ "${1}" == "start" ]; then
 	start_env
 elif [ "${1}" == "reset" ]; then
 	reset_env
-elif [ "${1}" == "tunnel" ] && { [ "${2}" == "on" ] || [ "${2}" == "off" ]; }; then
+elif [ "${1}" == "tunnel" ]; then
 	tunnel "$2"
 else
 	usage
