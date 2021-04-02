@@ -41,6 +41,19 @@ function buildInitialState() {
 }
 
 describe( 'Recommendations – Site Type', () => {
+	const DUMMY_ACTION = { type: 'dummy' };
+	let updateRecommendationsStepStub;
+
+	before( function () {
+		updateRecommendationsStepStub = sinon
+			.stub( recommendationsActions, 'updateRecommendationsStep' )
+			.returns( DUMMY_ACTION );
+	} );
+
+	after( function () {
+		updateRecommendationsStepStub.restore();
+	} );
+
 	it( 'shows the Site Type Question component', () => {
 		render( <SiteTypeQuestion />, {
 			initialState: buildInitialState(),
@@ -83,7 +96,7 @@ describe( 'Recommendations – Site Type', () => {
 
 	it( 'saves the answers when clicking on continue', () => {
 		const saveRecommendationsStub = sinon.stub( recommendationsActions, 'saveRecommendationsData' );
-		saveRecommendationsStub.returns( { type: 'dummy' } );
+		saveRecommendationsStub.returns( DUMMY_ACTION );
 		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 
 		render( <SiteTypeQuestion />, {
@@ -103,7 +116,7 @@ describe( 'Recommendations – Site Type', () => {
 
 	it( 'tracks the event (answers included) when clicking on continue', () => {
 		const saveRecommendationsStub = sinon.stub( recommendationsActions, 'saveRecommendationsData' );
-		saveRecommendationsStub.returns( { type: 'dummy' } );
+		saveRecommendationsStub.returns( DUMMY_ACTION );
 		const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 
 		render( <SiteTypeQuestion />, {

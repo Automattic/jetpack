@@ -39,6 +39,19 @@ function buildInitialState( { recommendationsStep } = {} ) {
 }
 
 describe( 'Recommendations – Feature Prompt', () => {
+	const DUMMY_ACTION = { type: 'dummy' };
+	let updateRecommendationsStepStub;
+
+	before( function () {
+		updateRecommendationsStepStub = sinon
+			.stub( recommendationsActions, 'updateRecommendationsStep' )
+			.returns( DUMMY_ACTION );
+	} );
+
+	after( function () {
+		updateRecommendationsStepStub.restore();
+	} );
+
 	describe( 'Monitor', () => {
 		const stepSlug = 'monitor';
 
@@ -72,14 +85,12 @@ describe( 'Recommendations – Feature Prompt', () => {
 		} );
 
 		it( 'calls the right actions when a user clicks on the enable feature button', () => {
-			const dummyAction = { type: 'dummy' };
-
 			// Stub methods that perform side-effects through async actions
 			const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 			const addSelectedRecommendationStub = sinon
 				.stub( recommendationsActions, 'addSelectedRecommendation' )
-				.returns( dummyAction );
-			const activateFeatureStub = sinon.stub().returns( dummyAction );
+				.returns( DUMMY_ACTION );
+			const activateFeatureStub = sinon.stub().returns( DUMMY_ACTION );
 			const mapDispatchToPropsStub = sinon.stub( featureUtils, 'mapDispatchToProps' ).returns( {
 				activateFeature: activateFeatureStub,
 			} );
@@ -119,13 +130,13 @@ describe( 'Recommendations – Feature Prompt', () => {
 		} );
 
 		it( 'calls the right actions when a user clicks on the skip feature button', () => {
-			const dummyAction = { type: 'dummy' };
+			const DUMMY_ACTION = { type: 'dummy' };
 
 			// Stub methods that perform side-effects through async actions
 			const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 			const addSkippedRecommendationStub = sinon
 				.stub( recommendationsActions, 'addSkippedRecommendation' )
-				.returns( dummyAction );
+				.returns( DUMMY_ACTION );
 
 			render( <FeaturePrompt stepSlug={ stepSlug } />, {
 				initialState: buildInitialState( { recommendationsStep: stepSlug } ),

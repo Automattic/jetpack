@@ -10,11 +10,22 @@ import sinon from 'sinon';
  */
 import { Summary as SummaryFeature } from '../index';
 import { buildInitialState } from './fixtures';
-import * as recommendationActions from 'state/recommendations/actions';
+import * as recommendationsActions from 'state/recommendations/actions';
 import { render, screen, within } from 'test/test-utils';
 
 describe( 'Recommendations – Summary', () => {
-	sinon.stub( recommendationActions, 'updateRecommendationsStep' ).returns( { type: 'dummy' } );
+	let updateRecommendationsStepStub;
+
+	before( function () {
+		const DUMMY_ACTION = { type: 'dummy' };
+		updateRecommendationsStepStub = sinon
+			.stub( recommendationsActions, 'updateRecommendationsStep' )
+			.returns( DUMMY_ACTION );
+	} );
+
+	after( function () {
+		updateRecommendationsStepStub.restore();
+	} );
 
 	describe( 'Loading cards when fetching data', () => {
 		it( "shows loading card when site's plan is being fetched", () => {
