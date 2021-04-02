@@ -134,7 +134,7 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		if ( ! $menu_exists ) {
 			// Remove the submenu auto-created by Core.
-			remove_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
+			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
 		}
 	}
 
@@ -165,7 +165,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		remove_submenu_page( 'upload.php', 'media-new.php' );
+		$this->hide_submenu_page( 'upload.php', 'media-new.php' );
 
 		$this->update_menu( 'upload.php', 'https://wordpress.com/media/' . $this->domain );
 	}
@@ -282,8 +282,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );
 
-		remove_submenu_page( 'themes.php', 'custom-header' );
-		remove_submenu_page( 'themes.php', 'custom-background' );
+		$this->hide_submenu_page( 'themes.php', 'custom-header' );
+		$this->hide_submenu_page( 'themes.php', 'custom-background' );
 
 		return $customize_url;
 	}
@@ -298,8 +298,8 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		remove_submenu_page( 'plugins.php', 'plugin-install.php' );
-		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+		$this->hide_submenu_page( 'plugins.php', 'plugin-install.php' );
+		$this->hide_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
 		$this->update_menu( 'plugins.php', 'https://wordpress.com/plugins/' . $this->domain );
 	}
@@ -350,8 +350,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
-		remove_submenu_page( 'tools.php', 'tools.php' );
-		remove_submenu_page( 'tools.php', 'delete-blog' );
+		$this->hide_submenu_page( 'tools.php', 'tools.php' );
+		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
 		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
@@ -369,8 +369,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
 
-		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
+		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
 	}
 
 	/**
@@ -392,13 +392,13 @@ class Admin_Menu extends Base_Admin_Menu {
 		/* translators: Jetpack sidebar menu item. */
 		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'read', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
-		remove_submenu_page( 'jetpack', 'stats' );
-		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		$this->hide_submenu_page( 'jetpack', 'stats' );
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 
 		if ( ! $is_menu_updated ) {
 			// Remove the submenu auto-created by Core.
-			remove_submenu_page( 'jetpack', 'jetpack' );
+			$this->hide_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
 

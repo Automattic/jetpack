@@ -124,7 +124,7 @@ abstract class Base_Admin_Menu {
 
 		// Change parent slug only if there are no submenus (the slug of the 1st submenu will be used if there are submenus).
 		if ( $url ) {
-			remove_submenu_page( $slug, $slug );
+			$this->hide_submenu_page( $slug, $slug );
 			if ( empty( $submenu[ $slug ] ) ) {
 				$menu_item[2] = $url;
 			}
@@ -153,6 +153,8 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Updates the submenus of the given menu slug.
 	 *
+	 * It hides the menu by adding the hide-if-js css class and duplicates the submenu with the new slug.
+	 *
 	 * @param string $slug Menu slug.
 	 * @param array  $submenus_to_update Array of new submenu slugs.
 	 */
@@ -163,12 +165,20 @@ abstract class Base_Admin_Menu {
 			return;
 		}
 
-		foreach ( $submenu[ $slug ] as $i => $submenu_item ) {
-			if ( array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
-				$submenu_item[2] = $submenus_to_update[ $submenu_item[2] ];
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$submenu[ $slug ][ $i ] = $submenu_item;
+		foreach ( $submenu[ $slug ] as $i => &$submenu_item ) {
+			if ( ! array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
+				continue;
 			}
+
+			$new_submenu_item    = $submenu_item;
+			$new_submenu_item[2] = $submenus_to_update[ $submenu_item[2] ];
+
+			$css_classes = empty( $submenu_item[4] ) ? 'hide-if-js' : $submenu_item[4] . ' hide-if-js';
+
+			$submenu_item[4] = $css_classes;
+
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			array_splice( $submenu[ $slug ], $i, 0, array( $new_submenu_item ) );
 		}
 	}
 
@@ -235,6 +245,37 @@ abstract class Base_Admin_Menu {
 				width: 32px;
 			}
 		</style>';
+	}
+
+	/**
+	 * Hide the submenu page based on slug and return the item that was hidden.
+	 *
+	 * Instead of actually removing the submenu item, a safer approach is to hide it and filter it in the API response.
+	 * In this manner we'll avoid breaking third-party plugins depending on items that no longer exist.
+	 *
+	 * A false|array value is returned to be consistent with remove_submenu_page() function
+	 *
+	 * @param string $menu_slug The parent menu slug.
+	 * @param string $submenu_slug The submenu slug that should be hidden.
+	 * @return false|array
+	 */
+	public function hide_submenu_page( $menu_slug, $submenu_slug ) {
+		global $submenu;
+
+		if ( ! isset( $submenu[ $menu_slug ] ) ) {
+			return false;
+		}
+
+		foreach ( $submenu[ $menu_slug ] as $i => $item ) {
+			if ( $submenu_slug === $item[2] ) {
+				$css_classes = isset( $item[4] ) ? $item[4] . '  hide-if-js' : 'hide-if-js';
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ $menu_slug ][ $i ][4] = $css_classes;
+				return $item;
+			}
+		}
+
+		return false;
 	}
 
 	/**
