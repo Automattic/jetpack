@@ -12,9 +12,27 @@ import { BlockControls, InspectorControls, RichText } from '@wordpress/block-edi
 import { countryCodes } from '../shared/countrycodes.js';
 import WhatsAppButtonConfiguration from './configuration';
 import '../view.scss';
+import getJetpackExtensionAvailability from '../../../shared/get-jetpack-extension-availability';
 
-export default function WhatsAppButtonEdit( { attributes, setAttributes, className, clientId } ) {
+export default function WhatsAppButtonEdit( {
+	attributes,
+	setAttributes,
+	className,
+	context,
+	clientId,
+} ) {
 	const { countryCode, buttonText, colorClass, backgroundColor } = attributes;
+
+	// This needs to get refactored out somewhere so that it is automatically applied to
+	// all paid blocks, and does not run on every render.
+	const availability = getJetpackExtensionAvailability( 'send-a-message' );
+	const hasOwnUpgradeNudge =
+		! availability.available && availability.unavailableReason === 'missing_plan';
+
+	const isUpgradeNudgeDisplayed = context[ 'jetpack/isUpgradeNudgeDisplayed' ];
+
+	setAttributes( { shouldDisplayUpgradeNudge: ! isUpgradeNudgeDisplayed && hasOwnUpgradeNudge } );
+	setAttributes( { isUpgradeNudgeDisplayed: isUpgradeNudgeDisplayed || hasOwnUpgradeNudge } );
 
 	const { selectBlock } = useDispatch( 'core/block-editor' );
 
