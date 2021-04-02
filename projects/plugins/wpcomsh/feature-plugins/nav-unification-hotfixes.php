@@ -6,65 +6,7 @@
  * @package wpcomsh
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
-
-/**
- * Handle RTL language layout.
- *
- * Can be removed after Jetpack 9.6 release.
- */
-function wpcomsh_handle_rtl_languages() {
-	// Do not run if Jetpack is not enabled.
-
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
-		return;
-	}
-
-	// Do not clash with the fix already shipped in Jetpack 9.6.
-	if ( version_compare( JETPACK__VERSION, '9.6-alpha', '>=' ) ) {
-		return;
-	}
-
-	// Safety - don't alter anything if Nav Unification is not enabled.
-	if ( ! wpcomsh_activate_nav_unification( false ) ) {
-		return;
-	}
-
-	// Disable for users not connected to WP.com - making sure the class is loaded.
-	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-		return false;
-	}
-
-	$connection_manager = new Connection_Manager( 'jetpack' );
-
-	$user_id = get_current_user_id();
-
-	if ( ! $connection_manager->is_user_connected( $user_id ) ) {
-		return;
-	}
-
-	/**
-	 * Text direction on user level
-	 *
-	 * @var string $text_direction
-	 */
-	$text_direction = get_user_option( 'jetpack_text_direction', $user_id );
-
-	// Only enqueue the style on RTL layouts.
-	if ( 'rtl' !== $text_direction ) {
-		return;
-	}
-
-	wp_enqueue_style(
-		'jetpack-admin-menu',
-		'//s0.wp.com/wp-content/mu-plugins/masterbar/admin-menu/rtl/admin-menu-rtl.css',
-		array( 'a8c-wpcom-masterbar-rtl', 'a8c-wpcom-masterbar-overrides-rtl' ),
-		WPCOMSH_VERSION
-	);
-}
-
-add_action( 'admin_enqueue_scripts', 'wpcomsh_handle_rtl_languages' );
 
 /**
  * Deprecates gracefully Links menu item.
@@ -223,7 +165,7 @@ function wpcomsh_update_submenus( $slug, $submenus_to_update ) {
  *
  * Can be removed after Jetpack 9.6 release.
  */
-function wpcomsh_enqueue_admin_menu_styles_on_amp_requests() {
+function wpcomsh_enqueue_admin_menu_styles() {
 	// Do not run if Jetpack is disabled.
 	if ( ! defined( 'JETPACK__VERSION' ) ) {
 		return;
@@ -239,14 +181,6 @@ function wpcomsh_enqueue_admin_menu_styles_on_amp_requests() {
 		return;
 	}
 
-	// Do not run when AMP is disabled.
-	if (
-		! class_exists( 'Jetpack_AMP_Support' )
-		|| ! Jetpack_AMP_Support::is_amp_request()
-	) {
-		return;
-	}
-
 	$text_direction = get_user_option( 'jetpack_text_direction' );
 	$is_rtl         = 'rtl' === $text_direction;
 	if ( $is_rtl ) {
@@ -257,4 +191,4 @@ function wpcomsh_enqueue_admin_menu_styles_on_amp_requests() {
 
 	wp_enqueue_style( 'jetpack-admin-menu', $css_path, array(), WPCOMSH_VERSION );
 }
-add_action( 'admin_enqueue_scripts', 'wpcomsh_enqueue_admin_menu_styles_on_amp_requests' );
+add_action( 'admin_enqueue_scripts', 'wpcomsh_enqueue_admin_menu_styles' );
