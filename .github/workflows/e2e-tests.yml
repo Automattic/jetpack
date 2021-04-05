@@ -82,9 +82,9 @@ jobs:
 
     - name: Build Production Jetpack
       run: |
-      yarn install
-      cd node_modules/.bin
-      jetpack build plugins/jetpack -v --production
+        yarn install
+        cd node_modules/.bin
+        jetpack build plugins/jetpack -v --production
 
     - name: Set up environment
       working-directory: projects/plugins/jetpack/tests/e2e
