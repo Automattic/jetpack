@@ -35,9 +35,9 @@
 
 	// Prevent themes from specifying a customized select styling.
 	appearance: auto;
-	background: inherit;
-	border-width: 1px;
-	color: inherit;
+	background: $color-modal-background;
+	border: 1px solid $color-layout-borders;
+	color: $color-text;
 	height: inherit;
 
 	@include break-small-down() {
