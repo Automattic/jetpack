@@ -293,6 +293,17 @@ class Jetpack_SEO_Titles {
 	}
 
 	/**
+	 * Sanitizes the custom front page meta description input.
+	 *
+	 * @param string $value Array of custom title formats.
+	 *
+	 * @return string The sanitized string.
+	 */
+	public static function sanitize_front_page_meta_description( $value ) {
+		return trim( esc_html( $value ) );
+	}
+
+	/**
 	 * Combines the previous values of title formats, stored as array in site options,
 	 * with the new values that are provided.
 	 *
