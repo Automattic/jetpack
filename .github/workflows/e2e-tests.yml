@@ -82,7 +82,7 @@ jobs:
 
     - name: Build Production Jetpack
       run: |
-      yarn build-production-concurrently
+      yarn install
       cd node_modules/.bin
       jetpack build plugins/jetpack -v --production
 
