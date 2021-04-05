@@ -254,7 +254,6 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 - Jetpack Videos: improve the display of transcoding status for newly uploaded videos.
 - Podcast Player Block: improve fetching of the podcast description.
 - Syncrhonization: add new sync/health endpoint to allow update of the sync health options.
-- WordPress.com REST API: allow Facebook Metadata to be saved alongside posts created via the API.
 
 #### Improved compatibility
 - Auto-updates: respect auto-update constant/filters in plugin API endpoints.

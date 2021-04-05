@@ -20,6 +20,7 @@ import FoldableCard from 'components/foldable-card';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 import SimpleNotice from 'components/notice';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
+import Button from 'components/button';
 
 export const conflictingSeoPluginsList = [
 	{
@@ -79,6 +80,17 @@ export const SEO = withModuleSettingsFormHelpers(
 
 		updateCustomSeoTitleInputState = newCustomSeoTitles => {
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
+		};
+
+		saveButton = props => {
+			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
+			return (
+				<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+					{ isSaving
+						? _x( 'Saving…', 'Button caption', 'jetpack' )
+						: _x( 'Save settings', 'Button caption', 'jetpack' ) }
+				</Button>
+			);
 		};
 
 		render() {
@@ -185,6 +197,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												siteData={ siteData }
 											/>
 										</FormFieldset>
+										{
+											<div className={ 'jp-seo-custom-titles-save-button' }>
+												{ this.saveButton( this.props ) }
+											</div>
+										}
 									</SettingsGroup>
 								</FoldableCard>
 								<FoldableCard
@@ -193,7 +210,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									className="jp-seo-front-page-description-card"
 								>
 									<SettingsGroup>
-										<p>
+										<p style={ { clear: 'both' } }>
 											{ __(
 												'Craft a description of your Website: up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
 												'jetpack'
@@ -226,6 +243,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												) }
 											</div>
 										</div>
+										{
+											<div className={ 'jp-seo-front-page-description-save-button' }>
+												{ this.saveButton( this.props ) }
+											</div>
+										}
 									</SettingsGroup>
 								</FoldableCard>
 								<FoldableCard

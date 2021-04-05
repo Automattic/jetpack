@@ -908,7 +908,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	 * @return array
 	 */
 	public function dtp_fb_allowed_metadata( $keys ) {
-		return array_merge( $keys, array( '_dtp_fb', '_dtp_fb_geo_points' ) );
+		return array_merge( $keys, array( '_dtp_fb', '_dtp_fb_geo_points', '_dtp_fb_post_link' ) );
 	}
 
 	/**
@@ -942,6 +942,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 			$post['post_content'] = $map_block . $post['post_content'];
 		}
+
+		$post['post_format'] = 'aside';
 
 		return $post;
 	}
