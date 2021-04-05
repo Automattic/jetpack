@@ -16,7 +16,7 @@ if ( process.env.E2E_DEBUG ) {
  * There are two ways to set the target site url:
  * 1. Write it in 'temp.tunnels' file
  * 2. Set SITE_URL env variable. This overrides any value written in file
- * If none of the above is specified we throw an error
+ * If none of the above is valid we throw an error
  */
 if ( ! process.env.SITE_URL ) {
 	const urlFromFile = fs
