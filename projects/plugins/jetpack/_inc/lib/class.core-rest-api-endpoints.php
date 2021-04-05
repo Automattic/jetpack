@@ -3005,7 +3005,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Front page meta description.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_front_page_meta_description',
+				'sanitize_callback' => 'Jetpack_SEO_Utils::sanitize_front_page_meta_description',
 				'jp_group'          => 'seo-tools',
 			),
 
