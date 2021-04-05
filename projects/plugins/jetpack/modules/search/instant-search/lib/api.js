@@ -206,6 +206,7 @@ function generateApiQueryString( {
 	postsPerPage = 10,
 	adminQueryFilter,
 	isInCustomizer = false,
+	groupId
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -250,6 +251,7 @@ function generateApiQueryString( {
 			sort: mapSortToApiValue( sort ),
 			page_handle: pageHandle,
 			size: postsPerPage,
+			group_id: groupId,
 		} )
 	);
 }

@@ -412,6 +412,35 @@ class Functions {
 	}
 
 	/**
+	 * Return P2 Workspace Hub WordPress.com blog id.
+	 *
+	 * @return int
+	 */
+	public static function p2_workspace_hub_blog_id() {
+		$p2_options = \Jetpack_Options::get_option( 'p2_options' );
+
+		if ( ! is_array( $p2_options ) ) {
+			// No support for sites that are not part of a Workspace.
+			return 0;
+		}
+
+		$is_hub_option_key = 'is_p2_hub_site'; // keep in sync with WPForTeams\Constants\OPTION_KEY_IS_HUB.
+		if ( array_key_exists( $is_hub_option_key, $p2_options ) ) {
+			// Current site is a hub, return its WPCOM ID.
+			return \Jetpack_Options::get_option( 'id' );
+		}
+
+		$has_hub_option_key = 'p2_hub_blog_id'; // in sync with WPForTeams\Constants\OPTION_KEY_PARENT_HUB_ID.
+		if ( array_key_exists( $has_hub_option_key, $p2_options ) ) {
+			// Current site is part of a Workspace, return its hub WPCOM ID.
+			return $p2_options[ $has_hub_option_key ];
+		}
+
+		// Site doesnt have proper p2_options, it is neither a Workspace site or hub.
+		return 0;
+	}
+
+	/**
 	 * Return URL with a normalized protocol.
 	 *
 	 * @param callable $callable Function to retrieve URL option.
