@@ -3794,6 +3794,11 @@
   resolved "https://registry.yarnpkg.com/@wordpress/browserslist-config/-/browserslist-config-2.6.0.tgz#00074a1cb1ba979ba7ac5afc4e322bc8447035d1"
   integrity sha512-vRgzGoxhcNVChBP30XZlyK4w6r/9ZpO+Fi1dzmButp31lUEb1pT5WBxTIQl3HE0JZ9YTEJ00WWGO5sjGi5MHZA==
 
+"@wordpress/browserslist-config@3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@wordpress/browserslist-config/-/browserslist-config-3.0.1.tgz#5e60c63ce6122e077811cb7d401e6489815f7827"
+  integrity sha512-l0c/X8w2v+NBShzEoykLuaLQNo1qiAONnPKXfIeiI145zAdjA5e8zMR0sUTDVsCxVfqfd2tH+D4wuhf68T3+Aw==
+
 "@wordpress/components@9.2.6", "@wordpress/components@^9.2.6":
   version "9.2.6"
   resolved "https://registry.yarnpkg.com/@wordpress/components/-/components-9.2.6.tgz#fed659f47cc2ad30be0f6b4a443e5ff44e2aa863"

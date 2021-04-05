@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  * WordPress dependencies
  */
 import { createInterpolateElement } from '@wordpress/element';
+import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -32,7 +33,6 @@ import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { numberFormat } from 'components/number-format';
 import QueryStatsData from 'components/data/query-stats-data';
-import Spinner from 'components/spinner';
 
 export class DashStats extends Component {
 	static propTypes = {
@@ -245,6 +245,7 @@ export class DashStats extends Component {
 						className="jp-at-a-glance__stats-icon"
 					/>
 				</div>
+				<Spinner />
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode', 'jetpack' )

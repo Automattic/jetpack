@@ -9,10 +9,14 @@ import ReactDom from 'react-dom';
 import { debounce, noop } from 'lodash';
 
 /**
+ * WordPress dependencies
+ */
+import { Spinner } from '@wordpress/components';
+
+/**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import Spinner from 'components/spinner';
 import Gridicon from 'components/gridicon';
 
 import './style.scss';
