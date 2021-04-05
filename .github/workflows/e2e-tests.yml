@@ -81,8 +81,9 @@ jobs:
         jq --version
 
     - name: Build Production Jetpack
-      working-directory: projects/plugins/jetpack
-      run: yarn build-production-concurrently
+      run: |
+        yarn install
+        ./node_modules/.bin/jetpack build plugins/jetpack -v --production
 
     - name: Set up environment
       working-directory: projects/plugins/jetpack/tests/e2e
