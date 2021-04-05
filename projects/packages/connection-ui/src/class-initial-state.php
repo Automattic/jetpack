@@ -37,6 +37,8 @@ class Initial_State {
 	private function get_data() {
 		return array(
 			'connectionStatus' => REST_Connector::connection_status( false ),
+			'WP_API_root'      => esc_url_raw( rest_url() ),
+			'WP_API_nonce'     => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
