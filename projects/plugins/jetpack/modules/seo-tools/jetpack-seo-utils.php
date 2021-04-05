@@ -59,7 +59,7 @@ class Jetpack_SEO_Utils {
 	/**
 	 * Sanitizes the custom front page meta description input.
 	 *
-	 * @param string $value Array of custom title formats.
+	 * @param string $value Front page meta string.
 	 *
 	 * @return string The sanitized string.
 	 */
