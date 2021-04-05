@@ -83,17 +83,17 @@ jobs:
     - name: Build Production Jetpack
       run: |
         yarn install
-        ./node_modules/.bin/jetpack build plugins/jetpack -v --production
+        yarn jetpack build plugins/jetpack -v --production
 
     - name: Set up environment
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
+        NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         yarn install
         yarn test-decrypt-config
-        yarn env-start
-        yarn tunnel-on
+        ./bin/env.sh start
 
     - name: Run all tests
       if: matrix.gutenberg == 'no'
@@ -112,9 +112,3 @@ jobs:
       with:
         name: test-output-${{ matrix.gutenberg }}
         path: projects/plugins/jetpack/tests/e2e/output
-
-    - name: Environment tear down
-      if: ${{ always() }}
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: |
-        yarn tunnel-off
