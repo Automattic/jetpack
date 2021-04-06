@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Admin Page: Do not show an error message with JSONP is disabled. The admin page does not use it.
