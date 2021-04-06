@@ -792,7 +792,7 @@ button.dops-foldable-card__action {
 	display: block;
 }
 
-.dops-search .components-spinner {
+.dops-search .dops-spinner {
 	display: none;
 	position: absolute;
 	top: 50%;
@@ -801,7 +801,7 @@ button.dops-foldable-card__action {
 }
 
 @media ( max-width: 660px ) {
-	.dops-search .components-spinner {
+	.dops-search .dops-spinner {
 		left: 25px;
 	}
 }
@@ -810,7 +810,7 @@ button.dops-foldable-card__action {
 	display: none;
 }
 
-.dops-search.is-searching .components-spinner {
+.dops-search.is-searching .dops-spinner {
 	display: block;
 	z-index: 20;
 }
