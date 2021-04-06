@@ -37,6 +37,14 @@ class Rest_Authentication {
 	private static $instance = false;
 
 	/**
+	 * Flag used to avoid determine_current_user filter to enter an infinite loop
+	 *
+	 * @since 9.7.0
+	 * @var boolean
+	 */
+	private $doing_determine_current_user_filter = false;
+
+	/**
 	 * The constructor.
 	 */
 	private function __construct() {
@@ -68,10 +76,12 @@ class Rest_Authentication {
 	 * @return int|null The user id or null if the request was not authenticated.
 	 */
 	public function wp_rest_authenticate( $user ) {
-		if ( ! empty( $user ) ) {
+		if ( $this->doing_determine_current_user_filter || ! empty( $user ) ) {
 			// Another authentication method is in effect.
 			return $user;
 		}
+
+		$this->initialize_determine_current_user_filter();
 
 		add_filter(
 			'jetpack_constant_default_value',
@@ -83,13 +93,13 @@ class Rest_Authentication {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
 			// Nothing to do for this authentication method.
-			return null;
+			return $this->return_determine_current_user_filter();
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
 			// Nothing to do for this authentication method.
-			return null;
+			return $this->return_determine_current_user_filter();
 		}
 
 		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
@@ -98,7 +108,7 @@ class Rest_Authentication {
 				__( 'The request method is missing.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
-			return null;
+			return $this->return_determine_current_user_filter();
 		}
 
 		// Only support specific request parameters that have been tested and
@@ -111,7 +121,7 @@ class Rest_Authentication {
 				__( 'This request method is not supported.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
-			return null;
+			return $this->return_determine_current_user_filter();
 		}
 		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
 			$this->rest_authentication_status = new \WP_Error(
@@ -119,7 +129,7 @@ class Rest_Authentication {
 				__( 'This request method does not support body parameters.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
-			return null;
+			return $this->return_determine_current_user_filter();
 		}
 
 		$verified = $this->connection_manager->verify_xml_rpc_signature();
@@ -132,7 +142,7 @@ class Rest_Authentication {
 		) {
 			// Authentication successful.
 			$this->rest_authentication_status = true;
-			return $verified['user_id'];
+			return $this->return_determine_current_user_filter( $verified['user_id'] );
 		}
 
 		// Something else went wrong.  Probably a signature error.
@@ -141,7 +151,31 @@ class Rest_Authentication {
 			__( 'The request is not signed correctly.', 'jetpack' ),
 			array( 'status' => 400 )
 		);
-		return null;
+		return $this->return_determine_current_user_filter();
+	}
+
+	/**
+	 * Resets determine_current_user filter infinite loop control and returns the value
+	 *
+	 * @since 9.7.0
+	 *
+	 * @param mixed $value The value to be returned.
+	 * @return mixed
+	 */
+	private function return_determine_current_user_filter( $value = null ) {
+		$this->doing_determine_current_user_filter = false;
+		return $value;
+	}
+
+	/**
+	 * Initializes determine_current_user filter infinite loop control
+	 *
+	 * @since 9.7.0
+	 *
+	 * @return void
+	 */
+	private function initialize_determine_current_user_filter() {
+		$this->doing_determine_current_user_filter = true;
 	}
 
 	/**
