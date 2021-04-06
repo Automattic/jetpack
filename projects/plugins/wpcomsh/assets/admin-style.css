@@ -20,7 +20,12 @@
 }
 
 /* Hide the "Plans" page in Jetpack Dashboard */
-.dops-navigation .dops-section-nav-tab__link[href="#/plans"] {
+.dops-navigation .dops-section-nav-tab__link[href*="jetpack-plans"] {
+	display: none;
+}
+
+/* Hide the Jetpack Plans box in Jetpack Dashboard */
+#jp-plugin-container .jp-landing__plans {
 	display: none;
 }
 
