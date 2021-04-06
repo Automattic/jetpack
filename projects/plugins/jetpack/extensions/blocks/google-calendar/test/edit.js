@@ -6,6 +6,7 @@
  * External dependencies
  */
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
 
 /**
@@ -111,6 +112,30 @@ describe( 'GoogleCalendarEdit', () => {
 		expect( screen.getByText( 'Learn more' ) ).toHaveAttribute( 'href', url );
 	} );
 
+	test( 'handles submitted embed codes', async () => {
+		const emptyProps = { ...defaultProps, attributes: emptyAttributes };
+		const { container } = render( <GoogleCalendarEdit { ...emptyProps } /> );
+
+		const input = screen.getByPlaceholderText( 'Enter URL or iframe to embed here…' );
+		const button = screen.getByRole( 'button', { name: 'Embed' } );
+
+		userEvent.paste( input, 'invalid-url' );
+		userEvent.click( button );
+
+		const errorMessage = "Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.";
+
+		expect( createErrorNotice ).toHaveBeenCalledWith( errorMessage );
+		expect( removeAllNotices ).toHaveBeenCalledTimes( 1 );
+
+		userEvent.paste( input, 'https://calendar.google.com/calendar?cid=Z2xlbi5kYXZpZXNAYThjLmNvbQ' );
+		userEvent.click( button );
+
+		const parsedEmbedUrl = 'https://calendar.google.com/calendar/embed?src=glen.davies%40a8c.com';
+
+		expect( setAttributes ).toHaveBeenCalledWith( { url: parsedEmbedUrl } );
+		expect( removeAllNotices ).toHaveBeenCalledTimes( 2 );
+	} );
+
 	test( 'displays embedded calendar', () => {
 		const { container } = render( <GoogleCalendarEdit { ...defaultProps } /> );
 		const html = `<iframe src="${ defaultAttributes.url }" style="border:0" scrolling="no" frameborder="0" height="${ defaultAttributes.height }"></iframe>`;
@@ -119,5 +144,17 @@ describe( 'GoogleCalendarEdit', () => {
 		expect( iframe ).toBeInTheDocument();
 		expect( iframe ).toHaveAttribute( 'html', html );
 		expect( container.querySelector( '.block-library-embed__interactive-overlay' ) ).toBeInTheDocument();
+	} );
+
+	test( 'omits overlay once clicked', () => {
+		const deselectedProps = { ...defaultProps, isSelected: false };
+		const { container } = render( <GoogleCalendarEdit { ...deselectedProps } /> );
+		const overlay = container.querySelector( '.block-library-embed__interactive-overlay' );
+
+		expect( overlay ).toBeInTheDocument();
+
+		userEvent.click( overlay );
+
+		expect( overlay ).not.toBeInTheDocument();
 	} );
 } );
