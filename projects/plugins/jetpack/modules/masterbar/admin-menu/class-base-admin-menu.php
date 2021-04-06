@@ -125,7 +125,8 @@ abstract class Base_Admin_Menu {
 		// Change parent slug only if there are no submenus (the slug of the 1st submenu will be used if there are submenus).
 		if ( $url ) {
 			$this->hide_submenu_page( $slug, $slug );
-			if ( empty( $submenu[ $slug ] ) ) {
+
+			if ( ! $this->has_visible_items( $submenu[ $slug ] ) ) {
 				$menu_item[2] = $url;
 			}
 		}
@@ -143,7 +144,7 @@ abstract class Base_Admin_Menu {
 		$this->set_menu_item( $menu_item, $menu_position );
 
 		// Only add submenu when there are other submenu items.
-		if ( $url && ! empty( $submenu[ $slug ] ) ) {
+		if ( $url && $this->has_visible_items( $submenu[ $slug ] ) ) {
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -165,20 +166,41 @@ abstract class Base_Admin_Menu {
 			return;
 		}
 
-		foreach ( $submenu[ $slug ] as $i => &$submenu_item ) {
+		/**
+		 * Iterate over all submenu items and add the hide the submenus with CSS classes.
+		 * This is done separately of the second foreach because the position of the submenu might change.
+		 */
+		foreach ( $submenu[ $slug ] as $index => $item ) {
+			if ( ! array_key_exists( $item[2], $submenus_to_update ) ) {
+				continue;
+			}
+
+			$css_classes = empty( $item[4] ) ? 'hide-if-js hide-if-no-js' : $item[4] . ' hide-if-js hide-if-no-js';
+
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$submenu [ $slug ][ $index ][4] = $css_classes;
+		}
+
+		$submenu_items = array_values( $submenu[ $slug ] );
+
+		/**
+		 * Iterate again over the submenu array. We need a copy of the array because add_submenu_page will add new elements
+		 * to submenu array that might cause an infinite loop.
+		 */
+		foreach ( $submenu_items as $i => $submenu_item ) {
 			if ( ! array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
 				continue;
 			}
 
-			$new_submenu_item    = $submenu_item;
-			$new_submenu_item[2] = $submenus_to_update[ $submenu_item[2] ];
-
-			$css_classes = empty( $submenu_item[4] ) ? 'hide-if-js' : $submenu_item[4] . ' hide-if-js';
-
-			$submenu_item[4] = $css_classes;
-
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			array_splice( $submenu[ $slug ], $i, 0, array( $new_submenu_item ) );
+			add_submenu_page(
+				$slug,
+				isset( $submenu_item[3] ) ? $submenu_item[3] : '',
+				isset( $submenu_item[0] ) ? $submenu_item[0] : '',
+				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
+				$submenus_to_update[ $submenu_item[2] ],
+				'',
+				$i
+			);
 		}
 	}
 
@@ -268,7 +290,7 @@ abstract class Base_Admin_Menu {
 
 		foreach ( $submenu[ $menu_slug ] as $i => $item ) {
 			if ( $submenu_slug === $item[2] ) {
-				$css_classes = isset( $item[4] ) ? $item[4] . '  hide-if-js' : 'hide-if-js';
+				$css_classes = isset( $item[4] ) ? $item[4] . '  hide-if-js hide-if-no-js' : 'hide-if-js hide-if-no-js';
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$submenu[ $menu_slug ][ $i ][4] = $css_classes;
 				return $item;
@@ -276,6 +298,23 @@ abstract class Base_Admin_Menu {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if the menu has submenu items visible
+	 *
+	 * @param array $submenu_items The submenu items.
+	 * @return bool
+	 */
+	public function has_visible_items( $submenu_items ) {
+		$visible_items = array_filter(
+			$submenu_items,
+			static function ( $item ) {
+				return empty( $item[4] ) || strpos( $item[4], 'hide-if-js hide-if-no-js' ) === false;
+			}
+		);
+
+		return array() !== $visible_items;
 	}
 
 	/**

@@ -141,8 +141,9 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		);
 
 		static::$admin_menu->add_my_home_menu();
+
 		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
-		$this->assertEmpty( $submenu['index.php'] );
+		$this->assertSame( 'hide-if-js hide-if-no-js', $submenu['index.php'][0][4] );
 	}
 
 	/**
@@ -168,8 +169,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, array_shift( $submenu['paid-upgrades.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, array_shift( $submenu['paid-upgrades.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
 	/**
@@ -182,8 +183,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_posts_menu();
 
-		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, array_shift( $submenu['edit.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, array_shift( $submenu['edit.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
 	}
 
 	/**
@@ -192,12 +193,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_media_menu
 	 */
 	public function test_add_media_menu() {
-		global $menu, $submenu;
+		global $menu;
 
 		static::$admin_menu->add_media_menu();
 
 		$this->assertSame( 'https://wordpress.com/media/' . static::$domain, $menu[10][2] );
-		$this->assertEmpty( $submenu['upload.php'] );
 	}
 
 	/**
@@ -210,8 +210,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_page_menu();
 
-		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, array_shift( $submenu['edit.php?post_type=page'] )[2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, array_shift( $submenu['edit.php?post_type=page'] )[2] );
+		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
+		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
 	}
 
 	/**
@@ -253,12 +253,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_comments_menu
 	 */
 	public function test_add_comments_menu() {
-		global $menu, $submenu;
+		global $menu;
 
 		static::$admin_menu->add_comments_menu();
 
 		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
-		$this->assertEmpty( $submenu['edit-comments.php'] );
 	}
 
 	/**
@@ -288,7 +287,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu();
 
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
-		$this->assertEmpty( $submenu['plugins.php'] );
 
 		// Reset.
 		$menu    = static::$menu_data;
@@ -328,8 +326,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu();
 
-		$this->assertSame( 'https://wordpress.com/me', array_shift( $submenu['profile.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/me/account', array_shift( $submenu['profile.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['profile.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['profile.php'][2][2] );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
@@ -338,10 +336,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu();
 
-		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/me', array_shift( $submenu['users.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/me/account', array_shift( $submenu['users.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
 	}
 
 	/**
@@ -354,10 +352,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_tools_menu();
 
-		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, array_shift( $submenu['tools.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, array_shift( $submenu['tools.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, array_shift( $submenu['tools.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, array_shift( $submenu['tools.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -378,14 +376,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_jetpack_menu
 	 */
-	public function add_jetpack_menu() {
+	public function test_add_jetpack_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_jetpack_menu();
 
-		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][2][2] );
-		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][3][2] );
-		$this->assertSame( 'https://wordpress.com/jetpack-search/' . static::$domain, $submenu['jetpack'][4][2] );
+		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
+		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
+		$this->assertSame( 'https://wordpress.com/jetpack-search/' . static::$domain, $submenu['jetpack'][5][2] );
 	}
 
 	/**

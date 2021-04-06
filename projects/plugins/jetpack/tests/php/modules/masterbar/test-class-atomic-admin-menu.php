@@ -286,7 +286,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_tools_menu();
 
 		// Check Export menu item always links to WP Admin.
-		$this->assertSame( 'export.php', $submenu['tools.php'][3][2] );
+		$this->assertSame( 'export.php', $submenu['tools.php'][5][2] );
 	}
 
 	/**
