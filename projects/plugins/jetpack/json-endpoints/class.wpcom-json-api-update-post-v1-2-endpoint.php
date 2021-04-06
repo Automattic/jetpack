@@ -151,6 +151,8 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 	)
 ) );
 
+use function \Automattic\Jetpack\Extensions\Map\map_block_from_geo_points;
+
 class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Post_v1_1_Endpoint {
 
 	// /sites/%s/posts/new       -> $blog_id
@@ -507,6 +509,12 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$media_id_string = join( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
 		}
 
+		$is_dtp_fb_post = false;
+		if ( in_array( '_dtp_fb', wp_list_pluck( (array) $metadata, 'key' ), true ) ) {
+			$is_dtp_fb_post = true;
+			add_filter( 'rest_api_allowed_public_metadata', array( $this, 'dtp_fb_allowed_metadata' ) );
+		}
+
 		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
@@ -530,7 +538,16 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 
-			$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			$insert['post_date'] = isset( $insert['post_date'] ) ? $insert['post_date'] : '';
+
+			if ( $is_dtp_fb_post ) {
+				$insert = $this->dtp_fb_preprocess_post( $insert, $metadata );
+			}
+
+			$post_id = post_exists( $insert['post_title'], $insert['post_content'], $insert['post_date'], $post_type->name );
+			if ( 0 === $post_id ) {
+				$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
+			}
 		} else {
 			$insert['ID'] = $post->ID;
 
@@ -760,7 +777,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 				$meta = (object) $meta;
 
-				// Custom meta description can only be set on sites that have a business subscription.
 				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 				}
@@ -851,8 +867,15 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$return['sticky'] = ( true === $sticky );
 		}
 
-		if ( ! empty( $media_results['errors'] ) )
-			$return['media_errors'] = $media_results['errors'];
+		if ( ! empty( $media_results['errors'] ) ) {
+			/*
+			 * Depending on whether the errors array keys are sequential or not
+			 * json_encode would transform this into either an array or an object
+			 * see https://www.php.net/manual/en/function.json-encode.php#example-3967
+			 * We use array_values to always return an array
+			 */
+			$return['media_errors'] = array_values( $media_results['errors'] );
+		}
 
 		if ( 'publish' !== $return['status'] && isset( $input['title'] )) {
 			$sal_site = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );
@@ -874,5 +897,54 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		}
 
 		return ! empty( $type ) && ! in_array( $type, array( 'post', 'revision' ) );
+	}
+
+	/**
+	 * Filter for rest_api_allowed_public_metadata.
+	 * Adds FB's DTP specific metadata.
+	 *
+	 * @param array $keys Array of metadata that is accessible by the REST API.
+	 *
+	 * @return array
+	 */
+	public function dtp_fb_allowed_metadata( $keys ) {
+		return array_merge( $keys, array( '_dtp_fb', '_dtp_fb_geo_points', '_dtp_fb_post_link' ) );
+	}
+
+	/**
+	 * Pre-process FB DTP posts before inserting.
+	 * Here we can improve the DTP content for the following issues:
+	 * - Render the map block based on provided coordinates in metadata
+	 * - [TODO] Improve the title
+	 *
+	 * @param array $post Post to be inserted.
+	 * @param array $metadata Metadata for the post.
+	 *
+	 * @return mixed
+	 */
+	private function dtp_fb_preprocess_post( $post, $metadata ) {
+		$geo_points_metadata = wp_filter_object_list( $metadata, array( 'key' => '_dtp_fb_geo_points' ), 'and', 'value' );
+		if ( ! empty( $geo_points_metadata ) ) {
+			$fb_points  = reset( $geo_points_metadata );
+			$geo_points = array();
+
+			// Prepare Geo Points so that they match the format expected by the map block.
+			foreach ( $fb_points as $fb_point ) {
+				$geo_points[] = array(
+					'coordinates' => array(
+						'longitude' => $fb_point['longitude'],
+						'latitude'  => $fb_point['latitude'],
+					),
+					'title'       => $fb_point['name'],
+				);
+			}
+			$map_block = map_block_from_geo_points( $geo_points );
+
+			$post['post_content'] = $map_block . $post['post_content'];
+		}
+
+		$post['post_format'] = 'aside';
+
+		return $post;
 	}
 }

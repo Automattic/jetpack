@@ -218,15 +218,6 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * Test that the wp_get_attachment_image function output gets the lazy treatment.
 	 */
 	public function test_wp_get_attachment_image_gets_lazy_treatment() {
-
-		// @todo Remove when WordPress 5.6 is the minimum supported version.
-		if ( ! function_exists( 'is_gd_image' ) && version_compare( PHP_VERSION, '8.0', '>=' ) ) {
-			$editor = wp_get_image_editor( __DIR__ . '/wp-logo.jpg' );
-			if ( is_wp_error( $editor ) ) {
-				$this->markTestSkipped( 'WordPress <5.6 does not properly support the ext-gd in PHP 8.0+' );
-			}
-		}
-
 		$attachment_id = $this->create_upload_object( __DIR__ . '/wp-logo.jpg', 0 );
 		add_filter( 'wp_get_attachment_image_attributes', array( 'Automattic\\Jetpack\\Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
 		$image = wp_get_attachment_image( $attachment_id );

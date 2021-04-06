@@ -25,9 +25,11 @@ import {
 	isCurrentUserLinked,
 	isReconnectingSite,
 	getConnectUrl as _getConnectUrl,
+	hasConnectedOwner,
 } from 'state/connection';
 import {
 	isDevVersion,
+	userCanConnectAccount,
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
@@ -242,6 +244,8 @@ class JetpackNotices extends React.Component {
 				<PlanConflictWarning />
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&
+					this.props.userCanConnectAccount &&
+					this.props.hasConnectedOwner &&
 					! siteDataErrors.length &&
 					! this.props.connectionErrors.length && (
 						<UserUnlinked
@@ -279,6 +283,7 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			userCanConnectSite: userCanConnectSite( state ),
+			userCanConnectAccount: userCanConnectAccount( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
@@ -289,6 +294,7 @@ export default connect(
 			siteDataErrors: getSiteDataErrors( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
 	dispatch => {

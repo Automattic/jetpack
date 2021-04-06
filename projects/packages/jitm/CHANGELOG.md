@@ -1,0 +1,301 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.14.1] - 2021-03-30
+### Added
+- Composer alias for dev-master, to improve dependencies
+
+### Changed
+- Use is_connected instead of is_active to instantiate Pre/Post_Connection_JITM
+- Add a jetpack_pre_connection_jitms filter.
+- Update colors to match upcoming WP 5.7 color changes
+- Update Node to match latest LTS 12
+- Update package dependencies.
+
+### Fixed
+- Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.
+
+## [1.14.0] - 2021-02-23
+
+- Recommendations: Hide JITMs when banner is displaying
+- Setup Wizard: Remove setup wizard
+- JITM: move jetpack-jitm.js to the JITM package
+- CI: Make tests more generic
+
+## [1.13.5] - 2021-02-08
+
+- Update dependencies to latest stable
+
+## [1.13.4] - 2021-01-28
+
+- Update dependencies to latest stable
+
+## [1.13.3] - 2021-01-26
+
+- Update dependencies to latest stable
+
+## [1.13.2] - 2021-01-26
+
+- Update dependencies to latest stable
+
+## [1.13.1] - 2021-01-26
+
+- Add mirror-repo information to all current composer packages
+- Monorepo: Reorganize all projects
+
+## [1.13.0] - 2021-01-05
+
+- Update dependency brain/monkey to v2.6.0
+- Pin dependencies
+- Packages: Update for PHP 8 testing
+
+## [1.12.2] - 2020-12-09
+
+- Update dependencies to latest stable
+
+## [1.12.1] - 2020-11-24
+
+- Version packages for release
+
+## [1.12.0] - 2020-11-24
+
+- Status: Introduce get_site_suffix method
+- General: update minimum required version to WordPress 5.5
+- Updated PHPCS: Packages and Debugger
+
+## [1.11.2] - 2020-11-05
+
+- Update dependencies to latest stable
+
+## [1.11.1] - 2020-10-29
+
+- Update dependencies to latest stable
+
+## [1.11.0] - 2020-10-27
+
+- JITM: add a Pre_Connection_JITM::generate_admin_url method
+- JITM: use is_active from the connection package
+- JITM: regenerate assets
+
+## [1.10.4] - 2020-10-14
+
+- Update dependencies to latest stable
+
+## [1.10.3] - 2020-10-09
+
+- Update dependencies to latest stable
+
+## [1.10.2] - 2020-10-06
+
+- Update dependencies to latest stable
+
+## [1.10.1] - 2020-10-01
+
+- Update dependencies to latest stable
+
+## [1.10.0] - 2020-09-29
+
+- Update dependencies to latest stable
+
+## [1.9.1] - 2020-09-09
+
+- Update dependencies to latest stable
+
+## [1.9.0] - 2020-08-26
+
+- Compat: add new Creative Mail compat file
+- Packages: Update filenames after #16810
+- CI: Try collect js coverage
+- Docker: Add package testing shortcut
+
+## [1.8.2] - 2020-08-10
+
+- Update dependencies to latest stable
+
+## [1.8.1] - 2020-08-10
+
+- Update dependencies to latest stable
+
+## [1.8.0] - 2020-07-28
+
+- Core Compat: Site Environment
+- Core REST API: Add permission callback to delete_jitm_message endpoint
+
+## [1.7.2] - 2020-07-06
+
+- Update dependencies to latest stable
+
+## [1.7.1] - 2020-07-01
+
+- Update dependencies to latest stable
+
+## [1.7.0] - 2020-06-30
+
+- PHPCS: Clean up the packages
+- Hide pre-connection JITM on the posts page when few posts are published
+- Jetpack Setup Wizard: Do not show pre-connection JITMs to non admins
+- JITM: change 'setup' to 'set up' in pre-connection JITMs
+- Pre-connection JITMS: Link to connect-in-place flow
+- JITM: add Redirect use statement
+
+## [1.6.5] - 2020-06-01
+
+- Hide pre-connection JITM on the posts page when few posts are published
+
+## [1.6.4] - 2020-06-01
+
+- Update dependencies to latest stable
+
+## [1.6.3] - 2020-05-29
+
+- Jetpack Setup Wizard: Do not show pre-connection JITMs to non admins
+
+## [1.6.2] - 2020-05-29
+
+- JITM: change 'setup' to 'set up' in pre-connection JITMs
+- Pre-connection JITMS: Link to connect-in-place flow
+
+## [1.6.1] - 2020-05-28
+
+- JITM: add Redirect use statement
+
+## [1.6.0] - 2020-05-26
+
+- JITM: expand docs and tests to account for pre-connection messages
+- Improve responsiveness of JITMs
+- JITM: fix the use statements
+- Implement pre-connection JITMs
+- JITM: Allow JITM on stats pages
+
+## [1.5.1] - 2020-04-30
+
+- JITM: Allow JITM on stats pages
+
+## [1.5.0] - 2020-04-28
+
+- Use jp.com redirect in all links
+
+## [1.4.0] - 2020-03-31
+
+- Update dependencies to latest stable
+
+## [1.3.0] - 2020-03-31
+
+- Use dynamic Jetpack logos on JITMs
+
+## [1.2.0] - 2020-02-25
+
+- JITM: Show ToS update notice
+
+## [1.1.2] - 2020-02-14
+
+- SSO: do not display JITM when not in wp-admin
+
+## [1.1.1] - 2020-01-23
+
+- Moved JITM initialization to plugins_loaded.
+
+## [1.1.0] - 2020-01-07
+
+- Add partner subsidiary id to upgrade URLs.
+
+## [1.0.10] - 2019-11-25
+
+- Connection Owner Deletion Notice: Fix display bug and sanitize…
+
+## [1.0.9] - 2019-11-19
+
+- Don't show JITMs on Gutenberg editor pages (for now)
+
+## [1.0.8] - 2019-11-08
+
+- Packages: Use classmap instead of PSR-4
+
+## [1.0.7] - 2019-11-08
+
+- Remove unused get_emblem method
+
+## [1.0.6] - 2019-10-31
+
+- Inherit 400 weight for button fonts
+
+## [1.0.5] - 2019-10-28
+
+- PHPCS: JITM and Assets packages
+
+## [1.0.4] - 2019-10-24
+
+- Update Jetpack button and card styles to match WordPress 5.3
+
+## [1.0.3] - 2019-10-23
+
+- Use spread operator instead of func_get_args
+
+## [1.0.2] - 2019-10-17
+
+- Change the class in the add_filter() calls to $this. Also fix some
+
+## [1.0.1] - 2019-09-27
+
+- Initial trial of prefer-dist
+- JITM: Send the user's role in the request for JITM messages
+
+## 1.0.0 - 2019-09-14
+
+- Update Jetpack to use new JITM package
+
+[1.14.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.14.0...v1.14.1
+[1.14.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.5...v1.14.0
+[1.13.5]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.4...v1.13.5
+[1.13.4]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.3...v1.13.4
+[1.13.3]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.2...v1.13.3
+[1.13.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.1...v1.13.2
+[1.13.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.13.0...v1.13.1
+[1.13.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.12.2...v1.13.0
+[1.12.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.12.1...v1.12.2
+[1.12.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.12.0...v1.12.1
+[1.12.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.11.2...v1.12.0
+[1.11.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.11.1...v1.11.2
+[1.11.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.11.0...v1.11.1
+[1.11.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.10.4...v1.11.0
+[1.10.4]: https://github.com/Automattic/jetpack-jitm/compare/v1.10.3...v1.10.4
+[1.10.3]: https://github.com/Automattic/jetpack-jitm/compare/v1.10.2...v1.10.3
+[1.10.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.10.1...v1.10.2
+[1.10.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.10.0...v1.10.1
+[1.10.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.9.1...v1.10.0
+[1.9.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.9.0...v1.9.1
+[1.9.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.8.2...v1.9.0
+[1.8.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.8.1...v1.8.2
+[1.8.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.8.0...v1.8.1
+[1.8.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.7.2...v1.8.0
+[1.7.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.6.5...v1.7.0
+[1.6.5]: https://github.com/Automattic/jetpack-jitm/compare/v1.6.4...v1.6.5
+[1.6.4]: https://github.com/Automattic/jetpack-jitm/compare/v1.6.3...v1.6.4
+[1.6.3]: https://github.com/Automattic/jetpack-jitm/compare/v1.6.2...v1.6.3
+[1.6.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.6.1...v1.6.2
+[1.6.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.5.1...v1.6.0
+[1.5.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.1.2...v1.2.0
+[1.1.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.10...v1.1.0
+[1.0.10]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.9...v1.0.10
+[1.0.9]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.7...v1.0.8
+[1.0.7]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-jitm/compare/v1.0.0...v1.0.1

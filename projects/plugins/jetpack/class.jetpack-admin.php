@@ -40,7 +40,6 @@ class Jetpack_Admin {
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
-		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_set_up_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
@@ -77,6 +76,8 @@ class Jetpack_Admin {
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
+
+		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
 	}
 
 	/**
@@ -110,7 +111,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_offline_mode();
+		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -212,7 +213,7 @@ class Jetpack_Admin {
 
 		uasort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
 		}
 
@@ -245,15 +246,31 @@ class Jetpack_Admin {
 			return false;
 		}
 
+		/*
+		 * In Offline mode, modules that require a site or user
+		 * level connection should be unavailable.
+		 */
 		if ( ( new Status() )->is_offline_mode() ) {
-			return ! ( $module['requires_connection'] );
-		} else {
-			if ( ! Jetpack::is_active() ) {
-				return false;
-			}
-
-			return Jetpack_Plan::supports( $module['module'] );
+			return ! ( $module['requires_connection'] || $module['requires_user_connection'] );
 		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return false;
+		}
+
+		/*
+		 * Jetpack connected at a site level only. Make sure to make
+		 * modules that require a user connection unavailable.
+		 */
+		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
+			return false;
+		}
+
+		return Jetpack_Plan::supports( $module['module'] );
+
 	}
 
 	function handle_unrecognized_action( $action ) {
@@ -328,6 +345,47 @@ class Jetpack_Admin {
 	function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
+	}
+
+	/**
+	 * Determines if JITMs should display on a particular screen.
+	 *
+	 * @param bool   $value The default value of the filter.
+	 * @param string $screen_id The ID of the screen being tested for JITM display.
+	 *
+	 * @return bool True if JITMs should display, false otherwise.
+	 */
+	public function should_display_jitms_on_screen( $value, $screen_id ) {
+		// Disable all JITMs on these pages.
+		if (
+		in_array(
+			$screen_id,
+			array(
+				'jetpack_page_akismet-key-config',
+				'admin_page_jetpack_modules',
+			),
+			true
+		) ) {
+			return false;
+		}
+
+		// Disable all JITMs on pages where the recommendations banner is displaying.
+		if (
+			in_array(
+				$screen_id,
+				array(
+					'dashboard',
+					'plugins',
+					'jetpack_page_stats',
+				),
+				true
+			)
+			&& \Jetpack_Recommendations_Banner::can_be_displayed()
+		) {
+			return false;
+		}
+
+		return $value;
 	}
 }
 Jetpack_Admin::init();

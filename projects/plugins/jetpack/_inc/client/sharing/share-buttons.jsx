@@ -14,6 +14,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const ShareButtons = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -82,7 +83,8 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
-						module={ { module: 'sharing' } }
+						disableInUserlessMode
+						module={ { module: 'sharedaddy' } }
 						support={ {
 							text: __(
 								'You can customize the sharing buttons and choose which services to display.',
@@ -100,12 +102,22 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						<ModuleToggle
 							slug="sharedaddy"
 							activated={ isActive }
+							disabled={ ! this.props.isLinked }
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
+
+					{ ! isLinked && ! isOfflineMode && (
+						<ConnectUserBar
+							feature="sharedaddy"
+							featureLabel={ __( 'Sharing Buttons', 'jetpack' ) }
+							text={ __( 'Sign in to add sharing buttons on your site.', 'jetpack' ) }
+						/>
+					) }
+
 					{ isActive && configCard() }
 				</SettingsCard>
 			);

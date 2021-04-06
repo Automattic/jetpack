@@ -39,7 +39,7 @@ function cliUnlink() {
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the build commands defined.
+ * @returns {object} Yargs with the CLI commands defined.
  */
 export function cliDefine( yargs ) {
 	yargs.command( 'cli <cmd>', 'Tools for the CLI tool. Meta, eh?', yarg => {

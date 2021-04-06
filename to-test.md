@@ -1,4 +1,4 @@
-## 9.4
+## 9.6
 
 ### Before you start
 
@@ -6,82 +6,77 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
+### Instant Search
+
+This release brings a lot of changes to the Instant Search feature; we would recommend looking at every aspect of the feature to see how things work:
+
+1. Purchase a Search plan.
+2. Go to Jetpack > Settings > Performance, enable Instant Search.
+3. Go to Appearance > Customize > Jetpack Search and play with the different Jetpack Search settings.
+4. Try the same on a site with WooCommerce products and reviews if possible.
+5. Save your changes and see how the search overlay behaves on the frontend of your site.
+
 ### Blocks
 
-#### Podcast Player Block
+#### Payment, Revue, Subscription Blocks
 
-In anticipation of further changes to the Podcast Player Block and its integration with other Jetpack blocks, we've made a number of changes to the Podcast Player block. Here is what you can try:
+We've added a new "width" option to the buttons that can be added via multiple blocks in Jetpack; Payment, Revue, Subscription. To test this:
 
-- Insert a new block, and add a podcast
-- Try adding different podcast URLs: an RSS feed URL, or the URL of page with one or more podcasts in it.
-- You should now see skip back / forward buttons that you can use in the editor and on the frontend.
+1. Create a new post and add one of those blocks.
+2. Click on the button and try to customize its settings.
+3. See how those settings look like on the frontend.
+4. See that settings do not cause any issues when coming back to edit an existing post with such a button.
+5. Try playing with both the percentage option and the pixel option for the button's width settings.
 
-#### Payments Block
+#### Star Rating Block
 
-We've made a number of changes to the Payments block in order to be able to implement the Premium Content Block (which uses the Payments block button). You'll want to make sure the Payments block still works:
+You should now be able to select 0 stars in a star rating block. To test this, try the following:
 
-- Try adding a block on a free site, and follow the upgrade prompts.
-- Try adding a block on a site with a plan, and follow the prompt to connect to Stripe.
-- Try using the block.
+1. Create a new post and add a Rating block.
+2. Click on the first star multiple times. The star should change from 1 star to 0.5 stars to 0 stars, then back to 1 star.
+3. Try different changing from different star ratings and make sure the behavior is correct.
+4. Set a star rating block to 0 stars and publish the post. Make sure that the published block displays correctly.
 
-### Dashboard
+#### Tiled Gallery Block
 
-This release introduces a new page in the Jetpack dashboard: the new Recommendations tab will help you get started with recommended features of Jetpack.
+We've improved the Tiled Gallery block so editing existing galleries does not create any errors. To test this, it's easier if there are already existing galleries on your site, using the tiled gallery block. Try editing posts containing such galleries; you should not see any errors or broken tiled gallery block in the editor.
 
-To test this, try the following scenarios:
+#### Video Block
 
-**Initial prompts flow:**
+In this release, we now handle deleted videos better. To test this, you'll need:
 
-1. Start with a free site and navigate to `/wp-admin/admin.php?page=jetpack#/recommendations`.
-2. Verify that you are redirected to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`.
-3. Ensure that you have not selected "Store" and click "Continue".
-4. Verify that you navigate to `#/recommendations/monitor`.
-5. Click back in your browser and select "Store", then click "Continue".
-6. Verify that you navigate to `#/recommendations/woocommerce`.
-7. Navigate to `/wp-admin/index.php` and then back to `/wp-admin/admin.php?page=jetpack#/recommendations`.
-8. Verify that you are redirected to `#/recommendations/woocommerce`.
-9. Choose "Decide later for each of the prompts and verify that you are taken successively through `#/recommendations/monitor`, `#/recommendations/related-posts`, `#/recommendations/creative-mail`, and `#/recommendations/site-accelerator`.
-10. Verify that the summary screen has no recommendations enabled.
-11. Now return to `#/recommendations/monitor` and go back through the flow, selecting some recommendations and skipping others. Verify that the summary screen reflects your choices.
-12. Enable the remaining recommendations on the summary screen and verify that it updates to reflect these changes.
-13. Check the various "Learn more" and "Settings" buttons for each feature and make sure they are appropriate for that feature.
-14. Check that the "View all Jetpack features' link works.
+- A Paid Jetpack plan
+- The Videos option should be active under Jetpack > Settings > Performance
 
-**Summary upsell flows:**
+Once you're set with this, try the following:
 
-1. On a free site visit `/wp-admin/admin.php?page=jetpack#/recommendations/summary`.
-2. Verify that an upsell prompt for Backup Daily shows.
-3. Sandbox your site and in wpcom edit `/wp-content/rest-api-plugins/endpoints/jetpack-recommendations.php` so that the `WP_REST_Response` in `get_upsell()` returns `'hide_upsell' => true`.
-4. Reload `#/recommendations/summary` and verify that the fallback sidebar upsell is displayed (no prices or product names should show).
-5. Upgrade the site to Backup Daily.
-6. Return to `#/recommendations/summary`. If the app sidebar prompt is displaying, wait a few minutes for Rewind to update, then reload the page.
-7. Verify that the one-click restores prompt is displaying.
-8. Use the prompt to add your credentials and then return to `#/recommendations/summary`. Verify that the "Manage your security" prompt displays in the sidebar and that the link works.
-9. Start another free site and upgrade it to a paid plan that doesn't include backup or scan (e.g. anti-spam).
-10. Navigate back to `#/recommendations/summary` and verify that the app sidebar prompt shows and that the app badges work.
+1. Create a post and insert a Video block.
+2. Upload a new video.
+3. Publish the post.
+4. Go to the Media Library and permanently delete the video.
+5. Revisit the post in the editor. You will see a black placeholder. Clicking the block should allow you to access the normal block controls so you can delete the block/replace the video file.
+6. Add a new video file instead of the now missing.
+7. Update your post.
+8. Visit post, the video should be displayed properly.
 
-**Jetpack plugin upgrade flow:**
+### Connections Flows
 
-1. Start with a site on an old version of Jetpack that includes the Setup Wizard (9.3 meets this criteria).
-2. Use the Code Snippets plugin and add the following snippet to enable the Setup Wizard:
+We continue to improve connection flows for a better first experience with the plugin. You can test a few things here:
 
-```php
-add_filter( 'jetpack_show_setup_wizard', '__return_true' );
-add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );
-```
+1. Add the following snippet to your site before you connect the site to WordPress.com: `add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );`
+1. You should see messages appear under the Media, Appearance > Widgets, and Posts pages (only if you have at least 5 published posts) before you connect your site to your WordPress.com account.
+1. Those messages should not be displayed anymore once you've connected your site.
+1. Check the "Recommendations" banner that appears on the main dashboard page and the main Plugins page once you've connected your site to WordPress.com; you should be able to either dismiss it easily (and it should not come back after that), or start the Recommendations process from there.
 
-3. Navigate to `/wp-admin/admin.php?page=jetpack#/setup/features` and click "I'm done for now" to complete the Setup Wizard.
-4. On that site upgrade Jetpack so that it includes the Recommendations.
-5. Verify that the Recommendations are not available from the dashboard, and that `#/recommendations` redirects to `#/dashboard`
-6. Perform the above steps again but this time do not complete the Setup Wizard and verify that the Recommendations are available.
+### SEO Tools
 
-### Sharing
+Until now, one had to go to the WordPress.com dashboard to change their SEO settings once the feature was enabled. That's no longer necessary. You can now manage all settings from your Jetpack dashboard:
 
-In this release, we've removed the jQuery dependency of the Sharing buttons. To test this out, we would recommend the following:
-
-- Add multiple buttons to your site, including the Email sharing button, and hide some behind the "More" button.
-- Try using the different button styles
-- Ensure that the buttons work well.
-
+1. Connect your site to your WordPress.com account
+1. Go to Jetpack > Settings > Traffic
+1. Enable the SEO Tools feature
+1. Play with the different settings, save your changes, and ensure saving works well.
+1. Ensure your settings are reflected on your site's frontend.
+1. Try to activate another SEO plugin such as Yoast SEO or All In One SEO; the SEO settings should then be disabled.
 
 **Thank you for all your help!**

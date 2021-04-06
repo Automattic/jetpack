@@ -1,13 +1,8 @@
 /**
  * External dependencies
  */
-import { IconButton } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 
 export default ( { label, onClick } ) => (
-	<IconButton
-		className="components-toolbar__control"
-		label={ label }
-		icon="edit"
-		onClick={ onClick }
-	/>
+	<Button className="components-toolbar__control" label={ label } icon="edit" onClick={ onClick } />
 );

@@ -2,7 +2,7 @@
 name: Plugin - Jetpack Beta Tester
 about: Create an issue report focused on the Jetpack Beta Tester plugin
 title: 'Beta Plugin: ADD_YOUR_TITLE_HERE'
-labels: '[Plugin] Beta Plugin, [Type] Bug'
+labels: '[Plugin] Beta, [Type] Bug'
 assignees: ''
 
 ---

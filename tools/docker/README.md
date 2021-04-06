@@ -81,6 +81,16 @@ You can use the file `tools/docker/compose-extras.yml` to add mounts or alter th
 
 You can use the file `tools/docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
+### Building on M1 Macs
+
+If you're using the new [M1/Apple Silicon version of Docker](https://docs.docker.com/docker-for-mac/apple-m1/), you will need to add the following to your `tools/docker/compose-extras.yml` file to ensure a successful build:
+
+```
+services:
+  db:
+    platform: linux/x86_64
+```
+
 ## Working with containers
 
 ### Quick install WordPress
@@ -154,24 +164,10 @@ This command runs the tests as a multi site install
 yarn docker:phpunit:multisite --filter=Protect
 ```
 
-For all package unit tests
+To run tests for specific packages, you can run the tests locally, from within the package's directory:
 ```sh
-yarn docker:phpunit:package
-```
-
-For a specific package's tests
-```sh
-yarn docker:phpunit:package autoloader
-```
-
-If you need to clear out a particular package's composer.lock
-```sh
-yarn docker:phpunit:package autoloader -c
-```
-
-To run all package unit tests and clear all composer.lock files within
-```sh
-yarn docker:phpunit:package -c
+cd projects/packages/assets
+composer phpunit
 ```
 
 ### Starting over

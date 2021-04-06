@@ -11,6 +11,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { getSortOptions } from '../lib/sort';
 
+import './search-sort.scss';
+
 export default class SearchSort extends Component {
 	handleKeyPress = event => {
 		if ( this.props.value !== event.currentTarget.value && event.key === 'Enter' ) {
@@ -39,12 +41,12 @@ export default class SearchSort extends Component {
 		// If there are more than 3 sort options, use a select
 		if ( sortOptions.size > 3 ) {
 			return (
-				<div className="jetpack-instant-search__sort">
-					<label htmlFor="jetpack-instant-search__sort-select">
-						{ __( 'Sort by: ', 'jetpack' ) }
+				<div className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-select">
+					<label htmlFor="jetpack-instant-search__search-sort-select">
+						{ __( 'Sort:', 'jetpack' ) }
 					</label>
 					<select
-						id="jetpack-instant-search__sort-select"
+						id="jetpack-instant-search__search-sort-select"
 						onBlur={ this.handleSelectChange }
 						onChange={ this.handleSelectChange }
 					>
@@ -63,11 +65,11 @@ export default class SearchSort extends Component {
 		}
 
 		return (
-			<div className="jetpack-instant-search__box-filter-order">
+			<div className="jetpack-instant-search__search-sort jetpack-instant-search__search-sort-with-links">
 				<div className="screen-reader-text">{ __( 'Sort by: ', 'jetpack' ) }</div>
 				{ [ ...sortOptions.entries() ].map( ( [ sortKey, label ] ) => (
 					<a
-						class={ `jetpack-instant-search__box-filter-option ${
+						class={ `jetpack-instant-search__search-sort-option ${
 							this.props.value === sortKey ? 'is-selected' : ''
 						}` }
 						data-value={ sortKey }

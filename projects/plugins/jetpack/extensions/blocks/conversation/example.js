@@ -6,12 +6,12 @@ import { __ } from '@wordpress/i18n';
 
 const participants = [
 	{
-		participantSlug: 'participant-0',
-		participantLabel: 'Rosalind',
+		slug: 'participant-0',
+		label: 'Rosalind',
 	},
 	{
-		participantSlug: 'participant-1',
-		participantLabel: 'Orlando',
+		slug: 'participant-1',
+		label: 'Orlando',
 	},
 ];
 

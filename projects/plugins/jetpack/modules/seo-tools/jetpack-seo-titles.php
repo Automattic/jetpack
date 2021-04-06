@@ -271,6 +271,28 @@ class Jetpack_SEO_Titles {
 	}
 
 	/**
+	 * Sanitizes the arbitrary user input strings for custom SEO titles.
+	 *
+	 * @param array $title_formats Array of custom title formats.
+	 *
+	 * @return array The sanitized array.
+	 */
+	public static function sanitize_title_formats( $title_formats ) {
+		foreach ( $title_formats as &$format_array ) {
+			foreach ( $format_array as &$item ) {
+				if ( 'string' === $item['type'] ) {
+					// Using esc_html() vs sanitize_text_field() since we want to preserve extra spacing around items.
+					$item['value'] = esc_html( $item['value'] );
+				}
+			}
+		}
+		unset( $format_array );
+		unset( $item );
+
+		return $title_formats;
+	}
+
+	/**
 	 * Combines the previous values of title formats, stored as array in site options,
 	 * with the new values that are provided.
 	 *
@@ -279,6 +301,8 @@ class Jetpack_SEO_Titles {
 	 * @return array $result Array of updated title formats, or empty array if no update was performed.
 	 */
 	public static function update_title_formats( $new_formats ) {
+		$new_formats = self::sanitize_title_formats( $new_formats );
+
 		// Empty array signals that custom title shouldn't be used.
 		$empty_formats = array(
 			'front_page' => array(),
