@@ -11,22 +11,13 @@ import { render, screen } from '@testing-library/react';
 /**
  * WordPress dependencies
  */
-// import { SandBox } from '@wordpress/components';
+import { SandBox } from '@wordpress/components';
 
-// jest.mock( '@wordpress/components', () => ( {
-// 	...jest.requireActual( '@wordpress/components' ),
-// 	SandBox: ( props ) => <iframe { ...props } />,
-// } ) );
-
-// jest.mock( '@wordpress/components', () => ( {
-// 	...jest.requireActual( '@wordpress/components' ),
-// 	SandBox: jest.fn().mockImplementation( ( props ) => <iframe { ...props } /> ),
-// } ) );
-
-// jest.mock( '@wordpress/components/src/sandbox', () => ( {
-// 	__esModule: true,
-// 	default: jest.fn().mockImplementation( ( props ) => <iframe { ...props } /> ),
-// } ) );
+// SandBox is mocked to avoid the runtime JS scripts in includes.
+jest.mock( '@wordpress/components/build/sandbox', () => ( {
+	__esModule: true,
+	default: ( props ) => <iframe { ...props } />,
+} ) );
 
 /**
  * Internal dependencies
@@ -34,29 +25,32 @@ import { render, screen } from '@testing-library/react';
 import { GoogleCalendarEdit } from '../edit';
 import { isSimpleSite } from '../../../shared/site-type-utils';
 
+// isSimpleSite is mocked simply to check appropriate support link is displayed.
 jest.mock( '../../../shared/site-type-utils', () => ( {
 	...jest.requireActual( '../../../shared/site-type-utils' ),
 	isSimpleSite: jest.fn(),
 } ) );
 
 describe( 'GoogleCalendarEdit', () => {
-	const iframeData = {
+	const defaultClassName = 'wp-block-jetpack-google-calendar';
+	const defaultAttributes = {
 		url: 'https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland',
 		height: '600',
 		width: '800',
 	};
 
-	const defaultClassName = 'wp-block-jetpack-google-calendar';
-
-	const defaultAttributes = { ...iframeData };
-	const emptyAttributes = { url: undefined, width: undefined, height: undefined };
+	const emptyAttributes = {
+		url: undefined,
+		width: undefined,
+		height: undefined,
+	};
 
 	const createErrorNotice = jest.fn();
 	const removeAllNotices = jest.fn();
 	const setAttributes = jest.fn();
 
 	const defaultProps = {
-		attributes: defaultAttributes,
+		attributes: { ...defaultAttributes },
 		setAttributes,
 		clientId: 1,
 		isMobile: false,
@@ -119,7 +113,11 @@ describe( 'GoogleCalendarEdit', () => {
 
 	test( 'displays embedded calendar', () => {
 		const { container } = render( <GoogleCalendarEdit { ...defaultProps } /> );
+		const html = `<iframe src="${ defaultAttributes.url }" style="border:0" scrolling="no" frameborder="0" height="${ defaultAttributes.height }"></iframe>`;
+		const iframe = container.querySelector( 'iframe' );
 
-		expect( container.querySelector( 'iframe' ) ).toBeInTheDocument();
+		expect( iframe ).toBeInTheDocument();
+		expect( iframe ).toHaveAttribute( 'html', html );
+		expect( container.querySelector( '.block-library-embed__interactive-overlay' ) ).toBeInTheDocument();
 	} );
 } );
