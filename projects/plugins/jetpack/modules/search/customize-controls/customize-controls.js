@@ -29,7 +29,7 @@ function init() {
 			} );
 
 			// If Customizer values have changed while Jetpack Search section is open, emit a message to open the modal.
-			window.wp.customize.state( 'processing' ).bind( function () {
+			window.wp.customize.bind( 'change', function () {
 				window.wp.customize.section( 'jetpack_search' ).expanded() && postSectionMessage( true );
 			} );
 		} );
