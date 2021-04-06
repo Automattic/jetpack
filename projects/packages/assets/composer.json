@@ -41,6 +41,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-assets",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"

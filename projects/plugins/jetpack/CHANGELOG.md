@@ -2,6 +2,60 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 9.6 - 2021-04-06
+### Enhancements
+- Beautiful Math: remove title attribute from generated image.
+- Blocks: add width option to buttons in Subscriptions, Revue, Form, Calendly, and Payments blocks.
+- Blocks: improve reliability of all blocks via unit tests.
+- Dashboard: add new options to customize SEO settings.
+- Dashboard: add new option to input license key.
+- Dashboard: update recommmendations notice to improve accessibility.
+- General: allow the use of some Jetpack features without connecting to a WordPress.com account.
+- Instant Search: add a new result format layout, for sites using WooCommerce.
+- Instant Search: improve performance thanks to lazily loading.
+- Instant Search: only use site accelerator for displaying images if it is enabled on the site.
+- Instant Search: update the search modal design.
+- Jetpack Videos: improve the display of transcoding status for newly uploaded videos.
+- Podcast Player Block: improve fetching of the podcast description.
+- Syncrhonization: add new sync/health endpoint to allow update of the sync health options.
+
+### Improved compatibility
+- Auto-updates: respect auto-update constant/filters in plugin API endpoints.
+- Autoloader: fix uninstallation fatal.
+- General: update colors to match dashboard color changes in WordPress 5.7.
+- Gravatar Hovercards: fix compatibility with the AMP plugin for Pingbacks and Trackbacks.
+- Latest Instagram Posts Block: improve compatibility with Gutenberg 10.1.0.
+- Markdown: avoid processing URLs that may include Markdown syntax.
+- Opentable Block: improve compatibility with Gutenberg 10.1.0.
+- Podcast Player Block: fix compatibility with the AMP plugin in the Customizer preview.
+- Podcast Player Block: improve compatibility with Gutenberg 10.1.0.
+- Synchronization: avoid issues with themes or plugins using anonymous functions within hooks.
+
+### Bug fixes
+- Connection Flow: resolve issue that prevented connections from the Opera browser.
+- Custom Content Types: fix inline quick editing of Restaurant menu items.
+- Instant Search: ensure Escape key always closes search modal.
+- Instant Search: fix an issue that led to a PHP notice for undefined index.
+- Instant Search: Fix modal opening bug within the Customizer.
+- Instant Search: fix handling of Customizer controls using refresh.
+- Instant Search: fix visibility of filter checkboxes in Safari on Twenty Twenty and Twenty Twenty One themes.
+- Instant Search: hide "filters" menu on mobile if there are no filters to display.
+- Instant Search: prevent IE11 from spawning overlay on load.
+- Publicize: avoid notices as embeds are added to a post.
+- Recommendations: when enabling Site Accelerator, also enable Tiled Galleries.
+- Sharing: omit Open Graph description tag from posts with Premium Content.
+- Site Logo: fix issues when updating logo in the Customizer.
+- Star Rating Block: allow 0 stars to be selected.
+- Subscriptions Block: allow block to override color styles, falling back to theme defaults.
+- Tiled Gallery: prevent block validation errors for mosaic and column layouts.
+- Video Block: display fallback when fetching videos that have been deleted.
+- WordPress.com Block Editor: disable if all Jetpack blocks are disabled via a filter.
+- WordPress.com REST API: make sure post metadata is always an array.
+
+### Other
+- Admin Page: Do not show an error message with JSONP is disabled. The admin page does not use it.
+- Readme: update link to changelog file. No changelog entry necessary.
+
 ## 9.5.2 - 2021-03-16
 ### Improved compatibility
 - Block Editor: avoid conflicts between multiple Jetpack blocks and Gutenberg version 10.1.0.
