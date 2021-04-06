@@ -9,11 +9,6 @@ import ReactDom from 'react-dom';
 import { debounce, noop } from 'lodash';
 
 /**
- * WordPress dependencies
- */
-import { Spinner } from '@wordpress/components';
-
-/**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
@@ -335,7 +330,6 @@ class Search extends React.Component {
 
 		return (
 			<div dir={ this.props.dir || null } className={ searchClass } role="search">
-				<Spinner />
 				<div
 					role="button"
 					className="dops-search__icon-navigation"
