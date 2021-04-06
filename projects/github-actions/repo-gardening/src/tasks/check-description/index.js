@@ -86,7 +86,7 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
 async function hasProgressLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're really only interested in the In Progress label.
-	return !! labels.find( label => label.includes( '[Status] In Progress' ) );
+	return labels.includes( '[Status] In Progress' );
 }
 
 /**
