@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import inquirer from 'inquirer';
+import simpleGit from 'simple-git';
 
 /**
  * Internal dependencies
@@ -239,7 +240,24 @@ export async function changeloggerCli( argv ) {
 		console.error( chalk.red( argv.error ) );
 		process.exit( data.status );
 	} else {
+		await gitAdd( argv );
 		console.log( chalkJetpackGreen( argv.success ) );
+	}
+}
+
+/**
+ * Add new changelog files to git staging.
+ *
+ * @param {argv} argv - the arguments passed.
+ */
+async function gitAdd( argv ) {
+	const changelogPath = `projects/${ argv.project }/changelog`;
+	const git = simpleGit();
+	const gitStatus = await git.status();
+	for ( const file of gitStatus.not_added ) {
+		if ( path.dirname( file ) === changelogPath ) {
+			git.add( file );
+		}
 	}
 }
 
