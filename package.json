@@ -93,6 +93,9 @@
 		"**/tar-stream/bl": "^4.0.0",
 		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
 	},
+	"dependencies": {
+		"simple-git": "2.37.0"
+	},
 	"devDependencies": {
 		"@babel/core": "7.12.10",
 		"@babel/plugin-transform-runtime": "7.12.15",
