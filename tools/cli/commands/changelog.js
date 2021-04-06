@@ -99,6 +99,28 @@ export function changelogDefine( yargs ) {
 					async argv => {
 						await changelogValidate( argv );
 					}
+				)
+				.command(
+					'write [project]',
+					'Writes all of the added changelog files to the project README.md',
+					yargWrite => {
+						yargWrite
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'dev', {
+								describe: 'Output validation issues using GitHub Action command syntax.',
+								type: 'bool',
+							} )
+							.option( 'prod', {
+								describe: 'Output file paths in this directory relative to it.',
+								type: 'bool',
+							} );
+					},
+					async argv => {
+						await changelogWrite( argv );
+					}
 				);
 		},
 		async argv => {
@@ -218,6 +240,33 @@ export async function changelogValidate( argv ) {
 	if ( argv.v ) {
 		argv.args.push( '-v' );
 	}
+	changeloggerCli( argv );
+}
+
+/**
+ * Changelog write script.
+ *
+ * @param {object} argv - arguments passed to the CLI.
+ */
+async function changelogWrite( argv ) {
+	argv = await validateProject( argv );
+	const parsedArgKey = Object.keys( argv );
+	const acceptedArgs = [ 'dev', 'beta' ];
+	argv.success = `${ argv.project } CHANGELOG.md written to succesfully!`;
+	argv.error = 'Writing to the changelog file failed. See error.';
+	argv.args = [ 'write' ];
+
+	// Add any options we're passing onto the command.
+	for ( const arg of parsedArgKey ) {
+		if ( acceptedArgs.includes( arg ) ) {
+			argv.args.push( `-${ arg }` );
+		}
+	}
+
+	if ( argv.v ) {
+		argv.args.push( '-v' );
+	}
+
 	changeloggerCli( argv );
 }
 
