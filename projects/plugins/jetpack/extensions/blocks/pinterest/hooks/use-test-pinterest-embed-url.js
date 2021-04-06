@@ -20,14 +20,14 @@ const useTestPinterestEmbedUrl = ( initialValue = '' ) => {
 		}
 		setIsFetching( true );
 		testEmbedUrl( pinterestUrl )
-			.then( ( resolvedUrl ) => {
+			.then( resolvedUrl => {
 				setIsFetching( false );
 				setPinterestUrl( resolvedUrl );
 				setIsError( false );
 			} )
 			.catch( () => {
 				setIsFetching( false );
-				setPinterestUrl( undefined );
+				setPinterestUrl( pinterestUrl || undefined );
 				setIsError( true );
 			} );
 	}, [ pinterestUrl ] );

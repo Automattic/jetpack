@@ -1,20 +1,21 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
-import { SandBox, Button, withNotices } from '@wordpress/components';
-import { useState, useEffect } from '@wordpress/element';
+import { SandBox, withNotices } from '@wordpress/components';
+import { useState, useEffect, useCallback } from '@wordpress/element';
+import { BlockControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
-import { fallback, pinType } from './utils';
-import PinterestControls from './controls';
+import { pinType } from './utils';
+import { PinterestBlockControls } from './controls';
 import LoadingContainer from './components/loading-container';
 import EditUrlForm from './components/edit-url-form';
+import ErrorNotice from './components/error-notice';
 import useTestPinterestEmbedUrl from './hooks/use-test-pinterest-embed-url';
 
-function PinterestEdit( {
+export function PinterestEdit( {
 	attributes,
 	isSelected,
 	className,
@@ -32,21 +33,11 @@ function PinterestEdit( {
 	/**
 	 * Sets an error notice using noticeOperations.
 	 */
-	const setErrorNotice = () => {
-		noticeOperations.createErrorNotice(
-			<>
-				{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
-				<Button isLink onClick={ () => fallback( editedUrl, onReplace ) }>
-					{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
-				</Button>
-			</>
-		);
-	};
-
-	/**
-	 * Wrapper for noticeOperations.removeAllNotices.
-	 */
-	const removeAllNotices = () => noticeOperations.removeAllNotices();
+	const getErrorNotice = useCallback( () => {
+		return <ErrorNotice fallbackUrl={ editedUrl } onClick={ onReplace } />;
+		// Disabling for onReplace and editedUrl as they are not requirements for creating a new function.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ hasTestUrlError ] );
 
 	/**
 	 * Submit handler for the url editing form.
@@ -96,25 +87,23 @@ function PinterestEdit( {
 	// Listen out for changes to after we've tested the url via `testUrl()`.
 	useEffect( () => {
 		setAttributes( { url: pinterestUrl } );
-		removeAllNotices();
+		noticeOperations.removeAllNotices();
 		// Set the input value of the edited URL.
 		if ( pinterestUrl ) {
 			setEditedUrl( pinterestUrl );
 		}
 		if ( hasTestUrlError ) {
-			setErrorNotice();
+			noticeOperations.createErrorNotice( getErrorNotice() );
 		}
-		// Disabling for setErrorNotice and removeAllNotices for now until we can further refactor.
+		// Disabling for noticeOperations as it is a prop and not a requirement for re-rendering.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ pinterestUrl, hasTestUrlError, setAttributes ] );
+	}, [ pinterestUrl, hasTestUrlError, setAttributes, getErrorNotice ] );
 
 	if ( isFetching ) {
 		return <LoadingContainer />;
 	}
 
 	const pinterestEmbedType = pinType( url );
-	// TODO: try to catch invalid pinterest URLs as well, e.g., https://www.pinterest.com.au/pin/this-is-the-furniture-every-pet-parent-needs--710161434992927062/.
-	// They render nothing.
 
 	if ( isEditing || ! url || ( url && ! pinterestEmbedType ) ) {
 		return (
@@ -137,7 +126,9 @@ function PinterestEdit( {
 	/* eslint-disable jsx-a11y/no-static-element-interactions */
 	return (
 		<div className={ className }>
-			<PinterestControls setEditingState={ setIsEditing } />
+			<BlockControls>
+				<PinterestBlockControls setEditingState={ setIsEditing } />
+			</BlockControls>
 			<div>
 				<SandBox
 					html={ sandBoxHTML }
