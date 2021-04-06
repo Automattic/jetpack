@@ -245,7 +245,6 @@ export class DashStats extends Component {
 						className="jp-at-a-glance__stats-icon"
 					/>
 				</div>
-				<Spinner />
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
