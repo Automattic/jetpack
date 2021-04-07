@@ -21,6 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'JETPACK_BACKUP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
 
+// Jetpack Autoloader.
+$jetpack_autoloader = JETPACK_BACKUP_PLUGIN_DIR . 'vendor/autoload_packages.php';
+if ( is_readable( $jetpack_autoloader ) ) {
+	require_once $jetpack_autoloader;
+} else {
+	exit;
+}
+
 // Main plugin class.
 require_once JETPACK_BACKUP_PLUGIN_DIR . 'src/php/class-jetpack-backup.php';
 new Jetpack_Backup();
