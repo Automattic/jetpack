@@ -250,23 +250,10 @@ export async function changelogValidate( argv ) {
  */
 async function changelogWrite( argv ) {
 	argv = await validateProject( argv );
-	const parsedArgKey = Object.keys( argv );
-	const acceptedArgs = [ 'dev', 'beta' ];
+	const args = process.argv.slice( 5 );
 	argv.success = `${ argv.project } CHANGELOG.md written to succesfully!`;
 	argv.error = 'Writing to the changelog file failed. See error.';
-	argv.args = [ 'write' ];
-
-	// Add any options we're passing onto the command.
-	for ( const arg of parsedArgKey ) {
-		if ( acceptedArgs.includes( arg ) ) {
-			argv.args.push( `-${ arg }` );
-		}
-	}
-
-	if ( argv.v ) {
-		argv.args.push( '-v' );
-	}
-
+	argv.args = [ 'write', ...args ];
 	changeloggerCli( argv );
 }
 
