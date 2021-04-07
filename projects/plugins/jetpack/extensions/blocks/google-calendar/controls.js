@@ -18,7 +18,7 @@ export const GoogleCalendarInspectorControls = ( props ) => {
 					placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
 					onChange={ onChange }
 				/>
-				<Button isSecondary isLarge type="submit">
+				<Button isSecondary type="submit">
 					{ _x( 'Embed', 'button label', 'jetpack' ) }
 				</Button>
 			</form>
