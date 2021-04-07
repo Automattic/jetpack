@@ -334,6 +334,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$menu    = static::$menu_data;
 		$submenu = static::$submenu_data;
 
+		// On multisite the administrator is not allowed to create users.
+		grant_super_admin( self::$user_id );
 		static::$admin_menu->add_users_menu();
 
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
