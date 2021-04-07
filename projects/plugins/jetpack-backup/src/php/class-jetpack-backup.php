@@ -38,7 +38,7 @@ class Jetpack_Backup {
 	public function enqueue_admin_scripts() {
 		wp_register_script(
 			'jetpack-backup-main-js',
-			plugins_url( 'src/js/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			plugins_url( 'build/main.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
 			array(),
 			'1.0.0',
 			true
@@ -66,9 +66,7 @@ class Jetpack_Backup {
 	 */
 	public function plugin_settings_page() {
 		?>
-			<div>
-				<h1>Jetpack Backup</h1>
-			</div>
+			<div id="jetpack-backup-root"></div>
 		<?php
 	}
 }

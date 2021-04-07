@@ -17,19 +17,10 @@
 		]
 	},
 	"scripts": {
-		"phpunit": [
-			"@composer install",
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"@composer install",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
-		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn build"
+		]
 	},
 	"repositories": [
 		{
