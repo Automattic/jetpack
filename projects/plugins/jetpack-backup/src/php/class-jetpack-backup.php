@@ -51,8 +51,8 @@ class Jetpack_Backup {
 	 */
 	public function admin_menu() {
 		add_menu_page(
-			'Jetpack Backup',
-			'Backup',
+			__( 'Jetpack Backup', 'jetpack-backup' ),
+			__( 'Backup', 'jetpack-backup' ),
 			'manage_options',
 			'jetpack-backup-menu',
 			array( $this, 'plugin_settings_page' ),

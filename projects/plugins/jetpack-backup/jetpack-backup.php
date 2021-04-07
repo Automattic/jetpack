@@ -28,7 +28,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Backup plugin', 'jetpack' )
+			__( 'Error loading autoloader file for Jetpack Backup plugin', 'jetpack-backup' )
 		);
 	}
 	exit;
