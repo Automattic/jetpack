@@ -81,9 +81,10 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$link_manager_links = get_bookmarks(
 			array(
-				'orderby' => 'link_id',
-				'order'   => 'DESC',
-				'limit'   => $max_default_id,
+				'orderby'        => 'link_id',
+				'order'          => 'DESC',
+				'limit'          => 1,
+				'hide_invisible' => 0,
 			)
 		);
 
