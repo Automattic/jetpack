@@ -35,6 +35,13 @@ abstract class Base_Admin_Menu {
 	protected $domain;
 
 	/**
+	 * The CSS classes used to hide the submenu items in navigation.
+	 *
+	 * @var string
+	 */
+	const HIDE_CSS_CLASS = 'hide-if-js hide-if-no-js';
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -154,7 +161,7 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Updates the submenus of the given menu slug.
 	 *
-	 * It hides the menu by adding the hide-if-js css class and duplicates the submenu with the new slug.
+	 * It hides the menu by adding the `hide-if-js hide-if-no-js` css classes and duplicates the submenu with the new slug.
 	 *
 	 * @param string $slug Menu slug.
 	 * @param array  $submenus_to_update Array of new submenu slugs.
@@ -175,10 +182,7 @@ abstract class Base_Admin_Menu {
 				continue;
 			}
 
-			$css_classes = empty( $item[4] ) ? 'hide-if-js hide-if-no-js' : $item[4] . ' hide-if-js hide-if-no-js';
-
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu [ $slug ][ $index ][4] = $css_classes;
+			$this->hide_submenu_element( $index, $slug, $item );
 		}
 
 		$submenu_items = array_values( $submenu[ $slug ] );
@@ -289,15 +293,32 @@ abstract class Base_Admin_Menu {
 		}
 
 		foreach ( $submenu[ $menu_slug ] as $i => $item ) {
-			if ( $submenu_slug === $item[2] ) {
-				$css_classes = isset( $item[4] ) ? $item[4] . '  hide-if-js hide-if-no-js' : 'hide-if-js hide-if-no-js';
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$submenu[ $menu_slug ][ $i ][4] = $css_classes;
-				return $item;
+			if ( $submenu_slug !== $item[2] ) {
+				continue;
 			}
+
+			$this->hide_submenu_element( $i, $menu_slug, $item );
+
+			return $item;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Apply the hide-if-js and hide-if-no-js CSS classes to a submenu item.
+	 *
+	 * @param int    $index The position of a submenu item in the submenu array.
+	 * @param string $parent_slug The parent slug.
+	 * @param array  $item The submenu item.
+	 */
+	public function hide_submenu_element( $index, $parent_slug, $item ) {
+		global $submenu;
+
+		$css_classes = empty( $item[4] ) ? self::HIDE_CSS_CLASS : $item[4] . ' ' . self::HIDE_CSS_CLASS;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu [ $parent_slug ][ $index ][4] = $css_classes;
 	}
 
 	/**
@@ -310,7 +331,7 @@ abstract class Base_Admin_Menu {
 		$visible_items = array_filter(
 			$submenu_items,
 			static function ( $item ) {
-				return empty( $item[4] ) || strpos( $item[4], 'hide-if-js hide-if-no-js' ) === false;
+				return empty( $item[4] ) || strpos( $item[4], self::HIDE_CSS_CLASS ) === false;
 			}
 		);
 
