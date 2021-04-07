@@ -7,6 +7,6 @@
             "url": "https://www.pinterest.com.au/bakingamoment/bread-recipes/"
         },
         "innerBlocks": [],
-        "originalContent": "<a href=\"https://www.pinterest.com.au/bakingamoment/bread-recipes/\" class=\"wp-block-jetpack-pinterest\">https://www.pinterest.com.au/bakingamoment/bread-recipes/</a>"
+        "originalContent": "<div class=\"wp-block-jetpack-pinterest\"><a data-pin-do=\"embedBoard\" href=\"https://www.pinterest.com.au/bakingamoment/bread-recipes/\"></a></div>"
     }
 ]
