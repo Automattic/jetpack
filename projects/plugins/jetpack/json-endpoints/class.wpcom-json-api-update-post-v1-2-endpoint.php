@@ -948,7 +948,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		return $post;
 	}
 
-
 	/**
 	 * Determines if a post exists based on title, content, date, and type,
 	 * But excluding IDs in gallery shortcodes.
@@ -979,7 +978,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		);
 
 		foreach ( $posts as $post ) {
-			$gallery_ids_pattern  = "/(\[gallery[^\]]*)(\sids='[\d,]+')([^\]]*\])/";
+			$gallery_ids_pattern = "/(\[gallery[^\]]*)(\sids='[\d,]+')([^\]]*\])/";
 
 			$post->post_content = preg_replace( $gallery_ids_pattern, '$1$3', $post->post_content );
 			$content            = preg_replace( $gallery_ids_pattern, '$1$3', $content );
