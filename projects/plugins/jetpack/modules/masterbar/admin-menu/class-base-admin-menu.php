@@ -173,6 +173,15 @@ abstract class Base_Admin_Menu {
 			return;
 		}
 
+		// This is needed for cases when the submenus to update have the same new slug.
+		$submenus_to_update = array_filter(
+			$submenus_to_update,
+			function ( $item, $old_slug ) {
+				return $item !== $old_slug;
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+
 		/**
 		 * Iterate over all submenu items and add the hide the submenus with CSS classes.
 		 * This is done separately of the second foreach because the position of the submenu might change.
