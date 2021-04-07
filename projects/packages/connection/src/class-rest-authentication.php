@@ -76,106 +76,90 @@ class Rest_Authentication {
 	 * @return int|null The user id or null if the request was not authenticated.
 	 */
 	public function wp_rest_authenticate( $user ) {
-		if ( $this->doing_determine_current_user_filter || ! empty( $user ) ) {
-			// Another authentication method is in effect.
+		if ( $this->doing_determine_current_user_filter ) {
 			return $user;
 		}
 
-		$this->initialize_determine_current_user_filter();
-
-		add_filter(
-			'jetpack_constant_default_value',
-			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
-			10,
-			2
-		);
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
-			// Nothing to do for this authentication method.
-			return $this->return_determine_current_user_filter();
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
-			// Nothing to do for this authentication method.
-			return $this->return_determine_current_user_filter();
-		}
-
-		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
-			$this->rest_authentication_status = new \WP_Error(
-				'rest_invalid_request',
-				__( 'The request method is missing.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return $this->return_determine_current_user_filter();
-		}
-
-		// Only support specific request parameters that have been tested and
-		// are known to work with signature verification.  A different method
-		// can be passed to the WP REST API via the '?_method=' parameter if
-		// needed.
-		if ( 'GET' !== $_SERVER['REQUEST_METHOD'] && 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
-			$this->rest_authentication_status = new \WP_Error(
-				'rest_invalid_request',
-				__( 'This request method is not supported.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return $this->return_determine_current_user_filter();
-		}
-		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
-			$this->rest_authentication_status = new \WP_Error(
-				'rest_invalid_request',
-				__( 'This request method does not support body parameters.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return $this->return_determine_current_user_filter();
-		}
-
-		$verified = $this->connection_manager->verify_xml_rpc_signature();
-
-		if (
-			$verified &&
-			isset( $verified['type'] ) &&
-			'user' === $verified['type'] &&
-			! empty( $verified['user_id'] )
-		) {
-			// Authentication successful.
-			$this->rest_authentication_status = true;
-			return $this->return_determine_current_user_filter( $verified['user_id'] );
-		}
-
-		// Something else went wrong.  Probably a signature error.
-		$this->rest_authentication_status = new \WP_Error(
-			'rest_invalid_signature',
-			__( 'The request is not signed correctly.', 'jetpack' ),
-			array( 'status' => 400 )
-		);
-		return $this->return_determine_current_user_filter();
-	}
-
-	/**
-	 * Resets determine_current_user filter infinite loop control and returns the value
-	 *
-	 * @since 9.7.0
-	 *
-	 * @param mixed $value The value to be returned.
-	 * @return mixed
-	 */
-	private function return_determine_current_user_filter( $value = null ) {
-		$this->doing_determine_current_user_filter = false;
-		return $value;
-	}
-
-	/**
-	 * Initializes determine_current_user filter infinite loop control
-	 *
-	 * @since 9.7.0
-	 *
-	 * @return void
-	 */
-	private function initialize_determine_current_user_filter() {
 		$this->doing_determine_current_user_filter = true;
+
+		try {
+			if ( ! empty( $user ) ) {
+				// Another authentication method is in effect.
+				return $user;
+			}
+
+			add_filter(
+				'jetpack_constant_default_value',
+				__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+				10,
+				2
+			);
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! isset( $_GET['_for'] ) || 'jetpack' !== $_GET['_for'] ) {
+				// Nothing to do for this authentication method.
+				return null;
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+				// Nothing to do for this authentication method.
+				return null;
+			}
+
+			if ( ! isset( $_SERVER['REQUEST_METHOD'] ) ) {
+				$this->rest_authentication_status = new \WP_Error(
+					'rest_invalid_request',
+					__( 'The request method is missing.', 'jetpack' ),
+					array( 'status' => 400 )
+				);
+				return null;
+			}
+
+			// Only support specific request parameters that have been tested and
+			// are known to work with signature verification.  A different method
+			// can be passed to the WP REST API via the '?_method=' parameter if
+			// needed.
+			if ( 'GET' !== $_SERVER['REQUEST_METHOD'] && 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+				$this->rest_authentication_status = new \WP_Error(
+					'rest_invalid_request',
+					__( 'This request method is not supported.', 'jetpack' ),
+					array( 'status' => 400 )
+				);
+				return null;
+			}
+			if ( 'POST' !== $_SERVER['REQUEST_METHOD'] && ! empty( file_get_contents( 'php://input' ) ) ) {
+				$this->rest_authentication_status = new \WP_Error(
+					'rest_invalid_request',
+					__( 'This request method does not support body parameters.', 'jetpack' ),
+					array( 'status' => 400 )
+				);
+				return null;
+			}
+
+			$verified = $this->connection_manager->verify_xml_rpc_signature();
+
+			if (
+				$verified &&
+				isset( $verified['type'] ) &&
+				'user' === $verified['type'] &&
+				! empty( $verified['user_id'] )
+			) {
+				// Authentication successful.
+				$this->rest_authentication_status = true;
+				return $verified['user_id'];
+			}
+
+			// Something else went wrong.  Probably a signature error.
+			$this->rest_authentication_status = new \WP_Error(
+				'rest_invalid_signature',
+				__( 'The request is not signed correctly.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		} finally {
+			$this->doing_determine_current_user_filter = false;
+		}
 	}
 
 	/**
