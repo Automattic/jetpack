@@ -13,7 +13,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client",
-		"build-client": "npx webpack --mode=development",
+		"build-client": "npx webpack --mode=production",
 		"clean": "rm -rf build/",
 		"distclean": "rm -rf node_modules && yarn clean",
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile"
