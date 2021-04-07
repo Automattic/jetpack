@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed an issue which prevented the unified admin menu from working correctly when AMP is enabled.

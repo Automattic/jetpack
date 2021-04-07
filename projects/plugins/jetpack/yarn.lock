@@ -3015,10 +3015,10 @@
     lz-string "^1.4.4"
     pretty-format "^26.6.2"
 
-"@testing-library/jest-dom@5.11.9":
-  version "5.11.9"
-  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.11.9.tgz#e6b3cd687021f89f261bd53cbe367041fbd3e975"
-  integrity sha512-Mn2gnA9d1wStlAIT2NU8J15LNob0YFBVjs2aEQ3j8rsfRQo+lAs7/ui1i2TGaJjapLmuNPLTsrm+nPjmZDwpcQ==
+"@testing-library/jest-dom@5.11.10":
+  version "5.11.10"
+  resolved "https://registry.yarnpkg.com/@testing-library/jest-dom/-/jest-dom-5.11.10.tgz#1cd90715023e1627f5ed26ab3b38e6f22d77046c"
+  integrity sha512-FuKiq5xuk44Fqm0000Z9w0hjOdwZRNzgx7xGGxQYepWFZy+OYUMOT/wPI4nLYXCaVltNVpU1W/qmD88wLWDsqQ==
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@types/testing-library__jest-dom" "^5.9.1"
@@ -3053,10 +3053,10 @@
     "@babel/runtime" "^7.12.5"
     "@testing-library/dom" "^7.28.1"
 
-"@testing-library/user-event@12.8.1":
-  version "12.8.1"
-  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.8.1.tgz#aa897d6e7f0cf2208385abc2da2ac3f5844bbd00"
-  integrity sha512-u521YhkCKip0DQNDpfj9V97PU7UlCTkW5jURUD4JipuVe/xDJ32dJSIHlT2pqAs/I91OFB8p6LtqaLZpOu8BWQ==
+"@testing-library/user-event@12.8.3":
+  version "12.8.3"
+  resolved "https://registry.yarnpkg.com/@testing-library/user-event/-/user-event-12.8.3.tgz#1aa3ed4b9f79340a1e1836bc7f57c501e838704a"
+  integrity sha512-IR0iWbFkgd56Bu5ZI/ej8yQwrkCv8Qydx6RzwbKz9faXazR/+5tvYKsZQgyXJiwgpcva127YO6JcWy7YlCfofQ==
   dependencies:
     "@babel/runtime" "^7.12.5"
 
@@ -5617,10 +5617,10 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-chai@4.3.3:
-  version "4.3.3"
-  resolved "https://registry.yarnpkg.com/chai/-/chai-4.3.3.tgz#f2b2ad9736999d07a7ff95cf1e7086c43a76f72d"
-  integrity sha512-MPSLOZwxxnA0DhLE84klnGPojWFK5KuhP7/j5dTsxpr2S3XlkqJP5WbyYl1gCTWvG2Z5N+HD4F472WsbEZL6Pw==
+chai@4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/chai/-/chai-4.3.4.tgz#b55e655b31e1eac7099be4c08c21964fce2e6c49"
+  integrity sha512-yS5H68VYOCtN1cjfwumDSuzn/9c+yza4f3reKXlE5rUg7SFcCEy90gJvydNgOYtblyf4Zi6jIWRnXOgErta0KA==
   dependencies:
     assertion-error "^1.1.0"
     check-error "^1.0.2"
