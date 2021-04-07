@@ -177,6 +177,14 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 		}
 	}
 
+	function getVideoPressThumbnailUrlIfVideo( url ) {
+		if ( url !== undefined && url.endsWith( '.mp4' ) ) {
+			return url.replace( '.mp4', '_std.original.jpg' );
+		} else {
+			return url;
+		}
+	}
+
 	const mediaPlaceholder = (
 		// TODO this we are wrapping in a pointerEvents=none because we don't want to
 		// trigger the ADD MEDIA bottom sheet just yet, but only give the placedholder the right appearance.
@@ -231,7 +239,7 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 										isUploadFailed={ isUploadFailed || isSaveFailed }
 										isUploadInProgress={ isUploadProgressing || isSaveProgressing }
 										retryMessage={ retryMessage }
-										url={ mediaFiles[ 0 ].url } // just select the first one // TODO see how to handle video
+										url={ getVideoPressThumbnailUrlIfVideo( mediaFiles[ 0 ].url ) } // just select the first one
 										style={ styles[ 'wp-story-image' ] }
 									/>
 								);
