@@ -70,7 +70,9 @@ function wpcomsh_mimic_admin_page_load() {
 		@ini_set( 'display_errors', false ); // phpcs:ignore
 
 		define( 'WP_ADMIN', true );
-		require_once ABSPATH . 'wp-admin/includes/admin.php';
+		add_action( 'wp_loaded', function() {
+			require_once ABSPATH . 'wp-admin/includes/admin.php';
+		} );
 	}
 }
 add_action( 'muplugins_loaded', 'wpcomsh_mimic_admin_page_load' );
@@ -168,6 +170,7 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 
 	// Check if nav unification has been enabled for current user.
 	$is_nav_unification_enabled = get_user_option( 'wpcom_is_nav_unification_enabled' );
+
 	if ( $is_nav_unification_enabled ) {
 		if ( isset( $_GET['from'] ) && 'calypso-old-menu' === $_GET['from'] ) {
 			// Disable if user is coming from the old menu in Calypso (useful for avoiding caching issues if a revert is needed).
