@@ -59,9 +59,13 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		// Do not flush this debounced invocation.
+		// By debouncing this upon mounting, we avoid making unnecessary requests.
+		//
+		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
+		//      Once our Redux effects have executed, the search query will be updated to "apple" and
+		//      getResults will be invoked once more.
 		this.getResults();
-		this.getResults.flush();
-
 		this.addEventListeners();
 		this.disableAutocompletion();
 
