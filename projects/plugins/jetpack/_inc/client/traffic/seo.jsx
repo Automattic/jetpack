@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
 import SocialLogo from 'social-logos';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -122,15 +123,14 @@ export const SEO = withModuleSettingsFormHelpers(
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
 
-			let frontPageMetaCharCountStyle;
-			if ( frontPageMetaDescription.length >= this.constants.frontPageMetaMaxLength ) {
-				frontPageMetaCharCountStyle = 'jp-seo-front-page-description-count-max';
-			} else {
-				frontPageMetaCharCountStyle =
-					frontPageMetaDescription.length > this.constants.frontPageMetaSuggestedLength
-						? 'jp-seo-front-page-description-count-warn'
-						: '';
-			}
+			const frontPageMetaCharCountClasses = classNames( {
+				'jp-seo-front-page-description-count': true,
+				'jp-seo-front-page-description-count-max':
+					frontPageMetaDescription.length >= this.constants.frontPageMetaMaxLength,
+				'jp-seo-front-page-description-count-warn':
+					frontPageMetaDescription.length > this.constants.frontPageMetaSuggestedLength &&
+					frontPageMetaDescription.length < this.constants.frontPageMetaMaxLength,
+			} );
 
 			return (
 				<SettingsCard
@@ -240,9 +240,7 @@ export const SEO = withModuleSettingsFormHelpers(
 												value={ frontPageMetaDescription }
 												onChange={ this.props.onOptionChange }
 											/>
-											<div
-												className={ `jp-seo-front-page-description-count ${ frontPageMetaCharCountStyle }` }
-											>
+											<div className={ frontPageMetaCharCountClasses }>
 												{ sprintf(
 													/* translators: placeholder is number of characters */
 													_n(
