@@ -1,5 +1,4 @@
 Significance: patch
 Type: other
-Comment: This is the changelog.
 
-
+Updated package dependencies
