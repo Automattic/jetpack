@@ -129,6 +129,11 @@
 		border-radius: 4px;
 		color: white;
 	}
+
+	&-save-button {
+		float: right;
+		margin-top: 0.75rem;
+	}
 }
 
 .jp-seo-social-previews {
@@ -188,5 +193,10 @@
 	&-input-preview {
 		margin-top: 0.25rem;
 		font-style: italic;
+	}
+
+	&-save-button {
+		float: right;
+		margin-top: 0.75rem;
 	}
 }
