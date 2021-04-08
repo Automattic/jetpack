@@ -303,6 +303,7 @@
 	"projects/plugins/jetpack/modules/sso.php",
 	"projects/plugins/jetpack/modules/sso/class.jetpack-sso-helpers.php",
 	"projects/plugins/jetpack/modules/sso/class.jetpack-sso-notices.php",
+	"projects/plugins/jetpack/modules/stats.php",
 	"projects/plugins/jetpack/modules/subscriptions.php",
 	"projects/plugins/jetpack/modules/subscriptions/views.php",
 	"projects/plugins/jetpack/modules/theme-tools.php",
