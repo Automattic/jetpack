@@ -11,6 +11,14 @@ import '@testing-library/jest-dom/extend-expect';
 import { SimplePaymentsEdit } from '../edit';
 
 const setAttributes = jest.fn();
+beforeEach( () => {
+	Intl.NumberFormat = jest
+		.fn()
+		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
+} );
+afterEach( () => {
+	jest.resetAllMocks();
+} );
 
 const props = {
 	attributes: {
@@ -20,10 +28,6 @@ const props = {
 	setAttributes,
 	isSelected: true,
 };
-
-beforeEach( () => {
-	setAttributes.mockClear();
-} );
 
 describe( 'Edit component', () => {
 	test( 'shows Pay with Paypal image but no input fields if not selected', () => {
