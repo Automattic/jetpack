@@ -143,6 +143,22 @@ describe( 'response Reducer', () => {
 			results: [ { id: 2, result_type: 'page' } ],
 		} );
 	} );
+	test( 'ignores responses older than the current response', () => {
+		const initialState = {
+			_id: 1,
+			aggregations: { taxonomy_1: { buckets: [] } },
+			results: [ { id: 2, result_type: 'page' } ],
+		};
+		const state = response(
+			initialState,
+			recordSuccessfulSearchRequest( {
+				_id: 0,
+				options: actionOptions,
+				response: actionResponse,
+			} )
+		);
+		expect( state ).toEqual( initialState );
+	} );
 } );
 
 describe( 'searchQuery Reducer', () => {

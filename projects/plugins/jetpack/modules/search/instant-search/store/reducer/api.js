@@ -49,7 +49,12 @@ export function isLoading( state = false, action ) {
 export function response( state = {}, action ) {
 	switch ( action.type ) {
 		case 'RECORD_SUCCESSFUL_SEARCH_REQUEST': {
-			const newState = { ...action.response };
+			// A more recent response has already been saved.
+			if ( '_id' in state && state._id >= action._id ) {
+				return state;
+			}
+
+			const newState = { ...action.response, _id: action._id };
 			// For paginated results, merge previous search results with new search results.
 			if ( action.options.pageHandle ) {
 				newState.aggregations = {
