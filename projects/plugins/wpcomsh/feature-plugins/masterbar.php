@@ -130,10 +130,6 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $e
 	if ( isset( $value['site_count'] ) ) {
 		update_user_option( get_current_user_id(), 'wpcom_site_count', $value['site_count'] );
 	}
-
-	if ( isset( $value['text_direction'] ) ) {
-		update_user_option( get_current_user_id(), 'jetpack_text_direction', $value['text_direction'] );
-	}
 }
 add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 3 );
 
@@ -172,15 +168,6 @@ function wpcomsh_activate_nav_unification( $should_activate_nav_unification ) {
 	$is_nav_unification_enabled = get_user_option( 'wpcom_is_nav_unification_enabled' );
 
 	if ( $is_nav_unification_enabled ) {
-		if ( isset( $_GET['from'] ) && 'calypso-old-menu' === $_GET['from'] ) {
-			// Disable if user is coming from the old menu in Calypso (useful for avoiding caching issues if a revert is needed).
-			update_user_option( $user_id, 'wpcom_is_nav_unification_enabled', false );
-			return false;
-		}
-		return true;
-	} elseif ( isset( $_GET['from'] ) && 'calypso-unified-menu' === $_GET['from'] ) {
-		// Enable if user is coming from the unified menu in Calypso.
-		update_user_option( $user_id, 'wpcom_is_nav_unification_enabled', true );
 		return true;
 	}
 
