@@ -58,6 +58,7 @@ class Admin {
 			wp_enqueue_script( 'jetpack_connection_ui_script', plugin_dir_url( __DIR__ ) . 'build/index.js', $build_assets['dependencies'], $build_assets['version'], true );
 
 			wp_set_script_translations( 'react-jetpack_connection_ui_script', 'jetpack' );
+			wp_add_inline_script( 'jetpack_connection_ui_script', $this->get_initial_state(), 'before' );
 		}
 	}
 
@@ -68,6 +69,15 @@ class Admin {
 		?>
 		<div id="jetpack-connection-ui-container"></div>
 		<?php
+	}
+
+	/**
+	 * Return the rendered initial state JavaScript code.
+	 *
+	 * @return string
+	 */
+	private function get_initial_state() {
+		return ( new Initial_State() )->render();
 	}
 
 }
