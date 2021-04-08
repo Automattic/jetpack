@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid determine_current_user going through infinite loops
