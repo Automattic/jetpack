@@ -4,10 +4,10 @@ module.exports = {
 			script: 'bin/tunnel.js',
 			args: 'on',
 			name: 'tunnel',
-			log_file: 'output/logs/tunnel-combined.log',
+			log_file: 'output/logs/tunnel.log',
 			time: true,
 			wait_ready: true,
-			listen_timeout: 10000,
+			listen_timeout: 15000,
 			env: {
 				NODE_ENV: 'test',
 			},
