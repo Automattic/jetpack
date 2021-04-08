@@ -147,6 +147,8 @@ async function changelogRouter( argv ) {
 			changelogValidate( argv );
 			break;
 		case 'write':
+			changelogWrite( argv );
+			break;
 		case 'version':
 			console.error( chalk.red( 'Command not yet implemented!' ) );
 			process.exit( 1 );
@@ -250,10 +252,15 @@ export async function changelogValidate( argv ) {
  */
 async function changelogWrite( argv ) {
 	argv = await validateProject( argv );
-	const args = process.argv.slice( 5 );
 	argv.success = `${ argv.project } CHANGELOG.md written to succesfully!`;
 	argv.error = 'Writing to the changelog file failed. See error.';
-	argv.args = [ 'write', ...args ];
+	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
+
+	// Remove project from command list we pass to changelogger.
+	if ( argv.args.includes( argv.project ) ) {
+		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
+	}
+
 	changeloggerCli( argv );
 }
 
