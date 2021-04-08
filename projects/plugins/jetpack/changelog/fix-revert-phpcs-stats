@@ -1,0 +1,4 @@
+Significance: major
+Type: bugfix
+
+Reverts commit updating stats to meet PHPCS standards, which broke stat weekly and monthly views.
