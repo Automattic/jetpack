@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import WpPage from '../wp-page';
-import logger from '../../logger';
+import { logger } from '../../logger';
 import config from 'config';
 import { takeScreenshot } from '../../reporters/screenshot';
 import PageActions from '../page-actions';

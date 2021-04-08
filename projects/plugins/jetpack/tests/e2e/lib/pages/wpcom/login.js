@@ -7,7 +7,7 @@ import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
  * Internal dependencies
  */
 import WpPage from '../wp-page';
-import logger from '../../logger';
+import { logger } from '../../logger';
 import { getAccountCredentials } from '../../utils-helper';
 
 export default class LoginPage extends WpPage {

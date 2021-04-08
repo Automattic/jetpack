@@ -18,7 +18,7 @@ import MyPlanPage from '../pages/wpcom/my-plan';
 import { provisionJetpackStartConnection, execShellCommand, execWpCommand } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
-import logger from '../logger';
+import { logger } from '../logger';
 import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
 
 const cookie = config.get( 'storeSandboxCookieValue' );

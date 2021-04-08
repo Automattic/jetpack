@@ -93,7 +93,8 @@ jobs:
       run: |
         yarn install
         yarn test-decrypt-config
-        ./bin/env.sh start
+        yarn env-start
+        yarn tunnel-on
 
     - name: Run all tests
       if: matrix.gutenberg == 'no'

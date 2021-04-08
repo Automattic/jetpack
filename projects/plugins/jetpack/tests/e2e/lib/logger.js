@@ -1,6 +1,6 @@
-import { createLogger, format, transports, addColors } from 'winston';
-import config from 'config';
-import path from 'path';
+const { createLogger, format, transports, addColors } = require( 'winston' );
+const config = require( 'config' );
+const path = require( 'path' );
 
 const LEVEL = Symbol.for( 'level' );
 
@@ -125,4 +125,6 @@ const logger = createLogger( {
 	],
 } );
 
-export default logger;
+module.exports = {
+	logger,
+};

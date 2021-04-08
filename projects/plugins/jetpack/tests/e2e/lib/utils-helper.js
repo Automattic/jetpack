@@ -5,10 +5,7 @@ const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
-/**
- * Internal dependencies
- */
-const logger = require( './logger' ).default;
+const { logger } = require( './logger' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -192,6 +189,45 @@ function getAccountCredentials( accountName ) {
 	return globalConfig.get( accountName );
 }
 
+function getReusableUrlFromFile() {
+	let urlFromFile;
+	try {
+		urlFromFile = fs
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
+			.replace( 'http:', 'https:' );
+	} catch ( error ) {
+		if ( error.code === 'ENOENT' ) {
+			console.warn( "Tunnels file doesn't exist" );
+		} else {
+			console.error( error );
+		}
+	}
+	return urlFromFile;
+}
+
+/**
+ * There are two ways to set the target site url:
+ * 1. Write it in 'temp.tunnels' file
+ * 2. Set SITE_URL env variable. This overrides any value written in file
+ * If none of the above is valid we throw an error
+ */
+function resolveSiteUrl() {
+	let url = process.env.SITE_URL;
+
+	if ( ! url ) {
+		url = getReusableUrlFromFile();
+	}
+
+	validateUrl( url );
+	return url;
+}
+
+function validateUrl( url ) {
+	if ( ! new URL( url ) ) {
+		throw new Error( `Undefined or invalid SITE_URL!` );
+	}
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -205,4 +241,7 @@ module.exports = {
 	logAccessLog,
 	fileNameFormatter,
 	getAccountCredentials,
+	getReusableUrlFromFile,
+	resolveSiteUrl,
+	validateUrl,
 };
