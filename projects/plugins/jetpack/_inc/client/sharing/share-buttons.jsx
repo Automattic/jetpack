@@ -83,7 +83,6 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
-						disableInUserlessMode
 						module={ { module: 'sharedaddy' } }
 						support={ {
 							text: __(
