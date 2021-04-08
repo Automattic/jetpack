@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
+use Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
 use Automattic\Jetpack\Status;
 
 require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
@@ -143,7 +144,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_my_home_menu();
 
 		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
-		$this->assertSame( 'hide-if-js hide-if-no-js', $submenu['index.php'][0][4] );
+		$this->assertSame( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
 	}
 
 	/**
