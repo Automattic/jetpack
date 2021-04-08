@@ -39,7 +39,7 @@ abstract class Base_Admin_Menu {
 	 *
 	 * @var string
 	 */
-	const HIDE_CSS_CLASS = 'hide-if-js hide-if-no-js';
+	const HIDE_CSS_CLASS = 'hide-if-js';
 
 	/**
 	 * Base_Admin_Menu constructor.
@@ -161,7 +161,7 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Updates the submenus of the given menu slug.
 	 *
-	 * It hides the menu by adding the `hide-if-js hide-if-no-js` css classes and duplicates the submenu with the new slug.
+	 * It hides the menu by adding the `hide-if-js` css class and duplicates the submenu with the new slug.
 	 *
 	 * @param string $slug Menu slug.
 	 * @param array  $submenus_to_update Array of new submenu slugs.
@@ -315,7 +315,7 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Apply the hide-if-js and hide-if-no-js CSS classes to a submenu item.
+	 * Apply the hide-if-js CSS class to a submenu item.
 	 *
 	 * @param int    $index The position of a submenu item in the submenu array.
 	 * @param string $parent_slug The parent slug.
