@@ -164,7 +164,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		update_user_option( static::$user_id, 'wpcom_site_count', 1 );
 
 		static::$admin_menu->add_new_site_link();
-		// Properties array for create a new Menu site
+
 		$new_site_menu_item = array(
 			'Add New Site',
 			'read',
