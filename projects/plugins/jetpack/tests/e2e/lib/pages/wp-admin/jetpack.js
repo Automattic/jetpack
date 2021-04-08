@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import WpPage from '../wp-page';
-import { logger } from '../../logger';
+import logger from '../../logger';
 
 export default class JetpackPage extends WpPage {
 	constructor( page ) {

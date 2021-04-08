@@ -58,7 +58,8 @@ const stringFormat = format.combine(
 	format.uncolorize()
 );
 
-const logger = createLogger( {
+// eslint-disable-next-line no-unused-vars
+const logger = ( module.exports = createLogger( {
 	levels: myCustomLevels.levels,
 	format: format.combine(
 		format.timestamp( {
@@ -123,8 +124,4 @@ const logger = createLogger( {
 			level: consoleLogLevel,
 		} ),
 	],
-} );
-
-module.exports = {
-	logger,
-};
+} ) );

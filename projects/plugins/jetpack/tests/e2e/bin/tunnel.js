@@ -3,7 +3,7 @@ const config = require( 'config' );
 const localtunnel = require( 'localtunnel' );
 const { getReusableUrlFromFile } = require( '../lib/utils-helper' );
 
-( async () => {
+function getTunnelConfig() {
 	const conf = config.get( 'tunnel' );
 	const tunnelConfig = { host: conf.host, port: conf.port };
 
@@ -15,8 +15,11 @@ const { getReusableUrlFromFile } = require( '../lib/utils-helper' );
 	if ( urlFromFile && new URL( urlFromFile ) ) {
 		tunnelConfig.subdomain = urlFromFile.replace( /.*?:\/\//g, '' ).split( '.' )[ 0 ];
 	}
+	return tunnelConfig;
+}
 
-	const tunnel = await localtunnel( tunnelConfig );
+( async () => {
+	const tunnel = await localtunnel( getTunnelConfig() );
 
 	tunnel.on( 'close', () => {
 		console.log( 'Tunnel closed' );

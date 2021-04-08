@@ -1,4 +1,4 @@
-import { logger } from '../logger';
+import logger from '../logger';
 import fs from 'fs';
 import chalk from 'chalk';
 import config from 'config';

@@ -5,7 +5,7 @@ const fs = require( 'fs' );
 const os = require( 'os' );
 const config = require( 'config' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
-import { logger } from '../logger';
+import logger from '../logger';
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 

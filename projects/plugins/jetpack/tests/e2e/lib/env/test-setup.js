@@ -5,7 +5,7 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { logger } from '../logger';
+import logger from '../logger';
 import { execWpCommand } from '../utils-helper';
 import {
 	connectThroughWPAdmin,
