@@ -544,7 +544,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$insert = $this->dtp_fb_preprocess_post( $insert, $metadata );
 			}
 
-			$post_id = post_exists( $insert['post_title'], $insert['post_content'], $insert['post_date'], $post_type->name );
+			$post_id = $this->post_exists( $insert['post_title'], $insert['post_content'], $insert['post_date'], $post_type->name );
 			if ( 0 === $post_id ) {
 				$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
 			}
@@ -946,5 +946,48 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 		$post['post_format'] = 'aside';
 
 		return $post;
+	}
+
+	/**
+	 * Determines if a post exists based on title, content, date, and type,
+	 * But excluding IDs in gallery shortcodes.
+	 * This will prevent duplication of posts created through the API.
+	 *
+	 * @param string $title   Post title.
+	 * @param string $content Post content.
+	 * @param string $post_date    Post date.
+	 * @param string $type    Optional post type.
+	 * @return int Post ID if post exists, 0 otherwise.
+	 */
+	private function post_exists( $title, $content, $post_date, $type = '' ) {
+		$date = date_create( $post_date );
+
+		$posts = get_posts(
+			array(
+				'year'             => date_format( $date, 'Y' ),
+				'monthnum'         => date_format( $date, 'n' ),
+				'day'              => date_format( $date, 'j' ),
+				'hour'             => date_format( $date, 'G' ),
+				'minute'           => date_format( $date, 'i' ),
+				'second'           => date_format( $date, 's' ),
+				'post_type'        => $type,
+				'title'            => $title,
+				'numberposts'      => -1,
+				'suppress_filters' => false,
+			)
+		);
+
+		foreach ( $posts as $post ) {
+			$gallery_ids_pattern = "/(\[gallery[^\]]*)(\sids='[\d,]+')([^\]]*\])/";
+
+			$post->post_content = preg_replace( $gallery_ids_pattern, '$1$3', $post->post_content );
+			$content            = preg_replace( $gallery_ids_pattern, '$1$3', $content );
+
+			if ( $content === $post->post_content ) {
+				return $post->ID;
+			}
+		}
+
+		return 0;
 	}
 }
