@@ -166,6 +166,7 @@ class REST_Connector {
 			'isActive'          => $connection->is_active(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
+			'isUserConnected'   => $connection->is_user_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
 			'offlineMode'       => array(
 				'isActive'        => $status->is_offline_mode(),

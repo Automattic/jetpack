@@ -3,8 +3,13 @@
  */
 import { combineReducers } from '@wordpress/data';
 
+/**
+ * Internal dependencies
+ */
+import connectionStatus from './connection-status';
+
 const reducer = combineReducers( {
-	// We'll use it to combine selectors imported from other files in this directory.
+	connectionStatus,
 } );
 
 export default reducer;

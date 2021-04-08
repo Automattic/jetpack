@@ -1,5 +1,10 @@
+/**
+ * Internal dependencies
+ */
+import connectionActions from './connection';
+
 const actions = {
-	// We'll import actions from other files in this directory, and merge them here.
+	...connectionActions,
 };
 
 export default actions;

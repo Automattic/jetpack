@@ -1,10 +1,12 @@
 /**
  * Internal dependencies
  */
-import connectionStatusSelectors from './connection-status';
+import connectionSelectors from './connection';
+import APISelectors from './api';
 
 const selectors = {
-	...connectionStatusSelectors,
+	...connectionSelectors,
+	...APISelectors,
 };
 
 export default selectors;

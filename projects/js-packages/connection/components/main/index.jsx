@@ -14,62 +14,94 @@ import restApi from '../../tools/jetpack-rest-api-client';
 
 const Main = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
-	const [ isLinking, setIsLinking ] = useState( false );
+	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
 
-	const { apiRoot, apiNonce } = props;
+	const {
+		apiRoot,
+		apiNonce,
+		connectLabel,
+		authorizationUrl,
+		forceCalypsoFlow,
+		isRegistered,
+		isUserConnected,
+		onRegistered,
+		onUserConnected,
+	} = props;
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const linkSite = useCallback( () => {
-		if ( props.useCalypsoFlow ) {
-			window.location.href = props.connectUserUrl;
+	const connectUser = useCallback( () => {
+		if ( forceCalypsoFlow ) {
+			window.location.href = authorizationUrl;
 			return;
 		}
 
-		setIsLinking( true );
-	}, [ props.connectUserUrl, props.useCalypsoFlow, setIsLinking ] );
+		setIsUserConnecting( true );
+	}, [ authorizationUrl, forceCalypsoFlow, setIsUserConnecting ] );
 
-	const onLinked = useCallback( () => {
-		setIsLinking( false );
-	}, [ setIsLinking ] );
+	const onUserConnectedCallback = useCallback( () => {
+		setIsUserConnecting( false );
+
+		if ( onUserConnected ) {
+			onUserConnected();
+		}
+	}, [ setIsUserConnecting, onUserConnected ] );
 
 	const registerSite = useCallback(
 		e => {
+			e.preventDefault();
+
+			if ( isRegistered ) {
+				connectUser();
+				return;
+			}
+
 			setIsRegistering( true );
 
 			restApi
 				.registerSite()
 				.then( () => {
 					setIsRegistering( false );
-					linkSite();
+
+					if ( onRegistered ) {
+						onRegistered();
+					}
+
+					connectUser();
 				} )
 				.catch( error => {
 					throw error;
 				} );
-
-			e.preventDefault();
 		},
-		[ setIsRegistering, linkSite ]
+		[ setIsRegistering, isRegistered, onRegistered, connectUser ]
 	);
+
+	if ( isRegistered && isUserConnected ) {
+		return null;
+	}
 
 	return (
 		<div className="jp-connection-main">
-			{ ! isLinking && (
-				<Button label={ props.label } onClick={ registerSite } isPrimary disabled={ isRegistering }>
-					{ __( 'Connect', 'jetpack' ) }
+			{ ! isUserConnecting && (
+				<Button
+					label={ connectLabel }
+					onClick={ registerSite }
+					isPrimary
+					disabled={ isRegistering || isUserConnecting }
+				>
+					{ connectLabel }
 				</Button>
 			) }
 
-			{ isLinking && (
+			{ isUserConnecting && (
 				<InPlaceConnection
-					connectUrl={ props.connectUserUrl }
+					connectUrl={ authorizationUrl }
 					title={ props.inPlaceTitle }
-					hasConnectedOwner={ props.hasConnectedOwner }
-					onComplete={ onLinked }
-					displayTOS={ props.hasConnectedOwner || props.isSiteRegistered }
+					onComplete={ onUserConnectedCallback }
+					displayTOS={ props.hasConnectedOwner || isRegistered }
 				/>
 			) }
 		</div>
@@ -77,17 +109,23 @@ const Main = props => {
 };
 
 Main.propTypes = {
-	connectUserUrl: PropTypes.string.required,
-	label: PropTypes.string,
+	authorizationUrl: PropTypes.string.isRequired,
+	connectLabel: PropTypes.string,
 	inPlaceTitle: PropTypes.string,
-	useCalypsoFlow: PropTypes.bool,
-	apiRoot: PropTypes.string.required,
-	apiNonce: PropTypes.string.required,
+	forceCalypsoFlow: PropTypes.bool,
+	apiRoot: PropTypes.string.isRequired,
+	apiNonce: PropTypes.string.isRequired,
+	isRegistered: PropTypes.bool.isRequired,
+	isUserConnected: PropTypes.bool.isRequired,
+	hasConnectedOwner: PropTypes.bool.isRequired,
+	onRegistered: PropTypes.func,
+	onUserConnected: PropTypes.func,
 };
 
 Main.defaultProps = {
 	inPlaceTitle: __( 'Connect your WordPress.com account', 'jetpack' ),
 	useCalypsoFlow: false,
+	connectLabel: __( 'Connect', 'jetpack' ),
 };
 
 export default Main;
