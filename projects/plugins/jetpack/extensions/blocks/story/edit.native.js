@@ -180,9 +180,8 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 	function getVideoPressThumbnailUrlIfVideo( url ) {
 		if ( url !== undefined && url.endsWith( '.mp4' ) ) {
 			return url.replace( '.mp4', '_std.original.jpg' );
-		} else {
-			return url;
 		}
+		return url;
 	}
 
 	const mediaPlaceholder = (
