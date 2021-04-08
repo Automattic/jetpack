@@ -27,7 +27,7 @@ function grofiles_hovercards_init() {
 
 	add_filter( 'jetpack_module_configuration_url_gravatar-hovercards', 'gravatar_hovercards_configuration_url' );
 
-	add_filter( 'get_comment_author_url', 'grofiles_amp_comment_author_url', 10, 1 );
+	add_filter( 'get_comment_author_url', 'grofiles_amp_comment_author_url', 10, 2 );
 }
 
 function gravatar_hovercards_configuration_url() {
@@ -135,11 +135,13 @@ function grofiles_gravatars_to_append( $author = null ) {
  * navigating to a new page
  *
  * @param string $url The comment author's URL.
+ * @param int    $id  The comment ID.
  *
  * @return string The adjusted URL
  */
-function grofiles_amp_comment_author_url( $url ) {
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+function grofiles_amp_comment_author_url( $url, $id ) {
+	if ( 'comment' === get_comment_type( $id ) && class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		// @todo Disabling the comment author link in this way is not ideal since clicking the link does not cause the lightbox to open in the same way as clicking the gravatar. Likely get_comment_author_url_link should be used instead so that the href attribute can be replaced with an `on` attribute that activates the gallery.
 		return '#!';
 	}
 
@@ -154,7 +156,7 @@ function grofiles_amp_comment_author_url( $url ) {
  * @param string $avatar The <img/> element of the avatar.
  * @param mixed $author User ID, email address, user login, comment object, user object, post object
  *
- * @return The <img/> element of the avatar.
+ * @return string The <img/> element of the avatar.
  */
 function grofiles_get_avatar( $avatar, $author ) {
 	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();

@@ -6,6 +6,7 @@
  * Recommendation Order: 15
  * First Introduced: 4.4
  * Requires Connection: Yes
+ * Requires User Connection: No
  * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Traffic

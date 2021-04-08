@@ -17,6 +17,7 @@ import stringify from 'fast-json-stable-stringify';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
@@ -38,7 +39,7 @@ import {
 	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import { bindCustomizerChanges } from '../lib/customize';
+import { bindCustomizerChanges, bindCustomizerMessages, isInCustomizer } from '../lib/customize';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -51,7 +52,7 @@ class SearchApp extends Component {
 		this.input = createRef();
 		this.state = {
 			overlayOptions: { ...this.props.initialOverlayOptions },
-			showResults: this.props.initialShowResults,
+			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.props.initializeQueryValues();
@@ -87,6 +88,7 @@ class SearchApp extends Component {
 
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
+		bindCustomizerMessages( this.toggleResults );
 
 		window.addEventListener( 'popstate', this.handleHistoryNavigation );
 
@@ -137,6 +139,16 @@ class SearchApp extends Component {
 
 	restoreBodyScroll() {
 		document.body.style.overflowY = null;
+	}
+
+	scrollOverlayToTop() {
+		const overlay = document.querySelector( `.${ OVERLAY_CLASS_NAME }` );
+		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
+		if ( overlay.scrollTo ) {
+			overlay.scrollTo( 0, 0, { smooth: true } );
+		} else {
+			overlay.scrollTop = 0;
+		}
 	}
 
 	getResultFormat = () => {
@@ -223,11 +235,6 @@ class SearchApp extends Component {
 		);
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-		this.preventBodyScroll();
-	};
-
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -239,6 +246,31 @@ class SearchApp extends Component {
 			isHistoryNav
 		);
 	};
+
+	// Used for showResults and Customizer integration.
+	toggleResults = showResults => {
+		// Necessary when reacting to onMessage transport Customizer controls.
+		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
+		if ( this.state.showResults === showResults ) {
+			return;
+		}
+
+		this.setState( { showResults }, () => {
+			if ( showResults ) {
+				this.preventBodyScroll();
+				// NOTE: Summoned overlay will not automatically be scrolled to the top
+				//       when used in conjuction with slideInUp animation.
+				//       10ms delay appears necessary within the Customizer
+				// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
+				setTimeout( () => this.scrollOverlayToTop(), 10 );
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
+		} );
+	};
+
+	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
@@ -273,6 +305,7 @@ class SearchApp extends Component {
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
+			isInCustomizer: isInCustomizer(),
 		} );
 	};
 
@@ -296,6 +329,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.props.isLoading }
+					isPhotonEnabled={ this.props.options.isPhotonEnabled }
 					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
@@ -311,6 +345,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body

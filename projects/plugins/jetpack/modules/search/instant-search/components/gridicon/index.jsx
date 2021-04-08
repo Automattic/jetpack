@@ -39,6 +39,11 @@ class Gridicon extends Component {
 	}
 
 	getSVGTitle( icon ) {
+		// Enable overriding title with falsy/truthy values.
+		if ( 'title' in this.props ) {
+			return this.props.title ? <title>{ this.props.title }</title> : null;
+		}
+
 		switch ( icon ) {
 			default:
 				return null;
@@ -84,6 +89,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M8 4v10.184C7.686 14.072 7.353 14 7 14c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3V7h7v4.184c-.314-.112-.647-.184-1-.184-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3V4H8z" />
+					</g>
+				);
+			case 'gridicons-block':
+				return (
+					<g>
+						<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM4 12c0-4.418 3.582-8 8-8 1.848 0 3.545.633 4.9 1.686L5.686 16.9C4.633 15.545 4 13.848 4 12zm8 8c-1.848 0-3.546-.633-4.9-1.686L18.314 7.1C19.367 8.455 20 10.152 20 12c0 4.418-3.582 8-8 8z" />
 					</g>
 				);
 			case 'gridicons-calendar':
@@ -198,11 +209,16 @@ class Gridicon extends Component {
 	}
 
 	render() {
-		const { size = 24, class_name = '' } = this.props;
+		const { size = 24, className = '' } = this.props;
+
+		const height = this.props.height || size;
+		const width = this.props.width || size;
+		const style = this.props.style || { height, width };
+
 		const icon = 'gridicons-' + this.props.icon,
 			needsOffset = this.needsOffset( icon, size );
 
-		let iconClass = [ 'gridicon', icon, class_name ];
+		let iconClass = [ 'gridicon', icon, className ];
 
 		if ( needsOffset ) {
 			iconClass.push( 'needs-offset' );
@@ -213,11 +229,11 @@ class Gridicon extends Component {
 			<svg
 				className={ iconClass }
 				focusable={ this.props.focusable }
-				height={ size }
+				height={ height }
 				onClick={ this.props.onClick }
-				style={ { height: size, width: size } }
+				style={ style }
 				viewBox="0 0 24 24"
-				width={ size }
+				width={ width }
 				xmlns="http://www.w3.org/2000/svg"
 				aria-hidden={ this.props[ 'aria-hidden' ] }
 			>

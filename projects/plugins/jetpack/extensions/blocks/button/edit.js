@@ -13,31 +13,32 @@ import {
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
+import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import applyFallbackStyles from './apply-fallback-styles';
-import ButtonBorderPanel from './button-border-panel';
-import ButtonColorsPanel from './button-colors-panel';
+import ButtonControls from './controls';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
-function ButtonEdit( {
-	attributes,
-	backgroundColor,
-	className,
-	clientId,
-	fallbackBackgroundColor,
-	fallbackTextColor,
-	setAttributes,
-	setBackgroundColor,
-	setTextColor,
-	textColor,
-} ) {
-	const { borderRadius, element, placeholder, text } = attributes;
+const usePrevious = value => {
+	const ref = useRef();
+
+	useEffect( () => {
+		ref.current = value;
+	}, [ value ] );
+
+	return ref.current;
+};
+
+export function ButtonEdit( props ) {
+	const { attributes, backgroundColor, className, clientId, setAttributes, textColor } = props;
+	const { align, borderRadius, element, placeholder, text, width } = attributes;
+	const previousAlign = usePrevious( align );
 
 	usePassthroughAttributes( { attributes, clientId, setAttributes } );
 
@@ -46,6 +47,16 @@ function ButtonEdit( {
 		const newValue = 'input' === element ? value.replace( /<br>/gim, ' ' ) : value;
 		setAttributes( { text: newValue } );
 	};
+
+	useEffect( () => {
+		// Reset button width if switching to left or right (floated) alignment for first time.
+		const alignmentChanged = previousAlign !== align;
+		const isAlignedLeftRight = align === 'left' || align === 'right';
+
+		if ( alignmentChanged && isAlignedLeftRight && width?.includes( '%' ) ) {
+			setAttributes( { width: undefined } );
+		}
+	}, [ align, previousAlign, setAttributes, width ] );
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -69,6 +80,7 @@ function ButtonEdit( {
 		[ textColor.class ]: textColor.class,
 		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
+		'has-custom-width': !! width,
 	} );
 
 	const buttonStyles = {
@@ -77,6 +89,7 @@ function ButtonEdit( {
 			: { backgroundColor: backgroundColor.color } ),
 		color: textColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
+		width,
 	};
 
 	return (
@@ -92,19 +105,14 @@ function ButtonEdit( {
 				withoutInteractiveFormatting
 			/>
 			<InspectorControls>
-				<ButtonColorsPanel
+				<ButtonControls
 					{ ...{
-						backgroundColor,
-						fallbackBackgroundColor,
-						fallbackTextColor,
 						gradientValue,
-						setBackgroundColor,
 						setGradient,
-						setTextColor,
-						textColor,
+						isGradientAvailable: IS_GRADIENT_AVAILABLE,
+						...props,
 					} }
 				/>
-				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
 			</InspectorControls>
 		</div>
 	);

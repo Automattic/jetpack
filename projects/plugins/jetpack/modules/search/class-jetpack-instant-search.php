@@ -65,12 +65,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
 		$polyfill_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
 		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
-		$style_relative_path    = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.css';
 
 		if (
 			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
-			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ||
-			! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path )
+			! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path )
 		) {
 			return;
 		}
@@ -90,10 +88,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
-
-		$style_version = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
-		$style_path    = plugins_url( $style_relative_path, $plugin_base_path );
-		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
 
 	/**
@@ -129,6 +123,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 		unset( $filter );
 
+		$has_non_search_widgets = false;
+		foreach ( $overlay_widget_ids as $overlay_widget_id ) {
+			if ( strpos( $overlay_widget_id, Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) === false ) {
+				$has_non_search_widgets = true;
+				break;
+			}
+		}
+
 		$post_type_objs   = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
 		$post_type_labels = array();
 		foreach ( $post_type_objs as $key => $obj ) {
@@ -159,6 +161,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
+		$is_wpcom                  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_private_site           = '-1' === get_option( 'blog_public' );
+		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -166,7 +172,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
-				'resultFormat'    => get_option( $prefix . 'result_format', 'minimal' ),
+				'resultFormat'    => get_option( $prefix . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_MINIMAL ),
 				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),
 
@@ -177,12 +183,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
+			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
 			'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-			'isPrivateSite'         => '-1' === get_option( 'blog_public' ),
-			'isWpcom'               => defined( 'IS_WPCOM' ) && IS_WPCOM,
+			'isPrivateSite'         => $is_private_site,
+			'isWpcom'               => $is_wpcom,
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
@@ -192,6 +199,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
+			'hasNonSearchWidgets'   => $has_non_search_widgets,
 		);
 
 		/**
@@ -443,10 +451,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		// Set default result format to "expanded".
-		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'expanded' );
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_EXPANDED );
 
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
+		$this->auto_config_woo_result_format();
 	}
 
 	/**
@@ -555,11 +564,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		if ( ! empty( $post_types ) ) {
 			$settings['filters'][] = array(
-				array(
-					'name'  => '',
-					'type'  => 'post_type',
-					'count' => 5,
-				),
+				'name'  => '',
+				'type'  => 'post_type',
+				'count' => 5,
 			);
 		}
 
@@ -608,6 +615,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		return $settings;
 	}
+
 	/**
 	 * Automatically configure post types to exclude from one of the search widgets
 	 *
@@ -638,5 +646,23 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
 			update_option( Jetpack_Search_Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
 		}
+	}
+
+	/**
+	 * Automatically set result format to 'product' if WooCommerce is installed
+	 *
+	 * @since  9.6.0
+	 */
+	public function auto_config_woo_result_format() {
+		if ( ! method_exists( 'Jetpack', 'get_active_plugins' ) ) {
+			return false;
+		}
+
+		// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ) ) {
+			return false;
+		}
+
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_PRODUCT );
 	}
 }

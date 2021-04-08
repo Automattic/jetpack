@@ -26,19 +26,16 @@ async function execShellCommand( cmd ) {
 			}
 			return resolve( stdout );
 		} );
-		cmdExec.stdout.on( 'data', data => logger.debug( `CLI: ${ data }` ) );
+		cmdExec.stdout.on( 'data', data => {
+			// remove the new line at the end
+			data = data.replace( /\n$/, '' );
+			logger.cli( `${ data }` );
+		} );
 	} );
 }
 
 function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
-}
-
-// todo we should only read once and set a global variable
-function getTunnelSiteUrl() {
-	return fs
-		.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
-		.replace( 'http:', 'https:' );
 }
 
 async function resetWordpressInstall() {
@@ -62,9 +59,8 @@ async function prepareUpdaterTest() {
  */
 function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-	const url = getTunnelSiteUrl();
 
-	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
+	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl }`;
 
 	const response = execSyncShellCommand( cmd );
 	logger.info( response );
@@ -103,8 +99,6 @@ async function activateModule( page, module ) {
 
 async function execWpCommand( wpCmd ) {
 	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
-
-	logger.info( `CLI ${ cmd }` );
 	const result = await execShellCommand( cmd );
 
 	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
@@ -128,6 +122,10 @@ async function execMultipleWpCommands( ...commands ) {
 async function logDebugLog() {
 	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
 
+	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
+	const filename = `debug_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), log );
+
 	const lines = log.split( '\n' );
 	log = lines
 		.filter( line => {
@@ -145,15 +143,58 @@ async function logDebugLog() {
 	}
 
 	logger.slack( { message: log, type: 'debuglog' } );
+}
 
+async function logAccessLog() {
 	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
+
+	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
+	const filename = `access_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), apacheLog );
 	logger.slack( { type: 'debuglog', message: apacheLog } );
+}
+
+/**
+ * Formats a given file name by replacing unaccepted characters (e.g. space)
+ *
+ * @param {string} filePath the file path. can be absolute file path, file name only, with or without extension
+ * @param {boolean} includeTimestamp if true, the current timestamp will be added as a prefix
+ * @return {string} the formatted file path
+ */
+function fileNameFormatter( filePath, includeTimestamp = true ) {
+	const parts = path.parse( path.normalize( filePath ) );
+	let fileName = parts.name;
+	const ext = parts.ext;
+	const dirname = parts.dir;
+
+	if ( includeTimestamp ) {
+		fileName = `${ Date.now() }_${ fileName }`;
+	}
+
+	fileName = fileName.replace( /\W/g, '_' );
+
+	return path.join( dirname, `${ fileName }${ ext }` );
+}
+
+/**
+ * Extracts a `accountName` configuration from the config file.
+ *
+ * @param {string} accountName one of the keys of `testAccounts` entry in config file
+ *
+ * @return {Array} username and password
+ */
+function getAccountCredentials( accountName ) {
+	const globalConfig = config.get( 'testAccounts' );
+	if ( globalConfig.has( 'testAccounts' ) ) {
+		throw new Error( `${ accountName } not found in config file` );
+	}
+
+	return globalConfig.get( accountName );
 }
 
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
-	getTunnelSiteUrl,
 	resetWordpressInstall,
 	prepareUpdaterTest,
 	provisionJetpackStartConnection,
@@ -161,4 +202,7 @@ module.exports = {
 	execWpCommand,
 	execMultipleWpCommands,
 	logDebugLog,
+	logAccessLog,
+	fileNameFormatter,
+	getAccountCredentials,
 };

@@ -32,6 +32,16 @@ class REST_Connector {
 	 */
 	private static $user_permissions_error_msg;
 
+	const JETPACK__DEBUGGER_PUBLIC_KEY = "\r\n" . '-----BEGIN PUBLIC KEY-----' . "\r\n"
+	. 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+uLLVoxGCY71LS6KFc6' . "\r\n"
+	. '1UnF6QGBAsi5XF8ty9kR3/voqfOkpW+gRerM2Kyjy6DPCOmzhZj7BFGtxSV2ZoMX' . "\r\n"
+	. '9ZwWxzXhl/Q/6k8jg8BoY1QL6L2K76icXJu80b+RDIqvOfJruaAeBg1Q9NyeYqLY' . "\r\n"
+	. 'lEVzN2vIwcFYl+MrP/g6Bc2co7Jcbli+tpNIxg4Z+Hnhbs7OJ3STQLmEryLpAxQO' . "\r\n"
+	. 'q8cbhQkMx+FyQhxzSwtXYI/ClCUmTnzcKk7SgGvEjoKGAmngILiVuEJ4bm7Q1yok' . "\r\n"
+	. 'xl9+wcfW6JAituNhml9dlHCWnn9D3+j8pxStHihKy2gVMwiFRjLEeD8K/7JVGkb/' . "\r\n"
+	. 'EwIDAQAB' . "\r\n"
+	. '-----END PUBLIC KEY-----' . "\r\n";
+
 	/**
 	 * Constructor.
 	 *
@@ -46,7 +56,7 @@ class REST_Connector {
 			'jetpack'
 		);
 
-		if ( ! $this->connection->is_active() ) {
+		if ( ! $this->connection->has_connected_owner() ) {
 			// Register a site.
 			register_rest_route(
 				'jetpack/v4',
@@ -88,7 +98,7 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_connection_plugins' ),
-				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+				'permission_callback' => __CLASS__ . '::connection_plugins_permission_check',
 			)
 		);
 
@@ -153,7 +163,7 @@ class REST_Connector {
 		$connection = new Manager();
 
 		$connection_status = array(
-			'isActive'          => $connection->is_active(),
+			'isActive'          => $connection->is_active(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
@@ -167,6 +177,15 @@ class REST_Connector {
 			),
 			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 		);
+
+		/**
+		 * Filters the connection status data.
+		 *
+		 * @since 9.6.0
+		 *
+		 * @param array An array containing the connection status data.
+		 */
+		$connection_status = apply_filters( 'jetpack_connection_status', $connection_status );
 
 		if ( $rest_response ) {
 			return rest_ensure_response(
@@ -214,6 +233,68 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Permission check for the connection_plugins endpoint
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function connection_plugins_permission_check() {
+		if ( true === static::activate_plugins_permission_check() ) {
+			return true;
+		}
+
+		if ( true === static::is_request_signed_by_jetpack_debugger() ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+
+	}
+
+	/**
+	 * Verifies if the request was signed with the Jetpack Debugger key
+	 *
+	 * @param string|null $pub_key The public key used to verify the signature. Default is the Jetpack Debugger key. This is used for testing purposes.
+	 *
+	 * @return bool
+	 */
+	public static function is_request_signed_by_jetpack_debugger( $pub_key = null ) {
+		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'], $_GET['rest_route'] ) ) {
+			return false;
+		}
+
+		// signature timestamp must be within 5min of current time.
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
+			return false;
+		}
+
+		$signature = base64_decode( $_GET['signature'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+		$signature_data = wp_json_encode(
+			array(
+				'rest_route' => $_GET['rest_route'],
+				'timestamp'  => (int) $_GET['timestamp'],
+				'url'        => wp_unslash( $_GET['url'] ),
+			)
+		);
+
+		if (
+			! function_exists( 'openssl_verify' )
+			|| 1 !== openssl_verify(
+				$signature_data,
+				$signature,
+				$pub_key ? $pub_key : static::JETPACK__DEBUGGER_PUBLIC_KEY
+			)
+		) {
+			return false;
+		}
+
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return true;
 	}
 
 	/**

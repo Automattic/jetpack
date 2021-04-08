@@ -111,7 +111,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_offline_mode();
+		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -213,7 +213,7 @@ class Jetpack_Admin {
 
 		uasort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
 		}
 
@@ -246,15 +246,31 @@ class Jetpack_Admin {
 			return false;
 		}
 
+		/*
+		 * In Offline mode, modules that require a site or user
+		 * level connection should be unavailable.
+		 */
 		if ( ( new Status() )->is_offline_mode() ) {
-			return ! ( $module['requires_connection'] );
-		} else {
-			if ( ! Jetpack::is_active() ) {
-				return false;
-			}
-
-			return Jetpack_Plan::supports( $module['module'] );
+			return ! ( $module['requires_connection'] || $module['requires_user_connection'] );
 		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return false;
+		}
+
+		/*
+		 * Jetpack connected at a site level only. Make sure to make
+		 * modules that require a user connection unavailable.
+		 */
+		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
+			return false;
+		}
+
+		return Jetpack_Plan::supports( $module['module'] );
+
 	}
 
 	function handle_unrecognized_action( $action ) {

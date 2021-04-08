@@ -47,26 +47,65 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 	background: $color-dark-modal-backdrop-background;
 	color: $color-dark-text;
 
-	a {
-		color: $color-dark-link;
+	&,
+	.widget,
+	.widget.widget_archive ul li {
+		a {
+			color: $color-dark-link;
 
-		&:hover,
-		&:focus {
-			color: $color-dark-link-alt;
+			&:hover,
+			&:focus {
+				color: $color-dark-link-alt;
+			}
 		}
 	}
 
-	.jetpack-instant-search__jetpack-colophon-text {
+	.jetpack-instant-search__search-filters-title,
+	.jetpack-instant-search__search-result-expanded__content,
+	.jetpack-instant-search__search-results-list,
+	.jetpack-instant-search__search-results-title,
+	.jetpack-instant-search__search-results-unused-query {
+		color: $color-dark-text;
+	}
+
+	.jetpack-instant-search__jetpack-colophon-text,
+	.jetpack-instant-search__path-breadcrumb-link,
+	.jetpack-instant-search__path-breadcrumb {
 		color: $color-dark-text-light;
 	}
 
-	.jetpack-instant-search__path-breadcrumb,
-	.jetpack-instant-search__path-breadcrumb-link {
-		color: $color-dark-text-light;
+	.jetpack-instant-search__search-filter-sub-heading,
+	.jetpack-instant-search__search-result-expanded__path {
+		color: $color-dark-text-lighter;
 	}
 
-	.jetpack-instant-search__box {
+	.jetpack-instant-search__box,
+	.jetpack-instant-search__overlay-close {
 		border-color: $color-dark-layout-borders;
+	}
+
+	.jetpack-instant-search__box-gridicon svg,
+	.jetpack-instant-search__overlay-close svg.gridicon {
+		fill: $color-dark-text-lighter;
+	}
+
+	.jetpack-instant-search__overlay-close {
+		border-color: $color-dark-layout-borders;
+		&:focus,
+		&:hover {
+			svg.gridicon {
+				fill: $color-dark-text-light;
+			}
+		}
+	}
+
+	.jetpack-instant-search__box input[type='button'] {
+		color: $color-dark-text-lighter;
+
+		&:hover,
+		&:focus {
+			color: $color-dark-text-light;
+		}
 	}
 
 	input.jetpack-instant-search__box-input.search-field {
@@ -78,26 +117,6 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 			background: $color-dark-modal-background; // necessary to override theme styles
 			color: $color-dark-text;
 		}
-	}
-
-	.jetpack-instant-search__box-gridicon svg {
-		fill: $color-dark-text-lighter;
-	}
-
-	.jetpack-instant-search__search-filters-title {
-		color: $color-dark-text;
-	}
-
-	.jetpack-instant-search__search-filter-sub-heading {
-		color: $color-dark-text-lighter;
-	}
-
-	.jetpack-instant-search__search-result-expanded__path {
-		color: $color-dark-text-lighter;
-	}
-
-	.jetpack-instant-search__search-result-expanded__content {
-		color: $color-dark-text;
 	}
 
 	.jetpack-instant-search__search-results {
@@ -133,19 +152,6 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		}
 	}
 
-	.jetpack-instant-search__search-results-title,
-	.jetpack-instant-search__search-results-unused-query {
-		color: $color-dark-text;
-	}
-
-	.jetpack-instant-search__search-results-list {
-		color: $color-dark-text;
-	}
-
-	.jetpack-instant-search__overlay-close svg.gridicon {
-		fill: $color-dark-text-lighter;
-	}
-
 	.jetpack-instant-search__search-sort-option {
 		color: $color-dark-text-lighter;
 
@@ -155,5 +161,15 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		&.is-selected {
 			color: $color-dark-link-alt;
 		}
+	}
+
+	.jetpack-instant-search__search-result-product-img--placeholder {
+		color: $studio-gray-80;
+	}
+
+	#jetpack-instant-search__search-sort-select {
+		background: $color-dark-modal-background;
+		border-color: $color-dark-layout-borders;
+		color: $color-dark-text;
 	}
 }

@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.13.6'; // TODO: Keep in sync with version specified in composer.json.
+	const PACKAGE_VERSION = '1.14.2-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -35,7 +35,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( ( new Connection_Manager() )->is_active() ) {
+		if ( ( new Connection_Manager() )->is_connected() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();

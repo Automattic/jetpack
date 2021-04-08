@@ -170,8 +170,17 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			this.setState( { isFetchingMedia: true } );
-			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
-			this.setState( { isFetchingMedia: false } );
+			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } )
+				.catch( () => {
+					// Renders the fallback in the editor when there is an error fetching the media. Do not clear
+					// the guid, as this would cause the placeholder to render on the frontend for posts saved in
+					// this state, resulting in inconsistent behavior.
+					this.setState( { fallback: true } );
+					return null;
+				} )
+				.finally( () => {
+					this.setState( { isFetchingMedia: false } );
+				} );
 
 			const { id: currentId } = this.props.attributes;
 			if ( id !== currentId ) {

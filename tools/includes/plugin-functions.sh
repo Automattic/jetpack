@@ -42,8 +42,11 @@ function find_plugin_file {
 # Process a "plugin" argument to set PLUGIN_DIR and PLUGIN_FILE.
 # Returns success of failure as appropriate.
 function process_plugin_arg {
-	if [[ "$1" != "*/*" && -d "$BASE/projects/plugins/$1" ]]; then
+	if [[ "$1" != */* && -d "$BASE/projects/plugins/$1" ]]; then
 		PLUGIN_DIR="$BASE/projects/plugins/$1"
+		find_plugin_file
+	elif [[ "$1" == plugins/* && "$1" != plugins/*/* && -d "$BASE/projects/$1" ]]; then
+		PLUGIN_DIR="$BASE/projects/$1"
 		find_plugin_file
 	elif [[ -d "$1" ]]; then
 		PLUGIN_DIR="${1%/}"
