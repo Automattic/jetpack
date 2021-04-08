@@ -6,6 +6,7 @@ module.exports = {
 			name: 'tunnel',
 			log_file: 'output/logs/tunnel-combined.log',
 			time: true,
+			wait_ready: true,
 			listen_timeout: 10000,
 			env: {
 				NODE_ENV: 'test',

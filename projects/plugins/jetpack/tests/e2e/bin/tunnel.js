@@ -16,13 +16,13 @@ yargs
 		'on',
 		'Opens a local tunnel',
 		() => {},
-		() => tunnelOn()
+		async () => await tunnelOn()
 	)
 	.command(
 		'off',
 		'Closes a local tunnel',
 		() => {},
-		() => tunnelOff()
+		async () => await tunnelOff()
 	)
 	.help( 'h' )
 	.alias( 'h', 'help' ).argv;
@@ -74,9 +74,6 @@ async function openTunnel( conf ) {
 	fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
 	console.log( `Opened tunnel for '${ tunnel.opts.subdomain }'` );
 
-	// Important to emit the 'ready' event otherwise process managers like pm2
-	// will not wait for the url to be written in the file
-	// Else, in CI for example the tests will start too soon and fail
 	process.send( 'ready' );
 }
 
