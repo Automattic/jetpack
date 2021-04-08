@@ -162,7 +162,7 @@
 		"@size-limit/preset-app": "4.10.0",
 		"@testing-library/jest-dom": "5.11.10",
 		"@testing-library/preact": "2.0.1",
-		"@testing-library/react": "11.2.3",
+		"@testing-library/react": "11.2.6",
 		"@testing-library/react-hooks": "4.0.0",
 		"@testing-library/user-event": "12.8.3",
 		"@wordpress/components": "9.2.6",
