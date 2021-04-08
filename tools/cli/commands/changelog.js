@@ -109,13 +109,59 @@ export function changelogDefine( yargs ) {
 								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 								type: 'string',
 							} )
-							.option( 'dev', {
-								describe: 'Output validation issues using GitHub Action command syntax.',
+							.option( 'amend', {
+								describe: 'Amend the latest version instead of creating a new one',
+								type: 'string',
+							} )
+							.option( 'yes', {
+								describe:
+									'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode',
 								type: 'bool',
 							} )
-							.option( 'prod', {
-								describe: 'Output file paths in this directory relative to it.',
+							.option( 'use-version', {
+								describe:
+									'Specify a version instead of determining the version automatically, e.g. 2.0.0',
+								type: 'string',
+							} )
+							.option( 'use-significance', {
+								describe:
+									'When determining the new version, use this significance instead of using the actual change files',
+								type: 'string',
+							} )
+							.option( 'prerelease', {
+								alias: 'p',
+								describe: 'When determining the new version, include this prerelease suffix',
 								type: 'bool',
+							} )
+							.option( 'buildinfo', {
+								alias: 'b',
+								describe: 'When fetching the next version, include this buildinfo suffix',
+								type: 'bool',
+							} )
+							.option( 'release-date', {
+								describe: 'Release date, as a valid PHP date or "unreleased"',
+								type: 'string',
+							} )
+							.option( 'default-first-version', {
+								describe:
+									'If the changelog is currently empty, guess a "first" version instead of erroring',
+								type: 'string',
+							} )
+							.option( 'deduplicate', {
+								describe: 'Deduplicate new changes against the last N versions',
+								type: 'bool',
+							} )
+							.option( 'prologue', {
+								describe: 'Prologue text for the new changelog entry',
+								type: 'string',
+							} )
+							.option( 'epilogue', {
+								describe: 'Epilogue text for the new changelog entry',
+								type: 'string',
+							} )
+							.option( 'link', {
+								describe: 'Link for the new changelog entry',
+								type: 'string',
 							} );
 					},
 					async argv => {
