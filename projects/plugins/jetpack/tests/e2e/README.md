@@ -5,9 +5,10 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 ## Table of contents
 
 - [Pre-requisites](#pre-requisites)
-	- [Configuration](#configuration)
+	- [Environment setup](#environment-setup)
 		- [Test Configuration](#test-configuration)
 		- [WP Site Configuration](#wp-site-configuration)
+		- [Tunnel](#local-tunnel)
 		- [Environment Variables](#environment-variables)
 - [Running tests](#running-tests)
 - [Writing tests](#writing-tests)
@@ -17,9 +18,9 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 ## Pre-requisites
 
 * This readme assumes that `node`, `yarn` and `docker` are already installed on your machine.
-* Make sure you built Jetpack first. `yarn build` in the tests parent directory should do it. You can also refer to the monorepo documentation in how to build Jetpack.
+* Make sure you built Jetpack first. `yarn install && yarn jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
-### Configuration
+### Environment setup
 
 #### Test Configuration
 
@@ -37,7 +38,24 @@ Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to h
 `wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that updates some options to make `wp-env` containers to work with Jetpack tests. To set up tests environment:
 
 1. Make sure that docker is installed locally
-2. Run `./bin/env.sh start` to start a `wp-env` containers. It will start 2 wordpress installation (we would use only 1 though) & wp-cli container.
+2. Run `./bin/env.sh start` to start a `wp-env` containers. It will start 2 WordPress containers (we would use only 1 though) & wp-cli container.
+
+#### Local tunnel
+
+To bypass the offline mode you will need you site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
+These tests use `localtunnel` library to expose localhost:8889 via a public url.
+
+To start a tunnel:
+```
+yarn tunnel-on
+```
+
+To stop the tunnel:
+```
+yarn tunnel-off
+```
+
+The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. If you want a different url, simply delete the file or update its content. 
 
 #### Environment variables
 
