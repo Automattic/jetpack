@@ -14,7 +14,7 @@ import {
 	setSort,
 } from './actions';
 
-let RESPONSE_ID = 0;
+let responseCounter = 0;
 
 /**
  * Effect handler which will fetch search results from the API.
@@ -31,9 +31,13 @@ function makeSearchAPIRequest( action, store ) {
 			}
 
 			store.dispatch(
-				recordSuccessfulSearchRequest( { options: action.options, response, _id: RESPONSE_ID } )
+				recordSuccessfulSearchRequest( {
+					options: action.options,
+					response,
+					responseId: responseCounter,
+				} )
 			);
-			RESPONSE_ID++;
+			responseCounter++;
 		} )
 		.catch( error => {
 			// eslint-disable-next-line no-console

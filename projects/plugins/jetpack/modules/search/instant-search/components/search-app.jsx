@@ -59,7 +59,6 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// Do not flush this debounced invocation.
 		// By debouncing this upon mounting, we avoid making unnecessary requests.
 		//
 		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
