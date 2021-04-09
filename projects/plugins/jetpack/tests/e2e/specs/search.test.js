@@ -9,6 +9,7 @@ describe( 'Search', () => {
 	beforeAll( async () => {
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
+		await execMultipleWpCommands( 'wp option update instant_search_enabled 1' );
 	} );
 
 	afterAll( async () => {
@@ -16,6 +17,9 @@ describe( 'Search', () => {
 	} );
 
 	it( 'can open the search modal', async () => {
-		const frontend = await Homepage.visit( page );
+		const homepage = await Homepage.visit( page );
+		await homepage.focusSearchInput();
+		await homepage.enterQuery();
+		expect( await homepage.isSearchResultOverlayVisible() ).toBeTruthy();
 	} );
 } );
