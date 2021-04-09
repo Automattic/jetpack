@@ -12,7 +12,6 @@ import { debounce, noop } from 'lodash';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
-import Spinner from 'components/spinner';
 import Gridicon from 'components/gridicon';
 
 import './style.scss';
@@ -331,7 +330,6 @@ class Search extends React.Component {
 
 		return (
 			<div dir={ this.props.dir || null } className={ searchClass } role="search">
-				<Spinner />
 				<div
 					role="button"
 					className="dops-search__icon-navigation"
