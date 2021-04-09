@@ -15,7 +15,7 @@ describe( 'Jetpack Recommendations', () => {
 		} );
 
 		await step( 'Check Personal and Other checkboxes', async () => {
-			await recommendationsPage.checkPersonaSiteType();
+			await recommendationsPage.checkPersonalSiteType();
 			await recommendationsPage.checkOtherSiteType();
 
 			const isPersonalAndOtherChecked =

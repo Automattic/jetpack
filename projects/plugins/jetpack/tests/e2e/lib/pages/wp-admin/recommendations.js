@@ -24,7 +24,7 @@ export default class RecommendationsPage extends WpPage {
 		return await this.waitForElementToBeVisible( siteTypeQuestionsSelector );
 	}
 
-	async checkPersonaSiteType() {
+	async checkPersonalSiteType() {
 		const personalSiteTypeSelector = PERSONAL_CHECKBOX_SELECTOR;
 		return await this.click( personalSiteTypeSelector );
 	}
