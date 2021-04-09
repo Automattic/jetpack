@@ -51,39 +51,51 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	async saveSiteTypeAndContinue() {
-		return await this.click( 'a.is-primary[href*="recommendations/monitor"]' );
+		return await this.click( 'a[href*="recommendations/monitor"] >> text="Continue"' );
 	}
 
 	async isEnableMonitoringButtonVisible() {
-		return await this.isElementVisible( 'a.is-primary[href*="recommendations/related-posts"]' );
+		return await this.isElementVisible(
+			'a[href*="recommendations/related-posts"] >> text="Enable Downtime Monitoring"'
+		);
 	}
 
 	async enableMonitoringAndContinue() {
-		return await this.click( 'a.is-primary[href*="recommendations/related-posts"]' );
+		return await this.click(
+			'a[href*="recommendations/related-posts"] >> text="Enable Downtime Monitoring"'
+		);
 	}
 
 	async isEnableRelatedPostsButtonVisible() {
-		return await this.isElementVisible( 'a.is-primary[href*="recommendations/creative-mail"]' );
+		return await this.isElementVisible(
+			'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"'
+		);
 	}
 
 	async enableRelatedPostsAndContinue() {
-		return await this.click( 'a.is-primary[href*="recommendations/creative-mail"]' );
+		return await this.click(
+			'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"'
+		);
 	}
 
 	async isInstallCreativeMailButtonVisible() {
-		return await this.isElementVisible( 'a.is-primary[href*="recommendations/site-accelerator"]' );
+		return await this.isElementVisible(
+			'a[href*="recommendations/site-accelerator"] >> text="Install Creative Mail"'
+		);
 	}
 
 	async skipCreativeMailAndContinue() {
-		return await this.click( 'a:not(.is-primary)[href*="recommendations/site-accelerator"]' );
+		return await this.click( 'a[href*="recommendations/site-accelerator"] >> text="Not now"' );
 	}
 
 	async isEnableSiteAcceleratorButtonVisible() {
-		return await this.isElementVisible( 'a.is-primary[href*="recommendations/summary"]' );
+		return await this.isElementVisible(
+			'a[href*="recommendations/summary"] >> text="Enable Site Accelerator"'
+		);
 	}
 
 	async skipSiteAcceleratorAndContinue() {
-		return await this.click( 'a:not(.is-primary)[href*="recommendations/summary"]' );
+		return await this.click( 'a[href*="recommendations/summary"] >> text="Not now"' );
 	}
 
 	async isSummaryContentVisible() {
