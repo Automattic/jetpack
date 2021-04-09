@@ -3,11 +3,10 @@
 # Exit if any command fails.
 set -e
 
-function usage() {
+function usage {
 	echo "usage: $0 command"
 	echo "  start                        Setup the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
-	echo "  tunnel on|off                Starts or stops a local tunnel"
 	echo "  -h | usage                   Output this message"
 	exit 1
 }
@@ -40,6 +39,8 @@ if [ "${1}" == "start" ]; then
 	start_env
 elif [ "${1}" == "reset" ]; then
 	reset_env
+elif [ "${1}" == "usage" ]; then
+	usage
 else
 	usage
 fi

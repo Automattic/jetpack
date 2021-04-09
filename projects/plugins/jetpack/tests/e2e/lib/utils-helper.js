@@ -189,6 +189,13 @@ function getAccountCredentials( accountName ) {
 	return globalConfig.get( accountName );
 }
 
+/**
+ * Reads and returns the content of the file expected to store an URL.
+ * The file path is stored in config.
+ * No validation is done on the file content, so an invalid URL can be returned.
+ *
+ * @return {string} the file content, or undefined in file doesn't exist or cannot be read
+ */
 function getReusableUrlFromFile() {
 	let urlFromFile;
 	try {
@@ -197,6 +204,7 @@ function getReusableUrlFromFile() {
 			.replace( 'http:', 'https:' );
 	} catch ( error ) {
 		if ( error.code === 'ENOENT' ) {
+			// We expect this, reduce noise in logs
 			console.warn( "Tunnels file doesn't exist" );
 		} else {
 			console.error( error );
@@ -218,11 +226,16 @@ function resolveSiteUrl() {
 		url = getReusableUrlFromFile();
 	}
 
-	validateUrl( url );
+	urlValidOrDie( url );
 	return url;
 }
 
-function validateUrl( url ) {
+/**
+ * Throw an error if the passed parameter is not a valid URL
+ *
+ * @param {string} url the string to to be validated as URL
+ */
+function urlValidOrDie( url ) {
 	if ( ! new URL( url ) ) {
 		throw new Error( `Undefined or invalid SITE_URL!` );
 	}
@@ -243,5 +256,5 @@ module.exports = {
 	getAccountCredentials,
 	getReusableUrlFromFile,
 	resolveSiteUrl,
-	validateUrl,
+	validateUrl: urlValidOrDie,
 };
