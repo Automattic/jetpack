@@ -4,7 +4,7 @@ const fs = require( 'fs' );
 const config = require( 'config' );
 const tunnelConfig = config.get( 'tunnel' );
 const { getReusableUrlFromFile } = require( '../lib/utils-helper' );
-const https = require( 'https' );
+const axios = require( 'axios' );
 const yargs = require( 'yargs' );
 const localtunnel = require( 'localtunnel' );
 
@@ -31,12 +31,22 @@ async function tunnelOn() {
 	const subdomain = await getTunnelSubdomain();
 
 	if ( ! ( await isTunnelOn( subdomain ) ) ) {
-		await openTunnel( {
+		console.log( `Opening tunnel. Subdomain: '${ subdomain }'` );
+		const tunnel = await localtunnel( {
 			host: tunnelConfig.host,
 			port: tunnelConfig.port,
 			subdomain,
 		} );
+
+		tunnel.on( 'close', () => {
+			console.log( `${ tunnel.clientId } tunnel closed` );
+		} );
+
+		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
+		console.log( `Opened tunnel for '${ tunnel.clientId }'` );
 	}
+
+	process.send( 'ready' );
 }
 
 async function tunnelOff() {
@@ -44,48 +54,25 @@ async function tunnelOff() {
 
 	if ( subdomain ) {
 		console.log( `Closing tunnel ${ subdomain }` );
-		const req = await https.get(
-			`${ tunnelConfig.host }/api/tunnels/${ subdomain }/delete`,
-			res => {
-				res.on( 'data', data => {
-					process.stdout.write( data );
-					console.log();
-				} );
-			}
-		);
-
-		req.on( 'error', error => {
-			console.error( error );
-		} );
-
-		req.end();
+		try {
+			const res = await axios.get( `${ tunnelConfig.host }/api/tunnels/${ subdomain }/delete` );
+			console.log( JSON.stringify( res.data ) );
+		} catch ( error ) {
+			console.error( error.message );
+		}
 	}
-}
-
-async function openTunnel( conf ) {
-	console.log( `Opening tunnel. Subdomain: '${ conf.subdomain }'` );
-
-	const tunnel = await localtunnel( conf );
-
-	tunnel.on( 'close', () => {
-		console.log( `${ tunnel.subdomain } tunnel closed` );
-	} );
-
-	fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
-	console.log( `Opened tunnel for '${ tunnel.opts.subdomain }'` );
-
-	process.send( 'ready' );
 }
 
 async function isTunnelOn( subdomain ) {
 	console.log( `Checking if tunnel for ${ subdomain } is on` );
+	const statusCode = await getTunnelStatus( subdomain );
 
-	const isOn = ( await getTunnelStatus( subdomain ) ) === 200;
+	const isOn = statusCode === 200;
 	let status = 'OFF';
 	if ( isOn ) {
 		status = 'ON';
 	}
-	console.log( `Tunnel for ${ subdomain } is ${ status }` );
+	console.log( `Tunnel for ${ subdomain } is ${ status } (${ statusCode })` );
 	return isOn;
 }
 
@@ -94,20 +81,15 @@ async function getTunnelStatus( subdomain ) {
 
 	if ( ! subdomain ) {
 		console.log( 'Cannot check tunnel for undefined subdomain!' );
+		responseStatusCode = 404;
 	} else {
-		const req = await https.get(
-			`${ tunnelConfig.host }/api/tunnels/${ subdomain }/status`,
-			res => {
-				console.log( `statusCode: ${ res.statusCode }` );
-				responseStatusCode = res.statusCode;
-			}
-		);
-
-		req.on( 'error', error => {
-			console.error( error );
-		} );
-
-		req.end();
+		try {
+			const res = await axios.get( `${ tunnelConfig.host }/api/tunnels/${ subdomain }/status` );
+			console.log( res.status );
+			responseStatusCode = res.status;
+		} catch ( error ) {
+			console.error( error.message );
+		}
 	}
 	return responseStatusCode;
 }
