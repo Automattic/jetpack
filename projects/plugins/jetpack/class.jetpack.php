@@ -2034,17 +2034,24 @@ class Jetpack {
 		}
 
 		foreach ( $modules as $index => $module ) {
-			// If we're in offline mode, disable modules requiring a connection.
-			if ( $is_offline_mode ) {
+			// If we're in offline mode or user-less mode, disable modules requiring a connection.
+			if ( $is_offline_mode || ! self::connection()->has_connected_owner() ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
 				}
 				// If the module requires a connection, but we're in local mode, don't include it.
-				if ( $modules_data[ $module ]['requires_connection'] ) {
+				if ( $is_offline_mode && $modules_data[ $module ]['requires_connection'] ) {
+					continue;
+				}
+
+				// If the module requires a user connection, don't load it.
+				if ( ! self::connection()->has_connected_owner() && $modules_data[ $module ]['requires_user_connection'] ) {
 					continue;
 				}
 			}
+
+			error_log( "$module Loaded" );
 
 			if ( did_action( 'jetpack_module_loaded_' . $module ) ) {
 				continue;
