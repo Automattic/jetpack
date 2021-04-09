@@ -94,7 +94,7 @@ jobs:
         yarn test-decrypt-config
         yarn env-start
         yarn tunnel-on
-        cat /home/runner/.pm2/pm2.log
+        pm2 logs --nostream --lines 1000
 
     - name: Run all tests
       if: matrix.gutenberg == 'no'

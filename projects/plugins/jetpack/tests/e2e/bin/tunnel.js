@@ -46,7 +46,12 @@ async function tunnelOn() {
 		console.log( `Opened tunnel for '${ tunnel.clientId }'` );
 	}
 
-	// process.send( 'ready' );
+	// If this script is not executed by pm2 process.send will be undefined
+	// We want to be able to also execute this script directly
+	// https://nodejs.org/api/process.html#process_process_send_message_sendhandle_options_callback
+	if ( process.send ) {
+		process.send( 'ready' );
+	}
 }
 
 async function tunnelOff() {
