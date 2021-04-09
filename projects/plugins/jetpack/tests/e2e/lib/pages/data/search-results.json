@@ -1,0 +1,116 @@
+{
+	"total": 2,
+	"corrected_query": false,
+	"page_handle": false,
+	"results": [
+		{
+			"_score": null,
+			"fields": {
+				"date": "2021-03-25 05:27:29",
+				"meta._wc_average_rating.double": 0,
+				"blog_id": 190651342,
+				"has.image": 1,
+				"image.url.raw": "woocommerce.com/wp-content/uploads/2021/04/blog-fb-Facebook-Conversion@2x.jpg?resize=1536,803",
+				"title.default": "Test Your Idea",
+				"permalink.url.raw": "/product/noodles-copy/",
+				"meta._wc_review_count.long": 0,
+				"post_id": 52,
+				"wc.price": 50,
+				"wc.formatted_price": "<span class=\"woocommerce-Price-amount amount\"><span class=\"woocommerce-Price-currencySymbol\">&#036;</span>50.00</span>",
+				"post_type": "product",
+				"excerpt.default": ""
+			},
+			"result_type": "post",
+			"railcar": {
+				"railcar": "H(pN&lRu#DK5",
+				"fetch_algo": "jetpack:search/1-date_desc",
+				"fetch_position": 0,
+				"rec_blog_id": 190651342,
+				"rec_post_id": 52,
+				"fetch_lang": "en",
+				"fetch_query": "test",
+				"session_id": "wLrI$1"
+			},
+			"highlight": { "title": [ "<mark>Test</mark> Your Idea" ], "content": [ "" ] }
+		},
+		{
+			"_score": null,
+			"fields": {
+				"date": "2021-03-25 02:44:24",
+				"meta._wc_average_rating.double": 0,
+				"blog_id": 190651342,
+				"has.image": 1,
+				"image.url.raw": "woocommerce.com/wp-content/uploads/2021/01/blog-fb-Choosing-Plugins@2x.jpg?resize=1536,803",
+				"title.default": "Noodles",
+				"permalink.url.raw": "/product/noodles/",
+				"meta._wc_review_count.long": 0,
+				"post_id": 44,
+				"wc.price": 5,
+				"wc.formatted_price": "<span class=\"woocommerce-Price-amount amount\"><span class=\"woocommerce-Price-currencySymbol\">&#036;</span>5.00</span>",
+				"post_type": "product",
+				"excerpt.default": ""
+			},
+			"result_type": "post",
+			"railcar": {
+				"railcar": "@cnGDFSUA&bY",
+				"fetch_algo": "jetpack:search/1-date_desc",
+				"fetch_position": 1,
+				"rec_blog_id": 190651342,
+				"rec_post_id": 44,
+				"fetch_lang": "en",
+				"fetch_query": "test",
+				"session_id": "wLrI$1"
+			},
+			"highlight": { "title": [ "<mark>Test</mark> My Shop" ], "content": [ "" ] }
+		}
+	],
+	"suggestions": [
+		{
+			"text": "nao",
+			"highlighted": "<mark>nao</mark>",
+			"score": 0.013448511,
+			"railcar": {
+				"railcar": "eCuNM1lRTFjW",
+				"fetch_algo": "suggest-jetpack:search/1",
+				"fetch_position": 0,
+				"rec_blog_id": 190651342,
+				"rec_result": "nao",
+				"fetch_lang": "en",
+				"fetch_query": "test"
+			}
+		},
+		{
+			"text": "neo",
+			"highlighted": "<mark>neo</mark>",
+			"score": 0.009741431,
+			"railcar": {
+				"railcar": "^#U580gzPpwt",
+				"fetch_algo": "suggest-jetpack:search/1",
+				"fetch_position": 1,
+				"rec_blog_id": 190651342,
+				"rec_result": "neo",
+				"fetch_lang": "en",
+				"fetch_query": "test"
+			}
+		},
+		{
+			"text": "nio",
+			"highlighted": "<mark>nio</mark>",
+			"score": 0.0065774675,
+			"railcar": {
+				"railcar": "XBn8rwRfuXy%",
+				"fetch_algo": "suggest-jetpack:search/1",
+				"fetch_position": 2,
+				"rec_blog_id": 190651342,
+				"rec_result": "nio",
+				"fetch_lang": "en",
+				"fetch_query": "test"
+			}
+		}
+	],
+	"aggregations": {
+		"taxonomy_0": { "doc_count_error_upper_bound": 0, "sum_other_doc_count": 0, "buckets": [] },
+		"taxonomy_1": { "doc_count_error_upper_bound": 0, "sum_other_doc_count": 0, "buckets": [] },
+		"taxonomy_2": { "doc_count_error_upper_bound": 0, "sum_other_doc_count": 0, "buckets": [] }
+	}
+}
