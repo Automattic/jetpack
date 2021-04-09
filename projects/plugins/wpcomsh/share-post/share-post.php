@@ -11,7 +11,7 @@ function wpcomsh_insert_shared_post_data( $target_post_id, $post, $update ) {
     }
 
     // Abort this function if we are not in a post sharing context.
-    $is_post_share = $_GET['is_post_share'];
+    $is_post_share = isset( $_GET['is_post_share'] ) && $_GET['is_post_share'];
     if (!$is_post_share) {
         return;
     }
@@ -64,7 +64,7 @@ function wpcomsh_get_embed_content( $embed ) {
         '<!-- wp:embed {"url":"%s"} --><figure><div class="wp-block-embed__wrapper">%s</div></figure><!-- /wp:embed -->',
         esc_url( $embed )
     );
-    
+
 }
 
 /**
