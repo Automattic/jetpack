@@ -5,7 +5,7 @@
             "email": "bob@bob.com",
             "featuredMediaId": 11,
             "multiple": true,
-            "currency": "EUR",
+            "currency": "AUD",
             "price": 10,
             "productId": 573
         },

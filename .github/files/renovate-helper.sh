@@ -33,7 +33,8 @@ cd $DIR
 
 echo "::group::Check out $HEAD_REF"
 git init -q .
-git remote add origin "https://${API_TOKEN_GITHUB}@github.com/${GITHUB_REPOSITORY}.git"
+git remote add origin "https://github.com/${GITHUB_REPOSITORY}"
+git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
 
 # Fetch commits to HEAD_REF since BASE_REF. Then fetch one more (the merge base).
 git fetch --no-tags --prune --shallow-exclude="$BASE_REF" origin "$HEAD_REF"
