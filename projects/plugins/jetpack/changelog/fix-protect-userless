@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix Protect behavior to not act when the site does not have a connected user
