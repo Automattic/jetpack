@@ -18,8 +18,12 @@ describe( 'Search', () => {
 
 	it( 'can open the search modal', async () => {
 		const homepage = await Homepage.visit( page );
+		// NOTE: This ideally would better be in init, not to to be called directly
+		await homepage.registerRouteInterceptions();
 		await homepage.focusSearchInput();
 		await homepage.enterQuery();
+		await page.pause();
 		expect( await homepage.isSearchResultOverlayVisible() ).toBeTruthy();
+		expect( await homepage.isSearchResultAvailable() ).toBeTruthy();
 	} );
 } );

@@ -9,25 +9,19 @@ export default class Homepage extends WpPage {
 		super( page, { expectedSelectors: [ '.post' ], url } );
 	}
 
-	static async init( page ) {
-		const it = super.init( page );
-		// await it.registerRouteInterceptions();
-		return it;
-	}
-
 	async registerRouteInterceptions() {
 		await this.searchAPIRoute();
 	}
 
-	static searchAPIRoute() {
-		return page.route(
-			/https:\/\/public-api.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/,
+	searchAPIRoute() {
+		return this.page.route(
+			/^https:\/\/public-api.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/,
 			( route, request ) => {
 				console.log( request.url() );
 				route.fulfill( {
 					content: 'application/json',
 					headers: { 'Access-Control-Allow-Origin': '*' },
-					body: '{}',
+					path: __dirname + '/data/search-results.json',
 				} );
 			}
 		);
@@ -44,7 +38,13 @@ export default class Homepage extends WpPage {
 	}
 
 	isSearchResultOverlayVisible() {
-		const overlaySelector = '.jetpack-instant-search__box-gridicon';
+		const overlaySelector = '.jetpack-instant-search__overlay';
 		return this.isElementVisible( overlaySelector );
+	}
+
+	async isSearchResultAvailable() {
+		const searchResultTitleSelector = '.jetpack-instant-search__search-result';
+		await this.waitForNetworkIdle();
+		return this.isElementVisible( searchResultTitleSelector );
 	}
 }
