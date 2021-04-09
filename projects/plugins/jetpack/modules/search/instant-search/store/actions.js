@@ -18,16 +18,14 @@ export function makeSearchRequest( options ) {
  * @param {object} params - Input parameters.
  * @param {object} params.options - Action options that generated this API response.
  * @param {object} params.response - API response.
- * @param {object} params.responseId - Sequential ID used to determine recency of the response.
  *
  * @returns {object} Action object.
  */
-export function recordSuccessfulSearchRequest( { options, response, responseId } ) {
+export function recordSuccessfulSearchRequest( { options, response } ) {
 	return {
 		type: 'RECORD_SUCCESSFUL_SEARCH_REQUEST',
 		options,
 		response,
-		responseId,
 	};
 }
 

@@ -145,16 +145,15 @@ describe( 'response Reducer', () => {
 	} );
 	test( 'ignores responses older than the current response', () => {
 		const initialState = {
-			id: 1,
+			requestId: 1,
 			aggregations: { taxonomy_1: { buckets: [] } },
 			results: [ { id: 2, result_type: 'page' } ],
 		};
 		const state = response(
 			initialState,
 			recordSuccessfulSearchRequest( {
-				responseId: 0,
 				options: actionOptions,
-				response: actionResponse,
+				response: { ...actionResponse, requestId: 0 },
 			} )
 		);
 		expect( state ).toEqual( initialState );
