@@ -46,7 +46,7 @@ async function tunnelOn() {
 		console.log( `Opened tunnel for '${ tunnel.clientId }'` );
 	}
 
-	process.send( 'ready' );
+	// process.send( 'ready' );
 }
 
 async function tunnelOff() {
