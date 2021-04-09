@@ -74,6 +74,22 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
 }
 
 /**
+ * Check for a "In Progress" status label on a PR.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ *
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasProgressLabel( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	// We're really only interested in the In Progress label.
+	return labels.includes( '[Status] In Progress' );
+}
+
+/**
  * Build some info about a specific plugin's release dates.
  *
  * @param {string} plugin        - Plugin name.
@@ -450,11 +466,15 @@ async function updateLabels( payload, octokit ) {
 		} );
 	}
 
-	debug( `check-description: add Needs Author Reply label.` );
-	await octokit.issues.addLabels( {
-		...labelOpts,
-		labels: [ '[Status] Needs Author Reply' ],
-	} );
+	// Add the "Needs Author Reply" label, unless the author marked their PR as in progress.
+	const isInProgress = await hasProgressLabel( octokit, ownerLogin, repo, number );
+	if ( ! isInProgress ) {
+		debug( `check-description: add Needs Author Reply label.` );
+		await octokit.issues.addLabels( {
+			...labelOpts,
+			labels: [ '[Status] Needs Author Reply' ],
+		} );
+	}
 }
 
 /**
