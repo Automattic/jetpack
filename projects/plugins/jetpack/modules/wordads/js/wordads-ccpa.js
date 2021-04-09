@@ -58,6 +58,34 @@
 		},
 	};
 
+	// Implement IAB USP API.
+	window.__uspapi = function ( command, version, callback ) {
+		if ( typeof callback !== 'function' ) {
+			return;
+		}
+
+		if ( command !== 'getUSPData' || version !== 1 ) {
+			callback( null, false );
+			return;
+		}
+
+		// Check for GPC.
+		if ( navigator.globalPrivacyControl ) {
+			callback( { version: 1, uspString: '1YYN' }, true );
+			return;
+		}
+
+		// Check for cookie.
+		var consent = cookieLib.getItem( 'usprivacy' );
+
+		if ( null === consent ) {
+			callback( null, false );
+			return;
+		}
+
+		callback( { version: 1, uspString: consent }, true );
+	};
+
 	var setDefaultOptInCookie = function () {
 		var value = ccpaSettings.defaultOptinCookieString;
 		var domain =
