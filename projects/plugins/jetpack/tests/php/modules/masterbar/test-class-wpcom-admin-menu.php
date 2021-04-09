@@ -158,7 +158,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'dashicons-plus-alt',
 		);
-		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
+		$this->assertSame( array_pop( $menu ), $new_site_menu_item );
 	}
 
 	/**

@@ -133,13 +133,12 @@ abstract class Base_Admin_Menu {
 			$menu_item[6] = $icon;
 		}
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		unset( $menu[ $menu_position ] );
 		if ( $position ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			unset( $menu[ $menu_position ] );
 			$menu_position = $position;
 		}
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $menu_position ] = $menu_item;
+		$this->set_menu_item( $menu_item, $menu_position );
 
 		// Only add submenu when there are other submenu items.
 		if ( $url && ! empty( $submenu[ $slug ] ) ) {
@@ -178,36 +177,41 @@ abstract class Base_Admin_Menu {
 	 * @param string $cap Optional. The capability required for this menu to be displayed to the user.
 	 *                         Default: 'read'.
 	 */
-	public function add_admin_menu_separator( $position, $cap = 'read' ) {
-		global $menu;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $position ] = array(
+	public function add_admin_menu_separator( $position = null, $cap = 'read' ) {
+		$menu_item = array(
 			'',                                  // Menu title (ignored).
 			$cap,                                // Required capability.
 			wp_unique_id( 'separator-custom-' ), // URL or file (ignored, but must be unique).
 			'',                                  // Page title (ignored).
 			'wp-menu-separator',                 // CSS class. Identifies this item as a separator.
 		);
-		ksort( $menu );
+
+		$this->set_menu_item( $menu_item, $position );
 	}
 
 	/**
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$rtl = is_rtl() ? '-rtl' : '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+		if ( $this->is_rtl() ) {
+			if ( $is_wpcom ) {
+				$css_path = 'rtl/admin-menu-rtl.css';
+			} else {
+				$css_path = 'admin-menu-rtl.css';
+			}
 		} else {
-			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+			$css_path = 'admin-menu.css';
 		}
+
 		wp_enqueue_style(
 			'jetpack-admin-menu',
-			plugins_url( 'admin-menu.css', __FILE__ ),
-			$style_dependencies,
+			plugins_url( $css_path, __FILE__ ),
+			array(),
 			JETPACK__VERSION
 		);
+
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
@@ -218,17 +222,31 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Remove submenu items from given menu slug.
+	 * Adds the given menu item in the specified position.
 	 *
-	 * @param string $slug Menu slug.
+	 * @param array $item The menu item to add.
+	 * @param int   $position The position in the menu order this item should appear.
 	 */
-	public function remove_submenus( $slug ) {
-		global $submenu;
+	public function set_menu_item( $item, $position = null ) {
+		global $menu;
 
-		if ( isset( $submenu[ $slug ] ) ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu[ $slug ] = array();
+		// Handle position (avoids overwriting menu items already populated in the given position).
+		// Inspired by https://core.trac.wordpress.org/browser/trunk/src/wp-admin/menu.php?rev=49837#L160.
+		if ( null === $position ) {
+			$menu[] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		} elseif ( isset( $menu[ "$position" ] ) ) {
+			$position            = $position + substr( base_convert( md5( $item[2] . $item[0] ), 16, 10 ), -5 ) * 0.00001;
+			$menu[ "$position" ] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		} else {
+			$menu[ $position ] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
+	}
+
+	/**
+	 * Determines whether the current locale is right-to-left (RTL).
+	 */
+	public function is_rtl() {
+		return is_rtl();
 	}
 
 	/**

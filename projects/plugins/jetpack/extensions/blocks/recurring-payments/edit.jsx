@@ -489,7 +489,7 @@ export class MembershipsButtonEdit extends Component {
 				<ToolbarControls
 					autosaveAndRedirect={ this.props.autosaveAndRedirect }
 					connected={ connected !== API_STATE_NOTCONNECTED }
-					connectUrl={ connectURL }
+					connectURL={ connectURL }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
 					shouldUpgrade={ this.state.shouldUpgrade }
 				/>

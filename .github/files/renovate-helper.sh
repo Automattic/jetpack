@@ -33,7 +33,8 @@ cd $DIR
 
 echo "::group::Check out $HEAD_REF"
 git init -q .
-git remote add origin "https://${API_TOKEN_GITHUB}@github.com/${GITHUB_REPOSITORY}.git"
+git remote add origin "https://github.com/${GITHUB_REPOSITORY}"
+git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
 
 # Fetch commits to HEAD_REF since BASE_REF. Then fetch one more (the merge base).
 git fetch --no-tags --prune --shallow-exclude="$BASE_REF" origin "$HEAD_REF"
@@ -88,10 +89,11 @@ for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(proje
 	ARGS=()
 	ARGS=( add --no-interaction --significance=patch )
 	if [[ "$SLUG" == "plugins/jetpack" ]]; then
-		ARGS+=( --type=compat --entry= --comment="Updating dependencies" )
+		ARGS+=( --type=other )
 	else
-		ARGS+=( --type=changed --entry="Updated package dependencies" )
+		ARGS+=( --type=changed )
 	fi
+	ARGS+=( --entry="Updated package dependencies" )
 
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then

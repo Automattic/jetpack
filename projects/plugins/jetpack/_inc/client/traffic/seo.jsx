@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
 import SocialLogo from 'social-logos';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -20,6 +21,7 @@ import FoldableCard from 'components/foldable-card';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 import SimpleNotice from 'components/notice';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
+import Button from 'components/button';
 
 export const conflictingSeoPluginsList = [
 	{
@@ -81,6 +83,17 @@ export const SEO = withModuleSettingsFormHelpers(
 			this.props.updateFormStateOptionValue( 'advanced_seo_title_formats', newCustomSeoTitles );
 		};
 
+		saveButton = props => {
+			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
+			return (
+				<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+					{ isSaving
+						? _x( 'Saving…', 'Button caption', 'jetpack' )
+						: _x( 'Save settings', 'Button caption', 'jetpack' ) }
+				</Button>
+			);
+		};
+
 		render() {
 			const isOfflineMode = this.props.isOfflineMode,
 				seo = this.props.getModule( 'seo-tools' ),
@@ -109,6 +122,15 @@ export const SEO = withModuleSettingsFormHelpers(
 				return acc;
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
+
+			const frontPageMetaCharCountClasses = classNames( {
+				'jp-seo-front-page-description-count': true,
+				'jp-seo-front-page-description-count-max':
+					frontPageMetaDescription.length >= this.constants.frontPageMetaMaxLength,
+				'jp-seo-front-page-description-count-warn':
+					frontPageMetaDescription.length > this.constants.frontPageMetaSuggestedLength &&
+					frontPageMetaDescription.length < this.constants.frontPageMetaMaxLength,
+			} );
 
 			return (
 				<SettingsCard
@@ -185,6 +207,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												siteData={ siteData }
 											/>
 										</FormFieldset>
+										{
+											<div className={ 'jp-seo-custom-titles-save-button' }>
+												{ this.saveButton( this.props ) }
+											</div>
+										}
 									</SettingsGroup>
 								</FoldableCard>
 								<FoldableCard
@@ -193,7 +220,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									className="jp-seo-front-page-description-card"
 								>
 									<SettingsGroup>
-										<p>
+										<p style={ { clear: 'both' } }>
 											{ __(
 												'Craft a description of your Website: up to 160 characters that will be used in search engine results for your front page, and when your website is shared on social media sites.',
 												'jetpack'
@@ -213,7 +240,7 @@ export const SEO = withModuleSettingsFormHelpers(
 												value={ frontPageMetaDescription }
 												onChange={ this.props.onOptionChange }
 											/>
-											<div className="jp-seo-front-page-description-count">
+											<div className={ frontPageMetaCharCountClasses }>
 												{ sprintf(
 													/* translators: placeholder is number of characters */
 													_n(
@@ -224,8 +251,16 @@ export const SEO = withModuleSettingsFormHelpers(
 													),
 													frontPageMetaDescription.length
 												) }
+												{ frontPageMetaDescription.length >=
+													this.constants.frontPageMetaMaxLength &&
+													' - ' + __( 'Maximum characters reached.', 'jetpack' ) }
 											</div>
 										</div>
+										{
+											<div className={ 'jp-seo-front-page-description-save-button' }>
+												{ this.saveButton( this.props ) }
+											</div>
+										}
 									</SettingsGroup>
 								</FoldableCard>
 								<FoldableCard
