@@ -8,6 +8,8 @@ const axios = require( 'axios' );
 const yargs = require( 'yargs' );
 const localtunnel = require( 'localtunnel' );
 
+fs.mkdirSync( config.get( 'dirs.temp' ), { recursive: true } );
+
 // eslint-disable-next-line no-unused-expressions
 yargs
 	.usage( 'Usage: $0 <cmd>' )
