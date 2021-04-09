@@ -32,6 +32,8 @@ describe( 'Jetpack Recommendations', () => {
 
 		await step( 'Save answers and continue to the Monitor step', async () => {
 			await recommendationsPage.saveSiteTypeAndContinue();
+			await recommendationsPage.reload();
+			await recommendationsPage.waitForNetworkIdle();
 			const isMonitorStep = await recommendationsPage.isEnableMonitoringButtonVisible();
 			expect( isMonitorStep ).toBeTruthy();
 			expect( recommendationsPage.isUrlInSyncWithStepName( 'monitor' ) ).toBeTruthy();
@@ -39,6 +41,8 @@ describe( 'Jetpack Recommendations', () => {
 
 		await step( 'Enable Monitoring and continue to Related Post step', async () => {
 			await recommendationsPage.enableMonitoringAndContinue();
+			await recommendationsPage.reload();
+			await recommendationsPage.waitForNetworkIdle();
 			const isRelatedPostsStep = await recommendationsPage.isEnableRelatedPostsButtonVisible();
 			expect( isRelatedPostsStep ).toBeTruthy();
 			expect( recommendationsPage.isUrlInSyncWithStepName( 'related-posts' ) ).toBeTruthy();
@@ -46,6 +50,8 @@ describe( 'Jetpack Recommendations', () => {
 
 		await step( 'Enable Related Posts and continue to Creative Mail step', async () => {
 			await recommendationsPage.enableRelatedPostsAndContinue();
+			await recommendationsPage.reload();
+			await recommendationsPage.waitForNetworkIdle();
 			const isCreativeMailStep = await recommendationsPage.isInstallCreativeMailButtonVisible();
 			expect( isCreativeMailStep ).toBeTruthy();
 			expect( recommendationsPage.isUrlInSyncWithStepName( 'creative-mail' ) ).toBeTruthy();
@@ -53,6 +59,8 @@ describe( 'Jetpack Recommendations', () => {
 
 		await step( 'Skip Creative Mail and continue to Site Accelerator', async () => {
 			await recommendationsPage.skipCreativeMailAndContinue();
+			await recommendationsPage.reload();
+			await recommendationsPage.waitForNetworkIdle();
 			const isSiteAcceleratorStep = await recommendationsPage.isEnableSiteAcceleratorButtonVisible();
 			expect( isSiteAcceleratorStep ).toBeTruthy();
 			expect( recommendationsPage.isUrlInSyncWithStepName( 'site-accelerator' ) ).toBeTruthy();
@@ -60,7 +68,6 @@ describe( 'Jetpack Recommendations', () => {
 
 		await step( 'Skip Site Accelerator and continue to Summary', async () => {
 			await recommendationsPage.skipSiteAcceleratorAndContinue();
-			await recommendationsPage.reload();
 			await recommendationsPage.reload();
 			await recommendationsPage.waitForNetworkIdle();
 			const isSummaryContent = await recommendationsPage.isSummaryContentVisible();
