@@ -95,11 +95,11 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 
 Yes! Jetpack's core features are and always will be free.
 
-These include: site stats, a high-speed CDN for images, related posts, downtime monitoring, brute force attack protection, automated sharing to social networks, sidebar customization, and much more.
+These include: site stats, a high-speed CDN for images, related posts, downtime monitoring, brute force attack protection, automated sharing to social networks, sidebar customization, SEO (search engine optimization) tools, and much more.
 
 = Should I purchase a paid plan? =
 
-It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is often ‚Äúyes.‚Äù For context, Jetpack's paid services include real-time backups, security scanning, premium themes, spam filtering, video hosting, site monetization, SEO (search engine optimization) tools, search, priority support, and more.
+It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is often ‚Äúyes.‚Äù For context, Jetpack's paid services include real-time backups, security scanning, premium themes, spam filtering, video hosting, site monetization, search, priority support, and more.
 
 To learn more about the essential security and WordPress services we provide and see how we can improve your site, visit [our plans page](https://jetpack.com/pricing?from=wporg).
 
@@ -238,7 +238,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Union‚
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.6-beta - 2021-03-30
+### 9.6 - 2021-04-06
 #### Enhancements
 - Beautiful Math: remove title attribute from generated image.
 - Blocks: add width option to buttons in Subscriptions, Revue, Form, Calendly, and Payments blocks.
@@ -247,14 +247,13 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Union‚
 - Dashboard: add new option to input license key.
 - Dashboard: update recommmendations notice to improve accessibility.
 - General: allow the use of some Jetpack features without connecting to a WordPress.com account.
-- Instant Search: improve performance thanks to lazily loading.
 - Instant Search: add a new result format layout, for sites using WooCommerce.
-- Instant Search: update the search modal design.
+- Instant Search: improve performance thanks to lazily loading.
 - Instant Search: only use site accelerator for displaying images if it is enabled on the site.
+- Instant Search: update the search modal design.
 - Jetpack Videos: improve the display of transcoding status for newly uploaded videos.
 - Podcast Player Block: improve fetching of the podcast description.
 - Syncrhonization: add new sync/health endpoint to allow update of the sync health options.
-- WordPress.com REST API: allow Facebook Metadata to be saved alongside posts created via the API.
 
 #### Improved compatibility
 - Auto-updates: respect auto-update constant/filters in plugin API endpoints.
@@ -272,13 +271,14 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Union‚
 - Connection Flow: resolve issue that prevented connections from the Opera browser.
 - Custom Content Types: fix inline quick editing of Restaurant menu items.
 - Instant Search: ensure Escape key always closes search modal.
+- Instant Search: fix an issue that led to a PHP notice for undefined index.
+- Instant Search: Fix modal opening bug within the Customizer.
+- Instant Search: fix handling of Customizer controls using refresh.
+- Instant Search: fix visibility of filter checkboxes in Safari on Twenty Twenty and Twenty Twenty One themes.
+- Instant Search: hide "filters" menu on mobile if there are no filters to display.
 - Instant Search: prevent IE11 from spawning overlay on load.
 - Publicize: avoid notices as embeds are added to a post.
 - Recommendations: when enabling Site Accelerator, also enable Tiled Galleries.
-- Instant Search: fix an issue that led to a PHP notice for undefined index.
-- Instant Search: Fix modal opening bug within the Customizer.
-- Instant Search: fix visibility of filter checkboxes in Safari on Twenty Twenty and Twenty Twenty One themes.
-- Instant Search: hide "filters" menu on mobile if there are no filters to display.
 - Sharing: omit Open Graph description tag from posts with Premium Content.
 - Site Logo: fix issues when updating logo in the Customizer.
 - Star Rating Block: allow 0 stars to be selected.
