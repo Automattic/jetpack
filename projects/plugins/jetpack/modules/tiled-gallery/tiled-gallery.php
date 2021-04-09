@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
@@ -7,25 +7,41 @@ use Automattic\Jetpack\Status;
 // Here the constrained array element is the dimension of a row, group or an image in the tiled gallery.
 require_once dirname( __FILE__ ) . '/math/class-constrained-array-rounding.php';
 
-// Layouts
+// Layouts.
 require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-rectangular.php';
 require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-square.php';
 require_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
 
+/** Jetpack Gallery Class */
 class Jetpack_Tiled_Gallery {
+
+	/** Tyes of tiled gallery shapes
+	 *
+	 * @var array
+	 */
 	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle', 'columns' );
 
+	/**
+	 * Constructor method for Tiled Gallery Class
+	 */
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
 	}
 
+	/**
+	 * Check if tiled galleries is enabled in JEtpack settings.
+	 */
 	public function tiles_enabled() {
-		// Check the setting status
 		return '' != Jetpack_Options::get_option_and_ensure_autoload( 'tiled_galleries', '' );
 	}
 
+	/**
+	 * Set class attributes.
+	 *
+	 * @param array $atts attributes a shortcode might pass.
+	 */
 	public function set_atts( $atts ) {
 		global $post;
 
@@ -48,7 +64,7 @@ class Jetpack_Tiled_Gallery {
 		$this->atts['id'] = (int) $this->atts['id'];
 		$this->float      = is_rtl() ? 'right' : 'left';
 
-		// Default to rectangular is tiled galleries are checked
+		// Default to rectangular is tiled galleries are checked.
 		if ( $this->tiles_enabled() && ( ! $this->atts['type'] || 'default' == $this->atts['type'] ) ) {
 			/** This filter is already documented in functions.gallery.php */
 			$this->atts['type'] = apply_filters( 'jetpack_default_gallery_type', 'rectangular' );
@@ -71,6 +87,9 @@ class Jetpack_Tiled_Gallery {
 		}
 	}
 
+	/**
+	 * Gets and returns the image attachments.
+	 */
 	public function get_attachments() {
 		extract( $this->atts );
 
@@ -95,7 +114,7 @@ class Jetpack_Tiled_Gallery {
 		} elseif ( 0 == $id ) {
 			// Should NEVER Happen but infinite_scroll_load_other_plugins_scripts means it does
 			// Querying with post_parent == 0 can generate stupidly memcache sets on sites with 10000's of unattached attachments as get_children puts every post in the cache.
-			// TODO Fix this properly
+			// TODO Fix this properly.
 			$attachments = array();
 		} elseif ( ! empty( $exclude ) ) {
 			$exclude     = preg_replace( '/[^0-9,]+/', '', $exclude );
@@ -127,6 +146,9 @@ class Jetpack_Tiled_Gallery {
 		return $attachments;
 	}
 
+	/**
+	 * Enqeueus default scripts and styles.
+	 */
 	public static function default_scripts_and_styles() {
 		wp_enqueue_script(
 			'tiled-gallery',
@@ -140,8 +162,14 @@ class Jetpack_Tiled_Gallery {
 		wp_style_add_data( 'tiled-gallery', 'rtl', 'replace' );
 	}
 
+	/**
+	 * Handles gallery shortcode functionality.
+	 *
+	 * @param string $val value that might be overriding the gallery.
+	 * @param array  $atts attributes passed to the gallery.
+	 */
 	public function gallery_shortcode( $val, $atts ) {
-		if ( ! empty( $val ) ) { // something else is overriding post_gallery, like a custom VIP shortcode
+		if ( ! empty( $val ) ) { // something else is overriding post_gallery, like a custom VIP shortcode.
 			return $val;
 		}
 
@@ -195,6 +223,9 @@ class Jetpack_Tiled_Gallery {
 		return '';
 	}
 
+	/**
+	 * Check if something else is overriding the gallery.
+	 */
 	public static function gallery_already_redefined() {
 		global $shortcode_tags;
 		$redefined = false;
@@ -215,6 +246,9 @@ class Jetpack_Tiled_Gallery {
 		return apply_filters( 'jetpack_tiled_gallery_shortcode_redefined', $redefined );
 	}
 
+	/**
+	 * Initialize tiled gallery.
+	 */
 	public static function init() {
 		if ( self::gallery_already_redefined() ) {
 			return;
@@ -224,6 +258,9 @@ class Jetpack_Tiled_Gallery {
 		add_filter( 'post_gallery', array( $gallery, 'gallery_shortcode' ), 1001, 2 );
 	}
 
+	/**
+	 * Get tiled gallery list.
+	 */
 	public static function get_content_width() {
 		$tiled_gallery_content_width = Jetpack::get_content_width();
 
@@ -244,9 +281,13 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	/**
-	 * Media UI integration
+	 * Media UI integration.
+	 *
+	 * @param array $types - types of galleries.
+	 *
+	 * @return array $types
 	 */
-	function jetpack_gallery_types( $types ) {
+	public function jetpack_gallery_types( $types ) {
 		if ( get_option( 'tiled_galleries' ) && isset( $types['default'] ) ) {
 			// Tiled is set as the default, meaning that type='default'
 			// will still display the mosaic.
@@ -262,11 +303,17 @@ class Jetpack_Tiled_Gallery {
 		return $types;
 	}
 
-	function jetpack_default_gallery_type() {
+	/**
+	 * Returns default gallery type.
+	 */
+	public function jetpack_default_gallery_type() {
 		return ( get_option( 'tiled_galleries' ) ? 'rectangular' : 'default' );
 	}
 
-	static function get_talaveras() {
+	/**
+	 * Return types of gallery shapes.
+	 */
+	public static function get_talaveras() {
 		return self::$talaveras;
 	}
 
@@ -274,7 +321,7 @@ class Jetpack_Tiled_Gallery {
 	 * Add a checkbox field to the Carousel section in Settings > Media
 	 * for setting tiled galleries as the default.
 	 */
-	function settings_api_init() {
+	public function settings_api_init() {
 		global $wp_settings_sections;
 
 		// Add the setting field [tiled_galleries] and place it in Settings > Media
@@ -288,7 +335,10 @@ class Jetpack_Tiled_Gallery {
 		register_setting( 'media', 'tiled_galleries', 'esc_attr' );
 	}
 
-	function setting_html() {
+	/**
+	 * Enable Jetpack tiled gallery settings in wp-admin.
+	 */
+	public function setting_html() {
 		echo '<label><input name="tiled_galleries" type="checkbox" value="1" ' .
 			checked( 1, '' != get_option( 'tiled_galleries' ), false ) . ' /> ' .
 			__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ) . '</br></label>';
