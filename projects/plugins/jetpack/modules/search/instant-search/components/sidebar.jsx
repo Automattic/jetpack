@@ -44,6 +44,7 @@ const Sidebar = props => {
 							postTypes={ props.postTypes }
 							results={ props.response }
 							showClearFiltersButton={ ! hasFiltersSelectedOutsideOverlay && index === 0 }
+							showTitle={ ! hasFiltersSelectedOutsideOverlay && index === 0 }
 							widget={ widget }
 						/>
 					</div>,
