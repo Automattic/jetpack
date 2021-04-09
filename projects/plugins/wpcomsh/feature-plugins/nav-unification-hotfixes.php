@@ -40,4 +40,4 @@ function wpcomsh_add_index_page_hotfix() {
 	}
 }
 
-add_action( 'admin_menu', 'wpcomsh_add_index_page_hotfix', 1 );
+add_action( 'admin_menu', 'wpcomsh_add_index_page_hotfix', 100000 );
