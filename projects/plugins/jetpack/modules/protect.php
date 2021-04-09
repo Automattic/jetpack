@@ -14,7 +14,6 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -899,11 +898,9 @@ class Jetpack_Protect_Module {
 
 }
 
-if ( ( new Connection_Manager() )->has_connected_owner() ) {
-	$jetpack_protect = Jetpack_Protect_Module::instance();
+$jetpack_protect = Jetpack_Protect_Module::instance();
 
-	global $pagenow;
-	if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
-		$jetpack_protect->check_login_ability();
-	}
+global $pagenow;
+if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+	$jetpack_protect->check_login_ability();
 }
