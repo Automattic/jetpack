@@ -197,7 +197,7 @@ jsver "$FILE" '.extra["branch-alias"]["dev-master"]' "$(sed -E 's/\.[0-9]+([-+].
 # Update autoloader-suffix in composer.json
 FILE="$BASE/projects/$SLUG/composer.json"
 debug "$OPING autoloader-suffix version, if any"
-SUFFIX="$(jq -r '.config["autoloader-suffix"] | split("ⓥ") | if length >= 2 then .[0] else "" end' "$FILE")"
+SUFFIX="$(jq -r '.config["autoloader-suffix"] // "" | split("ⓥ") | if length >= 2 then .[0] else "" end' "$FILE")"
 if [[ -n "$SUFFIX" ]]; then
 	jsver "$FILE" '.config["autoloader-suffix"]' "${SUFFIX}ⓥ$(sed -E 's/[^a-zA-Z0-9_]/_/g' <<<"$VERSION")"
 fi
