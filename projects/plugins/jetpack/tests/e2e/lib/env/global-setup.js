@@ -5,7 +5,6 @@ const fs = require( 'fs' );
 const os = require( 'os' );
 const config = require( 'config' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
-import logger from '../logger';
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
@@ -20,7 +19,6 @@ module.exports = async function () {
 	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
 
 	// Launch a browser server that client can connect to
-	logger.debug( 'Launching PW server' );
 	global.browser = await chromium.launchServer( pwBrowserOptions );
 	mkdirp.sync( TMP_DIR );
 	fs.writeFileSync( path.join( TMP_DIR, 'wsEndpoint' ), global.browser.wsEndpoint() );

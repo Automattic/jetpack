@@ -110,7 +110,9 @@ jobs:
       if: ${{ always() }}
       working-directory: projects/plugins/jetpack/tests/e2e
       continue-on-error: true
-      run: yarn tunnel-off
+      run: |
+        yarn tunnel-off
+        yarn pm2 logs --nostream --limit 10000 > output/logs/tunnel.log
 
     - name: Upload test artifacts
       if: ${{ always() }}
