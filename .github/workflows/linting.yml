@@ -718,7 +718,7 @@ jobs:
 
   ### Checks that lock files are up to date.
   # Local equivalent: .github/files/check-lock-files.sh
-  # Note that may modify composer.lock files in your working tree!
+  # Note that may modify lock files in your working tree!
   lock_files:
     name: "Lock files are up to date"
     runs-on: ubuntu-latest
