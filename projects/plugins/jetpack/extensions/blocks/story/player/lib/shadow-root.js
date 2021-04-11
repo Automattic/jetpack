@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { createPortal, useCallback, useRef, useEffect, useState } from '@wordpress/element';
+import { createPortal, useCallback, useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -14,51 +14,45 @@ import { createPortal, useCallback, useRef, useEffect, useState } from '@wordpre
 export const shadowRootSupported =
 	window && window.Element && window.Element.prototype.hasOwnProperty( 'attachShadow' );
 
-function useHookWithRefCallback() {
-	const ref = useRef( null );
-	const setRef = useCallback( node => {
-		ref.current = node;
-	}, [] );
-
-	return [ setRef ];
-}
-
 export default function ShadowRoot( {
 	enabled,
 	delegatesFocus = false,
 	mode = 'open',
 	globalStyleElements = [],
 	adoptedStyleSheets = null,
+	mountOnElement = null,
 	children,
 } ) {
 	// component could be unmounted and remounted somewhere else (eg modal)
 	// so we need to track ref changes in the placeholder
-	const [ placeholder, setPlaceholder ] = useState( null );
-	const placeholderRef = useCallback( element => {
-		if ( element !== null ) {
-			setPlaceholder( element );
-		}
-	}, [] );
+	const [ parentElement, setParentElement ] = useState( null );
+	const rootElement = mountOnElement || parentElement;
+	const [ shadowRoot, setShadowRoot ] = useState( null );
 
-	const [ shadowRoot, setShadowRoot ] = useState( false );
 	const styleElements =
 		typeof globalStyleElements === 'string'
 			? [ ...document.querySelectorAll( globalStyleElements ) ]
 			: globalStyleElements;
 	const useShadow = shadowRootSupported && enabled && styleElements.length > 0;
 
+	const placeholderRef = useCallback( placeholderElement => {
+		if ( placeholderElement !== null ) {
+			setParentElement( placeholderElement.parentNode );
+		}
+	}, [] );
+
 	useEffect( () => {
-		if ( ! placeholder ) {
+		if ( ! rootElement ) {
 			return;
 		}
 
 		// try to reuse existing shadowRoot
-		if ( placeholder.parentNode.shadowRoot ) {
-			setShadowRoot( placeholder.parentNode.shadowRoot );
+		if ( rootElement.shadowRoot ) {
+			setShadowRoot( rootElement.shadowRoot );
 			return;
 		}
 
-		const shadowElement = placeholder.parentNode.attachShadow( {
+		const shadowElement = rootElement.attachShadow( {
 			delegatesFocus,
 			mode,
 		} );
@@ -69,10 +63,10 @@ export default function ShadowRoot( {
 		}
 
 		setShadowRoot( shadowElement );
-	}, [ placeholder ] );
+	}, [ rootElement ] );
 
 	if ( useShadow && ! shadowRoot ) {
-		return <span ref={ placeholderRef }></span>;
+		return ! mountOnElement ? <span ref={ placeholderRef }></span> : null;
 	}
 
 	const App = (
