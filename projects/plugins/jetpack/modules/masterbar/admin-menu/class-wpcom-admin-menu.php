@@ -199,7 +199,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		// $wp_admin_themes can have a `true` value here if the user has activated the "Show advanced dashboard pages" account setting.
 		// We force $wp_admin_themes to `false` anyways, since Simple sites should always see the Calypso Theme showcase.
 		$wp_admin_themes = false;
-		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+		$customize_url   = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
 		remove_submenu_page( 'themes.php', 'theme-editor.php' );
 
