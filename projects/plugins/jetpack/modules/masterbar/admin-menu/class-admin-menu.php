@@ -79,11 +79,13 @@ class Admin_Menu extends Base_Admin_Menu {
 		// See /wp-content/mu-plugins/wpcom-wp-install-defaults.php in WP.com.
 		$max_default_id = 10;
 
+		// We are only checking the latest entry link_id so are limiting the query to 1.
 		$link_manager_links = get_bookmarks(
 			array(
-				'orderby' => 'link_id',
-				'order'   => 'DESC',
-				'limit'   => $max_default_id,
+				'orderby'        => 'link_id',
+				'order'          => 'DESC',
+				'limit'          => 1,
+				'hide_invisible' => 0,
 			)
 		);
 
