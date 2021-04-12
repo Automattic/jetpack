@@ -102,6 +102,20 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 	}
 
+	public function test_doesn_t_sync_search_meta() {
+		$this->assertFalse( \Jetpack::is_module_active( 'search' ) );
+
+		// A meta key that is only in Search module.
+		add_post_meta( $this->post_id, 'session_transcript1234', 'foo' );
+
+		$this->sender->do_sync();
+		$this->assertEquals(
+			array(),
+			$this->server_replica_storage->get_metadata( 'post', $this->post_id, 'session_transcript' )
+		);
+		delete_post_meta( $this->post_id, 'session_transcript1234', 'foo' );
+	}
+
 	public function test_post_meta_whitelist_cab_be_appened_in_settings() {
 		add_post_meta( $this->post_id, '_private_meta', 'foo' );
 		$this->sender->do_sync();
