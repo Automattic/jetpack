@@ -155,6 +155,7 @@ class Defaults {
 		'uploads_use_yearmonth_folders',
 		'users_can_register',
 		'verification_services_codes',
+		'woocommerce_currency',
 		'wordads_second_belowpost',
 		'wordads_display_front_page',
 		'wordads_display_post',
