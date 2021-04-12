@@ -6,15 +6,13 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { Component } from '@wordpress/element';
 import { ESCAPE } from '@wordpress/keycodes';
 import { useFocusReturn, useFocusOnMount, useConstrainedTabbing } from '@wordpress/compose';
-import { withFocusOutside } from '@wordpress/components';
 
 // TODO: replace with `import { useMergeRefs } from '@wordpress/compose';` when package is upgraded to ^3.24.4
 import useMergeRefs from '../lib/use-merge-refs';
 
-function ModalFrameContent( {
+export default function ModalFrame( {
 	overlayClassName,
 	aria: { describedby, labelledby },
 	contentLabel = null,
@@ -68,32 +66,3 @@ function ModalFrameContent( {
 		</div>
 	);
 }
-
-class ModalFrame extends Component {
-	constructor() {
-		super( ...arguments );
-		this.handleFocusOutside = this.handleFocusOutside.bind( this );
-	}
-
-	/**
-	 * Callback function called when clicked outside the modal.
-	 *
-	 * @param {Object} event Mouse click event.
-	 */
-	handleFocusOutside( event ) {
-		if ( this.props.shouldCloseOnClickOutside && this.props.onRequestClose ) {
-			this.props.onRequestClose( event );
-		}
-	}
-
-	/**
-	 * Renders the modal frame element.
-	 *
-	 * @return {WPElement} The modal frame element.
-	 */
-	render() {
-		return <ModalFrameContent { ...this.props } />;
-	}
-}
-
-export default withFocusOutside( ModalFrame );

@@ -1,4 +1,15 @@
 /**
+ * Returns true if the state for this player id has been initialized
+ *
+ * @param {Object} state State object.
+ *
+ * @return {Boolean} Player ready.
+ */
+export function isPlayerReady( state, playerId ) {
+	return !! state[ playerId ];
+}
+
+/**
  * Returns the current slide index, starting from 0
  *
  * @param {Object} state State object.
@@ -112,4 +123,49 @@ export function isCurrentSlideReady( state, playerId ) {
  */
 export function getPreviousSlideMediaElement( state, playerId ) {
 	return state[ playerId ].previousSlide?.mediaElement;
+}
+
+/**
+ * Returns whether the player is currently displayed in
+ * fullscreen mode or inlined in the page
+ *
+ * @param {Object} state State object.
+ *
+ * @return {Boolean} is player fullscreen ended.
+ */
+export function isFullscreen( state, playerId ) {
+	return state[ playerId ].fullscreen;
+}
+
+/**
+ * Returns whether the story has ended or not
+ *
+ * @param {Object} state State object.
+ *
+ * @return {Boolean} story ended.
+ */
+export function hasEnded( state, playerId ) {
+	return state[ playerId ].ended;
+}
+
+/**
+ * Returns the current player settings
+ *
+ * @param {Object} state State object.
+ *
+ * @return {Object} player settings.
+ */
+export function getSettings( state, playerId ) {
+	return state[ playerId ].settings;
+}
+
+/**
+ * Returns the number of slides the player currently knows about
+ *
+ * @param {Object} state State object.
+ *
+ * @return {Number} how many slides the story has.
+ */
+export function getSlideCount( state, playerId ) {
+	return state[ playerId ].settings.slideCount;
 }

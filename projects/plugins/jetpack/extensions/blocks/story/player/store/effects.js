@@ -5,8 +5,9 @@
 /**
  * Internal dependencies
  */
-import { setCurrentSlideProgress, setCurrentSlideEnded } from './actions';
+import { end, setCurrentSlideProgress, setCurrentSlideEnded } from './actions';
 import {
+	getCurrentSlideIndex,
 	getCurrentSlideProgress,
 	isMuted,
 	isPlaying,
@@ -14,6 +15,7 @@ import {
 	getCurrentMediaElement,
 	getCurrentMediaDuration,
 	getPreviousSlideMediaElement,
+	getSlideCount,
 } from './selectors';
 
 const isVideo = mediaElement =>
@@ -94,6 +96,12 @@ export function trackProgress( action, store ) {
 
 	if ( currentTime >= duration ) {
 		dispatch( setCurrentSlideEnded( playerId ) );
+
+		const slideCount = getSlideCount( getState(), playerId );
+		const currentSlideIndex = getCurrentSlideIndex( getState(), playerId );
+		if ( currentSlideIndex === slideCount - 1 ) {
+			dispatch( end( playerId ) );
+		}
 		return;
 	}
 

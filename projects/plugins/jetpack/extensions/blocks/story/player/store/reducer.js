@@ -1,25 +1,16 @@
-const defaultSlideProgressState = {
-	currentTime: 0,
-	duration: null,
-	timeout: null,
-	lastUpdate: null,
-};
+/**
+ * External dependencies
+ */
+import { merge } from 'lodash';
 
-const defaultCurrentSlideState = {
-	progress: defaultSlideProgressState,
-	index: 0,
-	mediaElement: null,
-	duration: null,
-	ended: false,
-	ready: false,
-};
-
-const defaultPlayerState = {
-	currentSlide: defaultCurrentSlideState,
-	previousSlide: null, // used to reset the media that was just played
-	muted: false,
-	playing: false,
-};
+/**
+ * Internal dependencies
+ */
+import {
+	defaultCurrentSlideState,
+	defaultSlideProgressState,
+	defaultPlayerState,
+} from './constants';
 
 export function player( state = defaultPlayerState, action ) {
 	switch ( action.type ) {
@@ -78,6 +69,34 @@ export function player( state = defaultPlayerState, action ) {
 			return {
 				...state,
 				playing: action.value,
+				fullscreen:
+					! state.playing && action.value ? state.settings.playInFullscreen : state.fullscreen,
+				ended: action.value ? false : state.ended,
+			};
+		case 'SET_FULLSCREEN':
+			return {
+				...state,
+				fullscreen: action.fullscreen,
+				playing:
+					state.fullscreen && ! action.fullscreen && state.settings.playInFullscreen
+						? false
+						: state.playing,
+			};
+		case 'INIT':
+			const playerSettings = merge( {}, state.settings, action.settings );
+
+			return {
+				...state,
+				settings: playerSettings,
+				playing: playerSettings.playOnLoad,
+				fullscreen: playerSettings.loadInFullscreen,
+			};
+		case 'ENDED':
+			return {
+				...state,
+				ended: true,
+				playing: false,
+				fullscreen: ! state.settings.exitFullscreenOnEnd,
 			};
 	}
 

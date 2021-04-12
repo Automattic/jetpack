@@ -103,13 +103,41 @@ export function setCurrentSlideEnded( playerId ) {
 
 /**
  * Returns an action object used in signalling that
+ * the player should go into or out of fullscreen mode
+ *
+ * @return {Object} Action object.
+ */
+export function setFullscreen( playerId, fullscreen ) {
+	return {
+		type: 'SET_FULLSCREEN',
+		playerId,
+		fullscreen,
+	};
+}
+
+/**
+ * Returns an action object used in signalling that
  * a state should created for this player id
  *
  * @return {Object} Action object.
  */
-export function init( playerId ) {
+export function end( playerId ) {
+	return {
+		type: 'ENDED',
+		playerId,
+	};
+}
+
+/**
+ * Returns an action object used in signalling that
+ * a state should created for this player id
+ *
+ * @return {Object} Action object.
+ */
+export function init( playerId, settings = {} ) {
 	return {
 		type: 'INIT',
 		playerId,
+		settings,
 	};
 }

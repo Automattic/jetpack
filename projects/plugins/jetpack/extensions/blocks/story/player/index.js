@@ -1,14 +1,21 @@
 /**
  * External dependencies
  */
-import { merge } from 'lodash';
 import classNames from 'classnames';
 
 /**
  * WordPress dependencies
  */
-import { useMemo, useLayoutEffect, useRef, useState, useEffect } from '@wordpress/element';
-import { useDispatch } from '@wordpress/data';
+import {
+	useMemo,
+	useLayoutEffect,
+	useRef,
+	useState,
+	useEffect,
+	useCallback,
+} from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -19,60 +26,59 @@ import { Player } from './player';
 import ShadowRoot from './lib/shadow-root';
 import * as fullscreenAPI from './lib/fullscreen-api';
 import Modal from './modal';
-import { __ } from '@wordpress/i18n';
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
 	window.navigator.userAgent
 );
 
-const defaultSettings = {
-	imageTime: 5, // in sec
-	startMuted: false,
-	playInFullscreen: true,
-	playOnNextSlide: true,
-	playOnLoad: false,
-	exitFullscreenOnEnd: true,
-	loadInFullscreen: false,
-	blurredBackground: true,
-	showSlideCount: false,
-	showProgressBar: true,
-	shadowDOM: {
-		enabled: true,
-		mode: 'open', // closed not supported right now
-		globalStyleElements:
-			'#jetpack-block-story-css, link[href*="jetpack/_inc/blocks/story/view.css"]',
-	},
-	defaultAspectRatio: 720 / 1280,
-	cropUpTo: 0.2, // crop percentage allowed, after which media is displayed in letterbox
-	volume: 0.5,
-	maxBullets: 7,
-	maxBulletsFullscreen: 14,
-};
-
 export default function StoryPlayer( { id, slides, metadata, disabled, ...settings } ) {
-	const playerSettings = merge( {}, defaultSettings, settings );
-
 	const rootElementRef = useRef();
 	const playerId = useMemo( () => id || Math.random().toString( 36 ), [ id ] );
-	const [ fullscreen, setFullscreen ] = useState( false );
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 
-	const { init } = useDispatch( 'jetpack/story/player' );
+	const { init, setFullscreen } = useDispatch( 'jetpack/story/player' );
+	const { fullscreen, isPlayerReady, playerSettings } = useSelect(
+		select => {
+			const { getSettings, isFullscreen, isPlayerReady } = select( 'jetpack/story/player' );
+			const isReady = isPlayerReady( playerId );
+			if ( ! isReady ) {
+				return {
+					isPlayerReady: false,
+				};
+			}
+
+			return {
+				isPlayerReady: true,
+				fullscreen: isFullscreen( playerId ),
+				playerSettings: getSettings( playerId ),
+			};
+		},
+		[ playerId ]
+	);
+
+	//const shouldUseFullscreenAPI = fullscreenAPI.enabled();
 	const shouldUseFullscreenAPI = isMobile && fullscreenAPI.enabled();
+	const isFullPageModalOpened = fullscreen && ! shouldUseFullscreenAPI;
 
 	useEffect( () => {
-		// Make sure the store is initialized for this player instance
-		init( playerId );
-
-		if ( settings.loadInFullscreen ) {
-			setFullscreen( true );
+		if ( ! isPlayerReady ) {
+			init( playerId, {
+				slideCount: slides.length,
+				...settings,
+			} );
 		}
+	}, [ playerId ] );
+
+	const onExitFullscreen = useCallback( () => {
+		setFullscreen( playerId, false );
 	}, [] );
 
 	useLayoutEffect( () => {
 		if ( shouldUseFullscreenAPI ) {
 			if ( fullscreen ) {
-				fullscreenAPI.launch( rootElementRef.current );
+				if ( rootElementRef.current ) {
+					fullscreenAPI.launch( rootElementRef.current, onExitFullscreen );
+				}
 			} else if ( fullscreenAPI.element() ) {
 				fullscreenAPI.exit();
 			}
@@ -97,36 +103,47 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 		}
 	}, [ fullscreen ] );
 
+	if ( ! isPlayerReady ) {
+		return null;
+	}
+
 	const player = (
-		<div
-			ref={ rootElementRef }
-			className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
-		>
-			<Player
-				id={ playerId }
-				fullscreen={ fullscreen }
-				setFullscreen={ setFullscreen }
-				slides={ slides }
-				metadata={ metadata }
-				disabled={ disabled }
-				{ ...playerSettings }
-			/>
-		</div>
+		<Player id={ playerId } slides={ slides } metadata={ metadata } disabled={ disabled } />
 	);
 
 	return (
 		<>
 			<ShadowRoot { ...playerSettings.shadowDOM }>
-				{ ! fullscreen && player }
+				<div
+					ref={ rootElementRef }
+					className={ classNames( [
+						'wp-story-app',
+						{ 'wp-story-fullscreen': fullscreen && shouldUseFullscreenAPI },
+					] ) }
+				>
+					{ ! isFullPageModalOpened && player }
+				</div>
 			</ShadowRoot>
 			<Modal
 				contentLabel={ __( 'Story' ) }
-				isOpened={ fullscreen && ! shouldUseFullscreenAPI }
-				aria={ { describedby: 'hello', labelledby: 'hello world' } }
-				onRequestClose={ () => setFullscreen( false ) }
+				isOpened={ isFullPageModalOpened }
+				aria={ {
+					describedby: metadata.storyTitle || __( 'Story' ),
+					labelledby: 'Story fullscreen',
+				} }
+				onRequestClose={ onExitFullscreen }
 				shadowDOM={ playerSettings.shadowDOM }
 			>
-				{ fullscreen && player }
+				{ isFullPageModalOpened && (
+					<div
+						className={ classNames( [
+							'wp-story-app',
+							{ 'wp-story-fullscreen': isFullPageModalOpened },
+						] ) }
+					>
+						{ player }
+					</div>
+				) }
 			</Modal>
 		</>
 	);
