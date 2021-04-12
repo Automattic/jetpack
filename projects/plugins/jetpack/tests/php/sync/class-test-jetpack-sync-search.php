@@ -17,6 +17,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
+		\Jetpack::activate_module( 'search' );
 		self::$search_sync = Modules::get_module( 'search' );
 	}
 
@@ -30,6 +31,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_module_is_enabled() {
 		$this->assertTrue( (bool) Modules::get_module( 'search' ) );
+		$this->assertTrue( \Jetpack::is_module_active( 'search' ) );
 	}
 
 	/**
@@ -43,6 +45,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
+		$params = array_slice( $params, 0, 10 );
 		return $params;
 	}
 
@@ -53,6 +56,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
+		$params = array_slice( $params, 0, 10 );
 		return $params;
 	}
 
@@ -80,7 +84,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_meta_is_not_indexable() {
 		$this->assertFalse( self::$search_sync->is_indexable( 'postmeta', 'no_one_wants_to_index_me' ), 'no_one_wants_to_index_me' );
-		$this->assertFalse( self::$search_sync->is_indexable( 'postmeta', 'no_one_wants_to_index_me' ), '_no_one_wants_to_index_me' );
+		$this->assertFalse( self::$search_sync->is_indexable( 'postmeta', '_no_one_wants_to_index_me' ), '_no_one_wants_to_index_me' );
 	}
 
 	public function test_meta_no_overlap() {
@@ -88,7 +92,7 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		asort( $indexed_keys );
 		$unindexed_keys = self::$search_sync->get_all_unindexed_postmeta_keys();
 		asort( $unindexed_keys );
-		$this->assertEmpty( array_intersect( $unindexed_keys, $indexed_keys ) );
+		$this->assertEmpty( array_intersect( $unindexed_keys, $indexed_keys ), 'Indexable meta keys are also contained in the $unindexed_postmeta array. Please remove them from the unindexed list.' );
 	}
 
 	/**
@@ -100,25 +104,28 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 	public function test_check_postmeta_spec( $key ) {
 		$spec = self::$search_sync->get_postmeta_spec( $key );
 
-		$this->assertThat(
-			$spec,
-			$this->logicalOr(
-				$this->equalTo( array() ),
-				$this->arrayHasKey( 'searchable_in_all_content' ),
-				$this->arrayHasKey( 'available' ),
-				$this->arrayHasKey( 'alternatives' )
-			),
-			'Post meta specification does not match.'
-		);
-
-		if ( isset( $spec['searchable_in_all_content'] ) ) {
-			$this->assertInternalType( 'bool', $spec['searchable_in_all_content'] );
-		}
-		if ( isset( $spec['available'] ) ) {
-			$this->assertInternalType( 'bool', $spec['available'] );
-		}
-		if ( isset( $spec['alternatives'] ) ) {
-			$this->assertInternalType( 'array', $spec['alternatives'] );
+		$this->assertInternalType( 'array', $spec );
+		foreach ( $spec as $key => $v ) {
+			$this->assertContains(
+				$key,
+				array(
+					'searchable_in_all_content',
+					'available',
+					'alternatives',
+				),
+				'Post meta specification has an unsupported key: ' . $key
+			);
+			switch ( $key ) {
+				case 'searchable_in_all_content':
+					$this->assertInternalType( 'bool', $spec['searchable_in_all_content'] );
+					break;
+				case 'available':
+					$this->assertInternalType( 'bool', $spec['available'] );
+					break;
+				case 'alternatives':
+					$this->assertInternalType( 'array', $spec['alternatives'] );
+					break;
+			}
 		}
 	}
 
@@ -173,6 +180,17 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_taxonomy_is_not_indexable() {
 		$this->assertFalse( self::$search_sync->is_indexable( 'taxonomy', 'no_one_wants_to_index_me' ) );
+	}
+
+	public function test_no_blacklisted_taxonomies() {
+		$search_sync = Modules::get_module( 'search' );
+		$params      = array();
+		$taxes       = $search_sync->get_all_taxonomies();
+		$anti_taxes  = \Automattic\Jetpack\Sync\Defaults::$blacklisted_taxonomies;
+		$this->assertEmpty(
+			array_intersect( $taxes, $anti_taxes ),
+			'Some taxonomies for Search sync are explicitly in the blacklist.'
+		);
 	}
 
 	/**
