@@ -45,7 +45,6 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
-		$params = array_slice( $params, 0, 10 );
 		return $params;
 	}
 
@@ -56,7 +55,6 @@ class Test_Jetpack_Sync_Search extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $keys as $k ) {
 			$params[] = array( $k );
 		}
-		$params = array_slice( $params, 0, 10 );
 		return $params;
 	}
 
