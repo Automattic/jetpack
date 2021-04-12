@@ -390,6 +390,10 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				return $terms;
 			}
 
+			if ( empty( $taxonomies ) ) {
+				return $terms;
+			}
+
 			// We only want to hide the featured tag.
 			if ( ! in_array( 'post_tag', $taxonomies ) ) {
 				return $terms;
