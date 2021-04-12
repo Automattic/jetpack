@@ -77,9 +77,27 @@ describe( 'Mailchimp block edit component', () => {
 
 	beforeEach( () => {
 		setAttributes.mockClear();
+		window[ JETPACK_DATA_PATH ] = {
+			jetpack: {
+				is_current_user_connected: true,
+			},
+		};
 	} );
 
-	test( 'calls api on mount', async () => {
+	test( 'fetches user auth url on mount if current user is not connected', async () => {
+		window[ JETPACK_DATA_PATH ] = {
+			jetpack: {
+				is_current_user_connected: false,
+			},
+		};
+		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		expect( window.fetch ).toHaveBeenCalledWith(
+			'/jetpack/v4/connection/url',
+			expect.anything()
+		);
+	} );
+
+	test( 'fetches mailchimp connect url mount if current user is connected', async () => {
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 		expect( window.fetch ).toHaveBeenCalledWith(
 			'/wpcom/v2/mailchimp?_locale=user',
