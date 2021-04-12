@@ -304,13 +304,15 @@ function errorHandlerFactory( cacheKey ) {
  * Generate a response handler for a given cache key
  *
  * @param {string} cacheKey - The cache key to use
+ * @param {number} requestId - Sequential ID used to determine recency of requests.
  * @returns {Function} A response handler to be used with a search request
  */
-function responseHandlerFactory( cacheKey ) {
+function responseHandlerFactory( cacheKey, requestId ) {
 	return function responseHandler( responseJson ) {
-		cache.set( cacheKey, responseJson );
-		backupCache.set( cacheKey, responseJson );
-		return responseJson;
+		const response = { ...responseJson, requestId };
+		cache.set( cacheKey, response );
+		backupCache.set( cacheKey, response );
+		return response;
 	};
 }
 
@@ -328,9 +330,10 @@ function resetAbortController() {
  * Perform a search.
  *
  * @param {object} options - Search options
+ * @param {number} requestId - Sequential ID used to determine recency of requests.
  * @returns {Promise} A promise to the JSON response object
  */
-export function search( options ) {
+export function search( options, requestId ) {
 	const key = stringify( Array.from( arguments ) );
 
 	// Use cached value from the last 30 minutes if browser is offline
@@ -354,7 +357,7 @@ export function search( options ) {
 
 	const queryString = generateApiQueryString( options );
 	const errorHandler = errorHandlerFactory( key );
-	const responseHandler = responseHandlerFactory( key );
+	const responseHandler = responseHandlerFactory( key, requestId );
 
 	const pathForPublicApi = `/sites/${ options.siteId }/search?${ queryString }`;
 

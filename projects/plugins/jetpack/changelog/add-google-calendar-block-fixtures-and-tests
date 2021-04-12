@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Google Calendar: Refactored to functional component, added block tests and fixtures.
