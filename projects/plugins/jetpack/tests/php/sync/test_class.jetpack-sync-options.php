@@ -193,6 +193,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'mailserver_port'                              => 1,
 			'wp_page_for_privacy_policy'                   => false,
 			'enable_header_ad'                             => '1',
+			'woocommerce_currency'                         => 'JPY',
 			'wordads_second_belowpost'                     => '1',
 			'wordads_display_front_page'                   => '1',
 			'wordads_display_post'                         => '1',
