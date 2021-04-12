@@ -14,6 +14,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 /**
  * Internal dependencies
  */
+import { JETPACK_DATA_PATH } from '../../../shared/get-jetpack-data';
 import MailchimpSubscribeEdit from '../edit';
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
@@ -92,12 +93,12 @@ describe( 'Mailchimp block edit component', () => {
 		};
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 		expect( window.fetch ).toHaveBeenCalledWith(
-			'/jetpack/v4/connection/url',
+			expect.stringContaining( '/jetpack/v4/connection/url?from=jetpack-block-editor&redirect=' ),
 			expect.anything()
 		);
 	} );
 
-	test( 'fetches mailchimp connect url mount if current user is connected', async () => {
+	test( 'fetches mailchimp connect url on mount if current user is connected', async () => {
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 		expect( window.fetch ).toHaveBeenCalledWith(
 			'/wpcom/v2/mailchimp?_locale=user',
