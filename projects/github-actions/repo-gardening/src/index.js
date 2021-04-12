@@ -60,7 +60,7 @@ const automations = [
 		task: wpcomCommitReminder,
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'opened' ],
 		task: flagOss,
 	},

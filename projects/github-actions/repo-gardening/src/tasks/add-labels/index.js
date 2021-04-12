@@ -202,15 +202,8 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function addLabels( payload, octokit ) {
-	const { number, repository, pull_request } = payload;
-	const { head, base } = pull_request;
+	const { number, repository } = payload;
 	const { owner, name } = repository;
-
-	// Bail if the user is not allowed to add labels to PRs in the repo (PR from a fork).
-	if ( head.repo.full_name !== base.repo.full_name ) {
-		debug( 'add-labels: PR author is not allowed to add labels to PR. Aborting' );
-		return;
-	}
 
 	// Get labels to add to the PR.
 	const labels = await getLabelsToAdd( octokit, owner.login, name, number );

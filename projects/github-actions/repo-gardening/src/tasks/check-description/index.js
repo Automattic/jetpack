@@ -532,14 +532,10 @@ Once you’ve done so, switch to the "[Status] Needs Review" label; someone from
 	}
 
 	// Look for an existing check-description task comment.
-	// This is not an option for forks, as the action cannot comment from there.
-	if ( statusChecks.isFromContributor ) {
-		await postComment( payload, octokit, comment );
-	}
+	await postComment( payload, octokit, comment );
 
 	// If some of our checks are failing, remove any "Needs Review" labels and add an Needs Author Reply label.
-	// This is not available to external contributors, who cannot add labels.
-	if ( comment.includes( ':red_circle:' ) && statusChecks.isFromContributor ) {
+	if ( comment.includes( ':red_circle:' ) ) {
 		await updateLabels( payload, octokit );
 	}
 }
