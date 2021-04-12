@@ -64,7 +64,9 @@ class SearchFilters extends Component {
 		return (
 			<div className="jetpack-instant-search__search-filters">
 				{ this.props.showTitle && (
-					<div className="jetpack-instant-search__search-filters-title">Filter options</div>
+					<div className="jetpack-instant-search__search-filters-title">
+						{ __( 'Filter options', 'jetpack' ) }
+					</div>
 				) }
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
 					<a
