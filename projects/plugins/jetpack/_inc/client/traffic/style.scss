@@ -114,7 +114,25 @@
 	}
 
 	&-count {
-		padding: 0 0 0.25rem 0.25rem;
+		padding: 0.25rem;
+	}
+
+	&-count-warn {
+		background-color: $alert-yellow;
+		font-weight: $bold;
+		border-radius: 4px;
+	}
+
+	&-count-max {
+		background-color: $alert-red;
+		font-weight: $bold;
+		border-radius: 4px;
+		color: white;
+	}
+
+	&-save-button {
+		float: right;
+		margin-top: 0.75rem;
 	}
 }
 
@@ -175,5 +193,10 @@
 	&-input-preview {
 		margin-top: 0.25rem;
 		font-style: italic;
+	}
+
+	&-save-button {
+		float: right;
+		margin-top: 0.75rem;
 	}
 }
