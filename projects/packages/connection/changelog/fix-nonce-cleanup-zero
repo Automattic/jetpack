@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Connection: nonce cleanup safeguard against accidental option removal.
