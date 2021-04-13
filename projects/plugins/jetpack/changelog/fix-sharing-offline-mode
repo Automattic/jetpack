@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: ensure the feature can be used when Jetpack is used in Offline e mode.
