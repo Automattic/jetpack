@@ -4,6 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
@@ -13,6 +14,7 @@ import { Fragment, Component } from '@wordpress/element';
  */
 import { icon, innerButtonBlock } from '.';
 import { MailChimpBlockControls } from './controls';
+import isCurrentUserConnected from '../../shared/is-current-user-connected';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -27,6 +29,7 @@ class MailchimpSubscribeEdit extends Component {
 			audition: null,
 			connected: API_STATE_LOADING,
 			connectURL: null,
+			currentUserConnected: null,
 		};
 		this.timeout = null;
 	}
@@ -42,23 +45,37 @@ class MailchimpSubscribeEdit extends Component {
 	};
 
 	apiCall = () => {
-		const path = '/wpcom/v2/mailchimp';
-		const method = 'GET';
-		const fetch = { path, method };
-		apiFetch( fetch ).then(
-			result => {
-				const connectURL = result.connect_url;
-				const connected =
-					result.code === 'connected' ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL } );
-			},
-			result => {
-				const connectURL = null;
+		const currentUserConnected = isCurrentUserConnected();
+		if ( currentUserConnected ) {
+			const path = '/wpcom/v2/mailchimp';
+			const method = 'GET';
+			const fetch = { path, method };
+			apiFetch( fetch ).then(
+				result => {
+					const connectURL = result.connect_url;
+					const connected =
+						result.code === 'connected' ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED;
+					this.setState( { currentUserConnected, connected, connectURL } );
+				},
+				result => {
+					const connectURL = null;
+					const connected = API_STATE_NOTCONNECTED;
+					this.setState( { currentUserConnected, connected, connectURL } );
+					this.onError( result.message );
+				}
+			);
+		} else {
+			apiFetch( {
+				path: addQueryArgs( '/jetpack/v4/connection/url', {
+					from: 'jetpack-block-editor',
+					redirect: window.location.href,
+				} ),
+			} ).then( connectUrl => {
+				const connectURL = connectUrl;
 				const connected = API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL } );
-				this.onError( result.message );
-			}
-		);
+				this.setState( { currentUserConnected, connected, connectURL } );
+			} );
+		}
 	};
 
 	auditionNotification = notification => {
@@ -95,7 +112,7 @@ class MailchimpSubscribeEdit extends Component {
 
 	render = () => {
 		const { attributes, className, notices, noticeUI, setAttributes } = this.props;
-		const { audition, connected, connectURL } = this.state;
+		const { audition, connected, connectURL, currentUserConnected } = this.state;
 		const {
 			emailPlaceholder,
 			consentText,
@@ -132,6 +149,22 @@ class MailchimpSubscribeEdit extends Component {
 						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>
+			</Placeholder>
+		);
+		const placeholderNotUserConnected = (
+			<Placeholder
+				className="wp-block-jetpack-mailchimp"
+				icon={ icon }
+				label={ __( 'Mailchimp', 'jetpack' ) }
+				notices={ notices }
+				instructions={ __(
+					"First, you'll need to connect your WordPress.com account.",
+					'jetpack'
+				) }
+			>
+				<Button isSecondary isLarge href={ connectURL }>
+					{ __( 'Connect to WordPress.com', 'jetpack' ) }
+				</Button>
 			</Placeholder>
 		);
 		const inspectorControls = (
@@ -193,7 +226,11 @@ class MailchimpSubscribeEdit extends Component {
 				{ noticeUI }
 				{ preview && previewUI }
 				{ ! preview && connected === API_STATE_LOADING && waiting }
-				{ ! preview && connected === API_STATE_NOTCONNECTED && placeholder }
+				{ ! preview && connected === API_STATE_NOTCONNECTED && currentUserConnected && placeholder }
+				{ ! preview &&
+					connected === API_STATE_NOTCONNECTED &&
+					! currentUserConnected &&
+					placeholderNotUserConnected }
 				{ ! preview && connected === API_STATE_CONNECTED && inspectorControls }
 				{ ! preview && connected === API_STATE_CONNECTED && blockContent }
 			</Fragment>
