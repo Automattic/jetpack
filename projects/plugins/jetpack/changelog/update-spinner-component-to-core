@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Fixed the Spinner by deprecating our custom solution to use Core's Spinner in React.
