@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Search: Handle pagination edge case with excluded post types
