@@ -23,6 +23,9 @@
 		}
 	],
 	"extra": {
+		"autotagger": {
+			"major": true
+		},
 		"mirror-repo": "Automattic/action-required-review",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/action-required-review/compare/v${old}...v${new}"

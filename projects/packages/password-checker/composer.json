@@ -40,6 +40,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-password-checker",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
