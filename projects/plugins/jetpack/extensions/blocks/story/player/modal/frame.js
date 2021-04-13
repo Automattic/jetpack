@@ -17,26 +17,24 @@ export default function ModalFrame( {
 	aria: { describedby, labelledby },
 	contentLabel = null,
 	focusOnMount = true,
-	isOpened,
 	children,
 	className,
 	role = 'dialog',
 	style,
 	shouldCloseOnEsc = true,
 	onRequestClose,
+	onKeyDown,
 } ) {
-	if ( ! isOpened ) {
-		return <>{ children }</>;
-	}
-
-	function handleEscapeKeyDown( event ) {
+	function handleKeyDown( event ) {
 		if ( shouldCloseOnEsc && event.keyCode === ESCAPE ) {
 			event.stopPropagation();
 			if ( onRequestClose ) {
 				onRequestClose( event );
 			}
 		}
+		onKeyDown && onKeyDown( event );
 	}
+
 	const focusOnMountRef = useFocusOnMount( focusOnMount );
 	const constrainedTabbingRef = useConstrainedTabbing();
 	const focusReturnRef = useFocusReturn();
@@ -45,14 +43,10 @@ export default function ModalFrame( {
 		// eslint-disable-next-line jsx-a11y/no-static-element-interactions
 		<div
 			className={ classnames( 'wp-story-modal-screen-overlay', overlayClassName ) }
-			onKeyDown={ handleEscapeKeyDown }
+			onKeyDown={ handleKeyDown }
 		>
 			<div
-				className={ classnames(
-					'wp-story-modal-frame-content',
-					'wp-story-display-contents',
-					className
-				) }
+				className={ classnames( 'wp-story-modal-frame-content', className ) }
 				style={ style }
 				ref={ useMergeRefs( [ constrainedTabbingRef, focusReturnRef, focusOnMountRef ] ) }
 				role={ role }

@@ -1,21 +1,9 @@
 /**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
  * WordPress dependencies
  */
-import {
-	useMemo,
-	useLayoutEffect,
-	useRef,
-	useState,
-	useEffect,
-	useCallback,
-} from '@wordpress/element';
+import { useMemo, useEffect, useCallback } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { ESCAPE, SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -23,23 +11,18 @@ import { __ } from '@wordpress/i18n';
 import './style.scss';
 import './store';
 import { Player } from './player';
-import ShadowRoot from './lib/shadow-root';
-import * as fullscreenAPI from './lib/fullscreen-api';
-import Modal from './modal';
-
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-	window.navigator.userAgent
-);
+import ShadowPlayer from './shadow-player';
 
 export default function StoryPlayer( { id, slides, metadata, disabled, ...settings } ) {
-	const rootElementRef = useRef();
 	const playerId = useMemo( () => id || Math.random().toString( 36 ), [ id ] );
-	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
-
-	const { init, setFullscreen } = useDispatch( 'jetpack/story/player' );
-	const { fullscreen, isPlayerReady, playerSettings } = useSelect(
+	const { init, setEnded, setPlaying, setFullscreen, showSlide } = useDispatch(
+		'jetpack/story/player'
+	);
+	const { playing, currentSlideIndex, fullscreen, isPlayerReady, playerSettings } = useSelect(
 		select => {
-			const { getSettings, isFullscreen, isPlayerReady } = select( 'jetpack/story/player' );
+			const { getCurrentSlideIndex, getSettings, isFullscreen, isPlayerReady, isPlaying } = select(
+				'jetpack/story/player'
+			);
 			const isReady = isPlayerReady( playerId );
 			if ( ! isReady ) {
 				return {
@@ -48,6 +31,8 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 			}
 
 			return {
+				playing: isPlaying( playerId ),
+				currentSlideIndex: getCurrentSlideIndex( playerId ),
 				isPlayerReady: true,
 				fullscreen: isFullscreen( playerId ),
 				playerSettings: getSettings( playerId ),
@@ -55,10 +40,6 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 		},
 		[ playerId ]
 	);
-
-	//const shouldUseFullscreenAPI = fullscreenAPI.enabled();
-	const shouldUseFullscreenAPI = isMobile && fullscreenAPI.enabled();
-	const isFullPageModalOpened = fullscreen && ! shouldUseFullscreenAPI;
 
 	useEffect( () => {
 		if ( ! isPlayerReady ) {
@@ -69,82 +50,51 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 		}
 	}, [ playerId ] );
 
-	const onExitFullscreen = useCallback( () => {
-		setFullscreen( playerId, false );
-	}, [] );
+	const onKeyDown = useCallback(
+		event => {
+			switch ( event.keyCode ) {
+				case SPACE:
+					event.preventDefault();
+					setPlaying( playerId, ! playing );
+					break;
+				case LEFT:
+					event.preventDefault();
+					if ( currentSlideIndex > 0 ) {
+						showSlide( playerId, currentSlideIndex - 1 );
+					}
+					break;
+				case RIGHT:
+					event.preventDefault();
+					if ( currentSlideIndex < slides.length - 1 ) {
+						showSlide( playerId, currentSlideIndex + 1 );
+					} else {
+						setEnded( playerId );
+					}
+					break;
+			}
+		},
+		[ playerId, currentSlideIndex, fullscreen, playing ]
+	);
 
-	useLayoutEffect( () => {
-		if ( shouldUseFullscreenAPI ) {
-			if ( fullscreen ) {
-				if ( rootElementRef.current ) {
-					fullscreenAPI.launch( rootElementRef.current, onExitFullscreen );
-				}
-			} else if ( fullscreenAPI.element() ) {
-				fullscreenAPI.exit();
-			}
-			return;
-		}
-		if ( fullscreen ) {
-			// position: fixed does not work as expected on mobile safari
-			// To fix that we need to add a fixed positioning to body,
-			// retain the current scroll position and restore it when we exit fullscreen
-			setLastScrollPosition( [
-				document.documentElement.scrollLeft,
-				document.documentElement.scrollTop,
-			] );
-			document.body.classList.add( 'wp-story-in-fullscreen' );
-			document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
-		} else {
-			document.body.classList.remove( 'wp-story-in-fullscreen' );
-			document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
-			if ( lastScrollPosition ) {
-				window.scrollTo( ...lastScrollPosition );
-			}
-		}
-	}, [ fullscreen ] );
+	const exitFullscreen = useCallback( () => {
+		setFullscreen( playerId, false );
+	}, [ playerId ] );
 
 	if ( ! isPlayerReady ) {
 		return null;
 	}
 
-	const player = (
-		<Player id={ playerId } slides={ slides } metadata={ metadata } disabled={ disabled } />
-	);
-
 	return (
-		<>
-			<ShadowRoot { ...playerSettings.shadowDOM }>
-				<div
-					ref={ rootElementRef }
-					className={ classNames( [
-						'wp-story-app',
-						{ 'wp-story-fullscreen': fullscreen && shouldUseFullscreenAPI },
-					] ) }
-				>
-					{ ! isFullPageModalOpened && player }
-				</div>
-			</ShadowRoot>
-			<Modal
-				contentLabel={ __( 'Story' ) }
-				isOpened={ isFullPageModalOpened }
-				aria={ {
-					describedby: metadata.storyTitle || __( 'Story' ),
-					labelledby: 'Story fullscreen',
-				} }
-				onRequestClose={ onExitFullscreen }
-				shadowDOM={ playerSettings.shadowDOM }
-			>
-				{ isFullPageModalOpened && (
-					<div
-						className={ classNames( [
-							'wp-story-app',
-							{ 'wp-story-fullscreen': isFullPageModalOpened },
-						] ) }
-					>
-						{ player }
-					</div>
-				) }
-			</Modal>
-		</>
+		<ShadowPlayer
+			shadowDOM={ playerSettings.shadowDOM }
+			className="wp-story-app"
+			fullscreenClassName="wp-story-fullscreen"
+			bodyFullscreenClassName="wp-story-in-fullscreen"
+			fullscreen={ fullscreen }
+			onExitFullscreen={ exitFullscreen }
+			onKeyDown={ onKeyDown }
+		>
+			<Player id={ playerId } slides={ slides } metadata={ metadata } disabled={ disabled } />
+		</ShadowPlayer>
 	);
 }

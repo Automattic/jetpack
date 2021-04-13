@@ -14,7 +14,8 @@ import {
 
 export function player( state = defaultPlayerState, action ) {
 	switch ( action.type ) {
-		case 'SHOW_SLIDE':
+		case 'SHOW_SLIDE': {
+			const isNextSlide = state.currentSlide === action.index + 1;
 			return {
 				...state,
 				currentSlide: {
@@ -22,7 +23,9 @@ export function player( state = defaultPlayerState, action ) {
 					index: action.index,
 				},
 				previousSlide: state.currentSlide,
+				playing: isNextSlide ? state.settings.playOnNextSlide : state.playing,
 			};
+		}
 		case 'SLIDE_READY':
 			return {
 				...state,
@@ -82,7 +85,7 @@ export function player( state = defaultPlayerState, action ) {
 						? false
 						: state.playing,
 			};
-		case 'INIT':
+		case 'INIT': {
 			const playerSettings = merge( {}, state.settings, action.settings );
 
 			return {
@@ -91,9 +94,19 @@ export function player( state = defaultPlayerState, action ) {
 				playing: playerSettings.playOnLoad,
 				fullscreen: playerSettings.loadInFullscreen,
 			};
+		}
 		case 'ENDED':
 			return {
 				...state,
+				currentSlide: {
+					...defaultCurrentSlideState,
+					index: state.settings.slideCount - 1,
+					progress: {
+						...defaultSlideProgressState,
+						currentTime: 100,
+						duration: 100,
+					},
+				},
 				ended: true,
 				playing: false,
 				fullscreen: ! state.settings.exitFullscreenOnEnd,
@@ -106,10 +119,10 @@ export function player( state = defaultPlayerState, action ) {
 /**
  * Reducer managing all players state
  *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
+ * @param {Object} state  - Current state.
+ * @param {Object} action - Dispatched action.
  *
- * @return {Object} Updated state.
+ * @returns {Object} Updated state.
  */
 export default function ( state = {}, action ) {
 	if ( ! action.playerId ) {

@@ -22,7 +22,9 @@ import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 
 export const Player = ( { id, slides, metadata, disabled } ) => {
-	const { setFullscreen, setPlaying, setMuted, showSlide } = useDispatch( 'jetpack/story/player' );
+	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } = useDispatch(
+		'jetpack/story/player'
+	);
 	const {
 		playing,
 		muted,
@@ -68,12 +70,8 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		return 'video' === media.type || ( media.mime || '' ).startsWith( 'video/' );
 	};
 
-	const playSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
+	const playSlide = slideIndex => {
 		showSlide( id, slideIndex );
-
-		if ( play ) {
-			setPlaying( id, play );
-		}
 	};
 
 	const onPress = useCallback( () => {
@@ -83,7 +81,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		if ( ended && ! playing ) {
 			playSlide( 0 );
 		}
-		if ( ! playing ) {
+		if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
 			setPlaying( id, true );
 		}
 	}, [ playing, ended, fullscreen, disabled ] );
@@ -98,7 +96,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		if ( currentSlideIndex < slides.length - 1 ) {
 			playSlide( currentSlideIndex + 1 );
 		} else {
-			setPlaying( id, false );
+			setEnded( id );
 		}
 	}, [ currentSlideIndex, slides ] );
 

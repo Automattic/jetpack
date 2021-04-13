@@ -2,9 +2,10 @@
  * Returns an action object used in signalling that
  * the story is muted
  *
- * @param {Boolean} muted whether to mute or unmute the player.
+ * @param {string} playerId  - player identifier
+ * @param {boolean} muted    - whether to mute or unmute the player.
  *
- * @return {Object} Action object.
+ * @returns {object} Action object.
  */
 export function setMuted( playerId, muted ) {
 	return {
@@ -18,17 +19,16 @@ export function setMuted( playerId, muted ) {
  * Returns an action object used in signalling that
  * the story is playing
  *
- * @param {Boolean} playing whether to play or pause the story
+ * @param {string} playerId  - player identifier
+ * @param {boolean} playing  - whether to play or pause the story
  *
- * @return {Object} Action object.
+ * @returns {object} Action object.
  */
-export function setPlaying( playerId, playing, mediaElement, duration ) {
+export function setPlaying( playerId, playing ) {
 	return {
 		type: 'SET_PLAYING',
 		value: playing,
 		playerId,
-		mediaElement,
-		duration,
 	};
 }
 
@@ -36,7 +36,10 @@ export function setPlaying( playerId, playing, mediaElement, duration ) {
  * Returns an action object used in signalling that
  * the current slide has changed
  *
- * @return {Object} Action object.
+ * @param {string} playerId   - player identifier
+ * @param {number} slideIndex - index of the slide to display
+ *
+ * @returns {object} Action object.
  */
 export function showSlide( playerId, slideIndex ) {
 	return {
@@ -50,7 +53,11 @@ export function showSlide( playerId, slideIndex ) {
  * Returns an action object used in signalling that
  * the current slide is ready to be played
  *
- * @return {Object} Action object.
+ * @param {string} playerId          - player identifier
+ * @param {HTMLElement} mediaElement - the DOM media element used for this slide
+ * @param {number} duration          - the duration of the slide
+ *
+ * @returns {object} Action object.
  */
 export function slideReady( playerId, mediaElement, duration ) {
 	return {
@@ -65,7 +72,10 @@ export function slideReady( playerId, mediaElement, duration ) {
  * Returns an action object used in signalling that
  * the progress for the current slide has been updated
  *
- * @return {Object} Action object.
+ * @param {string} playerId      - player identifier
+ * @param {object} progressState - the state tracking progress for the current slide
+ *
+ * @returns {object} Action object.
  */
 export function setCurrentSlideProgress( playerId, progressState ) {
 	return {
@@ -79,7 +89,9 @@ export function setCurrentSlideProgress( playerId, progressState ) {
  * Returns an action object used in signalling that
  * the progress for the current slide must be reset
  *
- * @return {Object} Action object.
+ * @param {string} playerId  - player identifier
+ *
+ * @returns {object} Action object.
  */
 export function resetCurrentSlideProgress( playerId ) {
 	return {
@@ -92,7 +104,9 @@ export function resetCurrentSlideProgress( playerId ) {
  * Returns an action object used in signalling that
  * the current slide has ended
  *
- * @return {Object} Action object.
+ * @param {string} playerId  - player identifier
+ *
+ * @returns {object} Action object.
  */
 export function setCurrentSlideEnded( playerId ) {
 	return {
@@ -105,7 +119,10 @@ export function setCurrentSlideEnded( playerId ) {
  * Returns an action object used in signalling that
  * the player should go into or out of fullscreen mode
  *
- * @return {Object} Action object.
+ * @param {string} playerId    - player identifier
+ * @param {boolean} fullscreen - whether to display the story fullscreen or exit fullscreen
+ *
+ * @returns {object} Action object.
  */
 export function setFullscreen( playerId, fullscreen ) {
 	return {
@@ -119,9 +136,11 @@ export function setFullscreen( playerId, fullscreen ) {
  * Returns an action object used in signalling that
  * a state should created for this player id
  *
- * @return {Object} Action object.
+ * @param {string} playerId  - player identifier
+ *
+ * @returns {object} Action object.
  */
-export function end( playerId ) {
+export function setEnded( playerId ) {
 	return {
 		type: 'ENDED',
 		playerId,
@@ -132,7 +151,10 @@ export function end( playerId ) {
  * Returns an action object used in signalling that
  * a state should created for this player id
  *
- * @return {Object} Action object.
+ * @param {string} playerId  - player identifier
+ * @param {object} settings
+ *
+ * @returns {object} Action object.
  */
 export function init( playerId, settings = {} ) {
 	return {

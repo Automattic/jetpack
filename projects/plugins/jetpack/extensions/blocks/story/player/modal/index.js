@@ -95,7 +95,7 @@ class Modal extends Component {
 	/**
 	 * Renders the modal.
 	 *
-	 * @return {WPElement} The modal element.
+	 * @returns {WPElement} The modal element.
 	 */
 	render() {
 		const {
@@ -103,6 +103,7 @@ class Modal extends Component {
 			children,
 			aria,
 			instanceId,
+			isOpened,
 			shadowDOM,
 			// Many of the documented props for Modal are passed straight through
 			// to the ModalFrame component and handled there.
@@ -113,16 +114,18 @@ class Modal extends Component {
 		// other elements underneath the modal overlay.
 		return (
 			<ShadowRoot { ...shadowDOM } mountOnElement={ this.node }>
-				<ModalFrame
-					onRequestClose={ onRequestClose }
-					aria={ {
-						labelledby: aria.labelledby || `wp-story-modal-${ instanceId }`,
-						describedby: aria.describedby,
-					} }
-					{ ...otherProps }
-				>
-					<div role="document">{ children }</div>
-				</ModalFrame>
+				{ isOpened && (
+					<ModalFrame
+						onRequestClose={ onRequestClose }
+						aria={ {
+							labelledby: aria.labelledby || `wp-story-modal-${ instanceId }`,
+							describedby: aria.describedby,
+						} }
+						{ ...otherProps }
+					>
+						{ children }
+					</ModalFrame>
+				) }
 			</ShadowRoot>
 		);
 	}
@@ -132,6 +135,7 @@ Modal.defaultProps = {
 	role: 'dialog',
 	focusOnMount: true,
 	shouldCloseOnEsc: true,
+	isOpened: false,
 	/* accessibility */
 	aria: {
 		labelledby: null,

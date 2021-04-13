@@ -5,7 +5,7 @@
 /**
  * Internal dependencies
  */
-import { end, setCurrentSlideProgress, setCurrentSlideEnded } from './actions';
+import { setEnded, setCurrentSlideProgress, setCurrentSlideEnded } from './actions';
 import {
 	getCurrentSlideIndex,
 	getCurrentSlideProgress,
@@ -21,6 +21,12 @@ import {
 const isVideo = mediaElement =>
 	mediaElement && mediaElement.src && mediaElement.tagName.toLowerCase() === 'video';
 
+/**
+ * Effect handler which will sync the current slide progress with a video element
+ *
+ * @param {Object} action  - Action which had initiated the effect handler.
+ * @param {Object} store   - Store instance.
+ */
 function syncWithMediaElement( action, store ) {
 	const { getState } = store;
 	const playerId = action.playerId;
@@ -54,12 +60,10 @@ function syncWithMediaElement( action, store ) {
 }
 
 /**
- * Effect handler which will refresh .
+ * Effect handler which will track the current slide progress.
  *
- * @param {Object} action Action which had initiated the effect handler.
- * @param {Object} store  Store instance.
- *
- * @return {Object} Refresh connection test results action.
+ * @param {Object} action  - Action which had initiated the effect handler.
+ * @param {Object} store   - Store instance.
  */
 export function trackProgress( action, store ) {
 	const { getState, dispatch } = store;
@@ -100,7 +104,7 @@ export function trackProgress( action, store ) {
 		const slideCount = getSlideCount( getState(), playerId );
 		const currentSlideIndex = getCurrentSlideIndex( getState(), playerId );
 		if ( currentSlideIndex === slideCount - 1 ) {
-			dispatch( end( playerId ) );
+			dispatch( setEnded( playerId ) );
 		}
 		return;
 	}
