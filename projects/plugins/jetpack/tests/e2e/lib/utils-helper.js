@@ -226,7 +226,7 @@ function resolveSiteUrl() {
 		url = getReusableUrlFromFile();
 	}
 
-	urlValidOrDie( url );
+	validateUrl( url );
 	return url;
 }
 
@@ -235,7 +235,7 @@ function resolveSiteUrl() {
  *
  * @param {string} url the string to to be validated as URL
  */
-function urlValidOrDie( url ) {
+function validateUrl( url ) {
 	if ( ! new URL( url ) ) {
 		throw new Error( `Undefined or invalid SITE_URL!` );
 	}

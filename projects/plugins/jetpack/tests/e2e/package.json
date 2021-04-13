@@ -19,8 +19,8 @@
 		"env-reset": "./bin/env.sh reset",
 		"tunnel-on": "pm2 start bin/ecosystem.config.js",
 		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
-	  	"pretest-e2e": "yarn clean",
-	  	"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles",
+		"pretest-e2e": "yarn clean",
+		"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
 	},
