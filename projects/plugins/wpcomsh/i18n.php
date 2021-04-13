@@ -85,3 +85,18 @@ add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) 
 }, 10, 3 );
 
 // end of https://github.com/Automattic/jetpack/pull/14797
+
+// Always allow override of _locale to English by setting ?_locale=en_US in the URL.
+// All sites will have English translations available.
+// This is used by class.wpcom-jetpack-mapper-get-admin-menu.php on WPCOM, which
+// lets A8C users in support sessions view Atomic sites in languages that might
+// not be installed on that Atomic site. WPCOM requests menu items in English, then
+// retrieves them from the Atomic side, then translates them before display.
+// See: D59986
+function wpcomsh_allow_en_locale_override( $locale_in ) {
+	if ( !empty( $_GET['_locale'] ) && 'en_US' === $_GET['_locale'] ) {
+		return 'en_US';
+	}
+	return $locale_in;
+}
+add_filter( 'pre_determine_locale', 'wpcomsh_allow_en_locale_override', 10, 1);
