@@ -190,9 +190,12 @@ class Nonce_Handler {
 
 		$ids_fill = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
 
+		$args   = $ids;
+		$args[] = 'jetpack_nonce_%';
+
 		// The Code Sniffer is unable to understand what's going on...
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
-		return $wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} ) AND option_name LIKE %s", $ids, 'jetpack_nonce_%' ) );
+		return $wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} ) AND option_name LIKE %s", $args ) );
 	}
 
 	/**
