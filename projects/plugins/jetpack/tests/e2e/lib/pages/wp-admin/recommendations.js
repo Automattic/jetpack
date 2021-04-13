@@ -103,19 +103,19 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	async isPersonalSiteTypeChecked() {
-		return await this.isElementVisible( `${ this.siteTypePersonalCheckboxSel }:checked` );
+		return await this.isElementChecked( this.siteTypePersonalCheckboxSel );
 	}
 
 	async isOtherSiteTypeChecked() {
-		return await this.isElementVisible( `${ this.siteTypeOtherCheckboxSel }:checked` );
+		return await this.isElementChecked( this.siteTypeOtherCheckboxSel );
 	}
 
 	async isBusinessTypeUnchecked() {
-		return await this.isElementVisible( `${ this.siteTypeBusinessCheckboxSel }:checked` );
+		return await this.isElementChecked( this.siteTypeBusinessCheckboxSel );
 	}
 
 	async isStoreTypeUnchecked() {
-		return await this.isElementVisible( `${ this.siteTypeStoreCheckboxSel }:checked` );
+		return await this.isElementChecked( this.siteTypeStoreCheckboxSel );
 	}
 
 	async saveSiteTypeAndContinue() {
