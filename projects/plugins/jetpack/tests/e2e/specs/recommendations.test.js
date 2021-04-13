@@ -4,8 +4,8 @@
 import { step } from '../lib/env/test-setup';
 import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
 
-describe( 'Jetpack Recommendations', () => {
-	it( 'Steps', async () => {
+describe( 'Recommendations (Jetpack Assistant)', () => {
+	it( 'Recommendations (Jetpack Assistant)', async () => {
 		const recommendationsPage = await RecommendationsPage.visit( page );
 
 		await step( 'Navigate to the Recommendations module', async () => {
