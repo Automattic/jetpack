@@ -130,8 +130,6 @@ describe( 'Recommendations – Feature Prompt', () => {
 		} );
 
 		it( 'calls the right actions when a user clicks on the skip feature button', () => {
-			const DUMMY_ACTION = { type: 'dummy' };
-
 			// Stub methods that perform side-effects through async actions
 			const recordEventStub = sinon.stub( analytics.tracks, 'recordEvent' );
 			const addSkippedRecommendationStub = sinon
