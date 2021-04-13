@@ -3,16 +3,87 @@
  */
 import WpPage from '../wp-page';
 
-const PERSONAL_CHECKBOX_SELECTOR = '.jp-checkbox-answer__container:nth-child(1) input';
-const BUSINESS_CHECKBOX_SELECTOR = '.jp-checkbox-answer__container:nth-child(2) input';
-const STORE_CHECKBOX_SELECTOR = '.jp-checkbox-answer__container:nth-child(3) input';
-const OTHER_CHECKBOX_SELECTOR = '.jp-checkbox-answer__container:nth-child(4) input';
-
 export default class RecommendationsPage extends WpPage {
 	constructor( page ) {
 		const url = `${ siteUrl }/wp-admin/admin.php?page=jetpack#/recommendations`;
 		super( page, { expectedSelectors: [ '[class^=jp-recommendations-]' ], url } );
 	}
+
+	// selectors section
+
+	get siteTypeCheckboxesSel() {
+		return '.jp-recommendations-question__site-type-checkboxes';
+	}
+
+	get siteTypePersonalCheckboxSel() {
+		return '.jp-checkbox-answer__container:nth-child(1) input';
+	}
+
+	get siteTypeBusinessCheckboxSel() {
+		return '.jp-checkbox-answer__container:nth-child(2) input';
+	}
+
+	get siteTypeOtherCheckboxSel() {
+		return '.jp-checkbox-answer__container:nth-child(4) input';
+	}
+
+	get siteTypeStoreCheckboxSel() {
+		return '.jp-checkbox-answer__container:nth-child(3) input';
+	}
+
+	get saveSiteTypeButtonSel() {
+		return 'a[href*="recommendations/monitor"] >> text="Continue"';
+	}
+
+	get enableMonitoringButtonSel() {
+		return 'a[href*="recommendations/related-posts"] >> text="Enable Downtime Monitoring"';
+	}
+
+	get enableRelatedPostsButtonSel() {
+		return 'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"';
+	}
+
+	get installCreativeMailButtonSel() {
+		return 'a[href*="recommendations/site-accelerator"] >> text="Install Creative Mail"';
+	}
+
+	get skipCreativeMailButtonSel() {
+		return 'a[href*="recommendations/site-accelerator"] >> text="Not now"';
+	}
+
+	get enableSiteAcceleratorButtonSel() {
+		return 'a[href*="recommendations/summary"] >> text="Enable Site Accelerator"';
+	}
+
+	get skipSiteAcceleratorButtonSel() {
+		return 'a[href*="recommendations/summary"] >> text="Not now"';
+	}
+
+	get summaryContentSel() {
+		return '.jp-recommendations-summary__content';
+	}
+
+	get summarySidebarSel() {
+		return '.jp-recommendations-summary__sidebar';
+	}
+
+	get monitoringFeatureEnabledSel() {
+		return '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Downtime Monitoring"';
+	}
+
+	get relatedPostsFeatureEnabledSel() {
+		return '.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Related Posts"';
+	}
+
+	get creativeMailFeatureNotEnabledSel() {
+		return '.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Creative Mail"';
+	}
+
+	get siteAcceleratorFeatureNotEnabledSel() {
+		return '.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Site Accelerator"';
+	}
+
+	// end selectors section
 
 	isUrlInSyncWithStepName( stepName ) {
 		const url = this.page.url();
@@ -20,117 +91,90 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	async areSiteTypeQuestionsVisible() {
-		const siteTypeQuestionsSelector = '.jp-recommendations-question__site-type-checkboxes';
-		return await this.waitForElementToBeVisible( siteTypeQuestionsSelector );
+		return await this.waitForElementToBeVisible( this.siteTypeCheckboxesSel );
 	}
 
 	async checkPersonalSiteType() {
-		const personalSiteTypeSelector = PERSONAL_CHECKBOX_SELECTOR;
-		return await this.click( personalSiteTypeSelector );
+		return await this.click( this.siteTypePersonalCheckboxSel );
 	}
 
 	async checkOtherSiteType() {
-		const otherSiteTypeSelector = OTHER_CHECKBOX_SELECTOR;
-		return await this.click( otherSiteTypeSelector );
+		return await this.click( this.siteTypeOtherCheckboxSel );
 	}
 
 	async isPersonalSiteTypeChecked() {
-		return await this.isElementVisible( `${ PERSONAL_CHECKBOX_SELECTOR }:checked` );
+		return await this.isElementVisible( `${ this.siteTypePersonalCheckboxSel }:checked` );
 	}
 
 	async isOtherSiteTypeChecked() {
-		return await this.isElementVisible( `${ OTHER_CHECKBOX_SELECTOR }:checked` );
+		return await this.isElementVisible( `${ this.siteTypeOtherCheckboxSel }:checked` );
 	}
 
 	async isBusinessTypeUnchecked() {
-		return await this.isElementVisible( `${ BUSINESS_CHECKBOX_SELECTOR }:checked` );
+		return await this.isElementVisible( `${ this.siteTypeBusinessCheckboxSel }:checked` );
 	}
 
 	async isStoreTypeUnchecked() {
-		return await this.isElementVisible( `${ STORE_CHECKBOX_SELECTOR }:checked` );
+		return await this.isElementVisible( `${ this.siteTypeStoreCheckboxSel }:checked` );
 	}
 
 	async saveSiteTypeAndContinue() {
-		return await this.click( 'a[href*="recommendations/monitor"] >> text="Continue"' );
+		return await this.click( this.saveSiteTypeButtonSel );
 	}
 
 	async isEnableMonitoringButtonVisible() {
-		return await this.isElementVisible(
-			'a[href*="recommendations/related-posts"] >> text="Enable Downtime Monitoring"'
-		);
+		return await this.isElementVisible( this.enableMonitoringButtonSel );
 	}
 
 	async enableMonitoringAndContinue() {
-		return await this.click(
-			'a[href*="recommendations/related-posts"] >> text="Enable Downtime Monitoring"'
-		);
+		return await this.click( this.enableMonitoringButtonSel );
 	}
 
 	async isEnableRelatedPostsButtonVisible() {
-		return await this.isElementVisible(
-			'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"'
-		);
+		return await this.isElementVisible( this.enableRelatedPostsButtonSel );
 	}
 
 	async enableRelatedPostsAndContinue() {
-		return await this.click(
-			'a[href*="recommendations/creative-mail"] >> text="Enable Related Posts"'
-		);
+		return await this.click( this.enableRelatedPostsButtonSel );
 	}
 
 	async isInstallCreativeMailButtonVisible() {
-		return await this.isElementVisible(
-			'a[href*="recommendations/site-accelerator"] >> text="Install Creative Mail"'
-		);
+		return await this.isElementVisible( this.installCreativeMailButtonSel );
 	}
 
 	async skipCreativeMailAndContinue() {
-		return await this.click( 'a[href*="recommendations/site-accelerator"] >> text="Not now"' );
+		return await this.click( this.skipCreativeMailButtonSel );
 	}
 
 	async isEnableSiteAcceleratorButtonVisible() {
-		return await this.isElementVisible(
-			'a[href*="recommendations/summary"] >> text="Enable Site Accelerator"'
-		);
+		return await this.isElementVisible( this.enableSiteAcceleratorButtonSel );
 	}
 
 	async skipSiteAcceleratorAndContinue() {
-		return await this.click( 'a[href*="recommendations/summary"] >> text="Not now"' );
+		return await this.click( this.skipSiteAcceleratorButtonSel );
 	}
 
 	async isSummaryContentVisible() {
-		return await this.isElementVisible( '.jp-recommendations-summary__content' );
+		return await this.isElementVisible( this.summaryContentSel );
 	}
 
 	async isSummarySidebarVisible() {
-		return await this.isElementVisible( '.jp-recommendations-summary__sidebar' );
+		return await this.isElementVisible( this.summarySidebarSel );
 	}
 
 	async isMonitoringFeatureEnabled() {
-		const monitorFeatureEnabledSelector =
-			'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Downtime Monitoring"';
-
-		return await this.isElementVisible( monitorFeatureEnabledSelector );
+		return await this.isElementVisible( this.monitoringFeatureEnabledSel );
 	}
 
 	async isRelatedPostsFeatureEnabled() {
-		const relatedPostsFeatureEnabledSelector =
-			'.jp-recommendations-feature-summary.is-feature-enabled >> a >> text="Related Posts"';
-
-		return await this.isElementVisible( relatedPostsFeatureEnabledSelector );
+		return await this.isElementVisible( this.relatedPostsFeatureEnabledSel );
 	}
 
 	async isCreativeMailFeatureEnabled() {
-		const creativeMailFeatureEnabledSelector =
-			'.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Creative Mail"';
-
-		return await this.isElementVisible( creativeMailFeatureEnabledSelector );
+		return await this.isElementVisible( this.creativeMailFeatureNotEnabledSel );
 	}
 
 	async isSiteAcceleratorFeatureEnabled() {
-		const siteAcceleratorFeatureEnabledSelector =
-			'.jp-recommendations-feature-summary:not(.is-feature-enabled) >> a >> text="Site Accelerator"';
-
-		return await this.isElementVisible( siteAcceleratorFeatureEnabledSelector );
+		return await this.isElementVisible( this.siteAcceleratorFeatureNotEnabledSel );
 	}
 }
