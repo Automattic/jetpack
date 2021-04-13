@@ -229,7 +229,8 @@ abstract class Base_Admin_Menu {
 	 */
 	public function set_site_icon_inline_styles() {
 		echo '<style>
-			#adminmenu .toplevel_page_site-card .wp-menu-image {
+			#adminmenu .toplevel_page_site-card .wp-menu-image,
+			#adminmenu .toplevel_page_site-card .wp-menu-image img {
 				height: 32px;
 				width: 32px;
 			}
