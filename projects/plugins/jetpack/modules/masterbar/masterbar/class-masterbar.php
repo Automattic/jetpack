@@ -40,6 +40,13 @@ class Masterbar {
 	private $locale;
 
 	/**
+	 * WordPress.com user locale of the connected user.
+	 *
+	 * @var string
+	 */
+	private $user_locale;
+
+	/**
 	 * Current User ID.
 	 *
 	 * @var int
@@ -105,6 +112,7 @@ class Masterbar {
 		$this->display_name    = $this->user_data['display_name'];
 		$this->user_site_count = $this->user_data['site_count'];
 		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
+		$this->user_locale     = $this->user_data['user_locale'];
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
@@ -114,6 +122,10 @@ class Masterbar {
 		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
+		// Store and install user locale.
+		$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
+		$this->install_locale( $this->user_locale );
+		update_user_option( $this->user_id, 'locale', $this->user_locale, true );
 
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
@@ -390,6 +402,53 @@ class Masterbar {
 		}
 
 		return $wpcom_locale;
+	}
+
+	/**
+	 * Get Jetpack locale name.
+	 *
+	 * @param  string $slug Locale slug.
+	 * @return string Jetpack locale.
+	 */
+	public function get_jetpack_locale( $slug = '' ) {
+		if ( ! class_exists( 'GP_Locales' ) ) {
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				require JETPACK__GLOTPRESS_LOCALES_PATH;
+			}
+		}
+
+		if ( class_exists( 'GP_Locales' ) ) {
+			$jetpack_locale_object = GP_Locales::by_field( 'slug', $slug );
+			if ( $jetpack_locale_object instanceof GP_Locale ) {
+				$jetpack_locale = $jetpack_locale_object->wp_locale;
+			}
+		}
+
+		return $jetpack_locale;
+	}
+
+	/**
+	 * Install locale if not yet available.
+	 *
+	 * @param string $locale The new locale slug.
+	 */
+	public function install_locale( $locale = '' ) {
+		if ( ! in_array( $locale, get_available_languages(), true )
+			&& ! empty( $locale ) && current_user_can( 'install_languages' ) ) {
+
+			if ( ! function_exists( 'wp_download_language_pack' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+			}
+
+			if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+
+			if ( wp_can_install_language_pack() ) {
+				wp_download_language_pack( $locale );
+				load_default_textdomain( $locale );
+			}
+		}
 	}
 
 	/**
