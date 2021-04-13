@@ -3,8 +3,9 @@
  */
 import WpPage from './wp-page';
 import logger from '../logger';
-import testResponse1 from './data/search-results-for-test1.json';
-import testResponse2 from './data/search-results-for-test2.json';
+import config from 'config';
+import path from 'path';
+import { readFileSync } from 'fs';
 
 export default class Homepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
@@ -29,11 +30,15 @@ export default class Homepage extends WpPage {
 			let body;
 			switch ( params.get( 'query' ) ) {
 				case 'test1':
-					body = { ...testResponse1 };
+					body = JSON.parse(
+						readFileSync( path.resolve( config.get( 'search.searchResult1' ) ) ).toString()
+					);
 					break;
 				case 'test2':
 				default:
-					body = { ...testResponse2 };
+					body = JSON.parse(
+						readFileSync( path.resolve( config.get( 'search.searchResult2' ) ) ).toString()
+					);
 					break;
 			}
 
