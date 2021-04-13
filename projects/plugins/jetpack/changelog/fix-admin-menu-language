@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 Replace user locale with WordPress.com user locale, so that the unified nav uses the correct locale.
