@@ -65,12 +65,6 @@ describe( 'Search', () => {
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 2' );
-
-			await homepage.clickSortingOption( 'relevance' );
-			await homepage.isSortOptionSelected( 'relevance' );
-			await homepage.wairForAnimationAndRendering();
-
-			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 1' );
 		} );
 
 		await step( 'Can close overlay by clicking the cross', async () => {
