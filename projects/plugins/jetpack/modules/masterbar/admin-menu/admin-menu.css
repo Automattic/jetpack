@@ -257,8 +257,8 @@
 }
 
 /* Prevent box-shadow at the top of the sidebar */
-#adminmenu li.menu-top:hover,
-#adminmenu a.menu-top:hover {
+#adminmenu .site-switcher:hover,
+#adminmenu .toplevel_page_site-card:hover {
 	box-shadow: none;
 }
 
