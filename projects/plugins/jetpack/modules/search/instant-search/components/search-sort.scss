@@ -20,6 +20,9 @@
 	@include break-small-down() {
 		width: 100%;
 		margin-right: 1em;
+		.jetpack-instant-search__overlay--no-sidebar & {
+			margin-right: 0;
+		}
 	}
 
 	@include break-large-up() {
@@ -35,9 +38,9 @@
 
 	// Prevent themes from specifying a customized select styling.
 	appearance: auto;
-	background: inherit;
-	border-width: 1px;
-	color: inherit;
+	background: $color-modal-background;
+	border: 1px solid $color-layout-borders;
+	color: $color-text;
 	height: inherit;
 
 	@include break-small-down() {

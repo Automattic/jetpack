@@ -166,10 +166,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_new_site_link();
 
 		$new_site_menu_item = array(
-			'Add new site',
+			'Add New Site',
 			'read',
 			'https://wordpress.com/start?ref=calypso-sidebar',
-			'Add new site',
+			'Add New Site',
 			'menu-top toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'dashicons-plus-alt',
