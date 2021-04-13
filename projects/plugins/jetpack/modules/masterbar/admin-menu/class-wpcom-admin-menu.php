@@ -22,6 +22,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::__construct();
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 	}
 
 	/**
@@ -340,5 +341,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		update_user_attribute( $user_id, 'calypso_preferences', $value );
 
 		die();
+	}
+
+	/**
+	 * Syncs the sidebar collapsed state from Calypso Preferences.
+	 */
+	public function sync_sidebar_collapsed_state() {
+		$sidebar_collapsed = get_user_attribute( get_current_user_id(), 'calypso_preferences' )['sidebarCollapsed'];
+		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
 	}
 }
