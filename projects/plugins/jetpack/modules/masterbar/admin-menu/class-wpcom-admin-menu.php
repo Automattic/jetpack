@@ -15,6 +15,14 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class WPcom_Admin_Menu.
  */
 class WPcom_Admin_Menu extends Admin_Menu {
+	/**
+	 * WPcom_Admin_Menu constructor.
+	 */
+	protected function __construct() {
+		parent::__construct();
+
+		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+	}
 
 	/**
 	 * Sets up class properties for REST API requests.
@@ -308,5 +316,29 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
+	}
+
+	/**
+	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
+	 */
+	public function ajax_sidebar_state() {
+		$expanded    = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id     = get_current_user_id();
+		$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
+		if ( empty( $preferences ) ) {
+			$preferences = array();
+		}
+
+		$value = array_merge( (array) $preferences, array( 'sidebarCollapsed' => ! $expanded ) );
+		$value = array_filter(
+			$value,
+			function ( $preference ) {
+				return null !== $preference;
+			}
+		);
+
+		update_user_attribute( $user_id, 'calypso_preferences', $value );
+
+		die();
 	}
 }
