@@ -80,11 +80,6 @@
 	transition-duration: .2s;
 }
 
-#adminmenu .toplevel_page_site-card .wp-menu-image img {
-	height: auto;
-	max-width: 100%;
-}
-
 #adminmenu a.toplevel_page_site-card:hover,
 #adminmenu li.toplevel_page_site-card:hover {
 	background-color: inherit;
@@ -96,7 +91,6 @@
 
 #adminmenu .toplevel_page_site-card.has-site-icon img {
 	padding: 0;
-	max-width: 100%;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
