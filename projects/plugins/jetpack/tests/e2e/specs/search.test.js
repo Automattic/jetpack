@@ -68,16 +68,14 @@ describe( 'Search', () => {
 
 			await homepage.clickSortingOption( 'relevance' );
 			await homepage.isSortOptionSelected( 'relevance' );
-			// wait for animation and rendering
-			await page.waitForTimeout( 1000 );
+			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 1' );
 		} );
 
 		await step( 'Can close overlay by clicking the cross', async () => {
 			await homepage.clickCrossToCloseOverlay();
-			// wait for animation and rendering
-			await page.waitForTimeout( 1000 );
+			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBe( false );
 		} );
@@ -87,16 +85,14 @@ describe( 'Search', () => {
 		await step( 'Can press enter to to open overlay', async () => {
 			await homepage.focusSearchInput();
 			await homepage.pressEnterInSearchInput();
-			// wait for animation and rendering
-			await page.waitForTimeout( 1000 );
+			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 		} );
 
 		await step( 'Can click the cross to close the overlay', async () => {
 			await homepage.clickCrossToCloseOverlay();
-			// wait for animation and rendering
-			await page.waitForTimeout( 1000 );
+			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBe( false );
 		} );

@@ -8,6 +8,8 @@ import testResponse2 from './data/search-results-for-test2.json';
 
 export default class Homepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
+	static WAIT_FOR_ANIMATION_AND_RENDERING_TIMEOUT = 2000;
+
 	constructor( page ) {
 		const url = `${ siteUrl }/`;
 		super( page, { expectedSelectors: [ '.post' ], url } );
@@ -97,7 +99,11 @@ export default class Homepage extends WpPage {
 
 	async waitForSearchResponse() {
 		await this.page.waitForResponse( resp => Homepage.SEARCH_API_PATTERN.test( resp.url() ) );
-		return await this.waitForTimeout( 1000 );
+		return await this.wairForAnimationAndRendering();
+	}
+
+	async wairForAnimationAndRendering() {
+		return this.waitForTimeout( Homepage.WAIT_FOR_ANIMATION_AND_RENDERING_TIMEOUT );
 	}
 
 	async isSortOptionSelected( sorting = 'relevance' ) {
