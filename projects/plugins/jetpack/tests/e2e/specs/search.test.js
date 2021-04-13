@@ -82,4 +82,23 @@ describe( 'Search', () => {
 			expect( await homepage.isOverlayVisible() ).toBe( false );
 		} );
 	} );
+
+	it( 'Can open and close overlay', async () => {
+		await step( 'Can press enter to to open overlay', async () => {
+			await homepage.focusSearchInput();
+			await homepage.pressEnterInSearchInput();
+			// wait for animation and rendering
+			await page.waitForTimeout( 1000 );
+
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
+		} );
+
+		await step( 'Can click the cross to close the overlay', async () => {
+			await homepage.clickCrossToCloseOverlay();
+			// wait for animation and rendering
+			await page.waitForTimeout( 1000 );
+
+			expect( await homepage.isOverlayVisible() ).toBe( false );
+		} );
+	} );
 } );

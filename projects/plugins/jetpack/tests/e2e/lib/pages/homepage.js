@@ -24,12 +24,13 @@ export default class Homepage extends WpPage {
 			const params = url.searchParams;
 
 			// load response for queries
-			let body = {};
+			let body;
 			switch ( params.get( 'query' ) ) {
 				case 'test1':
 					body = { ...testResponse1 };
 					break;
 				case 'test2':
+				default:
 					body = { ...testResponse2 };
 					break;
 			}
@@ -77,6 +78,11 @@ export default class Homepage extends WpPage {
 			await this.clear( searchInputSelector );
 		}
 		return this.fill( searchInputSelector, query );
+	}
+
+	async pressEnterInSearchInput() {
+		const searchInputSelector = 'input.search-field';
+		return this.page.press( searchInputSelector, 'Enter' );
 	}
 
 	async clickSortingOption( sorting = 'relevance' ) {
