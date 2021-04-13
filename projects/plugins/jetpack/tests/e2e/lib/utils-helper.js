@@ -256,5 +256,5 @@ module.exports = {
 	getAccountCredentials,
 	getReusableUrlFromFile,
 	resolveSiteUrl,
-	validateUrl: urlValidOrDie,
+	validateUrl,
 };
