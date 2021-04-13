@@ -181,6 +181,7 @@ class Nonce_Handler {
 			return false;
 		}
 
+		// Removing zeroes in case AUTO_INCREMENT of the options table is broken, and all ID's are zeroes.
 		$ids = array_filter( $ids );
 
 		if ( ! count( $ids ) ) {
