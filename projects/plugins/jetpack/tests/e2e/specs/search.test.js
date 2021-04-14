@@ -10,9 +10,16 @@ describe( 'Search', () => {
 	let homepage;
 
 	beforeAll( async () => {
+		const searchConfigDir = './wp-content/plugins/jetpack-dev/tests/e2e/config/search';
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await execMultipleWpCommands( 'wp option update instant_search_enabled 1' );
+		await execMultipleWpCommands(
+			`wp option update sidebars_widgets --format=json <	${ searchConfigDir }/search-sidebars-widgets.json`
+		);
+		await execMultipleWpCommands(
+			`wp option update widget_jetpack-search-filters --format=json <	${ searchConfigDir }/search-filters.json`
+		);
 	} );
 
 	afterAll( async () => {
@@ -36,6 +43,7 @@ describe( 'Search', () => {
 		await step( 'Can show search controls in the overlay', async () => {
 			expect( await homepage.isSearchFormVisible() ).toBeTruthy();
 			expect( await homepage.isSortingVisible() ).toBeTruthy();
+			expect( await homepage.isFilteringOptionsVisible() ).toBeTruthy();
 		} );
 
 		await step( 'Can show search results in the overlay', async () => {
@@ -67,11 +75,24 @@ describe( 'Search', () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 2' );
 		} );
 
+		await step( 'Can change filtering', async () => {
+			await homepage.clickFilterCategory2();
+			await homepage.waitForSearchResponse();
+
+			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 2' );
+
+			await homepage.clickFilterCategory2();
+			await homepage.clickFilterTag3();
+			await homepage.waitForSearchResponse();
+
+			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 3' );
+		} );
+
 		await step( 'Can close overlay by clicking the cross', async () => {
 			await homepage.clickCrossToCloseOverlay();
 			await homepage.wairForAnimationAndRendering();
 
-			expect( await homepage.isOverlayVisible() ).toBe( false );
+			expect( await homepage.isOverlayVisible() ).toBeFalsy();
 		} );
 	} );
 
@@ -88,7 +109,7 @@ describe( 'Search', () => {
 			await homepage.clickCrossToCloseOverlay();
 			await homepage.wairForAnimationAndRendering();
 
-			expect( await homepage.isOverlayVisible() ).toBe( false );
+			expect( await homepage.isOverlayVisible() ).toBeFalsy();
 		} );
 	} );
 } );

@@ -67,7 +67,9 @@
 			"highlight": {
 				"title": [ "<mark>Test2</mark> Record 2" ],
 				"content": [ "The content of <mark>Test2</mark> Record 2" ]
-			}
+			},
+			"tags": [ "tag-2" ],
+			"categories": [ "category-2" ]
 		},
 		{
 			"_score": null,
@@ -100,7 +102,9 @@
 			"highlight": {
 				"title": [ "<mark>Test2</mark> Record 3" ],
 				"content": [ "The content of <mark>Test2</mark> Record 3" ]
-			}
+			},
+			"tags": [ "tag-3" ],
+			"categories": [ "category-3" ]
 		}
 	],
 	"suggestions": [],
@@ -124,7 +128,7 @@
 			"sum_other_doc_count": 0,
 			"buckets": [
 				{
-					"key": "category-1/Category 1",
+					"key": "category-3/Category 3",
 					"doc_count": 1
 				},
 				{
@@ -138,7 +142,7 @@
 			"sum_other_doc_count": 35,
 			"buckets": [
 				{
-					"key": "tag-1/Tag 1",
+					"key": "tag-3/Tag 3",
 					"doc_count": 1
 				},
 				{

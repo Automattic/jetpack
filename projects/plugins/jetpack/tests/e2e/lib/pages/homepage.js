@@ -66,6 +66,17 @@ export default class Homepage extends WpPage {
 			// filter[bool][must][0][term][category.slug]=category-1
 			// filter[bool][must][2][term][tag.slug]=tag-1
 
+			const category = params.get( 'filter[bool][must][0][term][category.slug]' );
+			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
+
+			if ( category ) {
+				body.results = body.results.filter( v => v?.categories?.includes( category ) );
+			}
+
+			if ( tag ) {
+				body.results = body.results.filter( v => v?.tags?.includes( tag ) );
+			}
+
 			route.fulfill( {
 				content: 'application/json',
 				headers: { 'Access-Control-Allow-Origin': '*' },
@@ -100,6 +111,16 @@ export default class Homepage extends WpPage {
 	async clickCrossToCloseOverlay() {
 		const crossSelector = 'button.jetpack-instant-search__overlay-close';
 		return this.click( crossSelector );
+	}
+
+	async clickFilterCategory2() {
+		const category2Selector = '.jetpack-instant-search__search-filter-list-input[name=category-2]';
+		return this.click( category2Selector );
+	}
+
+	async clickFilterTag3() {
+		const tag3Selector = '.jetpack-instant-search__search-filter-list-input[name=tag-3]';
+		return this.click( tag3Selector );
 	}
 
 	async waitForSearchResponse() {
@@ -142,8 +163,12 @@ export default class Homepage extends WpPage {
 		return this.isElementVisible( sortingSelector );
 	}
 
-	async isFilteringVisible() {
-		const filteringSelector = '.jetpack-instant-search__search-sort-option';
-		return this.isElementVisible( filteringSelector );
+	async isFilteringOptionsVisible() {
+		const filteringSelector1 = '.jetpack-instant-search__search-filter-list-input[name=category-1]';
+		const filteringSelector2 = '.jetpack-instant-search__search-filter-list-input[name=tag-1]';
+		return (
+			( await this.isElementVisible( filteringSelector1 ) ) &&
+			( await this.isElementVisible( filteringSelector2 ) )
+		);
 	}
 }
