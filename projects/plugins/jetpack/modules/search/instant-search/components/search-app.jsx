@@ -59,9 +59,12 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		// By debouncing this upon mounting, we avoid making unnecessary requests.
+		//
+		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
+		//      Once our Redux effects have executed, the search query will be updated to "apple" and
+		//      getResults will be invoked once more.
 		this.getResults();
-		this.getResults.flush();
-
 		this.addEventListeners();
 		this.disableAutocompletion();
 
@@ -249,13 +252,20 @@ class SearchApp extends Component {
 
 	// Used for showResults and Customizer integration.
 	toggleResults = showResults => {
+		// Necessary when reacting to onMessage transport Customizer controls.
+		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
+		if ( this.state.showResults === showResults ) {
+			return;
+		}
+
 		this.setState( { showResults }, () => {
 			if ( showResults ) {
 				this.preventBodyScroll();
 				// NOTE: Summoned overlay will not automatically be scrolled to the top
 				//       when used in conjuction with slideInUp animation.
+				//       10ms delay appears necessary within the Customizer
 				// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
-				requestAnimationFrame( () => this.scrollOverlayToTop() );
+				setTimeout( () => this.scrollOverlayToTop(), 10 );
 			} else {
 				// This codepath will only be executed in the Customizer.
 				this.restoreBodyScroll();

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixed an issue which prevented some menu items from appearing in the unified admin menu because they were replaced with other menu items.

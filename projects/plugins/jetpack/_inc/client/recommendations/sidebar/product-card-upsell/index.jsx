@@ -30,20 +30,23 @@ const ProductCardUpsell = props => {
 		features,
 		header,
 		price,
+		product_slug,
 		title,
 	} = upsell;
 
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
 			type: 'upsell_with_price',
+			product_slug,
 		} );
-	}, [] );
+	}, [ product_slug ] );
 
 	const onUpsellClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
 			type: 'upsell_with_price',
+			product_slug,
 		} );
-	}, [] );
+	}, [ product_slug ] );
 
 	const currencyObject = getCurrencyObject( price, currency_code );
 

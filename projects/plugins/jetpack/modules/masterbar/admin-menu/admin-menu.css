@@ -67,21 +67,17 @@
 	padding: 10px 0 10px 8px;
 }
 
+/**
+ * Site icon inline-styles for height and width are defined in set_site_icon_inline_styles
+ */
 #adminmenu .toplevel_page_site-card .wp-menu-image {
 	background-image: none;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: 18px 18px;
-	height: 32px;
 	transform: translateZ(0);
 	transition-property: background-image,background-color;
 	transition-duration: .2s;
-	width: 32px;
-}
-
-#adminmenu .toplevel_page_site-card .wp-menu-image img {
-	height: auto;
-	max-width: 100%;
 }
 
 #adminmenu a.toplevel_page_site-card:hover,
@@ -95,7 +91,6 @@
 
 #adminmenu .toplevel_page_site-card.has-site-icon img {
 	padding: 0;
-	max-width: 100%;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
