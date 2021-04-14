@@ -98,7 +98,6 @@ describe( 'Search', () => {
 
 	it( 'Can open and close overlay', async () => {
 		await step( 'Can press enter to to open overlay', async () => {
-			await homepage.focusSearchInput();
 			await homepage.pressEnterInSearchInput();
 			await homepage.wairForAnimationAndRendering();
 
