@@ -442,55 +442,6 @@ You’ll likely need to install a browser extension like the following:
 * [The easiest Xdebug](https://addons.mozilla.org/en-US/firefox/addon/the-easiest-xdebug/) for Mozilla Firefox
 * [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc) for Google Chrome
 
-#### Remote debugging with Atom editor
-
-![Screenshot showing Atom editor with Xdebug](https://user-images.githubusercontent.com/746152/37091829-573605f6-21e8-11e8-9f16-3908854fd7d6.png)
-
-You’ll need to install the [php-debug](https://atom.io/packages/php-debug) package for Atom. Features of this package include:
-* Add Breakpoints
-* Step through debugging (Over, In, Out)
-* Stack and Context views
-* Add watch points to inspect current values of variables
-
-##### Configuring Atom editor
-
-1. Install [php-debug](https://atom.io/packages/php-debug) package for your Atom editor.
-
-1. Configure php-debug:
-
-	1. To listen on all addresses (**Server Address**: `0.0.0.0` and **Port**: `9003`)
-	    ![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
-
-	2. To map your current Jetpack directory to the docker file system path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
-
-		![Screenshot showing "Path Maps" input](https://user-images.githubusercontent.com/746152/37150779-c891a7f4-22b1-11e8-9293-f34679df82f5.png)
-
-1. Make sure you installed the Chrome extension on your browser and configure it to send the IDE Key `xdebug-atom`
-
-	* In the case of the **Xdebug Helper** extension, you get to set this by right-clicking (secondary click) on the extensions’ icon and clicking **Options**:
-
-		![Screenshot showing Xdebug helper menu](https://user-images.githubusercontent.com/746152/37093557-82b766a6-21ee-11e8-8c0f-93f7ae72b9dc.png)
-
-	* Set the IDE key field to `Other`, enter `xdebug-atom` in the text field, and press Save.
-
-		![Screenshot showing IDE Key](https://user-images.githubusercontent.com/746152/37178231-ac46f92e-2300-11e8-88ec-31434a3d8fc7.png)
-
-1. Going back to Atom, proceed to toggle debugging on from the **Package** Menu item:
-
-	![Screenshot showing Package menu items](https://user-images.githubusercontent.com/746152/37092536-08f8e4fa-21eb-11e8-8f5c-bcf70029612b.png)
-
-	* Expect to see the debugger console window opening:
-
-	![Screenshot showing debugger console](https://user-images.githubusercontent.com/746152/37092608-3f649e26-21eb-11e8-87b8-02a8ae7e9a98.png)
-
-	* This window will read `Listening on address port 0.0.0.0:9003` until you go to the WordPress site and refresh to make a new request. Then this window will read: `Connected` for a short time until the request ends. Note that it will also remain as such if you had added a break point and the code flow has stopped:
-
-	![Screenshot showing "connected"](https://user-images.githubusercontent.com/746152/37092711-9d8d1fb4-21eb-11e8-93f6-dd1edf89e6fa.png)
-
-1. You should be able to set breakpoints now:
-
-	![Screen animation showing setting a breakpoint](https://user-images.githubusercontent.com/746152/37093212-591fe7d8-21ed-11e8-8352-47839ce58964.gif)
-
 #### Remote debugging with PhpStorm editor
 
 Below are instructions for starting a debug session in PhpStorm that will listen to activity on your Jetpack docker.
