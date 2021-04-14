@@ -513,7 +513,7 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 
 1. In the server configuration window, check the 'Use path mappings' check box.
 
-1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/tools/docker/wordpress' to '/var/www/html'
+1. In the server configuration window, map the root folder to '/usr/local/src/jetpack-monorepo'
 
 1. In the server configuration window, click 'Apply' then 'Ok'.
 
