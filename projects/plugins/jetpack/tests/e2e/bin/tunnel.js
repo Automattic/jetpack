@@ -53,7 +53,7 @@ async function tunnelOn() {
 		} );
 
 		fs.writeFileSync( config.get( 'temp.tunnels' ), tunnel.url );
-		console.log( `Opened tunnel for '${ tunnel.clientId }'` );
+		console.log( `Opened tunnel '${ tunnel.url }'` );
 	}
 
 	// If this script is not executed by pm2 process.send will be undefined
