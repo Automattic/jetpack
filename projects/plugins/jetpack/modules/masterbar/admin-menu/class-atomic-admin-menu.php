@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -287,9 +286,8 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function ajax_sidebar_state() {
 		$expanded = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$blog_id  = Jetpack_Options::get_option( 'id' );
 		Client::wpcom_json_api_request_as_user(
-			'/sites/' . $blog_id . '/update-calypso-preferences',
+			'/me/preferences',
 			'2',
 			array(
 				'method' => 'POST',
