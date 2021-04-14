@@ -85,15 +85,15 @@ jobs:
         yarn install
         yarn jetpack build plugins/jetpack -v --production
 
-    - name: Set up environment
+    - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
-        NGROK_KEY: ${{ secrets.NGROK_KEY }}
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
         yarn install
         yarn test-decrypt-config
-        ./bin/env.sh start
+        yarn env-start
+        yarn tunnel-on
 
     - name: Run all tests
       if: matrix.gutenberg == 'no'
@@ -104,6 +104,14 @@ jobs:
       if: matrix.gutenberg == 'latest'
       working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e --testNamePattern=blocks
+
+    - name: Environment tear-down
+      if: ${{ always() }}
+      working-directory: projects/plugins/jetpack/tests/e2e
+      continue-on-error: true
+      run: |
+        yarn tunnel-off
+        yarn pm2 logs --nostream --lines 10000 > output/logs/tunnel.log
 
     - name: Upload test artifacts
       if: ${{ always() }}
