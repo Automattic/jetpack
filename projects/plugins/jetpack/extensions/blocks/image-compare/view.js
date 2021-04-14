@@ -155,8 +155,7 @@ domReady( function () {
 		return ! ( x === 'false' || x === '' );
 	}
 
-	function JXSlider( selector, images, options, element ) {
-		this.selector = selector;
+	function JXSlider( element, images, options ) {
 		this.element = element;
 
 		let i;
@@ -309,7 +308,7 @@ domReady( function () {
 				this.imgAfter &&
 				this.imgAfter.loaded === true
 			) {
-				this.wrapper = this.element ? this.element : document.querySelector( this.selector );
+				this.wrapper = this.element;
 
 				if ( ! this.wrapper || this.wrapper.querySelector( '.jx-slider' ) ) {
 					return;
@@ -476,7 +475,7 @@ domReady( function () {
 	Given an element that is configured with the proper data elements, make a slider out of it.
 	Normally this will just be used by scanPage.
 	*/
-	juxtapose.makeSlider = function ( element, idx, singleElement ) {
+	juxtapose.makeSlider = function ( element, idx ) {
 		if ( typeof idx === 'undefined' ) {
 			idx = juxtapose.sliders.length; // not super threadsafe...
 		}
@@ -511,16 +510,14 @@ domReady( function () {
 		const specificClass = 'juxtapose-' + idx;
 		addClass( element, specificClass );
 
-		const selector = '.' + specificClass;
-
 		if ( w.innerHTML ) {
 			w.innerHTML = '';
 		} else {
 			w.innerText = '';
 		}
 
-		const slider = new juxtapose.JXSlider(
-			selector,
+		return new juxtapose.JXSlider(
+			element,
 			[
 				{
 					src: images[ 0 ].src,
@@ -533,20 +530,15 @@ domReady( function () {
 					alt: images[ 1 ].alt,
 				},
 			],
-			options,
-			singleElement ? element : undefined
+			options
 		);
 	};
 
 	// Scan page and add juxtapose sliders.
-	juxtapose.scanPage = function ( ref ) {
-		if ( ref?.current ) {
-			juxtapose.makeSlider( ref.current, 0, true );
-		} else {
-			const elements = document.querySelectorAll( '.juxtapose' );
-			for ( let i = 0; i < elements.length; i++ ) {
-				juxtapose.makeSlider( elements[ i ], i );
-			}
+	juxtapose.scanPage = function () {
+		const elements = document.querySelectorAll( '.juxtapose' );
+		for ( let i = 0; i < elements.length; i++ ) {
+			juxtapose.makeSlider( elements[ i ], i );
 		}
 	};
 

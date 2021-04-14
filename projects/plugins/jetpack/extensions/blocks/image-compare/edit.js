@@ -57,7 +57,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	// Watching for changes to key variables to trigger scan.
 	useLayoutEffect( () => {
 		if ( imageBefore.url && imageAfter.url && typeof juxtapose !== 'undefined' ) {
-			juxtapose.scanPage( juxtaposeRef );
+			juxtapose.makeSlider( juxtaposeRef?.current );
 		}
 	}, [ imageBefore, imageAfter, orientation ] );
 
