@@ -1342,7 +1342,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_get_p2_workspace_hub_blog_id_for_a_hub() {
 		$hub_blog_id = 123;
 		\Jetpack_Options::update_option( 'id', $hub_blog_id );
-		\Jetpack_Options::update_option( 'p2_options', [ 'is_p2_hub_site' => true ] );
+		\Jetpack_Options::update_option( 'p2_options', array( 'is_p2_hub_site' => true ) );
 
 		$functions = new Functions();
 		$this->assertEquals( $hub_blog_id, $functions->p2_workspace_hub_blog_id() );
@@ -1353,7 +1353,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_get_p2_workspace_hub_blog_id_for_a_workspace_site() {
 		$hub_blog_id = 456;
-		\Jetpack_Options::update_option( 'p2_options', [ 'p2_hub_blog_id' => $hub_blog_id ] );
+		\Jetpack_Options::update_option( 'p2_options', array( 'p2_hub_blog_id' => $hub_blog_id ) );
 
 		$functions = new Functions();
 		$this->assertEquals( $hub_blog_id, $functions->p2_workspace_hub_blog_id() );
@@ -1363,7 +1363,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * Test getting p2 workspace hub blog id when the current blog doesnt have proper p2 options.
 	 */
 	public function test_get_p2_workspace_hub_blog_id_wrong_p2_options() {
-		\Jetpack_Options::update_option( 'p2_options', [] );
+		\Jetpack_Options::update_option( 'p2_options', array() );
 
 		$functions = new Functions();
 		$this->assertEquals( 0, $functions->p2_workspace_hub_blog_id() );

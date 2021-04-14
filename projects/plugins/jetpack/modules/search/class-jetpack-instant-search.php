@@ -161,8 +161,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
-		$group_id = '';
-		$p2_workspace_hub_blog_id = get_option( $prefix . 'p2_workspace_hub_blog_id' );
+		projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-callables.php		$p2_workspace_hub_blog_id = get_option( $prefix . 'p2_workspace_hub_blog_id' );
 		if ( $p2_workspace_hub_blog_id ) {
 			$group_id = 'p2_workspace_hub_blog_id:' . $p2_workspace_hub_blog_id;
 		}
@@ -190,7 +189,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'postTypes'             => $post_type_labels,
 			'webpackPublicPath'     => plugins_url( '_inc/build/instant-search/', JETPACK__PLUGIN_FILE ),
 			'isPhotonEnabled'       => ( $is_wpcom || $is_jetpack_photon_enabled ) && ! $is_private_site,
-			'groupId'				=> $group_id,
+			'groupId'               => $group_id,
 
 			// config values related to private site support.
 			'apiRoot'               => esc_url_raw( rest_url() ),
