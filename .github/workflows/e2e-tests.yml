@@ -98,12 +98,16 @@ jobs:
     - name: Run all tests
       if: matrix.gutenberg == 'no'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e
+      run: yarn test-e2e --testPathIgnorePatterns=search
 
     - name: Run only blocks tests with latest Gutenberg
       if: matrix.gutenberg == 'latest'
       working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e --testNamePattern=blocks
+    - name: Run only search tests
+      if: matrix.gutenberg == 'no' && ( contains(github.event.pull_request.labels.*.name, 'Search') || contains(github.event.pull_request.labels.*.name, 'Instant Search') )
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: yarn test-e2e --testNamePattern=search
 
     - name: Environment tear-down
       if: ${{ always() }}
