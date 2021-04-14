@@ -901,8 +901,8 @@ class Jetpack_Custom_CSS {
 
 	static function menu() {
 		$parent = 'themes.php';
-		$title = __( 'Edit CSS', 'jetpack' );
-		$hook = add_theme_page( $title, $title, 'edit_theme_options', 'editcss', array( 'Jetpack_Custom_CSS', 'admin' ) );
+		$title  = __( 'Additional CSS', 'jetpack' );
+		$hook   = add_theme_page( $title, $title, 'edit_theme_options', 'editcss', array( 'Jetpack_Custom_CSS', 'admin' ) );
 
 		add_action( "load-revision.php", array( 'Jetpack_Custom_CSS', 'prettify_post_revisions' ) );
 		add_action( "load-$hook", array( 'Jetpack_Custom_CSS', 'update_title' ) );

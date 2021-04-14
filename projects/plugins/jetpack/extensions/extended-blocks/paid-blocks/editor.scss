@@ -117,6 +117,16 @@ $icon-background-color: #fff;
 // Media Placeholder
 .paid-block-media-placeholder {
 	width: 100%;
+
+	// Remove paid-block-media-placeholder from being a flexbox child
+	// when the cover block has a background set
+	.wp-block-cover &:not( :only-child ) {
+		position: absolute;
+		top: 0;
+		right: 0;
+		left: 0;
+		bottom: 0;
+	}
 }
 
 // core/cover set padding 0 with !important.

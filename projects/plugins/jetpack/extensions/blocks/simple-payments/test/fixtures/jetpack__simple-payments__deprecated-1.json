@@ -4,7 +4,7 @@
         "name": "jetpack/simple-payments",
         "isValid": true,
         "attributes": {
-            "currency": "EUR",
+            "currency": "AUD",
             "content": "",
             "email": "bob@bob.com",
             "featuredMediaId": 11,
