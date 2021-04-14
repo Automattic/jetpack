@@ -3,6 +3,9 @@
 .wp-block-jetpack-image-compare {
 	margin-left: 0;
 	margin-right: 0;
+	img {
+		max-width: 100%;
+	}
 }
 
 // The positioning in the editor crops the selection focus. This accounts for that.
