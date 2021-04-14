@@ -72,7 +72,7 @@
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: 18px 18px;
-	height: 32px;
+	height: a;
 	transform: translateZ(0);
 	transition-property: background-image,background-color;
 	transition-duration: .2s;
