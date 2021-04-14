@@ -38,9 +38,11 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99998 );
-		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
+		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
+		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
 		$this->domain = ( new Status() )->get_site_suffix();
@@ -222,6 +224,20 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Injects inline-styles for site icon for when third-party plugins remove enqueued stylesheets.
+	 * Unable to use wp_add_inline_style as plugins remove styles from all non-standard handles
+	 */
+	public function set_site_icon_inline_styles() {
+		echo '<style>
+			#adminmenu .toplevel_page_site-card .wp-menu-image,
+			#adminmenu .toplevel_page_site-card .wp-menu-image img {
+				height: 32px;
+				width: 32px;
+			}
+		</style>';
+	}
+
+	/**
 	 * Adds the given menu item in the specified position.
 	 *
 	 * @param array $item The menu item to add.
@@ -247,6 +263,58 @@ abstract class Base_Admin_Menu {
 	 */
 	public function is_rtl() {
 		return is_rtl();
+	}
+
+	/**
+	 * Checks for any SVG icons in the menu, and overrides things so that
+	 * we can display the icon in the correct colour for the theme.
+	 */
+	public function override_svg_icons() {
+		global $menu;
+
+		// Only do this if we're not in an API request, as we override the $menu global.
+		if ( $this->is_api_request ) {
+			return;
+		}
+
+		$svg_items = array();
+		foreach ( $menu as $idx => $menu_item ) {
+			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+				$svg_items[] = array(
+					'icon' => $menu[ $idx ][6],
+					'id'   => $menu[ $idx ][5],
+				);
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $idx ][6] = 'none';
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $idx ][4] .= ' menu-svg-icon';
+			}
+		}
+		if ( count( $svg_items ) > 0 ) {
+			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
+			foreach ( $svg_items as $svg_item ) {
+				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
+			}
+			$styles .= '@supports ( mask-image: none ) or ( -webkit-mask-image: none ) { ';
+			$styles .= '.menu-svg-icon .wp-menu-image { background-image: none; } ';
+			$styles .= '.menu-svg-icon .wp-menu-image::before { background-color: currentColor; ';
+			$styles .= 'mask-size: contain; mask-position: center center; mask-repeat: no-repeat; ';
+			$styles .= '-webkit-mask-size: contain; -webkit-mask-position: center center; -webkit-mask-repeat: no-repeat; content:"" } ';
+			foreach ( $svg_items as $svg_item ) {
+				$styles .= sprintf(
+					'#%s .wp-menu-image { background-image: none; } #%s .wp-menu-image::before{ mask-image: url( "%s" ); -webkit-mask-image: url( "%s" ) }',
+					$svg_item['id'],
+					$svg_item['id'],
+					$svg_item['icon'],
+					$svg_item['icon']
+				);
+			}
+			$styles .= '}';
+
+			wp_register_style( 'svg-menu-overrides', false, array(), '20210331' );
+			wp_enqueue_style( 'svg-menu-overrides' );
+			wp_add_inline_style( 'svg-menu-overrides', $styles );
+		}
 	}
 
 	/**
