@@ -176,7 +176,7 @@ abstract class Base_Admin_Menu {
 		// This is needed for cases when the submenus to update have the same new slug.
 		$submenus_to_update = array_filter(
 			$submenus_to_update,
-			function ( $item, $old_slug ) {
+			static function ( $item, $old_slug ) {
 				return $item !== $old_slug;
 			},
 			ARRAY_FILTER_USE_BOTH

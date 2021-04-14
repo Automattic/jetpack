@@ -194,11 +194,12 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_media_menu
 	 */
 	public function test_add_media_menu() {
-		global $menu;
+		global $menu, $submenu;
 
 		static::$admin_menu->add_media_menu();
 
 		$this->assertSame( 'https://wordpress.com/media/' . static::$domain, $menu[10][2] );
+		$this->assertFalse( static::$admin_menu->has_visible_items( $submenu['upload.php'] ) );
 	}
 
 	/**
@@ -254,11 +255,12 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_comments_menu
 	 */
 	public function test_add_comments_menu() {
-		global $menu;
+		global $menu, $submenu;
 
 		static::$admin_menu->add_comments_menu();
 
 		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
+		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['edit-comments.php'] ) );
 	}
 
 	/**
@@ -288,6 +290,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_plugins_menu();
 
 		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
+		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 
 		// Reset.
 		$menu    = static::$menu_data;
