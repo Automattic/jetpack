@@ -458,7 +458,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 1. Configure php-debug:
 
-	1. To listen on all addresses (**Server Address**: `0.0.0.0`)
+	1. To listen on all addresses (**Server Address**: `0.0.0.0` and **Port**: `9003`)
 	    ![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
 
 	2. To map your current Jetpack directory to the docker file system path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
@@ -483,7 +483,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 	![Screenshot showing debugger console](https://user-images.githubusercontent.com/746152/37092608-3f649e26-21eb-11e8-87b8-02a8ae7e9a98.png)
 
-	* This window will read `Listening on address port 0.0.0.0:9000` until you go to the WordPress site and refresh to make a new request. Then this window will read: `Connected` for a short time until the request ends. Note that it will also remain as such if you had added a break point and the code flow has stopped:
+	* This window will read `Listening on address port 0.0.0.0:9003` until you go to the WordPress site and refresh to make a new request. Then this window will read: `Connected` for a short time until the request ends. Note that it will also remain as such if you had added a break point and the code flow has stopped:
 
 	![Screenshot showing "connected"](https://user-images.githubusercontent.com/746152/37092711-9d8d1fb4-21eb-11e8-93f6-dd1edf89e6fa.png)
 
@@ -536,39 +536,31 @@ In the debug panel in VSCode, select Add Configuration. Since you have PHP Debug
 You will need to supply a pathMappings value to the `launch.json` configuration. This value connects the debugger to the volume in Docker with the Jetpack code. Your `launch.json` file should have this configuration when you're done.
 
 ```json
-	{
-		"version": "0.2.0",
-		"configurations": [
-			{
-				"name": "Listen for XDebug",
-				"type": "php",
-				"request": "launch",
-				"port": 9000,
-				"pathMappings": {
-					"/var/www/html/wp-content/plugins/jetpack": "${workspaceRoot}"
-				}
-			},
-			{
-				"name": "Launch currently open script",
-				"type": "php",
-				"request": "launch",
-				"program": "${file}",
-				"cwd": "${fileDirname}",
-				"port": 9000
-			}
-		]
-	}
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/usr/local/src/jetpack-monorepo": "${workspaceRoot}"
+            }
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9003
+        }
+    ]
+}
 ```
 
-You'll need to set up the `XDEBUG_CONFIG` environment variable to enable remote debugging, and set the address and the port that the PHP Xdebug extension will use to connect to the debugger running in VSCode. Add the variable to your `.env` file.
-
-`XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1`
-
-You [will also have to configure the IDE key](https://github.com/mac-cain13/xdebug-helper-for-chrome/issues/89) for the Chrome/ Mozilla extension. In your `php.ini` file (you'll find that file at `tools/docker/config/php.ini` in the Docker environment), add:
-
-`xdebug.idekey = VSCODE`
-
-Now, in your browser's Xdebug Helper preferences, look for the IDE Key setting:
+In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 
 1. Select 'Other'
 2. Add `VSCODE` as the key.
