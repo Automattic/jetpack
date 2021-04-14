@@ -42,17 +42,19 @@
 			} );
 		}
 
-		var collapseButton = adminMenu.querySelector( '#collapse-button' );
-		// Nav-Unification feature:
-		// Saves the sidebar state in server when "Collapse menu" is clicked.
-		// This is needed so that we update WPCOM for this preference in real-time.
-		if ( collapseButton ) {
-			collapseButton.addEventListener( 'click', function ( event ) {
-				// Let's the core event listener be triggered first.
-				setTimeout( function () {
-					saveSidebarIsExpanded( event.target.parentNode.ariaExpanded );
-				}, 50 );
-			} );
+		if ( adminMenu ) {
+			var collapseButton = adminMenu.querySelector( '#collapse-button' );
+			// Nav-Unification feature:
+			// Saves the sidebar state in server when "Collapse menu" is clicked.
+			// This is needed so that we update WPCOM for this preference in real-time.
+			if ( collapseButton ) {
+				collapseButton.addEventListener( 'click', function ( event ) {
+					// Let's the core event listener be triggered first.
+					setTimeout( function () {
+						saveSidebarIsExpanded( event.target.parentNode.ariaExpanded );
+					}, 50 );
+				} );
+			}
 		}
 	}
 
