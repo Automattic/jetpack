@@ -155,8 +155,9 @@ domReady( function () {
 		return ! ( x === 'false' || x === '' );
 	}
 
-	function JXSlider( selector, images, options ) {
+	function JXSlider( selector, images, options, element ) {
 		this.selector = selector;
+		this.element = element;
 
 		let i;
 		this.options = {
@@ -308,8 +309,9 @@ domReady( function () {
 				this.imgAfter &&
 				this.imgAfter.loaded === true
 			) {
-				this.wrapper = document.querySelector( this.selector );
-				if ( ! this.wrapper ) {
+				this.wrapper = this.element ? this.element : document.querySelector( this.selector );
+
+				if ( ! this.wrapper || this.wrapper.querySelector( '.jx-slider' ) ) {
 					return;
 				}
 				addClass( this.wrapper, 'juxtapose' );
@@ -474,7 +476,7 @@ domReady( function () {
 	Given an element that is configured with the proper data elements, make a slider out of it.
 	Normally this will just be used by scanPage.
 	*/
-	juxtapose.makeSlider = function ( element, idx ) {
+	juxtapose.makeSlider = function ( element, idx, singleElement ) {
 		if ( typeof idx === 'undefined' ) {
 			idx = juxtapose.sliders.length; // not super threadsafe...
 		}
@@ -531,15 +533,20 @@ domReady( function () {
 					alt: images[ 1 ].alt,
 				},
 			],
-			options
+			options,
+			singleElement ? element : undefined
 		);
 	};
 
 	// Scan page and add juxtapose sliders.
-	juxtapose.scanPage = function () {
-		const elements = document.querySelectorAll( '.juxtapose' );
-		for ( let i = 0; i < elements.length; i++ ) {
-			juxtapose.makeSlider( elements[ i ], i );
+	juxtapose.scanPage = function ( ref ) {
+		if ( ref?.current ) {
+			juxtapose.makeSlider( ref.current, 0, true );
+		} else {
+			const elements = document.querySelectorAll( '.juxtapose' );
+			for ( let i = 0; i < elements.length; i++ ) {
+				juxtapose.makeSlider( elements[ i ], i );
+			}
 		}
 	};
 
