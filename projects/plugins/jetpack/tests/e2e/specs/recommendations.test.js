@@ -6,9 +6,10 @@ import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
 
 describe( 'Recommendations (Jetpack Assistant)', () => {
 	it( 'Recommendations (Jetpack Assistant)', async () => {
-		const recommendationsPage = await RecommendationsPage.visit( page );
+		let recommendationsPage;
 
 		await step( 'Navigate to the Recommendations module', async () => {
+			recommendationsPage = await RecommendationsPage.visit( page );
 			const isPageVisible = await recommendationsPage.areSiteTypeQuestionsVisible();
 			expect( isPageVisible ).toBeTruthy();
 			expect( recommendationsPage.isUrlInSyncWithStepName( 'site-type' ) ).toBeTruthy();
