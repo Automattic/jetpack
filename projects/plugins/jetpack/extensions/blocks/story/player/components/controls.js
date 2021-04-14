@@ -15,7 +15,7 @@ export default function Controls( { playing, muted, onPlayPressed, onMutePressed
 		<div className="wp-story-controls">
 			<SimpleButton
 				isPressed={ playing }
-				label={ __( 'Play', 'jetpack' ) }
+				label={ playing ? __( 'pause', 'jetpack' ) : __( 'play', 'jetpack' ) }
 				onClick={ onPlayPressed }
 			>
 				{ playing ? <PauseIcon /> : <PlayIcon /> }
@@ -23,7 +23,7 @@ export default function Controls( { playing, muted, onPlayPressed, onMutePressed
 			{ showMute && (
 				<SimpleButton
 					isPressed={ muted }
-					label={ __( 'Mute', 'jetpack' ) }
+					label={ muted ? __( 'unmute', 'jetpack' ) : __( 'mute', 'jetpack' ) }
 					onClick={ onMutePressed }
 				>
 					{ muted ? <VolumeOffIcon /> : <VolumeUpIcon /> }
