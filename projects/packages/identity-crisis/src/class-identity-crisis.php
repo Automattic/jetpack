@@ -530,6 +530,14 @@ class Identity_Crisis {
 		}
 
 		wp_enqueue_style(
+			'jetpack-idc-admin-bar-css',
+			plugin_dir_url( __DIR__ ) . 'build/jetpack-idc-admin-bar.css',
+			array( 'jetpack-dops-style' ),
+			JETPACK__VERSION
+		);
+		wp_style_add_data( 'jetpack-idc-admin-bar-css', 'rtl', plugin_dir_url( __DIR__ ) . 'build/jetpack-idc-admin-bar-rtl.css' );
+
+		wp_enqueue_style(
 			'jetpack-idc-css',
 			plugin_dir_url( __DIR__ ) . 'build/jetpack-idc.css',
 			array( 'jetpack-dops-style' ),
