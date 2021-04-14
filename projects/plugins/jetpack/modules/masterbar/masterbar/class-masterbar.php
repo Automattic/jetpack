@@ -196,6 +196,12 @@ class Masterbar {
 			// Override Notification module to include RTL styles.
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
+
+		// Hides and replaces the language dropdown for the current user.
+		if ( IS_PROFILE_PAGE ) {
+			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
+			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ) );
+		}
 	}
 
 	/**
@@ -449,6 +455,32 @@ class Masterbar {
 				load_default_textdomain( $locale );
 			}
 		}
+	}
+
+	/**
+	 * Hide language dropdown on user edit form.
+	 */
+	public function hide_language_dropdown() {
+		add_filter( 'get_available_languages', null );
+	}
+
+	/**
+	 * Replace language dropdown with link to WordPress.com.
+	 */
+	public function replace_language_dropdown() {
+		$language_row  = printf( '<tr class="user-language-wrap"><th scope="row">' );
+		$language_row .= printf(
+			'<label for="locale">%1$s<span class="dashicons dashicons-translation" aria-hidden="true"></span></label>',
+			esc_html( __( 'Language', 'jetpack' ) )
+		);
+		$language_row .= printf( '</th><td>' );
+		$language_row .= printf(
+			'<a target="_blank" href="%1$s">%2$s</a>',
+			esc_url( 'https://wordpress.com/me/account' ),
+			esc_html( __( 'Set your profile language on WordPress.com.', 'jetpack' ) )
+		);
+		$language_row .= printf( '</td></tr>' );
+		return $language_row;
 	}
 
 	/**
