@@ -272,8 +272,8 @@ domReady( function () {
 		},
 
 		setWrapperDimensions: function () {
-			const wrapperWidth = getComputedWidthAndHeight( this.wrapper ).width;
-			const wrapperHeight = getComputedWidthAndHeight( this.wrapper ).height;
+			const wrapperWidth = getComputedWidthAndHeight( this.wrapper.parentNode ).width;
+			const wrapperHeight = getComputedWidthAndHeight( this.wrapper.parentNode ).height;
 			let dims = this.calculateDims( wrapperWidth, wrapperHeight );
 			// if window is in iframe, make sure images don't overflow boundaries
 			if ( window.location !== window.parent.location && ! this.options.makeResponsive ) {
