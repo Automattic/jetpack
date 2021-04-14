@@ -24,6 +24,8 @@
 
 .contact-form select {
 	margin-bottom: 1.5em;
+	padding: 14px 7px;
+	min-width: 150px;
 }
 
 .contact-form textarea {
