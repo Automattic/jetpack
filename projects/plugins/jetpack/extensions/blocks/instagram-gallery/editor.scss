@@ -38,7 +38,7 @@
 	animation-timing-function: ease-out, ease-out;
 	animation-iteration-count: 1, infinite;
 	background-color: #a7a79f;
-	display: block;
+	display: flex;
 	opacity: 1;
 
 	&.is-loaded {
@@ -82,8 +82,9 @@
 @supports ( object-fit: cover ) {
 	.wp-block-jetpack-instagram-gallery__placeholder.is-loaded {
 		height: 100%;
+		flex-direction: column;
 		img {
-			height: 100%;
+			height: auto;
 			object-fit: cover;
 		}
 	}
