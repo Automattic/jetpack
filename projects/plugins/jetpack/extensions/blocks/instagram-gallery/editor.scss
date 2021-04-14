@@ -81,11 +81,20 @@
 
 @supports ( object-fit: cover ) {
 	.wp-block-jetpack-instagram-gallery__placeholder.is-loaded {
-		height: 100%;
+		display: flex;
 		flex-direction: column;
+		flex-grow: 1;
 		img {
 			height: auto;
 			object-fit: cover;
+			flex-grow: 1;
 		}
+	}
+}
+
+.wp-block-jetpack-instagram-gallery__grid {
+	.wp-block-jetpack-instagram-gallery__grid-post {
+		display: flex;
+		flex-direction: column;
 	}
 }
