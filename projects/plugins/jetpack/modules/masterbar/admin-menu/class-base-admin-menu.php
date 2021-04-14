@@ -42,6 +42,7 @@ abstract class Base_Admin_Menu {
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
 		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
 		$this->domain = ( new Status() )->get_site_suffix();
@@ -220,6 +221,20 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Injects inline-styles for site icon for when third-party plugins remove enqueued stylesheets.
+	 * Unable to use wp_add_inline_style as plugins remove styles from all non-standard handles
+	 */
+	public function set_site_icon_inline_styles() {
+		echo '<style>
+			#adminmenu .toplevel_page_site-card .wp-menu-image,
+			#adminmenu .toplevel_page_site-card .wp-menu-image img {
+				height: 32px;
+				width: 32px;
+			}
+		</style>';
 	}
 
 	/**
