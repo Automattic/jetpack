@@ -130,6 +130,10 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value, $e
 	if ( isset( $value['site_count'] ) ) {
 		update_user_option( get_current_user_id(), 'wpcom_site_count', $value['site_count'] );
 	}
+
+	if ( isset( $value['sidebar_collapsed'] ) ) {
+		set_user_setting( 'mfold', $value['sidebar_collapsed'] ? 'f' : 'o' );
+	}
 }
 add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 3 );
 
