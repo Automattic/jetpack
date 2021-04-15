@@ -100,7 +100,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$this->assertInstanceOf( Atomic_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
 
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
+		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
@@ -286,7 +286,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_tools_menu();
 
 		// Check Export menu item always links to WP Admin.
-		$this->assertSame( 'export.php', $submenu['tools.php'][3][2] );
+		$this->assertSame( 'export.php', $submenu['tools.php'][5][2] );
 	}
 
 	/**
@@ -342,10 +342,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		if ( current_user_can( 'install_themes' ) ) {
 			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
 			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][3][2] );
 		} else {
 			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][6][2] );
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		}
 	}
 

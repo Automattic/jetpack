@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+PHPCS updates to bring in line with WordPress standards.
