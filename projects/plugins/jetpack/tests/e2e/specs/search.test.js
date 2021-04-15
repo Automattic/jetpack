@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
+import { activateModule, execWpCommand } from '../lib/utils-helper';
 import Homepage from '../lib/pages/homepage';
 import { step } from '../lib/env/test-setup';
 
@@ -11,17 +11,17 @@ describe( 'Search', () => {
 		const searchConfigDir = './wp-content/plugins/jetpack-dev/tests/e2e/config/search';
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
-		await execMultipleWpCommands( 'wp option update instant_search_enabled 1' );
-		await execMultipleWpCommands(
+		await execWpCommand( 'wp option update instant_search_enabled 1' );
+		await execWpCommand(
 			`wp option update sidebars_widgets --format=json <	${ searchConfigDir }/search-sidebars-widgets.json`
 		);
-		await execMultipleWpCommands(
+		await execWpCommand(
 			`wp option update widget_jetpack-search-filters --format=json <	${ searchConfigDir }/search-filters.json`
 		);
 	} );
 
 	afterAll( async () => {
-		await execMultipleWpCommands( 'wp jetpack module deactivate search' );
+		await execWpCommand( 'wp jetpack module deactivate search' );
 	} );
 
 	it( 'Can perform search with default settings', async () => {
@@ -108,6 +108,38 @@ describe( 'Search', () => {
 			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBeFalsy();
+		} );
+	} );
+
+	it( 'Can reflect different result formats', async () => {
+		let homepage;
+		await step( 'Can use minimal format', async () => {
+			await execWpCommand( 'wp option update jetpack_search_result_format minimal' );
+			homepage = await Homepage.visit( page );
+			await homepage.registerRouteInterceptions();
+
+			await homepage.focusSearchInput();
+			await homepage.enterQuery( 'test1' );
+			await homepage.waitForSearchResponse();
+
+			expect( await homepage.isResultFormat( 'is-format-minimal' ) ).toBeTruthy();
+		} );
+
+		await step( 'Can use product format', async () => {
+			await execWpCommand( 'wp option update jetpack_search_result_format product' );
+			await homepage.reload();
+
+			expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
+			expect( await homepage.isProductImageVisible() ).toBeTruthy();
+			expect( await homepage.isProductPriceVisible() ).toBeTruthy();
+		} );
+
+		await step( 'Can use product format', async () => {
+			await execWpCommand( 'wp option update jetpack_search_result_format expanded' );
+			await homepage.reload();
+
+			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
+			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
 	} );
 } );

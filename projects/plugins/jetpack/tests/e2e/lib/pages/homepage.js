@@ -13,7 +13,7 @@ export default class Homepage extends WpPage {
 
 	constructor( page ) {
 		const url = `${ siteUrl }/`;
-		super( page, { expectedSelectors: [ '.post' ], url } );
+		super( page, { expectedSelectors: [ '.site-title' ], url } );
 	}
 
 	async registerRouteInterceptions() {
@@ -175,5 +175,25 @@ export default class Homepage extends WpPage {
 			( await this.isElementVisible( filteringSelector1 ) ) &&
 			( await this.isElementVisible( filteringSelector2 ) )
 		);
+	}
+
+	async isResultFormat( subSelector ) {
+		const resultListSelector = `.jetpack-instant-search__search-results-list.${ subSelector }`;
+		return this.isElementVisible( resultListSelector );
+	}
+
+	async isProductImageVisible() {
+		const productImageSelector = '.jetpack-instant-search__search-result-product-img';
+		return this.isElementVisible( productImageSelector );
+	}
+
+	async isProductPriceVisible() {
+		const productPriceSelector = '.jetpack-instant-search__product-price';
+		return this.isElementVisible( productPriceSelector );
+	}
+
+	async isExpandedImageVisible() {
+		const expandedImageSelector = '.jetpack-instant-search__search-result-expanded__image';
+		return this.isElementVisible( expandedImageSelector );
 	}
 }
