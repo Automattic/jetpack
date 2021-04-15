@@ -13,13 +13,26 @@ export default class Homepage extends WpPage {
 		super( page, { expectedSelectors: [ '.site-title' ], url } );
 	}
 
-	searchAPIRoute() {
-		return this.page.route( Homepage.SEARCH_API_PATTERN, ( route, request ) => {
+	/**
+	 * The function intercepts requests made to WPCOM Search API and returns mocked
+	 * results to the frontend. It also simulates sorting and filtering.
+	 *
+	 * The route returns `searchResultForTest1` for query `test1`.
+	 * And returns `searchResultForTest2` for any other queries.
+	 *
+	 * NOTE: The route sometimes is not persisted after page reloads so would need to
+	 * call the function again to make sure.
+	 *
+	 * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
+	 *
+	 */
+	async searchAPIRoute() {
+		this.page.route( Homepage.SEARCH_API_PATTERN, ( route, request ) => {
 			logger.info( `intercepted search API call: ${ request.url() }` );
 			const url = new URL( request.url() );
 			const params = url.searchParams;
 
-			// load response for queries
+			// loads response for queries
 			let body;
 			switch ( params.get( 'query' ) ) {
 				case 'test1':
@@ -31,7 +44,7 @@ export default class Homepage extends WpPage {
 					break;
 			}
 
-			// sorting
+			// deal with sorting
 			switch ( params.get( 'sort' ) ) {
 				case 'date_asc':
 					// put record 2 first
@@ -51,10 +64,7 @@ export default class Homepage extends WpPage {
 					break;
 			}
 
-			// filtering
-			// filter[bool][must][0][term][category.slug]=category-1
-			// filter[bool][must][2][term][tag.slug]=tag-1
-
+			// deal with filtering: only works with one category and one tag by filtering the results array
 			const category = params.get( 'filter[bool][must][0][term][category.slug]' );
 			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
 
