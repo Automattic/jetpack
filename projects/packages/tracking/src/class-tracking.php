@@ -99,6 +99,14 @@ class Tracking {
 			true
 		);
 
+		wp_enqueue_script(
+			'jp-tracks-functions',
+			Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
+			array(),
+			self::ASSETS_VERSION,
+			true
+		);
+
 		wp_localize_script(
 			'jptracks',
 			'jpTracksAJAX',
