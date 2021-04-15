@@ -328,7 +328,7 @@ domReady( function () {
 				this.wrapper.appendChild( this.slider );
 				// Need to get the nearest parent document to calculate scrolltop
 				// in case the block is in an iframe.
-				this.sliderParentDocument = this.wrapper.closest( 'html' ).parentNode;
+				this.sliderParentDocument = this.wrapper.ownerDocument;
 				if ( this.options.mode !== 'horizontal' ) {
 					addClass( this.slider, this.options.mode );
 				}
