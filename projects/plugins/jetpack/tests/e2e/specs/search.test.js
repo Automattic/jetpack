@@ -50,7 +50,7 @@ describe( 'Search', () => {
 		} );
 
 		await step( 'Can edit query in search form', async () => {
-			await homepage.enterQuery( 'test2' );
+			await homepage.enterQueryToOverlay( 'test2' );
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 1' );

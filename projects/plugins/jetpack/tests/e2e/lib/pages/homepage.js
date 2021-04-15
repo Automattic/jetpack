@@ -92,6 +92,14 @@ export default class Homepage extends WpPage {
 		return this.fill( searchInputSelector, query );
 	}
 
+	async enterQueryToOverlay( query, clear = true ) {
+		const searchInputSelector = 'input.jetpack-instant-search__box-input';
+		if ( clear ) {
+			await this.clear( searchInputSelector );
+		}
+		return this.fill( searchInputSelector, query );
+	}
+
 	async pressEnterInSearchInput() {
 		const searchInputSelector = 'input.search-field';
 		return this.page.press( searchInputSelector, 'Enter' );
