@@ -30,10 +30,8 @@ const config = {
 		tunnels: `${ tempDir }/e2e-tunnels.txt`,
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
-	},
-	search: {
-		searchResult1: `${ configDir }/search/search-results-for-test1.json`,
-		searchResult2: `${ configDir }/search/search-results-for-test2.json`,
+		sidebarsWidgetsFile: `${ tempDir }/sidebars-widgets.json`,
+		searchWidgetFile: `${ tempDir }/search-widget.json`,
 	},
 	consoleIgnore: [
 		'This is a global warning',

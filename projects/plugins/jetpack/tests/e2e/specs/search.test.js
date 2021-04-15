@@ -5,19 +5,18 @@ import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execWpCommand } from '../lib/utils-helper';
 import Homepage from '../lib/pages/homepage';
 import { step } from '../lib/env/test-setup';
+import {
+	enableInstantSearch,
+	setupSearchSidebarWidget,
+	setResultFormat,
+} from '../lib/search-helper';
 
 describe( 'Search', () => {
 	beforeAll( async () => {
-		const searchConfigDir = './wp-content/plugins/jetpack-dev/tests/e2e/config/search';
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
-		await execWpCommand( 'wp option update instant_search_enabled 1' );
-		await execWpCommand(
-			`wp option update sidebars_widgets --format=json <	${ searchConfigDir }/search-sidebars-widgets.json`
-		);
-		await execWpCommand(
-			`wp option update widget_jetpack-search-filters --format=json <	${ searchConfigDir }/search-filters.json`
-		);
+		await enableInstantSearch();
+		await setupSearchSidebarWidget();
 	} );
 
 	afterAll( async () => {
@@ -114,7 +113,7 @@ describe( 'Search', () => {
 	it( 'Can reflect different result formats', async () => {
 		let homepage;
 		await step( 'Can use minimal format', async () => {
-			await execWpCommand( 'wp option update jetpack_search_result_format minimal' );
+			await setResultFormat( 'minimal' );
 			homepage = await Homepage.visit( page );
 			await homepage.registerRouteInterceptions();
 
@@ -126,7 +125,7 @@ describe( 'Search', () => {
 		} );
 
 		await step( 'Can use product format', async () => {
-			await execWpCommand( 'wp option update jetpack_search_result_format product' );
+			await setResultFormat( 'product' );
 			await homepage.reload();
 
 			expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
@@ -135,7 +134,7 @@ describe( 'Search', () => {
 		} );
 
 		await step( 'Can use product format', async () => {
-			await execWpCommand( 'wp option update jetpack_search_result_format expanded' );
+			await setResultFormat( 'expanded' );
 			await homepage.reload();
 
 			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
