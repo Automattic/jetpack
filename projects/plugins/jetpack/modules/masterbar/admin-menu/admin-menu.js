@@ -1,3 +1,5 @@
+/* global ajaxurl */
+
 ( function () {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
@@ -60,7 +62,7 @@
 
 	function saveSidebarIsExpanded( expanded ) {
 		var xhr = new XMLHttpRequest();
-		xhr.open( 'POST', '/wp-admin/admin-ajax.php', true );
+		xhr.open( 'POST', ajaxurl, true );
 		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 		xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
 		xhr.withCredentials = true;
