@@ -251,6 +251,12 @@
 	}
 }
 
+/* Prevent box-shadow at the top of the sidebar */
+#adminmenu .site-switcher:hover,
+#adminmenu .toplevel_page_site-card:hover {
+	box-shadow: none;
+}
+
 /*
  * Styles for the nav-unification prototype (see pbAPfg-O2)
  * TODO: depending on project outcome move or delete styles
