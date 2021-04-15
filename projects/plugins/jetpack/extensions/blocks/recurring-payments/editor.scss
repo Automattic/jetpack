@@ -69,7 +69,6 @@
 		}
 
 		&__field-price {
-			margin: 0 0 0 5%;
 			width: 65%;
 		}
 
@@ -79,6 +78,10 @@
 
 			.components-input-control__container {
 				top: 4px;
+			}
+
+			div.membership-button__field-currency {
+				border-right: 10px solid transparent;
 			}
 
 			p {
