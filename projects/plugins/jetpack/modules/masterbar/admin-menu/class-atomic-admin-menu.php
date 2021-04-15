@@ -296,7 +296,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			'wpcom'
 		);
 
-		die();
+		wp_die();
 	}
 }
 
