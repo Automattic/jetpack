@@ -7,7 +7,6 @@ import { searchResultForTest1, searchResultForTest2 } from '../search-helper';
 
 export default class Homepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
-	static WAIT_FOR_ANIMATION_AND_RENDERING_TIMEOUT = 2000;
 
 	constructor( page ) {
 		const url = `${ siteUrl }/`;
@@ -136,7 +135,7 @@ export default class Homepage extends WpPage {
 	}
 
 	async wairForAnimationAndRendering() {
-		return this.waitForTimeout( Homepage.WAIT_FOR_ANIMATION_AND_RENDERING_TIMEOUT );
+		return this.waitForTimeout( 500 );
 	}
 
 	async isSortingLinkSelected( sorting = 'relevance' ) {
