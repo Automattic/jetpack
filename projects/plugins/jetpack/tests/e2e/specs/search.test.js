@@ -12,6 +12,7 @@ import {
 } from '../lib/search-helper';
 
 describe( 'Search', () => {
+	let homepage;
 	beforeAll( async () => {
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
@@ -21,12 +22,16 @@ describe( 'Search', () => {
 
 	afterAll( async () => {
 		await execWpCommand( 'wp jetpack module deactivate search' );
+		await setResultFormat( 'expanded' );
+	} );
+
+	beforeEach( async () => {
+		homepage = await Homepage.visit( page );
+		await homepage.searchAPIRoute();
+		await homepage.waitForNetworkIdle();
 	} );
 
 	it( 'Can perform search with default settings', async () => {
-		const homepage = await Homepage.visit( page );
-		await homepage.registerRouteInterceptions();
-
 		await step( 'Can open the overlay by entering a query', async () => {
 			await homepage.focusSearchInput();
 			await homepage.enterQuery();
@@ -92,9 +97,6 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can open and close overlay', async () => {
-		const homepage = await Homepage.visit( page );
-		await homepage.registerRouteInterceptions();
-
 		await step( 'Can press enter to to open overlay', async () => {
 			await homepage.pressEnterInSearchInput();
 			await homepage.wairForAnimationAndRendering();
@@ -111,14 +113,22 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can reflect different result formats', async () => {
-		let homepage;
+		await step( 'Can use expanded format', async () => {
+			// The default format is expanded
+			await homepage.focusSearchInput();
+			await homepage.enterQuery( 'random-string-1' );
+			await homepage.waitForSearchResponse();
+
+			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
+			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
+		} );
+
 		await step( 'Can use minimal format', async () => {
 			await setResultFormat( 'minimal' );
-			homepage = await Homepage.visit( page );
-			await homepage.registerRouteInterceptions();
-
+			await homepage.reload();
+			await homepage.searchAPIRoute();
 			await homepage.focusSearchInput();
-			await homepage.enterQuery( 'test1' );
+			await homepage.enterQuery( 'random-string-2' );
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isResultFormat( 'is-format-minimal' ) ).toBeTruthy();
@@ -127,18 +137,14 @@ describe( 'Search', () => {
 		await step( 'Can use product format', async () => {
 			await setResultFormat( 'product' );
 			await homepage.reload();
+			await homepage.searchAPIRoute();
+			await homepage.focusSearchInput();
+			await homepage.enterQuery( 'random-string-3' );
+			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
 			expect( await homepage.isProductImageVisible() ).toBeTruthy();
 			expect( await homepage.isProductPriceVisible() ).toBeTruthy();
-		} );
-
-		await step( 'Can use product format', async () => {
-			await setResultFormat( 'expanded' );
-			await homepage.reload();
-
-			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
-			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
 	} );
 } );
