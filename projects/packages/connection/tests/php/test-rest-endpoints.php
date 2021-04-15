@@ -56,6 +56,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_reconnect' );
+		$user->add_cap( 'jetpack_connect' );
 
 		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
@@ -330,6 +331,26 @@ class Test_REST_Endpoints extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'in_progress', $data['status'] );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint.
+	 */
+	public function test_connection_register() {
+		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
 	}
 
 	/**
