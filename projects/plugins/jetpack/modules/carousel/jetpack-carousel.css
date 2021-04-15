@@ -73,7 +73,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	bottom: 0;
 	left: 0;
 	z-index: 2147483647;
-	overflow: hidden auto;
+	overflow-x: hidden;
+	overflow-y: auto;
 	direction: ltr;
 }
 
@@ -683,6 +684,10 @@ a.jp-carousel-image-download:hover {
 
 .jp-carousel-comment + .jp-carousel-comment {
 	margin-top: 20px;
+}
+
+.jp-carousel-comment:last-of-type {
+	margin-bottom: 20px;
 }
 
 .jp-carousel-comment p {
