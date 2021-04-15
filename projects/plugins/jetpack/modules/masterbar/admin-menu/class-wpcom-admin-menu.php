@@ -15,6 +15,15 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class WPcom_Admin_Menu.
  */
 class WPcom_Admin_Menu extends Admin_Menu {
+	/**
+	 * WPcom_Admin_Menu constructor.
+	 */
+	protected function __construct() {
+		parent::__construct();
+
+		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
+	}
 
 	/**
 	 * Sets up class properties for REST API requests.
@@ -198,7 +207,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
 		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
-		remove_submenu_page( 'themes.php', 'theme-editor.php' );
+		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
 		$user_can_customize = current_user_can( 'customize' );
 
@@ -255,7 +264,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
-		if ( remove_submenu_page( 'options-general.php', 'sharing' ) ) {
+		if ( $this->hide_submenu_page( 'options-general.php', 'sharing' ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
 		}
 	}
@@ -308,5 +317,37 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
+	}
+
+	/**
+	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
+	 */
+	public function ajax_sidebar_state() {
+		$expanded    = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id     = get_current_user_id();
+		$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
+		if ( empty( $preferences ) ) {
+			$preferences = array();
+		}
+
+		$value = array_merge( (array) $preferences, array( 'sidebarCollapsed' => ! $expanded ) );
+		$value = array_filter(
+			$value,
+			function ( $preference ) {
+				return null !== $preference;
+			}
+		);
+
+		update_user_attribute( $user_id, 'calypso_preferences', $value );
+
+		die();
+	}
+
+	/**
+	 * Syncs the sidebar collapsed state from Calypso Preferences.
+	 */
+	public function sync_sidebar_collapsed_state() {
+		$sidebar_collapsed = get_user_attribute( get_current_user_id(), 'calypso_preferences' )['sidebarCollapsed'];
+		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
 	}
 }
