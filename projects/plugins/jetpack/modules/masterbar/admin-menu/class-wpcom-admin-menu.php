@@ -198,7 +198,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
 		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
-		remove_submenu_page( 'themes.php', 'theme-editor.php' );
+		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
 		$user_can_customize = current_user_can( 'customize' );
 
@@ -255,7 +255,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
 		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
-		if ( remove_submenu_page( 'options-general.php', 'sharing' ) ) {
+		if ( $this->hide_submenu_page( 'options-general.php', 'sharing' ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
 		}
 	}

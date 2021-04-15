@@ -228,7 +228,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'tools.php', esc_attr__( 'Export', 'jetpack' ), __( 'Export', 'jetpack' ), 'export', 'export.php' );
 
 		// Remove the submenu auto-created by Core.
-		remove_submenu_page( 'tools.php', 'tools.php' );
+		$this->hide_submenu_page( 'tools.php', 'tools.php' );
 	}
 
 	/**
