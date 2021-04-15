@@ -116,6 +116,7 @@ describe( 'Search', () => {
 			await homepage.enterQuery( 'random-string-1' );
 			await homepage.waitForSearchResponse();
 
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
 			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
@@ -125,9 +126,10 @@ describe( 'Search', () => {
 			await homepage.reload();
 			await homepage.searchAPIRoute();
 			await homepage.focusSearchInput();
-			await homepage.enterQuery( 'random-string-2' );
+			await homepage.enterQueryToOverlay( 'random-string-2' );
 			await homepage.waitForSearchResponse();
 
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 			expect( await homepage.isResultFormat( 'is-format-minimal' ) ).toBeTruthy();
 		} );
 
@@ -136,9 +138,10 @@ describe( 'Search', () => {
 			await homepage.reload();
 			await homepage.searchAPIRoute();
 			await homepage.focusSearchInput();
-			await homepage.enterQuery( 'random-string-3' );
+			await homepage.enterQueryToOverlay( 'random-string-3' );
 			await homepage.waitForSearchResponse();
 
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 			expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
 			expect( await homepage.isProductImageVisible() ).toBeTruthy();
 			expect( await homepage.isProductPriceVisible() ).toBeTruthy();
