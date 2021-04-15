@@ -1,6 +1,6 @@
-import { createLogger, format, transports, addColors } from 'winston';
-import config from 'config';
-import path from 'path';
+const { createLogger, format, transports, addColors } = require( 'winston' );
+const config = require( 'config' );
+const path = require( 'path' );
 
 const LEVEL = Symbol.for( 'level' );
 
@@ -58,7 +58,8 @@ const stringFormat = format.combine(
 	format.uncolorize()
 );
 
-const logger = createLogger( {
+// eslint-disable-next-line no-unused-vars
+const logger = ( module.exports = createLogger( {
 	levels: myCustomLevels.levels,
 	format: format.combine(
 		format.timestamp( {
@@ -123,6 +124,4 @@ const logger = createLogger( {
 			level: consoleLogLevel,
 		} ),
 	],
-} );
-
-export default logger;
+} ) );

@@ -426,18 +426,21 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_reader_sharing_css() {
 		// If sharing is not enabled, we should not proceed to render the CSS.
-		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
+		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) | ! defined( 'JETPACK_SOCIAL_LOGOS_URL' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
 			return;
 		}
 
 		/*
 		 * We'll need to output the full contents of the 2 files
 		 * in the head on AMP views. We can't rely on regular enqueues here.
+		 * @todo As of AMP plugin v1.5, you can actually rely on regular enqueues thanks to https://github.com/ampproject/amp-wp/pull/4299. Once WPCOM upgrades AMP, then this method can be eliminated.
 		 *
 		 * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		 */
-		echo file_get_contents( JETPACK_SOCIAL_LOGOS_DIR . 'social-logos.css' );
+		$css = file_get_contents( JETPACK_SOCIAL_LOGOS_DIR . 'social-logos.css' );
+		$css = preg_replace( '#(?<=url\(")(?=social-logos\.)#', JETPACK_SOCIAL_LOGOS_URL, $css ); // Make sure font files get their absolute paths.
+		echo $css;
 		echo file_get_contents( WP_SHARING_PLUGIN_DIR . 'amp-sharing.css' );
 
 		/*

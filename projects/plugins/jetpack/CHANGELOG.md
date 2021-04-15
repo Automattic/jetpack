@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 9.6.1 - 2021-04-13
+### Bug fixes
+- Connection tools: safeguard cleanup tool against accidental option removal.
+- Dashboard: fix loading indicator styles by deprecating our custom solution in favor of WordPress Core's Spinner.
+- Instant Search: fix Customizer and styling bugs introduced in 9.6.
+- Instant Search: Handle pagination edge-case with excluded post types.
+- Sharing: ensure the feature can be used when Jetpack is used in Offline mode.
+- Stats: Fix time period selection on the stats page.
+
+### Other
+- Admin Menu: Centralize class loading in Jetpack codebase.
+- Admin Menu: Fix the display of the Links Manager.
+- Cover block: fix paid-block-media-placeholder interference with flex positioning.
+- Remove outdated reference to SEO as a paid feature in readme.txt.
+
 ## 9.6 - 2021-04-06
 ### Enhancements
 - Beautiful Math: remove title attribute from generated image.
