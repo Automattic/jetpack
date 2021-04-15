@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync Checksums : Update postmeta range query tperformance #19337
