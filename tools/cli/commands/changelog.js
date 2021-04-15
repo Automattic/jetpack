@@ -100,6 +100,74 @@ export function changelogDefine( yargs ) {
 					async argv => {
 						await changelogValidate( argv );
 					}
+				)
+				.command(
+					'write [project]',
+					'Writes all of the added changelog files to the project README.md',
+					yargWrite => {
+						yargWrite
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'amend', {
+								describe: 'Amend the latest version instead of creating a new one',
+								type: 'string',
+							} )
+							.option( 'yes', {
+								describe:
+									'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode',
+								type: 'bool',
+							} )
+							.option( 'use-version', {
+								describe:
+									'Specify a version instead of determining the version automatically, e.g. 2.0.0',
+								type: 'string',
+							} )
+							.option( 'use-significance', {
+								describe:
+									'When determining the new version, use this significance instead of using the actual change files',
+								type: 'string',
+							} )
+							.option( 'prerelease', {
+								alias: 'p',
+								describe: 'When determining the new version, include this prerelease suffix',
+								type: 'bool',
+							} )
+							.option( 'buildinfo', {
+								alias: 'b',
+								describe: 'When fetching the next version, include this buildinfo suffix',
+								type: 'bool',
+							} )
+							.option( 'release-date', {
+								describe: 'Release date, as a valid PHP date or "unreleased"',
+								type: 'string',
+							} )
+							.option( 'default-first-version', {
+								describe:
+									'If the changelog is currently empty, guess a "first" version instead of erroring',
+								type: 'string',
+							} )
+							.option( 'deduplicate', {
+								describe: 'Deduplicate new changes against the last N versions',
+								type: 'bool',
+							} )
+							.option( 'prologue', {
+								describe: 'Prologue text for the new changelog entry',
+								type: 'string',
+							} )
+							.option( 'epilogue', {
+								describe: 'Epilogue text for the new changelog entry',
+								type: 'string',
+							} )
+							.option( 'link', {
+								describe: 'Link for the new changelog entry',
+								type: 'string',
+							} );
+					},
+					async argv => {
+						await changelogWrite( argv );
+					}
 				);
 		},
 		async argv => {
@@ -126,6 +194,8 @@ async function changelogRouter( argv ) {
 			changelogValidate( argv );
 			break;
 		case 'write':
+			changelogWrite( argv );
+			break;
 		case 'version':
 			console.error( chalk.red( 'Command not yet implemented!' ) );
 			process.exit( 1 );
@@ -219,6 +289,25 @@ export async function changelogValidate( argv ) {
 	if ( argv.v ) {
 		argv.args.push( '-v' );
 	}
+	changeloggerCli( argv );
+}
+
+/**
+ * Changelog write script.
+ *
+ * @param {object} argv - arguments passed to the CLI.
+ */
+async function changelogWrite( argv ) {
+	argv = await validateProject( argv );
+	argv.success = `${ argv.project } CHANGELOG.md written to succesfully!`;
+	argv.error = 'Writing to the changelog file failed. See error.';
+	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
+
+	// Remove project from command list we pass to changelogger.
+	if ( argv.args.includes( argv.project ) ) {
+		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
+	}
+
 	changeloggerCli( argv );
 }
 
