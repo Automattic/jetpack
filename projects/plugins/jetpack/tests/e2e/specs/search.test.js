@@ -7,8 +7,6 @@ import Homepage from '../lib/pages/homepage';
 import { step } from '../lib/env/test-setup';
 
 describe( 'Search', () => {
-	let homepage;
-
 	beforeAll( async () => {
 		const searchConfigDir = './wp-content/plugins/jetpack-dev/tests/e2e/config/search';
 		await syncJetpackPlanData( 'complete' );
@@ -26,12 +24,10 @@ describe( 'Search', () => {
 		await execMultipleWpCommands( 'wp jetpack module deactivate search' );
 	} );
 
-	beforeEach( async () => {
-		homepage = await Homepage.visit( page );
-		await homepage.registerRouteInterceptions();
-	} );
-
 	it( 'Can perform search with default settings', async () => {
+		const homepage = await Homepage.visit( page );
+		await homepage.registerRouteInterceptions();
+
 		await step( 'Can open the overlay by entering a query', async () => {
 			await homepage.focusSearchInput();
 			await homepage.enterQuery();
@@ -61,17 +57,17 @@ describe( 'Search', () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 1' );
 		} );
 
-		await step( 'Can change sorting', async () => {
-			await homepage.clickSortingOption( 'newest' );
-			await homepage.isSortOptionSelected( 'newest' );
+		await step( 'Can change sorting links', async () => {
+			await homepage.chooseSortingLink( 'newest' );
 			await homepage.waitForSearchResponse();
 
+			expect( await homepage.isSortingLinkSelected( 'newest' ) ).toBeTruthy();
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 3' );
 
-			await homepage.clickSortingOption( 'oldest' );
-			await homepage.isSortOptionSelected( 'oldest' );
+			await homepage.chooseSortingLink( 'oldest' );
 			await homepage.waitForSearchResponse();
 
+			expect( await homepage.isSortingLinkSelected( 'oldest' ) ).toBeTruthy();
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 2' );
 		} );
 
@@ -97,6 +93,9 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can open and close overlay', async () => {
+		const homepage = await Homepage.visit( page );
+		await homepage.registerRouteInterceptions();
+
 		await step( 'Can press enter to to open overlay', async () => {
 			await homepage.pressEnterInSearchInput();
 			await homepage.wairForAnimationAndRendering();

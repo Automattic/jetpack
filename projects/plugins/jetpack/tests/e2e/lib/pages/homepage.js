@@ -103,9 +103,14 @@ export default class Homepage extends WpPage {
 		return this.page.press( searchInputSelector, 'Enter' );
 	}
 
-	async clickSortingOption( sorting = 'relevance' ) {
-		const sortingNewestSelector = `.jetpack-instant-search__search-sort-option[data-value="${ sorting }"]`;
-		return this.click( sortingNewestSelector );
+	async chooseSortingOption( sorting = 'relevance' ) {
+		const sortingInputSelector = '#jetpack-instant-search__search-sort-select';
+		return this.selectOption( sortingInputSelector, sorting );
+	}
+
+	async chooseSortingLink( sorting = 'relevance' ) {
+		const sortingInputSelector = `.jetpack-instant-search__search-sort-option[data-value="${ sorting }"]`;
+		return this.click( sortingInputSelector );
 	}
 
 	async clickCrossToCloseOverlay() {
@@ -132,9 +137,9 @@ export default class Homepage extends WpPage {
 		return this.waitForTimeout( Homepage.WAIT_FOR_ANIMATION_AND_RENDERING_TIMEOUT );
 	}
 
-	async isSortOptionSelected( sorting = 'relevance' ) {
-		const sortingNewestSelector = `.is-selected.jetpack-instant-search__search-sort-option[data-value="${ sorting }"]`;
-		return this.isElementVisible( sortingNewestSelector );
+	async isSortingLinkSelected( sorting = 'relevance' ) {
+		const sortingInputSelector = `.is-selected.jetpack-instant-search__search-sort-option[data-value="${ sorting }"]`;
+		return this.isElementVisible( sortingInputSelector );
 	}
 
 	async isOverlayVisible() {
@@ -150,7 +155,7 @@ export default class Homepage extends WpPage {
 
 	async getFirstResultTitle() {
 		const resultTitleSelector = '.jetpack-instant-search__search-result-title-link';
-		return page.innerHTML( resultTitleSelector );
+		return this.page.innerHTML( resultTitleSelector );
 	}
 
 	async isSearchFormVisible() {
@@ -159,7 +164,7 @@ export default class Homepage extends WpPage {
 	}
 
 	async isSortingVisible() {
-		const sortingSelector = '.jetpack-instant-search__search-results-search-form';
+		const sortingSelector = '.jetpack-instant-search__search-sort';
 		return this.isElementVisible( sortingSelector );
 	}
 
