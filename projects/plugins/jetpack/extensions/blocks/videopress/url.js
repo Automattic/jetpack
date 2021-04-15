@@ -10,6 +10,7 @@ export const getVideoPressUrl = (
 		controls,
 		loop,
 		muted,
+		playsinline,
 		poster,
 		preload,
 		seekbarColor,
@@ -26,6 +27,7 @@ export const getVideoPressUrl = (
 	// - Controls: Turned on by default.
 	// - Loop: Turned off by default.
 	// - Muted: Turned off by default.
+	// - Plays Inline: Turned off by default.
 	// - Poster: No image by default.
 	// - Preload: None by default.
 	const options = {
@@ -33,6 +35,7 @@ export const getVideoPressUrl = (
 		...( ! controls && { controls: false } ),
 		...( loop && { loop: true } ),
 		...( muted && { muted: true, persistVolume: false } ),
+		...( playsinline && { playsinline: true } ),
 		...( poster && { posterUrl: poster } ),
 		...( preload !== 'none' && { preloadContent: preload } ),
 		...( seekbarColor !== '' && { sbc: seekbarColor } ),
