@@ -126,12 +126,7 @@ export default class Homepage extends WpPage {
 	}
 
 	async waitForSearchResponse() {
-		await this.page.waitForResponse( resp => Homepage.SEARCH_API_PATTERN.test( resp.url() ) );
-		return await this.wairForAnimationAndRendering();
-	}
-
-	async wairForAnimationAndRendering() {
-		return this.waitForTimeout( 500 );
+		return this.page.waitForResponse( resp => Homepage.SEARCH_API_PATTERN.test( resp.url() ) );
 	}
 
 	async isSortingLinkSelected( sorting = 'relevance' ) {

@@ -90,7 +90,6 @@ describe( 'Search', () => {
 
 		await step( 'Can close overlay by clicking the cross', async () => {
 			await homepage.clickCrossToCloseOverlay();
-			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBeFalsy();
 		} );
@@ -99,14 +98,12 @@ describe( 'Search', () => {
 	it( 'Can open and close overlay', async () => {
 		await step( 'Can press enter to to open overlay', async () => {
 			await homepage.pressEnterInSearchInput();
-			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 		} );
 
 		await step( 'Can click the cross to close the overlay', async () => {
 			await homepage.clickCrossToCloseOverlay();
-			await homepage.wairForAnimationAndRendering();
 
 			expect( await homepage.isOverlayVisible() ).toBeFalsy();
 		} );
