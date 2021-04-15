@@ -130,12 +130,14 @@ function jetpack_og_tags() {
 			/*
 			 * If the post author set an excerpt, use that.
 			 * Otherwise, pick the post content that comes before the More tag if there is one.
+			 * Do not use the post content if it contains premium content.
 			 */
-			$excerpt = ! empty( $data->post_excerpt )
-				? $data->post_excerpt
-				: explode( '<!--more-->', $data->post_content )[0];
-
-			$tags['og:description'] = jetpack_og_get_description( $excerpt );
+			if ( ! empty( $data->post_excerpt ) ) {
+				$tags['og:description'] = jetpack_og_get_description( $data->post_excerpt );
+			} elseif ( ! has_block( 'premium-content/container', $data->post_content ) ) {
+				$excerpt                = explode( '<!--more-->', $data->post_content )[0];
+				$tags['og:description'] = jetpack_og_get_description( $excerpt );
+			}
 		}
 
 		$tags['article:published_time'] = gmdate( 'c', strtotime( $data->post_date_gmt ) );
@@ -452,11 +454,6 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * @return string $description Cleaned up description string.
  */
 function jetpack_og_get_description( $description = '', $data = null ) {
-	// Calls the render methods for each block, so hidden content
-	// such as subscriber content in Premium Content blocks are not
-	// included in the meta tags.
-	$description = do_blocks( $description );
-
 	// Remove tags such as <style or <script.
 	$description = wp_strip_all_tags( $description );
 

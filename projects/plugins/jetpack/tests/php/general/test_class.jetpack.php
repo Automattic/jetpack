@@ -617,98 +617,6 @@ EXPECTED;
 	}
 
 	/**
-	 * The generate_secrets method should return and store the secret.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_stores_secrets() {
-		$secret = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-	}
-
-	/**
-	 * The generate_secrets method should return the same secret after calling generate several times.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_does_not_regenerate_secrets() {
-		$secret = Jetpack::generate_secrets( 'name' );
-		$secret2 = Jetpack::generate_secrets( 'name' );
-		$secret3 = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, $secret2 );
-		$this->assertEquals( $secret, $secret3 );
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-	}
-
-	/**
-	 * The generate_secrets method should work with filters on wp_generate_password.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_works_with_filters() {
-		add_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
-		add_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
-
-		$secret = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-
-		remove_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
-		remove_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
-	}
-
-	/**
-	 * The generate_secrets method should work with long strings.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_works_with_long_strings() {
-		add_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
-
-		$secret = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-
-		remove_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
-	}
-
-	/**
-	 * The get_secrets method should return an error for unknown secrets
-	 *
-	 * @author roccotripaldi
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_returns_error_for_unknown_secrets() {
-		Jetpack::generate_secrets( 'name' );
-		$unknown_action = Jetpack::get_secrets( 'unknown', get_current_user_id() );
-		$unknown_user_id = Jetpack::get_secrets( 'name', 5 );
-
-		$this->assertInstanceOf( 'WP_Error', $unknown_action );
-		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_action->errors );
-		$this->assertInstanceOf( 'WP_Error', $unknown_user_id );
-		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_user_id->errors );
-	}
-
-	/**
-	 * The get_secrets method should return an error for expired secrets
-	 *
-	 * @author roccotripaldi
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_returns_error_for_expired_secrets() {
-		Jetpack::generate_secrets( 'name', get_current_user_id(), -600 );
-		$expired = Jetpack::get_secrets( 'name', get_current_user_id() );
-		$this->assertInstanceOf( 'WP_Error', $expired );
-		$this->assertArrayHasKey( 'verify_secrets_expired', $expired->errors );
-	}
-
-	/**
 	 * Parse the referer on plugin activation and record the activation source
 	 * - featured plugins page
 	 * - popular plugins page
@@ -929,19 +837,19 @@ EXPECTED;
 	 * Mocked `setup_xmlrpc_handlers`.
 	 *
 	 * @param array         $request_params Incoming request parameters.
-	 * @param bool          $is_active Whether the connection is currently active.
+	 * @param bool          $has_connected_owner Whether the site has a connected owner.
 	 * @param bool          $is_signed Whether the signature check has been successful.
 	 * @param WP_User|false $user User for the mocked Jetpack_XMLRPC_Server.
 	 * @return bool
 	 */
-	private function mocked_setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $user = false ) {
+	private function mocked_setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $user = false ) {
 		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
 
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 
 		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
-		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $xmlrpc_server );
+		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $xmlrpc_server );
 	}
 
 	/**
@@ -975,6 +883,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 			'jetpack.idcUrlValidation',
 			'jetpack.unlinkUser',
@@ -1009,6 +918,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 
 			'jetpack.testAPIUserCode',
@@ -1061,6 +971,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 
 			'jetpack.testAPIUserCode',
@@ -1142,14 +1053,28 @@ EXPECTED;
 		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
 		$required = array(
+			'jetpack.verifyAction',
+			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.remoteConnect',
-			'jetpack.getUser',
+			'jetpack.jsonAPI',
+
+			'jetpack.disconnectBlog',
+			'jetpack.unlinkUser',
+			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
+
+			'jetpack.syncObject',
 		);
 
-		// Nothing else is allowed.
-		$allowed = array();
+		$allowed = array(
+			'jetpack.subscriptions.subscribe',
+			'jetpack.updatePublicizeConnections',
+			'jetpack.getHeartbeatData',
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}

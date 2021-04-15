@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { debounce } from 'lodash';
-import { useMemoOne } from 'use-memo-one';
+import classnames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -10,17 +9,16 @@ import { useMemoOne } from 'use-memo-one';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, RichText, BlockControls } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Panel, PanelBody, ToggleControl } from '@wordpress/components';
 import { useContext, useEffect, useRef } from '@wordpress/element';
-import { useSelect, dispatch } from '@wordpress/data';
-import { useDebounce } from '@wordpress/compose';
+import { dispatch, useSelect, useDispatch } from '@wordpress/data';
+import { Panel, PanelBody } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
 import { ParticipantsControl, SpeakerEditControl } from './components/participants-control';
-import { TimestampControl, TimestampDropdown } from './components/timestamp-control';
+import { TimestampControl, TimestampEditControl } from './components/timestamp-control';
 import { BASE_CLASS_NAME } from './utils';
 import ConversationContext from '../conversation/components/context';
 import { STORE_ID as MEDIA_SOURCE_STORE_ID } from '../../store/media-source/constants';
@@ -31,14 +29,6 @@ import { getParticipantBySlug } from '../conversation/utils';
 const blockName = 'jetpack/dialogue';
 const blockNameFallback = 'core/paragraph';
 
-const useDebounceWithFallback = useDebounce
-	? useDebounce
-	: function useDebounceFallback( ...args ) {
-		const debounced = useMemoOne( () => debounce( ...args ), args );
-		useEffect( () => () => debounced.cancel(), [ debounced ] );
-		return debounced;
-	};
-
 export default function DialogueEdit( {
 	className,
 	attributes,
@@ -48,69 +38,88 @@ export default function DialogueEdit( {
 	mergeBlocks,
 	isSelected,
 } ) {
-	const {
-		content,
-		label,
-		slug,
-		placeholder,
-		showTimestamp,
-		timestamp,
-	} = attributes;
+	const { content, label, slug, placeholder, showTimestamp, timestamp } = attributes;
 
-	const mediaSource = useSelect(
-		select => select( MEDIA_SOURCE_STORE_ID ).getDefaultMediaSource(),
-		[]
-	);
+	const { mediaSource, mediaCurrentTime, mediaDuration, mediaDomReference, isMultipleSelection } = useSelect( select => {
+		const {
+			getDefaultMediaSource,
+			getMediaSourceCurrentTime,
+			getMediaSourceDuration,
+			getMediaSourceDomReference,
+		} = select( MEDIA_SOURCE_STORE_ID );
 
+		return {
+			mediaSource: getDefaultMediaSource(),
+			mediaCurrentTime: getMediaSourceCurrentTime(),
+			mediaDuration: getMediaSourceDuration(),
+			mediaDomReference: getMediaSourceDomReference(),
+			isMultipleSelection: select( 'core/block-editor' ).getMultiSelectedBlocks().length > 0,
+		};
+	}, [] );
+
+	const { playMediaSource, setMediaSourceCurrentTime } = useDispatch( MEDIA_SOURCE_STORE_ID );
 	const contentRef = useRef();
 
 	// Block context integration.
 	const participantsFromContext = context[ 'jetpack/conversation-participants' ];
-	const showConversationTimestamps = context[ 'jetpack/conversation-showTimestamps' ];
 
 	// Participants list.
-	const participants = participantsFromContext?.length
-		? participantsFromContext
-		: [];
+	const participants = participantsFromContext?.length ? participantsFromContext : [];
 
 	const conversationParticipant = getParticipantBySlug( participants, slug );
 
 	// Conversation context. A bridge between dialogue and conversation blocks.
 	const conversationBridge = useContext( ConversationContext );
 
-	const debounceSetDialoguesAttrs = useDebounceWithFallback( setAttributes, 250 );
-
 	// Update dialogue participant with conversation participant changes.
 	useEffect( () => {
-		if ( ! conversationParticipant ) {
+		// Do not update when multi-blocks selected.
+		if ( isMultipleSelection ) {
 			return;
 		}
 
-		if ( conversationParticipant.slug !== slug ) {
-			return;
-		}
-
-		// Do not update current Dialogue block.
+		// Do not update current block.
 		if ( isSelected ) {
 			return;
 		}
 
-		debounceSetDialoguesAttrs( {
+		// Bail early when bridge is not ready.
+		if ( ! conversationParticipant ) {
+			return;
+		}
+
+		// Only take care of blocks with same speaker slug.
+		if ( conversationParticipant.slug !== slug ) {
+			return;
+		}
+
+		// Only update if the label has changed.
+		if ( conversationParticipant.label === label ) {
+			return;
+		}
+
+		setAttributes( {
 			label: conversationParticipant.label,
 		} );
-	}, [ conversationParticipant, debounceSetDialoguesAttrs, isSelected, slug ] );
-
-	// Update dialogue timestamp setting from parent conversation.
-	useEffect( () => {
-		setAttributes( { showTimestamp: showConversationTimestamps } );
-	}, [ showConversationTimestamps, setAttributes ] );
-
-	function setShowConversationTimestamps( value ) {
-		conversationBridge.setAttributes( { showTimestamps: value } );
-	}
+	}, [
+		conversationParticipant,
+		label,
+		slug,
+		isMultipleSelection,
+		isSelected,
+		setAttributes,
+	] );
 
 	function setTimestamp( time ) {
 		setAttributes( { timestamp: time } );
+	}
+
+	function audioPlayback( time ) {
+		if ( mediaDomReference ) {
+			mediaDomReference.currentTime = time;
+		}
+		setMediaSourceCurrentTime( time );
+		playMediaSource();
 	}
 
 	return (
@@ -118,14 +127,17 @@ export default function DialogueEdit( {
 			<BlockControls>
 				{ mediaSource && (
 					<MediaPlayerToolbarControl
-						onTimeChange={ time => setTimestamp( convertSecondsToTimeCode( time ) ) }
+						onTimestampClick={ time => {
+							setAttributes( { showTimestamp: true } );
+							setTimestamp( convertSecondsToTimeCode( time ) );
+						} }
 					/>
 				) }
 			</BlockControls>
 
 			<InspectorControls>
 				<Panel>
-					<PanelBody title={ __( 'Participant', 'jetpack' ) }>
+					<PanelBody title={ __( 'Speaker', 'jetpack' ) }>
 						<ParticipantsControl
 							className={ BASE_CLASS_NAME }
 							participants={ participants }
@@ -140,55 +152,64 @@ export default function DialogueEdit( {
 						</PanelBody>
 					) }
 
-					<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Show conversation timestamps', 'jetpack' ) }
-							checked={ showTimestamp }
-							onChange={ setShowConversationTimestamps }
-						/>
-
-						{ showTimestamp && (
+					{ mediaSource && showTimestamp && (
+						<PanelBody title={ __( 'Timestamp', 'jetpack' ) }>
 							<TimestampControl
 								className={ BASE_CLASS_NAME }
 								value={ timestamp }
 								onChange={ setTimestamp }
+								mediaSource={ mediaSource }
+								duration={ mediaDuration }
 							/>
-						) }
-					</PanelBody>
+						</PanelBody>
+					) }
 				</Panel>
 			</InspectorControls>
 
-			<div className={ `${ BASE_CLASS_NAME }__meta` }>
+			<div className={ classnames( `${ BASE_CLASS_NAME }__meta`, {
+				'has-not-media-source': ! mediaSource,
+			} ) }>
 				<SpeakerEditControl
 					className={ `${ BASE_CLASS_NAME }__participant` }
 					label={ label }
 					participant={ conversationParticipant }
 					participants={ participants }
 					transcriptRef={ contentRef }
-					onParticipantChange={ ( updatedParticipant ) => {
+					onParticipantChange={ updatedParticipant => {
 						setAttributes( { label: updatedParticipant } );
 					} }
-					onSelect={ setAttributes }
+					onSelect={ ( selectedParticipant ) => {
+						if ( isMultipleSelection ) {
+							return;
+						}
 
+						setAttributes( selectedParticipant );
+					} }
 					onClean={ () => {
 						setAttributes( { slug: null, label: '' } );
 					} }
-
-					onAdd={ ( newLabel ) => {
-						const newParticipant = conversationBridge.addNewParticipant( newLabel );
+					onAdd={ newLabel => {
+						const newParticipant = conversationBridge.addNewParticipant( {
+							label: newLabel,
+							slug,
+						} );
 						setAttributes( newParticipant );
 					} }
-					onUpdate={ ( participant ) => {
+					onUpdate={ participant => {
 						conversationBridge.updateParticipants( participant );
 					} }
 				/>
 
-				{ showTimestamp && (
-					<TimestampDropdown
+				{ mediaSource && (
+					<TimestampEditControl
 						className={ BASE_CLASS_NAME }
+						show={ showTimestamp }
+						isSelected={ isSelected }
 						value={ timestamp }
+						mediaCurrentTime={ mediaCurrentTime }
 						onChange={ setTimestamp }
-						shortLabel={ true }
+						onToggle={ show => setAttributes( { showTimestamp: show } ) }
+						onPlayback={ audioPlayback }
 					/>
 				) }
 			</div>
@@ -206,8 +227,14 @@ export default function DialogueEdit( {
 						return createBlock( blockNameFallback );
 					}
 
+					// Copy attrs for the new block
+					// only if content is not empty.
+					const newAttributes = value?.length
+						? attributes
+						: {};
+
 					return createBlock( blockName, {
-						...attributes,
+						...newAttributes,
 						content: value,
 					} );
 				} }
@@ -230,11 +257,6 @@ export default function DialogueEdit( {
 						dispatch( 'core/block-editor' ).selectBlock( blocks[ 0 ].clientId );
 						return onReplace( [ blocks[ 0 ] ], ...args );
 					}
-
-					// Update new block attributes.
-					blocks[ 1 ].attributes = {
-						timestamp: attributes.timestamp, // <- keep same timestamp value.
-					};
 
 					onReplace( blocks, ...args );
 				} }

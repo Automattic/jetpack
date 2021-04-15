@@ -55,14 +55,14 @@ abstract class Jetpack_Admin_Page {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 
 		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
-		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_active() ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_connection_ready() ) ) {
 			return;
 		}
 
-		// Is Jetpack not active and not offline?
-		// True means that Jetpack is NOT active and NOT in offline mode.
-		// If Jetpack is active OR in offline mode, this will be false.
-		$connectable = ! Jetpack::is_active() && ! $is_offline_mode;
+		// Is Jetpack not connected and not offline?
+		// True means that Jetpack is NOT connected and NOT in offline mode.
+		// If Jetpack is connected OR in offline mode, this will be false.
+		$connectable = ! Jetpack::is_connection_ready() && ! $is_offline_mode;
 
 		// Don't add in the modules page unless modules are available!
 		if ( $this->dont_show_if_not_active && $connectable ) {
@@ -88,7 +88,7 @@ abstract class Jetpack_Admin_Page {
 		// Attach page specific actions in addition to the above.
 		$this->add_page_actions( $hook );
 
-		// If the current user can connect Jetpack, Jetpack isn't active, and is not in offline mode, let's prompt!
+		// If the current user can connect Jetpack, Jetpack isn't connected, and is not in offline mode, let's prompt!
 		if ( current_user_can( 'jetpack_connect' ) && $connectable ) {
 			$this->add_connection_banner_actions();
 		}
@@ -165,8 +165,6 @@ abstract class Jetpack_Admin_Page {
 		return /** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_enabled', true ) &&
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
-			apply_filters( 'rest_jsonp_enabled', true ) &&
-			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_authentication_errors', true );
 	}
 
@@ -203,15 +201,13 @@ abstract class Jetpack_Admin_Page {
 			$active = Jetpack::get_active_modules();
 			switch ( $current['product_slug'] ) {
 				case 'jetpack_free':
-					$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
-					break;
 				case 'jetpack_personal':
 				case 'jetpack_personal_monthly':
-					$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
+					$to_deactivate = array( 'videopress', 'google-analytics', 'wordads', 'search' );
 					break;
 				case 'jetpack_premium':
 				case 'jetpack_premium_monthly':
-					$to_deactivate = array( 'seo-tools', 'google-analytics', 'search' );
+					$to_deactivate = array( 'google-analytics', 'search' );
 					break;
 			}
 			$to_deactivate = array_intersect( $active, $to_deactivate );
@@ -283,11 +279,11 @@ abstract class Jetpack_Admin_Page {
 		$args              = wp_parse_args( $args, $defaults );
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 		$jetpack_offline   = ( new Status() )->is_offline_mode();
-		$jetpack_about_url = ( Jetpack::is_active() || $jetpack_offline )
+		$jetpack_about_url = ( Jetpack::is_connection_ready() || $jetpack_offline )
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
 
-		$jetpack_privacy_url = ( Jetpack::is_active() || $jetpack_offline )
+		$jetpack_privacy_url = ( Jetpack::is_connection_ready() || $jetpack_offline )
 			? $jetpack_admin_url . '#/privacy'
 			: Redirect::get_url( 'a8c-privacy' );
 

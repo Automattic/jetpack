@@ -2,13 +2,17 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from '@wordpress/element';
-import { InnerBlocks, InspectorControls } from '@wordpress/block-editor';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import {
 	Panel,
 	PanelBody,
-	ToggleControl,
+	withNotices,
+	Placeholder,
+	FormFileUpload,
+	Button,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -16,12 +20,30 @@ import {
 import './editor.scss';
 import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
-import { getParticipantByLabel, cleanFormatStyle } from './utils';
+import { TranscriptIcon as icon } from '../../shared/icons';
+import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
+import {
+	getParticipantByLabel,
+	parseTranscriptFile,
+	pickExtensionFromFileName,
+	isAcceptedTranscriptExtension,
+	ACCEPTED_FILE_EXTENSIONS,
+	TRANSCRIPT_MAX_FILE_SIZE,
+} from './utils';
 
 const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
-function ConversationEdit( { className, attributes, setAttributes } ) {
-	const { participants = [], showTimestamps } = attributes;
+function ConversationEdit( {
+	className,
+	attributes,
+	setAttributes,
+	noticeUI,
+	clientId,
+	noticeOperations,
+} ) {
+	const { participants = [], showTimestamps, skipUpload } = attributes;
+	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
+	const { insertBlocks } = useDispatch( 'core/block-editor' );
 
 	const updateParticipants = useCallback(
 		updatedParticipant => {
@@ -30,8 +52,6 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 					if ( participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
-
-					updatedParticipant.label = cleanFormatStyle( updatedParticipant.label );
 
 					return {
 						...participant,
@@ -43,42 +63,40 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		[ setAttributes, participants ]
 	);
 
-	const addNewParticipant = useCallback( function( newSpeakerLabel ) {
-		if ( ! newSpeakerLabel ) {
-			return;
-		}
+	const addNewParticipant = useCallback(
+		function ( { label, slug } ) {
+			if ( ! label ) {
+				return;
+			}
 
-		const sanitizedSpeakerLabel = cleanFormatStyle( newSpeakerLabel );
-		// Do not add speakers with empty names.
-		if ( ! sanitizedSpeakerLabel?.length ) {
-			return;
-		}
+			const sanitizedSpeakerLabel = label.trim();
+			// Do not add speakers with empty names.
+			if ( ! sanitizedSpeakerLabel?.length ) {
+				return;
+			}
 
-		// Do not add a new participant with the same label.
-		const existingParticipant = getParticipantByLabel( participants, sanitizedSpeakerLabel );
-		if ( existingParticipant ) {
-			return existingParticipant;
-		}
+			// Do not add a new participant with the same label.
+			const existingParticipant = getParticipantByLabel( participants, sanitizedSpeakerLabel );
+			if ( existingParticipant ) {
+				return existingParticipant;
+			}
 
-		// Creates the participant slug.
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
+			// Creates the participant slug.
+			const newParticipantSlug = slug || `speaker-${ +new Date() }`;
 
-		const newParticipant = {
-			slug: newParticipantSlug,
-			label: sanitizedSpeakerLabel,
-		};
+			const newParticipant = {
+				slug: newParticipantSlug,
+				label: sanitizedSpeakerLabel,
+			};
 
-		setAttributes( {
-			participants: [
-				...participants,
-				newParticipant,
-			],
-		} );
+			setAttributes( {
+				participants: [ ...participants, newParticipant ],
+			} );
 
-		return newParticipant;
-	}, [ participants, setAttributes ] );
+			return newParticipant;
+		},
+		[ participants, setAttributes ]
+	);
 
 	const setBlockAttributes = useCallback( setAttributes, [] );
 
@@ -92,12 +110,7 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 				showTimestamps,
 			},
 		} ),
-		[
-			addNewParticipant,
-			setBlockAttributes,
-			showTimestamps,
-			updateParticipants,
-		]
+		[ addNewParticipant, setBlockAttributes, showTimestamps, updateParticipants ]
 	);
 
 	function deleteParticipant( deletedParticipantSlug ) {
@@ -106,7 +119,114 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 	}
 
+	function showTranscriptProcessErrorMessage( message ) {
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice( message );
+		setIsProcessingFile( false );
+	}
+
+	function uploadTranscriptFile( event ) {
+		const transcriptFile = event.target.files?.[ 0 ];
+
+		// Check file exists.
+		if ( ! transcriptFile ) {
+			return showTranscriptProcessErrorMessage( __( 'Transcript file not found.', 'jetpack' ) );
+		}
+
+		// Check file MAX size.
+		if (
+			( transcriptFile?.size && transcriptFile.size <= 0 ) || // min size
+			! transcriptFile?.size ||
+			transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE // max size
+		) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file size.', 'jetpack' ) );
+		}
+
+		// Check file type.
+		if ( transcriptFile?.type?.length && transcriptFile.type !== 'text/plain' ) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file type.', 'jetpack' ) );
+		}
+
+		// Check format by extension.
+		const fileExtension = pickExtensionFromFileName( transcriptFile?.name );
+		if ( ! isAcceptedTranscriptExtension( fileExtension ) ) {
+			return showTranscriptProcessErrorMessage(
+				__( 'Invalid transcript file extension.', 'jetpack' )
+			);
+		}
+
+		setIsProcessingFile( true );
+
+		parseTranscriptFile( transcriptFile, function ( { conversation, dialogues }, err ) {
+			if ( err ) {
+				return showTranscriptProcessErrorMessage( err );
+			}
+
+			setAttributes( {
+				participants: conversation.speakers,
+				skipUpload: ! conversation?.length,
+			} );
+
+			const dialogueBlocksTemplate = dialogues.map( dialogue =>
+				dialogue.slug || dialogue.timestamp
+					? [ 'jetpack/dialogue', dialogue ]
+					: [ 'core/paragraph', dialogue ]
+			);
+
+			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
+			insertBlocks( dialogueBlocks, 0, clientId );
+			setIsProcessingFile( false );
+		} );
+	}
+
 	const baseClassName = 'wp-block-jetpack-conversation';
+
+	if ( ! participants?.length && ! skipUpload ) {
+		return (
+			<Placeholder
+				label={ __( 'Conversation', 'jetpack' ) }
+				instructions={
+					<>
+						{ __(
+							'Upload a transcript file or create a conversation with blank content.',
+							'jetpack'
+						) }
+						<div>
+							<em>
+								{ __( 'Accepted file formats:', 'jetpack' ) }
+								<strong> { ACCEPTED_FILE_EXTENSIONS }</strong>.
+							</em>
+						</div>
+					</>
+				}
+				icon={ <BlockIcon icon={ icon } /> }
+				notices={ noticeUI }
+			>
+				<div className={ `${ baseClassName }__placeholder` }>
+					<FormFileUpload
+						multiple={ false }
+						isLarge
+						className="wp-block-jetpack-slideshow__add-item-button"
+						onChange={ uploadTranscriptFile }
+						accept={ ACCEPTED_FILE_EXTENSIONS }
+						isPrimary
+						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }
+						disabled={ isProcessingFile }
+					>
+						{ __( 'Upload transcript', 'jetpack' ) }
+					</FormFileUpload>
+
+					<Button
+						isTertiary
+						disabled={ isProcessingFile }
+						onClick={ () => setAttributes( { skipUpload: true } ) }
+					>
+						{ __( 'Skip upload', 'jetpack' ) }
+					</Button>
+				</div>
+			</Placeholder>
+		);
+	}
 
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
@@ -114,24 +234,13 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 				<InspectorControls>
 					<Panel>
 						<PanelBody
-							title={ __( 'Participants', 'jetpack' ) }
+							title={ __( 'Speakers', 'jetpack' ) }
 							className={ `${ baseClassName }__participants` }
 						>
 							<ParticipantsSelector
 								className={ baseClassName }
 								participants={ participants }
 								onDelete={ deleteParticipant }
-							/>
-						</PanelBody>
-
-						<PanelBody
-							title={ __( 'Timestamps', 'jetpack' ) }
-							className={ `${ baseClassName }__timestamps` }
-						>
-							<ToggleControl
-								label={ __( 'Show timestamps', 'jetpack' ) }
-								checked={ showTimestamps }
-								onChange={ value => setAttributes( { showTimestamps: value } ) }
 							/>
 						</PanelBody>
 					</Panel>
@@ -143,4 +252,4 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 }
 
-export default ConversationEdit;
+export default withNotices( ConversationEdit );

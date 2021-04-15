@@ -13,58 +13,6 @@ namespace Automattic\Jetpack\JITMS;
 class Pre_Connection_JITM extends JITM {
 
 	/**
-	 * Returns all the pre-connection messages.
-	 */
-	private function get_raw_messages() {
-		$jetpack_setup_url = $this->generate_admin_url(
-			array(
-				'page'    => 'jetpack',
-				'#/setup' => '',
-			)
-		);
-
-		return array(
-			array(
-				'id'             => 'jpsetup-posts',
-				'message_path'   => '/wp:edit-post:admin_notices/',
-				'message'        => __( 'Do you know which of these posts gets the most traffic?', 'jetpack' ),
-				'description'    => __( 'Set up Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
-				'button_link'    => $jetpack_setup_url,
-				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
-			),
-			array(
-				'id'             => 'jpsetup-upload',
-				'message_path'   => '/wp:upload:admin_notices/',
-				'message'        => __( 'Do you want lightning-fast images?', 'jetpack' ),
-				'description'    => __( 'Set up Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
-				'button_link'    => $jetpack_setup_url,
-				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
-			),
-			array(
-				'id'             => 'jpsetup-widgets',
-				'message_path'   => '/wp:widgets:admin_notices/',
-				'message'        => __( 'Looking for even more widgets?', 'jetpack' ),
-				'description'    => __( 'Set up Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
-				'button_link'    => $jetpack_setup_url,
-				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
-			),
-		);
-	}
-
-	/**
-	 * Adds the input query arguments to the admin url.
-	 *
-	 * @param array $args The query arguments.
-	 *
-	 * @return string The admin url.
-	 */
-	private function generate_admin_url( $args ) {
-		$args = wp_parse_args( $args );
-		$url  = add_query_arg( $args, admin_url( 'admin.php' ) );
-		return $url;
-	}
-
-	/**
 	 * Filters and formats the messages for the client-side JS renderer
 	 *
 	 * @param string $message_path Current message path.
@@ -72,16 +20,24 @@ class Pre_Connection_JITM extends JITM {
 	 * @return array Formatted messages.
 	 */
 	private function filter_messages( $message_path ) {
-		$messages = $this->get_raw_messages();
+		/**
+		 * Allows filtering of the pre-connection JITMs.
+		 *
+		 * This filter allows plugins to add pre-connection JITMs that will be
+		 * displayed by the JITM package.
+		 *
+		 * @since 9.6.0
+		 *
+		 * @param array An array of pre-connection messages.
+		 */
+		$messages = apply_filters( 'jetpack_pre_connection_jitms', array() );
+
+		$messages = $this->validate_messages( $messages );
 
 		$formatted_messages = array();
 
 		foreach ( $messages as $message ) {
 			if ( ! preg_match( $message['message_path'], $message_path ) ) {
-				continue;
-			}
-
-			if ( 'jpsetup-posts' === $message['id'] && wp_count_posts()->publish < 5 ) {
 				continue;
 			}
 
@@ -104,6 +60,36 @@ class Pre_Connection_JITM extends JITM {
 		}
 
 		return $formatted_messages;
+	}
+
+	/**
+	 * Validates that each of the messages contains all of the required keys:
+	 *   - id
+	 *   - message_path
+	 *   - message
+	 *   - description
+	 *   - button_link
+	 *   - button_caption
+	 *
+	 * @param array $messages An array of JITM messages.
+	 *
+	 * @return array An array of JITM messages that contain all of the required keys.
+	 */
+	private function validate_messages( $messages ) {
+		if ( ! is_array( $messages ) ) {
+			return array();
+		}
+
+		$expected_keys = array_flip( array( 'id', 'message_path', 'message', 'description', 'button_link', 'button_caption' ) );
+
+		foreach ( $messages as $index => $message ) {
+			if ( count( array_intersect_key( $expected_keys, $message ) ) !== count( $expected_keys ) ) {
+				// Remove any messages that are missing expected keys.
+				unset( $messages[ $index ] );
+			}
+		}
+
+		return $messages;
 	}
 
 	/**

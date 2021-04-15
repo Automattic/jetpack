@@ -7,13 +7,12 @@ function usage {
 	echo "usage: $0 command"
 	echo "  start                        Setup the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
-	echo "  -h | usage                   output this message"
+	echo "  -h | usage                   Output this message"
 	exit 1
 }
 
 start_env() {
 	yarn wp-env start
-	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/tests/e2e/bin/wp-setup.sh
 	configure_wp_env
 }
 
@@ -23,6 +22,8 @@ reset_env() {
 }
 
 configure_wp_env() {
+	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/tests/e2e/bin/wp-setup.sh
+
 	if [ "$GUTENBERG" == "latest" ]; then
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
 	fi

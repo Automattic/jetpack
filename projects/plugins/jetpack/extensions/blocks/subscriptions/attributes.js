@@ -16,6 +16,9 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	buttonWidth: {
+		type: 'string',
+	},
 	submitButtonText: {
 		type: 'string',
 		default: __( 'Subscribe', 'jetpack' ),
@@ -51,10 +54,10 @@ export default {
 		type: 'string',
 	},
 	fontSize: {
-		type: 'number',
+		type: 'string',
 	},
 	customFontSize: {
-		type: 'number',
+		type: 'string',
 	},
 	borderRadius: {
 		type: 'number',

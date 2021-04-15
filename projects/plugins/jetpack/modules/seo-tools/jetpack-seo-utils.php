@@ -10,18 +10,18 @@ class Jetpack_SEO_Utils {
 	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
 
 	/**
-	 * Old version of option name that was previously used under Free plan.
+	 * Initially setting the front page meta description was for all sites, then the feature was grouped to a paid plan.
+	 * The LEGACY_META_OPTION was added at that time to support legacy usage. Later on, a decision was made to have
+	 * the JP seo-tools features for all JP sites (paid plan or not).
 	 */
 	const LEGACY_META_OPTION = 'seo_meta_description';
 
 	/**
 	 * Used to check whether SEO tools are enabled for given site.
 	 *
-	 * @param int $site_id Optional. Defaults to current blog id if not given.
-	 *
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
-	public static function is_enabled_jetpack_seo( $site_id = 0 ) {
+	public static function is_enabled_jetpack_seo() {
 		/**
 		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
 		 *
@@ -35,61 +35,40 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
-		if ( function_exists( 'has_any_blog_stickers' ) ) {
-			// For WPCOM sites
-			if ( empty( $site_id ) ) {
-				$site_id = get_current_blog_id();
-			}
-
-			return has_any_blog_stickers( array( 'business-plan', 'ecommerce-plan' ), $site_id );
-		}
-
-		// For all Jetpack sites
 		return true;
-	}
-
-	/**
-	 * Checks if this option was set while it was still available under free plan.
-	 *
-	 * @return bool True if we should enable legacy usage, false otherwise.
-	 */
-	public static function has_legacy_front_page_meta() {
-		return ! self::is_enabled_jetpack_seo() && get_option( self::LEGACY_META_OPTION );
 	}
 
 	/**
 	 * Returns front page meta description for current site.
 	 *
-	 * Since we allowed non-business users to set Front page meta description for some time,
-	 * before bundling it with other SEO tools features that require a business plan,
-	 * we are supporting legacy usage here.
-	 *
 	 * @return string Front page meta description string or empty string.
 	 */
 	public static function get_front_page_meta_description() {
-		if ( self::is_enabled_jetpack_seo() ) {
-			$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
-			return $front_page_meta ? $front_page_meta : get_option( self::LEGACY_META_OPTION, '' );
+		$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
+
+		if ( empty( $front_page_meta ) ) {
+			$legacy_meta_option = get_option( self::LEGACY_META_OPTION );
+			if ( ! empty( $legacy_meta_option ) ) {
+				return self::update_front_page_meta_description( $legacy_meta_option, true );
+			}
 		}
 
-		// Support legacy usage for non-business users.
-		return get_option( self::LEGACY_META_OPTION, '' );
+		return $front_page_meta;
 	}
 
 	/**
 	 * Updates the site option value for front page meta description.
 	 *
-	 * We are taking care to update the correct option, in case the value is legacy-ed for current site.
-	 *
-	 * @param $value string New value for front page meta description.
+	 * @param string $value                     New value for front page meta description.
+	 * @param bool   $delete_legacy_meta_option Delete the LEGACY_META_OPTION if true.
 	 *
 	 * @return string Saved value, or empty string if no update was performed.
 	 */
-	public static function update_front_page_meta_description( $value ) {
+	public static function update_front_page_meta_description( $value, $delete_legacy_meta_option = false ) {
 		$front_page_description = sanitize_text_field( $value );
 
 		/**
-		 * Can be used to limit the lenght of front page meta description.
+		 * Can be used to limit the length of front page meta description.
 		 *
 		 * @module seo-tools
 		 *
@@ -105,15 +84,9 @@ class Jetpack_SEO_Utils {
 			$front_page_description = substr( $front_page_description, 0, $description_max_length );
 		}
 
-		$can_set_meta       = self::is_enabled_jetpack_seo();
-		$legacy_meta_option = get_option( self::LEGACY_META_OPTION );
-		$has_old_meta       = ! empty( $legacy_meta_option );
-		$option_name        = self::has_legacy_front_page_meta() ? self::LEGACY_META_OPTION : self::FRONT_PAGE_META_OPTION;
+		$did_update = update_option( self::FRONT_PAGE_META_OPTION, $front_page_description );
 
-		$did_update = update_option( $option_name, $front_page_description );
-
-		if ( $did_update && $has_old_meta && $can_set_meta ) {
-			// Delete legacy option if user has switched to Business plan and updated meta description.
+		if ( $delete_legacy_meta_option && $did_update ) {
 			delete_option( 'seo_meta_description' );
 		}
 

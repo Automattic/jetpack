@@ -25,6 +25,7 @@ import {
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
 import { getSitePlan, hasActiveProductPurchase, hasActiveScanPurchase } from 'state/site';
+import { hasConnectedOwner } from 'state/connection';
 import { isPluginActive } from 'state/site/plugins';
 
 const mergeArrays = ( x, y ) => {
@@ -74,10 +75,14 @@ const data = ( state = {}, action ) => {
 };
 
 const requests = ( state = {}, action ) => {
-	switch ( action ) {
+	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH:
 			return assign( {}, state, { isFetchingRecommendationsData: true } );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isRecommendationsDataLoaded: true,
+				isFetchingRecommendationsData: false,
+			} );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
 			return assign( {}, state, { isFetchingRecommendationsData: false } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
@@ -116,6 +121,10 @@ export const isFetchingRecommendationsData = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsData;
 };
 
+export const isRecommendationsDataLoaded = state => {
+	return !! state.jetpack.recommendations.requests.isRecommendationsDataLoaded;
+};
+
 export const isFetchingRecommendationsUpsell = state => {
 	return !! state.jetpack.recommendations.requests.isFetchingRecommendationsUpsell;
 };
@@ -124,14 +133,9 @@ export const getDataByKey = ( state, key ) => {
 	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
 };
 
-export const getStep = state => {
-	return '' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
-		? getInitialRecommendationsStep( state )
-		: state.jetpack.recommendations.step;
-};
-
 const stepToNextStep = {
-	'setup-wizard-completed': 'site-type-question',
+	'setup-wizard-completed': 'summary',
+	'banner-completed': 'woocommerce',
 	'not-started': 'site-type-question',
 	'site-type-question': 'woocommerce',
 	woocommerce: 'monitor',
@@ -169,12 +173,14 @@ export const isFeatureActive = ( state, featureSlug ) => {
 		case 'woocommerce':
 			return !! isPluginActive( state, 'woocommerce/woocommerce.php' );
 		default:
-			throw `Unknown featureSlug in isFeatureEnabled() in recommendations/reducer.js: ${ featureSlug }`;
+			throw `Unknown featureSlug in isFeatureActive() in recommendations/reducer.js: ${ featureSlug }`;
 	}
 };
 
 const isStepEligibleToShow = ( state, step ) => {
 	switch ( step ) {
+		case 'setup-wizard-completed':
+		case 'banner-completed':
 		case 'not-started':
 			return false;
 		case 'site-type-question':
@@ -182,6 +188,8 @@ const isStepEligibleToShow = ( state, step ) => {
 			return true;
 		case 'woocommerce':
 			return getDataByKey( state, 'site-type-store' ) ? ! isFeatureActive( state, step ) : false;
+		case 'monitor':
+			return hasConnectedOwner( state ) && ! isFeatureActive( state, step );
 		default:
 			return ! isFeatureActive( state, step );
 	}
@@ -193,6 +201,21 @@ const getNextEligibleStep = ( state, step ) => {
 		nextStep = stepToNextStep[ nextStep ];
 	}
 	return nextStep;
+};
+
+export const getStep = state => {
+	const step =
+		'' === get( state.jetpack, [ 'recommendations', 'step' ], '' )
+			? getInitialRecommendationsStep( state )
+			: state.jetpack.recommendations.step;
+
+	// These steps are special cases set on the server. There is technically no
+	// UI to display for them so the next eligible step is returned instead.
+	if ( [ 'setup-wizard-completed', 'banner-completed' ].includes( step ) ) {
+		return getNextEligibleStep( state, step );
+	}
+
+	return step;
 };
 
 export const getNextRoute = state => {
@@ -235,6 +258,8 @@ const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	switch ( slug ) {
 		case 'woocommerce':
 			return true === getDataByKey( state, 'site-type-store' );
+		case 'monitor':
+			return hasConnectedOwner( state );
 		default:
 			return true;
 	}

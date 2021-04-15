@@ -82,10 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// All globals need to be declared for menu items to properly register.
-		global $admin_page_hooks, $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		// Make an attempt to not have the menu order altered.
-		add_filter( 'custom_menu_order', '__return_false', 99999 );
+		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 		require_once ABSPATH . 'wp-admin/menu.php';
@@ -125,11 +122,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
-					$item['children'][] = $this->prepare_submenu_item( $submenu_item, $menu_item );
+					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
+					if ( ! empty( $submenu_item ) ) {
+						$item['children'][] = $submenu_item;
+					}
 				}
 			}
 
-			$data[] = $item;
+			if ( ! empty( $item ) ) {
+				$data[] = $item;
+			}
 		}
 
 		return array_filter( $data );
@@ -210,14 +212,39 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array Prepared menu item.
 	 */
 	private function prepare_menu_item( array $menu_item ) {
+		global $submenu;
+
+		// Exclude unauthorized menu items.
 		if ( ! current_user_can( $menu_item[1] ) ) {
 			return array();
 		}
 
+		// Exclude hidden menu items.
+		if ( false !== strpos( $menu_item[4], 'hide-if-js' ) ) {
+			// Exclude submenu items as well.
+			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ $menu_item[2] ] = array();
+			}
+			return array();
+		}
+
+		// Handle menu separators.
 		if ( false !== strpos( $menu_item[4], 'wp-menu-separator' ) ) {
 			return array(
 				'type' => 'separator',
 			);
+		}
+
+		$url         = $menu_item[2];
+		$parent_slug = '';
+
+		// If there are submenus, the parent menu should always link to the first submenu.
+		// @see https://core.trac.wordpress.org/browser/trunk/src/wp-admin/menu-header.php?rev=49193#L152.
+		if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
+			$parent_slug        = $url;
+			$first_submenu_item = reset( $submenu[ $menu_item[2] ] );
+			$url                = $first_submenu_item[2];
 		}
 
 		$item = array(
@@ -225,10 +252,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'slug'  => sanitize_title_with_dashes( $menu_item[2] ),
 			'title' => $menu_item[0],
 			'type'  => 'menu-item',
-			'url'   => $this->prepare_menu_item_url( $menu_item[2] ),
+			'url'   => $this->prepare_menu_item_url( $url, $parent_slug ),
 		);
 
-		$parsed_item = $this->parse_markup_data( $item['title'] );
+		$parsed_item = $this->parse_menu_item( $item['title'] );
 		if ( ! empty( $parsed_item ) ) {
 			$item = array_merge( $item, $parsed_item );
 		}
@@ -244,21 +271,27 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array Prepared submenu item.
 	 */
 	private function prepare_submenu_item( array $submenu_item, array $menu_item ) {
-		$item = array();
+		// Exclude unauthorized submenu items.
+		if ( ! current_user_can( $submenu_item[1] ) ) {
+			return array();
+		}
 
-		if ( current_user_can( $submenu_item[1] ) ) {
-			$item = array(
-				'parent' => sanitize_title_with_dashes( $menu_item[2] ),
-				'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
-				'title'  => $submenu_item[0],
-				'type'   => 'submenu-item',
-				'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
-			);
+		// Exclude hidden submenu items.
+		if ( isset( $submenu_item[4] ) && false !== strpos( $submenu_item[4], 'hide-if-js' ) ) {
+			return array();
+		}
 
-			$parsed_item = $this->parse_markup_data( $item['title'] );
-			if ( ! empty( $parsed_item ) ) {
-				$item = array_merge( $item, $parsed_item );
-			}
+		$item = array(
+			'parent' => sanitize_title_with_dashes( $menu_item[2] ),
+			'slug'   => sanitize_title_with_dashes( $submenu_item[2] ),
+			'title'  => $submenu_item[0],
+			'type'   => 'submenu-item',
+			'url'    => $this->prepare_menu_item_url( $submenu_item[2], $menu_item[2] ),
+		);
+
+		$parsed_item = $this->parse_menu_item( $item['title'] );
+		if ( ! empty( $parsed_item ) ) {
+			$item = array_merge( $item, $parsed_item );
 		}
 
 		return $item;
@@ -303,6 +336,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				return esc_url_raw( $url );
 			}
 
+			// Allow URLs pointing to Jetpack.com.
+			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
+				return esc_url_raw( $url );
+			}
+
 			// Disallow other external URLs.
 			return '';
 		}
@@ -336,59 +374,33 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	}
 
 	/**
-	 * Parses the update count from a given menu item title and removes the associated markup.
+	 * "Plugins", "Comments", "Updates" menu items have a count badge when there are updates available.
+	 * This method parses that information, removes the associated markup and adds it to the response.
 	 *
-	 * "Plugin" and "Updates" menu items have a count badge when there are updates available.
-	 * This method parses that information and adds it to the response.
-	 *
-	 * @param array $item containing title to parse.
-	 * @return array
-	 */
-	private function parse_count_data( $item ) {
-		$title = $item['title'];
-
-		if ( false !== strpos( $title, 'count-' ) ) {
-			preg_match( '/class="(.+\s)?count-(\d*)/', $title, $matches );
-
-			$count = absint( $matches[2] );
-			if ( $count > 0 ) {
-				$item['count'] = $count;
-			}
-		}
-
-		return $item;
-	}
-
-	/**
-	 * Removes unexpected markup from the title.
-	 *
-	 * @param array $item containing title to parse.
-	 * @return array
-	 */
-	private function sanitize_title( $item ) {
-		$title = $item['title'];
-
-		if ( wp_strip_all_tags( $title ) !== trim( $title ) ) {
-			$item['title'] = trim( substr( $title, 0, strpos( $title, '<' ) ) );
-		}
-
-		return $item;
-	}
-
-	/**
-	 * Parses data from the markup in titles and sanitizes titles from unexpected markup.
+	 * Also sanitizes the titles from remaining unexpected markup.
 	 *
 	 * @param string $title Title to parse.
 	 * @return array
 	 */
-	private function parse_markup_data( $title ) {
-		$item = array(
-			'title' => $title,
-		);
+	private function parse_menu_item( $title ) {
+		$item = array();
 
-		$item = $this->parse_count_data( $item );
-		// It's important we sanitize the title after parsing data to remove the markup.
-		$item = $this->sanitize_title( $item );
+		if ( false !== strpos( $title, 'count-' ) ) {
+			preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches );
+
+			$count = absint( $matches[1] );
+			if ( $count > 0 ) {
+				// Keep the counter in the item array.
+				$item['count'] = $count;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
+		// We are also capilizing the first letter in case there was a counter (now parsed) in front of the title.
+		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
 
 		return $item;
 	}

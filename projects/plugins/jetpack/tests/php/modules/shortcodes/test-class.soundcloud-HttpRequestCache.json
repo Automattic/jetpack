@@ -1,0 +1,17 @@
+{
+	"https://soundcloud.com/oembed?maxwidth=0&maxheight=0&url=https%3A%2F%2Fsoundcloud.com%2Fnecmusic%2Fmozart-concerto-for-piano-no-2&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":1.0,\"type\":\"rich\",\"provider_name\":\"SoundCloud\",\"provider_url\":\"https://soundcloud.com\",\"height\":400,\"width\":\"100%\",\"title\":\"Mozart: Concerto for Piano no 25 in C major- Allegretto by necmusic\",\"description\":\"The New England Conservatory Philharmonia led by guest conductor Jefferey Kahane at the keyboard, present Mozart's Concerto for Piano no 25 in C major. Recorded live in Jordan Hall November 6, 2013 by Alex Hug.\",\"thumbnail_url\":\"https://i1.sndcdn.com/artworks-000063699458-j2v0vw-t500x500.jpg\",\"html\":\"<iframe width=\\\"100%\\\" height=\\\"400\\\" scrolling=\\\"no\\\" frameborder=\\\"no\\\" src=\\\"https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F121863093&show_artwork=true&maxwidth=0&maxheight=0&dnt=1\\\"></iframe>\",\"author_name\":\"necmusic\",\"author_url\":\"https://soundcloud.com/necmusic\"}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	]
+}

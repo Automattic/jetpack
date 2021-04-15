@@ -11,7 +11,14 @@ import './style.scss';
 const STORE_ID = 'jetpack/media-source';
 
 domReady( function () {
-	// Play podcast by cliking on the timestamp label
+	// Show/hide timestamp labels according to media source availability.
+	const mediaSource = select( STORE_ID )?.getDefaultMediaSource();
+
+	if ( ! mediaSource ) {
+		document?.body.classList.add( 'no-media-source' );
+	}
+
+	// Playback podcast by cliking on the timestamp label.
 	document.body.addEventListener( 'click', event => {
 		if ( ! event?.target?.classList?.contains( 'wp-block-jetpack-dialogue__timestamp_link' ) ) {
 			return;
@@ -22,7 +29,6 @@ domReady( function () {
 			return;
 		}
 
-		const mediaSource = select( STORE_ID )?.getDefaultMediaSource();
 		if ( ! mediaSource ) {
 			return;
 		}

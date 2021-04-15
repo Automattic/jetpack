@@ -1,6 +1,9 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	const GETTY_IDENTIFIER = '82278805';
 
@@ -41,22 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 
-		// Back compat for PHPUnit 3!
-		// @todo Remove this when WP's PHP version bumps.
-		if ( is_callable( array( $this, 'getGroups' ) ) ) {
-			$groups = $this->getGroups();
-		} else {
-			$annotations = $this->getAnnotations();
-			$groups = array();
-			foreach ( $annotations as $source ) {
-				if ( ! isset( $source['group'] ) ) {
-					continue;
-				}
-				$groups = array_merge( $groups, $source['group'] );
-			}
-		}
-
-		if ( in_array( 'external-http', $groups ) ) {
+		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {
@@ -146,7 +134,7 @@ class WP_Test_Jetpack_Shortcodes_Getty extends WP_UnitTestCase {
 
 	function test_getty_add_oembed_endpoint_caller_non_getty() {
 		$provider_url = apply_filters(
-			'oembed_fetch_url', 
+			'oembed_fetch_url',
 			'https://www.youtube.com/oembed?maxwidth=471&maxheight=594&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DdQw4w9WgXcQ',
 			'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 			''

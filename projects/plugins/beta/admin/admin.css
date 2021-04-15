@@ -114,13 +114,13 @@ html {
 }
 
 .dops-card-title {
-	background-color: #f9f9f9;
+	background-color: #f6f7f7;
 	color: black;
 	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12px;
 	font-weight: normal;
 	text-transform: uppercase;
-	border-bottom: 1px solid #dddddd;
+	border-bottom: 1px solid #dcdcde;
 	padding: 10px 16px;
 	margin: 0;
 }
@@ -132,14 +132,14 @@ html {
 }
 
 .dops-card-title .dops-card-meta {
-	color: #aaaaaa;
+	color: #a7aaad;
 	float: right;
 }
 
 .dops-card-section {
 	font-size: 14px;
 	padding: 16px;
-	border-bottom: 1px solid #dddddd;
+	border-bottom: 1px solid #dcdcde;
 }
 
 .dops-card-section:after {
@@ -197,7 +197,7 @@ html {
 }
 
 .dops-card-footer {
-	background: #f9f9f9;
+	background: #f6f7f7;
 	padding: 15px 20px;
 }
 
@@ -548,7 +548,7 @@ button.dops-foldable-card__action {
 .dops-foldable-card__header-text {
 	font-size: 1.125rem;
 	width: 100%;
-	color: #23282d;
+	color: #1d2327;
 }
 
 .dops-foldable-card__header-text small {

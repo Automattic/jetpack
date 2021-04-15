@@ -298,14 +298,14 @@ export function showRecommendations( state ) {
 }
 
 /**
- * Check if the Setup Wizard should be displayed
+ * Determines if the Jetpack Licensing UI should be displayed
  *
- * @param {object} state Global state tree
+ * @param {object} state - Global state tree
  *
- * @return {boolean} True if the Setup Wizard should be displayed.
+ * @returns {boolean} True if the Jetpack Licensing UI should be displayed, false otherwise.
  */
-export function showSetupWizard( state ) {
-	return get( state.jetpack.initialState.siteData, 'showSetupWizard', false );
+export function showLicensingUi( state ) {
+	return get( state.jetpack.initialState.licensing, 'showLicensingUi', false );
 }
 
 /**
@@ -431,17 +431,6 @@ function getProductOptions( state, product, siteProducts ) {
 			},
 		};
 	} );
-}
-
-/**
- * The status of the Setup Wizard when the application loaded.
- *
- * @param {*} state Global state tree
- *
- * @return {string} The Setup Wizard status.
- */
-export function getInitialSetupWizardStatus( state ) {
-	return get( state.jetpack.initialState, 'setupWizardStatus', '' );
 }
 
 /**

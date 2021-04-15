@@ -1,0 +1,21 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/simple-payments",
+        "isValid": true,
+        "attributes": {
+            "currency": "AUD",
+            "content": "",
+            "email": "bob@bob.com",
+            "featuredMediaId": 11,
+            "featuredMediaUrl": null,
+            "featuredMediaTitle": null,
+            "multiple": true,
+            "price": 10,
+            "productId": 573,
+            "title": ""
+        },
+        "innerBlocks": [],
+        "originalContent": "[simple-payment id=\"573\"]"
+    }
+]

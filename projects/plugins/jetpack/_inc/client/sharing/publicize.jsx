@@ -14,6 +14,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -27,6 +28,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		render() {
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
+				isOfflineMode = this.props.isOfflineMode,
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
@@ -75,6 +77,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ userCanManageModules && (
 						<SettingsGroup
 							disableInOfflineMode
+							disableInUserlessMode
 							module={ { module: 'publicize' } }
 							support={ {
 								text: __(
@@ -92,7 +95,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</p>
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode }
+								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }
@@ -101,6 +104,15 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</ModuleToggle>
 						</SettingsGroup>
 					) }
+
+					{ ! isLinked && ! isOfflineMode && (
+						<ConnectUserBar
+							feature="publicize"
+							featureLabel={ __( 'Publicize', 'jetpack' ) }
+							text={ __( 'Sign in to connect your social media accounts.', 'jetpack' ) }
+						/>
+					) }
+
 					{ isActive && configCard() }
 				</SettingsCard>
 			);

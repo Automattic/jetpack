@@ -68,7 +68,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$domain       = ( new Status() )->get_site_suffix();
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$menu_data    = get_menu_fixture();
+		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
 	}
 
@@ -100,7 +100,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertInstanceOf( WPcom_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
 
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
+		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
@@ -150,15 +150,15 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_new_site_link();
 
 		$new_site_menu_item = array(
-			'Add new site',
+			'Add New Site',
 			'read',
 			'https://wordpress.com/start?ref=calypso-sidebar',
-			'Add new site',
+			'Add New Site',
 			'menu-top toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'dashicons-plus-alt',
 		);
-		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
+		$this->assertSame( array_pop( $menu ), $new_site_menu_item );
 	}
 
 	/**
@@ -246,18 +246,12 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_upgrades_menu
 	 */
-	public function test_add_wpcom_upgrades_menu() {
+	public function test_add_upgrades_menu() {
 		global $submenu;
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$domains_submenu_item = array(
-			'Domains',
-			'manage_options',
-			'https://wordpress.com/domains/manage/' . static::$domain,
-			'Domains',
-		);
-		$this->assertContains( $domains_submenu_item, $submenu[ 'https://wordpress.com/plans/' . static::$domain ] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
 	}
 
 	/**
@@ -266,85 +260,12 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_users_menu
 	 */
 	public function test_add_users_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
-		// Current user can't list users.
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
-		$menu = array();
+		static::$admin_menu->add_users_menu( true );
 
-		static::$admin_menu->add_users_menu( false );
-
-		$profile_menu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-			'menu-top toplevel_page_https://wordpress.com/me',
-			'toplevel_page_https://wordpress.com/me',
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $profile_menu_item );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu['https://wordpress.com/me'] );
-		$this->assertArrayNotHasKey( 'profile.php', $submenu );
-
-		// Reset.
-		wp_set_current_user( static::$user_id );
-		$menu = static::$menu_data;
-
-		static::$admin_menu->add_users_menu( false );
-
-		$slug = 'https://wordpress.com/people/team/' . static::$domain;
-
-		$users_menu_item = array(
-			'Users',
-			'list_users',
-			$slug,
-			'Users',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $users_menu_item );
-		$this->assertEmpty( $submenu['users.php'] );
-
-		$all_people_submenu_item = array(
-			'All People',
-			'list_users',
-			$slug,
-			'All People',
-		);
-		$this->assertContains( $all_people_submenu_item, $submenu[ $slug ] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'promote_users',
-			'https://wordpress.com/people/new/' . static::$domain,
-			'Add New',
-		);
-		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
-
-		$profile_submenu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-		);
-		$this->assertContains( $profile_submenu_item, $submenu[ $slug ] );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu[ $slug ] );
+		// Check that menu always links to Calypso.
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
 	}
 
 	/**
@@ -355,17 +276,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
 		static::$admin_menu->add_tools_menu( false, true );
 
 		// Check Export menu item always links to Calypso.
-		$export_submenu_item = array(
-			'Export',
-			'export',
-			'https://wordpress.com/export/' . static::$domain,
-			'Export',
-		);
-		$this->assertContains( $export_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -376,38 +290,36 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( false );
+		static::$admin_menu->add_options_menu();
 
-		$this->assertContains( 'Hosting Configuration', $submenu[ $slug ][6] );
-
-		$sharing_submenu_item = array(
-			'Sharing',
-			'publish_posts',
-			'https://wordpress.com/marketing/sharing-buttons/' . static::$domain,
-			'Sharing Settings',
-		);
-		$this->assertContains( $sharing_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/marketing/sharing-buttons/' . static::$domain, $submenu['options-general.php'][11][2] );
 	}
 
 	/**
-	 * Tests add_appearance_menu
+	 * Tests add_gutenberg_menus
 	 *
-	 * @covers ::add_appearance_menu
+	 * @covers ::add_gutenberg_menus
 	 */
-	public function test_add_appearance_menu() {
-		global $submenu;
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
 
-		$slug = 'https://wordpress.com/themes/' . static::$domain;
-		static::$admin_menu->add_appearance_menu( false );
+		// Gutenberg plugin menu should not be visible.
+		$this->assertArrayNotHasKey( 101, $menu );
+	}
 
-		// Check Customize menu always links to WP.com.
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			'https://wordpress.com/customize/' . static::$domain,
-			'Customize',
-		);
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
+		global $menu;
+
+		static::$admin_menu->add_plugins_menu( true );
+
+		// Check Plugins menu always links to Calypso.
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 	}
 }

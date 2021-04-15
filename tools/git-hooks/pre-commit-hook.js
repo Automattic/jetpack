@@ -198,6 +198,26 @@ function runEslintChanged( toLintFiles ) {
 	}
 }
 
+/** Run php:lint
+ *
+ * @param {Array} toLintFiles - List of files to lint
+ */
+function runPHPLinter( toLintFiles ) {
+	if ( ! toLintFiles.length ) {
+		return;
+	}
+
+	const phpLintResult = spawnSync( 'composer', [ 'php:lint', ...toLintFiles ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+
+	if ( phpLintResult && phpLintResult.status ) {
+		checkFailed( 'PHP found linting/syntax errors!\n' );
+		exit( exitCode );
+	}
+}
+
 /**
  * Runs PHPCS against checked PHP files. Exits if the check fails.
  */
@@ -275,51 +295,23 @@ function runPHPCSChanged( phpFilesToCheck ) {
 }
 
 /**
- * Check that composer.lock doesn't refer to monorepo packages as "dev-master"
- */
-function checkComposerLock() {
-	const obj = JSON.parse( fs.readFileSync( 'composer.lock', 'utf8' ) );
-	const changed = [];
-
-	const checkPackage = function ( p ) {
-		if (
-			p.dist.type === 'path' &&
-			p.dist.url.startsWith( './packages/' ) &&
-			p.version === 'dev-master'
-		) {
-			p.version = 'dev-monorepo';
-			changed.push( p.name );
-		}
-	};
-
-	obj.packages.forEach( checkPackage );
-	obj[ 'packages-dev' ].forEach( checkPackage );
-
-	if ( changed.length > 0 ) {
-		if ( checkFileAgainstDirtyList( 'composer.lock', dirtyFiles ) ) {
-			fs.writeFileSync( 'composer.lock', JSON.stringify( obj, null, 4 ) + '\n' );
-			execSync( `git add composer.lock` );
-			console.log(
-				chalk.yellow( 'Monorepo package versions automatically fixed.' ),
-				'\n\nAffected packages: ' + changed.join( ', ' )
-			);
-		} else {
-			console.log(
-				chalk.red( 'COMMIT ABORTED:' ),
-				'composer.lock must not refer to packages in the monorepo with version "dev-master".\n' +
-					'This could not be fixed automatically because composer.lock is dirty.',
-				'\n\nAffected packages: ' + changed.join( ', ' )
-			);
-			exitCode = 1;
-		}
-	}
-}
-
-/**
  * Check that copied files are in sync.
  */
 function runCheckCopiedFiles() {
 	const result = spawnSync( './tools/check-copied-files.sh', [], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( result && result.status ) {
+		checkFailed( '' );
+	}
+}
+
+/**
+ * Check that renovate's ignore list is up to date.
+ */
+function runCheckRenovateIgnoreList() {
+	const result = spawnSync( './tools/check-renovate-ignore-list.js', [], {
 		shell: true,
 		stdio: 'inherit',
 	} );
@@ -338,7 +330,11 @@ function exit( exitCodePassed ) {
 	process.exit( exitCodePassed );
 }
 
+// Start of pre-commit checks execution.
+
 runCheckCopiedFiles();
+runCheckRenovateIgnoreList();
+sortPackageJson( jsFiles );
 
 dirtyFiles.forEach( file =>
 	console.log(
@@ -346,7 +342,7 @@ dirtyFiles.forEach( file =>
 	)
 );
 
-sortPackageJson( jsFiles );
+// Start JS work—linting, prettify, etc.
 
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
@@ -366,16 +362,21 @@ if ( jsOnlyFiles.length > 0 ) {
 	runEslintChanged( jsOnlyFiles );
 }
 
-let phpLintResult;
+// Start PHP work.
+
 if ( phpFiles.length > 0 ) {
-	phpLintResult = spawnSync( 'composer', [ 'phpcs:compatibility', ...phpFiles ], {
+	runPHPLinter( phpFiles );
+}
+
+if ( phpFiles.length > 0 ) {
+	const phpLintResult = spawnSync( 'composer', [ 'phpcs:compatibility', ...phpFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
-}
 
-if ( phpLintResult && phpLintResult.status ) {
-	checkFailed();
+	if ( phpLintResult && phpLintResult.status ) {
+		checkFailed();
+	}
 }
 
 if ( phpcsFiles.length > 0 ) {
@@ -386,5 +387,4 @@ if ( phpFiles.length > 0 ) {
 	runPHPCSChanged( phpFiles );
 }
 
-checkComposerLock();
 exit( exitCode );

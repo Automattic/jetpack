@@ -56,7 +56,7 @@ case "$WP_BRANCH" in
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.5 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		git clone --depth=1 --branch 5.6 git://develop.git.wordpress.org/ /tmp/wordpress-previous
 		;;
 esac
 echo "::endgroup::"
@@ -70,7 +70,16 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	NAME="$(basename "$DIR")"
 	echo "::group::Installing plugin $NAME into WordPress"
 	cd "$DIR"
-	composer install
+	if [[ ! -f "composer.lock" ]]; then
+		echo 'No composer.lock, running `composer update`'
+		composer update
+	elif composer check-platform-reqs --lock; then
+		echo 'Platform reqs pass, running `composer install`'
+		composer install
+	else
+		echo 'Platform reqs failed, running `composer update`'
+		composer update
+	fi
 	cd "$BASE"
 
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"

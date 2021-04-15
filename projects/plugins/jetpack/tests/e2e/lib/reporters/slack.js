@@ -2,21 +2,32 @@
  * External dependencies
  */
 import { readFileSync, createReadStream } from 'fs';
-import { WebClient, ErrorCode } from '@slack/web-api';
+import { WebClient, ErrorCode, retryPolicies } from '@slack/web-api';
 import config from 'config';
 
 const { GITHUB_EVENT_PATH, GITHUB_RUN_ID, GUTENBERG } = process.env;
 
 export default class SlackReporter {
 	constructor() {
-		const token = config.get( 'slackToken' );
-		this.webCli = new WebClient( token );
-		this.runURL = `https://github.com/Automattic/jetpack/actions/runs/${ GITHUB_RUN_ID }`;
+		// get all config fields first to fail fast if config is wrong
+		const token = config.get( 'slack.token' );
+		const mentions = config.get( 'slack.mentions' );
+		this.conversationId = config.get( 'slack.channel' );
+		const repoUrl = config.get( 'repository.url' );
+		this.mainBranch = config.get( 'repository.mainBranch' );
+
+		this.webCli = new WebClient( token, {
+			retryConfig: retryPolicies.rapidRetryPolicy,
+		} );
+		this.runURL = `${ repoUrl }/actions/runs/${ GITHUB_RUN_ID }`;
 		this.runType =
 			GUTENBERG === 'latest' ? 'with latest :gutenberg: plugin' : 'with no :gutenberg: plugin';
 
-		this.conversationId = config.get( 'slackChannel' );
-		this.ccBrbrr = 'cc <@U6NSPV1LY>';
+		this.mentions = mentions
+			.map( function ( userId ) {
+				return ` <@${ userId }>`;
+			} )
+			.join( ' ' );
 		const event = JSON.parse( readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
 		this.isPullRequest = !! event.pull_request;
 		if ( this.isPullRequest ) {
@@ -24,13 +35,14 @@ export default class SlackReporter {
 			this.githubURL = event.pull_request.html_url;
 		} else {
 			this.branchName = event.ref.substr( 11 );
-			this.githubURL = `https://github.com/Automattic/jetpack/tree/${ this.branchName }`;
+			this.githubURL = `${ repoUrl }/tree/${ this.branchName }`;
 		}
 	}
 
 	async sendSuccessMessage() {
 		return await this.sendMessageToSlack( this.getSuccessMessage() );
 	}
+
 	async sendFailureMessage( failures ) {
 		return await this.sendMessageToSlack( this.getResultMessage( failures.length ) );
 	}
@@ -47,9 +59,15 @@ export default class SlackReporter {
 
 	getFailedTestMessage( { name, block, error } ) {
 		let testFailure = '';
-		if ( error.name || error.message ) {
-			testFailure = error.name + ': ' + error.message;
+		if ( error ) {
+			if ( error.name ) {
+				testFailure += `: ${ error.name }\n`;
+			}
+			if ( error.message ) {
+				testFailure += `: ${ error.message }\n`;
+			}
 		}
+
 		const message = [
 			this.createSection( `*TEST FAILED:*
 *Test suite*: ${ block }
@@ -78,8 +96,8 @@ export default class SlackReporter {
 			this.createSection( `Build details are threaded :thread:` ),
 		];
 
-		if ( this.branchName === 'master' ) {
-			message.push( this.createSection( this.ccBrbrr ) );
+		if ( this.branchName === this.mainBranch ) {
+			message.push( this.createSection( this.mentions ) );
 		}
 
 		return message;

@@ -29,7 +29,10 @@ projects/plugins/jetpack/vendor/
 # Temporary ignore until Jest is set up
 projects/plugins/jetpack/extensions/**/test/
 
+### Projects
+projects/*/*/vendor
+
 ### Packages
+projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
-projects/packages/*/vendor
 projects/packages/*/wordpress

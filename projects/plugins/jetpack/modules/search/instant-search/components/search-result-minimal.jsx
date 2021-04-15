@@ -55,26 +55,32 @@ class SearchResultMinimal extends Component {
 		return (
 			<div className="jetpack-instant-search__search-result-minimal-content">
 				{ noTags && <PathBreadcrumbs url={ this.props.result.fields[ 'permalink.url.raw' ] } /> }
-				{ tags.length !== 0 && (
-					<ul className="jetpack-instant-search__search-result-minimal-tags">
-						{ tags.map( tag => (
-							<li className="jetpack-instant-search__search-result-minimal-tag">
-								<Gridicon icon="tag" size={ this.getIconSize() } />
-								{ tag }
-							</li>
-						) ) }
-					</ul>
-				) }
-				{ cats.length !== 0 && (
-					<ul className="jetpack-instant-search__search-result-minimal-cats">
-						{ cats.map( cat => (
-							<li className="jetpack-instant-search__search-result-minimal-cat">
-								<Gridicon icon="folder" size={ this.getIconSize() } />
-								{ cat }
-							</li>
-						) ) }
-					</ul>
-				) }
+				<div className="jetpack-instant-search__search-result-minimal-cats-and-tags">
+					{ tags.length !== 0 && (
+						<ul className="jetpack-instant-search__search-result-minimal-tags">
+							{ tags.map( tag => (
+								<li className="jetpack-instant-search__search-result-minimal-tag">
+									<Gridicon icon="tag" size={ this.getIconSize() } />
+									<span className="jetpack-instant-search__search-result-minimal-tag-text">
+										{ tag }
+									</span>
+								</li>
+							) ) }
+						</ul>
+					) }
+					{ cats.length !== 0 && (
+						<ul className="jetpack-instant-search__search-result-minimal-cats">
+							{ cats.map( cat => (
+								<li className="jetpack-instant-search__search-result-minimal-cat">
+									<Gridicon icon="folder" size={ this.getIconSize() } />
+									<span className="jetpack-instant-search__search-result-minimal-cat-text">
+										{ cat }
+									</span>
+								</li>
+							) ) }
+						</ul>
+					) }
+				</div>
 			</div>
 		);
 	}
@@ -99,15 +105,13 @@ class SearchResultMinimal extends Component {
 		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
 
 		return (
-			<li className="jetpack-instant-search__search-result-minimal">
-				<h3 className="jetpack-instant-search__search-result-minimal-title">
+			<li className="jetpack-instant-search__search-result jetpack-instant-search__search-result-minimal">
+				<h3 className="jetpack-instant-search__search-result-title jetpack-instant-search__search-result-minimal-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
-						className="jetpack-instant-search__search-result-minimal-title-link"
+						className="jetpack-instant-search__search-result-title-link jetpack-instant-search__search-result-minimal-title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ this.props.onClick }
-						rel="noopener noreferrer"
-						target="_blank"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>

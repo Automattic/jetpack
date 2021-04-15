@@ -12,10 +12,15 @@ import Card from 'components/card';
 import { getModule, getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
 import { getSettings } from 'state/settings';
-import { isSiteConnected, isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
+import {
+	isSiteConnected,
+	isOfflineMode,
+	isUnavailableInOfflineMode,
+	hasConnectedOwner,
+} from 'state/connection';
 import { isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
-import { SEO } from './seo';
+import SEO from './seo';
 import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
@@ -37,6 +42,7 @@ export class Traffic extends React.Component {
 			isOfflineMode: this.props.isOfflineMode,
 			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			getModuleOverride: this.props.getModuleOverride,
+			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
@@ -139,5 +145,6 @@ export default connect( state => {
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isAtomicSite: isAtomicSite( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( Traffic );

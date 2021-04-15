@@ -10,15 +10,19 @@ import { useEffect } from 'preact/hooks';
 /**
  * Internal dependencies
  */
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import './overlay.scss';
 
 const callOnEscapeKey = callback => event => {
 	// IE11 uses 'Esc'
-	( event.key === 'Escape' || event.key === 'Esc' ) && callback();
+	if ( event.key === 'Escape' || event.key === 'Esc' ) {
+		event.preventDefault();
+		callback();
+	}
 };
 
 const Overlay = props => {
-	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible, opacity } = props;
+	const { children, closeOverlay, colorTheme, hasOverlayWidgets, isVisible } = props;
 
 	const closeWithEscape = callOnEscapeKey( closeOverlay );
 	useEffect( () => {
@@ -27,19 +31,20 @@ const Overlay = props => {
 			// Cleanup after event
 			window.removeEventListener( 'keydown', closeWithEscape );
 		};
-	}, [] );
+	}, [ closeWithEscape ] );
 
 	return (
 		<div
+			aria-hidden={ ! isVisible }
 			aria-labelledby="jetpack-instant-search__overlay-title"
 			className={ [
-				'jetpack-instant-search__overlay',
+				'jetpack-instant-search',
+				OVERLAY_CLASS_NAME,
 				`jetpack-instant-search__overlay--${ colorTheme }`,
 				hasOverlayWidgets ? '' : 'jetpack-instant-search__overlay--no-sidebar',
 				isVisible ? '' : 'is-hidden',
 			].join( ' ' ) }
 			role="dialog"
-			style={ { opacity: isVisible ? opacity / 100 : 0 } }
 		>
 			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
 				{ __( 'Search results', 'jetpack' ) }

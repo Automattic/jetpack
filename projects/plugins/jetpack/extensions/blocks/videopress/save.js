@@ -19,11 +19,15 @@ const VideoPressSave = CoreVideoSave => props => {
 			guid,
 			loop,
 			muted,
+			playsinline,
 			poster,
 			preload,
 			videoPressClassNames,
 			className,
 			align,
+			seekbarColor,
+			seekbarPlayedColor,
+			seekbarLoadingColor,
 		} = {},
 	} = props;
 
@@ -45,8 +49,12 @@ const VideoPressSave = CoreVideoSave => props => {
 		controls,
 		loop,
 		muted,
+		playsinline,
 		poster,
 		preload,
+		seekbarColor,
+		seekbarPlayedColor,
+		seekbarLoadingColor,
 	} );
 
 	return (

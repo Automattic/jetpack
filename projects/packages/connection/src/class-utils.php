@@ -32,25 +32,16 @@ class Utils {
 	/**
 	 * Enters a user token into the user_tokens option
 	 *
+	 * @deprecated 9.5 Use Automattic\Jetpack\Connection\Tokens->update_user_token() instead.
+	 *
 	 * @param int    $user_id The user id.
 	 * @param string $token The user token.
 	 * @param bool   $is_master_user Whether the user is the master user.
 	 * @return bool
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
-		// Not designed for concurrent updates.
-		$user_tokens = \Jetpack_Options::get_option( 'user_tokens' );
-		if ( ! is_array( $user_tokens ) ) {
-			$user_tokens = array();
-		}
-		$user_tokens[ $user_id ] = $token;
-		if ( $is_master_user ) {
-			$master_user = $user_id;
-			$options     = compact( 'user_tokens', 'master_user' );
-		} else {
-			$options = compact( 'user_tokens' );
-		}
-		return \Jetpack_Options::update_options( $options );
+		_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\\Jetpack\\Connection\\Tokens->update_user_token' );
+		return ( new Tokens() )->update_user_token( $user_id, $token, $is_master_user );
 	}
 
 	/**

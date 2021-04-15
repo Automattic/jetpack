@@ -1,0 +1,79 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__search-sort {
+	align-items: center;
+	display: flex;
+
+	> label[for='jetpack-instant-search__search-sort-select'] {
+		margin: 0 0.25em 0 0;
+		flex-shrink: 0;
+		font-size: 1em;
+		font-weight: bold;
+	}
+}
+
+.jetpack-instant-search__search-sort-with-links {
+	font-size: 13px;
+}
+
+.jetpack-instant-search__search-sort-with-select {
+	@include break-small-down() {
+		width: 100%;
+		margin-right: 1em;
+		.jetpack-instant-search__overlay--no-sidebar & {
+			margin-right: 0;
+		}
+	}
+
+	@include break-large-up() {
+		margin-top: -4px; // bump up when SearchControls using absolute positioning.
+	}
+}
+
+#jetpack-instant-search__search-sort-select {
+	font-size: 1em;
+
+	padding: 0.25em;
+	border-radius: 5px;
+
+	// Prevent themes from specifying a customized select styling.
+	appearance: auto;
+	background: $color-modal-background;
+	border: 1px solid $color-layout-borders;
+	color: $color-text;
+	height: inherit;
+
+	@include break-small-down() {
+		width: 100%;
+		padding: 0.5em;
+	}
+}
+
+.jetpack-instant-search__search-sort-option {
+	cursor: pointer;
+	padding: 0 2px 0 2px;
+	color: $color-text-lighter;
+	text-decoration: none;
+
+	&::after {
+		content: '·';
+		padding-left: 5px;
+		font-weight: 400;
+		color: $color-text-lighter;
+	}
+
+	.jetpack-instant-search__search-sort &:focus,
+	.jetpack-instant-search__search-sort &:hover {
+		text-decoration: none;
+	}
+
+	&:last-child::after {
+		content: '';
+	}
+
+	&.is-selected {
+		color: $color-link-alt;
+		font-weight: 600;
+		text-decoration: none;
+	}
+}

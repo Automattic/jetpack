@@ -13,13 +13,12 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import definedAttributes from './attributes';
-import {
-	DEFAULT_BORDER_RADIUS_VALUE,
-	DEFAULT_BORDER_WEIGHT_VALUE,
-	DEFAULT_PADDING_VALUE,
-	DEFAULT_SPACING_VALUE,
-	DEFAULT_FONTSIZE_VALUE,
-} from '../../constants';
+
+export const DEFAULT_BORDER_RADIUS_VALUE = 0;
+export const DEFAULT_BORDER_WEIGHT_VALUE = 1;
+export const DEFAULT_PADDING_VALUE = 15;
+export const DEFAULT_SPACING_VALUE = 10;
+export const DEFAULT_FONTSIZE_VALUE = 16;
 
 export default function getSubscriptionsShortcode(
 	className,

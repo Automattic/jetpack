@@ -160,7 +160,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
+		if ( ! Jetpack::is_connection_ready() || ! $this->is_search_supported() ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
@@ -1281,6 +1281,9 @@ class Jetpack_Search {
 	 */
 	public function add_aggregations_to_es_query_builder( array $aggregations, Jetpack_WPES_Query_Builder $builder ) {
 		foreach ( $aggregations as $label => $aggregation ) {
+			if ( ! isset( $aggregation['type'] ) ) {
+				continue;
+			}
 			switch ( $aggregation['type'] ) {
 				case 'taxonomy':
 					$this->add_taxonomy_aggregation_to_es_query_builder( $aggregation, $label, $builder );

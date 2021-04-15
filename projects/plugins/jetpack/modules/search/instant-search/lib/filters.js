@@ -1,8 +1,3 @@
-// NOTE: We only import the difference package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import difference from 'lodash/difference';
-
 /**
  * Internal dependencies
  */
@@ -10,9 +5,13 @@ import { SERVER_OBJECT_NAME } from './constants';
 
 // NOTE: This list is missing custom taxonomy names.
 //       getFilterKeys must be used to get the conclusive list of valid filter keys.
-const FILTER_KEYS = Object.freeze( [
+export const FILTER_KEYS = Object.freeze( [
 	// Post types
 	'post_types',
+	// Built-in taxonomies
+	'category',
+	'post_format',
+	'post_tag',
 	// Date filters
 	'month_post_date',
 	'month_post_date_gmt',
@@ -68,7 +67,8 @@ export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?
  * @returns {string[]} filterKeys
  */
 export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
-	return difference( getFilterKeys(), getSelectableFilterKeys( widgets ) );
+	const selectable = getSelectableFilterKeys( widgets );
+	return getFilterKeys().filter( key => ! selectable.includes( key ) );
 }
 
 /**

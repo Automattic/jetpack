@@ -271,11 +271,10 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		}
 
 		if ( 'CONNECTION_OWNER' === $user_id_query ) {
-			$manager       = $this->manager; // php 5.6 safe.
-			$user_id_query = $manager::CONNECTION_OWNER;
+			$user_id_query = true;
 		}
 
-		$token = $this->manager->get_access_token( $user_id_query, $token_key_query, false );
+		$token = ( new Tokens() )->get_access_token( $user_id_query, $token_key_query, false );
 
 		if ( $expected_error_code ) {
 			$this->assertInstanceOf( 'WP_Error', $token );
@@ -450,7 +449,79 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 * Make sure we don´t change how we return errors
 	 */
 	public function test_get_access_token_suppress_errors() {
-		$this->assertFalse( $this->manager->get_access_token( 123 ) );
-		$this->assertInstanceOf( 'WP_Error', $this->manager->get_access_token( 123, '', false ) );
+		$this->assertFalse( ( new Tokens() )->get_access_token( 123 ) );
+		$this->assertInstanceOf( 'WP_Error', ( new Tokens() )->get_access_token( 123, '', false ) );
 	}
+
+	/**
+	 * Test the `is_userless' method.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::is_userless
+	 * @dataProvider data_provider_for_test_is_userless
+	 *
+	 * @param boolean $is_connected              If the blog is connected.
+	 * @param boolean $has_connected_user        If the blog has a connected user.
+	 * @param boolean $master_user_option_is_set If the master_user option is set.
+	 * @param boolean $expected                  The expected output.
+	 */
+	public function test_is_userless( $is_connected, $has_connected_user, $master_user_option_is_set, $expected ) {
+		$id_admin = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+
+		if ( $is_connected ) {
+			\Jetpack_Options::update_option( 'id', 1234 );
+			\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		} else {
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+		}
+
+		if ( $has_connected_user ) {
+			\Jetpack_Options::update_option(
+				'user_tokens',
+				array(
+					$id_admin => 'asd123',
+				)
+			);
+		} else {
+			\Jetpack_Options::delete_option( 'user_tokens' );
+		}
+
+		if ( $master_user_option_is_set ) {
+			\Jetpack_Options::update_option( 'master_user', $id_admin );
+		} else {
+			\Jetpack_Options::delete_option( 'master_user' );
+		}
+
+		$this->assertEquals( $expected, $this->manager->is_userless() );
+	}
+
+	/**
+	 * Data provider for test_is_userless.
+	 *
+	 * Structure of the test data arrays:
+	 *     [0] => 'is_connected'              boolean If the blog is connected.
+	 *     [1] => 'has_connected_user'        boolean If the blog has a connected user.
+	 *     [2] => 'master_user_option_is_set' boolean If the master_user option is set.
+	 *     [3] => 'expected'                  boolean The expected output of the call to is_userless.
+	 */
+	public function data_provider_for_test_is_userless() {
+
+		return array(
+			'connected, has connected_user, master_user option is set'         => array( true, true, true, false ),
+			'not connected, has connected_user, master_user option is set'     => array( false, true, true, false ),
+			'connected, no connected_user, master_user option is set'          => array( true, false, true, false ),
+			'not connected, no connected_user, master_user option is set'      => array( false, false, true, false ),
+			'not connected, has connected_user, master_user option is not set' => array( false, true, false, false ),
+			'not connected, no connected_user, master_user option is not set'  => array( false, false, false, false ),
+			'connected, has connected_user, master_user option is not set'     => array( true, true, false, false ),
+			'connected, no connected_user, master_user option is not set'      => array( true, false, false, true ),
+		);
+	}
+
 }

@@ -1,0 +1,78 @@
+@import './variables';
+
+//
+// Mixins
+//
+@mixin break-small-up() {
+	@media ( min-width: #{ ( $break-sm ) } ) {
+		@content;
+	}
+}
+@mixin break-small-down() {
+	@media ( max-width: #{ ( $break-sm - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-medium-up() {
+	@media ( min-width: #{ ( $break-md ) } ) {
+		@content;
+	}
+}
+@mixin break-medium-down() {
+	@media ( max-width: #{ ( $break-md - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-large-up() {
+	@media ( min-width: #{ ( $break-lg ) } ) {
+		@content;
+	}
+}
+@mixin break-large-down() {
+	@media ( max-width: #{ ( $break-lg - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-xlarge-up() {
+	@media ( min-width: #{ ( $break-xl ) } ) {
+		@content;
+	}
+}
+@mixin break-xlarge-down() {
+	@media ( max-width: #{ ( $break-xl - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin break-xxlarge-up() {
+	@media ( min-width: #{ ( $break-xxl ) } ) {
+		@content;
+	}
+}
+@mixin break-xxlarge-down() {
+	@media ( max-width: #{ ( $break-xxl - .02px ) } ) {
+		@content;
+	}
+}
+
+@mixin remove-button-styling() {
+	appearance: none;
+	background: none;
+	border: none;
+	margin: 0;
+	outline: none;
+	padding: 0;
+	text-decoration: none;
+	text-transform: none;
+
+	&:hover,
+	&:focus {
+		appearance: none;
+		background: none;
+		box-shadow: none;
+		outline: none;
+	}
+}

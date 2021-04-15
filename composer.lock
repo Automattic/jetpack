@@ -4,16 +4,16 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae37d53f8c27feb5a55bbaf55f69b2c6",
+    "content-hash": "130dd740648c27feabc0f6e7168d97ff",
     "packages": [],
     "packages-dev": [
         {
             "name": "automattic/jetpack-codesniffer",
-            "version": "dev-monorepo",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "95ad0f7fdff39b4e04688b9a55518bd25634736c"
+                "reference": "1cc87ddd97fa61effcc4b0790747916f13a89bf6"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
@@ -23,11 +23,19 @@
                 "wp-coding-standards/wpcs": "^2.3"
             },
             "require-dev": {
+                "automattic/jetpack-changelogger": "^1.1",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
-                "mirror-repo": "Automattic/jetpack-codesniffer"
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-codesniffer",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-codesniffer/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "2.2.x-dev"
+                }
             },
             "autoload": {
                 "classmap": [
@@ -39,11 +47,11 @@
             },
             "scripts": {
                 "phpunit": [
-                    "@composer install",
+                    "@composer update",
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
                 "test-coverage": [
-                    "@composer install",
+                    "@composer update",
                     "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
@@ -340,21 +348,21 @@
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
-            "version": "v1.2.0",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-parallel-lint/PHP-Parallel-Lint.git",
-                "reference": "474f18bc6cc6aca61ca40bfab55139de614e51ca"
+                "reference": "772a954e5f119f6f5871d015b23eabed8cbdadfb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-parallel-lint/PHP-Parallel-Lint/zipball/474f18bc6cc6aca61ca40bfab55139de614e51ca",
-                "reference": "474f18bc6cc6aca61ca40bfab55139de614e51ca",
+                "url": "https://api.github.com/repos/php-parallel-lint/PHP-Parallel-Lint/zipball/772a954e5f119f6f5871d015b23eabed8cbdadfb",
+                "reference": "772a954e5f119f6f5871d015b23eabed8cbdadfb",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=5.4.0"
+                "php": ">=5.3.0"
             },
             "replace": {
                 "grogy/php-parallel-lint": "*",
@@ -363,7 +371,7 @@
             "require-dev": {
                 "nette/tester": "^1.3 || ^2.0",
                 "php-parallel-lint/php-console-highlighter": "~0.3",
-                "squizlabs/php_codesniffer": "~3.0"
+                "squizlabs/php_codesniffer": "^3.5"
             },
             "suggest": {
                 "php-parallel-lint/php-console-highlighter": "Highlight syntax in code snippet"
@@ -391,9 +399,9 @@
             "homepage": "https://github.com/php-parallel-lint/PHP-Parallel-Lint",
             "support": {
                 "issues": "https://github.com/php-parallel-lint/PHP-Parallel-Lint/issues",
-                "source": "https://github.com/php-parallel-lint/PHP-Parallel-Lint/tree/master"
+                "source": "https://github.com/php-parallel-lint/PHP-Parallel-Lint/tree/v1.3.0"
             },
-            "time": "2020-04-04T12:18:32+00:00"
+            "time": "2021-04-07T14:42:48+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -569,16 +577,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.7.0",
+            "version": "v2.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "3a29de78291cf1ec71b23fd4553a968c13620519"
+                "reference": "86b45aab347b560a1594cee22d16f977ca88b2e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/3a29de78291cf1ec71b23fd4553a968c13620519",
-                "reference": "3a29de78291cf1ec71b23fd4553a968c13620519",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/86b45aab347b560a1594cee22d16f977ca88b2e0",
+                "reference": "86b45aab347b560a1594cee22d16f977ca88b2e0",
                 "shasum": ""
             },
             "require": {
@@ -620,9 +628,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.7.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.8.1"
             },
-            "time": "2021-01-29T17:25:46+00:00"
+            "time": "2021-03-22T22:57:09+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

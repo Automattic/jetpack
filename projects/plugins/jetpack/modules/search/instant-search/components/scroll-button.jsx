@@ -10,8 +10,14 @@ import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 
+/**
+ * Internal dependencies
+ */
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import './scroll-button.scss';
+
 class ScrollButton extends Component {
-	overlayElement = document.getElementsByClassName( 'jetpack-instant-search__overlay' )[ 0 ];
+	overlayElement = document.getElementsByClassName( OVERLAY_CLASS_NAME )[ 0 ];
 	componentDidMount() {
 		this.overlayElement.addEventListener( 'scroll', this.checkScroll );
 	}

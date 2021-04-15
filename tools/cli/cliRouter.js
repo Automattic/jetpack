@@ -11,8 +11,9 @@ import { buildDefine } from './commands/build';
 import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
 import { cliDefine } from './commands/cli';
-
-// import { dockerDefine } from "./commands/docker";
+import { generateDefine } from './commands/generate';
+import { changelogDefine } from './commands/changelog';
+import { dockerDefine } from './commands/docker';
 
 /**
  * The main CLI router function.
@@ -29,13 +30,29 @@ export async function cli() {
 	 * Let's keep it alphabetical.
 	 */
 	argv = buildDefine( argv );
+	argv = changelogDefine( argv );
 	argv = cliDefine( argv );
-	// argv = dockerDefine( argv );
+	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
+	argv = dockerDefine( argv );
+	argv = generateDefine( argv );
 	argv = installDefine( argv );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
-	argv.showHelpOnFail( true ).demandCommand().version( false );
+	argv
+		.showHelpOnFail( true )
+		.demandCommand()
+		.recommendCommands()
+		.version( false )
+		.options( {
+			v: {
+				alias: 'verbose',
+				default: false,
+				description: 'Enable verbose output',
+				type: 'boolean',
+				global: true,
+			},
+		} );
 
 	// Parse the args!
 	argv.parse();

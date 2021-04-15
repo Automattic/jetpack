@@ -16,7 +16,7 @@
 	padding-top: 0;
 }
 .infinite-scroll .infinite-wrap .hentry:last-child {
-	border-bottom: 1px solid #ddd;
+	border-bottom: 1px solid #dcdcde;
 }
 .infinite-scroll .infinite-wrap:last-of-type .hentry:last-child {
 	border-bottom: none;
