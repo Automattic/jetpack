@@ -13,10 +13,6 @@ export default class Homepage extends WpPage {
 		super( page, { expectedSelectors: [ '.site-title' ], url } );
 	}
 
-	async registerRouteInterceptions() {
-		await this.searchAPIRoute();
-	}
-
 	searchAPIRoute() {
 		return this.page.route( Homepage.SEARCH_API_PATTERN, ( route, request ) => {
 			logger.info( `intercepted search API call: ${ request.url() }` );
