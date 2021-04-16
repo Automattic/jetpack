@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add new Flag OSS task: flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.

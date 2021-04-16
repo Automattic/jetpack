@@ -113,7 +113,7 @@ const InstagramGalleryEdit = props => {
 
 	const renderPlaceholderInstructions = () => {
 		if ( ! currentUserConnected ) {
-			return __( "First, you'll need to connect to WordPress.com.", 'jetpack' );
+			return __( "First, you'll need to connect your WordPress.com account.", 'jetpack' );
 		}
 		if ( ! isRequestingUserConnections && ! userConnections.length ) {
 			return __( 'Connect to Instagram to start sharing your images.', 'jetpack' );
@@ -179,7 +179,7 @@ const InstagramGalleryEdit = props => {
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
 							href={ wpcomConnectUrl }
-							isPrimary
+							isSecondary
 						>
 							{ __( 'Connect to WordPress.com', 'jetpack' ) }
 						</Button>
