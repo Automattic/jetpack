@@ -70,9 +70,6 @@ module.exports = async function () {
 	await global.browser.close();
 	rimraf.sync( DIR );
 
-	// Close tunnel
-	await global.tunnelManager.close();
-
 	if ( process.env.CI ) {
 		await processSlackLog();
 	}
