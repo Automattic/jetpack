@@ -412,11 +412,17 @@ class REST_Connector {
 		}
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$authorize_url = \Jetpack::build_authorize_url( false, true );
+			$authorize_url = \Jetpack::build_authorize_url( false, ! $request->get_param( 'no_iframe' ) );
 		} else {
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			if ( ! $request->get_param( 'no_iframe' ) ) {
+				add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			}
+
 			$authorize_url = $this->connection->get_authorization_url();
-			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+
+			if ( ! $request->get_param( 'no_iframe' ) ) {
+				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			}
 		}
 
 		return rest_ensure_response(
