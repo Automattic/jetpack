@@ -12,6 +12,7 @@ import { Children, Component, createRef, Fragment } from '@wordpress/element';
 import MapMarker from './map-marker/';
 import InfoWindow from './info-window/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';
+import { getVendorLoadContext, loadVendorResources } from '../../shared/vendor-resource-loader';
 
 export class Map extends Component {
 	// Lifecycle
@@ -306,20 +307,33 @@ export class Map extends Component {
 		}
 		this.initMap( mapCenter );
 	};
+
 	loadMapLibraries() {
 		const { apiKey } = this.props;
-		Promise.all( [
-			import( /* webpackChunkName: "map/mapbox-gl" */ 'mapbox-gl' ),
-			import( /* webpackChunkName: "map/mapbox-gl" */ 'mapbox-gl/dist/mapbox-gl.css' ),
-		] ).then( ( [ { default: mapboxgl } ] ) => {
-			mapboxgl.accessToken = apiKey;
-			this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
-		} );
+
+		const { vendorWindow } = getVendorLoadContext( this.mapRef.current );
+
+		const resources = {
+			css: [ { href: 'https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' } ],
+			js: [
+				{
+					src: 'https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js',
+					onload: () => {
+						const mapboxgl = vendorWindow.mapboxgl;
+						mapboxgl.accessToken = apiKey;
+						this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
+					},
+				},
+			],
+		};
+		loadVendorResources( resources, this.mapRef.current );
 	}
+
 	initMap( mapCenter ) {
 		const { mapboxgl } = this.state;
 		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
+
 		try {
 			map = new mapboxgl.Map( {
 				container: this.mapRef.current,
