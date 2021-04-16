@@ -1753,9 +1753,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return $response;
 		}
 
+		$auth_url = Jetpack::build_authorize_url( false, false );
+		$auth_url_params = parse_url( $auth_url, PHP_URL_QUERY );
+		parse_str( $auth_url_params, $auth_params );
+		$has_wpcom_account = isset( $auth_params['has_wpcom_account'] ) && $auth_params['has_wpcom_account'];
 		return rest_ensure_response(
 			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false, true ),
+				'authorizeUrl' => $auth_url,
+				'hasWpcomAccount' => $has_wpcom_account,
 			)
 		);
 	}

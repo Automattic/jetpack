@@ -949,6 +949,8 @@ class Manager {
 			$jetpack_public = false;
 		}
 
+		error_log( print_r( $registration_details, 1 ) );
+
 		\Jetpack_Options::update_options(
 			array(
 				'id'     => (int) $registration_details->jetpack_id,
@@ -957,6 +959,10 @@ class Manager {
 		);
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
+
+		if ( $registration_details->has_wpcom_account ) {
+			add_filter( 'jetpack_auth_user_has_wpcom_account', '__return_true' );
+		}
 
 		/**
 		 * Fires when a site is registered on WordPress.com.
@@ -1552,6 +1558,8 @@ class Manager {
 		 */
 		$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
+		$has_wpcom_account = apply_filters( 'jetpack_auth_user_has_wpcom_account', false );
+
 		/**
 		 * Filters the user connection request data for additional property addition.
 		 *
@@ -1587,6 +1595,7 @@ class Manager {
 				'site_icon'     => get_site_icon_url(),
 				'site_lang'     => get_locale(),
 				'site_created'  => $this->get_assumed_site_creation_date(),
+				'has_wpcom_account' => $has_wpcom_account,
 			)
 		);
 

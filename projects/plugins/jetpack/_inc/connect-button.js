@@ -38,20 +38,18 @@ jQuery( document ).ready( function ( $ ) {
 			}
 
 			if ( ! jetpackConnectButton.isRegistering ) {
-				if ( 'original' === jpConnect.forceVariation ) {
-					// Forcing original connection flow, `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME = true`
-					// or we're dealing with Safari which has issues with handling 3rd party cookies.
-					jetpackConnectButton.handleOriginalFlow();
-				} else {
-					// Default in-place connection flow.
-					jetpackConnectButton.handleConnectInPlaceFlow();
-				}
+				// if ( 'original' === jpConnect.forceVariation ) {
+				// 	// Forcing original connection flow, `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME = true`
+				// 	// or we're dealing with Safari which has issues with handling 3rd party cookies.
+				// 	jetpackConnectButton.handleOriginalFlow();
+				// } else {
+				// 	// Default in-place connection flow.
+				// 	jetpackConnectButton.handleConnectInPlaceFlow();
+				// }
+				jetpackConnectButton.handleRegistration();
 			}
 		},
-		handleOriginalFlow: function () {
-			window.location = connectButton.attr( 'href' );
-		},
-		handleConnectInPlaceFlow: function () {
+		handleRegistration: function () {
 			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
 			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
 				// Make sure we don't lose the `from` parameter, if set.
@@ -81,8 +79,31 @@ jQuery( document ).ready( function ( $ ) {
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: jetpackConnectButton.handleConnectionSuccess,
+				success: function ( data ) {
+					// eslint-disable-next-line
+					console.log( data );
+					if ( data.hasWpcomAccount ) {
+						if (
+							confirm( 'Hey! Looks like you have a wpcom account. Connect with it?' ) === true
+						) {
+							window.location = data.authorizeUrl;
+						} else {
+							alert( 'Cool! No worries, continue user-less.' );
+							window.location.reload();
+						}
+					} else {
+						if ( confirm( 'Wanna create a wpcom account to do more cool stuff?' ) === true ) {
+							window.location = data.authorizeUrl;
+						} else {
+							alert( 'Cool! No worries, continue user-less.' );
+							window.location.reload();
+						}
+					}
+				},
 			} );
+		},
+		handleOriginalFlow: function () {
+			window.location = connectButton.attr( 'href' );
 		},
 		triggerLoadingState: function () {
 			var loadingText = $( '<span>' )
