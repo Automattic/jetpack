@@ -14,15 +14,7 @@ import { Button } from '@wordpress/components';
  * Internal dependencies
  */
 
-export default function Bullet( {
-	mediaDescription,
-	isEllipsis,
-	disabled,
-	index,
-	isSelected,
-	progress,
-	onClick,
-} ) {
+export default function Bullet( { isEllipsis, disabled, index, isSelected, progress, onClick } ) {
 	const bulletDisabled = disabled || isEllipsis;
 	let label = null;
 	if ( ! isEllipsis ) {
