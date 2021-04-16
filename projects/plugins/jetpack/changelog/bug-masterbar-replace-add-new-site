@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Replaced the string "Add new site" to "Add new site" on masterbar and corrected the unit tests.

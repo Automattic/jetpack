@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Connection\Client;
+
 require_once __DIR__ . '/class-admin-menu.php';
 
 /**
@@ -22,6 +24,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 
 		add_action(
 			'admin_menu',
@@ -135,21 +138,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		global $menu;
-
 		$site_count = get_user_option( 'wpcom_site_count' );
 		if ( $site_count && $site_count > 1 ) {
 			return;
 		}
 
-		// Attempt to get last position.
-		$position = 1000;
-		while ( isset( $menu[ $position ] ) ) {
-			$position++;
-		}
-
-		$this->add_admin_menu_separator( ++$position );
-		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt', ++$position );
+		$this->add_admin_menu_separator();
+		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
 	/**
@@ -285,4 +280,23 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		remove_menu_page( 'gutenberg' );
 		parent::add_gutenberg_menus( $wp_admin );
 	}
+
+	/**
+	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
+	 */
+	public function ajax_sidebar_state() {
+		$expanded = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		Client::wpcom_json_api_request_as_user(
+			'/me/preferences',
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			(object) array( 'calypso_preferences' => (object) array( 'sidebarCollapsed' => ! $expanded ) ),
+			'wpcom'
+		);
+
+		wp_die();
+	}
 }
+

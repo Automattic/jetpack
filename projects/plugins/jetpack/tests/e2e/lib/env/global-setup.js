@@ -5,7 +5,6 @@ const fs = require( 'fs' );
 const os = require( 'os' );
 const config = require( 'config' );
 const pwBrowserOptions = require( '../../playwright.config' ).pwBrowserOptions;
-import TunnelManager from './tunnel-manager';
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
@@ -18,10 +17,6 @@ module.exports = async function () {
 	// If the file is missing Playwright context creation will fail
 	// If the file already exists the content gets overwritten with an empty object
 	fs.writeFileSync( config.get( 'temp.storage' ), '{}' );
-
-	// Create tunnel. Make it global so we can access it in global-teardown
-	global.tunnelManager = new TunnelManager();
-	await global.tunnelManager.create( process.env.SKIP_CONNECT );
 
 	// Launch a browser server that client can connect to
 	global.browser = await chromium.launchServer( pwBrowserOptions );

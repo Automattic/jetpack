@@ -38,6 +38,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-device-detection",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"

@@ -41,6 +41,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-redirect",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+In-Place Connection: partially replace the secondary users connection flow with `InPlaceConnection` component from `@automattic/jetpack-connection` package.

@@ -100,7 +100,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$this->assertInstanceOf( Atomic_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
 
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
+		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
 		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
@@ -166,15 +166,15 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_new_site_link();
 
 		$new_site_menu_item = array(
-			'Add new site',
+			'Add New Site',
 			'read',
 			'https://wordpress.com/start?ref=calypso-sidebar',
-			'Add new site',
+			'Add New Site',
 			'menu-top toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'dashicons-plus-alt',
 		);
-		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
+		$this->assertSame( array_pop( $menu ), $new_site_menu_item );
 
 		delete_user_option( static::$user_id, 'wpcom_site_count' );
 	}
@@ -286,7 +286,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_tools_menu();
 
 		// Check Export menu item always links to WP Admin.
-		$this->assertSame( 'export.php', $submenu['tools.php'][3][2] );
+		$this->assertSame( 'export.php', $submenu['tools.php'][5][2] );
 	}
 
 	/**
@@ -342,10 +342,10 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		if ( current_user_can( 'install_themes' ) ) {
 			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
 			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][3][2] );
 		} else {
 			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][6][2] );
+			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		}
 	}
 
