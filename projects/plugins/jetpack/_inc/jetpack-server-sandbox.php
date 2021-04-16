@@ -55,7 +55,7 @@ function jetpack_server_sandbox( &$url, &$headers ) {
 	if ( $request_parameters['host'] ) {
 		$headers['Host'] = $request_parameters['host'];
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-//			error_log( sprintf( "SANDBOXING via '%s': '%s'", JETPACK__SANDBOX_DOMAIN, $original_url ) );
+			error_log( sprintf( "SANDBOXING via '%s': '%s'", JETPACK__SANDBOX_DOMAIN, $original_url ) );
 		}
 	}
 }

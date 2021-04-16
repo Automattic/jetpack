@@ -949,8 +949,6 @@ class Manager {
 			$jetpack_public = false;
 		}
 
-		error_log( print_r( $registration_details, 1 ) );
-
 		\Jetpack_Options::update_options(
 			array(
 				'id'     => (int) $registration_details->jetpack_id,
@@ -1570,9 +1568,9 @@ class Manager {
 		$body = apply_filters(
 			'jetpack_connect_request_body',
 			array(
-				'response_type' => 'code',
-				'client_id'     => \Jetpack_Options::get_option( 'id' ),
-				'redirect_uri'  => add_query_arg(
+				'response_type'     => 'code',
+				'client_id'         => \Jetpack_Options::get_option( 'id' ),
+				'redirect_uri'      => add_query_arg(
 					array(
 						'handler'  => 'jetpack-connection-webhooks',
 						'action'   => 'authorize',
@@ -1581,20 +1579,20 @@ class Manager {
 					),
 					esc_url( $processing_url )
 				),
-				'state'         => $user->ID,
-				'scope'         => $signed_role,
-				'user_email'    => $user->user_email,
-				'user_login'    => $user->user_login,
-				'is_active'     => $this->is_active(), // TODO Deprecate this.
-				'jp_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
-				'auth_type'     => $auth_type,
-				'secret'        => $secrets['secret_1'],
-				'blogname'      => get_option( 'blogname' ),
-				'site_url'      => site_url(),
-				'home_url'      => home_url(),
-				'site_icon'     => get_site_icon_url(),
-				'site_lang'     => get_locale(),
-				'site_created'  => $this->get_assumed_site_creation_date(),
+				'state'             => $user->ID,
+				'scope'             => $signed_role,
+				'user_email'        => $user->user_email,
+				'user_login'        => $user->user_login,
+				'is_active'         => $this->is_active(), // TODO Deprecate this.
+				'jp_version'        => Constants::get_constant( 'JETPACK__VERSION' ),
+				'auth_type'         => $auth_type,
+				'secret'            => $secrets['secret_1'],
+				'blogname'          => get_option( 'blogname' ),
+				'site_url'          => site_url(),
+				'home_url'          => home_url(),
+				'site_icon'         => get_site_icon_url(),
+				'site_lang'         => get_locale(),
+				'site_created'      => $this->get_assumed_site_creation_date(),
 				'has_wpcom_account' => $has_wpcom_account,
 			)
 		);
