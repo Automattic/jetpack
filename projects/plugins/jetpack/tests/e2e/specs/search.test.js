@@ -110,19 +110,6 @@ describe( 'Search', () => {
 	} );
 
 	it( 'Can reflect different result formats', async () => {
-		await step( 'Can use expanded format', async () => {
-			await setResultFormat( 'expanded' );
-			await homepage.reload();
-			await homepage.searchAPIRoute();
-			await homepage.focusSearchInput();
-			await homepage.enterQuery( 'random-string-1' );
-			await homepage.waitForSearchResponse();
-
-			expect( await homepage.isOverlayVisible() ).toBeTruthy();
-			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
-			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
-		} );
-
 		await step( 'Can use minimal format', async () => {
 			await setResultFormat( 'minimal' );
 			await homepage.reload();
@@ -147,6 +134,19 @@ describe( 'Search', () => {
 			expect( await homepage.isResultFormat( 'is-format-product' ) ).toBeTruthy();
 			expect( await homepage.isProductImageVisible() ).toBeTruthy();
 			expect( await homepage.isProductPriceVisible() ).toBeTruthy();
+		} );
+
+		await step( 'Can use expanded format', async () => {
+			await setResultFormat( 'expanded' );
+			await homepage.reload();
+			await homepage.searchAPIRoute();
+			await homepage.focusSearchInput();
+			await homepage.enterQuery( 'random-string-1' );
+			await homepage.waitForSearchResponse();
+
+			expect( await homepage.isOverlayVisible() ).toBeTruthy();
+			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
+			expect( await homepage.isExpandedImageVisible() ).toBeTruthy();
 		} );
 	} );
 } );
