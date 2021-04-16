@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
 use WP_Error;
@@ -554,13 +555,8 @@ class Identity_Crisis {
 			true
 		);
 
-		wp_enqueue_script(
-			'jp-tracks-functions',
-			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
+		$tracking = new Tracking();
+		$tracking->enqueue_tracks_scripts();
 	}
 
 	/**
