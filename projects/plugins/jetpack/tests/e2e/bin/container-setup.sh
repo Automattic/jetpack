@@ -35,8 +35,8 @@ function wp_config {
 }
 
 function gb_setup {
-	GB_URL=${1}
-	ZIP_PATH=${2}
+	ZIP_PATH=${1}
+	GB_URL=$(curl -s https://api.github.com/repos/Wordpress/gutenberg/releases/latest | grep browser_download_url | cut -d '"' -f 4)
 
 	rm -rf $ZIP_PATH wp-content/plugins/gutenberg
 	curl -L $GB_URL --output $ZIP_PATH
@@ -46,7 +46,7 @@ function gb_setup {
 if [ "${1}" == "wp-config" ]; then
 	wp_config
 elif [ "${1}" == "gb-setup" ]; then
-	gb_setup ${2} ${3}
+	gb_setup
 elif [ "${1}" == "usage" ]; then
 	usage
 else
