@@ -76,13 +76,13 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 	};
 
 	const onPress = useCallback( () => {
-		if ( disabled ) {
+		if ( disabled || fullscreen ) {
 			return;
 		}
-		if ( ! playing ) {
+		if ( settings.playInFullscreen && ! playing ) {
 			setPlaying( id, true );
 		}
-	}, [ playing, disabled ] );
+	}, [ playing, disabled, fullscreen ] );
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
@@ -168,7 +168,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 					'wp-story-clickable': ! disabled && ! fullscreen,
 				} ) }
 				style={ { maxWidth: `${ maxSlideWidth }px` } }
-				onClick={ ! fullscreen && onPress }
+				onClick={ onPress }
 			>
 				<Header { ...metadata } fullscreen={ fullscreen } onExitFullscreen={ onExitFullscreen } />
 				<div ref={ slideContainerRef } className="wp-story-wrapper">
