@@ -9,7 +9,7 @@ import { some } from 'lodash';
  */
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
-import { useResizeObserver } from '@wordpress/compose';
+import { useFocusOnMount, useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 
@@ -58,6 +58,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 	);
 
 	const slideContainerRef = useRef();
+	const focusOnMountRef = useFocusOnMount( true );
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
@@ -78,13 +79,10 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		if ( disabled ) {
 			return;
 		}
-		if ( ended && ! playing ) {
-			playSlide( 0 );
-		}
-		if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
+		if ( ! playing ) {
 			setPlaying( id, true );
 		}
-	}, [ playing, ended, fullscreen, disabled ] );
+	}, [ playing, disabled ] );
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
@@ -143,12 +141,24 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		}
 	}, [ maxSlideWidth ] );
 
+	let label;
+	if ( fullscreen ) {
+		label = [
+			__( 'You are currently playing a story.', 'jetpack' ),
+			playing ? __( 'Press space to pause.', 'jetpack' ) : __( 'Press space to play.', 'jetpack' ),
+			__( 'Press escape to exit.', 'jetpack' ),
+		].join( ' ' );
+	} else {
+		label = __( 'Play story', 'jetpack' );
+	}
+
 	return (
 		<div className="wp-story-display-contents">
 			{ resizeListener }
 			<div
-				role={ disabled ? 'presentation' : 'button' }
-				aria-label={ __( 'Play story', 'jetpack' ) }
+				ref={ focusOnMountRef }
+				role={ disabled ? 'presentation' : fullscreen ? 'dialog' : 'button' }
+				aria-label={ label }
 				tabIndex={ fullscreen ? -1 : 0 }
 				className={ classNames( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
@@ -158,7 +168,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 					'wp-story-clickable': ! disabled && ! fullscreen,
 				} ) }
 				style={ { maxWidth: `${ maxSlideWidth }px` } }
-				onClick={ onPress }
+				onClick={ ! fullscreen && onPress }
 			>
 				<Header { ...metadata } fullscreen={ fullscreen } onExitFullscreen={ onExitFullscreen } />
 				<div ref={ slideContainerRef } className="wp-story-wrapper">
@@ -192,7 +202,6 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 						disabled={ ! fullscreen }
 						onSlideSeek={ playSlide }
 						maxBullets={ fullscreen ? settings.maxBulletsFullscreen : settings.maxBullets }
-						fullscreen={ fullscreen }
 					/>
 				) }
 				<Controls

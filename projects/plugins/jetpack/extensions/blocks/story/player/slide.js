@@ -7,7 +7,14 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { createElement, useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
+import {
+	createElement,
+	useLayoutEffect,
+	useEffect,
+	useState,
+	useRef,
+	useMemo,
+} from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
@@ -71,8 +78,10 @@ export const Slide = ( {
 				</div>
 			) }
 			<div
+				role="figure"
 				className="wp-story-slide"
 				style={ { display: visible && ! loading ? 'block' : 'none' } }
+				tabIndex={ 0 }
 			>
 				{ preload && (
 					<Media

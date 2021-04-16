@@ -99,10 +99,7 @@ class Modal extends Component {
 	 */
 	render() {
 		const {
-			onRequestClose,
 			children,
-			aria,
-			instanceId,
 			isOpened,
 			shadowDOM,
 			// Many of the documented props for Modal are passed straight through
@@ -114,33 +111,15 @@ class Modal extends Component {
 		// other elements underneath the modal overlay.
 		return (
 			<ShadowRoot { ...shadowDOM } mountOnElement={ this.node }>
-				{ isOpened && (
-					<ModalFrame
-						onRequestClose={ onRequestClose }
-						aria={ {
-							labelledby: aria.labelledby || `wp-story-modal-${ instanceId }`,
-							describedby: aria.describedby,
-						} }
-						{ ...otherProps }
-					>
-						{ children }
-					</ModalFrame>
-				) }
+				{ isOpened && <ModalFrame { ...otherProps }>{ children }</ModalFrame> }
 			</ShadowRoot>
 		);
 	}
 }
 
 Modal.defaultProps = {
-	role: 'dialog',
-	focusOnMount: true,
 	shouldCloseOnEsc: true,
 	isOpened: false,
-	/* accessibility */
-	aria: {
-		labelledby: null,
-		describedby: null,
-	},
 };
 
 export default withInstanceId( Modal );

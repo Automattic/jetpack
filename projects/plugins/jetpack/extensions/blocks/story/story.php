@@ -156,8 +156,8 @@ function render_image( $media ) {
 /**
  * Return the css crop class if image width and height requires it
  *
- * @param array $width  Image width.
- * @param array $height  Image height.
+ * @param int $width  Image width.
+ * @param int $height  Image height.
  *
  * @return string The CSS class which will display a cropped image
  */
@@ -250,7 +250,7 @@ function render_video( $media ) {
  * Render a slide
  *
  * @param array $media  Media information.
- * @param array $index  Index of the slide, first slide will be displayed by default, others hidden.
+ * @param int   $index  Index of the slide, first slide will be displayed by default, others hidden.
  *
  * @return string
  */
@@ -322,8 +322,8 @@ function render_top_right_icon( $settings ) {
 /**
  * Render a pagination bullet
  *
- * @param array $slide_index The slide index it corresponds to.
- * @param array $class_name Optional css class name(s) to customize the bullet element.
+ * @param int    $slide_index The slide index it corresponds to.
+ * @param string $class_name Optional css class name(s) to customize the bullet element.
  *
  * @return string
  */
@@ -384,34 +384,35 @@ function render_block( $attributes ) {
 	);
 
 	return sprintf(
-		'<div class="%1$s" aria-labelledby="%2$s" data-settings="%3$s">
-			<div style="display: contents;">
-				<div class="wp-story-container">
-					<div class="wp-story-meta">
-						<div class="wp-story-icon">
-							<img alt="%4$s" src="%5$s" width="40" height="40">
-						</div>
-						<div>
-							<div class="wp-story-title">
-								%6$s
+		'<div class="%1$s" data-settings="%2$s">
+			<div class="wp-story-app">
+				<div class="wp-story-display-contents" style="display: contents;">
+					<div role="button" class="wp-story-container">
+						<div class="wp-story-meta">
+							<div class="wp-story-icon">
+								<img alt="%3$s" src="%4$s" width="40" height="40">
 							</div>
+							<div>
+								<div class="wp-story-title">
+									%5$s
+								</div>
+							</div>
+							<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
+								<i class="jetpack-material-icons close md-24"></i>
+							</a>
 						</div>
-						<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
-							<i class="jetpack-material-icons close md-24"></i>
+						<div class="wp-story-wrapper">
+							%6$s
+						</div>
+						<a class="wp-story-overlay" href="%7$s" title="%8$s">
+							%9$s
 						</a>
-					</div>
-					<div class="wp-story-wrapper">
-						%7$s
-					</div>
-					<a class="wp-story-overlay" href="%8$s" title="%9$s">
 						%10$s
-					</a>
-					%11$s
+					</div>
 				</div>
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
-		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),

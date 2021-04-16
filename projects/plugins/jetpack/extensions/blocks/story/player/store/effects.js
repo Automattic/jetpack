@@ -22,6 +22,31 @@ const isVideo = mediaElement =>
 	mediaElement && mediaElement.src && mediaElement.tagName.toLowerCase() === 'video';
 
 /**
+ * Effect handler which will sync a new media element with the current
+ * slide progress state. This is useful in particular when player is
+ * re-mounted somewhere else.
+ *
+ * @param {Object} action  - Action which had initiated the effect handler.
+ * @param {Object} store   - Store instance.
+ */
+function syncNewMediaElement( action, store ) {
+	const { getState } = store;
+	const playerId = action.playerId;
+
+	const mediaElement = getCurrentMediaElement( getState(), playerId );
+
+	if ( ! isVideo( mediaElement ) ) {
+		return;
+	}
+
+	const currentSlideProgress = getCurrentSlideProgress( getState(), playerId );
+
+	if ( mediaElement.currentTime === 0 && currentSlideProgress.currentTime > 0 ) {
+		mediaElement.currentTime = currentSlideProgress.currentTime;
+	}
+}
+
+/**
  * Effect handler which will sync the current slide progress with a video element
  *
  * @param {Object} action  - Action which had initiated the effect handler.
@@ -36,7 +61,7 @@ function syncWithMediaElement( action, store ) {
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
 	const previousMediaElement = getPreviousSlideMediaElement( getState(), playerId );
 
-	if ( action.type === 'SHOW_SLIDE' && isVideo( previousMediaElement ) ) {
+	if ( isVideo( previousMediaElement ) ) {
 		previousMediaElement.currentTime = 0;
 		previousMediaElement.pause();
 	}
@@ -121,7 +146,7 @@ export function trackProgress( action, store ) {
 
 export default {
 	SET_PLAYING: [ trackProgress, syncWithMediaElement ],
-	SLIDE_READY: [ trackProgress, syncWithMediaElement ],
+	SLIDE_READY: [ syncNewMediaElement, trackProgress, syncWithMediaElement ],
 	SET_MUTED: syncWithMediaElement,
 	SHOW_SLIDE: syncWithMediaElement,
 };

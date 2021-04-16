@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 
 /**
  * WordPress dependencies
@@ -13,19 +14,41 @@ import { Button } from '@wordpress/components';
  * Internal dependencies
  */
 
-export default function Bullet( { disabled, index, isSelected, progress, onClick } ) {
-	const label = isSelected
-		? sprintf( __( 'Slide %d, currently selected.', 'jetpack' ), index + 1 )
-		: sprintf( __( 'Slide %d', 'jetpack' ), index + 1 );
+export default function Bullet( {
+	mediaDescription,
+	isEllipsis,
+	disabled,
+	index,
+	isSelected,
+	progress,
+	onClick,
+} ) {
+	const bulletDisabled = disabled || isEllipsis;
+	let label = null;
+	if ( ! isEllipsis ) {
+		label = isSelected
+			? sprintf(
+					/* translators: %d: Slide number. */
+					__( 'Slide %d, currently selected', 'jetpack' ),
+					index + 1
+			  )
+			: sprintf(
+					/* translators: %d: Slide number. */
+					__( 'Go to slide %d', 'jetpack' ),
+					index + 1
+			  );
+	}
 	return (
 		<Button
-			role={ disabled ? 'presentation' : 'tab' }
+			role={ bulletDisabled ? 'presentation' : 'tab' }
 			key={ index }
-			className="wp-story-pagination-bullet"
+			className={ classNames( 'wp-story-pagination-bullet', {
+				'wp-story-pagination-ellipsis': isEllipsis,
+			} ) }
 			aria-label={ label }
-			aria-disabled={ disabled || isSelected }
-			onClick={ ! disabled && ! isSelected ? onClick : undefined }
-			disabled={ disabled }
+			aria-disabled={ bulletDisabled || isSelected }
+			onClick={ ! bulletDisabled && ! isSelected ? onClick : undefined }
+			disabled={ bulletDisabled }
 		>
 			<div className="wp-story-pagination-bullet-bar">
 				<div

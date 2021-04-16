@@ -65,19 +65,16 @@ export default function ShadowPlayer( {
 		}
 	}, [ fullscreen ] );
 
+	/* eslint-disable jsx-a11y/no-static-element-interactions */
 	return (
 		<>
 			<ShadowRoot { ...shadowDOM }>
-				{
-					// eslint-disable-next-line
-				 }
 				<div
 					ref={ rootElementRef }
 					className={ classNames( className, {
 						[ fullscreenClassName ]: isFullscreen,
 					} ) }
 					onKeyDown={ onKeyDown }
-					aria-hidden="true"
 				>
 					{ ! isFullPageModalOpened && children }
 				</div>
@@ -90,9 +87,11 @@ export default function ShadowPlayer( {
 				onRequestClose={ onExitFullscreen }
 				shadowDOM={ shadowDOM }
 				onKeyDown={ isFullPageModalOpened && onKeyDown }
+				focusOnMount={ false }
 			>
 				{ isFullPageModalOpened && children }
 			</Modal>
 		</>
 	);
+	/* eslint-enable jsx-a11y/no-static-element-interactions */
 }

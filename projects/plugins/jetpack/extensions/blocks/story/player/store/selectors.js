@@ -143,7 +143,7 @@ export function getPreviousSlideMediaElement( state, playerId ) {
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
  *
- * @returns {boolean} is player fullscreen ended.
+ * @returns {boolean} is player fullscreen.
  */
 export function isFullscreen( state, playerId ) {
 	return state[ playerId ].fullscreen;

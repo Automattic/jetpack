@@ -68,14 +68,24 @@ export function player( state = defaultPlayerState, action ) {
 				...state,
 				muted: action.value,
 			};
-		case 'SET_PLAYING':
+		case 'SET_PLAYING': {
+			const resetStory = action.value && state.ended;
+
 			return {
 				...state,
 				playing: action.value,
 				fullscreen:
 					! state.playing && action.value ? state.settings.playInFullscreen : state.fullscreen,
-				ended: action.value ? false : state.ended,
+				ended: resetStory ? false : state.ended,
+				currentSlide: resetStory
+					? {
+							...defaultCurrentSlideState,
+							index: 0,
+					  }
+					: state.currentSlide,
+				previousSlide: resetStory ? null : state.previousSlide,
 			};
+		}
 		case 'SET_FULLSCREEN':
 			return {
 				...state,
