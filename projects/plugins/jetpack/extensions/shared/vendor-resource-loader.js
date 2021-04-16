@@ -12,7 +12,7 @@ export function loadVendorResources( resources, elementRef ) {
 
 	if ( resources.css ) {
 		resources.css.forEach( css => {
-			const cssLink = document.createElement( 'link' );
+			const cssLink = vendorDoc.createElement( 'link' );
 			cssLink.rel = 'stylesheet';
 			cssLink.href = css.href;
 			currentHead.appendChild( cssLink );
@@ -20,7 +20,7 @@ export function loadVendorResources( resources, elementRef ) {
 	}
 	if ( resources.js ) {
 		resources.js.forEach( js => {
-			const jsScript = document.createElement( 'script' );
+			const jsScript = vendorDoc.createElement( 'script' );
 			jsScript.type = 'text/javascript';
 			jsScript.src = js.src;
 			jsScript.onload = js.onload;
