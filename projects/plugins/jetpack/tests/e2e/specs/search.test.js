@@ -111,7 +111,9 @@ describe( 'Search', () => {
 
 	it( 'Can reflect different result formats', async () => {
 		await step( 'Can use expanded format', async () => {
-			// The default format is expanded
+			await setResultFormat( 'expanded' );
+			await homepage.reload();
+			await homepage.searchAPIRoute();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-1' );
 			await homepage.waitForSearchResponse();
