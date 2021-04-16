@@ -18,32 +18,33 @@ import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { getStep, isRecommendationsDataLoaded } from 'state/recommendations';
 import { LoadingCard } from './sidebar/loading-card';
+import { RECOMMENDATION_WIZARD_STEP } from './constants';
 
 const RecommendationsComponent = props => {
 	const { isLoading, step } = props;
 
 	let redirectPath;
 	switch ( step ) {
-		case 'not-started':
-		case 'site-type-question':
+		case RECOMMENDATION_WIZARD_STEP.NOT_STARTED:
+		case RECOMMENDATION_WIZARD_STEP.SITE_TYPE:
 			redirectPath = '/site-type';
 			break;
-		case 'woocommerce':
+		case RECOMMENDATION_WIZARD_STEP.WOOCOMMERCE:
 			redirectPath = '/woocommerce';
 			break;
-		case 'monitor':
+		case RECOMMENDATION_WIZARD_STEP.MONITOR:
 			redirectPath = '/monitor';
 			break;
-		case 'related-posts':
+		case RECOMMENDATION_WIZARD_STEP.RELATED_POSTS:
 			redirectPath = '/related-posts';
 			break;
-		case 'creative-mail':
+		case RECOMMENDATION_WIZARD_STEP.CREATIVE_MAIL:
 			redirectPath = '/creative-mail';
 			break;
-		case 'site-accelerator':
+		case RECOMMENDATION_WIZARD_STEP.SITE_ACCELERATOR:
 			redirectPath = '/site-accelerator';
 			break;
-		case 'summary':
+		case RECOMMENDATION_WIZARD_STEP.SUMMARY:
 			redirectPath = '/summary';
 			break;
 		default:
