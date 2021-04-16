@@ -379,7 +379,7 @@ class REST_Connector {
 	/**
 	 * Verify that user is allowed to connect Jetpack.
 	 *
-	 * @since 8.8.0
+	 * @since 9.7.0
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_connect'.
 	 */

@@ -400,7 +400,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d6792daacae4f54530d8f749d3b2927ed5660b49"
+                "reference": "2eb33d40db7575c409dbf94653ce2eea1fa9dfaa"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
@@ -408,6 +408,7 @@
                 "automattic/jetpack-options": "^1.11",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.7",
+                "automattic/jetpack-terms-of-service": "^1.9",
                 "automattic/jetpack-tracking": "^1.13"
             },
             "require-dev": {
