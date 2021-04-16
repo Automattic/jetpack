@@ -9,7 +9,7 @@ export default class Homepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 	constructor( page ) {
-		const url = `${ siteUrl }/`;
+		const url = `${ siteUrl }/?result_format=expanded`;
 		super( page, { expectedSelectors: [ '.site-title' ], url } );
 	}
 

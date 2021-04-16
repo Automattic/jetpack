@@ -5,11 +5,7 @@ import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execWpCommand } from '../lib/utils-helper';
 import Homepage from '../lib/pages/homepage';
 import { step } from '../lib/env/test-setup';
-import {
-	enableInstantSearch,
-	setupSearchSidebarWidget,
-	setResultFormat,
-} from '../lib/search-helper';
+import { enableInstantSearch, setupSearchSidebarWidget } from '../lib/search-helper';
 
 describe( 'Search', () => {
 	let homepage;
@@ -22,7 +18,6 @@ describe( 'Search', () => {
 
 	afterAll( async () => {
 		await execWpCommand( 'wp jetpack module deactivate search' );
-		await setResultFormat( 'expanded' );
 	} );
 
 	beforeEach( async () => {
@@ -111,11 +106,10 @@ describe( 'Search', () => {
 
 	it( 'Can reflect different result formats', async () => {
 		await step( 'Can use minimal format', async () => {
-			await setResultFormat( 'minimal' );
-			await homepage.reload();
-			await homepage.searchAPIRoute();
+			await homepage.goto( `${ siteUrl }?result_format=minimal` );
+			await homepage.waitForPage();
 			await homepage.focusSearchInput();
-			await homepage.enterQueryToOverlay( 'random-string-2' );
+			await homepage.enterQuery( 'random-string-1' );
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
@@ -123,11 +117,10 @@ describe( 'Search', () => {
 		} );
 
 		await step( 'Can use product format', async () => {
-			await setResultFormat( 'product' );
-			await homepage.reload();
-			await homepage.searchAPIRoute();
+			await homepage.goto( `${ siteUrl }?result_format=product` );
+			await homepage.waitForPage();
 			await homepage.focusSearchInput();
-			await homepage.enterQueryToOverlay( 'random-string-3' );
+			await homepage.enterQuery( 'random-string-2' );
 			await homepage.waitForSearchResponse();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
@@ -137,12 +130,9 @@ describe( 'Search', () => {
 		} );
 
 		await step( 'Can use expanded format', async () => {
-			await setResultFormat( 'expanded' );
-			await homepage.reload();
-			await homepage.searchAPIRoute();
-			await homepage.focusSearchInput();
-			await homepage.enterQuery( 'random-string-1' );
-			await homepage.waitForSearchResponse();
+			await homepage.goto( `${ siteUrl }?result_format=expanded&s=random-string-3` );
+			await homepage.waitForPage();
+			await homepage.waitForNetworkIdle();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 			expect( await homepage.isResultFormat( 'is-format-expanded' ) ).toBeTruthy();
