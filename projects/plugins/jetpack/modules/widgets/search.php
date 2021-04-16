@@ -137,17 +137,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 		);
 
 		wp_register_script(
-			'jp-tracks-functions',
-			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
-
-		wp_register_script(
 			'jetpack-search-widget-admin',
 			plugins_url( 'search/js/search-widget-admin.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
+			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks' ),
 			JETPACK__VERSION
 		);
 
