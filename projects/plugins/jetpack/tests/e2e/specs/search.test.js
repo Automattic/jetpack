@@ -108,6 +108,7 @@ describe( 'Search', () => {
 		await step( 'Can use minimal format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=minimal` );
 			await homepage.waitForPage();
+			await homepage.waitForNetworkIdle();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-1' );
 			await homepage.waitForSearchResponse();
@@ -119,6 +120,7 @@ describe( 'Search', () => {
 		await step( 'Can use product format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=product` );
 			await homepage.waitForPage();
+			await homepage.waitForNetworkIdle();
 			await homepage.focusSearchInput();
 			await homepage.enterQuery( 'random-string-2' );
 			await homepage.waitForSearchResponse();
