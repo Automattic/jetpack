@@ -7,7 +7,7 @@ function usage {
 	echo "usage: $0 command"
 	echo "  start                        Setup the docker containers for E2E tests"
 	echo "  reset                        Reset the containers state"
-	echo "  -h | usage                   output this message"
+	echo "  -h | usage                   Output this message"
 	exit 1
 }
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add e2e test to cover Jetpack Assistant's (Recommendations) main flow
