@@ -1,7 +1,10 @@
+/* global ajaxurl */
+
 ( function () {
 	function init() {
 		var adminbar = document.querySelector( '#wpadminbar' );
 		var wpwrap = document.querySelector( '#wpwrap' );
+		var adminMenu = document.querySelector( '#adminmenu' );
 
 		if ( ! adminbar ) {
 			return;
@@ -40,6 +43,30 @@
 				}
 			} );
 		}
+
+		if ( adminMenu ) {
+			var collapseButton = adminMenu.querySelector( '#collapse-button' );
+			// Nav-Unification feature:
+			// Saves the sidebar state in server when "Collapse menu" is clicked.
+			// This is needed so that we update WPCOM for this preference in real-time.
+			if ( collapseButton ) {
+				collapseButton.addEventListener( 'click', function ( event ) {
+					// Let's the core event listener be triggered first.
+					setTimeout( function () {
+						saveSidebarIsExpanded( event.target.parentNode.ariaExpanded );
+					}, 50 );
+				} );
+			}
+		}
+	}
+
+	function saveSidebarIsExpanded( expanded ) {
+		var xhr = new XMLHttpRequest();
+		xhr.open( 'POST', ajaxurl, true );
+		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
+		xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+		xhr.withCredentials = true;
+		xhr.send( 'action=sidebar_state&expanded=' + expanded );
 	}
 
 	if ( document.readyState === 'loading' ) {

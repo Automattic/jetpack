@@ -33,6 +33,10 @@ wp --allow-root plugin install core-control --activate
 # https://wordpress.org/plugins/wp-crontrol/
 wp --allow-root plugin install wp-crontrol --activate
 
+# Install Gutenberg
+# https://wordpress.org/plugins/gutenberg/
+wp --allow-root plugin install gutenberg --activate
+
 # Activate Jetpack
 wp --allow-root plugin activate jetpack
 

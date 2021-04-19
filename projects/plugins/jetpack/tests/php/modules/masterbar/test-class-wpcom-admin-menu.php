@@ -279,7 +279,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_tools_menu( false, true );
 
 		// Check Export menu item always links to Calypso.
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -293,7 +293,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu();
 
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
-		$this->assertSame( 'https://wordpress.com/marketing/sharing-buttons/' . static::$domain, $submenu['options-general.php'][8][2] );
 	}
 
 	/**

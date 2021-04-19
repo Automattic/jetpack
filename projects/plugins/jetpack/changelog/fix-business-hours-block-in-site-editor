@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Making the block editor styles more specific to ensure Site/Block editor compatibility.
