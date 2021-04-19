@@ -9,4 +9,17 @@ import ReactDOM from 'react-dom';
  */
 import App from './components/App';
 
-ReactDOM.render( <App />, document.getElementById( 'jetpack-backup-root' ) );
+/**
+ * Initial render function.
+ */
+function render() {
+	const container = document.getElementById( 'jetpack-backup-root' );
+
+	if ( null === container ) {
+		return;
+	}
+
+	ReactDOM.render( <App />, container );
+}
+
+render();

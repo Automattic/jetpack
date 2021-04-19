@@ -36,11 +36,12 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts.
 	 */
 	public function enqueue_admin_scripts() {
+		$build_assets = require_once JETPACK_BACKUP_PLUGIN_DIR . '/build/index.asset.php';
 		wp_register_script(
 			'jetpack-backup-main-js',
-			plugins_url( 'build/main.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
-			array(),
-			'1.0.0',
+			plugins_url( 'build/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			$build_assets['dependencies'],
+			$build_assets['version'],
 			true
 		);
 		wp_enqueue_script( 'jetpack-backup-main-js' );
