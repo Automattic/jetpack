@@ -61,7 +61,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 		)
 	);
 
-	$grid_style = 'grid-gap: ' . $spacing . 'px;';
+	$grid_style = sprintf( 'grid-gap: %spx; --latest-instagram-posts-spacing: %spx;', $spacing, $spacing );
 
 	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );

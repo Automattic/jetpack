@@ -41,6 +41,9 @@
 		@media ( max-width: $break-small ) {
 			&.is-stacked-on-mobile {
 				display: block;
+				.wp-block-jetpack-instagram-gallery__grid-post {
+					padding: var( --latest-instagram-posts-spacing );
+				}
 			}
 		}
 

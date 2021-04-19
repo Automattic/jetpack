@@ -98,3 +98,13 @@
 		flex-direction: column;
 	}
 }
+
+@supports ( display: grid ) {
+	@media ( max-width: $break-small ) {
+		.wp-block-jetpack-instagram-gallery__grid.is-stacked-on-mobile {
+			.wp-block-jetpack-instagram-gallery__placeholder {
+				margin: 0 !important;
+			}
+		}
+	}
+}
