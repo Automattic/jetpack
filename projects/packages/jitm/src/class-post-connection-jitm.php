@@ -391,7 +391,7 @@ class Post_Connection_JITM extends JITM {
 		$use_cache = false;
 
 		/** This filter is documented in class.jetpack.php */
-		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+		if ( apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
 			$use_cache = true;
 		}
 
