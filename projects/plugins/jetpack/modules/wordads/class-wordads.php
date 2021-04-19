@@ -367,7 +367,7 @@ class WordAds {
 		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?> };
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
