@@ -35,5 +35,4 @@ if ( is_readable( $jetpack_autoloader ) ) {
 }
 
 // Main plugin class.
-require_once JETPACK_BACKUP_PLUGIN_DIR . 'src/php/class-jetpack-backup.php';
 new Jetpack_Backup();
