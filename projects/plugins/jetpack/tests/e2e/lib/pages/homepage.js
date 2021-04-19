@@ -145,8 +145,9 @@ export default class Homepage extends WpPage {
 	}
 
 	async isOverlayVisible() {
-		const overlaySelector = '.jetpack-instant-search__overlay.is-hidden';
-		return ! ( await this.isElementVisible( overlaySelector ) );
+		const overlaySelector = '.jetpack-instant-search__overlay';
+		const classes = await this.page.$eval( overlaySelector, e => e.getAttribute( 'class' ) );
+		return ! classes.includes( 'is-hidden' );
 	}
 
 	async isSearchResultVisible() {
