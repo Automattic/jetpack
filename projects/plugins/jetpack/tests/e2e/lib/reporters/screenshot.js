@@ -3,7 +3,7 @@
  */
 const path = require( 'path' );
 const config = require( 'config' );
-const logger = require( '../logger' ).default;
+const logger = require( '../logger' );
 const { fileNameFormatter } = require( '../utils-helper' );
 
 /**

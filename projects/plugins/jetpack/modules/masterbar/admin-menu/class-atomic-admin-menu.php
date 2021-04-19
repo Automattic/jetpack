@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Connection\Client;
+
 require_once __DIR__ . '/class-admin-menu.php';
 
 /**
@@ -22,6 +24,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
+		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 
 		add_action(
 			'admin_menu',
@@ -277,4 +280,23 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		remove_menu_page( 'gutenberg' );
 		parent::add_gutenberg_menus( $wp_admin );
 	}
+
+	/**
+	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
+	 */
+	public function ajax_sidebar_state() {
+		$expanded = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		Client::wpcom_json_api_request_as_user(
+			'/me/preferences',
+			'2',
+			array(
+				'method' => 'POST',
+			),
+			(object) array( 'calypso_preferences' => (object) array( 'sidebarCollapsed' => ! $expanded ) ),
+			'wpcom'
+		);
+
+		wp_die();
+	}
 }
+
