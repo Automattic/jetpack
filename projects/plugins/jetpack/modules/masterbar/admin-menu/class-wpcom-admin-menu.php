@@ -205,7 +205,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+		// $wp_admin_themes can have a `true` value here if the user has activated the "Show advanced dashboard pages" account setting.
+		// We force $wp_admin_themes to `false` anyways, since Simple sites should always see the Calypso Theme showcase.
+		$wp_admin_themes = false;
+		$customize_url   = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
 		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
@@ -263,10 +266,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
-		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
-		if ( $this->hide_submenu_page( 'options-general.php', 'sharing' ) ) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
-		}
+		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	/**
