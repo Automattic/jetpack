@@ -152,7 +152,6 @@ export default class Homepage extends WpPage {
 
 	async isSearchResultVisible() {
 		const searchResultTitleSelector = '.jetpack-instant-search__search-result';
-		await this.waitForElementToBeAttached( searchResultTitleSelector );
 		return this.isElementVisible( searchResultTitleSelector );
 	}
 
