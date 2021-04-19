@@ -4,6 +4,7 @@
 import React, { useCallback } from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { JetpackConnection } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -26,22 +27,41 @@ export default function Admin() {
 		select => select( STORE_ID ).getDoNotUseConnectionIframe(),
 		[]
 	);
+	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 
-	const { connectionStatusSetRegistered, connectionStatusSetUserConnected } = useDispatch(
-		STORE_ID
-	);
+	const {
+		connectionStatusSetRegistered,
+		connectionStatusSetUserConnected,
+		connectionDataSetAuthorizationUrl,
+	} = useDispatch( STORE_ID );
 
 	const onUserConnected = useCallback( () => {
 		connectionStatusSetUserConnected( true );
 	}, [ connectionStatusSetUserConnected ] );
 
-	const onRegistered = useCallback( () => {
-		connectionStatusSetRegistered( true );
-	}, [ connectionStatusSetRegistered ] );
+	const onRegistered = useCallback(
+		response => {
+			connectionStatusSetRegistered( true );
+
+			if ( response.authorizeUrl ) {
+				connectionDataSetAuthorizationUrl( response.authorizeUrl );
+			}
+		},
+		[ connectionStatusSetRegistered, connectionDataSetAuthorizationUrl ]
+	);
 
 	return (
 		<React.Fragment>
 			<Header />
+
+			<div className="connection-status-card">
+				{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
+					<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
+				) }
+				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
+					<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
+				) }
+			</div>
 
 			<JetpackConnection
 				apiRoot={ APIRoot }
@@ -53,6 +73,7 @@ export default function Admin() {
 				forceCalypsoFlow={ doNotUseConnectionIframe }
 				onRegistered={ onRegistered }
 				onUserConnected={ onUserConnected }
+				registrationNonce={ registrationNonce }
 			/>
 		</React.Fragment>
 	);

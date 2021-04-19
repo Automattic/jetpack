@@ -4,7 +4,7 @@
 import {
 	CONNECTION_STATUS_REGISTERED,
 	CONNECTION_STATUS_USER_CONNECTED,
-} from '../actions/connection';
+} from '../actions/connection-status';
 
 const connectionStatus = ( state = {}, action ) => {
 	switch ( action.type ) {

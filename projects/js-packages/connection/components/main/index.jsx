@@ -26,6 +26,7 @@ const Main = props => {
 		isUserConnected,
 		onRegistered,
 		onUserConnected,
+		registrationNonce,
 	} = props;
 
 	useEffect( () => {
@@ -62,12 +63,12 @@ const Main = props => {
 			setIsRegistering( true );
 
 			restApi
-				.registerSite()
-				.then( () => {
+				.registerSite( registrationNonce )
+				.then( response => {
 					setIsRegistering( false );
 
 					if ( onRegistered ) {
-						onRegistered();
+						onRegistered( response );
 					}
 
 					connectUser();
@@ -76,7 +77,7 @@ const Main = props => {
 					throw error;
 				} );
 		},
-		[ setIsRegistering, isRegistered, onRegistered, connectUser ]
+		[ setIsRegistering, isRegistered, onRegistered, connectUser, registrationNonce ]
 	);
 
 	if ( isRegistered && isUserConnected ) {
@@ -120,6 +121,7 @@ Main.propTypes = {
 	hasConnectedOwner: PropTypes.bool.isRequired,
 	onRegistered: PropTypes.func,
 	onUserConnected: PropTypes.func,
+	registrationNonce: PropTypes.string.isRequired,
 };
 
 Main.defaultProps = {

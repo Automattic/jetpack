@@ -1,10 +1,12 @@
 /**
  * Internal dependencies
  */
-import connectionActions from './connection';
+import connectionStatusActions from './connection-status';
+import connectionDataActions from './connection-data';
 
 const actions = {
-	...connectionActions,
+	...connectionStatusActions,
+	...connectionDataActions,
 };
 
 export default actions;

@@ -74,8 +74,10 @@ function JetpackRestApiClient( root, nonce ) {
 			};
 		},
 
-		registerSite: () =>
-			postRequest( `${ apiRoot }jetpack/v4/connection/`, postParams )
+		registerSite: registrationNonce =>
+			postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
+				body: JSON.stringify( { registration_nonce: registrationNonce } ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};
