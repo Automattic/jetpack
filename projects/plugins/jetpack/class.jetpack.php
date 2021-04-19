@@ -822,6 +822,7 @@ class Jetpack {
 		foreach (
 			array(
 				'sync',
+				'jitm',
 			)
 			as $feature
 		) {
@@ -835,10 +836,6 @@ class Jetpack {
 				'name' => 'Jetpack',
 			)
 		);
-
-		if ( is_admin() ) {
-			$config->ensure( 'jitm' );
-		}
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
