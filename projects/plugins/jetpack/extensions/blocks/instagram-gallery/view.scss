@@ -57,11 +57,6 @@
 
 		.wp-block-jetpack-instagram-gallery__grid-post {
 			width: auto;
-
-			img {
-				height: 100%;
-				object-fit: cover;
-			}
 		}
 	}
 
@@ -74,7 +69,6 @@
 
 @supports ( object-fit: cover ) {
 	.wp-block-jetpack-instagram-gallery__grid-post img {
-		height: 100%;
 		object-fit: cover;
 	}
 }

@@ -40,6 +40,7 @@
 	background-color: #a7a79f;
 	display: block;
 	opacity: 1;
+    height: auto;
 
 	&.is-loaded {
 		animation: none;
@@ -49,7 +50,7 @@
 	img {
 		opacity: 0;
 		transition: opacity 0.5s ease-in-out;
-
+		height: auto;
 		&.is-loaded {
 			opacity: 1;
 		}
@@ -76,15 +77,5 @@
 	}
 	100% {
 		opacity: 1;
-	}
-}
-
-@supports ( object-fit: cover ) {
-	.wp-block-jetpack-instagram-gallery__placeholder.is-loaded {
-		height: 100%;
-		img {
-			height: 100%;
-			object-fit: cover;
-		}
 	}
 }
