@@ -75,7 +75,7 @@ const InstagramGalleryEdit = props => {
 		{ 'is-stacked-on-mobile': isStackedOnMobile }
 	);
 	const gridStyle = { gridGap: spacing };
-	const photoStyle = { padding: spacing };
+	const photoStyle = { padding: spacing }; // Needed so the updates to the grid gap render when changed.
 
 	const shouldRenderSidebarNotice = () =>
 		showSidebar && ! showLoadingSpinner && images.length < count;
@@ -88,6 +88,7 @@ const InstagramGalleryEdit = props => {
 					alt={ image.title || image.url }
 					src={ image.url }
 					attributes={ attributes }
+					spacing={ spacing }
 				/>
 			);
 		}

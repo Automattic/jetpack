@@ -42,17 +42,6 @@
 			&.is-stacked-on-mobile {
 				display: block;
 			}
-			&:not( .is-stacked-on-mobile ) {
-				.wp-block-jetpack-instagram-gallery__grid-post {
-					padding: 0 !important; // Overrides the block style
-				}
-			}
-		}
-
-		@media ( min-width: $break-small ) {
-			.wp-block-jetpack-instagram-gallery__grid-post {
-				padding: 0 !important; // Overrides the block style
-			}
 		}
 
 		.wp-block-jetpack-instagram-gallery__grid-post {

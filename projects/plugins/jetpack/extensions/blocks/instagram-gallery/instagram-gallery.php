@@ -62,7 +62,6 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	);
 
 	$grid_style  = 'grid-gap: ' . $spacing . 'px;';
-	$photo_style = 'padding: ' . $spacing . 'px;';
 
 	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
@@ -109,7 +108,6 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 				class="wp-block-jetpack-instagram-gallery__grid-post"
 				href="<?php echo esc_url( $image->link ); ?>"
 				rel="noopener noreferrer"
-				style="<?php echo esc_attr( $photo_style ); ?>"
 				target="_blank"
 			>
 				<img
