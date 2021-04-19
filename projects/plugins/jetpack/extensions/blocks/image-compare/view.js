@@ -124,15 +124,21 @@ domReady( function () {
 		return leftPercent;
 	}
 
-	function getTopPercent( slider, input ) {
+	function getTopPercent( slider, input, sliderParentDocument ) {
 		let topPercent;
 		if ( typeof input === 'string' || typeof input === 'number' ) {
 			topPercent = parseInt( input, 10 );
 		} else {
 			const sliderRect = slider.getBoundingClientRect();
 			const offset = {
-				top: sliderRect.top + document.body.scrollTop + document.documentElement.scrollTop,
-				left: sliderRect.left + document.body.scrollLeft + document.documentElement.scrollLeft,
+				top:
+					sliderRect.top +
+					sliderParentDocument.body.scrollTop +
+					sliderParentDocument.documentElement.scrollTop,
+				left:
+					sliderRect.left +
+					sliderParentDocument.body.scrollLeft +
+					sliderParentDocument.documentElement.scrollLeft,
 			};
 			const width = slider.offsetHeight;
 			const pageY = getPageY( input );
@@ -155,8 +161,8 @@ domReady( function () {
 		return ! ( x === 'false' || x === '' );
 	}
 
-	function JXSlider( selector, images, options ) {
-		this.selector = selector;
+	function JXSlider( element, images, options ) {
+		this.element = element;
 
 		let i;
 		this.options = {
@@ -188,9 +194,8 @@ domReady( function () {
 	JXSlider.prototype = {
 		updateSlider: function ( input, animate ) {
 			let leftPercent;
-
 			if ( this.options.mode === 'vertical' ) {
-				leftPercent = getTopPercent( this.slider, input );
+				leftPercent = getTopPercent( this.slider, input, this.sliderParentDocument );
 			} else {
 				leftPercent = getLeftPercent( this.slider, input );
 			}
@@ -272,8 +277,8 @@ domReady( function () {
 		},
 
 		setWrapperDimensions: function () {
-			const wrapperWidth = getComputedWidthAndHeight( this.wrapper ).width;
-			const wrapperHeight = getComputedWidthAndHeight( this.wrapper ).height;
+			const wrapperWidth = getComputedWidthAndHeight( this.wrapper.parentNode ).width;
+			const wrapperHeight = getComputedWidthAndHeight( this.wrapper.parentNode ).height;
 			let dims = this.calculateDims( wrapperWidth, wrapperHeight );
 			// if window is in iframe, make sure images don't overflow boundaries
 			if ( window.location !== window.parent.location && ! this.options.makeResponsive ) {
@@ -308,8 +313,9 @@ domReady( function () {
 				this.imgAfter &&
 				this.imgAfter.loaded === true
 			) {
-				this.wrapper = document.querySelector( this.selector );
-				if ( ! this.wrapper ) {
+				this.wrapper = this.element;
+
+				if ( ! this.wrapper || this.wrapper.querySelector( '.jx-slider' ) ) {
 					return;
 				}
 				addClass( this.wrapper, 'juxtapose' );
@@ -320,7 +326,9 @@ domReady( function () {
 				this.slider = document.createElement( 'div' );
 				this.slider.className = 'jx-slider';
 				this.wrapper.appendChild( this.slider );
-
+				// Need to get the nearest parent document to calculate scrolltop
+				// in case the block is in an iframe.
+				this.sliderParentDocument = this.wrapper.ownerDocument;
 				if ( this.options.mode !== 'horizontal' ) {
 					addClass( this.slider, this.options.mode );
 				}
@@ -509,16 +517,14 @@ domReady( function () {
 		const specificClass = 'juxtapose-' + idx;
 		addClass( element, specificClass );
 
-		const selector = '.' + specificClass;
-
 		if ( w.innerHTML ) {
 			w.innerHTML = '';
 		} else {
 			w.innerText = '';
 		}
 
-		const slider = new juxtapose.JXSlider(
-			selector,
+		return new juxtapose.JXSlider(
+			element,
 			[
 				{
 					src: images[ 0 ].src,

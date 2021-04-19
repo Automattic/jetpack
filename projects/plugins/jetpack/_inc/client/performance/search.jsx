@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo, useEffect } from 'react';
+import React, { Fragment, useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 
@@ -32,48 +32,45 @@ const SEARCH_DESCRIPTION = __(
 const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.', 'jetpack' );
 const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 
-function toggleModuleFactory( {
-	getOptionValue,
-	hasActiveSearchPurchase,
-	toggleModuleNow,
-	updateOptions,
-} ) {
-	return module => {
-		toggleModuleNow( module );
-		if ( hasActiveSearchPurchase && getOptionValue( 'search' ) ) {
-			updateOptions( { instant_search_enabled: true } );
-		}
-	};
-}
-
-function toggleInstantSearchFactory( { hasActiveSearchPurchase, getOptionValue, updateOptions } ) {
-	return () => {
-		if ( hasActiveSearchPurchase && getOptionValue( 'search' ) ) {
-			updateOptions( {
-				instant_search_enabled: ! getOptionValue( 'instant_search_enabled', 'search' ),
-			} );
-		}
-	};
-}
-
+/**
+ * Search settings component to be used within the Performance section.
+ *
+ * @param  {object} props - Component properties.
+ * @returns {React.Component}	Search settings component.
+ */
 function Search( props ) {
+	const { failedToEnableSearch, hasActiveSearchPurchase, updateOptions } = props;
 	const isModuleEnabled = props.getOptionValue( 'search' );
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
-	const toggleModule = useMemo( () => toggleModuleFactory( props ), [
-		props.hasActiveSearchPurchase,
-	] );
-	const toggleInstantSearch = useMemo( () => toggleInstantSearchFactory( props ), [
-		props.hasActiveSearchPurchase,
-	] );
+	const toggleSearchModule = useCallback( () => {
+		const newOption = { search: ! isModuleEnabled };
+		if ( isInstantSearchEnabled !== ( hasActiveSearchPurchase && ! isModuleEnabled ) ) {
+			newOption.instant_search_enabled = hasActiveSearchPurchase && ! isModuleEnabled;
+		}
+		updateOptions( newOption );
+	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
+
+	const toggleInstantSearch = useCallback( () => {
+		const newOption = {
+			instant_search_enabled: hasActiveSearchPurchase && ! isInstantSearchEnabled,
+		};
+		if ( newOption.instant_search_enabled && ! isModuleEnabled ) {
+			newOption.search = true;
+		}
+		updateOptions( newOption );
+	}, [ hasActiveSearchPurchase, isInstantSearchEnabled, isModuleEnabled, updateOptions ] );
 
 	useEffect( () => {
-		if ( props.failedToEnableSearch && props.hasActiveSearchPurchase ) {
-			props.updateOptions( { has_jetpack_search_product: true } );
-			toggleModule( 'search' );
+		if ( failedToEnableSearch && hasActiveSearchPurchase ) {
+			updateOptions( { has_jetpack_search_product: true } );
+			toggleSearchModule();
 		}
-	}, [ props.failedToEnableSearch, props.hasActiveSearchPurchase, toggleModule ] );
+	}, [ failedToEnableSearch, hasActiveSearchPurchase, updateOptions, toggleSearchModule ] );
 
+	const togglingModule = !! props.isSavingAnyOption( 'search' );
+	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
+	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
 			<SettingsGroup
@@ -96,19 +93,20 @@ function Search( props ) {
 						<ModuleToggle
 							activated={ isModuleEnabled }
 							compact
+							disabled={ isSavingEitherOption }
 							slug="search"
-							toggleModule={ toggleModule }
-							toggling={ props.isSavingAnyOption( 'search' ) }
+							toggleModule={ toggleSearchModule }
+							toggling={ togglingModule }
 						>
 							{ __( 'Enable Search', 'jetpack' ) }
 						</ModuleToggle>
 
 						<FormFieldset>
 							<CompactFormToggle
-								checked={ isInstantSearchEnabled }
-								disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
+								checked={ isModuleEnabled && isInstantSearchEnabled }
+								disabled={ isSavingEitherOption || ! props.hasActiveSearchPurchase }
 								onChange={ toggleInstantSearch }
-								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
+								toggling={ togglingInstantSearch }
 							>
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }

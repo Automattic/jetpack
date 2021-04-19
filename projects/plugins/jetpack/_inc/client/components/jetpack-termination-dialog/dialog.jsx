@@ -7,6 +7,11 @@ import { connect } from 'react-redux';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * WordPress dependencies
+ */
+import { Spinner } from '@wordpress/components';
+
+/**
  * Internal dependencies
  */
 import { getSiteBenefits, getSiteID, getSitePlan, getConnectedPlugins } from 'state/site';
@@ -21,7 +26,6 @@ import JetpackTerminationDialogSurvey from './survey';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
 import QueryConnectedPlugins from 'components/data/query-connected-plugins';
-import Spinner from 'components/spinner';
 
 function mapBenefitNameToGridicon( benefitName ) {
 	switch ( benefitName ) {
