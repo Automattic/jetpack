@@ -4,7 +4,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
-use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
 
@@ -103,26 +102,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => __CLASS__ . '::submit_survey',
 				'permission_callback' => __CLASS__ . '::disconnect_site_permission_callback',
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/jitm',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_jitm_message',
-				'permission_callback' => '__return_true',
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/jitm',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => __CLASS__ . '::delete_jitm_message',
-				'permission_callback' => __CLASS__ . '::delete_jitm_message_permission_callback',
 			)
 		);
 
@@ -1089,40 +1068,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Asks for a jitm, unless they've been disabled, in which case it returns an empty array
-	 *
-	 * @param $request WP_REST_Request
-	 *
-	 * @return array An array of jitms
-	 */
-	public static function get_jitm_message( $request ) {
-		$jitm = JITM::get_instance();
-
-		if ( ! $jitm->register() ) {
-			return array();
-		}
-
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ), 'true' === $request['full_jp_logo_exists'] ? true : false );
-	}
-
-	/**
-	 * Dismisses a jitm.
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool Always True
-	 */
-	public static function delete_jitm_message( $request ) {
-		$jitm = JITM::get_instance();
-
-		if ( ! $jitm->register() ) {
-			return true;
-		}
-
-		return $jitm->dismiss( $request['id'], $request['feature_class'] );
-	}
-
-	/**
 	 * Checks if this site has been verified using a service - only 'google' supported at present - and a specfic
 	 *  keyring to use to get the token if it is not
 	 *
@@ -1291,21 +1236,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
-	}
-
-	/**
-	 * Verify that the user can dismiss JITM messages.
-	 *
-	 * @since 8.8.0
-	 *
-	 * @return bool|WP_Error True if user is able to dismiss JITM messages.
-	 */
-	public static function delete_jitm_message_permission_callback() {
-		if ( current_user_can( 'read' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_jetpack_delete_jitm_message', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**

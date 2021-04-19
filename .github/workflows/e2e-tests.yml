@@ -124,6 +124,7 @@ jobs:
     - uses: testspace-com/setup-testspace@v1
       with:
         domain: ${{github.repository_owner}}
+      if: always()
     - name: Publish to Testspace
       working-directory: projects/plugins/jetpack/tests/e2e
       run: |
