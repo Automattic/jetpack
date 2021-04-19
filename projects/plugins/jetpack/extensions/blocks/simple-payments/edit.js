@@ -593,7 +593,7 @@ export class SimplePaymentsEdit extends Component {
 }
 
 const mapSelectToProps = withSelect( ( select, props ) => {
-	const { getEntityRecord, getMedia } = select( 'core' );
+	const { getEntityRecord, getMedia, canUser } = select( 'core' );
 	const { isSavingPost, getCurrentPost } = select( 'core/editor' );
 
 	const { productId, featuredMediaId } = props.attributes;
@@ -615,11 +615,11 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	const post = getCurrentPost();
 
 	return {
-		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
+		hasPublishAction: canUser( 'update', 'posts' ),
 		isSaving: !! isSavingPost(),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
-		postLinkUrl: post.link,
+		postLinkUrl: post?.link,
 	};
 } );
 
