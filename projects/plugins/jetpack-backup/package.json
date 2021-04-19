@@ -12,8 +12,10 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client",
+		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php",
 		"build-client": "gulp",
+		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-client' 'yarn build-php'",
+		"build-php": "composer install --ignore-platform-reqs",
 		"clean": "rm -rf build/",
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"watch": "yarn build && yarn gulp watch"
@@ -30,6 +32,7 @@
 		"@babel/register": "7.13.14",
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.1.2",
+		"concurrently": "6.0.2",
 		"fancy-log": "1.3.3",
 		"gulp": "4.0.2",
 		"webpack": "5.31.0"
