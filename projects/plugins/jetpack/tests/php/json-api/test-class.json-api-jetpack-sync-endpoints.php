@@ -175,7 +175,7 @@ class WP_Test_Jetpack_Sync_Json_Api_Endpoints extends WP_UnitTestCase {
 		);
 
 		// set input.
-		$endpoint->api->post_body    = '{}';
+		$endpoint->api->post_body    = '{ "name": "" }';
 		$endpoint->api->content_type = 'application/json';
 
 		$response = $endpoint->callback( 'clear/transient', $blog_id );
