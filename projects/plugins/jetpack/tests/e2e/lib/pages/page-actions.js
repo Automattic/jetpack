@@ -319,5 +319,17 @@ export default class PageActions {
 		await this.page.selectOption( selector, options );
 	}
 
+	/**
+	 * Returns whether an element with the given selector is checked.
+	 *
+	 * @param {string} selector
+	 * @param {number} timeout
+	 * @return {Promise<boolean>} true if element is checked, false otherwise
+	 */
+	async isElementChecked( selector, timeout = this.timeout ) {
+		logger.action( `Checking if element '${ selector }' is checked` );
+		return await this.page.isChecked( selector, { timeout } );
+	}
+
 	// endregion
 }

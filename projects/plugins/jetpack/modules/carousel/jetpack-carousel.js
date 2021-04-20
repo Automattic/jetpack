@@ -3,20 +3,16 @@
 jQuery( document ).ready( function ( $ ) {
 	// gallery faded layer and container elements
 	var overlay,
-		comments,
 		gallery,
 		container,
-		nextButton,
-		previousButton,
 		info,
 		transitionBegin,
 		caption,
 		resizeTimeout,
 		photo_info,
-		close_hint,
 		commentInterval,
 		lastSelectedSlide,
-		screenPadding = 110,
+		screenPadding,
 		originalOverflow = $( 'body' ).css( 'overflow' ),
 		originalHOverflow = $( 'html' ).css( 'overflow' ),
 		proportion = 85,
@@ -24,26 +20,7 @@ jQuery( document ).ready( function ( $ ) {
 		imageMeta,
 		titleAndDescription,
 		commentForm,
-		leftColWrapper,
 		scrollPos;
-
-	if ( window.innerWidth <= 760 ) {
-		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
-
-		if (
-			screenPadding < 40 &&
-			( 'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch ) )
-		) {
-			screenPadding = 0;
-		}
-	}
-
-	// Adding a polyfill for browsers that do not have Date.now
-	if ( 'undefined' === typeof Date.now ) {
-		Date.now = function now() {
-			return new Date().getTime();
-		};
-	}
 
 	var keyListener = function ( e ) {
 		switch ( e.which ) {
@@ -74,220 +51,55 @@ jQuery( document ).ready( function ( $ ) {
 		}
 	};
 
+	var calculatePadding = function () {
+		var baseScreenPadding = 110;
+		screenPadding = baseScreenPadding;
+
+		if ( window.innerWidth <= 760 ) {
+			screenPadding = Math.round( ( window.innerWidth / 760 ) * baseScreenPadding );
+			var isTouch =
+				'ontouchstart' in window || ( window.DocumentTouch && document instanceof DocumentTouch );
+
+			if ( screenPadding < 40 && isTouch ) {
+				screenPadding = 0;
+			}
+		}
+	};
+
 	var resizeListener = function (/*e*/) {
+		// Don't animate if user prefers reduced motion.
+		var shouldAnimate =
+			window.matchMedia && ! window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
 		clearTimeout( resizeTimeout );
 		resizeTimeout = setTimeout( function () {
-			gallery.jp_carousel( 'slides' ).jp_carousel( 'fitSlide', true );
-			gallery.jp_carousel( 'updateSlidePositions', true );
-			gallery.jp_carousel( 'fitMeta', true );
+			calculatePadding();
+			gallery.jp_carousel( 'slides' ).jp_carousel( 'fitSlide', shouldAnimate );
+			gallery.jp_carousel( 'updateSlidePositions', shouldAnimate );
+			gallery.jp_carousel( 'fitMeta', shouldAnimate );
 		}, 200 );
 	};
 
 	var prepareGallery = function (/*dataCarouselExtra*/) {
 		if ( ! overlay ) {
-			overlay = $( '<div></div>' ).addClass( 'jp-carousel-overlay' ).css( {
-				position: 'fixed',
-				top: 0,
-				right: 0,
-				bottom: 0,
-				left: 0,
-			} );
+			container = $( '.jp-carousel-wrap' );
+			overlay = container.find( '.jp-carousel-overlay' );
 
-			var displayComments = 1 === +jetpackCarouselStrings.display_comments;
-			var buttons = displayComments
-				? '<a class="jp-carousel-commentlink" href="#">' + jetpackCarouselStrings.comment + '</a>'
-				: '';
-			if ( 1 === Number( jetpackCarouselStrings.is_logged_in ) ) {
-			}
+			gallery = container.find( '.jp-carousel' );
+			caption = container.find( '.jp-carousel-caption' );
+			photo_info = container.find( '.jp-carousel-photo-info' );
+			info = container.find( '.jp-carousel-info' );
+			commentForm = container.find( '.jp-carousel-comment-form-container' );
+			imageMeta = container.find( '.jp-carousel-image-meta' );
+			titleAndDescription = container.find( '.jp-carousel-titleanddesc' );
 
-			buttons = $( '<div class="jp-carousel-buttons">' + buttons + '</div>' );
+			var nextButton = container.find( '.jp-carousel-next-button' );
+			var previousButton = container.find( '.jp-carousel-previous-button' );
 
-			caption = $( '<h2 itemprop="caption description"></h2>' );
-			photo_info = $( '<div class="jp-carousel-photo-info"></div>' ).append( caption );
-
-			imageMeta = $( '<div></div>' ).addClass( 'jp-carousel-image-meta' ).css( {
-				float: 'right',
-				'margin-top': '20px',
-				width: '250px',
-			} );
-
-			if ( 0 < buttons.children().length ) {
-				imageMeta.append( buttons );
-			}
-
-			imageMeta
-				.append( "<ul class='jp-carousel-image-exif' style='display:none;'></ul>" )
-				.append( "<a class='jp-carousel-image-download' style='display:none;'></a>" )
-				.append( "<div class='jp-carousel-image-map' style='display:none;'></div>" );
-
-			titleAndDescription = $( '<div></div>' )
-				.addClass( 'jp-carousel-titleanddesc' )
-				.css( {
-					width: '100%',
-					'margin-top': imageMeta.css( 'margin-top' ),
-				} );
-
-			var leftWidth = $( window ).width() - screenPadding * 2 - ( imageMeta.width() + 40 );
-			leftWidth += 'px';
-
-			leftColWrapper = $( '<div></div>' )
-				.addClass( 'jp-carousel-left-column-wrapper' )
-				.css( {
-					width: Math.floor( leftWidth ),
-				} )
-				.append( titleAndDescription );
-
-			if ( displayComments ) {
-				var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
-
-				if (
-					jetpackCarouselStrings.local_comments_commenting_as &&
-					jetpackCarouselStrings.local_comments_commenting_as.length
-				) {
-					// Comments not enabled, fallback to local comments
-
-					if (
-						1 !== Number( jetpackCarouselStrings.is_logged_in ) &&
-						1 === Number( jetpackCarouselStrings.comment_registration )
-					) {
-						commentFormMarkup +=
-							'<div id="jp-carousel-comment-form-commenting-as">' +
-							jetpackCarouselStrings.local_comments_commenting_as +
-							'</div>';
-					} else {
-						commentFormMarkup += '<form id="jp-carousel-comment-form">';
-						commentFormMarkup +=
-							'<textarea name="comment" class="jp-carousel-comment-form-field jp-carousel-comment-form-textarea" id="jp-carousel-comment-form-comment-field" placeholder="' +
-							jetpackCarouselStrings.write_comment +
-							'"></textarea>';
-						commentFormMarkup += '<div id="jp-carousel-comment-form-submit-and-info-wrapper">';
-						commentFormMarkup +=
-							'<div id="jp-carousel-comment-form-commenting-as">' +
-							jetpackCarouselStrings.local_comments_commenting_as +
-							'</div>';
-						commentFormMarkup +=
-							'<input type="submit" name="submit" class="jp-carousel-comment-form-button" id="jp-carousel-comment-form-button-submit" value="' +
-							jetpackCarouselStrings.post_comment +
-							'" />';
-						commentFormMarkup += '<span id="jp-carousel-comment-form-spinner">&nbsp;</span>';
-						commentFormMarkup += '<div id="jp-carousel-comment-post-results"></div>';
-						commentFormMarkup += '</div>';
-						commentFormMarkup += '</form>';
-					}
-				}
-				commentFormMarkup += '</div>';
-
-				commentForm = $( commentFormMarkup ).css( {
-					width: '100%',
-					'margin-top': '20px',
-					color: '#999',
-				} );
-
-				comments = $( '<div></div>' ).addClass( 'jp-carousel-comments' ).css( {
-					width: '100%',
-					bottom: '10px',
-					'margin-top': '20px',
-				} );
-
-				var commentsLoading = $(
-					'<div id="jp-carousel-comments-loading"><span>' +
-						jetpackCarouselStrings.loading_comments +
-						'</span></div>'
-				).css( {
-					width: '100%',
-					bottom: '10px',
-					'margin-top': '20px',
-				} );
-
-				leftColWrapper.append( commentForm ).append( comments ).append( commentsLoading );
-			}
-
-			var fadeaway = $( '<div></div>' ).addClass( 'jp-carousel-fadeaway' );
-
-			info = $( '<div></div>' )
-				.addClass( 'jp-carousel-info' )
-				.css( {
-					top: Math.floor( ( $( window ).height() / 100 ) * proportion ),
-					left: screenPadding,
-					right: screenPadding,
-				} )
-				.append( photo_info )
-				.append( imageMeta );
-
-			if ( window.innerWidth <= 760 ) {
-				photo_info.remove().insertAfter( titleAndDescription );
-				info.prepend( leftColWrapper );
-			} else {
-				info.append( leftColWrapper );
-			}
-
-			var targetBottomPos = $( window ).height() - parseInt( info.css( 'top' ), 10 ) + 'px';
-
-			nextButton = $( '<div><span></span></div>' )
-				.addClass( 'jp-carousel-next-button' )
-				.css( {
-					right: '15px',
-				} )
-				.hide();
-
-			previousButton = $( '<div><span></span></div>' )
-				.addClass( 'jp-carousel-previous-button' )
-				.css( {
-					left: 0,
-				} )
-				.hide();
-
-			nextButton.add( previousButton ).css( {
-				position: 'fixed',
-				top: '40px',
-				bottom: targetBottomPos,
-				width: screenPadding,
-			} );
-
-			gallery = $( '<div></div>' ).addClass( 'jp-carousel' ).css( {
-				position: 'absolute',
-				top: 0,
-				bottom: targetBottomPos,
-				left: 0,
-				right: 0,
-			} );
-
-			close_hint = $( '<div class="jp-carousel-close-hint"><span>&#10006;</span></div>' ).css( {
-				position: 'fixed',
-			} );
-
-			container = $( '<div></div>' )
-				.addClass( 'jp-carousel-wrap' )
-				.addClass( 'jp-carousel-transitions' );
-			if ( 'white' === jetpackCarouselStrings.background_color ) {
-				container.addClass( 'jp-carousel-light' );
-			}
-
-			container.attr( 'itemscope', '' );
-
-			container.attr( 'itemtype', 'https://schema.org/ImageGallery' );
+			calculatePadding();
+			gallery.jp_carousel( 'fitMeta', false );
 
 			container
-				.css( {
-					position: 'fixed',
-					top: 0,
-					right: 0,
-					bottom: 0,
-					left: 0,
-					'z-index': 2147483647,
-					'overflow-x': 'hidden',
-					'overflow-y': 'auto',
-					direction: 'ltr',
-				} )
-				.hide()
-				.append( overlay )
-				.append( gallery )
-				.append( fadeaway )
-				.append( info )
-				.append( nextButton )
-				.append( previousButton )
-				.append( close_hint )
-				.appendTo( $( 'body' ) )
 				.click( function ( e ) {
 					var target = $( e.target ),
 						wrap = target.parents( 'div.jp-carousel-wrap' ),
@@ -296,11 +108,16 @@ jQuery( document ).ready( function ( $ ) {
 						attachment_id = slide.data( 'attachment-id' );
 					data = data || [];
 
-					if ( target.is( gallery ) || target.parents().add( target ).is( close_hint ) ) {
+					if (
+						target.is( gallery ) ||
+						target.parents().add( target ).is( container.find( '.jp-carousel-close-hint' ) )
+					) {
 						if ( ! window.matchMedia( '(max-device-width: 760px)' ).matches ) {
 							container.jp_carousel( 'close' );
 						} else {
-							if ( target.parents().add( target ).is( close_hint ) ) {
+							if (
+								target.parents().add( target ).is( container.find( '.jp-carousel-close-hint' ) )
+							) {
 								container.jp_carousel( 'close' );
 							}
 
@@ -514,7 +331,7 @@ jQuery( document ).ready( function ( $ ) {
 					}
 				} );
 
-			$( '.jp-carousel-wrap' ).touchwipe( {
+			container.touchwipe( {
 				wipeLeft: function ( e ) {
 					e.preventDefault();
 					gallery.jp_carousel( 'next' );
@@ -830,7 +647,6 @@ jQuery( document ).ready( function ( $ ) {
 			var imageMeta = current.data( 'image-meta' );
 			gallery.jp_carousel( 'updateExif', imageMeta );
 			gallery.jp_carousel( 'updateFullSizeLink', current );
-			gallery.jp_carousel( 'updateMap', imageMeta );
 
 			if ( 1 === +jetpackCarouselStrings.display_comments ) {
 				gallery.jp_carousel( 'testCommentsOpened', current.data( 'comments-opened' ) );
@@ -937,8 +753,8 @@ jQuery( document ).ready( function ( $ ) {
 		},
 
 		fitInfo: function (/*animated*/) {
-			var current = this.jp_carousel( 'selectedSlide' ),
-				size = current.jp_carousel( 'bestFit' );
+			var current = this.jp_carousel( 'selectedSlide' );
+			var size = current.jp_carousel( 'bestFit' );
 
 			photo_info.css( {
 				left: Math.floor( ( info.width() - size.width ) * 0.5 ),
@@ -949,17 +765,15 @@ jQuery( document ).ready( function ( $ ) {
 		},
 
 		fitMeta: function ( animated ) {
-			var newInfoTop = {
-				top: Math.floor( ( $( window ).height() / 100 ) * proportion + 5 ) + 'px',
+			var newInfoPos = {
+				left: screenPadding + 'px',
+				right: screenPadding + 'px',
 			};
-			var newLeftWidth = { width: info.width() - ( imageMeta.width() + 80 ) + 'px' };
 
 			if ( animated ) {
-				info.animate( newInfoTop );
-				leftColWrapper.animate( newLeftWidth );
+				info.animate( newInfoPos );
 			} else {
-				info.animate( newInfoTop );
-				leftColWrapper.css( newLeftWidth );
+				info.css( newInfoPos );
 			}
 		},
 
@@ -1367,62 +1181,6 @@ jQuery( document ).ready( function ( $ ) {
 			$( 'div.jp-carousel-image-meta a.jp-carousel-image-download' ).replaceWith( permalink );
 		},
 
-		updateMap: function ( meta ) {
-			if (
-				! meta.latitude ||
-				! meta.longitude ||
-				1 !== Number( jetpackCarouselStrings.display_geo )
-			) {
-				return;
-			}
-
-			var latitude = meta.latitude,
-				longitude = meta.longitude,
-				$metabox = $( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ),
-				$mapbox = $( '<div></div>' ),
-				style =
-					'&scale=2&style=feature:all|element:all|invert_lightness:true|hue:0x0077FF|saturation:-50|lightness:-5|gamma:0.91';
-
-			$mapbox
-				.addClass( 'jp-carousel-image-map' )
-				.html(
-					'<img width="154" height="154" src="https://maps.googleapis.com/maps/api/staticmap?\
-							center=' +
-						latitude +
-						',' +
-						longitude +
-						'&\
-							zoom=8&\
-							size=154x154&\
-							sensor=false&\
-							markers=size:medium%7Ccolor:blue%7C' +
-						latitude +
-						',' +
-						longitude +
-						style +
-						'" class="gmap-main" />\
-							\
-						<div class="gmap-topright"><div class="imgclip"><img width="175" height="154" src="https://maps.googleapis.com/maps/api/staticmap?\
-							center=' +
-						latitude +
-						',' +
-						longitude +
-						'&\
-							zoom=3&\
-							size=175x154&\
-							sensor=false&\
-							markers=size:small%7Ccolor:blue%7C' +
-						latitude +
-						',' +
-						longitude +
-						style +
-						'"c /></div></div>\
-							\
-						'
-				)
-				.prependTo( $metabox );
-		},
-
 		testCommentsOpened: function ( opened ) {
 			if ( 1 === parseInt( opened, 10 ) ) {
 				$( '.jp-carousel-buttons' ).fadeIn( 'fast' );
@@ -1511,7 +1269,7 @@ jQuery( document ).ready( function ( $ ) {
 					// attachment id might no longer match the current attachment id by the time we get the data back or a now
 					// registered infiniscroll event kicks in, so we don't ever display comments for the wrong image by mistake.
 					var current = $( '.jp-carousel div.selected' );
-					if ( current && current.data && current.data( 'attachment-id' ) != args.attachment_id ) {
+					if ( current && current.data && current.data( 'attachment-id' ) !== args.attachment_id ) {
 						comments.fadeOut( 'fast' );
 						comments.empty();
 						return;
@@ -1529,9 +1287,8 @@ jQuery( document ).ready( function ( $ ) {
 					comments.show();
 					commentsLoading.hide();
 				},
-				error: function ( xhr, status, error ) {
+				error: function () {
 					// TODO: proper error handling
-					console.log( 'Comment get fail...', xhr, status, error );
 					comments.fadeIn( 'fast' );
 					commentsLoading.fadeOut( 'fast' );
 				},
@@ -1554,7 +1311,6 @@ jQuery( document ).ready( function ( $ ) {
 				.slideUp( 'fast' )
 				.html( '<span class="jp-carousel-comment-post-error">' + args.error + '</span>' )
 				.slideDown( 'fast' );
-
 			$( '#jp-carousel-comment-form-spinner' ).hide();
 		},
 
@@ -1651,7 +1407,6 @@ jQuery( document ).ready( function ( $ ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
 				return;
 			}
-
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel.
 			if ( $( e.target ).parents().eq( 1 ).hasClass( 'wp-block-image' ) ) {

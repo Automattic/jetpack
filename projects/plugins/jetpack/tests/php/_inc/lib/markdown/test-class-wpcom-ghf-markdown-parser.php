@@ -91,7 +91,11 @@ class WP_Test_WPCom_GHF_Markdown_Parser extends WP_UnitTestCase {
 				'https://example.com/_form?type=*&q=a+(b+or+c)&arr[]=1&arr[]=2&value=_foo_bar',
 				'https://example.com/_form?type=*&q=a+(b+or+c)&arr[]=1&arr[]=2&value=_foo_bar',
 			),
-			// Let's ensure we are not breaking regular HTML. This should not change.
+			// Let's ensure we are not breaking regular HTML. These should not change.
+			'href attribute with single quotes' => array(
+				"<a href='https://example.com'>example</a>",
+				"<a href='https://example.com'>example</a>",
+			),
 			'image tag'                         => array(
 				'<img src="whatever.png" alt="Text" width="1024" height="470" class="alignleft size-full wp-image-37190" />',
 				'<img src="whatever.png" alt="Text" width="1024" height="470" class="alignleft size-full wp-image-37190" />',

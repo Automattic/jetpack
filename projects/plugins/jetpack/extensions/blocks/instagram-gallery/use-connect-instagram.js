@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { NEW_INSTAGRAM_CONNECTION } from './constants';
+import isCurrentUserConnected from '../../shared/is-current-user-connected';
 
 export default function useConnectInstagram( {
 	accessToken,
@@ -27,9 +28,10 @@ export default function useConnectInstagram( {
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ isRequestingUserConnections, setIsRequestingConnections ] = useState( false );
 	const [ userConnections, setUserConnections ] = useState( [] );
+	const currentUserConnected = isCurrentUserConnected();
 
 	useEffect( () => {
-		if ( accessToken ) {
+		if ( accessToken || ! currentUserConnected ) {
 			return;
 		}
 
@@ -43,7 +45,7 @@ export default function useConnectInstagram( {
 				setIsRequestingConnections( false );
 				setUserConnections( [] );
 			} );
-	}, [ accessToken ] );
+	}, [ accessToken, currentUserConnected ] );
 
 	useEffect( () => {
 		if (
