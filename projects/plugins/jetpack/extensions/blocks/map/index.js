@@ -10,10 +10,7 @@ import './style.scss';
 import './editor.scss';
 export const { name } = mapSettings;
 import { getIconColor } from '../../shared/block-icons';
-// Promise.all( [
-// 	import( /* webpackChunkName: `map/mapbox-gl` */ 'mapbox-gl' ),
-// 	import( /* webpackChunkName: "map/mapbox-gl" */ 'mapbox-gl/dist/mapbox-gl.css' ),
-// ] );
+
 export const settings = {
 	title: mapSettings.title,
 	icon: {
