@@ -12,8 +12,8 @@ import { Children, Component, createRef, Fragment } from '@wordpress/element';
 import MapMarker from './map-marker/';
 import InfoWindow from './info-window/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';
-import { getVendorLoadContext, loadVendorResources } from '../../shared/vendor-resource-loader';
-
+import { getLoadContext, loadThirdPartyResources } from '../../shared/third-party-resource-loader';
+import thirdPartyResources from './third-party-resources.json';
 export class Map extends Component {
 	// Lifecycle
 	constructor() {
@@ -310,23 +310,16 @@ export class Map extends Component {
 
 	loadMapLibraries() {
 		const { apiKey } = this.props;
-
-		const { vendorWindow } = getVendorLoadContext( this.mapRef.current );
-
-		const resources = {
-			css: [ { href: 'https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' } ],
-			js: [
-				{
-					src: 'https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js',
-					onload: () => {
-						const mapboxgl = vendorWindow.mapboxgl;
-						mapboxgl.accessToken = apiKey;
-						this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
-					},
-				},
-			],
+		const { currentWindow } = getLoadContext( this.mapRef.current );
+		const callbacks = {
+			'mapbox-gl-js': () => {
+				const mapboxgl = currentWindow.mapboxgl;
+				mapboxgl.accessToken = apiKey;
+				this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
+			},
 		};
-		loadVendorResources( resources, this.mapRef.current );
+
+		loadThirdPartyResources( thirdPartyResources, callbacks, this.mapRef.current );
 	}
 
 	initMap( mapCenter ) {
