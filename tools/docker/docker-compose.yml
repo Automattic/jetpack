@@ -75,7 +75,7 @@ services:
     depends_on:
       - db
       - maildev
-    build: .
+    image: automattic/jetpack-wordpress-dev:latest
     volumes:
       ## WordPress and its plugins and themes should be defined in docker/compose-volumes.yml{.sample}, not here!
       ## That avoids having to define them both here and in the "sftp" service.
