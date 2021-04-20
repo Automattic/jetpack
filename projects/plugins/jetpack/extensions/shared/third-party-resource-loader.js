@@ -7,7 +7,7 @@ export function getLoadContext( elementRef ) {
 
 export function loadThirdPartyResources( resources, callbacks, elementRef ) {
 	const resourcePath = `${ window.Jetpack_Block_Assets_Base_Url.url }third-party-resources`;
-	const { currentDoc } = getLoadContext( elementRef );
+	const { currentDoc, currentWindow } = getLoadContext( elementRef );
 
 	const currentHead = currentDoc.getElementsByTagName( 'head' )[ 0 ];
 
@@ -38,5 +38,18 @@ export function loadThirdPartyResources( resources, callbacks, elementRef ) {
 			jsScript.onload = callback;
 			currentHead.appendChild( jsScript );
 		}
+	} );
+}
+
+export function waitForObject( currentWindow, objectName ) {
+	return new Promise( resolve => {
+		const waitFor = () => {
+			if ( currentWindow[ objectName ] ) {
+				resolve( currentWindow[ objectName ] );
+			} else {
+				window.requestAnimationFrame( waitFor );
+			}
+		};
+		waitFor();
 	} );
 }
