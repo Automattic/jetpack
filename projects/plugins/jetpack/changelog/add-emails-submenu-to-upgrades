@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds a new Emails submenu to the existing Upgrades menu, and fixes the order of the items in the submenu.
