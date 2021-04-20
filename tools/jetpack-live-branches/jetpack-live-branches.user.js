@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.18
+// @version      1.19
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -189,7 +189,11 @@
 		function appendHtml( el, contents ) {
 			const $el = $( el );
 			const liveBranches = $( '<div id="jetpack-live-branches" />' ).append(
-				`<h2>Jetpack Live Branches</h2> ${ contents }`
+				`<h2>Jetpack Live Branches</h2>
+				<details>
+					<summary>Expand for JN site options:</summary>
+					${ contents }
+				</details>`
 			);
 			$el.append( liveBranches );
 			$( 'body' ).on( 'change', $el.find( 'input[type=checkbox]' ), onInputChanged );
