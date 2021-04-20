@@ -398,6 +398,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
+		if ( false !== strpos( $title, 'inline-text' ) ) {
+			preg_match( '/<span class="inline-text">([A-Za-z0-9]+)<\/span>/', $title, $matches );
+
+			$text = $matches[1];
+			if ( $text ) {
+				// Keep the text in the item array.
+				$item['inlineText'] = $text;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
 		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
 		// We are also capilizing the first letter in case there was a counter (now parsed) in front of the title.
 		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );

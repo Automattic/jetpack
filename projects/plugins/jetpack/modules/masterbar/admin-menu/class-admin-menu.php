@@ -128,7 +128,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		if ( ! $menu_exists ) {
-			$site_upgrades = '<span class="site__upgrades">%1$s<span class="site__plan">%2$s</span></span>';
+			$site_upgrades = '%1$s<span class="inline-text">%2$s</span>';
 			$site_upgrades = sprintf(
 				$site_upgrades,
 				__( 'Upgrades', 'jetpack' ),

@@ -168,8 +168,12 @@
 	justify-content: space-between;
 }
 
-#adminmenu .site__upgrades .site__plan {
-	margin-right: 10px;
+.inline-text {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	transform: translateY( -50% );
+	margin-right: 20px;
 	color: rgba(240,246,252,.7);
 }
 
