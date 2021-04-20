@@ -144,7 +144,7 @@ class WP_Test_Jetpack_Sync_Json_Api_Endpoints extends WP_UnitTestCase {
 
 		$response = $endpoint->callback( 'clear/transient', $blog_id );
 
-		$this->assertEquals( 'in_sync', $response['success'] );
+		$this->assertFalse( $response['success'] );
 	}
 
 	/**
