@@ -313,9 +313,14 @@ export class Map extends Component {
 		const { currentWindow } = getLoadContext( this.mapRef.current );
 		const callbacks = {
 			'mapbox-gl-js': () => {
-				const mapboxgl = currentWindow.mapboxgl;
-				mapboxgl.accessToken = apiKey;
-				this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
+				const waitForMapBox = setInterval( () => {
+					if ( currentWindow.mapboxgl ) {
+						const mapboxgl = currentWindow.mapboxgl;
+						mapboxgl.accessToken = apiKey;
+						this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
+						clearInterval( waitForMapBox );
+					}
+				}, 200 );
 			},
 		};
 

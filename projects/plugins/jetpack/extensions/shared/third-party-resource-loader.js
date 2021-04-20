@@ -28,13 +28,8 @@ export function loadThirdPartyResources( resources, callbacks, elementRef ) {
 
 		if ( fileExtension === 'js' ) {
 			const callback = callbacks[ resource.id ] ? callbacks[ resource.id ] : null;
-			const existingScript = currentDoc.getElementById( resource.id );
-			if ( existingScript ) {
-				if ( existingScript.readyState === 'complete' ) {
-					callback();
-				} else {
-					existingScript.addEventListener( 'onload', callback );
-				}
+			if ( currentDoc.getElementById( resource.id ) ) {
+				return callback();
 			}
 			const jsScript = currentDoc.createElement( 'script' );
 			jsScript.id = resource.id;
