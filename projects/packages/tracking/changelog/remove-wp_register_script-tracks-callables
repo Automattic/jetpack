@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Removing the calls to wp_register_script() for the jp-tracks-functions.
