@@ -707,9 +707,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "47193cf0ae7bd0d44340fa76edcb6c4c07b4f03d"
+                "reference": "695276bbba49fd6a2da42394892f46282777768e"
             },
             "require": {
+                "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-assets": "^1.11",
                 "automattic/jetpack-connection": "^1.25",
                 "automattic/jetpack-constants": "^1.6",
