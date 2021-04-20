@@ -607,6 +607,28 @@ new Jetpack_JSON_API_Sync_Modify_Health_Endpoint(
 	)
 );
 
+// POST /sites/%s/clear/transient .
+new Jetpack_JSON_API_Sync_Clear_Transient_Endpoint(
+	array(
+		'description'             => 'Clear transient',
+		'method'                  => 'POST',
+		'group'                   => '__do_not_document',
+		'path'                    => '/sites/%s/clear/transient',
+		'stat'                    => 'clear-transient',
+		'allow_jetpack_site_auth' => true,
+		'path_labels'             => array(
+			'$site' => '(int|string) The site ID, The site domain',
+		),
+		'request_format'          => array(
+			'name' => '(string) Name of transient to clear',
+		),
+		'response_format'         => array(
+			'response' => '(bool) Whether transient was deleted',
+		),
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/clear/transient',
+	)
+);
+
 $sync_settings_response = array(
 	'dequeue_max_bytes'        => '(int|bool=false) Maximum bytes to read from queue in a single request',
 	'sync_wait_time'           => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',

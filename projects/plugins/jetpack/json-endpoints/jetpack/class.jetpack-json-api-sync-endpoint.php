@@ -153,6 +153,30 @@ class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync
 }
 // phpcs:enable
 
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+/**
+ * POST /sites/%s/clear/transient
+ */
+class Jetpack_JSON_API_Sync_Clear_Transient_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+	/**
+	 * Callback for clear/transient endpoint.
+	 *
+	 * @return array|WP_Error result of request.
+	 */
+	protected function result() {
+		$args = $this->input();
+
+		if ( $args['name'] ) {
+			return array(
+				'success' => delete_transient( $args['name'] ),
+			);
+		} else {
+			return new WP_Error( 'missing_transient', 'No transient provided.' );
+		}
+	}
+}
+// phpcs:enable
+
 // POST /sites/%s/sync/settings
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
