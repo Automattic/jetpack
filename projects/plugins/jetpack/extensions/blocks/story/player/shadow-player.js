@@ -27,9 +27,11 @@ export default function ShadowPlayer( {
 	shadowDOM,
 	onKeyDown,
 	onExitFullscreen,
+	playerQuerySelector,
 	children,
 } ) {
 	const rootElementRef = useRef();
+	const modalRef = useRef();
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 	const shouldUseFullscreenAPI = isMobile && fullscreenAPI.enabled();
 	const isFullPageModalOpened = fullscreen && ! shouldUseFullscreenAPI;
@@ -56,11 +58,17 @@ export default function ShadowPlayer( {
 			] );
 			document.body.classList.add( bodyFullscreenClassName );
 			document.getElementsByTagName( 'html' )[ 0 ].classList.add( bodyFullscreenClassName );
+			if ( modalRef.current ) {
+				const storyPlayer = modalRef.current.querySelector( playerQuerySelector );
+				storyPlayer && storyPlayer.focus();
+			}
 		} else {
 			document.body.classList.remove( bodyFullscreenClassName );
 			document.getElementsByTagName( 'html' )[ 0 ].classList.remove( bodyFullscreenClassName );
 			if ( lastScrollPosition ) {
 				window.scrollTo( ...lastScrollPosition );
+				const storyPlayer = rootElementRef.current.querySelector( playerQuerySelector );
+				storyPlayer && storyPlayer.focus();
 			}
 		}
 	}, [ fullscreen ] );
@@ -88,6 +96,7 @@ export default function ShadowPlayer( {
 				shadowDOM={ shadowDOM }
 				onKeyDown={ isFullPageModalOpened && onKeyDown }
 				focusOnMount={ false }
+				modalRef={ modalRef }
 			>
 				{ isFullPageModalOpened && children }
 			</Modal>

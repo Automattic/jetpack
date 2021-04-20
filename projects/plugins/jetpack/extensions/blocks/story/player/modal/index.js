@@ -120,6 +120,7 @@ class Modal extends Component {
 Modal.defaultProps = {
 	shouldCloseOnEsc: true,
 	isOpened: false,
+	focusOnMount: true,
 };
 
 export default withInstanceId( Modal );

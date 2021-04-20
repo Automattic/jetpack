@@ -9,7 +9,7 @@ import { some } from 'lodash';
  */
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
-import { useFocusOnMount, useResizeObserver } from '@wordpress/compose';
+import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
 
@@ -58,7 +58,6 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 	);
 
 	const slideContainerRef = useRef();
-	const focusOnMountRef = useFocusOnMount( true );
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
@@ -156,7 +155,6 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		<div className="wp-story-display-contents">
 			{ resizeListener }
 			<div
-				ref={ focusOnMountRef }
 				role={ disabled ? 'presentation' : fullscreen ? 'dialog' : 'button' }
 				aria-label={ label }
 				tabIndex={ fullscreen ? -1 : 0 }

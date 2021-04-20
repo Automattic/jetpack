@@ -90,6 +90,7 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 			className="wp-story-app"
 			fullscreenClassName="wp-story-fullscreen"
 			bodyFullscreenClassName="wp-story-in-fullscreen"
+			playerQuerySelector=".wp-story-container"
 			fullscreen={ fullscreen }
 			onExitFullscreen={ exitFullscreen }
 			onKeyDown={ onKeyDown }
