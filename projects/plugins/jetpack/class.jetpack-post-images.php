@@ -9,12 +9,18 @@
  * one of them finds something useful.
  *
  * This file is included verbatim in Jetpack
+ *
+ * @deprecated use Automattic\Jetpack\Post_Images
  */
 class Jetpack_PostImages {
 	/**
 	 * If a slideshow is embedded within a post, then parse out the images involved and return them
+	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_slideshow
 	 */
 	static function from_slideshow( $post_id, $width = 200, $height = 200 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_slideshow' );
+
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -93,8 +99,11 @@ class Jetpack_PostImages {
 
 	/**
 	 * If a gallery is detected, then get all the images from it.
+	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_gallery
 	 */
 	static function from_gallery( $post_id ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_gallery' );
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -166,8 +175,12 @@ class Jetpack_PostImages {
 	/**
 	 * Get attachment images for a specified post and return them. Also make sure
 	 * their dimensions are at or above a required minimum.
+	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_attachment
 	 */
 	static function from_attachment( $post_id, $width = 200, $height = 200 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_attachment' );
+
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -231,10 +244,14 @@ class Jetpack_PostImages {
 	 * Check if a Featured Image is set for this post, and return it in a similar
 	 * format to the other images?_from_*() methods.
 	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_thumbnail
+	 *
 	 * @param  int $post_id The post ID to check
 	 * @return array containing details of the Featured Image, or empty array if none.
 	 */
 	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_thumbnail' );
+
 		$images = array();
 
 		$post = get_post( $post_id );
@@ -326,12 +343,15 @@ class Jetpack_PostImages {
 	 * Get images from Gutenberg Image blocks.
 	 *
 	 * @since 6.9.0
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_blocks
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.
 	 * @param int   $height     Minimum Image height.
 	 */
 	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_blocks' );
+
 		$images = array();
 
 		$html_info = self::get_post_html( $html_or_id );
@@ -379,6 +399,8 @@ class Jetpack_PostImages {
 	/**
 	 * Very raw -- just parse the HTML and pull out any/all img tags and return their src
 	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_html
+	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 * @param int   $width      Minimum Image width.
 	 * @param int   $height     Minimum Image height.
@@ -388,6 +410,8 @@ class Jetpack_PostImages {
 	 * @return array containing images
 	 */
 	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_html' );
+
 		$images = array();
 
 		$html_info = self::get_post_html( $html_or_id );
@@ -470,11 +494,16 @@ class Jetpack_PostImages {
 	}
 
 	/**
+	 * Look for a representative image from a Blavatar (WordPress.com only, old site icon).
+	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_blavatar
+	 *
 	 * @param    int $post_id The post ID to check
 	 * @param    int $size
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_blavatar( $post_id, $size = 96 ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_blavatar' );
 
 		$permalink = get_permalink( $post_id );
 
@@ -509,12 +538,16 @@ class Jetpack_PostImages {
 	/**
 	 * Gets a post image from the author avatar.
 	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::from_gravatar
+	 *
 	 * @param int    $post_id The post ID to check.
 	 * @param int    $size The size of the avatar to get.
 	 * @param string $default The default image to use.
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_gravatar( $post_id, $size = 96, $default = false ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::from_gravatar' );
+
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
 
@@ -550,11 +583,15 @@ class Jetpack_PostImages {
 	 * Run through the different methods that we have available to try to find a single good
 	 * display image for this post.
 	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::get_image
+	 *
 	 * @param  int   $post_id
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine)
 	 * @return array containing details of the best image to be used
 	 */
 	static function get_image( $post_id, $args = array() ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_image' );
+
 		$image = '';
 
 		/**
@@ -592,11 +629,15 @@ class Jetpack_PostImages {
 	 * Get an array containing a collection of possible images for this post, stopping once we hit a method
 	 * that returns something useful.
 	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::get_images
+	 *
 	 * @param  int   $post_id
 	 * @param  array $args Optional args, see defaults list for details
 	 * @return array containing images that would be good for representing this post
 	 */
 	static function get_images( $post_id, $args = array() ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_images' );
+
 		// Figure out which image to attach to this post.
 		$media = false;
 
@@ -686,11 +727,15 @@ class Jetpack_PostImages {
 	 * Takes an image URL and pixel dimensions then returns a URL for the
 	 * resized and cropped image.
 	 *
+	 * @deprecated use Automattic\Jetpack\Post_Images::fit_image_url
+	 *
 	 * @param  string $src
 	 * @param  int    $dimension
 	 * @return string            Transformed image URL
 	 */
 	static function fit_image_url( $src, $width, $height ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::fit_image_url' );
+
 		$width  = (int) $width;
 		$height = (int) $height;
 
@@ -738,6 +783,7 @@ class Jetpack_PostImages {
 	 * Get HTML from given post content.
 	 *
 	 * @since 6.9.0
+	 * @deprecated use Automattic\Jetpack\Post_Images::get_post_html
 	 *
 	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
 	 *
@@ -747,6 +793,8 @@ class Jetpack_PostImages {
 	 * }
 	 */
 	static function get_post_html( $html_or_id ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_post_html' );
+
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
 
@@ -771,6 +819,7 @@ class Jetpack_PostImages {
 	 * Get info about a WordPress attachment.
 	 *
 	 * @since 6.9.0
+	 * @deprecated use Automattic\Jetpack\Post_Images::get_attachment_data
 	 *
 	 * @param int    $attachment_id Attachment ID.
 	 * @param string $post_url      URL of the post, if we have one.
@@ -779,6 +828,8 @@ class Jetpack_PostImages {
 	 * @return array|bool           Image data or false if unavailable.
 	 */
 	public static function get_attachment_data( $attachment_id, $post_url, $width, $height ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_attachment_data' );
+
 		if ( empty( $attachment_id ) ) {
 			return false;
 		}
@@ -832,11 +883,14 @@ class Jetpack_PostImages {
 	 * Get the alt text for an image or other media from the Media Library.
 	 *
 	 * @since 7.1
+	 * @deprecated use Automattic\Jetpack\Post_Images::get_alt_text
 	 *
 	 * @param int $attachment_id The Post ID of the media.
 	 * @return string The alt text value or an emptry string.
 	 */
 	public static function get_alt_text( $attachment_id ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_alt_text' );
+
 		return get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
 	}
 
@@ -844,6 +898,7 @@ class Jetpack_PostImages {
 	 * Get an image from a block.
 	 *
 	 * @since 7.8.0
+	 * @deprecated use Automattic\Jetpack\Post_Images::get_images_from_block
 	 *
 	 * @param array $images    Images found.
 	 * @param array $block     Block and its attributes.
@@ -854,6 +909,8 @@ class Jetpack_PostImages {
 	 * @return array Array of images found.
 	 */
 	private static function get_images_from_block( $images, $block, $html_info, $width, $height ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::get_images_from_block' );
+
 		/**
 		 * Parse content from Core Image blocks.
 		 * If it is an image block for an image hosted on our site, it will have an ID.
@@ -902,12 +959,15 @@ class Jetpack_PostImages {
 	 * Check if a block has inner blocks.
 	 *
 	 * @since 7.8.0
+	 * @deprecated use Automattic\Jetpack\Post_Images::is_nested_block
 	 *
 	 * @param array $block Block and its attributes.
 	 *
 	 * @return bool
 	 */
 	private static function is_nested_block( $block ) {
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0', 'Automattic\Jetpack\Post_Images::is_nested_block' );
+
 		if ( ! empty( $block['innerBlocks'] ) ) {
 			return true;
 		}
