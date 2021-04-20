@@ -437,7 +437,6 @@
 	"projects/plugins/jetpack/tests/php/lib/wpcom-helper-functions.php",
 	"projects/plugins/jetpack/tests/php/media/test-class.jetpack-media-extractor.php",
 	"projects/plugins/jetpack/tests/php/media/test-class.jetpack-media-summary.php",
-	"projects/plugins/jetpack/tests/php/media/test-class.jetpack-post-images.php",
 	"projects/plugins/jetpack/tests/php/modules/geo-location/test_class.jetpack-geo-location.php",
 	"projects/plugins/jetpack/tests/php/modules/google-analytics/test-class.google-analytics.php",
 	"projects/plugins/jetpack/tests/php/modules/google-analytics/test-class.jetpack-google-amp-analytics.php",
