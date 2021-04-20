@@ -116,7 +116,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu( $plan ) {
+	public function add_upgrades_menu( $plan = null ) {
 		global $menu;
 
 		$menu_exists = false;
