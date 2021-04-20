@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
+use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -213,7 +214,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * Adds Upgrades menu.
 	 */
 	public function add_upgrades_menu() {
-		parent::add_upgrades_menu();
+		$products = Jetpack_Plan::get();
+		$plan     = $products['product_name_short'];
+		parent::add_upgrades_menu( $plan );
 
 		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
 	}

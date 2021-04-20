@@ -113,8 +113,10 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Upgrades menu.
+	 *
+	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu() {
+	public function add_upgrades_menu( $plan ) {
 		global $menu;
 
 		$menu_exists = false;
@@ -126,7 +128,14 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		if ( ! $menu_exists ) {
-			add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
+			$site_upgrades = '<span class="site__upgrades">%1$s<span class="site__plan">%2$s</span></span>';
+			$site_upgrades = sprintf(
+				$site_upgrades,
+				__( 'Upgrades', 'jetpack' ),
+				$plan
+			);
+
+			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}
 
 		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/my-plan/' . $this->domain, null, 5 );

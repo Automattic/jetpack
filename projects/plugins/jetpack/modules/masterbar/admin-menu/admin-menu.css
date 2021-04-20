@@ -161,6 +161,19 @@
 }
 
 /**
+ * Upgrades with plan badge
+ */
+ #adminmenu .site__upgrades {
+	display: flex;
+	justify-content: space-between;
+}
+
+#adminmenu .site__upgrades .site__plan {
+	margin-right: 10px;
+	color: rgba(240,246,252,.7);
+}
+
+/**
  * Stats
  */
 [class*="toplevel_page_https://wordpress.com/stats/day"] .sidebar-unified__sparkline {
