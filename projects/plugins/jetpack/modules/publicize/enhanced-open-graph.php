@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Post_Images;
+
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 	if ( defined('IS_WPCOM') && IS_WPCOM ) {
 		include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
@@ -122,7 +125,7 @@ function enhanced_og_video( $tags ) {
 add_filter( 'jetpack_open_graph_tags', 'enhanced_og_video' );
 
 function enhanced_og_has_featured_image( $post_id ) {
-	$featured = Jetpack_PostImages::from_thumbnail( $post_id, 200, 200 );
+	$featured = Post_Images::from_thumbnail( $post_id, 200, 200 );
 	if ( !empty( $featured ) && count( $featured ) > 0 )
 		return true;
 	return false;

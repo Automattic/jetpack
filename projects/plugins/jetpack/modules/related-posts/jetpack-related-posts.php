@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Post_Images;
 use Automattic\Jetpack\Sync\Settings;
 
 class Jetpack_RelatedPosts {
@@ -1278,10 +1279,10 @@ EOT;
 
 	/**
 	 * Generates the thumbnail image to be used for the post. Uses the
-	 * image as returned by Jetpack_PostImages::get_image()
+	 * image as returned by Post_Images::get_image()
 	 *
 	 * @param int $post_id
-	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::fit_image_url
+	 * @uses self::get_options, apply_filters, Post_Images::get_image, Post_Images::fit_image_url
 	 * @return string
 	 */
 	protected function _generate_related_post_image_params( $post_id ) {
@@ -1314,9 +1315,9 @@ EOT;
 		}
 
 		// Try to get post image
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
+		if ( class_exists( 'Post_Images' ) ) {
 			$img_url    = '';
-			$post_image = Jetpack_PostImages::get_image(
+			$post_image = Post_Images::get_image(
 				$post_id,
 				$thumbnail_size
 			);
@@ -1339,7 +1340,7 @@ EOT;
 				}
 				$image_params['width']  = $thumbnail_size['width'];
 				$image_params['height'] = $thumbnail_size['height'];
-				$image_params['src']    = Jetpack_PostImages::fit_image_url(
+				$image_params['src']    = Post_Images::fit_image_url(
 					$img_url,
 					$thumbnail_size['width'],
 					$thumbnail_size['height']

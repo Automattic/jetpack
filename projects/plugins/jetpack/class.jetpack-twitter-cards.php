@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Post_Images;
+
 /**
  * Twitter Cards
  *
@@ -96,8 +98,8 @@ class Jetpack_Twitter_Cards {
 		$card_type = 'summary';
 
 		// Try to give priority to featured images.
-		if ( class_exists( 'Jetpack_PostImages' ) && ! empty( $post_id ) ) {
-			$post_image = Jetpack_PostImages::get_image(
+		if ( class_exists( 'Post_Images' ) && ! empty( $post_id ) ) {
+			$post_image = Post_Images::get_image(
 				$post_id,
 				array(
 					'width'  => 144,

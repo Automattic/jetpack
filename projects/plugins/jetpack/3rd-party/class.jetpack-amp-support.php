@@ -1,6 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Post_Images;
 use Automattic\Jetpack\Sync\Functions;
 
 /**
@@ -226,7 +227,7 @@ class Jetpack_AMP_Support {
 	 * @return array Metadata.
 	 */
 	private static function add_image_to_metadata( $metadata, $post ) {
-		$image = Jetpack_PostImages::get_image(
+		$image = Post_Images::get_image(
 			$post->ID,
 			array(
 				'fallback_to_avatars' => true,

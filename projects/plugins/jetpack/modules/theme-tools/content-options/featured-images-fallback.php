@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Post_Images;
+
 /**
  * Get one image from a specified post in the following order:
  * Featured Image then first image from the_content HTML
@@ -29,7 +32,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 		}
 	}
 
-	if ( class_exists( 'Jetpack_PostImages' ) ) {
+	if ( class_exists( 'Post_Images' ) ) {
 		global $_wp_additional_image_sizes;
 
 		$args = array(
@@ -39,7 +42,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 			'from_attachment' => false,
 		);
 
-		$image = Jetpack_PostImages::get_image( $post_id, $args );
+		$image = Post_Images::get_image( $post_id, $args );
 
 		if ( ! empty( $image ) ) {
 			$image['width']  = '';
@@ -52,7 +55,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 				$image['crop']   = $_wp_additional_image_sizes[ $size ]['crop'];
 			}
 
-			$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
+			$image_src = Post_Images::fit_image_url( $image['src'], $image['width'], $image['height'] );
 
 			// Use the theme's crop setting rather than forcing to true
 			$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
@@ -93,7 +96,7 @@ function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbna
 		}
 	}
 
-	if ( class_exists( 'Jetpack_PostImages' ) ) {
+	if ( class_exists( 'Post_Images' ) ) {
 		global $_wp_additional_image_sizes;
 
 		$args = array(
@@ -103,7 +106,7 @@ function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbna
 			'from_attachment' => false,
 		);
 
-		$image = Jetpack_PostImages::get_image( $post_id, $args );
+		$image = Post_Images::get_image( $post_id, $args );
 
 		if ( ! empty( $image ) ) {
 			$image['width']  = '';
@@ -116,7 +119,7 @@ function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbna
 				$image['crop']   = $_wp_additional_image_sizes[ $size ]['crop'];
 			}
 
-			$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
+			$image_src = Post_Images::fit_image_url( $image['src'], $image['width'], $image['height'] );
 
 			// Use the theme's crop setting rather than forcing to true
 			$image_src = add_query_arg( 'crop', $image['crop'], $image_src );

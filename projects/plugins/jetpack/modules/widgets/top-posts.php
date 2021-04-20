@@ -7,6 +7,7 @@
  * Instead, we don't register the widget if the Stats Module isn't active.
  */
 
+use Automattic\Jetpack\Post_Images;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -353,7 +354,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				}
 
 				foreach ( $posts as &$post ) {
-					$image         = Jetpack_PostImages::get_image(
+					$image         = Post_Images::get_image(
 						$post['post_id'],
 						array(
 							'fallback_to_avatars' => (bool) $get_image_options['fallback_to_avatars'],

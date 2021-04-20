@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Post_Images;
 
 abstract class Sharing_Source {
 	public	  $button_style;
@@ -1636,8 +1637,8 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	public function get_image( $post ) {
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$image = Jetpack_PostImages::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
+		if ( class_exists( 'Post_Images' ) ) {
+			$image = Post_Images::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
 			if ( ! empty( $image ) ) {
 				return $image['src'];
 			}

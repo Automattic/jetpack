@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Post_Images;
+
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 
@@ -317,8 +319,8 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code.
-		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_image = Jetpack_PostImages::get_image(
+		if ( empty( $image ) && class_exists( 'Post_Images' ) ) {
+			$post_image = Post_Images::get_image(
 				get_the_ID(),
 				array(
 					'width'  => $width,
