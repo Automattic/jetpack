@@ -259,7 +259,7 @@ class DashScan extends Component {
 	}
 
 	renderAction( url, message ) {
-		if ( ! this.props.isAtomicSite ) {
+		if ( this.props.isAtomicSite ) {
 			return null;
 		}
 
