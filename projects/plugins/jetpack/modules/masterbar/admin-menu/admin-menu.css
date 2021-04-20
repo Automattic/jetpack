@@ -170,11 +170,10 @@
 
 .inline-text {
 	position: absolute;
-	right: 0;
+	right: 20px;
 	top: 50%;
 	transform: translateY( -50% );
-	margin-right: 20px;
-	color: rgba(240,246,252,.7);
+	opacity: 0.8;
 }
 
 /**
