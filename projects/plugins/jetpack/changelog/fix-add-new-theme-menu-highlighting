@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Reassign $submenu_file value as null for theme-install.php so correct menu item Add New Theme is highlighted in admin menu.
