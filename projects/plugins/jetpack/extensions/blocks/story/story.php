@@ -384,17 +384,17 @@ function render_block( $attributes ) {
 	);
 
 	return sprintf(
-		'<div class="%1$s" data-settings="%2$s">
+		'<div class="%1$s" data-id="%2$s" data-settings="%3$s">
 			<div class="wp-story-app">
 				<div class="wp-story-display-contents" style="display: contents;">
 					<div role="button" class="wp-story-container">
 						<div class="wp-story-meta">
 							<div class="wp-story-icon">
-								<img alt="%3$s" src="%4$s" width="40" height="40">
+								<img alt="%4$s" src="%5$s" width="40" height="40">
 							</div>
 							<div>
 								<div class="wp-story-title">
-									%5$s
+									%6$s
 								</div>
 							</div>
 							<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
@@ -402,17 +402,18 @@ function render_block( $attributes ) {
 							</a>
 						</div>
 						<div class="wp-story-wrapper">
-							%6$s
+							%7$s
 						</div>
-						<a class="wp-story-overlay" href="%7$s" title="%8$s">
-							%9$s
+						<a class="wp-story-overlay" href="%8$s" title="%9$s">
+							%10$s
 						</a>
-						%10$s
+						%11$s
 					</div>
 				</div>
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
+		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),

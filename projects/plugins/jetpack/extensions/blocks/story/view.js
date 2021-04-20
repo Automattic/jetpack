@@ -71,7 +71,7 @@ function parseMeta( metaWrapper ) {
 }
 
 function parseId( rootElement ) {
-	return rootElement.getAttribute( 'aria-labelledby' );
+	return rootElement.getAttribute( 'data-id' );
 }
 
 if ( typeof window !== 'undefined' ) {
