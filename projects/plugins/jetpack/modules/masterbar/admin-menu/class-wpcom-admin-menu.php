@@ -195,8 +195,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-		$plan     = $products['product_name_short'];
+		if ( class_exists( 'WPCOM_Store_API' ) ) {
+			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+			$plan     = $products['product_name_short'];
+		}
 		parent::add_upgrades_menu( $plan );
 
 		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
