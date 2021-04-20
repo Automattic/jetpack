@@ -47,7 +47,7 @@ export function waitForObject( currentWindow, objectName ) {
 			if ( currentWindow[ objectName ] ) {
 				resolve( currentWindow[ objectName ] );
 			} else {
-				window.requestAnimationFrame( waitFor );
+				currentWindow.requestAnimationFrame( waitFor );
 			}
 		};
 		waitFor();
