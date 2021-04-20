@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+REST API: Allow site-level authentication on plugins, themes, modules endpoints
