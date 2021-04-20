@@ -245,8 +245,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
 	}
 
-	// add_tools_menu() - Inherit from Admin_Menu base class.
-
 	/**
 	 * Adds Settings menu.
 	 *
