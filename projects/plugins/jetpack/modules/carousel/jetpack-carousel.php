@@ -417,15 +417,15 @@ class Jetpack_Carousel {
 														</p>
 													<?php else : ?>
 														<fieldset>
-															<label for="email"><?php echo esc_html( sprintf( $required, __( 'Email', 'jetpack' ) ) ); ?></label>
+															<label for="jp-carousel-comment-form-email-field"><?php echo esc_html( sprintf( $required, __( 'Email', 'jetpack' ) ) ); ?></label>
 															<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" />
 														</fieldset>
 														<fieldset>
-															<label for="author"><?php echo esc_html( sprintf( $required, __( 'Name', 'jetpack' ) ) ); ?></label>
+															<label for="jp-carousel-comment-form-author-field"><?php echo esc_html( sprintf( $required, __( 'Name', 'jetpack' ) ) ); ?></label>
 															<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" />
 														</fieldset>
 														<fieldset>
-															<label for="url"><?php esc_html_e( 'Website', 'jetpack' ); ?></label>
+															<label for="jp-carousel-comment-form-url-field"><?php esc_html_e( 'Website', 'jetpack' ); ?></label>
 															<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" />
 														</fieldset>
 													<?php endif ?>
