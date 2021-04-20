@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\JITMS;
 
+use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Partner;
@@ -480,7 +481,9 @@ class Post_Connection_JITM extends JITM {
 
 			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
 
-			$envelope->jitm_stats_url = \Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
+			$stats = new A8c_Mc_Stats();
+
+			$envelope->jitm_stats_url = $stats->build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			// $CTA is not valid per PHPCS, but it is part of the return from WordPress.com, so allowing.
@@ -503,9 +506,8 @@ class Post_Connection_JITM extends JITM {
 
 			$envelope->content->icon = $this->generate_icon( $envelope->content->icon, $full_jp_logo_exists );
 
-			$jetpack = \Jetpack::init();
-			$jetpack->stat( 'jitm', $envelope->id . '-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
+			$stats->add( 'jitm', $envelope->id . '-viewed' );
+			$stats->do_server_side_stats();
 		}
 
 		return $envelopes;

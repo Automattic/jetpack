@@ -461,7 +461,8 @@ abstract class SAL_Site {
 			 * @param bool $view_hosting Can site access Hosting section. Default to false.
 			 */
 			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
-			'view_stats'          => stats_is_blog_user( $this->blog_id )
+			'view_stats'          => stats_is_blog_user( $this->blog_id ),
+			'activate_plugins'    => current_user_can( 'activate_plugins' ),
 		);
 	}
 

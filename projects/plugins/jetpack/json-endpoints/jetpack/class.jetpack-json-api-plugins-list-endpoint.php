@@ -2,24 +2,25 @@
 
 new Jetpack_JSON_API_Plugins_List_Endpoint(
 	array(
-		'description'          => 'Get installed Plugins on your blog',
-		'method'               => 'GET',
-		'path'                 => '/sites/%s/plugins',
-		'stat'                 => 'plugins',
-		'min_version'          => '1',
-		'max_version'          => '1.1',
-		'path_labels'          => array(
-			'$site' => '(int|string) The site ID, The site domain'
+		'description'             => 'Get installed Plugins on your blog',
+		'method'                  => 'GET',
+		'path'                    => '/sites/%s/plugins',
+		'stat'                    => 'plugins',
+		'min_version'             => '1',
+		'max_version'             => '1.1',
+		'path_labels'             => array(
+			'$site' => '(int|string) The site ID, The site domain',
 		),
-		'response_format'      => array(
+		'allow_jetpack_site_auth' => true,
+		'response_format'         => array(
 			'plugins' => '(plugin) An array of plugin objects.',
 		),
-		'example_request_data' => array(
+		'example_request_data'    => array(
 			'headers' => array(
-				'authorization' => 'Bearer YOUR_API_TOKEN'
+				'authorization' => 'Bearer YOUR_API_TOKEN',
 			),
 		),
-		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins',
 	)
 );
 // No v1.2 versions since they are .com only
