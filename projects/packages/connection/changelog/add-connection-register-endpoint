@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connection: moving the registration REST endpoint to the package.

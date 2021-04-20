@@ -163,7 +163,6 @@
 	"projects/plugins/jetpack/extensions/shared/public-path.js",
 	"projects/plugins/jetpack/modules/.eslintrc.js",
 	"projects/plugins/jetpack/modules/calypsoify/mods-gutenberg.js",
-	"projects/plugins/jetpack/modules/carousel/jetpack-carousel.js",
 	"projects/plugins/jetpack/modules/contact-form/js/editor-view.js",
 	"projects/plugins/jetpack/modules/contact-form/js/grunion-admin.js",
 	"projects/plugins/jetpack/modules/contact-form/js/grunion.js",
