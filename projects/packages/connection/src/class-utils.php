@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Tracking;
+
 /**
  * Provides utility methods for the Connection package.
  */
@@ -73,6 +75,25 @@ class Utils {
 			array( __CLASS__, 'jetpack_api_constant_filter' ),
 			10,
 			2
+		);
+	}
+
+	/**
+	 * Filters the registration request body to include tracking properties.
+	 *
+	 * @param array $properties Already prepared tracking properties.
+	 * @return array amended properties.
+	 */
+	public static function filter_register_request_body( $properties ) {
+		$tracking        = new Tracking();
+		$tracks_identity = $tracking->tracks_get_identity( get_current_user_id() );
+
+		return array_merge(
+			$properties,
+			array(
+				'_ui' => $tracks_identity['_ui'],
+				'_ut' => $tracks_identity['_ut'],
+			)
 		);
 	}
 }
