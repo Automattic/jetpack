@@ -86,6 +86,15 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
+	 * Determine if the site is running an FSE theme.
+	 *
+	 * @return bool True if the current theme is an FSE/Site Editor theme
+	 */
+	protected function is_fse_theme() {
+		return has_blog_sticker( 'core-site-editor-enabled', $this->get_blog_id() );
+	}
+
+	/**
 	 * =================
 	 * ACTIONS & FILTERS
 	 * =================
@@ -164,8 +173,8 @@ class Jetpack_RelatedPosts {
 
 	/**
 	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
-	 * Will skip adding the target if the post content contains a Related Posts block or if the 'get_the_excerpt'
-	 * hook is in the current filter list.
+	 * Will skip adding the target if the post content contains a Related Posts block, if the 'get_the_excerpt'
+	 * hook is in the current filter list, or if the site is running an FSE/Site Editor theme.
 	 *
 	 * @filter the_content
 	 *
@@ -174,7 +183,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( has_block( 'jetpack/related-posts' ) ) {
+		if ( has_block( 'jetpack/related-posts' ) || $this->is_fse_theme() ) {
 			return $content;
 		}
 
