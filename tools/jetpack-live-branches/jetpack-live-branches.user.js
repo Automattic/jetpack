@@ -39,9 +39,9 @@
 			);
 		} else {
 			const contents = `
-			<h4>Settings</h4>
 			<details>
 				<summary>Expand for JN site options:</summary>
+				<h4>Settings</h4>
 				${ getOptionsList(
 					[
 						{
