@@ -197,7 +197,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_upgrades_menu( $plan = null ) {
 		if ( class_exists( 'WPCOM_Store_API' ) ) {
 			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-			$plan     = $products['product_name_short'];
+			if ( array_key_exists( 'product_name_short', $products ) ) {
+				$plan = $products['product_name_short'];
+			}
 		}
 		parent::add_upgrades_menu( $plan );
 
