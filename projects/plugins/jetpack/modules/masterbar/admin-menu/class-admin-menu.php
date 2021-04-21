@@ -148,7 +148,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		if ( ! $menu_exists ) {
 			// Remove the submenu auto-created by Core.
-			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
+			// We remove it instead of hiding it because WP-Admin will see it as the first submenu item and therefore it acts as the menu's default URL.
+			remove_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
 		}
 	}
 
@@ -414,7 +415,7 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		if ( ! $is_menu_updated ) {
 			// Remove the submenu auto-created by Core.
-			$this->hide_submenu_page( 'jetpack', 'jetpack' );
+			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
 
