@@ -52,7 +52,8 @@ class Jetpack_Provision { //phpcs:ignore
 		if ( ! Jetpack::connection()->is_connected() || ( isset( $named_args['force_register'] ) && (int) $named_args['force_register'] ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
-			$registered = Jetpack::connection()->try_registration();
+			$from       = isset( $named_args['partner_id'] ) ? $named_args['partner_id'] : false;
+			$registered = Jetpack::connection()->try_registration( true, $from );
 			if ( is_wp_error( $registered ) ) {
 				return $registered;
 			} elseif ( ! $registered ) {
