@@ -1735,7 +1735,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
-		$response = Jetpack::connection()->try_registration();
+		$from     = isset( $request['from'] ) ? $request['from'] : false;
+		$response = Jetpack::connection()->try_registration( true, $from );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;

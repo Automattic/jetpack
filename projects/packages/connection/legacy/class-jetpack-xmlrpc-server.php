@@ -326,7 +326,8 @@ class Jetpack_XMLRPC_Server {
 
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
-			$registered = $this->connection->try_registration();
+			$from       = isset( $request['from'] ) ? $request['from'] : false;
+			$registered = $this->connection->try_registration( true, $from );
 			if ( is_wp_error( $registered ) ) {
 				return $this->error( $registered, 'remote_register' );
 			} elseif ( ! $registered ) {
