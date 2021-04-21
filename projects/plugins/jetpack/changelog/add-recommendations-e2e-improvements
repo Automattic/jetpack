@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Replace fragile element selectors with a more robust version of themselves
