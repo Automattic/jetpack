@@ -282,6 +282,13 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Always use WP Admin for comments.
+	 */
+	public function add_comments_menu() {
+		parent::add_comments_menu( true );
+	}
+
+	/**
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
