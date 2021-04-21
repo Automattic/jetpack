@@ -128,12 +128,17 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		if ( ! $menu_exists ) {
-			$site_upgrades = '%1$s<span class="inline-text">%2$s</span>';
-			$site_upgrades = sprintf(
-				$site_upgrades,
-				__( 'Upgrades', 'jetpack' ),
-				$plan
-			);
+			if ( $plan ) {
+				// Add display:none as a default for cases when CSS is not loaded.
+				$site_upgrades = '%1$s<span class="inline-text" style="display:none">%2$s</span>';
+				$site_upgrades = sprintf(
+					$site_upgrades,
+					__( 'Upgrades', 'jetpack' ),
+					$plan
+				);
+			} else {
+				$site_upgrades = __( 'Upgrades', 'jetpack' );
+			}
 
 			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}

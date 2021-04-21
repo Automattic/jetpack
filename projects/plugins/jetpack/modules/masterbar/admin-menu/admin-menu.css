@@ -169,6 +169,7 @@
 }
 
 .inline-text {
+	display: block !important;
 	position: absolute;
 	right: 20px;
 	top: 50%;
