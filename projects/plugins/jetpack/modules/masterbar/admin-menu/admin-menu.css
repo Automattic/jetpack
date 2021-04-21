@@ -161,13 +161,8 @@
 }
 
 /**
- * Upgrades with plan badge
+ * Inline text in a menu title
  */
- #adminmenu .site__upgrades {
-	display: flex;
-	justify-content: space-between;
-}
-
 .inline-text {
 	display: block !important;
 	position: absolute;
