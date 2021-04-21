@@ -9,7 +9,7 @@
 		"@actions/core": "1.2.6",
 		"@actions/github": "4.0.0",
 		"error": "10.4.0",
-		"js-yaml": "4.0.0",
+		"js-yaml": "4.1.0",
 		"picomatch": "2.2.2"
 	},
 	"devDependencies": {
