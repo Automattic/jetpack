@@ -10,9 +10,18 @@ module.exports = class CopyBlockEditorAssetsPlugin {
 		const logger = compiler.getInfrastructureLogger( PLUGIN_NAME );
 		logger.log( 'Starting copy of block editor assets' );
 		compiler.hooks.shouldEmit.tap( 'CopyPlugin_Custom', () => {
+			/**
+			 * Checks that the export dir exists and creates if not.
+			 */
 			async function makeDir() {
 				await fs.mkdirp( path.resolve( EXPORT_PATH ) );
 			}
+			/**
+			 * Copies an asset file into the assets export folder.
+			 *
+			 * @param {string} source - The source file to copy.
+			 * @param {string} dest - The destination location for file.
+			 */
 			async function copyFile( source, dest ) {
 				await makeDir();
 				const source_final = path.resolve( source );

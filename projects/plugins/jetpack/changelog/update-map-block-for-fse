@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Fixes to make the Map block compatible with full site editing
+
+
