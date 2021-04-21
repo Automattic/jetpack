@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Ensure compatibility with the Site Editor by injecting required media assets into the Site Editor canvas, and loading frontend scripts onDomReady

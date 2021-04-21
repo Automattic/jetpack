@@ -123,3 +123,26 @@ export const getColorsObject = memoize( generateColorsObject, config => {
 	// Cache key is a string with all arguments joined into one string.
 	return Object.values( config ).join();
 } );
+
+/**
+ * A temporary work-around to inject the styles we need for the media player into the site editor.
+ */
+export function __maybeInjectStylesIntoSiteEditor() {
+	// Check to see if we're in the site editor.
+	const iframe = document.querySelector( 'iframe[name="editor-canvas"]' );
+
+	if ( iframe ) {
+		const mediaElementCSS = document.querySelector( 'link#mediaelement-css' );
+		const wpMediaElementCSS = document.querySelector( 'link#wp-mediaelement-css' );
+
+		if ( mediaElementCSS && ! iframe.contentDocument.querySelector( 'link#mediaelement-css' ) ) {
+			iframe.contentDocument.head.appendChild( mediaElementCSS.cloneNode() );
+			mediaElementCSS.remove();
+		}
+
+		if ( wpMediaElementCSS && ! iframe.contentDocument.querySelector( 'link#wp-mediaelement-css' ) ) {
+			iframe.contentDocument.head.appendChild( wpMediaElementCSS.cloneNode() );
+			wpMediaElementCSS.remove();
+		}
+	}
+}

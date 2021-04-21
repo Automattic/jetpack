@@ -45,7 +45,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
-import { makeCancellable } from './utils';
+import { makeCancellable, __maybeInjectStylesIntoSiteEditor } from './utils';
 import { fetchPodcastFeed } from './api';
 import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
@@ -157,6 +157,7 @@ const PodcastPlayerEdit = ( {
 	);
 
 	useEffect( () => {
+		__maybeInjectStylesIntoSiteEditor();
 		return () => {
 			cancellableFetch?.current?.cancel?.();
 		};
