@@ -192,6 +192,10 @@ async function changelogCommand( argv ) {
 		throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
 	}
 
+	if ( argv.cmd === 'version' ) {
+		throw new Error( 'Version not supported yet!' );
+	}
+
 	changelogArgs( argv );
 }
 
