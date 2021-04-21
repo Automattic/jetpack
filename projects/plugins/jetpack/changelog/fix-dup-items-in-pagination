@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: fix pagination can reload existing items when several items have the same timestamp if sorting by date
