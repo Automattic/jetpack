@@ -27,19 +27,18 @@ export async function setResultFormat( format = 'expanded' ) {
 }
 
 export async function getSidebarsWidgets() {
-	const sidebarsWidgetsOption = 'sidebars_widgets';
-	const sidebarsWidgetsValue = await execWpCommand(
-		`wp option get ${ sidebarsWidgetsOption } --format=json`
-	);
-	return JSON.parse( sidebarsWidgetsValue );
-}
-
-export async function getSearchWidget() {
-	const sidebarsWidgetsOption = 'widget_jetpack-search-filters';
-	const searchWidgetValue = await execWpCommand(
-		`wp option get ${ sidebarsWidgetsOption } --format=json`
-	);
-	return JSON.parse( searchWidgetValue );
+	try {
+		const sidebarsWidgetsOption = 'sidebars_widgets';
+		const sidebarsWidgetsValue = await execWpCommand(
+			`wp option get ${ sidebarsWidgetsOption } --format=json`
+		);
+		if ( typeof sidebarsWidgetsValue === 'object' ) {
+			throw sidebarsWidgetsValue;
+		}
+		return JSON.parse( sidebarsWidgetsValue );
+	} catch ( e ) {
+		return getSidebarsWidgetsData();
+	}
 }
 
 export async function setupSidebarsWidgets( sidebarsWidgetsValue = getSidebarsWidgetsData() ) {

@@ -7,7 +7,6 @@ import Homepage from '../lib/pages/homepage';
 import { step } from '../lib/env/test-setup';
 import {
 	enableInstantSearch,
-	getSearchWidget,
 	getSidebarsWidgets,
 	setupSidebarsWidgets,
 	setupSearchWidget,
@@ -18,11 +17,9 @@ import {
 describe( 'Search', () => {
 	let homepage;
 	let backupSidebarsWidgets;
-	let backupSearchWidget;
 
 	beforeAll( async () => {
 		backupSidebarsWidgets = await getSidebarsWidgets();
-		backupSearchWidget = await getSearchWidget();
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await enableInstantSearch();
@@ -31,7 +28,6 @@ describe( 'Search', () => {
 	} );
 
 	afterAll( async () => {
-		await setupSearchWidget( backupSearchWidget );
 		await setupSidebarsWidgets( backupSidebarsWidgets );
 		await disableSearchModule();
 		await disableInstantSearch();
