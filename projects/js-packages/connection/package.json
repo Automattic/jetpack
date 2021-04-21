@@ -5,9 +5,8 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/a11y": "2.15.2",
 		"@wordpress/browserslist-config": "3.0.1",
-		"@wordpress/components": "13.0.0",
+		"@wordpress/components": "9.2.6",
 		"@wordpress/i18n": "^3.9.0",
 		"prop-types": "^15.7.2"
 	},
