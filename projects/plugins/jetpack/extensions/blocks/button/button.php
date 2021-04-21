@@ -39,9 +39,14 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attributes, $content ) {
 	$save_in_post_content = get_attribute( $attributes, 'saveInPostContent' );
 
-	if ( Blocks::is_amp_request() ) {
-		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	// The Jetpack Button block depends on the core button block styles.
+	// The following ensures that those styles are enqueued when rendering this block.
+	$core_button = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/button' );
+	if ( ! empty( $core_button->style ) ) {
+		wp_enqueue_style( $core_button->style );
 	}
+
+	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 
 	if ( $save_in_post_content || ! class_exists( 'DOMDocument' ) ) {
 		return $content;
