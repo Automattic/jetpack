@@ -42,7 +42,7 @@ function render_block( $attributes, $content ) {
 	// The Jetpack Button block depends on the core button block styles.
 	// The following ensures that those styles are enqueued when rendering this block.
 	$core_button = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/button' );
-	if ( ! empty( $core_button->style ) ) {
+	if ( isset( $core_button ) && ! empty( $core_button->style ) ) {
 		wp_enqueue_style( $core_button->style );
 	}
 
