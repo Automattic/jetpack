@@ -75,16 +75,30 @@ class Jetpack_Connection_Banner {
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
-	 * This method should not be called if the site is connected to WordPress.com or if the site is in offline mode.
-	 *
 	 * @since 4.4.0
 	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
 	 * @since 5.3.0 Running another split test between 4.4 banner and a new one in 5.3.
 	 * @since 7.2   B test was removed.
+	 * @since 9.7   Moved the connection condition checking to this method to fulfill Licensing requirements.
 	 *
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+		$has_connected_owner = Jetpack::connection()->has_connected_owner();
+		$is_connected        = ( new Status() )->is_no_user_testing_mode() ? Jetpack::connection()->is_connected() : $has_connected_owner;
+		$has_licenses        = ! empty( Licensing::instance()->stored_licenses() );
+
+		// Don't show the connect notice if the site has a connected owner.
+		if ( $has_connected_owner ) {
+			return;
+		}
+
+		// Don't show the connect notice if a userless connection is established and there are no stored licenses.
+		// Stored licenses indicate that a purchased product may not be provisioned yet hence we need to keep
+		// showing the notice to nudge the user to connect in order to have their product(s) provisioned.
+		if ( $is_connected && ! $has_licenses ) {
+			return;
+		}
 
 		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
 		if (
@@ -103,7 +117,7 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		if ( ! empty( Licensing::instance()->stored_licenses() ) ) {
+		if ( $has_licenses ) {
 			add_action( 'admin_notices', array( $this, 'render_license_aware_banner' ) );
 		} else {
 			add_action( 'admin_notices', array( $this, 'render_banner' ) );

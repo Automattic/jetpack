@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Show the license-aware version of the connection banner when there is a userless connection established and there are stored licenses
