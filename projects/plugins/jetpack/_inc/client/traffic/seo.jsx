@@ -6,7 +6,6 @@ import { connect } from 'react-redux';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
 import SocialLogo from 'social-logos';
-import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies
@@ -228,7 +227,7 @@ export const SEO = withModuleSettingsFormHelpers(
 												id="jp-seo-front-page-description"
 												className="jp-form-textarea-wide"
 												maxLength={ this.constants.frontPageMetaMaxLength }
-												value={ decodeEntities( frontPageMetaDescription ) }
+												value={ frontPageMetaDescription }
 												onChange={ this.props.onOptionChange }
 											/>
 											<div className="jp-seo-front-page-description-count">

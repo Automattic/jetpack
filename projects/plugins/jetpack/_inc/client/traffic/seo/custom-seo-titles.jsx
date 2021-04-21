@@ -4,7 +4,6 @@
 import React, { useState, useCallback } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
-import { decodeEntities } from '@wordpress/html-entities';
 
 /**
  * Internal dependencies
@@ -203,7 +202,7 @@ const CustomSeoTitleInput = ( {
 			<TextInput
 				id={ `jp-seo-custom-titles-input-${ pageType.name }` }
 				className="jp-seo-custom-titles-input"
-				value={ decodeEntities( value ) }
+				value={ value }
 				onChange={ useCallback(
 					event => handleCustomSeoTitleInput( pageType, event.target.value ),
 					[ handleCustomSeoTitleInput, pageType ]
@@ -211,7 +210,7 @@ const CustomSeoTitleInput = ( {
 				ref={ customSeoTitleInputRef }
 			/>
 			<div className={ 'jp-seo-custom-titles-input-preview' }>
-				{ decodeEntities( getCustomSeoTitleInputPreview( pageType, value, siteData ) ) }
+				{ getCustomSeoTitleInputPreview( pageType, value, siteData ) }
 			</div>
 		</div>
 	);

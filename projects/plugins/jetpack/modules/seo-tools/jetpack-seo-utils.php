@@ -64,7 +64,7 @@ class Jetpack_SEO_Utils {
 	 * @return string The sanitized string.
 	 */
 	public static function sanitize_front_page_meta_description( $value ) {
-		return trim( esc_html( $value ) );
+		return wp_strip_all_tags( $value );
 	}
 
 	/**
