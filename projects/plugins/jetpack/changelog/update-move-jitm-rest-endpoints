@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Move JITM's REST API endpoints into the package

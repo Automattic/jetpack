@@ -413,6 +413,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'products' :
 				$response[ $key ] = $this->site->get_products();
 				break;
+			case 'zendesk_site_meta':
+				$response[ $key ] = $this->site->get_zendesk_site_meta();
+				break;
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
 				break;

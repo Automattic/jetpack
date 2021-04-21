@@ -48,7 +48,7 @@ const ProductCardUpsellNoPrice = props => {
 				<h2>{ __( 'Powerful security, performance, and marketing', 'jetpack' ) }</h2>
 				<ul>
 					{ features.map( feature => (
-						<li>
+						<li key={ feature }>
 							<Gridicon icon="checkmark-circle" />
 							{ feature }
 						</li>
