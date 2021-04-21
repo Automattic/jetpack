@@ -54,6 +54,7 @@ export class Map extends Component {
 			points.map( ( point, index ) => {
 				return (
 					<MapMarker
+						mapRef={ this.mapRef }
 						key={ index }
 						point={ point }
 						index={ index }
