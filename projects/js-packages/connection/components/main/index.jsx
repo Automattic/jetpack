@@ -27,6 +27,7 @@ const Main = props => {
 		onRegistered,
 		onUserConnected,
 		registrationNonce,
+		redirectFunc,
 	} = props;
 
 	useEffect( () => {
@@ -36,12 +37,12 @@ const Main = props => {
 
 	const connectUser = useCallback( () => {
 		if ( forceCalypsoFlow ) {
-			window.location.href = authorizationUrl;
+			redirectFunc( authorizationUrl );
 			return;
 		}
 
 		setIsUserConnecting( true );
-	}, [ authorizationUrl, forceCalypsoFlow, setIsUserConnecting ] );
+	}, [ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc ] );
 
 	const onUserConnectedCallback = useCallback( () => {
 		setIsUserConnecting( false );
@@ -53,7 +54,7 @@ const Main = props => {
 
 	const registerSite = useCallback(
 		e => {
-			e.preventDefault();
+			e && e.preventDefault();
 
 			if ( isRegistered ) {
 				connectUser();
@@ -122,12 +123,14 @@ Main.propTypes = {
 	onRegistered: PropTypes.func,
 	onUserConnected: PropTypes.func,
 	registrationNonce: PropTypes.string.isRequired,
+	redirectFunc: PropTypes.func,
 };
 
 Main.defaultProps = {
 	inPlaceTitle: __( 'Connect your WordPress.com account', 'jetpack' ),
-	useCalypsoFlow: false,
+	forceCalypsoFlow: false,
 	connectLabel: __( 'Connect', 'jetpack' ),
+	redirectFunc: url => window.location.assign( url ),
 };
 
 export default Main;

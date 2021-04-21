@@ -5,13 +5,15 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
+		"@wordpress/a11y": "2.15.2",
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/components": "13.0.0",
 		"@wordpress/i18n": "^3.9.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
-		"nyc": "15.1.0"
+		"nyc": "15.1.0",
+		"react-test-renderer": "17.0.2"
 	},
 	"peerDependencies": {
 		"react": "^16.13.1",
@@ -23,6 +25,6 @@
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_ENV=test NODE_PATH=tests:. ../../../tools/js-test-runner.js --jsdom --initfile=../../../tools/js-test-init-enzyme.js 'glob:./!(node_modules)/**/test/*.jsx'"
+		"test": "NODE_ENV=test NODE_PATH=tests:. ../../../tools/js-test-runner.js --jsdom --initfile=test-main.jsx 'glob:./!(node_modules)/**/test/*.jsx'"
 	}
 }
