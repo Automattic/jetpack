@@ -39,7 +39,9 @@
 			);
 		} else {
 			const contents = `
-				<h4>Settings</h4>
+			<h4>Settings</h4>
+			<details>
+				<summary>Expand for JN site options:</summary>
 				${ getOptionsList(
 					[
 						{
@@ -147,9 +149,10 @@
 					],
 					33
 				) }
-				<p>
-					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
-				</p>
+			</details>
+			<p>
+				<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
+			</p>
 			`;
 			appendHtml( markdownBody, contents );
 			updateLink();
@@ -176,7 +179,7 @@
 
 		function getOptionsList( options, columnWidth ) {
 			return `
-				<ul style="list-style: none; padding-left: 0; display: flex; flex-wrap: wrap;">
+				<ul style="list-style: none; padding-left: 0; margin-top: 24px; display: flex; flex-wrap: wrap;">
 					${ options
 						.map( option => {
 							return getOption( option, columnWidth );
@@ -189,11 +192,7 @@
 		function appendHtml( el, contents ) {
 			const $el = $( el );
 			const liveBranches = $( '<div id="jetpack-live-branches" />' ).append(
-				`<h2>Jetpack Live Branches</h2>
-				<details>
-					<summary>Expand for JN site options:</summary>
-					${ contents }
-				</details>`
+				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
 			$el.append( liveBranches );
 			$( 'body' ).on( 'change', $el.find( 'input[type=checkbox]' ), onInputChanged );
