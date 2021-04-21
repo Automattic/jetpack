@@ -91,7 +91,7 @@ class Jetpack_RelatedPosts {
 	 * @return bool True if the current theme is an FSE/Site Editor theme
 	 */
 	protected function is_fse_theme() {
-		return has_blog_sticker( 'core-site-editor-enabled', $this->get_blog_id() );
+		return function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
 	}
 
 	/**
