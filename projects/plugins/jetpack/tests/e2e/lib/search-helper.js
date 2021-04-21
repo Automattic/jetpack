@@ -10,17 +10,84 @@ import path from 'path';
 import { execWpCommand } from './utils-helper';
 import config from 'config';
 
-export async function setupSearchSidebarWidget() {
-	await setupSidebarsWidgets();
-	await setupSearchWidget();
-}
-
 export async function enableInstantSearch() {
 	return execWpCommand( 'wp option update instant_search_enabled 1' );
 }
 
+export async function disableInstantSearch() {
+	return execWpCommand( 'wp option update instant_search_enabled 0' );
+}
+
+export async function disableSearchModule() {
+	await execWpCommand( 'wp jetpack module deactivate search' );
+}
+
 export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `wp option update jetpack_search_result_format ${ format }` );
+}
+
+export async function getSidebarsWidgets() {
+	const sidebarsWidgetsOption = 'sidebars_widgets';
+	const sidebarsWidgetsValue = await execWpCommand(
+		`wp option get ${ sidebarsWidgetsOption } --format=json`
+	);
+	return JSON.parse( sidebarsWidgetsValue );
+}
+
+export async function getSearchWidget() {
+	const sidebarsWidgetsOption = 'widget_jetpack-search-filters';
+	const searchWidgetValue = await execWpCommand(
+		`wp option get ${ sidebarsWidgetsOption } --format=json`
+	);
+	return JSON.parse( searchWidgetValue );
+}
+
+export async function setupSidebarsWidgets( sidebarsWidgetsValue = getSidebarsWidgetsData() ) {
+	const sidebarsWidgetsOption = 'sidebars_widgets';
+	const sidebarsWidgetsFilePath = path.resolve( config.get( 'temp.sidebarsWidgetsFile' ) );
+
+	fs.writeFileSync( sidebarsWidgetsFilePath, JSON.stringify( sidebarsWidgetsValue ) );
+
+	return execWpCommand(
+		`wp option update ${ sidebarsWidgetsOption } --format=json <	${ sidebarsWidgetsFilePath }`
+	);
+}
+
+export async function setupSearchWidget( searchWidgetValue = getSearchFiltersData() ) {
+	const searchWidgetOption = 'widget_jetpack-search-filters';
+	const searchWidgetFilePath = path.resolve( config.get( 'temp.searchWidgetFile' ) );
+
+	fs.writeFileSync( searchWidgetFilePath, JSON.stringify( searchWidgetValue ) );
+
+	return execWpCommand(
+		`wp option update ${ searchWidgetOption } --format=json <	${ searchWidgetFilePath }`
+	);
+}
+
+function getSearchFiltersData() {
+	return {
+		8: {
+			title: '',
+			search_box_enabled: '0',
+			user_sort_enabled: '0',
+			sort: null,
+			post_types: [],
+			filters: [
+				{ name: '', type: 'taxonomy', taxonomy: 'category', count: 5 },
+				{ name: '', type: 'taxonomy', taxonomy: 'post_tag', count: 5 },
+			],
+		},
+	};
+}
+
+function getSidebarsWidgetsData() {
+	return {
+		wp_inactive_widgets: [],
+		'sidebar-1': [ 'search-2', 'recent-posts-2', 'recent-comments-2' ],
+		'sidebar-2': [ 'archives-2', 'categories-2', 'meta-2' ],
+		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
+		array_version: 3,
+	};
 }
 
 export const searchResultForTest1 = {
@@ -346,53 +413,3 @@ export const searchResultForTest2 = {
 		},
 	},
 };
-
-async function setupSidebarsWidgets() {
-	const sidebarsWidgetsOption = 'sidebars_widgets';
-	const sidebarsWidgetsValue = getSidebarsWidgetsData();
-	const sidebarsWidgetsFilePath = path.resolve( config.get( 'temp.sidebarsWidgetsFile' ) );
-
-	fs.writeFileSync( sidebarsWidgetsFilePath, JSON.stringify( sidebarsWidgetsValue ) );
-
-	return execWpCommand(
-		`wp option update ${ sidebarsWidgetsOption } --format=json <	${ sidebarsWidgetsFilePath }`
-	);
-}
-
-async function setupSearchWidget() {
-	const searchWidgetOption = 'widget_jetpack-search-filters';
-	const searchWidgetValue = getSearchFiltersData();
-	const searchWidgetFilePath = path.resolve( config.get( 'temp.searchWidgetFile' ) );
-
-	fs.writeFileSync( searchWidgetFilePath, JSON.stringify( searchWidgetValue ) );
-
-	return execWpCommand(
-		`wp option update ${ searchWidgetOption } --format=json <	${ searchWidgetFilePath }`
-	);
-}
-
-function getSearchFiltersData() {
-	return {
-		8: {
-			title: '',
-			search_box_enabled: '0',
-			user_sort_enabled: '0',
-			sort: null,
-			post_types: [],
-			filters: [
-				{ name: '', type: 'taxonomy', taxonomy: 'category', count: 5 },
-				{ name: '', type: 'taxonomy', taxonomy: 'post_tag', count: 5 },
-			],
-		},
-	};
-}
-
-function getSidebarsWidgetsData() {
-	return {
-		wp_inactive_widgets: [],
-		'sidebar-1': [ 'search-2', 'recent-posts-2', 'recent-comments-2' ],
-		'sidebar-2': [ 'archives-2', 'categories-2', 'meta-2' ],
-		'jetpack-instant-search-sidebar': [ 'jetpack-search-filters-8' ],
-		array_version: 3,
-	};
-}

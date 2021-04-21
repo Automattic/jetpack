@@ -2,22 +2,39 @@
  * Internal dependencies
  */
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import { activateModule, execWpCommand } from '../lib/utils-helper';
+import { activateModule } from '../lib/utils-helper';
 import Homepage from '../lib/pages/homepage';
 import { step } from '../lib/env/test-setup';
-import { enableInstantSearch, setupSearchSidebarWidget } from '../lib/search-helper';
+import {
+	enableInstantSearch,
+	getSearchWidget,
+	getSidebarsWidgets,
+	setupSidebarsWidgets,
+	setupSearchWidget,
+	disableInstantSearch,
+	disableSearchModule,
+} from '../lib/search-helper';
 
 describe( 'Search', () => {
 	let homepage;
+	let backupSidebarsWidgets;
+	let backupSearchWidget;
+
 	beforeAll( async () => {
+		backupSidebarsWidgets = await getSidebarsWidgets();
+		backupSearchWidget = await getSearchWidget();
 		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'search' );
 		await enableInstantSearch();
-		await setupSearchSidebarWidget();
+		await setupSidebarsWidgets();
+		await setupSearchWidget();
 	} );
 
 	afterAll( async () => {
-		await execWpCommand( 'wp jetpack module deactivate search' );
+		await setupSearchWidget( backupSearchWidget );
+		await setupSidebarsWidgets( backupSidebarsWidgets );
+		await disableSearchModule();
+		await disableInstantSearch();
 	} );
 
 	beforeEach( async () => {
