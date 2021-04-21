@@ -39,6 +39,9 @@
 
 			var args = 'relatedposts=1';
 			var relatedPosts = document.querySelector( '#jp-relatedposts' );
+			if ( relatedPosts === null ) {
+				return;
+			}
 			if ( relatedPosts.hasAttribute( 'data-exclude' ) ) {
 				args += '&relatedposts_exclude=' + relatedPosts.getAttribute( 'data-exclude' );
 			}
