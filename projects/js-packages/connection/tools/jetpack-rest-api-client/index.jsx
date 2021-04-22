@@ -3,9 +3,6 @@
  */
 import { assign } from 'lodash';
 
-// TODO: reactivate the linter.
-/* eslint-disable no-unused-vars */
-
 /**
  * Helps create new custom error classes to better notify upper layers.
  *
@@ -52,7 +49,6 @@ function JetpackRestApiClient( root, nonce ) {
 			} ),
 		};
 
-	// eslint-disable-next-line no-unused-vars
 	const methods = {
 		setApiRoot( newRoot ) {
 			apiRoot = newRoot;
@@ -61,7 +57,7 @@ function JetpackRestApiClient( root, nonce ) {
 			headers = {
 				'X-WP-Nonce': newNonce,
 			};
-			getParams = {
+			getParams = { // eslint-disable-line no-unused-vars
 				credentials: 'same-origin',
 				headers: headers,
 			};
@@ -83,10 +79,10 @@ function JetpackRestApiClient( root, nonce ) {
 	};
 
 	/**
-	 * Add the cache booster value to the URL.
+	 * Add the cache buster value to the URL.
 	 *
 	 * @param {string} route - The API route URL.
-	 * @returns {string} The API route URL with cache booster added.
+	 * @returns {string} The API route URL with cache buster added.
 	 */
 	function addCacheBuster( route ) {
 		const parts = route.split( '?' ),
@@ -105,7 +101,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @param {object} params - The request params.
 	 * @returns {Promise<Response>} The request result promise.
 	 */
-	function getRequest( route, params ) {
+	function getRequest( route, params ) { // eslint-disable-line no-unused-vars
 		return fetch( addCacheBuster( route ), params );
 	}
 
@@ -123,8 +119,6 @@ function JetpackRestApiClient( root, nonce ) {
 
 	assign( this, methods );
 }
-
-/* eslint-enable no-unused-vars */
 
 /**
  * Check the response status.
