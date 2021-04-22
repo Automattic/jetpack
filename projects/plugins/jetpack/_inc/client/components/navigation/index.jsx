@@ -22,6 +22,7 @@ import {
 	showRecommendations,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
+	getPurchaseToken,
 } from 'state/initial-state';
 
 export class Navigation extends React.Component {
@@ -49,6 +50,9 @@ export class Navigation extends React.Component {
 	};
 
 	render() {
+		const jpRedirectPurchaseTokenQuery = this.props.purchaseToken
+			? { query: `purchasetoken=${ this.props.purchaseToken }` }
+			: {};
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
@@ -75,7 +79,7 @@ export class Navigation extends React.Component {
 						<NavItem
 							path={ getRedirectUrl(
 								this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
-								{ site: this.props.siteUrl }
+								{ site: this.props.siteUrl, ...jpRedirectPurchaseTokenQuery }
 							) }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
@@ -130,5 +134,6 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		showRecommendations: showRecommendations( state ),
 		siteUrl: getSiteRawUrl( state ),
+		purchaseToken: getPurchaseToken( state ),
 	};
 } )( withRouter( Navigation ) );
