@@ -1037,6 +1037,26 @@ class Manager {
 	}
 
 	/**
+	 * Adds a callback to the jetpack_register_request_body filter to append the informed params to the register request body
+	 *
+	 * @since 9.7.0
+	 *
+	 * @param array $params The associative array with the parameters to be added.
+	 * @return void
+	 */
+	public function add_params_to_register_request_body( $params ) {
+		if ( ! is_array( $params ) ) {
+			return;
+		}
+		add_filter(
+			'jetpack_register_request_body',
+			function ( $body_params ) use ( $params ) {
+				return array_merge( $body_params, $params );
+			}
+		);
+	}
+
+	/**
 	 * Takes the response from the Jetpack register new site endpoint and
 	 * verifies it worked properly.
 	 *

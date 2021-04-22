@@ -415,8 +415,10 @@ class REST_Connector {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
-		$from   = isset( $request['from'] ) ? $request['from'] : false;
-		$result = $this->connection->try_registration( true, $from );
+		if ( isset( $request['from'] ) ) {
+			$this->connection->add_params_to_register_request_body( array( 'from' => $request['from'] ) );
+		}
+		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
