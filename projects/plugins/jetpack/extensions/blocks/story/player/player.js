@@ -81,12 +81,14 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		if ( settings.playInFullscreen && ! playing ) {
 			setPlaying( id, true );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ playing, disabled, fullscreen ] );
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
 			playSlide( currentSlideIndex - 1 );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ currentSlideIndex ] );
 
 	const tryNextSlide = useCallback( () => {
@@ -95,10 +97,12 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		} else {
 			setEnded( id );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ currentSlideIndex, slides ] );
 
 	const onExitFullscreen = useCallback( () => {
 		setFullscreen( id, false );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	// pause player when disabled
@@ -106,6 +110,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		if ( disabled && playing ) {
 			setPlaying( id, false );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ disabled, playing ] );
 
 	// try next slide
@@ -113,6 +118,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		if ( playing && currentSlideEnded ) {
 			tryNextSlide();
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ playing, currentSlideEnded ] );
 
 	// Max slide width is used to display the story in portrait mode on desktop
@@ -128,6 +134,7 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
 		}
 		setMaxSlideWidth( ratioBasedWidth );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ width, height, fullscreen ] );
 
 	useLayoutEffect( () => {
@@ -151,11 +158,19 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		label = __( 'Play story', 'jetpack' );
 	}
 
+	let role;
+	if ( disabled ) {
+		role = 'presentation';
+	} else {
+		role = fullscreen ? 'dialog' : 'button';
+	}
+
+	/* eslint-disable jsx-a11y/click-events-have-key-events */
 	return (
 		<div className="wp-story-display-contents">
 			{ resizeListener }
 			<div
-				role={ disabled ? 'presentation' : fullscreen ? 'dialog' : 'button' }
+				role={ role }
 				aria-label={ label }
 				tabIndex={ fullscreen ? -1 : 0 }
 				className={ classNames( 'wp-story-container', {
@@ -221,4 +236,5 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 			) }
 		</div>
 	);
+	/* eslint-enable jsx-a11y/click-events-have-key-events */
 };

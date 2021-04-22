@@ -15,9 +15,9 @@ import { useRef, useCallback, useLayoutEffect } from '@wordpress/element';
  * callback will be called with `null` and the new ref callback will be called
  * with the same node.
  *
- * @param {Array<RefObject|RefCallback>} refs The refs to be merged.
+ * @param {Array<RefObject|RefCallback>} refs  - The refs to be merged.
  *
- * @return {RefCallback} The merged ref callback.
+ * @returns {RefCallback} The merged ref callback.
  */
 export default function useMergeRefs( refs ) {
 	const element = useRef( null );
@@ -47,6 +47,7 @@ export default function useMergeRefs( refs ) {
 		} );
 
 		previousRefs.current = refs;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, refs );
 
 	// No dependencies, must be reset after every render so ref callbacks are

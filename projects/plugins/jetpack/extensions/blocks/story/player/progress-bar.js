@@ -4,11 +4,6 @@
 import { range } from 'lodash';
 
 /**
- * WordPress dependencies
- */
-import { createElement } from '@wordpress/element';
-
-/**
  * Internal dependencies
  */
 import { Bullet } from './components';

@@ -37,9 +37,9 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes
  *
- * @param array $media_files  List of media, each as an array containing the media attributes.
+ * @param array $media_files  - List of media, each as an array containing the media attributes.
  *
- * @return array $media_files
+ * @returns array $media_files
  */
 function with_width_height_srcset_and_sizes( $media_files ) {
 	return array_map(
@@ -123,9 +123,9 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 /**
  * Render an image inside a slide
  *
- * @param array $media  Image information.
+ * @param array $media  - Image information.
  *
- * @return string
+ * @returns string
  */
 function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
@@ -156,10 +156,10 @@ function render_image( $media ) {
 /**
  * Return the css crop class if image width and height requires it
  *
- * @param int $width  Image width.
- * @param int $height  Image height.
+ * @param int $width   - Image width.
+ * @param int $height  - Image height.
  *
- * @return string The CSS class which will display a cropped image
+ * @returns string The CSS class which will display a cropped image
  */
 function get_image_crop_class( $width, $height ) {
 	$crop_class          = '';
@@ -184,9 +184,9 @@ function get_image_crop_class( $width, $height ) {
 /**
  * Render a video inside a slide
  *
- * @param array $media  Video information.
+ * @param array $media  - Video information.
  *
- * @return string
+ * @returns string
  */
 function render_video( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['mime'] ) || empty( $media['url'] ) ) {
@@ -249,10 +249,10 @@ function render_video( $media ) {
 /**
  * Render a slide
  *
- * @param array $media  Media information.
- * @param int   $index  Index of the slide, first slide will be displayed by default, others hidden.
+ * @param array $media  - Media information.
+ * @param int   $index  - Index of the slide, first slide will be displayed by default, others hidden.
  *
- * @return string
+ * @returns string
  */
 function render_slide( $media, $index = 0 ) {
 	$media_template = '';
@@ -286,9 +286,9 @@ function render_slide( $media, $index = 0 ) {
 /**
  * Render the top right icon on top of the story embed
  *
- * @param array $settings The block settings.
+ * @param array $settings  - The block settings.
  *
- * @return string
+ * @returns string
  */
 function render_top_right_icon( $settings ) {
 	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
@@ -322,10 +322,10 @@ function render_top_right_icon( $settings ) {
 /**
  * Render a pagination bullet
  *
- * @param int    $slide_index The slide index it corresponds to.
- * @param string $class_name Optional css class name(s) to customize the bullet element.
+ * @param int    $slide_index  - The slide index it corresponds to.
+ * @param string $class_name   - Optional css class name(s) to customize the bullet element.
  *
- * @return string
+ * @returns string
  */
 function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
@@ -341,9 +341,9 @@ function render_pagination_bullet( $slide_index, $class_name = '' ) {
 /**
  * Render pagination on top of the story embed
  *
- * @param array $settings The block settings.
+ * @param array $settings  - The block settings.
  *
- * @return string
+ * @returns string
  */
 function render_pagination( $settings ) {
 	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
@@ -366,9 +366,9 @@ function render_pagination( $settings ) {
 /**
  * Render story block
  *
- * @param array $attributes  Block attributes.
+ * @param array $attributes  - Block attributes.
  *
- * @return string
+ * @returns string
  */
 function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );

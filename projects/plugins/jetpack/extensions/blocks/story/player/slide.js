@@ -7,14 +7,7 @@ import classNames from 'classnames';
 /**
  * WordPress dependencies
  */
-import {
-	createElement,
-	useLayoutEffect,
-	useEffect,
-	useState,
-	useRef,
-	useMemo,
-} from '@wordpress/element';
+import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
@@ -52,12 +45,14 @@ export const Slide = ( {
 			const video = isVideo() ? mediaRef.current : null;
 			slideReady( playerId, mediaRef.current, video ? video.duration : settings.imageTime );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ visible, loading ] );
 
 	useEffect( () => {
 		if ( index <= currentSlideIndex + ( playing ? 1 : 0 ) ) {
 			setPreload( true );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ playing, currentSlideIndex ] );
 
 	// Sync media loading
@@ -70,6 +65,7 @@ export const Slide = ( {
 		} );
 	}, [ preload, uploading ] );
 
+	/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 	return (
 		<>
 			{ visible && ( loading || uploading ) && (
@@ -95,6 +91,7 @@ export const Slide = ( {
 			</div>
 		</>
 	);
+	/* eslint-enable jsx-a11y/no-noninteractive-tabindex */
 };
 
 export default Slide;

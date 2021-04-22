@@ -63,6 +63,7 @@ export default function ShadowRoot( {
 		}
 
 		setShadowRoot( shadowElement );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ rootElement ] );
 
 	if ( useShadow && ! shadowRoot ) {

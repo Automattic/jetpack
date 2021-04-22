@@ -71,6 +71,7 @@ export default function ShadowPlayer( {
 				storyPlayer && storyPlayer.focus();
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ fullscreen ] );
 
 	/* eslint-disable jsx-a11y/no-static-element-interactions */

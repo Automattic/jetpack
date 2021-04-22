@@ -3,7 +3,7 @@
  */
 import { useMemo, useEffect, useCallback } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { ESCAPE, SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
+import { SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -18,22 +18,21 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 	const { init, setEnded, setPlaying, setFullscreen, showSlide } = useDispatch(
 		'jetpack/story/player'
 	);
-	const { playing, currentSlideIndex, fullscreen, isPlayerReady, playerSettings } = useSelect(
+	const { playing, currentSlideIndex, fullscreen, isReady, playerSettings } = useSelect(
 		select => {
 			const { getCurrentSlideIndex, getSettings, isFullscreen, isPlayerReady, isPlaying } = select(
 				'jetpack/story/player'
 			);
-			const isReady = isPlayerReady( playerId );
-			if ( ! isReady ) {
+			if ( ! isPlayerReady( playerId ) ) {
 				return {
-					isPlayerReady: false,
+					isReady: false,
 				};
 			}
 
 			return {
 				playing: isPlaying( playerId ),
 				currentSlideIndex: getCurrentSlideIndex( playerId ),
-				isPlayerReady: true,
+				isReady: true,
 				fullscreen: isFullscreen( playerId ),
 				playerSettings: getSettings( playerId ),
 			};
@@ -42,13 +41,14 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 	);
 
 	useEffect( () => {
-		if ( ! isPlayerReady ) {
+		if ( ! isReady ) {
 			init( playerId, {
 				slideCount: slides.length,
 				...settings,
 			} );
 		}
-	}, [ playerId ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isReady, playerId ] );
 
 	const onKeyDown = useCallback(
 		event => {
@@ -73,14 +73,16 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 					break;
 			}
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[ playerId, currentSlideIndex, fullscreen, playing ]
 	);
 
 	const exitFullscreen = useCallback( () => {
 		setFullscreen( playerId, false );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ playerId ] );
 
-	if ( ! isPlayerReady ) {
+	if ( ! isReady ) {
 		return null;
 	}
 
