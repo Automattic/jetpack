@@ -79,6 +79,7 @@ jQuery( document ).ready( function ( $ ) {
 				data: {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
+					from: connectButtonFrom,
 				},
 				error: jetpackConnectButton.handleConnectionError,
 				success: jetpackConnectButton.handleConnectionSuccess,
