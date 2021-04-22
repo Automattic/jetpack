@@ -69,6 +69,12 @@ class Plugin_Locator {
 	public function find_using_request_action( $allowed_actions ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
+		$woo_activating_plugins = $this->find_activating_plugins_in_woo_request();
+
+		if ( $woo_activating_plugins ) {
+			return $this->convert_plugins_to_paths( $woo_activating_plugins );
+		}
+
 		/**
 		 * Note: we're not actually checking the nonce here because it's too early
 		 * in the execution. The pluggable functions are not yet loaded to give
@@ -108,6 +114,56 @@ class Plugin_Locator {
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		return $this->convert_plugins_to_paths( $plugin_slugs );
+	}
+
+	/**
+	 * Inspects the request to determine if this is a Woo plugin actiation request. If it is,
+	 * returns the list of activating plugin slugs.
+	 *
+	 * @return array|false Returns an array of plugin slugs or false if this is not a Woo plugin
+	 *                     activation request.
+	 */
+	private function find_activating_plugins_in_woo_request() {
+		// Check for a Woo plugin activation request.
+		if ( false === strpos( $_SERVER['REQUEST_URI'], 'wc-admin/plugins/activate' ) ) {
+			return false;
+		}
+
+		$activating_plugins = explode( ',', json_decode( file_get_contents( 'php://input' ) )->plugins );
+
+		// These plugins are from the list in Automattic\WooCommerce\Admin\Features\Onboarding::get_onboarding_allowed_plugins.
+		$allowed_plugins = array(
+			'facebook-for-woocommerce'            => 'facebook-for-woocommerce/facebook-for-woocommerce.php',
+			'mailchimp-for-woocommerce'           => 'mailchimp-for-woocommerce/mailchimp-woocommerce.php',
+			'creative-mail-by-constant-contact'   => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+			'kliken-marketing-for-google'         => 'kliken-marketing-for-google/kliken-marketing-for-google.php',
+			'jetpack'                             => 'jetpack/jetpack.php',
+			'woocommerce-services'                => 'woocommerce-services/woocommerce-services.php',
+			'woocommerce-gateway-stripe'          => 'woocommerce-gateway-stripe/woocommerce-gateway-stripe.php',
+			'woocommerce-paypal-payments'         => 'woocommerce-paypal-payments/woocommerce-paypal-payments.php',
+			'klarna-checkout-for-woocommerce'     => 'klarna-checkout-for-woocommerce/klarna-checkout-for-woocommerce.php',
+			'klarna-payments-for-woocommerce'     => 'klarna-payments-for-woocommerce/klarna-payments-for-woocommerce.php',
+			'woocommerce-square'                  => 'woocommerce-square/woocommerce-square.php',
+			'woocommerce-shipstation-integration' => 'woocommerce-shipstation-integration/woocommerce-shipstation.php',
+			'woocommerce-payfast-gateway'         => 'woocommerce-payfast-gateway/gateway-payfast.php',
+			'woo-paystack'                        => 'woo-paystack/woo-paystack.php',
+			'woocommerce-payments'                => 'woocommerce-payments/woocommerce-payments.php',
+			'woocommerce-gateway-eway'            => 'woocommerce-gateway-eway/woocommerce-gateway-eway.php',
+			'woo-razorpay'                        => 'woo-razorpay/woo-razorpay.php',
+			'mollie-payments-for-woocommerce'     => 'mollie-payments-for-woocommerce/mollie-payments-for-woocommerce.php',
+			'payu-india'                          => 'payu-india/index.php',
+			'mailpoet'                            => 'mailpoet/mailpoet.php',
+			'woocommerce-mercadopago'             => 'woocommerce-mercadopago/woocommerce-mercadopago.php',
+		);
+
+		$plugin_slugs = array();
+
+		foreach ( $activating_plugins as $plugin ) {
+			$path           = isset( $allowed_plugins[ $plugin ] ) ? $allowed_plugins[ $plugin ] : false;
+			$plugin_slugs[] = $path;
+		}
+
+		return $plugin_slugs;
 	}
 
 	/**
