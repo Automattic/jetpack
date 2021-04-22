@@ -58,7 +58,7 @@ describe( 'Search', () => {
 			expect( await homepage.isSearchResultVisible() ).toBeTruthy();
 		} );
 
-		await step( 'Can default show results by relevance', async () => {
+		await step( 'Can sort results by relevance by default', async () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test1</mark> Record 1' );
 		} );
 
