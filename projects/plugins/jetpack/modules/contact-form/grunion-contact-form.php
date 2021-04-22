@@ -168,17 +168,19 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
+		$slug = 'edit.php?post_type=feedback';
 		register_post_type(
 			'feedback', array(
 				'labels'                => array(
-					'name'               => __( 'Contact Form', 'jetpack' ),
-					'singular_name'      => __( 'Contact Form', 'jetpack' ),
-					'search_items'       => __( 'Search Contact Form Feedback', 'jetpack' ),
-					'not_found'          => __( 'No feedback found', 'jetpack' ),
-					'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
+					'name'               => __( 'Form Responses', 'jetpack' ),
+					'singular_name'      => __( 'Form Responses', 'jetpack' ),
+					'search_items'       => __( 'Search Responses', 'jetpack' ),
+					'not_found'          => __( 'No responses found', 'jetpack' ),
+					'not_found_in_trash' => __( 'No responses found', 'jetpack' ),
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
+				'show_in_menu'          => $slug,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
 				'rewrite'               => false,
@@ -201,6 +203,17 @@ class Grunion_Contact_Form_Plugin {
 				'map_meta_cap'          => true,
 			)
 		);
+
+		add_menu_page(
+			__( 'Feedback', 'jetpack' ),
+			__( 'Feedback', 'jetpack' ),
+			'edit_pages',
+			$slug,
+			null,
+			'dashicons-feedback',
+			45
+		);
+		add_action( 'admin_menu', array( $this, 'rename_feedback_menu' ) );
 
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
@@ -241,6 +254,22 @@ class Grunion_Contact_Form_Plugin {
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		self::register_contact_form_blocks();
+	}
+
+	public function rename_feedback_menu() {
+		$slug = 'edit.php?post_type=feedback';
+		remove_submenu_page(
+			$slug,
+			$slug,
+		);
+		add_submenu_page(
+			$slug,
+			__( 'Form Responses', 'jetpack' ),
+			__( 'Form Responses', 'jetpack' ),
+			'edit_pages',
+			$slug,
+			null
+		);
 	}
 
 	private static function register_contact_form_blocks() {
