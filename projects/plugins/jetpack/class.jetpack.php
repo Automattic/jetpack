@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Webhooks as Connection_Webhooks;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -810,6 +811,9 @@ class Jetpack {
 
 		// Make resources use static domain when possible.
 		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
+
+		// Validate the domain names in Jetpack development versions.
+		add_action( 'jetpack_pre_register', array( get_called_class(), 'registration_check_domains' ) );
 	}
 
 	/**
@@ -3497,15 +3501,27 @@ p {
 
 	/**
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
+	 *
+	 * @deprecated since Jetpack 9.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::try_registration()
+	 *
+	 * @return bool|WP_Error
 	 */
 	public static function try_registration() {
-		$terms_of_service = new Terms_Of_Service();
-		// The user has agreed to the TOS at some point by now.
-		$terms_of_service->agree();
+		_deprecated_function( __METHOD__, 'jetpack-9.7', 'Automattic\\Jetpack\\Connection\\Manager::try_registration' );
+		return static::connection()->try_registration();
+	}
 
-		// Let's get some testing in beta versions and such.
-		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
-			// Before attempting to connect, let's make sure that the domains are viable.
+	/**
+	 * Checking the domain names in beta versions.
+	 * If this is a development version, before attempting to connect, let's make sure that the domains are viable.
+	 *
+	 * @param null|\WP_Error $error The domain validation error, or `null` if everything's fine.
+	 *
+	 * @return null|\WP_Error The domain validation error, or `null` if everything's fine.
+	 */
+	public static function registration_check_domains( $error ) {
+		if ( static::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
 			$domains_to_check = array_unique(
 				array(
 					'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
@@ -3513,21 +3529,14 @@ p {
 				)
 			);
 			foreach ( $domains_to_check as $domain ) {
-				$result = self::connection()->is_usable_domain( $domain );
+				$result = static::connection()->is_usable_domain( $domain );
 				if ( is_wp_error( $result ) ) {
 					return $result;
 				}
 			}
 		}
 
-		$result = self::register();
-
-		// If there was an error with registration and the site was not registered, record this so we can show a message.
-		if ( ! $result || is_wp_error( $result ) ) {
-			return $result;
-		} else {
-			return true;
-		}
+		return $error;
 	}
 
 	/**
@@ -4368,7 +4377,7 @@ p {
 					check_admin_referer( 'jetpack-register' );
 					self::log( 'register' );
 					self::maybe_set_version_option();
-					$registered = self::try_registration();
+					$registered = static::connection()->try_registration();
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
@@ -5489,43 +5498,28 @@ endif;
 	}
 
 	/**
+	 * @deprecated since Jetpack 9.7.0
+	 * @see Automattic\Jetpack\Connection\Manager::try_registration()
+	 *
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		$tracking = new Tracking();
-		$tracking->record_user_event( 'jpc_register_begin' );
-
-		add_filter( 'jetpack_register_request_body', array( __CLASS__, 'filter_register_request_body' ) );
-
-		$connection   = self::connection();
-		$registration = $connection->register();
-
-		remove_filter( 'jetpack_register_request_body', array( __CLASS__, 'filter_register_request_body' ) );
-
-		if ( ! $registration || is_wp_error( $registration ) ) {
-			return $registration;
-		}
-
-		return true;
+		_deprecated_function( __METHOD__, 'jetpack-9.7', 'Automattic\\Jetpack\\Connection\\Manager::try_registration' );
+		return static::connection()->try_registration( false );
 	}
 
 	/**
 	 * Filters the registration request body to include tracking properties.
 	 *
+	 * @deprecated since Jetpack 9.7.0
+	 * @see Automattic\Jetpack\Connection\Utils::filter_register_request_body()
+	 *
 	 * @param array $properties
 	 * @return array amended properties.
 	 */
 	public static function filter_register_request_body( $properties ) {
-		$tracking        = new Tracking();
-		$tracks_identity = $tracking->tracks_get_identity( get_current_user_id() );
-
-		return array_merge(
-			$properties,
-			array(
-				'_ui' => $tracks_identity['_ui'],
-				'_ut' => $tracks_identity['_ut'],
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-9.7', 'Automattic\\Jetpack\\Connection\\Utils::filter_register_request_body' );
+		return Connection_Utils::filter_register_request_body( $properties );
 	}
 
 	/**

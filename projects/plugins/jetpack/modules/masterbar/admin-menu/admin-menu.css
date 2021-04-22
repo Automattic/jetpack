@@ -161,6 +161,18 @@
 }
 
 /**
+ * Inline text in a menu title
+ */
+.inline-text {
+	display: block !important;
+	position: absolute;
+	right: 20px;
+	top: 50%;
+	transform: translateY( -50% );
+	opacity: 0.8;
+}
+
+/**
  * Stats
  */
 [class*="toplevel_page_https://wordpress.com/stats/day"] .sidebar-unified__sparkline {

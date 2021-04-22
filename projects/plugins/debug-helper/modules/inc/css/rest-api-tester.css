@@ -40,6 +40,7 @@ Slyling up the REST API Tester
 
 .jetpack-debug-api-tester .api-tester-block.align-right {
 	text-align: right;
+	max-width: 525px;
 }
 
 .jetpack-debug-api-tester .api-tester-block button {

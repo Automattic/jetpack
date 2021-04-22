@@ -115,6 +115,7 @@ class REST_API_Tester {
 				</div>
 
 				<div class="api-tester-block align-right">
+					<sub>Registration Nonce: <?php echo esc_html( wp_create_nonce( 'jetpack-registration-nonce' ) ); ?></sub>&nbsp;
 					<button type="submit" class="button-right" id="api-tester-submit">Send</button>
 				</div>
 

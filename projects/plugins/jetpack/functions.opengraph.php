@@ -255,7 +255,23 @@ function jetpack_og_tags() {
 			if ( empty( $tag_content_single ) ) {
 				continue; // Don't ever output empty tags.
 			}
-			$og_tag = sprintf( '<meta property="%s" content="%s" />', esc_attr( $tag_property ), esc_attr( $tag_content_single ) );
+
+			switch ( $tag_property ) {
+				case 'og:url':
+				case 'og:image':
+				case 'og:image:url':
+				case 'og:image:secure_url':
+				case 'og:audio':
+				case 'og:audio:url':
+				case 'og:audio:secure_url':
+				case 'og:video':
+				case 'og:video:url':
+				case 'og:video:secure_url':
+					$og_tag = sprintf( '<meta property="%s" content="%s" />', esc_attr( $tag_property ), esc_url( $tag_content_single ) );
+					break;
+				default:
+					$og_tag = sprintf( '<meta property="%s" content="%s" />', esc_attr( $tag_property ), esc_attr( $tag_content_single ) );
+			}
 			/**
 			 * Filter the HTML Output of each Open Graph Meta tag.
 			 *

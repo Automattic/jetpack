@@ -321,6 +321,8 @@ new Jetpack_JSON_API_Modules_List_Endpoint(
 		'method'                  => 'GET',
 		'path'                    => '/sites/%s/jetpack/modules',
 		'stat'                    => 'jetpack:modules',
+		'min_version'             => '1',
+		'max_version'             => '1.1',
 		'path_labels'             => array(
 			'$site' => '(int|string) The site ID, The site domain',
 		),
@@ -335,6 +337,31 @@ new Jetpack_JSON_API_Modules_List_Endpoint(
 			),
 		),
 		'example_request'         => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules',
+	)
+);
+
+require_once $json_jetpack_endpoints_dir . 'class-jetpack-json-api-modules-list-v1-2-endpoint.php';
+
+new Jetpack_JSON_API_Modules_List_V1_2_Endpoint(
+	array(
+		'description'             => 'Get the list of available Jetpack modules on your site',
+		'method'                  => 'GET',
+		'path'                    => '/sites/%s/jetpack/modules',
+		'stat'                    => 'jetpack:modules',
+		'min_version'             => '1.2',
+		'path_labels'             => array(
+			'$site' => '(int|string) The site ID, The site domain',
+		),
+		'response_format'         => array(
+			'modules' => '(array) An array of module objects.',
+		),
+		'allow_jetpack_site_auth' => true,
+		'example_request_data'    => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN',
+			),
+		),
+		'example_request'         => 'https://public-api.wordpress.com/rest/v1.2/sites/example.wordpress.org/jetpack/modules',
 	)
 );
 
