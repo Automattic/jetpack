@@ -15,7 +15,12 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
-import { provisionJetpackStartConnection, execShellCommand, execWpCommand } from '../utils-helper';
+import {
+	provisionJetpackStartConnection,
+	execShellCommand,
+	execWpCommand,
+	getAccountCredentials,
+} from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
@@ -32,10 +37,6 @@ const cardCredentials = config.get( 'testCardCredentials' );
  * @param {boolean} o.mockPlanData
  */
 export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData = false } = {} ) {
-	if ( await isBlogTokenSet() ) {
-		return 'already_connected';
-	}
-
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	const jetpackPage = await JetpackPage.init( page );
@@ -133,7 +134,7 @@ export async function loginToWpComIfNeeded( wpComUser, mockPlanData ) {
 	}
 }
 
-async function isBlogTokenSet() {
+export async function isBlogTokenSet() {
 	const cliCmd = 'wp jetpack options get blog_token';
 	const result = await execWpCommand( cliCmd );
 
@@ -156,7 +157,9 @@ export async function connectThroughJetpackStart( {
 		await loginPage.login( wpcomUser );
 	}
 
-	const nextUrl = provisionJetpackStartConnection();
+	const credentials = getAccountCredentials( wpcomUser );
+
+	const nextUrl = provisionJetpackStartConnection( credentials[ 2 ] );
 	// sometimes after clicking on Approve button below user being redirected to wp-login page
 	// maybe waiting for a bit will help?
 	await loginPage.waitForTimeout( 10000 );

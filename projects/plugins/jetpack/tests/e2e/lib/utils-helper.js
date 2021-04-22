@@ -48,16 +48,17 @@ async function prepareUpdaterTest() {
 }
 
 /**
- * Provisions Jetpack plan through Jetpack Start flow
+ * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
+ * @param {number} userId WPCOM user ID
  * @param {string} plan One of free, personal, premium, or professional.
  * @param {string} user Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
+async function provisionJetpackStartConnection( userId, plan = 'free', user = 'admin' ) {
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
-	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl }`;
+	const cmd = `sh ../../../../../tools/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
 
 	const response = execSyncShellCommand( cmd );
 	logger.info( response );
@@ -67,7 +68,10 @@ function provisionJetpackStartConnection( plan = 'professional', user = 'wordpre
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	return json.next_url;
+	await execWpCommand(
+		`wp --user=${ user } jetpack authorize_user --token="${ json.access_token }"`
+	);
+	return true;
 }
 
 /**
