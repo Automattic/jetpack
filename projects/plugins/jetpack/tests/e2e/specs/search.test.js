@@ -106,6 +106,7 @@ describe( 'Search', () => {
 	it( 'Can open and close overlay', async () => {
 		await step( 'Can press enter to to open overlay', async () => {
 			await homepage.pressEnterInSearchInput();
+			await homepage.waitForNetworkIdle();
 
 			expect( await homepage.isOverlayVisible() ).toBeTruthy();
 		} );
