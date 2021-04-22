@@ -83,7 +83,7 @@ describe( 'Search', () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 2' );
 		} );
 
-		await step( 'Can change filtering', async () => {
+		await step( 'Can apply filters', async () => {
 			await homepage.clickFilterCategory2();
 			await homepage.waitForSearchResponse();
 
