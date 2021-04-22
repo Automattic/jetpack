@@ -25,6 +25,20 @@ export function isElementInEditorIframe( elementRef ) {
 }
 
 /**
+ * Returns whether a iframe has domain access to its parent.
+ *
+ * @param   {HTMLElement} currentWindow - The window context for which we want to test access.
+ * @returns {boolean}                   - Whether we have access to the parent window.
+ */
+function canIframeAccessParentWindow( currentWindow ) {
+	try {
+		return !! currentWindow?.parent?.location.href;
+	} catch ( e ) {
+		return false;
+	}
+}
+
+/**
  * This function will check if the current element (e.g., a block) sits inside an Iframe (e.g., the Site Editor)
  * and tries to move elements from the parent window to the iframe.
  *
@@ -42,6 +56,7 @@ export function maybeCopyElementsToSiteEditorContext(
 	elementRef,
 	shouldRemoveSource = false
 ) {
+	let results = [];
 	// Check to see if we're in an iframe, e.g., the Site Editor.
 	// If not, do nothing.
 	if (
@@ -49,12 +64,16 @@ export function maybeCopyElementsToSiteEditorContext(
 		( ! elementSelectors && ! elementSelectors.length ) ||
 		! isElementInEditorIframe( elementRef )
 	) {
-		return;
+		return results;
 	}
 
 	const { currentDoc, currentWindow } = getLoadContext( elementRef );
+
+	if ( ! canIframeAccessParentWindow( currentWindow ) ) {
+		return results;
+	}
+
 	const parentDoc = currentWindow?.parent?.document;
-	let results = [];
 
 	if ( currentDoc && parentDoc ) {
 		results = elementSelectors.filter( selector => {
