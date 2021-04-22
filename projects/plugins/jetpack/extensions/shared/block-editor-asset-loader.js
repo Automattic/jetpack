@@ -32,14 +32,15 @@ export function isElementInIframe( elementRef ) {
  * For use until Gutenberg offers a standardized way of including enqueued/3rd-party assets.
  * Target usage is the Podcast Playerblock: projects/plugins/jetpack/extensions/blocks/podcast-player/.
  *
- * @param   {Array}       elementSelectors - An array of selectors, e.g., [ '#conan', '#robocop' ]
- * @param   {HTMLElement} elementRef       - The current element.
- * @returns {Array}                        - An array of successfully migrated selectors;
+ * @param   {Array}       elementSelectors   - An array of selectors, e.g., [ '#conan', '#robocop' ]
+ * @param   {HTMLElement} elementRef         - The current element.
+ * @param   {boolean}     shouldRemoveSource - Optional. Whether to remove the source element in the parent frame.
+ * @returns {Array}                          - An array of successfully migrated selectors;
  */
-export function maybeCopyElementsToSiteEditorContext( elementSelectors = [], elementRef ) {
+export function maybeCopyElementsToSiteEditorContext( elementSelectors, elementRef, shouldRemoveSource = false ) {
 	// Check to see if we're in an iframe, e.g., the Site Editor.
 	// If not, do nothing.
-	if ( ! elementRef || ! elementSelectors.length || ! isElementInIframe( elementRef ) ) {
+	if ( ! elementRef || ( ! elementSelectors && ! elementSelectors.length ) || ! isElementInIframe( elementRef ) ) {
 		return;
 	}
 
@@ -53,7 +54,9 @@ export function maybeCopyElementsToSiteEditorContext( elementSelectors = [], ele
 			const isElementAlreadyPresentInCurrentWindow = !! currentDoc.querySelector( selector );
 			if ( parentElementToCopy && ! isElementAlreadyPresentInCurrentWindow ) {
 				currentDoc.head.appendChild( parentElementToCopy.cloneNode() );
-				parentElementToCopy.remove();
+				if ( shouldRemoveSource ) {
+					parentElementToCopy.remove();
+				}
 				return true;
 			}
 			return false;
