@@ -41,10 +41,8 @@ function render_block( $attributes, $content ) {
 
 	// The Jetpack Button block depends on the core button block styles.
 	// The following ensures that those styles are enqueued when rendering this block.
-	$core_button = \WP_Block_Type_Registry::get_instance()->get_registered( 'core/button' );
-	if ( isset( $core_button ) && ! empty( $core_button->style ) ) {
-		wp_enqueue_style( $core_button->style );
-	}
+	enqueue_existing_button_style_dependency( 'core/button' );
+	enqueue_existing_button_style_dependency( 'core/buttons' );
 
 	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 
@@ -226,5 +224,21 @@ function get_attribute( $attributes, $attribute_name ) {
 
 	if ( isset( $default_attributes[ $attribute_name ] ) ) {
 		return $default_attributes[ $attribute_name ];
+	}
+}
+
+/**
+ * Enqueue style for an existing block.
+ *
+ * The Jetpack Button block depends on styles from the core button block.
+ * In case that block is not already within the post content, we can use
+ * this function to ensure the block's style assets are enqueued.
+ *
+ * @param string $block_name Block type name including namespace.
+ */
+function enqueue_existing_button_style_dependency( $block_name ) {
+	$existing_block = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+	if ( isset( $existing_block ) && ! empty( $existing_block->style ) ) {
+		wp_enqueue_style( $existing_block->style );
 	}
 }
