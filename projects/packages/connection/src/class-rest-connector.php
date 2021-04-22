@@ -121,6 +121,13 @@ class REST_Connector {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'connection_register' ),
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'args'                => array(
+					'registration_nonce' => array(
+						'type'     => 'string',
+						'required' => true,
+					),
+					'no_iframe'          => array( 'type' => 'boolean' ),
+				),
 			)
 		);
 	}

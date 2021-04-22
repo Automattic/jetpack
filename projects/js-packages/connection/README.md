@@ -3,6 +3,46 @@ Connection Package
 
 The package encapsulates the Connection functionality.
 
+## Component `Main`
+Contains the whole connection flow, including site registration and user authorization.
+
+### Properties
+- *authorizationUrl* - string, the authorization URL.
+- *connectLabel* - string, the "Connect" button label.
+- *inPlaceTitle* - string, the title for the In-Place Connection component.
+- *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
+- *apiRoot* - string (required), API root URL.
+- *apiNonce* - string (required), API Nonce.
+- *registrationNonce* - string (required), registration nonce.
+- *isRegistered* - boolean, whether the site is registered (has blog token).
+- *isUserConnected* - boolean, whether the current user is connected (has user token).
+- *hasConnectedOwner* - boolean, whether the site has connection owner.
+- *onRegistered* - callback, to be called upon registration success.
+- *onUserConnected* - callback, to be called when the connection is fully established.
+- *redirectFunc* - callback, the redirect function (`window.location.assign()` by default).
+
+### Usage
+```jsx
+import React, { useCallback } from 'react';
+import { JetpackConnection } from '@automattic/jetpack-connection';
+
+const onRegistered = useCallback( () => alert( 'Site registered' ) );
+const onUserConnected = useCallback( () => alert( 'User Connected' ) );
+
+<JetpackConnection
+	apiRoot="https://example.org/wp-json/" 
+	apiNonce="12345"
+	registrationNonce="54321"
+	authorizationUrl="https://jetpack.wordpress.com/jetpack.authorize/1/?..."
+	isRegistered={ false }
+	isUserConnected={ false }
+	hasConnectedOwner={ false }
+	forceCalypsoFlow={ false }
+	onRegistered={ onRegistered }
+	onUserConnected={ onUserConnected }
+/>
+```
+
 ## Component `InPlaceConnection`
 It includes:
 - the `iframe` HTML element

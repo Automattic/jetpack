@@ -76,7 +76,7 @@ function JetpackRestApiClient( root, nonce ) {
 
 		registerSite: registrationNonce =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
-				body: JSON.stringify( { registration_nonce: registrationNonce } ),
+				body: JSON.stringify( { registration_nonce: registrationNonce, no_iframe: true } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),

@@ -12,6 +12,26 @@ import PropTypes from 'prop-types';
 import InPlaceConnection from '../in-place-connection';
 import restApi from '../../tools/jetpack-rest-api-client';
 
+/**
+ * The in-place connection component.
+ *
+ * @param {object} props -- The properties.
+ * @param {string} props.authorizationUrl -- The authorization URL.
+ * @param {string} props.connectLabel -- The "Connect" button label.
+ * @param {string} props.inPlaceTitle -- The title for the In-Place Connection component.
+ * @param {boolean} props.forceCalypsoFlow -- Whether to go straight to Calypso flow, skipping the In-Place flow.
+ * @param {string} props.apiRoot -- API root URL, required.
+ * @param {string} props.apiNonce -- API Nonce, required.
+ * @param {string} props.registrationNonce -- Separate registration nonce, required.
+ * @param {boolean} props.isRegistered -- Whether the site is registered (has blog token), required.
+ * @param {boolean} props.isUserConnected -- Whether the current user is connected (has user token), required.
+ * @param {boolean} props.hasConnectedOwner -- Whether the site has connection owner, required.
+ * @param {Function} props.onRegistered -- The callback to be called upon registration success.
+ * @param {Function} props.onUserConnected -- The callback to be called when the connection is fully established.
+ * @param {Function} props.redirectFunc -- The redirect function (`window.location.assign()` by default).
+ *
+ * @returns {React.Component} The in-place connection component.
+ */
 const Main = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
@@ -30,20 +50,38 @@ const Main = props => {
 		redirectFunc,
 	} = props;
 
+	/**
+	 * Initialize the REST API.
+	 */
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const connectUser = useCallback( () => {
-		if ( forceCalypsoFlow ) {
-			redirectFunc( authorizationUrl );
-			return;
-		}
+	/**
+	 * Initialize the user connection process.
+	 */
+	const connectUser = useCallback(
+		url => {
+			url = url || authorizationUrl;
 
-		setIsUserConnecting( true );
-	}, [ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc ] );
+			if ( ! url ) {
+				throw new Error( 'Authorization URL is required' );
+			}
 
+			if ( forceCalypsoFlow ) {
+				redirectFunc( url );
+				return;
+			}
+
+			setIsUserConnecting( true );
+		},
+		[ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc ]
+	);
+
+	/**
+	 * Callback for the user connection success.
+	 */
 	const onUserConnectedCallback = useCallback( () => {
 		setIsUserConnecting( false );
 
@@ -52,6 +90,9 @@ const Main = props => {
 		}
 	}, [ setIsUserConnecting, onUserConnected ] );
 
+	/**
+	 * Initialize the site registration process.
+	 */
 	const registerSite = useCallback(
 		e => {
 			e && e.preventDefault();
@@ -72,7 +113,7 @@ const Main = props => {
 						onRegistered( response );
 					}
 
-					connectUser();
+					connectUser( response.authorizeUrl );
 				} )
 				.catch( error => {
 					throw error;
