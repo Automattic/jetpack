@@ -47,14 +47,13 @@ class Jetpack_Pre_Connection_JITMs {
 			/*
 			 * Add Connect URL to each message, with from including jitm id.
 			 */
-			$jetpack_setup_url = Jetpack::init()->build_connect_url(
-				true,
-				false,
-				sprintf( 'pre-connection-jitm-%s', $message['id'] )
+			$jetpack_setup_url               = $this->generate_admin_url(
+				array(
+					'page'    => 'jetpack',
+					'#/setup' => '',
+					'from'    => sprintf( 'pre-connection-jitm-%s', $message['id'] ),
+				)
 			);
-			// Add parameter to URL. Since we mention accepting ToS when clicking, no need to ask again on wpcom.
-			$jetpack_setup_url = add_query_arg( 'auth_approved', 'true', $jetpack_setup_url );
-
 			$messages[ $key ]['button_link'] = $jetpack_setup_url;
 
 			/*
@@ -67,6 +66,18 @@ class Jetpack_Pre_Connection_JITMs {
 		}
 
 		return $messages;
+	}
+
+	/**
+	 * Adds the input query arguments to the admin url.
+	 *
+	 * @param array $args The query arguments.
+	 *
+	 * @return string The admin url.
+	 */
+	private function generate_admin_url( $args ) {
+		$url = add_query_arg( $args, admin_url( 'admin.php' ) );
+		return $url;
 	}
 
 	/**
