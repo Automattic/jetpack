@@ -206,6 +206,9 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 
 		$dummy_module['module'] = 'woocommerce-analytics';
 		$this->assertSame( 'Requires WooCommerce 3+ plugin', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+
+		$dummy_module['module'] = 'vaultpress';
+		$this->assertSame( '', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 	}
 
 }

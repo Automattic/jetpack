@@ -299,6 +299,27 @@ class Jetpack_Admin {
 			return 'Jetpack is not connected';
 		}
 
+		/**
+		 * We never want to show VaultPress as activatable through Jetpack so return an empty string.
+		 */
+		if ( 'vaultpress' === $module['module'] ) {
+			return '';
+		}
+
+		/*
+		 * WooCommerce Analytics should only be available
+		 * when running WooCommerce 3+
+		 */
+		if (
+			'woocommerce-analytics' === $module['module']
+			&& (
+					! class_exists( 'WooCommerce' )
+					|| version_compare( WC_VERSION, '3.0', '<' )
+				)
+			) {
+			return 'Requires WooCommerce 3+ plugin';
+		}
+
 		/*
 		 * In Offline mode, modules that require a site or user
 		 * level connection should be unavailable.
@@ -314,20 +335,6 @@ class Jetpack_Admin {
 		 */
 		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
 			return 'Requires a connected WordPress.com account';
-		}
-
-		/*
-		 * WooCommerce Analytics should only be available
-		 * when running WooCommerce 3+
-		 */
-		if (
-			'woocommerce-analytics' === $module['module']
-			&& (
-					! class_exists( 'WooCommerce' )
-					|| version_compare( WC_VERSION, '3.0', '<' )
-				)
-			) {
-			return 'Requires WooCommerce 3+ plugin';
 		}
 
 		/*
