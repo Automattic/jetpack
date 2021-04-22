@@ -7,7 +7,7 @@ import { debounce, noop } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useCallback, useEffect, useRef, useReducer } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef, useReducer } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
@@ -45,11 +45,12 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
-import { makeCancellable, __maybeInjectStylesIntoSiteEditor } from './utils';
+import { makeCancellable } from './utils';
 import { fetchPodcastFeed } from './api';
 import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
+import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -93,6 +94,9 @@ const PodcastPlayerEdit = ( {
 	} = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
+
+	const podCastPlayerRef = useRef();
+	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
 
 	// State.
 	const cancellableFetch = useRef();
@@ -156,12 +160,24 @@ const PodcastPlayerEdit = ( {
 		[ replaceWithEmbedBlock, setAttributes ]
 	);
 
+	// Call once on mount or unmount (the return callback).
 	useEffect( () => {
-		__maybeInjectStylesIntoSiteEditor();
 		return () => {
 			cancellableFetch?.current?.cancel?.();
 		};
 	}, [] );
+
+	// The Podcast player audio element requires wpmedialement styles.
+	// These aren't available in the Site Editor context, so we have to copy them in.
+	useEffect( () => {
+		if ( ! hasMigratedStyles && podCastPlayerRef.current ) {
+			maybeCopyElementsToSiteEditorContext(
+				[ 'link#mediaelement-css', 'link#wp-mediaelement-css' ],
+				podCastPlayerRef.current
+			);
+			setHasMigratedStyles( true );
+		}
+	}, [ hasMigratedStyles ] );
 
 	// Load RSS feed initially and when the feed or selected episode changes.
 	useEffect( () => {
@@ -375,7 +391,7 @@ const PodcastPlayerEdit = ( {
 				</PanelColorSettings>
 			</InspectorControls>
 
-			<div id={ playerId } className={ className }>
+			<div id={ playerId } className={ className } ref={ podCastPlayerRef }>
 				<PodcastPlayer
 					playerId={ playerId }
 					attributes={ validatedAttributes }
