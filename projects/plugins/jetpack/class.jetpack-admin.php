@@ -292,13 +292,6 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		/*
-		 * Jetpack not connected.
-		 */
-		if ( ! Jetpack::is_connection_ready() ) {
-			return 'Jetpack is not connected';
-		}
-
 		/**
 		 * We never want to show VaultPress as activatable through Jetpack so return an empty string.
 		 */
@@ -328,6 +321,13 @@ class Jetpack_Admin {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
 				return 'Offline mode';
 			}
+		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return 'Jetpack is not connected';
 		}
 
 		/*
