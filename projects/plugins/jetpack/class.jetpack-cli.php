@@ -1178,8 +1178,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Overrides the siteurl option via the site_url filter, or the WP_SITEURL constant
 	 * [--partner_tracking_id=<partner_tracking_id>]
 	 * : This is an optional ID that a host can pass to help identify a site in logs on WordPress.com
-	 * [--partner_id=<partner_id>]
-	 * : This is an optional ID that a host can pass to help identify that a site was registered via a partner
 	 *
 	 * ## EXAMPLES
 	 *
