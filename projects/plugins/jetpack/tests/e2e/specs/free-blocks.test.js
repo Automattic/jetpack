@@ -4,12 +4,14 @@ import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
 import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
 import { step } from '../lib/env/test-setup';
-const config = require( 'config' );
+import config from 'config';
 
 /**
- // eslint-disable-next-line jsdoc/check-tag-names
  *
  * @group post-connection
+ * @group free-blocks
+ * @group blocks
+ * @group gutenberg
  */
 
 describe( 'Free blocks', () => {
