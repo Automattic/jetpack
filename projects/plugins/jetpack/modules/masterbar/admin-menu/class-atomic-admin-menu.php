@@ -27,6 +27,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 
+		if ( ! $this->is_api_request ) {
+			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
+		}
+
 		add_action(
 			'admin_menu',
 			function () {
@@ -264,6 +268,21 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::add_appearance_menu( $wp_admin_themes, true );
 
 		add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
+	}
+
+	/**
+	 * Override the global submenu_file for theme-install.php page so the WP Admin menu item gets highlighted correctly.
+	 *
+	 * @param string $submenu_file The current pages $submenu_file global variable value.
+	 * @return string | null
+	 */
+	public function override_the_theme_installer( $submenu_file ) {
+		global $pagenow;
+
+		if ( 'themes.php' === $submenu_file && 'theme-install.php' === $pagenow ) {
+			return null;
+		}
+		return $submenu_file;
 	}
 
 	/**
