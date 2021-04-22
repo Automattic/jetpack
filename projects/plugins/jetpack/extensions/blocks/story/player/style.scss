@@ -22,6 +22,8 @@
 	-webkit-tap-highlight-color: transparent;
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
 	transition: box-shadow 0.3s ease-in-out, transform 0.3s cubic-bezier(0.18, 0.14, 0.25, 1);
+	break-inside: avoid;
+	page-break-inside: avoid;
 
 	figure {
 		transition: transform 0.3s cubic-bezier(0.18, 0.14, 0.25, 1);
