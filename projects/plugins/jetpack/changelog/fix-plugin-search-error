@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Feature Hints: avoid Fatal errors when other plugins filter the plugin list.

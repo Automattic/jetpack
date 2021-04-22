@@ -28,7 +28,7 @@ import {
 import { isOfflineMode } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { getUpgradeUrl, isAtomicSite, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
@@ -67,19 +67,6 @@ const renderCard = props => (
 			<p className="jp-dash-item__description">{ props.content }</p>
 		) }
 	</DashItem>
-);
-
-const renderAction = ( url, message ) => (
-	<Card
-		compact
-		key="manage-scan"
-		className="jp-dash-item__manage-in-wpcom"
-		href={ url }
-		target="_blank"
-		rel="noopener noreferrer"
-	>
-		{ message }
-	</Card>
 );
 
 const renderActiveCard = message => {
@@ -271,6 +258,25 @@ class DashScan extends Component {
 		);
 	}
 
+	renderAction( url, message ) {
+		if ( this.props.isAtomicSite ) {
+			return null;
+		}
+
+		return (
+			<Card
+				compact
+				key="manage-scan"
+				className="jp-dash-item__manage-in-wpcom"
+				href={ url }
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				{ message }
+			</Card>
+		);
+	}
+
 	renderThreatsFound( numberOfThreats, dashboardUrl ) {
 		return (
 			<>
@@ -290,7 +296,7 @@ class DashScan extends Component {
 						) }
 					</p>,
 				] ) }
-				{ renderAction( dashboardUrl, __( 'View security scan details', 'jetpack' ) ) }
+				{ this.renderAction( dashboardUrl, __( 'View security scan details', 'jetpack' ) ) }
 			</>
 		);
 	}
@@ -312,7 +318,7 @@ class DashScan extends Component {
 					{ renderActiveCard(
 						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
 					) }
-					{ renderAction(
+					{ this.renderAction(
 						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),
 						__( 'Enter credentials', 'jetpack' )
 					) }
@@ -335,7 +341,7 @@ class DashScan extends Component {
 								'jetpack'
 							)
 						) }
-						{ renderAction(
+						{ this.renderAction(
 							getRedirectUrl( 'calypso-scanner', { site: siteRawUrl } ),
 							__( 'View security scan details', 'jetpack' )
 						) }
@@ -402,6 +408,7 @@ export default connect(
 		const sitePlan = getSitePlan( state );
 
 		return {
+			isAtomicSite: isAtomicSite( state ),
 			isOfflineMode: isOfflineMode( state ),
 			scanStatus: getScanStatus( state ),
 			fetchingScanStatus: isFetchingScanStatus( state ),
