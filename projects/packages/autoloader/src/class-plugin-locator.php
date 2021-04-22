@@ -125,7 +125,7 @@ class Plugin_Locator {
 	 */
 	private function find_activating_plugins_in_woo_request() {
 		// Check for a Woo plugin activation request.
-		if ( false === strpos( $_SERVER['REQUEST_URI'], 'wc-admin/plugins/activate' ) ) {
+		if ( ! isset( $_SERVER['REQUEST_URI'] ) || false === strpos( $_SERVER['REQUEST_URI'], 'wc-admin/plugins/activate' ) ) {
 			return false;
 		}
 
