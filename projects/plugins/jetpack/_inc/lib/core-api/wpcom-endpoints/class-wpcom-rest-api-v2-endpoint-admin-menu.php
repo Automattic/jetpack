@@ -331,21 +331,20 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function prepare_menu_item_url( $url, $parent_slug = '' ) {
-		// Replace special characters with their correct entities e.g. &amp; to &.
-		$url = wp_specialchars_decode( $url );
-
 		// External URLS.
 		if ( preg_match( '/^https?:\/\//', $url ) ) {
 			// Allow URLs pointing to WordPress.com.
 			if ( 0 === strpos( $url, 'https://wordpress.com/' ) ) {
 				// Calypso needs the domain removed so they're not interpreted as external links.
 				$url = str_replace( 'https://wordpress.com', '', $url );
-				return esc_url_raw( $url );
+				// Replace special characters with their correct entities e.g. &amp; to &.
+				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
 			// Allow URLs pointing to Jetpack.com.
 			if ( 0 === strpos( $url, 'https://jetpack.com/' ) ) {
-				return esc_url_raw( $url );
+				// Replace special characters with their correct entities e.g. &amp; to &.
+				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
 			// Disallow other external URLs.
