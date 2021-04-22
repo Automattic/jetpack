@@ -113,8 +113,10 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Upgrades menu.
+	 *
+	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu() {
+	public function add_upgrades_menu( $plan = null ) {
 		global $menu;
 
 		$menu_exists = false;
@@ -126,10 +128,22 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		if ( ! $menu_exists ) {
-			add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
+			if ( $plan ) {
+				// Add display:none as a default for cases when CSS is not loaded.
+				$site_upgrades = '%1$s<span class="inline-text" style="display:none">%2$s</span>';
+				$site_upgrades = sprintf(
+					$site_upgrades,
+					__( 'Upgrades', 'jetpack' ),
+					$plan
+				);
+			} else {
+				$site_upgrades = __( 'Upgrades', 'jetpack' );
+			}
+
+			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 5 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/my-plan/' . $this->domain, null, 5 );
 		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 15 );
 
 		if ( ! $menu_exists ) {

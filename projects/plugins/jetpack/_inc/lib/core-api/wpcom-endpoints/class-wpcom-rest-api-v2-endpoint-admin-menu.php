@@ -153,18 +153,22 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			'title'      => 'Admin Menu',
 			'type'       => 'object',
 			'properties' => array(
-				'count'    => array(
+				'count'      => array(
 					'description' => 'Core/Plugin/Theme update count or unread comments count.',
 					'type'        => 'integer',
 				),
-				'icon'     => array(
+				'icon'       => array(
 					'description' => 'Menu item icon. Dashicon slug or base64-encoded SVG.',
 					'type'        => 'string',
 				),
-				'slug'     => array(
+				'inlineText' => array(
+					'description' => 'Additional text to be added inline with the menu title.',
+					'type'        => 'string',
+				),
+				'slug'       => array(
 					'type' => 'string',
 				),
-				'children' => array(
+				'children'   => array(
 					'items' => array(
 						'count'  => array(
 							'description' => 'Core/Plugin/Theme update count or unread comments count.',
@@ -190,14 +194,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 					),
 					'type'  => 'array',
 				),
-				'title'    => array(
+				'title'      => array(
 					'type' => 'string',
 				),
-				'type'     => array(
+				'type'       => array(
 					'enum' => array( 'separator', 'menu-item' ),
 					'type' => 'string',
 				),
-				'url'      => array(
+				'url'        => array(
 					'format' => 'uri',
 					'type'   => 'string',
 				),
@@ -392,6 +396,19 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( $count > 0 ) {
 				// Keep the counter in the item array.
 				$item['count'] = $count;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if ( false !== strpos( $title, 'inline-text' ) ) {
+			preg_match( '/<span class="inline-text".+\s?>([A-Za-z0-9]+)<\/span>/', $title, $matches );
+
+			$text = $matches[1];
+			if ( $text ) {
+				// Keep the text in the item array.
+				$item['inlineText'] = $text;
 			}
 
 			// Finally remove the markup.
