@@ -376,7 +376,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$url = admin_url( $url );
 		}
 
-		return esc_url_raw( $url );
+		return wp_specialchars_decode( esc_url_raw( $url ) );
 	}
 
 	/**

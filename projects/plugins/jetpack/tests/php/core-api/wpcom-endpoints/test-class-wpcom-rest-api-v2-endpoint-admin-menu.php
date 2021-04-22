@@ -410,13 +410,13 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
+				admin_url( 'admin.php?page=wc-admin&path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
+				admin_url( 'admin.php?page=wc-admin&path=customers' ),
 			),
 			// Disallowed URLs.
 			array(
