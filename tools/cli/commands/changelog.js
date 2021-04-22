@@ -168,6 +168,49 @@ export function changelogDefine( yargs ) {
 					async argv => {
 						await changelogArgs( argv );
 					}
+				)
+				.command(
+					'version [project] [which]',
+					'Displays versions from the changelog and change files',
+					yargAdd => {
+						yargAdd
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.positional( 'which', {
+								describe: 'Version to fetch: previous, current or next',
+								type: 'string',
+							} )
+							.option( 'use-version', {
+								describe:
+									'When fetching the next version, use this instead of the current version in the changelog',
+								type: 'string',
+							} )
+							.option( 'use-significance', {
+								describe:
+									'When fetching the next version, use this significance instead of using the actual change files',
+								type: 'string',
+							} )
+							.option( 'prerelease', {
+								alias: 'p',
+								describe: 'When fetching the next version, include this prerelease suffix',
+								type: 'string',
+							} )
+							.option( 'buildinfo', {
+								alias: 'b',
+								describe: 'When fetching the next version, include this buildinfo suffix',
+								type: 'string',
+							} )
+							.option( 'default-first-version', {
+								describe:
+									'If the changelog is currently empty, guess a "first" version instead of erroring. When used with `current`, makes it work as `next` in that situation.',
+								type: 'string',
+							} );
+					},
+					async argv => {
+						await changelogArgs( argv );
+					}
 				);
 		},
 		async argv => {
@@ -190,11 +233,6 @@ async function changelogCommand( argv ) {
 	const commands = [ 'add', 'validate', 'version', 'write' ];
 	if ( ! commands.includes( argv.cmd ) ) {
 		throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
-	}
-
-	// @todo - add support for version, which will require a bit of tweaking since it has required arguments.
-	if ( argv.cmd === 'version' ) {
-		throw new Error( 'Version not supported yet!' );
 	}
 
 	changelogArgs( argv );
@@ -235,20 +273,45 @@ async function changelogArgs( argv ) {
 		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
 	}
 
-	// Passthrough arguments for "add"
-	if ( argv.args[ 0 ] === 'add' ) {
-		if ( argv.s && argv.t && argv.e ) {
-			argv.args.push( '--no-interaction' );
-		} else if ( argv.s || argv.t || argv.e ) {
-			console.error(
-				chalk.bgRed(
-					'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
-				)
-			);
-		}
+	// Check for required command specific arguements.
+	switch ( argv.args[ 0 ] ) {
+		case 'add':
+			if ( argv.s && argv.t && argv.e ) {
+				argv.args.push( '--no-interaction' );
+			} else if ( argv.s || argv.t || argv.e ) {
+				console.error(
+					chalk.bgRed(
+						'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
+					)
+				);
+			}
+			break;
+		case 'version':
+			if ( ! argv.which ) {
+				argv = await promptVersion( argv );
+				argv.args.push( argv.ver );
+			}
+			break;
 	}
 
 	changeloggerCli( argv );
+}
+
+/**
+ * Prompts for which version to return.
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+async function promptVersion( argv ) {
+	const response = await inquirer.prompt( {
+		type: 'list',
+		name: 'ver',
+		message: 'Which version would you like to get?',
+		choices: [ 'current', 'next', 'previous' ],
+	} );
+	argv.ver = response.ver;
+	return argv;
 }
 
 /**
