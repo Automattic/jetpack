@@ -69,7 +69,7 @@ describe( 'Search', () => {
 			expect( await homepage.getFirstResultTitle() ).toBe( '<mark>Test2</mark> Record 1' );
 		} );
 
-		await step( 'Can change sorting links', async () => {
+		await step( 'Can change sort order', async () => {
 			await homepage.chooseSortingLink( 'newest' );
 			await homepage.waitForSearchResponse();
 
