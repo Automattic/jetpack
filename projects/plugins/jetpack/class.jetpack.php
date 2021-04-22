@@ -4149,13 +4149,21 @@ p {
 					true
 				);
 
+				wp_register_script(
+					'jp-tracks-functions',
+					plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
+					array( 'jp-tracks' ),
+					JETPACK__VERSION,
+					false
+				);
+
 				wp_enqueue_script(
 					'jetpack-deactivate-dialog-js',
 					Assets::get_file_url_for_environment(
 						'_inc/build/jetpack-deactivate-dialog.min.js',
 						'_inc/jetpack-deactivate-dialog.js'
 					),
-					array( 'jquery' ),
+					array( 'jquery', 'jp-tracks-functions' ),
 					JETPACK__VERSION,
 					true
 				);
