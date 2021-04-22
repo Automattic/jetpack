@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Autoloader: detect plugins that are activating via a Woo request.
