@@ -389,12 +389,16 @@ abstract class Base_Admin_Menu {
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
+			if ( count( $menu_item ) < 7 ) {
+				continue;
+			}
+
 			// If the hookname looks to contain a URL than sanitize it by remplacing invalid characters.
 			if ( false !== strpos( $menu_item[5], '://' ) ) {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
 
-			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
 				$svg_items[]   = array(
 					'icon' => $menu_item[6],
 					'id'   => $menu_item[5],
