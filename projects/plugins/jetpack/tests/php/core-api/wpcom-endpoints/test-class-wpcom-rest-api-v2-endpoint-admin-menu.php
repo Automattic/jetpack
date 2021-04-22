@@ -397,7 +397,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
 				'jetpack',
 				null,
-				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+				'https://jetpack.com/redirect/?source=calypso-backups&site=example.org',
 			),
 			// WooCommerce URLs.
 			array(
