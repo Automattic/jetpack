@@ -331,6 +331,9 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return string
 	 */
 	private function prepare_menu_item_url( $url, $parent_slug = '' ) {
+		// Replace special characters with their correct entities e.g. &amp; to &.
+		$url = wp_specialchars_decode( $url );
+
 		// External URLS.
 		if ( preg_match( '/^https?:\/\//', $url ) ) {
 			// Allow URLs pointing to WordPress.com.
