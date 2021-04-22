@@ -842,13 +842,10 @@ class Manager {
 	 * remain public because the call to action comes from the current site, not from
 	 * WordPress.com.
 	 *
-	 * @since 9.7.0 added $from param.
-	 *
 	 * @param String $api_endpoint (optional) an API endpoint to use, defaults to 'register'.
-	 * @param string $from An identifier to track where the registration is coming from. Can also be used to identify a site registred by a partner.
 	 * @return true|WP_Error The error object.
 	 */
-	public function register( $api_endpoint = 'register', $from = '' ) {
+	public function register( $api_endpoint = 'register' ) {
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
@@ -905,7 +902,6 @@ class Manager {
 				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
 				'current_user_email' => wp_get_current_user()->user_email,
 				'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
-				'from'               => $from,
 			)
 		);
 
@@ -996,14 +992,11 @@ class Manager {
 	/**
 	 * Attempts Jetpack registration.
 	 *
-	 * @since 9.7.0 added $from param.
-	 *
-	 * @param bool   $tos_agree Whether the user agreed to TOS.
-	 * @param string $from An identifier to track where the registration is coming from. Can also be used to identify a site registred by a partner.
+	 * @param bool $tos_agree Whether the user agreed to TOS.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function try_registration( $tos_agree = true, $from = '' ) {
+	public function try_registration( $tos_agree = true ) {
 		if ( $tos_agree ) {
 			$terms_of_service = new Terms_Of_Service();
 			$terms_of_service->agree();
@@ -1031,7 +1024,7 @@ class Manager {
 
 		add_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
 
-		$result = $this->register( 'register', $from );
+		$result = $this->register();
 
 		remove_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
 
