@@ -95,7 +95,6 @@ const PodcastPlayerEdit = ( {
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
-	const podCastPlayerRef = useRef();
 	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
 
 	// State.
@@ -169,15 +168,18 @@ const PodcastPlayerEdit = ( {
 
 	// The Podcast player audio element requires wpmedialement styles.
 	// These aren't available in the Site Editor context, so we have to copy them in.
-	useEffect( () => {
-		if ( ! hasMigratedStyles && podCastPlayerRef.current ) {
-			maybeCopyElementsToSiteEditorContext(
-				[ 'link#mediaelement-css', 'link#wp-mediaelement-css' ],
-				podCastPlayerRef.current
-			);
-			setHasMigratedStyles( true );
-		}
-	}, [ hasMigratedStyles ] );
+	const podCastPlayerRef = useCallback(
+		node => {
+			if ( node !== null && ! hasMigratedStyles ) {
+				maybeCopyElementsToSiteEditorContext(
+					[ 'link#mediaelement-css', 'link#wp-mediaelement-css' ],
+					node
+				);
+				setHasMigratedStyles( true );
+			}
+		},
+		[ hasMigratedStyles ]
+	);
 
 	// Load RSS feed initially and when the feed or selected episode changes.
 	useEffect( () => {
