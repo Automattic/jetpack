@@ -33,6 +33,10 @@ if ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) ) {
  */
 function jetpack_blog_display_custom_excerpt( $content ) {
 	$post = get_post();
+	if ( empty( $post ) ) {
+		return $content;
+	}
+
 	if ( empty( $post->post_excerpt ) ) {
 		$text = strip_shortcodes( $post->post_content );
 		$text = str_replace( ']]>', ']]&gt;', $text );
