@@ -118,7 +118,7 @@ describe( 'Search', () => {
 		} );
 	} );
 
-	it( 'Can reflect different result formats', async () => {
+	it( 'Can display different result formats', async () => {
 		await step( 'Can use minimal format', async () => {
 			await homepage.goto( `${ siteUrl }?result_format=minimal` );
 			await homepage.waitForPage();
