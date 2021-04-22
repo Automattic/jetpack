@@ -205,7 +205,6 @@ class Jetpack_Connection_Banner {
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
-				'isUserless'            => ! Jetpack::connection()->has_connected_owner(),
 			)
 		);
 	}
