@@ -882,7 +882,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		// Make sure that the related posts show up.
 		add_filter( 'jetpack_relatedposts_filter_enabled_for_request', '__return_true', 99999 );
-		Jetpack_RelatedPosts::init()->action_frontend_init();
+
+		$jetpack_relatedposts_mock = $this->getMockBuilder( 'Jetpack_RelatedPosts' )
+									->setMethods( array( 'is_fse_theme' ) )
+									->getMock();
+		$jetpack_relatedposts_mock
+			->method( 'is_fse_theme' )
+			->willReturn( false );
+		$jetpack_relatedposts_mock->action_frontend_init();
 
 		$this->post->post_content = 'hello';
 
