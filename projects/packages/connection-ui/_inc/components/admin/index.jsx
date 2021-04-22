@@ -16,7 +16,7 @@ import './style.scss';
 /**
  * The Connection IU Admin App.
  *
- * @returns {object} The header component.
+ * @returns {object} The Admin component.
  */
 export default function Admin() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
