@@ -13,15 +13,15 @@ export function getLoadContext( elementRef ) {
 }
 
 /**
- * Returns whether a given element is contained within an iframe.
- * Useful to check if a block sits inside the Site Editor.
+ * Returns whether a given element is contained within an Editor iframe.
+ * See: https://github.com/WordPress/gutenberg/blob/bee52e68292357011a799f067ad47aa1c1d710e1/packages/block-editor/src/components/iframe/index.js
  *
  * @param   {HTMLElement} elementRef - The element whose context we want to return.
- * @returns {boolean}                - Whether `elementRef` is contained within an iframe.
+ * @returns {boolean}                - Whether `elementRef` is contained within an Editor iframe.
  */
-export function isElementInIframe( elementRef ) {
+export function isElementInEditorIframe( elementRef ) {
 	const { currentWindow } = getLoadContext( elementRef );
-	return currentWindow.self !== currentWindow.top;
+	return currentWindow.name === 'editor-canvas' && currentWindow.self !== currentWindow.top;
 }
 
 /**
@@ -37,10 +37,18 @@ export function isElementInIframe( elementRef ) {
  * @param   {boolean}     shouldRemoveSource - Optional. Whether to remove the source element in the parent frame.
  * @returns {Array}                          - An array of successfully migrated selectors;
  */
-export function maybeCopyElementsToSiteEditorContext( elementSelectors, elementRef, shouldRemoveSource = false ) {
+export function maybeCopyElementsToSiteEditorContext(
+	elementSelectors,
+	elementRef,
+	shouldRemoveSource = false
+) {
 	// Check to see if we're in an iframe, e.g., the Site Editor.
 	// If not, do nothing.
-	if ( ! elementRef || ( ! elementSelectors && ! elementSelectors.length ) || ! isElementInIframe( elementRef ) ) {
+	if (
+		! elementRef ||
+		( ! elementSelectors && ! elementSelectors.length ) ||
+		! isElementInEditorIframe( elementRef )
+	) {
 		return;
 	}
 
