@@ -388,6 +388,9 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
 		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
+
+		// We are safe to remove this page because it does not have any additional information and it's not a main page.
+		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	/**

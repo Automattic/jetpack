@@ -269,9 +269,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_options_menu( $wp_admin );
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
-
-		// We are safe to remove this page because it does not have any additional information and it's not a main page.
-		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	/**
