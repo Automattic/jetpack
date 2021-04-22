@@ -133,14 +133,18 @@ class Jetpack_Admin {
 								? substr( $short_desc, 0, 140 ) . '...'
 								: $short_desc );
 
-				$module_array['module']            = $module;
-				$module_array['activated']         = ( $jetpack_active ? in_array( $module, $active_modules ) : false );
-				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
-				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
-				$module_array['available']         = self::is_module_available( $module_array );
-				$module_array['short_description'] = $short_desc_trunc;
-				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
-				$module_array['override']          = $overrides->get_module_override( $module );
+				$module_array['module'] = $module;
+
+				$is_available = self::is_module_available( $module_array );
+
+				$module_array['activated']          = ( $jetpack_active ? in_array( $module, $active_modules, true ) : false );
+				$module_array['deactivate_nonce']   = wp_create_nonce( 'jetpack_deactivate-' . $module );
+				$module_array['activate_nonce']     = wp_create_nonce( 'jetpack_activate-' . $module );
+				$module_array['available']          = $is_available;
+				$module_array['unavailable_reason'] = $is_available ? '' : self::get_module_unavailable_reason( $module_array );
+				$module_array['short_description']  = $short_desc_trunc;
+				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
+				$module_array['override']           = $overrides->get_module_override( $module );
 
 				ob_start();
 				/**
@@ -271,6 +275,69 @@ class Jetpack_Admin {
 
 		return Jetpack_Plan::supports( $module['module'] );
 
+	}
+
+	/**
+	 * Returns why a module is unavailable.
+	 *
+	 * @param  array $module The module.
+	 * @return string|false A string stating why the module is not available or false if the module is available.
+	 */
+	public static function get_module_unavailable_reason( $module ) {
+		if ( ! is_array( $module ) || empty( $module ) ) {
+			return false;
+		}
+
+		if ( self::is_module_available( $module ) ) {
+			return false;
+		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return 'Jetpack is not connected';
+		}
+
+		/*
+		 * In Offline mode, modules that require a site or user
+		 * level connection should be unavailable.
+		 */
+		if ( ( new Status() )->is_offline_mode() ) {
+			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
+				return 'Offline mode';
+			}
+		}
+
+		/*
+		 * Jetpack connected at a site level only and module requires a user connection.
+		 */
+		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
+			return 'Requires a connected WordPress.com account';
+		}
+
+		/*
+		 * WooCommerce Analytics should only be available
+		 * when running WooCommerce 3+
+		 */
+		if (
+			'woocommerce-analytics' === $module['module']
+			&& (
+					! class_exists( 'WooCommerce' )
+					|| version_compare( WC_VERSION, '3.0', '<' )
+				)
+			) {
+			return 'Requires WooCommerce 3+ plugin';
+		}
+
+		/*
+		 * Plan restrictions.
+		 */
+		if ( ! Jetpack_Plan::supports( $module['module'] ) ) {
+			return 'Not supported by current plan';
+		}
+
+		return '';
 	}
 
 	function handle_unrecognized_action( $action ) {
