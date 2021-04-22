@@ -187,8 +187,9 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
 		Jetpack_Options::update_option( 'id', '123' );
 
+		add_filter( 'jetpack_no_user_testing_mode', '__return_true' );
 		$this->assertSame( 'Requires a connected WordPress.com account', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
-
+		remove_filter( 'jetpack_no_user_testing_mode', '__return_true' );
 		// Mock a user connection.
 		$user = $this->factory->user->create_and_get(
 			array(
