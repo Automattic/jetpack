@@ -3,7 +3,7 @@
  */
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule } from '../lib/utils-helper';
-import Homepage from '../lib/pages/homepage';
+import Homepage from '../lib/pages/search-homepage';
 import { step } from '../lib/env/test-setup';
 import {
 	enableInstantSearch,

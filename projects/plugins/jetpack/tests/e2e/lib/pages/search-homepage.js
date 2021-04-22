@@ -5,7 +5,7 @@ import WpPage from './wp-page';
 import logger from '../logger';
 import { searchResultForTest1, searchResultForTest2 } from '../search-helper';
 
-export default class Homepage extends WpPage {
+export default class SearchHomepage extends WpPage {
 	static SEARCH_API_PATTERN = /^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
 
 	constructor( page ) {
@@ -27,7 +27,7 @@ export default class Homepage extends WpPage {
 	 *
 	 */
 	async searchAPIRoute() {
-		this.page.route( Homepage.SEARCH_API_PATTERN, ( route, request ) => {
+		this.page.route( SearchHomepage.SEARCH_API_PATTERN, ( route, request ) => {
 			logger.info( `intercepted search API call: ${ request.url() }` );
 			const url = new URL( request.url() );
 			const params = url.searchParams;
@@ -136,7 +136,7 @@ export default class Homepage extends WpPage {
 	}
 
 	async waitForSearchResponse() {
-		return this.page.waitForResponse( resp => Homepage.SEARCH_API_PATTERN.test( resp.url() ) );
+		return this.page.waitForResponse( resp => SearchHomepage.SEARCH_API_PATTERN.test( resp.url() ) );
 	}
 
 	async isSortingLinkSelected( sorting = 'relevance' ) {
