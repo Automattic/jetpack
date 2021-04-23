@@ -393,7 +393,7 @@ abstract class Base_Admin_Menu {
 				continue;
 			}
 
-			// If the hookname looks to contain a URL than sanitize it by remplacing invalid characters.
+			// If the hookname contain a URL than sanitize it by replacing invalid characters.
 			if ( false !== strpos( $menu_item[5], '://' ) ) {
 				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
 			}
