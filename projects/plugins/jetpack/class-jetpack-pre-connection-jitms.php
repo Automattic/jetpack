@@ -20,11 +20,11 @@ class Jetpack_Pre_Connection_JITMs {
 	private function get_raw_messages() {
 		$button_caption = __( 'Set up Jetpack', 'jetpack' );
 		/* Translators: placeholders are links. */
-		$media_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com. You can then enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' );
+		$media_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to Site Accelerator.', 'jetpack' );
 		/* Translators: placeholders are links. */
-		$widgets_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com. You’ll then gain access to great additional widgets that display business contact info and maps, blog stats, and top posts', 'jetpack' );
+		$widgets_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to great additional widgets.', 'jetpack' );
 		/* Translators: placeholders are links. */
-		$posts_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and we can start providing you in-depth states about your content and key visitors.', 'jetpack' );
+		$posts_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to in-depth stats about your site.', 'jetpack' );
 
 		$messages = array(
 			array(
