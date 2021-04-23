@@ -278,17 +278,29 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_tools_menu
+	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" off
 	 *
 	 * @covers ::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_tools_menu( false, true );
-
-		// Check Export menu item always links to Calypso.
+		static::$admin_menu->add_tools_menu( false, false );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
 		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+	}
+
+	/**
+	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" on
+	 *
+	 * @covers ::add_tools_menu
+	 */
+	public function test_add_tools_menu_advanced() {
+		global $submenu;
+
+		static::$admin_menu->add_tools_menu( true, true );
+		$this->assertSame( 'import.php', $submenu['tools.php'][3][2] );
+		$this->assertSame( 'export.php', $submenu['tools.php'][4][2] );
 	}
 
 	/**
