@@ -7,7 +7,7 @@
  */
 
 /**
- * Edit and delete transients.
+ * Jetpack transients API.
  *
  * @since 9.7.0
  */
@@ -23,10 +23,9 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 
 	/**
 	 * Called automatically on `rest_api_init()`.
-	 *
-	 * /sites/<blog-id>/transients/$name/delete
 	 */
 	public function register_routes() {
+		// DELETE /sites/<blog-id>/transients/$name route.
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<name>\w{1,172})',
@@ -34,10 +33,14 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_transient' ),
-					'permission_callback' => 'is_user_logged_in',
-					'name'                => array(
-						'description' => __( 'The name of the transient to delete.', 'jetpack' ),
-						'type'        => 'string',
+					'permission_callback' => array( $this, 'delete_transient_permissions_check' ),
+					'args'                => array(
+						'name' => array(
+							'description'       => __( 'The name of the transient to delete.', 'jetpack' ),
+							'required'          => true,
+							'type'              => 'string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
 					),
 				),
 			)
@@ -45,21 +48,24 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	}
 
 	/**
-	 * Delete callback for transient.
+	 * Delete transient callback.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
-	 * @return array|WP_Error
+	 * @return array
 	 */
 	public function delete_transient( \WP_REST_Request $request ) {
-		$name = rawurlencode( $request->get_param( 'name' ) );
+		return array(
+			'success' => delete_transient( $request->get_param( 'name' ) ),
+		);
+	}
 
-		if ( $name ) {
-			return array(
-				'success' => delete_transient( $name ),
-			);
-		} else {
-			return new WP_Error( 'missing_transient', 'No transient provided.' );
-		}
+	/**
+	 * Check if a given request has read access.
+	 *
+	 * @return bool
+	 */
+	public function delete_transient_permissions_check() {
+		return current_user_can( 'read' );
 	}
 }
 
