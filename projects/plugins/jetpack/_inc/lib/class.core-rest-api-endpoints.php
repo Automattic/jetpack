@@ -1736,7 +1736,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		if ( isset( $request['from'] ) ) {
-			Jetpack::connection()->add_params_to_register_request_body( array( 'from' => $request['from'] ) );
+			Jetpack::connection()->add_register_request_param( 'from', (string) $request['from'] );
 		}
 		$response = Jetpack::connection()->try_registration();
 

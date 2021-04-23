@@ -416,7 +416,7 @@ class REST_Connector {
 		}
 
 		if ( isset( $request['from'] ) ) {
-			$this->connection->add_params_to_register_request_body( array( 'from' => $request['from'] ) );
+			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 		}
 		$result = $this->connection->try_registration();
 

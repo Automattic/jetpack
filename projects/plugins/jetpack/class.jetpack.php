@@ -4377,8 +4377,9 @@ p {
 					check_admin_referer( 'jetpack-register' );
 					self::log( 'register' );
 					self::maybe_set_version_option();
-					if ( isset( $_GET['from'] ) ) {
-						static::connection()->add_params_to_register_request_body( array( 'from' => $_GET['from'] ) );
+					$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
+					if ( $from ) {
+						static::connection()->add_register_request_param( 'from', (string) $from );
 					}
 					$registered = static::connection()->try_registration();
 					if ( is_wp_error( $registered ) ) {
