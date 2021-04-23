@@ -43,6 +43,11 @@ const config = {
 		url: 'https://github.com/Automattic/jetpack',
 		mainBranch: 'master',
 	},
+	blocks: {
+		pinterest: {
+			pinId: '689332286716774968',
+		},
+	},
 };
 
 module.exports = config;

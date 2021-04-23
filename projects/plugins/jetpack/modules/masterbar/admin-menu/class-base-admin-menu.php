@@ -133,7 +133,7 @@ abstract class Base_Admin_Menu {
 		if ( $url ) {
 			$this->hide_submenu_page( $slug, $slug );
 
-			if ( ! $this->has_visible_items( $submenu[ $slug ] ) ) {
+			if ( ! isset( $submenu[ $slug ] ) || ! $this->has_visible_items( $submenu[ $slug ] ) ) {
 				$menu_item[2] = $url;
 			}
 		}
@@ -151,7 +151,7 @@ abstract class Base_Admin_Menu {
 		$this->set_menu_item( $menu_item, $menu_position );
 
 		// Only add submenu when there are other submenu items.
-		if ( $url && $this->has_visible_items( $submenu[ $slug ] ) ) {
+		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 

@@ -1,6 +1,6 @@
 {
 	"name": "repo-gardening",
-	"version": "1.2.0-alpha",
+	"version": "1.2.1-alpha",
 	"description": "Manage PR and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -21,7 +21,7 @@
 		"node-fetch": "2.6.1"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.27.0"
+		"@vercel/ncc": "0.28.3"
 	},
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"

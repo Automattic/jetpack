@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Markdown: Fix regression that broke links with single-quoted href attributes.

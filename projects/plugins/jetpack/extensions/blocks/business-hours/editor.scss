@@ -21,12 +21,27 @@
 		}
 	}
 
+	.components-toggle-control__label,
+	.components-base-control__label {
+	  	// Sets labels to 13px for consistency in the Site Editor.
+	  	// The Site Editor iframe doesn't include common styles,
+	  	// from which the font size of the labels are inherited.
+	  	// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
+		font-size: $default-font-size;
+	 }
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
 	.jetpack-business-hours__item {
 		margin-bottom: 0.5em;
 	}
 
 	.business-hours__row {
 		display: flex;
+		line-height: normal;
+		margin-bottom: 4px;
 
 		&.business-hours-row__add,
 		&.business-hours-row__closed {
@@ -36,7 +51,7 @@
 		.business-hours__day {
 			width: 44%;
 			display: flex;
-			align-items: baseline;
+			align-items: start;
 
 			.business-hours__day-name {
 				width: 60%;
@@ -48,6 +63,7 @@
 
 			.components-form-toggle {
 				margin-right: 4px;
+				margin-top: 4px;
 			}
 		}
 
@@ -57,6 +73,10 @@
 			display: flex;
 			align-items: center;
 			flex-wrap: wrap;
+
+			.components-button {
+				padding: 0;
+			}
 
 			.components-base-control {
 				display: inline-block;

@@ -72,6 +72,9 @@ fi
 
 # Add a change file for every project touched in the PR, if any.
 BASE=$PWD
+echo "::group::Monorepo yarn install, for prettier"
+yarn install
+echo "::endgroup::"
 echo "::group::Installing changelogger"
 cd projects/packages/changelogger
 composer update
@@ -117,7 +120,6 @@ fi
 
 # Update deps and lock files.
 echo "::group::Updating dependencies on changed packages"
-yarn install
 tools/check-composer-deps.sh -uv
 echo "::endgroup::"
 

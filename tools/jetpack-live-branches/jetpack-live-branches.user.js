@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.17
+// @version      1.19
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -39,6 +39,8 @@
 			);
 		} else {
 			const contents = `
+			<details>
+				<summary>Expand for JN site options:</summary>
 				<h4>Settings</h4>
 				${ getOptionsList(
 					[
@@ -132,13 +134,25 @@
 						{
 							label: 'Jetpack Debug Helper',
 							name: 'jetpack-debug-helper',
-						}
+						},
 					],
 					33
 				) }
-				<p>
-					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
-				</p>
+
+				<h4>Themes</h4>
+				${ getOptionsList(
+					[
+						{
+							label: 'TT1-Blocks FSE Theme',
+							name: 'tt1-blocks',
+						},
+					],
+					33
+				) }
+			</details>
+			<p>
+				<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
+			</p>
 			`;
 			appendHtml( markdownBody, contents );
 			updateLink();
@@ -165,7 +179,7 @@
 
 		function getOptionsList( options, columnWidth ) {
 			return `
-				<ul style="list-style: none; padding-left: 0; display: flex; flex-wrap: wrap;">
+				<ul style="list-style: none; padding-left: 0; margin-top: 24px; display: flex; flex-wrap: wrap;">
 					${ options
 						.map( option => {
 							return getOption( option, columnWidth );

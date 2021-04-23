@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: E2E tests: fixed incorrect event name logged for hook end
+
+

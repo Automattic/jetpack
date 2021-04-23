@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Connection\Client;
+use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -25,6 +26,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+
+		if ( ! $this->is_api_request ) {
+			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
+		}
 
 		add_action(
 			'admin_menu',
@@ -211,9 +216,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Upgrades menu.
+	 *
+	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu() {
-		parent::add_upgrades_menu();
+	public function add_upgrades_menu( $plan = null ) {
+		$products = Jetpack_Plan::get();
+		if ( array_key_exists( 'product_name_short', $products ) ) {
+			$plan = $products['product_name_short'];
+		}
+		parent::add_upgrades_menu( $plan );
 
 		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
 	}
@@ -257,6 +268,21 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::add_appearance_menu( $wp_admin_themes, true );
 
 		add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
+	}
+
+	/**
+	 * Override the global submenu_file for theme-install.php page so the WP Admin menu item gets highlighted correctly.
+	 *
+	 * @param string $submenu_file The current pages $submenu_file global variable value.
+	 * @return string | null
+	 */
+	public function override_the_theme_installer( $submenu_file ) {
+		global $pagenow;
+
+		if ( 'themes.php' === $submenu_file && 'theme-install.php' === $pagenow ) {
+			return null;
+		}
+		return $submenu_file;
 	}
 
 	/**
