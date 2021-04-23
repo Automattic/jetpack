@@ -31,10 +31,10 @@ if ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) ) {
 /**
  * Apply Content filters.
  */
-function jetpack_blog_display_custom_excerpt( $content ) {
+function jetpack_blog_display_custom_excerpt() {
 	$post = get_post();
 	if ( empty( $post ) ) {
-		return $content;
+		return '';
 	}
 
 	if ( empty( $post->post_excerpt ) ) {
@@ -80,12 +80,16 @@ function jetpack_blog_display_custom_excerpt( $content ) {
 function jetpack_the_content_to_the_excerpt( $content ) {
 	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		if ( post_password_required() ) {
-			$content = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
+			$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
 		} else {
-			$content = jetpack_blog_display_custom_excerpt( $content );
+			$excerpt = jetpack_blog_display_custom_excerpt();
 		}
 	}
-	return $content;
+	if ( empty( $excerpt ) ) {
+		return $content;
+        } else {
+		return $excerpt;
+	}
 }
 
 /**
@@ -122,7 +126,7 @@ function jetpack_the_content_customizer( $content ) {
 		if ( post_password_required() ) {
 			$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
 		} else {
-			$excerpt = jetpack_blog_display_custom_excerpt( $content );
+			$excerpt = jetpack_blog_display_custom_excerpt();
 		}
 	}
 	if ( empty( $excerpt ) ) {
