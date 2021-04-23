@@ -77,6 +77,6 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( array( 'success' => true ), $response->get_data() );
-		$this->assertIsNotArray( get_transient( $this->transient_name ) );
+		$this->assertFalse( get_transient( $this->transient_name ) );
 	}
 }
