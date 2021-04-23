@@ -251,7 +251,16 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			$this->assertSame( 'https://wordpress.com/email/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
+			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][4][2] );
+		} else {
+			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
+		}
 	}
 
 	/**
