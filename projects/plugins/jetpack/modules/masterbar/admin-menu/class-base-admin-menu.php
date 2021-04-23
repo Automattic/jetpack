@@ -348,6 +348,22 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Return the number of existing submenu items under the supplied parent slug.
+	 *
+	 * @param string $parent_slug The slug of the parent menu.
+	 * @return int The number of submenu items under $parent_slug.
+	 */
+	public function get_submenu_item_count( $parent_slug ) {
+		global $submenu;
+
+		if ( empty( $parent_slug ) || empty( $submenu[ $parent_slug ] ) || ! is_array( $submenu[ $parent_slug ] ) ) {
+			return 0;
+		}
+
+		return count( $submenu[ $parent_slug ] );
+	}
+
+	/**
 	 * Adds the given menu item in the specified position.
 	 *
 	 * @param array $item The menu item to add.
