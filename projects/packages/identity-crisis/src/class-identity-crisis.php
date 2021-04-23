@@ -556,6 +556,7 @@ class Identity_Crisis {
 		);
 
 		$tracking = new Tracking();
+		$tracking->register_tracks_scripts();
 		$tracking->enqueue_tracks_scripts();
 	}
 
