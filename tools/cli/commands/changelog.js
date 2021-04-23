@@ -281,7 +281,7 @@ async function changelogArgs( argv ) {
 			} else if ( argv.s || argv.t || argv.e ) {
 				console.error(
 					chalk.bgRed(
-						'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
+						'Need to pass all required arguments for non-interactive mode. Defaulting to interactive mode.'
 					)
 				);
 			}
