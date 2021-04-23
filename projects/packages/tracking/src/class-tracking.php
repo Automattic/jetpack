@@ -88,6 +88,19 @@ class Tracking {
 	}
 
 	/**
+	 * Register script necessary for tracking.
+	 */
+	public function register_tracks_scripts() {
+		wp_register_script(
+			'jp-tracks-functions',
+			Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
+			array( 'jp-tracks' ),
+			self::ASSETS_VERSION,
+			true
+		);
+	}
+
+	/**
 	 * Enqueue script necessary for tracking.
 	 */
 	public function enqueue_tracks_scripts() {

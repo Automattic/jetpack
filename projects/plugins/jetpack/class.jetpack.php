@@ -4158,13 +4158,8 @@ p {
 					true
 				);
 
-				wp_register_script(
-					'jp-tracks-functions',
-					plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-					array( 'jp-tracks' ),
-					JETPACK__VERSION,
-					false
-				);
+				$tracking = new Tracking();
+				$tracking->register_tracks_scripts();
 
 				wp_enqueue_script(
 					'jetpack-deactivate-dialog-js',
