@@ -30,8 +30,20 @@ if ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) ) {
 
 /**
  * Apply Content filters.
+ *
+ * @since 9.7.0 Deprecated $content parameter.
+ *
+ * @param string $content Post content. Deprecated.
  */
-function jetpack_blog_display_custom_excerpt() {
+function jetpack_blog_display_custom_excerpt( $content = '' ) {
+	if ( ! empty( $content ) ) {
+		_doing_it_wrong(
+			'jetpack_blog_display_custom_excerpt',
+			'You do not need to pass a $content parameter anymore.',
+			'jetpack-9.7.0'
+		);
+	}
+
 	$post = get_post();
 	if ( empty( $post ) ) {
 		return '';
