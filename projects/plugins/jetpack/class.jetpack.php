@@ -3381,6 +3381,7 @@ p {
 	 */
 	public static function do_version_bump( $version, $old_version ) {
 		if ( $old_version ) { // For existing Jetpack installations.
+			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
 
 			// If a front end page is visited after the update, the 'wp' action will fire.
 			add_action( 'wp', 'Jetpack::set_update_modal_display' );
@@ -3395,6 +3396,14 @@ p {
 	 */
 	public static function set_update_modal_display() {
 		self::state( 'display_update_modal', true );
+
+	}
+
+	/**
+	 * Enqueues the block library styles.
+	 */
+	public static function enqueue_block_style() {
+		wp_enqueue_style( 'wp-block-library' );
 	}
 
 	/**
