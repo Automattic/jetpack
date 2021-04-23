@@ -87,7 +87,7 @@ function jetpack_the_content_to_the_excerpt( $content ) {
 	}
 	if ( empty( $excerpt ) ) {
 		return $content;
-        } else {
+	} else {
 		return $excerpt;
 	}
 }
