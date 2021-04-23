@@ -239,32 +239,6 @@ async function changelogCommand( argv ) {
 	changelogArgs( argv );
 }
 
-/**
- * Prompts for changelog command if not passed one.
- *
- * @param {argv} argv - the arguments passed.
- * @returns {argv}.
- */
-async function promptCommand( argv ) {
-	const response = await inquirer.prompt( {
-		type: 'list',
-		name: 'cmd',
-		message: 'What changelogger command do you want to run?',
-		choices: [ 'add', 'validate', 'version', 'write' ],
-	} );
-	argv.cmd = response.cmd;
-	return argv;
-}
-
-async function changelogAddPrompt( argv, needChangelog ) {
-	const response = await inquirer.prompt( {
-		type: 'confirm',
-		name: 'useExisting',
-		message: `Found ${needChangelog.length} project(s) that need a changelog. Run changelog wizard for each project?`,
-	} );
-	return response;
-}
-
 async function changelogAdd( argv ) {
 	
 	if (argv._.length <= 2 && argv._[1] === 'add') {
@@ -274,7 +248,13 @@ async function changelogAdd( argv ) {
 			changelogArgs( argv );
 			return;
 		}
-		for ( const proj of needChangelog )
+		for ( const proj of needChangelog ) {
+			argv.project = proj;
+			console.log(
+					chalk.green(`Running changelogger for ${argv.project}`)
+			)
+			await changelogArgs( argv );
+		}
 	 } else {
 		 changelogArgs( argv );
 	 }
@@ -323,31 +303,20 @@ async function changelogArgs( argv ) {
 }
 
 /**
- * Prompt for which changelog to add if we detect changes were made.
+ * Prompts for changelog command if not passed one.
  *
- * @returns {modifiedProjects}
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
  */
-async function changedProjects() {
-	const modifiedProjects = [];
-	const gitFiles = [];
-	const git = simpleGit();
-	const gitStatus = await git.status();
-	const projects = allProjects()
-
-	// Get all files that were worked with (created, deleted, modified, etc)
-	for (const file of gitStatus.files) {
-		gitFiles.push(file.path)
-	}
-
-	// See if any files modified match our project list.
-	for (const proj of projects) {
-		for (const file of gitFiles) {
-			if (file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
-				modifiedProjects.push(proj);
-			}
-		}
-	}
-	return modifiedProjects;
+async function promptCommand( argv ) {
+	const response = await inquirer.prompt( {
+		type: 'list',
+		name: 'cmd',
+		message: 'What changelogger command do you want to run?',
+		choices: [ 'add', 'validate', 'version', 'write' ],
+	} );
+	argv.cmd = response.cmd;
+	return argv;
 }
 
 /**
@@ -365,6 +334,21 @@ async function promptVersion( argv ) {
 	} );
 	argv.ver = response.ver;
 	return argv;
+}
+
+/**
+ * Asks if you want to add changelog files for each.
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+async function changelogAddPrompt( argv, needChangelog ) {
+	const response = await inquirer.prompt( {
+		type: 'confirm',
+		name: 'useExisting',
+		message: `Found ${needChangelog.length} project(s) that need a changelog. Run changelog wizard for each project?`,
+	} );
+	return response;
 }
 
 /**
@@ -404,6 +388,34 @@ async function gitAdd( argv ) {
 			git.add( file );
 		}
 	}
+}
+
+/**
+ * Prompt for which changelog to add if we detect changes were made.
+ *
+ * @returns {modifiedProjects}
+ */
+async function changedProjects() {
+	const modifiedProjects = [];
+	const gitFiles = [];
+	const git = simpleGit();
+	const gitStatus = await git.status();
+	const projects = allProjects()
+
+	// Get all files that were worked with (created, deleted, modified, etc)
+	for (const file of gitStatus.files) {
+		gitFiles.push(file.path)
+	}
+
+	// See if any files modified match our project list.
+	for (const proj of projects) {
+		for (const file of gitFiles) {
+			if (file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
+				modifiedProjects.push(proj);
+			}
+		}
+	}
+	return modifiedProjects;
 }
 
 /**
