@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the a8c-mc-stats package to generate stats.

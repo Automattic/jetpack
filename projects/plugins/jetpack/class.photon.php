@@ -751,8 +751,8 @@ class Jetpack_Photon {
 				}
 
 				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
-					$image_args['width']  = $image_meta['width'];
-					$image_args['height'] = $image_meta['height'];
+					$image_args['width']  = (int) $image_meta['width'];
+					$image_args['height'] = (int) $image_meta['height'];
 
 					list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size, 'display' );
 					$has_size_meta                                      = true;
@@ -922,7 +922,7 @@ class Jetpack_Photon {
 
 			$args = array();
 			if ( 'w' === $source['descriptor'] ) {
-				if ( $height && ( $source['value'] === $width ) ) {
+				if ( $height && ( (int) $source['value'] === $width ) ) {
 					$args['resize'] = $width . ',' . $height;
 				} else {
 					$args['w'] = $source['value'];

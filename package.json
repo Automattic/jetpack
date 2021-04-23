@@ -28,7 +28,9 @@
 		"clean": "yarn clean-jetpack && yarn clean-composer",
 		"clean-composer": "rm -rf vendor/",
 		"clean-jetpack": "cd projects/plugins/jetpack && yarn clean",
+		"cli-install": "cd tools/cli && yarn install",
 		"cli-link": "yarn jetpack cli link",
+		"cli-setup": "yarn cli-install && yarn cli-link",
 		"cli-unlink": "yarn jetpack cli unlink",
 		"distclean": "rm -rf node_modules && yarn clean-composer && yarn distclean-jetpack",
 		"distclean-jetpack": "cd projects/plugins/jetpack && yarn distclean",
@@ -92,6 +94,9 @@
 		"**/node-notifier": "^8.0.1",
 		"**/tar-stream/bl": "^4.0.0",
 		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0"
+	},
+	"dependencies": {
+		"simple-git": "2.37.0"
 	},
 	"devDependencies": {
 		"@babel/core": "7.12.10",

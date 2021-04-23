@@ -413,8 +413,12 @@ class Jetpack_Connection_Banner {
 
 				<?php endif; ?>
 
-				<div class="jp-connect-full__step-header">
+				<div id="jp-connect-full__step1-header" class="jp-connect-full__step-header">
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
+				</div>
+
+				<div id="jp-connect-full__step2-header" class="jp-connect-full__step-header">
+					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Jetpack is activated!', 'jetpack' ); ?><br /><?php esc_html_e( 'Unlock more amazing features by connecting a user account', 'jetpack' ); ?></h2>
 				</div>
 
 				<p class="jp-connect-full__tos-blurb">

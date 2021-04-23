@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Calendly Block: Remove excess height in the placeholder state in the editor UI.

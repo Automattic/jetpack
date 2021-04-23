@@ -4,7 +4,7 @@ const os = require( 'os' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const logger = require( '../logger' ).default;
+const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
@@ -43,10 +43,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async handleTestEvent( event ) {
 		let eventName;
 
-		if ( event.test ) {
-			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
-		} else if ( event.hook ) {
+		if ( event.hook ) {
 			eventName = `${ event.hook.type } - ${ event.hook.parent.name }`;
+		} else if ( event.test ) {
+			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
 		} else {
 			eventName = event.name;
 		}

@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Open Graph Tags: Properly encode URLs in OG tags
