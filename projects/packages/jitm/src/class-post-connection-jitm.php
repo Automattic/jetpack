@@ -479,6 +479,11 @@ class Post_Connection_JITM extends JITM {
 				$url_params['aff'] = $aff;
 			}
 
+			// Check if the current user has connected their WP.com account
+			// and if not add this information to the the array of URL parameters.
+			if ( ! ( new Manager() )->is_user_connected( $user->ID ) ) {
+				$url_params['unlinked'] = 1;
+			}
 			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
 
 			$stats = new A8c_Mc_Stats();
