@@ -235,12 +235,11 @@ function jetpack_get_migration_data( $option_name ) {
  * Prints a TOS blurb used throughout the connection prompts.
  *
  * @since 5.3
- * @since 9.7.0 Added new echo parameter.
  *
- * @param bool $echo Should we echo or return string. Default to true.
+ * @echo string
  */
-function jetpack_render_tos_blurb( $echo = true ) {
-	$tos_blurb = sprintf(
+function jetpack_render_tos_blurb() {
+	printf(
 		wp_kses(
 			/* Translators: placeholders are links. */
 			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
@@ -256,12 +255,6 @@ function jetpack_render_tos_blurb( $echo = true ) {
 		esc_url( Redirect::get_url( 'wpcom-tos' ) ),
 		esc_url( Redirect::get_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
 	);
-
-	if ( $echo ) {
-		echo $tos_blurb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaping done above.
-	} else {
-		return $tos_blurb;
-	}
 }
 
 /**
