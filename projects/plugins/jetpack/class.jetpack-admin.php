@@ -141,7 +141,7 @@ class Jetpack_Admin {
 				$module_array['deactivate_nonce']   = wp_create_nonce( 'jetpack_deactivate-' . $module );
 				$module_array['activate_nonce']     = wp_create_nonce( 'jetpack_activate-' . $module );
 				$module_array['available']          = $is_available;
-				$module_array['unavailable_reason'] = $is_available ? '' : self::get_module_unavailable_reason( $module_array );
+				$module_array['unavailable_reason'] = $is_available ? false : self::get_module_unavailable_reason( $module_array );
 				$module_array['short_description']  = $short_desc_trunc;
 				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
 				$module_array['override']           = $overrides->get_module_override( $module );
