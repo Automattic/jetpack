@@ -1,6 +1,6 @@
-import { createLogger, format, transports, addColors } from 'winston';
-import config from 'config';
-import path from 'path';
+const { createLogger, format, transports, addColors } = require( 'winston' );
+const config = require( 'config' );
+const path = require( 'path' );
 
 const LEVEL = Symbol.for( 'level' );
 
@@ -58,7 +58,8 @@ const stringFormat = format.combine(
 	format.uncolorize()
 );
 
-const logger = createLogger( {
+// eslint-disable-next-line no-unused-vars
+const logger = ( module.exports = createLogger( {
 	levels: myCustomLevels.levels,
 	format: format.combine(
 		format.timestamp( {
@@ -74,17 +75,17 @@ const logger = createLogger( {
 		// - Write all logs error (and below) to `quick-start-error.log`.
 		//
 		new transports.File( {
-			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-json.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-json.log' ),
 			format: format.uncolorize(),
 		} ),
 		new transports.File( {
-			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-simple.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-simple.log' ),
 			format: stringFormat,
 			level: 'debug',
 		} ),
 		// Slack specific logging transport that is used later to send a report to slack.
 		new transports.File( {
-			filename: path.resolve( config.get( 'testOutputDir' ), 'logs/e2e-slack.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-slack.log' ),
 			level: 'slack',
 
 			format: format.combine(
@@ -123,6 +124,4 @@ const logger = createLogger( {
 			level: consoleLogLevel,
 		} ),
 	],
-} );
-
-export default logger;
+} ) );

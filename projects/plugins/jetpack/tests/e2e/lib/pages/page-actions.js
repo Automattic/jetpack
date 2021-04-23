@@ -1,6 +1,7 @@
 import logger from '../logger';
 import fs from 'fs';
 import chalk from 'chalk';
+import config from 'config';
 import { pwBrowserOptions } from '../../playwright.config';
 
 /**
@@ -119,7 +120,7 @@ export default class PageActions {
 	 */
 	async saveCurrentStorageState() {
 		const storage = await this.page.context().storageState();
-		fs.writeFileSync( 'config/storage.json', JSON.stringify( storage ) );
+		fs.writeFileSync( config.get( 'temp.storage' ), JSON.stringify( storage ) );
 	}
 
 	/**
@@ -316,6 +317,18 @@ export default class PageActions {
 	async hover( selector, options = {} ) {
 		logger.action( `Hovering over '${ selector }' element` );
 		await this.page.selectOption( selector, options );
+	}
+
+	/**
+	 * Returns whether an element with the given selector is checked.
+	 *
+	 * @param {string} selector
+	 * @param {number} timeout
+	 * @return {Promise<boolean>} true if element is checked, false otherwise
+	 */
+	async isElementChecked( selector, timeout = this.timeout ) {
+		logger.action( `Checking if element '${ selector }' is checked` );
+		return await this.page.isChecked( selector, { timeout } );
 	}
 
 	// endregion

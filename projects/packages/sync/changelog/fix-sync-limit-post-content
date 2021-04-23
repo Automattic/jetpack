@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Impose a max limit of 5MB on post_content that can be synced.

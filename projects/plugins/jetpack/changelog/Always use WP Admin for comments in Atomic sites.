@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Always use WP Admin for comments in Atomic sites.

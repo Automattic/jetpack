@@ -73,7 +73,8 @@ function render_block( $attributes, $content ) {
 		return $stripe_nudge . $content;
 	}
 
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	// We don't use FEATURE_NAME here because styles are not in /container folder.
+	Jetpack_Gutenberg::load_styles_as_required( 'premium-content' );
 	return $content;
 }
 

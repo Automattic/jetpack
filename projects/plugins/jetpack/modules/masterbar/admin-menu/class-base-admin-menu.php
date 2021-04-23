@@ -35,12 +35,21 @@ abstract class Base_Admin_Menu {
 	protected $domain;
 
 	/**
+	 * The CSS classes used to hide the submenu items in navigation.
+	 *
+	 * @var string
+	 */
+	const HIDE_CSS_CLASS = 'hide-if-js';
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99998 );
-		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99999 );
+		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
+		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
 		$this->domain = ( new Status() )->get_site_suffix();
@@ -122,8 +131,9 @@ abstract class Base_Admin_Menu {
 
 		// Change parent slug only if there are no submenus (the slug of the 1st submenu will be used if there are submenus).
 		if ( $url ) {
-			remove_submenu_page( $slug, $slug );
-			if ( empty( $submenu[ $slug ] ) ) {
+			$this->hide_submenu_page( $slug, $slug );
+
+			if ( ! isset( $submenu[ $slug ] ) || ! $this->has_visible_items( $submenu[ $slug ] ) ) {
 				$menu_item[2] = $url;
 			}
 		}
@@ -133,16 +143,15 @@ abstract class Base_Admin_Menu {
 			$menu_item[6] = $icon;
 		}
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		unset( $menu[ $menu_position ] );
 		if ( $position ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			unset( $menu[ $menu_position ] );
 			$menu_position = $position;
 		}
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $menu_position ] = $menu_item;
+		$this->set_menu_item( $menu_item, $menu_position );
 
 		// Only add submenu when there are other submenu items.
-		if ( $url && ! empty( $submenu[ $slug ] ) ) {
+		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -151,6 +160,8 @@ abstract class Base_Admin_Menu {
 
 	/**
 	 * Updates the submenus of the given menu slug.
+	 *
+	 * It hides the menu by adding the `hide-if-js` css class and duplicates the submenu with the new slug.
 	 *
 	 * @param string $slug Menu slug.
 	 * @param array  $submenus_to_update Array of new submenu slugs.
@@ -162,12 +173,47 @@ abstract class Base_Admin_Menu {
 			return;
 		}
 
-		foreach ( $submenu[ $slug ] as $i => $submenu_item ) {
-			if ( array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
-				$submenu_item[2] = $submenus_to_update[ $submenu_item[2] ];
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$submenu[ $slug ][ $i ] = $submenu_item;
+		// This is needed for cases when the submenus to update have the same new slug.
+		$submenus_to_update = array_filter(
+			$submenus_to_update,
+			static function ( $item, $old_slug ) {
+				return $item !== $old_slug;
+			},
+			ARRAY_FILTER_USE_BOTH
+		);
+
+		/**
+		 * Iterate over all submenu items and add the hide the submenus with CSS classes.
+		 * This is done separately of the second foreach because the position of the submenu might change.
+		 */
+		foreach ( $submenu[ $slug ] as $index => $item ) {
+			if ( ! array_key_exists( $item[2], $submenus_to_update ) ) {
+				continue;
 			}
+
+			$this->hide_submenu_element( $index, $slug, $item );
+		}
+
+		$submenu_items = array_values( $submenu[ $slug ] );
+
+		/**
+		 * Iterate again over the submenu array. We need a copy of the array because add_submenu_page will add new elements
+		 * to submenu array that might cause an infinite loop.
+		 */
+		foreach ( $submenu_items as $i => $submenu_item ) {
+			if ( ! array_key_exists( $submenu_item[2], $submenus_to_update ) ) {
+				continue;
+			}
+
+			add_submenu_page(
+				$slug,
+				isset( $submenu_item[3] ) ? $submenu_item[3] : '',
+				isset( $submenu_item[0] ) ? $submenu_item[0] : '',
+				isset( $submenu_item[1] ) ? $submenu_item[1] : 'read',
+				$submenus_to_update[ $submenu_item[2] ],
+				'',
+				$i
+			);
 		}
 	}
 
@@ -178,36 +224,41 @@ abstract class Base_Admin_Menu {
 	 * @param string $cap Optional. The capability required for this menu to be displayed to the user.
 	 *                         Default: 'read'.
 	 */
-	public function add_admin_menu_separator( $position, $cap = 'read' ) {
-		global $menu;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$menu[ $position ] = array(
+	public function add_admin_menu_separator( $position = null, $cap = 'read' ) {
+		$menu_item = array(
 			'',                                  // Menu title (ignored).
 			$cap,                                // Required capability.
 			wp_unique_id( 'separator-custom-' ), // URL or file (ignored, but must be unique).
 			'',                                  // Page title (ignored).
 			'wp-menu-separator',                 // CSS class. Identifies this item as a separator.
 		);
-		ksort( $menu );
+
+		$this->set_menu_item( $menu_item, $position );
 	}
 
 	/**
 	 * Enqueues scripts and styles.
 	 */
 	public function enqueue_scripts() {
-		$rtl = is_rtl() ? '-rtl' : '';
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$style_dependencies = array( 'wpcom-admin-bar', 'wpcom-masterbar-css' );
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+		if ( $this->is_rtl() ) {
+			if ( $is_wpcom ) {
+				$css_path = 'rtl/admin-menu-rtl.css';
+			} else {
+				$css_path = 'admin-menu-rtl.css';
+			}
 		} else {
-			$style_dependencies = array( 'a8c-wpcom-masterbar' . $rtl, 'a8c-wpcom-masterbar-overrides' . $rtl );
+			$css_path = 'admin-menu.css';
 		}
+
 		wp_enqueue_style(
 			'jetpack-admin-menu',
-			plugins_url( 'admin-menu.css', __FILE__ ),
-			$style_dependencies,
+			plugins_url( $css_path, __FILE__ ),
+			array(),
 			JETPACK__VERSION
 		);
+
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
@@ -218,16 +269,177 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Remove submenu items from given menu slug.
-	 *
-	 * @param string $slug Menu slug.
+	 * Injects inline-styles for site icon for when third-party plugins remove enqueued stylesheets.
+	 * Unable to use wp_add_inline_style as plugins remove styles from all non-standard handles
 	 */
-	public function remove_submenus( $slug ) {
+	public function set_site_icon_inline_styles() {
+		echo '<style>
+			#adminmenu .toplevel_page_site-card .wp-menu-image,
+			#adminmenu .toplevel_page_site-card .wp-menu-image img {
+				height: 32px;
+				width: 32px;
+			}
+		</style>';
+	}
+
+	/**
+	 * Hide the submenu page based on slug and return the item that was hidden.
+	 *
+	 * Instead of actually removing the submenu item, a safer approach is to hide it and filter it in the API response.
+	 * In this manner we'll avoid breaking third-party plugins depending on items that no longer exist.
+	 *
+	 * A false|array value is returned to be consistent with remove_submenu_page() function
+	 *
+	 * @param string $menu_slug The parent menu slug.
+	 * @param string $submenu_slug The submenu slug that should be hidden.
+	 * @return false|array
+	 */
+	public function hide_submenu_page( $menu_slug, $submenu_slug ) {
 		global $submenu;
 
-		if ( isset( $submenu[ $slug ] ) ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu[ $slug ] = array();
+		if ( ! isset( $submenu[ $menu_slug ] ) ) {
+			return false;
+		}
+
+		foreach ( $submenu[ $menu_slug ] as $i => $item ) {
+			if ( $submenu_slug !== $item[2] ) {
+				continue;
+			}
+
+			$this->hide_submenu_element( $i, $menu_slug, $item );
+
+			return $item;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Apply the hide-if-js CSS class to a submenu item.
+	 *
+	 * @param int    $index The position of a submenu item in the submenu array.
+	 * @param string $parent_slug The parent slug.
+	 * @param array  $item The submenu item.
+	 */
+	public function hide_submenu_element( $index, $parent_slug, $item ) {
+		global $submenu;
+
+		$css_classes = empty( $item[4] ) ? self::HIDE_CSS_CLASS : $item[4] . ' ' . self::HIDE_CSS_CLASS;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu [ $parent_slug ][ $index ][4] = $css_classes;
+	}
+
+	/**
+	 * Check if the menu has submenu items visible
+	 *
+	 * @param array $submenu_items The submenu items.
+	 * @return bool
+	 */
+	public function has_visible_items( $submenu_items ) {
+		$visible_items = array_filter(
+			$submenu_items,
+			static function ( $item ) {
+				return empty( $item[4] ) || strpos( $item[4], self::HIDE_CSS_CLASS ) === false;
+			}
+		);
+
+		return array() !== $visible_items;
+	}
+
+	/**
+	 * Return the number of existing submenu items under the supplied parent slug.
+	 *
+	 * @param string $parent_slug The slug of the parent menu.
+	 * @return int The number of submenu items under $parent_slug.
+	 */
+	public function get_submenu_item_count( $parent_slug ) {
+		global $submenu;
+
+		if ( empty( $parent_slug ) || empty( $submenu[ $parent_slug ] ) || ! is_array( $submenu[ $parent_slug ] ) ) {
+			return 0;
+		}
+
+		return count( $submenu[ $parent_slug ] );
+	}
+
+	/**
+	 * Adds the given menu item in the specified position.
+	 *
+	 * @param array $item The menu item to add.
+	 * @param int   $position The position in the menu order this item should appear.
+	 */
+	public function set_menu_item( $item, $position = null ) {
+		global $menu;
+
+		// Handle position (avoids overwriting menu items already populated in the given position).
+		// Inspired by https://core.trac.wordpress.org/browser/trunk/src/wp-admin/menu.php?rev=49837#L160.
+		if ( null === $position ) {
+			$menu[] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		} elseif ( isset( $menu[ "$position" ] ) ) {
+			$position            = $position + substr( base_convert( md5( $item[2] . $item[0] ), 16, 10 ), -5 ) * 0.00001;
+			$menu[ "$position" ] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		} else {
+			$menu[ $position ] = $item; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+	}
+
+	/**
+	 * Determines whether the current locale is right-to-left (RTL).
+	 */
+	public function is_rtl() {
+		return is_rtl();
+	}
+
+	/**
+	 * Checks for any SVG icons in the menu, and overrides things so that
+	 * we can display the icon in the correct colour for the theme.
+	 */
+	public function override_svg_icons() {
+		global $menu;
+
+		// Only do this if we're not in an API request, as we override the $menu global.
+		if ( $this->is_api_request ) {
+			return;
+		}
+
+		$svg_items = array();
+		foreach ( $menu as $idx => $menu_item ) {
+			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+				$svg_items[] = array(
+					'icon' => $menu[ $idx ][6],
+					'id'   => $menu[ $idx ][5],
+				);
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $idx ][6] = 'none';
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $idx ][4] .= ' menu-svg-icon';
+			}
+		}
+		if ( count( $svg_items ) > 0 ) {
+			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
+			foreach ( $svg_items as $svg_item ) {
+				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
+			}
+			$styles .= '@supports ( mask-image: none ) or ( -webkit-mask-image: none ) { ';
+			$styles .= '.menu-svg-icon .wp-menu-image { background-image: none; } ';
+			$styles .= '.menu-svg-icon .wp-menu-image::before { background-color: currentColor; ';
+			$styles .= 'mask-size: contain; mask-position: center center; mask-repeat: no-repeat; ';
+			$styles .= '-webkit-mask-size: contain; -webkit-mask-position: center center; -webkit-mask-repeat: no-repeat; content:"" } ';
+			foreach ( $svg_items as $svg_item ) {
+				$styles .= sprintf(
+					'#%s .wp-menu-image { background-image: none; } #%s .wp-menu-image::before{ mask-image: url( "%s" ); -webkit-mask-image: url( "%s" ) }',
+					$svg_item['id'],
+					$svg_item['id'],
+					$svg_item['icon'],
+					$svg_item['icon']
+				);
+			}
+			$styles .= '}';
+
+			wp_register_style( 'svg-menu-overrides', false, array(), '20210331' );
+			wp_enqueue_style( 'svg-menu-overrides' );
+			wp_add_inline_style( 'svg-menu-overrides', $styles );
 		}
 	}
 

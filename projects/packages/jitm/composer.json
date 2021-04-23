@@ -4,8 +4,9 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-a8c-mc-stats": "^1.4",
 		"automattic/jetpack-assets": "^1.11",
-		"automattic/jetpack-connection": "^1.25",
+		"automattic/jetpack-connection": "^1.26",
 		"automattic/jetpack-logo": "^1.5",
 		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-options": "^1.12",
@@ -17,7 +18,7 @@
 	"require-dev": {
 		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -57,6 +58,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-jitm",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-jitm.php"
@@ -65,7 +67,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.14.x-dev"
+			"dev-master": "1.15.x-dev"
 		}
 	}
 }

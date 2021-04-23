@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Do not load modules that require a user when in user-less state

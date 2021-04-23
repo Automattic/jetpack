@@ -7,10 +7,19 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Connection Manager functionality testing.
  */
 class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
+
+	/**
+	 * The connection manager.
+	 *
+	 * @var Manager
+	 */
+	private $manager;
 
 	/**
 	 * Initialize the object before running the test method.
@@ -522,6 +531,24 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			'connected, has connected_user, master_user option is not set'     => array( true, true, false, false ),
 			'connected, no connected_user, master_user option is not set'      => array( true, false, false, true ),
 		);
+	}
+
+	/**
+	 * Test the `try_registration()` method.
+	 *
+	 * @see Manager::try_registration()
+	 */
+	public function test_try_registration() {
+		add_filter( 'pre_http_request', array( Test_REST_Endpoints::class, 'intercept_register_request' ), 10, 3 );
+		set_transient( 'jetpack_assumed_site_creation_date', '2021-01-01 01:01:01' );
+		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
+
+		$result = $this->manager->try_registration();
+
+		remove_filter( 'pre_http_request', array( Test_REST_Endpoints::class, 'intercept_register_request' ), 10 );
+		delete_transient( 'jetpack_assumed_site_creation_date' );
+
+		static::assertTrue( $result );
 	}
 
 }

@@ -24,8 +24,10 @@
 set -eo pipefail
 
 if [[ -n "$CI" ]]; then
-	git config --global user.name "$USER_NAME"
-	git config --global user.email "${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
+	export GIT_AUTHOR_NAME="$USER_NAME"
+	export GIT_AUTHOR_EMAIL="${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
+	export GIT_COMMITTER_NAME="$USER_NAME"
+	export GIT_COMMITTER_EMAIL="${USER_EMAIL:-${USER_NAME}@users.noreply.github.com}"
 fi
 
 if [[ -z "$BUILD_BASE" ]]; then
@@ -74,7 +76,9 @@ while read -r GIT_SLUG; do
 	# Initialize the directory as a git repo, and set the remote
 	echo "::group::Fetching ${GIT_SLUG}"
 	git init -b "$BRANCH" .
-	git remote add origin "https://$API_TOKEN_GITHUB@github.com/${GIT_SLUG}.git"
+	git remote add origin "https://github.com/${GIT_SLUG}"
+	git config --local http.https://github.com/.extraheader "AUTHORIZATION: basic $(printf "x-access-token:%s" "$API_TOKEN_GITHUB" | base64)"
+
 	FORCE_COMMIT=
 	if git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=1 origin "$BRANCH"; then
 		git reset --soft FETCH_HEAD

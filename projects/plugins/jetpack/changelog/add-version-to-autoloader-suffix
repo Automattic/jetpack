@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Autoloader: Use a different suffix for each release to fix #19472.

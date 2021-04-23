@@ -6,6 +6,7 @@
  * Recommendation Order: 4
  * First Introduced: 3.4
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Security
@@ -13,7 +14,6 @@
  */
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -901,6 +901,6 @@ class Jetpack_Protect_Module {
 $jetpack_protect = Jetpack_Protect_Module::instance();
 
 global $pagenow;
-if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
+if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
 	$jetpack_protect->check_login_ability();
 }
