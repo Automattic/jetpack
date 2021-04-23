@@ -49,6 +49,50 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Can the banner be displayed for the given screen?
+	 *
+	 * @param \WP_Screen $current_screen Current WordPress screen.
+	 *
+	 * @return bool
+	 */
+	public static function can_be_displayed( $current_screen ) {
+		$has_connected_owner = Jetpack::connection()->has_connected_owner();
+		$is_connected        = Jetpack::is_connection_ready();
+		$has_licenses        = ! empty( Licensing::instance()->stored_licenses() );
+
+		// Don't show the connect notice if the site has a connected owner.
+		if ( $has_connected_owner ) {
+			return false;
+		}
+
+		// Don't show the connect notice if a userless connection is established and there are no stored licenses.
+		// Stored licenses indicate that a purchased product may not be provisioned yet hence we need to keep
+		// showing the notice to nudge the user to connect in order to have their product(s) provisioned.
+		if ( $is_connected && ! $has_licenses ) {
+			return false;
+		}
+
+		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
+		if (
+			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			! self::force_display()
+		) {
+			return false;
+		}
+
+		// Don't show the connect notice anywhere but the plugins.php after activating.
+		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Given a string for the the banner was added, and an int that represents the slide to
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
@@ -84,40 +128,11 @@ class Jetpack_Connection_Banner {
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
-		$has_connected_owner = Jetpack::connection()->has_connected_owner();
-		$is_connected        = ( new Status() )->is_no_user_testing_mode() ? Jetpack::connection()->is_connected() : $has_connected_owner;
-		$has_licenses        = ! empty( Licensing::instance()->stored_licenses() );
-
-		// Don't show the connect notice if the site has a connected owner.
-		if ( $has_connected_owner ) {
+		if ( ! self::can_be_displayed( $current_screen ) ) {
 			return;
 		}
 
-		// Don't show the connect notice if a userless connection is established and there are no stored licenses.
-		// Stored licenses indicate that a purchased product may not be provisioned yet hence we need to keep
-		// showing the notice to nudge the user to connect in order to have their product(s) provisioned.
-		if ( $is_connected && ! $has_licenses ) {
-			return;
-		}
-
-		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
-		if (
-			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
-			! $this->force_display()
-		) {
-			return;
-		}
-
-		// Don't show the connect notice anywhere but the plugins.php after activating
-		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'jetpack_connect' ) ) {
-			return;
-		}
-
-		if ( $has_licenses ) {
+		if ( ! empty( Licensing::instance()->stored_licenses() ) ) {
 			add_action( 'admin_notices', array( $this, 'render_license_aware_banner' ) );
 		} else {
 			add_action( 'admin_notices', array( $this, 'render_banner' ) );
