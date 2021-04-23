@@ -390,7 +390,9 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				return $terms;
 			}
 
-			if ( empty( $taxonomies ) ) {
+			// WordPress defines the parameter as `array`, but it passes null if `get_terms( $args )` was called
+			// without a 'taxonomy' in $args.
+			if ( ! is_array( $taxonomies ) ) {
 				return $terms;
 			}
 
