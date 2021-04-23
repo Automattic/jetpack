@@ -13,10 +13,10 @@ import MediaSources from './media-sources';
 function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace } = props;
 	const originalComponent = mediaProps.render;
-
-	if ( isFeatured && mediaProps.value === undefined ) {
-		return originalComponent( { open } );
-	}
+	const featuredImageIsSelected = isFeatured && mediaProps.value > 0;
+	let isPrimary = isFeatured;
+	let isTertiary = ! isFeatured;
+	const extraProps = {};
 
 	if ( isReplace ) {
 		return (
@@ -38,6 +38,13 @@ function MediaButtonMenu( props ) {
 		label = __( 'Select Media', 'jetpack' );
 	}
 
+	if ( isFeatured && featuredImageIsSelected ) {
+		label = __( 'Replace Image', 'jetpack' );
+		isPrimary = false;
+		isTertiary = false;
+		extraProps.isSecondary = true;
+	}
+
 	return (
 		<>
 			{ isFeatured && originalComponent( { open } ) }
@@ -47,12 +54,13 @@ function MediaButtonMenu( props ) {
 				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
-						isTertiary={ ! isFeatured }
-						isPrimary={ isFeatured }
+						isTertiary={ isTertiary }
+						isPrimary={ isPrimary }
 						className="jetpack-external-media-button-menu"
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						onClick={ onToggle }
+						{ ...extraProps }
 					>
 						{ label }
 					</Button>
