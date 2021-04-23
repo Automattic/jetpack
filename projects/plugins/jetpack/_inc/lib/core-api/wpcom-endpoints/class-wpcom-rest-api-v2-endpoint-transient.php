@@ -24,17 +24,21 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	/**
 	 * Called automatically on `rest_api_init()`.
 	 *
-	 * /sites/$site/transients/$name/delete
+	 * /sites/<blog-id>/transients/$name/delete
 	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base . '/(?P<name>\w{1,172})/delete/',
+			'/' . $this->rest_base . '/(?P<name>\w{1,172})',
 			array(
 				array(
-					'methods'             => WP_REST_Server::EDITABLE,
+					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_transient' ),
 					'permission_callback' => 'is_user_logged_in',
+					'name'                => array(
+						'description' => __( 'The name of the transient to delete.', 'jetpack' ),
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -58,4 +62,5 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 		}
 	}
 }
+
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Transient' );
