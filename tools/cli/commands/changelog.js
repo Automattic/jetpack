@@ -15,6 +15,7 @@ import simpleGit from 'simple-git';
 import promptForProject from '../helpers/promptForProject';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { normalizeProject } from '../helpers/normalizeArgv';
+import { allProjects } from '../helpers/projectHelpers';
 
 /**
  * Comand definition for changelog subcommand.
@@ -70,7 +71,7 @@ export function changelogDefine( yargs ) {
 							} );
 					},
 					async argv => {
-						await changelogArgs( argv );
+						await changelogAdd( argv );
 					}
 				)
 				// Changelog validate subscommand
@@ -255,15 +256,36 @@ async function promptCommand( argv ) {
 	return argv;
 }
 
+async function changelogAddPrompt( argv, needChangelog ) {
+	const response = await inquirer.prompt( {
+		type: 'confirm',
+		name: 'useExisting',
+		message: `Found ${needChangelog.length} project(s) that need a changelog. Run changelog wizard for each project?`,
+	} );
+	return response;
+}
+
+async function changelogAdd( argv ) {
+	
+	if (argv._.length <= 2 && argv._[1] === 'add') {
+		const needChangelog = await changedProjects();
+		const useWizard = await changelogAddPrompt( argv, needChangelog );
+		if ( ! useWizard.useExisting ) {
+			changelogArgs( argv );
+			return;
+		}
+		for ( const proj of needChangelog )
+	 } else {
+		 changelogArgs( argv );
+	 }
+}
+
 /**
  * Adds any passthrough arguments to args before running command.
  *
  * @param {object} argv - arguments passed to the CLI.
  */
 async function changelogArgs( argv ) {
-	if ( argv.cmd || argv._[ 1 ] === 'add' ) {
-		promptChangelogAdd( argv );
-	}
 	argv = await validateProject( argv );
 	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
 		argv.project
@@ -303,15 +325,29 @@ async function changelogArgs( argv ) {
 /**
  * Prompt for which changelog to add if we detect changes were made.
  *
- * @param {argv} argv - the arguments passed.
- * @returns {argv} argv - modified arguments.
+ * @returns {modifiedProjects}
  */
-async function promptChangelogAdd( argv ) {
+async function changedProjects() {
+	const modifiedProjects = [];
+	const gitFiles = [];
 	const git = simpleGit();
 	const gitStatus = await git.status();
-	console.log( 'hi' );
-	console.log( gitStatus );
-	return argv;
+	const projects = allProjects()
+
+	// Get all files that were worked with (created, deleted, modified, etc)
+	for (const file of gitStatus.files) {
+		gitFiles.push(file.path)
+	}
+
+	// See if any files modified match our project list.
+	for (const proj of projects) {
+		for (const file of gitFiles) {
+			if (file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
+				modifiedProjects.push(proj);
+			}
+		}
+	}
+	return modifiedProjects;
 }
 
 /**
