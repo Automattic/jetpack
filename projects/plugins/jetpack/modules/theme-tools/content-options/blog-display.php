@@ -39,7 +39,7 @@ function jetpack_blog_display_custom_excerpt( $content = '' ) {
 	if ( ! empty( $content ) ) {
 		_doing_it_wrong(
 			'jetpack_blog_display_custom_excerpt',
-			'You do not need to pass a $content parameter anymore.',
+			esc_html__( 'You do not need to pass a $content parameter anymore.', 'jetpack' ),
 			'jetpack-9.7.0'
 		);
 	}
