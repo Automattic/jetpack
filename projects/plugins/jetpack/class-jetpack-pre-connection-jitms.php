@@ -49,9 +49,8 @@ class Jetpack_Pre_Connection_JITMs {
 			 */
 			$jetpack_setup_url               = $this->generate_admin_url(
 				array(
-					'page'    => 'jetpack',
-					'#/setup' => '',
-					'from'    => sprintf( 'pre-connection-jitm-%s', $message['id'] ),
+					'page' => 'jetpack#/setup',
+					'from' => sprintf( 'pre-connection-jitm-%s', $message['id'] ),
 				)
 			);
 			$messages[ $key ]['button_link'] = $jetpack_setup_url;
