@@ -261,17 +261,15 @@ async function promptCommand( argv ) {
  * @param {object} argv - arguments passed to the CLI.
  */
 async function changelogArgs( argv ) {
+	if ( argv.cmd || argv._[ 1 ] === 'add' ) {
+		promptChangelogAdd( argv );
+	}
 	argv = await validateProject( argv );
 	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
 		argv.project
 	} completed succesfully!`;
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
-
-	// Remove project from command list we pass to changelogger.
-	if ( argv.args.includes( argv.project ) ) {
-		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
-	}
 
 	// Check for required command specific arguements.
 	switch ( argv.args[ 0 ] ) {
@@ -294,7 +292,26 @@ async function changelogArgs( argv ) {
 			break;
 	}
 
+	// Remove project from command list we pass to changelogger.
+	if ( argv.args.includes( argv.project ) ) {
+		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
+	}
+
 	changeloggerCli( argv );
+}
+
+/**
+ * Prompt for which changelog to add if we detect changes were made.
+ *
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv} argv - modified arguments.
+ */
+async function promptChangelogAdd( argv ) {
+	const git = simpleGit();
+	const gitStatus = await git.status();
+	console.log( 'hi' );
+	console.log( gitStatus );
+	return argv;
 }
 
 /**
