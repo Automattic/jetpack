@@ -308,6 +308,15 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Always use WP Admin for comments.
+	 *
+	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 */
+	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		parent::add_comments_menu( true );
+	}
+
+	/**
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
