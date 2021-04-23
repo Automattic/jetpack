@@ -112,11 +112,15 @@ class Jetpack_Connection_Banner {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
+		if ( 'plugins' === $current_screen->base ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_deactivation_modal' ) );
+		}
+
 		if ( Jetpack::state( 'network_nag' ) ) {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
 		}
 
-		// Only fires immediately after plugin activation
+		// Only fires immediately after plugin activation.
 		if ( get_transient( 'activated_jetpack' ) ) {
 			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
 			delete_transient( 'activated_jetpack' );
@@ -146,7 +150,27 @@ class Jetpack_Connection_Banner {
 			array(
 				'ajax_url'              => admin_url( 'admin-ajax.php' ),
 				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
+				'deactivate_title'      => __( 'Deactivate Jetpack', 'jetpack' ),
 			)
+		);
+	}
+
+	/**
+	 * Enqueue elements for the Deactivation dialog
+	 * (appearing when hitting dismiss in the connection banner).
+	 *
+	 * @since 9.7.0
+	 */
+	public function enqueue_deactivation_modal() {
+		add_thickbox();
+
+		add_action( 'admin_footer', array( $this, 'deactivate_dialog_content' ) );
+
+		wp_enqueue_style(
+			'jetpack-deactivate-dialog',
+			plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION
 		);
 	}
 
@@ -232,10 +256,10 @@ class Jetpack_Connection_Banner {
 				if ( ! $this->force_display() ) :
 					?>
 
-					<span
+					<a
 						class="notice-dismiss connection-banner-dismiss"
 						title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-					</span>
+					</a>
 
 					<?php
 				endif;
@@ -515,6 +539,35 @@ class Jetpack_Connection_Banner {
 						);
 					?>
 				</h2>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Outputs the content of the deactivation modal.
+	 * appearing when you click on the Dismiss button in a connection banner.
+	 *
+	 * @return void
+	 */
+	public function deactivate_dialog_content() {
+		?>
+		<div id="jetpack_deactivation_dialog">
+			<div class="jetpack_deactivation_dialog_content">
+				<p>
+					<?php esc_html_e( 'Are you sure you want to deactivate the Jetpack plugin?', 'jetpack' ); ?>
+					<br/>
+					<?php esc_html_e( 'You can reactivate later under Plugins > Installed Plugins.', 'jetpack' ); ?>
+				</p>
+			</div>
+
+			<div class="jetpack_deactivation_dialog_content__buttons-row-container">
+				<div class="jetpack_deactivation_dialog_content__buttons-row">
+					<div class="jetpack_deactivation_dialog_content__buttons">
+						<button type="button" id="jetpack_deactivation_dialog_content__button-cancel"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></button>
+						<button type="button" id="jetpack_deactivation_dialog_content__button-deactivate"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></button>
+					</div>
+				</div>
 			</div>
 		</div>
 		<?php
