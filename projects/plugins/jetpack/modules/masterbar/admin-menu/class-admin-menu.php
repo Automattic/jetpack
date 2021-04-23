@@ -163,8 +163,10 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$submenus_to_update = array(
-			'edit.php'     => 'https://wordpress.com/posts/' . $this->domain,
-			'post-new.php' => 'https://wordpress.com/post/' . $this->domain,
+			'edit.php'                        => 'https://wordpress.com/posts/' . $this->domain,
+			'post-new.php'                    => 'https://wordpress.com/post/' . $this->domain,
+			'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain,
+			'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain,
 		);
 		$this->update_submenus( 'edit.php', $submenus_to_update );
 	}

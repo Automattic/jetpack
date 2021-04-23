@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.18
+// @version      1.19
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -39,6 +39,8 @@
 			);
 		} else {
 			const contents = `
+			<details>
+				<summary>Expand for JN site options:</summary>
 				<h4>Settings</h4>
 				${ getOptionsList(
 					[
@@ -147,9 +149,10 @@
 					],
 					33
 				) }
-				<p>
-					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
-				</p>
+			</details>
+			<p>
+				<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
+			</p>
 			`;
 			appendHtml( markdownBody, contents );
 			updateLink();
@@ -176,7 +179,7 @@
 
 		function getOptionsList( options, columnWidth ) {
 			return `
-				<ul style="list-style: none; padding-left: 0; display: flex; flex-wrap: wrap;">
+				<ul style="list-style: none; padding-left: 0; margin-top: 24px; display: flex; flex-wrap: wrap;">
 					${ options
 						.map( option => {
 							return getOption( option, columnWidth );
