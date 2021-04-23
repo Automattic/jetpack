@@ -389,6 +389,9 @@ abstract class Base_Admin_Menu {
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
+			// Menu items that don't have icons, for example separators, have less than 7
+			// elements, partly because the 7th is the icon. So, if we have less than 7,
+			// let's skip it.
 			if ( count( $menu_item ) < 7 ) {
 				continue;
 			}
