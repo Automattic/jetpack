@@ -10,8 +10,8 @@ import { SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
  */
 import './style.scss';
 import './store';
-import { Player } from './player';
-import ShadowPlayer from './shadow-player';
+import PlayerUI from './player-ui';
+import ExpandableSandbox from './expandable-sandbox';
 
 export default function StoryPlayer( { id, slides, metadata, disabled, ...settings } ) {
 	const playerId = useMemo( () => id || Math.random().toString( 36 ), [ id ] );
@@ -87,7 +87,7 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 	}
 
 	return (
-		<ShadowPlayer
+		<ExpandableSandbox
 			shadowDOM={ playerSettings.shadowDOM }
 			className="wp-story-app"
 			fullscreenClassName="wp-story-fullscreen"
@@ -97,7 +97,7 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 			onExitFullscreen={ exitFullscreen }
 			onKeyDown={ onKeyDown }
 		>
-			<Player id={ playerId } slides={ slides } metadata={ metadata } disabled={ disabled } />
-		</ShadowPlayer>
+			<PlayerUI id={ playerId } slides={ slides } metadata={ metadata } disabled={ disabled } />
+		</ExpandableSandbox>
 	);
 }

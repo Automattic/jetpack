@@ -21,7 +21,7 @@ import icon from '../icon';
 import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 
-export const Player = ( { id, slides, metadata, disabled } ) => {
+export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } = useDispatch(
 		'jetpack/story/player'
 	);
@@ -237,4 +237,4 @@ export const Player = ( { id, slides, metadata, disabled } ) => {
 		</div>
 	);
 	/* eslint-enable jsx-a11y/click-events-have-key-events */
-};
+}

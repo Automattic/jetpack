@@ -19,7 +19,7 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 	window.navigator.userAgent
 );
 
-export default function ShadowPlayer( {
+export default function ExpandableSandbox({
 	className,
 	fullscreenClassName,
 	bodyFullscreenClassName,
