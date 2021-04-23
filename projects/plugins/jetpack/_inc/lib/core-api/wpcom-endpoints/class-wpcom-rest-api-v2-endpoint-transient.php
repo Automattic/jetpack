@@ -60,7 +60,7 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check if a given request has read access.
+	 * Check if request has read access.
 	 *
 	 * @return bool
 	 */

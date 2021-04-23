@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-Add sites/site-id/transients/transient-name/delete endpoint.
+Add REST API v2 endpoint for editing transients.
