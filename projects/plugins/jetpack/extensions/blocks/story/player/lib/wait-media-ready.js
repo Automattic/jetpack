@@ -33,9 +33,9 @@ export default async function waitMediaReady( mediaElement, fullLoad = false ) {
 		if ( mediaElement.HAVE_ENOUGH_DATA === mediaElement.readyState ) {
 			return;
 		}
-		mediaElement.preload = 'auto';
 		await new Promise( resolve => {
 			mediaElement.addEventListener( 'canplaythrough', resolve, { once: true } );
+			mediaElement.preload = 'auto';
 			mediaElement.load();
 		} );
 	}
