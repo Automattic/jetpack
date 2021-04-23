@@ -207,16 +207,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
 
-		/**
-		 * Whether to show the WordPress.com Emails submenu under the main Upgrades menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
-		 * @module masterbar
-		 *
-		 * @since 9.7.0
-		 *
-		 * @param bool $show_wpcom_upgrades_email_menu Load the WordPress.com Emails submenu item. Default to false.
-		 */
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
 		}
