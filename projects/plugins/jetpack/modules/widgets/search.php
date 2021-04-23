@@ -136,6 +136,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 			true
 		);
 
+		$tracking = new Tracking();
+		$tracking->register_tracks_scripts();
+
 		wp_register_script(
 			'jetpack-search-widget-admin',
 			plugins_url( 'search/js/search-widget-admin.js', __FILE__ ),
