@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Added 'purchaseToken' option for logged out user purchases on WordPress.com.
