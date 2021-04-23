@@ -310,7 +310,7 @@ class Jetpack_Admin {
 					|| version_compare( WC_VERSION, '3.0', '<' )
 				)
 			) {
-			return 'Requires WooCommerce 3+ plugin';
+			return __( 'Requires WooCommerce 3+ plugin', 'jetpack' );
 		}
 
 		/*
@@ -319,7 +319,7 @@ class Jetpack_Admin {
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
-				return 'Offline mode';
+				return __( 'Offline mode', 'jetpack' );
 			}
 		}
 
@@ -327,21 +327,21 @@ class Jetpack_Admin {
 		 * Jetpack not connected.
 		 */
 		if ( ! Jetpack::is_connection_ready() ) {
-			return 'Jetpack is not connected';
+			return __( 'Jetpack is not connected', 'jetpack' );
 		}
 
 		/*
 		 * Jetpack connected at a site level only and module requires a user connection.
 		 */
 		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
-			return 'Requires a connected WordPress.com account';
+			return __( 'Requires a connected WordPress.com account', 'jetpack' );
 		}
 
 		/*
 		 * Plan restrictions.
 		 */
 		if ( ! Jetpack_Plan::supports( $module['module'] ) ) {
-			return 'Not supported by current plan';
+			return __( 'Not supported by current plan', 'jetpack' );
 		}
 
 		return '';
