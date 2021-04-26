@@ -209,7 +209,10 @@ export function CalendlyEdit( props ) {
 		return blockEmbedding;
 	}
 
-	const classes = `${ className } calendly-style-${ style }`;
+	let classes = className;
+	if ( url && ! isEditingUrl ) {
+		classes += ` calendly-style-${ style }`;
+	}
 
 	return (
 		<div className={ classes }>
