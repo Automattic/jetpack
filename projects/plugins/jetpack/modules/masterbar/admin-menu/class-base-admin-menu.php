@@ -405,16 +405,28 @@ abstract class Base_Admin_Menu {
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
-			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
-				$svg_items[] = array(
-					'icon' => $menu[ $idx ][6],
-					'id'   => $menu[ $idx ][5],
-				);
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $idx ][6] = 'none';
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $idx ][4] .= ' menu-svg-icon';
+			// Menu items that don't have icons, for example separators, have less than 7
+			// elements, partly because the 7th is the icon. So, if we have less than 7,
+			// let's skip it.
+			if ( count( $menu_item ) < 7 ) {
+				continue;
 			}
+
+			// If the hookname contain a URL than sanitize it by replacing invalid characters.
+			if ( false !== strpos( $menu_item[5], '://' ) ) {
+				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
+			}
+
+			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+				$svg_items[]   = array(
+					'icon' => $menu_item[6],
+					'id'   => $menu_item[5],
+				);
+				$menu_item[4] .= ' menu-svg-icon';
+				$menu_item[6]  = 'none';
+			}
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $idx ] = $menu_item;
 		}
 		if ( count( $svg_items ) > 0 ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
