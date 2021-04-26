@@ -23,6 +23,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
+		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
 
 	/**
@@ -353,5 +354,40 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
 		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+	}
+
+	/**
+	 * Removes unwanted submenu items.
+	 *
+	 * These submenus are added across wp-content and should be removed together with these function calls.
+	 */
+	public function remove_submenus() {
+		global $_registered_pages;
+
+		remove_submenu_page( 'index.php', 'akismet-stats' );
+		remove_submenu_page( 'index.php', 'my-comments' );
+		remove_submenu_page( 'index.php', 'stats' );
+		remove_submenu_page( 'index.php', 'subscriptions' );
+
+		/* @see https://github.com/Automattic/wp-calypso/issues/49210 */
+		remove_submenu_page( 'index.php', 'my-blogs' );
+		$_registered_pages['admin_page_my-blogs'] = true; // phpcs:ignore
+
+		remove_submenu_page( 'paid-upgrades.php', 'premium-themes' );
+		remove_submenu_page( 'paid-upgrades.php', 'domains' );
+		remove_submenu_page( 'paid-upgrades.php', 'my-upgrades' );
+		remove_submenu_page( 'paid-upgrades.php', 'billing-history' );
+
+		remove_submenu_page( 'themes.php', 'customize.php?autofocus[panel]=amp_panel&return=' . rawurlencode( admin_url() ) );
+
+		remove_submenu_page( 'users.php', 'wpcom-invite-users' ); // Wpcom_Invite_Users::action_admin_menu.
+
+		remove_submenu_page( 'options-general.php', 'adcontrol' );
+
+		// Remove menu item but continue allowing access.
+		foreach ( array( 'openidserver', 'webhooks' ) as $page_slug ) {
+			remove_submenu_page( 'options-general.php', $page_slug );
+			$_registered_pages[ 'admin_page_' . $page_slug ] = true; // phpcs:ignore
+		}
 	}
 }
