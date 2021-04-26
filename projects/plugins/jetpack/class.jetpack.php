@@ -784,6 +784,7 @@ class Jetpack {
 
 		// After a successful connection.
 		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
+		add_action( 'jetpack_site_registered', array( $this, 'handle_unique_registrations_stats' ) );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -1737,14 +1738,22 @@ class Jetpack {
 	 * users and this option will be available by default for everybody.
 	 *
 	 * @since 9.6.0
+	 * @since 9.7.0 returns is_connected in all cases and adds filter to the returned value
 	 *
 	 * @return bool is the site connection ready to be used?
 	 */
 	public static function is_connection_ready() {
-		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			return self::connection()->is_connected();
-		}
-		return (bool) self::connection()->has_connected_owner();
+		/**
+		 * Allows filtering whether the connection is ready to be used. If true, this will enable the Jetpack UI and modules
+		 *
+		 * Modules will be enabled depending on the connection status and if the module requires a connection or user connection.
+		 *
+		 * @since 9.7.0
+		 *
+		 * @param bool                                  $is_connection_ready Is the connection ready?
+		 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
+		 */
+		return apply_filters( 'jetpack_is_connection_ready', self::connection()->is_connected(), self::connection() );
 	}
 
 	/**
@@ -2034,15 +2043,21 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
+		$is_userless = self::connection()->is_userless();
+
 		foreach ( $modules as $index => $module ) {
-			// If we're in offline mode, disable modules requiring a connection.
-			if ( $is_offline_mode ) {
+			// If we're in offline/user-less mode, disable modules requiring a connection/user connection.
+			if ( $is_offline_mode || $is_userless ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
 				}
 				// If the module requires a connection, but we're in local mode, don't include it.
-				if ( $modules_data[ $module ]['requires_connection'] ) {
+				if ( $is_offline_mode && $modules_data[ $module ]['requires_connection'] ) {
+					continue;
+				}
+
+				if ( $is_userless && $modules_data[ $module ]['requires_user_connection'] ) {
 					continue;
 				}
 			}
@@ -3704,11 +3719,16 @@ p {
 			self::plugin_initialize();
 		}
 
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_connection_ready() && ! $is_offline_mode ) {
+		$is_offline_mode              = ( new Status() )->is_offline_mode();
+		$fallback_no_verify_ssl_certs = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		/** Already documented in automattic/jetpack-connection::src/class-client.php */
+		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
+
+		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
-			/** Already documented in automattic/jetpack-connection::src/class-client.php */
-		} elseif ( ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) && ! apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
+		}
+
+		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
@@ -5022,6 +5042,25 @@ endif;
 		// Increment number of times connected.
 		$jetpack_unique_connection['connected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+	}
+
+	/**
+	 * This action fires when the site is registered (connected at a site level).
+	 */
+	public function handle_unique_registrations_stats() {
+		$jetpack_unique_registrations = Jetpack_Options::get_option( 'unique_registrations' );
+		// Checking if site has been registered previously before recording unique connection.
+		if ( ! $jetpack_unique_registrations ) {
+
+			$jetpack_unique_registrations = 0;
+
+			$this->stat( 'connections', 'unique-registrations' );
+			$this->do_stats( 'server_side' );
+		}
+
+		// Increment number of times connected.
+		$jetpack_unique_registrations ++;
+		Jetpack_Options::update_option( 'unique_registrations', $jetpack_unique_registrations );
 	}
 
 	/**

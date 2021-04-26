@@ -397,6 +397,7 @@ class Jetpack_Carousel {
 										</div>
 									<?php else : ?>
 										<form id="jp-carousel-comment-form">
+											<label for="jp-carousel-comment-form-comment-field" class="screen-reader-text"><?php echo esc_attr( $localize_strings['write_comment'] ); ?></label>
 											<textarea
 												name="comment"
 												class="jp-carousel-comment-form-field jp-carousel-comment-form-textarea"

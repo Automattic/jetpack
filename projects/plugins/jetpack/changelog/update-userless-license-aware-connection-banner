@@ -1,0 +1,5 @@
+Significance: minor
+Type: enhancement
+
+Show the license-aware version of the Connection banner when there is a userless connection established and there are stored licenses.
+Hide the Recommendations banner when the Connection banner is visible.

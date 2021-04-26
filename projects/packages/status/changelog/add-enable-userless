@@ -1,0 +1,4 @@
+Significance: patch
+Type: deprecated
+
+Deprecates is_no_user_testing_mode

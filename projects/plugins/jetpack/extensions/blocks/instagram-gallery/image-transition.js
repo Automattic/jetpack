@@ -42,10 +42,12 @@ export default function ImageTransition( { src, alt, spacing } ) {
 	const containerClasses = classnames( 'wp-block-jetpack-instagram-gallery__placeholder', {
 		'is-loaded': loaded,
 	} );
-	const containerStyles = loaded ? { margin: containerOffset } : {
-		margin: containerOffset,
-		height: containerHeight,
-	};
+	const containerStyles = loaded
+		? { margin: containerOffset }
+		: {
+				margin: containerOffset,
+				height: containerHeight,
+		  };
 	const imageClasses = classnames( { 'is-loaded': loaded } );
 
 	return (
