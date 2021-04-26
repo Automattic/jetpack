@@ -62,6 +62,7 @@ export default class BlockEditorPage extends WpPage {
 
 			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
 			await this.reload();
+			await this.page.waitForSelector( '.edit-post-layout' );
 		}
 	}
 
