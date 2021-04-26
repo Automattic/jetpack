@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Featured Content: avoid PHP warnings when terms are fetched without a taxonomy to filter by.
