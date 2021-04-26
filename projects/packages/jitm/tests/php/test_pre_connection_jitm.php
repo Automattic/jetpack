@@ -64,37 +64,9 @@ class Test_Pre_Connection_JITM extends TestCase {
 	}
 
 	/**
-	 * The pre-connection JITMs are disabled by default by the `jetpack_pre_connection_prompt_helpers` filter's default value.
-	 */
-	public function test_get_messages_prompt_helpers_default() {
-		Filters\expectApplied( 'jetpack_pre_connection_prompt_helpers' )
-			->once()
-			->with( false );
-
-		Functions\expect( 'current_user_can' )
-			->atMost()
-			->once()
-			->andReturn( true );
-
-		Filters\expectApplied( 'jetpack_pre_connection_jitms' )
-			->atMost()
-			->once()
-			->with( array() )
-			->andReturn( $this->test_jitms );
-
-		$this->assertEmpty( $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false ) );
-	}
-
-	/**
 	 * The pre-connection JITMs are disabled when the current user does not have the 'install_plugins' capability.
 	 */
 	public function test_get_messages_user_cannot_install_plugins() {
-		Filters\expectApplied( 'jetpack_pre_connection_prompt_helpers' )
-			->atMost()
-			->once()
-			->with( false )
-			->andReturns( true );
-
 		Functions\expect( 'current_user_can' )
 			->once()
 			->andReturn( false );
@@ -109,16 +81,10 @@ class Test_Pre_Connection_JITM extends TestCase {
 	}
 
 	/**
-	 * The pre-connection JITMs are empty by default. The default value of the 'jetpack_pre_connection_jitms' filter is 
+	 * The pre-connection JITMs are empty by default. The default value of the 'jetpack_pre_connection_jitms' filter is
 	 * an empty array.
 	 */
 	public function test_get_messages_jitms_filter_default() {
-		Filters\expectApplied( 'jetpack_pre_connection_prompt_helpers' )
-			->atMost()
-			->once()
-			->with( false )
-			->andReturns( true );
-
 		Functions\expect( 'current_user_can' )
 			->atMost()
 			->once()
@@ -136,12 +102,6 @@ class Test_Pre_Connection_JITM extends TestCase {
 	 * returns anything other than an array.
 	 */
 	public function test_get_messages_filter_returns_string() {
-		Filters\expectApplied( 'jetpack_pre_connection_prompt_helpers' )
-			->atMost()
-			->once()
-			->with( false )
-			->andReturns( true );
-
 		Functions\expect( 'current_user_can' )
 			->atMost()
 			->once()
@@ -159,7 +119,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 	 * The pre-connection JITMs are added using the `jetpack_pre_connection_jitms` filter.
 	 */
 	public function test_get_messages_return_message() {
-		$this->set_prompt_helpers_and_user_cap_conditions();
+		$this->set_user_cap_conditions();
 
 		Filters\expectApplied( 'jetpack_pre_connection_jitms' )
 			->once()
@@ -176,7 +136,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 	 * tested path.
 	 */
 	public function test_get_messages_unmatched_message_path() {
-		$this->set_prompt_helpers_and_user_cap_conditions();
+		$this->set_user_cap_conditions();
 
 		Filters\expectApplied( 'jetpack_pre_connection_jitms' )
 			->once()
@@ -191,7 +151,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 	 * missing the message_path key.
 	 */
 	public function test_get_messages_missing_key() {
-		$this->set_prompt_helpers_and_user_cap_conditions();
+		$this->set_user_cap_conditions();
 
 		unset( $this->test_jitms[0]['message_path'] );
 
@@ -207,7 +167,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 	 * A pre-connection JITM is displayed if it has unexpected keys.
 	 */
 	public function test_get_messages_extra_key() {
-		$this->set_prompt_helpers_and_user_cap_conditions();
+		$this->set_user_cap_conditions();
 
 		$this->test_jitms[0]['extra_key'] = 'extra jitm key';
 
@@ -220,12 +180,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 		$this->assertSame( $this->test_jitms[0]['id'], $messages[0]->id );
 	}
 
-	private function set_prompt_helpers_and_user_cap_conditions() {
-		Filters\expectApplied( 'jetpack_pre_connection_prompt_helpers' )
-			->once()
-			->with( false )
-			->andReturns( true );
-
+	private function set_user_cap_conditions() {
 		Functions\expect( 'current_user_can' )
 			->once()
 			->andReturn( true );

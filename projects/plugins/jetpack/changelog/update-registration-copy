@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Change copy on in-place connection title to match user-less behavior
