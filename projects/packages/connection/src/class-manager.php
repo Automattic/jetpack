@@ -1634,6 +1634,7 @@ class Manager {
 				'site_icon'     => get_site_icon_url(),
 				'site_lang'     => get_locale(),
 				'site_created'  => $this->get_assumed_site_creation_date(),
+				'userless'      => ! $this->has_connected_owner(),
 			)
 		);
 

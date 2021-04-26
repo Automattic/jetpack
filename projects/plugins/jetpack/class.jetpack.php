@@ -1738,14 +1738,22 @@ class Jetpack {
 	 * users and this option will be available by default for everybody.
 	 *
 	 * @since 9.6.0
+	 * @since 9.7.0 returns is_connected in all cases and adds filter to the returned value
 	 *
 	 * @return bool is the site connection ready to be used?
 	 */
 	public static function is_connection_ready() {
-		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			return self::connection()->is_connected();
-		}
-		return (bool) self::connection()->has_connected_owner();
+		/**
+		 * Allows filtering whether the connection is ready to be used. If true, this will enable the Jetpack UI and modules
+		 *
+		 * Modules will be enabled depending on the connection status and if the module requires a connection or user connection.
+		 *
+		 * @since 9.7.0
+		 *
+		 * @param bool                                  $is_connection_ready Is the connection ready?
+		 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
+		 */
+		return apply_filters( 'jetpack_is_connection_ready', self::connection()->is_connected(), self::connection() );
 	}
 
 	/**
