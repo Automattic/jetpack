@@ -7,7 +7,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { compose } from '@wordpress/compose';
 import { withSelect, withDispatch } from '@wordpress/data';
-import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
+import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import formatCurrency from '@automattic/format-currency';
 import apiFetch from '@wordpress/api-fetch';
 
@@ -19,7 +19,11 @@ import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
 import Context from './_inc/context';
 import { flashIcon } from '../../shared/icons';
-import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import {
+	getConnectUrl,
+	isPriceValid,
+	minimumTransactionAmountForCurrency,
+} from '../../shared/currencies';
 import './editor.scss';
 
 /**
@@ -282,7 +286,7 @@ function Edit( props ) {
 		// Execution delayed with setTimeout to ensure it runs after any block auto-selection performed by inner blocks
 		// (such as the Recurring Payments block)
 		setTimeout( () => props.selectBlock(), 1000 );
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
@@ -315,7 +319,7 @@ function Edit( props ) {
 						<ToolbarButton
 							icon={ flashIcon }
 							onClick={ e => {
-								props.autosaveAndRedirect( e, getConnectUrl( props, connectURL ) );
+								props.autosaveAndRedirect( e, getConnectUrl( props.postId, connectURL ) );
 							} }
 							className="connect-stripe components-tab-button"
 						>
@@ -424,40 +428,6 @@ function onSuccess( props, message ) {
 	props.createSuccessNotice( message, { type: 'snackbar' } );
 }
 
-/**
- * @param { Props } props - properties
- * @param { string } connectURL - Stripe connect URL
- * @returns { null | string } URL
- */
-function getConnectUrl( props, connectURL ) {
-	const { postId } = props;
-
-	if ( ! isURL( connectURL ) ) {
-		return null;
-	}
-
-	if ( ! postId ) {
-		return connectURL;
-	}
-
-	let decodedState;
-	try {
-		const state = getQueryArg( connectURL, 'state' );
-		if ( typeof state === 'string' ) {
-			decodedState = JSON.parse( window.atob( state ) );
-		}
-	} catch ( err ) {
-		if ( process.env.NODE_ENV !== 'production' ) {
-			console.error( err ); // eslint-disable-line no-console
-		}
-		return connectURL;
-	}
-
-	decodedState.from_editor_post_id = postId;
-
-	return addQueryArgs( connectURL, { state: window.btoa( JSON.stringify( decodedState ) ) } );
-}
-
 function MaybeDisabledEdit( props ) {
 	// The block transformations menu renders a block preview popover using real blocks
 	// for transformation. The block previews do not play nicely with useEffect and
@@ -466,7 +436,7 @@ function MaybeDisabledEdit( props ) {
 	// the isPreview flag accordingly.
 	return (
 		<Disabled.Consumer>
-			{ ( isDisabled ) => {
+			{ isDisabled => {
 				return (
 					<Edit
 						{ ...props }

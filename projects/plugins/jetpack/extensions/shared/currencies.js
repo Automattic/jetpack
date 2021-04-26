@@ -1,4 +1,9 @@
 /**
+ * WordPress dependencies
+ */
+import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
+
+/**
  * External dependencies
  */
 import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
@@ -92,4 +97,36 @@ export function parseAmount( amount, currency ) {
 	}
 
 	return amount;
+}
+
+/**
+ * @param { string } postId - ID of the current post
+ * @param { string } connectURL - Stripe connect URL
+ * @returns { null | string } URL
+ */
+export function getConnectUrl( postId, connectURL ) {
+	if ( ! isURL( connectURL ) ) {
+		return null;
+	}
+
+	if ( ! postId ) {
+		return connectURL;
+	}
+
+	let decodedState;
+	try {
+		const state = getQueryArg( connectURL, 'state' );
+		if ( typeof state === 'string' ) {
+			decodedState = JSON.parse( window.atob( state ) );
+		}
+	} catch ( err ) {
+		if ( process.env.NODE_ENV !== 'production' ) {
+			console.error( err ); // eslint-disable-line no-console
+		}
+		return connectURL;
+	}
+
+	decodedState.from_editor_post_id = postId;
+
+	return addQueryArgs( connectURL, { state: window.btoa( JSON.stringify( decodedState ) ) } );
 }
