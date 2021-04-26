@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { step } from '../lib/env/test-setup';
-import { connectThroughWPAdmin, doInPlaceConnection } from '../lib/flows/jetpack-connect';
+import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
