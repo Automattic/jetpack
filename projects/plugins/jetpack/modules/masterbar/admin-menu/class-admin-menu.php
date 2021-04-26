@@ -68,8 +68,8 @@ class Admin_Menu extends Base_Admin_Menu {
 			remove_menu_page( 'link-manager.php' );
 		}
 
-		$this->hide_unauthorized_menus();
 		$this->sort_hidden_submenus();
+		$this->hide_unauthorized_menus();
 
 		ksort( $GLOBALS['menu'] );
 	}

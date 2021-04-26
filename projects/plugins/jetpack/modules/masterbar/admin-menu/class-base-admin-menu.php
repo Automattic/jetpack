@@ -477,8 +477,25 @@ abstract class Base_Admin_Menu {
 		global $menu, $submenu;
 
 		foreach ( $menu as $menu_index => $menu_item ) {
+			$has_submenus = isset( $submenu[ $menu_item[2] ] );
+
+			// Skip if the menu doesn't have submenus.
+			if ( ! $has_submenus ) {
+				continue;
+			}
+
 			// Hide the menu if it doesn't have any submenus visible.
-			if ( ! current_user_can( $menu_item[1] ) && isset( $submenu[ $menu_item[2] ] ) && ! $this->has_visible_items( $submenu[ $menu_item[2] ] ) ) {
+			if ( ! current_user_can( $menu_item[1] ) && ! $this->has_visible_items( $submenu[ $menu_item[2] ] ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
+			}
+
+			// If the first submenu item is hidden then we should also hide the parent.
+			// Since the submenus are ordered by self::HIDE_CSS_CLASS, we can say that if the first submenu is
+			// hidden then we should also hide the menu.
+			$first_submenu_item = array_values( $submenu[ $menu_item[2] ] )[0];
+
+			if ( $menu_item[2] === $first_submenu_item[2] && ! $this->is_item_visible( $first_submenu_item ) ) {
 				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
 			}
