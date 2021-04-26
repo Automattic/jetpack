@@ -54,7 +54,7 @@ export default class MailchimpBlock extends PageActions {
 				logger.warn(
 					'ConnectionsPage is not available yet. Attempt: ' + count + ' URL: ' + connectionsUrl
 				);
-				const url = wpComTab.url();
+				const url = `https://wordpress.com/marketing/connections/${ new URL( siteUrl ).host }`;
 
 				await wpComTab.goto( url );
 				if ( count > 5 ) {
