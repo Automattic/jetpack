@@ -55,7 +55,7 @@ export default class MailchimpBlock extends PageActions {
 					'ConnectionsPage is not available yet. Attempt: ' + count + ' URL: ' + connectionsUrl
 				);
 				await wpComTab.reload();
-				if ( count > 2 ) {
+				if ( count > 5 ) {
 					throw new Error( 'ConnectionsPage is not available after 3rd attempt' );
 				}
 			}
