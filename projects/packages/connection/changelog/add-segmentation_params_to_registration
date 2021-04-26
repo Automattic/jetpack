@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds segmentation "from" parameter to the registration flow

@@ -43,6 +43,16 @@ class Manager {
 	private $plugin = null;
 
 	/**
+	 * Holds extra parameters that will be sent along in the register request body.
+	 *
+	 * Use Manager::add_register_request_param to add values to this array.
+	 *
+	 * @since 9.7.0
+	 * @var array
+	 */
+	private static $extra_register_params = array();
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -885,23 +895,26 @@ class Manager {
 		 */
 		$body = apply_filters(
 			'jetpack_register_request_body',
-			array(
-				'siteurl'            => site_url(),
-				'home'               => home_url(),
-				'gmt_offset'         => $gmt_offset,
-				'timezone_string'    => (string) get_option( 'timezone_string' ),
-				'site_name'          => (string) get_option( 'blogname' ),
-				'secret_1'           => $secrets['secret_1'],
-				'secret_2'           => $secrets['secret_2'],
-				'site_lang'          => get_locale(),
-				'timeout'            => $timeout,
-				'stats_id'           => $stats_id,
-				'state'              => get_current_user_id(),
-				'site_created'       => $this->get_assumed_site_creation_date(),
-				'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
-				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
-				'current_user_email' => wp_get_current_user()->user_email,
-				'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+			array_merge(
+				array(
+					'siteurl'            => site_url(),
+					'home'               => home_url(),
+					'gmt_offset'         => $gmt_offset,
+					'timezone_string'    => (string) get_option( 'timezone_string' ),
+					'site_name'          => (string) get_option( 'blogname' ),
+					'secret_1'           => $secrets['secret_1'],
+					'secret_2'           => $secrets['secret_2'],
+					'site_lang'          => get_locale(),
+					'timeout'            => $timeout,
+					'stats_id'           => $stats_id,
+					'state'              => get_current_user_id(),
+					'site_created'       => $this->get_assumed_site_creation_date(),
+					'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
+					'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
+					'current_user_email' => wp_get_current_user()->user_email,
+					'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+				),
+				self::$extra_register_params
 			)
 		);
 
@@ -1034,6 +1047,24 @@ class Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Adds a parameter to the register request body
+	 *
+	 * @since 9.7.0
+	 *
+	 * @param string $name The name of the parameter to be added.
+	 * @param string $value The value of the parameter to be added.
+	 *
+	 * @throws \InvalidArgumentException If supplied arguments are not strings.
+	 * @return void
+	 */
+	public function add_register_request_param( $name, $value ) {
+		if ( ! is_string( $name ) || ! is_string( $value ) ) {
+			throw new \InvalidArgumentException( 'name and value must be strings' );
+		}
+		self::$extra_register_params[ $name ] = $value;
 	}
 
 	/**

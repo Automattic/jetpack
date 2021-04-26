@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "217108c55dc268a76f3e732df0997972",
+    "content-hash": "d00c766782fb762bd9e34ad25046493c",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -708,7 +708,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "203f01c76507bc8cc84136b91c0b42631bcaebbb"
+                "reference": "efb757cc98717eb088729324479c408de08a29be"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -717,7 +717,7 @@
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.12",
-                "automattic/jetpack-partner": "^1.4",
+                "automattic/jetpack-partner": "^1.5",
                 "automattic/jetpack-redirect": "^1.5",
                 "automattic/jetpack-status": "^1.7",
                 "automattic/jetpack-tracking": "^1.13"
@@ -996,7 +996,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "a6390adea1d2613b6f90e034b27a13738f31e572"
+                "reference": "75cdebf78152e39bcc694e92ed99e37df7eb5097"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.1",
@@ -1011,7 +1011,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.5.x-dev"
                 }
             },
             "autoload": {
