@@ -144,7 +144,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 
 			// Ignore debug messages
 			if ( ! [ 'warning', 'error' ].includes( type ) ) {
-				// return;
+				return;
 			}
 
 			const text = message.text();
