@@ -26,6 +26,7 @@ import { applyFilters } from '@wordpress/hooks';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import {
 	CURRENCY_OPTIONS,
+	getConnectUrl,
 	isPriceValid,
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
@@ -489,7 +490,7 @@ export class MembershipsButtonEdit extends Component {
 				<ToolbarControls
 					autosaveAndRedirect={ this.props.autosaveAndRedirect }
 					connected={ connected !== API_STATE_NOTCONNECTED }
-					connectURL={ connectURL }
+					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
 					shouldUpgrade={ this.state.shouldUpgrade }
 				/>
