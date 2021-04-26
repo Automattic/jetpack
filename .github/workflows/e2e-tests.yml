@@ -11,15 +11,15 @@ on:
 
 jobs:
   e2e-tests:
-    name: "E2E tests: with ${{ matrix.gutenberg }} plugin"
+    name: "E2E tests: with ${{ matrix.group }} plugin"
     runs-on: ubuntu-latest
     timeout-minutes: 20  # 2021-01-18: Successful runs seem to take 9-12 minutes
     strategy:
       fail-fast: false
       matrix:
-        gutenberg: [ 'no', 'latest' ]
+        group: [ 'pre-connection', 'connection', 'post-connection', 'gutenberg' ]
     env:
-      GUTENBERG: ${{ matrix.gutenberg }}
+      GUTENBERG: bundle # default value. Can be overridden later based on matrix.group value
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
 
     steps:
@@ -94,16 +94,11 @@ jobs:
         yarn test-decrypt-config
         yarn env-start
         yarn tunnel-on
+        if [ ${{ matrix.group }} == gutenberg ]; then echo "GUTENBERG=latest" >> $GITHUB_ENV; fi
 
-    - name: Run all tests
-      if: matrix.gutenberg == 'no'
+    - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e
-
-    - name: Run only blocks tests with latest Gutenberg
-      if: matrix.gutenberg == 'latest'
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e --group=gutenberg
+      run: GUTENBERG=${{env.GUTENBERG}} yarn test-e2e --group=${{ matrix.group }}
 
     - name: Environment tear-down
       if: ${{ always() }}
@@ -118,7 +113,7 @@ jobs:
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
-        name: test-output-${{ matrix.gutenberg }}
+        name: test-output-${{ matrix.group }}
         path: projects/plugins/jetpack/tests/e2e/output
 
     - uses: testspace-com/setup-testspace@v1

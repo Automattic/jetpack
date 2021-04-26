@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+E2E tests: group test runs in CI
