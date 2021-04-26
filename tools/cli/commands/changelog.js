@@ -240,8 +240,7 @@ async function changelogCommand( argv ) {
 }
 
 async function changelogAdd( argv ) {
-	
-	if (argv._.length <= 2 && argv._[1] === 'add') {
+	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await changedProjects();
 		const useWizard = await changelogAddPrompt( argv, needChangelog );
 		if ( ! useWizard.useExisting ) {
@@ -250,14 +249,12 @@ async function changelogAdd( argv ) {
 		}
 		for ( const proj of needChangelog ) {
 			argv.project = proj;
-			console.log(
-					chalk.green(`Running changelogger for ${argv.project}`)
-			)
+			console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
 			await changelogArgs( argv );
 		}
-	 } else {
-		 changelogArgs( argv );
-	 }
+	} else {
+		changelogArgs( argv );
+	}
 }
 
 /**
@@ -299,7 +296,7 @@ async function changelogArgs( argv ) {
 		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
 	}
 
-	changeloggerCli( argv );
+	await changeloggerCli( argv );
 }
 
 /**
@@ -346,7 +343,7 @@ async function changelogAddPrompt( argv, needChangelog ) {
 	const response = await inquirer.prompt( {
 		type: 'confirm',
 		name: 'useExisting',
-		message: `Found ${needChangelog.length} project(s) that need a changelog. Run changelog wizard for each project?`,
+		message: `Found ${ needChangelog.length } project(s) that need a changelog. Run changelog wizard for each project?`,
 	} );
 	return response;
 }
@@ -357,8 +354,6 @@ async function changelogAddPrompt( argv, needChangelog ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
-	// @todo Add validation of changelogger commands? See projects/packages/changelogger/README.md
-	// @todo refactor? .github/files/require-change-file-for-touched-projects.php to a common function that we could use here. Would allow us to run a "jetpack changelog add" without a project to walk us through all of them?
 	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
 		cwd: argv.cwd,
 		stdio: 'inherit',
@@ -400,18 +395,18 @@ async function changedProjects() {
 	const gitFiles = [];
 	const git = simpleGit();
 	const gitStatus = await git.status();
-	const projects = allProjects()
+	const projects = allProjects();
 
 	// Get all files that were worked with (created, deleted, modified, etc)
-	for (const file of gitStatus.files) {
-		gitFiles.push(file.path)
+	for ( const file of gitStatus.files ) {
+		gitFiles.push( file.path );
 	}
 
 	// See if any files modified match our project list.
-	for (const proj of projects) {
-		for (const file of gitFiles) {
-			if (file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
-				modifiedProjects.push(proj);
+	for ( const proj of projects ) {
+		for ( const file of gitFiles ) {
+			if ( file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
+				modifiedProjects.push( proj );
 			}
 		}
 	}
