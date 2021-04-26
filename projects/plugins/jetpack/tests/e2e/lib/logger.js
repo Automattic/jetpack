@@ -12,13 +12,15 @@ const myCustomLevels = {
 		info: 6,
 		step: 7,
 		action: 8,
-		cli: 9,
-		debug: 10,
-		slack: 11,
+		prerequisites: 9,
+		cli: 10,
+		debug: 11,
+		slack: 12,
 	},
 	colors: {
 		action: 'cyan',
 		step: 'cyan',
+		prerequisites: 'redBG cyan', //todo change bg - only temp to find it easier while debugging
 		cli: 'cyanBG black',
 	},
 };
