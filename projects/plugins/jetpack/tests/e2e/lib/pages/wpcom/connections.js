@@ -8,7 +8,6 @@ export default class ConnectionsPage extends WpPage {
 	constructor( page ) {
 		super( page, {
 			expectedSelectors: [ '.connections__sharing-connections' ],
-			explicitWaitMS: 40000,
 		} );
 	}
 
