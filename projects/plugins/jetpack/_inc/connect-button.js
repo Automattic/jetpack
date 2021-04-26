@@ -108,6 +108,8 @@ jQuery( document ).ready( function ( $ ) {
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
+				$( '#jp-connect-full__step1-header' ).hide();
+				$( '#jp-connect-full__step2-header' ).show();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );

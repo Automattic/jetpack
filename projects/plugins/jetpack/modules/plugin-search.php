@@ -423,7 +423,21 @@ class Jetpack_Plugin_Search {
 	 * @return bool
 	 */
 	public function filter_cards( $plugin ) {
-		return ! in_array( $plugin['slug'], array( 'jetpack' ), true );
+		/*
+		 * $plugin is normally an array.
+		 * However, since the response data can be filtered,
+		 * we cannot fully trust its format.
+		 * Let's handle both arrays and objects, and bail if it's neither.
+		 */
+		if ( is_array( $plugin ) && ! empty( $plugin['slug'] ) ) {
+			$slug = $plugin['slug'];
+		} elseif ( is_object( $plugin ) && ! empty( $plugin->slug ) ) {
+			$slug = $plugin->slug;
+		} else {
+			return false;
+		}
+
+		return ! in_array( $slug, array( 'jetpack' ), true );
 	}
 
 	/**

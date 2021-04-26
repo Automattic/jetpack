@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Prevents incorrect image sizing within the site editor for the latest instagram posts block.

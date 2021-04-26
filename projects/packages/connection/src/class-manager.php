@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use WP_Error;
 use WP_User;
@@ -989,6 +990,53 @@ class Manager {
 	}
 
 	/**
+	 * Attempts Jetpack registration.
+	 *
+	 * @param bool $tos_agree Whether the user agreed to TOS.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function try_registration( $tos_agree = true ) {
+		if ( $tos_agree ) {
+			$terms_of_service = new Terms_Of_Service();
+			$terms_of_service->agree();
+		}
+
+		/**
+		 * Action fired when the user attempts the registration.
+		 *
+		 * @since 9.7.0
+		 */
+		$pre_register = apply_filters( 'jetpack_pre_register', null );
+
+		if ( is_wp_error( $pre_register ) ) {
+			return $pre_register;
+		}
+
+		$tracking_data = array();
+
+		if ( null !== $this->get_plugin() ) {
+			$tracking_data['plugin_slug'] = $this->get_plugin()->get_slug();
+		}
+
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'jpc_register_begin', $tracking_data );
+
+		add_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
+
+		$result = $this->register();
+
+		remove_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
+
+		// If there was an error with registration and the site was not registered, record this so we can show a message.
+		if ( ! $result || is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Takes the response from the Jetpack register new site endpoint and
 	 * verifies it worked properly.
 	 *
@@ -1510,7 +1558,6 @@ class Manager {
 	 * @return string Connect URL.
 	 */
 	public function get_authorization_url( $user = null, $redirect = null ) {
-
 		if ( empty( $user ) ) {
 			$user = wp_get_current_user();
 		}
@@ -1970,7 +2017,7 @@ class Manager {
 	/**
 	 * Retrieve the plugin management object.
 	 *
-	 * @return Plugin
+	 * @return Plugin|null
 	 */
 	public function get_plugin() {
 		return $this->plugin;

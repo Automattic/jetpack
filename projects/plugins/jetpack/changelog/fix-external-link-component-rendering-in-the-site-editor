@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Site Editor Compatibility: Provide CSS styles for ExternalLink component to workaround site editor styling issue in Gutenberg.

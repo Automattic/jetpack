@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Fixing a array_filter PHP warning that does not affect the current behaviour.
+
+

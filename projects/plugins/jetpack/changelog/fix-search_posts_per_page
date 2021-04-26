@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Set the number of returned posts using the query's posts_per_page value.
