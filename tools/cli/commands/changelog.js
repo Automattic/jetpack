@@ -239,6 +239,11 @@ async function changelogCommand( argv ) {
 	changelogArgs( argv );
 }
 
+/**
+ * Run the changelog add wizard, which checks if multiple projects need changelogs.
+ *
+ * @param {argv} argv - the arguments passed.
+ */
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await changedProjects();
@@ -388,7 +393,7 @@ async function gitAdd( argv ) {
 /**
  * Prompt for which changelog to add if we detect changes were made.
  *
- * @returns {modifiedProjects}
+ * @returns {array} modifiedProjects - projects that need a changelog.
  */
 async function changedProjects() {
 	const modifiedProjects = [];
