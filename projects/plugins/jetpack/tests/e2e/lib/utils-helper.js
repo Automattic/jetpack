@@ -69,7 +69,7 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 	}
 
 	await execWpCommand(
-		`wp --user=${ user } jetpack authorize_user --token='${ json.access_token }'`
+		`wp --user=${ user } jetpack authorize_user --token=\'${ json.access_token }\'`
 	);
 	return true;
 }
