@@ -3711,11 +3711,16 @@ p {
 			self::plugin_initialize();
 		}
 
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_connection_ready() && ! $is_offline_mode ) {
+		$is_offline_mode              = ( new Status() )->is_offline_mode();
+		$fallback_no_verify_ssl_certs = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		/** Already documented in automattic/jetpack-connection::src/class-client.php */
+		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
+
+		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
-			/** Already documented in automattic/jetpack-connection::src/class-client.php */
-		} elseif ( ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) && ! apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
+		}
+
+		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();

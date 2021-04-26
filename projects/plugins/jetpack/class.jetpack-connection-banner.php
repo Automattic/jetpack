@@ -49,6 +49,50 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Can the banner be displayed for the given screen?
+	 *
+	 * @param \WP_Screen $current_screen Current WordPress screen.
+	 *
+	 * @return bool
+	 */
+	public static function can_be_displayed( $current_screen ) {
+		$has_connected_owner = Jetpack::connection()->has_connected_owner();
+		$is_connected        = Jetpack::is_connection_ready();
+		$has_licenses        = ! empty( Licensing::instance()->stored_licenses() );
+
+		// Don't show the connect notice if the site has a connected owner.
+		if ( $has_connected_owner ) {
+			return false;
+		}
+
+		// Don't show the connect notice if a userless connection is established and there are no stored licenses.
+		// Stored licenses indicate that a purchased product may not be provisioned yet hence we need to keep
+		// showing the notice to nudge the user to connect in order to have their product(s) provisioned.
+		if ( $is_connected && ! $has_licenses ) {
+			return false;
+		}
+
+		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
+		if (
+			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			! self::force_display()
+		) {
+			return false;
+		}
+
+		// Don't show the connect notice anywhere but the plugins.php after activating.
+		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Given a string for the the banner was added, and an int that represents the slide to
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
@@ -75,31 +119,16 @@ class Jetpack_Connection_Banner {
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
-	 * This method should not be called if the site is connected to WordPress.com or if the site is in offline mode.
-	 *
 	 * @since 4.4.0
 	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
 	 * @since 5.3.0 Running another split test between 4.4 banner and a new one in 5.3.
 	 * @since 7.2   B test was removed.
+	 * @since 9.7   Moved the connection condition checking to this method to fulfill Licensing requirements.
 	 *
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
-
-		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
-		if (
-			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
-			! $this->force_display()
-		) {
-			return;
-		}
-
-		// Don't show the connect notice anywhere but the plugins.php after activating
-		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'jetpack_connect' ) ) {
+		if ( ! self::can_be_displayed( $current_screen ) ) {
 			return;
 		}
 
