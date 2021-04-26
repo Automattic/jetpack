@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.40
+ * Version: 2.7.41
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.40' );
+define( 'WPCOMSH_VERSION', '2.7.41' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -123,7 +123,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'advanced-database-cleaner/advanced-db-cleaner.php' => '"advanced-database-cleaner" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'advanced-reset-wp/advanced-reset-wp.php' => '"advanced-reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'advanced-wp-reset/advanced-wp-reset.php' => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'autoptimize/autoptimize.php' => '"autoptimize" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'backup/backup.php' => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'better-wp-security/better-wp-security.php' => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'cf7-pipedrive-integration/class-cf7-pipedrive.php' => '"cf7-pipedrive-integration" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
