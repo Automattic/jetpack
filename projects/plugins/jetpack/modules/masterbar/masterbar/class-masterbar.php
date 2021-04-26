@@ -198,7 +198,7 @@ class Masterbar {
 		}
 
 		// Hides and replaces the language dropdown for the current user.
-		if ( IS_PROFILE_PAGE ) {
+		if ( empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
 			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ) );
 		}
