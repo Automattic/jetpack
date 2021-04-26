@@ -43,34 +43,27 @@ export default class MailchimpBlock extends PageActions {
 		// TODO:
 		// explore a better way to sync the site. Maybe enable all the required modules as part of connection flow
 		// Or implement a way to trigger a sync manually.
-		let loaded = false;
 		let count = 0;
-		while ( ! loaded ) {
+		while ( count <= 5 ) {
 			try {
 				count++;
-				await ConnectionsPage.init( wpComTab );
-				loaded = true;
+				await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
+
+				const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
+				await wpComConnectionsPage.selectMailchimpList();
+				await this.page.bringToFront();
+				const reCheckSelector = this.getSelector( 'button.is-link' );
+				return await this.click( reCheckSelector );
 			} catch ( e ) {
 				logger.warn(
 					'ConnectionsPage is not available yet. Attempt: ' + count + ' URL: ' + connectionsUrl
 				);
 				const url = `https://wordpress.com/marketing/connections/${ new URL( siteUrl ).host }`;
-
 				await wpComTab.goto( url );
-				if ( count > 5 ) {
-					throw new Error( 'ConnectionsPage is not available after 5th attempt' );
-				}
 			}
 		}
 
-		await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
-
-		const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
-		await wpComConnectionsPage.selectMailchimpList();
-
-		await this.page.bringToFront();
-		const reCheckSelector = this.getSelector( 'button.is-link' );
-		await this.click( reCheckSelector );
+		throw new Error( 'ConnectionsPage is not available after 5th attempt' );
 	}
 
 	getSelector( selector ) {
