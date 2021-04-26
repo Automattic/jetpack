@@ -128,5 +128,5 @@ jobs:
     - name: Publish to Testspace
       working-directory: projects/plugins/jetpack/tests/e2e
       run: |
-        testspace output/reports/junit-*.xml
+        testspace "[${{ matrix.gutenberg }}]output/reports/junit-*.xml"
       if: always()
