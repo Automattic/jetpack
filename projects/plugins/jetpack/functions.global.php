@@ -408,6 +408,91 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 }
 
 /**
+ * Add support for PPSX and related file types
+ *
+ * @param array  $file_data Array of file data.
+ * @param string $file Full path to the file.
+ * @param string $filename Name of the file (may differ from $file).
+ * @param array  $mimes Array of supported MIME types.
+ *
+ * @return array $file_data File extension, MIME type, and corrected filename.
+ */
+function jetpack_allow_pptx_files( $file_data, $file, $filename, $mimes ) {
+	// Remove itself to avoid potential infinite loops.
+	remove_filter( 'wp_check_filetype_and_ext', 'jetpack_allow_pptx_files', 1000, 4 );
+	if ( ! file_exists( $file ) ) {
+		return $file_data;
+	}
+
+	// If the file does not exist, don't bother doing the checks.
+	if ( ! empty( $file_data['type'] ) ) {
+		$_invalid = array(
+			'ext'             => false,
+			'type'            => false,
+			'proper_filename' => false,
+		);
+		if ( 'asc' === strtolower( $file_data['ext'] ) ) {
+			return $_invalid;
+		}
+		return $file_data;
+	}
+
+	// Try to get the file type with the extension based check, bail if it fails.
+	$file_type = wp_check_filetype( $filename, $mimes );
+	if ( empty( $file_type['type'] ) ) {
+		return $file_data;
+	}
+
+	if ( 'asc' === strtolower( $file_type['ext'] ) ) {
+		if ( wpcom_check_gpg_valid_key( $file ) ) {
+			$file_data['type'] = $file_type['type'];
+			$file_data['ext']  = $file_type['ext'];
+		}
+
+		return $file_data;
+	}
+
+	$finfo     = finfo_open( FILEINFO_MIME_TYPE );
+	$real_mime = finfo_file( $finfo, $file );
+	finfo_close( $finfo );
+
+	if ( empty( $real_mime ) ) {
+		return $file_data;
+	}
+
+	$allowed = array();
+	switch ( strtolower( $file_type['ext'] ) ) {
+		case 'pot':
+		case 'pps':
+		case 'ppt':
+		case 'ppsm':
+		case 'ppsx':
+		case 'pptm':
+		case 'pptx':
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+			$allowed[] = 'application/vnd.openxmlformats-officedocument.presentationml.slideshow';
+			$allowed[] = $file_type['type'];
+			$allowed[] = 'application/cdfv2';
+			break;
+	}
+
+	// Duplicate the mime types as a work around for https://bugs.php.net/bug.php?id=78028.
+	$_allowed = array_map(
+		function ( $item ) {
+			return $item . $item;
+		},
+		$allowed
+	);
+	if ( in_array( strtolower( $real_mime ), $allowed, true ) || in_array( strtolower( $real_mime ), $_allowed, true ) ) {
+		$file_data['type'] = $file_type['type'];
+		$file_data['ext']  = $file_type['ext'];
+	}
+
+	return $file_data;
+}
+add_filter( 'wp_check_filetype_and_ext', 'jetpack_allow_pptx_files', 1000, 4 );
+
+/**
  * Determine if the current User Agent matches the passed $kind
  *
  * @param string $kind Category of mobile device to check for.
