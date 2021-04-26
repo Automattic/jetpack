@@ -4150,16 +4150,8 @@ p {
 
 				add_thickbox();
 
-				wp_register_script(
-					'jp-tracks',
-					'//stats.wp.com/w.js',
-					array(),
-					gmdate( 'YW' ),
-					true
-				);
-
-				$tracking = new Tracking();
-				$tracking->register_tracks_scripts();
+				// Register jp-tracks-functions dependency.
+				Tracking::register_tracks_functions_scripts();
 
 				wp_enqueue_script(
 					'jetpack-deactivate-dialog-js',

@@ -90,7 +90,18 @@ class Tracking {
 	/**
 	 * Register script necessary for tracking.
 	 */
-	public function register_tracks_scripts() {
+	public static function register_tracks_functions_scripts() {
+
+		// Register jp-tracks as it is a dependency.
+		wp_register_script(
+			'jp-tracks',
+			'//stats.wp.com/w.js',
+			array(),
+			gmdate( 'YW' ),
+			true
+		);
+
+		// Register jp-tracks-funtions script.
 		wp_register_script(
 			'jp-tracks-functions',
 			Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
@@ -107,14 +118,6 @@ class Tracking {
 		wp_enqueue_script(
 			'jptracks',
 			Assets::get_file_url_for_environment( 'js/tracks-ajax.js', 'js/tracks-ajax.js', __FILE__ ),
-			array(),
-			self::ASSETS_VERSION,
-			true
-		);
-
-		wp_enqueue_script(
-			'jp-tracks-functions',
-			Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
 			array(),
 			self::ASSETS_VERSION,
 			true

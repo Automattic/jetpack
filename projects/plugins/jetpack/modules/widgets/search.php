@@ -10,6 +10,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Tracking;
 
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
@@ -127,22 +128,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function widget_admin_setup() {
 		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'search/css/search-widget-admin-ui.css', __FILE__ ) );
 
-		// Required for Tracks
-		wp_register_script(
-			'jp-tracks',
-			'//stats.wp.com/w.js',
-			array(),
-			gmdate( 'YW' ),
-			true
-		);
-
-		$tracking = new Tracking();
-		$tracking->register_tracks_scripts();
+		// Register jp-tracks and jp-tracks-functions.
+		Tracking::register_tracks_functions_scripts();
 
 		wp_register_script(
 			'jetpack-search-widget-admin',
 			plugins_url( 'search/js/search-widget-admin.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks' ),
+			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks-functions' ),
 			JETPACK__VERSION
 		);
 
