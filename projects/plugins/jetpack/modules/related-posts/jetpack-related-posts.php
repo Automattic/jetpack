@@ -121,7 +121,7 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Load related posts assets if it's a elegiable front end page or execute search and return JSON if it's an endpoint request.
+	 * Load related posts assets if it's an eligible front end page or execute search and return JSON if it's an endpoint request.
 	 *
 	 * @global $_GET
 	 * @action wp
@@ -191,6 +191,7 @@ class Jetpack_RelatedPosts {
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 				$content .= "\n" . $this->get_server_rendered_html();
 			} else {
+				$this->_enqueue_assets( true, true );
 				$content .= "\n" . $this->get_client_rendered_html();
 			}
 		}
@@ -371,6 +372,10 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
+		// Enqueue assets.
+		$enqueue_script = ! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
+		$this->_enqueue_assets( $enqueue_script, true );
+
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
@@ -1643,15 +1648,12 @@ EOT;
 	}
 
 	/**
-	 * Adds filters and enqueues assets.
+	 * Adds filters.
 	 *
 	 * @uses self::_enqueue_assets, self::_setup_shortcode, add_filter
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
-
-		$enqueue_script = ! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
-		$this->_enqueue_assets( $enqueue_script, true );
 		$this->_setup_shortcode();
 
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
