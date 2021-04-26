@@ -68,6 +68,9 @@ class Admin_Menu extends Base_Admin_Menu {
 			remove_menu_page( 'link-manager.php' );
 		}
 
+		$this->hide_unauthorized_menus();
+		$this->sort_hidden_submenus();
+
 		ksort( $GLOBALS['menu'] );
 	}
 
@@ -149,7 +152,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		if ( ! $menu_exists ) {
 			// Remove the submenu auto-created by Core.
 			// We remove it instead of hiding it because WP-Admin will see it as the first submenu item and therefore it acts as the menu's default URL.
-			remove_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
+			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
 		}
 	}
 
@@ -380,6 +383,8 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) {
+		$this->hide_submenu_page( 'options-general.php', 'sharing' );
+
 		if ( $wp_admin ) {
 			return;
 		}
@@ -388,9 +393,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
 		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
-
-		// We are safe to remove this page because it does not have any additional information and it's not a main page.
-		remove_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	/**

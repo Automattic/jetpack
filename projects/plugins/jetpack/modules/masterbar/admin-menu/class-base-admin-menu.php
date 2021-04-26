@@ -468,6 +468,55 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Hide menus that are unauthorized and don't have visible submenus.
+	 *
+	 * This must be done at the end of menu and submenu manipulation in order to avoid performing this check each time
+	 * the submenus are altered.
+	 */
+	public function hide_unauthorized_menus() {
+		global $menu, $submenu;
+
+		foreach ( $menu as $menu_index => $menu_item ) {
+			// Hide the menu if it doesn't have any submenus visible.
+			if ( ! current_user_can( $menu_item[1] ) && isset( $submenu[ $menu_item[2] ] ) && ! $this->has_visible_items( $submenu[ $menu_item[2] ] ) ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
+			}
+		}
+	}
+
+	/**
+	 * Sort the hidden submenus by moving them at the end of the array in order to avoid WP using them as default URLs.
+	 *
+	 * This operation has to be done at the end of submenu manipulation in order to guarantee that the hidden submenus
+	 * are at the end of the array.
+	 */
+	public function sort_hidden_submenus() {
+		global $submenu;
+
+		foreach ( $submenu as $menu_slug => $submenu_items ) {
+			foreach ( $submenu_items as $submenu_index => $submenu_item ) {
+				if ( $this->is_item_visible( $submenu_item ) ) {
+					continue;
+				}
+
+				unset( $submenu[ $menu_slug ][ $submenu_index ] );
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ $menu_slug ][] = $submenu_item;
+			}
+		}
+	}
+
+	/**
+	 * Check if the given item is visible or not in the admin menu.
+	 *
+	 * @param array $item A menu or submenu array.
+	 */
+	public function is_item_visible( $item ) {
+		return ! isset( $item[4] ) || false === strpos( self::HIDE_CSS_CLASS, $item[4] );
+	}
+
+	/**
 	 * Whether to use wp-admin pages rather than Calypso.
 	 *
 	 * Options:

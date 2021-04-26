@@ -349,7 +349,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Syncs the sidebar collapsed state from Calypso Preferences.
 	 */
 	public function sync_sidebar_collapsed_state() {
-		$sidebar_collapsed = get_user_attribute( get_current_user_id(), 'calypso_preferences' )['sidebarCollapsed'];
+		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+
+		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
 		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
 	}
 }
