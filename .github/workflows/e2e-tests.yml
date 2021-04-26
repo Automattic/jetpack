@@ -11,7 +11,7 @@ on:
 
 jobs:
   e2e-tests:
-    name: "E2E tests: with ${{ matrix.group }} plugin"
+    name: "E2E ${{ matrix.group }} tests"
     runs-on: ubuntu-latest
     timeout-minutes: 20  # 2021-01-18: Successful runs seem to take 9-12 minutes
     strategy:
@@ -85,6 +85,10 @@ jobs:
         yarn install
         yarn jetpack build plugins/jetpack -v --production
 
+
+    - name: Set Gutenberg version
+      run: if [ ${{ matrix.group }} == gutenberg ]; then echo "GUTENBERG=latest" >> $GITHUB_ENV; fi
+
     - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
@@ -92,13 +96,13 @@ jobs:
       run: |
         yarn install
         yarn test-decrypt-config
+        echo "Gutenberg: $GUTENBERG"
         yarn env-start
         yarn tunnel-on
-        if [ ${{ matrix.group }} == gutenberg ]; then echo "GUTENBERG=latest" >> $GITHUB_ENV; fi
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: GUTENBERG=${{env.GUTENBERG}} yarn test-e2e --group=${{ matrix.group }}
+      run: yarn test-e2e --group=${{ matrix.group }}
 
     - name: Environment tear-down
       if: ${{ always() }}
