@@ -373,8 +373,7 @@ EOT;
 	 */
 	public function render_block( $attributes ) {
 		// Enqueue assets.
-		$enqueue_script = ! ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
-		$this->_enqueue_assets( $enqueue_script, true );
+		$this->_enqueue_assets( false, true );
 
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
