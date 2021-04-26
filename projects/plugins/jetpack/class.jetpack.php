@@ -784,6 +784,7 @@ class Jetpack {
 
 		// After a successful connection.
 		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
+		add_action( 'jetpack_site_registered', array( $this, 'handle_unique_registrations_stats' ) );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -5025,6 +5026,25 @@ endif;
 		// Increment number of times connected.
 		$jetpack_unique_connection['connected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+	}
+
+	/**
+	 * This action fires when the site is registered (connected at a site level).
+	 */
+	public function handle_unique_registrations_stats() {
+		$jetpack_unique_registrations = Jetpack_Options::get_option( 'unique_registrations' );
+		// Checking if site has been registered previously before recording unique connection.
+		if ( ! $jetpack_unique_registrations ) {
+
+			$jetpack_unique_registrations = 0;
+
+			$this->stat( 'connections', 'unique-registrations' );
+			$this->do_stats( 'server_side' );
+		}
+
+		// Increment number of times connected.
+		$jetpack_unique_registrations ++;
+		Jetpack_Options::update_option( 'unique_registrations', $jetpack_unique_registrations );
 	}
 
 	/**
