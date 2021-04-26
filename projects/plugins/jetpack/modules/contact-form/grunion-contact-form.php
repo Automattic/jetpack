@@ -256,11 +256,14 @@ class Grunion_Contact_Form_Plugin {
 		self::register_contact_form_blocks();
 	}
 
+	/**
+	 * Rename the Feedback submenu to Form Responses.
+	 */
 	public function rename_feedback_menu() {
 		$slug = 'edit.php?post_type=feedback';
 		remove_submenu_page(
 			$slug,
-			$slug,
+			$slug
 		);
 		add_submenu_page(
 			$slug,
