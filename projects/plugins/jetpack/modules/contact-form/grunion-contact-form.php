@@ -271,7 +271,8 @@ class Grunion_Contact_Form_Plugin {
 			__( 'Form Responses', 'jetpack' ),
 			'edit_pages',
 			$slug,
-			null
+			null,
+			0
 		);
 	}
 
