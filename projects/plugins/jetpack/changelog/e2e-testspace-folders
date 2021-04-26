@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+E2E tests: publish Testspace results in folders
