@@ -17,11 +17,9 @@ import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
 import {
 	provisionJetpackStartConnection,
-	execShellCommand,
 	execWpCommand,
 	getAccountCredentials,
 } from '../utils-helper';
-import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
 import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
