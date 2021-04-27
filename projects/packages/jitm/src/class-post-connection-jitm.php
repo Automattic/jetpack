@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\JITMS;
 use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -378,7 +379,7 @@ class Post_Connection_JITM extends JITM {
 				'external_user_id' => urlencode_deep( $user->ID ),
 				'user_roles'       => urlencode_deep( $user_roles ),
 				'query_string'     => urlencode_deep( $query ),
-				'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
+				'mobile_browser'   => Device_Detection::is_smartphone() ? 1 : 0,
 				'_locale'          => get_user_locale(),
 			),
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
