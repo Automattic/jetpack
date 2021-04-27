@@ -3396,6 +3396,7 @@ p {
 	 */
 	public static function do_version_bump( $version, $old_version ) {
 		if ( $old_version ) { // For existing Jetpack installations.
+			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
 
 			// If a front end page is visited after the update, the 'wp' action will fire.
 			add_action( 'wp', 'Jetpack::set_update_modal_display' );
@@ -3410,6 +3411,18 @@ p {
 	 */
 	public static function set_update_modal_display() {
 		self::state( 'display_update_modal', true );
+
+	}
+
+	/**
+	 * Enqueues the block library styles.
+	 *
+	 * @param string $hook The current admin page.
+	 */
+	public static function enqueue_block_style( $hook ) {
+		if ( 'toplevel_page_jetpack' === $hook ) {
+			wp_enqueue_style( 'wp-block-library' );
+		}
 	}
 
 	/**
@@ -3744,6 +3757,11 @@ p {
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
+
+		if ( isset( $_COOKIE['jetpackState']['display_update_modal'] ) ) {
+			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
+		}
+
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_connection_ready() || $is_offline_mode ) {
