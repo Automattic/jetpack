@@ -247,13 +247,13 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$submenus_to_update = array(
 				'users.php'              => 'https://wordpress.com/people/team/' . $this->domain,
 				'grofiles-editor'        => 'https://wordpress.com/me',
-				'grofiles-user-settings' => 'https://wordpress.com/me/account',
+				'grofiles-user-settings' => 'https://wordpress.com/me/account/?site=' . $this->domain,
 			);
 			$this->update_submenus( 'users.php', $submenus_to_update );
 		} else {
 			$submenus_to_update = array(
 				'grofiles-editor'        => 'https://wordpress.com/me',
-				'grofiles-user-settings' => 'https://wordpress.com/me/account',
+				'grofiles-user-settings' => 'https://wordpress.com/me/account/?site=' . $this->domain,
 			);
 			$this->update_submenus( 'profile.php', $submenus_to_update );
 		}
