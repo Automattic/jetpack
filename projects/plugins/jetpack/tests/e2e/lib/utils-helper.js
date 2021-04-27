@@ -69,8 +69,16 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 	}
 
 	const escapedToken = json.access_token.replace( /([\$!()&])/g, '\\$1' );
+
+	fs.writeFileSync(
+		config.get( 'temp.accessToken' ),
+		`wp --user=${ user } jetpack authorize_user --token=${ escapedToken }`
+	);
+
 	const out = await execSyncShellCommand(
-		`yarn wp-env run tests-cli "wp --user=${ user } jetpack authorize_user --token=${ escapedToken }"`
+		`yarn wp-env run tests-cli "sh wp-content/plugins/jetpack-dev/tests/e2e/${ config.get(
+			'temp.accessToken'
+		) }"`
 	);
 	logger.info( out );
 
