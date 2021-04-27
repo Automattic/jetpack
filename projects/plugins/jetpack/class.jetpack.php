@@ -3401,9 +3401,13 @@ p {
 
 	/**
 	 * Enqueues the block library styles.
+	 *
+	 * @param string $hook The current admin page.
 	 */
-	public static function enqueue_block_style() {
-		wp_enqueue_style( 'wp-block-library' );
+	public static function enqueue_block_style( $hook ) {
+		if ( 'toplevel_page_jetpack' === $hook ) {
+			wp_enqueue_style( 'wp-block-library' );
+		}
 	}
 
 	/**
@@ -3733,6 +3737,11 @@ p {
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
+
+		if ( isset( $_COOKIE['jetpackState']['display_update_modal'] ) ) {
+			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
+		}
+
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_connection_ready() || $is_offline_mode ) {
