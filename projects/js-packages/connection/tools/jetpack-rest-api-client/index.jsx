@@ -3,6 +3,8 @@
  */
 import { assign } from 'lodash';
 
+/* eslint-disable no-unused-vars */
+
 /**
  * Helps create new custom error classes to better notify upper layers.
  *
@@ -57,7 +59,7 @@ function JetpackRestApiClient( root, nonce ) {
 			headers = {
 				'X-WP-Nonce': newNonce,
 			};
-			getParams = { // eslint-disable-line no-unused-vars
+			getParams = {
 				credentials: 'same-origin',
 				headers: headers,
 			};
@@ -70,9 +72,13 @@ function JetpackRestApiClient( root, nonce ) {
 			};
 		},
 
-		registerSite: registrationNonce =>
+		registerSite: ( registrationNonce, redirectUri ) =>
 			postRequest( `${ apiRoot }jetpack/v4/connection/register`, postParams, {
-				body: JSON.stringify( { registration_nonce: registrationNonce, no_iframe: true } ),
+				body: JSON.stringify( {
+					registration_nonce: registrationNonce,
+					no_iframe: true,
+					redirect_uri: redirectUri,
+				} ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
@@ -101,7 +107,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @param {object} params - The request params.
 	 * @returns {Promise<Response>} The request result promise.
 	 */
-	function getRequest( route, params ) { // eslint-disable-line no-unused-vars
+	function getRequest( route, params ) {
 		return fetch( addCacheBuster( route ), params );
 	}
 
@@ -119,6 +125,8 @@ function JetpackRestApiClient( root, nonce ) {
 
 	assign( this, methods );
 }
+
+/* eslint-enable no-unused-vars */
 
 /**
  * Check the response status.

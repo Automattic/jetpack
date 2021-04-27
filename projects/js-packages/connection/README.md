@@ -20,6 +20,8 @@ Contains the whole connection flow, including site registration and user authori
 - *onRegistered* - callback, to be called upon registration success.
 - *onUserConnected* - callback, to be called when the connection is fully established.
 - *redirectFunc* - callback, the redirect function (`window.location.assign()` by default).
+- *from* - string, custom string parameter to identify where the request is coming from.
+- *redirectUrl* - string, wp-admin URI so the user to get redirected there after Calypso connection flow.
 
 ### Usage
 ```jsx
@@ -40,6 +42,8 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	forceCalypsoFlow={ false }
 	onRegistered={ onRegistered }
 	onUserConnected={ onUserConnected }
+	from="connection-ui"
+	redirectUri="tools.php?page=wpcom-connection-manager"
 />
 ```
 

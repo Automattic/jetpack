@@ -48,6 +48,8 @@ const Main = props => {
 		onUserConnected,
 		registrationNonce,
 		redirectFunc,
+		from,
+		redirectUri,
 	} = props;
 
 	/**
@@ -65,6 +67,14 @@ const Main = props => {
 		url => {
 			url = url || authorizationUrl;
 
+			if ( ! url.includes( '?' ) ) {
+				url += '?';
+			}
+
+			if ( from ) {
+				url += '&from=' + encodeURIComponent( from );
+			}
+
 			if ( ! url ) {
 				throw new Error( 'Authorization URL is required' );
 			}
@@ -76,7 +86,7 @@ const Main = props => {
 
 			setIsUserConnecting( true );
 		},
-		[ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc ]
+		[ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc, from ]
 	);
 
 	/**
@@ -105,7 +115,7 @@ const Main = props => {
 			setIsRegistering( true );
 
 			restApi
-				.registerSite( registrationNonce )
+				.registerSite( registrationNonce, redirectUri )
 				.then( response => {
 					setIsRegistering( false );
 
@@ -119,7 +129,7 @@ const Main = props => {
 					throw error;
 				} );
 		},
-		[ setIsRegistering, isRegistered, onRegistered, connectUser, registrationNonce ]
+		[ setIsRegistering, isRegistered, onRegistered, connectUser, registrationNonce, redirectUri ]
 	);
 
 	if ( isRegistered && isUserConnected ) {
@@ -165,6 +175,8 @@ Main.propTypes = {
 	onUserConnected: PropTypes.func,
 	registrationNonce: PropTypes.string.isRequired,
 	redirectFunc: PropTypes.func,
+	from: PropTypes.string,
+	redirectUri: PropTypes.string,
 };
 
 Main.defaultProps = {

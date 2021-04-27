@@ -127,6 +127,7 @@ class REST_Connector {
 						'required' => true,
 					),
 					'no_iframe'          => array( 'type' => 'boolean' ),
+					'redirect_uri'       => array( 'type' => 'string' ),
 				),
 			)
 		);
@@ -419,14 +420,16 @@ class REST_Connector {
 			return $result;
 		}
 
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
 		if ( class_exists( 'Jetpack' ) ) {
-			$authorize_url = \Jetpack::build_authorize_url( false, ! $request->get_param( 'no_iframe' ) );
+			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri, ! $request->get_param( 'no_iframe' ) );
 		} else {
 			if ( ! $request->get_param( 'no_iframe' ) ) {
 				add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 			}
 
-			$authorize_url = $this->connection->get_authorization_url();
+			$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
 
 			if ( ! $request->get_param( 'no_iframe' ) ) {
 				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );

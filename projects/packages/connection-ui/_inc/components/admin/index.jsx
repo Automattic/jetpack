@@ -74,6 +74,8 @@ export default function Admin() {
 				onRegistered={ onRegistered }
 				onUserConnected={ onUserConnected }
 				registrationNonce={ registrationNonce }
+				from="connection-ui"
+				redirectUri="tools.php?page=wpcom-connection-manager"
 			/>
 		</React.Fragment>
 	);
