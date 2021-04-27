@@ -242,7 +242,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 #### Enhancements
 - Blocks: improve test coverage for better reliability of each one of Jetpack's blocks.
 - Carousel: improve general performance.
-- Dashboard: Add explanation when a feature is unavailable.
+- Dashboard: add explanation when a feature is unavailable.
 - Dashboard: improve the display of buttons in the update modal.
 - Jetpack Videos: add "Play Inline" setting to play a video inline instead of full-screen on mobile devices when enabled.
 - SEO Tools: improve usability of settings interface.
@@ -260,13 +260,13 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 #### Bug fixes
 - Image CDN: correct image URLs in srcset in certain cases.
 - Instant Search: enable link filtering on built-in WordPress taxonomies.
-- Instant Search: fix handling of Customizer controls using refresh.
+- Instant Search: fix handling of customizer controls using refresh.
 - Instant Search: fix race condition for API responses.
 - Instant Search: prevent excluding all post types.
 - Instant Search: set the number of returned posts using the query's `posts_per_page` value.
 - Instant Search: improve settings interface usability.
 - Markdown: fix regression that broke links with single-quoted href attributes.
-- Sharing / Publicize: Properly encode URLs in Open Graph tags
+- Sharing / Publicize: properly encode URLs in Open Graph tags.
 
 --------
 
