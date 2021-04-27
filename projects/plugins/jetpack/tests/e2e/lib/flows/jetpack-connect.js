@@ -158,34 +158,12 @@ export async function connectThroughJetpackStart( {
 	}
 
 	const credentials = getAccountCredentials( wpcomUser );
+	await provisionJetpackStartConnection( credentials[ 2 ] );
 
-	const nextUrl = provisionJetpackStartConnection( credentials[ 2 ] );
-	// sometimes after clicking on Approve button below user being redirected to wp-login page
-	// maybe waiting for a bit will help?
-	await loginPage.waitForTimeout( 10000 );
-
-	// We cannot use AuthorizePage.visit because of the dynamic url
-	await loginPage.goto( nextUrl );
-
-	await ( await AuthorizePage.init( page ) ).approve();
-	await ( await PlansPage.init( page ) ).isCurrentPlan( 'business' );
-	await ( await WPLoginPage.visit( page ) ).login();
-	await ( await Sidebar.init( page ) ).selectJetpack();
-
-	const jetpackPage = await JetpackPage.init( page );
+	const jetpackPage = await JetpackPage.visit( page );
 
 	await jetpackPage.openMyPlan();
-
-	await page.waitForResponse(
-		response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
-		{ timeout: 60 * 1000 }
-	);
-
 	await jetpackPage.reload( { waitUntil: 'domcontentloaded' } );
-
-	await execShellCommand(
-		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	);
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
