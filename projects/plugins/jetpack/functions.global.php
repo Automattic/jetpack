@@ -443,15 +443,6 @@ function jetpack_allow_pptx_files( $file_data, $file, $filename, $mimes ) {
 		return $file_data;
 	}
 
-	if ( 'asc' === strtolower( $file_type['ext'] ) ) {
-		if ( wpcom_check_gpg_valid_key( $file ) ) {
-			$file_data['type'] = $file_type['type'];
-			$file_data['ext']  = $file_type['ext'];
-		}
-
-		return $file_data;
-	}
-
 	$finfo     = finfo_open( FILEINFO_MIME_TYPE );
 	$real_mime = finfo_file( $finfo, $file );
 	finfo_close( $finfo );
