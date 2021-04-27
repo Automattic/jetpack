@@ -70,14 +70,20 @@ function MediaButtonMenu( props ) {
 						</Button>
 					)
 				}
-				renderContent={ () => (
+				renderContent={ ( { onClose } ) => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
-							<MenuItem icon={ media } onClick={ open }>
+							<MenuItem
+								icon={ media }
+								onClick={ () => {
+									onClose();
+									open();
+								} }
+							>
 								{ __( 'Media Library', 'jetpack' ) }
 							</MenuItem>
 
-							<MediaSources open={ open } setSource={ setSelectedSource } />
+							<MediaSources open={ open } setSource={ setSelectedSource } onClick={ onClose } />
 						</MenuGroup>
 					</NavigableMenu>
 				) }
