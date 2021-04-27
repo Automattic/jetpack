@@ -39,10 +39,10 @@ You'll want to make sure Carousel works as expected in all scenarios, in differe
 
 ### Plugin, theme, feature management on WordPress.com
 
-Once you've connected your site to your WordPress.com account, you'll want to make sure you can install and manage plugins and themes from the WordPress.com dashbaord. To test this, go to [wordpress.com/plugins](https://wordpress.com/plugins) and [wordpress.com/themes](https://wordpress.com/themes) and try interacting with your site.
+Once you've connected your site to your WordPress.com account, you'll want to make sure you can install and manage plugins and themes from the WordPress.com dashboard. To test this, go to [wordpress.com/plugins](https://wordpress.com/plugins) and [wordpress.com/themes](https://wordpress.com/themes) and try interacting with your site.
 You can also test deactivating and activating features from the Settings screen on WordPress.com ([wordpress.com/settings](https://wordpress.com/settings)).
 
-Try making those tests with your browser's Netwwork panel opened. If you experience issues, copy the response of the matching request in the network tools, like so:
+Try making those tests with your browser's Network panel opened. If you experience issues, copy the response of the matching request in the network tools, like so:
 
 ![image](https://user-images.githubusercontent.com/426388/116233578-c2620b80-a75b-11eb-9729-2b35d1d7c108.png)
 
