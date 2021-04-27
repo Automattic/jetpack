@@ -48,7 +48,9 @@ class Initial_State {
 			),
 			'connectionData'   => array(
 				'doNotUseConnectionIframe' => $is_safari || User_Agent_Info::is_opera_desktop() || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
-				'authorizationUrl'         => ( $this->manager->is_connected() && ! $this->manager->is_user_connected() ) ? $this->manager->get_authorization_url() : null,
+				'authorizationUrl'         => ( $this->manager->is_connected() && ! $this->manager->is_user_connected() )
+					? $this->manager->get_authorization_url( null, admin_url( 'tools.php?page=wpcom-connection-manager' ) )
+					: null,
 			),
 		);
 	}
