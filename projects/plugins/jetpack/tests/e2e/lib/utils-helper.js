@@ -5,7 +5,6 @@ const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
-const { syncJetpackPlanData } = require( './flows/jetpack-connect' );
 const logger = require( './logger' );
 const { E2E_DEBUG } = process.env;
 
@@ -73,7 +72,6 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 		`wp --user=${ user } jetpack authorize_user --token=\'${ json.access_token }\'`
 	);
 
-	syncJetpackPlanData( plan, false );
 	return true;
 }
 

@@ -11,7 +11,12 @@ import {
 	getAccountCredentials,
 	provisionJetpackStartConnection,
 } from '../utils-helper';
-import { loginToWpComIfNeeded, loginToWpSite, isBlogTokenSet } from '../flows/jetpack-connect';
+import {
+	loginToWpComIfNeeded,
+	loginToWpSite,
+	isBlogTokenSet,
+	syncJetpackPlanData,
+} from '../flows/jetpack-connect';
 import config from 'config';
 
 async function maybePreConnect() {
@@ -28,7 +33,8 @@ async function maybePreConnect() {
 
 	if ( ! ( await isBlogTokenSet() ) ) {
 		const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
-		return await provisionJetpackStartConnection( userId, plan );
+		await provisionJetpackStartConnection( userId, plan );
+		return await syncJetpackPlanData( plan, false );
 	}
 
 	// We are connected. Let's save the existing connection options just in case.
