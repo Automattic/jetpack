@@ -136,7 +136,9 @@ export default class SearchHomepage extends WpPage {
 	}
 
 	async waitForSearchResponse() {
-		return this.page.waitForResponse( resp => SearchHomepage.SEARCH_API_PATTERN.test( resp.url() ) );
+		return this.page.waitForResponse( resp =>
+			SearchHomepage.SEARCH_API_PATTERN.test( resp.url() )
+		);
 	}
 
 	async isSortingLinkSelected( sorting = 'relevance' ) {
