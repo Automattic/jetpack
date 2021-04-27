@@ -44,7 +44,7 @@ export default class MailchimpBlock extends PageActions {
 		// explore a better way to sync the site. Maybe enable all the required modules as part of connection flow
 		// Or implement a way to trigger a sync manually.
 		let count = 0;
-		while ( count <= 5 ) {
+		while ( count <= 10 ) {
 			try {
 				count++;
 				await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
