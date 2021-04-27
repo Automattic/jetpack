@@ -1094,11 +1094,7 @@ class Jetpack {
 
 	function jetpack_track_last_sync_callback( $params ) {
 		/**
-		 * Filter to turn off jitm caching
-		 *
-		 * @since 5.4.0
-		 *
-		 * @param bool false Whether to cache just in time messages
+		 * This filter is documented in the Automattic\Jetpack\JITMS\Post_Connection_JITM class.
 		 */
 		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
 			return $params;
