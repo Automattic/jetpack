@@ -30,7 +30,6 @@ const config = {
 		tunnels: `${ tempDir }/e2e-tunnels.txt`,
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
-		accessToken: `${ tempDir }/access-token.sh`,
 	},
 	consoleIgnore: [
 		'This is a global warning',

@@ -5,6 +5,7 @@ const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const shellescape = require( 'shell-escape' );
 const logger = require( './logger' );
 const { E2E_DEBUG } = process.env;
 
@@ -68,17 +69,20 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	const escapedToken = json.access_token.replace( /([\$!()&])/g, '\\$1' );
-
-	fs.writeFileSync(
-		config.get( 'temp.accessToken' ),
-		`wp --user=${ user } jetpack authorize_user --token=${ escapedToken }`
-	);
-
-	const out = await execSyncShellCommand(
-		`yarn wp-env run tests-cli "sh wp-content/plugins/jetpack-dev/tests/e2e/${ config.get(
-			'temp.accessToken'
-		) }"`
+	const out = execSyncShellCommand(
+		shellescape( [
+			'yarn',
+			'wp-env',
+			'run',
+			'tests-cli',
+			shellescape( [
+				'wp',
+				'--user=admin',
+				'jetpack',
+				'authorize_user',
+				`--token=${ json.access_token }`,
+			] ),
+		] )
 	);
 	logger.info( out );
 
