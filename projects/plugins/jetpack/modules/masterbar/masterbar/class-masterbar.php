@@ -461,7 +461,7 @@ class Masterbar {
 	 * Hide language dropdown on user edit form.
 	 */
 	public function hide_language_dropdown() {
-		add_filter( 'get_available_languages', '_return_null' );
+		add_filter( 'get_available_languages', '__return_null' );
 	}
 
 	/**
