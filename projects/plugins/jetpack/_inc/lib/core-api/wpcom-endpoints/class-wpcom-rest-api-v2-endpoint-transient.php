@@ -51,12 +51,22 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	 * Delete transient callback.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function delete_transient( \WP_REST_Request $request ) {
-		return array(
-			'success' => delete_transient( $request->get_param( 'name' ) ),
-		);
+		$transient_name = $request->get_param( 'name' );
+		if ( false !== strpos( $transient_name, 'jetpack_connected_user_data_' ) &&
+			wp_get_current_user()->ID === (int) substr( $transient_name, 28 ) ) {
+				return array(
+					'success' => delete_transient( $transient_name ),
+				);
+		} else {
+			return new WP_Error(
+				'rest_cannot_delete',
+				__( 'Sorry, you are not allowed to delete this transient.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
 	}
 
 	/**
