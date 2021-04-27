@@ -1,8 +1,8 @@
-# Jetpack Backup
+# Backups
 
 Easily restore or download a backup of your site from a specific moment in time.
 
-## How to install Jetpack Backup
+## How to install Backups
 
 ### Installation From Git Repo
 
@@ -16,5 +16,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Jetpack Backup is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+Backups is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

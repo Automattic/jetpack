@@ -1,8 +1,8 @@
 <?php
 /**
- * Primary class file for the Jetpack Backup plugin.
+ * Primary class file for the Backups plugin.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/backups
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class Jetpack_Backup
+ * Class Backups
  */
-class Jetpack_Backup {
+class Backups {
 	/**
 	 * Constructor.
 	 */
@@ -36,15 +36,15 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts.
 	 */
 	public function enqueue_admin_scripts() {
-		$build_assets = require_once JETPACK_BACKUP_PLUGIN_DIR . '/build/index.asset.php';
+		$build_assets = require_once BACKUPS_PLUGIN_DIR . '/build/index.asset.php';
 		wp_register_script(
-			'jetpack-backup-main-js',
-			plugins_url( 'build/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			'backups-main-js',
+			plugins_url( 'build/index.js', BACKUPS_PLUGIN_ROOT_FILE ),
 			$build_assets['dependencies'],
 			$build_assets['version'],
 			true
 		);
-		wp_enqueue_script( 'jetpack-backup-main-js' );
+		wp_enqueue_script( 'backups-main-js' );
 	}
 
 	/**
@@ -52,10 +52,10 @@ class Jetpack_Backup {
 	 */
 	public function admin_menu() {
 		add_menu_page(
-			__( 'Jetpack Backup', 'jetpack-backup' ),
-			__( 'Backup', 'jetpack-backup' ),
+			__( 'Backups', 'backups' ),
+			__( 'Backups', 'backups' ),
 			'manage_options',
-			'jetpack-backup-menu',
+			'backups-menu',
 			array( $this, 'plugin_settings_page' ),
 			'dashicons-superhero',
 			99
@@ -67,7 +67,7 @@ class Jetpack_Backup {
 	 */
 	public function plugin_settings_page() {
 		?>
-			<div id="jetpack-backup-root"></div>
+			<div id="backups-root"></div>
 		<?php
 	}
 }

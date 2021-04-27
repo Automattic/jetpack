@@ -13,7 +13,7 @@ import App from './components/App';
  * Initial render function.
  */
 function render() {
-	const container = document.getElementById( 'jetpack-backup-root' );
+	const container = document.getElementById( 'backups-root' );
 
 	if ( null === container ) {
 		return;
