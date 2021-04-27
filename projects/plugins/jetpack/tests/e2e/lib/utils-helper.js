@@ -68,9 +68,8 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	await execWpCommand(
-		`wp --user=${ user } jetpack authorize_user --token=\'${ json.access_token }\'`
-	);
+	const escapedToken = json.access_token.replace( /([$!()])/g, '\\$1' );
+	await execWpCommand( `wp --user=${ user } jetpack authorize_user --token=\'${ escapedToken }\'` );
 
 	return true;
 }

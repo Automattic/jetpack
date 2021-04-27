@@ -33,8 +33,8 @@ async function maybePreConnect() {
 
 	if ( ! ( await isBlogTokenSet() ) ) {
 		const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
-		await provisionJetpackStartConnection( userId, plan );
-		return await syncJetpackPlanData( plan, false );
+		return await provisionJetpackStartConnection( userId, plan );
+		// return await syncJetpackPlanData( plan, false );
 	}
 
 	// We are connected. Let's save the existing connection options just in case.
