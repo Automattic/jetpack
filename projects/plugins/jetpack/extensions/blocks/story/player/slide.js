@@ -24,9 +24,10 @@ export const Slide = ( {
 	settings,
 	targetAspectRatio,
 } ) => {
-	const { currentSlideIndex } = useSelect(
+	const { currentSlideIndex, buffering } = useSelect(
 		select => ( {
 			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
+			buffering: select( 'jetpack/story/player' ).isBuffering( playerId ),
 		} ),
 		[]
 	);
@@ -60,7 +61,7 @@ export const Slide = ( {
 		if ( ! mediaRef.current ) {
 			return;
 		}
-		waitMediaReady( mediaRef.current, true ).then( () => {
+		waitMediaReady( mediaRef.current ).then( () => {
 			setLoading( false );
 		} );
 	}, [ preload, uploading ] );
@@ -68,8 +69,13 @@ export const Slide = ( {
 	/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
 	return (
 		<>
-			{ visible && ( loading || uploading ) && (
-				<div className={ classNames( 'wp-story-slide', 'is-loading', { transparent: uploading } ) }>
+			{ visible && ( loading || uploading || buffering ) && (
+				<div
+					className={ classNames( 'wp-story-slide', 'is-loading', {
+						transparent: playing && buffering,
+						'semi-transparent': uploading || ( ! playing && buffering ),
+					} ) }
+				>
 					<CalypsoSpinner />
 				</div>
 			) }

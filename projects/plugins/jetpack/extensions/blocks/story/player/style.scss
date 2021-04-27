@@ -99,8 +99,12 @@
 			align-items: center;
 			justify-content: center;
 
-			&.transparent {
+			&.semi-transparent {
 				background-color: #4845427f;
+			}
+
+			&.transparent {
+				background-color: transparent;
 			}
 
 			@keyframes rotate-spinner {

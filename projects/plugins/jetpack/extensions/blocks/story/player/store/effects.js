@@ -5,7 +5,7 @@
 /**
  * Internal dependencies
  */
-import { setEnded, setCurrentSlideProgress, setCurrentSlideEnded } from './actions';
+import { setBuffering, setCurrentSlideEnded, setCurrentSlideProgress, setEnded } from './actions';
 import {
 	getCurrentSlideIndex,
 	getCurrentSlideProgress,
@@ -30,7 +30,7 @@ const isVideo = mediaElement =>
  * @param {Object} store   - Store instance.
  */
 function syncNewMediaElement( action, store ) {
-	const { getState } = store;
+	const { getState, dispatch } = store;
 	const playerId = action.playerId;
 
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
@@ -44,6 +44,9 @@ function syncNewMediaElement( action, store ) {
 	if ( mediaElement.currentTime === 0 && currentSlideProgress.currentTime > 0 ) {
 		mediaElement.currentTime = currentSlideProgress.currentTime;
 	}
+
+	mediaElement.onwaiting = () => dispatch( setBuffering( playerId, true ) );
+	mediaElement.onplaying = () => dispatch( setBuffering( playerId, false ) );
 }
 
 /**
@@ -63,6 +66,8 @@ function syncWithMediaElement( action, store ) {
 
 	if ( isVideo( previousMediaElement ) ) {
 		previousMediaElement.currentTime = 0;
+		previousMediaElement.onwaiting = null;
+		previousMediaElement.onplaying = null;
 		previousMediaElement.pause();
 	}
 

@@ -29,6 +29,7 @@ export function player( state = defaultPlayerState, action ) {
 		case 'SLIDE_READY':
 			return {
 				...state,
+				buffering: false,
 				currentSlide: {
 					...state.currentSlide,
 					mediaElement: action.mediaElement,
@@ -74,6 +75,7 @@ export function player( state = defaultPlayerState, action ) {
 			return {
 				...state,
 				playing: action.value,
+				buffering: ! action.value ? false : state.buffering,
 				fullscreen:
 					! state.playing && action.value ? state.settings.playInFullscreen : state.fullscreen,
 				ended: resetStory ? false : state.ended,
@@ -86,6 +88,11 @@ export function player( state = defaultPlayerState, action ) {
 				previousSlide: resetStory ? null : state.previousSlide,
 			};
 		}
+		case 'SET_BUFFERING':
+			return {
+				...state,
+				buffering: action.value,
+			};
 		case 'SET_FULLSCREEN':
 			return {
 				...state,

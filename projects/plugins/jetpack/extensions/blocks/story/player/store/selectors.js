@@ -75,6 +75,19 @@ export function isMuted( state, playerId ) {
 }
 
 /**
+ * Returns the status of the player,
+ * whether it's waiting to load the next frame or not
+ *
+ * @param {object} state    - State object.
+ * @param {string} playerId - The player identifier.
+ *
+ * @returns {boolean} is player buffering
+ */
+export function isBuffering( state, playerId ) {
+	return state[ playerId ].buffering;
+}
+
+/**
  * Returns the current slide media element
  *
  * @param {object} state    - State object.

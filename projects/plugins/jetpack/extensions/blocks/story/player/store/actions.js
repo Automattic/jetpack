@@ -163,3 +163,20 @@ export function init( playerId, settings = {} ) {
 		settings,
 	};
 }
+
+/**
+ * Returns an action object used in signalling that
+ * the current video is buffering
+ *
+ * @param {string} playerId  - player identifier
+ * @param {boolean} buffering  - true when the video is buffering, false when it's restarting
+ *
+ * @returns {object} Action object.
+ */
+export function setBuffering( playerId, buffering ) {
+	return {
+		type: 'SET_BUFFERING',
+		value: buffering,
+		playerId,
+	};
+}

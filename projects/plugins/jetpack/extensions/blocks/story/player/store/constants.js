@@ -45,6 +45,7 @@ export const defaultPlayerState = {
 	muted: false,
 	playing: false,
 	ended: false,
+	buffering: false,
 	fullscreen: false,
 	settings: defaultPlayerSettings,
 };

@@ -36,7 +36,7 @@ export const Video = ( { title, className, id, mediaRef, mime, url, poster } ) =
 		title={ title }
 		type={ mime }
 		src={ url }
-		poster={ poster }
+		preload="auto"
 		playsInline
 	></video>
 );
