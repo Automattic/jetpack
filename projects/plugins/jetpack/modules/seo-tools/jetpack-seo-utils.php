@@ -57,6 +57,17 @@ class Jetpack_SEO_Utils {
 	}
 
 	/**
+	 * Sanitizes the custom front page meta description input.
+	 *
+	 * @param string $value Front page meta string.
+	 *
+	 * @return string The sanitized string.
+	 */
+	public static function sanitize_front_page_meta_description( $value ) {
+		return wp_strip_all_tags( $value );
+	}
+
+	/**
 	 * Updates the site option value for front page meta description.
 	 *
 	 * @param string $value                     New value for front page meta description.
@@ -65,7 +76,7 @@ class Jetpack_SEO_Utils {
 	 * @return string Saved value, or empty string if no update was performed.
 	 */
 	public static function update_front_page_meta_description( $value, $delete_legacy_meta_option = false ) {
-		$front_page_description = sanitize_text_field( $value );
+		$front_page_description = self::sanitize_front_page_meta_description( $value );
 
 		/**
 		 * Can be used to limit the length of front page meta description.
