@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+On WPCOM sites, the link in "Users -> Personal Settings" sidebar menu includes a "site" query parameter
