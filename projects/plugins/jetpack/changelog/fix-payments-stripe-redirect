@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Payments Block: redirect back to block editor after Stripe connection.
