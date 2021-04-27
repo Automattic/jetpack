@@ -33,24 +33,28 @@ export default class MailchimpBlock extends PageActions {
 		const formSelector = await this.waitForElementToBeVisible( setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
-		const wpComTab = await this.clickAndWaitForNewPage( setupFormSelector );
-
-		if ( ! isLoggedIn ) {
-			await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
-		}
 
 		// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
 		// TODO:
 		// explore a better way to sync the site. Maybe enable all the required modules as part of connection flow
 		// Or implement a way to trigger a sync manually.
 		let count = 0;
-		while ( count <= 10 ) {
+		let wpComTab;
+		while ( count <= 3 ) {
 			try {
 				count++;
+
+				wpComTab = await this.clickAndWaitForNewPage( setupFormSelector );
+
+				if ( ! isLoggedIn ) {
+					await ( await LoginPage.init( wpComTab ) ).login( 'defaultUser' );
+				}
+
 				await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
 
 				const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
 				await wpComConnectionsPage.selectMailchimpList();
+				await wpComTab.close();
 				await this.page.bringToFront();
 				const reCheckSelector = this.getSelector( 'button.is-link' );
 				return await this.click( reCheckSelector );
@@ -59,7 +63,9 @@ export default class MailchimpBlock extends PageActions {
 					'ConnectionsPage is not available yet. Attempt: ' + count + ' URL: ' + connectionsUrl
 				);
 				const url = `https://wordpress.com/marketing/connections/${ new URL( siteUrl ).host }`;
-				await wpComTab.goto( url );
+				await wpComTab.close();
+				await this.page.bringToFront();
+				// await wpComTab.goto( url );
 			}
 		}
 
