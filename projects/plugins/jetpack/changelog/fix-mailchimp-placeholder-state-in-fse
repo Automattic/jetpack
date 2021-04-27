@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Mailchimp block: Remove placeholder wrapper div from server rendered markup to fix CSS issue when upgrade nudges are present on the front end.

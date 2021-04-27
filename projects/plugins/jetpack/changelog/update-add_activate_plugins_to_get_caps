@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: WordPress.com API: dadd the activate_plugins capability to the list of user capabilities returned by get_capabilities.
-
-

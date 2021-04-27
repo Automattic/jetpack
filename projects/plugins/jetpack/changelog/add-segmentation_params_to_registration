@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Adds segmentation "from" parameter to the registration request
