@@ -13,6 +13,7 @@ import {
 	Button,
 } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
+import { mediaUpload } from '@wordpress/editor';
 
 /**
  * Internal dependencies
@@ -125,9 +126,7 @@ function ConversationEdit( {
 		setIsProcessingFile( false );
 	}
 
-	function uploadTranscriptFile( event ) {
-		const transcriptFile = event.target.files?.[ 0 ];
-
+	function processTranscriptFile( transcriptFile ) {
 		// Check file exists.
 		if ( ! transcriptFile ) {
 			return showTranscriptProcessErrorMessage( __( 'Transcript file not found.', 'jetpack' ) );
@@ -176,6 +175,27 @@ function ConversationEdit( {
 			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
 			insertBlocks( dialogueBlocks, 0, clientId );
 			setIsProcessingFile( false );
+		} );
+	}
+
+	function uploadTranscriptFile( event ) {
+		const transcriptFile = event.target.files?.[ 0 ];
+
+		mediaUpload( {
+			allowedTypes: [ 'text' ],
+			filesList: [ transcriptFile ],
+			onFileChange: uploadedFile => {
+				if (
+					! uploadedFile?.length ||
+					! uploadedFile[ 0 ] ||
+					! uploadedFile[ 0 ].guid // <- ensure file has been properly uploaded.
+				) {
+					return;
+				}
+
+				processTranscriptFile( transcriptFile );
+			},
+			onError: noticeOperations.createErrorNotice,
 		} );
 	}
 
