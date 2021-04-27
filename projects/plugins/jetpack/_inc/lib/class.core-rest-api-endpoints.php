@@ -1735,6 +1735,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
+		if ( isset( $request['from'] ) ) {
+			Jetpack::connection()->add_register_request_param( 'from', (string) $request['from'] );
+		}
 		$response = Jetpack::connection()->try_registration();
 
 		if ( is_wp_error( $response ) ) {
@@ -2923,7 +2926,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Front page meta description.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => 'Jetpack_SEO_Utils::sanitize_front_page_meta_description',
 				'jp_group'          => 'seo-tools',
 			),
 

@@ -122,12 +122,23 @@ class REST_Connector {
 				'callback'            => array( $this, 'connection_register' ),
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
 				'args'                => array(
-					'registration_nonce' => array(
-						'type'     => 'string',
-						'required' => true,
+					'from'               => array(
+						'description' => 'Indicates where the registration action was triggered for tracking/segmetnation purposes',
+						'type'        => 'string',
 					),
-					'no_iframe'          => array( 'type' => 'boolean' ),
-					'redirect_uri'       => array( 'type' => 'string' ),
+					'registration_nonce' => array(
+						'description' => 'The registration nonce',
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'no_iframe'          => array(
+						'description' => 'Disable In-Place connection flow and go straight to Calypso',
+						'type'        => 'boolean',
+					),
+					'redirect_uri'       => array(
+						'description' => 'URI of the admin page where the user should be redirected after connection flow',
+						'type'        => 'string',
+					),
 				),
 			)
 		);
@@ -414,6 +425,9 @@ class REST_Connector {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
+		if ( isset( $request['from'] ) ) {
+			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
+		}
 		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {

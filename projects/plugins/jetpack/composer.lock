@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4b6280e856f226a398586b43b00bb5ec",
+    "content-hash": "0490eddc030f6bcb44a7723ed642b30b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -400,12 +400,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "70c11d21cb75649592d93d4983dd211037b8a374"
+                "reference": "d7cab662ac8e0b19b03ada8faffb9e66e29dc4aa"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-options": "^1.11",
+                "automattic/jetpack-options": "^1.12",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.7",
                 "automattic/jetpack-terms-of-service": "^1.9",
@@ -670,11 +670,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/heartbeat",
-                "reference": "845231d51560155d0d7dfa46a7f1cfee6b4205c6"
+                "reference": "2b0e92c11def6004d764882e4283639d6ead6fb2"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
-                "automattic/jetpack-options": "^1.11"
+                "automattic/jetpack-options": "^1.12"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.1"
@@ -710,16 +710,17 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "091d6d49cc584dfbbb9837dfb14b2e31ccdbf8da"
+                "reference": "1d45f73908ae3f50103273ddee5bbde046f7f451"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-assets": "^1.11",
                 "automattic/jetpack-connection": "^1.26",
                 "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
-                "automattic/jetpack-options": "^1.11",
-                "automattic/jetpack-partner": "^1.4",
+                "automattic/jetpack-options": "^1.12",
+                "automattic/jetpack-partner": "^1.5",
                 "automattic/jetpack-redirect": "^1.5",
                 "automattic/jetpack-status": "^1.7",
                 "automattic/jetpack-tracking": "^1.13"
@@ -850,11 +851,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "ff369c33c3f693a6d535e73419e387ffa7abaebc"
+                "reference": "6424bd5df4569afe195dc766a435ebef783dc05c"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.26",
-                "automattic/jetpack-options": "^1.11"
+                "automattic/jetpack-options": "^1.12"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.1",
@@ -958,7 +959,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
-                "reference": "190e89f7bef74b65b4d239855ca9ad4a8be54fa1"
+                "reference": "e2e07a5dc2b92f2892f04581e75f0b0fb1846c3b"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -975,7 +976,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.11.x-dev"
+                    "dev-master": "1.12.x-dev"
                 }
             },
             "autoload": {
@@ -998,7 +999,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "a6390adea1d2613b6f90e034b27a13738f31e572"
+                "reference": "75cdebf78152e39bcc694e92ed99e37df7eb5097"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.1",
@@ -1013,7 +1014,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-partner/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -1259,13 +1260,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "8788c3d2249eb34ed46b16f0b36630be4614ae86"
+                "reference": "f6e40adeea72c074a20c7080b548581fff936700"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.26",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
-                "automattic/jetpack-options": "^1.11",
+                "automattic/jetpack-options": "^1.12",
                 "automattic/jetpack-password-checker": "^0.1",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.7"
@@ -1304,10 +1305,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/terms-of-service",
-                "reference": "13d86487653fb10218f2c745591703bbb1524354"
+                "reference": "76e0aa453a1a7f753c7b2bafb8a6779b0616e7e2"
             },
             "require": {
-                "automattic/jetpack-options": "^1.11",
+                "automattic/jetpack-options": "^1.12",
                 "automattic/jetpack-status": "^1.7"
             },
             "require-dev": {
@@ -1359,11 +1360,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/tracking",
-                "reference": "13d2ecca0fa07b4521f0b7a7690f9f6c47dd7010"
+                "reference": "baf3bbc9d279897e709d19cecb904d6082cbf5ee"
             },
             "require": {
                 "automattic/jetpack-assets": "^1.11",
-                "automattic/jetpack-options": "^1.11",
+                "automattic/jetpack-options": "^1.12",
                 "automattic/jetpack-status": "^1.7",
                 "automattic/jetpack-terms-of-service": "^1.9"
             },
@@ -2246,21 +2247,21 @@
         },
         {
             "name": "symfony/service-contracts",
-            "version": "v2.2.0",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/service-contracts.git",
-                "reference": "d15da7ba4957ffb8f1747218be9e1a121fd298a1"
+                "reference": "f040a30e04b57fbcc9c6cbcf4dbaa96bd318b9bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/d15da7ba4957ffb8f1747218be9e1a121fd298a1",
-                "reference": "d15da7ba4957ffb8f1747218be9e1a121fd298a1",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/f040a30e04b57fbcc9c6cbcf4dbaa96bd318b9bb",
+                "reference": "f040a30e04b57fbcc9c6cbcf4dbaa96bd318b9bb",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.5",
-                "psr/container": "^1.0"
+                "psr/container": "^1.1"
             },
             "suggest": {
                 "symfony/service-implementation": ""
@@ -2268,7 +2269,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2-dev"
+                    "dev-main": "2.4-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -2305,7 +2306,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/service-contracts/tree/master"
+                "source": "https://github.com/symfony/service-contracts/tree/v2.4.0"
             },
             "funding": [
                 {
@@ -2321,7 +2322,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-09-07T11:33:47+00:00"
+            "time": "2021-04-01T10:43:52+00:00"
         },
         {
             "name": "symfony/string",
