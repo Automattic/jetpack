@@ -30,7 +30,7 @@
 		"automattic/jetpack-licensing": "1.4.x-dev",
 		"automattic/jetpack-logo": "1.5.x-dev",
 		"automattic/jetpack-options": "1.12.x-dev",
-		"automattic/jetpack-partner": "1.4.x-dev",
+		"automattic/jetpack-partner": "1.5.x-dev",
 		"automattic/jetpack-redirect": "1.5.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-status": "1.7.x-dev",
@@ -92,7 +92,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ9_7_alpha"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ9_7_beta"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",

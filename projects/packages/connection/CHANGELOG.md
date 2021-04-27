@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2021-04-27
+### Added
+- Adds segmentation "from" parameter to the registration flow
+- Connection: moving the registration REST endpoint to the package.
+
+### Changed
+- Added "userless" parameter to the authorization URL.
+- Updated package dependencies.
+
 ## [1.25.2] - 2021-04-13
 ### Fixed
 - Connection: nonce cleanup safeguard against accidental option removal.
@@ -335,6 +344,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.26.0]: https://github.com/Automattic/jetpack-connection/compare/v1.25.2...v1.26.0
 [1.25.2]: https://github.com/Automattic/jetpack-connection/compare/v1.25.1...v1.25.2
 [1.25.1]: https://github.com/Automattic/jetpack-connection/compare/v1.25.0...v1.25.1
 [1.25.0]: https://github.com/Automattic/jetpack-connection/compare/v1.24.0...v1.25.0
