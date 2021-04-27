@@ -36,23 +36,24 @@ class Test_Jetpack_JITM extends TestCase {
 		Monkey\tearDown();
 	}
 
-	public function test_jitm_disabled_by_default() {
+	public function test_jitm_enabled_by_default() {
 		Functions\expect( 'apply_filters' )
 			->once()
-			->with(	'jetpack_just_in_time_msgs', false );
-
-		$jitm = new JITM();
-		$this->assertFalse( $jitm->register() );
-	}
-
-	public function test_jitm_enabled_by_filter() {
-		Functions\expect( 'apply_filters' )
-			->once()
-			->with( 'jetpack_just_in_time_msgs', false )
+			->with(	'jetpack_just_in_time_msgs', true )
 			->andReturn( true );
 
 		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
+	}
+
+	public function test_jitm_disabled_by_filter() {
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'jetpack_just_in_time_msgs', true )
+			->andReturn( false );
+
+		$jitm = new JITM();
+		$this->assertFalse( $jitm->register() );
 	}
 
 	/**
