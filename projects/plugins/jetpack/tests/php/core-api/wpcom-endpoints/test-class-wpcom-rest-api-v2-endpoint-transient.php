@@ -24,7 +24,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 	 *
 	 * @var string
 	 */
-	private $transient_name = 'jetpack_connected_user_data_1';
+	private static $transient_name;
 
 	/**
 	 * Value of test transient.
@@ -39,7 +39,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$user_id = $factory->user->create( array( 'role' => 'editor' ) );
+		static::$user_id        = $factory->user->create( array( 'role' => 'editor' ) );
+		static::$transient_name = 'jetpack_connected_user_data_' . static::$user_id;
 	}
 
 	/**
@@ -49,7 +50,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 		parent::setUp();
 
 		wp_set_current_user( static::$user_id );
-		set_transient( $this->transient_name, $this->transient_value );
+		set_transient( static::$transient_name, $this->transient_value );
 	}
 
 	/**
@@ -60,7 +61,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 	public function test_delete_transient_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . $this->transient_name );
+		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -73,10 +74,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 	 * @covers ::delete_transient
 	 */
 	public function test_delete_transient() {
-		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . $this->transient_name );
+		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( array( 'success' => true ), $response->get_data() );
-		$this->assertFalse( get_transient( $this->transient_name ) );
+		$this->assertFalse( get_transient( static::$transient_name ) );
 	}
 }
