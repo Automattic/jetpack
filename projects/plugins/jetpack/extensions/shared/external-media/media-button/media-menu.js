@@ -11,9 +11,8 @@ import { media } from '@wordpress/icons';
 import MediaSources from './media-sources';
 
 function MediaButtonMenu( props ) {
-	const { mediaProps, open, setSelectedSource, isFeatured, isReplace } = props;
+	const { mediaProps, open, setSelectedSource, isFeatured, isReplace, hasImage } = props;
 	const originalComponent = mediaProps.render;
-	const featuredImageIsSelected = isFeatured && mediaProps.value > 0;
 	let isPrimary = isFeatured;
 	let isTertiary = ! isFeatured;
 	const extraProps = {};
@@ -38,7 +37,7 @@ function MediaButtonMenu( props ) {
 		label = __( 'Select Media', 'jetpack' );
 	}
 
-	if ( isFeatured && featuredImageIsSelected ) {
+	if ( isFeatured && hasImage ) {
 		label = __( 'Replace Image', 'jetpack' );
 		isPrimary = false;
 		isTertiary = false;
@@ -47,24 +46,30 @@ function MediaButtonMenu( props ) {
 
 	return (
 		<>
-			{ isFeatured && originalComponent( { open } ) }
+			{ isFeatured && hasImage && originalComponent( { open } ) }
 
 			<Dropdown
 				position="bottom right"
 				contentClassName="jetpack-external-media-button-menu__options"
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					<Button
-						isTertiary={ isTertiary }
-						isPrimary={ isPrimary }
-						className="jetpack-external-media-button-menu"
-						aria-haspopup="true"
-						aria-expanded={ isOpen }
-						onClick={ onToggle }
-						{ ...extraProps }
-					>
-						{ label }
-					</Button>
-				) }
+				renderToggle={ ( { isOpen, onToggle } ) =>
+					// Featured image: when there's no image set, wrap the component, as it's already a (giant) button,
+					// there's no need to add a second button.
+					isFeatured && ! hasImage ? (
+						originalComponent( { open: onToggle } )
+					) : (
+						<Button
+							isTertiary={ isTertiary }
+							isPrimary={ isPrimary }
+							className="jetpack-external-media-button-menu"
+							aria-haspopup="true"
+							aria-expanded={ isOpen }
+							onClick={ onToggle }
+							{ ...extraProps }
+						>
+							{ label }
+						</Button>
+					)
+				}
 				renderContent={ () => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>

@@ -416,3 +416,8 @@ $grid-size: 8px;
 		margin-bottom: 1em;
 	}
 }
+
+// Override DropDown component styles when warpping the "Set featured image" button.
+.editor-post-featured-image .components-dropdown {
+	display: initial;
+}
