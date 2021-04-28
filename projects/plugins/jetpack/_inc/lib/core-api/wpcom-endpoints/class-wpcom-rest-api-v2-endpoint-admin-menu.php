@@ -212,11 +212,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		global $submenu;
 
 		$current_user_can_access_menu = current_user_can( $menu_item[1] );
-		$has_first_menu_item          = isset( $submenu[ $menu_item[2] ][0] );
-		$menu_slug                    = $menu_item[2];
+		$submenu_items                = isset( $submenu[ $menu_item[2] ] ) ? array_values( $submenu[ $menu_item[2] ] ) : array();
+		$has_first_menu_item          = isset( $submenu_items[0] );
 
 		// Exclude unauthorized menu items when the user does not have access to the menu and the first submenu item.
-		if ( ! $current_user_can_access_menu && $has_first_menu_item && ! current_user_can( $submenu[ $menu_slug ][0][1] ) ) {
+		if ( ! $current_user_can_access_menu && $has_first_menu_item && ! current_user_can( $submenu_items[0][1] ) ) {
 			return array();
 		}
 

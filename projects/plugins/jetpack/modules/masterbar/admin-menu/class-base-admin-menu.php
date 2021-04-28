@@ -47,6 +47,9 @@ abstract class Base_Admin_Menu {
 	protected function __construct() {
 		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+
+		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
+
 		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
@@ -351,9 +354,7 @@ abstract class Base_Admin_Menu {
 	public function has_visible_items( $submenu_items ) {
 		$visible_items = array_filter(
 			$submenu_items,
-			static function ( $item ) {
-				return empty( $item[4] ) || strpos( $item[4], self::HIDE_CSS_CLASS ) === false;
-			}
+			array( $this, 'is_item_visible' )
 		);
 
 		return array() !== $visible_items;
@@ -468,13 +469,16 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
-	 * Hide menus that are unauthorized and don't have visible submenus.
+	 * Hide menus that are unauthorized and don't have visible submenus and cases when the menu has the same slug
+	 * as the first submenu item.
 	 *
 	 * This must be done at the end of menu and submenu manipulation in order to avoid performing this check each time
 	 * the submenus are altered.
 	 */
-	public function hide_unauthorized_menus() {
+	public function hide_parent_of_hidden_submenus() {
 		global $menu, $submenu;
+
+		$this->sort_hidden_submenus();
 
 		foreach ( $menu as $menu_index => $menu_item ) {
 			$has_submenus = isset( $submenu[ $menu_item[2] ] );
@@ -532,7 +536,7 @@ abstract class Base_Admin_Menu {
 	 * @param array $item A menu or submenu array.
 	 */
 	public function is_item_visible( $item ) {
-		return ! isset( $item[4] ) || false === strpos( self::HIDE_CSS_CLASS, $item[4] );
+		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
 	}
 
 	/**
