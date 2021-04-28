@@ -109,7 +109,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="publicize"
 							featureLabel={ __( 'Publicize', 'jetpack' ) }
-							text={ __( 'Sign in to connect your social media accounts.', 'jetpack' ) }
+							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
 						/>
 					) }
 
