@@ -784,6 +784,7 @@ class Jetpack {
 
 		// After a successful connection.
 		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
+		add_action( 'jetpack_site_registered', array( $this, 'handle_unique_registrations_stats' ) );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -1737,14 +1738,22 @@ class Jetpack {
 	 * users and this option will be available by default for everybody.
 	 *
 	 * @since 9.6.0
+	 * @since 9.7.0 returns is_connected in all cases and adds filter to the returned value
 	 *
 	 * @return bool is the site connection ready to be used?
 	 */
 	public static function is_connection_ready() {
-		if ( ( new Status() )->is_no_user_testing_mode() ) {
-			return self::connection()->is_connected();
-		}
-		return (bool) self::connection()->has_connected_owner();
+		/**
+		 * Allows filtering whether the connection is ready to be used. If true, this will enable the Jetpack UI and modules
+		 *
+		 * Modules will be enabled depending on the connection status and if the module requires a connection or user connection.
+		 *
+		 * @since 9.7.0
+		 *
+		 * @param bool                                  $is_connection_ready Is the connection ready?
+		 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
+		 */
+		return apply_filters( 'jetpack_is_connection_ready', self::connection()->is_connected(), self::connection() );
 	}
 
 	/**
@@ -3387,6 +3396,7 @@ p {
 	 */
 	public static function do_version_bump( $version, $old_version ) {
 		if ( $old_version ) { // For existing Jetpack installations.
+			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
 
 			// If a front end page is visited after the update, the 'wp' action will fire.
 			add_action( 'wp', 'Jetpack::set_update_modal_display' );
@@ -3401,6 +3411,18 @@ p {
 	 */
 	public static function set_update_modal_display() {
 		self::state( 'display_update_modal', true );
+
+	}
+
+	/**
+	 * Enqueues the block library styles.
+	 *
+	 * @param string $hook The current admin page.
+	 */
+	public static function enqueue_block_style( $hook ) {
+		if ( 'toplevel_page_jetpack' === $hook ) {
+			wp_enqueue_style( 'wp-block-library' );
+		}
 	}
 
 	/**
@@ -3710,11 +3732,16 @@ p {
 			self::plugin_initialize();
 		}
 
-		$is_offline_mode = ( new Status() )->is_offline_mode();
-		if ( ! self::is_connection_ready() && ! $is_offline_mode ) {
+		$is_offline_mode              = ( new Status() )->is_offline_mode();
+		$fallback_no_verify_ssl_certs = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		/** Already documented in automattic/jetpack-connection::src/class-client.php */
+		$client_verify_ssl_certs = apply_filters( 'jetpack_client_verify_ssl_certs', false );
+
+		if ( ! $is_offline_mode ) {
 			Jetpack_Connection_Banner::init();
-			/** Already documented in automattic/jetpack-connection::src/class-client.php */
-		} elseif ( ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) && ! apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
+		}
+
+		if ( ( self::is_connection_ready() || $is_offline_mode ) && false === $fallback_no_verify_ssl_certs && ! $client_verify_ssl_certs ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
@@ -3730,6 +3757,11 @@ p {
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
+
+		if ( isset( $_COOKIE['jetpackState']['display_update_modal'] ) ) {
+			add_action( 'admin_enqueue_scripts', __CLASS__ . '::enqueue_block_style' );
+		}
+
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_connection_ready() || $is_offline_mode ) {
@@ -4383,6 +4415,10 @@ p {
 					check_admin_referer( 'jetpack-register' );
 					self::log( 'register' );
 					self::maybe_set_version_option();
+					$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
+					if ( $from ) {
+						static::connection()->add_register_request_param( 'from', (string) $from );
+					}
 					$registered = static::connection()->try_registration();
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
@@ -4401,7 +4437,6 @@ p {
 						break;
 					}
 
-					$from     = isset( $_GET['from'] ) ? $_GET['from'] : false;
 					$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
 					/**
@@ -5025,6 +5060,25 @@ endif;
 		// Increment number of times connected.
 		$jetpack_unique_connection['connected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+	}
+
+	/**
+	 * This action fires when the site is registered (connected at a site level).
+	 */
+	public function handle_unique_registrations_stats() {
+		$jetpack_unique_registrations = Jetpack_Options::get_option( 'unique_registrations' );
+		// Checking if site has been registered previously before recording unique connection.
+		if ( ! $jetpack_unique_registrations ) {
+
+			$jetpack_unique_registrations = 0;
+
+			$this->stat( 'connections', 'unique-registrations' );
+			$this->do_stats( 'server_side' );
+		}
+
+		// Increment number of times connected.
+		$jetpack_unique_registrations ++;
+		Jetpack_Options::update_option( 'unique_registrations', $jetpack_unique_registrations );
 	}
 
 	/**
