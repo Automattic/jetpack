@@ -1,8 +1,8 @@
 # WP Super Cache #
 * Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 5.7
-* Stable tag: 1.7.2
+* Tested up to: 5.7.1
+* Stable tag: 1.7.3
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,10 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.3 ###
+* Sanitize the settings that are written to the config file #763
+* Fix the display of "direct cached" example urls in some circumstance. #766
 
 ### 1.7.2 ###
 * Fixed authenticated RCE in the settings page. Props @m0ze
@@ -757,4 +761,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Security and bugfix release. You are encouraged to upgrade as soon as possible.
+Security and bugfix release. Security issue isn't too serious but you should upgrade.
