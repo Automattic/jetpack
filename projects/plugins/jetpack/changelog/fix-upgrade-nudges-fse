@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 Fix upgrade notices for the site editor.
