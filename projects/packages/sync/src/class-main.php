@@ -24,6 +24,8 @@ class Main {
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
 		}
+		// Initialize Identity Crisis.
+		add_action( 'plugins_loaded', array( 'Identity_Crisis', 'init' ) );
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 	}
