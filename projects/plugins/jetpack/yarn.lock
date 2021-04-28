@@ -50,10 +50,10 @@
   resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-2.1.1.tgz#8dfaf3a9dc73a12583fe8d42e1dfc0b5e2978459"
   integrity sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==
 
-"@automattic/color-studio@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@automattic/color-studio/-/color-studio-2.4.0.tgz#d21406b30eca90077f7ca9bf3ca884d79ce8dda6"
-  integrity sha512-xdiW5uBONTi3+R6Eee1PpsPxWQH9DGPpEu5NN0/uHd5DjL6EfBNAOI7qujz4eqz76bWoz2R/zRNNjCn91caWjw==
+"@automattic/color-studio@2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@automattic/color-studio/-/color-studio-2.5.0.tgz#27f69e2569062258f24ca50f0a4b8a572a00e287"
+  integrity sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==
 
 "@automattic/components@1.0.0-alpha.3":
   version "1.0.0-alpha.3"
@@ -75,11 +75,8 @@
     i18n-calypso "^4.0.0-alpha.1"
 
 "@automattic/jetpack-connection@link:../../js-packages/connection":
-  version "0.1.0-alpha"
-  dependencies:
-    "@wordpress/browserslist-config" "3.0.1"
-    "@wordpress/i18n" "^3.9.0"
-    prop-types "^15.7.2"
+  version "0.0.0"
+  uid ""
 
 "@automattic/mini-css-extract-plugin-with-rtl@0.8.0":
   version "0.8.0"
