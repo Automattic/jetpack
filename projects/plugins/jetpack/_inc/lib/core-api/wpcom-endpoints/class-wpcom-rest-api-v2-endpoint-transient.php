@@ -56,7 +56,7 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	public function delete_transient( \WP_REST_Request $request ) {
 		$transient_name = $request->get_param( 'name' );
 		if ( false !== strpos( $transient_name, 'jetpack_connected_user_data_' ) &&
-			wp_get_current_user()->ID === (int) substr( $transient_name, 28 ) ) {
+			get_current_user_id() === (int) substr( $transient_name, 28 ) ) {
 				return array(
 					'success' => delete_transient( $transient_name ),
 				);
