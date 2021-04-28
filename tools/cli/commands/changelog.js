@@ -7,6 +7,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import inquirer from 'inquirer';
+import simpleGit from 'simple-git';
 
 /**
  * Internal dependencies
@@ -69,7 +70,7 @@ export function changelogDefine( yargs ) {
 							} );
 					},
 					async argv => {
-						await changelogAdd( argv );
+						await changelogArgs( argv );
 					}
 				)
 				// Changelog validate subscommand
@@ -97,40 +98,144 @@ export function changelogDefine( yargs ) {
 							} );
 					},
 					async argv => {
-						await changelogValidate( argv );
+						await changelogArgs( argv );
+					}
+				)
+				.command(
+					'write [project]',
+					'Writes all of the added changelog files to the project README.md',
+					yargWrite => {
+						yargWrite
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.option( 'amend', {
+								describe: 'Amend the latest version instead of creating a new one',
+								type: 'string',
+							} )
+							.option( 'yes', {
+								describe:
+									'Default all questions to "yes" instead of "no". Particularly useful for non-interactive mode',
+								type: 'bool',
+							} )
+							.option( 'use-version', {
+								describe:
+									'Specify a version instead of determining the version automatically, e.g. 2.0.0',
+								type: 'string',
+							} )
+							.option( 'use-significance', {
+								describe:
+									'When determining the new version, use this significance instead of using the actual change files',
+								type: 'string',
+							} )
+							.option( 'prerelease', {
+								alias: 'p',
+								describe: 'When determining the new version, include this prerelease suffix',
+								type: 'bool',
+							} )
+							.option( 'buildinfo', {
+								alias: 'b',
+								describe: 'When fetching the next version, include this buildinfo suffix',
+								type: 'bool',
+							} )
+							.option( 'release-date', {
+								describe: 'Release date, as a valid PHP date or "unreleased"',
+								type: 'string',
+							} )
+							.option( 'default-first-version', {
+								describe:
+									'If the changelog is currently empty, guess a "first" version instead of erroring',
+								type: 'string',
+							} )
+							.option( 'deduplicate', {
+								describe: 'Deduplicate new changes against the last N versions',
+								type: 'bool',
+							} )
+							.option( 'prologue', {
+								describe: 'Prologue text for the new changelog entry',
+								type: 'string',
+							} )
+							.option( 'epilogue', {
+								describe: 'Epilogue text for the new changelog entry',
+								type: 'string',
+							} )
+							.option( 'link', {
+								describe: 'Link for the new changelog entry',
+								type: 'string',
+							} );
+					},
+					async argv => {
+						await changelogArgs( argv );
+					}
+				)
+				.command(
+					'version [project] [which]',
+					'Displays versions from the changelog and change files',
+					yargAdd => {
+						yargAdd
+							.positional( 'project', {
+								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+								type: 'string',
+							} )
+							.positional( 'which', {
+								describe: 'Version to fetch: previous, current or next',
+								type: 'string',
+							} )
+							.option( 'use-version', {
+								describe:
+									'When fetching the next version, use this instead of the current version in the changelog',
+								type: 'string',
+							} )
+							.option( 'use-significance', {
+								describe:
+									'When fetching the next version, use this significance instead of using the actual change files',
+								type: 'string',
+							} )
+							.option( 'prerelease', {
+								alias: 'p',
+								describe: 'When fetching the next version, include this prerelease suffix',
+								type: 'string',
+							} )
+							.option( 'buildinfo', {
+								alias: 'b',
+								describe: 'When fetching the next version, include this buildinfo suffix',
+								type: 'string',
+							} )
+							.option( 'default-first-version', {
+								describe:
+									'If the changelog is currently empty, guess a "first" version instead of erroring. When used with `current`, makes it work as `next` in that situation.',
+								type: 'string',
+							} );
+					},
+					async argv => {
+						await changelogArgs( argv );
 					}
 				);
 		},
 		async argv => {
-			await changelogRouter( argv );
+			await changelogCommand( argv );
 		}
 	);
 	return yargs;
 }
 
 /**
- * Routes Changelog Command to correct place.
+ * Get a command if we're not passed one as an argument.
  *
  * @param {argv} argv - the arguments passed.
  */
-async function changelogRouter( argv ) {
+async function changelogCommand( argv ) {
 	if ( ! argv.cmd ) {
 		argv = await promptCommand( argv );
 	}
-	switch ( argv.cmd ) {
-		case 'add':
-			changelogAdd( argv );
-			break;
-		case 'validate':
-			changelogValidate( argv );
-			break;
-		case 'write':
-		case 'version':
-			console.error( chalk.red( 'Command not yet implemented!' ) );
-			process.exit( 1 );
-		default:
-			throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
+
+	const commands = [ 'add', 'validate', 'version', 'write' ];
+	if ( ! commands.includes( argv.cmd ) ) {
+		throw new Error( 'Unknown command' ); // Yargs should provide a helpful response before this, but to be safe.
 	}
+
+	changelogArgs( argv );
 }
 
 /**
@@ -151,74 +256,62 @@ async function promptCommand( argv ) {
 }
 
 /**
- * Changelog add script.
+ * Adds any passthrough arguments to args before running command.
  *
- * @param {object} argv - arguments passed as cli.
+ * @param {object} argv - arguments passed to the CLI.
  */
-export async function changelogAdd( argv ) {
+async function changelogArgs( argv ) {
 	argv = await validateProject( argv );
-	const parsedArgKey = Object.keys( argv );
-	const acceptedArgs = [ 's', 't', 'e', 'f' ]; //significance, type, entry, file
-	argv.success = `Changelog for ${ argv.project } added successfully!`;
-	argv.error = `Changelogger couldn't be executed correctly. See error.`;
-	argv.args = [ 'add' ];
+	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
+		argv.project
+	} completed succesfully!`;
+	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
+	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
 
-	// Check passed arguments against accepted args and add them to our command.
-	for ( const arg of parsedArgKey ) {
-		if ( acceptedArgs.includes( arg ) ) {
-			argv.args.push( `-${ arg }${ argv[ arg ] }` );
-		}
-	}
-	if ( argv.v ) {
-		argv.args.push( '-v' );
+	// Remove project from command list we pass to changelogger.
+	if ( argv.args.includes( argv.project ) ) {
+		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
 	}
 
-	// Check if we have all required args for a passthrough, otherwise default to interactive mode.
-	if ( argv.s && argv.t && argv.e ) {
-		argv.args.push( '--no-interaction' );
-		changeloggerCli( argv );
-		return;
+	// Check for required command specific arguements.
+	switch ( argv.args[ 0 ] ) {
+		case 'add':
+			if ( argv.s && argv.t && argv.e ) {
+				argv.args.push( '--no-interaction' );
+			} else if ( argv.s || argv.t || argv.e ) {
+				console.error(
+					chalk.bgRed(
+						'Need to pass all required arguments for non-interactive mode. Defaulting to interactive mode.'
+					)
+				);
+			}
+			break;
+		case 'version':
+			if ( ! argv.which ) {
+				argv = await promptVersion( argv );
+				argv.args.push( argv.ver );
+			}
+			break;
 	}
-	if ( argv.args.length > 1 ) {
-		console.error(
-			chalk.bgRed(
-				'Need to pass all arguments for non-interactive mode. Defaulting to interactive mode.'
-			)
-		);
-		changeloggerCli( argv );
-		return;
-	}
+
 	changeloggerCli( argv );
 }
 
 /**
- * Changelog validate script.
+ * Prompts for which version to return.
  *
- * @param {object} argv - arguments passed as cli.
+ * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
  */
-export async function changelogValidate( argv ) {
-	argv = await validateProject( argv );
-	const parsedArgKey = Object.keys( argv );
-	const acceptedArgs = [ 'gh-action', 'basedir', 'no-strict' ];
-	argv.success = `Validation for ${ argv.project } completed succesfully!`;
-	argv.error = 'Changelog validation failed. See above.';
-	argv.args = [ 'validate' ];
-
-	// Add any options we're passing onto the command.
-	for ( const arg of parsedArgKey ) {
-		if ( acceptedArgs.includes( arg ) ) {
-			argv.args.push( `--${ arg }` );
-		}
-	}
-
-	if ( argv.args.includes( '--basedir' ) ) {
-		argv.args.push( argv.basedir );
-	}
-
-	if ( argv.v ) {
-		argv.args.push( '-v' );
-	}
-	changeloggerCli( argv );
+async function promptVersion( argv ) {
+	const response = await inquirer.prompt( {
+		type: 'list',
+		name: 'ver',
+		message: 'Which version would you like to get?',
+		choices: [ 'current', 'next', 'previous' ],
+	} );
+	argv.ver = response.ver;
+	return argv;
 }
 
 /**
@@ -239,7 +332,24 @@ export async function changeloggerCli( argv ) {
 		console.error( chalk.red( argv.error ) );
 		process.exit( data.status );
 	} else {
+		await gitAdd( argv );
 		console.log( chalkJetpackGreen( argv.success ) );
+	}
+}
+
+/**
+ * Add new changelog files to git staging.
+ *
+ * @param {argv} argv - the arguments passed.
+ */
+async function gitAdd( argv ) {
+	const changelogPath = `projects/${ argv.project }/changelog`;
+	const git = simpleGit();
+	const gitStatus = await git.status();
+	for ( const file of gitStatus.not_added ) {
+		if ( path.dirname( file ) === changelogPath ) {
+			git.add( file );
+		}
 	}
 }
 

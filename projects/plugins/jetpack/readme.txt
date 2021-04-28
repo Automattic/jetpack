@@ -238,64 +238,35 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.6.1 - 2021-04-13
-#### Bug fixes
-- Connection tools: safeguard cleanup tool against accidental option removal.
-- Dashboard: fix loading indicator styles by deprecating our custom solution in favor of WordPress Core's Spinner.
-- Instant Search: fix Customizer and styling bugs introduced in 9.6.
-- Instant Search: Handle pagination edge-case with excluded post types.
-- Sharing: ensure the feature can be used when Jetpack is used in Offline mode.
-- Stats: Fix time period selection on the stats page.
-
-### 9.6 - 2021-04-06
+### 9.7-beta - 2021-04-27
 #### Enhancements
-- Beautiful Math: remove title attribute from generated image.
-- Blocks: add width option to buttons in Subscriptions, Revue, Form, Calendly, and Payments blocks.
-- Blocks: improve reliability of all blocks via unit tests.
-- Dashboard: add new options to customize SEO settings.
-- Dashboard: add new option to input license key.
-- Dashboard: update recommmendations notice to improve accessibility.
-- General: allow the use of some Jetpack features without connecting to a WordPress.com account.
-- Instant Search: add a new result format layout, for sites using WooCommerce.
-- Instant Search: improve performance thanks to lazily loading.
-- Instant Search: only use site accelerator for displaying images if it is enabled on the site.
-- Instant Search: update the search modal design.
-- Jetpack Videos: improve the display of transcoding status for newly uploaded videos.
-- Podcast Player Block: improve fetching of the podcast description.
-- Syncrhonization: add new sync/health endpoint to allow update of the sync health options.
+- Blocks: improve test coverage for better reliability of each one of Jetpack's blocks.
+- Carousel: improve general performance.
+- Dashboard: add explanation when a feature is unavailable.
+- Dashboard: improve the display of buttons in the update modal.
+- Jetpack Videos: add "Play Inline" setting to play a video inline instead of full-screen on mobile devices when enabled.
+- SEO Tools: improve usability of settings interface.
+- Widgets: improve message displayed in Blog Stats Widget when there are no stats to display.
+- WordAds: add Global Privacy Control (GPC) support to CCPA.
 
 #### Improved compatibility
-- Auto-updates: respect auto-update constant/filters in plugin API endpoints.
-- Autoloader: fix uninstallation fatal.
-- General: update colors to match dashboard color changes in WordPress 5.7.
-- Gravatar Hovercards: fix compatibility with the AMP plugin for Pingbacks and Trackbacks.
-- Latest Instagram Posts Block: improve compatibility with Gutenberg 10.1.0.
-- Markdown: avoid processing URLs that may include Markdown syntax.
-- Opentable Block: improve compatibility with Gutenberg 10.1.0.
-- Podcast Player Block: fix compatibility with the AMP plugin in the Customizer preview.
-- Podcast Player Block: improve compatibility with Gutenberg 10.1.0.
-- Synchronization: avoid issues with themes or plugins using anonymous functions within hooks.
+- Blocks: continous work to ensure full compatibility between Jetpack's Blocks and WordPress' upcoming Full Site Editing feature.
+- Featured Content: avoid PHP warnings when terms are fetched without a taxonomy to filter by.
+- Feature Hints: avoid Fatal errors when other plugins filter the plugin list.
+- General: improvements to bring multiple features up to WordPress coding standards.
+- Publicize: update Twitter text processing library to avoid errors when using PHP 8.
+- Sharing: avoid broken sharing icons when using IE11 and the legacy AMP plugin's theme.
 
 #### Bug fixes
-- Connection Flow: resolve issue that prevented connections from the Opera browser.
-- Custom Content Types: fix inline quick editing of Restaurant menu items.
-- Instant Search: ensure Escape key always closes search modal.
-- Instant Search: fix an issue that led to a PHP notice for undefined index.
-- Instant Search: Fix modal opening bug within the Customizer.
-- Instant Search: fix handling of Customizer controls using refresh.
-- Instant Search: fix visibility of filter checkboxes in Safari on Twenty Twenty and Twenty Twenty One themes.
-- Instant Search: hide "filters" menu on mobile if there are no filters to display.
-- Instant Search: prevent IE11 from spawning overlay on load.
-- Publicize: avoid notices as embeds are added to a post.
-- Recommendations: when enabling Site Accelerator, also enable Tiled Galleries.
-- Sharing: omit Open Graph description tag from posts with Premium Content.
-- Site Logo: fix issues when updating logo in the Customizer.
-- Star Rating Block: allow 0 stars to be selected.
-- Subscriptions Block: allow block to override color styles, falling back to theme defaults.
-- Tiled Gallery: prevent block validation errors for mosaic and column layouts.
-- Video Block: display fallback when fetching videos that have been deleted.
-- WordPress.com Block Editor: disable if all Jetpack blocks are disabled via a filter.
-- WordPress.com REST API: make sure post metadata is always an array.
+- Image CDN: correct image URLs in srcset in certain cases.
+- Instant Search: enable link filtering on built-in WordPress taxonomies.
+- Instant Search: fix handling of customizer controls using refresh.
+- Instant Search: fix race condition for API responses.
+- Instant Search: prevent excluding all post types.
+- Instant Search: set the number of returned posts using the query's `posts_per_page` value.
+- Instant Search: improve settings interface usability.
+- Markdown: fix regression that broke links with single-quoted href attributes.
+- Sharing / Publicize: properly encode URLs in Open Graph tags.
 
 --------
 

@@ -6,7 +6,6 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -49,6 +48,50 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Can the banner be displayed for the given screen?
+	 *
+	 * @param \WP_Screen $current_screen Current WordPress screen.
+	 *
+	 * @return bool
+	 */
+	public static function can_be_displayed( $current_screen ) {
+		$has_connected_owner = Jetpack::connection()->has_connected_owner();
+		$is_connected        = Jetpack::is_connection_ready();
+		$has_licenses        = ! empty( Licensing::instance()->stored_licenses() );
+
+		// Don't show the connect notice if the site has a connected owner.
+		if ( $has_connected_owner ) {
+			return false;
+		}
+
+		// Don't show the connect notice if a userless connection is established and there are no stored licenses.
+		// Stored licenses indicate that a purchased product may not be provisioned yet hence we need to keep
+		// showing the notice to nudge the user to connect in order to have their product(s) provisioned.
+		if ( $is_connected && ! $has_licenses ) {
+			return false;
+		}
+
+		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
+		if (
+			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			! self::force_display()
+		) {
+			return false;
+		}
+
+		// Don't show the connect notice anywhere but the plugins.php after activating.
+		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Given a string for the the banner was added, and an int that represents the slide to
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
@@ -75,31 +118,16 @@ class Jetpack_Connection_Banner {
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
-	 * This method should not be called if the site is connected to WordPress.com or if the site is in offline mode.
-	 *
 	 * @since 4.4.0
 	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
 	 * @since 5.3.0 Running another split test between 4.4 banner and a new one in 5.3.
 	 * @since 7.2   B test was removed.
+	 * @since 9.7   Moved the connection condition checking to this method to fulfill Licensing requirements.
 	 *
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
-
-		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
-		if (
-			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
-			! $this->force_display()
-		) {
-			return;
-		}
-
-		// Don't show the connect notice anywhere but the plugins.php after activating
-		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'jetpack_connect' ) ) {
+		if ( ! self::can_be_displayed( $current_screen ) ) {
 			return;
 		}
 
@@ -206,7 +234,6 @@ class Jetpack_Connection_Banner {
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
-				'isUserless'            => ( new Status() )->is_no_user_testing_mode() && ! Jetpack::connection()->has_connected_owner(),
 			)
 		);
 	}
@@ -389,9 +416,9 @@ class Jetpack_Connection_Banner {
 			$bottom_connect_url_from = 'landing-page-bottom';
 		}
 
-		$is_no_user_testing_mode = ( new Status() )->is_no_user_testing_mode() && ! Jetpack::connection()->has_connected_owner();
+		$has_no_owner = ! Jetpack::connection()->has_connected_owner();
 		?>
-		<div class="jp-connect-full__container <?php echo $is_no_user_testing_mode ? 'jp-jetpack-connect__userless' : ''; ?>"><div class="jp-connect-full__container-card">
+		<div class="jp-connect-full__container <?php echo $has_no_owner ? 'jp-jetpack-connect__userless' : ''; ?>"><div class="jp-connect-full__container-card">
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<?php
@@ -413,8 +440,12 @@ class Jetpack_Connection_Banner {
 
 				<?php endif; ?>
 
-				<div class="jp-connect-full__step-header">
+				<div id="jp-connect-full__step1-header" class="jp-connect-full__step-header">
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
+				</div>
+
+				<div id="jp-connect-full__step2-header" class="jp-connect-full__step-header">
+					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Jetpack is activated!', 'jetpack' ); ?><br /><?php esc_html_e( 'Unlock more amazing features by connecting a user account', 'jetpack' ); ?></h2>
 				</div>
 
 				<p class="jp-connect-full__tos-blurb">

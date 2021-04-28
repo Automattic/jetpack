@@ -191,11 +191,26 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Upgrades menu.
+	 *
+	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu() {
-		parent::add_upgrades_menu();
+	public function add_upgrades_menu( $plan = null ) {
+		if ( class_exists( 'WPCOM_Store_API' ) ) {
+			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+			if ( array_key_exists( 'product_name_short', $products ) ) {
+				$plan = $products['product_name_short'];
+			}
+		}
+		parent::add_upgrades_menu( $plan );
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
+
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+		}
 	}
 
 	/**
@@ -205,7 +220,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+		// $wp_admin_themes can have a `true` value here if the user has activated the "Show advanced dashboard pages" account setting.
+		// We force $wp_admin_themes to `false` anyways, since Simple sites should always see the Calypso Theme showcase.
+		$wp_admin_themes = false;
+		$customize_url   = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
 		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
@@ -243,17 +261,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Export on Simple sites is always handled on Calypso.
-		parent::add_tools_menu( $wp_admin_import, false );
-	}
-
-	/**
 	 * Adds Settings menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
@@ -263,10 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
-		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
-		if ( $this->hide_submenu_page( 'options-general.php', 'sharing' ) ) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
-		}
+		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	/**

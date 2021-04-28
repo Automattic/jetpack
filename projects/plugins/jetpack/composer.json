@@ -19,7 +19,7 @@
 		"automattic/jetpack-blocks": "1.3.x-dev",
 		"automattic/jetpack-compat": "1.6.x-dev",
 		"automattic/jetpack-config": "1.4.x-dev",
-		"automattic/jetpack-connection": "1.25.x-dev",
+		"automattic/jetpack-connection": "1.26.x-dev",
 		"automattic/jetpack-connection-ui": "1.0.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
@@ -29,8 +29,8 @@
 		"automattic/jetpack-lazy-images": "1.4.x-dev",
 		"automattic/jetpack-licensing": "1.4.x-dev",
 		"automattic/jetpack-logo": "1.5.x-dev",
-		"automattic/jetpack-options": "1.11.x-dev",
-		"automattic/jetpack-partner": "1.4.x-dev",
+		"automattic/jetpack-options": "1.12.x-dev",
+		"automattic/jetpack-partner": "1.5.x-dev",
 		"automattic/jetpack-redirect": "1.5.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-status": "1.7.x-dev",
@@ -93,7 +93,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3cjetpack"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ9_8_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",

@@ -133,7 +133,7 @@ abstract class Base_Admin_Menu {
 		if ( $url ) {
 			$this->hide_submenu_page( $slug, $slug );
 
-			if ( ! $this->has_visible_items( $submenu[ $slug ] ) ) {
+			if ( ! isset( $submenu[ $slug ] ) || ! $this->has_visible_items( $submenu[ $slug ] ) ) {
 				$menu_item[2] = $url;
 			}
 		}
@@ -151,7 +151,7 @@ abstract class Base_Admin_Menu {
 		$this->set_menu_item( $menu_item, $menu_position );
 
 		// Only add submenu when there are other submenu items.
-		if ( $url && $this->has_visible_items( $submenu[ $slug ] ) ) {
+		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -259,6 +259,9 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION
 		);
 
+		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
+		$this->configure_colors_for_rtl_stylesheets();
+
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
@@ -266,6 +269,15 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Mark the core colors stylesheets as RTL depending on the value from the environment.
+	 * This fixes a core issue where the extra RTL data is not added to the colors stylesheet.
+	 * https://core.trac.wordpress.org/ticket/53090
+	 */
+	public function configure_colors_for_rtl_stylesheets() {
+		wp_style_add_data( 'colors', 'rtl', $this->is_rtl() );
 	}
 
 	/**
@@ -348,6 +360,22 @@ abstract class Base_Admin_Menu {
 	}
 
 	/**
+	 * Return the number of existing submenu items under the supplied parent slug.
+	 *
+	 * @param string $parent_slug The slug of the parent menu.
+	 * @return int The number of submenu items under $parent_slug.
+	 */
+	public function get_submenu_item_count( $parent_slug ) {
+		global $submenu;
+
+		if ( empty( $parent_slug ) || empty( $submenu[ $parent_slug ] ) || ! is_array( $submenu[ $parent_slug ] ) ) {
+			return 0;
+		}
+
+		return count( $submenu[ $parent_slug ] );
+	}
+
+	/**
 	 * Adds the given menu item in the specified position.
 	 *
 	 * @param array $item The menu item to add.
@@ -389,16 +417,28 @@ abstract class Base_Admin_Menu {
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {
-			if ( count( $menu_item ) > 6 && 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
-				$svg_items[] = array(
-					'icon' => $menu[ $idx ][6],
-					'id'   => $menu[ $idx ][5],
-				);
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $idx ][6] = 'none';
-				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-				$menu[ $idx ][4] .= ' menu-svg-icon';
+			// Menu items that don't have icons, for example separators, have less than 7
+			// elements, partly because the 7th is the icon. So, if we have less than 7,
+			// let's skip it.
+			if ( count( $menu_item ) < 7 ) {
+				continue;
 			}
+
+			// If the hookname contain a URL than sanitize it by replacing invalid characters.
+			if ( false !== strpos( $menu_item[5], '://' ) ) {
+				$menu_item[5] = preg_replace( '![:/.]+!', '_', $menu_item[5] );
+			}
+
+			if ( 0 === strpos( $menu_item[6], 'data:image/svg+xml' ) && 'site-card' !== $menu_item[3] ) {
+				$svg_items[]   = array(
+					'icon' => $menu_item[6],
+					'id'   => $menu_item[5],
+				);
+				$menu_item[4] .= ' menu-svg-icon';
+				$menu_item[6]  = 'none';
+			}
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			$menu[ $idx ] = $menu_item;
 		}
 		if ( count( $svg_items ) > 0 ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';

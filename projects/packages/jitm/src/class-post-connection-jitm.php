@@ -7,8 +7,10 @@
 
 namespace Automattic\Jetpack\JITMS;
 
+use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -377,7 +379,7 @@ class Post_Connection_JITM extends JITM {
 				'external_user_id' => urlencode_deep( $user->ID ),
 				'user_roles'       => urlencode_deep( $user_roles ),
 				'query_string'     => urlencode_deep( $query ),
-				'mobile_browser'   => jetpack_is_mobile( 'smart' ) ? 1 : 0,
+				'mobile_browser'   => Device_Detection::is_smartphone() ? 1 : 0,
 				'_locale'          => get_user_locale(),
 			),
 			sprintf( '/sites/%d/jitm/%s', $site_id, $message_path )
@@ -478,9 +480,16 @@ class Post_Connection_JITM extends JITM {
 				$url_params['aff'] = $aff;
 			}
 
+			// Check if the current user has connected their WP.com account
+			// and if not add this information to the the array of URL parameters.
+			if ( ! ( new Manager() )->is_user_connected( $user->ID ) ) {
+				$url_params['unlinked'] = 1;
+			}
 			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
 
-			$envelope->jitm_stats_url = \Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
+			$stats = new A8c_Mc_Stats();
+
+			$envelope->jitm_stats_url = $stats->build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			// $CTA is not valid per PHPCS, but it is part of the return from WordPress.com, so allowing.
@@ -503,9 +512,8 @@ class Post_Connection_JITM extends JITM {
 
 			$envelope->content->icon = $this->generate_icon( $envelope->content->icon, $full_jp_logo_exists );
 
-			$jetpack = \Jetpack::init();
-			$jetpack->stat( 'jitm', $envelope->id . '-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
+			$stats->add( 'jitm', $envelope->id . '-viewed' );
+			$stats->do_server_side_stats();
 		}
 
 		return $envelopes;
