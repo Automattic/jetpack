@@ -273,9 +273,10 @@ abstract class Base_Admin_Menu {
 
 	/**
 	 * Mark the core colors stylesheets as RTL depending on the value from the environment.
+	 * This fixes a core issue where the extra RTL data is not added to the colors stylesheet.
+	 * https://core.trac.wordpress.org/ticket/53090
 	 */
 	public function configure_colors_for_rtl_stylesheets() {
-		// This also fixes the core issue.
 		wp_styles()->add_data( 'colors', 'rtl', $this->is_rtl() );
 	}
 
