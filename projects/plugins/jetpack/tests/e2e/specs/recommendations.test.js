@@ -1,9 +1,12 @@
-/**
- * Internal dependencies
- */
 import { step } from '../lib/env/test-setup';
 import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
 
+/**
+ *
+ * @group post-connection
+ * @group recommendations
+ *
+ */
 describe( 'Recommendations (Jetpack Assistant)', () => {
 	it( 'Recommendations (Jetpack Assistant)', async () => {
 		let recommendationsPage;

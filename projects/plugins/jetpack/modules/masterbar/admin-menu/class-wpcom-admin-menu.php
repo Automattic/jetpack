@@ -203,7 +203,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 		parent::add_upgrades_menu( $plan );
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
+
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+		}
 	}
 
 	/**
@@ -251,17 +258,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$this->update_submenus( 'profile.php', $submenus_to_update );
 		}
 		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
-	}
-
-	/**
-	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Export on Simple sites is always handled on Calypso.
-		parent::add_tools_menu( $wp_admin_import, false );
 	}
 
 	/**

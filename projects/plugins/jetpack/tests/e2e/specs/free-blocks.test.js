@@ -1,14 +1,18 @@
-/**
- * Internal dependencies
- */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
 import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
 import { step } from '../lib/env/test-setup';
+import config from 'config';
 
-const config = require( 'config' );
+/**
+ *
+ * @group post-connection
+ * @group free-blocks
+ * @group blocks
+ * @group gutenberg
+ */
 
 describe( 'Free blocks', () => {
 	let blockEditor;

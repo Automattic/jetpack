@@ -121,6 +121,16 @@ class REST_Connector {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'connection_register' ),
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'args'                => array(
+					'from'               => array(
+						'description' => 'Indicates where the registration action was triggered for tracking/segmetnation purposes',
+						'type'        => 'string',
+					),
+					'registration_nonce' => array(
+						'description' => 'The registration nonce',
+						'type'        => 'string',
+					),
+				),
 			)
 		);
 	}
@@ -405,6 +415,9 @@ class REST_Connector {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
+		if ( isset( $request['from'] ) ) {
+			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
+		}
 		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {

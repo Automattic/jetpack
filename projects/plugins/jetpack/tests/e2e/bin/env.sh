@@ -25,6 +25,7 @@ configure_wp_env() {
 	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/tests/e2e/bin/wp-setup.sh
 
 	if [ "$GUTENBERG" == "latest" ]; then
+		echo "Installing latest Gutenberg"
 		yarn wp-env run tests-cli wp plugin install gutenberg --activate
 	fi
 

@@ -298,11 +298,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				)
 			);
 		}
-		if ( ! ( new Connection_Manager() )->get_connection_owner_id() && ( new Status() )->is_no_user_testing_mode() ) {
+		if ( ! ( new Connection_Manager() )->get_connection_owner_id() ) {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is running in userless mode. No master user to check.', 'jetpack' ),
+					'short_description' => __( 'Jetpack is running without a connected user. No master user to check.', 'jetpack' ),
 				)
 			);
 		}
@@ -336,11 +336,11 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				)
 			);
 		}
-		if ( ! ( new Connection_Manager() )->get_connection_owner_id() && ( new Status() )->is_no_user_testing_mode() ) {
+		if ( ! ( new Connection_Manager() )->get_connection_owner_id() ) {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is running in userless mode. No master user to check.', 'jetpack' ),
+					'short_description' => __( 'Jetpack is running without a connected user. No master user to check.', 'jetpack' ),
 				)
 			);
 		}

@@ -20,7 +20,7 @@
 		"tunnel-on": "pm2 start bin/ecosystem.config.js && yarn pm2 logs --nostream --lines 4",
 		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
 		"pretest-e2e": "yarn clean",
-		"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles",
+		"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in ./config/local-test.js -out ./config/encrypted.enc"
 	},
@@ -40,6 +40,7 @@
 		"jest-circus": "26.6.3",
 		"jest-environment-node": "26.6.2",
 		"jest-junit": "12.0.0",
+		"jest-runner-groups": "2.0.1",
 		"jest-stare": "2.2.1",
 		"localtunnel": "2.0.1",
 		"lodash": "4.17.21",
@@ -47,6 +48,7 @@
 		"playwright": "1.10.0",
 		"pm2": "4.5.6",
 		"rimraf": "3.0.2",
+		"shell-escape": "0.2.0",
 		"winston": "3.3.3",
 		"yargs": "16.2.0"
 	},
