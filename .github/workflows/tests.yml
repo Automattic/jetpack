@@ -181,8 +181,6 @@ jobs:
 
       - name: Process coverage results
         if: matrix.script == 'test-coverage'
-        env:
-          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
         run: .github/files/process-coverage.sh
 
       - name: Check for artifacts

@@ -1,14 +1,15 @@
 # Jetpack Monorepo Overview
 
 Welcome to the Jetpack Monorepo! This document will give you some idea of the layout, and what is required for your project to fit in with our tooling.
+
 ## Layout
 
 Projects are divided into WordPress plugins, Composer packages, and Gutenberg editor extensions.
 
-* WordPress plugins live in subdirectories of `projects/plugins/`. The directory name should probably match the WordPress plugin name, with a leading "jetpack-" removed if applicable.
-* Composer packages live in subdirectories of `projects/packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
-* Editor extensions live in subdirectories of `projects/editor-extensions/`. The directory name should match the feature name (without a "jetpack/" prefix).
-* GitHub Actions live in subdirectories of `projects/github-actions/`. The directory name should match the action name with the leading "Automattic/action-" removed.
+- WordPress plugins live in subdirectories of `projects/plugins/`. The directory name should probably match the WordPress plugin name, with a leading "jetpack-" removed if applicable.
+- Composer packages live in subdirectories of `projects/packages/`. The directory name should probably match the package name with the leading "Automattic/jetpack-" removed.
+- Editor extensions live in subdirectories of `projects/editor-extensions/`. The directory name should match the feature name (without a "jetpack/" prefix).
+- GitHub Actions live in subdirectories of `projects/github-actions/`. The directory name should match the action name with the leading "Automattic/action-" removed.
 
 Tooling that's applicable to the monorepo as a whole, including tooling for generically handling projects, lives in `tools/`.
 
@@ -18,9 +19,9 @@ Documentation that's applicable to the monorepo as a whole lives in `docs/`.
 
 All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specifc to any one project.
 
-* Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
-* Pattern matchers (not associated with an action) go in `.github/matchers/`.
-* Other files specific to actions, including scripts used with `run:`, go in `.github/files/`.
+- Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
+- Pattern matchers (not associated with an action) go in `.github/matchers/`.
+- Other files specific to actions, including scripts used with `run:`, go in `.github/files/`.
 
 ## Compatibility
 
@@ -32,8 +33,8 @@ First time working with the monorepo? We got you covered.
 
 For the first time only:
 
-* From the root of the repo, run `yarn install && yarn cli-setup`
-* That’s it. You won’t need to do that again unless you nuke your node_modules directory.
+- From the root of the repo, run `yarn install && yarn cli-setup`
+- That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
 This does a couple of things: 1. Adds a global symlink per yarn link so you can run the cli from any directory and 2. allows any changes made to the CLI to be immediately reflected on your local system.
 
@@ -43,35 +44,38 @@ Once you’ve done that, it’s easy: run jetpack while anywhere in the Jetpack 
 
 Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart the files you need. To get started:
 
-* Make sure you're checked out to the branch you want.
-* Use the CLI command `jetpack generate` to start the process.
-* The wizard will walk you through the steps of starting a new package, plugin, or Github action.
+- Make sure you're checked out to the branch you want.
+- Use the CLI command `jetpack generate` to start the process.
+- The wizard will walk you through the steps of starting a new package, plugin, or Github action.
 
 ### Accepted Arguments
 
 The wizard accepts a few arguments to speed things up:
 
-* `[project type]` - Accepted values: `package`, `plugin`, `github-action`
-* `--name`, `--n` - The name of your project (no spaces)
+- `[project type]` - Accepted values: `package`, `plugin`, `github-action`
+- `--name`, `--n` - The name of your project (no spaces)
 
 Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
 
 ### What's Included
 
-The Jetpack Generate Wizard includes the following for each project: 
-#### All Projects:
+The Jetpack Generate Wizard includes the following for each project:
+
+#### All Projects
 
 - composer.json
 - package.json
 - readme.md
 - license.txt
 - .gitignore
+
 #### Packages
 
 - bootstrap.php
 - .gitkeep
 - .gitattributes
 - phpunit.xml.dist
+
 #### Plugins
 
 - bootstrap.php
@@ -87,38 +91,43 @@ The Jetpack Generate Wizard includes the following for each project:
 
 ### Next Steps
 
-* The wizard should auto-generate common information
-* Check things over to make sure it looks correct
-* If your project requires a build step, add steps to `composer.json` and `package.json`
-* Create a mirror repo if necessary. See [Mirror repositories](#mirror-repositories).
+- The wizard should auto-generate common information
+- Check things over to make sure it looks correct
+- If your project requires a build step, add steps to `composer.json` and `package.json`
+- Create a mirror repo if necessary. See [Mirror repositories](#mirror-repositories).
 
 ## Project structure
 
 We use `composer.json` to hold metadata about projects. Much of our generic tooling reads this metadata to customize handling of the project. Metadata keys used are:
 
-* `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
-* `.version`: If present, updated by `tools/project-version.sh`. This should not be included on Composer packages that will be served through Packagist.
-* `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
-* `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. This command or build-production below are required for projects requiring a build step.
-* `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. This command or build-development above are required for projects requiring a build step.
-* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
-* `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
-* `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
-* `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
-* `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
-* `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
-* `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "https://github.com/Automattic/jetpack-_something_".
-* `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
-* `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
-  * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
+- `.name`: Generally "Automattic/jetpack-_something_". Used to report names in various places. For Composer packages, this must, of course, match the name on Packagist.
+- `.version`: If present, updated by `tools/project-version.sh`. This should not be included on Composer packages that will be served through Packagist.
+- `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
+- `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. This command or build-production below are required for projects requiring a build step.
+- `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. This command or build-development above are required for projects requiring a build step.
+- `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
+- `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
+- `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
+- `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
+- `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
+- `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
+- `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<https://github.com/Automattic/jetpack>-_something_".
+- `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
+- `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
+
+  - Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
+
     ```php
     define( 'CONSTANT', 'version' );
     ```
-  * Class constants may be specified by prefixing the constant name with "::", e.g. `::CONSTANT`. In that case the definition must look like this:
+
+  - Class constants may be specified by prefixing the constant name with "::", e.g. `::CONSTANT`. In that case the definition must look like this:
+
     ```php
     const CONSTANT = 'version';
     ```
-* `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
+
+- `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -128,8 +137,8 @@ The Jetpack Monorepo includes GitHub actions to run a number of CI checks on all
 
 Tests for a project are only run for a PR if changes are made to the project or its dependencies. Dependencies may be specified as:
 
-* For Composer packages included in the monorepo, via `.require' and `.require-dev` in `composer.json`.
-* For any other dependencies, via `.extra.dependencies` in `composer.json`.
+- For Composer packages included in the monorepo, via `.require' and`.require-dev`in`composer.json`.
+- For any other dependencies, via `.extra.dependencies` in `composer.json`.
 
 The test environment will be set up with appropriate tools, including node, yarn, php, phpdbg, and composer. Unless otherwise specified below, the version of node will be that specified in the monorepo root's `.nvmrc` and php will be that specified in the monorepo root's `.github/php-version`. Other necessary tools may be pulled in via composer and yarn.
 
@@ -149,9 +158,9 @@ The following environment variables are avaliable for all tests:
 
 We use eslint and phpcs to lint JavaScript and PHP code. Projects should comply with the [coding standards](development-environment.md#coding-standards) enforced by these tools.
 
-* Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
-* As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the root of the monorepo.
-* As phpcs does not support per-directory configuration, any necessary file ignore clauses should be added to `.phpcs.config.xml` in the root of the monorepo.
+- Projects may include `.eslintrc.js` to adjust eslint configuration as necessary, but try to keep to the spirit of it.
+- As eslint does not support per-directory `.eslintignore`, any necessary ignore rules should be added to the file in the root of the monorepo.
+- As phpcs does not support per-directory configuration, any necessary file ignore clauses should be added to `.phpcs.config.xml` in the root of the monorepo.
 
 ### PHP tests
 
@@ -167,14 +176,14 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 5.7 to 9.0, to support PHP 5.6 to 8.0.
-  * Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
-* PHPUnit's built-in mocking is used for class mocks.
-* [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
-* [automattic/wordbless](https://packagist.org/packages/automattic/wordbless) is used to pull in WordPress for testing.
-  * If using both Brain Monkey and WorDBless, note the following requirements:
-    * You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before WorDBless's setup, so Brain Monkey can mock WordPress functions.
-    * Follow Brain Monkey's [functions-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/functions-testing-tools/functions-setup.md) instead of [wordpress-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/wordpress-specific-tools/wordpress-setup.md); don't call `Monkey\setUp()` or try to use its WordPress-specific tools.
+- [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 5.7 to 9.0, to support PHP 5.6 to 8.0.
+  - Do not use `Yoast\PHPUnitPolyfills\TestCases\TestCase` or `Yoast\PHPUnitPolyfills\TestCases\XTestCase`. Just use the `@before`, `@after`, `@beforeClass`, and `@afterClass` annotations directly.
+- PHPUnit's built-in mocking is used for class mocks.
+- [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
+- [automattic/wordbless](https://packagist.org/packages/automattic/wordbless) is used to pull in WordPress for testing.
+  - If using both Brain Monkey and WorDBless, note the following requirements:
+    - You must `require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';` in `bootstrap.php` before WorDBless's setup, so Brain Monkey can mock WordPress functions.
+    - Follow Brain Monkey's [functions-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/functions-testing-tools/functions-setup.md) instead of [wordpress-setup.md](https://github.com/Brain-WP/BrainMonkey/blob/master/docs/wordpress-specific-tools/wordpress-setup.md); don't call `Monkey\setUp()` or try to use its WordPress-specific tools.
 
 #### PHP tests for plugins
 
@@ -198,10 +207,7 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output.
 
-Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired, as long as the files themselves are named appropriately. Supported formats are:
-
-* clover: Name files to end in `clover.xml`.
-* lcov: Name files to end in `lcov.info`. Remove any `lcov-report` directories.
+Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
 For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
@@ -211,7 +217,7 @@ There's no need to be concerned about collisions with other projects' coverage f
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
-1. Create the mirror repo on GitHub. It will most likely be named like "https://github.com/Automattic/jetpack-_something_".
+1. Create the mirror repo on GitHub. It will most likely be named like "<https://github.com/Automattic/jetpack>-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
    2. The default branch should be `master`, matching the monorepo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
@@ -221,7 +227,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 3. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 4. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
 5. Set `.extra.mirror-repo` in your project's `composer.json` to the name of the repo.
-   * When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
+   - When you push the PR making this change to `composer.json`, pay attention to the Build workflow. Download the "jetpack-build" artifact and make sure it contains your project, and that there are no extra or missing files.
 
 ### Autotagger
 
@@ -235,17 +241,17 @@ This is intended to work in combination with [Changelogger](#jetpack-changelogge
 2. Use `tools/changelogger-release.sh` to create a PR rolling the change files into a new changelog entry.
 3. Push and merge that PR.
 4. If you turned on "Require branches to be up to date before merging" in step 1, go turn it off. If you didn't, check that no one merged any PRs in between steps 2 and 3 that added change files to the projects being released.
-   * If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
+   - If they did, you'll likely have to create a release branch in the affected projects' mirror repos and manually tag.
 5. Verify that the Build workflow run for your PR's merge to master succeeded. [This search](https://github.com/Automattic/jetpack/actions/workflows/build.yml?query=branch%3Amaster) will show the runs of that workflow for all merges to master.
-   * If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
+   - If it failed, you can try re-running it as long as no other PRs were merged adding change files to the projects being released. If some were merged, you'll have to manually tag the affected projects.
 
 ## Plugin release tooling
 
 If you have set `.extra.mirror-repo`, `.extra.release-branch-prefix`, and `.extra.wp-plugin-slug` in your plugin's `composer.json`, we have tooling to make releasing to WordPress.org easier.
 
-* `tools/create-release-branch.sh` will help you create the correctly named release branch, and will automatically update version numbers and versions of monorepo packages for you. The GitHub Action will then mirror this branch to your plugin's mirror repo.
-* `tools/deploy-to-svn.sh` will prepare a temporary directory with the content of the mirror repo branch that is ready to be pushed to WordPress.org SVN.
-* `tools/revert-release.sh` will prepare a temporary directory that updates the "Stable version" tag in `readme.txt` to the previous version, in case an emergency rollback is required.
+- `tools/create-release-branch.sh` will help you create the correctly named release branch, and will automatically update version numbers and versions of monorepo packages for you. The GitHub Action will then mirror this branch to your plugin's mirror repo.
+- `tools/deploy-to-svn.sh` will prepare a temporary directory with the content of the mirror repo branch that is ready to be pushed to WordPress.org SVN.
+- `tools/revert-release.sh` will prepare a temporary directory that updates the "Stable version" tag in `readme.txt` to the previous version, in case an emergency rollback is required.
 
 ## Jetpack Changelogger
 
