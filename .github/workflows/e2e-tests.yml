@@ -33,6 +33,7 @@ jobs:
   e2e-tests:
     name: "E2E ${{ matrix.group }} tests"
     runs-on: ubuntu-latest
+    needs: create-matrix
     timeout-minutes: 25  # 2021-04-16: Successful runs seem to take 11-17 minutes
     strategy:
       fail-fast: false
