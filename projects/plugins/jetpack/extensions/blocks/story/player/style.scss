@@ -40,9 +40,6 @@
 		text-shadow: none;
 		background-color: transparent;
 		border: 0;
-	}
-
-	button {
 		cursor:pointer;
 	}
 
@@ -278,11 +275,6 @@
 			margin: 0 2px;
 			padding: 6px 0;
 			vertical-align: top;
-
-			&:focus {
-				outline: none;
-				outline-offset: 0;
-			}
 
 			.wp-story-pagination-bullet-bar {
 				min-width: 12px;
