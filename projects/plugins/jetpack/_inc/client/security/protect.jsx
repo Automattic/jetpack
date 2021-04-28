@@ -176,7 +176,10 @@ export const Protect = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="protect"
 							featureLabel={ __( 'Protect', 'jetpack' ) }
-							text={ __( 'Sign in to set up brute force attack protection.', 'jetpack' ) }
+							text={ __(
+								'Connect your WordPress.com account to set up brute force attack protection.',
+								'jetpack'
+							) }
 						/>
 					) }
 				</SettingsCard>

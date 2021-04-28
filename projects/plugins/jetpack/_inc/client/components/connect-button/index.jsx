@@ -121,7 +121,8 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com', 'jetpack' );
+			connectLegend =
+				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
 
 		// Secondary users in-place connection flow
 

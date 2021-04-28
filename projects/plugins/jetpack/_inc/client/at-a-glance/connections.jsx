@@ -147,7 +147,7 @@ export class DashConnections extends Component {
 				<div>
 					<div className="jp-connection-settings__info">
 						{ __(
-							'Link your account to WordPress.com to get the most out of Jetpack.',
+							'Connect your WordPress.com account to get the most out of Jetpack.',
 							'jetpack'
 						) }
 					</div>

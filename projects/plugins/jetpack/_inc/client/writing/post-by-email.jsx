@@ -120,7 +120,10 @@ class PostByEmail extends React.Component {
 					<ConnectUserBar
 						feature="post-by-email"
 						featureLabel={ __( 'Post by Email', 'jetpack' ) }
-						text={ __( 'Sign in to enable publishing via email.', 'jetpack' ) }
+						text={ __(
+							'Connect your WordPress.com account to enable publishing via email.',
+							'jetpack'
+						) }
 					/>
 				) }
 			</SettingsCard>

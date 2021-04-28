@@ -120,7 +120,7 @@ class ActiveCard extends Component {
 					<ConnectUserBar
 						feature={ m.module }
 						featureLabel={ m.name }
-						text={ __( 'Sign in to configure.', 'jetpack' ) }
+						text={ __( 'Connect your WordPress.com account to configure.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>

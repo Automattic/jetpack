@@ -79,7 +79,10 @@ export const Monitor = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="monitor"
 							featureLabel={ __( 'Downtime Monitoring', 'jetpack' ) }
-							text={ __( 'Sign in to set up your status alerts.', 'jetpack' ) }
+							text={ __(
+								'Connect your WordPress.com account to set up your status alerts.',
+								'jetpack'
+							) }
 						/>
 					) }
 				</SettingsCard>
