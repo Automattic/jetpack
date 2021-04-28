@@ -104,7 +104,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ this.props.connectLegend || __( 'Unlink me from WordPress.com', 'jetpack' ) }
+						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
 					</a>
 				</div>
 			);
