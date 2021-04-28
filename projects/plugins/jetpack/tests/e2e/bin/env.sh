@@ -22,18 +22,12 @@ reset_env() {
 	configure_wp_env
 }
 
-configure_wp_env() {
-	yarn wp-env run tests-wordpress sh wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
-
-	if [ "$GUTENBERG" == "latest" ]; then
-		echo "Installing latest Gutenberg"
-		yarn wp-env run tests-cli wp plugin install gutenberg --activate
-	elif [ "$GUTENBERG" == "pre-release" ]; then
-		GB_ZIP="wp-content/gutenberg.zip"
-		yarn wp-env run tests-wordpress "wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-prerelease $GB_ZIP"
-		yarn wp-env run tests-cli "wp plugin install $GB_ZIP"
-		yarn wp-env run tests-cli "wp plugin activate gutenberg"
-	fi
+gb_setup() {
+	GB_ZIP="wp-content/gutenberg.zip"
+	yarn wp-env run tests-wordpress "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
+	yarn wp-env run tests-cli "wp plugin install $GB_ZIP"
+	yarn wp-env run tests-cli "wp plugin activate gutenberg"
+}
 
 configure_wp_env() {
 	yarn wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
@@ -49,7 +43,7 @@ if [ "${1}" == "start" ]; then
 elif [ "${1}" == "reset" ]; then
 	reset_env
 elif [ "${1}" == "gb-setup" ]; then
-	gb_setup ${2}
+	gb_setup
 elif [ "${1}" == "usage" ]; then
 	usage
 else

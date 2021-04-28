@@ -40,13 +40,13 @@ function gb_setup {
 
 	rm -rf $ZIP_PATH wp-content/plugins/gutenberg
 	curl -L $GB_URL --output $ZIP_PATH
-	echo "Pre-release Gutenberg successfuly downloaded in $ZIP_PATH"
+	echo "Latest pre-release Gutenberg successfuly downloaded in $ZIP_PATH"
 }
 
 if [ "${1}" == "wp-config" ]; then
 	wp_config
 elif [ "${1}" == "gb-setup" ]; then
-	gb_setup
+	gb_setup ${2}
 elif [ "${1}" == "usage" ]; then
 	usage
 else

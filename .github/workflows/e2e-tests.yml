@@ -12,6 +12,23 @@ on:
     - cron:  '0 */12 * * *'
 
 jobs:
+  create-matrix:
+    name: "Determine tests matrix"
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    outputs:
+      matrix: ${{ steps.create-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: create-matrix
+        run: |
+          MATRIX=[{"group":"pre-connection" },{"group":"connection" },{"group":"post-connection" }]
+          if [ ${{ github.event_name }} == schedule ]; then
+            MATRIX=$(echo $MATRIX | jq '. + [{"group": "gutenberg"}]')
+          fi
+          echo "::set-output name=matrix::$MATRIX"
+
+
   e2e-tests:
     name: "E2E ${{ matrix.group }} tests"
     runs-on: ubuntu-latest
@@ -19,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: [ 'pre-connection', 'connection', 'post-connection', 'gutenberg' ]
+        include: ${{ fromJson( needs.create-matrix.outputs.matrix ) }}
     env:
       GUTENBERG: bundle # default value. Can be overridden later based on matrix.group value
     if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
@@ -88,8 +105,6 @@ jobs:
         yarn jetpack build plugins/jetpack -v --production
 
 
-    - name: Set Gutenberg version
-      run: if [ ${{ matrix.group }} == gutenberg ]; then echo "GUTENBERG=latest" >> $GITHUB_ENV; fi
 
     - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -98,9 +113,17 @@ jobs:
       run: |
         yarn install
         yarn test-decrypt-config
-        echo "Gutenberg: $GUTENBERG"
         yarn env-start
         yarn tunnel-on
+
+    - name: Set up Gutenberg
+      if: matrix.group == 'gutenberg'
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: |
+        export GUTENBERG=latest
+        echo "$GUTENBERG" >> $GITHUB_ENV;
+        ./bin/env.sh config-gb
+
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
