@@ -146,10 +146,7 @@ export class DashConnections extends Component {
 			cardContent = (
 				<div>
 					<div className="jp-connection-settings__info">
-						{ __(
-							'Connect your WordPress.com account to get the most out of Jetpack.',
-							'jetpack'
-						) }
+						{ __( 'Get the most out of Jetpack.', 'jetpack' ) }
 					</div>
 					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 				</div>
