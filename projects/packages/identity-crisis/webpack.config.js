@@ -17,10 +17,7 @@ const baseConfig = getBaseWebpackConfig(
 	}
 );
 
-const plugins = [
-	...baseConfig.plugins,
-	new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
-];
+const plugins = [ ...baseConfig.plugins, new DependencyExtractionWebpackPlugin() ];
 
 if ( ! isDevelopment ) {
 	plugins.push( new MinifyPlugin() );

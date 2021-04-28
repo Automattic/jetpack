@@ -4,18 +4,18 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-status": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-tracking": "@dev",
-		"automattic/jetpack-logo": "@dev",
-		"automattic/wordbless": "@dev",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"automattic/jetpack-connection": "^1.26",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-options": "^1.11",
+		"automattic/jetpack-status": "^1.7",
+		"automattic/jetpack-sync": "^1.20",
+		"automattic/jetpack-tracking": "^1.13",
+		"automattic/jetpack-logo": "^1.5"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.1",
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/wordbless": "^1.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -56,6 +56,16 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-identity-crisis"
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-identity-crisis",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-identity-crisis.php"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
 	}
 }

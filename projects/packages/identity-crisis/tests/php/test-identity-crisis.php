@@ -15,8 +15,9 @@ use WorDBless\BaseTestCase;
  * Test Identity_Crisis class
  */
 class Test_Identity_Crisis extends BaseTestCase {
+
 	/**
-	 * Test Identity_Crisis.
+	 * Test that clear_all_idc_options resets Options.
 	 */
 	public function test_clear_all_idc_options_clears_expected() {
 		$options = array(
@@ -27,7 +28,6 @@ class Test_Identity_Crisis extends BaseTestCase {
 
 		foreach ( $options as $option ) {
 			Jetpack_Options::update_option( $option, true );
-			$this->assertTrue( Jetpack_Options::get_option( $option ) );
 		}
 
 		Identity_Crisis::clear_all_idc_options();
