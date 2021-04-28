@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Always display pre-connection JITMs, without the need to set a filter.

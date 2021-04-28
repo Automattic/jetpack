@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Added "userless" parameter to the authorization URL.

@@ -316,7 +316,7 @@ export default class PageActions {
 	 */
 	async hover( selector, options = {} ) {
 		logger.action( `Hovering over '${ selector }' element` );
-		await this.page.selectOption( selector, options );
+		await this.page.hover( selector, options );
 	}
 
 	/**
