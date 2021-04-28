@@ -1,9 +1,4 @@
 /**
- * WordPress dependencies
- */
-import { createElement } from '@wordpress/element';
-
-/**
  * Internal dependencies
  */
 import { SimpleButton } from './button';

@@ -3,15 +3,6 @@
  */
 import classNames from 'classnames';
 
-/**
- * WordPress dependencies
- */
-import { createElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-
 export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcset, url } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<img
@@ -27,7 +18,7 @@ export const Image = ( { title, alt, className, id, mediaRef, mime, sizes, srcse
 	/>
 );
 
-export const Video = ( { title, className, id, mediaRef, mime, url, poster } ) => (
+export const Video = ( { title, className, id, mediaRef, mime, url } ) => (
 	// eslint-disable-next-line jsx-a11y/media-has-caption
 	<video
 		className={ classNames( 'wp-story-video', 'intrinsic-ignore', `wp-video-${ id }`, className ) }

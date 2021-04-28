@@ -3,11 +3,6 @@
  */
 import classNames from 'classnames';
 
-/**
- * WordPress dependencies
- */
-import { createElement } from '@wordpress/element';
-
 import './button.scss';
 
 export const DecoratedButton = ( { className, size, label, isPressed, ...extraProps } ) => (
