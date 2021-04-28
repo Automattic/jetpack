@@ -1,7 +1,9 @@
 /**
  * Internal dependencies
  */
-import { name, settings } from '.';
+import { blockSettings, name, pluginSettings } from '.';
+import registerJetpackBlock from '../../shared/register-jetpack-block';
 import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
 
-registerJetpackPlugin( name, settings );
+registerJetpackBlock( name, blockSettings );
+registerJetpackPlugin( name, pluginSettings );

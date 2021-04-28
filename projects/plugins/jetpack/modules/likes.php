@@ -14,6 +14,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Blocks;
 
 Assets::add_resource_hint(
 	array(
@@ -465,6 +466,16 @@ class Jetpack_Likes {
 	 * @param string $content - content of the page.
 	 */
 	public function post_likes( $content ) {
+		// Don't automatically append the Like button to the content if we're in an FSE theme.
+		// If the content is empty, assume that we're rendering the Likes block on its own and proceed.
+		if (
+			function_exists( 'gutenberg_is_fse_theme' ) &&
+			gutenberg_is_fse_theme() &&
+			! empty( $content )
+		) {
+			return $content;
+		}
+
 		$post_id = get_the_ID();
 
 		if ( ! is_numeric( $post_id ) || ! $this->settings->is_likes_visible() ) {
@@ -697,3 +708,36 @@ function jetpack_post_likes_set_extension_availability() {
 add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_post_likes_set_extension_availability' );
 
 Jetpack_Likes::init();
+
+const FEATURE_NAME = 'likes';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	Blocks::jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
+
+/**
+ * Likes block registration/dependency declaration.
+ *
+ * @param array  $attr    Array containing the Likes block attributes.
+ * @param string $content String containing the Likes block content.
+ *
+ * @return string
+ */
+function load_assets( $attr, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+	$likes_instance = Jetpack_Likes::init();
+
+	$server_rendered_content = $likes_instance->post_likes( '' );
+	return $server_rendered_content;
+}

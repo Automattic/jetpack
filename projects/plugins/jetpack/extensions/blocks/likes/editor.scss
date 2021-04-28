@@ -1,0 +1,149 @@
+// These styles are copied from those distributed by https://widgets.wp.com/likes/style.css
+.wp-block-jetpack-likes {
+
+	.wpl-likebox, .wpl-follow a, .wpl-count a {
+		/* Webfonts aren't copied into the iframe, so fall back to sans-serifs
+		!important to override inline styles. Eventually this text should disappear. */
+		font-size: 11px !important;
+		font-family: "Open Sans", sans-serif !important;
+	}
+
+	.wpl-button {
+		min-width: 73px; /* Prevent avatars from jumping around when Like becomes Liked */
+	}
+
+	/* Like button, make sure it matches mu-plugins/post-flair/sharing/sharing.css, based on http://wordpress.com/i/buttons/ */
+	.wpl-button a {
+		text-decoration: none;
+		display: inline-block;
+		margin: 0 5px 3px 0;
+		font-size: 12px;
+		font-family: "Open Sans", sans-serif;
+		border-radius: 3px;
+		color: #777;
+		background: #f8f8f8;
+		border: 1px solid #cccccc;
+		box-shadow: 0 1px 0 rgba(0,0,0,.08);
+		text-shadow: none;
+		line-height: 23px;
+		padding: 1px 8px 0px 5px;
+	}
+	.wpl-button a:hover {
+		color: #555;
+		background: #fafafa;
+		border: 1px solid #999999;
+	}
+	.wpl-button a:active {
+		box-shadow: inset 0 1px 0 rgba(0,0,0,.16);
+	}
+	.wpl-button a:before {
+		display: inline-block;
+		position: relative;
+		width: 16px;
+		height: 16px;
+		text-align: center;
+		top: 3px;
+		margin-left: -1px;
+		margin-right: 1px;
+		content: '';
+		background-size: 16px 16px;
+	}
+	.wpl-button.like a:before {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%232ba1cb' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
+	}
+	.wpl-button.liked a:before {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='white' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
+	}
+	.wpl-button.reblog a:before {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%232ba1cb' d='M22.086 9.914L20 7.828V18c0 1.105-.895 2-2 2h-7v-2h7V7.828l-2.086 2.086L14.5 8.5 19 4l4.5 4.5-1.414 1.414zM6 16.172V6h7V4H6c-1.105 0-2 .895-2 2v10.172l-2.086-2.086L.5 15.5 5 20l4.5-4.5-1.414-1.414L6 16.172z'/%3E%3C/g%3E%3C/svg%3E");
+	}
+	.rtl .wpl-button.like a:before,
+	.rtl .wpl-button.liked a:before {
+		margin-left: 1px;
+		margin-right: -1px;
+	}
+	.wpl-button.liked a {
+		background: #2ba1cb;
+		color: #fff;
+		box-shadow: inset 0 1px 0 rgba(0,0,0,.08);
+		border-color: #198fbb;
+	}
+	.wpl-button.liked a:before {
+		color: #fff;
+	}
+	.wpl-count {
+		clear: both;
+	}
+	.wpl-count-text {
+		line-height: 1.6;
+	}
+	.wpl-button {
+		float: left;
+	}
+	.rtl .wpl-button {
+		float: right;
+	}
+	.wpl-avatars {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		overflow: hidden;
+		height: 26px;
+	}
+	.wpl-avatars li {
+		margin: 0;
+		display: inline;
+	}
+	.wpl-avatars li a {
+		display: block;
+		float: left;
+		margin: 0 5px 3px 0;
+		border: none;
+	}
+	.rtl .wpl-avatars li a {
+		float: right;
+		margin: 0 0 3px 5px;
+	}
+	.wpl-avatars li a img {
+		width: 26px;
+		height: 26px;
+		padding: 0 !important;
+		border: none;
+	}
+	span.wpl-follow, span.wpl-comment {
+		margin-left: 5px;
+	}
+	a.comment-like-link:before {
+		color: #2EA2CC;
+		width: 16px;
+		height: 16px;
+		content: '';
+		display: inline-block;
+		position: relative;
+		top: 3px;
+		padding-right: 5px;
+		background-repeat: no-repeat;
+		background-size: 16px 16px;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%232EA2CC' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
+	}
+	a.comment-like-link:hover:before,
+	a.comment-liked:before,
+	div.comment-liked a.comment-like-link:before {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%23f1831e' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
+	}
+	a.comment-liked:hover:before,
+	div.comment-liked a.comment-like-link:hover:before {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='0' fill='none' width='24' height='24'/%3E%3Cg%3E%3Cpath fill='%23ff9a00' d='M12 2l2.582 6.953L22 9.257l-5.822 4.602L18.18 21 12 16.89 5.82 21l2.002-7.14L2 9.256l7.418-.304'/%3E%3C/g%3E%3C/svg%3E");
+	}
+	a.comment-like-link {
+		color: #222;
+		font-size: 12px;
+		opacity: .8;
+		text-decoration: none;
+	}
+	a.comment-like-link.loading:before {
+		transition: opacity 2s;
+		opacity: 0;
+	}
+
+}
