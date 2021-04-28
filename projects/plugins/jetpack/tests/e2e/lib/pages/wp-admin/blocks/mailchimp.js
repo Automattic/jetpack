@@ -52,8 +52,7 @@ export default class MailchimpBlock extends PageActions {
 				loaded = true;
 			} catch ( e ) {
 				logger.warn(
-					'ConnectionsPage is not available yet. Attempt: ' + count,
-					' URL: ' + connectionsUrl
+					'ConnectionsPage is not available yet. Attempt: ' + count + ' URL: ' + connectionsUrl
 				);
 				await wpComTab.goto( connectionsUrl );
 				if ( count > 2 ) {
@@ -61,7 +60,6 @@ export default class MailchimpBlock extends PageActions {
 				}
 			}
 		}
-
 		await wpComTab.reload( { waitUntil: 'domcontentloaded' } );
 
 		const wpComConnectionsPage = await ConnectionsPage.init( wpComTab );
