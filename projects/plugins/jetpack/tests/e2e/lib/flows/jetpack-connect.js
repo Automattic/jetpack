@@ -15,11 +15,7 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
-import {
-	provisionJetpackStartConnection,
-	execWpCommand,
-	getAccountCredentials,
-} from '../utils-helper';
+import { execWpCommand } from '../utils-helper';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
 import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
@@ -137,35 +133,4 @@ export async function isBlogTokenSet() {
 	const result = await execWpCommand( cliCmd );
 
 	return ! ( typeof result === 'object' && result.code === 1 );
-}
-
-export async function connectThroughJetpackStart( {
-	wpcomUser = 'defaultUser',
-	plan = 'complete',
-} = {} ) {
-	// remove Sandbox cookie
-	await page.deleteCookie( {
-		name: 'store_sandbox',
-		domain: '.wordpress.com',
-	} );
-
-	// Logs in to WPCOM
-	const loginPage = await LoginPage.visit( page );
-	if ( ! ( await loginPage.isLoggedIn() ) ) {
-		await loginPage.login( wpcomUser );
-	}
-
-	const credentials = getAccountCredentials( wpcomUser );
-	await provisionJetpackStartConnection( credentials[ 2 ] );
-
-	const jetpackPage = await JetpackPage.visit( page );
-
-	await jetpackPage.openMyPlan();
-	await jetpackPage.reload( { waitUntil: 'domcontentloaded' } );
-
-	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
-		throw new Error( `Site does not have ${ plan } plan` );
-	}
-
-	return true;
 }
