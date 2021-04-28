@@ -109,24 +109,29 @@ export function getConnectUrl( postId, connectURL ) {
 		return null;
 	}
 
-	if ( ! postId ) {
-		return connectURL;
-	}
+	let url = connectURL;
 
-	let decodedState;
 	try {
 		const state = getQueryArg( connectURL, 'state' );
-		if ( typeof state === 'string' ) {
-			decodedState = JSON.parse( window.atob( state ) );
+		const decodedState = JSON.parse( atob( state ) );
+
+		if ( postId ) {
+			// Coming from the block editor
+			decodedState.from_editor_post_id = postId;
+		} else {
+			// Coming from the site editor
+			const queryParams = new URLSearchParams( window.location.search );
+
+			decodedState.from_site_editor_post_id = queryParams.get( 'postId' );
+			decodedState.from_site_editor_post_type = queryParams.get( 'postType' );
 		}
+
+		url = addQueryArgs( connectURL, { state: btoa( JSON.stringify( decodedState ) ) } );
 	} catch ( err ) {
 		if ( process.env.NODE_ENV !== 'production' ) {
 			console.error( err ); // eslint-disable-line no-console
 		}
-		return connectURL;
 	}
 
-	decodedState.from_editor_post_id = postId;
-
-	return addQueryArgs( connectURL, { state: window.btoa( JSON.stringify( decodedState ) ) } );
+	return url;
 }
