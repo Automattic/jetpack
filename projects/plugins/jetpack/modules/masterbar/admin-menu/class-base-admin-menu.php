@@ -277,7 +277,7 @@ abstract class Base_Admin_Menu {
 	 * https://core.trac.wordpress.org/ticket/53090
 	 */
 	public function configure_colors_for_rtl_stylesheets() {
-		wp_styles()->add_data( 'colors', 'rtl', $this->is_rtl() );
+		wp_style_add_data( 'colors', 'rtl', $this->is_rtl() );
 	}
 
 	/**
