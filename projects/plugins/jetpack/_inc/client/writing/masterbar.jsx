@@ -61,10 +61,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="masterbar"
 							featureLabel={ __( 'WordPress.com Toolbar', 'jetpack' ) }
-							text={ __(
-								'Connect your WordPress.com account to enable the WordPress.com toolbar.',
-								'jetpack'
-							) }
+							text={ __( 'Connect to enable the WordPress.com toolbar.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

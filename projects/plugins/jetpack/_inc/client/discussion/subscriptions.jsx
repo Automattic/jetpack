@@ -150,10 +150,7 @@ class SubscriptionsComponent extends React.Component {
 					<ConnectUserBar
 						feature="subscriptions"
 						featureLabel={ __( 'Subscriptions', 'jetpack' ) }
-						text={ __(
-							'Connect your WordPress.com account to manage your subscriptions settings.',
-							'jetpack'
-						) }
+						text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>
