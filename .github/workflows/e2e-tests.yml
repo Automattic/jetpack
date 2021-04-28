@@ -26,6 +26,7 @@ jobs:
           if [ ${{ github.event_name }} == schedule ]; then
             MATRIX=$(echo $MATRIX | jq '. + [{"group": "gutenberg"}]')
           fi
+          echo $MATRIX
           echo "::set-output name=matrix::$MATRIX"
 
 
