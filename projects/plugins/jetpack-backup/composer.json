@@ -1,5 +1,5 @@
 {
-	"name": "automattic/backups",
+	"name": "automattic/jetpack-backup",
 	"description": "Easily restore or download a backup of your site from a specific moment in time.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
@@ -36,8 +36,5 @@
 		}
 	],
 	"minimum-stability": "dev",
-	"prefer-stable": true,
-	"extra": {
-		"mirror-repo": "Automattic/jetpack-backups-plugin"
-	}
+	"prefer-stable": true
 }

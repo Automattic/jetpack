@@ -5,8 +5,8 @@ import React from 'react';
 
 const App = () => {
 	return (
-		<div id="backups-app-container">
-			<h1>Backups Plugin</h1>
+		<div id="jetpack-backup-app-container">
+			<h1>Jetpack Backup Plugin</h1>
 		</div>
 	);
 };
