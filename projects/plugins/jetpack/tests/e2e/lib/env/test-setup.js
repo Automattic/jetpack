@@ -1,10 +1,4 @@
-/**
- * External dependencies
- */
 import fs from 'fs';
-/**
- * Internal dependencies
- */
 import logger from '../logger';
 import {
 	execWpCommand,

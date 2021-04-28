@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { step } from '../lib/env/test-setup';
 import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import { execMultipleWpCommands, execWpCommand } from '../lib/utils-helper';
@@ -13,6 +10,10 @@ import DashboardPage from '../lib/pages/wp-admin/dashboard';
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
 
+/**
+ *
+ * @group connection
+ */
 describe( 'Connection', () => {
 	beforeAll( async () => {
 		await execMultipleWpCommands(

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { step } from '../lib/env/test-setup';
 import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import {
@@ -17,6 +14,11 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
 
+/**
+ *
+ * @group pre-connection
+ * @group update
+ */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
 		await prepareUpdaterTest();

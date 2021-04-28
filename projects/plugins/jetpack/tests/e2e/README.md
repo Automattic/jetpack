@@ -96,14 +96,14 @@ yarn test-e2e ./specs/some.test.js
 # One test from a test file
 yarn test-e2e ./specs/some.test.js -t 'Test name'
 
-# All blocks tests
+# All tests having 'blocks' in their name
 yarn test-e2e --testNamePattern=blocks
-
-# Only mailchimp test(s)
-yarn test-e2e --testNamePattern=mailchimp
 
 # All tests except the updater one(s)
 yarn test-e2e --testPathIgnorePatterns=updater
+
+# Filter by groups - run all tests in 'post-connection' group
+yarn test-e2e --group=post-connection
 
 ```
 
