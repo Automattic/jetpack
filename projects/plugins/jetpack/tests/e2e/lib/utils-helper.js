@@ -57,12 +57,13 @@ async function prepareUpdaterTest() {
  * @return {string} authentication URL
  */
 async function provisionJetpackStartConnection( userId, plan = 'free', user = 'admin' ) {
+	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
 	const cmd = `sh ../../../../../tools/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
 
 	const response = execSyncShellCommand( cmd );
-	logger.info( response );
+	logger.cli( response );
 
 	const json = JSON.parse( response );
 	if ( json.success !== true ) {
@@ -84,7 +85,7 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 			] ),
 		] )
 	);
-	logger.info( out );
+	logger.cli( out );
 
 	return true;
 }
