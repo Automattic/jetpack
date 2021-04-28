@@ -14,6 +14,9 @@
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $jetpack_docker_avoided_plugins = array(
 	'jetpack/jetpack.php',
+	'backup/jetpack-backup.php',
+	'beta/jetpack-beta.php',
+	'debug-helper/plugin.php',
 );
 
 /**
