@@ -1693,7 +1693,7 @@ function wp_lock_down() {
 	) . '</p>';
 	if ( 'READONLY' !== $readonly ) {
 		echo '<p>' . sprintf( __( 'For example: to cache <em>%1$sabout/</em>, you would enter %1$sabout/ or /about/. The cached file will be generated the next time an anonymous user visits that page.', 'wp-super-cache' ),
-			esc_attr( trailingslashit( get_option( 'siteurl' ) ) )
+			esc_attr( trailingslashit( get_option( 'home' ) ) )
 		) . '</p>';
 		echo '<p>' . esc_html__( 'Make the textbox blank to remove it from the list of direct pages and delete the cached file.', 'wp-super-cache' ) . '</p>';
 
