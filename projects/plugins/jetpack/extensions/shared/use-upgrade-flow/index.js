@@ -49,6 +49,8 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		[]
 	);
 
+	const isPostEditor = Object.keys( currentPost ).length > 0;
+
 	// Alias. Save post by dispatch.
 	const savePost = dispatch( 'core/editor' ).savePost;
 
@@ -59,11 +61,14 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 
 	// Save
 	const saveEntities = async () => {
-		await Promise.all(
-			entityRecords.map( async record => {
-				dispatch( 'core/data' ).saveEditedEntityRecord( record.kind, record.name, record.key );
-			} )
-		);
+		for ( let i = 0; i < entityRecords.length; i++ ) {
+			// await is needed here due to the loop.
+			await dispatch( 'core' ).saveEditedEntityRecord(
+				entityRecords[ i ].kind,
+				entityRecords[ i ].name,
+				entityRecords[ i ].key
+			);
+		}
 	};
 
 	const goToCheckoutPage = async event => {
@@ -73,7 +78,13 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		// in a modal rather than redirect the user there, away from the editor.
 		if ( hasAction( HOOK_OPEN_CHECKOUT_MODAL ) ) {
 			event.preventDefault();
-			savePost( event );
+
+			if ( isPostEditor ) {
+				savePost( event );
+			} else {
+				saveEntities( event );
+			}
+
 			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [ planData ] } );
 			return;
 		}
@@ -95,12 +106,12 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		 * If there are not unsaved values, redirect.
 		 * If the post is not auto-savable, redirect.
 		 */
-		if ( ! isDirtyPost || ! isAutosaveablePost ) {
+		if ( isPostEditor && ( ! isDirtyPost || ! isAutosaveablePost ) ) {
 			return redirect( checkoutUrl, onRedirect );
 		}
 
 		// Save the post in the post editor or entities in the site editor. Then redirect.
-		if ( currentPost ) {
+		if ( isPostEditor ) {
 			savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
 		} else {
 			saveEntities( event ).then( () => redirect( checkoutUrl, onRedirect ) );
