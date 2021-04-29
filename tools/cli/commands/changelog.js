@@ -249,14 +249,15 @@ async function changelogAdd( argv ) {
 		const needChangelog = await changedProjects();
 		const useWizard = await changelogAddPrompt( argv, needChangelog );
 		if ( ! useWizard.useExisting ) {
-			changelogArgs( argv );
+			changelogArgs( argv, needChangelog );
 			return;
 		}
-		for ( const proj of needChangelog ) {
+		const response = promptChangelog( argv, needChangelog );
+/* 		for ( const proj of needChangelog ) {
 			argv.project = proj;
 			console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
 			await changelogArgs( argv );
-		}
+		} */
 	} else {
 		changelogArgs( argv );
 	}
@@ -339,9 +340,122 @@ async function promptVersion( argv ) {
 }
 
 /**
- * Asks if you want to add changelog files for each.
+ * Prompts for changelog options.
  *
  * @param {argv} argv - the arguments passed.
+ * @returns {argv}.
+ */
+ async function promptChangelog( argv, needChangelog ) {
+	const commands = await inquirer.prompt( [
+		{
+			type: 'string',
+			name: 'changelogName',
+			message: 'Name your change file:',
+		},
+		{
+			type: 'list',
+			name: 'significance',
+			message: 'Significance of the change, in the style of semantic versioning.',
+			choices: [
+						{
+							value: 'patch',
+							name: '[patch] Backwards-compatible bug fixes.'
+						},
+						{
+							value: 'minor',
+							name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.'
+						},
+						{
+							value: 'major',
+							name: '[major] Broke backwards compatibility in some way.'
+						}
+					],
+		},
+		{
+			type: 'list',
+			name: 'type',
+			message: 'Type of change.',
+			choices: [
+						{
+							value: 'major',
+							name: '[major      ] Major Enhancements'
+						},
+						{
+							value: 'enhancement',
+							name: '[enhancement] Enhancements'
+						},
+						{
+							value: 'compat',
+							name: '[compat     ] Improved compatibility'
+						},
+						{
+							value: 'bugfix',
+							name: '[bugfix     ] Bug fixes'
+						},
+						{
+							value: 'other',
+							name: '[other      ] Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->'
+						}
+					 ],
+			when: needChangelog[0].includes( 'plugins' )
+		},
+		{
+			type: 'list',
+			name: 'type',
+			message: 'Type of change.',
+			choices: [
+						{
+							value: 'security',
+							name: '[security  ] Security'
+						},
+						{
+							value: 'added',
+							name: '[added     ] Added'
+						},
+						{
+							value: 'changed',
+							name: '[changed   ] Changed'
+						},
+						{
+							value: 'deprecated',
+							name: '[deprecated] Deprecated'
+						},
+						{
+							value: 'removed',
+							name: '[removed   ] Removed'
+						},
+						{
+							value: 'fixed',
+							name: '[fixed     ] Fixed'
+						}
+					 ],
+			when: needChangelog[0].includes( 'packages' ),
+		},
+		{
+			type: 'string',
+			name: 'entry',
+			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
+			when: ( answers ) => answers.significance === 'patch'
+		},
+		{
+			type: 'string',
+			name: 'entry',
+			message: 'Changelog entry. May not be empty.',
+			when: ( answers ) => answers.significance === 'minor' || 'major'
+		},
+
+	] );
+	argv.promptCommand = { ...commands };
+	console.log(argv.promptCommand);
+	return argv;
+}
+
+/**
+ * Asks if you want to add changelog files for each.
+ *
+ * @param {object} argv - the arguments passed.
+ * @param {Array} needChangelog - files that need changelogs.
+ *
  * @returns {argv}.
  */
 async function changelogAddPrompt( argv, needChangelog ) {
@@ -363,7 +477,6 @@ export async function changeloggerCli( argv ) {
 		cwd: argv.cwd,
 		stdio: 'inherit',
 	} );
-
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
 		console.error( chalk.red( argv.error ) );
@@ -377,7 +490,7 @@ export async function changeloggerCli( argv ) {
 /**
  * Add new changelog files to git staging.
  *
- * @param {argv} argv - the arguments passed.
+ * @param {object} argv - the arguments passed.
  */
 async function gitAdd( argv ) {
 	const changelogPath = `projects/${ argv.project }/changelog`;
@@ -393,7 +506,7 @@ async function gitAdd( argv ) {
 /**
  * Prompt for which changelog to add if we detect changes were made.
  *
- * @returns {array} modifiedProjects - projects that need a changelog.
+ * @returns {Array} modifiedProjects - projects that need a changelog.
  */
 async function changedProjects() {
 	const modifiedProjects = [];
