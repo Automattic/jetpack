@@ -723,11 +723,6 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
-
-		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
-
 		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-pre-connection-jitms.php';
 		$jetpack_jitm_messages = ( new Jetpack_Pre_Connection_JITMs() );
 		add_filter( 'jetpack_pre_connection_jitms', array( $jetpack_jitm_messages, 'add_pre_connection_jitms' ) );
@@ -1099,13 +1094,9 @@ class Jetpack {
 
 	function jetpack_track_last_sync_callback( $params ) {
 		/**
-		 * Filter to turn off jitm caching
-		 *
-		 * @since 5.4.0
-		 *
-		 * @param bool false Whether to cache just in time messages
+		 * This filter is documented in the Automattic\Jetpack\JITMS\Post_Connection_JITM class.
 		 */
-		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
 			return $params;
 		}
 

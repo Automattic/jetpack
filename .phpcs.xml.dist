@@ -20,6 +20,7 @@
 				<element value="jetpack"/>
 				<!-- Jetpack Beta plugin -->
 				<element value="jetpack-beta"/>
+				<element value="jetpack-backup"/>
 			</property>
 		</properties>
 	</rule>
