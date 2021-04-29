@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Added volta configuration to package.json to pin node version
