@@ -162,7 +162,8 @@ class SearchApp extends Component {
 		const overlay = event.target;
 		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
 		if ( overlay.scrollTo ) {
-			overlay.scrollTo( 0, 0, { smooth: true } );
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			overlay.scrollTo( 0, 0 );
 		} else {
 			overlay.scrollTop = 0;
 		}
