@@ -25,6 +25,7 @@ import {
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
 import './editor.scss';
+import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -240,7 +241,7 @@ function Edit( props ) {
 					return;
 				}
 
-				setConnectURL( result.connect_url );
+				setConnectURL( getConnectUrl( props.postId, result.connect_url ) );
 				setShouldUpgrade( result.should_upgrade_to_access_memberships );
 				setSiteSlug( result.site_slug );
 
@@ -289,6 +290,16 @@ function Edit( props ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	const shouldShowConnectButton = () => {
+		if ( ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL ) {
+			return true;
+		}
+
+		return false;
+	};
+
+	const [ , autosaveAndRedirect ] = useAutosaveAndRedirect( connectURL );
+
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (
 			<div className={ className } ref={ wrapperRef }>
@@ -303,14 +314,6 @@ function Edit( props ) {
 		);
 	}
 
-	const shouldShowConnectButton = () => {
-		if ( ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL ) {
-			return true;
-		}
-
-		return false;
-	};
-
 	return (
 		<>
 			<BlockControls>
@@ -318,9 +321,7 @@ function Edit( props ) {
 					<ToolbarGroup>
 						<ToolbarButton
 							icon={ flashIcon }
-							onClick={ e => {
-								props.autosaveAndRedirect( e, getConnectUrl( props.postId, connectURL ) );
-							} }
+							onClick={ autosaveAndRedirect }
 							className="connect-stripe components-tab-button"
 						>
 							{ __( 'Connect Stripe', 'jetpack' ) }
@@ -465,12 +466,6 @@ export default compose( [
 			selectBlock() {
 				// @ts-ignore difficult to type via JSDoc
 				blockEditor.selectBlock( ownProps.clientId );
-			},
-			autosaveAndRedirect: async ( event, stripeConnectUrl ) => {
-				event.preventDefault(); // Don't follow the href before autosaving
-				await dispatch( 'core/editor' ).savePost();
-				// Using window.top to escape from the editor iframe on WordPress.com
-				window.top.location.href = stripeConnectUrl;
 			},
 			createErrorNotice: notices.createErrorNotice,
 			createSuccessNotice: notices.createSuccessNotice,
