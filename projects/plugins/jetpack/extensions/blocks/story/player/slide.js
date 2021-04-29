@@ -83,7 +83,7 @@ export const Slide = ( {
 				role="figure"
 				className="wp-story-slide"
 				style={ { display: visible && ! loading ? 'block' : 'none' } }
-				tabIndex={ 0 }
+				tabIndex={ visible ? 0 : -1 }
 			>
 				{ preload && (
 					<Media

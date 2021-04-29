@@ -28,6 +28,7 @@ export const Video = ( { title, className, id, mediaRef, mime, url, poster } ) =
 		type={ mime }
 		src={ url }
 		poster={ poster }
+		tabIndex={ -1 }
 		preload="auto"
 		playsInline
 	></video>
