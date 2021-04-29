@@ -57,4 +57,24 @@ class WP_Test_Functions_Global extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test PPTX filter function
+	 */
+	public function test_jetpack_allow_pptx_files() {
+		$file_data = array(
+			'ext'             => 'pptx',
+			'type'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+			'proper_filename' => false,
+		);
+		$expected  = array(
+			'ext'             => 'pptx',
+			'type'            => 'application/vnd.openxmlformats-officedocument.presentationml.slideshow',
+			'proper_filename' => false,
+		);
+
+		$output = jetpack_allow_pptx_files( $file_data, '/path/to', 'file.pptx', null );
+
+		$this->assertEquals( $expected, $output );
+	}
 }
