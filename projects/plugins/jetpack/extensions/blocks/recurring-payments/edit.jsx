@@ -488,7 +488,6 @@ export class MembershipsButtonEdit extends Component {
 		const blockControls = (
 			<BlockControls>
 				<ToolbarControls
-					autosaveAndRedirect={ this.props.autosaveAndRedirect }
 					connected={ connected !== API_STATE_NOTCONNECTED }
 					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
 					hasUpgradeNudge={ this.hasUpgradeNudge }
