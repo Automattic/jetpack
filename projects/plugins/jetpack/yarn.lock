@@ -50,10 +50,10 @@
   resolved "https://registry.yarnpkg.com/@automattic/calypso-color-schemes/-/calypso-color-schemes-2.1.1.tgz#8dfaf3a9dc73a12583fe8d42e1dfc0b5e2978459"
   integrity sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==
 
-"@automattic/color-studio@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@automattic/color-studio/-/color-studio-2.4.0.tgz#d21406b30eca90077f7ca9bf3ca884d79ce8dda6"
-  integrity sha512-xdiW5uBONTi3+R6Eee1PpsPxWQH9DGPpEu5NN0/uHd5DjL6EfBNAOI7qujz4eqz76bWoz2R/zRNNjCn91caWjw==
+"@automattic/color-studio@2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@automattic/color-studio/-/color-studio-2.5.0.tgz#27f69e2569062258f24ca50f0a4b8a572a00e287"
+  integrity sha512-gZWaJbx3p1oennAIoJtMGluTmoM95Efk4rc44TSBxWSZZ8gH3Am2eh1o3i1NhrZmg2Zt3AiVFeZZ4AJccIpBKQ==
 
 "@automattic/components@1.0.0-alpha.3":
   version "1.0.0-alpha.3"
@@ -75,7 +75,7 @@
     i18n-calypso "^4.0.0-alpha.1"
 
 "@automattic/jetpack-connection@link:../../js-packages/connection":
-  version "0.1.0-alpha"
+  version "0.1.0"
   dependencies:
     "@wordpress/browserslist-config" "3.0.1"
     "@wordpress/i18n" "^3.9.0"
@@ -5647,10 +5647,10 @@ chalk@2.4.2, chalk@^2.0.0, chalk@^2.0.1, chalk@^2.3.0, chalk@^2.4.1, chalk@^2.4.
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
 
-chalk@4.1.0, chalk@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.0.tgz#4e14870a618d9e2edd97dd8345fd9d9dc315646a"
-  integrity sha512-qwx12AxXe2Q5xQ43Ac//I6v5aXTipYrSESdOgzrN+9XjgEpyjpKuvSGaN4qE93f7TQTlerQQ8S+EQ0EyDoVL1A==
+chalk@4.1.1, chalk@^4.0.0, chalk@^4.1.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
+  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
@@ -5670,14 +5670,6 @@ chalk@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-3.0.0.tgz#3f73c2bf526591f574cc492c51e2456349f844e4"
   integrity sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
-
-chalk@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.0.0.tgz#6e98081ed2d17faab615eb52ac66ec1fe6209e72"
-  integrity sha512-N9oWFcegS0sFr9oh1oz2d7Npos6vNoWW9HvtCg5N1KRFpUhaAhvTv5Y58g880fZaEYSNm3qDz8SU1UrGvp+n7A==
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
@@ -6336,10 +6328,10 @@ core-js-pure@^3.0.0:
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.6.4.tgz#4bf1ba866e25814f149d4e9aaa08c36173506e3a"
   integrity sha512-epIhRLkXdgv32xIUFaaAry2wdxZYBi6bgM7cB136dzzXXa+dFyRLTZeLUJxnd8ShrmyVXBub63n2NHo2JAt8Cw==
 
-core-js@3.8.3:
-  version "3.8.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.8.3.tgz#c21906e1f14f3689f93abcc6e26883550dd92dd0"
-  integrity sha512-KPYXeVZYemC2TkNEkX/01I+7yd+nX3KddKwZ1Ww7SKWdI2wQprSgLmrTddT8nw92AjEklTsPBoSdQBhbI1bQ6Q==
+core-js@3.11.1:
+  version "3.11.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.11.1.tgz#f920392bf8ed63a0ec8e4e729857bfa3d121c525"
+  integrity sha512-k93Isqg7e4txZWMGNYwevZL9MiogLk8pd1PtwrmFmi8IBq4GXqUaVW/a33Llt6amSI36uSjd0GWwc9pTT9ALlQ==
 
 core-js@^1.0.0:
   version "1.2.7"

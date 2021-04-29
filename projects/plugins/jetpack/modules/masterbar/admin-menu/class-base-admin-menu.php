@@ -259,6 +259,9 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION
 		);
 
+		wp_style_add_data( 'jetpack-admin-menu', 'rtl', $this->is_rtl() );
+		$this->configure_colors_for_rtl_stylesheets();
+
 		wp_enqueue_script(
 			'jetpack-admin-menu',
 			plugins_url( 'admin-menu.js', __FILE__ ),
@@ -266,6 +269,15 @@ abstract class Base_Admin_Menu {
 			JETPACK__VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Mark the core colors stylesheets as RTL depending on the value from the environment.
+	 * This fixes a core issue where the extra RTL data is not added to the colors stylesheet.
+	 * https://core.trac.wordpress.org/ticket/53090
+	 */
+	public function configure_colors_for_rtl_stylesheets() {
+		wp_style_add_data( 'colors', 'rtl', $this->is_rtl() );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+E2E tests: fix for failing test when Mailchimp is already set up
