@@ -27,6 +27,13 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 		return this.waitToDisappear();
 	}
 
+	async continueWithout() {
+		const continueSelector = '#jp-authenticate-no_user_test_mode a.jp-no-user-mode-button';
+		const iframe = await this.getFrame();
+		await iframe.click( continueSelector );
+		return this.waitToDisappear();
+	}
+
 	async waitToDisappear() {
 		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
 	}
