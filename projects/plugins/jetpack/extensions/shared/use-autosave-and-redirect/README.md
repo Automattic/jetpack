@@ -22,7 +22,7 @@ const myComponent = ( myUrl ) => {
 
 ### API
 
-`const [ autosaveAndRedirect, isRedirecting ] = useAutosaveAndRedirect( redirectUrl, onRedirect );`
+`const [ autosave, autosaveAndRedirect, isRedirecting ] = useAutosaveAndRedirect( redirectUrl, onRedirect );`
 
 #### Arguments
 
@@ -36,16 +36,18 @@ The hook accepts two arguments.
 
 The hook returns an array with three items.
 
-- `autosaveAndRedirect` (`(event) => void`): Callback to be used in an onClick event.
 
-Redirects the user to the redirectURL, checking before whether the current
-post/page/etc has changes to save. If so, it saves them before redirecting. If
-in the site editor, entities are saved.
 - `autosave` (`(event) => void`): Callback to be used in an onClick event.
 
 Checks whether the current post/page/etc has changes to save and saves them. If
 in the site editor, entities are saved. This callback can be used when a redirect
 is not required (for example if an action is performed in a modal).
+
+- `autosaveAndRedirect` (`(event) => void`): Callback to be used in an onClick event.
+
+Redirects the user to the redirectURL, checking before whether the current
+post/page/etc has changes to save. If so, it saves them before redirecting. If
+in the site editor, entities are saved.
 
 - `isRedirecting` (`bool`): If the component is in the process of redirecting the
   user. It may be waiting for a save to complete before redirecting. Use
