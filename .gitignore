@@ -44,3 +44,12 @@ phpcs.xml
 /tools/tunnel.sh
 /tools/jt/
 /tools/docker/bin/jt/
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
