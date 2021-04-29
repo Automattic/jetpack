@@ -30,6 +30,8 @@ const config = {
 		tunnels: `${ tempDir }/e2e-tunnels.txt`,
 		jetpackPrivateOptions: `${ tempDir }/jetpack-private-options.json`,
 		planData: `${ tempDir }/plan-data.json`,
+		sidebarsWidgetsFile: `${ tempDir }/sidebars-widgets.json`,
+		searchWidgetFile: `${ tempDir }/search-widget.json`,
 	},
 	consoleIgnore: [
 		'This is a global warning',
@@ -42,6 +44,11 @@ const config = {
 	repository: {
 		url: 'https://github.com/Automattic/jetpack',
 		mainBranch: 'master',
+	},
+	blocks: {
+		pinterest: {
+			pinId: '689332286716774968',
+		},
 	},
 };
 

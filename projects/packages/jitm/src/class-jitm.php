@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.15.0-alpha';
+	const PACKAGE_VERSION = '1.15.1-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -55,9 +55,9 @@ class JITM {
 		 * @since 3.7.0
 		 * @since 5.4.0 Correct docblock to reflect default arg value
 		 *
-		 * @param bool false Whether to show just in time messages.
+		 * @param bool true Whether to show just in time messages.
 		 */
-		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
+		if ( ! apply_filters( 'jetpack_just_in_time_msgs', true ) ) {
 			return false;
 		}
 

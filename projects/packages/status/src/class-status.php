@@ -81,26 +81,13 @@ class Status {
 	 * This will make Jetpack act as if there were no connected users, but only a site connection (aka blog token)
 	 *
 	 * @since 9.2.0
+	 * @deprecated 9.7.0 Since this version, Jetpack connection is considered active after registration, making no_user_testing_mode obsolete.
 	 *
 	 * @return bool Whether Jetpack's No User Testing Mode is active.
 	 */
 	public function is_no_user_testing_mode() {
-		$test_mode = false;
-		if ( defined( 'JETPACK_NO_USER_TEST_MODE' ) ) {
-			$test_mode = JETPACK_NO_USER_TEST_MODE;
-		}
-
-		/**
-		 * Filters Jetpack's No User testing mode.
-		 *
-		 * @since 9.2.0
-		 *
-		 * @param bool $test_mode Is Jetpack's No User testing mode active.
-		 */
-		$test_mode = (bool) apply_filters( 'jetpack_no_user_testing_mode', $test_mode );
-
-		return $test_mode;
-
+		_deprecated_function( __METHOD__, 'jetpack-9.7.0' );
+		return true;
 	}
 
 	/**

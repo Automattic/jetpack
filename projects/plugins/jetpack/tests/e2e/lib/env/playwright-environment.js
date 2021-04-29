@@ -43,10 +43,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async handleTestEvent( event ) {
 		let eventName;
 
-		if ( event.test ) {
-			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
-		} else if ( event.hook ) {
+		if ( event.hook ) {
 			eventName = `${ event.hook.type } - ${ event.hook.parent.name }`;
+		} else if ( event.test ) {
+			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
 		} else {
 			eventName = event.name;
 		}

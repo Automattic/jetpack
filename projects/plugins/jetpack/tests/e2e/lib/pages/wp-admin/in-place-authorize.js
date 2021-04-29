@@ -11,7 +11,7 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 	static async init( page ) {
 		const loadingSelector = '.jp-connect-full__button-container-loading';
 		const thisPage = new this( page );
-		await thisPage.waitForElementToBeHidden( loadingSelector );
+		await thisPage.waitForElementToBeHidden( loadingSelector, 60000 );
 		return thisPage;
 	}
 

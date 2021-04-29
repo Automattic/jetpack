@@ -71,9 +71,12 @@ export class Navigation extends React.Component {
 							{ _x( 'My Plan', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ ! this.props.isOfflineMode && this.props.isLinked && (
+					{ ! this.props.isOfflineMode && (
 						<NavItem
-							path={ getRedirectUrl( 'jetpack-plans', { site: this.props.siteUrl } ) }
+							path={ getRedirectUrl(
+								this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
+								{ site: this.props.siteUrl }
+							) }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
 						>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Displaying the registration nonce to test the endpoint `connection/register`.

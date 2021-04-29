@@ -21,7 +21,7 @@ export default class SlackReporter {
 		} );
 		this.runURL = `${ repoUrl }/actions/runs/${ GITHUB_RUN_ID }`;
 		this.runType =
-			GUTENBERG === 'latest' ? 'with latest :gutenberg: plugin' : 'with no :gutenberg: plugin';
+			GUTENBERG === 'latest' ? 'with latest :gutenberg: plugin' : 'with bundled :gutenberg:';
 
 		this.mentions = mentions
 			.map( function ( userId ) {
