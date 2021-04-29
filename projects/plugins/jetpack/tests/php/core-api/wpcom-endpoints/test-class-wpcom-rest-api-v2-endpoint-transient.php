@@ -64,7 +64,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
+		$this->assertErrorResponse( 'authorization_required', $response, 403 );
 	}
 
 	/**
