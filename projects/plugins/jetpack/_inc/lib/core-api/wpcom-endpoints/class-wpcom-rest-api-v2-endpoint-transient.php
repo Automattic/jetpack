@@ -51,31 +51,36 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	 * Delete transient callback.
 	 *
 	 * @param \WP_REST_Request $request Full details about the request.
-	 * @return array|WP_Error
+	 * @return array
 	 */
 	public function delete_transient( \WP_REST_Request $request ) {
-		$transient_name = $request->get_param( 'name' );
-		if ( false !== strpos( $transient_name, 'jetpack_connected_user_data_' ) &&
-			get_current_user_id() === (int) substr( $transient_name, 28 ) ) {
-				return array(
-					'success' => delete_transient( $transient_name ),
-				);
-		} else {
-			return new WP_Error(
-				'rest_cannot_delete',
-				__( 'Sorry, you are not allowed to delete this transient.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
+		return array(
+			'success' => delete_transient( $request->get_param( 'name' ) ),
+		);
 	}
 
 	/**
-	 * Check if request has read access.
+	 * Check if the user has read access, the transient name starts with
+	 * "jetpack_connected_user_data_", and that the user is editing
+	 * their own transient.
 	 *
-	 * @return bool
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return bool|WP_Error
 	 */
-	public function delete_transient_permissions_check() {
-		return current_user_can( 'read' );
+	public function delete_transient_permissions_check( \WP_REST_Request $request ) {
+		$transient_name = $request->get_param( 'name' );
+
+		if ( current_user_can( 'read' ) &&
+			false !== strpos( $transient_name, 'jetpack_connected_user_data_' ) &&
+			get_current_user_id() === (int) substr( $transient_name, 28 ) ) {
+				return true;
+		} else {
+			return new WP_Error(
+				'authorization_required',
+				__( 'Sorry, you are not allowed to delete this transient.', 'jetpack' ),
+				array( 'status' => 403 )
+			);
+		}
 	}
 }
 
