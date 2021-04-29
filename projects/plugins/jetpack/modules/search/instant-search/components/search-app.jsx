@@ -134,6 +134,10 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	disableAutocompletion() {
