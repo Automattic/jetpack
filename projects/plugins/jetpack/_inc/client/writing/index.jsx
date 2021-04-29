@@ -16,6 +16,7 @@ import {
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
+	hasConnectedOwner,
 } from 'state/connection';
 import { isModuleActivated, getModuleOverride, getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
@@ -98,6 +99,7 @@ export class Writing extends React.Component {
 						connectUrl={ this.props.connectUrl }
 						isLinked={ this.props.isLinked }
 						userCanManageModules={ this.props.userCanManageModules }
+						hasConnectedOwner={ this.props.hasConnectedOwner }
 					/>
 				) }
 				{ this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
@@ -122,6 +124,7 @@ export default connect( state => {
 		settings: getSettings( state ),
 		masterbarIsAlwaysActive: isAtomicSite( state ),
 		isOfflineMode: isOfflineMode( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		userCanEditPosts: userCanEditPosts( state ),
 		isModuleActivated: module_name => isModuleActivated( state, module_name ),

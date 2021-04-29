@@ -31,7 +31,8 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
-				userCanManageModules = this.props.userCanManageModules;
+				userCanManageModules = this.props.userCanManageModules,
+				hasConnectedOwner = this.props.hasConnectedOwner;
 
 			const configCard = () => {
 				if ( unavailableInOfflineMode ) {
@@ -96,7 +97,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						</SettingsGroup>
 					) }
 
-					{ ! isLinked && ! isOfflineMode && (
+					{ ! isLinked && ! isOfflineMode && ( hasConnectedOwner || userCanManageModules ) && (
 						<ConnectUserBar
 							feature="publicize"
 							featureLabel={ __( 'Publicize', 'jetpack' ) }

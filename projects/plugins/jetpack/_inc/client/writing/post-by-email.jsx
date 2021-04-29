@@ -116,13 +116,15 @@ class PostByEmail extends React.Component {
 					</FormFieldset>
 				</SettingsGroup>
 
-				{ ! this.props.isUnavailableInOfflineMode( 'post-by-email' ) && ! this.props.isLinked && (
-					<ConnectUserBar
-						feature="post-by-email"
-						featureLabel={ __( 'Post by Email', 'jetpack' ) }
-						text={ __( 'Connect to enable publishing via email.', 'jetpack' ) }
-					/>
-				) }
+				{ ! this.props.isUnavailableInOfflineMode( 'post-by-email' ) &&
+					! this.props.isLinked &&
+					( this.props.hasConnectedOwner || this.props.userCanManageModules ) && (
+						<ConnectUserBar
+							feature="post-by-email"
+							featureLabel={ __( 'Post by Email', 'jetpack' ) }
+							text={ __( 'Connect to enable publishing via email.', 'jetpack' ) }
+						/>
+					) }
 			</SettingsCard>
 		);
 	}

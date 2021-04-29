@@ -16,6 +16,7 @@ import {
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
+	hasConnectedOwner,
 } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
@@ -36,6 +37,7 @@ class Sharing extends Component {
 			siteRawUrl: this.props.siteRawUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
+			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -84,5 +86,6 @@ export default connect( state => {
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		userCanManageModules: userCanManageModules( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( Sharing );
