@@ -247,17 +247,30 @@ async function changelogCommand( argv ) {
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await changedProjects();
-		const useWizard = await changelogAddPrompt( argv, needChangelog );
-		if ( ! useWizard.useExisting ) {
-			changelogArgs( argv, needChangelog );
+		const changelogAll = await changelogAddPrompt( argv, needChangelog );
+
+		// If not adding the same file, prompt for each one:
+		if ( ! changelogAll.addAll ) {
+			console.log( chalk.green( `Running changelogger for each project!` ) );
+			for ( const proj of needChangelog ) {
+				argv.project = proj;
+				console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
+				await changelogArgs( argv );
+			}
 			return;
 		}
-		const response = promptChangelog( argv, needChangelog );
-/* 		for ( const proj of needChangelog ) {
-			argv.project = proj;
-			console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
-			await changelogArgs( argv );
-		} */
+
+		// Next step is to iterate this over the projects in needChangelog
+		const response = await promptChangelog( argv, needChangelog );
+		argv.args = [];
+		argv.auto = true;
+		argv.project = needChangelog[0];
+		argv.s = response.significance;
+		argv.t = response.type;
+		argv.e = response.entry;
+		argv.f = response.changelogName;
+		changelogArgs( argv );
+/* */
 	} else {
 		changelogArgs( argv );
 	}
@@ -275,6 +288,14 @@ async function changelogArgs( argv ) {
 	} completed succesfully!`;
 	argv.error = `Command '${ argv.cmd || argv._[ 1 ] }' for ${ argv.project } has failed! See error`;
 	argv.args = [ argv.cmd || argv._[ 1 ], ...process.argv.slice( 4 ) ];
+
+	// Push the arguments manually if we're auto-adding to all.
+	if ( argv.auto ) {
+		argv.args.push( '-s', argv.s );
+		argv.args.push( '-t', argv.t );
+		argv.args.push( '-e', argv.e );
+		argv.args.push( '-f', argv.f );
+	}
 
 	// Check for required command specific arguements.
 	switch ( argv.args[ 0 ] ) {
@@ -346,11 +367,16 @@ async function promptVersion( argv ) {
  * @returns {argv}.
  */
  async function promptChangelog( argv, needChangelog ) {
+	const git = simpleGit();
+	const gitStatus = await git.status();
+	const gitBranch = gitStatus.current.replace( /\//g, '-' );
+
 	const commands = await inquirer.prompt( [
 		{
 			type: 'string',
 			name: 'changelogName',
 			message: 'Name your change file:',
+			default: gitBranch
 		},
 		{
 			type: 'list',
@@ -441,13 +467,17 @@ async function promptVersion( argv ) {
 			type: 'string',
 			name: 'entry',
 			message: 'Changelog entry. May not be empty.',
-			when: ( answers ) => answers.significance === 'minor' || 'major'
+			when: ( answers ) => answers.significance === 'minor' || 'major',
+			validate: ( input ) => {
+				if ( ! input || ! input.trim() ) {
+					return `Changelog entry can't be blank`;
+				}
+				return true;
+			}
 		},
 
 	] );
-	argv.promptCommand = { ...commands };
-	console.log(argv.promptCommand);
-	return argv;
+	return { ...commands };
 }
 
 /**
@@ -461,8 +491,8 @@ async function promptVersion( argv ) {
 async function changelogAddPrompt( argv, needChangelog ) {
 	const response = await inquirer.prompt( {
 		type: 'confirm',
-		name: 'useExisting',
-		message: `Found ${ needChangelog.length } project(s) that need a changelog. Run changelog wizard for each project?`,
+		name: 'addAll',
+		message: `Found ${ needChangelog.length } project(s) of the same type that need a changelog. Add same changelog to all projects?`,
 	} );
 	return response;
 }
@@ -514,7 +544,6 @@ async function changedProjects() {
 	const git = simpleGit();
 	const gitStatus = await git.status();
 	const projects = allProjects();
-
 	// Get all files that were worked with (created, deleted, modified, etc)
 	for ( const file of gitStatus.files ) {
 		gitFiles.push( file.path );
