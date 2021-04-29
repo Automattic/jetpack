@@ -30,21 +30,43 @@ class Jetpack_Backup {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action(
+			'plugins_loaded',
+			function () {
+				Automattic\Jetpack\ConnectionUI\Admin::init();
+			}
+		);
 	}
 
 	/**
-	 * Enqueue plugin admin scripts.
+	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
 		$build_assets = require_once JETPACK_BACKUP_PLUGIN_DIR . '/build/index.asset.php';
 		wp_register_script(
-			'jetpack-backup-main-js',
+			'jetpack-backup-script',
 			plugins_url( 'build/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
 			$build_assets['dependencies'],
 			$build_assets['version'],
 			true
 		);
-		wp_enqueue_script( 'jetpack-backup-main-js' );
+		wp_enqueue_script( 'jetpack-backup-script' );
+
+		wp_add_inline_script( 'jetpack-backup-script', $this->get_initial_state(), 'before' );
+
+		wp_set_script_translations( 'react-jetpack-backup-script', 'jetpack', 'jetpack-backup' );
+
+		wp_enqueue_style(
+			'jetpack-backup-style',
+			plugins_url( 'build/index.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			array( 'wp-components' ),
+			$build_assets['version']
+		);
+		wp_style_add_data(
+			'jetpack-backup-style',
+			'rtl',
+			plugins_url( 'build/index.rtl.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE )
+		);
 	}
 
 	/**
@@ -55,9 +77,9 @@ class Jetpack_Backup {
 			__( 'Jetpack Backup', 'jetpack-backup' ),
 			__( 'Backup', 'jetpack-backup' ),
 			'manage_options',
-			'jetpack-backup-menu',
+			'jetpack-backup',
 			array( $this, 'plugin_settings_page' ),
-			'dashicons-superhero',
+			'dashicons-image-rotate',
 			99
 		);
 	}
@@ -69,5 +91,15 @@ class Jetpack_Backup {
 		?>
 			<div id="jetpack-backup-root"></div>
 		<?php
+	}
+
+	/**
+	 * Return the rendered initial state JavaScript code.
+	 *
+	 * @return string
+	 */
+	private function get_initial_state() {
+		require_once JETPACK_BACKUP_PLUGIN_DIR . '/src//php/class-initial-state.php';
+		return ( new Initial_State() )->render();
 	}
 }
