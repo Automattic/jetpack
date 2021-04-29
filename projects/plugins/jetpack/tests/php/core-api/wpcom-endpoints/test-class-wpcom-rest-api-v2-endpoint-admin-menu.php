@@ -258,7 +258,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_if_the_first_submenu_url_is_used_for_menu_url() {
 		global $menu;
 
-		add_menu_page( '', __( 'Foo', 'jetpack' ), 'read', 'foo' );
+		add_menu_page( '', 'Foo', 'read', 'foo' );
 		$fnc = function () { }; /// needed for the slug to register as a page.
 		add_submenu_page( 'foo', 'title', 'title', 'read', 'sharing', $fnc, 0 );
 
