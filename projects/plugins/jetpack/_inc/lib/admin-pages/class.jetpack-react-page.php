@@ -65,9 +65,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * If user is allowed to see the Jetpack Admin, add Settings sub-link.
 	 *
 	 * @since 4.3.0
+	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) && current_user_can( 'edit_posts' ) ) {
+		if (
+			( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) &&
+			current_user_can( 'edit_posts' ) &&
+			( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() || current_user_can( 'manage_options' ) )
+		) {
 			add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/settings', '__return_null' );
 		}
 	}
