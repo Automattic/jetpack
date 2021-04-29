@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JITM: set the default values of the jetpack_just_in_time_msgs and jetpack_just_in_time_msg_cache filters to true.
