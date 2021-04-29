@@ -56,12 +56,12 @@ export class SimplePaymentsEdit extends Component {
 		// Try to get the simplePayment loaded into attributes if possible.
 		this.injectPaymentAttributes();
 
-		const { attributes, hasPublishAction, postLinkUrl, setAttributes } = this.props;
+		const { attributes, hasPublishAction, postLinkUrl, setAttributes, isPostEditor } = this.props;
 		const { productId } = attributes;
 
 		// If the user can publish save an empty product so that we have an ID and can save
 		// concurrently with the post that contains the Simple Payment.
-		if ( ! productId && hasPublishAction ) {
+		if ( ( ! productId && hasPublishAction ) || ! isPostEditor ) {
 			this.saveProduct();
 		}
 
@@ -593,7 +593,7 @@ export class SimplePaymentsEdit extends Component {
 }
 
 const mapSelectToProps = withSelect( ( select, props ) => {
-	const { getEntityRecord, getMedia, canUser } = select( 'core' );
+	const { getEntityRecord, getMedia } = select( 'core' );
 	const { isSavingPost, getCurrentPost } = select( 'core/editor' );
 
 	const { productId, featuredMediaId } = props.attributes;
@@ -615,11 +615,12 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	const post = getCurrentPost();
 
 	return {
-		hasPublishAction: canUser( 'update', 'posts' ),
+		hasPublishAction: !! get( post, [ '_links', 'wp:action-publish' ] ),
 		isSaving: !! isSavingPost(),
 		simplePayment,
 		featuredMedia: featuredMediaId ? getMedia( featuredMediaId ) : null,
 		postLinkUrl: post?.link,
+		isPostEditor: Object.keys( getCurrentPost() ).length > 0,
 	};
 } );
 
