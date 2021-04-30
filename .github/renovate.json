@@ -57,6 +57,10 @@
 			"matchDepTypes": [ "monorepo:wordpress", "monorepo:react" ]
 		},
 		{
+			"groupName": "Eslint and plugins",
+			"matchPackagePatterns": [ "^eslint$", "^eslint-plugin-", "^eslint-config-" ]
+		},
+		{
 			"matchPaths": [ "packages/codesniffer/composer.json" ],
 			"rangeStrategy": "replace"
 		},

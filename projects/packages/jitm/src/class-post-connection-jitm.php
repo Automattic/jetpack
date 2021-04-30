@@ -391,8 +391,14 @@ class Post_Connection_JITM extends JITM {
 		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
 
-		/** This filter is documented in class.jetpack.php */
-		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+		/**
+		 * Filter to turn off jitm caching
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param bool true Whether to cache just in time messages
+		 */
+		if ( apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
 			$use_cache = true;
 		}
 
