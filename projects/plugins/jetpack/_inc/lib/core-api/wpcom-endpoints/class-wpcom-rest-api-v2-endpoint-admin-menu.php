@@ -113,13 +113,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( ! empty( $submenu[ $menu_item[2] ] ) ) {
 				$submenu_items = array_values( $submenu[ $menu_item[2] ] );
 
-				// If the user doesn't have the caps for the top level menu item, let's promote the first submenu item.
-				if ( empty( $item ) ) {
-					$menu_item[1] = $submenu_items[0][1]; // Capability.
-					$menu_item[2] = $submenu_items[0][2]; // Menu slug.
-					$item         = $this->prepare_menu_item( $menu_item );
-				}
-
 				// Add submenu items.
 				foreach ( $submenu_items as $submenu_item ) {
 					$submenu_item = $this->prepare_submenu_item( $submenu_item, $menu_item );
@@ -218,8 +211,17 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function prepare_menu_item( array $menu_item ) {
 		global $submenu;
 
-		// Exclude unauthorized menu items.
-		if ( ! current_user_can( $menu_item[1] ) ) {
+		$current_user_can_access_menu = current_user_can( $menu_item[1] );
+		$submenu_items                = isset( $submenu[ $menu_item[2] ] ) ? array_values( $submenu[ $menu_item[2] ] ) : array();
+		$has_first_menu_item          = isset( $submenu_items[0] );
+
+		// Exclude unauthorized menu items when the user does not have access to the menu and the first submenu item.
+		if ( ! $current_user_can_access_menu && $has_first_menu_item && ! current_user_can( $submenu_items[0][1] ) ) {
+			return array();
+		}
+
+		// Exclude unauthorized menu items that don't have submenus.
+		if ( ! $current_user_can_access_menu && ! $has_first_menu_item ) {
 			return array();
 		}
 
