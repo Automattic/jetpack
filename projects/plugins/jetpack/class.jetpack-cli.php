@@ -171,18 +171,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * user <user_identifier>: Disconnect a specific user from WordPress.com.
 	 *
-	 * Please note, the primary account that the blog is connected
-	 * to WordPress.com with cannot be disconnected without
-	 * disconnecting the entire blog.
+	 * [--force]
+	 * If the user ID provided is the connection owner, it will onlybe disconnected if --force is passed
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack disconnect blog
 	 * wp jetpack disconnect user 13
+	 * wp jetpack disconnect user 1 --force
 	 * wp jetpack disconnect user username
 	 * wp jetpack disconnect user email@domain.com
 	 *
-	 * @synopsis <blog|user> [<user_identifier>]
+	 * @synopsis <blog|user> [<user_identifier>] [--force]
 	 */
 	public function disconnect( $args, $assoc_args ) {
 		if ( ! Jetpack::is_connection_ready() ) {
@@ -217,6 +217,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
+		$force_user_disconnect = ! empty( $assoc_args['force'] );
+
 		switch ( $action ) {
 			case 'blog':
 				Jetpack::log( 'disconnect' );
@@ -230,12 +232,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 				);
 				break;
 			case 'user':
-				if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user( $user->ID ) ) {
+				if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user( $user->ID, $force_user_disconnect ) ) {
 					Jetpack::log( 'unlink', $user->ID );
 					WP_CLI::success( __( 'User has been successfully disconnected.', 'jetpack' ) );
 				} else {
 					/* translators: %s is a username */
-					WP_CLI::error( sprintf( __( "User %s could not be disconnected. Are you sure they're connected currently?", 'jetpack' ), "{$user->login} <{$user->email}>" ) );
+					WP_CLI::error( sprintf( __( "User %s could not be disconnected. Are you sure they're currently connected?\nNOTE: If you're trying to disconnect the connection owner, you need to use --force", 'jetpack' ), "{$user->data->user_login} <{$user->data->user_email}>" ) );
 				}
 				break;
 			case 'prompt':
