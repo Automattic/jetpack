@@ -50,7 +50,7 @@ export default function SearchConfigEdit( { className } ) {
 				<h3>{ __( 'Search Configurator 1000', 'jetpack' ) }</h3>
 				<SelectControl
 					disabled={ ! site }
-					label="Theme"
+					label={ __( 'Theme', 'jetpack' ) }
 					value={ theme }
 					options={ [
 						{ label: __( 'Light', 'jetpack' ), value: 'light' },
@@ -60,7 +60,7 @@ export default function SearchConfigEdit( { className } ) {
 				/>
 				<SelectControl
 					disabled={ ! site }
-					label="Result Format"
+					label={ __( 'Result Format', 'jetpack' ) }
 					value={ resultFormat }
 					options={ [
 						{ label: __( 'Minimal', 'jetpack' ), value: 'minimal' },
@@ -71,7 +71,7 @@ export default function SearchConfigEdit( { className } ) {
 				/>
 				<SelectControl
 					disabled={ ! site }
-					label="Sort"
+					label={ __( 'Sort', 'jetpack' ) }
 					value={ sort }
 					options={ [
 						{ label: __( 'Relevance (recommended)', 'jetpack' ), value: 'relevance' },
@@ -82,7 +82,7 @@ export default function SearchConfigEdit( { className } ) {
 				/>
 				<SelectControl
 					disabled={ ! site }
-					label="Overlay Trigger"
+					label={ __( 'Overlay Trigger', 'jetpack' ) }
 					value={ trigger }
 					options={ [
 						{ label: __( 'Open when the user starts typing', 'jetpack' ), value: 'immediate' },
@@ -95,19 +95,19 @@ export default function SearchConfigEdit( { className } ) {
 				<ToggleControl
 					checked={ sortEnabled }
 					disabled={ ! site }
-					label="Enable Sort"
+					label={ __( 'Enable Sort', 'jetpack' ) }
 					onChange={ setSortEnabled }
 				/>
 				<ToggleControl
 					checked={ infiniteScroll }
 					disabled={ ! site }
-					label="Enable Infinite Scroll"
+					label={ __( 'Enable Infinite Scroll', 'jetpack' ) }
 					onChange={ setInfiniteScroll }
 				/>
 				<ToggleControl
 					checked={ showLogo }
 					disabled={ ! site }
-					label="Show 'Powered by Jetpack'"
+					label={ __( "Show 'Powered by Jetpack'", 'jetpack' ) }
 					onChange={ setShowLogo }
 				/>
 			</Card>
