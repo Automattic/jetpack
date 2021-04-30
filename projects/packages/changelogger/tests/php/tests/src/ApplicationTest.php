@@ -80,6 +80,9 @@ class ApplicationTest extends TestCase {
 
 		$options['interactive'] = isset( $options['inputs'] );
 		if ( $options['interactive'] ) {
+			if ( ! is_callable( array( $tester, 'setInputs' ) ) ) {
+				$this->markTestSkipped( 'This test requires a newer version of symfony/console' );
+			}
 			$tester->setInputs( $options['inputs'] );
 			unset( $options['inputs'] );
 		}
