@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { ESCAPE } from '@wordpress/keycodes';
+import { ESCAPE, SPACE } from '@wordpress/keycodes';
 import { useFocusReturn, useConstrainedTabbing, useFocusOnMount } from '@wordpress/compose';
 
 // TODO: replace with `import { useMergeRefs } from '@wordpress/compose';` when package is upgraded to ^3.24.4
@@ -23,6 +23,14 @@ export default function ModalFrame( {
 			if ( onRequestClose ) {
 				onRequestClose( event );
 			}
+		}
+		// Ignore events triggered by pressing on a button using the spacebar
+		if (
+			event.target &&
+			event.target.tagName.toLowerCase() === 'button' &&
+			event.keyCode === SPACE
+		) {
+			return;
 		}
 		onKeyDown && onKeyDown( event );
 	}

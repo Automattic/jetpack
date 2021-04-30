@@ -1,8 +1,12 @@
 /**
+ * WordPress dependencies
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
  * Internal dependencies
  */
 import { SimpleButton } from './button';
-import { __ } from '@wordpress/i18n';
 import { PauseIcon, PlayIcon, VolumeOffIcon, VolumeUpIcon } from './icons';
 
 export default function Controls( { playing, muted, onPlayPressed, onMutePressed, showMute } ) {

@@ -54,17 +54,14 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 		event => {
 			switch ( event.keyCode ) {
 				case SPACE:
-					event.preventDefault();
 					setPlaying( playerId, ! playing );
 					break;
 				case LEFT:
-					event.preventDefault();
 					if ( currentSlideIndex > 0 ) {
 						showSlide( playerId, currentSlideIndex - 1 );
 					}
 					break;
 				case RIGHT:
-					event.preventDefault();
 					if ( currentSlideIndex < slides.length - 1 ) {
 						showSlide( playerId, currentSlideIndex + 1 );
 					} else {
