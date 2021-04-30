@@ -290,13 +290,8 @@ function Edit( props ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const shouldShowConnectButton = () => {
-		if ( ! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL ) {
-			return true;
-		}
-
-		return false;
-	};
+	const shouldShowConnectButton = () =>
+		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
 
 	const [ , autosaveAndRedirect ] = useAutosaveAndRedirect( connectURL );
 
