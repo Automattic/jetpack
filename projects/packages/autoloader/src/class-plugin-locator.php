@@ -129,7 +129,18 @@ class Plugin_Locator {
 			return false;
 		}
 
-		$activating_plugins = explode( ',', json_decode( file_get_contents( 'php://input' ) )->plugins );
+		$input              = json_decode( file_get_contents( 'php://input' ) );
+		$activating_plugins = isset( $input->plugins ) ? $input->plugins : null;
+
+		if ( ! isset( $activating_plugins ) ) {
+			return false;
+		}
+
+		$activating_plugins = explode( ',', $activating_plugins );
+
+		if ( ! is_array( $activating_plugins ) ) {
+			return false;
+		}
 
 		// These plugins are from the list in Automattic\WooCommerce\Admin\Features\Onboarding::get_onboarding_allowed_plugins.
 		$allowed_plugins = array(
