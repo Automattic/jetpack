@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JITM: Use manager::get_authorization_url to obtain the authorization url in the user deletion notice.
