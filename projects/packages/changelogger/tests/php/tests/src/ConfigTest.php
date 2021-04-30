@@ -10,8 +10,8 @@
 namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\Config;
+use Automattic\Jetpack\Changelogger\ConfigException;
 use Automattic\Jetpack\Changelogger\PluginTrait;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Wikimedia\TestingAccessWrapper;
 
 /**
@@ -57,74 +57,96 @@ class ConfigTest extends TestCase {
 	}
 
 	/**
-	 * Test that calling load() before setOutput() throws.
+	 * Test parsing composer.json, default locating.
 	 */
-	public function testLoadBeforeSetOutput() {
+	public function testLoad() {
 		$this->resetConfigCache();
 
-		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'Must call Config::setOutput() before Config::load()' );
-		TestingAccessWrapper::newFromClass( Config::class )->load();
-	}
+		$w            = TestingAccessWrapper::newFromClass( Config::class );
+		$expectConfig = array( 'base' => getcwd() ) + $w->defaultConfig;
 
-	/**
-	 * Test parsing composer.json.
-	 *
-	 * @dataProvider provideLoad
-	 * @param string|false $composer Value for COMPOSER environment variable.
-	 * @param string       $expectOut Expected console output.
-	 * @param array        $expectConfig Expected configuration data.
-	 */
-	public function testLoad( $composer, $expectOut, $expectConfig ) {
-		$expectConfig['base'] = getcwd();
-
-		$this->resetConfigCache();
-		putenv( false === $composer ? 'COMPOSER' : "COMPOSER=$composer" );
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
-		$w = TestingAccessWrapper::newFromClass( Config::class );
+		putenv( 'COMPOSER' );
 		$w->load();
-		$this->assertSame( $expectOut, $out->fetch() );
 		$this->assertEquals( $expectConfig, $w->config );
 
 		// Second load call should do nothing.
 		putenv( 'COMPOSER=./doesnotexist.json' );
 		$w->load();
-		$this->assertSame( '', $out->fetch() );
 		$this->assertEquals( $expectConfig, $w->config );
 	}
 
 	/**
-	 * Data provider for testLoad.
+	 * Test parsing composer.json, from environment variable.
 	 */
-	public function provideLoad() {
-		$defaultConfig = TestingAccessWrapper::newFromClass( Config::class )->defaultConfig;
+	public function testLoad_env() {
+		$this->resetConfigCache();
 
-		return array(
-			'default'                 => array(
-				false,
-				'',
-				$defaultConfig,
-			),
-			'Alternate composer.json' => array(
-				'no-types.json',
-				'',
-				array(
-					'types'  => array(),
-					'foobar' => 'baz',
-				) + $defaultConfig,
-			),
-			'missing composer.json'   => array(
-				'missing.json',
-				"File missing.json (as specified by the COMPOSER environment variable) is not found.\n",
-				$defaultConfig,
-			),
-			'broken composer.json'    => array(
-				'bogus.json',
-				"File bogus.json (as specified by the COMPOSER environment variable) could not be parsed.\n",
-				$defaultConfig,
-			),
-		);
+		$w            = TestingAccessWrapper::newFromClass( Config::class );
+		$expectConfig = array(
+			'base'   => getcwd(),
+			'types'  => array(),
+			'foobar' => 'baz',
+		) + $w->defaultConfig;
+
+		putenv( 'COMPOSER=no-types.json' );
+		$w->load();
+		$this->assertEquals( $expectConfig, $w->config );
+
+		// Second load call should do nothing.
+		putenv( 'COMPOSER=./doesnotexist.json' );
+		$w->load();
+		$this->assertEquals( $expectConfig, $w->config );
+	}
+
+	/**
+	 * Test parsing composer.json, explicit set.
+	 */
+	public function testLoad_explicit() {
+		$this->resetConfigCache();
+
+		$w            = TestingAccessWrapper::newFromClass( Config::class );
+		$expectConfig = array(
+			'base'   => getcwd(),
+			'types'  => array(),
+			'foobar' => 'baz',
+		) + $w->defaultConfig;
+
+		putenv( 'COMPOSER=./doesnotexist.json' );
+		Config::setComposerJsonPath( 'no-types.json' );
+		$w->load();
+		$this->assertEquals( $expectConfig, $w->config );
+
+		// Second load call should do nothing.
+		putenv( 'COMPOSER=./doesnotexist.json' );
+		Config::setComposerJsonPath( null );
+		$w->load();
+		$this->assertEquals( $expectConfig, $w->config );
+	}
+
+	/**
+	 * Test parsing composer.json, missing file.
+	 */
+	public function testLoad_missing() {
+		$this->resetConfigCache();
+
+		$w = TestingAccessWrapper::newFromClass( Config::class );
+		Config::setComposerJsonPath( 'missing.json' );
+		$this->expectException( ConfigException::class );
+		$this->expectExceptionMessage( 'File missing.json is not found.' );
+		$w->load();
+	}
+
+	/**
+	 * Test parsing composer.json, bogus file.
+	 */
+	public function testLoad_bogus() {
+		$this->resetConfigCache();
+
+		$w = TestingAccessWrapper::newFromClass( Config::class );
+		Config::setComposerJsonPath( 'bogus.json' );
+		$this->expectException( ConfigException::class );
+		$this->expectExceptionMessage( 'File bogus.json could not be parsed.' );
+		$w->load();
 	}
 
 	/**
@@ -132,13 +154,10 @@ class ConfigTest extends TestCase {
 	 */
 	public function testBase() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 		$this->assertSame( getcwd(), Config::base() );
 
 		$this->resetConfigCache();
 		putenv( 'COMPOSER=' . __DIR__ . '/../../../../composer.json' );
-		Config::setOutput( $out );
 		$this->assertSame( dirname( dirname( dirname( dirname( __DIR__ ) ) ) ), Config::base() );
 	}
 
@@ -147,23 +166,18 @@ class ConfigTest extends TestCase {
 	 */
 	public function testChangelogFile() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'CHANGELOG.md', Config::changelogFile() );
 
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'changelog' => 'changes.txt' ) );
-		Config::setOutput( $out );
 		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'changes.txt', Config::changelogFile() );
 
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'changelog' => '/tmp/changes.md' ) );
-		Config::setOutput( $out );
 		$this->assertSame( '/tmp/changes.md', Config::changelogFile() );
 
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'changelog' => 'c:\\changes.md' ) );
-		Config::setOutput( $out );
 		$this->assertSame( 'c:\\changes.md', Config::changelogFile() );
 	}
 
@@ -172,23 +186,18 @@ class ConfigTest extends TestCase {
 	 */
 	public function testChangesDir() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'changelog', Config::changesDir() );
 
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'changes-dir' => 'changes' ) );
-		Config::setOutput( $out );
 		$this->assertSame( getcwd() . DIRECTORY_SEPARATOR . 'changes', Config::changesDir() );
 
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'changes-dir' => '/tmp/changes' ) );
-		Config::setOutput( $out );
 		$this->assertSame( '/tmp/changes', Config::changesDir() );
 
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'changes-dir' => 'c:\\changes' ) );
-		Config::setOutput( $out );
 		$this->assertSame( 'c:\\changes', Config::changesDir() );
 	}
 
@@ -197,8 +206,6 @@ class ConfigTest extends TestCase {
 	 */
 	public function testLink() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 		$w = TestingAccessWrapper::newFromClass( Config::class );
 
 		$this->assertNull( Config::link( '1.2.3+A', '4.5.6+B' ) );
@@ -217,8 +224,6 @@ class ConfigTest extends TestCase {
 	 */
 	public function testOrdering() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 		$w = TestingAccessWrapper::newFromClass( Config::class );
 
 		$this->assertSame( $w->defaultConfig['ordering'], Config::ordering() );
@@ -260,8 +265,6 @@ class ConfigTest extends TestCase {
 	 */
 	public function testTypes() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 		$w = TestingAccessWrapper::newFromClass( Config::class );
 
 		$this->assertSame( $w->defaultConfig['types'], Config::types() );
@@ -395,8 +398,6 @@ class ConfigTest extends TestCase {
 	 */
 	public function testFormatterPlugin() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 
 		$this->assertInstanceOf(
 			\Automattic\Jetpack\Changelogger\Plugins\KeepachangelogFormatter::class,
@@ -410,8 +411,6 @@ class ConfigTest extends TestCase {
 	public function testFormatterPlugin_error() {
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'formatter' => array( 'class' => 'foobar' ) ) );
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( "Unknown formatter plugin {\n    \"class\": \"foobar\"\n}" );
@@ -423,8 +422,6 @@ class ConfigTest extends TestCase {
 	 */
 	public function testVersioningPlugin() {
 		$this->resetConfigCache();
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 
 		$this->assertInstanceOf(
 			\Automattic\Jetpack\Changelogger\Plugins\SemverVersioning::class,
@@ -438,8 +435,6 @@ class ConfigTest extends TestCase {
 	public function testVersioningPlugin_error() {
 		$this->resetConfigCache();
 		$this->writeComposerJson( array( 'versioning' => array( 'class' => 'foobar' ) ) );
-		$out = new BufferedOutput();
-		Config::setOutput( $out );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( "Unknown versioning plugin {\n    \"class\": \"foobar\"\n}" );
