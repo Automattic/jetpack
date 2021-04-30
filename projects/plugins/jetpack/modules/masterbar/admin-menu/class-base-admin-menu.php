@@ -47,6 +47,9 @@ abstract class Base_Admin_Menu {
 	protected function __construct() {
 		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
 		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+
+		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
+
 		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
@@ -339,9 +342,7 @@ abstract class Base_Admin_Menu {
 	public function has_visible_items( $submenu_items ) {
 		$visible_items = array_filter(
 			$submenu_items,
-			static function ( $item ) {
-				return empty( $item[4] ) || strpos( $item[4], self::HIDE_CSS_CLASS ) === false;
-			}
+			array( $this, 'is_item_visible' )
 		);
 
 		return array() !== $visible_items;
@@ -453,6 +454,77 @@ abstract class Base_Admin_Menu {
 			wp_enqueue_style( 'svg-menu-overrides' );
 			wp_add_inline_style( 'svg-menu-overrides', $styles );
 		}
+	}
+
+	/**
+	 * Hide menus that are unauthorized and don't have visible submenus and cases when the menu has the same slug
+	 * as the first submenu item.
+	 *
+	 * This must be done at the end of menu and submenu manipulation in order to avoid performing this check each time
+	 * the submenus are altered.
+	 */
+	public function hide_parent_of_hidden_submenus() {
+		global $menu, $submenu;
+
+		$this->sort_hidden_submenus();
+
+		foreach ( $menu as $menu_index => $menu_item ) {
+			$has_submenus = isset( $submenu[ $menu_item[2] ] );
+
+			// Skip if the menu doesn't have submenus.
+			if ( ! $has_submenus ) {
+				continue;
+			}
+
+			// If the first submenu item is hidden then we should also hide the parent.
+			// Since the submenus are ordered by self::HIDE_CSS_CLASS (hidden submenus should be at the end of the array),
+			// we can say that if the first submenu is hidden then we should also hide the menu.
+			$first_submenu_item       = array_values( $submenu[ $menu_item[2] ] )[0];
+			$is_first_submenu_visible = $this->is_item_visible( $first_submenu_item );
+
+			// if the user does not have access to the menu and the first submenu is hidden, then hide the menu.
+			if ( ! current_user_can( $menu_item[1] ) && ! $is_first_submenu_visible ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
+			}
+
+			// if the menu has the same slug as the first submenu then hide the submenu.
+			if ( $menu_item[2] === $first_submenu_item[2] && ! $is_first_submenu_visible ) {
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$menu[ $menu_index ][4] = self::HIDE_CSS_CLASS;
+			}
+		}
+	}
+
+	/**
+	 * Sort the hidden submenus by moving them at the end of the array in order to avoid WP using them as default URLs.
+	 *
+	 * This operation has to be done at the end of submenu manipulation in order to guarantee that the hidden submenus
+	 * are at the end of the array.
+	 */
+	public function sort_hidden_submenus() {
+		global $submenu;
+
+		foreach ( $submenu as $menu_slug => $submenu_items ) {
+			foreach ( $submenu_items as $submenu_index => $submenu_item ) {
+				if ( $this->is_item_visible( $submenu_item ) ) {
+					continue;
+				}
+
+				unset( $submenu[ $menu_slug ][ $submenu_index ] );
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				$submenu[ $menu_slug ][] = $submenu_item;
+			}
+		}
+	}
+
+	/**
+	 * Check if the given item is visible or not in the admin menu.
+	 *
+	 * @param array $item A menu or submenu array.
+	 */
+	public function is_item_visible( $item ) {
+		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
 	}
 
 	/**
