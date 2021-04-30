@@ -462,7 +462,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 *
 	 * @param bool $send_cookies The filtered value that determines whether to send auth cookies.
 	 */
-	private function maybe_send_cookies( $send_cookies ) {
+	public function maybe_send_cookies( $send_cookies ) {
 
 		if ( ! empty( $this->set_cookie_args ) && $send_cookies ) {
 			array_map(
