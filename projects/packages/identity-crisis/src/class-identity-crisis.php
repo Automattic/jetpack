@@ -529,10 +529,10 @@ class Identity_Crisis {
 			)
 		);
 
-		if ( ! wp_style_is( 'jetpack-dops-style' ) ) {
+		if ( ! wp_style_is( 'jetpack-dops-style', 'registered' ) ) {
 			wp_register_style(
 				'jetpack-dops-style',
-				plugins_url( '_inc/build/admin.css', JETPACK__PLUGIN_FILE ), // TODO.
+				plugin_dir_url( __DIR__ ) . 'src/_inc/admin.css', // TODO Detangle style depenedencies instead of copying whole css file.
 				array(),
 				self::PACKAGE_VERSION
 			);
