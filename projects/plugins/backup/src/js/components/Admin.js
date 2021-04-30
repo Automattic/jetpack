@@ -11,21 +11,27 @@ import useConnection from '../hooks/useConnection';
 import './style.scss';
 
 const Admin = () => {
-	const [ connectionStatus, renderJetpackConnection ] = useConnection();
+	const [ { isUserConnected, isRegistered }, renderJetpackConnection ] = useConnection();
+
+	const renderPromptForConnection = () => {
+		return (
+			<React.Fragment>
+				<p className="notice notice-error">
+					{ __(
+						'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
+						'jetpack-backup'
+					) }
+				</p>
+				{ renderJetpackConnection() }
+			</React.Fragment>
+		);
+	};
 
 	return (
 		<div id="jetpack-backup-admin-container" className="wrap">
 			<h1>Jetpack Backup Plugin</h1>
-			{ ! connectionStatus.isUserConnected && (
-					<p className="notice notice-error">
-						{ __(
-							'Jetpack Backup requires a user connection to WordPress.com to be able to backup your website.',
-							'jetpack-backup'
-						) }
-					</p>
-				) &&
-				renderJetpackConnection() }
-			{ connectionStatus.isUserConnected && connectionStatus.isRegistered && (
+			{ ! isUserConnected && renderPromptForConnection() }
+			{ isUserConnected && isRegistered && (
 				<p className="notice notice-success">
 					{ __(
 						'Site and User Connected. Todo: Show Backup plugin centric data :)',
