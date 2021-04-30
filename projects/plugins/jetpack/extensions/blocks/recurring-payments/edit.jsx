@@ -26,10 +26,10 @@ import { applyFilters } from '@wordpress/hooks';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import {
 	CURRENCY_OPTIONS,
-	getConnectUrl,
 	isPriceValid,
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
+import getConnectUrl from '../../shared/get-connect-url';
 import { icon, removeInvalidProducts } from '.';
 import { PanelControls, ToolbarControls } from './controls';
 import { formatPriceForNumberInputValue, formatProductAmount } from './util';

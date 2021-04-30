@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
-import { getConnectUrl } from '../../currencies';
+import getConnectUrl from '../../get-connect-url';
 
 import './style.scss';
 

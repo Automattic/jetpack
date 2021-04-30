@@ -19,11 +19,8 @@ import Controls from './_inc/controls';
 import Inspector from './_inc/inspector';
 import Context from './_inc/context';
 import { flashIcon } from '../../shared/icons';
-import {
-	getConnectUrl,
-	isPriceValid,
-	minimumTransactionAmountForCurrency,
-} from '../../shared/currencies';
+import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
 
