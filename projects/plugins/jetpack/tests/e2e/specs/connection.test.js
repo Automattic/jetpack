@@ -20,14 +20,14 @@ process.env.SKIP_CONNECT = true;
  */
 describe( 'Connection', () => {
 	beforeEach( async () => {
+		await loginToWpComIfNeeded( 'defaultUser', true );
+		await loginToWpSite( true );
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectJetpack();
 	} );
 
 	afterEach( async () => {
 		await resetWordpressInstall();
-		await loginToWpComIfNeeded( 'defaultUser', true );
-		await loginToWpSite( true );
 	} );
 
 	it( 'In-place', async () => {
