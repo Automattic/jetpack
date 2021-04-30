@@ -24,6 +24,14 @@ class Jetpack_Backup {
 				add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 			}
 		);
+
+		// Init ConnectionUI.
+		add_action(
+			'plugins_loaded',
+			function () {
+				Automattic\Jetpack\ConnectionUI\Admin::init();
+			}
+		);
 	}
 
 	/**
@@ -31,12 +39,6 @@ class Jetpack_Backup {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action(
-			'plugins_loaded',
-			function () {
-				Automattic\Jetpack\ConnectionUI\Admin::init();
-			}
-		);
 	}
 
 	/**
