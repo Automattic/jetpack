@@ -65,7 +65,11 @@ for SLUG in "${SLUGS[@]}"; do
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
 			OLDLOCK=$(<composer.lock)
-			composer update --root-reqs --no-install
+			PACKAGES=()
+			mapfile -t PACKAGES < <( composer info --locked --name-only | sed -e 's/ *$//' | grep --fixed-strings --line-regexp --file=<( jq --argjson repo "$REPO" -rn '$repo.options.versions // {} | keys[]' ) )
+			if [[ ${#PACKAGES[@]} -gt 0 ]]; then
+				composer update --no-install "${PACKAGES[@]}"
+			fi
 		else
 			OLDLOCK=
 		fi

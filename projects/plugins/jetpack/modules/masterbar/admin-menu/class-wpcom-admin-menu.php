@@ -23,6 +23,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
+		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
 
 	/**
@@ -203,7 +204,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 		parent::add_upgrades_menu( $plan );
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
+
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+		}
 	}
 
 	/**
@@ -254,17 +262,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Export on Simple sites is always handled on Calypso.
-		parent::add_tools_menu( $wp_admin_import, false );
-	}
-
-	/**
 	 * Adds Settings menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
@@ -273,8 +270,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_options_menu( $wp_admin );
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
-
-		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 	}
 
 	/**
@@ -355,7 +350,44 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Syncs the sidebar collapsed state from Calypso Preferences.
 	 */
 	public function sync_sidebar_collapsed_state() {
-		$sidebar_collapsed = get_user_attribute( get_current_user_id(), 'calypso_preferences' )['sidebarCollapsed'];
+		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+
+		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
 		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+	}
+
+	/**
+	 * Removes unwanted submenu items.
+	 *
+	 * These submenus are added across wp-content and should be removed together with these function calls.
+	 */
+	public function remove_submenus() {
+		global $_registered_pages;
+
+		remove_submenu_page( 'index.php', 'akismet-stats' );
+		remove_submenu_page( 'index.php', 'my-comments' );
+		remove_submenu_page( 'index.php', 'stats' );
+		remove_submenu_page( 'index.php', 'subscriptions' );
+
+		/* @see https://github.com/Automattic/wp-calypso/issues/49210 */
+		remove_submenu_page( 'index.php', 'my-blogs' );
+		$_registered_pages['admin_page_my-blogs'] = true; // phpcs:ignore
+
+		remove_submenu_page( 'paid-upgrades.php', 'premium-themes' );
+		remove_submenu_page( 'paid-upgrades.php', 'domains' );
+		remove_submenu_page( 'paid-upgrades.php', 'my-upgrades' );
+		remove_submenu_page( 'paid-upgrades.php', 'billing-history' );
+
+		remove_submenu_page( 'themes.php', 'customize.php?autofocus[panel]=amp_panel&return=' . rawurlencode( admin_url() ) );
+
+		remove_submenu_page( 'users.php', 'wpcom-invite-users' ); // Wpcom_Invite_Users::action_admin_menu.
+
+		remove_submenu_page( 'options-general.php', 'adcontrol' );
+
+		// Remove menu item but continue allowing access.
+		foreach ( array( 'openidserver', 'webhooks' ) as $page_slug ) {
+			remove_submenu_page( 'options-general.php', $page_slug );
+			$_registered_pages[ 'admin_page_' . $page_slug ] = true; // phpcs:ignore
+		}
 	}
 }

@@ -44,7 +44,7 @@ const ConnectUserBar = props => {
 					<ConnectButton
 						connectUser={ true }
 						from="unlinked-user-connect"
-						connectLegend={ __( 'Connect my WordPress.com account', 'jetpack' ) }
+						connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
 						customConnect={ customConnect }
 					/>
 				</div>

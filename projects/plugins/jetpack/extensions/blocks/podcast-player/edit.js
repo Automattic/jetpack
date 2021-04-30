@@ -7,7 +7,7 @@ import { debounce, noop } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useCallback, useEffect, useRef, useReducer } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef, useReducer } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
@@ -50,6 +50,7 @@ import { fetchPodcastFeed } from './api';
 import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
+import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -93,6 +94,8 @@ const PodcastPlayerEdit = ( {
 	} = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
+
+	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
 
 	// State.
 	const cancellableFetch = useRef();
@@ -156,11 +159,27 @@ const PodcastPlayerEdit = ( {
 		[ replaceWithEmbedBlock, setAttributes ]
 	);
 
+	// Call once on mount or unmount (the return callback).
 	useEffect( () => {
 		return () => {
 			cancellableFetch?.current?.cancel?.();
 		};
 	}, [] );
+
+	// The Podcast player audio element requires wpmedialement styles.
+	// These aren't available in the Site Editor context, so we have to copy them in.
+	const podCastPlayerRef = useCallback(
+		node => {
+			if ( node !== null && ! hasMigratedStyles ) {
+				maybeCopyElementsToSiteEditorContext(
+					[ 'link#mediaelement-css', 'link#wp-mediaelement-css' ],
+					node
+				);
+				setHasMigratedStyles( true );
+			}
+		},
+		[ hasMigratedStyles ]
+	);
 
 	// Load RSS feed initially and when the feed or selected episode changes.
 	useEffect( () => {
@@ -374,7 +393,7 @@ const PodcastPlayerEdit = ( {
 				</PanelColorSettings>
 			</InspectorControls>
 
-			<div id={ playerId } className={ className }>
+			<div id={ playerId } className={ className } ref={ podCastPlayerRef }>
 				<PodcastPlayer
 					playerId={ playerId }
 					attributes={ validatedAttributes }
