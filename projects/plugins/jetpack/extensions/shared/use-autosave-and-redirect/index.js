@@ -71,10 +71,6 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 	const autosaveAndRedirect = async event => {
 		event.preventDefault();
 
-		if ( ! window?.top?.location?.href ) {
-			return;
-		}
-
 		// Lock re-redirecting attempts.
 		if ( isRedirecting ) {
 			return;
