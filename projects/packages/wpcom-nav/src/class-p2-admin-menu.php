@@ -5,14 +5,12 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
-
-require_once __DIR__ . '/class-wpcom-admin-menu.php';
+namespace Automattic\Jetpack;
 
 /**
  * Class P2_Admin_Menu.
  */
-class P2_Admin_Menu extends WPcom_Admin_Menu {
+class P2_Admin_Menu extends Simple_Admin_Menu {
 
 	/**
 	 * Create the desired menu output.

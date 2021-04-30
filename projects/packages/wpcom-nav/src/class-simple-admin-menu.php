@@ -5,18 +5,14 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
-
-use Automattic\Jetpack\Status;
-
-require_once __DIR__ . '/class-admin-menu.php';
+namespace Automattic\Jetpack;
 
 /**
- * Class WPcom_Admin_Menu.
+ * Class Simple_Admin_Menu.
  */
-class WPcom_Admin_Menu extends Admin_Menu {
+class Simple_Admin_Menu extends Admin_Menu {
 	/**
-	 * WPcom_Admin_Menu constructor.
+	 * Simple_Admin_Menu constructor.
 	 */
 	protected function __construct() {
 		parent::__construct();

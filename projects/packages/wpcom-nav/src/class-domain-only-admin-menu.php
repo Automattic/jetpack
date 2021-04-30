@@ -5,9 +5,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
-
-require_once __DIR__ . '/class-base-admin-menu.php';
+namespace Automattic\Jetpack;
 
 /**
  * Class Domain_Only_Admin_Menu.

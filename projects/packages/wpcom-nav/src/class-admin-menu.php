@@ -5,17 +5,12 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
-
-use Automattic\Jetpack\Redirect;
-
-require_once __DIR__ . '/class-base-admin-menu.php';
+namespace Automattic\Jetpack;
 
 /**
  * Class Admin_Menu.
  */
 class Admin_Menu extends Base_Admin_Menu {
-
 	/**
 	 * Create the desired menu output.
 	 */

@@ -5,12 +5,9 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
+namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Connection\Client;
 use Jetpack_Plan;
-
-require_once __DIR__ . '/class-admin-menu.php';
 
 /**
  * Class Atomic_Admin_Menu.

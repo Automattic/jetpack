@@ -5,9 +5,7 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
-
-use Automattic\Jetpack\Status;
+namespace Automattic\Jetpack;
 
 /**
  * Class Base_Admin_Menu

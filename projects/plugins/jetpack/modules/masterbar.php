@@ -16,6 +16,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Wpcom_Nav;
+
 require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
@@ -38,5 +40,6 @@ if ( jetpack_is_atomic_site() ) {
  * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
  */
 if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-	require_once __DIR__ . '/masterbar/admin-menu/load.php';
+	$wpcom_nav = new Wpcom_Nav();
+	$wpcom_nav->replace_admin_menu();
 }
