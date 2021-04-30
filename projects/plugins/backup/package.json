@@ -1,0 +1,44 @@
+{
+	"private": true,
+	"description": "Easily restore or download a backup of your site from a specific moment in time.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php",
+		"build-client": "gulp",
+		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-client' 'yarn build-php'",
+		"build-php": "composer install --ignore-platform-reqs",
+		"clean": "rm -rf build/",
+		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
+		"watch": "yarn build && yarn gulp watch"
+	},
+	"dependencies": {
+		"react": "16.13.1",
+		"react-dom": "16.13.1"
+	},
+	"devDependencies": {
+		"@automattic/calypso-build": "7.0.0",
+		"@babel/core": "7.13.14",
+		"@babel/helper-module-imports": "7.13.12",
+		"@babel/preset-env": "7.13.12",
+		"@babel/register": "7.13.14",
+		"@wordpress/browserslist-config": "3.0.1",
+		"@wordpress/dependency-extraction-webpack-plugin": "3.1.2",
+		"concurrently": "6.0.2",
+		"fancy-log": "1.3.3",
+		"gulp": "4.0.2",
+		"webpack": "5.31.0"
+	},
+	"engines": {
+		"node": "^14.16.0",
+		"yarn": "^1.3.2"
+	}
+}
