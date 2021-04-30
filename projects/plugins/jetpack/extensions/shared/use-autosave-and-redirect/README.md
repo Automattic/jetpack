@@ -22,7 +22,7 @@ const myComponent = ( myUrl ) => {
 
 ### API
 
-`const [ autosave, autosaveAndRedirect, isRedirecting ] = useAutosaveAndRedirect( redirectUrl, onRedirect );`
+`const { autosave, autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( redirectUrl, onRedirect );`
 
 #### Arguments
 

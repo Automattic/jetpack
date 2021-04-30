@@ -34,7 +34,7 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		};
 	}, [] );
 
-	const [ autosave, autosaveAndRedirect, isRedirecting ] = useAutosaveAndRedirect(
+	const { autosave, autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect(
 		checkoutUrl,
 		onRedirect
 	);

@@ -293,7 +293,7 @@ function Edit( props ) {
 	const shouldShowConnectButton = () =>
 		! shouldUpgrade && apiState !== API_STATE_CONNECTED && connectURL;
 
-	const [ , autosaveAndRedirect ] = useAutosaveAndRedirect( connectURL );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
 
 	if ( apiState === API_STATE_LOADING && ! isPreview ) {
 		return (

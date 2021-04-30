@@ -44,7 +44,7 @@ export function PanelControls( { attributes: { planId }, products, setMembership
 }
 
 export function ToolbarControls( { connected, connectURL, hasUpgradeNudge, shouldUpgrade } ) {
-	const [ , autosaveAndRedirect ] = useAutosaveAndRedirect( connectURL );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectURL );
 	return (
 		<Fragment>
 			{ ! hasUpgradeNudge && ! shouldUpgrade && ! connected && (

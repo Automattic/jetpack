@@ -87,5 +87,5 @@ export default function useAutosaveAndRedirect( redirectUrl, onRedirect = noop )
 		} );
 	};
 
-	return [ autosave, autosaveAndRedirect, isRedirecting ];
+	return { autosave, autosaveAndRedirect, isRedirecting };
 }

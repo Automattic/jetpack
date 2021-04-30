@@ -22,7 +22,7 @@ export default function BlockNudge( {
 	title,
 	className,
 } ) {
-	const [ , autosaveAndRedirect ] = useAutosaveAndRedirect( href );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( href );
 
 	const handleClick = event => {
 		event.preventDefault();
