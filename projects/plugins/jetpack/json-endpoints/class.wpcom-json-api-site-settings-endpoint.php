@@ -103,7 +103,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_portfolio_posts_per_page'        => '(int) Number of portfolio projects to show per page',
 			Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The seo meta description for the site.',
 			Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
-			'verification_services_codes'             => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
+			'verification_services_codes'             => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex, facebook',
 			'markdown_supported'                      => '(bool) Whether markdown is supported for this site',
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
