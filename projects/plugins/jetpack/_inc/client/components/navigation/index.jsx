@@ -50,9 +50,6 @@ export class Navigation extends React.Component {
 	};
 
 	render() {
-		const jpRedirectPurchaseTokenQuery = this.props.purchaseToken
-			? { query: `purchasetoken=${ this.props.purchaseToken }` }
-			: {};
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
@@ -79,7 +76,7 @@ export class Navigation extends React.Component {
 						<NavItem
 							path={ getRedirectUrl(
 								this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
-								{ site: this.props.siteUrl, ...jpRedirectPurchaseTokenQuery }
+								{ site: this.props.siteUrl, purchasetoken: this.props.purchaseToken }
 							) }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
