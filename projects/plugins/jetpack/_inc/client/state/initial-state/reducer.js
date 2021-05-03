@@ -377,7 +377,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
-	const purchaseToken = userIsMaster( state ) ? getPurchaseToken( state ) : false;
+	const purchaseToken = getPurchaseToken( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';

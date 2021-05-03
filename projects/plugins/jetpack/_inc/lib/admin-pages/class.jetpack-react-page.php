@@ -189,13 +189,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string|boolean
 	 */
 	public function getPurchaseToken() {
+		if ( ! Jetpack::current_user_can_purchase() ) {
+			return false;
+		}
+
 		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
 
 		if ( $purchase_token ) {
 			return $purchase_token;
 		}
 		// If the purchase token is not saved in the options table yet, then add it.
-		update_option( 'purchase_token', $this->generatePurchaseToken(), true );
+		Jetpack_Options::update_option( 'purchase_token', $this->generatePurchaseToken(), true );
 		return Jetpack_Options::get_option( 'purchase_token', false );
 	}
 
