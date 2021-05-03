@@ -130,7 +130,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						<ConnectUserBar
 							feature="sso"
 							featureLabel={ __( 'Secure Sign-On', 'jetpack' ) }
-							text={ __( 'Sign in to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
+							text={ __( 'Connect to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>
