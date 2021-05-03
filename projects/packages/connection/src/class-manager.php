@@ -598,10 +598,26 @@ class Manager {
 	 *
 	 * @access public
 	 * @since 9.6.0
+	 * @deprecated 9.8.0
 	 *
 	 * @return bool
 	 */
 	public function is_userless() {
+		_deprecated_function( __METHOD__, 'jetpack-9.8.0', 'Automattic\\Jetpack\\Connection\\Manager::is_site_connection' );
+		return $this->is_site_connection();
+	}
+
+	/**
+	 * Returns true if the site is connected only at a site level.
+	 *
+	 * Note that we are explicitly checking for the existence of the master_user option in order to account for cases where we don't have any user tokens (user-level connection) but the master_user option is set, which could be the result of a problematic user connection.
+	 *
+	 * @access public
+	 * @since 9.8.0
+	 *
+	 * @return bool
+	 */
+	public function is_site_connection() {
 		return $this->is_connected() && ! $this->has_connected_user() && ! \Jetpack_Options::get_option( 'master_user' );
 	}
 
@@ -1211,7 +1227,7 @@ class Manager {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				// With user-less connections in mind, non-admin users can connect their account only if a connection owner exists.
+				// With site connections in mind, non-admin users can connect their account only if a connection owner exists.
 				$caps = $this->has_connected_owner() ? array( 'read' ) : array( 'manage_options' );
 				break;
 		}
@@ -1482,9 +1498,9 @@ class Manager {
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
 	public function restore() {
-		// If this is a userless connection we need to trigger a full reconnection as our only secure means of
+		// If this is a site connection we need to trigger a full reconnection as our only secure means of
 		// communication with WPCOM, aka the blog token, is compromised.
-		if ( $this->is_userless() ) {
+		if ( $this->is_site_connection() ) {
 			return $this->reconnect();
 		}
 
