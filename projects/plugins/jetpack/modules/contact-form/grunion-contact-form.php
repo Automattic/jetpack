@@ -2842,13 +2842,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$reply_to_addr = $comment_author_email;
 		}
 
-		$headers = sprintf(
-			'From: %1$s <%2$s>%4$sReply-To: %1$s <%3$s>%4$s',
-			$comment_author,
-			$from_email_addr,
-			$reply_to_addr,
-			"\r\n"
-		);
+		$headers = 'From: ' . $comment_author . ' <' . $from_email_addr . ">\r\n" .
+			'Reply-To: ' . $comment_author . ' <' . $reply_to_addr . ">\r\n";
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
