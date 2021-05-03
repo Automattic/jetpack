@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.15.0';
+	const PACKAGE_VERSION = '1.15.1';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
