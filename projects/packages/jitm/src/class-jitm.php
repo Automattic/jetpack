@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.15.1-alpha';
+	const PACKAGE_VERSION = '1.15.2-alpha';
 
 	/**
 	 * Whether the JITMs have been registered.
