@@ -86,15 +86,6 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Determine if the site is running an FSE theme.
-	 *
-	 * @return bool True if the current theme is an FSE/Site Editor theme
-	 */
-	protected function is_fse_theme() {
-		return function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
-	}
-
-	/**
 	 * =================
 	 * ACTIONS & FILTERS
 	 * =================
@@ -183,7 +174,7 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		if ( has_block( 'jetpack/related-posts' ) || $this->is_fse_theme() ) {
+		if ( has_block( 'jetpack/related-posts' ) || Blocks::is_fse_theme() ) {
 			return $content;
 		}
 
