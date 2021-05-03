@@ -18,6 +18,7 @@
 		"env-start": "./bin/env.sh start",
 		"env-reset": "./bin/env.sh reset",
 		"tunnel-on": "pm2 start bin/ecosystem.config.js && yarn pm2 logs --nostream --lines 4",
+		"tunnel-reset": "rm -rf config/tmp && yarn tunnel-on",
 		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
 		"pretest-e2e": "yarn clean",
 		"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",

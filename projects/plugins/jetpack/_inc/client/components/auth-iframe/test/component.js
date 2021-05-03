@@ -47,8 +47,8 @@ describe( 'AuthIframe', () => {
 			expect( wrapper.find( 'InPlaceConnection' ).props().width ).to.be.equal( '100%' );
 		} );
 
-		it( 'has 220 height', () => {
-			expect( wrapper.find( 'InPlaceConnection' ).props().height ).to.be.equal( '220' );
+		it( 'has 330 height', () => {
+			expect( wrapper.find( 'InPlaceConnection' ).props().height ).to.be.equal( '330' );
 		} );
 	} );
 

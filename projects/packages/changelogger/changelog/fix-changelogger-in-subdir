@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+If composer.json is not present in the current directory, check parents and ask if the parent should be used (like composer does).

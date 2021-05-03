@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add REST API v2 endpoint for editing transients.
