@@ -29,6 +29,7 @@ class Jetpack_Backup {
 		add_action(
 			'plugins_loaded',
 			function () {
+				Automattic\Jetpack\Connection\Manager::configure();
 				Automattic\Jetpack\ConnectionUI\Admin::init();
 			}
 		);
