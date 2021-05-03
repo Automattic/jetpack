@@ -31,7 +31,7 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "../../packages/*",
+			"url": "../*",
 			"options": {
 				"monorepo": true
 			}
