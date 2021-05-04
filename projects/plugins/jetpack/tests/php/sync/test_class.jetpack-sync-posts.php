@@ -882,14 +882,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		// Make sure that the related posts show up.
 		add_filter( 'jetpack_relatedposts_filter_enabled_for_request', '__return_true', 99999 );
-
-		$jetpack_relatedposts_mock = $this->getMockBuilder( 'Jetpack_RelatedPosts' )
-									->setMethods( array( 'is_fse_theme' ) )
-									->getMock();
-		$jetpack_relatedposts_mock
-			->method( 'is_fse_theme' )
-			->willReturn( false );
-		$jetpack_relatedposts_mock->action_frontend_init();
+		add_filter( 'jetpack_is_fse_theme', '__return_false' );
+		Jetpack_RelatedPosts::init()->action_frontend_init();
 
 		$this->post->post_content = 'hello';
 
@@ -901,6 +895,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "<p>hello</p>\n\n", $synced_post->post_content_filtered );
+
+		remove_filter( 'jetpack_is_fse_theme', '__return_false' );
 	}
 
 	function test_remove_related_posts_shortcode_from_filtered_content() {

@@ -217,6 +217,33 @@ class Test_Blocks extends TestCase {
 	}
 
 	/**
+	 * Test that we can detect an FSE theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_not_fse_theme() {
+		$this->assertFalse( Blocks::is_fse_theme() );
+	}
+
+	/**
+	 * Test that we can detect an FSE theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_fse_theme() {
+		add_filter( 'jetpack_is_fse_theme', '__return_true' );
+		try {
+			$this->assertTrue( Blocks::is_fse_theme() );
+		} finally {
+			remove_filter( 'jetpack_is_fse_theme', '__return_true' );
+		}
+	}
+
+	/**
 	 * Test that by default we are not running in a Jetpack plugin context.
 	 *
 	 * @since 9.6.0
