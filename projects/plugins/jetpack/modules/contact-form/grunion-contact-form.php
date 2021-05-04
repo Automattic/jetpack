@@ -168,7 +168,6 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		// custom post type we'll use to keep copies of the feedback items
-		$slug = 'edit.php?post_type=feedback';
 		register_post_type(
 			'feedback', array(
 				'labels'                => array(
@@ -180,7 +179,7 @@ class Grunion_Contact_Form_Plugin {
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
-				'show_in_menu'          => $slug,
+				'show_in_menu'          => 'edit.php?post_type=feedback',
 				'show_in_admin_bar'     => false,
 				'public'                => false,
 				'rewrite'               => false,
@@ -204,15 +203,6 @@ class Grunion_Contact_Form_Plugin {
 			)
 		);
 
-		add_menu_page(
-			__( 'Feedback', 'jetpack' ),
-			__( 'Feedback', 'jetpack' ),
-			'edit_pages',
-			$slug,
-			null,
-			'dashicons-feedback',
-			45
-		);
 		add_action( 'admin_menu', array( $this, 'rename_feedback_menu' ) );
 
 		// Add to REST API post type allowed list.
@@ -261,6 +251,17 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public function rename_feedback_menu() {
 		$slug = 'edit.php?post_type=feedback';
+
+		add_menu_page(
+			__( 'Feedback', 'jetpack' ),
+			__( 'Feedback', 'jetpack' ),
+			'edit_pages',
+			$slug,
+			null,
+			'dashicons-feedback',
+			45
+		);
+
 		remove_submenu_page(
 			$slug,
 			$slug
