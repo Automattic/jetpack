@@ -246,11 +246,12 @@ async function changelogCommand( argv ) {
  */
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		const needChangelog = await changedProjects();
-		const changelogAll = await changelogAddPrompt( argv, needChangelog );
+		const needChangelog = changedProjects();
+		const projectTypes = changedProjectTypes( needChangelog );
+		const changelogAll = await changelogAddPrompt( argv, needChangelog, projectTypes );
 
 		// If not adding the same file, prompt for each one:
-		if ( ! changelogAll.addAll ) {
+		if ( ! changelogAll.autoAdd ) {
 			console.log( chalk.green( `Running changelogger for each project!` ) );
 			for ( const proj of needChangelog ) {
 				argv.project = proj;
@@ -261,16 +262,29 @@ async function changelogAdd( argv ) {
 		}
 
 		// Next step is to iterate this over the projects in needChangelog
-		const response = await promptChangelog( argv, needChangelog );
-		argv.args = [];
-		argv.auto = true;
-		argv.project = needChangelog[0];
-		argv.s = response.significance;
-		argv.t = response.type;
-		argv.e = response.entry;
-		argv.f = response.changelogName;
-		changelogArgs( argv );
-/* */
+		let autoProjects = [];
+		for ( const type of projectTypes ) {
+			for ( const proj of needChangelog ) {
+				if ( proj.includes( type ) ) {
+					autoProjects.push( proj );
+				}
+			}
+			console.log( chalk.green( `Running auto changelogger for all ${ type } projects!` ) );
+			const response = await promptChangelog( argv, type );
+
+			for ( const proj of autoProjects ) {
+				console.log( proj );
+				argv.args = [];
+				argv.auto = true;
+				argv.project = proj;
+				argv.s = response.significance;
+				argv.t = response.type;
+				argv.e = response.entry;
+				argv.f = response.changelogName;
+				await changelogArgs( argv );
+			}
+			autoProjects = [];
+		}
 	} else {
 		changelogArgs( argv );
 	}
@@ -322,7 +336,6 @@ async function changelogArgs( argv ) {
 	if ( argv.args.includes( argv.project ) ) {
 		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
 	}
-
 	await changeloggerCli( argv );
 }
 
@@ -363,10 +376,11 @@ async function promptVersion( argv ) {
 /**
  * Prompts for changelog options.
  *
- * @param {argv} argv - the arguments passed.
+ * @param {object} argv - the arguments passed.
+ * @param {string} type - type of project.
  * @returns {argv}.
  */
- async function promptChangelog( argv, needChangelog ) {
+async function promptChangelog( argv, type ) {
 	const git = simpleGit();
 	const gitStatus = await git.status();
 	const gitBranch = gitStatus.current.replace( /\//g, '-' );
@@ -376,106 +390,106 @@ async function promptVersion( argv ) {
 			type: 'string',
 			name: 'changelogName',
 			message: 'Name your change file:',
-			default: gitBranch
+			default: gitBranch,
 		},
 		{
 			type: 'list',
 			name: 'significance',
 			message: 'Significance of the change, in the style of semantic versioning.',
 			choices: [
-						{
-							value: 'patch',
-							name: '[patch] Backwards-compatible bug fixes.'
-						},
-						{
-							value: 'minor',
-							name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.'
-						},
-						{
-							value: 'major',
-							name: '[major] Broke backwards compatibility in some way.'
-						}
-					],
+				{
+					value: 'patch',
+					name: '[patch] Backwards-compatible bug fixes.',
+				},
+				{
+					value: 'minor',
+					name: '[minor] Added (or deprecated) functionality in a backwards-compatible manner.',
+				},
+				{
+					value: 'major',
+					name: '[major] Broke backwards compatibility in some way.',
+				},
+			],
 		},
 		{
 			type: 'list',
 			name: 'type',
 			message: 'Type of change.',
 			choices: [
-						{
-							value: 'major',
-							name: '[major      ] Major Enhancements'
-						},
-						{
-							value: 'enhancement',
-							name: '[enhancement] Enhancements'
-						},
-						{
-							value: 'compat',
-							name: '[compat     ] Improved compatibility'
-						},
-						{
-							value: 'bugfix',
-							name: '[bugfix     ] Bug fixes'
-						},
-						{
-							value: 'other',
-							name: '[other      ] Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->'
-						}
-					 ],
-			when: needChangelog[0].includes( 'plugins' )
+				{
+					value: 'major',
+					name: '[major      ] Major Enhancements',
+				},
+				{
+					value: 'enhancement',
+					name: '[enhancement] Enhancements',
+				},
+				{
+					value: 'compat',
+					name: '[compat     ] Improved compatibility',
+				},
+				{
+					value: 'bugfix',
+					name: '[bugfix     ] Bug fixes',
+				},
+				{
+					value: 'other',
+					name:
+						'[other      ] Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->',
+				},
+			],
+			when: type === 'plugins',
 		},
 		{
 			type: 'list',
 			name: 'type',
 			message: 'Type of change.',
 			choices: [
-						{
-							value: 'security',
-							name: '[security  ] Security'
-						},
-						{
-							value: 'added',
-							name: '[added     ] Added'
-						},
-						{
-							value: 'changed',
-							name: '[changed   ] Changed'
-						},
-						{
-							value: 'deprecated',
-							name: '[deprecated] Deprecated'
-						},
-						{
-							value: 'removed',
-							name: '[removed   ] Removed'
-						},
-						{
-							value: 'fixed',
-							name: '[fixed     ] Fixed'
-						}
-					 ],
-			when: needChangelog[0].includes( 'packages' ),
+				{
+					value: 'security',
+					name: '[security  ] Security',
+				},
+				{
+					value: 'added',
+					name: '[added     ] Added',
+				},
+				{
+					value: 'changed',
+					name: '[changed   ] Changed',
+				},
+				{
+					value: 'deprecated',
+					name: '[deprecated] Deprecated',
+				},
+				{
+					value: 'removed',
+					name: '[removed   ] Removed',
+				},
+				{
+					value: 'fixed',
+					name: '[fixed     ] Fixed',
+				},
+			],
+			when: type === 'packages',
 		},
 		{
 			type: 'string',
 			name: 'entry',
 			message: 'Changelog entry. May be left empty if this change is particularly insignificant.',
-			when: ( answers ) => answers.significance === 'patch'
+			when: answers => answers.significance === 'patch',
 		},
 		{
 			type: 'string',
 			name: 'entry',
 			message: 'Changelog entry. May not be empty.',
-			when: ( answers ) => answers.significance === 'minor' || 'major',
-			validate: ( input ) => {
+			when: answers => answers.significance === 'minor' || 'major',
+			validate: input => {
 				if ( ! input || ! input.trim() ) {
 					return `Changelog entry can't be blank`;
 				}
 				return true;
-			}
+			},
 		},
-
 	] );
 	return { ...commands };
 }
@@ -485,14 +499,24 @@ async function promptVersion( argv ) {
  *
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - files that need changelogs.
+ * @param {Array} projectTypes - types of projects that need changelogs.
  *
  * @returns {argv}.
  */
-async function changelogAddPrompt( argv, needChangelog ) {
+async function changelogAddPrompt( argv, needChangelog, projectTypes ) {
+	if ( projectTypes.lengh === [ 1 ] ) {
+		const response = await inquirer.prompt( {
+			type: 'confirm',
+			name: 'autoAdd',
+			message: `Found ${ needChangelog.length } project(s) of the same type that need a changelog. Add same changelog to all projects?`,
+		} );
+		return response;
+	}
+
 	const response = await inquirer.prompt( {
 		type: 'confirm',
-		name: 'addAll',
-		message: `Found ${ needChangelog.length } project(s) of the same type that need a changelog. Add same changelog to all projects?`,
+		name: 'autoAdd',
+		message: `Found ${ needChangelog.length } project(s) in ${ projectTypes.length } different project types that need a changelog. Add same changelog for each project type?`,
 	} );
 	return response;
 }
@@ -503,6 +527,7 @@ async function changelogAddPrompt( argv, needChangelog ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
+	console.log( argv.args );
 	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
 		cwd: argv.cwd,
 		stdio: 'inherit',
@@ -534,7 +559,7 @@ async function gitAdd( argv ) {
 }
 
 /**
- * Prompt for which changelog to add if we detect changes were made.
+ * Gets list of currently modified files.
  *
  * @returns {Array} modifiedProjects - projects that need a changelog.
  */
@@ -558,6 +583,25 @@ async function changedProjects() {
 		}
 	}
 	return modifiedProjects;
+}
+
+/**
+ * Finds out which project types have changes.
+ *
+ *
+ * @param {Array} needChangelog - files that need changelogs.
+ *
+ * @returns {Array} - types of projects that have changed.
+ */
+async function changedProjectTypes( needChangelog ) {
+	const changedTypes = [];
+	for ( const proj of needChangelog ) {
+		const type = path.dirname( proj );
+		if ( ! changedTypes.includes( type ) ) {
+			changedTypes.push( type );
+		}
+	}
+	return changedTypes;
 }
 
 /**
