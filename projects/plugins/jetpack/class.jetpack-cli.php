@@ -232,12 +232,23 @@ class Jetpack_CLI extends WP_CLI_Command {
 				);
 				break;
 			case 'user':
-				if ( ( new Connection_Manager( 'jetpack' ) )->disconnect_user( $user->ID, $force_user_disconnect ) ) {
+				$connection_manager = new Connection_Manager( 'jetpack' );
+				$disconnected       = $connection_manager->disconnect_user( $user->ID, $force_user_disconnect );
+				if ( $disconnected ) {
 					Jetpack::log( 'unlink', $user->ID );
 					WP_CLI::success( __( 'User has been successfully disconnected.', 'jetpack' ) );
 				} else {
-					/* translators: %s is a username */
-					WP_CLI::error( sprintf( __( "User %s could not be disconnected. Are you sure they're currently connected?\nNOTE: If you're trying to disconnect the connection owner, you need to use --force", 'jetpack' ), "{$user->data->user_login} <{$user->data->user_email}>" ) );
+					if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
+						/* translators: %s is a username */
+						$error_message = sprintf( __( 'User %s could not be disconnected because it is not connected!', 'jetpack' ), "{$user->data->user_login} <{$user->data->user_email}>" );
+					} elseif ( ! $force_user_disconnect && $connection_manager->is_connection_owner( $user->ID ) ) {
+						/* translators: %s is a username */
+						$error_message = sprintf( __( 'User %s could not be disconnected because it is the connection owner! If you want to disconnect in anyway, use the --force parameter.', 'jetpack' ), "{$user->data->user_login} <{$user->data->user_email}>" );
+					} else {
+						/* translators: %s is a username */
+						$error_message = sprintf( __( 'User %s could not be disconnected.', 'jetpack' ), "{$user->data->user_login} <{$user->data->user_email}>" );
+					}
+					WP_CLI::error( $error_message );
 				}
 				break;
 			case 'prompt':
