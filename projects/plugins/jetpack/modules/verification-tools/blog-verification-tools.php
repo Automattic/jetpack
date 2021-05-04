@@ -33,7 +33,7 @@ function jetpack_verification_services() {
 			'name'   => 'Facebook Domain Verification',
 			'key'    => 'facebook-domain-verification',
 			'format' => 'rvv8b23jxlp1lq41I9rwsvpzncy1fd',
-			'url'    => 'https://developers.facebook.com/',
+			'url'    => 'https://business.facebook.com/settings/',
 		),
 	);
 }
