@@ -33,9 +33,7 @@ class JITM {
 	 */
 	public static function configure() {
 		$jitm = self::get_instance();
-		if ( ! self::$jitms_registered ) {
-			$jitm->register();
-		}
+		$jitm->register();
 	}
 
 	/**
@@ -55,7 +53,12 @@ class JITM {
 	/**
 	 * Sets up JITM action callbacks if needed.
 	 */
-	private function register() {
+	public function register() {
+		if ( self::$jitms_registered ) {
+			// JITMs have already been registered.
+			return;
+		}
+
 		self::$jitms_registered = true;
 
 		if ( ! $this->jitms_enabled() ) {
