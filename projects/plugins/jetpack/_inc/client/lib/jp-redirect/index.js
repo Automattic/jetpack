@@ -1,3 +1,8 @@
+/**
+ * External dependencies
+ */
+import { get } from 'lodash';
+
 /* global jetpack_redirects */
 /**
  * Builds an URL using the jetpack.com/redirect/ service
@@ -25,6 +30,7 @@
  */
 export default function getRedirectUrl( source, args = {} ) {
 	const queryVars = {};
+	const calypsoEnv = get( window.Initial_State, 'calypsoEnv' );
 
 	if ( source.search( 'https://' ) === 0 ) {
 		const parsedUrl = new URL( source );
@@ -36,7 +42,7 @@ export default function getRedirectUrl( source, args = {} ) {
 		queryVars.source = encodeURIComponent( source );
 	}
 
-	const acceptedArgs = [ 'site', 'path', 'query', 'anchor' ];
+	const acceptedArgs = [ 'site', 'path', 'query', 'anchor', 'purchasetoken' ];
 
 	Object.keys( args ).map( argName => {
 		if ( acceptedArgs.includes( argName ) ) {
@@ -50,6 +56,10 @@ export default function getRedirectUrl( source, args = {} ) {
 		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
 	) {
 		queryVars.site = jetpack_redirects.currentSiteRawUrl;
+	}
+
+	if ( calypsoEnv ) {
+		queryVars.calypso_env = calypsoEnv;
 	}
 
 	const queryString = Object.keys( queryVars )
