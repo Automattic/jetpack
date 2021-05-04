@@ -238,7 +238,7 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.7-beta - 2021-04-27
+### 9.7 - 2021-05-04
 #### Enhancements
 - Blocks: improve test coverage for better reliability of each one of Jetpack's blocks.
 - Carousel: improve general performance.
@@ -262,9 +262,9 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Unionâ
 - Instant Search: enable link filtering on built-in WordPress taxonomies.
 - Instant Search: fix handling of customizer controls using refresh.
 - Instant Search: fix race condition for API responses.
+- Instant Search: improve settings interface usability.
 - Instant Search: prevent excluding all post types.
 - Instant Search: set the number of returned posts using the query's `posts_per_page` value.
-- Instant Search: improve settings interface usability.
 - Markdown: fix regression that broke links with single-quoted href attributes.
 - Sharing / Publicize: properly encode URLs in Open Graph tags.
 
