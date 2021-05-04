@@ -7662,17 +7662,17 @@ endif;
 	public static function current_user_can_purchase() {
 		$connection_status = \Automattic\Jetpack\Connection\REST_Connector::connection_status( false );
 
-		// The site must be connected to Jetpack
+		// The site must be connected to Jetpack.
 		if ( ! $connection_status['isActive'] ) {
 			return false;
 		}
 
-		// We cannot do userless purchases for sites that are not connected userlessly
+		// We cannot do userless purchases for sites that are not connected userlessly.
 		if ( $connection_status['hasConnectedOwner'] ) {
 			return false;
 		}
 
-		// Make sure only administrators can make purchases
+		// Make sure only administrators can make purchases.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}
