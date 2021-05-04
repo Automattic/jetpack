@@ -396,7 +396,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
 		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' ) +
 		( purchaseToken ? `&purchasetoken=${ purchaseToken }` : '' ) +
-		( calypsoEnv ? `&calypsoEnv=${ calypsoEnv }` : '' )
+		( calypsoEnv ? `&calypso_env=${ calypsoEnv }` : '' )
 	);
 };
 
