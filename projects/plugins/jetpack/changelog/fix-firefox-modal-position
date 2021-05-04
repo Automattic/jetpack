@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Fix modal intermittently scrolls to wrong position in Firefox
