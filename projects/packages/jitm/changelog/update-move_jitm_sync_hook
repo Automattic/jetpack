@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+JITM: move sync updated option hook to the JITM package.

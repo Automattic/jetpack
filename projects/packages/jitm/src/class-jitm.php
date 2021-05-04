@@ -69,6 +69,12 @@ class JITM {
 		add_action( 'rest_api_init', array( __NAMESPACE__ . '\\Rest_Api_Endpoints', 'register_endpoints' ) );
 
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+
+		/**
+		 * These are sync actions that we need to keep track of for jitms.
+		 */
+		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+
 		return true;
 	}
 
@@ -238,5 +244,31 @@ class JITM {
 		);
 
 		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
+	}
+
+	/**
+	 * Sets the 'jetpack_last_plugin_sync' transient when the active_plugins option is synced.
+	 *
+	 * @param array $params The action parameters.
+	 *
+	 * @return array Returns the action parameters unchanged.
+	 */
+	public function jetpack_track_last_sync_callback( $params ) {
+		/**
+		 * This filter is documented in the Automattic\Jetpack\JITMS\Post_Connection_JITM class.
+		 */
+		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
+			return $params;
+		}
+
+		if ( is_array( $params ) && isset( $params[0] ) ) {
+			$option = $params[0];
+			if ( 'active_plugins' === $option ) {
+				// Use the cache if we can, but not terribly important if it gets evicted.
+				set_transient( 'jetpack_last_plugin_sync', time(), HOUR_IN_SECONDS );
+			}
+		}
+
+		return $params;
 	}
 }
