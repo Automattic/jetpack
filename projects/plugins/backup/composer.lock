@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccbb101c434babb44c7709e3a30a7e21",
+    "content-hash": "e939766f168b774b55f1a75f375187cd",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -116,13 +116,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "e7f6bec617b4ff246ea975768814454f84d06f68"
+                "reference": "95ff0278a5308e68e73dd68d1af98251fbbdbb4e"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^1.1",
+                "automattic/jetpack-changelogger": "^1.2",
                 "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "composer-plugin",
@@ -242,13 +242,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "28010fc1559669d9d68d60d650816620336227c3"
+                "reference": "dd91e224716bcf897d85664248574bf872a45de3"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.26"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^1.1"
+                "automattic/jetpack-changelogger": "^1.2"
             },
             "type": "library",
             "extra": {
@@ -638,7 +638,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "bf07844a67872b3bb3c0b8c4524ef86bf28cc822"
+                "reference": "53fd89e7f369d1cb46106845aa91bac842cd70f9"
             },
             "require": {
                 "php": ">=5.6",
@@ -657,7 +657,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-master": "1.1.x-dev"
+                    "dev-master": "1.2.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
