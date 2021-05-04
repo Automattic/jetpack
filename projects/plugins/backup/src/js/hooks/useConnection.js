@@ -61,7 +61,7 @@ export default function useConnection() {
 				onUserConnected={ onUserConnected }
 				registrationNonce={ registrationNonce }
 				from="jetpack-backup"
-				redirectUri="admin.php?page=jetpack-backup" // Todo: test this redirect
+				redirectUri="admin.php?page=jetpack-backup"
 			/>
 		);
 	};
