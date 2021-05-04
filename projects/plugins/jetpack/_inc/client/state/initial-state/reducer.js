@@ -233,6 +233,10 @@ export function getPurchaseToken( state ) {
 	return get( state.jetpack.initialState, 'purchaseToken' );
 }
 
+export function getCalypsoEnv( state ) {
+	return get( state.jetpack.initialState, 'calypsoEnv' );
+}
+
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }
@@ -378,6 +382,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
 	const purchaseToken = getPurchaseToken( state );
+	const calypsoEnv = getCalypsoEnv( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
@@ -390,7 +395,8 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		( uid ? `&u=${ uid }` : '' ) +
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
 		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' ) +
-		( purchaseToken ? `&purchasetoken=${ purchaseToken }` : '' )
+		( purchaseToken ? `&purchasetoken=${ purchaseToken }` : '' ) +
+		( calypsoEnv ? `&calypsoEnv=${ calypsoEnv }` : '' )
 	);
 };
 
