@@ -891,6 +891,8 @@ EXPECTED;
 			'jetpack.featuresAvailable',
 			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
+			'jetpack.getUserlessPurchaseToken',
+			'jetpack.deleteUserlessPurchaseToken',
 		);
 
 		$allowed = array(
@@ -928,6 +930,8 @@ EXPECTED;
 			'jetpack.testConnection',
 			'jetpack.featuresAvailable',
 			'jetpack.featuresEnabled',
+			'jetpack.getUserlessPurchaseToken',
+			'jetpack.deleteUserlessPurchaseToken',
 
 			'jetpack.syncObject',
 		);
@@ -981,6 +985,8 @@ EXPECTED;
 			'jetpack.testConnection',
 			'jetpack.featuresAvailable',
 			'jetpack.featuresEnabled',
+			'jetpack.getUserlessPurchaseToken',
+			'jetpack.deleteUserlessPurchaseToken',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
@@ -1066,6 +1072,8 @@ EXPECTED;
 			'jetpack.testConnection',
 			'jetpack.featuresAvailable',
 			'jetpack.featuresEnabled',
+			'jetpack.getUserlessPurchaseToken',
+			'jetpack.deleteUserlessPurchaseToken',
 
 			'jetpack.syncObject',
 		);

@@ -233,6 +233,13 @@ export function getPurchaseToken( state ) {
 	return get( state.jetpack.initialState, 'purchaseToken' );
 }
 
+/**
+ * Returns current Calypso environment.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string} Calypso environment name.
+ */
 export function getCalypsoEnv( state ) {
 	return get( state.jetpack.initialState, 'calypsoEnv' );
 }
