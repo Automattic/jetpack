@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2021-04-27
+### Added
+- Adds segmentation "from" parameter to the registration flow
+
 ## [1.4.3] - 2021-03-30
 ### Added
 - Composer alias for dev-master, to improve dependencies
@@ -60,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add partner subsidiary id to upgrade URLs.
 
+[1.5.0]: https://github.com/Automattic/jetpack-partner/compare/v1.4.3...v1.5.0
 [1.4.3]: https://github.com/Automattic/jetpack-partner/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/Automattic/jetpack-partner/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-partner/compare/v1.4.0...v1.4.1

@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
 import fs from 'fs';
-/**
- * Internal dependencies
- */
 import logger from '../logger';
-import { execWpCommand } from '../utils-helper';
 import {
-	connectThroughWPAdmin,
-	loginToWpComIfNeeded,
-	loginToWpSite,
-} from '../flows/jetpack-connect';
+	execWpCommand,
+	getAccountCredentials,
+	provisionJetpackStartConnection,
+} from '../utils-helper';
+import { loginToWpComIfNeeded, loginToWpSite, isBlogTokenSet } from '../flows/jetpack-connect';
 import config from 'config';
 
 async function maybePreConnect() {
@@ -26,12 +20,14 @@ async function maybePreConnect() {
 		return;
 	}
 
-	const status = await connectThroughWPAdmin( { mockPlanData, plan } );
-
-	if ( status !== 'already_connected' ) {
-		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-		fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
+	if ( ! ( await isBlogTokenSet() ) ) {
+		const userId = getAccountCredentials( 'defaultUser' )[ 2 ];
+		return await provisionJetpackStartConnection( userId, plan );
 	}
+
+	// We are connected. Let's save the existing connection options just in case.
+	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
+	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
 }
 
 export const step = async ( stepName, fn ) => {
