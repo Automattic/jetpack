@@ -228,8 +228,8 @@ BODY;
 				'https://www.instagram.com/tv/BkQjCfsBIzi/',
 			),
 			'reel_embed'                    => array(
-				'https://instagram.com/reel/COWmlFLB_7P/',
-				'https://instagram.com/reel/COWmlFLB_7P/',
+				'https://www.instagram.com/reel/COWmlFLB_7P/',
+				'https://www.instagram.com/reel/COWmlFLB_7P/',
 			),
 			'image_embed_with_username'     => array(
 				'https://www.instagram.com/jeherve/p/BnMO9vRleEx/',
