@@ -242,13 +242,40 @@ async function changelogCommand( argv ) {
 /**
  * Run the changelog add wizard, which checks if multiple projects need changelogs.
  *
+ * @param {Array} needChangelog - files that need a changelog.
+ * 
+ * @returns {Array} - array of special projects objects
+ */
+async function checkSpecialProjects( needChangelog ) {
+	const specialProjects = [];
+	for ( const proj of needChangelog ) {
+		const projPath = path.join( __dirname, '../../..', 'projects/', proj, '/composer.json' );
+		const rawComposerFile = fs.readFileSync( projPath, err => {
+			if ( err ) {
+				throw new Error(
+					chalk.red( `Couldn't read the composer.json file for the project!` ),
+					err
+				);
+			}
+		} );
+		const composerJSON = JSON.parse( rawComposerFile );
+		if ( composerJSON.extra.changelogger && composerJSON.extra.changelogger.types ) {
+			specialProjects.push( { 'project': proj, 'types': { ...composerJSON.extra.changelogger.types } } );
+		}
+	}
+	return specialProjects;
+}
+
+/**
+ * Run the changelog add wizard, which checks if multiple projects need changelogs.
+ *
  * @param {argv} argv - the arguments passed.
  */
 async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
-		const needChangelog = changedProjects();
-		const projectTypes = changedProjectTypes( needChangelog );
-		const changelogAll = await changelogAddPrompt( argv, needChangelog, projectTypes );
+		const needChangelog = await changedProjects();
+		const uniqueProjects = await checkSpecialProjects( needChangelog );
+		const changelogAll = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
 
 		// If not adding the same file, prompt for each one:
 		if ( ! changelogAll.autoAdd ) {
@@ -263,7 +290,7 @@ async function changelogAdd( argv ) {
 
 		// Next step is to iterate this over the projects in needChangelog
 		let autoProjects = [];
-		for ( const type of projectTypes ) {
+		for ( const type of uniqueProjects ) {
 			for ( const proj of needChangelog ) {
 				if ( proj.includes( type ) ) {
 					autoProjects.push( proj );
@@ -499,12 +526,12 @@ async function promptChangelog( argv, type ) {
  *
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - files that need changelogs.
- * @param {Array} projectTypes - types of projects that need changelogs.
+ * @param {Array} uniqueProjects - projects with unique changelog types.
  *
  * @returns {argv}.
  */
-async function changelogAddPrompt( argv, needChangelog, projectTypes ) {
-	if ( projectTypes.lengh === [ 1 ] ) {
+async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
+	if ( uniqueProjects.length === 0 ) {
 		const response = await inquirer.prompt( {
 			type: 'confirm',
 			name: 'autoAdd',
@@ -516,7 +543,7 @@ async function changelogAddPrompt( argv, needChangelog, projectTypes ) {
 	const response = await inquirer.prompt( {
 		type: 'confirm',
 		name: 'autoAdd',
-		message: `Found ${ needChangelog.length } project(s) in ${ projectTypes.length } different project types that need a changelog. Add same changelog for each project type?`,
+		message: `Found ${ needChangelog.length } total project(s) and ${ uniqueProjects.length } project types that need unique changelog types. Add same changelog for each project type?`,
 	} );
 	return response;
 }
