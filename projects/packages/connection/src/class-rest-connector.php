@@ -123,20 +123,20 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
 				'args'                => array(
 					'from'               => array(
-						'description' => 'Indicates where the registration action was triggered for tracking/segmetnation purposes',
+						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack' ),
 						'type'        => 'string',
 					),
 					'registration_nonce' => array(
-						'description' => 'The registration nonce',
+						'description' => __( 'The registration nonce', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
 					'no_iframe'          => array(
-						'description' => 'Disable In-Place connection flow and go straight to Calypso',
+						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
 						'type'        => 'boolean',
 					),
 					'redirect_uri'       => array(
-						'description' => 'URI of the admin page where the user should be redirected after connection flow',
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),
