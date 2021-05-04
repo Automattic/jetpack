@@ -25,6 +25,12 @@ Plugins can add pre-connection JITMs uisng the `jetpack_pre_connection_jitms` fi
 
  If a JITM is missing one of the above keys, the JITM will not be displayed.
 
+The JITM message array may also contain the following optional keys:
+ * icon - When the 'icon' key does not exist, the Jetpack icon is used by default. The available settings for this option are:
+	 * 'jetpack' for the Jetpack icon.
+	 * 'woocommerce' for the WooCommerce icon.
+	 * Anything else for no icon.
+
  The Jetpack plugin's pre-connection JITMs can be found in the `Jetpack_Pre_Connection_JITMs` class.
 
  #### Example

@@ -53,7 +53,7 @@ class Pre_Connection_JITM extends JITM {
 				'message'     => $message['message'],
 				'description' => $message['description'],
 				'list'        => array(),
-				'icon'        => 'jetpack',
+				'icon'        => isset( $message['icon'] ) ? $message['icon'] : 'jetpack',
 			);
 
 			$formatted_messages[] = $obj;
