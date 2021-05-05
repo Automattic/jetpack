@@ -7,7 +7,7 @@ import { get, pick } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { createElement, Fragment } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isBlobURL } from '@wordpress/blob';
 import { useDispatch } from '@wordpress/data';

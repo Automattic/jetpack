@@ -767,11 +767,6 @@ class Jetpack {
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 
-		/**
-		 * These are sync actions that we need to keep track of for jitms
-		 */
-		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
-
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
@@ -1092,23 +1087,17 @@ class Jetpack {
 		return $callables;
 	}
 
+	/**
+	 * Deprecated
+	 * Please use Automattic\Jetpack\JITMS\JITM::jetpack_track_last_sync_callback instead.
+	 *
+	 * @param array $params The action parameters.
+	 *
+	 * @deprecated since 9.8.
+	 */
 	function jetpack_track_last_sync_callback( $params ) {
-		/**
-		 * This filter is documented in the Automattic\Jetpack\JITMS\Post_Connection_JITM class.
-		 */
-		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
-			return $params;
-		}
-
-		if ( is_array( $params ) && isset( $params[0] ) ) {
-			$option = $params[0];
-			if ( 'active_plugins' === $option ) {
-				// use the cache if we can, but not terribly important if it gets evicted
-				set_transient( 'jetpack_last_plugin_sync', time(), HOUR_IN_SECONDS );
-			}
-		}
-
-		return $params;
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\Automattic\Jetpack\JITMS\JITM->jetpack_track_last_sync_callback' );
+		return Automattic\Jetpack\JITMS\JITM::get_instance()->jetpack_track_last_sync_callback( $params );
 	}
 
 	function jetpack_connection_banner_callback() {
