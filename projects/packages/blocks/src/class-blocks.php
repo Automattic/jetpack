@@ -70,36 +70,12 @@ class Blocks {
 				$args['attributes'] = array_merge(
 					$args['attributes'],
 					array(
-						// Indicates that the block or one of its parents is displaying the nudge.
-						'isUpgradeNudgeDisplayed'   => array(
+						// Indicates that this block should display an upgrade nudge on the frontend.
+						'shouldDisplayFrontendBanner' => array(
 							'type'    => 'boolean',
-							'default' => 'false',
-						),
-						// Indicates that this block is displaying the nudge.
-						'shouldDisplayUpgradeNudge' => array(
-							'type'    => 'boolean',
-							'default' => 'true',
+							'default' => false,
 						),
 					)
-				);
-
-				// Set up context.
-				if ( ! isset( $args['provides_context'] ) ) {
-					$args['provides_context'] = array();
-				}
-				$args['provides_context'] = array_merge(
-					$args['provides_context'],
-					array(
-						'jetpack/isUpgradeNudgeDisplayed' => 'isUpgradeNudgeDisplayed',
-					)
-				);
-
-				if ( ! isset( $args['uses_context'] ) ) {
-					$args['uses_context'] = array();
-				}
-				array_push(
-					$args['uses_context'],
-					'jetpack/isUpgradeNudgeDisplayed'
 				);
 
 				if ( isset( $args['render_callback'] ) ) {

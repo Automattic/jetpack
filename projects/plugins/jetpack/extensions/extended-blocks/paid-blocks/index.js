@@ -42,16 +42,10 @@ const jetpackPaidBlock = ( settings, name ) => {
 		}
 
 		// Add the attributes for rendering upgrade nudges.
-		if ( ! settings.attributes.isUpgradeNudgeDisplayed ) {
-			settings.attributes.isUpgradeNudgeDisplayed = {
+		if ( ! settings.attributes.shoudlDisplayFrontendBanner ) {
+			settings.attributes.shouldDisplayFrontendBanner = {
 				type: 'boolean',
 				default: false,
-			};
-		}
-		if ( ! settings.attributes.shouldDisplayUpgradeNudge ) {
-			settings.attributes.shouldDisplayUpgradeNudge = {
-				type: 'boolean',
-				default: true,
 			};
 		}
 	}
