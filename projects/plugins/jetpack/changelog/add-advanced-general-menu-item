@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Adds Advanced General menu item when user has Advanced Dashboard toggle enabled so they can still access Calypso settings.
