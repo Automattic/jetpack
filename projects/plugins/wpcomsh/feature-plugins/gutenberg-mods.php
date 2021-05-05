@@ -78,3 +78,26 @@ function wpcomsh_delete_site_logo_when_setting_custom_logo( $custom_logo ) {
 }
 
 add_filter( 'pre_set_theme_mod_custom_logo', 'wpcomsh_delete_site_logo_when_setting_custom_logo', 25 );
+
+/**
+ * Disable the custom block template creation feature while it's not on Core.
+ *
+ * Context, quoting a Slack message from Riad:
+ *
+ * "Heads’up that this PR has been merged https://github.com/WordPress/gutenberg/pull/30438
+ * It means that classic themes will get some FSE features (block templates) by default
+ * I think this should be disabled on dotcom though until it reaches Core. So when dotcom
+ * upgrades to Gutenberg 10.5 (in three weeks I guess), we need to add this
+ * remove_theme_support( 'block-templates' ) somewhere (edited)"
+ *
+ * Source: p1617879858471700-slack-C7YPUHBB2.
+ */
+function wpcomsh_disable_block_template_creation() {
+	remove_theme_support( 'block-templates' );
+}
+
+// See: D60504#1244459-code
+add_action( 'after_setup_theme', 'wpcomsh_disable_block_template_creation' );
+add_action( 'restapi_theme_after_setup_theme', 'wpcomsh_disable_block_template_creation' );
+
+wpcomsh_disable_block_template_creation();
