@@ -260,8 +260,15 @@ class Sender {
 		if ( ! $sync_module ) {
 			return;
 		}
+		// Full Sync Disabled.
 		if ( ! Settings::get_setting( 'full_sync_sender_enabled' ) ) {
 			return;
+		}
+
+		// Sync not started or Sync finished.
+		$status = $sync_module->get_status();
+		if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
+			return false;
 		}
 
 		// Don't sync if request is marked as read only.
