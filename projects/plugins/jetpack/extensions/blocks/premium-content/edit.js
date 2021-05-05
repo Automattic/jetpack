@@ -23,7 +23,6 @@ import { isPriceValid, minimumTransactionAmountForCurrency } from '../../shared/
 import getConnectUrl from '../../shared/get-connect-url';
 import './editor.scss';
 import useAutosaveAndRedirect from '../../shared/use-autosave-and-redirect';
-import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 
 /**
  * @typedef { import('./plan').Plan } Plan
@@ -93,19 +92,6 @@ function Edit( props ) {
 	// @ts-ignore needed in some upgrade flows - depending how we implement this
 	const [ siteSlug, setSiteSlug ] = useState( '' ); // eslint-disable-line
 	const { isPreview } = props.attributes;
-
-	// This needs to get refactored out somewhere so that it is automatically applied to
-	// all paid blocks, and does not run on every render.
-	const availability = getJetpackExtensionAvailability( 'premium-content/container' );
-	const hasOwnUpgradeNudge =
-		! availability.available && availability.unavailableReason === 'missing_plan';
-
-	const isUpgradeNudgeDisplayed = props.context[ 'jetpack/isUpgradeNudgeDisplayed' ];
-
-	props.setAttributes( {
-		shouldDisplayUpgradeNudge: ! isUpgradeNudgeDisplayed && hasOwnUpgradeNudge,
-	} );
-	props.setAttributes( { isUpgradeNudgeDisplayed: isUpgradeNudgeDisplayed || hasOwnUpgradeNudge } );
 
 	/**
 	 * Hook to save a new plan.
