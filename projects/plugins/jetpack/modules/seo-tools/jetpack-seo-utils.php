@@ -69,7 +69,7 @@ class Jetpack_SEO_Utils {
 			return $front_page_meta ? $front_page_meta : get_option( self::LEGACY_META_OPTION, '' );
 		}
 
-		// Support legacy usage for non-business users.
+		// Support legacy usage for WPcom simple sites.
 		return get_option( self::LEGACY_META_OPTION, '' );
 	}
 
