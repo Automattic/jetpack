@@ -30,31 +30,62 @@ function redirect( url, callback ) {
 export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 	const [ isRedirecting, setIsRedirecting ] = useState( false );
 
-	const { checkoutUrl, isAutosaveablePost, isDirtyPost, planData } = useSelect( select => {
-		const editorSelector = select( 'core/editor' );
-		const planSelector = select( 'wordpress-com/plans' );
+	const { checkoutUrl, isAutosaveablePost, isDirtyPost, planData, currentPost } = useSelect(
+		select => {
+			const editorSelector = select( 'core/editor' );
+			const planSelector = select( 'wordpress-com/plans' );
 
-		const { id: postId, type: postType } = editorSelector.getCurrentPost();
-		const plan = planSelector && planSelector.getPlan( planSlug );
+			const { id: postId, type: postType } = editorSelector.getCurrentPost();
+			const plan = planSelector && planSelector.getPlan( planSlug );
 
-		return {
-			checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
-			isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
-			isDirtyPost: editorSelector.isEditedPostDirty(),
-			planData: plan,
-		};
-	}, [] );
+			return {
+				checkoutUrl: getUpgradeUrl( { plan, planSlug, postId, postType } ),
+				isAutosaveablePost: editorSelector.isEditedPostAutosaveable(),
+				isDirtyPost: editorSelector.isEditedPostDirty(),
+				planData: plan,
+				currentPost: editorSelector.getCurrentPost(),
+			};
+		},
+		[]
+	);
+
+	const isPostEditor = Object.keys( currentPost ).length > 0;
 
 	// Alias. Save post by dispatch.
 	const savePost = dispatch( 'core/editor' ).savePost;
 
+	// For the site editor, save entities
+	const entityRecords = useSelect( select => {
+		return select( 'core' ).__experimentalGetDirtyEntityRecords();
+	} );
+
+	// Save
+	const saveEntities = async () => {
+		for ( let i = 0; i < entityRecords.length; i++ ) {
+			// await is needed here due to the loop.
+			await dispatch( 'core' ).saveEditedEntityRecord(
+				entityRecords[ i ].kind,
+				entityRecords[ i ].name,
+				entityRecords[ i ].key
+			);
+		}
+	};
+
 	const goToCheckoutPage = async event => {
+		event.preventDefault();
+
 		// If this action is available, the feature is enabled to open the checkout
 		// in a modal rather than redirect the user there, away from the editor.
 		if ( hasAction( HOOK_OPEN_CHECKOUT_MODAL ) ) {
 			event.preventDefault();
-			savePost( event );
-			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [planData] } );
+
+			if ( isPostEditor ) {
+				savePost( event );
+			} else {
+				saveEntities( event );
+			}
+
+			doAction( HOOK_OPEN_CHECKOUT_MODAL, { products: [ planData ] } );
 			return;
 		}
 
@@ -75,12 +106,16 @@ export default function useUpgradeFlow( planSlug, onRedirect = noop ) {
 		 * If there are not unsaved values, redirect.
 		 * If the post is not auto-savable, redirect.
 		 */
-		if ( ! isDirtyPost || ! isAutosaveablePost ) {
+		if ( isPostEditor && ( ! isDirtyPost || ! isAutosaveablePost ) ) {
 			return redirect( checkoutUrl, onRedirect );
 		}
 
-		// Save the post. Then redirect.
-		savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
+		// Save the post in the post editor or entities in the site editor. Then redirect.
+		if ( isPostEditor ) {
+			savePost( event ).then( () => redirect( checkoutUrl, onRedirect ) );
+		} else {
+			saveEntities( event ).then( () => redirect( checkoutUrl, onRedirect ) );
+		}
 	};
 
 	return [ checkoutUrl, goToCheckoutPage, isRedirecting ];

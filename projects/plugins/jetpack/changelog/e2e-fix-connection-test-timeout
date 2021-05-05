@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+E2E tests: Increase timeout for loading animation on connection flow

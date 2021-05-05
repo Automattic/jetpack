@@ -379,6 +379,8 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) {
+		$this->hide_submenu_page( 'options-general.php', 'sharing' );
+
 		if ( $wp_admin ) {
 			return;
 		}
@@ -413,8 +415,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 
 		if ( ! $is_menu_updated ) {
-			// Remove the submenu auto-created by Core.
-			$this->hide_submenu_page( 'jetpack', 'jetpack' );
+			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
+			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
 
