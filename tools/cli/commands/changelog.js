@@ -15,7 +15,7 @@ import simpleGit from 'simple-git';
 import promptForProject from '../helpers/promptForProject';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { normalizeProject } from '../helpers/normalizeArgv';
-import { allProjects } from '../helpers/projectHelpers';
+import { allProjects, projectTypes } from '../helpers/projectHelpers';
 
 /**
  * Comand definition for changelog subcommand.
@@ -342,6 +342,7 @@ async function formatAutoArgs( proj, argv, response ) {
  */
 async function changelogArgs( argv ) {
 	argv = await validateProject( argv );
+	const removeArg = [ argv.project, ...projectTypes ];
 	argv.success = `Command '${ argv.cmd || argv._[ 1 ] }' for ${
 		argv.project
 	} completed succesfully!`;
@@ -373,10 +374,13 @@ async function changelogArgs( argv ) {
 			break;
 	}
 
-	// Remove project from command list we pass to changelogger.
-	if ( argv.args.includes( argv.project ) ) {
-		argv.args.splice( argv.args.indexOf( argv.project ), 1 );
+	// Remove project from arguments list we pass to the changelogger.
+	for ( const proj of removeArg ) {
+		if ( argv.args.includes( proj ) ) {
+			argv.args.splice( argv.args.indexOf( proj ), 1 );
+		}
 	}
+
 	await changeloggerCli( argv );
 }
 
