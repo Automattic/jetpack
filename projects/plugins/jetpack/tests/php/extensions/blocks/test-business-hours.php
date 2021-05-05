@@ -95,7 +95,17 @@ class Business_Hours_Block_Test extends \WP_UnitTestCase {
 			}
 
 			$server_rendered_fixture = file_get_contents( $target_markup_filename );
-			$this->assertEquals( $rendered_output, $server_rendered_fixture );
+			$this->assertEquals(
+				$rendered_output,
+				trim( $server_rendered_fixture ),
+				sprintf(
+					'The results of render_block for %s called with serialized markup from %s do not match ' .
+					"the server-rendered fixture: %s\n",
+					BLOCK_NAME,
+					basename( $file ),
+					basename( $target_markup_filename )
+				)
+			);
 		}
 
 		// Fail the test if any fixtures were missing, and report that fixtures have been generated.
