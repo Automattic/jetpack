@@ -19,6 +19,7 @@ import { execWpCommand } from '../utils-helper';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
 import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
+import RecommendationsPage from '../pages/wp-admin/recommendations';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -47,14 +48,15 @@ export async function connectThroughWPAdmin( { plan = 'complete', mockPlanData =
 	await syncJetpackPlanData( plan, mockPlanData );
 }
 
-async function doClassicConnection( mockPlanData ) {
+export async function doClassicConnection( mockPlanData ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'original' );
 	await jetpackPage.connect();
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
 	if ( mockPlanData ) {
-		return await ( await PickAPlanPage.init( page ) ).select( 'free' );
+		await ( await PickAPlanPage.init( page ) ).select( 'free' );
+		return await ( await Sidebar.init( page ) ).selectJetpack();
 	}
 	await ( await PickAPlanPage.init( page ) ).select( 'complete' );
 	await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
@@ -71,6 +73,20 @@ export async function doInPlaceConnection() {
 	await ( await PickAPlanPage.init( page ) ).select( 'free' );
 	// await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	// await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+	await ( await Sidebar.init( page ) ).selectJetpack();
+}
+
+export async function doUserlessConnection() {
+	const jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.forceVariation( 'in_place' );
+	await jetpackPage.connect();
+
+	await ( await InPlaceAuthorizeFrame.init( page ) ).continueWithout();
+	await ( await PickAPlanPage.init( page ) ).select( 'free' );
+	const isPageVisible = await (
+		await RecommendationsPage.visit( page )
+	 ).areSiteTypeQuestionsVisible();
+	expect( isPageVisible ).toBeTruthy();
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
@@ -121,11 +137,11 @@ export async function loginToWpComIfNeeded( wpComUser, mockPlanData ) {
 	if ( ! mockPlanData ) {
 		await login.setSandboxModeForPayments( cookie );
 	}
-	if ( ! ( await login.isLoggedIn() ) ) {
-		await login.login( wpComUser );
-	} else {
-		logger.step( 'Already logged into Wordpress.com' );
+	if ( await login.isLoggedIn() ) {
+		return logger.step( 'Already logged into Wordpress.com' );
 	}
+
+	await login.login( wpComUser );
 }
 
 export async function isBlogTokenSet() {

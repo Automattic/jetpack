@@ -407,7 +407,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		if ( false !== strpos( $title, 'inline-text' ) ) {
-			preg_match( '/<span class="inline-text".+\s?>([A-Za-z0-9]+)<\/span>/', $title, $matches );
+			preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches );
 
 			$text = $matches[1];
 			if ( $text ) {

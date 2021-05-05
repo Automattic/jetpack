@@ -136,6 +136,14 @@ export default class PageActions {
 		return await this.reload();
 	}
 
+	async removeCookieByName( cookieName ) {
+		const ctx = this.page.context();
+		const allCookies = await ctx.cookies();
+		const cookiesWithoutWpcom = allCookies.filter( cookie => cookie.name !== cookieName );
+		await ctx.clearCookies();
+		await ctx.addCookies( cookiesWithoutWpcom );
+	}
+
 	// endregion
 
 	// region actions on page elements

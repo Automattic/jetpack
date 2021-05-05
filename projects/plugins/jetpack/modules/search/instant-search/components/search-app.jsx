@@ -109,6 +109,13 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		// NOTE: Summoned overlay will not automatically be scrolled to the top
+		//       when used in conjuction with slideInUp animation.
+		// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	removeEventListeners() {
@@ -127,6 +134,10 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	disableAutocompletion() {
@@ -144,11 +155,15 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
-	scrollOverlayToTop() {
-		const overlay = document.querySelector( `.${ OVERLAY_CLASS_NAME }` );
+	scrollOverlayToTop( event ) {
+		if ( event?.propertyName !== 'transform' ) {
+			return;
+		}
+		const overlay = event.target;
 		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
 		if ( overlay.scrollTo ) {
-			overlay.scrollTo( 0, 0, { smooth: true } );
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			overlay.scrollTo( 0, 0 );
 		} else {
 			overlay.scrollTop = 0;
 		}
@@ -261,11 +276,6 @@ class SearchApp extends Component {
 		this.setState( { showResults }, () => {
 			if ( showResults ) {
 				this.preventBodyScroll();
-				// NOTE: Summoned overlay will not automatically be scrolled to the top
-				//       when used in conjuction with slideInUp animation.
-				//       10ms delay appears necessary within the Customizer
-				// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
-				setTimeout( () => this.scrollOverlayToTop(), 10 );
 			} else {
 				// This codepath will only be executed in the Customizer.
 				this.restoreBodyScroll();
