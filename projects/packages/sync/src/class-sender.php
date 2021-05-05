@@ -265,15 +265,15 @@ class Sender {
 			return;
 		}
 
+		// Don't sync if request is marked as read only.
+		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
+			return new \WP_Error( 'jetpack_sync_read_only' );
+		}
+
 		// Sync not started or Sync finished.
 		$status = $sync_module->get_status();
 		if ( false === $status['started'] || ( ! empty( $status['started'] ) && ! empty( $status['finished'] ) ) ) {
 			return false;
-		}
-
-		// Don't sync if request is marked as read only.
-		if ( Constants::is_true( 'JETPACK_SYNC_READ_ONLY' ) ) {
-			return new \WP_Error( 'jetpack_sync_read_only' );
 		}
 
 		$this->continue_full_sync_enqueue();
