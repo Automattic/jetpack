@@ -285,7 +285,8 @@ class Post_Connection_JITM extends JITM {
 			<?php
 		} else {
 			echo '<p>' . esc_html__( 'Every Jetpack site needs at least one connected admin for the features to work properly. Please connect to your WordPress.com account via the button below. Once you connect, you may refresh this page to see an option to change the connection owner.', 'jetpack' ) . '</p>';
-			$connect_url = \Jetpack::init()->build_connect_url( false, false, 'delete_connection_owner_notice' );
+			$connect_url = $connection_manager->get_authorization_url();
+			$connect_url = add_query_arg( 'from', 'delete_connection_owner_notice', $connect_url );
 			echo "<a href='" . esc_url( $connect_url ) . "' target='_blank' rel='noopener noreferrer' class='button-primary'>" . esc_html__( 'Connect to WordPress.com', 'jetpack' ) . '</a>';
 		}
 
@@ -391,8 +392,14 @@ class Post_Connection_JITM extends JITM {
 		// If something is in the cache and it was put in the cache after the last sync we care about, use it.
 		$use_cache = false;
 
-		/** This filter is documented in class.jetpack.php */
-		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+		/**
+		 * Filter to turn off jitm caching
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param bool true Whether to cache just in time messages
+		 */
+		if ( apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
 			$use_cache = true;
 		}
 
