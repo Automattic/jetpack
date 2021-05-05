@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Modules;
@@ -343,7 +344,7 @@ class Jetpack_Debug_Data {
 		);
 		$debug_info['idc_optin']        = array(
 			'label'   => 'IDC Opt-in',
-			'value'   => Jetpack::sync_idc_optin(),
+			'value'   => Identity_Crisis::sync_idc_optin(),
 			'private' => false,
 		);
 

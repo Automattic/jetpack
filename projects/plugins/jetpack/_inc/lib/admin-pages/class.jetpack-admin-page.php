@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -47,7 +48,7 @@ abstract class Jetpack_Admin_Page {
 		$this->jetpack = $jetpack;
 
 		self::$block_page_rendering_for_idc = (
-			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
+			Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
 	}
 
