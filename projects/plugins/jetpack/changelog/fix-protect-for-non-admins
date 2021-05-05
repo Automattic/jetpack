@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Do not display Protect card for non-admin users while in site-only connection

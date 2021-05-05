@@ -40,9 +40,6 @@
 		text-shadow: none;
 		background-color: transparent;
 		border: 0;
-	}
-
-	button {
 		cursor:pointer;
 	}
 
@@ -99,8 +96,12 @@
 			align-items: center;
 			justify-content: center;
 
-			&.transparent {
+			&.semi-transparent {
 				background-color: #4845427f;
+			}
+
+			&.transparent {
+				background-color: transparent;
 			}
 
 			@keyframes rotate-spinner {
@@ -275,11 +276,6 @@
 			padding: 6px 0;
 			vertical-align: top;
 
-			&:focus {
-				outline: none;
-				outline-offset: 0;
-			}
-
 			.wp-story-pagination-bullet-bar {
 				min-width: 12px;
 				width: 100%;
@@ -292,7 +288,7 @@
 				opacity: 1;
 				height: 4px;
 				background-color: $wp-story-pagination-bullet-progress-color;
-				transition: width 50ms;
+				transition: width 0.1s ease;
 			}
 		}
 
