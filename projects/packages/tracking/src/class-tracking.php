@@ -103,9 +103,9 @@ class Tracking {
 			true
 		);
 
-		if ( ! $enqueue ) {
-			// Register jp-tracks-functions script.
-			wp_register_script(
+		if ( $enqueue ) {
+			// Enqueue jp-tracks-functions script.
+			wp_enqueue_script(
 				'jp-tracks-functions',
 				Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
 				array( 'jp-tracks' ),
@@ -113,8 +113,8 @@ class Tracking {
 				true
 			);
 		} else {
-			// Enqueue jp-tracks-functions script.
-			wp_enqueue_script(
+			// Register jp-tracks-functions script.
+			wp_register_script(
 				'jp-tracks-functions',
 				Assets::get_file_url_for_environment( 'js/tracks-callables.js', 'js/tracks-callables.js', __FILE__ ),
 				array( 'jp-tracks' ),
