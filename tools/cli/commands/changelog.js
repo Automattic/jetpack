@@ -277,6 +277,13 @@ async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await changedProjects();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
+
+		// If we don't detect any modified projects, shortcircuit to default changelogger.
+		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
+			changelogArgs( argv );
+			return;
+		}
+
 		const changelogAll = await changelogAddPrompt( argv, needChangelog, uniqueProjects );
 
 		// Auto add the changelog files for the projects that we can:
@@ -295,24 +302,35 @@ async function changelogAdd( argv ) {
 						`Changelog file added to ${ needChangelog.length } project(s)! Returning to interactive mode for remaining projects.`
 					)
 				);
-			}
-			needChangelog.splice( 0, needChangelog.length );
-		}
-
-		// If not auto adding, or if there are special configurations, prompt for each one:
-		if ( ! changelogAll.autoAdd || uniqueProjects ) {
-			argv.auto = false;
-			const totalProjects = [ ...needChangelog, ...uniqueProjects ];
-			for ( const proj of totalProjects ) {
-				argv.args = [];
-				argv.project = proj;
-				console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
-				await changelogArgs( argv );
+				needChangelog.splice( 0, needChangelog.length );
+				autoPrompter( argv, needChangelog, uniqueProjects );
 			}
 			return;
 		}
-	} else {
-		changelogArgs( argv );
+
+		if ( changelogAll.autoPrompt ) {
+			autoPrompter( argv, needChangelog, uniqueProjects );
+			return;
+		}
+	}
+	changelogArgs( argv );
+}
+
+/**
+ * Prompts the changelogger automattically for reach project that needs one.
+ *
+ * @param {object} argv - arguments passed.
+ * @param {Array} needChangelog - projects that need changelog.
+ * @param {Array} uniqueProjects - projects with custom configs.
+ */
+async function autoPrompter( argv, needChangelog, uniqueProjects ) {
+	argv.auto = false;
+	const totalProjects = [ ...needChangelog, ...uniqueProjects ];
+	for ( const proj of totalProjects ) {
+		argv.args = [];
+		argv.project = proj;
+		console.log( chalk.green( `Running changelogger for ${ argv.project }` ) );
+		await changelogArgs( argv );
 	}
 }
 
@@ -518,20 +536,46 @@ async function promptChangelog( argv ) {
  * @returns {argv}.
  */
 async function changelogAddPrompt( argv, needChangelog, uniqueProjects ) {
-	if ( uniqueProjects.length === 0 ) {
+	const totalProjects = [ ...needChangelog, ...uniqueProjects ];
+	if ( uniqueProjects.length === 0 && needChangelog.length > 1 ) {
+		const response = await inquirer.prompt(
+			{
+				type: 'confirm',
+				name: 'autoAdd',
+				message: `Found ${ needChangelog.length } project(s) of the same type that need a changelog. Add same changelog to all projects?`,
+			},
+			{
+				type: 'confirm',
+				name: 'autoPrompt',
+				message: `Walk through each project manually?`,
+				when: answers => ! answers.autoAdd,
+			}
+		);
+		return response;
+	}
+
+	if ( totalProjects.length === 1 ) {
 		const response = await inquirer.prompt( {
 			type: 'confirm',
-			name: 'autoAdd',
-			message: `Found ${ needChangelog.length } project(s) of the same type that need a changelog. Add same changelog to all projects?`,
+			name: 'autoPrompt',
+			message: `Add changelog for ${ totalProjects[ 0 ] }?`,
 		} );
 		return response;
 	}
 
-	const response = await inquirer.prompt( {
-		type: 'confirm',
-		name: 'autoAdd',
-		message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires manual configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
-	} );
+	const response = await inquirer.prompt( [
+		{
+			type: 'confirm',
+			name: 'autoAdd',
+			message: `Found ${ needChangelog.length } projects that can accept the same changelog file.\n  Found ${ uniqueProjects.length } project(s) that requires manual configuration. \n  Add same changelog file to ${ needChangelog.length } project(s)?`,
+		},
+		{
+			type: 'confirm',
+			name: 'autoPrompt',
+			message: `Walk through each project manually?`,
+			when: answers => ! answers.autoAdd,
+		},
+	] );
 	return response;
 }
 
