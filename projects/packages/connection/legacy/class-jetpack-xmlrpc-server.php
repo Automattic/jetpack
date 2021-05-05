@@ -247,7 +247,8 @@ class Jetpack_XMLRPC_Server {
 
 		wp_set_current_user( $request['state'] );
 
-		$result = $this->connection->authorize( $request );
+//		$result = $this->connection->authorize( $request );
+		$result = new WP_Error( 'uh_oh', 'some_error' );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result, 'remote_authorize' );
