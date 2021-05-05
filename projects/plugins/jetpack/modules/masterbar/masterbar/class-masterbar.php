@@ -122,10 +122,12 @@ class Masterbar {
 		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
-		// Store and install user locale.
-		$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
-		$this->install_locale( $this->user_locale );
-		update_user_option( $this->user_id, 'locale', $this->user_locale, true );
+		// If Atomic, store and install user locale.
+		if ( jetpack_is_atomic_site() ) {
+			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
+			$this->install_locale( $this->user_locale );
+			update_user_option( $this->user_id, 'locale', $this->user_locale, true );
+		}
 
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
@@ -197,8 +199,9 @@ class Masterbar {
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
 
-		// Hides and replaces the language dropdown for the current user.
-		if ( empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// Hides and replaces the language dropdown for the current user, on Atomic.
+		if ( jetpack_is_atomic_site() &&
+			empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
 			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ) );
 		}
