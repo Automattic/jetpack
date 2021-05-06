@@ -3,7 +3,7 @@
  */
 const path = require( 'path' );
 const config = require( 'config' );
-const logger = require( '../logger' ).default;
+const logger = require( '../logger' );
 const { fileNameFormatter } = require( '../utils-helper' );
 
 /**
@@ -17,7 +17,7 @@ const { fileNameFormatter } = require( '../utils-helper' );
 async function takeScreenshot( page, fileName, logToSlack = false ) {
 	try {
 		const filePath = path.resolve(
-			config.screenshotsDir,
+			config.get( 'dirs.screenshots' ),
 			`${ fileNameFormatter( fileName ) }.png`
 		);
 		await page.screenshot( { path: filePath, fullPage: true } );

@@ -28,12 +28,11 @@
 	}
 
 	@include break-large-up() {
-		margin-top: 32px;
 		position: absolute;
 		right: $sidebar-width;
 	}
 
 	.jetpack-instant-search__overlay--no-sidebar & {
-		right: $results-margin-lg;
+		right: 0;
 	}
 }

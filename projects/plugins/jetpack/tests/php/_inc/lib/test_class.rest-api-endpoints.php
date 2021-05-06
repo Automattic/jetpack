@@ -412,18 +412,14 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status() {
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		wp_set_current_user( $user->ID );
-
 		// Mock a connection
-		Jetpack_Options::update_option( 'master_user', $user->ID );
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection' );
 
-		// Success, authenticated user and connected site
+		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array(
 			'isActive'    => true,
@@ -445,20 +441,15 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status_staging() {
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		wp_set_current_user( $user->ID );
-
-		// Mock a connection
-		Jetpack_Options::update_option( 'master_user', $user->ID );
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
 		add_filter( 'jetpack_is_staging_site', '__return_true' );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection' );
 
-		// Success, authenticated user and connected site
+		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array(
 			'isActive'    => true,
@@ -574,6 +565,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
 		// Create REST request in JSON format and dispatch

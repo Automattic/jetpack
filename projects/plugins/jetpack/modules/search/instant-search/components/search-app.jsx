@@ -17,6 +17,7 @@ import stringify from 'fast-json-stable-stringify';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
@@ -58,9 +59,12 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		// By debouncing this upon mounting, we avoid making unnecessary requests.
+		//
+		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
+		//      Once our Redux effects have executed, the search query will be updated to "apple" and
+		//      getResults will be invoked once more.
 		this.getResults();
-		this.getResults.flush();
-
 		this.addEventListeners();
 		this.disableAutocompletion();
 
@@ -105,6 +109,13 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		// NOTE: Summoned overlay will not automatically be scrolled to the top
+		//       when used in conjuction with slideInUp animation.
+		// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	removeEventListeners() {
@@ -123,6 +134,10 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	disableAutocompletion() {
@@ -138,6 +153,20 @@ class SearchApp extends Component {
 
 	restoreBodyScroll() {
 		document.body.style.overflowY = null;
+	}
+
+	scrollOverlayToTop( event ) {
+		if ( event?.propertyName !== 'transform' ) {
+			return;
+		}
+		const overlay = event.target;
+		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
+		if ( overlay.scrollTo ) {
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			overlay.scrollTo( 0, 0 );
+		} else {
+			overlay.scrollTop = 0;
+		}
 	}
 
 	getResultFormat = () => {
@@ -224,11 +253,6 @@ class SearchApp extends Component {
 		);
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-		this.preventBodyScroll();
-	};
-
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -241,11 +265,25 @@ class SearchApp extends Component {
 		);
 	};
 
+	// Used for showResults and Customizer integration.
 	toggleResults = showResults => {
+		// Necessary when reacting to onMessage transport Customizer controls.
+		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
+		if ( this.state.showResults === showResults ) {
+			return;
+		}
+
 		this.setState( { showResults }, () => {
-			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
+			if ( showResults ) {
+				this.preventBodyScroll();
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
 		} );
 	};
+
+	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
@@ -320,6 +358,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body

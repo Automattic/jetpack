@@ -1,4 +1,4 @@
-## 9.5
+## 9.7
 
 ### Before you start
 
@@ -6,54 +6,44 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
-### Blocks
+### Connection Flow
 
-We've updated several blocks to ensure full compatibility with the upcoming version of WordPress, 5.7. To test those changes, you'll want to try inserting different blocks on your site, whether it runs WordPress 5.6 or WordPress 5.7 Beta. You'll want to take extra attention to the toolbar buttons that appear above each block in the editor. Those toolbars should keep working just like before. Here is a full list of the blocks that were updated:
+We've made several changes to Jetpack's connection flow in this release.
 
-- Business Hours
-- Calendly
-- Contact Form
-- Donations
-- Eventbrite
-- Gathering Tweetstorms ("unroll" feature appearing in the toolbar when embedding a Twitter thread)
-- Map
-- Pay With Paypal
-- Payments
-- Pinterest
-- Podcast Player
-- Premium Content
-- Publicize
-- WhatsApp
-- Slideshow
-- Tiled Gallery
-- Video
+The first change you'll find is when browsing your site when Jetpack is active, but not connected to WordPress.com yet. You should see messages inviting you to connect to WordPress.com in 3 new screens:
 
+- Appearance > Widgets
+- Media
+- The main Posts screen if you've published 5 posts or more.
 
-### Dashboard
+Give those messages a try, and let us know how it goes.
 
-This release introduces a new banner, appearing in the main dashboard and on the Plugins page once you've connected Jetpack to WordPress.com. To test, try the following:
+You'll also want to try connecting your site to WordPress.com in different browsers, while logged in or logged out of your WordPress.com account, and ensure that connection is always possible.
 
-* On a new site visit wp-admin. Verify that the dashboard banner displays.
-* Do one of the following:
-    * Select some options and click continue. If you chose store, verify that you are taken to the WooCommerce prompt. If not, verify that you are taken to the Monitor prompt. Return to the wp-admin dashboard and verify that the dashboard banner does not display.
-    * Dismiss the banner and reload the page, verifying that it does not display.
+In addition to that, we would recommend that you go through the Jetpack Settings screen after connecting to WordPress.com. Ensure that you can enable all features, apart from those that require a paid plan.
 
-### Tiled Galleries
+### Carousel
 
-Tiled Galleries now work without the need of jQuery. To test that the galleries still work, try the following:
+We've made improvements to the Carousel feature in this release. To test it, try the following:
 
-1. Follow [instructions to set up tiled galleries](https://jetpack.com/support/tiled-galleries/).
-2. Create 2 new posts:
-    - One using a classic block, and a tiled gallery in that block
-    - One using a Tiled Gallery block
-3. Ensure that in both scenarios, tiled galleries still work, regardless of the gallery type (square, circle, colunmns...) you choose.
+1. Go to Jetpack > Settings in your dashboard, and ensure that the Carousel feature is enabled.
+2. Scroll down to the bottom of the page, click on the "Modules" menu item, and ensure the Tiled Galleries feature is enabled in the Module list.
+3. Go to Posts > Add New, and add media to your post in different ways:
+	- single image block linking to an attachment page
+	- tiled gallery
+	- gallery block
+	- gallery in a classic block
+	- tiled gallery in a classic block
 
-### Related Posts
+You'll want to make sure Carousel works as expected in all scenarios, in different browsers. You can also test things when disabling Jetpack's Site Accelerator under Jetpack > Settings > Performance.
 
-We've also worked on improving the performance of Related Posts. To test that they still work, try the following:
+### Plugin, theme, feature management on WordPress.com
 
-1. Enable Related posts under Jetpack > Settings
-2. Ensure that related posts appear at the bottom of your posts, when you have a sufficient amount of posts and when those posts have been synced with WordPress.com.
-3. Ensure that Related Posts blocks added to any post are displayed properly.
+Once you've connected your site to your WordPress.com account, you'll want to make sure you can install and manage plugins and themes from the WordPress.com dashboard. To test this, go to [wordpress.com/plugins](https://wordpress.com/plugins) and [wordpress.com/themes](https://wordpress.com/themes) and try interacting with your site.
+You can also test deactivating and activating features from the Settings screen on WordPress.com ([wordpress.com/settings](https://wordpress.com/settings)).
+
+Try making those tests with your browser's Network panel opened. If you experience issues, copy the response of the matching request in the network tools, like so:
+
+![image](https://user-images.githubusercontent.com/426388/116233578-c2620b80-a75b-11eb-9729-2b35d1d7c108.png)
 
 **Thank you for all your help!**

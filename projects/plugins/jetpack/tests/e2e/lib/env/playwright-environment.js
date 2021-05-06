@@ -4,7 +4,7 @@ const os = require( 'os' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const logger = require( '../logger' ).default;
+const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
@@ -31,7 +31,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.newContext();
 
 		this.global.siteUrl = fs
-			.readFileSync( path.resolve( config.get( 'configDir' ), 'e2e_tunnels.txt' ), 'utf8' )
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
 			.replace( 'http:', 'https:' );
 	}
 
@@ -43,10 +43,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	async handleTestEvent( event ) {
 		let eventName;
 
-		if ( event.test ) {
-			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
-		} else if ( event.hook ) {
+		if ( event.hook ) {
 			eventName = `${ event.hook.type } - ${ event.hook.parent.name }`;
+		} else if ( event.test ) {
+			eventName = `${ event.test.parent.name } - ${ event.test.name }`;
 		} else {
 			eventName = event.name;
 		}
@@ -250,7 +250,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 			try {
 				const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 				fileName = `${ fileNameFormatter( fileName ) }.html`;
-				const filePath = path.resolve( config.logsDir, fileName );
+				const filePath = path.resolve( config.get( 'dirs.logs' ), fileName );
 				fs.writeFileSync( filePath, bodyHTML );
 				logger.debug( `Page saved: ${ filePath }` );
 			} catch ( error ) {

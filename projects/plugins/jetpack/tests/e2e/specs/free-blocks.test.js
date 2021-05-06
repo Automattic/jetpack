@@ -1,12 +1,18 @@
-/**
- * Internal dependencies
- */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
 import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
 import { step } from '../lib/env/test-setup';
+import config from 'config';
+
+/**
+ *
+ * @group post-connection
+ * @group free-blocks
+ * @group blocks
+ * @group gutenberg
+ */
 
 describe( 'Free blocks', () => {
 	let blockEditor;
@@ -21,7 +27,7 @@ describe( 'Free blocks', () => {
 	} );
 
 	it( 'Pinterest block', async () => {
-		const pinId = '180003316347175596';
+		const pinId = config.get( 'blocks.pinterest.pinId' );
 
 		await step( 'Can visit the block editor and add a Pinterest block', async () => {
 			const blockId = await blockEditor.insertBlock(

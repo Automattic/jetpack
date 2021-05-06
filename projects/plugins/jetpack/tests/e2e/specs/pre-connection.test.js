@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
@@ -12,6 +9,10 @@ import config from 'config';
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
 
+/**
+ *
+ * @group pre-connection
+ */
 describe( 'Jetpack pre-connection', () => {
 	beforeAll( async () => {
 		await execMultipleWpCommands(
@@ -28,8 +29,7 @@ describe( 'Jetpack pre-connection', () => {
 	afterAll( async () => {
 		await execWpCommand(
 			`wp option update jetpack_private_options --format=json < ${ path.resolve(
-				config.get( 'configDir' ),
-				'jetpack-private-options.txt'
+				config.get( 'temp.jetpackPrivateOptions' )
 			) }`
 		);
 	} );

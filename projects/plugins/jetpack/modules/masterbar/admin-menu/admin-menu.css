@@ -67,21 +67,17 @@
 	padding: 10px 0 10px 8px;
 }
 
+/**
+ * Site icon inline-styles for height and width are defined in set_site_icon_inline_styles
+ */
 #adminmenu .toplevel_page_site-card .wp-menu-image {
 	background-image: none;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: 18px 18px;
-	height: 32px;
 	transform: translateZ(0);
 	transition-property: background-image,background-color;
 	transition-duration: .2s;
-	width: 32px;
-}
-
-#adminmenu .toplevel_page_site-card .wp-menu-image img {
-	height: auto;
-	max-width: 100%;
 }
 
 #adminmenu a.toplevel_page_site-card:hover,
@@ -95,7 +91,6 @@
 
 #adminmenu .toplevel_page_site-card.has-site-icon img {
 	padding: 0;
-	max-width: 100%;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
@@ -163,6 +158,18 @@
 	margin-top: 6px;
 	margin-right: 3px;
 	padding: 1px 10px;
+}
+
+/**
+ * Inline text in a menu title
+ */
+.inline-text {
+	display: block !important;
+	position: absolute;
+	right: 20px;
+	top: 50%;
+	transform: translateY( -50% );
+	opacity: 0.8;
 }
 
 /**
@@ -254,6 +261,12 @@
 	.auto-fold #adminmenu li.toplevel_page_site-card a {
 		padding: 18px 0 18px 12px;
 	}
+}
+
+/* Prevent box-shadow at the top of the sidebar */
+#adminmenu .site-switcher:hover,
+#adminmenu .toplevel_page_site-card:hover {
+	box-shadow: none;
 }
 
 /*

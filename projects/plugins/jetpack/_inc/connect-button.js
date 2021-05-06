@@ -79,6 +79,7 @@ jQuery( document ).ready( function ( $ ) {
 				data: {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
+					from: connectButtonFrom,
 				},
 				error: jetpackConnectButton.handleConnectionError,
 				success: jetpackConnectButton.handleConnectionSuccess,
@@ -99,15 +100,13 @@ jQuery( document ).ready( function ( $ ) {
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
 			jetpackConnectIframe.attr(
 				'src',
-				data.authorizeUrl +
-					'&from=' +
-					connectButtonFrom +
-					'&iframe_source=jetpack-connect-main' +
-					( jpConnect.isUserless ? '&userless=1' : '' )
+				data.authorizeUrl + '&from=' + connectButtonFrom + '&iframe_source=jetpack-connect-main'
 			);
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
+				$( '#jp-connect-full__step1-header' ).hide();
+				$( '#jp-connect-full__step2-header' ).show();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );

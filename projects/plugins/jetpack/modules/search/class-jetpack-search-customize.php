@@ -75,6 +75,30 @@ class Jetpack_Search_Customize {
 			)
 		);
 
+		$id = $setting_prefix . 'result_format';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'   => 'minimal',
+				'transport' => 'postMessage',
+				'type'      => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'label'       => __( 'Result Format', 'jetpack' ),
+				'description' => __( 'Choose how the search results look.', 'jetpack' ),
+				'section'     => $section_id,
+				'type'        => 'select',
+				'choices'     => array(
+					'minimal'  => __( 'Minimal', 'jetpack' ),
+					'expanded' => __( 'Expanded (shows images)', 'jetpack' ),
+					'product'  => __( 'Product (for WooCommerce stores)', 'jetpack' ),
+				),
+			)
+		);
+
 		$id = $setting_prefix . 'default_sort';
 		$wp_customize->add_setting(
 			$id,
@@ -134,34 +158,10 @@ class Jetpack_Search_Customize {
 				$wp_customize,
 				$id,
 				array(
-					'description' => __( 'Choose post types to exclude from search results.', 'jetpack' ),
+					'description' => __( 'Choose post types to exclude from search results. You must leave at least one post type unchecked.', 'jetpack' ),
 					'label'       => __( 'Excluded Post Types', 'jetpack' ),
 					'section'     => $section_id,
 				)
-			)
-		);
-
-		$id = $setting_prefix . 'result_format';
-		$wp_customize->add_setting(
-			$id,
-			array(
-				'default'   => 'minimal',
-				'transport' => 'postMessage',
-				'type'      => 'option',
-			)
-		);
-		$wp_customize->add_control(
-			$id,
-			array(
-				'label'       => __( 'Result Format', 'jetpack' ),
-				'description' => __( 'Choose how the search results look.', 'jetpack' ),
-				'section'     => $section_id,
-				'type'        => 'select',
-				'choices'     => array(
-					'minimal'  => __( 'Minimal', 'jetpack' ),
-					'expanded' => __( 'Expanded (shows images)', 'jetpack' ),
-					'product'  => __( 'Product (for WooCommerce stores)', 'jetpack' ),
-				),
 			)
 		);
 

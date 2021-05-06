@@ -279,6 +279,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				controls,
 				loop,
 				muted,
+				playsinline,
 				poster,
 				preload,
 				videoPressClassNames,
@@ -320,6 +321,11 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ __( 'Playback Controls', 'jetpack' ) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
+							/>
+							<ToggleControl
+								label={ __( 'Play Inline', 'jetpack' ) }
+								onChange={ this.toggleAttribute( 'playsinline' ) }
+								checked={ playsinline }
 							/>
 							<SelectControl
 								label={ __( 'Preload', 'jetpack' ) }
@@ -491,6 +497,7 @@ export default createHigherOrderComponent(
 				guid,
 				loop,
 				muted,
+				playsinline,
 				poster,
 				preload,
 				seekbarColor,
@@ -505,6 +512,7 @@ export default createHigherOrderComponent(
 				controls,
 				loop,
 				muted,
+				playsinline,
 				poster,
 				preload,
 				seekbarColor,

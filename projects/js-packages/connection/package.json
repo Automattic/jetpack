@@ -1,0 +1,27 @@
+{
+	"name": "@automattic/jetpack-connection",
+	"version": "0.1.1-alpha",
+	"description": "Jetpack Connection Component",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"dependencies": {
+		"@wordpress/browserslist-config": "3.0.1",
+		"@wordpress/i18n": "^3.9.0",
+		"prop-types": "^15.7.2"
+	},
+	"devDependencies": {
+		"nyc": "15.1.0"
+	},
+	"peerDependencies": {
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1"
+	},
+	"type": "module",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"scripts": {
+		"test": "NODE_ENV=test NODE_PATH=tests:. ../../../tools/js-test-runner.js --jsdom --initfile=../../../tools/js-test-init-enzyme.js 'glob:./!(node_modules)/**/test/*.jsx'"
+	}
+}

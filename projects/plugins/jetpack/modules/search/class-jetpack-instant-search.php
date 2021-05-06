@@ -123,6 +123,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 		unset( $filter );
 
+		$has_non_search_widgets = false;
+		foreach ( $overlay_widget_ids as $overlay_widget_id ) {
+			if ( strpos( $overlay_widget_id, Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) === false ) {
+				$has_non_search_widgets = true;
+				break;
+			}
+		}
+
 		$post_type_objs   = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
 		$post_type_labels = array();
 		foreach ( $post_type_objs as $key => $obj ) {
@@ -191,6 +199,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
+			'hasNonSearchWidgets'   => $has_non_search_widgets,
 		);
 
 		/**
