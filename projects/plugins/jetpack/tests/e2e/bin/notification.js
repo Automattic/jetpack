@@ -31,7 +31,6 @@ yargs
 /**
  * Sends a Slack notification with test run results.
  * Content is built from test output (reports, logs, screenshots, etc.) and Github env variables.
- * Ideally should only run when failures are detected.
  *
  * @return {Promise<void>}
  */
@@ -52,7 +51,7 @@ async function reportTestRunResults() {
 	}
 
 	if ( results.length > 0 ) {
-		results.splice( 0, 0, 'Failed tests:' );
+		results.splice( 0, 0, `${ results.length } failed tests:` );
 	}
 
 	const block = {
@@ -65,13 +64,13 @@ async function reportTestRunResults() {
 
 	blocks.splice( 1, 0, block );
 
-	await sendMessage( blocks, { icon: isSuccess ? ':white_check_mark:' : ':red_circle:' } );
+	await sendMessage( blocks, {} );
 }
 
 /**
  * Sends a Slack notification with the result of a Github action job.
  * The job can include multiple test runs and we only want to report success or failure, without details.
- * This is useful as a heartbeat notification => send on success only, to know tests are still running and everything works fine
+ * This is useful as a heartbeat notification, if sent on success only, to know tests are still running and everything works fine
  *
  * @return {Promise<void>}
  */
@@ -81,6 +80,11 @@ async function reportJobRun() {
 	await sendMessage( buildDefaultMessage( true ), {} );
 }
 
+/**
+ * Pulls all Github information into a single object
+ *
+ * @return {Object} object with all information
+ */
 function getGithubInfo() {
 	const { GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
 	const event = JSON.parse( fs.readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
@@ -135,9 +139,9 @@ function buildDefaultMessage( isSuccess ) {
 		},
 	];
 
-	let headerText = isSuccess
-		? `All tests passed for against '${ gh.branch.name }' branch`
-		: `There are test failures against '${ gh.branch.name }' branch`;
+	let headerText = `${ isSuccess ? 'All tests passed' : 'There are test failures' } against <${
+		gh.branch.url
+	}|${ gh.branch.name }> branch`;
 
 	if ( gh.pr ) {
 		buttons.push( {
@@ -150,16 +154,16 @@ function buildDefaultMessage( isSuccess ) {
 			style: btnStyle,
 		} );
 
-		headerText = isSuccess
-			? `All tests passed for PR '${ gh.pr.title }'`
-			: `There are test failures for PR '${ gh.pr.title }'`;
+		headerText = `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR <${
+			gh.pr.url
+		}|${ gh.pr.title }>`;
 	}
 
 	return [
 		{
-			type: 'header',
+			type: 'section',
 			text: {
-				type: 'plain_text',
+				type: 'mrkdwn',
 				text: headerText,
 			},
 		},
