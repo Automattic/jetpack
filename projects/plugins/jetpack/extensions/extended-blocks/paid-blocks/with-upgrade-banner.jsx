@@ -25,11 +25,11 @@ import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
 		const { name, className, clientId, isSelected, attributes, setAttributes } = props || {};
-		const { isParentBannerVisible, hasParentBanner } = useContext( PaidBlockContext ) || {};
+		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
 
 		const requiredPlan = getRequiredPlan( name );
 
-		if ( ! requiredPlan || isParentBannerVisible ) {
+		if ( ! requiredPlan ) {
 			return <BlockListBlock { ...props } />;
 		}
 
@@ -38,13 +38,17 @@ export default createHigherOrderComponent(
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
+		const [ isChildBannerVisible, setIsChildBannerVisible ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
-			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId ),
+			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
 			[]
 		);
-		const isBannerVisible = ( isSelected || hasChildrenSelected ) && isVisible;
+
+		// Banner should be not be displayed if one of its children is already displaying a banner.
+		const isBannerVisible =
+			( isSelected || hasChildrenSelected ) && isVisible && ! isChildBannerVisible;
 
 		const trackEventData = useMemo(
 			() => ( {
@@ -74,11 +78,20 @@ export default createHigherOrderComponent(
 		// Hide Banner when block changes its attributes (dual Mode).
 		useEffect( () => setIsVisible( ! isDualMode ), [ attributes, setIsVisible, isDualMode ] );
 
-		// Record whether the banner should be displayed on the frontend
+		// Record whether the banner should be displayed on the frontend.
 		useEffect( () => {
-			// Do not display the frontend banner if a parent block is already displaying it.
+			// Do not display the frontend banner for nested paid blocks.
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
+
+		// Set isChildBannerVisible for parent block.
+		useEffect( () => {
+			// onChildBannerVisibilityChange sets isChildBannerVisible for our parent paid block.
+			// It is undefined if this block has no parent paid block.
+			if ( onChildBannerVisibilityChange ) {
+				onChildBannerVisibilityChange( isBannerVisible || isChildBannerVisible );
+			}
+		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
 
 		// Set banner CSS classes depending on its visibility.
 		const listBlockCSSClass = classNames( className, {
@@ -88,7 +101,7 @@ export default createHigherOrderComponent(
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
-				isParentBannerVisible={ isBannerVisible || isParentBannerVisible }
+				onChildBannerVisibilityChange={ setIsChildBannerVisible }
 				hasParentBanner
 			>
 				<UpgradePlanBanner
