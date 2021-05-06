@@ -139,7 +139,7 @@ class SupportCard extends React.Component {
 					! this.props.hasConnectedOwner && (
 						<JetpackBanner
 							title={ __(
-								'Connect and upgrade to get a faster resolution to your support questions.',
+								'Connect your WordPress.com account and upgrade to get a faster resolution to your support questions.',
 								'jetpack'
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }

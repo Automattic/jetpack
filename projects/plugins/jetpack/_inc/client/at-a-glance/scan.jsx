@@ -269,7 +269,7 @@ class DashScan extends Component {
 			<JetpackBanner
 				callToAction={ __( 'Connect', 'jetpack' ) }
 				title={ __(
-					'Connect your user account to upgrade to Jetpack Scan and protect your site from security threats with automated scanning.',
+					'Connect your WordPress.com account to upgrade to Jetpack Scan and protect your site from security threats with automated scanning.',
 					'jetpack'
 				) }
 				disableHref="false"

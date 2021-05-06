@@ -123,7 +123,7 @@ class DashAkismet extends Component {
 				<JetpackBanner
 					callToAction={ __( 'Connect', 'jetpack' ) }
 					title={ __(
-						'Connect your user account to upgrade and automatically clear spam from comments and forms',
+						'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms',
 						'jetpack'
 					) }
 					disableHref="false"

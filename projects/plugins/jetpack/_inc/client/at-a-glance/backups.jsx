@@ -161,7 +161,7 @@ class DashBackups extends Component {
 					<JetpackBanner
 						callToAction={ __( 'Connect', 'jetpack' ) }
 						title={ __(
-							'Connect your user account to upgrade and get automatic backups that keep your content safe.',
+							'Connect your WordPress.com account to upgrade and get automatic backups that keep your content safe.',
 							'jetpack'
 						) }
 						disableHref="false"
