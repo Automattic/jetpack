@@ -6,6 +6,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 . tools/includes/chalk-lite.sh
 
 EXIT=0
+JQWARNED=false
 
 # Compare two files, with optional delimiters.
 # $1 - First file.
@@ -79,6 +80,17 @@ compare () {
 # $2 - Second file.
 # $3 - jq style path expression.
 compareJSON () {
+	if ! command -v jq &> /dev/null; then
+		if [[ -z "$CI" ]]; then
+			$JQWARNED || warn "Command jq is not found, skipping checks for copied JSON paths."
+		else
+			$JQWARNED || error "Command jq is not found, cannot check for copied JSON paths."
+			EXIT=1
+		fi
+		JQWARNED=true
+		return
+	fi
+
 	local JSPATH=$(jq -n "path( $3 )" 2>/dev/null)
 	if [[ -z "$JSPATH" ]]; then
 		[[ -n "$CI" ]] && printf '::error::'
