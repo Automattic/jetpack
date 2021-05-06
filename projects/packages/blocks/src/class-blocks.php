@@ -77,7 +77,6 @@ class Blocks {
 						),
 					)
 				);
-
 				if ( isset( $args['render_callback'] ) ) {
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 				}
