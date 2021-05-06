@@ -723,11 +723,6 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
-
-		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
-
 		require_once JETPACK__PLUGIN_DIR . 'class-jetpack-pre-connection-jitms.php';
 		$jetpack_jitm_messages = ( new Jetpack_Pre_Connection_JITMs() );
 		add_filter( 'jetpack_pre_connection_jitms', array( $jetpack_jitm_messages, 'add_pre_connection_jitms' ) );
@@ -771,11 +766,6 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
-
-		/**
-		 * These are sync actions that we need to keep track of for jitms
-		 */
-		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
 
 		// Actually push the stats on shutdown.
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
@@ -1097,27 +1087,17 @@ class Jetpack {
 		return $callables;
 	}
 
+	/**
+	 * Deprecated
+	 * Please use Automattic\Jetpack\JITMS\JITM::jetpack_track_last_sync_callback instead.
+	 *
+	 * @param array $params The action parameters.
+	 *
+	 * @deprecated since 9.8.
+	 */
 	function jetpack_track_last_sync_callback( $params ) {
-		/**
-		 * Filter to turn off jitm caching
-		 *
-		 * @since 5.4.0
-		 *
-		 * @param bool false Whether to cache just in time messages
-		 */
-		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
-			return $params;
-		}
-
-		if ( is_array( $params ) && isset( $params[0] ) ) {
-			$option = $params[0];
-			if ( 'active_plugins' === $option ) {
-				// use the cache if we can, but not terribly important if it gets evicted
-				set_transient( 'jetpack_last_plugin_sync', time(), HOUR_IN_SECONDS );
-			}
-		}
-
-		return $params;
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\Automattic\Jetpack\JITMS\JITM->jetpack_track_last_sync_callback' );
+		return Automattic\Jetpack\JITMS\JITM::get_instance()->jetpack_track_last_sync_callback( $params );
 	}
 
 	function jetpack_connection_banner_callback() {
@@ -4188,21 +4168,8 @@ p {
 
 				add_thickbox();
 
-				wp_register_script(
-					'jp-tracks',
-					'//stats.wp.com/w.js',
-					array(),
-					gmdate( 'YW' ),
-					true
-				);
-
-				wp_register_script(
-					'jp-tracks-functions',
-					plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-					array( 'jp-tracks' ),
-					JETPACK__VERSION,
-					false
-				);
+				// Register jp-tracks-functions dependency.
+				Tracking::register_tracks_functions_scripts();
 
 				wp_enqueue_script(
 					'jetpack-deactivate-dialog-js',

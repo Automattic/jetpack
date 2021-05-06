@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Hide Settings page for non-admin users when in site-only connection

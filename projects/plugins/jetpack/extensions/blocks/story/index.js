@@ -58,7 +58,7 @@ export const settings = {
 	attributes,
 	supports: {
 		html: false,
-		inserter: Platform.OS !== 'web', // false for web, true for mobile
+		inserter: process.env.NODE_ENV !== 'production' || Platform.OS !== 'web', // false for web, true for mobile
 	},
 	icon: {
 		src: icon,

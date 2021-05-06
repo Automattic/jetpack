@@ -14,6 +14,12 @@ import {
 	disableSearchModule,
 } from '../lib/search-helper';
 
+/**
+ *
+ * @group post-connection
+ * @group search
+ *
+ */
 describe( 'Search', () => {
 	let homepage;
 	let backupSidebarsWidgets;

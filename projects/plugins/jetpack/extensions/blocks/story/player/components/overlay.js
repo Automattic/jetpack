@@ -9,7 +9,7 @@ import GridiconFullscreen from 'gridicons/dist/fullscreen';
 /**
  * WordPress dependencies
  */
-import { createElement, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**

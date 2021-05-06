@@ -104,7 +104,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ this.props.connectLegend || __( 'Unlink me from WordPress.com', 'jetpack' ) }
+						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
 					</a>
 				</div>
 			);
@@ -121,7 +121,8 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com', 'jetpack' );
+			connectLegend =
+				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
 
 		// Secondary users in-place connection flow
 
