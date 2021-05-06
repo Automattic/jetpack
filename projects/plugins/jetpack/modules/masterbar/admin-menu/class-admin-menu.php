@@ -379,11 +379,15 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) {
+		$this->hide_submenu_page( 'options-general.php', 'sharing' );
+
+		// There is not complete feature parity between WP Admin and Calypso settings https://github.com/Automattic/wp-calypso/issues/51189.
+		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
+
 		if ( $wp_admin ) {
 			return;
 		}
-
-		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
 
 		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
 		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
@@ -413,8 +417,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 
 		if ( ! $is_menu_updated ) {
-			// Remove the submenu auto-created by Core.
-			$this->hide_submenu_page( 'jetpack', 'jetpack' );
+			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
+			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
 
