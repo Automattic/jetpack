@@ -16,6 +16,7 @@ import promptForProject from '../helpers/promptForProject';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { normalizeProject } from '../helpers/normalizeArgv';
 import { allProjects, projectTypes } from '../helpers/projectHelpers';
+import { readComposerJson } from '../helpers/json';
 
 /**
  * Comand definition for changelog subcommand.
@@ -248,16 +249,7 @@ async function changelogCommand( argv ) {
 async function checkSpecialProjects( needChangelog ) {
 	const specialProjects = [];
 	for ( const proj of needChangelog ) {
-		const projPath = path.join( __dirname, '../../..', 'projects/', proj, '/composer.json' );
-		const rawComposerFile = fs.readFileSync( projPath, err => {
-			if ( err ) {
-				throw new Error(
-					chalk.red( `Couldn't read the composer.json file for the project!` ),
-					err
-				);
-			}
-		} );
-		const composerJSON = JSON.parse( rawComposerFile );
+		const composerJSON = readComposerJson( proj );
 		// todo - handle duplicate special projects with the same type of requirements.
 		// todo - If we want to generate changelogger questions dynamically, we can push the entire composerJSON.extra.changelogger.types object.
 		if ( composerJSON.extra.changelogger && composerJSON.extra.changelogger.types ) {
