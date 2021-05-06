@@ -76,7 +76,7 @@ export async function doInPlaceConnection() {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
-export async function doUserlessConnection() {
+export async function doSiteLevelConnection() {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.forceVariation( 'in_place' );
 	await jetpackPage.connect();
