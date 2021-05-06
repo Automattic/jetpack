@@ -180,8 +180,10 @@ class Jetpack_RelatedPosts {
 
 		if ( ! $this->_found_shortcode && ! doing_filter( 'get_the_excerpt' ) ) {
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+				// Render related posts server-side. Styles are enqueued by render_block.
 				$content .= "\n" . $this->get_server_rendered_html();
 			} else {
+				// Enqueue styles and scripts used to fetch and display related posts client-side.
 				$this->_enqueue_assets( true, true );
 				$content .= "\n" . $this->get_client_rendered_html();
 			}
@@ -363,7 +365,8 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		// Enqueue assets.
+		// Enqueue styles for Related Posts. We do not need to enqueue the scripts, as the related posts are
+		// fetched server-side.
 		$this->_enqueue_assets( false, true );
 
 		$block_attributes = array(
