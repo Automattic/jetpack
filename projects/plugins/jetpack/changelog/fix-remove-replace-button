@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Media Buttons: don't show duplicate buttons when a featured image is selected

@@ -50,6 +50,12 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			const { name } = useBlockEditContext();
 			let { render } = props;
 
+			// Featured Image gets rendered twice in the Post sidebar when an image is selected.
+			// We only want the first of the two, which conveniently has a value prop
+			if ( isFeaturedImage( props ) && props.value === undefined ) {
+				return <></>;
+			}
+
 			if ( isAllowedBlock( name, render ) || isFeaturedImage( props ) ) {
 				const { allowedTypes, gallery = false, value = [] } = props;
 
