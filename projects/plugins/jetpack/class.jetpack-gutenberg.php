@@ -1046,29 +1046,44 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available = true;
-		$plan         = '';
-		$slug         = self::remove_extension_prefix( $slug );
+		$is_available   = true;
+		$plan           = '';
+		$slug           = self::remove_extension_prefix( $slug );
+		$features_data  = array();
+		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_atomic_site = jetpack_is_atomic_site();
 
 		// Check feature availability for Simple and Atomic sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM || jetpack_is_atomic_site() ) {
-			// Hit the WP COM API '/features' endpoint.
-			$response = Client::wpcom_json_api_request_as_blog(
-				sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) ),
-				Client::WPCOM_JSON_API_VERSION
-			);
+		if ( $is_simple_site || $is_atomic_site  ) {
 
-			if ( ! is_wp_error( $response ) ) {
-				$body = wp_remote_retrieve_body( $response );
-				if ( $body ) {
-					$features_data = json_decode( $body, true );
-					$is_available  = in_array( $slug, $features_data['active'], true );
-					if ( ! empty( $features_data['available'][ $slug ] ) ) {
-						$plan = $features_data['available'][ $slug ][0];
+			// Simple sites.
+			if ( $is_simple_site ) {
+				if ( ! class_exists( 'Store_Product_List' ) ) {
+					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+				}
+				$features_data = Store_Product_List::get_site_specific_features_data();
+			} else {
+				// Atomic sites.
+				// Hit the WP COM API '/features' endpoint.
+				$response = Client::wpcom_json_api_request_as_blog(
+					sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) ),
+					Client::WPCOM_JSON_API_VERSION
+				);
+	
+				if ( ! is_wp_error( $response ) ) {
+					$body = wp_remote_retrieve_body( $response );
+					if ( $body ) {
+						$features_data = json_decode( $body, true );
 					}
 				}
 			}
+
+			$is_available  = in_array( $slug, $features_data['active'], true );
+			if ( ! empty( $features_data['available'][ $slug ] ) ) {
+				$plan = $features_data['available'][ $slug ][0];
+			}
 		} else {
+			// Jetpack sites.
 			$is_available = Jetpack_Plan::supports( $slug );
 			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
