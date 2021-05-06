@@ -1,6 +1,7 @@
 /**
  * Components.
  */
+export { default as JetpackConnection } from './components/main';
 export { default as InPlaceConnection } from './components/in-place-connection';
 
 /**
