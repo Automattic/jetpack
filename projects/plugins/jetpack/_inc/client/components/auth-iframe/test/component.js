@@ -17,6 +17,7 @@ describe( 'AuthIframe', () => {
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		scrollToIframe: false,
 		hasConnectedOwner: false,
+		displayTOS: false,
 	};
 
 	describe( 'Initially (connect url still fetching)', () => {

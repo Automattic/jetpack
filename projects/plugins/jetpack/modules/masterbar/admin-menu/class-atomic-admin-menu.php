@@ -268,7 +268,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// No need to add a menu linking to WP Admin if there is already one.
 		if ( ! $wp_admin ) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php' );
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 		}
 	}
