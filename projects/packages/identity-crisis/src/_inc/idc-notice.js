@@ -1,4 +1,4 @@
-/* global idcL10n, jQuery, analytics, history, wpCookies */
+/* global idcL10n, analytics, wpCookies */
 
 ( function ( $ ) {
 	const restNonce = idcL10n.nonce,
@@ -82,7 +82,7 @@
 	/**
 	 * Cleare confirmation arguments from url.
 	 *
-	 * @param allowReload Should we allow reload.
+	 * @param {boolean} allowReload - Should we allow reload.
 	 */
 	function clearConfirmationArgsFromUrl( allowReload ) {
 		allowReload = 'undefined' === typeof allowReload ? false : allowReload;
@@ -172,6 +172,9 @@
 		} );
 	}
 
+	/**
+	 * Fix Jetpack Connection.
+	 */
 	function fixJetpackConnection() {
 		errorNotice.hide();
 		trackAndBumpMCStats( 'fix_connection' );
@@ -210,7 +213,7 @@
 	/**
 	 * Displays an error message from the REST endpoints we're hitting.
 	 *
-	 * @param {Object} error Object containing the errored response from the API
+	 * @param {object} error - Object containing the errored response from the API
 	 */
 	function displayErrorNotice( error ) {
 		const errorDescription = $( '.jp-idc-error__desc' );
@@ -226,11 +229,11 @@
 	 * This function will fire both a Tracks and MC stat.
 	 * It will make sure to format the event name properly for the given stat home.
 	 *
-	 * Tracks: Will be prefixed by 'jetpack_idc_' and use underscores.
-	 * MC: Will not be prefixed, and will use dashes.
+	 * Tracks Will be prefixed by 'jetpack_idc_' and use underscores.
+	 * MC Will not be prefixed, and will use dashes.
 	 *
-	 * @param eventName string
-	 * @param extraProps object
+	 * @param {string} eventName - name.
+	 * @param {object} extraProps - extra props.
 	 */
 	function trackAndBumpMCStats( eventName, extraProps ) {
 		if ( 'undefined' === typeof extraProps || 'object' !== typeof extraProps ) {
