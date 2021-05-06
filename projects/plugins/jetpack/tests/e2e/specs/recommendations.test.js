@@ -1,14 +1,18 @@
-/**
- * Internal dependencies
- */
 import { step } from '../lib/env/test-setup';
 import RecommendationsPage from '../lib/pages/wp-admin/recommendations';
 
+/**
+ *
+ * @group post-connection
+ * @group recommendations
+ *
+ */
 describe( 'Recommendations (Jetpack Assistant)', () => {
 	it( 'Recommendations (Jetpack Assistant)', async () => {
-		const recommendationsPage = await RecommendationsPage.visit( page );
+		let recommendationsPage;
 
 		await step( 'Navigate to the Recommendations module', async () => {
+			recommendationsPage = await RecommendationsPage.visit( page );
 			const isPageVisible = await recommendationsPage.areSiteTypeQuestionsVisible();
 			expect( isPageVisible ).toBeTruthy();
 			expect( recommendationsPage.isUrlInSyncWithStepName( 'site-type' ) ).toBeTruthy();
@@ -17,17 +21,10 @@ describe( 'Recommendations (Jetpack Assistant)', () => {
 		await step( 'Check Personal and Other checkboxes', async () => {
 			await recommendationsPage.checkPersonalSiteType();
 			await recommendationsPage.checkOtherSiteType();
-
-			const isPersonalAndOtherChecked =
-				( await recommendationsPage.isPersonalSiteTypeChecked() ) &&
-				( await recommendationsPage.isOtherSiteTypeChecked() );
-
-			const isBusinessAndStoreChecked =
-				( await recommendationsPage.isBusinessTypeUnchecked() ) &&
-				( await recommendationsPage.isStoreTypeUnchecked() );
-
-			expect( isPersonalAndOtherChecked ).toBeTruthy();
-			expect( isBusinessAndStoreChecked ).toBeFalsy();
+			expect( await recommendationsPage.isPersonalSiteTypeChecked() ).toBeTruthy();
+			expect( await recommendationsPage.isOtherSiteTypeChecked() ).toBeTruthy();
+			expect( await recommendationsPage.isBusinessTypeUnchecked() ).toBeFalsy();
+			expect( await recommendationsPage.isStoreTypeUnchecked() ).toBeFalsy();
 		} );
 
 		await step( 'Save answers and continue to the Monitor step', async () => {

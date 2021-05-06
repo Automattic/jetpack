@@ -168,9 +168,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_upgrades_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_upgrades_menu();
+		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
 
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
+		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
@@ -416,5 +417,104 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			'dashicons-layout',
 		);
 		$this->assertSame( $menu[61], $fse_menu );
+	}
+
+	/**
+	 * Check if the hidden menus are at the end of the submenu.
+	 */
+	public function test_if_the_hidden_menus_are_at_the_end_of_submenu() {
+		global $submenu;
+
+		$submenu = array(
+			'options-general.php' => array(
+				array( '', 'read', 'test-slug', '', '' ),
+				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', '' ),
+				array( '', 'read', 'test-slug', '' ),
+				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', '' ),
+			),
+		);
+
+		static::$admin_menu->sort_hidden_submenus();
+		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
+		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
+
+		$this->assertEquals( $submenu['options-general.php'][3], array( '', 'read', 'test-slug', '' ) );
+
+		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
+
+		$this->assertEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][6][4] );
+		$this->assertEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][7][4] );
+
+		$submenu = self::$submenu_data;
+	}
+
+	/**
+	 * Check if the parent menu is hidden when the submenus are hidden.
+	 *
+	 * @dataProvider hide_menu_based_on_submenu_provider
+	 *
+	 * @param array $menu_items The mock menu array.
+	 * @param array $submenu_items The mock submenu array.
+	 * @param array $expected The expected result.
+	 */
+	public function test_if_it_hides_menu_based_on_submenu( $menu_items, $submenu_items, $expected ) {
+		global $submenu, $menu;
+
+		$menu    = $menu_items;
+		$submenu = $submenu_items;
+
+		static::$admin_menu->hide_parent_of_hidden_submenus();
+
+		$this->assertEquals( $expected, $menu[0] );
+
+		// reset the menu arrays.
+		$menu    = self::$menu_data;
+		$submenu = self::$submenu_data;
+	}
+
+	/**
+	 * The data provider for test_if_it_hides_menu_based_on_submenu.
+	 *
+	 * @return array
+	 */
+	public function hide_menu_based_on_submenu_provider() {
+		return array(
+			array(
+				array(
+					array( '', 'non-existing-capability', 'test-slug', '', '' ),
+				),
+				array(
+					'test-slug' => array(
+						array(
+							'test',
+							'',
+							'',
+							'',
+							Base_Admin_Menu::HIDE_CSS_CLASS,
+						),
+					),
+				),
+				array( '', 'non-existing-capability', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+			),
+			array(
+				array(
+					array( '', 'read', 'test-slug', '', '' ),
+				),
+				array(
+					'test-slug' => array(
+						array(
+							'test',
+							'',
+							'test-slug',
+							'',
+							Base_Admin_Menu::HIDE_CSS_CLASS,
+						),
+					),
+				),
+				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+			),
+		);
 	}
 }

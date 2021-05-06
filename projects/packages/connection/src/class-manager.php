@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use WP_Error;
 use WP_User;
@@ -40,6 +41,16 @@ class Manager {
 	 * @var Plugin
 	 */
 	private $plugin = null;
+
+	/**
+	 * Holds extra parameters that will be sent along in the register request body.
+	 *
+	 * Use Manager::add_register_request_param to add values to this array.
+	 *
+	 * @since 9.7.0
+	 * @var array
+	 */
+	private static $extra_register_params = array();
 
 	/**
 	 * Initialize the object.
@@ -884,23 +895,26 @@ class Manager {
 		 */
 		$body = apply_filters(
 			'jetpack_register_request_body',
-			array(
-				'siteurl'            => site_url(),
-				'home'               => home_url(),
-				'gmt_offset'         => $gmt_offset,
-				'timezone_string'    => (string) get_option( 'timezone_string' ),
-				'site_name'          => (string) get_option( 'blogname' ),
-				'secret_1'           => $secrets['secret_1'],
-				'secret_2'           => $secrets['secret_2'],
-				'site_lang'          => get_locale(),
-				'timeout'            => $timeout,
-				'stats_id'           => $stats_id,
-				'state'              => get_current_user_id(),
-				'site_created'       => $this->get_assumed_site_creation_date(),
-				'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
-				'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
-				'current_user_email' => wp_get_current_user()->user_email,
-				'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+			array_merge(
+				array(
+					'siteurl'            => site_url(),
+					'home'               => home_url(),
+					'gmt_offset'         => $gmt_offset,
+					'timezone_string'    => (string) get_option( 'timezone_string' ),
+					'site_name'          => (string) get_option( 'blogname' ),
+					'secret_1'           => $secrets['secret_1'],
+					'secret_2'           => $secrets['secret_2'],
+					'site_lang'          => get_locale(),
+					'timeout'            => $timeout,
+					'stats_id'           => $stats_id,
+					'state'              => get_current_user_id(),
+					'site_created'       => $this->get_assumed_site_creation_date(),
+					'jetpack_version'    => Constants::get_constant( 'JETPACK__VERSION' ),
+					'ABSPATH'            => Constants::get_constant( 'ABSPATH' ),
+					'current_user_email' => wp_get_current_user()->user_email,
+					'connect_plugin'     => $this->get_plugin() ? $this->get_plugin()->get_slug() : null,
+				),
+				self::$extra_register_params
 			)
 		);
 
@@ -986,6 +1000,71 @@ class Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Attempts Jetpack registration.
+	 *
+	 * @param bool $tos_agree Whether the user agreed to TOS.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function try_registration( $tos_agree = true ) {
+		if ( $tos_agree ) {
+			$terms_of_service = new Terms_Of_Service();
+			$terms_of_service->agree();
+		}
+
+		/**
+		 * Action fired when the user attempts the registration.
+		 *
+		 * @since 9.7.0
+		 */
+		$pre_register = apply_filters( 'jetpack_pre_register', null );
+
+		if ( is_wp_error( $pre_register ) ) {
+			return $pre_register;
+		}
+
+		$tracking_data = array();
+
+		if ( null !== $this->get_plugin() ) {
+			$tracking_data['plugin_slug'] = $this->get_plugin()->get_slug();
+		}
+
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'jpc_register_begin', $tracking_data );
+
+		add_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
+
+		$result = $this->register();
+
+		remove_filter( 'jetpack_register_request_body', array( Utils::class, 'filter_register_request_body' ) );
+
+		// If there was an error with registration and the site was not registered, record this so we can show a message.
+		if ( ! $result || is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Adds a parameter to the register request body
+	 *
+	 * @since 9.7.0
+	 *
+	 * @param string $name The name of the parameter to be added.
+	 * @param string $value The value of the parameter to be added.
+	 *
+	 * @throws \InvalidArgumentException If supplied arguments are not strings.
+	 * @return void
+	 */
+	public function add_register_request_param( $name, $value ) {
+		if ( ! is_string( $name ) || ! is_string( $value ) ) {
+			throw new \InvalidArgumentException( 'name and value must be strings' );
+		}
+		self::$extra_register_params[ $name ] = $value;
 	}
 
 	/**
@@ -1510,7 +1589,6 @@ class Manager {
 	 * @return string Connect URL.
 	 */
 	public function get_authorization_url( $user = null, $redirect = null ) {
-
 		if ( empty( $user ) ) {
 			$user = wp_get_current_user();
 		}
@@ -1587,6 +1665,7 @@ class Manager {
 				'site_icon'     => get_site_icon_url(),
 				'site_lang'     => get_locale(),
 				'site_created'  => $this->get_assumed_site_creation_date(),
+				'userless'      => ! $this->has_connected_owner(),
 			)
 		);
 
@@ -1970,7 +2049,7 @@ class Manager {
 	/**
 	 * Retrieve the plugin management object.
 	 *
-	 * @return Plugin
+	 * @return Plugin|null
 	 */
 	public function get_plugin() {
 		return $this->plugin;

@@ -97,25 +97,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Init CodeClimate for code coverage
-        if: matrix.script == 'test-coverage'
-        env:
-          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
-          GH_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            GIT_BRANCH="${GITHUB_REF#refs/heads/}"
-            GIT_COMMIT_SHA="$GITHUB_SHA"
-          else
-            GIT_BRANCH="$GITHUB_HEAD_REF"
-            GIT_COMMIT_SHA="$GH_PR_HEAD_SHA"
-          fi
-          echo "GIT_BRANCH=$GIT_BRANCH" >> $GITHUB_ENV
-          echo "GIT_COMMIT_SHA=$GIT_COMMIT_SHA" >> $GITHUB_ENV
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-
       - name: Detect changed projects
         id: changed
         run: |
@@ -152,7 +133,6 @@ jobs:
       - name: Run project tests
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
-          GITHUB_TOKEN: secrets.API_TOKEN_GITHUB
         run: |
           EXIT=0
           mkdir artifacts
@@ -201,8 +181,6 @@ jobs:
 
       - name: Process coverage results
         if: matrix.script == 'test-coverage'
-        env:
-          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
         run: .github/files/process-coverage.sh
 
       - name: Check for artifacts
