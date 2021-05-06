@@ -2842,6 +2842,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$reply_to_addr = $comment_author_email;
 		}
 
+		/*
+		 * The email headers here are formatted in a format
+		 * that is the most likely to be accepted by wp_mail(),
+		 * without escaping.
+		 * More info: https://github.com/Automattic/jetpack/pull/19727
+		 */
 		$headers = 'From: ' . $comment_author . ' <' . $from_email_addr . ">\r\n" .
 			'Reply-To: ' . $comment_author . ' <' . $reply_to_addr . ">\r\n";
 
@@ -3140,7 +3146,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
 			$address_parts = explode( '@', $address );
-			$address       = sprintf( '%s <%s>', $address_parts[0], $address );
+
+			/*
+			 * The email address format here is formatted in a format
+			 * that is the most likely to be accepted by wp_mail(),
+			 * without escaping.
+			 * More info: https://github.com/Automattic/jetpack/pull/19727
+			 */
+			$address = sprintf( '%s <%s>', $address_parts[0], $address );
 		}
 
 		return $address;
