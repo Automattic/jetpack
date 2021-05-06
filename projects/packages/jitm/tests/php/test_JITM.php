@@ -43,7 +43,7 @@ class Test_Jetpack_JITM extends TestCase {
 			->andReturn( true );
 
 		$jitm = new JITM();
-		$this->assertTrue( $jitm->register() );
+		$this->assertTrue( $jitm->jitms_enabled() );
 	}
 
 	public function test_jitm_disabled_by_filter() {
@@ -53,7 +53,7 @@ class Test_Jetpack_JITM extends TestCase {
 			->andReturn( false );
 
 		$jitm = new JITM();
-		$this->assertFalse( $jitm->register() );
+		$this->assertFalse( $jitm->jitms_enabled() );
 	}
 
 	/**

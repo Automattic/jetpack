@@ -1,8 +1,3 @@
-/**
- * WordPress dependencies
- */
-import { createElement } from '@wordpress/element';
-
 const CalypsoSpinner = () => (
 	<div className="wp-story-loading-spinner">
 		<div className="wp-story-loading-spinner__outer">
