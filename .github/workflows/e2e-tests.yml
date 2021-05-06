@@ -155,9 +155,9 @@ jobs:
       if: always()
 
     - name: Send Slack notification
-        if: ${{ failure() }}
-        working-directory: projects/plugins/jetpack/tests/e2e
-        run: NODE_ENV=test node ./bin/notification.js run
+      if: ${{ failure() }}
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: NODE_ENV=test node ./bin/notification.js run
 
   slack-notification:
     name: "Slack notification"
@@ -168,5 +168,5 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Send Slack notification
-          working-directory: projects/plugins/jetpack/tests/e2e
-          run: NODE_ENV=test node ./bin/notification.js job
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: NODE_ENV=test node ./bin/notification.js job
