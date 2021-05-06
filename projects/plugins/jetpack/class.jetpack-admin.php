@@ -74,6 +74,14 @@ class Jetpack_Admin {
 					}
 				);
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
+			} elseif ( jetpack_is_atomic_site() ) { // We remove 'akismet-key-config' page only for AT sites.
+				add_action(
+					'jetpack_admin_menu',
+					static function () {
+						remove_submenu_page( 'jetpack', 'akismet-key-config' );
+					},
+					11
+				);
 			}
 		}
 
