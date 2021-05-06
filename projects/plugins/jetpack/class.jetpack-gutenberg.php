@@ -1050,7 +1050,8 @@ class Jetpack_Gutenberg {
 		$plan         = '';
 		$slug         = self::remove_extension_prefix( $slug );
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		// Check feature availability for Simple and Atomic sites.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM || jetpack_is_atomic_site() ) {
 			// Hit the WP COM API '/features' endpoint.
 			$response = Client::wpcom_json_api_request_as_blog(
 				sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) ),
@@ -1067,11 +1068,7 @@ class Jetpack_Gutenberg {
 					}
 				}
 			}
-		} elseif ( ! jetpack_is_atomic_site() ) {
-			/*
-			 * If it's Atomic then assume all features are available
-			 * otherwise check against the Jetpack plan.
-			 */
+		} else {
 			$is_available = Jetpack_Plan::supports( $slug );
 			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
