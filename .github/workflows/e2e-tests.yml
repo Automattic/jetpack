@@ -135,7 +135,7 @@ jobs:
       run: |
         yarn tunnel-off
         yarn pm2 logs --nostream --lines 10000 > output/logs/tunnel.log
-        cp GITHUB_EVENT_PATH projects/plugins/jetpack/tests/e2e/output/event.json
+        cp $GITHUB_EVENT_PATH projects/plugins/jetpack/tests/e2e/output/event.json
 
     - name: Upload test artifacts
       if: ${{ always() }}
