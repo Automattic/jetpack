@@ -10,7 +10,7 @@ import GridiconFullscreen from 'gridicons/dist/fullscreen';
  * WordPress dependencies
  */
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, isRTL } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,7 +28,6 @@ export default function Overlay( {
 	slideCount,
 	showSlideCount,
 } ) {
-	const isRTL = document.documentElement.dir === 'rtl';
 	const onPreviousSlideHandler = useCallback(
 		event => {
 			if ( ended ) {
@@ -71,7 +70,7 @@ export default function Overlay( {
 						label={ __( 'Previous Slide', 'jetpack' ) }
 						className="outlined-w"
 					>
-						{ isRTL ? <NavigateNextIcon size={ 24 } /> : <NavigateBeforeIcon size={ 24 } /> }
+						{ isRTL() ? <NavigateNextIcon size={ 24 } /> : <NavigateBeforeIcon size={ 24 } /> }
 					</DecoratedButton>
 				</div>
 			) }
@@ -82,7 +81,7 @@ export default function Overlay( {
 						label={ __( 'Next Slide', 'jetpack' ) }
 						className="outlined-w"
 					>
-						{ isRTL ? <NavigateBeforeIcon size={ 24 } /> : <NavigateNextIcon size={ 24 } /> }
+						{ isRTL() ? <NavigateBeforeIcon size={ 24 } /> : <NavigateNextIcon size={ 24 } /> }
 					</DecoratedButton>
 				</div>
 			) }
