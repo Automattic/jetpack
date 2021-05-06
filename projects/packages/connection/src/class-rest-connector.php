@@ -138,15 +138,6 @@ class REST_Connector {
 					'redirect_uri'       => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
-						'required'    => true,
-					),
-					'no_iframe'          => array(
-						'description' => 'Disable In-Place connection flow and go straight to Calypso',
-						'type'        => 'boolean',
-					),
-					'redirect_uri'       => array(
-						'description' => 'URI of the admin page where the user should be redirected after connection flow',
-						'type'        => 'string',
 					),
 				),
 			)

@@ -37,8 +37,6 @@ class Initial_State {
 	 * @return array
 	 */
 	private function get_data() {
-		global $is_safari;
-
 		return array(
 			'connectionStatus' => REST_Connector::connection_status( false ),
 			'API'              => array(

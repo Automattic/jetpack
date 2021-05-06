@@ -24,7 +24,12 @@ class Admin {
 	 * Initialize the UI.
 	 */
 	public static function init() {
-		new static();
+		add_action(
+			'plugins_loaded',
+			function () {
+				new static();
+			}
+		);
 	}
 
 	/**
