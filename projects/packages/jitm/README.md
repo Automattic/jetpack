@@ -11,7 +11,30 @@ There are 2 main ways to use JITMs:
 
 ### Usage
 
-Instantiating the JITM Manager will facilitate the display of JITM messages in wp-admin
+#### Using the Config Package
+
+The JITMs can be enabled using the Config package:
+
+```
+use Automattic/Jetpack/Config;
+
+// Configuring as early as plugins_loaded priority 1
+// to make sure every action handler gets properly set.
+add_action( 'plugins_loaded', 'configure_jitm', 1 );
+
+function configure_jitm() {
+    $config = new Config();
+    $config->ensure( 'jitm' );
+}
+```
+
+#### Directly Using the JITM Package
+
+The JITMs can also be enabled by using the JITM package directly:
+
+```
+Automattic\Jetpack\JITMS\JITM::configure();
+```
 
 ### Adding Pre-Connection JITMs
 
