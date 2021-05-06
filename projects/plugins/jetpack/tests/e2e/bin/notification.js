@@ -36,35 +36,57 @@ yargs
  */
 async function reportTestRunResults() {
 	const isSuccess = false; //todo replace me with script arg
-	const blocks = buildDefaultMessage( isSuccess );
+	const mainMsgBlocks = buildDefaultMessage( isSuccess );
 
 	const result = JSON.parse( fs.readFileSync( 'output/summary.json', 'utf8' ) );
 
 	const results = [];
+	const stackTraces = [];
 
 	for ( const tr of result.testResults ) {
 		for ( const ar of tr.assertionResults ) {
 			if ( ar.status !== 'passed' ) {
 				results.push( `- ${ ar.fullName }` );
+				stackTraces.push( `*${ ar.fullName }*\n\n\`\`\`${ ar.failureMessages }\`\`\`` );
 			}
 		}
 	}
 
 	if ( results.length > 0 ) {
-		results.splice( 0, 0, `${ results.length } failed tests:` );
+		results.splice(
+			0,
+			0,
+			`*${ results.length }* failed tests (out of *${ result.numTotalTests }*):`
+		);
 	}
 
-	const block = {
+	const testsListBlock = {
 		type: 'section',
 		text: {
-			type: 'plain_text',
+			type: 'mrkdwn',
 			text: results.join( '\n' ),
 		},
 	};
 
-	blocks.splice( 1, 0, block );
+	mainMsgBlocks.splice( 1, 0, testsListBlock );
 
-	await sendMessage( blocks, {} );
+	const response = await sendMessage( mainMsgBlocks, {} );
+	const threadId = response.ts;
+	console.log( threadId );
+
+	for ( const stacktrace of stackTraces ) {
+		const threadBlocks = [
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: stacktrace,
+				},
+			},
+		];
+
+		await sendMessage( threadBlocks, { threadId } );
+	}
 }
 
 /**
@@ -174,12 +196,14 @@ function buildDefaultMessage( isSuccess ) {
 	];
 }
 
-async function sendMessage( blocks, { channel = slackChannel, icon = ':jetpack:' } ) {
+async function sendMessage( blocks, { channel = slackChannel, icon = ':jetpack:', threadId } ) {
+	//thread_ts: response.ts
 	const payload = Object.assign( {
 		blocks,
 		channel,
 		username: 'E2E tests reporter',
 		icon_emoji: icon,
+		thread_ts: threadId,
 	} );
 
 	return await sendRequestToSlack( async () => await slackClient.chat.postMessage( payload ) );
