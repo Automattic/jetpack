@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Remove Akismet Anti-Spam submenu item from Jetpack menu on Atomic free sites
