@@ -1,5 +1,14 @@
+/**
+ * Internal dependencies
+ */
+import connectionSelectors from './connection-status';
+import APISelectors from './api';
+import connectionData from './connection-data';
+
 const selectors = {
-	// We'll import selectors from other files in this directory, and merge them here.
+	...connectionSelectors,
+	...APISelectors,
+	...connectionData,
 };
 
 export default selectors;
