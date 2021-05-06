@@ -29,7 +29,7 @@ The JITM message array may also contain the following optional keys:
  * icon - When the 'icon' key does not exist, the Jetpack icon is used by default. The available settings for this option are:
 	 * 'jetpack' for the Jetpack icon.
 	 * 'woocommerce' for the WooCommerce icon.
-	 * Anything else for no icon.
+	 * An empty string for no icon.
 
  The Jetpack plugin's pre-connection JITMs can be found in the `Jetpack_Pre_Connection_JITMs` class.
 
