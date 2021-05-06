@@ -45,7 +45,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 		if ( ! settings.attributes.shoudlDisplayFrontendBanner ) {
 			settings.attributes.shouldDisplayFrontendBanner = {
 				type: 'boolean',
-				default: false,
+				default: true,
 			};
 		}
 	}

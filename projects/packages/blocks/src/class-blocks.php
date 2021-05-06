@@ -73,7 +73,7 @@ class Blocks {
 						// Indicates that this block should display an upgrade nudge on the frontend.
 						'shouldDisplayFrontendBanner' => array(
 							'type'    => 'boolean',
-							'default' => false,
+							'default' => true,
 						),
 					)
 				);
