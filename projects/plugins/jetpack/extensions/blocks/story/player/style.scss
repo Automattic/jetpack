@@ -7,6 +7,10 @@
 	display: contents;
 }
 
+.wp-story-app {
+	padding: 10px;
+}
+
 .wp-story-container {
 	height: 320px;
 	width: 180px;
@@ -381,6 +385,7 @@
 		left: 0;
 		right: 0;
 		margin: 0;
+		padding: 0;
 		z-index: 9999999999;
 		width: 100% !important;
 		max-width: 100% !important;
