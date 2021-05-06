@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { createElement } from '@wordpress/element';
 import { Path } from '@wordpress/components';
 
 /**

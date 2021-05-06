@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Added addtional css to fix drag issue in firefox in slideshow block
+
+
