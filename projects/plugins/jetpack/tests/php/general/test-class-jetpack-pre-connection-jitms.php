@@ -7,7 +7,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-require_once dirname( __FILE__ ) . '/../../../class-jetpack-pre-connection-jitms.php';
+require_once __DIR__ . '/../../../class-jetpack-pre-connection-jitms.php';
 
 /**
  * Class WP_Test_Jetpack_Pre_Connection_JITMs.

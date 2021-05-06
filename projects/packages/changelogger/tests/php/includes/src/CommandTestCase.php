@@ -8,8 +8,6 @@
 namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelogger\Application;
-use Automattic\Jetpack\Changelogger\Config;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -24,16 +22,6 @@ class CommandTestCase extends TestCase {
 	 * @return Command
 	 */
 	protected function getCommand( $name ) {
-		// `$command->configure()` is called by `->__construct()`, which may
-		// call Config, so we need Config to have an output set. Set one that
-		// asserts that nothing is output, we don't need to test Config failure
-		// cases here.
-		$output = $this->getMockBuilder( BufferedOutput::class )
-			->setMethods( array( 'doWrite' ) )
-			->getMock();
-		$output->expects( $this->never() )->method( 'doWrite' );
-		Config::setOutput( $output );
-
 		$app = new Application();
 		return $app->find( $name );
 	}
