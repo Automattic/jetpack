@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paid blocks: Remove nested upgrade nudges on the frontend.
