@@ -123,11 +123,20 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
 				'args'                => array(
 					'from'               => array(
-						'description' => 'Indicates where the registration action was triggered for tracking/segmetnation purposes',
+						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack' ),
 						'type'        => 'string',
 					),
 					'registration_nonce' => array(
-						'description' => 'The registration nonce',
+						'description' => __( 'The registration nonce', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'no_iframe'          => array(
+						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
+						'type'        => 'boolean',
+					),
+					'redirect_uri'       => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),
@@ -187,6 +196,7 @@ class REST_Connector {
 			'isActive'          => $connection->is_active(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
+			'isUserConnected'   => $connection->is_user_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
 			'offlineMode'       => array(
 				'isActive'        => $status->is_offline_mode(),
@@ -424,14 +434,16 @@ class REST_Connector {
 			return $result;
 		}
 
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
 		if ( class_exists( 'Jetpack' ) ) {
-			$authorize_url = \Jetpack::build_authorize_url( false, ! $request->get_param( 'no_iframe' ) );
+			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri, ! $request->get_param( 'no_iframe' ) );
 		} else {
 			if ( ! $request->get_param( 'no_iframe' ) ) {
 				add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 			}
 
-			$authorize_url = $this->connection->get_authorization_url();
+			$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
 
 			if ( ! $request->get_param( 'no_iframe' ) ) {
 				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );

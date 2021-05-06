@@ -8,6 +8,7 @@ import { registerStore } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import Admin from './components/admin';
 import { STORE_ID, storeConfig } from './store';
 
 registerStore( STORE_ID, storeConfig );
@@ -22,7 +23,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <h1>Connection Manager</h1>, container );
+	ReactDOM.render( <Admin />, container );
 }
 
 render();

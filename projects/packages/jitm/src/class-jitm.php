@@ -22,6 +22,13 @@ class JITM {
 	const PACKAGE_VERSION = '1.15.2-alpha';
 
 	/**
+	 * Whether the JITMs have been registered.
+	 *
+	 * @var bool
+	 */
+	private static $jitms_registered = false;
+
+	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
 	public static function configure() {
@@ -44,11 +51,38 @@ class JITM {
 	}
 
 	/**
-	 * Determines if JITMs are enabled.
-	 *
-	 * @return bool Enable JITMs.
+	 * Sets up JITM action callbacks if needed.
 	 */
 	public function register() {
+		if ( self::$jitms_registered ) {
+			// JITMs have already been registered.
+			return;
+		}
+
+		self::$jitms_registered = true;
+
+		if ( ! $this->jitms_enabled() ) {
+			// Do nothing.
+			return;
+		}
+
+		add_action( 'rest_api_init', array( __NAMESPACE__ . '\\Rest_Api_Endpoints', 'register_endpoints' ) );
+
+		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+
+		/**
+		 * These are sync actions that we need to keep track of for jitms.
+		 */
+		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+	}
+
+	/**
+	 * Checks the jetpack_just_in_time_msgs filters and whether the site
+	 * is offline to determine whether JITMs are enabled.
+	 *
+	 * @return bool True if JITMs are enabled, else false.
+	 */
+	public function jitms_enabled() {
 		/**
 		 * Filter to turn off all just in time messages
 		 *
@@ -65,15 +99,6 @@ class JITM {
 		if ( ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
-
-		add_action( 'rest_api_init', array( __NAMESPACE__ . '\\Rest_Api_Endpoints', 'register_endpoints' ) );
-
-		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
-
-		/**
-		 * These are sync actions that we need to keep track of for jitms.
-		 */
-		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
 
 		return true;
 	}
