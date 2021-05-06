@@ -70,16 +70,8 @@ const logger = ( module.exports = createLogger( {
 		format.json()
 	),
 	transports: [
-		//
-		// - Write to all logs with level `info` and below to `quick-start-combined.log`.
-		// - Write all logs error (and below) to `quick-start-error.log`.
-		//
 		new transports.File( {
-			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-json.log' ),
-			format: format.uncolorize(),
-		} ),
-		new transports.File( {
-			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-simple.log' ),
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-debug.log' ),
 			format: stringFormat,
 			level: 'debug',
 		} ),

@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { readFileSync, createReadStream } from 'fs';
-import { WebClient, ErrorCode, retryPolicies } from '@slack/web-api';
-import config from 'config';
+const { readFileSync, createReadStream } = require( 'fs' );
+const { WebClient, ErrorCode, retryPolicies } = require( '@slack/web-api' );
+const config = require( 'config' );
 
 const { GITHUB_EVENT_PATH, GITHUB_RUN_ID, GUTENBERG } = process.env;
 
-export default class SlackReporter {
+class SlackReporter {
 	constructor() {
 		// get all config fields first to fail fast if config is wrong
 		const token = config.get( 'slack.token' );
@@ -189,3 +189,5 @@ export default class SlackReporter {
 		}
 	}
 }
+
+module.exports = { SlackReporter };
