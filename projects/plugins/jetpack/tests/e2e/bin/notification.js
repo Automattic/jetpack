@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
-const { SlackReporter } = require( '../lib/reporters/slack' );
+const { WebClient, ErrorCode, retryPolicies } = require( '@slack/web-api' );
 const fs = require( 'fs' );
 const config = require( 'config' );
 const yargs = require( 'yargs' );
-const path = require( 'path' );
+const slackClient = new WebClient( config.get( 'slack.token' ), {
+	retryConfig: retryPolicies.rapidRetryPolicy,
+} );
+const slackChannel = config.get( 'slack.channel' );
 
 // eslint-disable-next-line no-unused-expressions
 yargs
@@ -33,54 +36,36 @@ yargs
  * @return {Promise<void>}
  */
 async function reportTestRunResults() {
-	const log = fs
-		.readFileSync( path.resolve( config.get( 'dirs.logs' ), 'e2e-slack.log' ) )
-		.toString();
-	const slack = new SlackReporter();
+	const isSuccess = false; //todo replace me with script arg
+	const blocks = buildDefaultMessage( isSuccess );
 
-	let messages = [];
-	if ( log.length > 0 ) {
-		messages = log
-			.trim()
-			.split( '\n' )
-			.map( string => JSON.parse( string ) );
-	}
+	const result = JSON.parse( fs.readFileSync( 'output/summary.json', 'utf8' ) );
 
-	const failures = messages.filter( json => json.type === 'failure' );
+	const results = [];
 
-	let response;
-	if ( failures.length === 0 ) {
-		response = await slack.sendSuccessMessage();
-	} else {
-		response = await slack.sendFailureMessage( failures );
-	}
-
-	const options = { thread_ts: response.ts };
-
-	for ( const json of messages ) {
-		switch ( json.type ) {
-			case 'file':
-				await slack.sendFileToSlack( json.message, options );
-				break;
-
-			case 'failure':
-				await slack.sendMessageToSlack( slack.getFailedTestMessage( json ), options );
-				break;
-
-			case 'debuglog':
-				await slack.sendSnippetToSlack( json.message, options );
-				break;
-
-			case 'message':
-				await slack.sendMessageToSlack( json.message, options );
-				break;
+	for ( const tr of result.testResults ) {
+		for ( const ar of tr.assertionResults ) {
+			if ( ar.status !== 'passed' ) {
+				results.push( `- ${ ar.fullName }` );
+			}
 		}
 	}
 
-	await slack.sendFileToSlack(
-		path.resolve( config.get( 'dirs.logs' ), 'e2e-simple.log' ),
-		options
-	);
+	if ( results.length > 0 ) {
+		results.splice( 0, 0, 'Failed tests:' );
+	}
+
+	const block = {
+		type: 'section',
+		text: {
+			type: 'plain_text',
+			text: results.join( '\n' ),
+		},
+	};
+
+	blocks.splice( 1, 0, block );
+
+	await sendMessage( blocks, { icon: isSuccess ? ':white_check_mark:' : ':red_circle:' } );
 }
 
 /**
@@ -91,5 +76,124 @@ async function reportTestRunResults() {
  * @return {Promise<void>}
  */
 async function reportJobRun() {
-	console.log( 'report job run' );
+	// eslint-disable-next-line no-unused-vars
+	const isSuccess = true; //todo replace me with script arg
+	await sendMessage( buildDefaultMessage( true ), {} );
+}
+
+function getGithubInfo() {
+	const { GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
+	const event = JSON.parse( fs.readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
+
+	const gh = {
+		run: {
+			id: GITHUB_RUN_ID,
+			url: `${ event.repository.html_url }/actions/runs/${ GITHUB_RUN_ID }`,
+		},
+		branch: {},
+	};
+
+	if ( event.pull_request ) {
+		gh.pr = {};
+		gh.pr.number = event.pull_request.number;
+		gh.pr.url = event.pull_request.html_url;
+		gh.pr.title = event.pull_request.title;
+
+		gh.branch.name = event.pull_request.head.ref;
+	} else {
+		gh.branch.name = event.ref.substr( 11 );
+	}
+
+	gh.branch.url = `${ event.repository.html_url }/tree/${ gh.branch.name }`;
+
+	return gh;
+}
+
+function buildDefaultMessage( isSuccess ) {
+	const gh = getGithubInfo();
+
+	const btnStyle = isSuccess ? 'primary' : 'danger';
+
+	const buttons = [
+		{
+			type: 'button',
+			text: {
+				type: 'plain_text',
+				text: `Run #${ gh.run.id }`,
+			},
+			url: gh.run.url,
+			style: btnStyle,
+		},
+		{
+			type: 'button',
+			text: {
+				type: 'plain_text',
+				text: `${ gh.branch.name } branch`,
+			},
+			url: gh.branch.url,
+			style: btnStyle,
+		},
+	];
+
+	let headerText = isSuccess
+		? `All tests passed for against '${ gh.branch.name }' branch`
+		: `There are test failures against '${ gh.branch.name }' branch`;
+
+	if ( gh.pr ) {
+		buttons.push( {
+			type: 'button',
+			text: {
+				type: 'plain_text',
+				text: `PR #${ gh.pr.number }`,
+			},
+			url: gh.pr.url,
+			style: btnStyle,
+		} );
+
+		headerText = isSuccess
+			? `All tests passed for PR '${ gh.pr.title }'`
+			: `There are test failures for PR '${ gh.pr.title }'`;
+	}
+
+	return [
+		{
+			type: 'header',
+			text: {
+				type: 'plain_text',
+				text: headerText,
+			},
+		},
+		{
+			type: 'actions',
+			elements: buttons,
+		},
+	];
+}
+
+async function sendMessage( blocks, { channel = slackChannel, icon = ':jetpack:' } ) {
+	const payload = Object.assign( {
+		blocks,
+		channel,
+		username: 'E2E tests reporter',
+		icon_emoji: icon,
+	} );
+
+	return await sendRequestToSlack( async () => await slackClient.chat.postMessage( payload ) );
+}
+
+async function sendRequestToSlack( fn ) {
+	try {
+		return await fn();
+	} catch ( error ) {
+		if (
+			error.code === ErrorCode.PlatformError ||
+			error.code === ErrorCode.RequestError ||
+			error.code === ErrorCode.RateLimitedError ||
+			error.code === ErrorCode.HTTPError
+		) {
+			console.log( error.data );
+		} else {
+			console.log( `ERROR: ${ error }` );
+		}
+	}
 }

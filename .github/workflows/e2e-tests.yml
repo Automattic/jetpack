@@ -169,4 +169,6 @@ jobs:
 
       - name: Send Slack notification
         working-directory: projects/plugins/jetpack/tests/e2e
-        run: NODE_ENV=test node ./bin/notification.js job
+        run: |
+          yarn install
+          NODE_ENV=test node ./bin/notification.js job
