@@ -10,7 +10,7 @@ class Jetpack_SEO_Utils {
 	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
 
 	/**
-	 * Initially setting the front page meta description was for all sites, then the feature was grouped to a paid plan.
+	 * Initially force conflict setting the front page meta description was for all sites, then the feature was grouped to a paid plan.
 	 * The LEGACY_META_OPTION was added at that time to support legacy usage. Later on, a decision was made to have
 	 * the JP seo-tools features for all JP sites (paid plan or not).
 	 */
