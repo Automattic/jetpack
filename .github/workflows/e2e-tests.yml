@@ -124,7 +124,6 @@ jobs:
         echo "$GUTENBERG" >> $GITHUB_ENV;
         ./bin/env.sh config-gb
 
-
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e --group=${{ matrix.group }}
@@ -136,6 +135,7 @@ jobs:
       run: |
         yarn tunnel-off
         yarn pm2 logs --nostream --lines 10000 > output/logs/tunnel.log
+        cp GITHUB_EVENT_PATH projects/plugins/jetpack/tests/e2e/output/event.json
 
     - name: Upload test artifacts
       if: ${{ always() }}
