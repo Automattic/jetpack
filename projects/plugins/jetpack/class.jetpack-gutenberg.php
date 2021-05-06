@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
@@ -1050,13 +1051,21 @@ class Jetpack_Gutenberg {
 		$slug         = self::remove_extension_prefix( $slug );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( ! class_exists( 'Store_Product_List' ) ) {
-				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
-			}
-			$features_data = Store_Product_List::get_site_specific_features_data();
-			$is_available  = in_array( $slug, $features_data['active'], true );
-			if ( ! empty( $features_data['available'][ $slug ] ) ) {
-				$plan = $features_data['available'][ $slug ][0];
+			// Hit the WP COM API '/features' endpoint.
+			$response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) ),
+				Client::WPCOM_JSON_API_VERSION
+			);
+
+			if ( ! is_wp_error( $response ) ) {
+				$body = wp_remote_retrieve_body( $response );
+				if ( $body ) {
+					$features_data = json_decode( $body, true );
+					$is_available  = in_array( $slug, $features_data['active'], true );
+					if ( ! empty( $features_data['available'][ $slug ] ) ) {
+						$plan = $features_data['available'][ $slug ][0];
+					}
+				}
 			}
 		} elseif ( ! jetpack_is_atomic_site() ) {
 			/*
@@ -1066,6 +1075,7 @@ class Jetpack_Gutenberg {
 			$is_available = Jetpack_Plan::supports( $slug );
 			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
+
 		if ( $is_available ) {
 			self::set_extension_available( $slug );
 		} else {
