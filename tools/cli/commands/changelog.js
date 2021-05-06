@@ -676,7 +676,7 @@ async function promptChangelog( argv, needChangelog ) {
 }
 
 /**
- * Asks if you want to add changelog files for each.
+ * Prompts you for how you want changelogger to run (add to all projects or not, etc).
  *
  * @param {object} argv - the arguments passed.
  * @param {Array} needChangelog - files that need changelogs.
