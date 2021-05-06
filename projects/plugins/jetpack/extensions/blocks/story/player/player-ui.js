@@ -7,17 +7,11 @@ import { some } from 'lodash';
 /**
  * WordPress dependencies
  */
-import {
-	createElement,
-	useRef,
-	useState,
-	useEffect,
-	useLayoutEffect,
-	useCallback,
-} from '@wordpress/element';
+import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -26,29 +20,47 @@ import Slide from './slide';
 import icon from '../icon';
 import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
-import * as fullscreenAPI from './lib/fullscreen-api';
 
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-	window.navigator.userAgent
-);
-
-export const Player = ( { slides, disabled, ref, ...settings } ) => {
-	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
-	const [ playing, setPlaying ] = useState( false );
-	const [ ended, setEnded ] = useState( false );
-	const [ muted, setMuted ] = useState( settings.startMuted );
-	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
+export default function PlayerUI( { id, slides, metadata, disabled } ) {
+	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } = useDispatch(
+		'jetpack/story/player'
+	);
+	const {
+		playing,
+		muted,
+		currentSlideIndex,
+		currentSlideEnded,
+		ended,
+		fullscreen,
+		settings,
+	} = useSelect(
+		select => {
+			const {
+				getCurrentSlideIndex,
+				getSettings,
+				hasCurrentSlideEnded,
+				hasEnded,
+				isFullscreen,
+				isMuted,
+				isPlaying,
+			} = select( 'jetpack/story/player' );
+			return {
+				playing: isPlaying( id ),
+				muted: isMuted( id ),
+				currentSlideIndex: getCurrentSlideIndex( id ),
+				currentSlideEnded: hasCurrentSlideEnded( id ),
+				ended: hasEnded( id ),
+				fullscreen: isFullscreen( id ),
+				settings: getSettings( id ),
+			};
+		},
+		[ id ]
+	);
 
 	const slideContainerRef = useRef();
-	const appRef = useRef();
-
 	const [ maxSlideWidth, setMaxSlideWidth ] = useState( null );
 	const [ resizeListener, { width, height } ] = useResizeObserver();
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
-
-	const [ fullscreen, setFullscreen ] = useState( false );
-	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
-
 	const uploading = some( slides, media => isBlobURL( media.url ) );
 	const isVideo = slideIndex => {
 		const media = slideIndex < slides.length ? slides[ slideIndex ] : null;
@@ -58,78 +70,56 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 		return 'video' === media.type || ( media.mime || '' ).startsWith( 'video/' );
 	};
 
-	const showSlide = ( slideIndex, play = settings.playOnNextSlide ) => {
-		setCurrentSlideProgress( 0 );
-		updateSlideIndex( slideIndex );
-
-		if ( play ) {
-			setPlaying( play );
-		}
+	const playSlide = slideIndex => {
+		showSlide( id, slideIndex );
 	};
 
 	const onPress = useCallback( () => {
-		if ( disabled ) {
+		if ( disabled || fullscreen ) {
 			return;
 		}
-		if ( ! fullscreen && ! playing && settings.playInFullscreen ) {
-			setFullscreen( true );
+		if ( settings.playInFullscreen && ! playing ) {
+			setPlaying( id, true );
 		}
-		if ( ended && ! playing ) {
-			showSlide( 0 );
-		}
-		if ( ! playing && ! fullscreen ) {
-			setPlaying( true );
-		}
-	}, [ playing, ended, fullscreen, disabled ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ playing, disabled, fullscreen ] );
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
-			showSlide( currentSlideIndex - 1 );
+			playSlide( currentSlideIndex - 1 );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ currentSlideIndex ] );
 
 	const tryNextSlide = useCallback( () => {
 		if ( currentSlideIndex < slides.length - 1 ) {
-			showSlide( currentSlideIndex + 1 );
+			playSlide( currentSlideIndex + 1 );
 		} else {
-			setPlaying( false );
-			setEnded( true );
-			setCurrentSlideProgress( 100 );
-			if ( settings.exitFullscreenOnEnd ) {
-				setFullscreen( false );
-			}
+			setEnded( id );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ currentSlideIndex, slides ] );
 
 	const onExitFullscreen = useCallback( () => {
-		setFullscreen( false );
-		if ( settings.playInFullscreen ) {
-			setPlaying( false );
-		}
-	}, [ fullscreen ] );
+		setFullscreen( id, false );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	// pause player when disabled
 	useEffect( () => {
 		if ( disabled && playing ) {
-			setPlaying( false );
+			setPlaying( id, false );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ disabled, playing ] );
 
-	// track play/pause state and check ending
-	useLayoutEffect( () => {
-		if ( playing ) {
-			setEnded( false );
-		}
-	}, [ playing ] );
-
+	// try next slide
 	useEffect( () => {
-		if ( settings.loadInFullscreen ) {
-			setFullscreen( true );
+		if ( playing && currentSlideEnded ) {
+			tryNextSlide();
 		}
-		if ( settings.playOnLoad ) {
-			setPlaying( true );
-		}
-	}, [] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ playing, currentSlideEnded ] );
 
 	// Max slide width is used to display the story in portrait mode on desktop
 	useLayoutEffect( () => {
@@ -144,6 +134,7 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 				Math.abs( 1 - ratioBasedWidth / width ) < settings.cropUpTo ? width : ratioBasedWidth;
 		}
 		setMaxSlideWidth( ratioBasedWidth );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ width, height, fullscreen ] );
 
 	useLayoutEffect( () => {
@@ -156,45 +147,31 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 		}
 	}, [ maxSlideWidth ] );
 
-	useLayoutEffect( () => {
-		if ( fullscreen ) {
-			if ( isMobile && fullscreenAPI.enabled() && ! settings.loadInFullscreen ) {
-				fullscreenAPI.launch( appRef.current );
-			} else {
-				// position: fixed does not work as expected on mobile safari
-				// To fix that we need to add a fixed positioning to body,
-				// retain the current scroll position and restore it when we exit fullscreen
-				setLastScrollPosition( [
-					document.documentElement.scrollLeft,
-					document.documentElement.scrollTop,
-				] );
-				document.body.classList.add( 'wp-story-in-fullscreen' );
-				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
-			}
-		} else {
-			// eslint-disable-next-line no-lonely-if
-			if ( fullscreenAPI.element() ) {
-				fullscreenAPI.exit();
-			} else {
-				document.body.classList.remove( 'wp-story-in-fullscreen' );
-				if ( lastScrollPosition ) {
-					window.scrollTo( ...lastScrollPosition );
-				}
-				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
-			}
-		}
-	}, [ fullscreen ] );
+	let label;
+	if ( fullscreen ) {
+		label = [
+			__( 'You are currently playing a story.', 'jetpack' ),
+			playing ? __( 'Press space to pause.', 'jetpack' ) : __( 'Press space to play.', 'jetpack' ),
+			__( 'Press escape to exit.', 'jetpack' ),
+		].join( ' ' );
+	} else {
+		label = __( 'Play story', 'jetpack' );
+	}
 
+	let role;
+	if ( disabled ) {
+		role = 'presentation';
+	} else {
+		role = fullscreen ? 'dialog' : 'button';
+	}
+
+	/* eslint-disable jsx-a11y/click-events-have-key-events */
 	return (
-		/* eslint-disable jsx-a11y/click-events-have-key-events */
-		<div
-			ref={ appRef }
-			className={ classNames( [ 'wp-story-app', { 'wp-story-fullscreen': fullscreen } ] ) }
-		>
+		<div className="wp-story-display-contents">
 			{ resizeListener }
 			<div
-				role={ disabled ? 'presentation' : 'button' }
-				aria-label={ __( 'Play story', 'jetpack' ) }
+				role={ role }
+				aria-label={ label }
 				tabIndex={ fullscreen ? -1 : 0 }
 				className={ classNames( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
@@ -206,28 +183,18 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 				style={ { maxWidth: `${ maxSlideWidth }px` } }
 				onClick={ onPress }
 			>
-				<Header
-					{ ...settings.metadata }
-					fullscreen={ fullscreen }
-					onExitFullscreen={ onExitFullscreen }
-				/>
+				<Header { ...metadata } fullscreen={ fullscreen } onExitFullscreen={ onExitFullscreen } />
 				<div ref={ slideContainerRef } className="wp-story-wrapper">
 					{ slides.map( ( media, index ) => (
 						<Slide
+							playerId={ id }
 							key={ index }
 							media={ media }
 							index={ index }
-							currentSlideIndex={ currentSlideIndex }
-							playing={ playing }
+							playing={ ! disabled && playing }
 							uploading={ uploading }
-							muted={ muted }
-							setMuted={ setMuted }
-							ended={ ended }
-							onProgress={ setCurrentSlideProgress }
-							onEnd={ tryNextSlide }
 							settings={ settings }
 							targetAspectRatio={ targetAspectRatio }
-							isVideo={ isVideo( currentSlideIndex ) }
 						/>
 					) ) }
 				</div>
@@ -243,19 +210,18 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 				/>
 				{ settings.showProgressBar && (
 					<ProgressBar
+						playerId={ id }
 						slides={ slides }
 						disabled={ ! fullscreen }
-						currentSlideIndex={ currentSlideIndex }
-						currentSlideProgress={ currentSlideProgress }
-						onSlideSeek={ showSlide }
+						onSlideSeek={ playSlide }
 						maxBullets={ fullscreen ? settings.maxBulletsFullscreen : settings.maxBullets }
 					/>
 				) }
 				<Controls
 					playing={ playing }
 					muted={ muted }
-					setPlaying={ setPlaying }
-					setMuted={ setMuted }
+					onPlayPressed={ () => setPlaying( id, ! playing ) }
+					onMutePressed={ () => setMuted( id, ! muted ) }
 					showMute={ isVideo( currentSlideIndex ) }
 				/>
 			</div>
@@ -270,4 +236,5 @@ export const Player = ( { slides, disabled, ref, ...settings } ) => {
 			) }
 		</div>
 	);
-};
+	/* eslint-enable jsx-a11y/click-events-have-key-events */
+}

@@ -37,6 +37,8 @@ function jetpack_instagram_enable_embeds() {
 	 *
 	 * We can drop the `wp_oembed_remove_provider` line once Core stops adding its own Instagram provider:
 	 * https://core.trac.wordpress.org/ticket/50861.
+	 *
+	 * @todo Remove once 5.6 is our minimum version. (Technically WP dropped their provider in 5.5.2).
 	 */
 	wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
 
