@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
 
