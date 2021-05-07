@@ -105,6 +105,54 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
+	 * Adds upsell nudge as a menu.
+	 *
+	 * @param object $nudge The $nudge object containing the content, CTA, link and tracks.
+	 */
+	public function add_upsell_nudge( $nudge ) {
+		$message = '
+<div class="upsell_banner">
+	<div class="banner__info">
+		<div class="banner__title">%1$s</div>
+	</div>
+	<div class="banner__action">
+		<button type="button" class="button">%2$s</button>
+	</div>
+</div>';
+
+		$message = sprintf(
+			$message,
+			$nudge['content'],
+			$nudge['cta']
+		);
+
+		add_menu_page( 'site-notices', $message, 'manage_options', 'https://wordpress.com' . $nudge['link'], null, null, 1 );
+		add_filter( 'add_menu_classes', array( $this, 'set_site_notices_menu_class' ) );
+	}
+
+	/**
+	 * Adds a custom element class and id for Site Notices's menu item.
+	 *
+	 * @param array $menu Associative array of administration menu items.
+	 * @return array
+	 */
+	public function set_site_notices_menu_class( array $menu ) {
+		foreach ( $menu as $key => $menu_item ) {
+			if ( 'site-notices' !== $menu_item[3] ) {
+				continue;
+			}
+
+			$classes = ' toplevel_page_site-notices';
+
+			$menu[ $key ][4] = $menu_item[4] . $classes;
+			$menu[ $key ][5] = 'toplevel_page_site-notices';
+			break;
+		}
+
+		return $menu;
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {

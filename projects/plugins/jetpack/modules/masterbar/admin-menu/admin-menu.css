@@ -68,6 +68,46 @@
 }
 
 /**
+ * Site Notices
+ */
+ #adminmenu a.toplevel_page_site-notices:hover,
+ #adminmenu li.toplevel_page_site-notices:hover {
+	 background-color: inherit;
+ }
+
+ #adminmenu li.toplevel_page_site-notices .wp-menu-image {
+	 display: none;
+ }
+
+ #adminmenu .toplevel_page_site-notices .upsell_banner {
+	 display: flex;
+	 flex-grow: 1;
+	 flex-wrap: nowrap;
+	 align-items: center;
+	 position: relative;
+	 width: 100%;
+	 padding: 7px 12px;
+	 left: -28px;
+	 border-radius: 2px;
+	 font-size: 12px;;
+	 line-height: 1.4;
+	 hyphens: none;
+ }
+
+ #adminmenu .toplevel_page_site-notices .upsell_banner .button {
+	 font-size: 12px;
+	 margin-left: 5px;
+	 border: 0;
+ }
+
+/* Prevent box-shadow at the top of the sidebar */
+#adminmenu .site-switcher:hover,
+#adminmenu .toplevel_page_site-card:hover,
+#adminmenu .toplevel_page_site-notices:hover {
+	box-shadow: none;
+}
+
+/**
  * Site icon inline-styles for height and width are defined in set_site_icon_inline_styles
  */
 #adminmenu .toplevel_page_site-card .wp-menu-image {
@@ -261,12 +301,6 @@
 	.auto-fold #adminmenu li.toplevel_page_site-card a {
 		padding: 18px 0 18px 12px;
 	}
-}
-
-/* Prevent box-shadow at the top of the sidebar */
-#adminmenu .site-switcher:hover,
-#adminmenu .toplevel_page_site-card:hover {
-	box-shadow: none;
 }
 
 /*

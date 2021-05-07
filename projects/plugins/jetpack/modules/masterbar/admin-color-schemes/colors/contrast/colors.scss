@@ -41,4 +41,8 @@ $color-primary-light: $studio-gray-60; // Calypso --color-primary-light
 $color-surface: $studio-white; // Calypso --color-surface
 $color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
 
+// Calypso Nudges
+$menu-nudge-background: #000;
+$menu-nudge-text-color: #fff;
+
 @import "../admin";
