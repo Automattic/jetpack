@@ -8,7 +8,7 @@ const yargs = require( 'yargs' );
 const { fileNameFormatter } = require( '../lib/utils-helper' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
-	logLevel: LogLevel.DEBUG,
+	logLevel: LogLevel.ERROR,
 } );
 const slackChannel = config.get( 'slack.channel' );
 
@@ -68,8 +68,6 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	const detailLines = [];
 	const failureDetails = [];
 	const screenshots = fs.readdirSync( 'output/screenshots' );
-
-	console.log( screenshots );
 
 	// Go through all test results and extract failure details
 	for ( const tr of result.testResults ) {
