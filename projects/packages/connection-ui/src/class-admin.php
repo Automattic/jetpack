@@ -59,6 +59,9 @@ class Admin {
 
 			wp_set_script_translations( 'react-jetpack_connection_ui_script', 'jetpack' );
 			wp_add_inline_script( 'jetpack_connection_ui_script', $this->get_initial_state(), 'before' );
+
+			wp_enqueue_style( 'jetpack_connection_ui_style', plugin_dir_url( __DIR__ ) . 'build/index.css', array( 'wp-components' ), $build_assets['version'] );
+			wp_style_add_data( 'jetpack_connection_ui_style', 'rtl', plugin_dir_url( __DIR__ ) . 'build/index.rtl.css' );
 		}
 	}
 
