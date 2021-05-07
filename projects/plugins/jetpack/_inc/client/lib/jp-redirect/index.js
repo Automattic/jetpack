@@ -1,8 +1,3 @@
-/**
- * External dependencies
- */
-import { get } from 'lodash';
-
 /* global jetpack_redirects */
 /**
  * Builds an URL using the jetpack.com/redirect/ service
@@ -30,7 +25,7 @@ import { get } from 'lodash';
  */
 export default function getRedirectUrl( source, args = {} ) {
 	const queryVars = {};
-	const calypsoEnv = get( window.Initial_State, 'calypsoEnv' );
+	const calypsoEnv = window.Initial_State?.calypsoEnv;
 
 	if ( source.search( 'https://' ) === 0 ) {
 		const parsedUrl = new URL( source );

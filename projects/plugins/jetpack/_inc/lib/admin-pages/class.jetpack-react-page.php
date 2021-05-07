@@ -210,10 +210,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string
 	 */
 	public function generatePurchaseToken() {
-		if ( function_exists( 'wp_generate_password' ) ) {
-			return wp_generate_password( 12, false );
-		}
-		return substr( sha1( wp_rand( 0, 1000000 ) ), 0, 12 );
+		return wp_generate_password( 12, false );
 	}
 
 	function get_initial_state() {

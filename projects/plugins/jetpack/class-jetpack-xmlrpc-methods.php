@@ -30,12 +30,12 @@ class Jetpack_XMLRPC_Methods {
 	 */
 	public static function xmlrpc_methods( $methods ) {
 
-		$methods['jetpack.featuresAvailable']           = array( __CLASS__, 'features_available' );
-		$methods['jetpack.featuresEnabled']             = array( __CLASS__, 'features_enabled' );
-		$methods['jetpack.disconnectBlog']              = array( __CLASS__, 'disconnect_blog' );
-		$methods['jetpack.getUserlessPurchaseToken']    = array( __CLASS__, 'get_userless_purchase_token' );
-		$methods['jetpack.deleteUserlessPurchaseToken'] = array( __CLASS__, 'delete_userless_purchase_token' );
-		$methods['jetpack.jsonAPI']                     = array( __CLASS__, 'json_api' );
+		$methods['jetpack.featuresAvailable']   = array( __CLASS__, 'features_available' );
+		$methods['jetpack.featuresEnabled']     = array( __CLASS__, 'features_enabled' );
+		$methods['jetpack.disconnectBlog']      = array( __CLASS__, 'disconnect_blog' );
+		$methods['jetpack.getPurchaseToken']    = array( __CLASS__, 'get_purchase_token' );
+		$methods['jetpack.deletePurchaseToken'] = array( __CLASS__, 'delete_purchase_token' );
+		$methods['jetpack.jsonAPI']             = array( __CLASS__, 'json_api' );
 
 		return $methods;
 	}
@@ -101,11 +101,11 @@ class Jetpack_XMLRPC_Methods {
 	}
 
 	/**
-	 * Returns a purchase token used for wp.com userless checkout
+	 * Returns a purchase token used for site-connected (non user-authenticated) checkout.
 	 *
 	 * @return array The current purchase token
 	 */
-	public static function get_userless_purchase_token() {
+	public static function get_purchase_token() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
@@ -124,7 +124,7 @@ class Jetpack_XMLRPC_Methods {
 	 *
 	 * @return boolean
 	 */
-	public static function delete_userless_purchase_token() {
+	public static function delete_purchase_token() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );

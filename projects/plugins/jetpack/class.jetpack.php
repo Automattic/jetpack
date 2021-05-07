@@ -7660,15 +7660,14 @@ endif;
 	 * @return boolean True if the user can make purchases, false if not
 	 */
 	public static function current_user_can_purchase() {
-		$connection_status = \Automattic\Jetpack\Connection\REST_Connector::connection_status( false );
 
 		// The site must be connected to Jetpack.
-		if ( ! $connection_status['isActive'] ) {
+		if ( ! self::connection()->is_connected() ) {
 			return false;
 		}
 
 		// We cannot do userless purchases for sites that are not connected userlessly.
-		if ( $connection_status['hasConnectedOwner'] ) {
+		if ( self::connection()->has_connected_owner() ) {
 			return false;
 		}
 
