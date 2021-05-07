@@ -21,7 +21,7 @@
 		"node-fetch": "2.6.1"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.28.3"
+		"@vercel/ncc": "0.28.5"
 	},
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt"
