@@ -309,7 +309,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu();
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
 		$this->assertSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
-		$this->assertSame( 'options-general.php', array_pop( $submenu['options-general.php'] )[2] );
 
 		// Reset.
 		$menu    = static::$menu_data;
@@ -318,7 +317,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu( true );
 		$last_submenu = array_pop( $submenu['options-general.php'] );
 		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
-		$this->assertNotSame( 'options-general.php', $last_submenu[2] );
 	}
 
 	/**
