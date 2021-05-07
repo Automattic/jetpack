@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+After connection: Add query param indicating if site is non-https for use on the Plans selection page.
