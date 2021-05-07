@@ -40,7 +40,7 @@ export default class WPLoginPage extends WpPage {
 		} catch ( e ) {
 			if ( retry === true ) {
 				logger.warn( `The WPORG login didn't work as expected - retrying now: '${ e }'` );
-				await takeScreenshot( this.page, 'WPORG-login-failed', true );
+				await takeScreenshot( this.page, 'WPORG-login-failed' );
 
 				return await this.login( username, password, { retry: false } );
 			}

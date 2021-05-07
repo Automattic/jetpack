@@ -67,7 +67,8 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 
 	const detailLines = [];
 	const failureDetails = [];
-	const screenshots = fs.readdirSync( 'output/screenshots' );
+	const screenshots = fs.readdirSync( config.get( 'dirs.screenshots' ) );
+	const matchedScreenshots = [];
 
 	// Go through all test results and extract failure details
 	for ( const tr of result.testResults ) {
@@ -81,35 +82,33 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 
 				// try to find a screenshot for this failed test
 				const expectedScreenshotName = fileNameFormatter( ar.title, false );
-				let foundScreenshot;
+
 				for ( const screenshot of screenshots ) {
 					if ( screenshot.indexOf( expectedScreenshotName ) > -1 ) {
 						failureDetails.push( {
 							type: 'file',
-							content: path.resolve( 'output/screenshots', screenshot ),
+							content: path.resolve( config.get( 'dirs.screenshots' ), screenshot ),
 						} );
-						foundScreenshot = screenshot;
+						matchedScreenshots.push( screenshot );
 					}
 				}
-
-				// remove the used screenshot from screenshots list
-				screenshots.splice( screenshots.indexOf( foundScreenshot ), 1 );
 			}
 		}
 	}
 
 	// Add any remaining screenshots (not matching any test name)
-	for ( const screenshot of screenshots ) {
+	const remainingScreenshots = screenshots.filter( s => matchedScreenshots.indexOf( s ) === -1 );
+	for ( const screenshot of remainingScreenshots ) {
 		failureDetails.push( {
 			type: 'file',
-			content: path.resolve( 'output/screenshots', screenshot ),
+			content: path.resolve( config.get( 'dirs.screenshots' ), screenshot ),
 		} );
 	}
 
 	// Add a header line
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
 	if ( detailLines.length > 0 ) {
-		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
+		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } ${ suite }* tests failed:`;
 		detailLines.push( '\nmore details in :thread:' );
 	}
 
@@ -177,6 +176,13 @@ async function reportJobRun( status ) {
  */
 function getGithubInfo() {
 	const { GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
+
+	if ( ! GITHUB_EVENT_PATH || ! GITHUB_RUN_ID ) {
+		throw new Error(
+			'Undefined GITHUB_EVENT_PATH and/or GITHUB_RUN_ID. Are you running this in Github actions?'
+		);
+	}
+
 	const event = JSON.parse( fs.readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
 
 	const gh = {
@@ -275,27 +281,28 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 }
 
 async function sendMessage( blocks, { channel = slackChannel, icon = ':jetpack:', threadId } ) {
-	const payload = {
-		blocks,
-		channel,
-		username: 'E2E tests reporter',
-		icon_emoji: icon,
-		thread_ts: threadId,
-	};
-
-	return await sendRequestToSlack( async () => await slackClient.chat.postMessage( payload ) );
+	return await sendRequestToSlack(
+		async () =>
+			await slackClient.chat.postMessage( {
+				blocks,
+				channel,
+				username: 'E2E tests reporter',
+				icon_emoji: icon,
+				thread_ts: threadId,
+			} )
+	);
 }
 
 async function uploadFile( filePath, { channel = slackChannel, threadId } ) {
-	console.log( `Uploading ${ filePath }` );
-	const payload = {
-		fileName: filePath,
-		file: fs.createReadStream( filePath ),
-		channels: channel,
-		thread_ts: threadId,
-	};
-
-	return await sendRequestToSlack( async () => await slackClient.files.upload( payload ) );
+	return await sendRequestToSlack(
+		async () =>
+			await slackClient.files.upload( {
+				fileName: filePath,
+				file: fs.createReadStream( filePath ),
+				channels: channel,
+				thread_ts: threadId,
+			} )
+	);
 }
 
 async function sendRequestToSlack( fn ) {
