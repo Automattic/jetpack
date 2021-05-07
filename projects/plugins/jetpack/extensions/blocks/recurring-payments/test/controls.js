@@ -13,6 +13,9 @@ import { render, screen } from '@testing-library/react';
  * Internal dependencies
  */
 import { PanelControls, ToolbarControls } from '../controls';
+import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
+
+jest.mock( '../../../shared/use-autosave-and-redirect/index' );
 
 describe( 'PanelControls', () => {
 	const defaultAttributes = {
@@ -72,7 +75,6 @@ describe( 'ToolbarControls', () => {
 	const autosaveAndRedirect = jest.fn();
 
 	const defaultProps = {
-		autosaveAndRedirect: autosaveAndRedirect,
 		connected: false,
 		connectURL: 'http://www.test.com',
 		hasUpgradeNudge: false,
@@ -80,7 +82,11 @@ describe( 'ToolbarControls', () => {
 	};
 
 	beforeEach( () => {
-		autosaveAndRedirect.mockClear();
+		useAutosaveAndRedirect.mockImplementation( () => ( {
+			autosave: jest.fn(),
+			isRedirecting: false,
+			autosaveAndRedirect
+		} ) );
 	} );
 
 	test( 'loads and displays Stripe connection button', () => {
@@ -93,7 +99,7 @@ describe( 'ToolbarControls', () => {
 		render( <ToolbarControls { ...defaultProps } /> );
 		userEvent.click( screen.getByText( 'Connect Stripe' ).firstChild );
 
-		expect( autosaveAndRedirect.mock.calls[ 0 ][ 1 ] ).toEqual( 'http://www.test.com' );
+		expect( useAutosaveAndRedirect ).toHaveBeenCalledWith( 'http://www.test.com' );
 	} );
 
 	test( 'does not display the Stripe button when the upgrade nudge is showing', () => {
