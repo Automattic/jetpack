@@ -231,11 +231,28 @@ class Jetpack_Connection_Banner {
 				'forceVariation'        => $force_variation,
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
-				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
+				'plansPromptUrl'        => self::get_plans_prompt_url(),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
 			)
 		);
+	}
+
+	/**
+	 * Gets the Jetpack Redirect url pointing to the Jetpack plans/pricing page.
+	 *
+	 * @since 9.8
+	 *
+	 * @return string
+	 */
+	public function get_plans_prompt_url() {
+		$query = array();
+		// If the site's wp-admin url is http only (not https), include a query param indicating this. `&query=https%3Doff`.
+		// The query param is used on the Calypso plans/pricing page to build the sites's wp-admin url when selecting the Jetapack "Free" plan.
+		if ( 'http://' === substr( get_site_url(), 0, 7 ) ) {
+			$query['query'] = 'https=off';
+		}
+		return Redirect::get_url( 'jetpack-connect-plans', $query );
 	}
 
 	/**
