@@ -93,7 +93,7 @@ if ( typeof window !== 'undefined' ) {
 		}, {} );
 
 	domReady( function () {
-		const storyBlocks = [ ...document.getElementsByClassName( 'wp-story' ) ];
+		const storyBlocks = [ ...document.querySelectorAll( '#page .wp-story' ) ];
 		storyBlocks.forEach( storyBlock => {
 			if ( storyBlock.getAttribute( 'data-block-initialized' ) === 'true' ) {
 				return;
