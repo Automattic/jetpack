@@ -1,14 +1,18 @@
 #!/usr/bin/env node
 
-const { WebClient, ErrorCode, retryPolicies } = require( '@slack/web-api' );
+const { WebClient, ErrorCode, retryPolicies, LogLevel } = require( '@slack/web-api' );
 const fs = require( 'fs' );
 const config = require( 'config' );
+const path = require( 'path' );
 const yargs = require( 'yargs' );
+const { fileNameFormatter } = require( '../lib/utils-helper' );
 const slackClient = new WebClient( config.get( 'slack.token' ), {
 	retryConfig: retryPolicies.rapidRetryPolicy,
+	logLevel: LogLevel.DEBUG,
 } );
 const slackChannel = config.get( 'slack.channel' );
 
+// region yargs
 // eslint-disable-next-line no-unused-expressions
 yargs
 	.usage( 'Usage: $0 <cmd>' )
@@ -38,6 +42,9 @@ yargs
 	.help( 'h' )
 	.alias( 'h', 'help' ).argv;
 
+//endregion
+
+// region main methods
 /**
  * Sends a Slack notification with test run results.
  * Content is built from test output (reports, logs, screenshots, etc.) and Github env variables.
@@ -48,6 +55,7 @@ yargs
 async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	let result;
 
+	// If results summary file is not found send failure notification and exit
 	try {
 		result = JSON.parse( fs.readFileSync( 'output/summary.json', 'utf8' ) );
 	} catch ( error ) {
@@ -57,52 +65,94 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 		return;
 	}
 
-	const failedTests = [];
-	const stackTraces = [];
+	const detailLines = [];
+	const failureDetails = [];
+	const screenshots = fs.readdirSync( 'output/screenshots' );
 
+	console.log( screenshots );
+
+	// Go through all test results and extract failure details
 	for ( const tr of result.testResults ) {
 		for ( const ar of tr.assertionResults ) {
 			if ( ar.status !== 'passed' ) {
-				failedTests.push( `- ${ ar.fullName }` );
-				stackTraces.push( `*${ ar.fullName }*\n\n\`\`\`${ ar.failureMessages }\`\`\`` );
+				detailLines.push( `- ${ ar.fullName }` );
+				failureDetails.push( {
+					type: 'stacktrace',
+					content: `*${ ar.fullName }*\n\n\`\`\`${ ar.failureMessages }\`\`\``,
+				} );
+
+				// try to find a screenshot for this failed test
+				const expectedScreenshotName = fileNameFormatter( ar.title, false );
+				let foundScreenshot;
+				for ( const screenshot of screenshots ) {
+					if ( screenshot.indexOf( expectedScreenshotName ) > -1 ) {
+						failureDetails.push( {
+							type: 'file',
+							content: path.resolve( 'output/screenshots', screenshot ),
+						} );
+						foundScreenshot = screenshot;
+					}
+				}
+
+				// remove the used screenshot from screenshots list
+				screenshots.splice( screenshots.indexOf( foundScreenshot ), 1 );
 			}
 		}
 	}
 
-	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
-	if ( failedTests.length > 0 ) {
-		testListHeader = `*${ failedTests.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
+	// Add any remaining screenshots (not matching any test name)
+	for ( const screenshot of screenshots ) {
+		failureDetails.push( {
+			type: 'file',
+			content: path.resolve( 'output/screenshots', screenshot ),
+		} );
 	}
 
-	failedTests.splice( 0, 0, testListHeader );
+	// Add a header line
+	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
+	if ( detailLines.length > 0 ) {
+		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
+		detailLines.push( '\nmore details in :thread:' );
+	}
 
+	detailLines.splice( 0, 0, testListHeader );
+
+	// build the notification blocks
 	const mainMsgBlocks = buildDefaultMessage( result.success );
 
 	const testsListBlock = {
 		type: 'section',
 		text: {
 			type: 'mrkdwn',
-			text: failedTests.join( '\n' ),
+			text: detailLines.join( '\n' ),
 		},
 	};
 
 	mainMsgBlocks.splice( 1, 0, testsListBlock );
 
+	// Send the main message
 	const response = await sendMessage( mainMsgBlocks, {} );
 	const threadId = response.ts;
 
-	for ( const stacktrace of stackTraces ) {
-		const threadBlocks = [
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: stacktrace,
-				},
-			},
-		];
-
-		await sendMessage( threadBlocks, { threadId } );
+	// Send failure details in thread
+	for ( const entry of failureDetails ) {
+		switch ( entry.type ) {
+			case 'stacktrace':
+				const threadBlocks = [
+					{
+						type: 'section',
+						text: {
+							type: 'mrkdwn',
+							text: entry.content,
+						},
+					},
+				];
+				await sendMessage( threadBlocks, { threadId } );
+				break;
+			case 'file':
+				await uploadFile( entry.content, { threadId } );
+				break;
+		}
 	}
 }
 
@@ -119,6 +169,9 @@ async function reportJobRun( status ) {
 	await sendMessage( buildDefaultMessage( isSuccess ), {} );
 }
 
+//endregion
+
+// region helper methods
 /**
  * Pulls all Github information into a single object
  *
@@ -224,15 +277,27 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 }
 
 async function sendMessage( blocks, { channel = slackChannel, icon = ':jetpack:', threadId } ) {
-	const payload = Object.assign( {
+	const payload = {
 		blocks,
 		channel,
 		username: 'E2E tests reporter',
 		icon_emoji: icon,
 		thread_ts: threadId,
-	} );
+	};
 
 	return await sendRequestToSlack( async () => await slackClient.chat.postMessage( payload ) );
+}
+
+async function uploadFile( filePath, { channel = slackChannel, threadId } ) {
+	console.log( `Uploading ${ filePath }` );
+	const payload = {
+		fileName: filePath,
+		file: fs.createReadStream( filePath ),
+		channels: channel,
+		thread_ts: threadId,
+	};
+
+	return await sendRequestToSlack( async () => await slackClient.files.upload( payload ) );
 }
 
 async function sendRequestToSlack( fn ) {
@@ -251,3 +316,5 @@ async function sendRequestToSlack( fn ) {
 		}
 	}
 }
+
+//endregion
