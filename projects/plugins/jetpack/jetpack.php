@@ -197,8 +197,8 @@ require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';
  * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
  */
 if (
-	defined( 'IS_ATOMIC' ) && IS_ATOMIC ||  // <- WoA
-	defined( 'IS_PRESSABLE' ) && IS_PRESSABLE // <- Pressable
+	defined( 'IS_ATOMIC' ) && IS_ATOMIC ||
+	defined( 'IS_PRESSABLE' ) && IS_PRESSABLE
 ) {
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }
