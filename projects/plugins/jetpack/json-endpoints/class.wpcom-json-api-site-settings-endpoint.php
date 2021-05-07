@@ -557,7 +557,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 			// preserve the raw value before unslashing the value. The slashes need to be preserved for date and time formats.
 			$raw_value = $value;
-			$value = wp_unslash( $value );
+			$value     = wp_unslash( $value );
 
 			switch ( $key ) {
 
