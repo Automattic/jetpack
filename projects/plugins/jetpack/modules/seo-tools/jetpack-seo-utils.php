@@ -10,18 +10,19 @@ class Jetpack_SEO_Utils {
 	const FRONT_PAGE_META_OPTION = 'advanced_seo_front_page_description';
 
 	/**
-	 * Initially setting the front page meta description was for all sites, then the feature was grouped to a paid plan.
-	 * The LEGACY_META_OPTION was added at that time to support legacy usage. Later on, a decision was made to have
-	 * the JP seo-tools features for all JP sites (paid plan or not).
+	 * The LEGACY_META_OPTION is used to support legacy usage on WPcom simple sites (free or paid).
+	 * For WPorg JP sites, the JP seo-tools features were made free for all sites (free or paid).
 	 */
 	const LEGACY_META_OPTION = 'seo_meta_description';
 
 	/**
 	 * Used to check whether SEO tools are enabled for given site.
 	 *
+	 * @param int $site_id Optional. Defaults to current blog id if not given.
+	 *
 	 * @return bool True if SEO tools are enabled, false otherwise.
 	 */
-	public static function is_enabled_jetpack_seo() {
+	public static function is_enabled_jetpack_seo( $site_id = 0 ) {
 		/**
 		 * Can be used by SEO plugin authors to disable the conflicting output of SEO Tools.
 		 *
@@ -35,7 +36,26 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
+		if ( function_exists( 'has_any_blog_stickers' ) ) {
+			// For WPCOM simple sites.
+			if ( empty( $site_id ) ) {
+				$site_id = get_current_blog_id();
+			}
+
+			return has_any_blog_stickers( array( 'business-plan', 'ecommerce-plan' ), $site_id );
+		}
+
+		// For all Jetpack sites.
 		return true;
+	}
+
+	/**
+	 * Checks if this option was set while it was freely available to all WPcom simple sites.
+	 *
+	 * @return bool True if we should enable legacy usage, false otherwise.
+	 */
+	public static function has_legacy_front_page_meta() {
+		return ! self::is_enabled_jetpack_seo() && get_option( self::LEGACY_META_OPTION );
 	}
 
 	/**
@@ -44,16 +64,13 @@ class Jetpack_SEO_Utils {
 	 * @return string Front page meta description string or empty string.
 	 */
 	public static function get_front_page_meta_description() {
-		$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
-
-		if ( empty( $front_page_meta ) ) {
-			$legacy_meta_option = get_option( self::LEGACY_META_OPTION );
-			if ( ! empty( $legacy_meta_option ) ) {
-				return self::update_front_page_meta_description( $legacy_meta_option, true );
-			}
+		if ( self::is_enabled_jetpack_seo() ) {
+			$front_page_meta = get_option( self::FRONT_PAGE_META_OPTION );
+			return $front_page_meta ? $front_page_meta : get_option( self::LEGACY_META_OPTION, '' );
 		}
 
-		return $front_page_meta;
+		// Support legacy usage for WPcom simple sites.
+		return get_option( self::LEGACY_META_OPTION, '' );
 	}
 
 	/**
@@ -70,12 +87,11 @@ class Jetpack_SEO_Utils {
 	/**
 	 * Updates the site option value for front page meta description.
 	 *
-	 * @param string $value                     New value for front page meta description.
-	 * @param bool   $delete_legacy_meta_option Delete the LEGACY_META_OPTION if true.
+	 * @param string $value New value for front page meta description.
 	 *
 	 * @return string Saved value, or empty string if no update was performed.
 	 */
-	public static function update_front_page_meta_description( $value, $delete_legacy_meta_option = false ) {
+	public static function update_front_page_meta_description( $value ) {
 		$front_page_description = self::sanitize_front_page_meta_description( $value );
 
 		/**
@@ -95,10 +111,16 @@ class Jetpack_SEO_Utils {
 			$front_page_description = substr( $front_page_description, 0, $description_max_length );
 		}
 
-		$did_update = update_option( self::FRONT_PAGE_META_OPTION, $front_page_description );
+		$can_set_meta       = self::is_enabled_jetpack_seo();
+		$legacy_meta_option = get_option( self::LEGACY_META_OPTION );
+		$has_old_meta       = ! empty( $legacy_meta_option );
+		$option_name        = self::has_legacy_front_page_meta() ? self::LEGACY_META_OPTION : self::FRONT_PAGE_META_OPTION;
 
-		if ( $delete_legacy_meta_option && $did_update ) {
-			delete_option( 'seo_meta_description' );
+		$did_update = update_option( $option_name, $front_page_description );
+
+		if ( $did_update && $has_old_meta && $can_set_meta ) {
+			// Delete legacy option if user has switched to Business or eCommerce plan and updated the front page meta description.
+			delete_option( self::LEGACY_META_OPTION );
 		}
 
 		if ( $did_update ) {
