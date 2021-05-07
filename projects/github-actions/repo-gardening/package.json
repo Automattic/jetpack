@@ -13,7 +13,7 @@
 	],
 	"main": "src/index.js",
 	"dependencies": {
-		"@actions/core": "1.2.6",
+		"@actions/core": "1.2.7",
 		"@actions/github": "4.0.0",
 		"compare-versions": "3.6.0",
 		"glob": "7.1.6",
