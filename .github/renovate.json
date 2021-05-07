@@ -30,6 +30,7 @@
 				"automattic/jetpack-device-detection",
 				"automattic/jetpack-error",
 				"automattic/jetpack-heartbeat",
+				"automattic/jetpack-identity-crisis",
 				"automattic/jetpack-jitm",
 				"automattic/jetpack-lazy-images",
 				"automattic/jetpack-licensing",
