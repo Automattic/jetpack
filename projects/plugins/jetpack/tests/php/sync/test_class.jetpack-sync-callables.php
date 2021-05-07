@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Modules;
@@ -92,11 +93,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'wp_max_upload_size'               => wp_max_upload_size(),
 			'is_main_network'                  => Jetpack::is_multi_network(),
 			'is_multi_site'                    => is_multisite(),
-			'main_network_site'                => Functions::main_network_site_url(),
+			'main_network_site'                => Identity_Functions::main_network_site_url(),
 			'single_user_site'                 => Jetpack::is_single_user_site(),
 			'updates'                          => Jetpack::get_updates(),
-			'home_url'                         => Functions::home_url(),
-			'site_url'                         => Functions::site_url(),
+			'home_url'                         => Identity_Functions::home_url(),
+			'site_url'                         => Identity_Functions::site_url(),
 			'has_file_system_write_access'     => Functions::file_system_write_access(),
 			'is_version_controlled'            => Functions::is_version_controlled(),
 			'taxonomies'                       => Functions::get_taxonomies(),
@@ -401,19 +402,19 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_protocol_normalized_url_works_with_no_history() {
 		$callable_type = 'home_url';
-		$option_key = Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
+		$option_key    = Identity_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
 		$this->assertStringStartsWith(
 			'http://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
+			Identity_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 		);
 
 		delete_option( $option_key );
 
 		$this->assertStringStartsWith(
 			'https://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
+			Identity_Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
 		);
 
 		$this->assertCount( 1, get_option( $option_key ) );
@@ -423,39 +424,39 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_protocol_normalized_url_stores_max_history() {
 		$callable_type = 'home_url';
-		$option_key = Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
+		$option_key    = Identity_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 		for ( $i = 0; $i < 20; $i++ ) {
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() );
+			Identity_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() );
 		}
 
-		$this->assertCount( Functions::HTTPS_CHECK_HISTORY, get_option( $option_key ) );
+		$this->assertCount( Identity_Functions::HTTPS_CHECK_HISTORY, get_option( $option_key ) );
 		delete_option( $option_key );
 	}
 
 	function test_get_protocol_normalized_url_returns_http_when_https_falls_off() {
 		$callable_type = 'home_url';
-		$option_key = Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
+		$option_key    = Identity_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
 		// Start with one https scheme
 		$this->assertStringStartsWith(
 			'https://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
+			Identity_Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
 		);
 
 		// Now add enough http schemes to fill up the history
-		for ( $i = 1; $i < Functions::HTTPS_CHECK_HISTORY; $i++ ) {
+		for ( $i = 1; $i < Identity_Functions::HTTPS_CHECK_HISTORY; $i++ ) {
 			$this->assertStringStartsWith(
 				'https://',
-				Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
+				Identity_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 			);
 		}
 
 		// Now that the history is full, this one should cause the function to return false.
 		$this->assertStringStartsWith(
 			'http://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
+			Identity_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 		);
 	}
 
@@ -463,24 +464,24 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$test_url = 'http:///example.com';
 		$this->assertEquals(
 			$test_url,
-			Functions::get_protocol_normalized_url( 'home_url', $test_url )
+			Identity_Functions::get_protocol_normalized_url( 'home_url', $test_url )
 		);
 	}
 
 	function test_get_protocol_normalized_url_cleared_on_reset_data() {
-		Functions::get_protocol_normalized_url( 'home_url', get_home_url() );
-		Functions::get_protocol_normalized_url( 'site_url', get_site_url() );
-		Functions::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
+		Identity_Functions::get_protocol_normalized_url( 'home_url', get_home_url() );
+		Identity_Functions::get_protocol_normalized_url( 'site_url', get_site_url() );
+		Identity_Functions::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach( $url_callables as $callable ) {
-			$this->assertInternalType( 'array', get_option( Functions::HTTPS_CHECK_OPTION_PREFIX . $callable) );
+			$this->assertInternalType( 'array', get_option( Identity_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 
 		Sender::get_instance()->uninstall();
 
 		foreach( $url_callables as $callable ) {
-			$this->assertFalse( get_option( Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
+			$this->assertFalse( get_option( Identity_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 	}
 
@@ -757,7 +758,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_raw_url_by_option_bypasses_filters() {
 		add_filter( 'option_home', array( $this, 'return_filtered_url' ) );
-		$this->assertTrue( 'http://filteredurl.com' !== Functions::get_raw_url( 'home' ) );
+		$this->assertTrue( 'http://filteredurl.com' !== Identity_Functions::get_raw_url( 'home' ) );
 		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
 	}
 
@@ -768,11 +769,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 
 		if ( is_multisite() ) {
-			$this->assertTrue( $this->return_filtered_url() !== Functions::get_raw_url( 'home' ) );
-			$this->assertTrue( $this->return_filtered_url() !== Functions::get_raw_url( 'siteurl' ) );
+			$this->assertTrue( $this->return_filtered_url() !== Identity_Functions::get_raw_url( 'home' ) );
+			$this->assertTrue( $this->return_filtered_url() !== Identity_Functions::get_raw_url( 'siteurl' ) );
 		} else {
-			$this->assertEquals( 'http://constanturl.com', Functions::get_raw_url( 'home' ) );
-			$this->assertEquals( 'http://constanturl.com', Functions::get_raw_url( 'siteurl' ) );
+			$this->assertEquals( 'http://constanturl.com', Identity_Functions::get_raw_url( 'home' ) );
+			$this->assertEquals( 'http://constanturl.com', Identity_Functions::get_raw_url( 'siteurl' ) );
 		}
 
 		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
@@ -784,13 +785,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$home_option = get_option( 'home' );
 
 		// Test without https first
-		$this->assertEquals( $home_option, Functions::get_raw_url( 'home' ) );
+		$this->assertEquals( $home_option, Identity_Functions::get_raw_url( 'home' ) );
 
 		// Now, with https
 		$_SERVER['HTTPS'] = 'on';
 		$this->assertEquals(
 			set_url_scheme( $home_option, 'http' ),
-			Functions::get_raw_url( 'home' )
+			Identity_Functions::get_raw_url( 'home' )
 		);
 		unset( $_SERVER['HTTPS'] );
 	}

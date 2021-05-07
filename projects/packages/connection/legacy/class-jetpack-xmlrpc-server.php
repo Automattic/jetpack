@@ -5,12 +5,12 @@
  * @package automattic/jetpack-connection
  */
 
+use Automattic\Jetapck\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
 
 /**
@@ -758,8 +758,8 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function validate_urls_for_idc_mitigation() {
 		return array(
-			'home'    => Functions::home_url(),
-			'siteurl' => Functions::site_url(),
+			'home'    => Identity_Functions::home_url(),
+			'siteurl' => Identity_Functions::site_url(),
 		);
 	}
 
