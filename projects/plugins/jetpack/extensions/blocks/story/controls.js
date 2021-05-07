@@ -19,6 +19,7 @@ export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia 
 								onSelect={ onSelectMedia }
 								allowedTypes={ allowedMediaTypes }
 								multiple
+								unstableFeaturedImageFlow
 								value={ mediaFiles.map( file => file.id ) }
 								render={ ( { open } ) => (
 									<EditButton label={ __( 'Edit Story', 'jetpack' ) } onClick={ open } />
