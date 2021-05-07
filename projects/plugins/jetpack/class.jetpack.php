@@ -418,6 +418,8 @@ class Jetpack {
 		if ( ! self::$instance ) {
 			self::$instance = new Jetpack();
 			add_action( 'plugins_loaded', array( self::$instance, 'plugin_upgrade' ) );
+			// Initialize Identity Crisis.
+			add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
 		}
 
 		return self::$instance;

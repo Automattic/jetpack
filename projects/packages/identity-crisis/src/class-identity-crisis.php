@@ -11,7 +11,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Status as Status;
-use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
