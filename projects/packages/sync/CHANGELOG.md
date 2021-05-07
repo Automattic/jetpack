@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.21.2] - 2021-04-27
+### Added
+- Added the password-checker package the the Sync package composer.json file.
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Sync: removed references to the JETPACK__PLUGIN_DIR constant.
+- Sync Checksums : updated postmeta range query performance #19337.
+
+## [1.21.1] - 2021-03-30
+### Added
+- Composer alias for dev-master, to improve dependencies
+- Implement a 60 second back-off for non-200 respones, if no retry-after header is present in the response.
+- Impose a max limit of 2MB on post meta values that are synced.
+- Impose a max limit of 5MB on post_content that can be synced.
+
+### Changed
+- Sync: Use the new Password_Checker package instead of Jetpack_Password_Checker.
+- Update package dependencies.
+- Use the Heartbeat package to generate the stats array
+
+### Fixed
+- Migrate locks to update_option to avaoid memcache inconsistencies that can be introduced by delete_option usage.
+- Update Sync Queue so that serialize is wrapped to catch errors
+
 ## [1.21.0] - 2021-02-23
 
 - General: update WordPress version requirements to WP 5.6
@@ -349,6 +376,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.21.2]: https://github.com/Automattic/jetpack-sync/compare/v1.21.1...v1.21.2
+[1.21.1]: https://github.com/Automattic/jetpack-sync/compare/v1.21.0...v1.21.1
 [1.21.0]: https://github.com/Automattic/jetpack-sync/compare/v1.20.2...v1.21.0
 [1.20.2]: https://github.com/Automattic/jetpack-sync/compare/v1.20.1...v1.20.2
 [1.20.1]: https://github.com/Automattic/jetpack-sync/compare/v1.20.0...v1.20.1

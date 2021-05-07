@@ -5,10 +5,11 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 ## Table of contents
 
 - [Pre-requisites](#pre-requisites)
-	- [Configuration](#configuration)
-		- [Test Configuration](#test-configuration)
-		- [WP Site Configuration](#wp-site-configuration)
-		- [Environment Variables](#environment-variables)
+- [Environment setup](#environment-setup)
+	- [Test Configuration](#test-configuration)
+	- [WP Site Configuration](#wp-site-configuration)
+	- [Tunnel](#local-tunnel)
+	- [Environment Variables](#environment-variables)
 - [Running tests](#running-tests)
 - [Writing tests](#writing-tests)
 - [Tests Architecture](#tests-architecture)
@@ -17,11 +18,11 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 ## Pre-requisites
 
 * This readme assumes that `node`, `yarn` and `docker` are already installed on your machine.
-* Make sure you built Jetpack first. `yarn build` in the tests parent directory should do it. You can also refer to the monorepo documentation in how to build Jetpack.
+* Make sure you built Jetpack first. `yarn install && yarn jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
-### Configuration
+## Environment setup
 
-#### Test Configuration
+### Test Configuration
 
 Jetpack E2E tests relies on encrypted configuration file, which is included in this repo as [`encrypted.enc`](./config/encrypted.enc). To be able to run tests - that file should be decrypted first.
 
@@ -30,16 +31,33 @@ To decrypt the config file (a8c only):
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
 - Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
 
-#### WP Site Configuration
+### WP Site Configuration
 
 Test environment is a bit complex (It's Jetpack, you know ;)). Tests expect to have WP installation with installed Jetpack accessible via a local tunnel. Required environment could easily be created via core's `wp-env` node package.
 
 `wp-env` is a wrapper around `docker-compose` that makes it pretty easy to get up and running with E2E tests (and local development as well!). We use a wrapper around `wp-env` that updates some options to make `wp-env` containers to work with Jetpack tests. To set up tests environment:
 
 1. Make sure that docker is installed locally
-2. Run `./bin/env.sh start` to start a `wp-env` containers. It will start 2 wordpress installation (we would use only 1 though) & wp-cli container.
+2. Run `./bin/env.sh start` to start a `wp-env` containers. It will start 2 WordPress containers (we would use only 1 though) & wp-cli container.
 
-#### Environment variables
+### Local tunnel
+
+To bypass the offline mode you will need you site to have a publicly accessible url that will proxy all requests to your locally running WordPress installation.
+These tests use `localtunnel` library to expose localhost:8889 via a public url.
+
+To start a tunnel:
+```
+yarn tunnel-on
+```
+
+To stop the tunnel:
+```
+yarn tunnel-off
+```
+
+The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. If you want a different url, simply delete the file or update its content. 
+
+### Environment variables
 
 * `HEADLESS` - default `true`. Whether to run tests in a headless mode or not.
 * `E2E_DEBUG` - default `false`. Will log debug information into console. Also forces browser headfull mode, any value for the above `HEADLESS` var will be ignored.
@@ -78,14 +96,14 @@ yarn test-e2e ./specs/some.test.js
 # One test from a test file
 yarn test-e2e ./specs/some.test.js -t 'Test name'
 
-# All blocks tests
+# All tests having 'blocks' in their name
 yarn test-e2e --testNamePattern=blocks
-
-# Only mailchimp test(s)
-yarn test-e2e --testNamePattern=mailchimp
 
 # All tests except the updater one(s)
 yarn test-e2e --testPathIgnorePatterns=updater
+
+# Filter by groups - run all tests in 'post-connection' group
+yarn test-e2e --group=post-connection
 
 ```
 
@@ -110,7 +128,7 @@ There are two base classes that should be extended by page objects: [`WpPage`](l
 `WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend WpPage. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`. 
 
 Since most of the Playwright functionality is `async`, and JavaScript constructors are not - we should initialize pages with `init()` static method: `await BlockEditorPage.init( page )` to make sure we would wait for `expectedSelectors` checks.
-Make sure you pass these selectors in a page constructor to the `super` constructor by using the `expectedSelectors` argument. This expects an array of strings, so you cna pass multiple selectors in case you want to check more elements in the page.  
+Make sure you pass these selectors in a page constructor to the `super` constructor by using the `expectedSelectors` argument. This expects an array of strings, so you can pass multiple selectors in case you want to check more elements on the page.  
 
 ```js
 constructor( page ) {

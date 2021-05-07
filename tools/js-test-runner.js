@@ -14,6 +14,8 @@ require( '@babel/register' )( {
 			return path.startsWith( basepath );
 		},
 	],
+	presets: [ '@babel/preset-react', [ '@babel/preset-env', { targets: { node: 'current' } } ] ],
+	plugins: [ '@babel/plugin-transform-runtime' ],
 } );
 
 const program = require( 'commander' ),
@@ -31,17 +33,16 @@ program
 	.option( '-R, --reporter <name>', 'specify the reporter to use', 'spec' )
 	.option( '-g, --grep <pattern>', 'only run tests matching <pattern>' );
 
-program.name = 'js-test-runner';
-
 program.parse( process.argv );
+const options = program.opts();
 
 const mocha = new Mocha( {
 	ui: 'bdd',
-	reporter: program.reporter,
+	reporter: options.reporter,
 } );
 
-if ( program.grep ) {
-	mocha.grep( new RegExp( program.grep ) );
+if ( options.grep ) {
+	mocha.grep( new RegExp( options.grep ) );
 }
 
 mocha.suite.beforeAll( function () {
@@ -55,7 +56,7 @@ mocha.suite.afterAll( function () {
 	nock.restore();
 } );
 
-if ( program.jsdom ) {
+if ( options.jsdom ) {
 	// Define a dom so we can have window and all else
 	require( 'jsdom-global' )();
 
@@ -67,8 +68,8 @@ if ( program.jsdom ) {
 	};
 }
 
-if ( program.initfile ) {
-	mocha.addFile( program.initfile );
+if ( options.initfile ) {
+	mocha.addFile( options.initfile );
 }
 
 if ( program.args.length ) {

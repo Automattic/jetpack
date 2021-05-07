@@ -138,7 +138,7 @@ class DashStatsBottom extends Component {
 							connectUser={ true }
 							from="unlinked-user-connect"
 							connectLegend={ __(
-								'Connect your account to WordPress.com to view more stats',
+								'Connect your WordPress.com account to view more stats',
 								'jetpack'
 							) }
 						/>

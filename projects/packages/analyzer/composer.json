@@ -7,7 +7,7 @@
 		"nikic/php-parser": "^4.2"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -38,6 +38,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-analyzer",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-analyzer/compare/v${old}...v${new}"

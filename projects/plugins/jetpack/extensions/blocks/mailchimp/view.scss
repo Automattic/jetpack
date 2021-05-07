@@ -8,8 +8,13 @@
 		}
 	}
 
-	.wp-block-jetpack-button {
+	.wp-block-jetpack-button, p {
 		margin-bottom: 1em;
+	}
+
+	input {
+		box-sizing: border-box;
+		width: 100%;
 	}
 
 	.error,

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-WordPress.com REST API: make sure post metadata is always an array

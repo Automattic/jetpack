@@ -1,0 +1,29 @@
+{
+	"name": "automattic/js-connection",
+	"description": "Jetpack Connection Component.",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "1.2.x-dev"
+	},
+	"scripts": {
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn install",
+			"yarn test"
+		],
+		"test-coverage": [
+			"Composer\\Config::disableProcessTimeout",
+			"yarn install",
+			"yarn nyc --report-dir=\"$COVERAGE_DIR\" yarn test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	]
+}

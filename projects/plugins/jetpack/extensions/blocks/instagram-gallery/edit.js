@@ -74,8 +74,12 @@ const InstagramGalleryEdit = props => {
 		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
 		{ 'is-stacked-on-mobile': isStackedOnMobile }
 	);
-	const gridStyle = { gridGap: spacing };
-	const photoStyle = { padding: spacing };
+	const gridStyle = {
+		gridGap: spacing,
+		// Used to only apply padding when stacked in mobile viewport.
+		[ `--latest-instagram-posts-spacing` ]: spacing ? `${ spacing }px` : undefined,
+	};
+	const photoStyle = { padding: spacing }; // Needed so the updates to the grid gap render when changed.
 
 	const shouldRenderSidebarNotice = () =>
 		showSidebar && ! showLoadingSpinner && images.length < count;
@@ -88,6 +92,7 @@ const InstagramGalleryEdit = props => {
 					alt={ image.title || image.url }
 					src={ image.url }
 					attributes={ attributes }
+					spacing={ spacing }
 				/>
 			);
 		}
@@ -113,7 +118,7 @@ const InstagramGalleryEdit = props => {
 
 	const renderPlaceholderInstructions = () => {
 		if ( ! currentUserConnected ) {
-			return __( "First, you'll need to connect to WordPress.com.", 'jetpack' );
+			return __( "First, you'll need to connect your WordPress.com account.", 'jetpack' );
 		}
 		if ( ! isRequestingUserConnections && ! userConnections.length ) {
 			return __( 'Connect to Instagram to start sharing your images.', 'jetpack' );
@@ -179,7 +184,7 @@ const InstagramGalleryEdit = props => {
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
 							href={ wpcomConnectUrl }
-							isPrimary
+							isSecondary
 						>
 							{ __( 'Connect to WordPress.com', 'jetpack' ) }
 						</Button>
