@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Business Hours Block: Add server rendered PHP fixtures test.

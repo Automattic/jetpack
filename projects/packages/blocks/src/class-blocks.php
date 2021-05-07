@@ -63,6 +63,20 @@ class Blocks {
 		if ( ! self::is_standalone_block() ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
+				// Set up attributes.
+				if ( ! isset( $args['attributes'] ) ) {
+					$args['attributes'] = array();
+				}
+				$args['attributes'] = array_merge(
+					$args['attributes'],
+					array(
+						// Indicates that this block should display an upgrade nudge on the frontend when applicable.
+						'shouldDisplayFrontendBanner' => array(
+							'type'    => 'boolean',
+							'default' => true,
+						),
+					)
+				);
 				if ( isset( $args['render_callback'] ) ) {
 					$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
 				}

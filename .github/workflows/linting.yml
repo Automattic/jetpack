@@ -549,7 +549,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.excludelist == 'true'
-    timeout-minutes: 10  # 2021-02-04: Canceling out at 5 minutes due to now installing all composer/yarn deps to ensure valid linting.
+    timeout-minutes: 15  # 2021-05-06: The "install --all" step sometimes takes 4+ minutes, then the check itself takes another 4.
     steps:
       - uses: actions/checkout@v2
 

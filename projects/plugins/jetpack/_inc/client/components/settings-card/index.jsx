@@ -24,7 +24,11 @@ import {
 	getJetpackProductUpsellByFeature,
 } from 'lib/plans/constants';
 
-import { isOfflineMode } from 'state/connection';
+import {
+	getConnectUrl,
+	hasConnectedOwner as hasConnectedOwnerSelector,
+	isOfflineMode,
+} from 'state/connection';
 import {
 	getSiteAdminUrl,
 	getUpgradeUrl,
@@ -57,6 +61,18 @@ export const SettingsCard = props => {
 		return () => trackBannerClick( feature );
 	};
 
+	const trackConnectClick = feature => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'connect-banner',
+			feature: feature,
+			type: 'connect',
+		} );
+	};
+
+	const handleClickForConnectTracking = feature => {
+		return () => trackConnectClick( feature );
+	};
+
 	const module = props.module ? props.getModule( props.module ) : false,
 		vpData = props.vaultPressData,
 		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
@@ -85,6 +101,11 @@ export const SettingsCard = props => {
 				'A caption for a button to upgrade an existing paid feature to a higher tier.',
 				'jetpack'
 			),
+			connectLabel = _x(
+				'Connect',
+				'A caption for a button to connect a user account to access paid features.',
+				'jetpack'
+			),
 			hasPremiumOrBetter = includes(
 				[
 					'is-premium-plan',
@@ -102,7 +123,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				return (
+				return props.hasConnectedOwner ? (
 					<JetpackBanner
 						title={ __( 'Get unlimited, ad-free video hosting.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
@@ -110,6 +131,18 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.videoPremiumUpgradeUrl }
+					/>
+				) : (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to upgrade for unlimited, ad-free video hosting.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
+						feature={ feature }
+						onClick={ handleClickForConnectTracking( feature ) }
+						href={ props.connectUrl }
 					/>
 				);
 
@@ -121,7 +154,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				return (
+				return props.hasConnectedOwner ? (
 					<JetpackBanner
 						title={ __( 'Generate income with high-quality ads.', 'jetpack' ) }
 						callToAction={ upgradeLabel }
@@ -129,6 +162,18 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.adsUpgradeUrl }
+					/>
+				) : (
+					<JetpackBanner
+						title={ __(
+							'Connect your WordPress.com account to upgrade and generate income with high-quality adds.',
+							'jetpack'
+						) }
+						callToAction={ connectLabel }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
+						feature={ feature }
+						onClick={ handleClickForConnectTracking( feature ) }
+						href={ props.connectUrl }
 					/>
 				);
 
@@ -144,7 +189,7 @@ export const SettingsCard = props => {
 				}
 
 				if ( [ 'is-premium-plan', 'is-daily-security-plan' ].includes( planClass ) ) {
-					return (
+					return props.hasConnectedOwner ? (
 						<JetpackBanner
 							title={ __(
 								'Save every change and get back online quickly with one-click restores.',
@@ -156,10 +201,22 @@ export const SettingsCard = props => {
 							onClick={ handleClickForTracking( feature ) }
 							href={ props.securityProUpgradeUrl }
 						/>
+					) : (
+						<JetpackBanner
+							title={ __(
+								'Connect your WordPress.com account to upgrade and save every change and get back online quickly with one-click restores.',
+								'jetpack'
+							) }
+							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
+							callToAction={ connectLabel }
+							feature={ feature }
+							onClick={ handleClickForConnectTracking( feature ) }
+							href={ props.connectUrl }
+						/>
 					);
 				}
 
-				return (
+				return props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
@@ -171,6 +228,18 @@ export const SettingsCard = props => {
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.securityPremiumUpgradeUrl }
 					/>
+				) : (
+					<JetpackBanner
+						callToAction={ connectLabel }
+						title={ __(
+							'Connect your WordPress.com account to upgrade for automated scanning and one-click fixes keep your site ahead of security threats.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+						feature={ feature }
+						onClick={ handleClickForConnectTracking( feature ) }
+						href={ props.connectUrl }
+					/>
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
@@ -178,7 +247,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				return (
+				return props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Connect your site to Google Analytics.', 'jetpack' ) }
@@ -187,6 +256,18 @@ export const SettingsCard = props => {
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.gaUpgradeUrl }
 					/>
+				) : (
+					<JetpackBanner
+						callToAction={ connectLabel }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and connect your site to Google Analytics.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
+						feature={ feature }
+						onClick={ handleClickForConnectTracking( feature ) }
+						href={ props.connectUrl }
+					/>
 				);
 
 			case FEATURE_SEARCH_JETPACK:
@@ -194,7 +275,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				return (
+				return props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
@@ -205,6 +286,18 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
+					/>
+				) : (
+					<JetpackBanner
+						callToAction={ connectLabel }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
+						feature={ feature }
+						onClick={ handleClickForConnectTracking( feature ) }
+						href={ props.connectUrl }
 					/>
 				);
 
@@ -218,13 +311,24 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				return (
+				return props.hasConnectedOwner ? (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
+					/>
+				) : (
+					<JetpackBanner
+						callToAction={ connectLabel }
+						title={ __(
+							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
+							'jetpack'
+						) }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
+						feature={ feature }
+						href={ props.connectUrl }
 					/>
 				);
 
@@ -396,5 +500,7 @@ export default connect( state => {
 		multisite: isMultisite( state ),
 		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 		inOfflineMode: isOfflineMode( state ),
+		connectUrl: getConnectUrl( state ),
+		hasConnectedOwner: hasConnectedOwnerSelector( state ),
 	};
 } )( SettingsCard );
