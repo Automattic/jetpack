@@ -180,11 +180,8 @@ class Jetpack_RelatedPosts {
 
 		if ( ! $this->_found_shortcode && ! doing_filter( 'get_the_excerpt' ) ) {
 			if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-				// Render related posts server-side. Styles are enqueued by render_block.
 				$content .= "\n" . $this->get_server_rendered_html();
 			} else {
-				// Enqueue styles and scripts used to fetch and display related posts client-side.
-				$this->_enqueue_assets( true, true );
 				$content .= "\n" . $this->get_client_rendered_html();
 			}
 		}
@@ -237,6 +234,10 @@ class Jetpack_RelatedPosts {
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
+
+		// For client-side rendering, enqueue both the styles and the scripts for fetching related posts.
+		// This supports related posts added via the shortcode, or via the hook for non-AMP requests.
+		$this->_enqueue_assets( true, true );
 
 		/**
 		 * Filter the Related Posts headline.
