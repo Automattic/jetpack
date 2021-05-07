@@ -14,16 +14,26 @@ yargs
 	.usage( 'Usage: $0 <cmd>' )
 	.demandCommand( 1, 1 )
 	.command(
-		'run',
+		'run [suite]',
 		'Sends a Slack notification with test run results.',
-		() => {},
-		async () => await reportTestRunResults()
+		() => {
+			yargs.positional( 'suite', {
+				describe: 'Test suite name',
+				type: 'string',
+			} );
+		},
+		async argv => await reportTestRunResults( argv.suite )
 	)
 	.command(
-		'job',
+		'job <status>',
 		'Sends a Slack notification with CI job status which can include more test runs.',
-		() => {},
-		async () => await reportJobRun()
+		() => {
+			yargs.positional( 'status', {
+				describe: 'Job status',
+				type: 'string',
+			} );
+		},
+		async argv => await reportJobRun( argv.status )
 	)
 	.help( 'h' )
 	.alias( 'h', 'help' ).argv;
@@ -32,13 +42,20 @@ yargs
  * Sends a Slack notification with test run results.
  * Content is built from test output (reports, logs, screenshots, etc.) and Github env variables.
  *
+ * @param {string} suite test suite name
  * @return {Promise<void>}
  */
-async function reportTestRunResults() {
-	const isSuccess = false; //todo replace me with script arg
-	const mainMsgBlocks = buildDefaultMessage( isSuccess );
+async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
+	let result;
 
-	const result = JSON.parse( fs.readFileSync( 'output/summary.json', 'utf8' ) );
+	try {
+		result = JSON.parse( fs.readFileSync( 'output/summary.json', 'utf8' ) );
+	} catch ( error ) {
+		const errMsg = 'There was a problem parsing the test results file.';
+		console.error( errMsg );
+		await sendMessage( buildDefaultMessage( false, errMsg ), {} );
+		return;
+	}
 
 	const results = [];
 	const stackTraces = [];
@@ -52,13 +69,14 @@ async function reportTestRunResults() {
 		}
 	}
 
+	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran`;
 	if ( results.length > 0 ) {
-		results.splice(
-			0,
-			0,
-			`*${ results.length }* failed tests (out of *${ result.numTotalTests }*):`
-		);
+		testListHeader = `*${ results.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
 	}
+
+	results.splice( 0, 0, testListHeader );
+
+	const mainMsgBlocks = buildDefaultMessage( ! ( results.length > 0 ) );
 
 	const testsListBlock = {
 		type: 'section',
@@ -72,7 +90,6 @@ async function reportTestRunResults() {
 
 	const response = await sendMessage( mainMsgBlocks, {} );
 	const threadId = response.ts;
-	console.log( threadId );
 
 	for ( const stacktrace of stackTraces ) {
 		const threadBlocks = [
@@ -94,12 +111,12 @@ async function reportTestRunResults() {
  * The job can include multiple test runs and we only want to report success or failure, without details.
  * This is useful as a heartbeat notification, if sent on success only, to know tests are still running and everything works fine
  *
+ * @param {string} status job status. used to determine if job was successful or not
  * @return {Promise<void>}
  */
-async function reportJobRun() {
-	// eslint-disable-next-line no-unused-vars
-	const isSuccess = true; //todo replace me with script arg
-	await sendMessage( buildDefaultMessage( true ), {} );
+async function reportJobRun( status ) {
+	const isSuccess = status === 'success';
+	await sendMessage( buildDefaultMessage( isSuccess ), {} );
 }
 
 /**
@@ -135,7 +152,7 @@ function getGithubInfo() {
 	return gh;
 }
 
-function buildDefaultMessage( isSuccess ) {
+function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 	const gh = getGithubInfo();
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
@@ -161,9 +178,11 @@ function buildDefaultMessage( isSuccess ) {
 		},
 	];
 
-	let headerText = `${ isSuccess ? 'All tests passed' : 'There are test failures' } against <${
-		gh.branch.url
-	}|${ gh.branch.name }> branch`;
+	let headerText = forceHeaderText
+		? forceHeaderText
+		: `${ isSuccess ? 'All tests passed' : 'There are test failures' } against <${
+				gh.branch.url
+		  }|${ gh.branch.name }> branch`;
 
 	if ( gh.pr ) {
 		buttons.push( {
@@ -176,9 +195,11 @@ function buildDefaultMessage( isSuccess ) {
 			style: btnStyle,
 		} );
 
-		headerText = `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR <${
-			gh.pr.url
-		}|${ gh.pr.title }>`;
+		headerText = forceHeaderText
+			? forceHeaderText
+			: `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR <${ gh.pr.url }|${
+					gh.pr.title
+			  }>`;
 	}
 
 	return [
@@ -197,7 +218,6 @@ function buildDefaultMessage( isSuccess ) {
 }
 
 async function sendMessage( blocks, { channel = slackChannel, icon = ':jetpack:', threadId } ) {
-	//thread_ts: response.ts
 	const payload = Object.assign( {
 		blocks,
 		channel,
