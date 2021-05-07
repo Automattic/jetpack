@@ -1054,7 +1054,7 @@ class Jetpack_Gutenberg {
 		$is_atomic_site = jetpack_is_atomic_site();
 
 		// Check feature availability for Simple and Atomic sites.
-		if ( $is_simple_site || $is_atomic_site  ) {
+		if ( $is_simple_site || $is_atomic_site ) {
 
 			// Simple sites.
 			if ( $is_simple_site ) {
