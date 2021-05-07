@@ -10,6 +10,7 @@ namespace Automattic\Jetpack;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
@@ -357,8 +358,8 @@ class Identity_Crisis {
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
 			$local_options = array(
-				'home'    => Functions::home_url(),
-				'siteurl' => Functions::site_url(),
+				'home'    => Identity_Functions::home_url(),
+				'siteurl' => Identity_Functions::site_url(),
 			);
 			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
 		}
