@@ -122,7 +122,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		if ( is_redirected_domain( $this->domain ) ) {
+		if ( is_simple_site_redirect( $this->domain ) ) {
 			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack' ) . '</span>';
 		}
 
