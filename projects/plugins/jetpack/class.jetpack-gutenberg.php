@@ -1064,17 +1064,9 @@ class Jetpack_Gutenberg {
 				$features_data = Store_Product_List::get_site_specific_features_data();
 			} else {
 				// Atomic sites.
-				// Hit the WP COM API '/features' endpoint.
-				$response = Client::wpcom_json_api_request_as_blog(
-					sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) ),
-					Client::WPCOM_JSON_API_VERSION
-				);
-	
-				if ( ! is_wp_error( $response ) ) {
-					$body = wp_remote_retrieve_body( $response );
-					if ( $body ) {
-						$features_data = json_decode( $body, true );
-					}
+				$option = get_option( 'jetpack_active_plan' );
+				if ( ! empty( $option ) && array_key_exists( 'features', $option ) ) {
+					$features_data = $option['features'];
 				}
 			}
 
