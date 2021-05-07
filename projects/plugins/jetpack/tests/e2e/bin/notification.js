@@ -57,32 +57,32 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 		return;
 	}
 
-	const results = [];
+	const failedTests = [];
 	const stackTraces = [];
 
 	for ( const tr of result.testResults ) {
 		for ( const ar of tr.assertionResults ) {
 			if ( ar.status !== 'passed' ) {
-				results.push( `- ${ ar.fullName }` );
+				failedTests.push( `- ${ ar.fullName }` );
 				stackTraces.push( `*${ ar.fullName }*\n\n\`\`\`${ ar.failureMessages }\`\`\`` );
 			}
 		}
 	}
 
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran`;
-	if ( results.length > 0 ) {
-		testListHeader = `*${ results.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
+	if ( failedTests.length > 0 ) {
+		testListHeader = `*${ failedTests.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
 	}
 
-	results.splice( 0, 0, testListHeader );
+	failedTests.splice( 0, 0, testListHeader );
 
-	const mainMsgBlocks = buildDefaultMessage( ! ( results.length > 0 ) );
+	const mainMsgBlocks = buildDefaultMessage( result.success );
 
 	const testsListBlock = {
 		type: 'section',
 		text: {
 			type: 'mrkdwn',
-			text: results.join( '\n' ),
+			text: failedTests.join( '\n' ),
 		},
 	};
 
@@ -213,6 +213,9 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 		{
 			type: 'actions',
 			elements: buttons,
+		},
+		{
+			type: 'divider',
 		},
 	];
 }
