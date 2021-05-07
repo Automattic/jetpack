@@ -69,7 +69,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 		}
 	}
 
-	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran`;
+	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
 	if ( failedTests.length > 0 ) {
 		testListHeader = `*${ failedTests.length }/${ result.numTotalTests } ${ suite }* failed tests:`;
 	}
@@ -209,6 +209,9 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 				type: 'mrkdwn',
 				text: headerText,
 			},
+		},
+		{
+			type: 'divider',
 		},
 		{
 			type: 'actions',

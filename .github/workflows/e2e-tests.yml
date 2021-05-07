@@ -155,7 +155,7 @@ jobs:
       if: always()
 
     - name: Send Slack notification
-      if: ${{ always() }}
+      if: ${{ failure() }}
       working-directory: projects/plugins/jetpack/tests/e2e
       run: NODE_ENV=test node ./bin/notification.js run ${{ matrix.group }}
 
