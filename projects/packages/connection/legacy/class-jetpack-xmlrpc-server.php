@@ -5,11 +5,11 @@
  * @package automattic/jetpack-connection
  */
 
-use Automattic\Jetapck\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Sender;
 
