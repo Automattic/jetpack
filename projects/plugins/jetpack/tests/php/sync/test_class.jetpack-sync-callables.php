@@ -804,14 +804,14 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// Test without https first
 		$this->assertEquals(
 			$home_option,
-			Functions::home_url()
+			Identity_Functions::home_url()
 		);
 
 		// Now, with https
 		$_SERVER['HTTPS'] = 'on';
 		$this->assertEquals(
 			set_url_scheme( $home_option, 'https' ),
-			Functions::home_url()
+			Identity_Functions::home_url()
 		);
 		unset( $_SERVER['HTTPS'] );
 	}
@@ -821,11 +821,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_siteurl', array( $this, 'return_filtered_url' ) );
 
 		// Test with constant first
-		$this->assertTrue( 'http://filteredurl.com' !== Functions::home_url() );
+		$this->assertTrue( 'http://filteredurl.com' !== Identity_Functions::home_url() );
 
 		// Now, without, which should return the filtered URL
 		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
-		$this->assertEquals( $this->return_filtered_url(), Functions::home_url() );
+		$this->assertEquals( $this->return_filtered_url(), Identity_Functions::home_url() );
 		Constants::clear_constants();
 
 		remove_filter( 'option_home', array( $this, 'return_filtered_url' ) );
