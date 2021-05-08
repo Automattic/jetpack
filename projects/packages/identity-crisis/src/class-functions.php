@@ -2,7 +2,7 @@
 /**
  * Utility functions for consistent url based options.
  *
- * @package automattic/identity-crisis
+ * @package automattic/jetpack-identity-crisis
  */
 
 namespace Automattic\Jetpack\Identity_Crisis;
