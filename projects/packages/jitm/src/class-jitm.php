@@ -216,7 +216,10 @@ class JITM {
 	}
 
 	/**
-	 * Generate the icon to display on the JITM
+	 * Generate the icon to display on the JITM.
+	 *
+	 * All icons supported in this method should be included in the array returned by
+	 * JITM::get_supported_icons.
 	 *
 	 * @param string $content_icon Icon type name.
 	 * @param bool   $full_jp_logo_exists Is there a big JP logo already displayed on this screen.
@@ -243,6 +246,21 @@ class JITM {
 				break;
 		}
 		return $content_icon;
+	}
+
+	/**
+	 * Returns an array containing the supported icons for JITMs.
+	 *
+	 * The list includes an empty string, which is used when no icon should be displayed.
+	 *
+	 * @return array The list of supported icons.
+	 */
+	public function get_supported_icons() {
+		return array(
+			'jetpack',
+			'woocommerce',
+			'',
+		);
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+For users that are able to update the `LEGACY_META_OPTION` option, avoid trying to update `TITLE_FORMATS_OPTION` which would display an 403 in Calypso.

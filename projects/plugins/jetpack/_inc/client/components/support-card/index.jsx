@@ -14,7 +14,13 @@ import analytics from 'lib/analytics';
 import Card from 'components/card';
 import Button from 'components/button';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { getSiteConnectionStatus, isCurrentUserLinked, isConnectionOwner } from 'state/connection';
+import {
+	getConnectUrl,
+	getSiteConnectionStatus,
+	hasConnectedOwner,
+	isCurrentUserLinked,
+	isConnectionOwner,
+} from 'state/connection';
 import getRedirectUrl from 'lib/jp-redirect';
 import { isAtomicSite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
@@ -119,7 +125,7 @@ class SupportCard extends React.Component {
 						</p>
 					</div>
 				</Card>
-				{ this.props.siteConnectionStatus && noPrioritySupport && (
+				{ this.props.siteConnectionStatus && noPrioritySupport && this.props.hasConnectedOwner && (
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
@@ -128,6 +134,20 @@ class SupportCard extends React.Component {
 						href={ this.props.supportUpgradeUrl }
 					/>
 				) }
+				{ this.props.siteConnectionStatus &&
+					noPrioritySupport &&
+					! this.props.hasConnectedOwner && (
+						<JetpackBanner
+							title={ __(
+								'Connect your WordPress.com account and upgrade to get a faster resolution to your support questions.',
+								'jetpack'
+							) }
+							plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
+							callToAction={ __( 'Connect', 'jetpack' ) }
+							onClick={ this.trackBannerClick }
+							href={ this.props.connectUrl }
+						/>
+					) }
 			</div>
 		);
 	}
@@ -150,5 +170,7 @@ export default connect( state => {
 		supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
 		isCurrentUserLinked: isCurrentUserLinked( state ),
 		isConnectionOwner: isConnectionOwner( state ),
+		connectUrl: getConnectUrl( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( SupportCard );
