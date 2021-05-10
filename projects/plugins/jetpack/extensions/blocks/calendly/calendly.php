@@ -171,6 +171,9 @@ function enqueue_calendly_js() {
 		'jetpack-calendly-external-js',
 		"function jetpackInitCalendly( url, elementId ) {
 			function initCalendlyWidget() {
+				if ( ! document.getElementById( elementId ) ) {
+					return;
+				}
 				Calendly.initInlineWidget({
 					url: url,
 					parentElement: document.getElementById( elementId ),

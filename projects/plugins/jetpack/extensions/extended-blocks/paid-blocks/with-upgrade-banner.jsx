@@ -7,7 +7,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
 /**
@@ -42,11 +42,14 @@ export default createHigherOrderComponent(
 		);
 		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
 
-		const trackEventData = {
-			plan: requiredPlan,
-			blockName: props.name,
-			context: bannerContext,
-		};
+		const trackEventData = useMemo(
+			() => ( {
+				plan: requiredPlan,
+				blockName: props.name,
+				context: bannerContext,
+			} ),
+			[ requiredPlan, props.name, bannerContext ]
+		);
 
 		// Record event just once, the first time.
 		useEffect( () => {

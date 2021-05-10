@@ -385,7 +385,7 @@ My PR adds *x* and *y*.
 			'`, `'
 		) }\`
 
-Go to that project and use \`vendor/bin/changelogger add\` to add a change file.
+Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
 Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
 `,
 	};

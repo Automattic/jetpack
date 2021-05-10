@@ -43,7 +43,7 @@ function jetpack_instagram_enable_embeds() {
 	wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
 
 	wp_oembed_add_provider(
-		'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i',
+		'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv|reel)/.*#i',
 		'https://graph.facebook.com/v5.0/instagram_oembed/',
 		true
 	);
@@ -52,7 +52,7 @@ function jetpack_instagram_enable_embeds() {
 	 * Handle an alternate Instagram URL format, where the username is also part of the URL.
 	 */
 	wp_oembed_add_provider(
-		'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv)/([^\/]*)#i',
+		'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv|reel)/([^\/]*)#i',
 		'https://graph.facebook.com/v5.0/instagram_oembed/',
 		true
 	);

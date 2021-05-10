@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove do_post_authorization routine and add a hook instead
