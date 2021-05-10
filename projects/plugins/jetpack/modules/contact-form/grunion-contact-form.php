@@ -2109,7 +2109,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
 
 			$r_success_message =
-				'<h3>' . __( 'Message Sent', 'jetpack' ) .
+				'<h3>' . force-conflict .
 				' (<a href="' . esc_url( $back_url ) . '">' . esc_html__( 'go back', 'jetpack' ) . '</a>)' .
 				"</h3>\n\n";
 
