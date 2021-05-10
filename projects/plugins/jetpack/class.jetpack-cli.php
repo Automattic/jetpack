@@ -172,7 +172,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * user <user_identifier>: Disconnect a specific user from WordPress.com.
 	 *
 	 * [--force]
-	 * If the user ID provided is the connection owner, it will onlybe disconnected if --force is passed
+	 * If the user ID provided is the connection owner, it will only be disconnected if --force is passed
 	 *
 	 * ## EXAMPLES
 	 *
