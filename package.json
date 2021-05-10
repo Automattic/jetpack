@@ -16,7 +16,7 @@
 		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-php && yarn build-packages && yarn build-jetpack",
 		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-php' 'yarn build-packages' 'yarn build-jetpack-concurrently'",
 		"build-jetpack": "cd projects/plugins/jetpack && yarn build",
-		"build-jetpack-backup": "cd projects/plugins/backup && yarn build",
+		"build-jetpack-concurrently": "cd projects/plugins/jetpack && yarn build-concurrently",
 		"build-packages": "echo 'Deprecated: Please use the command: jetpack build packages' && yarn jetpack build packages",
 		"build-php": "composer install --ignore-platform-reqs",
 		"build-production": "yarn distclean && yarn install --production=false && yarn build-production-php && yarn build-production-packages && yarn build-production-jetpack",
