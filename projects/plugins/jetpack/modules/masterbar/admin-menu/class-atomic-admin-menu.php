@@ -274,6 +274,18 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Add Jetpack menu and remove akismet config submenu for free AT sites.
+	 */
+	public function add_jetpack_menu() {
+		parent::add_jetpack_menu();
+
+		if ( class_exists( '\Atomic_Plan_Manager' ) && ( \Atomic_Plan_Manager::current_plan_slug() === \Atomic_Plan_Manager::FREE_PLAN_SLUG ) ) {
+			remove_submenu_page( 'jetpack', 'akismet-key-config' );
+		}
+
+	}
+
+	/**
 	 * Adds Appearance menu.
 	 *
 	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
