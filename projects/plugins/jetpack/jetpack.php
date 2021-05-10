@@ -188,14 +188,3 @@ register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) 
 
 // Require everything else, that is not loaded via the autoloader.
 require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';
-
-/*
- * Enable upgrade nudge for Atomic sites.
- * This feature is false as default,
- * so let's enable it through this filter.
- *
- * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
- */
-if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
-}
