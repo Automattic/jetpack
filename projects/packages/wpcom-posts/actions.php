@@ -5,15 +5,17 @@
  * @package automattic/jetpack-wpcom-posts
  */
 
-use Automattic\Jetpack\WPcom\Posts;
+namespace Automattic\Jetpack\WPcom\Posts;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	return;
 }
 
-add_action(
-	'init',
-	function () {
-		new Posts\Thumbnail();
-	}
-);
+/**
+ * Initializes the thumbnail enhancements.
+ */
+function setup_thumbnail() {
+	new Thumbnail();
+}
+
+add_action( 'init', __NAMESPACE__ . '\setup_thumbnail' );
