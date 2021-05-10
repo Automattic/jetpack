@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import getJetpackData from './get-jetpack-data';
-import { isSimpleSite } from './site-type-utils';
+import { isSimpleSite, isAtomicSite } from './site-type-utils';
 import getSiteFragment from './get-site-fragment';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import { requiresPaidPlan } from './register-jetpack-block';
@@ -31,7 +31,12 @@ import { requiresPaidPlan } from './register-jetpack-block';
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
-	const planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
+	let planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
+
+	// Overrites path to `business` for Atomic sites.
+	if ( isAtomicSite() ) {
+		planPathSlug = 'business';
+	}
 
 	// The full site editor has no set post type.
 	const redirect_to = ( undefined === postType
@@ -50,10 +55,10 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 				);
 		  }
 		: () => {
-				// The editor for CPTs has an `edit/` route fragment prefixed
+				// The editor for CPTs has an `edit/` route fragment prefixed.
 				const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-				// Post-checkout: redirect back here
+				// Post-checkout: redirect back here.
 				return isSimpleSite()
 					? addQueryArgs(
 							'/' +
