@@ -89,7 +89,7 @@ class Jetpack_Calypsoify {
 			array(
 				'closeUrl'                => $this->get_close_gutenberg_url(),
 				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block/' . $site_suffix,
-				'createNewPostUrl'        => $this->get_calypso_origin() . '/post' . $site_suffix,
+				'createNewPostUrl'        => $this->get_calypso_origin() . '/post/' . $site_suffix,
 			)
 		);
 	}
