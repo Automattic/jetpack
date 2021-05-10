@@ -61,9 +61,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	} catch ( error ) {
 		const errMsg = 'There was a problem parsing the test results file.';
 		console.error( errMsg );
-		let message = buildDefaultMessage( false, errMsg );
-		message = pushMentions( message );
-		await sendMessage( message, {} );
+		await sendMessage( buildDefaultMessage( false, errMsg ), {} );
 		return;
 	}
 
@@ -108,14 +106,13 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	}
 
 	// build the notification blocks
-	let mainMsgBlocks = buildDefaultMessage( result.success );
+	const mainMsgBlocks = buildDefaultMessage( result.success );
 
 	// Add a header line
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
 	if ( detailLines.length > 0 ) {
 		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } ${ suite }* tests failed:`;
 		detailLines.push( '\nmore details in :thread:' );
-		mainMsgBlocks = pushMentions( mainMsgBlocks );
 	}
 
 	detailLines.splice( 0, 0, testListHeader );
@@ -262,7 +259,7 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			  }>`;
 	}
 
-	return [
+	const blocks = [
 		{
 			type: 'section',
 			text: {
@@ -281,28 +278,28 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			type: 'divider',
 		},
 	];
-}
 
-function pushMentions( blocks ) {
-	const mentions = config
-		.get( 'slack.mentions' )
-		.map( function ( userId ) {
-			return ` <@${ userId }>`;
-		} )
-		.join( ' ' );
+	if ( ! gh.pr && ! isSuccess && gh.branch.name === config.get( 'repository.mainBranch' ) ) {
+		const mentions = config
+			.get( 'slack.mentions' )
+			.map( function ( userId ) {
+				return ` <@${ userId }>`;
+			} )
+			.join( ' ' );
 
-	blocks.push(
-		{
-			type: 'section',
-			text: {
-				type: 'mrkdwn',
-				text: `cc ${ mentions }`,
+		blocks.push(
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `cc ${ mentions }`,
+				},
 			},
-		},
-		{
-			type: 'divider',
-		}
-	);
+			{
+				type: 'divider',
+			}
+		);
+	}
 
 	return blocks;
 }
