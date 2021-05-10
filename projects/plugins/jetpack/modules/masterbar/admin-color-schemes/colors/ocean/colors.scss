@@ -18,11 +18,11 @@ $color-surface: $studio-white; // Calypso --color-surface
 $color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
 
 // Sidebar Nudges
-$menu-nudge-background: #fff;
-$menu-nudge-text-color: #000;
-$menu-nudge-cta-background: rgb(201, 53, 110);
-$menu-nudge-cta-color: #fff;
-$menu-nudge-cta-background-hover: rgb(171, 35, 90);
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $highlight-color;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: $studio-celadon-60;
 
 @import "../_core-overrides";
 @import "../_inline-help";
