@@ -1096,7 +1096,6 @@ class Jetpack_Gutenberg {
 			}
 
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
-			$upgrade_nudge = '';
 			if ( isset( $availability[ $bare_slug ] ) ) {
 				if ( self::should_show_frontend_preview( $availability[ $bare_slug ] ) ) {
 					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
