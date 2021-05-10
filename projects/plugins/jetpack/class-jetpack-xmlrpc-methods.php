@@ -22,6 +22,7 @@ class Jetpack_XMLRPC_Methods {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'xmlrpc_methods' ) );
 		add_filter( 'jetpack_xmlrpc_test_connection_response', array( __CLASS__, 'test_connection' ) );
 		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
+		add_action( 'jetpack_xmlrpc_remote_register_redirect_uri', array( __CLASS__, 'remote_register_redirect_uri' ) );
 	}
 
 	/**
@@ -206,5 +207,30 @@ class Jetpack_XMLRPC_Methods {
 		/** This filter is documented in class.jetpack-cli.php */
 		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
 		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
+	}
+
+	/**
+	 * Filters the Redirect URI returned by the remote_register XMLRPC method
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param string $redirect_uri The Redirect URI.
+	 * @return string
+	 */
+	public static function remote_register_redirect_uri( $redirect_uri ) {
+		$auto_enable_sso = ( ! ( new Connection_Manager() )->has_connected_owner() || Jetpack::is_module_active( 'sso' ) );
+
+		/** This filter is documented in class.jetpack-cli.php */
+		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
+			$redirect_uri = add_query_arg(
+				array(
+					'action'      => 'jetpack-sso',
+					'redirect_to' => rawurlencode( admin_url() ),
+				),
+				wp_login_url() // TODO: come back to Jetpack dashboard?
+			);
+		}
+
+		return $redirect_uri;
 	}
 }
