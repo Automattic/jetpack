@@ -17,47 +17,80 @@ class Jetpack_Backup {
 	 * Constructor.
 	 */
 	public function __construct() {
-		self::admin_init();
+		add_action(
+			'admin_menu',
+			function () {
+				$page_suffix = $this->admin_menu();
+				add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			}
+		);
+
+		// Init ConnectionUI.
+		add_action(
+			'plugins_loaded',
+			function () {
+				Automattic\Jetpack\Connection\Manager::configure();
+				Automattic\Jetpack\ConnectionUI\Admin::init();
+			}
+		);
 	}
 
 	/**
 	 * Initialize the admin resources.
 	 */
-	private function admin_init() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
+	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 	}
 
 	/**
-	 * Enqueue plugin admin scripts.
+	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
 		$build_assets = require_once JETPACK_BACKUP_PLUGIN_DIR . '/build/index.asset.php';
+
+		// Main JS file.
 		wp_register_script(
-			'jetpack-backup-main-js',
+			'jetpack-backup-script',
 			plugins_url( 'build/index.js', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
 			$build_assets['dependencies'],
 			$build_assets['version'],
 			true
 		);
-		wp_enqueue_script( 'jetpack-backup-main-js' );
+		wp_enqueue_script( 'jetpack-backup-script' );
+		// Initial JS state including JP Connection data.
+		wp_add_inline_script( 'jetpack-backup-script', $this->get_initial_state(), 'before' );
+
+		// Translation assets.
+		wp_set_script_translations( 'jetpack-backup-script-translations', 'jetpack-backup' );
+
+		// Main CSS file.
+		wp_enqueue_style(
+			'jetpack-backup-style',
+			plugins_url( 'build/index.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE ),
+			array( 'wp-components' ),
+			$build_assets['version']
+		);
+		// RTL CSS file.
+		wp_style_add_data(
+			'jetpack-backup-style',
+			'rtl',
+			plugins_url( 'build/index.rtl.css', JETPACK_BACKUP_PLUGIN_ROOT_FILE )
+		);
 	}
 
 	/**
 	 * Plugin admin menu setup.
+	 *
+	 * @return string The toplevel plugin admin page hook_suffix.
 	 */
 	public function admin_menu() {
-		add_menu_page(
+		return add_menu_page(
 			__( 'Jetpack Backup', 'jetpack-backup' ),
 			__( 'Backup', 'jetpack-backup' ),
 			'manage_options',
-			'jetpack-backup-menu',
+			'jetpack-backup',
 			array( $this, 'plugin_settings_page' ),
-			'dashicons-superhero',
+			'dashicons-image-rotate',
 			99
 		);
 	}
@@ -69,5 +102,15 @@ class Jetpack_Backup {
 		?>
 			<div id="jetpack-backup-root"></div>
 		<?php
+	}
+
+	/**
+	 * Return the rendered initial state JavaScript code.
+	 *
+	 * @return string
+	 */
+	private function get_initial_state() {
+		require_once JETPACK_BACKUP_PLUGIN_DIR . '/src//php/class-initial-state.php';
+		return ( new Initial_State() )->render();
 	}
 }
