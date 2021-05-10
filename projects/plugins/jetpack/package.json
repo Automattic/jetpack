@@ -58,7 +58,6 @@
 	"resolutions": {
 		"**/@automattic/calypso-build/node-sass": "^4.13.1",
 		"**/gulp/gulp-cli/yargs/yargs-parser": "^20.0.0",
-		"**/hosted-git-info": "^2.8.9",
 		"**/lodash": "4.17.21",
 		"**/node-fetch": "^2.6.1",
 		"**/node-notifier": "^8.0.1",
