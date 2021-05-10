@@ -90,8 +90,7 @@ class Admin_Dashboard {
 			'jp-search-dashboard',
 			plugins_url( '_inc/build/search-dashboard.css', JETPACK__PLUGIN_FILE ),
 			array(),
-			JETPACK__VERSION,
-			true
+			JETPACK__VERSION
 		);
 	}
 

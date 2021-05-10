@@ -49,6 +49,7 @@ export default function SearchDashboard() {
 	const editedEntities = useSelect( select =>
 		select( 'core' ).getEntityRecordEdits( 'root', 'site' )
 	);
+	const isSaving = useSelect( select => select( 'core' ).isSavingEntityRecord( 'root', 'site' ) );
 	const { saveEntityRecord } = useDispatch( 'core' );
 	const saveEditedEntityRecords = () => {
 		editedEntities && saveEntityRecord( 'root', 'site', editedEntities );
@@ -122,9 +123,12 @@ export default function SearchDashboard() {
 			/>
 			<hr />
 			<div>
-				{ /* eslint-disable-next-line react/jsx-no-bind */ }
-				<button disabled={ ! site || ! hasEditedEntities } onClick={ saveEditedEntityRecords }>
-					Save
+				<button
+					disabled={ ! site || ! hasEditedEntities || isSaving }
+					/* eslint-disable-next-line react/jsx-no-bind */
+					onClick={ saveEditedEntityRecords }
+				>
+					{ isSaving ? 'Saving...' : 'Save' }
 				</button>
 			</div>
 		</Card>
