@@ -429,7 +429,7 @@ class Masterbar {
 		if ( class_exists( 'GP_Locales' ) ) {
 			$jetpack_locale_object = GP_Locales::by_field( 'slug', $slug );
 			if ( $jetpack_locale_object instanceof GP_Locale ) {
-				$jetpack_locale = $jetpack_locale_object->wp_locale;
+				$jetpack_locale = $jetpack_locale_object->wp_locale ? $jetpack_locale_object->wp_locale : 'en_US';
 			}
 		}
 
