@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Simplify wpcom/v2 delete transient endpoint logic.
