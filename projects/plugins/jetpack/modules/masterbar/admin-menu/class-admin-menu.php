@@ -113,8 +113,10 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Upgrades menu.
+	 *
+	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu() {
+	public function add_upgrades_menu( $plan = null ) {
 		global $menu;
 
 		$menu_exists = false;
@@ -126,15 +128,27 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		if ( ! $menu_exists ) {
-			add_menu_page( __( 'Upgrades', 'jetpack' ), __( 'Upgrades', 'jetpack' ), 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
+			if ( $plan ) {
+				// Add display:none as a default for cases when CSS is not loaded.
+				$site_upgrades = '%1$s<span class="inline-text" style="display:none">%2$s</span>';
+				$site_upgrades = sprintf(
+					$site_upgrades,
+					__( 'Upgrades', 'jetpack' ),
+					$plan
+				);
+			} else {
+				$site_upgrades = __( 'Upgrades', 'jetpack' );
+			}
+
+			add_menu_page( __( 'Upgrades', 'jetpack' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 5 );
-		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 15 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack' ), __( 'Plans', 'jetpack' ), 'manage_options', 'https://wordpress.com/plans/my-plan/' . $this->domain, null, 1 );
+		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack' ), __( 'Purchases', 'jetpack' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 2 );
 
 		if ( ! $menu_exists ) {
 			// Remove the submenu auto-created by Core.
-			remove_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
+			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
 		}
 	}
 
@@ -149,8 +163,10 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		$submenus_to_update = array(
-			'edit.php'     => 'https://wordpress.com/posts/' . $this->domain,
-			'post-new.php' => 'https://wordpress.com/post/' . $this->domain,
+			'edit.php'                        => 'https://wordpress.com/posts/' . $this->domain,
+			'post-new.php'                    => 'https://wordpress.com/post/' . $this->domain,
+			'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain,
+			'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain,
 		);
 		$this->update_submenus( 'edit.php', $submenus_to_update );
 	}
@@ -165,7 +181,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		remove_submenu_page( 'upload.php', 'media-new.php' );
+		$this->hide_submenu_page( 'upload.php', 'media-new.php' );
 
 		$this->update_menu( 'upload.php', 'https://wordpress.com/media/' . $this->domain );
 	}
@@ -282,8 +298,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'themes.php', $submenus_to_update );
 
-		remove_submenu_page( 'themes.php', 'custom-header' );
-		remove_submenu_page( 'themes.php', 'custom-background' );
+		$this->hide_submenu_page( 'themes.php', 'custom-header' );
+		$this->hide_submenu_page( 'themes.php', 'custom-background' );
 
 		return $customize_url;
 	}
@@ -298,8 +314,8 @@ class Admin_Menu extends Base_Admin_Menu {
 			return;
 		}
 
-		remove_submenu_page( 'plugins.php', 'plugin-install.php' );
-		remove_submenu_page( 'plugins.php', 'plugin-editor.php' );
+		$this->hide_submenu_page( 'plugins.php', 'plugin-install.php' );
+		$this->hide_submenu_page( 'plugins.php', 'plugin-editor.php' );
 
 		$this->update_menu( 'plugins.php', 'https://wordpress.com/plugins/' . $this->domain );
 	}
@@ -350,8 +366,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 		$this->update_submenus( 'tools.php', $submenus_to_update );
 
-		remove_submenu_page( 'tools.php', 'tools.php' );
-		remove_submenu_page( 'tools.php', 'delete-blog' );
+		$this->hide_submenu_page( 'tools.php', 'tools.php' );
+		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
 		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
@@ -363,14 +379,18 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) {
+		$this->hide_submenu_page( 'options-general.php', 'sharing' );
+
+		// There is not complete feature parity between WP Admin and Calypso settings https://github.com/Automattic/wp-calypso/issues/51189.
+		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
+
 		if ( $wp_admin ) {
 			return;
 		}
 
-		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
-
-		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-		remove_submenu_page( 'options-general.php', 'options-writing.php' );
+		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
+		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
 	}
 
 	/**
@@ -392,12 +412,12 @@ class Admin_Menu extends Base_Admin_Menu {
 		/* translators: Jetpack sidebar menu item. */
 		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'read', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
-		remove_submenu_page( 'jetpack', 'stats' );
-		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-		remove_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+		$this->hide_submenu_page( 'jetpack', 'stats' );
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 
 		if ( ! $is_menu_updated ) {
-			// Remove the submenu auto-created by Core.
+			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}

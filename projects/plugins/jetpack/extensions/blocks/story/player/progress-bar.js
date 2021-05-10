@@ -1,22 +1,40 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
-import { createElement } from '@wordpress/element';
+import { range } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import { Bullet } from './components';
-import { range } from 'lodash';
+import { useSelect } from '@wordpress/data';
 
-export const ProgressBar = ( {
-	slides,
-	disabled,
-	currentSlideIndex,
-	currentSlideProgress,
-	onSlideSeek,
-	maxBullets,
-} ) => {
+export const ProgressBullet = ( { key, playerId, index, disabled, isSelected, onClick } ) => {
+	const progress = useSelect(
+		select => select( 'jetpack/story/player' ).getCurrentSlideProgressPercentage( playerId ),
+		[]
+	);
+
+	return (
+		<Bullet
+			key={ key }
+			index={ index }
+			progress={ progress }
+			disabled={ disabled }
+			isSelected={ isSelected }
+			onClick={ onClick }
+		/>
+	);
+};
+
+export const ProgressBar = ( { playerId, slides, disabled, onSlideSeek, maxBullets } ) => {
+	const { currentSlideIndex } = useSelect(
+		select => ( {
+			currentSlideIndex: select( 'jetpack/story/player' ).getCurrentSlideIndex( playerId ),
+		} ),
+		[]
+	);
+
 	const bulletCount = Math.min( slides.length, maxBullets );
 	const middleBullet = Math.floor( bulletCount / 2 );
 
@@ -27,7 +45,7 @@ export const ProgressBar = ( {
 	if ( slides.length <= maxBullets || currentSlideIndex < middleBullet ) {
 		currentBulletIndex = currentSlideIndex;
 		lastReachableSlideIndex = bulletCount - 1;
-	} else if ( currentSlideIndex > slides.length - middleBullet ) {
+	} else if ( currentSlideIndex >= slides.length - middleBullet ) {
 		currentBulletIndex = currentSlideIndex - slides.length + bulletCount;
 		firstReachableSlideIndex = slides.length - bulletCount;
 	} else {
@@ -35,6 +53,7 @@ export const ProgressBar = ( {
 		firstReachableSlideIndex = currentSlideIndex - middleBullet;
 		lastReachableSlideIndex = currentSlideIndex + middleBullet;
 	}
+
 	return (
 		<div className="wp-story-pagination wp-story-pagination-bullets" role="tablist">
 			{ firstReachableSlideIndex > 0 && (
@@ -42,13 +61,22 @@ export const ProgressBar = ( {
 			) }
 			{ range( 1, bulletCount + 1 ).map( ( slide, bulletIndex ) => {
 				const slideIndex = bulletIndex + firstReachableSlideIndex;
-				let progress;
+				let progress = null;
 				if ( slideIndex < currentSlideIndex ) {
 					progress = 100;
 				} else if ( slideIndex > currentSlideIndex ) {
 					progress = 0;
 				} else {
-					progress = currentSlideProgress;
+					return (
+						<ProgressBullet
+							playerId={ playerId }
+							key={ `bullet-${ bulletIndex }` }
+							index={ slideIndex }
+							disabled={ disabled }
+							isSelected={ currentBulletIndex === bulletIndex }
+							onClick={ () => onSlideSeek( slideIndex ) }
+						/>
+					);
 				}
 				return (
 					<Bullet

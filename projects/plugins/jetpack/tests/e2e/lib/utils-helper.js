@@ -5,10 +5,8 @@ const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
-/**
- * Internal dependencies
- */
-const logger = require( './logger' ).default;
+const shellescape = require( 'shell-escape' );
+const logger = require( './logger' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -51,26 +49,45 @@ async function prepareUpdaterTest() {
 }
 
 /**
- * Provisions Jetpack plan through Jetpack Start flow
+ * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
+ * @param {number} userId WPCOM user ID
  * @param {string} plan One of free, personal, premium, or professional.
  * @param {string} user Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
+async function provisionJetpackStartConnection( userId, plan = 'free', user = 'admin' ) {
+	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
-	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl }`;
+	const cmd = `sh ../../../../../tools/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
 
 	const response = execSyncShellCommand( cmd );
-	logger.info( response );
+	logger.cli( response );
 
 	const json = JSON.parse( response );
 	if ( json.success !== true ) {
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	return json.next_url;
+	const out = execSyncShellCommand(
+		shellescape( [
+			'yarn',
+			'wp-env',
+			'run',
+			'tests-cli',
+			shellescape( [
+				'wp',
+				'--user=admin',
+				'jetpack',
+				'authorize_user',
+				`--token=${ json.access_token }`,
+			] ),
+		] )
+	);
+	logger.cli( out );
+
+	return true;
 }
 
 /**
@@ -192,6 +209,58 @@ function getAccountCredentials( accountName ) {
 	return globalConfig.get( accountName );
 }
 
+/**
+ * Reads and returns the content of the file expected to store an URL.
+ * The file path is stored in config.
+ * No validation is done on the file content, so an invalid URL can be returned.
+ *
+ * @return {string} the file content, or undefined in file doesn't exist or cannot be read
+ */
+function getReusableUrlFromFile() {
+	let urlFromFile;
+	try {
+		urlFromFile = fs
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
+			.replace( 'http:', 'https:' );
+	} catch ( error ) {
+		if ( error.code === 'ENOENT' ) {
+			// We expect this, reduce noise in logs
+			console.warn( "Tunnels file doesn't exist" );
+		} else {
+			console.error( error );
+		}
+	}
+	return urlFromFile;
+}
+
+/**
+ * There are two ways to set the target site url:
+ * 1. Write it in 'temp.tunnels' file
+ * 2. Set SITE_URL env variable. This overrides any value written in file
+ * If none of the above is valid we throw an error
+ */
+function resolveSiteUrl() {
+	let url = process.env.SITE_URL;
+
+	if ( ! url ) {
+		url = getReusableUrlFromFile();
+	}
+
+	validateUrl( url );
+	return url;
+}
+
+/**
+ * Throw an error if the passed parameter is not a valid URL
+ *
+ * @param {string} url the string to to be validated as URL
+ */
+function validateUrl( url ) {
+	if ( ! new URL( url ) ) {
+		throw new Error( `Undefined or invalid SITE_URL!` );
+	}
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -205,4 +274,7 @@ module.exports = {
 	logAccessLog,
 	fileNameFormatter,
 	getAccountCredentials,
+	getReusableUrlFromFile,
+	resolveSiteUrl,
+	validateUrl,
 };

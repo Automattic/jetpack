@@ -114,6 +114,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<# } else if ( item.available && 'videopress' !== item.module ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
+						<# if ( ! item.available ) { #>
+							<span class='unavailable_reason'>{{{ item.unavailable_reason }}}</span>
+						<# } #>
 						</div>
 					</td>
 				</tr>

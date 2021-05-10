@@ -240,7 +240,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 */
 	protected function urls_preserve( $text ) {
 		$text = preg_replace_callback(
-			'#(?<!<)(?:https?|ftp)://([^\s<>"\[\]()]+|\[(?1)*+\]|\((?1)*+\))+(?<![_*.?])#i',
+			'#(?<!<)(?:https?|ftp)://([^\s<>"\'\[\]()]+|\[(?1)*+\]|\((?1)*+\))+(?<![_*.?])#i',
 			array( $this, '_doRemoveText' ),
 			$text
 		);

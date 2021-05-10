@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.5] - 2021-04-27
+### Changed
+- Updated package dependencies.
+
 ## [1.13.4] - 2021-04-08
 ### Changed
 - Packaging and build changes, no change to the package itself.
@@ -137,6 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create package for Jetpack Tracking
 
+[1.13.5]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.4...v1.13.5
 [1.13.4]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.3...v1.13.4
 [1.13.3]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.2...v1.13.3
 [1.13.2]: https://github.com/Automattic/jetpack-tracking/compare/v1.13.1...v1.13.2

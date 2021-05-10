@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
@@ -10,6 +7,13 @@ import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
 import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
 import { step } from '../lib/env/test-setup';
 
+/**
+ *
+ * @group post-connection
+ * @group pro-blocks
+ * @group blocks
+ * @group gutenberg
+ */
 describe( 'Paid blocks', () => {
 	let blockEditor;
 

@@ -112,6 +112,36 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::jetpack_reconnect_permission_check',
 			)
 		);
+
+		// Register the site (get `blog_token`).
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/register',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'connection_register' ),
+				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'args'                => array(
+					'from'               => array(
+						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'registration_nonce' => array(
+						'description' => __( 'The registration nonce', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'no_iframe'          => array(
+						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
+						'type'        => 'boolean',
+					),
+					'redirect_uri'       => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'type'        => 'string',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -166,6 +196,7 @@ class REST_Connector {
 			'isActive'          => $connection->is_active(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
+			'isUserConnected'   => $connection->is_user_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),
 			'offlineMode'       => array(
 				'isActive'        => $status->is_offline_mode(),
@@ -363,6 +394,67 @@ class REST_Connector {
 		}
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Verify that user is allowed to connect Jetpack.
+	 *
+	 * @since 9.7.0
+	 *
+	 * @return bool|WP_Error Whether user has the capability 'jetpack_connect'.
+	 */
+	public static function jetpack_register_permission_check() {
+		if ( current_user_can( 'jetpack_connect' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_jetpack_connect', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * The endpoint tried to partially or fully reconnect the website to WP.com.
+	 *
+	 * @since 7.7.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_register( $request ) {
+		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
+			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
+		}
+
+		if ( isset( $request['from'] ) ) {
+			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
+		}
+		$result = $this->connection->try_registration();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
+		if ( class_exists( 'Jetpack' ) ) {
+			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri, ! $request->get_param( 'no_iframe' ) );
+		} else {
+			if ( ! $request->get_param( 'no_iframe' ) ) {
+				add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			}
+
+			$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
+
+			if ( ! $request->get_param( 'no_iframe' ) ) {
+				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+			}
+		}
+
+		return rest_ensure_response(
+			array(
+				'authorizeUrl' => $authorize_url,
+			)
+		);
 	}
 
 }

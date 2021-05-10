@@ -161,6 +161,18 @@
 }
 
 /**
+ * Inline text in a menu title
+ */
+.inline-text {
+	display: block !important;
+	position: absolute;
+	right: 20px;
+	top: 50%;
+	transform: translateY( -50% );
+	opacity: 0.8;
+}
+
+/**
  * Stats
  */
 [class*="toplevel_page_https://wordpress.com/stats/day"] .sidebar-unified__sparkline {
@@ -249,6 +261,12 @@
 	.auto-fold #adminmenu li.toplevel_page_site-card a {
 		padding: 18px 0 18px 12px;
 	}
+}
+
+/* Prevent box-shadow at the top of the sidebar */
+#adminmenu .site-switcher:hover,
+#adminmenu .toplevel_page_site-card:hover {
+	box-shadow: none;
 }
 
 /*

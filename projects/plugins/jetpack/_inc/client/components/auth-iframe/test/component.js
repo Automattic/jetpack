@@ -17,6 +17,7 @@ describe( 'AuthIframe', () => {
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
 		scrollToIframe: false,
 		hasConnectedOwner: false,
+		displayTOS: false,
 	};
 
 	describe( 'Initially (connect url still fetching)', () => {
@@ -47,8 +48,8 @@ describe( 'AuthIframe', () => {
 			expect( wrapper.find( 'InPlaceConnection' ).props().width ).to.be.equal( '100%' );
 		} );
 
-		it( 'has 220 height', () => {
-			expect( wrapper.find( 'InPlaceConnection' ).props().height ).to.be.equal( '220' );
+		it( 'has 330 height', () => {
+			expect( wrapper.find( 'InPlaceConnection' ).props().height ).to.be.equal( '330' );
 		} );
 	} );
 

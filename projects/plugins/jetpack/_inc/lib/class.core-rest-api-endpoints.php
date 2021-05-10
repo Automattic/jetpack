@@ -4,7 +4,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
-use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
 
@@ -106,26 +105,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		register_rest_route(
-			'jetpack/v4',
-			'/jitm',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_jitm_message',
-				'permission_callback' => '__return_true',
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/jitm',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => __CLASS__ . '::delete_jitm_message',
-				'permission_callback' => __CLASS__ . '::delete_jitm_message_permission_callback',
-			)
-		);
-
 		// Test current connection status of Jetpack
 		register_rest_route(
 			'jetpack/v4',
@@ -191,20 +170,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_user_connection_data',
 				'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
-			)
-		);
-
-		// Start the connection process by registering the site on WordPress.com servers.
-		register_rest_route(
-			'jetpack/v4',
-			'/connection/register',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::register_site',
-				'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
-				'args'                => array(
-					'registration_nonce' => array( 'type' => 'string' ),
-				),
 			)
 		);
 
@@ -1089,40 +1054,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Asks for a jitm, unless they've been disabled, in which case it returns an empty array
-	 *
-	 * @param $request WP_REST_Request
-	 *
-	 * @return array An array of jitms
-	 */
-	public static function get_jitm_message( $request ) {
-		$jitm = JITM::get_instance();
-
-		if ( ! $jitm->register() ) {
-			return array();
-		}
-
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ), 'true' === $request['full_jp_logo_exists'] ? true : false );
-	}
-
-	/**
-	 * Dismisses a jitm.
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool Always True
-	 */
-	public static function delete_jitm_message( $request ) {
-		$jitm = JITM::get_instance();
-
-		if ( ! $jitm->register() ) {
-			return true;
-		}
-
-		return $jitm->dismiss( $request['id'], $request['feature_class'] );
-	}
-
-	/**
 	 * Checks if this site has been verified using a service - only 'google' supported at present - and a specfic
 	 *  keyring to use to get the token if it is not
 	 *
@@ -1291,21 +1222,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
-	}
-
-	/**
-	 * Verify that the user can dismiss JITM messages.
-	 *
-	 * @since 8.8.0
-	 *
-	 * @return bool|WP_Error True if user is able to dismiss JITM messages.
-	 */
-	public static function delete_jitm_message_permission_callback() {
-		if ( current_user_can( 'read' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_jetpack_delete_jitm_message', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1805,19 +1721,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Registers the Jetpack site
 	 *
-	 * @uses Jetpack::try_registration();
-	 * @since 7.7.0
+	 * @deprecated since Jetpack 9.7.0
+	 * @see Automattic\Jetpack\Connection\REST_Connector::connection_register()
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
 	 * @return bool|WP_Error True if Jetpack successfully registered
 	 */
 	public static function register_site( $request ) {
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_register' );
+
 		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
 			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
 		}
 
-		$response = Jetpack::try_registration();
+		if ( isset( $request['from'] ) ) {
+			Jetpack::connection()->add_register_request_param( 'from', (string) $request['from'] );
+		}
+		$response = Jetpack::connection()->try_registration();
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -3005,7 +2926,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Front page meta description.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'sanitize_callback' => 'sanitize_text_field',
+				'sanitize_callback' => 'Jetpack_SEO_Utils::sanitize_front_page_meta_description',
 				'jp_group'          => 'seo-tools',
 			),
 

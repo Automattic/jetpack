@@ -72,6 +72,9 @@ fi
 
 # Add a change file for every project touched in the PR, if any.
 BASE=$PWD
+echo "::group::Monorepo yarn install, for prettier"
+yarn install
+echo "::endgroup::"
 echo "::group::Installing changelogger"
 cd projects/packages/changelogger
 composer update
@@ -87,7 +90,7 @@ for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(proje
 	cd "$DIR"
 
 	ARGS=()
-	ARGS=( add --no-interaction --significance=patch )
+	ARGS=( add --no-interaction --filename-auto-suffix --significance=patch )
 	if [[ "$SLUG" == "plugins/jetpack" ]]; then
 		ARGS+=( --type=other )
 	else
@@ -117,7 +120,6 @@ fi
 
 # Update deps and lock files.
 echo "::group::Updating dependencies on changed packages"
-yarn install
 tools/check-composer-deps.sh -uv
 echo "::endgroup::"
 
