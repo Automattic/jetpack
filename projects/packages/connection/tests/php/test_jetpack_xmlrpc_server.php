@@ -292,7 +292,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			)
 		);
 
-		$server   = $this->get_mocked_xmlrpc_server();
+		$server   = new Jetpack_XMLRPC_Server();
 		$response = $server->remote_connect(
 			array(
 				'nonce'      => '1234',
@@ -322,7 +322,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 			)
 		);
 
-		$server   = $this->get_mocked_xmlrpc_server();
+		$server   = new Jetpack_XMLRPC_Server();
 		$response = $server->remote_connect(
 			array(
 				'nonce'      => '1234',
@@ -418,24 +418,4 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 		return $xml;
 	}
 
-	/**
-	 * Get a mocked XMLRPC server.
-	 *
-	 * @return Jetpack_XMLRPC_Server
-	 */
-	protected function get_mocked_xmlrpc_server() {
-		$server = $this->getMockBuilder( 'Jetpack_XMLRPC_Server' )
-			->setMethods(
-				array(
-					'do_post_authorization',
-				)
-			)
-			->getMock();
-
-		$server->expects( $this->any() )
-			->method( 'do_post_authorization' )
-			->will( $this->returnValue( true ) );
-
-		return $server;
-	}
 }
