@@ -36,6 +36,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			'core/media-text',
 			'jetpack/image-compare',
 			'jetpack/slideshow',
+			'jetpack/story',
 			'jetpack/tiled-gallery',
 		];
 
