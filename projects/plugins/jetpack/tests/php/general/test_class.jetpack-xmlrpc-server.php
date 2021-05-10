@@ -103,4 +103,47 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Asserts that the jetpack_remote_connect_end is properly hooked
+	 */
+	public function test_remote_connect_hook() {
+
+		$xml = $this->getMockBuilder( 'Jetpack_IXR_Client' )
+			->setMethods(
+				array(
+					'query',
+					'isError',
+					'getResponse',
+				)
+			)
+			->getMock();
+
+		$xml->expects( $this->exactly( 1 ) )
+			->method( 'query' )
+			->will( $this->returnValue( 'sadlkjdasd.sadlikdj' ) );
+
+		$xml->expects( $this->exactly( 1 ) )
+			->method( 'isError' )
+			->will( $this->returnValue( empty( $error ) ? false : true ) );
+
+		$xml->expects( $this->exactly( 1 ) )
+			->method( 'getResponse' )
+			->will( $this->returnValue( 'asdadsasd' ) );
+
+		$server = new Jetpack_XMLRPC_Server();
+
+		$this->assertSame( 10, has_action( 'jetpack_remote_connect_end', array( 'Jetpack_XMLRPC_Methods', 'remote_connect_end' ) ), 'Action jetpack_remote_connect_end not hooked' );
+
+		$server->remote_connect(
+			array(
+				'nonce'      => '1234',
+				'local_user' => self::$xmlrpc_admin,
+			),
+			$xml
+		);
+
+		$this->assertSame( 1, did_action( 'jetpack_remote_connect_end' ), 'Action was not fired' );
+
+	}
+
 }
