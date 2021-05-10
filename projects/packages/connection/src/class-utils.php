@@ -14,8 +14,9 @@ use Automattic\Jetpack\Tracking;
  */
 class Utils {
 
-	const DEFAULT_JETPACK__API_VERSION = 1;
-	const DEFAULT_JETPACK__API_BASE    = 'https://jetpack.wordpress.com/jetpack.';
+	const DEFAULT_JETPACK__API_VERSION         = 1;
+	const DEFAULT_JETPACK__API_BASE            = 'https://jetpack.wordpress.com/jetpack.';
+	const DEFAULT_JETPACK__WPCOM_JSON_API_BASE = 'https://public-api.wordpress.com';
 
 	/**
 	 * This method used to set the URL scheme to HTTP when HTTPS requests can't be made.
