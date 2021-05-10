@@ -157,7 +157,7 @@ jobs:
     - name: Send Slack notification
       if: ${{ failure() }}
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/notification.js run ${{ matrix.group }}
+      run: NODE_ENV=test node ./bin/slack.js run ${{ matrix.group }}
 
   slack-notification:
     name: "Slack notification"
@@ -174,4 +174,4 @@ jobs:
         run: |
           yarn install
           yarn test-decrypt-config
-          NODE_ENV=test node ./bin/notification.js job ${{needs.e2e-tests.result}}
+          NODE_ENV=test node ./bin/slack.js job ${{needs.e2e-tests.result}}
