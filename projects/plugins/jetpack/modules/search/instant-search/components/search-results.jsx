@@ -5,7 +5,6 @@
  */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { h, Component, Fragment } from 'preact';
-import { useMemo } from 'preact/hooks';
 
 /**
  * Internal dependencies
@@ -90,7 +89,7 @@ class SearchResults extends Component {
 	renderPrimarySection() {
 		const { highlightColor, searchQuery } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
-		const textColor = useMemo( () => getConstrastingColor( highlightColor ), [ highlightColor ] );
+		const textColor = getConstrastingColor( highlightColor );
 		const hasCorrectedQuery = corrected_query !== false;
 		const hasResults = total > 0;
 

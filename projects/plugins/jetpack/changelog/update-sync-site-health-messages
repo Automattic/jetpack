@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update Sync Connection Tests to utilize fix nomenclature

@@ -21,6 +21,9 @@
 		"watch": "yarn build && yarn gulp watch"
 	},
 	"dependencies": {
+		"@automattic/jetpack-connection": "link:../../js-packages/connection",
+		"@wordpress/data": "4.27.3",
+		"@wordpress/i18n": "3.20.0",
 		"react": "16.13.1",
 		"react-dom": "16.13.1"
 	},
