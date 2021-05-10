@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+New option, `--filename-auto-suffix`, to ensure that a reused branch won't prevent entry creation in non-interactive mode.
