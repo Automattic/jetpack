@@ -33,6 +33,7 @@ projects/plugins/jetpack/extensions/**/test/
 projects/*/*/vendor
 
 ### Packages
+projects/packages/connection-ui/build/
 projects/packages/jitm/src/js/jetpack-jitm.js
 projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
 projects/packages/*/wordpress
