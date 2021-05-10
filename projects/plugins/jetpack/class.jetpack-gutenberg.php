@@ -1069,7 +1069,7 @@ class Jetpack_Gutenberg {
 				}
 			}
 
-			$is_available = in_array( $slug, $features_data['active'], true );
+			$is_available = array_key_exists( 'active', $features_data ) && in_array( $slug, $features_data['active'], true );
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
