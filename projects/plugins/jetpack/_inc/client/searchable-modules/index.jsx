@@ -62,7 +62,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 								key={ slug }
 								moduleData={ moduleData }
 								offlineMode={ isModuleUnavailableInOfflineMode }
-								SiteConnectionMode={ isModuleUnavailableInSiteConnectionMode }
+								siteConnectionMode={ isModuleUnavailableInSiteConnectionMode }
 							/>
 						);
 					}
@@ -103,20 +103,20 @@ class ActiveCard extends Component {
 	render() {
 		const m = this.props.moduleData,
 			offlineMode = this.props.offlineMode,
-			SiteConnectionMode = this.props.SiteConnectionMode;
+			siteConnectionMode = this.props.siteConnectionMode;
 
 		return (
 			<SettingsCard module={ m.module } header={ m.name } action={ m.module } hideButton>
 				<SettingsGroup
 					disableInOfflineMode={ offlineMode }
-					disableInSiteConnectionMode={ SiteConnectionMode }
+					disableInSiteConnectionMode={ siteConnectionMode }
 					module={ { module: m.module } }
 					support={ { link: m.learn_more_button } }
 				>
 					{ m.description }
 				</SettingsGroup>
 
-				{ SiteConnectionMode && (
+				{ siteConnectionMode && (
 					<ConnectUserBar
 						feature={ m.module }
 						featureLabel={ m.name }
