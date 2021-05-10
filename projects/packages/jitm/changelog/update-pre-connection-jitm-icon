@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+JITM: allow the plugin to set the icon for pre-connection JITMs.

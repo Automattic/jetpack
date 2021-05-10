@@ -22,6 +22,7 @@ class Jetpack_XMLRPC_Methods {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'xmlrpc_methods' ) );
 		add_filter( 'jetpack_xmlrpc_test_connection_response', array( __CLASS__, 'test_connection' ) );
 		add_action( 'jetpack_xmlrpc_server_event', array( __CLASS__, 'jetpack_xmlrpc_server_event' ), 10, 4 );
+		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
 	}
 
 	/**
@@ -209,5 +210,17 @@ class Jetpack_XMLRPC_Methods {
 		if ( 'remote_register' === $action && 'begin' === $stage ) {
 			Jetpack::maybe_set_version_option();
 		}
+	}
+
+	/**
+	 * Hooks into the remote_connect XMLRPC endpoint and triggers Jetpack::handle_post_authorization_actions
+	 *
+	 * @since 9.8.0
+	 * @return void
+	 */
+	public static function remote_connect_end() {
+		/** This filter is documented in class.jetpack-cli.php */
+		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
+		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
 	}
 }
