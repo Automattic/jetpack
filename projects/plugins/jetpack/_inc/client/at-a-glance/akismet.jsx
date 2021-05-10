@@ -24,7 +24,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 import { getSitePlan } from 'state/site';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
-import { isOfflineMode } from 'state/connection';
+import { getConnectUrl, hasConnectedOwner, isOfflineMode } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { numberFormat } from 'components/number-format';
 import restApi from 'rest-api';
@@ -39,6 +39,8 @@ class DashAkismet extends Component {
 		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
+		connectUrl: PropTypes.string.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	static defaultProps = {
@@ -116,6 +118,27 @@ class DashAkismet extends Component {
 			);
 		};
 
+		const getConnectBanner = () => {
+			return (
+				<JetpackBanner
+					callToAction={ __( 'Connect', 'jetpack' ) }
+					title={ __(
+						'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms',
+						'jetpack'
+					) }
+					disableHref="false"
+					href={ this.props.connectUrl }
+					eventFeature="akismet"
+					path="dashboard"
+					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
+				/>
+			);
+		};
+
+		const getBanner = () => {
+			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
+		};
+
 		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
@@ -136,7 +159,7 @@ class DashAkismet extends Component {
 						className="jp-dash-item__is-inactive"
 						status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 						pro={ true }
-						overrideContent={ getAkismetUpgradeBanner() }
+						overrideContent={ getBanner() }
 					/>
 				);
 			}
@@ -150,7 +173,7 @@ class DashAkismet extends Component {
 						status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 						className="jp-dash-item__is-inactive"
 						pro={ true }
-						overrideContent={ getAkismetUpgradeBanner() }
+						overrideContent={ getBanner() }
 					/>
 				);
 			}
@@ -163,7 +186,7 @@ class DashAkismet extends Component {
 						support={ support }
 						className="jp-dash-item__is-inactive"
 						pro={ true }
-						overrideContent={ getAkismetUpgradeBanner() }
+						overrideContent={ getBanner() }
 					/>
 				);
 			}
@@ -231,6 +254,8 @@ export default connect(
 			isOfflineMode: isOfflineMode( state ),
 			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
 			nonce: getApiNonce( state ),
+			connectUrl: getConnectUrl( state ),
+			hasConnectedOwner: hasConnectedOwner( state ),
 		};
 	},
 	{

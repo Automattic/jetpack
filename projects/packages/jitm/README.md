@@ -11,7 +11,30 @@ There are 2 main ways to use JITMs:
 
 ### Usage
 
-Instantiating the JITM Manager will facilitate the display of JITM messages in wp-admin
+#### Using the Config Package
+
+The JITMs can be enabled using the Config package:
+
+```
+use Automattic/Jetpack/Config;
+
+// Configuring as early as plugins_loaded priority 1
+// to make sure every action handler gets properly set.
+add_action( 'plugins_loaded', 'configure_jitm', 1 );
+
+function configure_jitm() {
+    $config = new Config();
+    $config->ensure( 'jitm' );
+}
+```
+
+#### Directly Using the JITM Package
+
+The JITMs can also be enabled by using the JITM package directly:
+
+```
+Automattic\Jetpack\JITMS\JITM::configure();
+```
 
 ### Adding Pre-Connection JITMs
 
@@ -24,6 +47,12 @@ Plugins can add pre-connection JITMs uisng the `jetpack_pre_connection_jitms` fi
  * button_caption
 
  If a JITM is missing one of the above keys, the JITM will not be displayed.
+
+The JITM message array may also contain the following optional keys:
+ * icon - When the 'icon' key does not exist, the Jetpack icon is used by default. The available settings for this option are:
+	 * 'jetpack' for the Jetpack icon.
+	 * 'woocommerce' for the WooCommerce icon.
+	 * An empty string for no icon.
 
  The Jetpack plugin's pre-connection JITMs can be found in the `Jetpack_Pre_Connection_JITMs` class.
 
