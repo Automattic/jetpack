@@ -13,13 +13,28 @@ use WorDBless\BaseTestCase;
  * Class Test_Thumbnail
  */
 class Test_Thumbnail extends BaseTestCase {
+	/**
+	 * Core class used to implement displaying posts in a list table.
+	 *
+	 * @var WP_Posts_List_Table
+	 */
+	protected $table;
 
 	/**
-	 * Checks that the thumbnail enhancements are initialized.
+	 * Setup runs before each test.
 	 *
-	 * @covers ::setup_thumbnail
+	 * @before
 	 */
-	public function test_setup_thumbnail() {
-		$this->assertEquals( 10, has_action( 'init', __NAMESPACE__ . '\setup_thumbnail' ) );
+	public function set_up() {
+		new Thumbnail();
+		$this->table = _get_list_table( 'WP_Posts_List_Table', array( 'screen' => 'edit-page' ) );
+	}
+
+	/**
+	 * Checks that a new column header for thumbnails is added to the posts list table.
+	 */
+	public function test_thumbnail_column_header() {
+		$columns = $this->table->get_columns();
+		$this->assertSame( '', $columns['thumbnail'] );
 	}
 }
