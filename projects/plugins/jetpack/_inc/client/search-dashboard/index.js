@@ -58,7 +58,7 @@ export default function SearchDashboard() {
 
 	return (
 		<Card>
-			<h3>{ __( 'Search Configurator 1000', 'jetpack' ) }</h3>
+			<h3>{ __( 'Search Configuration', 'jetpack' ) }</h3>
 			<SelectControl
 				disabled={ ! site }
 				label={ __( 'Theme', 'jetpack' ) }
