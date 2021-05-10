@@ -161,7 +161,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$excluded_post_types = array();
 		}
 
-		projects/plugins/jetpack/tests/php/sync/test_class.jetpack-sync-callables.php		$p2_workspace_hub_blog_id = get_option( $prefix . 'p2_workspace_hub_blog_id' );
+		$p2_workspace_hub_blog_id = get_option( $prefix . 'p2_workspace_hub_blog_id' );
 		if ( $p2_workspace_hub_blog_id ) {
 			$group_id = 'p2_workspace_hub_blog_id:' . $p2_workspace_hub_blog_id;
 		}
