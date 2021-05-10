@@ -7,12 +7,12 @@
 
 namespace Automattic\Jetpack\WPcom\Posts;
 
-use PHPUnit\Framework\TestCase;
+use WorDBless\BaseTestCase;
 
 /**
  * Class Test_Thumbnail
  */
-class Test_Thumbnail extends TestCase {
+class Test_Thumbnail extends BaseTestCase {
 
 	/**
 	 * Checks that the thumbnail enhancements are initialized.
