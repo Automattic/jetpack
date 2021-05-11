@@ -16,7 +16,7 @@ composer add automattic/jetpack-connection-ui
 add_action( 'plugins_loaded', 'load_connection_ui' );
 
 function load_connection_ui() {
-	Automattic\Jetpack\ConnectionUI\Admin::init();
+	Automattic\Jetpack\ConnectionUI\Admin::get_instance();
 }
 ```
 

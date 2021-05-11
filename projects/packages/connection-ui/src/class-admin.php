@@ -13,18 +13,37 @@ namespace Automattic\Jetpack\ConnectionUI;
 class Admin {
 
 	/**
-	 * Construction.
+	 * Singleton instance.
+	 *
+	 * @var $instance
 	 */
-	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+	private static $instance = null;
+
+	/**
+	 * No instantiation, use `get_instance()`.
+	 */
+	private function __construct() {}
+
+	/**
+	 * Retrieve singleton instance.
+	 *
+	 * @return Admin
+	 */
+	public static function get_instance() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new self();
+			self::$instance->init();
+		}
+
+		return self::$instance;
 	}
 
 	/**
 	 * Initialize the UI.
 	 */
-	public static function init() {
-		new static();
+	private function init() {
+		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
