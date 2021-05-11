@@ -55,22 +55,12 @@
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
-	"resolutions": {
-		"**/@automattic/calypso-build/node-sass": "^4.13.1",
-		"**/gulp/gulp-cli/yargs/yargs-parser": "^20.0.0",
-		"**/lodash": "4.17.21",
-		"**/node-fetch": "^2.6.1",
-		"**/node-notifier": "^8.0.1",
-		"**/tar-stream/bl": "^4.0.0",
-		"**/terser-webpack-plugin/serialize-javascript": "^5.0.0",
-		"jest-environment-jsdom": "^26.0.1"
-	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.1.0",
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
-		"@automattic/jetpack-connection": "link:../../js-packages/connection",
+		"@automattic/jetpack-connection": "workspace:^0.2.0-alpha",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
 		"@automattic/social-previews": "1.1.0",

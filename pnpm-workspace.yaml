@@ -1,0 +1,3 @@
+packages:
+  - 'projects/*/*'
+  - 'tools/cli'
