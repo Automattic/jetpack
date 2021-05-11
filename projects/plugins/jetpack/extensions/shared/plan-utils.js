@@ -80,6 +80,13 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 					  );
 		  } )();
 
+	// Redirect to calypso plans page for WoC sites.
+	if ( isAtomicSite() ) {
+		return addQueryArgs( `https://wordpress.com/plans/${ getSiteFragment() }`, {
+			redirect_to,
+		} );
+	}
+
 	return (
 		planPathSlug &&
 		addQueryArgs( `https://wordpress.com/checkout/${ getSiteFragment() }/${ planPathSlug }`, {
