@@ -28,8 +28,8 @@ export default function SearchDashboard() {
 	);
 	const [ sort, setSort ] = useEntityProp( 'root', 'site', 'jetpack_search_default_sort' );
 	const [ trigger, setTrigger ] = useEntityProp( 'root', 'site', 'jetpack_search_overlay_trigger' );
-	// TODO: Fix and re-enable.
-	// const [ color, setColor ] = useEntityProp( 'root', 'site', 'jetpack_search_highlight_color' );
+	const [ color, setColor ] = useEntityProp( 'root', 'site', 'jetpack_search_highlight_color' );
+	const normalizedColor = normalizeColors( color );
 	const [ sortEnabled, setSortEnabled ] = useEntityProp(
 		'root',
 		'site',
@@ -55,12 +55,13 @@ export default function SearchDashboard() {
 		editedEntities && saveEntityRecord( 'root', 'site', editedEntities );
 	};
 	const hasEditedEntities = editedEntities && Object.keys( editedEntities ).length > 0;
+	const isLoading = ! site;
 
 	return (
 		<Card>
 			<h3>{ __( 'Search Configuration', 'jetpack' ) }</h3>
 			<SelectControl
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( 'Theme', 'jetpack' ) }
 				value={ theme }
 				options={ [
@@ -70,7 +71,7 @@ export default function SearchDashboard() {
 				onChange={ setTheme }
 			/>
 			<SelectControl
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( 'Result Format', 'jetpack' ) }
 				value={ resultFormat }
 				options={ [
@@ -81,7 +82,7 @@ export default function SearchDashboard() {
 				onChange={ setResultFormat }
 			/>
 			<SelectControl
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( 'Sort', 'jetpack' ) }
 				value={ sort }
 				options={ [
@@ -92,7 +93,7 @@ export default function SearchDashboard() {
 				onChange={ setSort }
 			/>
 			<SelectControl
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( 'Overlay Trigger', 'jetpack' ) }
 				value={ trigger }
 				options={ [
@@ -101,30 +102,43 @@ export default function SearchDashboard() {
 				] }
 				onChange={ setTrigger }
 			/>
-			{ /* TODO: Fix the ColorPicker implementation */ }
-			{ /* <ColorPicker color={ color } onChangeComplete={ value => setColor( value.hex ) } /> */ }
+			<div className="jetpack-search-color-inputs">
+				<label htmlFor="jetpack-search-highlight-color">Search Highlight Color</label>
+				<input
+					type="color"
+					id="jetpack-search-highlight-color"
+					value={ normalizedColor }
+					// eslint-disable-next-line react/jsx-no-bind
+					onChange={ event => setColor( event.target.value ) }
+				/>
+				<input
+					type="text"
+					value={ isLoading ? __( 'Loading…', 'jetpack' ) : normalizedColor }
+					disabled
+				/>
+			</div>
 			<ToggleControl
 				checked={ sortEnabled }
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( 'Enable Sort', 'jetpack' ) }
 				onChange={ setSortEnabled }
 			/>
 			<ToggleControl
 				checked={ infiniteScroll }
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( 'Enable Infinite Scroll', 'jetpack' ) }
 				onChange={ setInfiniteScroll }
 			/>
 			<ToggleControl
 				checked={ showLogo }
-				disabled={ ! site }
+				disabled={ isLoading }
 				label={ __( "Show 'Powered by Jetpack'", 'jetpack' ) }
 				onChange={ setShowLogo }
 			/>
 			<hr />
 			<div>
 				<button
-					disabled={ ! site || ! hasEditedEntities || isSaving }
+					disabled={ isLoading || ! hasEditedEntities || isSaving }
 					/* eslint-disable-next-line react/jsx-no-bind */
 					onClick={ saveEditedEntityRecords }
 				>
@@ -133,4 +147,31 @@ export default function SearchDashboard() {
 			</div>
 		</Card>
 	);
+}
+
+/**
+ * Normalizes arbitrary strings into 6 digit color hex strings.
+ *
+ * @param {string} colorText - Color text.
+ * @param {string} defaultColor - Default color text for unrecognized colorText inputs.
+ * @returns {string} Normalized color hex with prepended #.
+ */
+function normalizeColors( colorText, defaultColor = '#FFFFFF' ) {
+	if ( typeof colorText !== 'string' ) {
+		return defaultColor;
+	}
+
+	if ( colorText[ 0 ] !== '#' ) {
+		colorText = `#${ colorText }`;
+	}
+
+	if ( colorText.length !== 4 && colorText.length !== 7 ) {
+		return defaultColor;
+	}
+
+	if ( colorText.length === 4 ) {
+		return `#${ colorText[ 1 ] }${ colorText[ 1 ] }${ colorText[ 2 ] }${ colorText[ 2 ] }${ colorText[ 3 ] }${ colorText[ 3 ] }`;
+	}
+
+	return colorText;
 }

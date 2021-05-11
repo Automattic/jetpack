@@ -35,4 +35,18 @@
 		padding: 1em 2em 3em;
 		margin-top: 3em;
 	}
+
+	.jetpack-search-color-inputs {
+		display: flex;
+		flex-flow: wrap;
+		margin-bottom: 1em;
+
+		label {
+			width: 100%;
+		}
+		input[type='color'] {
+			align-self: center;
+			margin-right: 0.25em;
+		}
+	}
 }
