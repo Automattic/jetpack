@@ -67,7 +67,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * Rules are:
 	 * - user is allowed to see the Jetpack Admin
 	 * - site is connected or in offline mode
-	 * - if the site is connected but doesn't have a connected user, only show to admins.
+	 * - non-admins only need access to the settings when there are modules they can manage.
 	 *
 	 * @return bool $can_access_settings Can the user access settings.
 	 */
@@ -80,8 +80,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return false;
 		}
 
-		// In offline mode, allow access.
-		if ( $status->is_offline_mode() ) {
+		// In offline mode, allow access to admins.
+		if ( $status->is_offline_mode() && current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
@@ -91,14 +91,36 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		/*
-		 * If the site is connected, but not user-connected,
-		 * the user must be an admin.
-		 */
-		if (
-			! $connection->has_connected_owner()
-			&& ! current_user_can( 'jetpack_connect' )
-		) {
-			return false;
+		 * Additional checks for non-admins.
+		*/
+		if ( ! current_user_can( 'manage_options' ) ) {
+			// If the site isn't connected at all, bail.
+			if ( ! $connection->has_connected_owner() ) {
+				return false;
+			}
+
+			/*
+			 * If they haven't connected their own account yet,
+			 * they have no use for the settings page.
+			 * They will not be able to manage any settings.
+			 */
+			if ( ! $connection->is_user_connected() ) {
+				return false;
+			}
+
+			/*
+			 * Non-admins only have access to settings
+			 * for the following modules:
+			 * - Publicize
+			 * - Post By Email
+			 * If those modules are not available, bail.
+			 */
+			if (
+				! Jetpack::is_module_active( 'post-by-email' )
+				&& ! Jetpack::is_module_active( 'publicize' )
+			) {
+				return false;
+			}
 		}
 
 		// fallback.
