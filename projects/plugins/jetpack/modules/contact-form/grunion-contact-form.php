@@ -203,8 +203,6 @@ class Grunion_Contact_Form_Plugin {
 			)
 		);
 
-		add_action( 'admin_menu', array( $this, 'rename_feedback_menu' ) );
-
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
 
@@ -244,37 +242,6 @@ class Grunion_Contact_Form_Plugin {
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		self::register_contact_form_blocks();
-	}
-
-	/**
-	 * Rename the Feedback submenu to Form Responses.
-	 */
-	public function rename_feedback_menu() {
-		$slug = 'edit.php?post_type=feedback';
-
-		add_menu_page(
-			__( 'Feedback', 'jetpack' ),
-			__( 'Feedback', 'jetpack' ),
-			'edit_pages',
-			$slug,
-			null,
-			'dashicons-feedback',
-			45
-		);
-
-		remove_submenu_page(
-			$slug,
-			$slug
-		);
-		add_submenu_page(
-			$slug,
-			__( 'Form Responses', 'jetpack' ),
-			__( 'Form Responses', 'jetpack' ),
-			'edit_pages',
-			$slug,
-			null,
-			0
-		);
 	}
 
 	private static function register_contact_form_blocks() {
@@ -471,8 +438,35 @@ class Grunion_Contact_Form_Plugin {
 	 * Add the 'Export' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
+		$slug = 'edit.php?post_type=feedback';
+
+		add_menu_page(
+			__( 'Feedback', 'jetpack' ),
+			__( 'Feedback', 'jetpack' ),
+			'edit_pages',
+			$slug,
+			null,
+			'dashicons-feedback',
+			45
+		);
+
+		remove_submenu_page(
+			$slug,
+			$slug
+		);
+
 		add_submenu_page(
-			'edit.php?post_type=feedback',
+			$slug,
+			__( 'Form Responses', 'jetpack' ),
+			__( 'Form Responses', 'jetpack' ),
+			'edit_pages',
+			$slug,
+			null,
+			0
+		);
+
+		add_submenu_page(
+			$slug,
 			__( 'Export feedback as CSV', 'jetpack' ),
 			__( 'Export CSV', 'jetpack' ),
 			'export',
