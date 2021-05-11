@@ -201,7 +201,7 @@ class Masterbar {
 
 		// Hides and replaces the language dropdown for the current user, on Atomic.
 		if ( jetpack_is_atomic_site() &&
-			empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
 			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ) );
 		}
