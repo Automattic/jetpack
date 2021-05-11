@@ -6,9 +6,9 @@
  */
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
-use Automattic\Jetpack\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Sender;
@@ -326,8 +326,8 @@ class Jetpack_Debug_Data {
 		 * Must follow sync debug since it depends on sync functionality.
 		 */
 		$idc_urls = array(
-			'home'       => Identity_Functions::home_url(),
-			'siteurl'    => Identity_Functions::site_url(),
+			'home'       => Utils::home_url(),
+			'siteurl'    => Utils::site_url(),
 			'WP_HOME'    => Constants::is_defined( 'WP_HOME' ) ? Constants::get_constant( 'WP_HOME' ) : '',
 			'WP_SITEURL' => Constants::is_defined( 'WP_SITEURL' ) ? Constants::get_constant( 'WP_SITEURL' ) : '',
 		);

@@ -897,8 +897,8 @@ class Manager {
 			'jetpack_register_request_body',
 			array_merge(
 				array(
-					'siteurl'            => site_url(),
-					'home'               => home_url(),
+					'siteurl'            => Utils::site_url(),
+					'home'               => Utils::home_url(),
 					'gmt_offset'         => $gmt_offset,
 					'timezone_string'    => (string) get_option( 'timezone_string' ),
 					'site_name'          => (string) get_option( 'blogname' ),

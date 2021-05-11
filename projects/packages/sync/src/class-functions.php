@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Identity_Crisis\Functions as Identity_Functions;
 
 /**
  * Utility functions to generate data synced to wpcom
@@ -330,8 +330,8 @@ class Functions {
 	 * @return string
 	 */
 	public static function get_raw_or_filtered_url( $url_type ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_raw_or_filtered_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->get_raw_or_filtered_url' );
-		return Identity_Functions::get_raw_or_filtered_url( $url_type );
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_raw_or_filtered_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::get_raw_or_filtered_url' );
+		return Utils::get_raw_or_filtered_url( $url_type );
 	}
 
 	/**
@@ -340,8 +340,8 @@ class Functions {
 	 * @return string
 	 */
 	public static function home_url() {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::home_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->home_url' );
-		return Identity_Functions::home_url();
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::home_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::home_url' );
+		return Utils::home_url();
 	}
 
 	/**
@@ -350,8 +350,8 @@ class Functions {
 	 * @return string
 	 */
 	public static function site_url() {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::site_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->site_url' );
-		return Identity_Functions::site_url();
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::site_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::site_url' );
+		return Utils::site_url();
 	}
 
 	/**
@@ -360,8 +360,8 @@ class Functions {
 	 * @return string
 	 */
 	public static function main_network_site_url() {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::main_network_site_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->main_network_site_url' );
-		return Identity_Functions::main_network_site_url();
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::main_network_site_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::main_network_site_url' );
+		return Utils::main_network_site_url();
 	}
 
 	/**
@@ -395,8 +395,8 @@ class Functions {
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_protocol_normalized_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->get_protocol_normalized_url' );
-		return Identity_Functions::get_protocol_normalized_url( $callable, $new_value );
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_protocol_normalized_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::get_protocol_normalized_url' );
+		return Utils::get_protocol_normalized_url( $callable, $new_value );
 	}
 
 	/**
@@ -407,8 +407,8 @@ class Functions {
 	 * @return mixed|null URL.
 	 */
 	public static function get_raw_url( $option_name ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_raw_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->get_raw_url' );
-		return Identity_Functions::get_raw_url( $option_name );
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_raw_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::get_raw_url' );
+		return Utils::get_raw_url( $option_name );
 	}
 
 	/**
@@ -419,8 +419,8 @@ class Functions {
 	 * @return mixed|string URL.
 	 */
 	public static function normalize_www_in_url( $option, $url_function ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::normalize_www_in_url', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis/Functions->normalize_www_in_url' );
-		return Identity_Functions::normalize_www_in_url( $option, $url_function );
+		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::normalize_www_in_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Utils::normalize_www_in_url' );
+		return Utils::normalize_www_in_url( $option, $url_function );
 	}
 
 	/**

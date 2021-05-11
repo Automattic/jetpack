@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
-use Automattic\Jetpack\Identity_Crisis\Functions as Identity_Functions;
 use Automattic\Jetpack\Status;
 
 /**
@@ -358,8 +358,8 @@ class Actions {
 			'codec'      => $codec_name,
 			'timestamp'  => $sent_timestamp,
 			'queue'      => $queue_id,
-			'home'       => Identity_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side.
-			'siteurl'    => Identity_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
+			'home'       => Utils::home_url(),  // Send home url option to check for Identity Crisis server-side.
+			'siteurl'    => Utils::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
 			'cd'         => sprintf( '%.4f', $checkout_duration ),
 			'pd'         => sprintf( '%.4f', $preprocess_duration ),
 			'queue_size' => $queue_size,

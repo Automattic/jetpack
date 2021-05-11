@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-New Identitty_Crisis/Functions class to contain helper functions for home / site urls.
+Use Connection/Utils for home_url and site_url functions migrated from Sync.
