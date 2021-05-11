@@ -155,8 +155,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_upsell_nudge() {
 		global $menu;
 		$nudge = array(
-			'content' => 'Free domain with an annual plan',
-			'cta'     => 'Upgrade',
+			'content' => 'Free domain with an <a href="somehref">annual plan</a>',
+			'cta'     => '<b>Upgrade</b>',
 			'link'    => '/plans/example.com?addDomainFlow=true',
 		);
 		static::$admin_menu->add_upsell_nudge( $nudge );

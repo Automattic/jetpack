@@ -122,8 +122,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$message = sprintf(
 			$message,
-			$nudge['content'],
-			$nudge['cta']
+			wp_kses( $nudge['content'], array() ),
+			wp_kses( $nudge['cta'], array() )
 		);
 
 		add_menu_page( 'site-notices', $message, 'manage_options', 'https://wordpress.com' . $nudge['link'], null, null, 1 );
