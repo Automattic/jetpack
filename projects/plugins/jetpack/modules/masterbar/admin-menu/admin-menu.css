@@ -70,38 +70,44 @@
 /**
  * Site Notices
  */
- #adminmenu a.toplevel_page_site-notices:hover,
- #adminmenu li.toplevel_page_site-notices:hover {
-	 background-color: inherit;
- }
+#adminmenu a.toplevel_page_site-notices:hover,
+#adminmenu li.toplevel_page_site-notices:hover {
+	background-color: inherit;
+}
 
- #adminmenu li.toplevel_page_site-notices .wp-menu-image {
-	 display: none;
- }
+#adminmenu li.toplevel_page_site-notices .wp-menu-image {
+	display: none;
+}
 
- #adminmenu .toplevel_page_site-notices .upsell_banner {
-	 display: flex;
-	 flex-grow: 1;
-	 flex-wrap: nowrap;
-	 align-items: center;
-	 justify-content: space-between;
-	 position: relative;
-	 width: 100%;
-	 padding: 7px 12px;
-	 left: -28px;
-	 border-radius: 2px;
-	 font-size: 12px;;
-	 line-height: 1.4;
-	 hyphens: none;
- }
+#adminmenu .toplevel_page_site-notices .upsell_banner {
+	display: flex;
+	flex-grow: 1;
+	flex-wrap: nowrap;
+	align-items: center;
+	justify-content: space-between;
+	position: relative;
+	width: 100%;
+	padding: 7px 12px;
+	left: -28px;
+	border-radius: 2px;
+	font-size: 12px;;
+	line-height: 1.4;
+	hyphens: none;
+}
 
- #adminmenu .toplevel_page_site-notices .upsell_banner .button {
-	 font-size: 12px;
-	 margin-left: 5px;
-	 border: 0;
- }
+#adminmenu .toplevel_page_site-notices .upsell_banner .banner__info {
+	margin-right: 12px;
+}
 
- .folded #adminmenu .toplevel_page_site-notices {
+#adminmenu .toplevel_page_site-notices .upsell_banner .button {
+	font-size: 12px;
+	line-height: 12px;
+	padding: 0 7px;
+	border: 0;
+	min-height: 26px;
+}
+
+.folded #adminmenu .toplevel_page_site-notices {
 	height: 50px;
 	display: flex;
 	align-items: center;
