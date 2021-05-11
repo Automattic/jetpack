@@ -123,6 +123,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
 			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
+			'p2_workspace_hub_blog_id'         => Functions::p2_workspace_hub_blog_id(),
 			'theme_support'                    => Functions::get_theme_support(),
 			'wp_get_environment_type'          => wp_get_environment_type(),
 		);
@@ -1327,6 +1328,46 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
 
+	/**
+	 * Test getting p2 workspace hub blog id when the current blog has no p2 options
+	 */
+	public function test_get_p2_workspace_hub_blog_id_no_p2_options() {
+		$functions = new Functions();
+		$this->assertEquals( 0, $functions->p2_workspace_hub_blog_id() );
+	}
+
+	/**
+	 * Test getting p2 workspace hub blog id when the current blog is a workspace hub.
+	 */
+	public function test_get_p2_workspace_hub_blog_id_for_a_hub() {
+		$hub_blog_id = 123;
+		\Jetpack_Options::update_option( 'id', $hub_blog_id );
+		update_option( 'p2_options', array( 'is_p2_hub_site' => true ) );
+
+		$functions = new Functions();
+		$this->assertEquals( $hub_blog_id, $functions->p2_workspace_hub_blog_id() );
+	}
+
+	/**
+	 * Test getting p2 workspace hub blog id when the current blog is a workspace site.
+	 */
+	public function test_get_p2_workspace_hub_blog_id_for_a_workspace_site() {
+		$hub_blog_id = 456;
+		update_option( 'p2_options', array( 'p2_hub_blog_id' => $hub_blog_id ) );
+
+		$functions = new Functions();
+		$this->assertEquals( $hub_blog_id, $functions->p2_workspace_hub_blog_id() );
+	}
+
+	/**
+	 * Test getting p2 workspace hub blog id when the current blog doesnt have proper p2 options.
+	 */
+	public function test_get_p2_workspace_hub_blog_id_wrong_p2_options() {
+		update_option( 'p2_options', array() );
+
+		$functions = new Functions();
+		$this->assertEquals( 0, $functions->p2_workspace_hub_blog_id() );
+	}
 }
 
 /**

@@ -281,6 +281,7 @@ class Defaults {
 		'is_multi_site'                    => 'is_multisite',
 		'main_network_site'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_url' ),
 		'main_network_site_wpcom_id'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
+		'p2_workspace_hub_blog_id'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'p2_workspace_hub_blog_id' ),
 		'site_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_url' ),
 		'home_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'home_url' ),
 		'has_file_system_write_access'     => array( 'Automattic\\Jetpack\\Sync\\Functions', 'file_system_write_access' ),
