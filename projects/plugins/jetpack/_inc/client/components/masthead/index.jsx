@@ -16,8 +16,10 @@ import {
 	getSiteConnectionStatus,
 	getSandboxDomain,
 	fetchSiteConnectionTest,
+	hasConnectedOwner as hasConnectedOwnerSelector,
+	isSiteRegistered,
 } from 'state/connection';
-import { getCurrentVersion, userCanEditPosts } from 'state/initial-state';
+import { getCurrentVersion, userCanEditPosts, userCanManageOptions } from 'state/initial-state';
 import JetpackLogo from '../jetpack-logo';
 
 export class Masthead extends React.Component {
@@ -51,16 +53,25 @@ export class Masthead extends React.Component {
 	};
 
 	render() {
-		const offlineNotice =
-				this.props.siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
-			sandboxedBadge = this.props.sandboxDomain ? (
+		const {
+			canEditPosts,
+			canManageOptions,
+			hasConnectedOwner,
+			isSiteConnected,
+			location: { pathname },
+			sandboxDomain,
+			siteConnectionStatus,
+		} = this.props;
+
+		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
+			sandboxedBadge = sandboxDomain ? (
 				<code
 					id="sandbox-domain-badge"
 					onClick={ this.testConnection }
 					onKeyDown={ this.testConnection }
 					role="button"
 					tabIndex={ 0 }
-					title={ `Sandboxing via ${ this.props.sandboxDomain }. Click to test connection.` }
+					title={ `Sandboxing via ${ sandboxDomain }. Click to test connection.` }
 				>
 					API Sandboxed
 				</code>
@@ -68,11 +79,25 @@ export class Masthead extends React.Component {
 				''
 			),
 			isDashboardView =
-				includes( [ '/', '/dashboard', '/my-plan', '/plans' ], this.props.location.pathname ) ||
-				this.props.location.pathname.includes( '/recommendations' ),
-			isStatic = '' === this.props.location.pathname;
+				includes( [ '/', '/dashboard', '/my-plan', '/plans' ], pathname ) ||
+				pathname.includes( '/recommendations' ),
+			isStatic = '' === pathname;
 
-		const hideNav = this.props.location.pathname.startsWith( '/setup' );
+		/*
+		 * Determine whether a user can access the Jetpack Settings page.
+		 *
+		 * Rules are:
+		 * - We're not on the /setup page route
+		 * - user is allowed to see the Jetpack Admin
+		 * - site is connected or in offline mode
+		 * - if the site is connected but doesn't have a connected user, only show to admins.
+		 */
+		const canAccessSettings =
+			! pathname.startsWith( '/setup' ) &&
+			canEditPosts &&
+			( siteConnectionStatus === 'offline' ||
+				( isSiteConnected && hasConnectedOwner ) ||
+				( isSiteConnected && ! hasConnectedOwner && canManageOptions ) );
 
 		return (
 			<div className="jp-masthead">
@@ -84,9 +109,9 @@ export class Masthead extends React.Component {
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
-					{ this.props.userCanEditPosts && ! hideNav && (
+					{ canAccessSettings && (
 						<div className="jp-masthead__nav">
-							{ ! isStatic && this.props.siteConnectionStatus && (
+							{ ! isStatic && siteConnectionStatus && (
 								<ButtonGroup>
 									<Button
 										compact={ true }
@@ -117,10 +142,13 @@ export class Masthead extends React.Component {
 export default connect(
 	state => {
 		return {
-			siteConnectionStatus: getSiteConnectionStatus( state ),
-			sandboxDomain: getSandboxDomain( state ),
+			canEditPosts: userCanEditPosts( state ),
+			canManageOptions: userCanManageOptions( state ),
 			currentVersion: getCurrentVersion( state ),
-			userCanEditPosts: userCanEditPosts( state ),
+			hasConnectedOwner: hasConnectedOwnerSelector( state ),
+			isSiteConnected: isSiteRegistered( state ),
+			sandboxDomain: getSandboxDomain( state ),
+			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};
 	},
 	dispatch => {
