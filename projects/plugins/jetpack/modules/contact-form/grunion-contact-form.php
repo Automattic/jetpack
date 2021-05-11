@@ -435,7 +435,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Add the 'Export' menu item as a submenu of Feedback.
+	 * Add the 'Export' and 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
 		$slug = 'edit.php?post_type=feedback';
@@ -467,7 +467,7 @@ class Grunion_Contact_Form_Plugin {
 
 		add_submenu_page(
 			$slug,
-			__( 'Export feedback as CSV', 'jetpack' ),
+			__( 'Export responses as CSV', 'jetpack' ),
 			__( 'Export CSV', 'jetpack' ),
 			'export',
 			'feedback-export',
@@ -928,13 +928,13 @@ class Grunion_Contact_Form_Plugin {
 		?>
 
 		<div id="feedback-export" style="display:none">
-			<h2><?php _e( 'Export feedback as CSV', 'jetpack' ); ?></h2>
+			<h2><?php _e( 'Export responses as CSV', 'jetpack' ); ?></h2>
 			<div class="clear"></div>
 			<form action="<?php echo admin_url( 'admin-post.php' ); ?>" method="post" class="form">
 				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
 
 				<input name="action" value="feedback_export" type="hidden">
-				<label for="post"><?php _e( 'Select feedback to download', 'jetpack' ); ?></label>
+				<label for="post"><?php _e( 'Select responses to download', 'jetpack' ); ?></label>
 				<select name="post">
 					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
 					<?php echo $this->get_feedbacks_as_options(); ?>
