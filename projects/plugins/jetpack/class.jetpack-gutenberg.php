@@ -1064,7 +1064,7 @@ class Jetpack_Gutenberg {
 			} else {
 				// Atomic sites.
 				$option = get_option( 'jetpack_active_plan' );
-				if ( ! empty( $option ) && array_key_exists( 'features', $option ) ) {
+				if ( isset( $option['features'] ) ) {
 					$features_data = $option['features'];
 				}
 			}
