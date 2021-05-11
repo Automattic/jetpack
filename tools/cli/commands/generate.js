@@ -413,7 +413,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 	if ( answers.createNew ) {
 		// add function to create.
 		console.log(
-			chalk.orange(
+			chalk.bgBlue(
 				'We have not quite added the automatic creation of a mirror repo, so please visit https://github.com/organizations/Automattic/repositories/new to create a new repo of ' +
 					name
 			)
