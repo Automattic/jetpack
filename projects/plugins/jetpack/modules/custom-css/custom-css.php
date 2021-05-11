@@ -1623,6 +1623,11 @@ class Jetpack_Safe_CSS {
 		$csstidy->set_cfg( 'remove_last_;', false );
 		$csstidy->set_cfg( 'css_level', 'CSS3.0' );
 
+		// Turn off css shorthands when in block editor context as it breaks block validation.
+		if ( $_GET['_gutenberg_nonce'] ) {
+			$csstidy->set_cfg( 'optimise_shorthands', 0 );
+		}
+
 		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );
 		$css = wp_kses_split( $css, array(), array() );
 		$csstidy->parse( $css );

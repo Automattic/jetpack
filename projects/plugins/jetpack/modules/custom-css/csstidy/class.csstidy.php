@@ -256,7 +256,7 @@ class csstidy {
 		  2 + font property optimization
 		  3 + background property optimization
 		 */
-		$this->settings['optimise_shorthands'] = 0;
+		$this->settings['optimise_shorthands'] = 1;
 		$this->settings['remove_last_;'] = true;
 		/* rewrite all properties with low case, better for later gzip OK, safe*/
 		$this->settings['case_properties'] = 1;
