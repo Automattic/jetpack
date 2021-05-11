@@ -84,6 +84,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	if ( isAtomicSite() ) {
 		return addQueryArgs( `https://wordpress.com/plans/${ getSiteFragment() }`, {
 			redirect_to,
+			customerType: 'business',
 		} );
 	}
 
