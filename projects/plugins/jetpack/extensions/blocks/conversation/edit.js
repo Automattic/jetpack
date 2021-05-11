@@ -98,7 +98,7 @@ function ConversationEdit( {
 		[ participants, setAttributes ]
 	);
 
-	const setBlockAttributes = useCallback( setAttributes, [] );
+	const setBlockAttributes = useCallback( setAttributes, [ setAttributes ] );
 
 	// Context bridge.
 	const contextProvision = useMemo(

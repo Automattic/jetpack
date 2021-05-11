@@ -490,7 +490,12 @@ class Jetpack_XMLRPC_Server {
 
 		( new Tokens() )->update_user_token( $user->ID, sprintf( '%s.%d', $token, $user->ID ), true );
 
-		$this->do_post_authorization();
+		/**
+		 * Hook fired at the end of the jetpack.remoteConnect XML-RPC callback
+		 *
+		 * @since 9.8.0
+		 */
+		do_action( 'jetpack_remote_connect_end' );
 
 		return $this->connection->has_connected_owner();
 	}
@@ -778,20 +783,6 @@ class Jetpack_XMLRPC_Server {
 				'post_parent' => $parent_id,
 			)
 		);
-	}
-
-	/**
-	 * Handles authorization actions after connecting a site, such as enabling modules.
-	 *
-	 * This do_post_authorization() is used in this class, as opposed to calling
-	 * Jetpack::handle_post_authorization_actions() directly so that we can mock this method as necessary.
-	 *
-	 * @return void
-	 */
-	public function do_post_authorization() {
-		/** This filter is documented in class.jetpack-cli.php */
-		$enable_sso = apply_filters( 'jetpack_start_enable_sso', true );
-		Jetpack::handle_post_authorization_actions( $enable_sso, false, false );
 	}
 
 	/**
