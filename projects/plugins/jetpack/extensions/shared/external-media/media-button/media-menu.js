@@ -46,15 +46,11 @@ function MediaButtonMenu( props ) {
 
 	return (
 		<>
-			{ isFeatured && hasImage && originalComponent( { open } ) }
-
 			<Dropdown
 				position="bottom right"
 				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) =>
-					// Featured image: when there's no image set, wrap the component, as it's already a (giant) button,
-					// there's no need to add a second button.
-					isFeatured && ! hasImage ? (
+					originalComponent ? (
 						originalComponent( { open: onToggle } )
 					) : (
 						<Button
