@@ -429,6 +429,8 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 	// Validate the name, then check for repo exists again.
 
 	// If validated, add it to composerJson. If not repeat.
+
+	// Add autotagger option
 	composerJson.extra.autotagger = answers.autotagger;
 }
 
