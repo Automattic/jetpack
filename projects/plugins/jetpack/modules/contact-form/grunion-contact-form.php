@@ -1962,6 +1962,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'submit_button_text'     => __( 'Submit', 'jetpack' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
+			'customThankyouHeading'  => __( 'Message Sent', 'jetpack' ), // The text to show above customThankyouMessage.
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
@@ -2109,7 +2110,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
 
 			$r_success_message =
-				'<h3>' . __( 'Message Sent', 'jetpack' ) .
+				'<h3>' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 				' (<a href="' . esc_url( $back_url ) . '">' . esc_html__( 'go back', 'jetpack' ) . '</a>)' .
 				"</h3>\n\n";
 
@@ -2842,8 +2843,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$reply_to_addr = $comment_author_email;
 		}
 
-		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
-		           'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
+		/*
+		 * The email headers here are formatted in a format
+		 * that is the most likely to be accepted by wp_mail(),
+		 * without escaping.
+		 * More info: https://github.com/Automattic/jetpack/pull/19727
+		 */
+		$headers = 'From: ' . $comment_author . ' <' . $from_email_addr . ">\r\n" .
+			'Reply-To: ' . $comment_author . ' <' . $reply_to_addr . ">\r\n";
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
@@ -3130,7 +3137,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * Add a display name part to an email address
 	 *
 	 * SpamAssassin doesn't like addresses in HTML messages that are missing display names (e.g., `foo@bar.org`
-	 * instead of `"Foo Bar" <foo@bar.org>`.
+	 * instead of `Foo Bar <foo@bar.org>`.
 	 *
 	 * @param string $address
 	 *
@@ -3140,7 +3147,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
 			$address_parts = explode( '@', $address );
-			$address       = sprintf( '"%s" <%s>', $address_parts[0], $address );
+
+			/*
+			 * The email address format here is formatted in a format
+			 * that is the most likely to be accepted by wp_mail(),
+			 * without escaping.
+			 * More info: https://github.com/Automattic/jetpack/pull/19727
+			 */
+			$address = sprintf( '%s <%s>', $address_parts[0], $address );
 		}
 
 		return $address;

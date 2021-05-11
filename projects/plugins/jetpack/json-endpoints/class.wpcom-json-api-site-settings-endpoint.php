@@ -555,7 +555,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			if ( ! is_array( $value ) ) {
 				$value = trim( $value );
 			}
-			$value = wp_unslash( $value );
+			// preserve the raw value before unslashing the value. The slashes need to be preserved for date and time formats.
+			$raw_value = $value;
+			$value     = wp_unslash( $value );
 
 			switch ( $key ) {
 
@@ -752,8 +754,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'date_format':
 				case 'time_format':
 					// settings are stored as strings.
-					if ( update_option( $key, sanitize_text_field( $value ) ) ) {
-						$updated[ $key ] = $value;
+					// raw_value is used to help preserve any escaped characters that might exist in the formatted string.
+					$sanitized_value = sanitize_text_field( $raw_value );
+					if ( update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
 					}
 					break;
 
@@ -792,7 +796,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
-					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_legacy_front_page_meta() ) {
 						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 
@@ -809,6 +813,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
 					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						if ( Jetpack_SEO_Utils::has_legacy_front_page_meta() ) {
+							break;
+						}
 						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 

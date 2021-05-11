@@ -127,7 +127,7 @@ for SLUG in "${SLUGS[@]}"; do
 			cd "$BASE/projects/$SLUG"
 			debug "Updating $SLUG composer.lock"
 			OLD="$(<composer.lock)"
-			composer update --root-reqs --quiet
+			"$BASE/tools/composer-update-monorepo.sh" --quiet "$SLUG"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && ! $DIDCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
 				changelogger "$SLUG" '' 'Updated composer.lock.'
