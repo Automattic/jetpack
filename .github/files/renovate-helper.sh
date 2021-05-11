@@ -91,6 +91,7 @@ for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(proje
 
 	ARGS=()
 	ARGS=( add --no-interaction --filename-auto-suffix --significance=patch )
+
 	if [[ "$SLUG" == "plugins/jetpack" ]]; then
 		ARGS+=( --type=other )
 	else

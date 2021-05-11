@@ -55,7 +55,7 @@ function PexelsMedia( props ) {
 	);
 
 	// Load initial results for the random example query.
-	useEffect( getNextPage, [] );
+	useEffect( getNextPage, [ getNextPage ] );
 
 	const searchFormEl = useRef( null );
 
