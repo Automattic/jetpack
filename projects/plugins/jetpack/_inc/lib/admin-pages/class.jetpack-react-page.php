@@ -62,16 +62,57 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * If user is allowed to see the Jetpack Admin, add Settings sub-link.
+	 * Determine whether a user can access the Jetpack Settings page.
+	 *
+	 * Rules are:
+	 * - user is allowed to see the Jetpack Admin
+	 * - site is connected or in offline mode
+	 * - if the site is connected but doesn't have a connected user, only show to admins.
+	 *
+	 * @return bool $can_access_settings Can the user access settings.
+	 */
+	private function can_access_settings() {
+		$connection = new Connection_Manager( 'jetpack' );
+		$status     = new Status();
+
+		// User must have the necessary permissions to see the Jetpack settings pages.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return false;
+		}
+
+		// In offline mode, allow access.
+		if ( $status->is_offline_mode() ) {
+			return true;
+		}
+
+		// If not in offline mode but site is not connected, bail.
+		if ( ! Jetpack::is_connection_ready() ) {
+			return false;
+		}
+
+		/*
+		 * If the site is connected, but not user-connected,
+		 * the user must be an admin.
+		 */
+		if (
+			! $connection->has_connected_owner()
+			&& ! current_user_can( 'jetpack_connect' )
+		) {
+			return false;
+		}
+
+		// fallback.
+		return true;
+	}
+
+	/**
+	 * Jetpack Settings sub-link.
 	 *
 	 * @since 4.3.0
 	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ! ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! current_user_can( 'jetpack_connect' ) ) {
-			return;
-		}
-		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) && current_user_can( 'edit_posts' ) ) {
+		if ( $this->can_access_settings() ) {
 			add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/settings', '__return_null' );
 		}
 	}
