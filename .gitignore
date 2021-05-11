@@ -22,7 +22,6 @@ npm-debug.log
 *.unison.tmp
 .eslintcache
 .eslintignore-required
-yarn-error.log
 .phpcs.xml
 phpcs.xml
 .phpunit.result.cache
