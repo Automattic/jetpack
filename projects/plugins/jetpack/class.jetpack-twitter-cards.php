@@ -118,16 +118,34 @@ class Jetpack_Twitter_Cards {
 					} else {
 						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 144, $post_image['src'] ) );
 					}
-
-					// Add the alt tag if we have one.
-					if ( ! empty( $post_image['alt_text'] ) ) {
-						// Shorten it if it is too long.
-						if ( strlen( $post_image['alt_text'] ) > $alt_length ) {
-							$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $post_image['alt_text'], 0, $alt_length ) . '…' );
-						} else {
-							$og_tags['twitter:image:alt'] = esc_attr( $post_image['alt_text'] );
+				} elseif ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
+					// Elseif we have an image, but it's TOO BIG (larger than 4096px on either dimension).
+					if ( Jetpack::is_module_active( 'photon' ) ) {
+						$card_type                = 'summary_large_image';
+						$og_tags['twitter:image'] = jetpack_photon_url(
+							$post_image['src'],
+							array(
+								'fit' => '4096,4096',
+							)
+						);
+					} else {
+						// See if WordPress has any smaller fallback image sizes we can use?
+						$image_id = attachment_url_to_postid( $post_image['src'] );
+						if ( $image_id ) {
+							$card_type                = 'summary_large_image';
+							$og_tags['twitter:image'] = wp_get_attachment_image_url( $image_id, 'large' );
 						}
 					}
+				}
+			}
+
+			// Add the alt tag if we have one, and we've populated an image.
+			if ( ! empty( $post_image['alt_text'] ) && ! empty( $og_tags['twitter:image'] ) ) {
+				// Shorten it if it is too long.
+				if ( strlen( $post_image['alt_text'] ) > $alt_length ) {
+					$og_tags['twitter:image:alt'] = mb_substr( $post_image['alt_text'], 0, $alt_length ) . '…';
+				} else {
+					$og_tags['twitter:image:alt'] = $post_image['alt_text'];
 				}
 			}
 		}
