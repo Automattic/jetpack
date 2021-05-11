@@ -402,12 +402,18 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 			message: 'What name do you want to use for the repo?',
 			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
 		},
+		{
+			type: 'confirm',
+			name: 'autotagger',
+			default: true,
+			message: 'Enable autotagger for the mirror repo?',
+		},
 	] );
 
 	if ( answers.createNew ) {
 		// add function to create.
 		console.log(
-			chalk.yellow(
+			chalk.orange(
 				'We have not quite added the automatic creation of a mirror repo, so please visit https://github.com/organizations/Automattic/repositories/new to create a new repo of ' +
 					name
 			)
@@ -418,12 +424,12 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 	} else if ( answers.newName ) {
 		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
 	}
-
 	// Prompt: What repo would you like to use in the "org"? Default: "name".
 
 	// Validate the name, then check for repo exists again.
 
 	// If validated, add it to composerJson. If not repeat.
+	composerJson.extra.autotagger = answers.autotagger;
 }
 
 /**
