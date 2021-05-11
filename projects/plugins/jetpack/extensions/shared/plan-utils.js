@@ -33,7 +33,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
 	let planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
 
-	// Overrites path to `business` for Atomic sites.
+	// Overwrites path to `business` for Atomic sites.
 	if ( isAtomicSite() ) {
 		planPathSlug = 'business';
 	}
