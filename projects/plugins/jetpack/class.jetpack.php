@@ -4135,7 +4135,7 @@ p {
 
 	function plugin_action_links( $actions ) {
 
-		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), 'Jetpack' ) );
+		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', self::admin_url( 'page=jetpack' ), __( 'My Jetpack', 'jetpack' ) ) );
 
 		if ( current_user_can( 'jetpack_manage_modules' ) && ( self::is_connection_ready() || ( new Status() )->is_offline_mode() ) ) {
 			return array_merge(
