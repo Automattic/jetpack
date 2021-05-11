@@ -42,7 +42,7 @@ const jetpackPaidBlock = ( settings, name ) => {
 		}
 
 		// Add the attributes for rendering upgrade nudges.
-		if ( ! settings.attributes.shoudlDisplayFrontendBanner ) {
+		if ( ! settings.attributes.shouldDisplayFrontendBanner ) {
 			settings.attributes.shouldDisplayFrontendBanner = {
 				type: 'boolean',
 				default: true,

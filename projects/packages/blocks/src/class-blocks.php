@@ -70,7 +70,7 @@ class Blocks {
 				$args['attributes'] = array_merge(
 					$args['attributes'],
 					array(
-						// Indicates that this block should display an upgrade nudge on the frontend.
+						// Indicates that this block should display an upgrade nudge on the frontend when applicable.
 						'shouldDisplayFrontendBanner' => array(
 							'type'    => 'boolean',
 							'default' => true,
