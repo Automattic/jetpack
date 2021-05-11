@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Change the connection-ui call to use the new get_instance() method.
