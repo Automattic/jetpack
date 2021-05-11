@@ -89,8 +89,9 @@ function generateDateRangeFilter( fieldName, input, type ) {
 	let startDate = '';
 	let endDate = '';
 	if ( month ) {
+		const nextMonth = +month + 1;
 		startDate = `${ year }-${ month }-01`;
-		endDate = `${ year }-${ +month + 1 }-01`;
+		endDate = nextMonth <= 12 ? `${ year }-${ nextMonth }-01` : `${ +year + 1 }-01-01`;
 	} else if ( year ) {
 		startDate = `${ year }-01-01`;
 		endDate = `${ +year + 1 }-01-01`;
