@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix LEGACY_META_OPTION handling for WPcom simple sites

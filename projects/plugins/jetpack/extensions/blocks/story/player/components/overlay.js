@@ -9,8 +9,8 @@ import GridiconFullscreen from 'gridicons/dist/fullscreen';
 /**
  * WordPress dependencies
  */
-import { createElement, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback } from '@wordpress/element';
+import { __, isRTL } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -70,7 +70,7 @@ export default function Overlay( {
 						label={ __( 'Previous Slide', 'jetpack' ) }
 						className="outlined-w"
 					>
-						<NavigateBeforeIcon size={ 24 } />
+						{ isRTL() ? <NavigateNextIcon size={ 24 } /> : <NavigateBeforeIcon size={ 24 } /> }
 					</DecoratedButton>
 				</div>
 			) }
@@ -81,7 +81,7 @@ export default function Overlay( {
 						label={ __( 'Next Slide', 'jetpack' ) }
 						className="outlined-w"
 					>
-						<NavigateNextIcon size={ 24 } />
+						{ isRTL() ? <NavigateBeforeIcon size={ 24 } /> : <NavigateNextIcon size={ 24 } /> }
 					</DecoratedButton>
 				</div>
 			) }

@@ -96,6 +96,39 @@ class AddCommandTest extends CommandTestCase {
 	}
 
 	/**
+	 * Test the try-harder logic for making a filename.
+	 */
+	public function testExecute_autoSuffix() {
+		mkdir( 'changelog' );
+		$tester = $this->getTester( 'add' );
+
+		// Create all the files first.
+		for ( $i = 1; $i < 10; $i++ ) {
+			$code = $tester->execute(
+				array(
+					'--filename'             => 'testing',
+					'--filename-auto-suffix' => true,
+					'--significance'         => 'patch',
+					'--type'                 => 'fixed',
+					'--entry'                => "Testing $i.",
+				),
+				array( 'interactive' => false )
+			);
+			$this->assertSame( 0, $code );
+		}
+
+		// Then validate them all.
+		for ( $i = 1; $i < 10; $i++ ) {
+			$file = 1 === $i ? 'changelog/testing' : "changelog/testing#$i";
+			$this->assertFileExists( $file );
+			$this->assertSame(
+				"Significance: patch\nType: fixed\n\nTesting $i.\n",
+				file_get_contents( $file )
+			);
+		}
+	}
+
+	/**
 	 * Test the command.
 	 *
 	 * @dataProvider provideExecute

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes the date used to fetch the Top posts in the Top posts dashboard widget

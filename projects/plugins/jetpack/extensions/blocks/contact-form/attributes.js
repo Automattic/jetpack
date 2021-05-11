@@ -14,6 +14,10 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	customThankyouHeading: {
+		type: 'string',
+		default: __( 'Message Sent', 'jetpack' ),
+	},
 	customThankyouMessage: {
 		type: 'string',
 		default: '',
