@@ -31,12 +31,7 @@ import { requiresPaidPlan } from './register-jetpack-block';
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
-	let planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
-
-	// Overwrites path to `business` for Atomic sites.
-	if ( isAtomicSite() ) {
-		planPathSlug = 'business';
-	}
+	const planPathSlug = startsWith( planSlug, 'jetpack_' ) ? planSlug : get( plan, [ 'path_slug' ] );
 
 	// The full site editor has no set post type.
 	const redirect_to = ( undefined === postType
