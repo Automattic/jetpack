@@ -140,6 +140,13 @@ export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
 	} );
 }
 
+/**
+ * Returns a promise that resolves when a specified object becomes available on specified window.
+ *
+ * @param   {HTMLElement} currentWindow - The window on which to check for the object.
+ * @param   {Object} objectName         - The object to check for.
+ * @returns {Promise}                   - Whether `elementRef` is contained within an Editor iframe.
+ */
 export function waitForObject( currentWindow, objectName ) {
 	return new Promise( resolve => {
 		const waitFor = () => {
