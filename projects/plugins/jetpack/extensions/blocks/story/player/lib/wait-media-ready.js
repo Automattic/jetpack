@@ -18,7 +18,7 @@ export default async function waitMediaReady( mediaElement ) {
 			// In case the media has stopped loading, force a reload
 			if (
 				mediaElement.HAVE_NOTHING === mediaElement.readyState &&
-				mediaElement.networkState < mediaElement.NETWORK_LOADING
+				mediaElement.networkState !== mediaElement.NETWORK_LOADING
 			) {
 				mediaElement.load();
 			}
