@@ -252,7 +252,11 @@ async function checkSpecialProjects( needChangelog ) {
 		const composerJSON = readComposerJson( proj );
 		// todo - handle duplicate special projects with the same type of requirements.
 		// todo - If we want to generate changelogger questions dynamically, we can push the entire composerJSON.extra.changelogger.types object.
-		if ( composerJSON.extra.changelogger && composerJSON.extra.changelogger.types ) {
+		if (
+			composerJSON.extra &&
+			composerJSON.extra.changelogger &&
+			composerJSON.extra.changelogger.types
+		) {
 			needChangelog.splice( needChangelog.indexOf( proj ), 1 );
 			specialProjects.push( proj );
 		}
