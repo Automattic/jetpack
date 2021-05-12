@@ -141,6 +141,18 @@ for SLUG in "${SLUGS[@]}"; do
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
 	fi
 
+	# Copy license.
+	LICENSE=$(jq -r '.license // ""'composer.json)
+	if [[ "$LICENSE" ]]; then
+		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License value not approved."
+			EXIT=1
+			continue
+		else
+			echo "License file copied."
+		fi
+	fi
+
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{
 		# Include unignored files by default.
