@@ -9,7 +9,6 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Sender;
 
@@ -763,8 +762,8 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function validate_urls_for_idc_mitigation() {
 		return array(
-			'home'    => Utils::home_url(),
-			'siteurl' => Utils::site_url(),
+			'home'    => Urls::home_url(),
+			'siteurl' => Urls::site_url(),
 		);
 	}
 

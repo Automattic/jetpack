@@ -9,7 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils;
+use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Tracking as Tracking;
@@ -358,8 +358,8 @@ class Identity_Crisis {
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
 			$local_options = array(
-				'home'    => Utils::home_url(),
-				'siteurl' => Utils::site_url(),
+				'home'    => Urls::home_url(),
+				'siteurl' => Urls::site_url(),
 			);
 			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
 		}
@@ -1017,5 +1017,3 @@ class Identity_Crisis {
 		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
 	}
 }
-
-add_action( 'plugins_loaded', array( 'Identity_Crisis', 'init' ) );
