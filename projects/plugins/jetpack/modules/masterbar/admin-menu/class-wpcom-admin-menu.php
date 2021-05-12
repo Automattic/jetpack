@@ -192,7 +192,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$user_id      = $current_user->ID;
 		$user_roles   = implode( ',', $current_user->roles );
 		$query_string = array(
-			'message_path' => 'calypso:sites:sidebar_notice',
+			'message_path' => $message_path,
 		);
 
 		// Get the top message only.
