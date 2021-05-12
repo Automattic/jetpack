@@ -2022,7 +2022,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					"--------------------------------------------------------------------------------------------------------------------\n" .
 					/* translators: the placeholder is a directory path */
 					esc_html__( 'The files were created at %3$s', 'jetpack' ) . "\n" .
-					esc_html__( 'To start using the block, build the blocks with yarn run build-extensions', 'jetpack' ) . "\n" .
+					esc_html__( 'To start using the block, build the blocks with pnpm run build-extensions', 'jetpack' ) . "\n" .
 					/* translators: the placeholder is a file path */
 					esc_html__( 'The block slug has been added to the %4$s list at %5$s', 'jetpack' ) . "\n" .
 					'%6$s' . "\n" .

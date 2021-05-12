@@ -64,4 +64,3 @@
 /vendor/automattic/jetpack-autoloader/**                 production-exclude
 /vendor/automattic/jetpack-changelogger/**               production-exclude
 /wp-cli-templates/**                                     production-exclude
-/yarn.lock                                               production-exclude

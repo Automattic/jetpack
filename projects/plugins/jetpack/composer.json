@@ -45,11 +45,11 @@
 	"scripts": {
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-production-concurrently"
+			"pnpm run build-production-concurrently"
 		],
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-concurrently"
+			"pnpm run build-concurrently"
 		],
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
@@ -58,8 +58,8 @@
 		],
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn install",
-			"yarn concurrently 'yarn:test-adminpage' 'yarn:test-extensions' 'yarn:test-search'"
+			"pnpm install",
+			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions' 'pnpm:test-search'"
 		],
 		"test-php": [
 			"Composer\\Config::disableProcessTimeout",
@@ -68,7 +68,7 @@
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn watch"
+			"pnpm run watch"
 		]
 	},
 	"repositories": [
