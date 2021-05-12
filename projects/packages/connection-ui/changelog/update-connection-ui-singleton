@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Main Admin class for connection-ui is now a singleton since it may be called multiple times (e.g. in Jetpack and in Backup plugin).

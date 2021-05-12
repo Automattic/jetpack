@@ -844,7 +844,7 @@ class Jetpack {
 			 * @param bool false Whether to activate the Connection UI.
 			 */
 			if ( apply_filters( 'jetpack_connection_ui_active', false ) ) {
-				Automattic\Jetpack\ConnectionUI\Admin::get_instance();
+				Automattic\Jetpack\ConnectionUI\Admin::init();
 			}
 		}
 

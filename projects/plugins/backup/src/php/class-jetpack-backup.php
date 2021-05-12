@@ -30,7 +30,7 @@ class Jetpack_Backup {
 			'plugins_loaded',
 			function () {
 				Automattic\Jetpack\Connection\Manager::configure();
-				Automattic\Jetpack\ConnectionUI\Admin::get_instance();
+				Automattic\Jetpack\ConnectionUI\Admin::init();
 			}
 		);
 	}
