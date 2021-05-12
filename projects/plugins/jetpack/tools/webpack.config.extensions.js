@@ -17,7 +17,7 @@ const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin
 /**
  * Internal dependencies
  */
-const CopyThirdPartyResourcesPlugin = require( './copy-third-party-resources' );
+const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 // const { workerCount } = require( './webpack.common' ); // todo: shard...
 
 /**
@@ -150,7 +150,7 @@ module.exports = [
 					to: 'index.json',
 				},
 			] ),
-			new CopyThirdPartyResourcesPlugin(),
+			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
 	{

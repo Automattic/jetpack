@@ -14,10 +14,10 @@ import InfoWindow from './info-window/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';
 import {
 	getLoadContext,
-	loadThirdPartyResources,
+	loadBlockEditorAssets,
 	waitForObject,
-} from '../../shared/third-party-resource-loader';
-import thirdPartyResources from './third-party-resources.json';
+} from '../../shared/block-editor-asset-loader';
+import editorAssets from './block-editor-assets.json';
 export class Map extends Component {
 	// Lifecycle
 	constructor() {
@@ -324,7 +324,7 @@ export class Map extends Component {
 			},
 		};
 
-		loadThirdPartyResources( thirdPartyResources, callbacks, this.mapRef.current );
+		loadBlockEditorAssets( editorAssets, callbacks, this.mapRef.current );
 	}
 
 	initMap( mapCenter ) {

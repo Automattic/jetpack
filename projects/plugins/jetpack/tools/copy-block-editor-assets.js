@@ -2,13 +2,13 @@ const fs = require( 'fs-extra' );
 const glob = require( 'glob' );
 const path = require( 'path' );
 
-const PLUGIN_NAME = 'CopyThirdPartyResources';
-const EXPORT_PATH = '_inc/blocks/third-party-resources';
+const PLUGIN_NAME = 'CopyEditorAssetsPlugin';
+const EXPORT_PATH = '_inc/blocks/editor-assets';
 
-module.exports = class CopyThirdPartyResourcesPlugin {
+module.exports = class CopyBlockEditorAssetsPlugin {
 	apply( compiler ) {
 		const logger = compiler.getInfrastructureLogger( PLUGIN_NAME );
-		logger.log( 'Starting copy of block third party resources' );
+		logger.log( 'Starting copy of block editor assets' );
 		compiler.hooks.shouldEmit.tap( 'CopyPlugin_Custom', () => {
 			async function makeDir() {
 				await fs.mkdirp( path.resolve( EXPORT_PATH ) );
@@ -25,15 +25,16 @@ module.exports = class CopyThirdPartyResourcesPlugin {
 				} );
 			}
 
-			glob( 'extensions/blocks/**/third-party-resources.json', {}, function ( er, files ) {
+			glob( 'extensions/blocks/**/block-editor-assets.json', {}, function ( er, files ) {
 				files.forEach( file => {
 					const resources = require( path.resolve( file ) );
 					resources.forEach( resource => {
 						const source = path.resolve( resource.file );
-						const filename = path.basename( source );
-						const dest = `${ path.resolve( '_inc/blocks/third-party-resources' ) }/${
+						const filename = path.basename( source, path.extname( source ) );
+						const ext = path.extname( source );
+						const dest = `${ path.resolve( EXPORT_PATH ) }/${ filename }-${
 							resource.version
-						}-${ filename }`;
+						}${ ext }`;
 						copyFile( source, dest );
 					} );
 				} );
