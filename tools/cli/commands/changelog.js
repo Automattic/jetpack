@@ -273,7 +273,6 @@ async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await changedProjects();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
-
 		// If we don't detect any modified projects, shortcircuit to default changelogger.
 		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
 			changelogArgs( argv );
@@ -452,13 +451,17 @@ async function changedProjects() {
 	const projects = allProjects();
 	// Get all files that were worked with (created, deleted, modified, etc)
 	for ( const file of gitStatus.files ) {
-		gitFiles.push( file.path );
+		const parsedPath = file.path.split( '/' );
+		const project = `${ parsedPath[ 1 ] }/${ parsedPath[ 2 ] }`;
+		if ( ! gitFiles.includes( project ) ) {
+			gitFiles.push( project );
+		}
 	}
 
 	// See if any files modified match our project list.
 	for ( const proj of projects ) {
 		for ( const file of gitFiles ) {
-			if ( file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
+			if ( proj === file ) {
 				modifiedProjects.push( proj );
 			}
 		}
