@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix the Paypal block so it works with the site editor.
