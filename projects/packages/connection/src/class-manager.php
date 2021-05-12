@@ -972,6 +972,22 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
+		// This will come from the server response.
+		$registration_details->allow_inplace_authorization = false;
+		$registration_details->alternate_authorization_url = 'http://whatever.com';
+
+		if ( ! $registration_details->allow_inplace_authorization ) {
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+		}
+		add_filter(
+			'jetpack_register_site_rest_response',
+			function ( $response ) use ( $registration_details ) {
+				$response['allowInplaceAuthorization'] = $registration_details->allow_inplace_authorization;
+				$response['alternateAuthorizeUrl']     = $registration_details->alternate_authorization_url;
+				return $response;
+			}
+		);
+
 		/**
 		 * Fires when a site is registered on WordPress.com.
 		 *

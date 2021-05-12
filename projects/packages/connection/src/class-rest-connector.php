@@ -450,11 +450,14 @@ class REST_Connector {
 			}
 		}
 
-		return rest_ensure_response(
+		$response_body = apply_filters(
+			'jetpack_register_site_rest_response',
 			array(
 				'authorizeUrl' => $authorize_url,
 			)
 		);
+
+		return rest_ensure_response( $response_body );
 	}
 
 }
