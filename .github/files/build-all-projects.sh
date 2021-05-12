@@ -142,16 +142,20 @@ for SLUG in "${SLUGS[@]}"; do
 	fi
 
 	# Copy license.
-	LICENSE=$(jq -r '.license // ""'composer.json)
+	LICENSE=$(jq -r '.license // ""' composer.json)
 	if [[ "$LICENSE" ]]; then
+		echo "License: $LICENSE"
 		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License file copied."
+		else
 			echo "License value not approved."
 			EXIT=1
 			continue
-		else
-			echo "License file copied."
 		fi
 	fi
+
+	# Copy SECURITY.md
+	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{

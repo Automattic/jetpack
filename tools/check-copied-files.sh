@@ -134,7 +134,6 @@ compareJSON () {
 }
 
 compare readme.md projects/plugins/jetpack/readme.md '^## Security' '^<!-- end sync section -->$'
-compare SECURITY.md projects/plugins/jetpack/SECURITY.md
 compare projects/packages/identity-crisis/src/scss/functions/colors.scss projects/plugins/jetpack/_inc/client/scss/functions/colors.scss
 compare projects/packages/identity-crisis/src/scss/variables/_colors.scss projects/plugins/jetpack/_inc/client/scss/variables/_colors.scss
 
