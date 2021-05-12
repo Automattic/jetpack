@@ -126,7 +126,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			wp_kses( $nudge['cta'], array() )
 		);
 
-		add_menu_page( 'site-notices', $message, 'manage_options', 'https://wordpress.com' . $nudge['link'], null, null, 1 );
+		add_menu_page( 'site-notices', $message, 'read', 'https://wordpress.com' . $nudge['link'], null, null, 1 );
 		add_filter( 'add_menu_classes', array( $this, 'set_site_notices_menu_class' ) );
 	}
 
