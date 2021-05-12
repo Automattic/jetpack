@@ -27,7 +27,7 @@ export default createHigherOrderComponent(
 		}
 
 		const { fileType } = usableBlocksProps;
-		const onBannerVisibilityChange = useContext( PaidBlockContext );
+		const { onBannerVisibilityChange } = useContext( PaidBlockContext );
 
 		return (
 			<MediaReplaceFlow
