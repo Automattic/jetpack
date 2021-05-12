@@ -47,31 +47,21 @@ export default function installProjectTask( argv ) {
 		console.error( 'You cannot create an install task for nothing.' );
 		process.exit( 1 );
 	}
-	const yarnCacheFile = path.resolve( process.cwd(), '.yarn-cache-lock' );
 	const cwd = argv.root ? process.cwd() : path.resolve( `projects/${ argv.project }` );
 	const composerEnabled = argv.root ? true : Boolean( readComposerJson( argv.project, false ) );
-	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
+	const pnpmEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
 	const command = async ( pkgMgr, verbose ) => {
 		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
-		// For yarn, always use 'install' ('upgrade' has weird behavior), removing any stale local lockfile first.
+		// For pnpm, the lockfile is always checked in thanks to the workspace thing.
+		// @todo We only really need to run `pnpm install` once globally. But how to track that?
 		let subcommand;
-		let args = '';
+		let args = ''; // eslint-disable-line prefer-const
 		if ( pkgMgr === 'composer' ) {
 			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
-		} else if ( pkgMgr === 'yarn' ) {
+		} else if ( pkgMgr === 'pnpm' ) {
 			subcommand = 'install';
-			if (
-				! ( await hasLockFile( cwd, 'yarn.lock' ) ) &&
-				fs.existsSync( path.resolve( cwd, 'yarn.lock' ) )
-			) {
-				fs.unlinkSync( path.resolve( cwd, 'yarn.lock' ) );
-			}
-			// Yarn's own cache access is not multi-process safe, and yarn isn't being developed anymore (they want
-			// to replace it with "berry" aka "yarn 2") so we'll have to go with the poor mutex workaround.
-			// See https://github.com/yarnpkg/yarn/issues/683
-			args += ` --mutex=file:${ yarnCacheFile }`;
 		} else {
 			throw new Error( `Unknown package manager ${ pkgMgr }` );
 		}
@@ -98,7 +88,7 @@ export default function installProjectTask( argv ) {
 		title: chalk.yellow( `Installing ${ argv.project }` ),
 		task: () => {
 			return new Listr(
-				[ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ],
+				[ task( 'Composer', composerEnabled ), task( 'Pnpm', pnpmEnabled ) ],
 				opts
 			);
 		},

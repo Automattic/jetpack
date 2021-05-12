@@ -570,6 +570,7 @@ importers:
       listr-update-renderer: 0.5.0
       listr-verbose-renderer: 0.6.0
       mocha: 8.2.1
+      path-name: 1.0.0
       pluralize: 8.0.0
       process: 0.11.10
       yargs: 16.2.0
@@ -585,6 +586,7 @@ importers:
       listr: 0.14.3
       listr-update-renderer: 0.5.0_listr@0.14.3
       listr-verbose-renderer: 0.6.0
+      path-name: 1.0.0
       pluralize: 8.0.0
       process: 0.11.10
       yargs: 16.2.0
@@ -15855,6 +15857,10 @@ packages:
   /path-key/3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
     engines: {node: '>=8'}
+
+  /path-name/1.0.0:
+    resolution: {integrity: sha1-jKBjpj3nmC36lXYO2v/RAhRJTyQ=}
+    dev: false
 
   /path-parse/1.0.6:
     resolution: {integrity: sha512-GSmOT2EbHrINBf9SR7CDELwlJ8AENk3Qn7OikK4nFYAu3Ote2+JYNVvkpAEQm3/TLNEJFD/xZJjzyxg3KBWOzw==}
