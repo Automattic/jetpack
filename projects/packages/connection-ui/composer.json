@@ -28,11 +28,11 @@
 	"scripts": {
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		]
 	},
 	"minimum-stability": "dev",

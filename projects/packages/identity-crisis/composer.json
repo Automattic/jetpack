@@ -25,11 +25,11 @@
 	"scripts": {
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"NODE_ENV='production' yarn build"
+			"NODE_ENV='production' pnpm run build"
 		],
 		"phpunit": [
 			"@composer install",
