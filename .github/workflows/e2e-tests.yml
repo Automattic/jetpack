@@ -49,10 +49,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Read PHP and Node versions
+    - name: Read tool versions
       id: versions
       run: |
         echo "::set-output name=php-version::$(<.github/php-version)"
+        echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
         echo "::set-output name=node-version::$(<.nvmrc)"
 
     - name: Setup PHP
@@ -80,16 +81,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-composer-
 
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-    - name: Use yarn cache
+    - name: Use pnpm cache
       uses: actions/cache@v2
       with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-${{ hashFiles('**/package.json') }}
         restore-keys: |
-          ${{ runner.os }}-yarn-
+          ${{ runner.os }}-pnpm-${{ steps.versions.outputs.node-version }}-
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2.0.1
+      with:
+        version: ${{ steps.versions.outputs.pnpm-version }}
 
     - name: Tool versions
       run: |
@@ -99,25 +102,24 @@ jobs:
         composer --version
         which node
         node --version
-        which yarn
-        yarn --version
+        which pnpm
+        pnpm --version
         which jq
         jq --version
 
     - name: Build Production Jetpack
       run: |
-        yarn install
-        yarn jetpack build plugins/jetpack -v --production
+        pnpm install
+        pnpx jetpack build plugins/jetpack -v --production
 
     - name: Environment set-up
       working-directory: projects/plugins/jetpack/tests/e2e
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
-        yarn install
-        yarn test-decrypt-config
-        yarn env-start
-        yarn tunnel-on
+        pnpm run test-decrypt-config
+        pnpm run env-start
+        pnpm run tunnel-on
 
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'
@@ -126,15 +128,15 @@ jobs:
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: yarn test-e2e --group=${{ matrix.group }}
+      run: pnpm run test-e2e -- --group=${{ matrix.group }}
 
     - name: Environment tear-down
       if: ${{ always() }}
       working-directory: projects/plugins/jetpack/tests/e2e
       continue-on-error: true
       run: |
-        yarn tunnel-off
-        yarn pm2 logs --nostream --lines 10000 > output/logs/tunnel.log
+        pnpm run tunnel-off
+        pnpm run pm2 -- logs --nostream --lines 10000 > output/logs/tunnel.log
 
     - name: Upload test artifacts
       if: ${{ always() }}
