@@ -267,9 +267,9 @@ The body is separated from the headers by a blank line, and is the text that act
 
 ### Using the Jetpack Changelogger
 
-The changelogger tool is dev-required by each project via Composer, and after `composer install` may be run to interactively add a change file using:
+The changelogger tool can be used via [Jetpack's CLI tool](#first-time). You may use the following command to generate changelog entries for each project that needs one:
 
-`vendor/bin/changelogger add`
+`jetpack changelog add`
 
 **Does it matter what the change file is named?** Starting the file name with `.` should not be used. Also consider avoiding names that have extensions like `.php` or `.js` to avoid confusing other tools.
 

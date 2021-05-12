@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Hook into the Connection package remote_connect to perform Jetpack specific routines
