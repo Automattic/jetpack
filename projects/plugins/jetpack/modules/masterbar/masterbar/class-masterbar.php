@@ -203,7 +203,7 @@ class Masterbar {
 		if ( jetpack_is_atomic_site() &&
 			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
-			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ) );
+			add_action( 'profile_personal_options', array( $this, 'replace_language_dropdown' ) );
 		}
 	}
 
@@ -471,7 +471,7 @@ class Masterbar {
 	 * Replace language dropdown with link to WordPress.com.
 	 */
 	public function replace_language_dropdown() {
-		$language_row  = printf( '<tr class="user-language-wrap"><th scope="row">' );
+		$language_row  = printf( '<table class="form-table" role="presentation"><tbody><tr class="user-language-wrap"><th scope="row">' );
 		$language_row .= printf(
 			'<label for="locale">%1$s<span class="dashicons dashicons-translation" aria-hidden="true"></span></label>',
 			esc_html( __( 'Language', 'jetpack' ) )
@@ -482,7 +482,7 @@ class Masterbar {
 			esc_url( 'https://wordpress.com/me/account' ),
 			esc_html( __( 'Set your profile language on WordPress.com.', 'jetpack' ) )
 		);
-		$language_row .= printf( '</td></tr>' );
+		$language_row .= printf( '</td></tr></tbody></table>' );
 		return $language_row;
 	}
 
