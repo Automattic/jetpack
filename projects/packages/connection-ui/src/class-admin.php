@@ -13,13 +13,6 @@ namespace Automattic\Jetpack\ConnectionUI;
 class Admin {
 
 	/**
-	 * Make sure we only initialize the class once, as multiple plugins may call `init()` here.
-	 *
-	 * @var $is_initialized
-	 */
-	public static $is_initialized = false;
-
-	/**
 	 * Construction.
 	 */
 	public function __construct() {
@@ -31,10 +24,7 @@ class Admin {
 	 * Initialize the UI.
 	 */
 	public static function init() {
-		if ( false === self::$is_initialized ) {
-			new static();
-			self::$is_initialized = true;
-		}
+		new static();
 	}
 
 	/**
