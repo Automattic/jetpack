@@ -1024,6 +1024,14 @@ packages:
   /@babel/compat-data/7.14.0:
     resolution: {integrity: sha512-vu9V3uMM/1o5Hl5OekMUowo3FqXLJSw+s+66nt0fSWVWTtmosdzn45JHOB3cPtZoe6CTBDzvSw0RdOY85Q37+Q==}
 
+  /@babel/compat-data/7.8.6:
+    resolution: {integrity: sha512-CurCIKPTkS25Mb8mz267vU95vy+TyUpnctEX2lV33xWNmHAfjruztgiPBbXZRh3xZZy1CYvGx6XfxyTVS+sk7Q==}
+    dependencies:
+      browserslist: 4.16.3
+      invariant: 2.2.4
+      semver: 5.7.1
+    dev: false
+
   /@babel/core/7.12.10:
     resolution: {integrity: sha512-eTAlQKq65zHfkHZV0sIVODCPGVgoo1HdBlbSLi9CqOzuZanMv2ihzY+4paiKr1mH+XmYESMAmJ/dpZ68eN6d8w==}
     engines: {node: '>=6.9.0'}
@@ -3519,7 +3527,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
     dependencies:
-      '@babel/compat-data': 7.14.0
+      '@babel/compat-data': 7.8.6
       '@babel/core': 7.8.4
       '@babel/helper-compilation-targets': 7.13.16_@babel+core@7.8.4
       '@babel/helper-module-imports': 7.13.12
