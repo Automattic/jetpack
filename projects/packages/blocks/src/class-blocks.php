@@ -249,6 +249,26 @@ class Blocks {
 	}
 
 	/**
+	 * Is the current theme an FSE/Site Editor theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @return bool True if the current theme is an FSE/Site Editor theme.
+	 */
+	public static function is_fse_theme() {
+		$is_fse_theme = function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+
+		/**
+		 * Returns true if the current theme is an FSE/Site Editor theme.
+		 *
+		 * @since 9.8.0
+		 *
+		 * @param boolean $is_fse_theme Is the theme an FSE theme.
+		 */
+		return apply_filters( 'jetpack_is_fse_theme', $is_fse_theme );
+	}
+
+	/**
 	 * Check whether or the block being registered is a standalone block,
 	 * running in a context outside of the Jetpack plugin.
 	 *
