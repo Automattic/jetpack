@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add helper method to determine if the current theme is an FSE/Site editor theme.
