@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Ensure that the WPCOM toolbar remains enabled with AMP in wp-admin

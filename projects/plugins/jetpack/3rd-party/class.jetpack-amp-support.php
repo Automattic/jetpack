@@ -96,6 +96,16 @@ class Jetpack_AMP_Support {
 	}
 
 	/**
+	 * Is AMP available for this request
+	 * This returns false for admin, CLI requests etc.
+	 *
+	 * @return bool is_amp_available
+	 */
+	public static function is_amp_available() {
+		return ( function_exists( 'amp_is_available' ) && amp_is_available() );
+	}
+
+	/**
 	 * Does the page return AMP content.
 	 *
 	 * @return bool $is_amp_request Are we on am AMP view.
