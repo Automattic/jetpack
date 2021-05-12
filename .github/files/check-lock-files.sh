@@ -2,22 +2,25 @@
 
 set -eo pipefail
 
+BASE="$PWD"
+
 EXIT=0
 for FILE in $(git ls-files 'composer.lock' '**/composer.lock'); do
-	cd $(dirname "$FILE")
+	DIR="$(dirname "$FILE")"
+	cd "$DIR"
 	echo "::group::$FILE - composer install"
 	composer install
 	echo "::endgroup::"
 	echo "::group::$FILE - composer update"
-	composer update --root-reqs
+	"$BASE/tools/composer-update-monorepo.sh" --root-reqs .
 	echo "::endgroup::"
 	if ! git diff --exit-code composer.lock; then
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`composer update --root-reqs\` in the appropriate directory."
+		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`tools/composer-update-monorepo.sh --root-reqs \"${DIR}\"\`."
 		echo "---"
 		EXIT=1
 	fi
-	cd "$OLDPWD"
+	cd "$BASE"
 done
 
 for FILE in $(git ls-files 'yarn.lock' '**/yarn.lock'); do
@@ -31,7 +34,7 @@ for FILE in $(git ls-files 'yarn.lock' '**/yarn.lock'); do
 		echo "---"
 		EXIT=1
 	fi
-	cd "$OLDPWD"
+	cd "$BASE"
 done
 
 exit $EXIT
