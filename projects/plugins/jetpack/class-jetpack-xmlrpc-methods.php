@@ -208,7 +208,7 @@ class Jetpack_XMLRPC_Methods {
 	 * @return array
 	 */
 	public static function remote_provision_response( $response, $request ) {
-		if ( isset( $request['onboarding'] ) && ! empty( $request['onboarding'] ) ) {
+		if ( ! empty( $request['onboarding'] ) ) {
 			Jetpack::create_onboarding_token();
 			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
 		}
