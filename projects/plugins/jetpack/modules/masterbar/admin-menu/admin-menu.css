@@ -74,7 +74,8 @@
 #adminmenu a.toplevel_page_site-notices:focus,
 #adminmenu li.toplevel_page_site-notices:hover,
 #adminmenu li.toplevel_page_site-notices:focus {
-	background-color: inherit;
+	background-color: inherit !important;
+	color: inherit !important;
 }
 
 #adminmenu li.toplevel_page_site-notices .wp-menu-image {

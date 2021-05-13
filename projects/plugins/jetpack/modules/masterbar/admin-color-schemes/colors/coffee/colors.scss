@@ -22,7 +22,7 @@ $menu-nudge-background: $studio-white;
 $menu-nudge-text-color: $studio-black;
 $menu-nudge-cta-background: $highlight-color;
 $menu-nudge-cta-color: $studio-white;
-$menu-nudge-cta-background-hover: rgb(138, 77, 0);
+$menu-nudge-cta-background-hover: $studio-orange-60;
 
 @import "../_core-overrides";
 @import "../_inline-help";

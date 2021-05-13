@@ -134,3 +134,8 @@
 .admin-color-contrast #adminmenuback {
 	outline: 1px solid $nav-unification-sidebar-border;
 }
+
+.admin-color-contrast.folded #adminmenu .toplevel_page_site-notices .wp-menu-image,
+.admin-color-classic-bright.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
+	background-color: $studio-gray-80 !important;
+}
