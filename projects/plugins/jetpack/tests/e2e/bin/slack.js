@@ -75,10 +75,12 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 		for ( const ar of tr.assertionResults ) {
 			if ( ar.status !== 'passed' ) {
 				detailLines.push( `- ${ ar.fullName }` );
-				failureDetails.push( {
-					type: 'stacktrace',
-					content: `*${ ar.fullName }*\n\n\`\`\`${ ar.failureMessages }\`\`\``,
-				} );
+				for ( const failureMessage of ar.failureMessages ) {
+					failureDetails.push( {
+						type: 'stacktrace',
+						content: `*${ ar.fullName }*\n\n\`\`\`${ failureMessage }\`\`\``,
+					} );
+				}
 
 				// try to find a screenshot for this failed test
 				const expectedScreenshotName = fileNameFormatter( ar.title, false );
