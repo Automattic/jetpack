@@ -474,13 +474,13 @@ class Masterbar {
 		$language_row  = printf( '<table class="form-table" role="presentation"><tbody><tr class="user-language-wrap"><th scope="row">' );
 		$language_row .= printf(
 			'<label for="locale">%1$s<span class="dashicons dashicons-translation" aria-hidden="true"></span></label>',
-			esc_html( __( 'Language', 'jetpack' ) )
+			esc_html__( 'Language', 'jetpack' )
 		);
 		$language_row .= printf( '</th><td>' );
 		$language_row .= printf(
 			'<a target="_blank" href="%1$s">%2$s</a>',
 			esc_url( 'https://wordpress.com/me/account' ),
-			esc_html( __( 'Set your profile language on WordPress.com.', 'jetpack' ) )
+			esc_html__( 'Set your profile language on WordPress.com.', 'jetpack' )
 		);
 		$language_row .= printf( '</td></tr></tbody></table>' );
 		return $language_row;
