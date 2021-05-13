@@ -1135,6 +1135,6 @@ class Jetpack_Gutenberg {
  *
  * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
  */
-if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+if ( jetpack_is_atomic_site() ) {
 	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }
