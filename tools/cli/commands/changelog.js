@@ -444,7 +444,7 @@ async function gitAdd( argv ) {
  * @returns {Array} modifiedProjects - projects that need a changelog.
  */
 async function changedProjects() {
-	const re = /^projects\/([^/]+\/[^/]+)\//;
+	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
 	const modifiedProjects = new Set();
 	const git = simpleGit();
 	const gitStatus = await git.status();
