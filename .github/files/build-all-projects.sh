@@ -143,15 +143,18 @@ for SLUG in "${SLUGS[@]}"; do
 
 	# Copy license.
 	LICENSE=$(jq -r '.license // ""' composer.json)
-	if [[ "$LICENSE" ]]; then
+	if [[ -n "$LICENSE" ]]; then
 		echo "License: $LICENSE"
 		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
 			echo "License file copied."
 		else
-			echo "License value not approved."
+			echo "::error file=projects/$SLUG/composer.json::License value not approved."
 			EXIT=1
 			continue
 		fi
+	else
+		echo "No license declared."
+		# TODO: Make this an error?
 	fi
 
 	# Copy SECURITY.md
