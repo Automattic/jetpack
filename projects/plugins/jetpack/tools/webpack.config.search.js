@@ -64,8 +64,10 @@ module.exports = {
 			'react-dom': 'preact/compat', // Must be aliased after test-utils
 		},
 		modules: [
-			path.resolve( __dirname, '../_inc/client' ),
-			path.resolve( __dirname, '../node_modules' ),
+			// Check ./_inc/client first.
+			path.resolve( path.dirname( __dirname ), '_inc/client' ),
+			// Check our own node_modules/ (versus the node_modules dir in symlinked monorepo modules).
+			path.resolve( path.dirname( __dirname ), 'node_modules' ),
 		],
 	},
 	node: {

@@ -19,8 +19,8 @@ const config = {
 	],
 	env: {
 		test: {
-			presets: [ [ '@babel/preset-env', { targets: { node: 'current' } } ] ],
-			plugins: [ '@babel/plugin-transform-runtime' ],
+			presets: [ [ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ] ],
+			plugins: [ require.resolve( '@babel/plugin-transform-runtime' ) ],
 		},
 	},
 };

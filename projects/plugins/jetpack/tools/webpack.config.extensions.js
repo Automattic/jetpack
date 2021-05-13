@@ -141,6 +141,15 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
+		resolve: {
+			...extensionsWebpackConfig.resolve,
+			modules: [
+				// Check our own node_modules/ first (versus the node_modules dir in symlinked monorepo modules).
+				path.resolve( path.dirname( __dirname ), 'node_modules' ),
+				// Normal node_modules/ search path.
+				'node_modules',
+			],
+		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
 			new CopyWebpackPlugin( [
@@ -153,6 +162,15 @@ module.exports = [
 	},
 	{
 		...componentsWebpackConfig,
+		resolve: {
+			...componentsWebpackConfig.resolve,
+			modules: [
+				// Check our own node_modules/ first (versus the node_modules dir in symlinked monorepo modules).
+				path.resolve( path.dirname( __dirname ), 'node_modules' ),
+				// Normal node_modules/ search path.
+				'node_modules',
+			],
+		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(
