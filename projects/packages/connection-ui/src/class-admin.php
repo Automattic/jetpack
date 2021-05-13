@@ -19,6 +19,12 @@ class Admin {
 		if ( ! did_action( 'jetpack_on_connection_ui_init' ) ) {
 			add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+			/**
+			* Action called after initializing Connection UI Admin resources.
+			*
+			* @since 1.0.2
+			*/
 			do_action( 'jetpack_on_connection_ui_init' );
 		}
 	}
