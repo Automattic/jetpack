@@ -199,7 +199,7 @@ You can, however, use the following filter:
 add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 ```
 
-This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block.
+This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block. If a paid block is nested within another paid block, only the parent block will display its upgrade nudge on the front end.
 
 ### Upgrades for Jetpack sidebar extensions
 
