@@ -165,6 +165,8 @@
 						post.img.src +
 						'" width="' +
 						post.img.width +
+						'" height="' +
+						post.img.height +
 						'" alt="' +
 						post.img.alt_text +
 						'" />' +
