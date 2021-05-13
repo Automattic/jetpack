@@ -144,9 +144,11 @@ class Admin_Menu extends Base_Admin_Menu {
 
 			$classes = ' toplevel_page_site-notices';
 
-			$menu[ $key ][4] = $menu_item[4] . $classes;
-			$menu[ $key ][5] = 'toplevel_page_site-notices';
-			break;
+			if ( isset( $menu_item[4] ) ) {
+				$menu[ $key ][4] = $menu_item[4] . $classes;
+				$menu[ $key ][5] = 'toplevel_page_site-notices';
+				break;
+			}
 		}
 
 		return $menu;

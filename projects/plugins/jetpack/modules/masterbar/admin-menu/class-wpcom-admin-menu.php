@@ -196,9 +196,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		);
 
 		// Get the top message only.
-		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string )[0];
+		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
 
-		if ( $message ) {
+		if ( isset( $message[0] ) ) {
+			$message = $message[0];
 			return array(
 				'content'                      => $message->content['message'],
 				'cta'                          => $message->CTA['message'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
