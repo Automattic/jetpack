@@ -210,10 +210,16 @@ class SearchApp extends Component {
 			return;
 		}
 
+		if ( this.state.overlayOptions.overlayTrigger === 'submit' ) {
+			return;
+		}
+
 		this.props.setSearchQuery( event.target.value );
+
 		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
 			this.showResults();
 		}
+
 		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
 			this.props.response?.results && this.showResults();
 		}
@@ -291,6 +297,7 @@ class SearchApp extends Component {
 		if ( this.props.hasActiveQuery && ! this.state.showResults ) {
 			this.showResults();
 		}
+
 		if ( ! this.props.hasActiveQuery && isHistoryNav ) {
 			this.hideResults( isHistoryNav );
 		}
