@@ -27,6 +27,7 @@ const props = {
 	postLinKText: 'Click here to buy',
 	setAttributes,
 	isSelected: true,
+	isPostEditor: true,
 };
 
 describe( 'Edit component', () => {
