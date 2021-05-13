@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds information received from the server to the register_site REST response
