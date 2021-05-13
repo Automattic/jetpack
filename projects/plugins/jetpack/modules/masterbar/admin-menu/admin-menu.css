@@ -82,6 +82,28 @@
 	display: none;
 }
 
+#adminmenu .toplevel_page_site-notices .wp-menu-image {
+	width: 30px;
+	border-radius: 2px;
+	background-color: #fff;
+}
+
+#adminmenu .toplevel_page_site-notices .wp-menu-image:before {
+	content: '\f534';
+	font-family: 'dashicons';
+	font-size: 20px;
+	line-height: 20px;
+	background-color: #a7aaad;
+	color: white;
+	border-radius: 50%;
+	margin: 5px;
+	padding: 0;
+}
+
+#adminmenu .toplevel_page_site-notices:hover .wp-menu-image:before {
+	color: #fff;
+}
+
 #adminmenu .toplevel_page_site-notices .upsell_banner {
 	display: flex;
 	flex-grow: 1;
@@ -110,34 +132,30 @@
 	min-height: 26px;
 }
 
-.folded #adminmenu .toplevel_page_site-notices {
-	height: 50px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+@media screen and (min-width: 782px) {
+	.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
+		display: block;
+	}
+
+	.folded #adminmenu .toplevel_page_site-notices {
+		height: 50px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 }
 
-.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
-	display: block;
-	width: 30px;
-	border-radius: 2px;
-	background-color: #fff;
-}
+@media screen and (min-width: 782px) and (max-width: 960px){
+	.auto-fold #adminmenu .toplevel_page_site-notices .wp-menu-image {
+		display: block;
+	}
 
-.folded #adminmenu .toplevel_page_site-notices .wp-menu-image:before {
-	content: '\f534';
-	font-family: 'dashicons';
-	font-size: 20px;
-	line-height: 20px;
-	background-color: #a7aaad;
-	color: white;
-	border-radius: 50%;
-	margin: 5px;
-	padding: 0;
-}
-
-.folded #adminmenu .toplevel_page_site-notices:hover .wp-menu-image:before {
-	color: #fff;
+	.auto-fold #adminmenu .toplevel_page_site-notices {
+		height: 50px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 }
 
 /* Prevent box-shadow at the top of the sidebar */
