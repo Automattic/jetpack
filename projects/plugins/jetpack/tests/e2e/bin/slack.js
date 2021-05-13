@@ -111,7 +111,7 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 	// Add a header line
 	let testListHeader = `*${ result.numTotalTests } ${ suite }* tests ran successfully`;
 	if ( detailLines.length > 0 ) {
-		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } ${ suite }* tests failed:`;
+		testListHeader = `*${ detailLines.length }/${ result.numTotalTests } \`${ suite }\`* tests failed:`;
 		detailLines.push( '\nmore details in :thread:' );
 	}
 
@@ -149,6 +149,16 @@ async function reportTestRunResults( suite = 'Jetpack e2e tests' ) {
 			case 'file':
 				await uploadFile( entry.content, { threadId } );
 				break;
+		}
+	}
+
+	// Upload log files
+	if ( failureDetails.length > 0 ) {
+		const logs = fs.readdirSync( config.get( 'dirs.logs' ) );
+		for ( const logFile of logs ) {
+			if ( logFile.substring( logFile.lastIndexOf( '.' ) + 1 ) !== 'html' ) {
+				await uploadFile( path.resolve( config.get( 'dirs.logs' ), logFile ), { threadId } );
+			}
 		}
 	}
 }
@@ -237,9 +247,9 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 
 	let headerText = forceHeaderText
 		? forceHeaderText
-		: `${ isSuccess ? 'All tests passed' : 'There are test failures' } against <${
+		: `${ isSuccess ? 'All tests passed' : 'There are test failures' } against \`<${
 				gh.branch.url
-		  }|${ gh.branch.name }> branch`;
+		  }|${ gh.branch.name }>\` branch`;
 
 	if ( gh.pr ) {
 		buttons.push( {
@@ -254,9 +264,9 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 
 		headerText = forceHeaderText
 			? forceHeaderText
-			: `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR <${ gh.pr.url }|${
+			: `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR \`<${ gh.pr.url }|${
 					gh.pr.title
-			  }>`;
+			  }>\``;
 	}
 
 	const blocks = [
