@@ -9,14 +9,13 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import InPlaceConnection from '../in-place-connection';
 import restApi from '../../tools/jetpack-rest-api-client';
+import ConnectUser from '../connect-user';
 
 /**
- * The in-place connection component.
+ * The RNA connection component.
  *
  * @param {object} props -- The properties.
- * @param {string} props.authorizationUrl -- The authorization URL.
  * @param {string} props.connectLabel -- The "Connect" button label.
  * @param {string} props.inPlaceTitle -- The title for the In-Place Connection component.
  * @param {boolean} props.forceCalypsoFlow -- Whether to go straight to Calypso flow, skipping the In-Place flow.
@@ -28,28 +27,29 @@ import restApi from '../../tools/jetpack-rest-api-client';
  * @param {boolean} props.hasConnectedOwner -- Whether the site has connection owner, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
  * @param {Function} props.onUserConnected -- The callback to be called when the connection is fully established.
- * @param {Function} props.redirectFunc -- The redirect function (`window.location.assign()` by default).
  *
- * @returns {React.Component} The in-place connection component.
+ * @returns {React.Component} The RNA connection component.
  */
 const Main = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
+	const [ isFetchingAuthorizationUrl, setIsFetchingAuthorizationUrl ] = useState( false );
+	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
 	const {
 		apiRoot,
 		apiNonce,
 		connectLabel,
-		authorizationUrl,
-		forceCalypsoFlow,
 		isRegistered,
 		isUserConnected,
 		onRegistered,
 		onUserConnected,
 		registrationNonce,
-		redirectFunc,
-		from,
 		redirectUri,
+		forceCalypsoFlow,
+		inPlaceTitle,
+		hasConnectedOwner,
+		from,
 	} = props;
 
 	/**
@@ -61,33 +61,24 @@ const Main = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	/**
-	 * Initialize the user connection process.
+	 * Fetch the authorization URL on the first render (if needed).
+	 * To be only run once.
 	 */
-	const connectUser = useCallback(
-		url => {
-			url = url || authorizationUrl;
+	useEffect( () => {
+		if ( ! authorizationUrl && isRegistered && ! isUserConnected ) {
+			setIsFetchingAuthorizationUrl( true );
 
-			if ( ! url.includes( '?' ) ) {
-				url += '?';
-			}
-
-			if ( from ) {
-				url += '&from=' + encodeURIComponent( from );
-			}
-
-			if ( ! url ) {
-				throw new Error( 'Authorization URL is required' );
-			}
-
-			if ( forceCalypsoFlow ) {
-				redirectFunc( url );
-				return;
-			}
-
-			setIsUserConnecting( true );
-		},
-		[ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc, from ]
-	);
+			restApi
+				.fetchAuthorizationUrl( redirectUri )
+				.then( response => {
+					setIsFetchingAuthorizationUrl( false );
+					setAuthorizationUrl( response.authorizeUrl );
+				} )
+				.catch( error => {
+					throw error;
+				} );
+		}
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	/**
 	 * Callback for the user connection success.
@@ -108,7 +99,7 @@ const Main = props => {
 			e && e.preventDefault();
 
 			if ( isRegistered ) {
-				connectUser();
+				setIsUserConnecting( true );
 				return;
 			}
 
@@ -123,13 +114,21 @@ const Main = props => {
 						onRegistered( response );
 					}
 
-					connectUser( response.authorizeUrl );
+					setAuthorizationUrl( response.authorizeUrl );
+					setIsUserConnecting( true );
 				} )
 				.catch( error => {
 					throw error;
 				} );
 		},
-		[ setIsRegistering, isRegistered, onRegistered, connectUser, registrationNonce, redirectUri ]
+		[
+			setIsRegistering,
+			setAuthorizationUrl,
+			isRegistered,
+			onRegistered,
+			registrationNonce,
+			redirectUri,
+		]
 	);
 
 	if ( isRegistered && isUserConnected ) {
@@ -143,18 +142,20 @@ const Main = props => {
 					label={ connectLabel }
 					onClick={ registerSite }
 					isPrimary
-					disabled={ isRegistering || isUserConnecting }
+					disabled={ isRegistering || isFetchingAuthorizationUrl }
 				>
 					{ connectLabel }
 				</Button>
 			) }
 
-			{ isUserConnecting && (
-				<InPlaceConnection
+			{ isUserConnecting && authorizationUrl && (
+				<ConnectUser
 					connectUrl={ authorizationUrl }
-					title={ props.inPlaceTitle }
+					inPlaceTitle={ inPlaceTitle }
 					onComplete={ onUserConnectedCallback }
-					displayTOS={ props.hasConnectedOwner || isRegistered }
+					displayTOS={ hasConnectedOwner || isRegistered }
+					forceCalypsoFlow={ forceCalypsoFlow }
+					from={ from }
 				/>
 			) }
 		</div>
@@ -162,7 +163,6 @@ const Main = props => {
 };
 
 Main.propTypes = {
-	authorizationUrl: PropTypes.string.isRequired,
 	connectLabel: PropTypes.string,
 	inPlaceTitle: PropTypes.string,
 	forceCalypsoFlow: PropTypes.bool,
@@ -174,7 +174,6 @@ Main.propTypes = {
 	onRegistered: PropTypes.func,
 	onUserConnected: PropTypes.func,
 	registrationNonce: PropTypes.string.isRequired,
-	redirectFunc: PropTypes.func,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string,
 };
@@ -183,7 +182,6 @@ Main.defaultProps = {
 	inPlaceTitle: __( 'Connect your WordPress.com account', 'jetpack' ),
 	forceCalypsoFlow: false,
 	connectLabel: __( 'Connect', 'jetpack' ),
-	redirectFunc: url => window.location.assign( url ),
 };
 
 export default Main;

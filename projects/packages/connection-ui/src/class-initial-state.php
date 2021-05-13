@@ -46,9 +46,6 @@ class Initial_State {
 			),
 			'connectionData'   => array(
 				'doNotUseConnectionIframe' => ! $this->can_use_connection_iframe(),
-				'authorizationUrl'         => ( $this->manager->is_connected() && ! $this->manager->is_user_connected() )
-					? $this->manager->get_authorization_url( null, admin_url( 'tools.php?page=wpcom-connection-manager' ) )
-					: null,
 			),
 		);
 	}

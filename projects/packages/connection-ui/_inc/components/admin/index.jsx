@@ -22,33 +22,23 @@ export default function Admin() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
-	const authorizationUrl = useSelect( select => select( STORE_ID ).getAuthorizationUrl(), [] );
 	const doNotUseConnectionIframe = useSelect(
 		select => select( STORE_ID ).getDoNotUseConnectionIframe(),
 		[]
 	);
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 
-	const {
-		connectionStatusSetRegistered,
-		connectionStatusSetUserConnected,
-		connectionDataSetAuthorizationUrl,
-	} = useDispatch( STORE_ID );
+	const { connectionStatusSetRegistered, connectionStatusSetUserConnected } = useDispatch(
+		STORE_ID
+	);
 
 	const onUserConnected = useCallback( () => {
 		connectionStatusSetUserConnected( true );
 	}, [ connectionStatusSetUserConnected ] );
 
-	const onRegistered = useCallback(
-		response => {
-			connectionStatusSetRegistered( true );
-
-			if ( response.authorizeUrl ) {
-				connectionDataSetAuthorizationUrl( response.authorizeUrl );
-			}
-		},
-		[ connectionStatusSetRegistered, connectionDataSetAuthorizationUrl ]
-	);
+	const onRegistered = useCallback( () => {
+		connectionStatusSetRegistered( true );
+	}, [ connectionStatusSetRegistered ] );
 
 	return (
 		<React.Fragment>
@@ -66,7 +56,6 @@ export default function Admin() {
 			<JetpackConnection
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				authorizationUrl={ authorizationUrl }
 				isRegistered={ connectionStatus.isRegistered }
 				isUserConnected={ connectionStatus.isUserConnected }
 				hasConnectedOwner={ connectionStatus.hasConnectedOwner }

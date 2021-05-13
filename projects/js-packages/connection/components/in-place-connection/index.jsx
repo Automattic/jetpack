@@ -139,7 +139,7 @@ InPlaceConnection.propTypes = {
 
 InPlaceConnection.defaultProps = {
 	isLoading: false,
-	height: '220',
+	height: '300',
 	width: '100%',
 	scrollToIframe: false,
 };

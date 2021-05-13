@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
 /**
@@ -33,11 +33,11 @@ describe( 'InPlaceConnection', () => {
 	describe( 'When the connect url is fetched', () => {
 		const renderer = new ShallowRenderer();
 		renderer.render( <InPlaceConnection { ...testProps } /> );
-		const wrapper = shallow( renderer.getRenderOutput() );
+		const wrapper = mount( renderer.getRenderOutput() );
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.equal(
-				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?&iframe_height=220&iframe_source=testing'
+				'https://jetpack.wordpress.com/jetpack.authorize_iframe/1/?&iframe_height=300&iframe_source=testing'
 			);
 		} );
 
@@ -45,8 +45,8 @@ describe( 'InPlaceConnection', () => {
 			expect( wrapper.find( 'iframe' ).props().width ).to.be.equal( '100%' );
 		} );
 
-		it( 'has 220 height', () => {
-			expect( wrapper.find( 'iframe' ).props().height ).to.be.equal( '220' );
+		it( 'has 300 height', () => {
+			expect( wrapper.find( 'iframe' ).props().height ).to.be.equal( '300' );
 		} );
 	} );
 
