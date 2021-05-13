@@ -35,9 +35,9 @@
 
 	&:hover {
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-		transform: scale(1.03, 1.03);
+		transform: scale3d(1.03, 1.03, 1);
 		figure {
-			transform: scale(1.07, 1.07);
+			transform: scale3d(1.07, 1.07, 1);
 		}
 	}
 
