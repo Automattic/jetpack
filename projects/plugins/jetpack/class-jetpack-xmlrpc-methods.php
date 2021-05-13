@@ -21,6 +21,7 @@ class Jetpack_XMLRPC_Methods {
 	public static function init() {
 		add_filter( 'jetpack_xmlrpc_unauthenticated_methods', array( __CLASS__, 'xmlrpc_methods' ) );
 		add_filter( 'jetpack_xmlrpc_test_connection_response', array( __CLASS__, 'test_connection' ) );
+		add_action( 'jetpack_xmlrpc_server_event', array( __CLASS__, 'jetpack_xmlrpc_server_event' ), 10, 4 );
 		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
 	}
 
@@ -194,6 +195,21 @@ class Jetpack_XMLRPC_Methods {
 			(string) $nonce,
 			(string) $hmac,
 		);
+	}
+
+	/**
+	 * Runs Jetpack specific action in xmlrpc server events
+	 *
+	 * @param String  $action the action name, i.e., 'remote_authorize'.
+	 * @param String  $stage  the execution stage, can be 'begin', 'success', 'error', etc.
+	 * @param array   $parameters extra parameters from the event.
+	 * @param WP_User $user the acting user.
+	 * @return void
+	 */
+	public static function jetpack_xmlrpc_server_event( $action, $stage, $parameters = array(), $user = null ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( 'remote_register' === $action && 'begin' === $stage ) {
+			Jetpack::maybe_set_version_option();
+		}
 	}
 
 	/**
