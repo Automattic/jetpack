@@ -972,13 +972,11 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
-		// This will come from the server response.
-		$registration_details->allow_inplace_authorization = false;
-		$registration_details->alternate_authorization_url = 'http://whatever.com';
-
 		if ( ! $registration_details->allow_inplace_authorization ) {
+			// Forces register_site REST endpoint to return the Calypso authorization URL.
 			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
 		}
+
 		add_filter(
 			'jetpack_register_site_rest_response',
 			function ( $response ) use ( $registration_details ) {
