@@ -12,6 +12,7 @@ use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tpc_Tester;
 use Automattic\Jetpack\Tracking;
 use WP_Error;
 use WP_User;
@@ -106,6 +107,12 @@ class Manager {
 		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
 		Webhooks::init( $manager );
+
+		Tpc_Tester::init();
+
+		error_log('debugging');
+		error_log( json_encode( Tpc_Tester::is_tested() ) );
+		error_log( json_encode( Tpc_Tester::supports() ) );
 	}
 
 	/**
