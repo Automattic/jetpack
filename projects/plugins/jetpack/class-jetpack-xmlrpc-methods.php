@@ -24,7 +24,7 @@ class Jetpack_XMLRPC_Methods {
 		add_filter( 'jetpack_remote_xmlrpc_provision_response', array( __CLASS__, 'remote_provision_response' ), 10, 2 );
 		add_action( 'jetpack_xmlrpc_server_event', array( __CLASS__, 'jetpack_xmlrpc_server_event' ), 10, 4 );
 		add_action( 'jetpack_remote_connect_end', array( __CLASS__, 'remote_connect_end' ) );
-		add_action( 'jetpack_xmlrpc_remote_register_redirect_uri', array( __CLASS__, 'remote_register_redirect_uri' ) );
+		add_filter( 'jetpack_xmlrpc_remote_register_redirect_uri', array( __CLASS__, 'remote_register_redirect_uri' ) );
 	}
 
 	/**
