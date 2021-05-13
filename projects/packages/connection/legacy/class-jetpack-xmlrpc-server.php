@@ -325,7 +325,6 @@ class Jetpack_XMLRPC_Server {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.
-			Jetpack::maybe_set_version_option();
 			if ( isset( $request['from'] ) ) {
 				$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 			}
