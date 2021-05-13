@@ -325,7 +325,6 @@ class Jetpack_XMLRPC_Server {
 			wp_set_current_user( $user->ID );
 
 			// This code mostly copied from Jetpack::admin_page_load.
-			Jetpack::maybe_set_version_option();
 			if ( isset( $request['from'] ) ) {
 				$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 			}
@@ -405,10 +404,16 @@ class Jetpack_XMLRPC_Server {
 			$response['site_icon'] = $site_icon;
 		}
 
-		if ( ! empty( $request['onboarding'] ) ) {
-			Jetpack::create_onboarding_token();
-			$response['onboarding_token'] = Jetpack_Options::get_option( 'onboarding' );
-		}
+		/**
+		 * Filters the response of the remote_provision XMLRPC method
+		 *
+		 * @param array    $response The response.
+		 * @param array    $request An array containing at minimum a nonce key and a local_username key.
+		 * @param \WP_User $user The local authenticated user.
+		 *
+		 * @since 9.8.0
+		 */
+		$response = apply_filters( 'jetpack_remote_xmlrpc_provision_response', $response, $request, $user );
 
 		return $response;
 	}
