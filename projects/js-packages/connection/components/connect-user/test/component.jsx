@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
 /**
@@ -17,19 +16,6 @@ describe( 'ConnectUser', () => {
 		displayTOS: true,
 		from: 'example',
 	};
-
-	describe( 'Render the user connection - iframe', () => {
-		const renderer = new ShallowRenderer();
-		renderer.render( <ConnectUser { ...testProps } /> );
-		const wrapper = shallow( renderer.getRenderOutput() );
-
-		it( 'renders the InPlaceConnection', () => {
-			expect( wrapper.find( 'iframe' ).props().src ).to.be.equal(
-				testProps.connectUrl.replace( '.authorize', '.authorize_iframe' ) +
-					'&display-tos&iframe_height=350'
-			);
-		} );
-	} );
 
 	describe( 'Render the user connection - calypso', () => {
 		let redirectUrl = null;

@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import ShallowRenderer from 'react-test-renderer/shallow';
 
 /**
@@ -33,7 +33,7 @@ describe( 'InPlaceConnection', () => {
 	describe( 'When the connect url is fetched', () => {
 		const renderer = new ShallowRenderer();
 		renderer.render( <InPlaceConnection { ...testProps } /> );
-		const wrapper = mount( renderer.getRenderOutput() );
+		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'iframe' ).props().src ).to.be.equal(
