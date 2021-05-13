@@ -81,6 +81,7 @@ export function JetpackContactFormEdit( {
 		to,
 		subject,
 		customThankyou,
+		customThankyouHeading,
 		customThankyouMessage,
 		customThankyouRedirect,
 		jetpackCRM,
@@ -248,6 +249,15 @@ export function JetpackContactFormEdit( {
 					] }
 					onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
 				/>
+
+				{ 'redirect' !== customThankyou && (
+					<TextControl
+						label={ __( 'Message Heading', 'jetpack' ) }
+						value={ customThankyouHeading }
+						placeholder={ __( 'Message Sent', 'jetpack' ) }
+						onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
+					/>
+				) }
 
 				{ 'message' === customThankyou && (
 					<TextareaControl
