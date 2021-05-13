@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Upgrade Nudges: Adds check for whether an attribute is set to avoid php warning.
+
+
