@@ -203,7 +203,7 @@ class Masterbar {
 		if ( jetpack_is_atomic_site() &&
 			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
-			add_action( 'profile_personal_options', array( $this, 'replace_language_dropdown' ) );
+			add_action( 'profile_personal_options', array( $this, 'replace_language_dropdown' ), 9 );
 		}
 	}
 
