@@ -27,8 +27,8 @@ class Tpc_Tester {
 		self::$initialized  = true;
 		self::$tested       = ! empty( $_COOKIE[ self::COOKIE_NAME ] );
 		self::$cookie_value = isset( $_COOKIE[ self::COOKIE_NAME ] ) ? $_COOKIE[ self::COOKIE_NAME ] : '';
-		error_log( json_encode( $_COOKIE ) );
-		error_log( json_encode( $_COOKIE[ self::COOKIE_NAME ] ) );
+		error_log( 'Is cookie set? ' . json_encode( isset( $_COOKIE[ self::COOKIE_NAME ] ) ) );
+		error_log( 'Cookie value: ' . self::$cookie_value );
 
 		if ( ! self::$tested && is_user_logged_in() ) {
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );

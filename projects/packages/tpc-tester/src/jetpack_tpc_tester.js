@@ -13,7 +13,7 @@ window.jetpack_3rdpc_test_unsupported = function() {
 }
 
 window.jetpack_3rdpc_test_set_cookie = function( value ) {
-	console.log('-----' + value);
+	console.log( 'Test result: ' + value) ;
 	var expires = "";
 	var date = new Date();
 	date.setTime( date.getTime() + 3600 );

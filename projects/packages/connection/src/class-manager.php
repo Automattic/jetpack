@@ -111,8 +111,8 @@ class Manager {
 		Tpc_Tester::init();
 
 		error_log('debugging');
-		error_log( json_encode( Tpc_Tester::is_tested() ) );
-		error_log( json_encode( Tpc_Tester::supports() ) );
+		error_log( 'Is tested? ' . json_encode( Tpc_Tester::is_tested() ) );
+		error_log( 'Supports 3pc? ' . json_encode( Tpc_Tester::supports() ) );
 	}
 
 	/**
