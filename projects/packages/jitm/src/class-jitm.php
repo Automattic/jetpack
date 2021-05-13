@@ -22,13 +22,6 @@ class JITM {
 	const PACKAGE_VERSION = '1.15.2-alpha';
 
 	/**
-	 * Whether the JITMs have been registered.
-	 *
-	 * @var bool
-	 */
-	private static $jitms_registered = false;
-
-	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
 	public static function configure() {
@@ -54,12 +47,18 @@ class JITM {
 	 * Sets up JITM action callbacks if needed.
 	 */
 	public function register() {
-		if ( self::$jitms_registered ) {
+		if ( did_action( 'jetpack_registered_jitms' ) ) {
 			// JITMs have already been registered.
 			return;
 		}
 
-		self::$jitms_registered = true;
+		/**
+		 * Fires when the JITMs are registered. This action is used to ensure that
+		 * JITMs are registered only once.
+		 *
+		 * @since 9.8
+		 */
+		do_action( 'jetpack_registered_jitms' );
 
 		if ( ! $this->jitms_enabled() ) {
 			// Do nothing.
