@@ -172,4 +172,38 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * Tests if the remote_register redirect uri is being filtered
+	 */
+	public function test_remote_register_redirect_uri_filter() {
+		$request = array(
+			'local_user' => 1,
+		);
+
+		// The filter should modify the URI because there's no Connection owner.  (see conditions in Jetpack_XMLRPC_Methods::remote_register_redirect_uri).
+		$response     = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
+		$expected_uri = Jetpack_XMLRPC_Methods::remote_register_redirect_uri( 'dummy' );
+
+		$this->assertNotSame( 'dummy', $expected_uri );
+		$this->assertSame( $expected_uri, $response['redirect_uri'] );
+	}
+
+	/**
+	 * Tests if the remote_register redirect uri is not being filtered when conditions do not apply
+	 */
+	public function test_remote_register_redirect_uri_filter_not_applied() {
+		$request = array(
+			'local_user' => 1,
+		);
+
+		( new Tokens() )->update_user_token( 1, 'asd.qwe.1', true );
+
+		// The filter should not modify the URI because there's a Connection owner and sso is not enabled. (see conditions in Jetpack_XMLRPC_Methods::remote_register_redirect_uri).
+		$response         = ( new Jetpack_XMLRPC_Server() )->remote_provision( $request );
+		$not_expected_uri = Jetpack_XMLRPC_Methods::remote_register_redirect_uri( 'dummy' );
+
+		$this->assertSame( 'dummy', $not_expected_uri );
+		$this->assertNotSame( $not_expected_uri, $response['redirect_uri'] );
+	}
+
 }
