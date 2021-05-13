@@ -135,6 +135,10 @@
 	padding: 0;
 }
 
+.folded #adminmenu .toplevel_page_site-notices:hover .wp-menu-image:before {
+	color: #fff;
+}
+
 /* Prevent box-shadow at the top of the sidebar */
 #adminmenu .site-switcher:hover,
 #adminmenu .toplevel_page_site-card:hover,
