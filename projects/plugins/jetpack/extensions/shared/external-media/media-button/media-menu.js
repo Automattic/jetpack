@@ -37,7 +37,7 @@ function MediaButtonMenu( props ) {
 		label = __( 'Select Media', 'jetpack' );
 	}
 
-	if ( isFeatured && hasImage ) {
+	if ( isFeatured ) {
 		label = __( 'Replace Image', 'jetpack' );
 		isPrimary = false;
 		isTertiary = false;
@@ -49,10 +49,16 @@ function MediaButtonMenu( props ) {
 			<Dropdown
 				position="bottom right"
 				contentClassName="jetpack-external-media-button-menu__options"
-				renderToggle={ ( { isOpen, onToggle } ) =>
-					originalComponent ? (
-						originalComponent( { open: onToggle } )
-					) : (
+				renderToggle={ ( { isOpen, onToggle } ) => {
+					// override original button only when it's a simple button with text, or a featured image
+					const originalButton = originalComponent && originalComponent( { open: onToggle } );
+					if (
+						( isFeatured && hasImage ) ||
+						( originalButton && typeof originalButton.props.children !== 'string' )
+					) {
+						return originalButton;
+					}
+					return (
 						<Button
 							isPrimary={ isPrimary }
 							isSecondary={ isSecondary }
@@ -64,8 +70,8 @@ function MediaButtonMenu( props ) {
 						>
 							{ label }
 						</Button>
-					)
-				}
+					);
+				} }
 				renderContent={ ( { onClose } ) => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
