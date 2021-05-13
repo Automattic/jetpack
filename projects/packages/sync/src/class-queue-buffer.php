@@ -48,7 +48,7 @@ class Queue_Buffer {
 	 *
 	 * @access public
 	 *
-	 * @return array Sync items in the buffer.
+	 * @return bool|array Sync items in the buffer.
 	 */
 	public function get_items() {
 		return array_combine( $this->get_item_ids(), $this->get_item_values() );
