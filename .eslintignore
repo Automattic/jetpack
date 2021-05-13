@@ -34,5 +34,4 @@ projects/github-actions/*/dist
 projects/packages/*/wordpress
 projects/packages/connection-ui/build
 projects/packages/jitm/src/js/jetpack-jitm.js
-projects/packages/lazy-images/src/js/intersectionobserver-polyfill.js
 projects/plugins/backup/build
