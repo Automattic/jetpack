@@ -444,29 +444,18 @@ async function gitAdd( argv ) {
  * @returns {Array} modifiedProjects - projects that need a changelog.
  */
 async function changedProjects() {
-	const modifiedProjects = [];
-	const gitFiles = [];
+	const re = /^projects\/([^/]+\/[^/]+)\//;
+	const modifiedProjects = new Set();
 	const git = simpleGit();
 	const gitStatus = await git.status();
-	const projects = allProjects();
-	// Get all files that were worked with (created, deleted, modified, etc)
 	for ( const file of gitStatus.files ) {
-		const parsedPath = file.path.split( '/' );
-		const project = `${ parsedPath[ 1 ] }/${ parsedPath[ 2 ] }`;
-		if ( ! gitFiles.includes( project ) ) {
-			gitFiles.push( project );
+		const match = file.path.match( re );
+		if ( match ) {
+			modifiedProjects.add( match[ 1 ] );
 		}
 	}
 
-	// See if any files modified match our project list.
-	for ( const proj of projects ) {
-		for ( const file of gitFiles ) {
-			if ( proj === file ) {
-				modifiedProjects.push( proj );
-			}
-		}
-	}
-	return modifiedProjects;
+	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
 /**
