@@ -322,6 +322,49 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				}
 			}
 		}
+
+		/**
+		 * Fire the update_option_home action for domain change.
+		 *
+		 * This is necessary for some plugins such as Yoast that looks for this action when a domain is updated,
+		 * and since the Atomic platform uses direct SQL queries to update the URL when it's changed in wpcom,
+		 * this action never fires.
+		 *
+		 * ## OPTIONS
+		 *
+		 * [--old_url=<old_url>]
+		 * : The URL that the domain was changed from
+		 *
+		 * [--new_url=<new_url>]
+		 * : The URL that the domain was changed to
+		 *
+		 * @subcommand domain-name-changed
+		 */
+		function domain_name_changed( $args, $assoc_args = array() ) {
+			$old_domain = WP_CLI\Utils\get_flag_value( $assoc_args, 'old_url', false );
+			if ( false === $old_domain ) {
+				WP_CLI::error( 'Missing required --old_url=url value.' );
+			}
+
+			$new_domain = WP_CLI\Utils\get_flag_value( $assoc_args, 'new_url', false );
+			if ( false === $new_domain ) {
+				WP_CLI::error( 'Missing required --new_url=url value.' );
+			}
+
+			// Bail if we're getting a value that does not match reality of what's current.
+			if ( get_home_url() !== $new_domain ) {
+				WP_CLI::warning( 'Did not send action. New domain does not match current get_home_url value.' );
+				return;
+			}
+
+			if ( ! defined( 'WP_HOME' ) || WP_HOME !== $new_domain  ) {
+				WP_CLI::warning( 'Did not send action. New domain does not match current WP_HOME value.' );
+				return;
+			}
+
+			do_action( 'update_option_home', $old_domain, $new_domain );
+			WP_CLI::success( "Sent the update_option_home action successfully." );
+		}
 	}
 }
 
