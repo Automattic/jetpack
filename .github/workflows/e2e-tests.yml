@@ -124,7 +124,6 @@ jobs:
         echo "$GUTENBERG" >> $GITHUB_ENV;
         ./bin/env.sh config-gb
 
-
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
       run: yarn test-e2e --group=${{ matrix.group }}
@@ -154,3 +153,25 @@ jobs:
       run: |
         testspace "[${{ matrix.group }}]output/reports/junit-*.xml"
       if: always()
+
+    - name: Send Slack notification
+      if: ${{ failure() }}
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: NODE_ENV=test node ./bin/slack.js run ${{ matrix.group }}
+
+  slack-notification:
+    name: "Slack notification"
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    env:
+      CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Send Slack notification
+        working-directory: projects/plugins/jetpack/tests/e2e
+        run: |
+          yarn install
+          yarn test-decrypt-config
+          NODE_ENV=test node ./bin/slack.js job ${{needs.e2e-tests.result}}
