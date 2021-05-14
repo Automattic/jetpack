@@ -1,7 +1,6 @@
 #jp-search-dashboard {
 	width: 100%;
-	margin-right: auto;
-	margin-left: auto;
+	margin: 3em auto 0;
 
 	@media ( min-width: 576px ) {
 		max-width: 540px;
@@ -21,19 +20,6 @@
 
 	@media ( min-width: 1400px ) {
 		max-width: 1320px;
-	}
-
-	hr {
-		margin: 2em 0;
-	}
-
-	button {
-		padding: 0.5em 1em;
-	}
-
-	.components-card {
-		padding: 1em 2em 3em;
-		margin-top: 3em;
 	}
 
 	.jetpack-search-color-inputs {
