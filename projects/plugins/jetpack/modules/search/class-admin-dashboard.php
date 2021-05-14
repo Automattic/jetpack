@@ -42,7 +42,7 @@ class Admin_Dashboard {
 	 * Adds action hooks.
 	 */
 	public function init_hooks() {
-		add_action( 'admin_menu', array( $this, 'add_submenu_and_scripts' ), 99 );
+		add_action( 'admin_menu', array( $this, 'add_submenu_and_scripts' ), 999 );
 	}
 
 	/**
@@ -55,15 +55,26 @@ class Admin_Dashboard {
 
 		// TODO: Set a different submenu parent slug if WPCOM.
 		$hook = add_submenu_page(
-			'themes.php',
-			__( 'Jetpack Search Settings', 'jetpack' ),
-			__( 'Jetpack Search', 'jetpack' ),
+			'jetpack',
+			__( 'Search Settings', 'jetpack' ),
+			__( 'Search', 'jetpack' ),
 			'manage_options',
 			'jetpack-search',
-			array( $this, 'jetpack_search_admin_page' )
+			array( $this, 'jetpack_search_admin_page' ),
+			$this->get_link_offset()
 		);
 		add_action( "admin_print_styles-$hook", array( $this, 'load_admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Place the Jetpack Search menu item at the bottom of the Jetpack submenu.
+	 *
+	 * @return int Menu offset.
+	 */
+	private function get_link_offset() {
+		global $submenu;
+		return count( $submenu['jetpack'] );
 	}
 
 	/**
