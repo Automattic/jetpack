@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,6 +32,7 @@ class Test_Blocks extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		Monkey\setUp();
 		// Register a test block.
 		Blocks::jetpack_register_block( $this->block_name );
 	}
@@ -40,6 +43,7 @@ class Test_Blocks extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
+		Monkey\tearDown();
 		// Unregister the test Jetpack block we may have created for our tests.
 		unregister_block_type( $this->block_name );
 	}
@@ -214,6 +218,46 @@ class Test_Blocks extends TestCase {
 	public function test_jetpack_register_block_without_jetpack() {
 		$result = Blocks::jetpack_register_block( 'doing-it-wrong' );
 		$this->assertEquals( 'jetpack/doing-it-wrong', $result->name );
+	}
+
+	/**
+	 * Test that we can detect an FSE theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_not_fse_theme() {
+		$this->assertFalse( Blocks::is_fse_theme() );
+	}
+
+	/**
+	 * Test that we can detect an FSE theme using the provided filter.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_fse_theme_via_filter() {
+		add_filter( 'jetpack_is_fse_theme', '__return_true' );
+		try {
+			$this->assertTrue( Blocks::is_fse_theme() );
+		} finally {
+			remove_filter( 'jetpack_is_fse_theme', '__return_true' );
+		}
+	}
+
+	/**
+	 * Test that we can detect an FSE theme using the provided core function, gutenberg_is_fse_theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @covers Automattic\Jetpack\Blocks::is_standalone_block
+	 */
+	public function test_is_fse_theme_via_core_function() {
+		Functions\when( 'gutenberg_is_fse_theme' )->justReturn( true );
+
+		$this->assertTrue( Blocks::is_fse_theme() );
 	}
 
 	/**

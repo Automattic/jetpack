@@ -68,11 +68,11 @@ class WPCOM_REST_API_V2_Endpoint_Transient extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function delete_transient_permissions_check( \WP_REST_Request $request ) {
-		$transient_name = $request->get_param( 'name' );
+		$transient_name  = $request->get_param( 'name' );
+		$current_user_id = get_current_user_id();
 
 		if ( current_user_can( 'read' ) &&
-			false !== strpos( $transient_name, 'jetpack_connected_user_data_' ) &&
-			get_current_user_id() === (int) substr( $transient_name, 28 ) ) {
+			"jetpack_connected_user_data_{$current_user_id}" === $transient_name ) {
 				return true;
 		} else {
 			return new WP_Error(

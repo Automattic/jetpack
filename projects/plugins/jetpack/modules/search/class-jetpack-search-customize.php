@@ -139,8 +139,9 @@ class Jetpack_Search_Customize {
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
-					'immediate' => __( 'Open when the user starts typing', 'jetpack' ),
+					'immediate' => __( 'Open when user starts typing', 'jetpack' ),
 					'results'   => __( 'Open when results are available', 'jetpack' ),
+					'submit'    => __( 'Open when user submits the form', 'jetpack' ),
 				),
 			)
 		);
