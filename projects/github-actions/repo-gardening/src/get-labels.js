@@ -22,7 +22,7 @@ async function getLabels( octokit, owner, repo, number ) {
 		return cache[ cacheKey ];
 	}
 
-	debug( `get-files: Get list of labels on ${ cacheKey }.` );
+	debug( `get-labels: Get list of labels on ${ cacheKey }.` );
 
 	for await ( const response of octokit.paginate.iterator( octokit.issues.listLabelsOnIssue, {
 		owner,
