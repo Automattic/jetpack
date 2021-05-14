@@ -83,7 +83,6 @@
 }
 
 #adminmenu .toplevel_page_site-notices .wp-menu-image {
-	width: 30px;
 	border-radius: 2px;
 	background-color: #fff;
 }
@@ -135,6 +134,7 @@
 @media screen and (min-width: 782px) {
 	.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;
+		width: 30px;
 	}
 
 	.folded #adminmenu .toplevel_page_site-notices {
@@ -148,6 +148,7 @@
 @media screen and (min-width: 782px) and (max-width: 960px){
 	.auto-fold #adminmenu .toplevel_page_site-notices .wp-menu-image {
 		display: block;
+		width: 30px;
 	}
 
 	.auto-fold #adminmenu .toplevel_page_site-notices {
