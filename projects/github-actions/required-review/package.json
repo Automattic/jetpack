@@ -6,14 +6,14 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@actions/core": "1.2.6",
+		"@actions/core": "1.2.7",
 		"@actions/github": "4.0.0",
 		"error": "10.4.0",
 		"js-yaml": "4.1.0",
-		"picomatch": "2.2.2"
+		"picomatch": "2.2.3"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.28.3"
+		"@vercel/ncc": "0.28.5"
 	},
 	"scripts": {
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"

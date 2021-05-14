@@ -16,4 +16,8 @@ module.exports = {
 	coverageDirectory: 'coverage/extensions',
 	setupFiles: [ '<rootDir>/tests/jest-globals.js' ],
 	testPathIgnorePatterns: [ 'node_modules', 'extensions/shared/test/block-fixtures.js' ],
+	moduleNameMapper: {
+		'tiny-lru/lib/tiny-lru.esm$':
+			'<rootDir>/modules/search/instant-search/lib/test-helpers/tiny-lru.mock.js',
+	},
 };

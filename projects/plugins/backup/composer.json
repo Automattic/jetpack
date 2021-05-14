@@ -4,7 +4,8 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "^2.10",
+		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"automattic/jetpack-connection": "1.27.x-dev",
 		"automattic/jetpack-connection-ui": "1.1.x-dev"
 	},
 	"require-dev": {

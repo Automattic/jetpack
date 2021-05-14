@@ -7,7 +7,7 @@ import classNames from 'classnames';
  * WordPress dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
 /**
@@ -19,34 +19,45 @@ import {
 	getUsableBlockProps,
 } from '../../shared/plan-utils';
 import UpgradePlanBanner from './upgrade-plan-banner';
-import { PaidBlockProvider } from './components';
+import { PaidBlockContext, PaidBlockProvider } from './components';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
 
 export default createHigherOrderComponent(
 	BlockListBlock => props => {
-		const requiredPlan = getRequiredPlan( props?.name );
+		const { name, className, clientId, isSelected, attributes, setAttributes } = props || {};
+		const { onChildBannerVisibilityChange, hasParentBanner } = useContext( PaidBlockContext ) || {};
+
+		const requiredPlan = getRequiredPlan( name );
+
 		if ( ! requiredPlan ) {
 			return <BlockListBlock { ...props } />;
 		}
 
-		const isDualMode = isStillUsableWithFreePlan( props.name );
-		const usableBlocksProps = getUsableBlockProps( props.name );
+		const isDualMode = isStillUsableWithFreePlan( name );
+		const usableBlocksProps = getUsableBlockProps( name );
 
 		const [ isVisible, setIsVisible ] = useState( ! isDualMode );
 		const [ hasBannerAlreadyShown, setBannerAlreadyShown ] = useState( false );
+		const [ isChildBannerVisible, setIsChildBannerVisible ] = useState( false );
 
 		const bannerContext = 'editor-canvas';
 		const hasChildrenSelected = useSelect(
-			select => select( 'core/block-editor' ).hasSelectedInnerBlock( props?.clientId ),
+			select => select( 'core/block-editor' ).hasSelectedInnerBlock( clientId, true ),
 			[]
 		);
-		const isBannerVisible = ( props?.isSelected || hasChildrenSelected ) && isVisible;
 
-		const trackEventData = {
-			plan: requiredPlan,
-			blockName: props.name,
-			context: bannerContext,
-		};
+		// Banner should be not be displayed if one of its children is already displaying a banner.
+		const isBannerVisible =
+			( isSelected || hasChildrenSelected ) && isVisible && ! isChildBannerVisible;
+
+		const trackEventData = useMemo(
+			() => ( {
+				plan: requiredPlan,
+				blockName: name,
+				context: bannerContext,
+			} ),
+			[ requiredPlan, name, bannerContext ]
+		);
 
 		// Record event just once, the first time.
 		useEffect( () => {
@@ -65,15 +76,34 @@ export default createHigherOrderComponent(
 		}, [ hasBannerAlreadyShown, trackEventData, isBannerVisible ] );
 
 		// Hide Banner when block changes its attributes (dual Mode).
-		useEffect( () => setIsVisible( ! isDualMode ), [ props.attributes, setIsVisible, isDualMode ] );
+		useEffect( () => setIsVisible( ! isDualMode ), [ attributes, setIsVisible, isDualMode ] );
+
+		// Record whether the banner should be displayed on the frontend.
+		useEffect( () => {
+			// Do not display the frontend banner for nested paid blocks.
+			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
+		}, [ setAttributes, hasParentBanner ] );
+
+		// Set isChildBannerVisible for parent block.
+		useEffect( () => {
+			// onChildBannerVisibilityChange sets isChildBannerVisible for our parent paid block.
+			// It is undefined if this block has no parent paid block.
+			if ( onChildBannerVisibilityChange ) {
+				onChildBannerVisibilityChange( isBannerVisible || isChildBannerVisible );
+			}
+		}, [ isBannerVisible, isChildBannerVisible, onChildBannerVisibilityChange ] );
 
 		// Set banner CSS classes depending on its visibility.
-		const listBlockCSSClass = classNames( props?.className, {
+		const listBlockCSSClass = classNames( className, {
 			'is-upgradable': isBannerVisible,
 		} );
 
 		return (
-			<PaidBlockProvider onBannerVisibilityChange={ setIsVisible }>
+			<PaidBlockProvider
+				onBannerVisibilityChange={ setIsVisible }
+				onChildBannerVisibilityChange={ setIsChildBannerVisible }
+				hasParentBanner
+			>
 				<UpgradePlanBanner
 					className={ `is-${ props.name.replace( /\//, '-' ) }-paid-block` }
 					title={ null }
