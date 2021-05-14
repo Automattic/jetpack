@@ -55,7 +55,7 @@ class Jetpack_Google_Analytics {
 		// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
 		if ( class_exists( 'WooCommerce' ) && Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			self::$analytics = new Jetpack_Google_Analytics_Universal();
-			$amp_analytics   = new Jetpack_Google_AMP_Analytics();
+			new Jetpack_Google_AMP_Analytics();
 		} else {
 			self::$analytics = new Jetpack_Google_Analytics_Legacy();
 		}
