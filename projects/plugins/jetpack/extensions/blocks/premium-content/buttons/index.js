@@ -33,6 +33,12 @@ const settings = {
 	deprecated: [
 		{
 			attributes: {},
+			supports: {
+				align: true,
+				alignWide: false,
+				lightBlockWrapper: true,
+				inserter: false,
+			},			
 			save() {
 				return (
 					<div className="wp-block-buttons">
