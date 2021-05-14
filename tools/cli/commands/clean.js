@@ -149,24 +149,35 @@ export async function promptForScope ( argv ) {
  * @returns {argv} argv
  */
 export async function promptForClean( argv ) {
-    const response = await inquirer.prompt( [ {
-		type: 'confirm',
-		name: 'files',
-        default: true,
-		message: `Do you wish to remove all untracked files in ${argv.project}?`,
-	},
+    const response = await inquirer.prompt( [
+    {
+        type: 'list',
+        name: 'toClean',
+        message: `What kind of untracked files and folders are you looking to delete for ${argv.project}`,
+        choices: [
+            {
+                name: 'Only working files/folders.',
+                value: 'working'
+
+            },
+            {
+                name: 'Only git-ignored files/folders.',
+                value: '-X',
+
+            },
+            {
+                name: 'Both working files and git-ignored files/folders',
+                value: '-x',
+            },
+        ]
+    },
     {
 		type: 'confirm',
 		name: 'folders',
         value: '-d',
         default: true,
-		message: `Do you wish to remove all untracked folders in ${argv.project}?`,
-	},
-    {
-		type: 'confirm',
-		name: 'gitignore',
-        default: false,
-		message: `Do you wish to remove git ignored files for ${argv.project}?`,
+		message: `Do you wish to delete folders/files within root subdirectories as well?`,
+        when: argv.type === 'all',
 	},
     {
         type: 'checkbox',
@@ -186,7 +197,7 @@ export async function promptForClean( argv ) {
 					checked: false,
 				}
 			],
-        when: answers => answers.gitignore === true,
+        when: answers => answers.toClean !== 'working',
     },
     ] );
 	argv.clean = { ...response };
