@@ -12,6 +12,7 @@
 }
 
 .wp-story-container {
+	display: block;
 	height: 320px;
 	width: 180px;
 	margin-left: auto;
@@ -68,7 +69,7 @@
 	.wp-story-wrapper {
 		display: block;
 		position: absolute;
-		height: auto;
+		height: 100%;
 		bottom: 0;
 		top: 0;
 		left: 0;
@@ -423,6 +424,7 @@
 		}
 
 		.wp-story-wrapper {
+			height: auto;
 			margin-top: 84px;
 			margin-bottom: 84px;
 			border-radius: 0;
