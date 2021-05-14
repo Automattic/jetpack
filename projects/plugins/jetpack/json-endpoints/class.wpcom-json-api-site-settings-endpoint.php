@@ -864,6 +864,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (bool) $value;
 					break;
 
+				case 'lang_id':
+					/*
+					 * Due to the fact that locale variants are set in a locale_variant option,
+					 * changing locale from variant to primary
+					 * would look like the same lang_id is being saved and update_option would return false,
+					 * even though the correct options would be set by pre_update_option_lang_id,
+					 * so we should always return lang_id as updated.
+					 */
+					update_option( 'lang_id', (int) $value );
+					$updated[ $key ] = (int) $value;
+					break;
+
 				default:
 					// allow future versions of this endpoint to support additional settings keys.
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
