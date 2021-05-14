@@ -23,7 +23,7 @@ class Admin {
 			/**
 			* Action called after initializing Connection UI Admin resources.
 			*
-			* @since 1.0.2
+			* @since 9.8.0
 			*/
 			do_action( 'jetpack_on_connection_ui_init' );
 		}
