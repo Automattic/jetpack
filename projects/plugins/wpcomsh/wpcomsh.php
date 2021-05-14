@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.45
+ * Version: 2.7.46
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.45' );
+define( 'WPCOMSH_VERSION', '2.7.46' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -284,7 +284,12 @@ add_action(
 );
 
 function wpcomsh_set_up_auto_update_policy() {
-	if ( is_callable( 'Jetpack::is_active' ) && Jetpack::is_active() ) {
+	if (
+		is_callable( 'Jetpack::is_active' ) && Jetpack::is_active() &&
+		// Plugin auto-updates are currently broken for Jetpack-connected WoA sites.
+		// To avoid overwhelming systems, let's re-enable them gradually, starting at 5%.
+		defined( 'ATOMIC_SITE_ID' ) && ( ( ATOMIC_SITE_ID % 100 ) > 4 )
+	) {
 		// Disable core auto updates for plugins because Jetpack updates plugins more safely and quickly
 		add_filter( 'plugins_auto_update_enabled', '__return_false' );
 	} else {
