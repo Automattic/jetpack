@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 
@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import InPlaceConnection from '../in-place-connection';
+import restApi from '../../tools/jetpack-rest-api-client';
 
 /**
  * The user connection component.
@@ -16,6 +17,7 @@ import InPlaceConnection from '../in-place-connection';
  * @param {object} props -- The properties.
  * @param {Function} props.redirectFunc -- The redirect function (`window.location.assign()` by default).
  * @param {string} props.connectUrl -- The authorization URL (no-iframe).
+ * @param {string} props.redirectUri -- The redirect admin URI.
  * @param {string} props.inPlaceTitle -- The title for the In-Place Connection component.
  * @param {boolean} props.forceCalypsoFlow -- Whether to go straight to Calypso flow, skipping the In-Place flow.
  * @param {Function} props.onComplete -- The callback to be called when the connection is fully established.
@@ -28,6 +30,7 @@ const ConnectUser = props => {
 	const {
 		redirectFunc,
 		connectUrl,
+		redirectUri,
 		inPlaceTitle,
 		forceCalypsoFlow,
 		from,
@@ -35,15 +38,37 @@ const ConnectUser = props => {
 		displayTOS,
 	} = props;
 
-	if ( ! connectUrl ) {
-		throw new Error( 'Connect User URL (Authorization URL) is missing' );
+	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
+
+	if ( connectUrl !== authorizationUrl ) {
+		setAuthorizationUrl( connectUrl );
+	}
+
+	/**
+	 * Fetch the authorization URL on the first render.
+	 * To be only run once.
+	 */
+	useEffect( () => {
+		if ( ! authorizationUrl ) {
+			restApi
+				.fetchAuthorizationUrl( redirectUri )
+				.then( response => setAuthorizationUrl( response.authorizeUrl ) )
+				.catch( error => {
+					throw error;
+				} );
+		}
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+	if ( ! authorizationUrl ) {
+		return null;
+		//throw new Error( 'Connect User URL (Authorization URL) is missing' );
 	}
 
 	if ( forceCalypsoFlow ) {
 		redirectFunc(
-			connectUrl +
+			authorizationUrl +
 				( from
-					? ( connectUrl.includes( '?' ) ? '&' : '?' ) + 'from=' + encodeURIComponent( from )
+					? ( authorizationUrl.includes( '?' ) ? '&' : '?' ) + 'from=' + encodeURIComponent( from )
 					: '' )
 		);
 		return null;
@@ -51,7 +76,7 @@ const ConnectUser = props => {
 
 	return (
 		<InPlaceConnection
-			connectUrl={ connectUrl }
+			connectUrl={ authorizationUrl }
 			title={ inPlaceTitle }
 			onComplete={ onComplete }
 			displayTOS={ displayTOS }
@@ -60,7 +85,8 @@ const ConnectUser = props => {
 };
 
 ConnectUser.propTypes = {
-	connectUrl: PropTypes.string.isRequired,
+	connectUrl: PropTypes.string,
+	redirectUri: PropTypes.string.isRequired,
 	inPlaceTitle: PropTypes.string,
 	forceCalypsoFlow: PropTypes.bool,
 	onComplete: PropTypes.func,

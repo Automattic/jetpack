@@ -53,6 +53,7 @@ or renders the `InPlaceConnection` component.
 ### Properties
 
 - *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
+- *redirectUrl* - string, wp-admin URI so the user to get redirected there after Calypso connection flow.
 - *displayTOS* - boolean (required), whether we should display the terms of service during In-Place flow.
 - *inPlaceTitle* - string, title for the In-Place Connection component.
 - *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
@@ -66,6 +67,7 @@ import ConnectUser from '../connect-user';
 
 <ConnectUser
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
+	redirectUri="tools.php?page=wpcom-connection-manager"
 	inPlaceTitle="Sample Connection"
 	onComplete={ () => alert( 'Connected' ) }
 	displayTOS={ false }

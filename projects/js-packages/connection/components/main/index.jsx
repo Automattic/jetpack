@@ -33,7 +33,7 @@ import ConnectUser from '../connect-user';
 const Main = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
-	const [ isFetchingAuthorizationUrl, setIsFetchingAuthorizationUrl ] = useState( false );
+
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
 	const {
@@ -59,26 +59,6 @@ const Main = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
-
-	/**
-	 * Fetch the authorization URL on the first render (if needed).
-	 * To be only run once.
-	 */
-	useEffect( () => {
-		if ( ! authorizationUrl && isRegistered && ! isUserConnected ) {
-			setIsFetchingAuthorizationUrl( true );
-
-			restApi
-				.fetchAuthorizationUrl( redirectUri )
-				.then( response => {
-					setIsFetchingAuthorizationUrl( false );
-					setAuthorizationUrl( response.authorizeUrl );
-				} )
-				.catch( error => {
-					throw error;
-				} );
-		}
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	/**
 	 * Callback for the user connection success.
@@ -142,15 +122,16 @@ const Main = props => {
 					label={ connectLabel }
 					onClick={ registerSite }
 					isPrimary
-					disabled={ isRegistering || isFetchingAuthorizationUrl }
+					disabled={ isRegistering }
 				>
 					{ connectLabel }
 				</Button>
 			) }
 
-			{ isUserConnecting && authorizationUrl && (
+			{ isUserConnecting && (
 				<ConnectUser
 					connectUrl={ authorizationUrl }
+					redirectUri={ redirectUri }
 					inPlaceTitle={ inPlaceTitle }
 					onComplete={ onUserConnectedCallback }
 					displayTOS={ hasConnectedOwner || isRegistered }
