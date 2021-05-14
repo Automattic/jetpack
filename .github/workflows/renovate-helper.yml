@@ -2,6 +2,9 @@ name: Renovate
 on:
   pull_request:
     branches: [ 'master' ]
+concurrency:
+  group: renovate-helper-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"
