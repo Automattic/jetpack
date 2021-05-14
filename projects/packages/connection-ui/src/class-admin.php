@@ -21,10 +21,10 @@ class Admin {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 			/**
-			* Action called after initializing Connection UI Admin resources.
-			*
-			* @since 9.8.0
-			*/
+			 * Action called after initializing Connection UI Admin resources.
+			 *
+			 * @since 9.8.0
+			 */
 			do_action( 'jetpack_on_connection_ui_init' );
 		}
 	}
