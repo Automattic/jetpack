@@ -68,3 +68,21 @@ export function normalizeProject( argv ) {
 	}
 	return argv;
 }
+
+/**
+ * Normalize the argv used for the clean command.
+ *
+ * @param {object} argv - The argvs for the clean command.
+ *
+ * @returns {object} argv object with standard elements needed for clean.
+ */
+export function normalizeCleanArgv( argv ) {
+	return {
+		// Defaults.
+		project: '',
+		all: false,
+		v: false,
+		// Override from `argv`.
+		...argv,
+	};
+}

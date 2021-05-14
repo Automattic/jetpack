@@ -10,6 +10,7 @@ import { hideBin } from 'yargs/helpers';
 import { buildDefine } from './commands/build';
 import { watchDefine } from './commands/watch';
 import { installDefine } from './commands/install';
+import { cleanDefine } from './commands/clean';
 import { cliDefine } from './commands/cli';
 import { generateDefine } from './commands/generate';
 import { changelogDefine } from './commands/changelog';
@@ -31,6 +32,7 @@ export async function cli() {
 	 */
 	argv = buildDefine( argv );
 	argv = changelogDefine( argv );
+	argv = cleanDefine( argv );
 	argv = cliDefine( argv );
 	argv.completion( 'completion', 'Generate bash/zsh completions' ); // Placed here to keep things alphabetical.
 	argv = dockerDefine( argv );
