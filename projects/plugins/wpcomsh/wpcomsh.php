@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.49
+ * Version: 2.7.50
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.49' );
+define( 'WPCOMSH_VERSION', '2.7.50' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -284,11 +284,17 @@ add_action(
 );
 
 function wpcomsh_set_up_auto_update_policy() {
-	// Filter to act as if all unmanaged plugins are auto-updated
-	add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_list_unmanaged_plugins_for_auto_update' );
+	// TODO: Remove this block again once we know how to stop Jetpack auto-updates from breaking sites
+	if ( is_callable( 'Jetpack::is_active' ) && Jetpack::is_active() ) {
+		// Disable core auto updates for plugins because Jetpack updates plugins more safely and quickly
+		add_filter( 'plugins_auto_update_enabled', '__return_false' );
+	} else {
+		// Filter to act as if all unmanaged plugins are auto-updated
+		add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_list_unmanaged_plugins_for_auto_update' );
 
-	// Let's avoid saving auto updated plugins since we're auto updating all unmanaged plugins
-	add_filter( 'pre_update_option_auto_update_plugins', '__return_empty_array' );
+		// Let's avoid saving auto updated plugins since we're auto updating all unmanaged plugins
+		add_filter( 'pre_update_option_auto_update_plugins', '__return_empty_array' );
+	}
 }
 add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
 
