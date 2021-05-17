@@ -100,7 +100,7 @@ export const Protect = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'protect' ) }
 						className="foldable-wrapper"
 					>
