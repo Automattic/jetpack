@@ -17,7 +17,12 @@ import { __ } from '@wordpress/i18n';
 import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
 import getRedirectUrl from 'lib/jp-redirect';
-import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
+import {
+	isOfflineMode,
+	hasConnectedOwner,
+	isFetchingConnectUrl as _isFetchingConnectUrl,
+	getConnectUrl as _getConnectUrl,
+} from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 import { numberFormat } from 'components/number-format';
 import QueryProtectCount from 'components/data/query-dash-protect';
@@ -32,8 +37,6 @@ class DashProtect extends Component {
 	};
 
 	activateProtect = () => this.props.updateOptions( { protect: true } );
-
-	connect = () => this.props.authorizeUserInPlace();
 
 	getContent() {
 		const labelName = __( 'Protect', 'jetpack' );
@@ -102,7 +105,7 @@ class DashProtect extends Component {
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+								a: <a href={ this.props.connectUrl } />,
 							}
 						) }
 
@@ -134,16 +137,11 @@ class DashProtect extends Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		protectCount: getProtectCount( state ),
-		isOfflineMode: isOfflineMode( state ),
-		isModuleAvailable: isModuleAvailable( state, 'protect' ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	} ),
-	dispatch => ( {
-		authorizeUserInPlace: () => {
-			return dispatch( authorizeUserInPlace() );
-		},
-	} )
-)( DashProtect );
+export default connect( state => ( {
+	protectCount: getProtectCount( state ),
+	isOfflineMode: isOfflineMode( state ),
+	isModuleAvailable: isModuleAvailable( state, 'protect' ),
+	hasConnectedOwner: hasConnectedOwner( state ),
+	fetchingConnectUrl: _isFetchingConnectUrl( state ),
+	connectUrl: _getConnectUrl( state ),
+} ) )( DashProtect );
