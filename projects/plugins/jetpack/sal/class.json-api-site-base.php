@@ -700,6 +700,10 @@ abstract class SAL_Site {
 		return get_option( 'selected_features' );
 	}
 
+	public function was_created_with_blank_canvas_design() {
+		return (bool) get_option( 'was_created_with_blank_canvas_design' );
+	}
+
 	/**
 	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
 	 *
