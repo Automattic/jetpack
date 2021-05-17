@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Connection package independence: Filters the remote_register XMLRPC endpoint redirect URI

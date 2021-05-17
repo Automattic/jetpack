@@ -11,10 +11,9 @@ const { fileNameFormatter } = require( '../utils-helper' );
  *
  * @param {page} page Playwright page type
  * @param {string} fileName screenshot file name
- * @param {boolean} logToSlack whether to also log this file to slack log
  * @return {Promise<void>}
  */
-async function takeScreenshot( page, fileName, logToSlack = false ) {
+async function takeScreenshot( page, fileName ) {
 	try {
 		const filePath = path.resolve(
 			config.get( 'dirs.screenshots' ),
@@ -22,9 +21,6 @@ async function takeScreenshot( page, fileName, logToSlack = false ) {
 		);
 		await page.screenshot( { path: filePath, fullPage: true } );
 		logger.debug( `Screenshot saved: ${ filePath }` );
-		if ( logToSlack ) {
-			logger.slack( { type: 'file', message: filePath } );
-		}
 	} catch ( error ) {
 		logger.error( `Failed to save screenshot: ${ error }` );
 	}

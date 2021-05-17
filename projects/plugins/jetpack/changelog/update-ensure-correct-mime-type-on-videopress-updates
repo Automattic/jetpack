@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Ensure video/videopress mime type is set on attachments when a videopress update xmlrpc call is received
