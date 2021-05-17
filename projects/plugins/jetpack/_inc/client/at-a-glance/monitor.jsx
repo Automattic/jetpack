@@ -17,7 +17,12 @@ import { __ } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
 import { isModuleAvailable } from 'state/modules';
-import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
+import {
+	isOfflineMode,
+	hasConnectedOwner,
+	isFetchingConnectUrl as _isFetchingConnectUrl,
+	getConnectUrl as _getConnectUrl,
+} from 'state/connection';
 import DashItem from 'components/dash-item';
 
 class DashMonitor extends Component {
@@ -35,8 +40,6 @@ class DashMonitor extends Component {
 
 		this.props.updateOptions( { monitor: true } );
 	};
-
-	connect = () => this.props.authorizeUserInPlace();
 
 	getContent() {
 		const labelName = __( 'Downtime monitoring', 'jetpack' );
@@ -100,7 +103,7 @@ class DashMonitor extends Component {
 						{ createInterpolateElement(
 							__( '<a>Connect your WordPress.com</a> account to use this feature.', 'jetpack' ),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+								a: <a href={ this.props.connectUrl } />,
 							}
 						) }
 					</p>
@@ -114,15 +117,10 @@ class DashMonitor extends Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		isOfflineMode: isOfflineMode( state ),
-		isModuleAvailable: isModuleAvailable( state, 'monitor' ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	} ),
-	dispatch => ( {
-		authorizeUserInPlace: () => {
-			return dispatch( authorizeUserInPlace() );
-		},
-	} )
-)( DashMonitor );
+export default connect( state => ( {
+	isOfflineMode: isOfflineMode( state ),
+	isModuleAvailable: isModuleAvailable( state, 'monitor' ),
+	hasConnectedOwner: hasConnectedOwner( state ),
+	fetchingConnectUrl: _isFetchingConnectUrl( state ),
+	connectUrl: _getConnectUrl( state ),
+} ) )( DashMonitor );
