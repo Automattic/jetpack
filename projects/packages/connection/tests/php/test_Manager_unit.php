@@ -40,11 +40,11 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom' ) )
 			->getMock();
 
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->setMethods( array( 'get_access_token' ) )
+			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
 			->getMock();
 
 		$this->manager->method( 'get_tokens' )->will( $this->returnValue( $this->tokens ) );
@@ -353,6 +353,63 @@ class ManagerTest extends TestCase {
 		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+	}
+
+	/**
+	 * Test disconnecting a user from WordPress.com.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @dataProvider get_disconnect_user_scenarios
+	 *
+	 * @param bool $remote   Was the remote disconnection successful.
+	 * @param bool $local    Was the remote disconnection successful.
+	 * @param bool $expected Expected outcome.
+	 */
+	public function test_disconnect_user( $remote, $local, $expected ) {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->will( $this->returnValue( $remote ) );
+
+		$this->tokens->method( 'disconnect_user' )
+			->will( $this->returnValue( $local ) );
+
+		$result = $this->manager->disconnect_user( $editor_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test data for test_disconnect_user
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_scenarios() {
+		return array(
+			'Successful remote and local disconnection' => array(
+				true,
+				true,
+				true,
+			),
+			'Failed remote and successful local disconnection' => array(
+				false,
+				true,
+				false,
+			),
+			'Successful remote and failed local disconnection' => array(
+				true,
+				false,
+				false,
+			),
+		);
 	}
 
 	/**
