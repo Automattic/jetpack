@@ -350,7 +350,7 @@ class Test_REST_Endpoints extends TestCase {
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
 	}
 
 	/**
@@ -384,8 +384,10 @@ class Test_REST_Endpoints extends TestCase {
 			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
-					'jetpack_id'     => '12345',
-					'jetpack_secret' => 'sample_secret',
+					'jetpack_id'                  => '12345',
+					'jetpack_secret'              => 'sample_secret',
+					'allow_inplace_authorization' => false,
+					'alternate_authorization_url' => '',
 				)
 			),
 			'response' => array(
