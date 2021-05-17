@@ -26,10 +26,8 @@ import {
 	UNLINK_USER_SUCCESS,
 	SITE_RECONNECT,
 	SITE_RECONNECT_FAIL,
-	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
 import restApi from 'rest-api';
-import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 import { isReconnectingSite } from 'state/connection/reducer';
 
 export const fetchSiteConnectionStatus = () => {
@@ -275,19 +273,9 @@ export const reconnectSite = () => {
 				const authorizeUrl = connectionStatusData.authorizeUrl;
 				// status: in_progress, aka user needs to re-connect their WP.com account.
 				if ( 'in_progress' === status ) {
-					// Redirect user to authorize WP.com if in-place connection is restricted.
-					if ( isSafari( getState() ) || doNotUseConnectionIframe( getState() ) ) {
-						return window.location.replace( authorizeUrl );
-					}
-					// Set connectUrl and initiate in-place auth flow.
-					dispatch( {
-						type: CONNECT_URL_FETCH_SUCCESS,
-						connectUrl: authorizeUrl,
-					} );
-					dispatch( authorizeUserInPlace() );
-				} else {
-					window.location.reload();
+					return window.location.replace( authorizeUrl );
 				}
+				window.location.reload();
 			} )
 			.catch( error => {
 				dispatch( {
