@@ -3,10 +3,12 @@
  */
 import ReactDOM from 'react-dom';
 import React from 'react';
+import { Provider } from 'react-redux';
 
 /**
  * Internal dependencies
  */
+import store from 'state/redux-store';
 import SearchDashboard from './search-dashboard';
 
 /**
@@ -19,7 +21,12 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render( <SearchDashboard />, container );
+	ReactDOM.render(
+		<Provider store={ store }>
+			<SearchDashboard />
+		</Provider>,
+		container
+	);
 }
 
 // Initialize Instant Search when DOMContentLoaded is fired, or immediately if it already has been.

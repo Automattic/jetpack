@@ -8,10 +8,9 @@
 namespace Automattic\Jetpack\Search;
 
 use Jetpack_Plan;
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 /**
- * Class Main
- *
  * Responsible for adding a search dashboard to wp-admin.
  *
  * @package Automattic\Jetpack\Search
@@ -122,6 +121,14 @@ class Admin_Dashboard {
 			$script_dependencies,
 			JETPACK__VERSION,
 			true
+		);
+
+		// Add objects to be passed to the initial state of the app.
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script(
+			'jp-search-dashboard',
+			'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( \Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));',
+			'before'
 		);
 	}
 
