@@ -73,24 +73,6 @@ export class ConnectButton extends React.Component {
 		this.setState( { showModal: ! this.state.showModal } );
 	};
 
-	loadIframe = e => {
-		e.preventDefault();
-		// If the iframe is already loaded or we don't have a connectUrl yet, return.
-		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
-			return;
-		}
-
-		// Track click
-		analytics.tracks.recordJetpackClick( 'link_account_in_place' );
-
-		if ( this.props.customConnect ) {
-			this.props.customConnect();
-		} else {
-			// Dispatch user in place authorization.
-			this.props.authorizeUserInPlace();
-		}
-	};
-
 	renderUserButton = () => {
 		// Already linked
 		if ( this.props.isLinked ) {
@@ -123,23 +105,6 @@ export class ConnectButton extends React.Component {
 			},
 			connectLegend =
 				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
-
-		// Secondary users in-place connection flow
-
-		// Due to the limitation in how 3rd party cookies are handled in Safari,
-		// we're falling back to the original flow on Safari desktop and mobile,
-		// thus ignore the 'connectInPlace' property value.
-
-		// We also check the `doNotUseConnectionIframe` initial global state property.
-		// This will override the button's `connectInPlace` property.
-
-		if (
-			this.props.connectInPlace &&
-			! this.props.isSafari &&
-			! this.props.doNotUseConnectionIframe
-		) {
-			buttonProps.onClick = this.loadIframe;
-		}
 
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
