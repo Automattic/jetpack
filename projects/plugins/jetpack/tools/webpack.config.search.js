@@ -22,10 +22,10 @@ const baseWebpackConfig = getBaseWebpackConfig(
 				'../modules/search/instant-search/ie11-polyfill.js'
 			),
 			'ie11-polyfill-payload': [
-				'core-js',
-				'regenerator-runtime/runtime',
-				'whatwg-fetch',
-				'abortcontroller-polyfill/dist/polyfill-patch-fetch',
+				require.resolve( 'core-js' ),
+				require.resolve( 'regenerator-runtime/runtime' ),
+				require.resolve( 'whatwg-fetch' ),
+				require.resolve( 'abortcontroller-polyfill/dist/polyfill-patch-fetch' ),
 			],
 		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
