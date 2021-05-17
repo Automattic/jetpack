@@ -200,7 +200,6 @@ function getGithubInfo() {
 	const gh = {
 		run: {
 			id: GITHUB_RUN_ID,
-			url: `${ event.repository.html_url }/actions/runs/${ GITHUB_RUN_ID }`,
 		},
 		branch: {},
 	};
@@ -212,8 +211,11 @@ function getGithubInfo() {
 		gh.pr.title = event.pull_request.title;
 
 		gh.branch.name = event.pull_request.head.ref;
+
+		gh.run.url = `${ event.repository.html_url }/actions/runs/${ GITHUB_RUN_ID }`;
 	} else {
 		gh.branch.name = event.ref.substr( 11 );
+		gh.run.url = `${ event.server_url }/${ event.repository }/actions/runs/${ GITHUB_RUN_ID }`;
 	}
 
 	gh.branch.url = `${ event.repository.html_url }/tree/${ gh.branch.name }`;
