@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Instant Search: ensure search input is the correct width if an input max-width has been specified in the theme
