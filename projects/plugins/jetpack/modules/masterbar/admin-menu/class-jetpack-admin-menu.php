@@ -150,7 +150,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		}
 
 		$slug       = 'edit.php?post_type=' . $post_type;
-		$name       = $ptype_obj->labels->menu_name;
+		$name       = __( 'Feedback', 'jetpack' );
 		$capability = $ptype_obj->cap->edit_posts;
 		$icon       = $ptype_obj->menu_icon;
 		$position   = 45; // Before Jetpack.
@@ -181,12 +181,18 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 *
 	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @return string The Customizer URL.
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain, null, 'dashicons-admin-appearance', 60 );
-		add_submenu_page( 'themes.php', esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+		$themes_url = 'https://wordpress.com/themes/' . $this->domain;
 		// Customize on Jetpack sites is always done on WP Admin (unsupported by Calypso).
-		add_submenu_page( 'themes.php', esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', 'customize.php' );
+		$customize_url = 'customize.php';
+
+		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
+		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+		add_submenu_page( $themes_url, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_url );
+
+		return $customize_url;
 	}
 
 	/**

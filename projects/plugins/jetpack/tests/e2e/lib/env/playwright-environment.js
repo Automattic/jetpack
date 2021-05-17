@@ -6,7 +6,7 @@ const path = require( 'path' );
 const chalk = require( 'chalk' );
 const logger = require( '../logger' );
 const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
-const { logDebugLog, fileNameFormatter, logAccessLog } = require( '../utils-helper' );
+const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
@@ -209,22 +209,10 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
 		await this.saveScreenshot( eventFullName );
 		await this.logHTML( eventFullName );
-		await this.logFailureToSlack( parentName, eventName, error );
-		await logDebugLog();
-		await logAccessLog();
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
 			await this.global.page.pause();
 		}
-	}
-
-	async logFailureToSlack( block, name, error ) {
-		logger.slack( {
-			type: 'failure',
-			block,
-			name,
-			error,
-		} );
 	}
 
 	/**
@@ -235,7 +223,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 */
 	async saveScreenshot( fileName ) {
 		for ( const page of this.global.context.pages() ) {
-			await takeScreenshot( page, fileName, true );
+			await takeScreenshot( page, fileName );
 		}
 	}
 

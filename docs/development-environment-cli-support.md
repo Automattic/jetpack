@@ -60,15 +60,15 @@ PHPUnit is the tool that helps us run unit tests for Jetpack.
 
 ### Docker images are available
 
-The containers for the Jetpack docker images are created when you ran `yarn docker:up`.
+The containers for the Jetpack docker images are created when you ran `jetpack docker up`.
 
 ### Docker containers are available
 
-The containers for the Jetpack docker containers are created when you ran `yarn docker:up`.
+The containers for the Jetpack docker containers are created when you ran `jetpack docker up`.
 
 ### Docker containers are running
 
-If you are using the Jetpack Docker Image, make sure you run `yarn docker:up`.
+If you are using the Jetpack Docker Image, make sure you run `jetpack docker up`.
 
 ### Docker is running
 
