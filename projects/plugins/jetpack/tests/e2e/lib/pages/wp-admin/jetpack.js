@@ -24,12 +24,12 @@ export default class JetpackPage extends WpPage {
 
 	async openPlans() {
 		const plansButton = "a[href*='plans'] span";
-		return await waitAndClick( this.page, plansButton );
+		return await this.click( plansButton );
 	}
 
 	async openDashboard() {
 		const dashboardButton = "a[href*='dashboard'] span";
-		return await waitAndClick( this.page, dashboardButton );
+		return await this.click( dashboardButton );
 	}
 
 	async isFree() {
@@ -58,8 +58,6 @@ export default class JetpackPage extends WpPage {
 	}
 
 	async forceVariation( variation = 'original' ) {
-		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		await waitForSelector( this.page, connectButtonSelector, { visible: true } );
 		return await this.page.evaluate(
 			forceVariation => ( jpConnect.forceVariation = forceVariation ),
 			variation

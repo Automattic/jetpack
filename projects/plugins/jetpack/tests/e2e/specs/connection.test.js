@@ -15,6 +15,7 @@ import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import ThankYouPage from '../lib/pages/wpcom/thank-you';
 import MyPlanPage from '../lib/pages/wpcom/my-plan';
 import PickAPlanPage from '../lib/pages/wpcom/pick-a-plan';
+import CheckoutPage from '../lib/pages/wpcom/checkout';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
