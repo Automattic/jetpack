@@ -40,7 +40,7 @@ const ConnectUser = props => {
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
-	if ( connectUrl !== authorizationUrl ) {
+	if ( connectUrl && connectUrl !== authorizationUrl ) {
 		setAuthorizationUrl( connectUrl );
 	}
 

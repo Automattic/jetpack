@@ -22,9 +22,6 @@ import ConnectUser from '../connect-user';
  * @param {string} props.apiRoot -- API root URL, required.
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
- * @param {boolean} props.isRegistered -- Whether the site is registered (has blog token), required.
- * @param {boolean} props.isUserConnected -- Whether the current user is connected (has user token), required.
- * @param {boolean} props.hasConnectedOwner -- Whether the site has connection owner, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
  * @param {Function} props.onUserConnected -- The callback to be called when the connection is fully established.
  *
@@ -36,19 +33,19 @@ const Main = props => {
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
+	const [ isFetchingConnectionStatus, setIsFetchingConnectionStatus ] = useState( false );
+	const [ connectionStatus, setConnectionStatus ] = useState( {} );
+
 	const {
 		apiRoot,
 		apiNonce,
 		connectLabel,
-		isRegistered,
-		isUserConnected,
 		onRegistered,
 		onUserConnected,
 		registrationNonce,
 		redirectUri,
 		forceCalypsoFlow,
 		inPlaceTitle,
-		hasConnectedOwner,
 		from,
 	} = props;
 
@@ -59,6 +56,25 @@ const Main = props => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
+
+	/**
+	 * Fetch the connection status on the first render.
+	 * To be only run once.
+	 */
+	useEffect( () => {
+		setIsFetchingConnectionStatus( true );
+
+		restApi
+			.fetchSiteConnectionStatus()
+			.then( response => {
+				setIsFetchingConnectionStatus( false );
+				setConnectionStatus( response );
+			} )
+			.catch( error => {
+				setIsFetchingConnectionStatus( false );
+				throw error;
+			} );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	/**
 	 * Callback for the user connection success.
@@ -78,7 +94,7 @@ const Main = props => {
 		e => {
 			e && e.preventDefault();
 
-			if ( isRegistered ) {
+			if ( connectionStatus.isRegistered ) {
 				setIsUserConnecting( true );
 				return;
 			}
@@ -98,43 +114,46 @@ const Main = props => {
 					setIsUserConnecting( true );
 				} )
 				.catch( error => {
+					setIsRegistering( false );
 					throw error;
 				} );
 		},
 		[
 			setIsRegistering,
 			setAuthorizationUrl,
-			isRegistered,
+			connectionStatus,
 			onRegistered,
 			registrationNonce,
 			redirectUri,
 		]
 	);
 
-	if ( isRegistered && isUserConnected ) {
+	if ( connectionStatus.isRegistered && connectionStatus.isUserConnected ) {
 		return null;
 	}
 
 	return (
 		<div className="jp-connection-main">
-			{ ! isUserConnecting && (
+			{ isFetchingConnectionStatus && `Loading...` }
+
+			{ ! isFetchingConnectionStatus && (
 				<Button
 					label={ connectLabel }
 					onClick={ registerSite }
 					isPrimary
-					disabled={ isRegistering }
+					disabled={ isRegistering || isUserConnecting }
 				>
 					{ connectLabel }
 				</Button>
 			) }
 
-			{ isUserConnecting && (
+			{ ! isFetchingConnectionStatus && isUserConnecting && (
 				<ConnectUser
 					connectUrl={ authorizationUrl }
 					redirectUri={ redirectUri }
 					inPlaceTitle={ inPlaceTitle }
 					onComplete={ onUserConnectedCallback }
-					displayTOS={ hasConnectedOwner || isRegistered }
+					displayTOS={ connectionStatus.hasConnectedOwner || connectionStatus.isRegistered }
 					forceCalypsoFlow={ forceCalypsoFlow }
 					from={ from }
 				/>
@@ -149,9 +168,6 @@ Main.propTypes = {
 	forceCalypsoFlow: PropTypes.bool,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
-	isRegistered: PropTypes.bool.isRequired,
-	isUserConnected: PropTypes.bool.isRequired,
-	hasConnectedOwner: PropTypes.bool.isRequired,
 	onRegistered: PropTypes.func,
 	onUserConnected: PropTypes.func,
 	registrationNonce: PropTypes.string.isRequired,

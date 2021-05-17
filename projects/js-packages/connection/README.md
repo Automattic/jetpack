@@ -13,9 +13,6 @@ Contains the whole connection flow, including site registration and user authori
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *isRegistered* - boolean, whether the site is registered (has blog token).
-- *isUserConnected* - boolean, whether the current user is connected (has user token).
-- *hasConnectedOwner* - boolean, whether the site has connection owner.
 - *onRegistered* - callback, to be called upon registration success.
 - *onUserConnected* - callback, to be called when the connection is fully established.
 - *from* - string, custom string parameter to identify where the request is coming from.
@@ -33,9 +30,6 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	isRegistered={ false }
-	isUserConnected={ false }
-	hasConnectedOwner={ false }
 	forceCalypsoFlow={ false }
 	onRegistered={ onRegistered }
 	onUserConnected={ onUserConnected }
