@@ -69,6 +69,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
+			$nudge = $this->get_upsell_nudge();
+			if ( $nudge ) {
+				parent::add_upsell_nudge( $nudge );
+			}
 			$this->add_new_site_link();
 		}
 
@@ -212,6 +216,30 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		return $menu;
+	}
+
+	/**
+	 * Returns the first available upsell nudge.
+	 *
+	 * @return array
+	 */
+	public function get_upsell_nudge() {
+		$jitm         = \Automattic\Jetpack\JITMS\JITM::get_instance();
+		$message_path = 'calypso:sites:sidebar_notice';
+		$message      = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
+
+		if ( isset( $message[0] ) ) {
+			$message = $message[0];
+			return array(
+				'content'                      => $message->content->message,
+				'cta'                          => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'link'                         => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'tracks_impression_event_name' => $message->tracks->display->name,
+				'tracks_impression_cta_name'   => $message->tracks->display->props->cta_name,
+				'tracks_click_event_name'      => $message->tracks->click->name,
+				'tracks_click_cta_name'        => $message->tracks->click->props->cta_name,
+			);
+		}
 	}
 
 	/**

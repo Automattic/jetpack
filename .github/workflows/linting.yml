@@ -7,6 +7,9 @@
 name: Linting
 
 on: pull_request
+concurrency:
+  group: linting-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"

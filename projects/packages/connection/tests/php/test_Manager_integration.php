@@ -463,17 +463,17 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test the `is_userless' method.
+	 * Test the `is_site_connection' method.
 	 *
-	 * @covers Automattic\Jetpack\Connection\Manager::is_userless
-	 * @dataProvider data_provider_for_test_is_userless
+	 * @covers Automattic\Jetpack\Connection\Manager::is_site_connection
+	 * @dataProvider data_provider_for_test_is_site_connection
 	 *
 	 * @param boolean $is_connected              If the blog is connected.
 	 * @param boolean $has_connected_user        If the blog has a connected user.
 	 * @param boolean $master_user_option_is_set If the master_user option is set.
 	 * @param boolean $expected                  The expected output.
 	 */
-	public function test_is_userless( $is_connected, $has_connected_user, $master_user_option_is_set, $expected ) {
+	public function test_is_site_connection( $is_connected, $has_connected_user, $master_user_option_is_set, $expected ) {
 		$id_admin = wp_insert_user(
 			array(
 				'user_login' => 'admin',
@@ -507,19 +507,19 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			\Jetpack_Options::delete_option( 'master_user' );
 		}
 
-		$this->assertEquals( $expected, $this->manager->is_userless() );
+		$this->assertEquals( $expected, $this->manager->is_site_connection() );
 	}
 
 	/**
-	 * Data provider for test_is_userless.
+	 * Data provider for test_is_site_connection.
 	 *
 	 * Structure of the test data arrays:
 	 *     [0] => 'is_connected'              boolean If the blog is connected.
 	 *     [1] => 'has_connected_user'        boolean If the blog has a connected user.
 	 *     [2] => 'master_user_option_is_set' boolean If the master_user option is set.
-	 *     [3] => 'expected'                  boolean The expected output of the call to is_userless.
+	 *     [3] => 'expected'                  boolean The expected output of the call to is_site_connection.
 	 */
-	public function data_provider_for_test_is_userless() {
+	public function data_provider_for_test_is_site_connection() {
 
 		return array(
 			'connected, has connected_user, master_user option is set'         => array( true, true, true, false ),

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Package Independence: Add a filter to the remote_uri returned by remote_register XMLRPC method

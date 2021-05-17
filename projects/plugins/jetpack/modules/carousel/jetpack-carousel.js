@@ -1,4 +1,4 @@
-/* global jetpackCarouselStrings, DocumentTouch */
+/* global wpcom, jetpackCarouselStrings, DocumentTouch */
 
 jQuery( document ).ready( function ( $ ) {
 	// gallery faded layer and container elements
@@ -21,6 +21,18 @@ jQuery( document ).ready( function ( $ ) {
 		titleAndDescription,
 		commentForm,
 		scrollPos;
+
+	var noop = function () {};
+
+	var stat =
+		typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.stat
+			? wpcom.carousel.stat
+			: noop;
+
+	var pageview =
+		typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.pageview
+			? wpcom.carousel.pageview
+			: noop;
 
 	var keyListener = function ( e ) {
 		switch ( e.which ) {
@@ -128,6 +140,8 @@ jQuery( document ).ready( function ( $ ) {
 								container.jp_carousel( 'next' );
 							}
 						}
+					} else if ( target.hasClass( 'jp-carousel-image-download' ) ) {
+						stat( 'download_original_click' );
 					} else if ( target.hasClass( 'jp-carousel-commentlink' ) ) {
 						e.preventDefault();
 						e.stopPropagation();
@@ -456,6 +470,7 @@ jQuery( document ).ready( function ( $ ) {
 			scrollPos = $( window ).scrollTop();
 
 			container.data( 'carousel-extra', data );
+			stat( [ 'open', 'view_image' ] );
 
 			return this.each( function () {
 				// If options exist, lets merge them
@@ -525,6 +540,7 @@ jQuery( document ).ready( function ( $ ) {
 				container.animate( { scrollTop: 0 }, 'fast' );
 				this.jp_carousel( 'clearCommentTextAreaValue' );
 				this.jp_carousel( 'selectSlide', slide );
+				stat( [ 'previous', 'view_image' ] );
 			}
 		},
 
@@ -688,6 +704,7 @@ jQuery( document ).ready( function ( $ ) {
 					Math.random();
 			}
 
+			pageview( attachmentId );
 			// Load the images for the next and previous slides.
 			$( next )
 				.add( previous )
@@ -823,17 +840,21 @@ jQuery( document ).ready( function ( $ ) {
 					src;
 				orig_size = { width: parseInt( parts[ 0 ], 10 ), height: parseInt( parts[ 1 ], 10 ) };
 
-				src = src_item.data( 'orig-file' );
+				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
+					src = wpcom.carousel.generateImgSrc( src_item.get( 0 ), max );
+				} else {
+					src = src_item.data( 'orig-file' );
 
-				src = gallery.jp_carousel( 'selectBestImageSize', {
-					orig_file: src,
-					orig_width: orig_size.width,
-					orig_height: orig_size.height,
-					max_width: max.width,
-					max_height: max.height,
-					medium_file: medium_file,
-					large_file: large_file,
-				} );
+					src = gallery.jp_carousel( 'selectBestImageSize', {
+						orig_file: src,
+						orig_width: orig_size.width,
+						orig_height: orig_size.height,
+						max_width: max.width,
+						max_height: max.height,
+						medium_file: medium_file,
+						large_file: large_file,
+					} );
+				}
 
 				// Set the final src
 				$( this ).data( 'gallery-src', src );
@@ -1183,10 +1204,18 @@ jQuery( document ).ready( function ( $ ) {
 
 		testCommentsOpened: function ( opened ) {
 			if ( 1 === parseInt( opened, 10 ) ) {
-				$( '.jp-carousel-buttons' ).fadeIn( 'fast' );
+				if ( 1 === Number( jetpackCarouselStrings.is_logged_in ) ) {
+					$( '.jp-carousel-commentlink' ).fadeIn( 'fast' );
+				} else {
+					$( '.jp-carousel-buttons' ).fadeIn( 'fast' );
+				}
 				commentForm.fadeIn( 'fast' );
 			} else {
-				$( '.jp-carousel-buttons' ).fadeOut( 'fast' );
+				if ( 1 === Number( jetpackCarouselStrings.is_logged_in ) ) {
+					$( '.jp-carousel-commentlink' ).fadeOut( 'fast' );
+				} else {
+					$( '.jp-carousel-buttons' ).fadeOut( 'fast' );
+				}
 				commentForm.fadeOut( 'fast' );
 			}
 		},
