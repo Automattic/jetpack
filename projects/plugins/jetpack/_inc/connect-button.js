@@ -182,7 +182,8 @@ jQuery( document ).ready( function ( $ ) {
 		},
 		handleConnectionError: function ( error ) {
 			jetpackConnectButton.isRegistering = false;
-			jetpackConnectButton.handleOriginalFlow();
+			// If something goes wrong, we take users to Calypso.
+			window.location = connectButton.attr( 'href' );
 		},
 	};
 
