@@ -487,7 +487,7 @@ class Identity_Crisis {
 	 */
 	public function enqueue_admin_bar_css() {
 
-		$build_assets = require_once __DIR__ . '/../build/index.asset.php';
+		$build_assets = require __DIR__ . '/../build/index.asset.php';
 
 		wp_enqueue_style(
 			'jetpack-idc-admin-bar-css',
@@ -503,7 +503,7 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function enqueue_idc_notice_files() {
-		$build_assets                   = require_once __DIR__ . '/../build/index.asset.php';
+		$build_assets                   = require __DIR__ . '/../build/index.asset.php';
 		$build_assets['dependencies'][] = 'jquery';
 
 		wp_enqueue_script(
