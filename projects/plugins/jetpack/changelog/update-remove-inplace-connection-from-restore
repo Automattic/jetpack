@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Disables in-place connection from the Restore Connection action
