@@ -5,7 +5,7 @@
  import child_process from 'child_process';
  import fs from 'fs';
  import path from 'path';
- import process from 'process';
+ import process, { argv } from 'process';
  import inquirer from 'inquirer';
  import simpleGit from 'simple-git';
 
@@ -80,6 +80,7 @@ export async function cleanCli( argv ) {
 
     await promptForClean( argv );
     makeOptions( argv );
+    console.log(argv);
     //await gitClean( argv );
 }
 
@@ -94,16 +95,32 @@ export async function makeOptions ( argv ) {
     }
 
     // Add option to remove git ignored files.
-    if ( argv.clean.gitignore ) {
-        options.push( '-x' );
+    if ( argv.clean.toClean !== 'working' ) {
+        options.push( argv.clean.toClean );
     }
 
-    if ( ! argv.exclude || argv.exclude === [] ) {
-        options.push( '-e "/**/vendor/" -e "composer.lock" -e "/**/node_modules/"' );
+    // Add any ignored 
+    if ( ! argv.clean.ignoreInclude ) {
+        argv.clean.ignoreInclude = [];
     }
+    addIgnored( argv.clean.ignoreInclude, options );
 
     argv.options = options.join( ' ' );
     return argv;
+}
+
+function addIgnored( ignoreInclude, options ) {
+    const defaultIgnored = [ 'vendor', 'composer.lock', 'node_modules' ];
+    for ( const toDelete of defaultIgnored ) {
+        if ( ! ignoreInclude.includes( toDelete ) ) {
+            if ( toDelete === 'composer.lock' ) {
+                options.push( '-e "composer.lock"' );
+            } else {
+                options.push( `-e "/**/${toDelete}/"` );
+            }
+        }
+    }
+    return options;
 }
 
 export async function gitClean( argv ) {
@@ -181,8 +198,8 @@ export async function promptForClean( argv ) {
 	},
     {
         type: 'checkbox',
-        name: 'exclude',
-        message: `Delete any of the following (you will need to run 'jetpack install ${argv.project}' to reinstall them)?`,
+        name: 'ignoreInclude',
+        message: `Delete any of the following? (you will need to run 'jetpack install ${argv.project}' to reinstall them)`,
         choices: [
 				{
 					name: 'vendor',
