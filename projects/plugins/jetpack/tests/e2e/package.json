@@ -17,7 +17,7 @@
 		"distclean": "rm -rf node_modules && pnpm run clean",
 		"env-start": "./bin/env.sh start",
 		"env-reset": "./bin/env.sh reset",
-		"tunnel-on": "pm2 start bin/ecosystem.config.js && pnpm run pm2 logs --nostream --lines 4",
+		"tunnel-on": "pm2 start bin/ecosystem.config.js && pm2 logs --nostream --lines 4",
 		"tunnel-reset": "rm -rf config/tmp && pnpm run tunnel-on",
 		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
 		"pretest-e2e": "pnpm run clean",
