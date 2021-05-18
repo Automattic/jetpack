@@ -77,18 +77,16 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 			} else {
 				$video_meta = wp_get_attachment_metadata( $attachment_id );
-				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['height'] ) ) {
+				if ( ! $video_meta ) {
 					return $media_file;
 				}
-				$url         = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
-				$description = ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'];
-				$media_file  = array_merge(
+				$media_file = array_merge(
 					$media_file,
 					array(
-						'width'   => absint( $video_meta['width'] ),
-						'height'  => absint( $video_meta['height'] ),
-						'alt'     => $description,
-						'url'     => $url,
+						'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : $media_file['width'] ),
+						'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : $media_file['height'] ),
+						'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'],
+						'url'     => ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'],
 						'title'   => get_the_title( $attachment_id ),
 						'caption' => wp_get_attachment_caption( $attachment_id ),
 					)
