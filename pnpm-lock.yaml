@@ -544,6 +544,7 @@ importers:
       esm: 3.2.25
       execa: 5.0.0
       inquirer: 7.3.3
+      js-yaml: 4.1.0
       listr: 0.14.3
       listr-update-renderer: 0.5.0
       listr-verbose-renderer: 0.6.0
@@ -561,6 +562,7 @@ importers:
       esm: 3.2.25
       execa: 5.0.0
       inquirer: 7.3.3
+      js-yaml: 4.1.0
       listr: 0.14.3
       listr-update-renderer: 0.5.0_listr@0.14.3
       listr-verbose-renderer: 0.6.0
