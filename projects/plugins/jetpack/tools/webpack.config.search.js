@@ -50,7 +50,7 @@ function requestToExternal( request ) {
 
 const moduleConfig = { ...baseWebpackConfig.module };
 // NOTE: tiny-lru publishes non-ES5 as a browser target. It's necessary to let babel-loader transpile this module.
-moduleConfig.rules[ 0 ].exclude = /[\\/]node_modules[\\/](?!(tiny-lru)[\\/])/;
+moduleConfig.rules[ 0 ].exclude = /[\\/]node_modules[\\/](?!(\.pnpm|tiny-lru)[\\/])/;
 
 module.exports = {
 	...baseWebpackConfig,
