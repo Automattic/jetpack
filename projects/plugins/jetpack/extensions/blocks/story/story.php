@@ -139,15 +139,6 @@ function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
-	if ( empty( $media['id'] ) ) {
-		return sprintf(
-			'<img src="%s" alt="%s" class="wp-story-image" width="%d" height="%d" />',
-			esc_url( $media['url'] ),
-			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
-			EMBED_SIZE[0],
-			EMBED_SIZE[1]
-		);
-	}
 	$image      = wp_get_attachment_image_src( $media['id'], 'full', false );
 	$crop_class = '';
 	if ( $image ) {
@@ -158,7 +149,7 @@ function render_image( $media ) {
 	// `sizes` is optimized for 1080x1920 (9:16) images
 	// Note that the Story block does not have thumbnail support, it will load the right
 	// image based on the viewport size only.
-	return wp_get_attachment_image(
+	$image_template = wp_get_attachment_image(
 		$media['id'],
 		EMBED_SIZE,
 		false,
@@ -168,6 +159,15 @@ function render_image( $media ) {
 			'title' => get_the_title( $media['id'] ),
 		)
 	);
+	if ( empty( $image_template ) ) {
+		return sprintf(
+			'<img src="%s" alt="%s" class="wp-story-image" width="%d" height="%d" />',
+			esc_url( $media['url'] ),
+			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
+			EMBED_SIZE[0],
+			EMBED_SIZE[1]
+		);
+	}
 }
 
 /**
