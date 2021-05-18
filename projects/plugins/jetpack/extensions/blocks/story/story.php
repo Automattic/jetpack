@@ -131,6 +131,15 @@ function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
+	if ( empty( $media['id'] ) ) {
+		return sprintf(
+			'<img src="%s" alt="%s" class="wp-story-image" width="%d" height="%d" />',
+			esc_url( $media['url'] ),
+			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
+			EMBED_SIZE[0],
+			EMBED_SIZE[1]
+		);
+	}
 	$image      = wp_get_attachment_image_src( $media['id'], 'full', false );
 	$crop_class = '';
 	if ( $image ) {
