@@ -16,7 +16,7 @@ Contains the whole connection flow, including site registration and user authori
 - *onRegistered* - callback, to be called upon registration success.
 - *onUserConnected* - callback, to be called when the connection is fully established.
 - *from* - string, custom string parameter to identify where the request is coming from.
-- *redirectUrl* - string, wp-admin URI so the user to get redirected there after Calypso connection flow.
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 
 ### Basic Usage
 ```jsx
@@ -83,7 +83,7 @@ or renders the `InPlaceConnection` component.
 ### Properties
 
 - *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
-- *redirectUrl* - string, wp-admin URI so the user to get redirected there after Calypso connection flow.
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 - *displayTOS* - boolean (required), whether we should display the terms of service during In-Place flow.
 - *inPlaceTitle* - string, title for the In-Place Connection component.
 - *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
