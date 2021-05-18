@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Disables the in-place connection flow in the Dashboard and Settings pages
