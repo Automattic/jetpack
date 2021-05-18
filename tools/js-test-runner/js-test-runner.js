@@ -11,13 +11,14 @@ const basepath = path.dirname( path.dirname( __dirname ) );
 require( '@babel/register' )( {
 	ignore: [ /node_modules/ ],
 	only: [
-		function ( path ) {
-			return path.startsWith( basepath );
+		function ( filepath ) {
+			return filepath.startsWith( basepath );
 		},
 	],
 	presets: [
 		require.resolve( '@babel/preset-react' ),
-		[ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ] ],
+		[ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ],
+	],
 	plugins: [ require.resolve( '@babel/plugin-transform-runtime' ) ],
 } );
 
