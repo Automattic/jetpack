@@ -18,7 +18,7 @@ Contains the whole connection flow, including site registration and user authori
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI so the user to get redirected there after Calypso connection flow.
 
-### Usage
+### Basic Usage
 ```jsx
 import React, { useCallback } from 'react';
 import { JetpackConnection } from '@automattic/jetpack-connection';
@@ -36,6 +36,42 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 />
+```
+
+### Advanced Connection Status Handling
+
+You can use the component to keep the connection status updated in your application,
+or display custom output inside the component (including connection status).
+
+To do that, you should pass a custom callback function into the `JetpackConnection` component:
+
+```jsx
+import React, { useState } from 'react';
+import { JetpackConnection } from '@automattic/jetpack-connection';
+
+const [ connectionStatus, setConnectionStatus ] = useState( {} );
+
+<JetpackConnection
+	apiRoot="https://example.org/wp-json/" 
+	apiNonce="12345"
+	registrationNonce="54321"
+	forceCalypsoFlow={ false }
+	from="connection-ui"
+	redirectUri="tools.php?page=wpcom-connection-manager"
+>
+	{ status => {
+		setConnectionStatus( status );
+		
+		return <div className="connection-status-card">
+			{ status.isRegistered && ! status.isUserConnected && (
+					<strong>Site Registered</strong>
+			) }
+			{ status.isRegistered && status.isUserConnected && (
+					<strong>Site and User Connected</strong>
+			) }
+		</div>;
+	} }
+</JetpackConnection>
 ```
 
 ## Component `ConnectUser`
