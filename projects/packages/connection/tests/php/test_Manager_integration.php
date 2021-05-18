@@ -589,6 +589,23 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				'role'       => 'editor',
 			)
 		);
+
+		if ( $remote_response ) {
+			$callback = 'intercept_disconnect_success';
+		} else {
+			$callback = 'intercept_disconnect_failure';
+		}
+
+		add_filter(
+			'pre_http_request',
+			array(
+				$this,
+				$callback,
+			),
+			10,
+			3
+		);
+
 		\Jetpack_Options::update_option(
 			'user_tokens',
 			array(
@@ -597,14 +614,79 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->ixr_client->method( 'isError' )
-			->will( $this->returnValue( false ) );
-		$this->ixr_client->method( 'getResponse' )
-			->will( $this->returnValue( $remote_response ) );
-
 		$this->manager->disconnect_user( $editor_id );
 
+		remove_filter(
+			'pre_http_request',
+			array(
+				$this,
+				$callback,
+			),
+			10,
+			3
+		);
+
 		$this->assertCount( $expected_user_token_count, $this->manager->get_connected_users() );
+	}
+
+	/**
+	 * Intercept the disconnect user API request sent to WP.com, and mock success response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_disconnect_success( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 200;
+			return $response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Intercept the disconnect user API request sent to WP.com, and mock success response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_disconnect_failure( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 500;
+			return $response;
+		}
+
+		return $response;
 	}
 
 	/**
