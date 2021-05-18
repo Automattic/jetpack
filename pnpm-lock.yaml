@@ -14,6 +14,7 @@ importers:
     specifiers:
       '@wordpress/eslint-plugin': 7.4.0
       babel-eslint: 10.1.0
+      chalk: 4.1.1
       commander: 7.2.0
       concurrently: 6.0.2
       eslint: 7.25.0
@@ -40,6 +41,7 @@ importers:
       simple-git: 2.37.0
       sort-package-json: 1.50.0
     dependencies:
+      chalk: 4.1.1
       simple-git: 2.37.0
     optionalDependencies:
       react: 16.13.1

@@ -86,6 +86,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"chalk": "4.1.1",
 		"simple-git": "2.37.0"
 	},
 	"devDependencies": {
