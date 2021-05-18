@@ -117,6 +117,7 @@ jobs:
       env:
         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
       run: |
+        pnpm install
         pnpm run test-decrypt-config
         pnpm run env-start
         pnpm run tunnel-on
@@ -174,6 +175,6 @@ jobs:
       - name: Send Slack notification
         working-directory: projects/plugins/jetpack/tests/e2e
         run: |
-          yarn install
-          yarn test-decrypt-config
+          pnpm install
+          pnpm run test-decrypt-config
           NODE_ENV=test node ./bin/slack.js job ${{needs.e2e-tests.result}}
