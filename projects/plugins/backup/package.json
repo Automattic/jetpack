@@ -17,7 +17,7 @@
 		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
 		"clean": "rm -rf build/",
-		"install-if-deps-outdated": "pnpm install --frozen-lockfile",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
 	"dependencies": {

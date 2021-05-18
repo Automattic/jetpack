@@ -61,7 +61,7 @@
 		"docker:up": "pnpm run docker:compose up",
 		"docker:update-core-unit-tests": "pnpm run docker:compose -- exec wordpress svn up /tmp/wordpress-develop/tests/phpunit/data/ /tmp/wordpress-develop/tests/phpunit/includes",
 		"docker:wp": "pnpm run docker:compose -- exec wordpress wp --allow-root --path=/var/www/html/",
-		"install-if-deps-outdated": "pnpm install --frozen-lockfile",
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"lint": "pnpm run lint-file -- .",
 		"lint-changed": "tools/eslint-changed.js --ext .js,.jsx --git",
 		"lint-file": "eslint --ext .js,.jsx",
