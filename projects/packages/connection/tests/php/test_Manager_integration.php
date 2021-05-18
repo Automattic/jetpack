@@ -551,4 +551,37 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		static::assertTrue( $result );
 	}
 
+	/**
+	 * Test that User tokens do not get deleted when a user disconnection fails.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 */
+	public function test_disconnect_user_failure() {
+		$master_user_id = wp_insert_user(
+			array(
+				'user_login' => 'sample_user',
+				'user_pass'  => 'asdqwe',
+				'role'       => 'administrator',
+			)
+		);
+		$editor_id      = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$master_user_id => sprintf( '%s.%s.%d', 'masterkey', 'private', $master_user_id ),
+				$editor_id      => sprintf( '%s.%s.%d', 'editorkey', 'private', $editor_id ),
+			)
+		);
+
+		$this->manager->disconnect_user( $editor_id );
+
+		$this->assertCount( 2, $this->manager->get_connected_users() );
+	}
 }
