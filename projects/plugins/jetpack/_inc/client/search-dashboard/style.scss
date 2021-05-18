@@ -1,25 +1,19 @@
 #jp-search-dashboard {
-	width: 100%;
-	margin: 3em auto 0;
+	.hide-if-no-js {
+		text-align: center;
+		width: 100vw;
+		height: 100vh;
+		margin: 0;
 
-	@media ( min-width: 576px ) {
-		max-width: 540px;
+		.jp-search-loader {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate( -50%, -50% );
+		}
 	}
-
-	@media ( min-width: 768px ) {
-		max-width: 720px;
-	}
-
-	@media ( min-width: 992px ) {
-		max-width: 960px;
-	}
-
-	@media ( min-width: 1200px ) {
-		max-width: 1140px;
-	}
-
-	@media ( min-width: 1400px ) {
-		max-width: 1320px;
+	.jp-masthead__logo-link {
+		pointer-events: none;
 	}
 
 	.jetpack-search-color-inputs {
@@ -34,5 +28,9 @@
 			align-self: center;
 			margin-right: 0.25em;
 		}
+	}
+
+	.jp-form-fieldset > .jp-form-search-setting-explanation {
+		margin-left: 2.25rem;
 	}
 }
