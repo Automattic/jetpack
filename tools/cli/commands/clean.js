@@ -5,7 +5,6 @@
  import child_process from 'child_process';
  import fs from 'fs';
  import path from 'path';
- import process, { argv } from 'process';
  import inquirer from 'inquirer';
  import simpleGit from 'simple-git';
 
@@ -18,7 +17,7 @@
  import { allProjects, projectTypes } from '../helpers/projectHelpers';
  import { readComposerJson } from '../helpers/json';
 
- /**
+/**
  * Command definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
@@ -71,17 +70,17 @@ export async function cleanCli( argv ) {
             break;
         case 'type':
             argv = await promptForType( argv );
-            argv.project = argv.type;
+            argv.project = 'projects/' + argv.type;
             break;
         case 'all':
-            argv.project = 'root';
+            argv.project = '.';
             break;
     }
 
     await promptForClean( argv );
-    makeOptions( argv );
+    await makeOptions( argv );
     console.log(argv);
-    //await gitClean( argv );
+    await gitClean( argv );
 }
 
 export async function makeOptions ( argv ) {
@@ -103,13 +102,12 @@ export async function makeOptions ( argv ) {
     if ( ! argv.clean.ignoreInclude ) {
         argv.clean.ignoreInclude = [];
     }
-    addIgnored( argv.clean.ignoreInclude, options );
-
-    argv.options = options.join( ' ' );
+    await addIgnored( argv.clean.ignoreInclude, options );
+    argv.options = options;
     return argv;
 }
 
-function addIgnored( ignoreInclude, options ) {
+async function addIgnored( ignoreInclude, options ) {
     const defaultIgnored = [ 'vendor', 'composer.lock', 'node_modules' ];
     for ( const toDelete of defaultIgnored ) {
         if ( ! ignoreInclude.includes( toDelete ) ) {
@@ -124,7 +122,9 @@ function addIgnored( ignoreInclude, options ) {
 }
 
 export async function gitClean( argv ) {
-    const git = simpleGit();
+    const git = await simpleGit();
+    console.log( await git.clean( "n", argv.options ) );
+    //todo: add console.log for git.clean.paths. Ask if okay, then run for real. Else, exit.
 }
 /**
  * Prompts for the scope of what we want to clean.
