@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { JetpackConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
@@ -27,9 +27,21 @@ export default function Admin() {
 	);
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 
+	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
+	const { setConnectionStatus } = useDispatch( STORE_ID );
+
 	return (
 		<React.Fragment>
 			<Header />
+
+			<div className="connection-status-card">
+				{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
+					<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
+				) }
+				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
+					<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
+				) }
+			</div>
 
 			<JetpackConnection
 				apiRoot={ APIRoot }
@@ -39,16 +51,10 @@ export default function Admin() {
 				from="connection-ui"
 				redirectUri="tools.php?page=wpcom-connection-manager"
 			>
-				{ connectionStatus => (
-					<div className="connection-status-card">
-						{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
-							<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
-						) }
-						{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
-							<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
-						) }
-					</div>
-				) }
+				{ status => {
+					setConnectionStatus( status );
+					return null;
+				} }
 			</JetpackConnection>
 		</React.Fragment>
 	);
