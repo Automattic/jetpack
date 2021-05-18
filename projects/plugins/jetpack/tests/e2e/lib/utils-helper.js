@@ -118,10 +118,10 @@ async function execWpCommand( wpCmd ) {
 	const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
 	const result = await execShellCommand( cmd );
 
-	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
-	// Here we cleaning this up.
+	// By default, `wp-env run` adds a newline to the end of the output.
+	// Here we clean this up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
+		return result.trim();
 	}
 
 	return result;
