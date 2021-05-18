@@ -37,12 +37,11 @@ export default class PickAPlanPage extends WpPage {
 	async selectSecurityDaily() {
 		const buttonSelector = '[data-e2e-product-slug="jetpack_security_daily"] button';
 		await this.waitForTimeout( 500 );
-		return await this.click( this.page, buttonSelector );
+		return await this.click( buttonSelector );
 	}
 
 	async selectComplete() {
-		const buttonSelector =
-			'div[data-e2e-product-slug="jetpack_complete"] [class*="summary"] button';
+		const buttonSelector = '[data-e2e-product-slug="jetpack_complete"] button';
 		return await this.click( buttonSelector );
 	}
 }

@@ -210,7 +210,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.saveScreenshot( eventFullName );
 		await this.logHTML( eventFullName );
 
-		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
+		if ( ( E2E_DEBUG || PAUSE_ON_FAILURE ) && this.global.page ) {
 			await this.global.page.pause();
 		}
 	}

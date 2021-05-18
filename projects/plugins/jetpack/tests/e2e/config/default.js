@@ -14,7 +14,7 @@ const config = {
 		cardExpiry: '02/49',
 		cardCVV: '300',
 		cardCountryCode: 'TR', // using Turkey to force Stripe as payment processor
-		cardPostCode: '4000',
+		cardPostCode: '34130',
 	},
 	dirs: {
 		config: configDir,

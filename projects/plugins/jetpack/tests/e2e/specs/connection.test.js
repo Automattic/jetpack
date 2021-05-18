@@ -79,11 +79,10 @@ describe( 'Connection', () => {
 
 	it( 'In-place upgrading a plan from Security Daily to Complete', async () => {
 		await step( 'Can set a sandbox cookie', async () => {
-			await ( await Sidebar.init( page ) ).setSandboxModeForPayments( cookie );
-			await ( await Sidebar.init( page ) ).setSandboxModeForPayments(
-				cookie,
-				'.cloud.jetpack.com'
-			);
+			const sidebar = await Sidebar.init( page );
+			await sidebar.setSandboxModeForPayments( cookie );
+			await sidebar.setSandboxModeForPayments( cookie, '.cloud.jetpack.com' );
+			await sidebar.setSandboxModeForPayments( cookie, '.' + new URL( siteUrl ).host );
 		} );
 
 		await step( 'Can start in-place connection', async () => {

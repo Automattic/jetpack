@@ -10,16 +10,26 @@ export default class CheckoutPage extends WpPage {
 
 	async processPurchase( cardCredentials ) {
 		// Enter billing info
-		await this.selectOption( `select#country-selector`, cardCredentials.cardCountryCode );
-		await this.type( '#contact-postal-code', cardCredentials.cardPostCode, {
-			delay: 10,
-		} );
-		await this.click( '.checkout-step.is-active .checkout-button' );
+		const isBillingFilledIn = await this.isElementVisible( 'select#country-selector', 2000 );
+
+		if ( ! isBillingFilledIn ) {
+			await this.selectOption( `select#country-selector`, cardCredentials.cardCountryCode );
+			await this.type( '#contact-postal-code', cardCredentials.cardPostCode, {
+				delay: 10,
+			} );
+			await this.click( '.checkout-step.is-active .checkout-button' );
+		}
 
 		// Pick a payment method
-		const isExistingCard = await this.isElementVisible( 'label[for*="existingCard"]', 2000 );
+		const isExistingCard = await this.waitForElementState(
+			'label[for*="existingCard"]',
+			'attached',
+			5000
+		);
 
-		if ( ! isExistingCard ) {
+		if ( isExistingCard ) {
+			await this.click( 'label[for*="existingCard"]' );
+		} else {
 			await this.click( 'label[for="card"]' );
 			await this.enterTestCreditCardDetails( cardCredentials );
 		}

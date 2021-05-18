@@ -65,6 +65,7 @@ export default class JetpackPage extends WpPage {
 	}
 
 	async isPlan( plan ) {
+		await this.waitForElementToBeHidden( '.my-plan-card.is-placeholder' );
 		switch ( plan ) {
 			case 'free':
 				return await this.isFree();

@@ -38,12 +38,14 @@ export default class WpPage extends PageActions {
 	 *
 	 * @param {string} sandboxCookieValue Cookie value
 	 * @param {string} domain Cookie domain
+	 * @param {string} path domain path
 	 */
-	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
+	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com', path = '/' ) {
 		await this.setCookie( {
 			name: 'store_sandbox',
 			value: sandboxCookieValue,
 			domain,
+			path,
 		} );
 	}
 }
