@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Search;
 
 use Jetpack_Plan;
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-admin-page.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 /**
@@ -86,8 +87,8 @@ class Admin_Dashboard {
 		$static_url = apply_filters( 'jetpack_static_url', "{$protocol}://en.wordpress.com/i/loading/loading-64.gif" );
 		?>
 			<div id="jp-search-dashboard" class="jp-search-dashboard">
-				<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
-				<p class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?><br />
+				<div class="hide-if-no-js"><img class="jp-search-loader" width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></div>
+				<div class="hide-if-js"><?php esc_html_e( 'Your Search dashboard requires JavaScript to function properly.', 'jetpack' ); ?><div />
 			</div>
 		<?php
 	}
@@ -96,6 +97,8 @@ class Admin_Dashboard {
 	 * Enqueue admin styles.
 	 */
 	public function load_admin_styles() {
+		\Jetpack_Admin_Page::load_wrapper_styles();
+
 		wp_enqueue_style(
 			'jp-search-dashboard',
 			plugins_url( '_inc/build/search-dashboard.css', JETPACK__PLUGIN_FILE ),
