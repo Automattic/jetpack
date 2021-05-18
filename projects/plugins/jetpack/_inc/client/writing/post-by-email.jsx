@@ -55,7 +55,7 @@ class PostByEmail extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
-					disableInUserlessMode
+					disableInSiteConnectionMode
 					module={ postByEmail }
 					support={ {
 						text: __(

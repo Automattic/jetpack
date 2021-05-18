@@ -369,13 +369,13 @@ export function requiresUserConnection( state, slug ) {
 }
 
 /**
- * Checks if the current module is unavailable in userless mode.
+ * Checks if the current module is unavailable in Site Connection mode.
  *
  * @param  {object} state - Global state tree
  * @param  {string} module - Module slug.
- * @returns {boolean} True if site is in userless mode and module requires connection. False otherwise.
+ * @returns {boolean} True if site is in Site Connection mode and module requires connection. False otherwise.
  */
-export function isUnavailableInUserlessMode( state, module ) {
+export function isUnavailableInSiteConnectionMode( state, module ) {
 	return ! hasConnectedOwner( state ) && requiresUserConnection( state, module );
 }
 
