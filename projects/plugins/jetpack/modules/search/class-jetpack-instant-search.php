@@ -709,7 +709,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		if ( empty( $this->old_sidebars_widgets ) ) {
 			return $sidebars_widgets;
 		}
-		$this->old_sidebars_widgets = null;
 
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
 			if ( 0 === stripos( $sidebar, static::JETPACK_INSTANT_SEARCH_SIDEBAR ) ) {
@@ -723,6 +722,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				$sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] = $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ];
 			}
 		}
+		$this->old_sidebars_widgets = null;
 
 		return $sidebars_widgets;
 	}
