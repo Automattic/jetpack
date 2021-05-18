@@ -80,11 +80,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				if ( ! isset( $video_meta['width'] ) || ! isset( $video_meta['height'] ) ) {
 					return $media_file;
 				}
-				$url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : null;
-				// Bail if url in media props is different the media library one.
-				if ( isset( $media_file['url'] ) && $media_file['url'] !== $url ) {
-					return $media_file;
-				}
+				$url         = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
 				$description = ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'];
 				$media_file  = array_merge(
 					$media_file,
