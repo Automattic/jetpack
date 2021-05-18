@@ -50,7 +50,7 @@ const InPlaceConnection = props => {
 	 * @param {object} e -- Event object.
 	 */
 	const receiveData = e => {
-		if ( e.source !== iframeRef.current.contentWindow ) {
+		if ( ! iframeRef.current || e.source !== iframeRef.current.contentWindow ) {
 			return;
 		}
 

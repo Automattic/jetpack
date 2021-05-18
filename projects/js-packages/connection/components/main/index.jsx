@@ -47,6 +47,7 @@ const Main = props => {
 		forceCalypsoFlow,
 		inPlaceTitle,
 		from,
+		children,
 	} = props;
 
 	/**
@@ -81,6 +82,9 @@ const Main = props => {
 	 */
 	const onUserConnectedCallback = useCallback( () => {
 		setIsUserConnecting( false );
+		setConnectionStatus( status => {
+			return { ...status, isUserConnected: true };
+		} );
 
 		if ( onUserConnected ) {
 			onUserConnected();
@@ -112,6 +116,9 @@ const Main = props => {
 
 					setAuthorizationUrl( response.authorizeUrl );
 					setIsUserConnecting( true );
+					setConnectionStatus( status => {
+						return { ...status, isRegistered: true };
+					} );
 				} )
 				.catch( error => {
 					setIsRegistering( false );
@@ -122,32 +129,38 @@ const Main = props => {
 			setIsRegistering,
 			setAuthorizationUrl,
 			connectionStatus,
+			setConnectionStatus,
 			onRegistered,
 			registrationNonce,
 			redirectUri,
 		]
 	);
 
-	if ( connectionStatus.isRegistered && connectionStatus.isUserConnected ) {
-		return null;
-	}
+	const childrenCallback = useCallback( () => {
+		if ( children && {}.toString.call( children ) === '[object Function]' ) {
+			return children( connectionStatus );
+		}
+	}, [ connectionStatus, children ] );
 
 	return (
 		<div className="jp-connection-main">
+			{ childrenCallback() }
+
 			{ isFetchingConnectionStatus && `Loading...` }
 
-			{ ! isFetchingConnectionStatus && (
-				<Button
-					label={ connectLabel }
-					onClick={ registerSite }
-					isPrimary
-					disabled={ isRegistering || isUserConnecting }
-				>
-					{ connectLabel }
-				</Button>
-			) }
+			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
+				! isFetchingConnectionStatus && (
+					<Button
+						label={ connectLabel }
+						onClick={ registerSite }
+						isPrimary
+						disabled={ isRegistering || isUserConnecting }
+					>
+						{ connectLabel }
+					</Button>
+				) }
 
-			{ ! isFetchingConnectionStatus && isUserConnecting && (
+			{ isUserConnecting && (
 				<ConnectUser
 					connectUrl={ authorizationUrl }
 					redirectUri={ redirectUri }

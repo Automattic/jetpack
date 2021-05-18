@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
-import { useSelect, useDispatch } from '@wordpress/data';
+import React from 'react';
+import { useSelect } from '@wordpress/data';
 import { JetpackConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
@@ -19,7 +19,6 @@ import './style.scss';
  * @returns {object} The Admin component.
  */
 export default function Admin() {
-	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
 	const doNotUseConnectionIframe = useSelect(
@@ -28,44 +27,29 @@ export default function Admin() {
 	);
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 
-	const { connectionStatusSetRegistered, connectionStatusSetUserConnected } = useDispatch(
-		STORE_ID
-	);
-
-	const onUserConnected = useCallback( () => {
-		connectionStatusSetUserConnected( true );
-	}, [ connectionStatusSetUserConnected ] );
-
-	const onRegistered = useCallback( () => {
-		connectionStatusSetRegistered( true );
-	}, [ connectionStatusSetRegistered ] );
-
 	return (
 		<React.Fragment>
 			<Header />
 
-			<div className="connection-status-card">
-				{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
-					<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
-				) }
-				{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
-					<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
-				) }
-			</div>
-
 			<JetpackConnection
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				isRegistered={ connectionStatus.isRegistered }
-				isUserConnected={ connectionStatus.isUserConnected }
-				hasConnectedOwner={ connectionStatus.hasConnectedOwner }
 				forceCalypsoFlow={ doNotUseConnectionIframe }
-				onRegistered={ onRegistered }
-				onUserConnected={ onUserConnected }
 				registrationNonce={ registrationNonce }
 				from="connection-ui"
 				redirectUri="tools.php?page=wpcom-connection-manager"
-			/>
+			>
+				{ connectionStatus => (
+					<div className="connection-status-card">
+						{ connectionStatus.isRegistered && ! connectionStatus.isUserConnected && (
+							<strong>{ __( 'Site Registered', 'jetpack' ) }</strong>
+						) }
+						{ connectionStatus.isRegistered && connectionStatus.isUserConnected && (
+							<strong>{ __( 'Site and User Connected', 'jetpack' ) }</strong>
+						) }
+					</div>
+				) }
+			</JetpackConnection>
 		</React.Fragment>
 	);
 }

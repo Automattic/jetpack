@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\ConnectionUI;
 
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -16,20 +15,6 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
  * The React initial state.
  */
 class Initial_State {
-
-	/**
-	 * The connection manager object.
-	 *
-	 * @var Manager
-	 */
-	private $manager;
-
-	/**
-	 * The constructor.
-	 */
-	public function __construct() {
-		$this->manager = new Manager();
-	}
 
 	/**
 	 * Get the initial state data.
