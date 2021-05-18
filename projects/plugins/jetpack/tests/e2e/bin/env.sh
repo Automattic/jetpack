@@ -13,25 +13,25 @@ function usage {
 }
 
 start_env() {
-	pnpm run wp-env start
+	pnpx wp-env start
 	configure_wp_env
 }
 
 reset_env() {
-	pnpm run wp-env clean
+	pnpx wp-env clean
 	configure_wp_env
 }
 
 gb_setup() {
 	GB_ZIP="wp-content/gutenberg.zip"
-	pnpm run wp-env -- run tests-wordpress "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
-	pnpm run wp-env -- run tests-cli "wp plugin install $GB_ZIP"
-	pnpm run wp-env -- run tests-cli "wp plugin activate gutenberg"
+	pnpx wp-env run tests-wordpress "./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh gb-setup $GB_ZIP"
+	pnpx wp-env run tests-cli "wp plugin install $GB_ZIP"
+	pnpx wp-env run tests-cli "wp plugin activate gutenberg"
 }
 
 configure_wp_env() {
-	pnpm run wp-env -- run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
-	pnpm run wp-env -- run tests-cli wp plugin activate jetpack-dev
+	pnpx wp-env run tests-wordpress ./wp-content/plugins/jetpack-dev/tests/e2e/bin/container-setup.sh wp-config
+	pnpx wp-env run tests-cli wp plugin activate jetpack-dev
 
 	echo
 	echo "WordPress is ready!"
