@@ -31,6 +31,24 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	private $old_sidebars_widgets;
 
 	/**
+	 * Get singleton instance of Jetpack Instant Search.
+	 *
+	 * Instantiates and sets up a new instance if needed, or returns the singleton.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @return Jetpack_Instant_Search The Jetpack_Instant_Search singleton.
+	 */
+	public static function instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new Jetpack_Instant_Search();
+			self::$instance->setup();
+		}
+
+		return self::$instance;
+	}
+
+	/**
 	 * Loads the php for this version of search
 	 *
 	 * @since 8.3.0
@@ -691,9 +709,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * Save sidebars_widgets option before it's migrated by WordPress
 	 *
 	 * @since 9.8.0
+	 *
+	 * @param array $old_sidebars_widgets The sidebars_widgets option value to be saved.
 	 */
-	public function save_old_sidebars_widgets() {
-		$this->old_sidebars_widgets = wp_get_sidebars_widgets();
+	public function save_old_sidebars_widgets( $old_sidebars_widgets = null ) {
+		$this->old_sidebars_widgets = ! is_null( $old_sidebars_widgets ) ? $old_sidebars_widgets : wp_get_sidebars_widgets();
 	}
 
 	/**
