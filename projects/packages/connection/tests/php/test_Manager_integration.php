@@ -28,6 +28,19 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		$this->manager = new Manager();
+
+		$this->ixr_client = $this->getMockBuilder( '\Jetpack_IXR_Client' )
+			->setMethods( array( 'isError', 'getResponse' ) )
+			->getMock();
+	}
+
+	/**
+	 * Clean up the testing environment.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		unset( $this->ixr_client );
 	}
 
 	/**
@@ -552,11 +565,15 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that User tokens do not get deleted when a user disconnection fails.
+	 * Test that User tokens behave according to expectations after attempting to disconnect a user.
 	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @dataProvider get_disconnect_user_outcomes
+	 *
+	 * @param bool $remote_response           Response from the unlink_user XML-RPC request.
+	 * @param int  $expected_user_token_count Number of user tokens left on site after Manager::disconnect_user has completed.
 	 */
-	public function test_disconnect_user_failure() {
+	public function test_disconnect_user( $remote_response, $expected_user_token_count ) {
 		$master_user_id = wp_insert_user(
 			array(
 				'user_login' => 'sample_user',
@@ -580,8 +597,31 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			)
 		);
 
+		$this->ixr_client->method( 'isError' )
+			->will( $this->returnValue( false ) );
+		$this->ixr_client->method( 'getResponse' )
+			->will( $this->returnValue( $remote_response ) );
+
 		$this->manager->disconnect_user( $editor_id );
 
-		$this->assertCount( 2, $this->manager->get_connected_users() );
+		$this->assertCount( $expected_user_token_count, $this->manager->get_connected_users() );
+	}
+
+	/**
+	 * Data for test_disconnect_user
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_outcomes() {
+		return array(
+			'success' => array(
+				true,
+				1,
+			),
+			'failure' => array(
+				false,
+				2,
+			),
+		);
 	}
 }
