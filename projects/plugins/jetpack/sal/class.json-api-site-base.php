@@ -150,6 +150,15 @@ abstract class SAL_Site {
 	abstract protected function is_wpforteams_site();
 
 	/**
+	 * Get hub blog id for P2 sites.
+	 *
+	 * @return null
+	 */
+	public function get_p2_hub_blog_id() {
+		return null;
+	}
+
+	/**
 	 * Getter for the p2 organization ID.
 	 *
 	 * @return int
