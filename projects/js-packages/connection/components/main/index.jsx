@@ -185,7 +185,7 @@ Main.propTypes = {
 	onUserConnected: PropTypes.func,
 	registrationNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
-	redirectUri: PropTypes.string,
+	redirectUri: PropTypes.string.isRequired,
 };
 
 Main.defaultProps = {

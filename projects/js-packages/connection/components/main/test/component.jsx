@@ -20,6 +20,7 @@ describe( 'Main', () => {
 		isUserConnected: false,
 		registrationNonce: 'test2',
 		displayTOS: true,
+		redirectUri: 'https://example.org',
 	};
 
 	describe( 'Render the Main component', () => {
