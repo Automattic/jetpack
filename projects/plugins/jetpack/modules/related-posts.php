@@ -53,7 +53,7 @@ class Jetpack_RelatedPosts_Module {
 		}
 
 		// Load Customizer controls.
-		if ( class_exists( 'WP_Customize_Manager' ) ) {
+		if ( class_exists( WP_Customize_Manager::class ) && class_exists( WP_Customize_Control::class ) ) {
 			require_once 'related-posts/class.related-posts-customize.php';
 		}
 	}
