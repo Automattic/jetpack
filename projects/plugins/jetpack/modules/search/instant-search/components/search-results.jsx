@@ -99,6 +99,7 @@ class SearchResults extends Component {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: `
+							.jetpack-instant-search *::selection,
 							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
 								color: ${ textColor };
 								background-color: ${ highlightColor };
