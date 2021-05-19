@@ -1101,7 +1101,7 @@ class Jetpack_Gutenberg {
 					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
 
 					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
-					if ( $block->attributes['shouldDisplayFrontendBanner'] ) {
+					if ( isset( $block->attributes['shouldDisplayFrontendBanner'] ) && $block->attributes['shouldDisplayFrontendBanner'] ) {
 						$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 						return $upgrade_nudge . $block_preview;
 					}
