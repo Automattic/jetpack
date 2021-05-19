@@ -101,7 +101,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( $instance, static::$admin_menu );
 
 		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
+		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
 	/**
