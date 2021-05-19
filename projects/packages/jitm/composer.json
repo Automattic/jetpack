@@ -9,12 +9,11 @@
 		"automattic/jetpack-connection": "^1.27",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-logo": "^1.5",
-		"automattic/jetpack-constants": "^1.6",
 		"automattic/jetpack-options": "^1.12",
 		"automattic/jetpack-partner": "^1.5",
-		"automattic/jetpack-tracking": "^1.13",
 		"automattic/jetpack-redirect": "^1.5",
-		"automattic/jetpack-status": "^1.8"
+		"automattic/jetpack-status": "^1.8",
+		"automattic/jetpack-tracking": "^1.13"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",

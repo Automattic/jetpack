@@ -784,13 +784,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "1b6c5369f77e0a5f47deab28649d7a8993567819"
+                "reference": "ffe5974bc21825ec44443698ed2dc318deff43a1"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
                 "automattic/jetpack-assets": "^1.11",
                 "automattic/jetpack-connection": "^1.27",
-                "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4",
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.12",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Related Posts: avoid Fatal Errors when using plugins that may interact with WordPress' customizer in specific ways.
