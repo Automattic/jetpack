@@ -435,7 +435,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Add the 'Export' and 'Form Responses' menu item as a submenu of Feedback.
+	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
 		$slug = 'jetpack-feedback';
