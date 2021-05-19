@@ -65,13 +65,13 @@ jetpack plugin project:
 For a single block:
 
 ```sh
-yarn fixtures:generate `path\to\block\test\validate.js`
+pnpm fixtures:generate `path\to\block\test\validate.js`
 ```
 
 For all blocks:
 
 ```sh
-yarn fixtures:generate
+pnpm fixtures:generate
 ```
 
 When using this command, please be sure to manually verify that the
@@ -95,20 +95,20 @@ Run the command to regenerate the files:
 For a single block:
 
 ```sh
-yarn fixtures:regenerate `path\to\block\test\validate.js`
+pnpm fixtures:regenerate `path\to\block\test\validate.js`
 ```
 
 For all blocks:
 
 ```sh
-yarn fixtures:regenerate
+pnpm fixtures:regenerate
 ```
 
 After regenerating fixtures, check that the content of the `.parsed.json` and `.serialized.html` files are as expected. An error should be thrown if any of the fixtures are invalid after parsing.
 
 ## Running the tests
 
-The fixture tests will be run as part of running the `fixtures:generate` and `fixtures:regenerate` scripts and also as part of the `yarn test-extensions` test run. They can also be run independently with `yarn fixtures:test`
+The fixture tests will be run as part of running the `fixtures:generate` and `fixtures:regenerate` scripts and also as part of the `pnpm test-extensions` test run. They can also be run independently with `pnpm fixtures:test`
 
 ## Related
 

@@ -12,7 +12,7 @@
    * [Installing development tools](#installing-development-tools)
 	  * [Quick way to check if your environment is ready for Jetpack development](#quick-way-to-check-if-your-environment-is-ready-for-jetpack-development)
       * [NodeJS](#nodejs)
-      * [Yarn package manager](#yarn)
+      * [Pnpm package manager](#pnpm)
       * [PHP](#php)
       * [Composer](#composer)
       * [PHPUnit](#phpunit)
@@ -67,7 +67,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 
 ### Minimum required versions
  * Node.js - LTS (Currently 12, see engines section of package.json)
- * Yarn - 1.3 (See engines section of package.json)
+ * Pnpm - 6.3.0 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
  * Composer - 1.9.0
 
@@ -91,9 +91,9 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 	Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
 
-* ### Yarn
+* ### Pnpm
 
-	Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://yarnpkg.com/getting-started/install) and follow the instructions for your operating system.
+	Pnpm is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://pnpm.io/installation) and follow the instructions for your operating system.
 
 * ### PHP
 
@@ -146,7 +146,7 @@ To start work on the Jetpack plugin you need to follow these steps:
 
 ## Clone the repository
 
-Make sure you have `git`, `node`, `yarn`, and a working WordPress installation.
+Make sure you have `git`, `node`, `pnpm`, and a working WordPress installation.
 Clone this repository inside your Plugins directory.
 	
 ```sh
@@ -167,34 +167,34 @@ There are three types of builds:
 	The standard development build will create un-minified versions of the JavaScript and CSS files. To build Jetpack like this run:
 	
 	```sh
-	yarn build
+	pnpm build
 	```
 	
 * ### Continuous Development build
-	By default the development build above will run once and if you change any of the files, you need to run `yarn build` again to see the changes on the site. If you want to avoid that, you can run a continuous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
+	By default the development build above will run once and if you change any of the files, you need to run `pnpm build` again to see the changes on the site. If you want to avoid that, you can run a continuous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
 	
 	```sh
-	yarn watch
+	pnpm watch
 	```	
 
 * ### Production build
 	The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files. To build it use:
 	
 	```sh
-	yarn build-production-client
+	pnpm build-production-client
 	```
 
 ### A note on building Jetpack and Node.js versions
 
-We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `yarn build` or `yarn`).
+We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `pnpm build` or `pnpm install`).
 
 We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing different Node versions on the same environment.
 
-**Note:** If you have previously run the Jetpack build tasks (e.g. `yarn build`), and didn't come back to it for a long time, you can
+**Note:** If you have previously run the Jetpack build tasks (e.g. `pnpm build`), and didn't come back to it for a long time, you can
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.
 
 ```sh
-yarn distclean
+pnpm distclean
 ```
 
 ### Building additional Jetpack extensions
@@ -287,9 +287,9 @@ To execute them in your local environment, you can use the following commands.
 	Standing on your jetpack directory, run
 	
 	```sh
-	yarn
-	yarn test-client
-	yarn test-gui
+	pnpm install
+	pnpm test-client
+	pnpm test-gui
 	```
 
 * ### Jetpack modules unit tests
@@ -297,20 +297,20 @@ To execute them in your local environment, you can use the following commands.
 	Standing on your jetpack directory, run
 	
 	```sh
-	yarn
-	yarn test-modules
+	pnpm install
+	pnpm test-modules
 	```
 	
 	You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
 	
 	```sh
-	yarn test-gui -g 'my custom pattern to filter tests'
+	pnpm test-gui -g 'my custom pattern to filter tests'
 	```
 	
 	To use a custom reporter, pass the argument `-R, --reporter <name>`:
 	
 	```sh
-	yarn test-client -R 'my_reporter'
+	pnpm test-client -R 'my_reporter'
 	```
 
 # Good code - linting, standards, compatibility, etc.
@@ -350,16 +350,16 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 * ### Linting Jetpack's JavaScript
 	
-	`yarn lint` will check syntax and style in the following JavaScript pieces:
+	`pnpm lint` will check syntax and style in the following JavaScript pieces:
 	
 	* All the front end JavaScript that Jetpack relies on.
 	* All the JavaScript present in the Admin Page Single Page App for Jetpack.
 	
 	```sh
-	yarn lint
+	pnpm lint
 	```
 	
-	_If you haven't done it yet, you may need to run `yarn` before `yarn lint` for installing node modules for this task_.
+	_If you haven't done it yet, you may need to run `pnpm install` before `pnpm lint` for installing node modules for this task_.
 
 ---
 
