@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Switch to pnpm
 
-
+Update docs to replace yarn with pnpm.
