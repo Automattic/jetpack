@@ -32,7 +32,11 @@ class Inline_Help {
 		// Do not inject the FAB icon on embedded screens since the parent window may already contain a FAB icon.
 		$is_framed = ! empty( $_GET['frame-nonce'] );
 
-		if ( $is_framed ) {
+		// Do not inject the FAB icon on Yoast screens to avoid overlap with the Yoast help icon.
+		$current_page = \filter_input( \INPUT_GET, 'page', \FILTER_SANITIZE_STRING );
+		$is_yoast     = 'admin.php' === $GLOBALS['pagenow'] && false !== strpos( $current_page, 'wpseo' );
+
+		if ( $is_framed || $is_yoast ) {
 			return;
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
