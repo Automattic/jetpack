@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Labels: handle Jetpack Boost plugin structure when automatically managing labels.
