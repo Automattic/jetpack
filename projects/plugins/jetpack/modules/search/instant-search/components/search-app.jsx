@@ -99,7 +99,7 @@ class SearchApp extends Component {
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
-			input.addEventListener( 'keydown', this.handleKeydown );
+			input.addEventListener( 'keyup', this.handleKeyup );
 			input.addEventListener( 'input', this.handleInput );
 			input.addEventListener( 'compositionstart', this.handleCompositionStart );
 			input.addEventListener( 'compositionend', this.handleCompositionEnd );
@@ -200,7 +200,7 @@ class SearchApp extends Component {
 		}
 	};
 
-	handleKeydown = event => {
+	handleKeyup = event => {
 		// If user presses enter, propagate the query value and immediately show the results.
 		if ( event.key === 'Enter' ) {
 			this.props.setSearchQuery( event.target.value );
