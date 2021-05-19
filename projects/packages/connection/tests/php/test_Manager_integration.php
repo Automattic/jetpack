@@ -647,7 +647,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Intercept the disconnect user API request sent to WP.com, and mock success response.
+	 * Intercept the disconnect user API request sent to WP.com, and mock failure response.
 	 *
 	 * @param bool|array $response The existing response.
 	 * @param array      $args The request arguments.
