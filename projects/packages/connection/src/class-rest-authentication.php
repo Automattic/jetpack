@@ -142,6 +142,17 @@ class Rest_Authentication {
 			if (
 				$verified &&
 				isset( $verified['type'] ) &&
+				'blog' === $verified['type']
+			) {
+				// Authentication successful.
+				$this->rest_authentication_status = true;
+				add_filter( 'jetpack_site_level_auth', '__return_true' );
+				return null;
+			}
+
+			if (
+				$verified &&
+				isset( $verified['type'] ) &&
 				'user' === $verified['type'] &&
 				! empty( $verified['user_id'] )
 			) {
