@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add support of `sandbox_cookie` to all signed requests
