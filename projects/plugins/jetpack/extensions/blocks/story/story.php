@@ -154,8 +154,9 @@ function render_image( $media ) {
 			'title' => get_the_title( $media['id'] ),
 		)
 	);
+
 	if ( empty( $image_template ) ) {
-		return sprintf(
+		$image_template = sprintf(
 			'<img src="%s" alt="%s" class="wp-story-image" width="%d" height="%d" />',
 			esc_url( $media['url'] ),
 			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
@@ -163,6 +164,8 @@ function render_image( $media ) {
 			EMBED_SIZE[1]
 		);
 	}
+
+	return $image_template;
 }
 
 /**
