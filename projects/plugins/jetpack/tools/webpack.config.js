@@ -21,14 +21,7 @@ const sharedWebpackConfig = {
 	...baseWebpackConfig,
 	resolve: {
 		...baseWebpackConfig.resolve,
-		modules: [
-			// Check ./_inc/client first.
-			path.resolve( path.dirname( __dirname ), '_inc/client' ),
-			// Check our own node_modules/ (versus the node_modules dir in symlinked monorepo modules).
-			path.resolve( path.dirname( __dirname ), 'node_modules' ),
-			// Normal node_modules/ search path.
-			'node_modules',
-		],
+		modules: [ path.resolve( path.dirname( __dirname ), '_inc/client' ), 'node_modules' ],
 	},
 	node: {
 		fs: 'empty',
