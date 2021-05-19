@@ -438,7 +438,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Add the 'Export' and 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
-		$slug = 'edit.php?post_type=feedback';
+		$slug = 'jetpack-feedback';
 
 		add_menu_page(
 			__( 'Feedback', 'jetpack' ),
@@ -450,28 +450,19 @@ class Grunion_Contact_Form_Plugin {
 			45
 		);
 
-		remove_submenu_page(
-			$slug,
-			$slug
-		);
-
 		add_submenu_page(
 			$slug,
 			__( 'Form Responses', 'jetpack' ),
 			__( 'Form Responses', 'jetpack' ),
 			'edit_pages',
-			$slug,
+			'edit.php?post_type=feedback',
 			null,
 			0
 		);
 
-		add_submenu_page(
+		remove_submenu_page(
 			$slug,
-			__( 'Export responses as CSV', 'jetpack' ),
-			__( 'Export CSV', 'jetpack' ),
-			'export',
-			'feedback-export',
-			array( $this, 'export_form' )
+			$slug
 		);
 	}
 

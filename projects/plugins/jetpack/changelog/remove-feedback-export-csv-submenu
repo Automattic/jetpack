@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+The "Feedback > Export CSV" submenu entry has been removed. The export funcionality is still available in "Feedback > Form responses".
