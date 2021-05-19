@@ -152,6 +152,7 @@ class Masterbar {
 		// Disable the Masterbar on AMP views.
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_available()
 			&& Jetpack_AMP_Support::is_amp_request()
 		) {
 			return;
