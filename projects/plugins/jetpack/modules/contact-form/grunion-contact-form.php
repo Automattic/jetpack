@@ -163,9 +163,9 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
-			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-			add_action( 'current_screen', array( $this, 'unread_count' ) );
 		}
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'current_screen', array( $this, 'unread_count' ) );
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
