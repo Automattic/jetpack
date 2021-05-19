@@ -7648,13 +7648,8 @@ endif;
 	 */
 	public static function current_user_can_purchase() {
 
-		// The site must be connected to Jetpack.
-		if ( ! self::connection()->is_connected() ) {
-			return false;
-		}
-
-		// We cannot do userless purchases for sites that are not connected userlessly.
-		if ( self::connection()->has_connected_owner() ) {
+		// The site must be site-connected to Jetpack (no users connected).
+		if ( ! self::connection()->is_userless() ) {
 			return false;
 		}
 
