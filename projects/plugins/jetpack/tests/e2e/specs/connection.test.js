@@ -90,13 +90,13 @@ describe( 'Connection', () => {
 			await doInPlaceConnection( 'security' );
 		} );
 
-		await step( 'Can process payment for Security plan', async () => {
+		await step( 'Can process payment for Security Daily plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 		} );
 
-		await step( 'Can assert that site has a Security plan', async () => {
+		await step( 'Can assert that site has a Security Daily plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
 			expect( await jetpackPage.isPlan( 'security' ) ).toBeTruthy();
 		} );
