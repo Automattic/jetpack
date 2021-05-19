@@ -51,7 +51,7 @@ abstract class Base_Admin_Menu {
 		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
 
 		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
 
