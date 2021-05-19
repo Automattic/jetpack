@@ -28,19 +28,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		$this->manager = new Manager();
-
-		$this->ixr_client = $this->getMockBuilder( '\Jetpack_IXR_Client' )
-			->setMethods( array( 'isError', 'getResponse' ) )
-			->getMock();
-	}
-
-	/**
-	 * Clean up the testing environment.
-	 *
-	 * @after
-	 */
-	public function tear_down() {
-		unset( $this->ixr_client );
 	}
 
 	/**
