@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Correctly display connection owner information if user token is missing, but connection owner option is set.
