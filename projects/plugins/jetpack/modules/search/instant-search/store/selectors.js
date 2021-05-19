@@ -80,6 +80,16 @@ export function getFilters( state ) {
 }
 
 /**
+ * Get the selected static filters.
+ *
+ * @param {object} state - Current state.
+ * @returns {object} filters - An object mapping filter keys and its selected values.
+ */
+export function getStaticFilters( state ) {
+	return state.staticFilters;
+}
+
+/**
  * Checks if any filters have been selected.
  *
  * @param {object} state - Current state.

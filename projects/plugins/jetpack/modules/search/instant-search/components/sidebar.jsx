@@ -21,6 +21,7 @@ const Sidebar = props => {
 			     this component will just show the title and clear filters button. */ }
 			<SearchFilters
 				filters={ props.filters }
+				staticFilters={ props.staticFilters }
 				loading={ props.isLoading }
 				locale={ props.locale }
 				postTypes={ props.postTypes }
@@ -38,6 +39,7 @@ const Sidebar = props => {
 					>
 						<SearchFilters
 							filters={ props.filters }
+							staticFilters={ props.staticFilters }
 							loading={ props.isLoading }
 							locale={ props.locale }
 							postTypes={ props.postTypes }

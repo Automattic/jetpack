@@ -29,6 +29,7 @@ import {
 } from '../store/actions';
 import {
 	getFilters,
+	getStaticFilters,
 	getResponse,
 	getSearchQuery,
 	getSort,
@@ -78,7 +79,8 @@ class SearchApp extends Component {
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
 			// Note the special handling for filters prop, which use object values.
-			stringify( prevProps.filters ) !== stringify( this.props.filters )
+			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
+			prevProps.staticFilters !== this.props.staticFilters
 		) {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
@@ -318,6 +320,7 @@ class SearchApp extends Component {
 			aggregations: pageHandle ? {} : this.props.aggregations,
 			excludedPostTypes: this.props.options.excludedPostTypes,
 			filter: this.props.filters,
+			staticFilters: this.props.staticFilters,
 			pageHandle,
 			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
@@ -345,6 +348,7 @@ class SearchApp extends Component {
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					enableSort={ this.state.overlayOptions.enableSort }
 					filters={ this.props.filters }
+					staticFilters={ this.props.staticFilters }
 					hasError={ this.props.hasError }
 					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
@@ -376,6 +380,7 @@ class SearchApp extends Component {
 export default connect(
 	( state, props ) => ( {
 		filters: getFilters( state ),
+		staticFilters: getStaticFilters( state ),
 		hasActiveQuery: hasActiveQuery( state ),
 		hasError: hasError( state ),
 		isHistoryNavigation: isHistoryNavigation( state ),

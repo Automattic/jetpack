@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { VALID_SORT_KEYS } from '../../lib/constants';
-import { getFilterKeys } from '../../lib/filters';
+import { getFilterKeys, getStaticFilterKeys } from '../../lib/filters';
 
 /**
  * Reducer for keeping track of the user's inputted search query
@@ -74,6 +74,32 @@ export function filters( state = {}, action ) {
 			return {
 				...state,
 				[ action.name ]: typeof action.value === 'string' ? [ action.value ] : action.value,
+			};
+	}
+
+	return state;
+}
+
+/**
+ * Reducer for keeping track of the user's selected static filter value
+ *
+ * @param {object} state - Current state.
+ * @param {object} action - Dispatched action.
+ *
+ * @returns {object} Updated state.
+ */
+export function staticFilters( state = {}, action ) {
+	switch ( action.type ) {
+		case 'CLEAR_QUERY_VALUES':
+			return {};
+		case 'SET_STATIC_FILTER':
+			if ( ! getStaticFilterKeys().includes( action.name ) ) {
+				return state;
+			}
+
+			return {
+				...state,
+				[ action.name ]: action.value,
 			};
 	}
 

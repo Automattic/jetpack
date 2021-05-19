@@ -3,13 +3,14 @@
  */
 import { search } from '../lib/api';
 import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
-import { getFilterKeys } from '../lib/filters';
+import { getAvailableStaticFilters, getFilterKeys, getStaticFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
 	clearFilters,
 	recordFailedSearchRequest,
 	recordSuccessfulSearchRequest,
 	setFilter,
+	setStaticFilter,
 	setSearchQuery,
 	setSort,
 } from './actions';
@@ -87,6 +88,14 @@ function initializeQueryValues( action, store ) {
 		.forEach( filterKey =>
 			store.dispatch( setFilter( filterKey, queryObject[ filterKey ], false ) )
 		);
+
+	//
+	// Initialize static filters
+	//
+	getAvailableStaticFilters()
+		.forEach( filter =>
+			store.dispatch( setStaticFilter( filter.filter_id, filter.selected, false ) )
+		);
 }
 
 /**
@@ -152,6 +161,24 @@ function updateFilterQueryString( action ) {
 }
 
 /**
+ * Effect handler which will update the location bar's static filter query string
+ *
+ * @param {object} action - Action which had initiated the effect handler.
+ */
+function updateStaticFilterQueryString( action ) {
+	if ( action.propagateToWindow === false ) {
+		return;
+	}
+	if ( ! getStaticFilterKeys().includes( action.name ) ) {
+		return;
+	}
+
+	const queryObject = getQuery();
+	queryObject[ action.name ] = action.value;
+	setQuery( queryObject );
+}
+
+/**
  * Effect handler which will clear filter queries from the location bar
  *
  * @param {object} action - Action which had initiated the effect handler.
@@ -171,6 +198,7 @@ export default {
 	INITIALIZE_QUERY_VALUES: initializeQueryValues,
 	MAKE_SEARCH_REQUEST: makeSearchAPIRequest,
 	SET_FILTER: updateFilterQueryString,
+	SET_STATIC_FILTER: updateStaticFilterQueryString,
 	SET_SEARCH_QUERY: updateSearchQueryString,
 	SET_SORT: updateSortQueryString,
 };
