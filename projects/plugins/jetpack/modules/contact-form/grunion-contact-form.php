@@ -179,7 +179,7 @@ class Grunion_Contact_Form_Plugin {
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
-				'show_in_menu'          => 'edit.php?post_type=feedback',
+				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
 				'rewrite'               => false,
@@ -438,7 +438,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
-		$slug = 'jetpack-feedback';
+		$slug = 'feedback';
 
 		add_menu_page(
 			__( 'Feedback', 'jetpack' ),
@@ -485,14 +485,16 @@ class Grunion_Contact_Form_Plugin {
 		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
-			global $menu;
-			if ( isset( $menu ) && is_array( $menu ) && ! empty( $menu ) ) {
-				foreach ( $menu as $index => $menu_item ) {
+			global $submenu;
+			if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
+				foreach ( $submenu['feedback'] as $index => $menu_item ) {
 					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
 						$unread = get_option( 'feedback_unread_count', 0 );
 						if ( $unread > 0 ) {
-							$unread_count       = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
-							$menu[ $index ][0] .= $unread_count;
+							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
+
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['feedback'][ $index ][0] .= $unread_count;
 						}
 						break;
 					}

@@ -194,13 +194,6 @@ function grunion_message_bulk_spam() {
 	echo '<div class="updated"><p>' . __( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
 }
 
-// remove admin UI parts that we don't support in feedback management
-add_action( 'admin_menu', 'grunion_admin_menu' );
-function grunion_admin_menu() {
-	global $menu, $submenu;
-	unset( $submenu['edit.php?post_type=feedback'] );
-}
-
 add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
 function grunion_admin_bulk_actions( $actions ) {
 	global $current_screen;
