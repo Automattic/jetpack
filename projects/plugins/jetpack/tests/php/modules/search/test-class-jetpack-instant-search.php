@@ -58,7 +58,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 		);
 		// Note: sidebar-2 widgets moved to wp_inactive_widgets.
 		$expected_sidebars_widgets = array(
-			'wp_inactive_widgets'            => array( 'search-2', 'archives-2', 'categories-2', 'meta-2' ),
+			'wp_inactive_widgets'            => array( 'archives-2', 'categories-2', 'meta-2', 'search-2' ),
 			'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-2' ),
 			'sidebar-1'                      => array( 'jetpack-search-filters-1', 'recent-posts-2', 'recent-comments-2' ),
 			'sidebar-2'                      => array(),
@@ -68,7 +68,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 		add_filter( 'option_sidebars_widgets', array( static::class, 'getOldSidebarsWidgets' ) );
 		static::$instant_search->save_old_sidebars_widgets( $old_sidebars_widgets );
 
-		$this->assertEqualsCanonicalizing(
+		$this->assertEquals(
 			$expected_sidebars_widgets,
 			static::$instant_search->remove_wp_migrated_widgets( $new_sidebars_widgets )
 		);
