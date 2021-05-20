@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Carousel: improve how post content is parsed before Carousel metadata is attached to the post, to avoid issues with some types of images.
