@@ -40,7 +40,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		}
 
 		remove_menu_page( 'link-manager.php' );
-		remove_menu_page( 'edit.php?post_type=feedback' );
+		remove_menu_page( 'feedback' );
 		remove_menu_page( 'plugins.php' );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
 		remove_submenu_page( 'plugins.php', 'plugins.php' );

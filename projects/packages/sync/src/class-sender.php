@@ -404,6 +404,10 @@ class Sender {
 		$upload_size   = 0;
 		$items_to_send = array();
 		$items         = is_array( $buffer_or_items ) ? $buffer_or_items : $buffer_or_items->get_items();
+		if ( ! is_array( $items ) ) {
+			$items = array();
+		}
+
 		// Set up current screen to avoid errors rendering content.
 		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
