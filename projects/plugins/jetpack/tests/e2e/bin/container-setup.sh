@@ -10,7 +10,7 @@ set -eo pipefail
 
 function usage {
 	echo "usage: $0 command"
-	echo "  wp-setup                     Setup wp-config"
+	echo "  wp-config                    Setup wp-config"
 	echo "  gb-setup                     Set up Gutenberg plugin"
 	echo "  -h | usage                   Output this message"
 	exit 1
