@@ -41,6 +41,6 @@ if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
 	require_once __DIR__ . '/masterbar/admin-menu/load.php';
 }
 
-if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+if ( jetpack_is_atomic_site() ) {
 	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
 }
