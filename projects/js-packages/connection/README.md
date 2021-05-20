@@ -93,7 +93,7 @@ or renders the `InPlaceConnection` component.
 
 ## Usage
 ```jsx
-import ConnectUser from '../connect-user';
+import { ConnectUser } from '@automattic/jetpack-connection';
 
 <ConnectUser
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
@@ -127,7 +127,7 @@ It includes:
 
 ### Usage
 ```jsx
-import InPlaceConnection from 'in-place-connection';
+import { InPlaceConnection } from '@automattic/jetpack-connection';
 
 <InPlaceConnection
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
