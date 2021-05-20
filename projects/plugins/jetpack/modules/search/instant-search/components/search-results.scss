@@ -229,7 +229,7 @@ $modal-max-width-lg: 95%;
 	border-bottom: 1px solid $color-layout-borders;
 
 	// Override 2021 styling
-	.theme-twentytwentyone & {
+	body.jps-theme-twentytwentyone & {
 		&:not( :hover ):not( :active ):not( .has-background ) {
 			background-color: transparent;
 		}
