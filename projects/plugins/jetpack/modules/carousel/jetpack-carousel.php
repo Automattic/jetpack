@@ -1,39 +1,78 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
-/*
-Plugin Name: Jetpack Carousel
-Plugin URL: https://wordpress.com/
-Description: Transform your standard image galleries into an immersive full-screen experience.
-Version: 0.1
-Author: Automattic
 
-Released under the GPL v.2 license.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-*/
+/**
+ * Jetpack Carousel
+ * Transform your standard image galleries into an immersive full-screen experience.
+ */
 class Jetpack_Carousel {
 
+	/**
+	 * Prebuilt Widths.
+	 *
+	 * (default value: array( 370, 700, 1000, 1200, 1400, 2000 ))
+	 *
+	 * @var array
+	 * @access public
+	 */
 	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
 
+	/**
+	 * First Run.
+	 *
+	 * (default value: true)
+	 *
+	 * @var bool
+	 * @access public
+	 */
 	public $first_run = true;
 
-	public $in_gallery = false;
-
+	/**
+	 * In Jetpack.
+	 *
+	 * (default value: true)
+	 *
+	 * @var bool
+	 * @access public
+	 */
 	public $in_jetpack = true;
 
+	/**
+	 * Enable Carousel for single image galleries.
+	 *
+	 * (default value: false)
+	 *
+	 * @var bool
+	 * @access public
+	 */
 	public $single_image_gallery_enabled = false;
 
+	/**
+	 * Enable Carousel for single images linking to 'Media File'.
+	 *
+	 * (default value: false)
+	 *
+	 * @var bool
+	 * @access public
+	 */
 	public $single_image_gallery_enabled_media_file = false;
 
-	function __construct() {
+	/**
+	 * __construct function.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
 
-	function init() {
+	/**
+	 * Hook everything.
+	 */
+	public function init() {
 		if ( $this->maybe_disable_jp_carousel() ) {
 			return;
 		}
@@ -44,11 +83,12 @@ class Jetpack_Carousel {
 		$this->single_image_gallery_enabled_media_file = $this->maybe_enable_jp_carousel_single_images_media_file();
 
 		if ( is_admin() ) {
-			// Register the Carousel-related related settings
+			// Register the Carousel-related related settings.
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 			if ( ! $this->in_jetpack ) {
-				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
-					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
+				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
+					// Carousel disabled, abort early, but still register setting so user can switch it back on.
+					return;
 				}
 			}
 			// If in admin, register the ajax endpoints.
@@ -58,8 +98,9 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
-				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
-					return; // Carousel disabled, abort early
+				if ( 0 === $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
+					// Carousel disabled, abort early.
+					return;
 				}
 			}
 			// If on front-end, do the Carousel thang.
@@ -73,24 +114,35 @@ class Jetpack_Carousel {
 			 * @param array $this->prebuilt_widths Array of default widths.
 			 */
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
-			// below: load later than other callbacks hooked it (e.g. 3rd party plugins handling gallery shortcode)
-			add_filter( 'post_gallery', array( $this, 'check_if_shortcode_processed_and_enqueue_assets' ), 1000, 2 );
-			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
-			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
-			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
-			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
+
+			/*
+			 * Check if other plugins may be modifying the gallery shortcode.
+			 * Load later than other callbacks hooked it
+			 * (e.g. 3rd party plugins handling gallery shortcode)
+			 */
+			add_filter( 'post_gallery', array( $this, 'maybe_enqueue_assets' ), 1000, 2 );
+
+			// Add metadata to gallery containers.
+			add_filter( 'the_content', array( $this, 'check_content_for_galleries' ), 1 );
 			add_filter( 'jetpack_tiled_galleries_block_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
+			add_filter( 'do_shortcode_tag', array( $this, 'maybe_add_data_gallery_shortcode' ), 10, 4 );
+
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
 		}
 
 		if ( $this->in_jetpack ) {
-			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
+			Jetpack::enable_module_configurable( dirname( __DIR__ ) . '/carousel.php' );
 		}
 	}
 
-	function maybe_disable_jp_carousel() {
+	/**
+	 * Allow third-party plugins or themes to disable Carousel.
+	 *
+	 * @return bool
+	 */
+	private function maybe_disable_jp_carousel() {
 		/**
 		 * Allow third-party plugins or themes to disable Carousel.
 		 *
@@ -103,7 +155,12 @@ class Jetpack_Carousel {
 		return apply_filters( 'jp_carousel_maybe_disable', false );
 	}
 
-	function maybe_disable_jp_carousel_single_images() {
+	/**
+	 * Allow third-party plugins or themes to disable Carousel for single images.
+	 *
+	 * @return bool
+	 */
+	private function maybe_disable_jp_carousel_single_images() {
 		/**
 		 * Allow third-party plugins or themes to disable Carousel for single images.
 		 *
@@ -116,7 +173,13 @@ class Jetpack_Carousel {
 		return apply_filters( 'jp_carousel_maybe_disable_single_images', false );
 	}
 
-	function maybe_enable_jp_carousel_single_images_media_file() {
+	/**
+	 * Allow third-party plugins or themes to enable Carousel
+	 * for single images linking to 'Media File' (full size image).
+	 *
+	 * @return bool
+	 */
+	private function maybe_enable_jp_carousel_single_images_media_file() {
 		/**
 		 * Allow third-party plugins or themes to enable Carousel
 		 * for single images linking to 'Media File' (full size image).
@@ -130,7 +193,15 @@ class Jetpack_Carousel {
 		return apply_filters( 'jp_carousel_load_for_images_linked_to_file', false );
 	}
 
-	function asset_version( $version ) {
+	/**
+	 * Allow third-parties to change the version string used when enqueuing Carousel assets.
+	 * Defaults to Jetpack version.
+	 *
+	 * @param string $version Asset version.
+	 *
+	 * @return string
+	 */
+	private function asset_version( $version ) {
 		/**
 		 * Filter the version string used when enqueuing Carousel assets.
 		 *
@@ -143,17 +214,28 @@ class Jetpack_Carousel {
 		return apply_filters( 'jp_carousel_asset_version', $version );
 	}
 
-	function display_bail_message( $output = '' ) {
-		// Displays a message on top of gallery if carousel has bailed
-		$message  = '<div class="jp-carousel-msg"><p>';
-		$message .= __( 'Jetpack\'s Carousel has been disabled, because another plugin or your theme is overriding the [gallery] shortcode.', 'jetpack' );
-		$message .= '</p></div>';
-		// put before gallery output
-		$output = $message . $output;
-		return $output;
+	/**
+	 * Displays a message on top of gallery if carousel has bailed.
+	 *
+	 * @param string $output Gallery output.
+	 */
+	public function display_bail_message( $output = '' ) {
+		$message = sprintf(
+			'<div class="jp-carousel-msg"><p>%s</p></div>',
+			esc_html__( 'Jetpack’s Carousel has been disabled, because another plugin or your theme is overriding the [gallery] shortcode.', 'jetpack' )
+		);
+
+		// put before gallery output.
+		return $message . $output;
 	}
 
-	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
+	/**
+	 * Check if anything is shortcircuiting Carousel scripts and styles.
+	 * If not, enqueue assets.
+	 *
+	 * @param string $output The gallery output. Default empty.
+	 */
+	public function check_if_shortcode_processed_and_enqueue_assets( $output ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -175,7 +257,6 @@ class Jetpack_Carousel {
 			! apply_filters( 'jp_carousel_force_enable', false )
 		) {
 			// Bail because someone is overriding the [gallery] shortcode.
-			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ) );
 			remove_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			// Display message that carousel has bailed, if user is super_admin, and if we're not on WordPress.com.
@@ -194,7 +275,7 @@ class Jetpack_Carousel {
 		 * @module carousel
 		 *
 		 * @since 1.6.0
-		 **/
+		 */
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		$this->enqueue_assets();
@@ -203,7 +284,25 @@ class Jetpack_Carousel {
 	}
 
 	/**
-	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
+	 * Check if our shortcode is a Gallery.
+	 * If so, add Carousel metadata.
+	 *
+	 * @param string       $output Shortcode output.
+	 * @param string       $tag    Shortcode name.
+	 * @param array|string $attr   Shortcode attributes array or empty string.
+	 * @param array        $m      Regular expression match array.
+	 */
+	public function maybe_add_data_gallery_shortcode( $output, $tag, $attr, $m ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( 'gallery' !== $tag ) {
+			return $output;
+		}
+		return $this->add_data_to_container( $output );
+	}
+
+	/**
+	 * Check if the content of a post uses a gallery.
+	 * It could be a gallery block, a tiled gallery block, or a gallery using the Gallery shortcode.
+	 * To be used by 'the_content' filter.
 	 *
 	 * @since 6.8.0
 	 *
@@ -211,7 +310,7 @@ class Jetpack_Carousel {
 	 *
 	 * @return string $content Post content.
 	 */
-	function check_content_for_blocks( $content ) {
+	public function check_content_for_galleries( $content ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -219,14 +318,21 @@ class Jetpack_Carousel {
 			return $content;
 		}
 
-		if ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) ) {
+		if (
+			has_block( 'gallery', $content )
+			|| has_block( 'jetpack/tiled-gallery', $content )
+			|| true === has_shortcode( $content, 'gallery' )
+		) {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
 		return $content;
 	}
 
-	function enqueue_assets() {
+	/**
+	 * Enqueue Carousel scripts and styles.
+	 */
+	private function enqueue_assets() {
 		if ( $this->first_run ) {
 			wp_enqueue_script(
 				'jetpack-carousel',
@@ -260,7 +366,12 @@ class Jetpack_Carousel {
 				'post_comment'                    => __( 'Post Comment', 'jetpack' ),
 				'write_comment'                   => __( 'Write a Comment...', 'jetpack' ),
 				'loading_comments'                => __( 'Loading Comments...', 'jetpack' ),
-				'download_original'               => sprintf( __( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ), '{0}', '{1}' ),
+				'download_original'               => sprintf(
+					/* Translators: placeholders are width and height dimensions. */
+					__( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ),
+					'{0}',
+					'{1}'
+				),
 				'no_comment_text'                 => __( 'Please be sure to submit some text with your comment.', 'jetpack' ),
 				'no_comment_email'                => __( 'Please provide an email address to comment.', 'jetpack' ),
 				'no_comment_author'               => __( 'Please provide your name to comment.', 'jetpack' ),
@@ -285,17 +396,27 @@ class Jetpack_Carousel {
 			 * Build string with tracking info.
 			 */
 
-			/**
-			 * Filter if Jetpack should enable stats collection on carousel views
-			 *
-			 * @module carousel
-			 *
-			 * @since 4.3.2
-			 *
-			 * @param bool Enable Jetpack Carousel stat collection. Default false.
-			 */
-			if ( apply_filters( 'jetpack_enable_carousel_stats', false ) && in_array( 'stats', Jetpack::get_active_modules(), true ) && ! ( new Status() )->is_offline_mode() ) {
-				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
+			if (
+				/**
+				 * Filter if Jetpack should enable stats collection on carousel views
+				 *
+				 * @module carousel
+				 *
+				 * @since 4.3.2
+				 *
+				 * @param bool Enable Jetpack Carousel stat collection. Default false.
+				 */
+				apply_filters( 'jetpack_enable_carousel_stats', false )
+				&& in_array( 'stats', Jetpack::get_active_modules(), true )
+				&& ! ( new Status() )->is_offline_mode()
+			) {
+				$localize_strings['stats'] = sprintf(
+					'blog=%1$d&host=%2$s&v=ext&j=%3$s:%4$s',
+					Jetpack_Options::get_option( 'id' ),
+					wp_parse_url( get_option( 'home' ), PHP_URL_HOST ),
+					JETPACK__API_VERSION,
+					JETPACK__VERSION
+				);
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
 				if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
@@ -474,17 +595,6 @@ class Jetpack_Carousel {
 		<?php
 	}
 
-	function set_in_gallery( $output ) {
-		if (
-			class_exists( 'Jetpack_AMP_Support' )
-			&& Jetpack_AMP_Support::is_amp_request()
-		) {
-			return $output;
-		}
-		$this->in_gallery = true;
-		return $output;
-	}
-
 	/**
 	 * Adds data-* attributes required by carousel to img tags in post HTML
 	 * content. To be used by 'the_content' filter.
@@ -492,10 +602,11 @@ class Jetpack_Carousel {
 	 * @see add_data_to_images()
 	 * @see wp_make_content_images_responsive() in wp-includes/media.php
 	 *
-	 * @param string $content HTML content of the post
-	 * @return string Modified HTML content of the post
+	 * @param string $content HTML content of the post.
+	 *
+	 * @return string Modified HTML content of the post.
 	 */
-	function add_data_img_tags_and_enqueue_assets( $content ) {
+	public function add_data_img_tags_and_enqueue_assets( $content ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -515,7 +626,7 @@ class Jetpack_Carousel {
 				 * If exactly the same image tag is used more than once, overwrite it.
 				 * All identical tags will be replaced later with 'str_replace()'.
 				 */
-				$selected_images[ $attachment_id  ] = $image_html;
+				$selected_images[ $attachment_id ] = $image_html;
 			}
 		}
 
@@ -552,7 +663,13 @@ class Jetpack_Carousel {
 		return $content;
 	}
 
-	function add_data_to_images( $attr, $attachment = null ) {
+	/**
+	 * Add Carousel metadata to single images.
+	 *
+	 * @param array   $attr       Attributes for the image markup.
+	 * @param WP_Post $attachment Image attachment post.
+	 */
+	public function add_data_to_images( $attr, $attachment = null ) {
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
 			&& Jetpack_AMP_Support::is_amp_request()
@@ -596,21 +713,21 @@ class Jetpack_Carousel {
 		$attachment       = get_post( $attachment_id );
 		$attachment_title = wptexturize( $attachment->post_title );
 		$attachment_desc  = wpautop( wptexturize( $attachment->post_content ) );
-		// Not yet providing geo-data, need to "fuzzify" for privacy
+		// Not yet providing geo-data, need to "fuzzify" for privacy.
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
-				if ( 'latitude' == $k || 'longitude' == $k ) {
+				if ( 'latitude' === $k || 'longitude' === $k ) {
 					unset( $img_meta[ $k ] );
 				}
 			}
 		}
 
-		// See https://github.com/Automattic/jetpack/issues/2765
+		// See https://github.com/Automattic/jetpack/issues/2765.
 		if ( isset( $img_meta['keywords'] ) ) {
 			unset( $img_meta['keywords'] );
 		}
 
-		$img_meta = json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
+		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']     = $attachment_id;
 		$attr['data-permalink']         = esc_attr( get_permalink( $attachment->ID ) );
@@ -626,7 +743,13 @@ class Jetpack_Carousel {
 		return $attr;
 	}
 
-	function add_data_to_container( $html ) {
+	/**
+	 * Add Carousel meta data to Gallery containers.
+	 * Those can be lists or divs, depending on the type of gallery.
+	 *
+	 * @param string $html Content. Can be container's opening tag, or full post content.
+	 */
+	public function add_data_to_container( $html ) {
 		global $post;
 		if (
 			class_exists( 'Jetpack_AMP_Support' )
@@ -656,10 +779,75 @@ class Jetpack_Carousel {
 			 */
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
 			foreach ( (array) $extra_data as $data_key => $data_values ) {
-				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' ", $html );
-				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
-				$html = str_replace( '<ul class="blocks-gallery-grid', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"blocks-gallery-grid", $html );
-				$html = str_replace( '<figure class="wp-block-gallery blocks-gallery-grid', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery  blocks-gallery-grid", $html );
+				// Do not go any further if DOMDocument is disabled on the server.
+				if ( ! class_exists( 'DOMDocument' ) ) {
+					return $html;
+				}
+
+				$fake_root_tag = 'jetpack' . wp_rand( 10000, 99999 );
+				$charset       = get_option( 'blog_charset', 'utf-8' );
+
+				// Let's grab all containers from the HTML.
+				$dom_doc = new DOMDocument();
+
+				/*
+				 * The @ is not enough to suppress errors when dealing with libxml,
+				 * we have to tell it directly how we want to handle errors.
+				 */
+				$old_libxml_disable_entity_loader = libxml_disable_entity_loader( true );
+				$old_libxml_use_internal_errors   = libxml_use_internal_errors( true );
+				@$dom_doc->loadHTML( // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					sprintf(
+						'<head><meta http-equiv="Content-Type" content="text/html; charset=%1$s"/></head><%2$s>%3$s</%2$s>',
+						esc_attr( $charset ),
+						tag_escape( $fake_root_tag ),
+						$html
+					)
+				);
+				libxml_use_internal_errors( $old_libxml_use_internal_errors );
+				libxml_disable_entity_loader( $old_libxml_disable_entity_loader );
+
+				// Let's look for lists and divs.
+				$ul_tags  = $dom_doc->getElementsByTagName( 'ul' );
+				$div_tags = $dom_doc->getElementsByTagName( 'div' );
+
+				// Loop through each ul, and add the data to it if it is a gallery block.
+				foreach ( $ul_tags as $ul_tag ) {
+					if (
+						false !== strpos( $ul_tag->getAttribute( 'class' ), 'wp-block-gallery' )
+						|| false !== strpos( $ul_tag->getAttribute( 'class' ), 'blocks-gallery-grid' )
+					) {
+						$ul_tag->setAttribute(
+							$data_key,
+							wp_json_encode( $data_values )
+						);
+					}
+				}
+
+				/*
+				 * Loop through each div and add the data, only when it's a gallery block div.
+				 * We want to avoid adding data to divs like wp-block-columns.
+				 * We do however want data on divs like wp-block-jetpack-tiled-gallery.
+				 */
+				foreach ( $div_tags as $div_tag ) {
+					if (
+						false === strpos( $div_tag->getAttribute( 'class' ), 'wp-block-' )
+						|| false !== strpos( $div_tag->getAttribute( 'class' ), 'gallery' )
+					) {
+						$div_tag->setAttribute(
+							$data_key,
+							wp_json_encode( $data_values )
+						);
+					}
+				}
+
+				// Save our updated HTML.
+				$fake_root_tag_length = strlen( $fake_root_tag ) + 2;
+				$html                 = substr(
+					$dom_doc->saveHTML( $dom_doc->getElementsByTagName( $fake_root_tag )->item( 0 ) ),
+					$fake_root_tag_length,
+					-1 * ( $fake_root_tag_length + 1 )
+				);
 			}
 		}
 
@@ -691,7 +879,7 @@ class Jetpack_Carousel {
 
 		return preg_replace_callback(
 			'#(<a[^>]* href=(["\']?)(\S+)\2>)\s*(<img[^>]*)(class=(["\']?)[^>]*wp-image-[0-9]+[^>]*\6.*>)\s*</a>#is',
-			static function( $matches ) {
+			static function ( $matches ) {
 				if ( ! preg_match( '#\.\w+$#', $matches[3] ) ) {
 					// The a[href] doesn't end in a file extension like .jpeg, so this is not a link to the media file, and should get a lightbox.
 					return $matches[4] . ' data-amp-lightbox="true" lightbox="true" ' . $matches[5]; // https://github.com/ampproject/amp-wp/blob/1094ea03bd5dc92889405a47a8c41de1a88908de/includes/sanitizers/class-amp-img-sanitizer.php#L419.
@@ -703,7 +891,10 @@ class Jetpack_Carousel {
 		);
 	}
 
-	function get_attachment_comments() {
+	/**
+	 * Get all comments for a given image attachment.
+	 */
+	public function get_attachment_comments() {
 		if ( ! headers_sent() ) {
 			header( 'Content-type: text/javascript' );
 		}
@@ -719,11 +910,11 @@ class Jetpack_Carousel {
 		 */
 		do_action( 'jp_carousel_check_blog_user_privileges' );
 
-		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
-		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
+		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 		if ( ! $attachment_id ) {
-			echo json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
+			echo wp_json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
 			die();
 		}
 
@@ -734,7 +925,7 @@ class Jetpack_Carousel {
 		$comments = get_comments(
 			array(
 				'status'  => 'approve',
-				'order'   => ( 'asc' == get_option( 'comment_order' ) ) ? 'ASC' : 'DESC',
+				'order'   => ( 'asc' == get_option( 'comment_order' ) ) ? 'ASC' : 'DESC', // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				'number'  => 10,
 				'offset'  => $offset,
 				'post_id' => $attachment_id,
@@ -759,16 +950,19 @@ class Jetpack_Carousel {
 			);
 		}
 
-		die( json_encode( $out ) );
+		die( wp_json_encode( $out ) );
 	}
 
-	function post_attachment_comment() {
+	/**
+	 * Handle comments inside a Carousel modal, posting to the image attachment.
+	 */
+	public function post_attachment_comment() {
 		if ( ! headers_sent() ) {
 			header( 'Content-type: text/javascript' );
 		}
 
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) {
-			die( json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
 		}
 
 		$_blog_id = (int) $_POST['blog_id'];
@@ -776,20 +970,23 @@ class Jetpack_Carousel {
 		$comment  = $_POST['comment'];
 
 		if ( empty( $_blog_id ) ) {
-			die( json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
 		}
 
 		if ( empty( $_post_id ) ) {
-			die( json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
 		}
 
 		if ( empty( $comment ) ) {
-			die( json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
 		}
 
-		// Used in context like NewDash
+		// Used in context like NewDash.
 		$switched = false;
-		if ( is_multisite() && $_blog_id != get_current_blog_id() ) {
+		if (
+			is_multisite()
+			&& get_current_blog_id() !== $_blog_id
+		) {
 			switch_to_blog( $_blog_id );
 			$switched = true;
 		}
@@ -801,7 +998,7 @@ class Jetpack_Carousel {
 			if ( $switched ) {
 				restore_current_blog();
 			}
-			die( json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -815,7 +1012,7 @@ class Jetpack_Carousel {
 				if ( $switched ) {
 					restore_current_blog();
 				}
-				die( json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
+				die( wp_json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
 			}
 		} else {
 			$user_id      = 0;
@@ -828,21 +1025,21 @@ class Jetpack_Carousel {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
 				}
 
 				if ( empty( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
 				}
 
 				if ( ! is_email( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
 				}
 			}
 		}
@@ -874,12 +1071,12 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 
-		if ( true == $switched ) {
+		if ( true === $switched ) {
 			restore_current_blog();
 		}
 
 		die(
-			json_encode(
+			wp_json_encode(
 				array(
 					'comment_id'     => $comment_id,
 					'comment_status' => $comment_status,
@@ -888,8 +1085,11 @@ class Jetpack_Carousel {
 		);
 	}
 
-	function register_settings() {
-		add_settings_section( 'carousel_section', __( 'Image Gallery Carousel', 'jetpack' ), array( $this, 'carousel_section_callback' ), 'media' );
+	/**
+	 * Register Options under Settings > Media.
+	 */
+	public function register_settings() {
+		add_settings_section( 'carousel_section', __( 'Image Gallery Carousel', 'jetpack' ), '__return_null', 'media' );
 
 		if ( ! $this->in_jetpack ) {
 			add_settings_field( 'carousel_enable_it', __( 'Enable carousel', 'jetpack' ), array( $this, 'carousel_enable_it_callback' ), 'media', 'carousel_section' );
@@ -904,32 +1104,49 @@ class Jetpack_Carousel {
 
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
-
-		// No geo setting yet, need to "fuzzify" data first, for privacy
-		// add_settings_field('carousel_display_geo', __( 'Geolocation', 'jetpack' ), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
-		// register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
 	}
 
-	// Fulfill the settings section callback requirement by returning nothing
-	function carousel_section_callback() {
-		return;
-	}
-
-	function test_1or0_option( $value, $default_to_1 = true ) {
-		if ( true == $default_to_1 ) {
-			// Binary false (===) of $value means it has not yet been set, in which case we do want to default sites to 1
+	/**
+	 * Check the value of an option.
+	 *
+	 * @param int|bool $value Option value.
+	 * @param bool     $default_to_1 Default option value.
+	 *
+	 * @retun int
+	 */
+	public function test_1or0_option( $value, $default_to_1 = true ) {
+		if ( true === $default_to_1 ) {
+			/*
+			 * Binary false (===) of $value means it has not yet been set,
+			 * in which case we do want to default sites to 1
+			 */
 			if ( false === $value ) {
 				$value = 1;
 			}
 		}
-		return ( 1 == $value ) ? 1 : 0;
+		return ( 1 == $value ) ? 1 : 0; // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 	}
 
-	function sanitize_1or0_option( $value ) {
-		return ( 1 == $value ) ? 1 : 0;
+	/**
+	 * Sanitize option.
+	 *
+	 * @param int $value Option value.
+	 *
+	 * @return int
+	 */
+	public function sanitize_1or0_option( $value ) {
+		return ( 1 == $value ) ? 1 : 0; // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 	}
 
-	function settings_checkbox( $name, $label_text, $extra_text = '', $default_to_checked = true ) {
+	/**
+	 * Display a checkbox for an option in the Settings screen.
+	 *
+	 * @param string $name               Option name.
+	 * @param string $label_text         Info about the option.
+	 * @param string $extra_text         Extra text to be appended to the setting. Not used yet.
+	 * @param bool   $default_to_checked Checkbox initial status. Defaults to true.
+	 */
+	public function settings_checkbox( $name, $label_text, $extra_text = '', $default_to_checked = true ) {
 		if ( empty( $name ) ) {
 			return;
 		}
@@ -937,14 +1154,33 @@ class Jetpack_Carousel {
 		echo '<fieldset>';
 		echo '<input type="checkbox" name="' . esc_attr( $name ) . '" id="' . esc_attr( $name ) . '" value="1" ';
 		checked( '1', $option );
-		echo '/> <label for="' . esc_attr( $name ) . '">' . $label_text . '</label>';
+		echo '/> <label for="' . esc_attr( $name ) . '">';
+		// $label_text can include HTML, like a link.
+		echo wp_kses(
+			$label_text,
+			array(
+				'a' => array(
+					'href'   => array(),
+					'target' => array(),
+					'rel'    => array(),
+				),
+			)
+		);
+		echo '</label>';
 		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . $extra_text . '</p>';
+			echo '<p class="description">' . esc_html( $extra_text ) . '</p>';
 		}
 		echo '</fieldset>';
 	}
 
-	function settings_select( $name, $values, $extra_text = '' ) {
+	/**
+	 * Display a select dropdown for an option in the Settings screen.
+	 *
+	 * @param string $name       Option name.
+	 * @param array  $values     Array of possible values.
+	 * @param string $extra_text Extra text to be appended to the setting. Not used yet.
+	 */
+	public function settings_select( $name, $values, $extra_text = '' ) {
 		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) ) {
 			return;
 		}
@@ -958,13 +1194,19 @@ class Jetpack_Carousel {
 		}
 		echo '</select>';
 		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . $extra_text . '</p>';
+			echo '<p class="description">' . esc_html( $extra_text ) . '</p>';
 		}
 		echo '</fieldset>';
 	}
 
-	function carousel_display_exif_callback() {
-		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" rel="noopener noreferrer" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
+	/**
+	 * Display Exif Carousel option.
+	 */
+	public function carousel_display_exif_callback() {
+		$this->settings_checkbox(
+			'carousel_display_exif',
+			__( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" rel="noopener noreferrer" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' )
+		);
 	}
 
 	/**
@@ -974,7 +1216,14 @@ class Jetpack_Carousel {
 		$this->settings_checkbox( 'carousel_display_comments', esc_html__( 'Show comments area in carousel', 'jetpack' ) );
 	}
 
-	function carousel_display_exif_sanitize( $value ) {
+	/**
+	 * Sanitize Carousel Exif option.
+	 *
+	 * @param bool|int $value option value.
+	 *
+	 * @return int
+	 */
+	public function carousel_display_exif_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 
@@ -989,34 +1238,50 @@ class Jetpack_Carousel {
 		return $this->sanitize_1or0_option( $value );
 	}
 
-	function carousel_display_geo_callback() {
-		$this->settings_checkbox( 'carousel_display_geo', __( 'Show map of photo location in carousel, when available.', 'jetpack' ) );
-	}
-
-	function carousel_display_geo_sanitize( $value ) {
-		return $this->sanitize_1or0_option( $value );
-	}
-
-	function carousel_background_color_callback() {
+	/**
+	 * Set of color options for the Carousel.
+	 */
+	public function carousel_background_color_callback() {
 		$this->settings_select(
-			'carousel_background_color', array(
+			'carousel_background_color',
+			array(
 				'black' => __( 'Black', 'jetpack' ),
 				'white' => __( 'White', 'jetpack' ),
 			)
 		);
 	}
 
-	function carousel_background_color_sanitize( $value ) {
-		return ( 'white' == $value ) ? 'white' : 'black';
+	/**
+	 * Sanitize the color setting.
+	 *
+	 * @param string $value Color option value.
+	 *
+	 * @return string
+	 */
+	public function carousel_background_color_sanitize( $value ) {
+		return ( 'white' === $value ) ? 'white' : 'black';
 	}
 
-	function carousel_enable_it_callback() {
-		$this->settings_checkbox( 'carousel_enable_it', __( 'Display images in full-size carousel slideshow.', 'jetpack' ) );
+	/**
+	 * Enable Carousel.
+	 */
+	public function carousel_enable_it_callback() {
+		$this->settings_checkbox(
+			'carousel_enable_it',
+			__( 'Display images in full-size carousel slideshow.', 'jetpack' )
+		);
 	}
 
-	function carousel_enable_it_sanitize( $value ) {
+	/**
+	 * Sanitize Carousel enabling option.
+	 *
+	 * @param bool|int $value option value.
+	 *
+	 * @return int
+	 */
+	public function carousel_enable_it_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	}
 }
 
-new Jetpack_Carousel;
+new Jetpack_Carousel();

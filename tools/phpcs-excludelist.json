@@ -192,7 +192,6 @@
 	"projects/plugins/jetpack/json-endpoints/jetpack/json-api-jetpack-endpoints.php",
 	"projects/plugins/jetpack/locales.php",
 	"projects/plugins/jetpack/modules/carousel.php",
-	"projects/plugins/jetpack/modules/carousel/jetpack-carousel.php",
 	"projects/plugins/jetpack/modules/comments/admin.php",
 	"projects/plugins/jetpack/modules/comments/base.php",
 	"projects/plugins/jetpack/modules/comments/comments.php",
