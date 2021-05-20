@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+When attributes are passed through to the Button block, we are now looking to the block root rather than the hierarchy root to grab the parent attributes.
