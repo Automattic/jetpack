@@ -22,7 +22,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	const JETPACK_INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
 
 	/**
-	 * Variable to save old sidebars_widgets value
+	 * Variable to save old sidebars_widgets value.
+	 *
+	 * The value is set when action `after_switch_theme` is applied and cleared on filter `pre_update_option_sidebars_widgets`.
+	 * The filters mentioned above run on /wp-admin/themes.php?activated=true, a request closely following switching theme.
 	 *
 	 * @since 9.8.0
 	 *
@@ -732,6 +735,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
 			if ( 0 === stripos( $sidebar, static::JETPACK_INSTANT_SEARCH_SIDEBAR ) ) {
+				// An 'equal' would work for the condition, but we want to cover 'less than' as well, just for extra insurance.
+				// If the new Jetpack sidebar has already got less widgets, no need to run the code following the condition.
 				if ( count( $sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] ) <= count( $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] ) ) {
 					break;
 				}
