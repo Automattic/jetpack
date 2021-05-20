@@ -972,16 +972,19 @@ class Manager {
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
 
-		if ( empty( $registration_details->allow_inplace_authorization ) ) {
+		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
+		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
+
+		if ( ! $registration_details->allow_inplace_authorization ) {
 			// Forces register_site REST endpoint to return the Calypso authorization URL.
 			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
 		}
 
 		add_filter(
 			'jetpack_register_site_rest_response',
-			function ( $response ) use ( $registration_details ) {
-				$response['allowInplaceAuthorization'] = $registration_details->allow_inplace_authorization;
-				$response['alternateAuthorizeUrl']     = $registration_details->alternate_authorization_url;
+			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
+				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
+				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
 				return $response;
 			}
 		);
