@@ -880,13 +880,11 @@ class Masterbar {
 			return;
 		}
 
-		$blog_post_page = Redirect::get_url( 'calypso-edit-post' );
-
 		$wp_admin_bar->add_menu(
 			array(
 				'parent' => 'top-secondary',
 				'id'     => 'ab-new-post',
-				'href'   => $blog_post_page,
+				'href'   => admin_url( 'post-new.php' ),
 				'title'  => '<span>' . esc_html__( 'Write', 'jetpack' ) . '</span>',
 				'meta'   => array(
 					'class' => 'mb-trackable',
