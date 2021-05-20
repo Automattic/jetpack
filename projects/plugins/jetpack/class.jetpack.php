@@ -7649,7 +7649,7 @@ endif;
 	public static function current_user_can_purchase() {
 
 		// The site must be site-connected to Jetpack (no users connected).
-		if ( ! self::connection()->is_userless() ) {
+		if ( ! self::connection()->is_site_connection() ) {
 			return false;
 		}
 
