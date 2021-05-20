@@ -35,6 +35,26 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Compare 2 urls and return true if they likely correspond to the same resource.
+ * Ignore scheme, ports, query params and hashes and only compare hostname and pathname.
+ *
+ * @param string $url1  - First url used in comparison.
+ * @param string $url2  - Second url used in comparison.
+ *
+ * @returns boolean
+ */
+function is_same_resource( $url1, $url2 ) {
+	$url1_parsed = wp_parse_url( $url1 );
+	$url2_parsed = wp_parse_url( $url2 );
+	return isset( $url1_parsed['host'] ) &&
+		isset( $url2_parsed['host'] ) &&
+		isset( $url1_parsed['path'] ) &&
+		isset( $url2_parsed['path'] ) &&
+		$url1_parsed['host'] === $url2_parsed['host'] &&
+		$url1_parsed['path'] === $url2_parsed['path'];
+}
+
+/**
  * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes
  *
  * @param array $media_files  - List of media, each as an array containing the media attributes.
@@ -54,8 +74,8 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 					return $media_file;
 				}
 				list( $src, $width, $height ) = $image;
-				// Bail if url in media props is different the media library one.
-				if ( isset( $media_file['url'] ) && $media_file['url'] !== $src ) {
+				// Bail if url stored in block attributes is different than the media library one for that id.
+				if ( isset( $media_file['url'] ) && ! is_same_resource( $media_file['url'], $src ) ) {
 					return $media_file;
 				}
 				$image_meta = wp_get_attachment_metadata( $attachment_id );
@@ -137,14 +157,25 @@ function render_image( $media ) {
 	$image      = wp_get_attachment_image_src( $media['id'], 'full', false );
 	$crop_class = '';
 	if ( $image ) {
-		list( , $width, $height ) = $image;
-		$crop_class               = get_image_crop_class( $width, $height );
+		list( $src, $width, $height ) = $image;
+		$crop_class                   = get_image_crop_class( $width, $height );
 	}
+
+	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
+		return sprintf(
+			'<img src="%s" alt="%s" class="wp-story-image" />',
+			esc_url( $media['url'] ),
+			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
+			EMBED_SIZE[0],
+			EMBED_SIZE[1]
+		);
+	}
+
 	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
 	// `sizes` is optimized for 1080x1920 (9:16) images
 	// Note that the Story block does not have thumbnail support, it will load the right
 	// image based on the viewport size only.
-	$image_template = wp_get_attachment_image(
+	return wp_get_attachment_image(
 		$media['id'],
 		EMBED_SIZE,
 		false,
@@ -154,18 +185,6 @@ function render_image( $media ) {
 			'title' => get_the_title( $media['id'] ),
 		)
 	);
-
-	if ( empty( $image_template ) ) {
-		$image_template = sprintf(
-			'<img src="%s" alt="%s" class="wp-story-image" width="%d" height="%d" />',
-			esc_url( $media['url'] ),
-			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
-			EMBED_SIZE[0],
-			EMBED_SIZE[1]
-		);
-	}
-
-	return $image_template;
 }
 
 /**
