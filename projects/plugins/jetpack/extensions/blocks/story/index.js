@@ -57,7 +57,6 @@ export const settings = {
 	attributes,
 	supports: {
 		html: false,
-		inserter: true,
 	},
 	icon: {
 		src: icon,
