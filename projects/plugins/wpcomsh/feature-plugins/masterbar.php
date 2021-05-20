@@ -221,3 +221,15 @@ add_action( 'admin_menu', 'wpcomsh_add_plugins_menu_non_supported_plans' );
 
 // Temporary hotfixes due to Jetpack monthly release cycle.
 require_once __DIR__ . '/nav-unification-hotfixes.php';
+
+/**
+ * Determines whether the Upgrades -> Emails menu item should be displayed in the sidebar.
+ *
+ * @return bool true if the user is proxied
+ */
+function wpcomsh_jetpack_show_wpcom_upgrades_email_menu() {
+	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+}
+
+add_filter( 'jetpack_show_wpcom_upgrades_email_menu', 'wpcomsh_jetpack_show_wpcom_upgrades_email_menu' );
+
