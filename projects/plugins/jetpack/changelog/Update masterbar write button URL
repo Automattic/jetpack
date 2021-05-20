@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Clicking the Write button in masterbar will now use WP Admin block editor.
