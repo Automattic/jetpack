@@ -55,47 +55,55 @@ function is_same_resource( $url1, $url2 ) {
 }
 
 /**
- * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes
+ * Enrich media files with extra information we can retrieve from the media library.
+ * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes.
+ * Add missing `width`, `height`, `poster` properties to videos of the mediaFiles block attributes.
  *
  * @param array $media_files  - List of media, each as an array containing the media attributes.
  *
  * @returns array $media_files
  */
-function with_width_height_srcset_and_sizes( $media_files ) {
-	return array_map(
-		function ( $media_file ) {
-			if ( ! isset( $media_file['id'] ) || ! empty( $media_file['srcset'] ) ) {
-				return $media_file;
-			}
-			$attachment_id = $media_file['id'];
-			if ( 'image' === $media_file['type'] ) {
-				$image = wp_get_attachment_image_src( $attachment_id, 'full', false );
-				if ( ! $image ) {
-					return $media_file;
+function enrich_media_files( $media_files ) {
+	return array_filter(
+		array_map(
+			function ( $media_file ) {
+				$attachment_id = isset( $media_file['id'] ) ? $media_file['id'] : null;
+				if ( 'image' === $media_file['type'] ) {
+					$image = wp_get_attachment_image_src( $attachment_id, 'full', false );
+					if ( ! $image ) {
+						return $media_file;
+					}
+					list( $src, $width, $height ) = $image;
+					// Bail if url stored in block attributes is different than the media library one for that id.
+					if ( isset( $media_file['url'] ) && ! is_same_resource( $media_file['url'], $src ) ) {
+						return $media_file;
+					}
+					$image_meta = wp_get_attachment_metadata( $attachment_id );
+					if ( ! is_array( $image_meta ) ) {
+						return $media_file;
+					}
+					$size_array = array( absint( $width ), absint( $height ) );
+					return array_merge(
+						$media_file,
+						array(
+							'width'   => absint( $width ),
+							'height'  => absint( $height ),
+							'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+							'sizes'   => IMAGE_BREAKPOINTS,
+							'title'   => get_the_title( $attachment_id ),
+							'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+							'caption' => wp_get_attachment_caption( $attachment_id ),
+						)
+					);
 				}
-				list( $src, $width, $height ) = $image;
-				// Bail if url stored in block attributes is different than the media library one for that id.
-				if ( isset( $media_file['url'] ) && ! is_same_resource( $media_file['url'], $src ) ) {
-					return $media_file;
+				// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
+				// Let's fix `type` for those.
+				if ( 'file' === $media_file['type'] && 'video' === substr( $media_file['mime'], 0, 5 ) ) {
+					$media_file['type'] = 'video';
 				}
-				$image_meta = wp_get_attachment_metadata( $attachment_id );
-				if ( ! is_array( $image_meta ) ) {
-					return $media_file;
+				if ( 'video' !== $media_file['type'] ) { // we only support images and videos at this point.
+					return null;
 				}
-				$size_array = array( absint( $width ), absint( $height ) );
-				return array_merge(
-					$media_file,
-					array(
-						'width'   => absint( $width ),
-						'height'  => absint( $height ),
-						'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-						'sizes'   => IMAGE_BREAKPOINTS,
-						'title'   => get_the_title( $attachment_id ),
-						'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
-						'caption' => wp_get_attachment_caption( $attachment_id ),
-					)
-				);
-			} else {
 				$video_meta = wp_get_attachment_metadata( $attachment_id );
 				if ( ! $video_meta ) {
 					return $media_file;
@@ -136,10 +144,11 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 						)
 					);
 				}
+
 				return $media_file;
-			}
-		},
-		$media_files
+			},
+			$media_files
+		)
 	);
 }
 
@@ -161,9 +170,10 @@ function render_image( $media ) {
 		$crop_class                   = get_image_crop_class( $width, $height );
 	}
 
+	// if image does not match.
 	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
 		return sprintf(
-			'<img src="%s" alt="%s" class="wp-story-image" />',
+			'<img src="%1$s" alt="%2$s" class="wp-story-image" width="%3$s" height="%4$s" />',
 			esc_url( $media['url'] ),
 			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
 			EMBED_SIZE[0],
@@ -227,41 +237,32 @@ function render_video( $media ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
 
-	$metadata = wp_get_attachment_metadata( $media['id'] );
-
-	if ( ! empty( $metadata ) && ! empty( $metadata['videopress'] ) ) {
-		// Use poster image for VideoPress videos.
-		$poster_url  = $metadata['videopress']['poster'];
-		$description = ! empty( $metadata['videopress']['description'] ) ? $metadata['videopress']['description'] : '';
-		$meta_width  = ! empty( $metadata['videopress']['width'] ) ? $metadata['videopress']['width'] : '';
-		$meta_height = ! empty( $metadata['videopress']['height'] ) ? $metadata['videopress']['height'] : '';
-	} elseif ( ! empty( $metadata['thumb'] ) ) {
-		// On WordPress.com, VideoPress videos have a 'thumb' property with the
-		// poster image filename instead.
-		$video_url   = wp_get_attachment_url( $media['id'] );
-		$poster_url  = str_replace( wp_basename( $video_url ), $metadata['thumb'], $video_url );
-		$description = ! empty( $media['alt'] ) ? $media['alt'] : '';
-		$meta_width  = ! empty( $metadata['width'] ) ? $metadata['width'] : '';
-		$meta_height = ! empty( $metadata['height'] ) ? $metadata['height'] : '';
-	}
-
-	if ( ! empty( $poster_url ) ) {
-		$poster_width  = esc_attr( $meta_width );
-		$poster_height = esc_attr( $meta_height );
+	if ( ! empty( $media['poster'] ) ) {
+		$poster_width  = $media['width'];
+		$poster_height = $media['height'];
+		$meta_width    = $media['width'];
+		$meta_height   = $media['height'];
 		$content_width = (int) Jetpack::get_content_width();
 		if ( is_numeric( $content_width ) ) {
 			$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
 			$poster_width  = $content_width;
 		}
+		$poster_url = add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $media['poster'] );
 		return sprintf(
-			'<img title="%1$s" alt="%2$s" class="%3$s" src="%4$s"%5$s%6$s>',
-			esc_attr( get_the_title( $media['id'] ) ),
-			esc_attr( $description ),
-			'wp-block-jetpack-story_image wp-story-image ' .
+			'<img
+				title="%1$s"
+				alt="%2$s"
+				class="wp-block-jetpack-story_image wp-story-image %3$s"
+				src="%4$s"
+				width="%5$s"
+				height="%6$s"
+			/>',
+			esc_attr( $media['title'] ),
+			esc_attr( $media['alt'] ),
 			get_image_crop_class( $meta_width, $meta_height ),
-			esc_attr( add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url ) ),
-			! empty( $meta_width ) ? ' width="' . esc_attr( $meta_width ) . '"' : '',
-			! empty( $meta_height ) ? ' height="' . esc_attr( $meta_height ) . '"' : ''
+			esc_attr( $poster_url ),
+			esc_attr( $meta_width ),
+			esc_attr( $meta_height )
 		);
 	}
 
@@ -281,38 +282,49 @@ function render_video( $media ) {
 }
 
 /**
- * Render a slide
+ * Render a static embed story picking a thumbnail
  *
- * @param array $media  - Media information.
- * @param int   $index  - Index of the slide, first slide will be displayed by default, others hidden.
+ * @param array $media_files  - list of Media files.
  *
  * @returns string
  */
-function render_slide( $media, $index = 0 ) {
+function render_static_slide( $media_files ) {
 	$media_template = '';
-	$media_type     = ! empty( $media['type'] ) ? $media['type'] : null;
-	if ( ! $media_type ) {
+	if ( empty( $media_files ) ) {
 		return '';
 	}
-	switch ( $media_type ) {
-		case 'image':
-			$media_template = render_image( $media, $index );
-			break;
-		case 'video':
-			$media_template = render_video( $media, $index );
-			break;
-		case 'file':
-			// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
-			if ( 'video' === substr( $media['mime'], 0, 5 ) ) {
-				$media_template = render_video( $media, $index );
-			}
-			break;
+
+	// find an image to showcase.
+	foreach ( $media_files as $media ) {
+		switch ( $media['type'] ) {
+			case 'image':
+				$media_template = render_image( $media );
+				break 2;
+			case 'video':
+				// ignore videos without a poster image.
+				if ( empty( $media['poster'] ) ) {
+					continue 2;
+				}
+				$media_template = render_video( $media );
+				break 2;
+		}
 	}
+
+	// if no media was found try to render a video tag without poster.
+	if ( empty( $media_template ) ) {
+		foreach ( $media_files as $media ) {
+			switch ( $media['type'] ) {
+				case 'video':
+					$media_template = render_video( $media );
+					break 2;
+			}
+		}
+	}
+
 	return sprintf(
-		'<div class="wp-story-slide" style="display: %s;">
+		'<div class="wp-story-slide" style="display: block;">
 			<figure>%s</figure>
 		</div>',
-		0 === $index ? 'block' : 'none',
 		$media_template
 	);
 }
@@ -407,13 +419,13 @@ function render_pagination( $settings ) {
 function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$media_files              = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
+	$media_files              = isset( $attributes['mediaFiles'] ) ? enrich_media_files( $attributes['mediaFiles'] ) : array();
 	$settings_from_attributes = isset( $attributes['settings'] ) ? $attributes['settings'] : array();
 
 	$settings = array_merge(
 		$settings_from_attributes,
 		array(
-			'slides' => with_width_height_srcset_and_sizes( $media_files ),
+			'slides' => $media_files,
 		)
 	);
 
@@ -451,7 +463,7 @@ function render_block( $attributes ) {
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
-		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
+		render_static_slide( $media_files ),
 		render_top_right_icon( $settings ),
 		render_pagination( $settings )
 	);
