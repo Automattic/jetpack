@@ -450,6 +450,12 @@ class REST_Connector {
 			}
 		}
 
+		/**
+		 * Filters the response of jetpack/v4/connection/register endpoint
+		 *
+		 * @param array $response Array response
+		 * @since 9.8.0
+		 */
 		$response_body = apply_filters(
 			'jetpack_register_site_rest_response',
 			array(
