@@ -83,6 +83,7 @@ jQuery( document ).ready( function ( $ ) {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
 					from: connectButtonFrom,
+					no_iframe: 'original' === jpConnect.forceVariation,
 				},
 				error: jetpackConnectButton.handleConnectionError,
 				success: jetpackConnectButton.selectAndStartAuthorizationFlow,
