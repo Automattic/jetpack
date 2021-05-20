@@ -27,7 +27,7 @@ function wp_config {
 	sed -i '/WP_TESTS_DOMAIN/d' wp-config.php
 	sed -i '/E2E_REQUEST_URL/d' wp-config.php
 
-	sed -i "/\/\* That's all, stop editing! Happy publishing. \*\//i\
+	sed -i "/That's all, stop editing! Happy publishing./i\
 	define( 'E2E_REQUEST_URL', ( ! empty( \\\$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \\\$_SERVER['HTTP_HOST'] ) ? \\\$_SERVER['HTTP_HOST'] : 'localhost' ) );\n\
 	define( 'WP_SITEURL', E2E_REQUEST_URL );\n\
 	define( 'WP_HOME', E2E_REQUEST_URL );\n\
