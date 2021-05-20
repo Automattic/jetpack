@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
@@ -408,7 +409,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
 		$this->assertFalse( $data['allowInplaceAuthorization'] );
-		$this->assertSame( 'https://dummy.com', $data['alternateAuthorizeUrl'] );
+		$this->assertSame( Redirect::get_url( 'https://dummy.com' ), $data['alternateAuthorizeUrl'] );
 	}
 
 	/**
