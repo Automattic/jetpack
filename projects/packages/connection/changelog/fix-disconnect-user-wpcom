@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Disconnection flow: disconnect users from WordPress.com before to delete data locally.
