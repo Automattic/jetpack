@@ -1045,27 +1045,40 @@ class Jetpack_Gutenberg {
 	 * @param string $slug Slug of the block.
 	 */
 	public static function set_availability_for_plan( $slug ) {
-		$is_available = true;
-		$plan         = '';
-		$slug         = self::remove_extension_prefix( $slug );
+		$is_available   = true;
+		$plan           = '';
+		$slug           = self::remove_extension_prefix( $slug );
+		$features_data  = array();
+		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_atomic_site = jetpack_is_atomic_site();
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( ! class_exists( 'Store_Product_List' ) ) {
-				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+		// Check feature availability for Simple and Atomic sites.
+		if ( $is_simple_site || $is_atomic_site ) {
+
+			// Simple sites.
+			if ( $is_simple_site ) {
+				if ( ! class_exists( 'Store_Product_List' ) ) {
+					require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+				}
+				$features_data = Store_Product_List::get_site_specific_features_data();
+			} else {
+				// Atomic sites.
+				$option = get_option( 'jetpack_active_plan' );
+				if ( isset( $option['features'] ) ) {
+					$features_data = $option['features'];
+				}
 			}
-			$features_data = Store_Product_List::get_site_specific_features_data();
-			$is_available  = in_array( $slug, $features_data['active'], true );
+
+			$is_available = isset( $features_data['active'] ) && in_array( $slug, $features_data['active'], true );
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
-		} elseif ( ! jetpack_is_atomic_site() ) {
-			/*
-			 * If it's Atomic then assume all features are available
-			 * otherwise check against the Jetpack plan.
-			 */
+		} else {
+			// Jetpack sites.
 			$is_available = Jetpack_Plan::supports( $slug );
 			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
+
 		if ( $is_available ) {
 			self::set_extension_available( $slug );
 		} else {
@@ -1101,7 +1114,7 @@ class Jetpack_Gutenberg {
 					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
 
 					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
-					if ( $block->attributes['shouldDisplayFrontendBanner'] ) {
+					if ( isset( $block->attributes['shouldDisplayFrontendBanner'] ) && $block->attributes['shouldDisplayFrontendBanner'] ) {
 						$upgrade_nudge = self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 						return $upgrade_nudge . $block_preview;
 					}
@@ -1113,4 +1126,15 @@ class Jetpack_Gutenberg {
 			return null;
 		};
 	}
+}
+
+/*
+ * Enable upgrade nudge for Atomic sites.
+ * This feature is false as default,
+ * so let's enable it through this filter.
+ *
+ * More doc: https://github.com/Automattic/jetpack/tree/master/projects/plugins/jetpack/extensions#upgrades-for-blocks
+ */
+if ( jetpack_is_atomic_site() ) {
+	add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
 }
