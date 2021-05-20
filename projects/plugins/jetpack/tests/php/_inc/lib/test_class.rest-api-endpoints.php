@@ -688,6 +688,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Mock site already registered
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
 
@@ -711,6 +713,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
 
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
 
@@ -733,8 +737,12 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$transient_key = "jetpack_connected_user_data_$user->ID";
 		set_transient( $transient_key, 'dummy', DAY_IN_SECONDS );
 
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// Create REST request in JSON format and dispatch.
 		$this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 
 		// Transient should be deleted after unlinking user.
 		$this->assertFalse( get_transient( $transient_key ) );

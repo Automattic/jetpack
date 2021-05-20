@@ -18,6 +18,7 @@ export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia 
 								title={ __( 'Edit Story', 'jetpack' ) }
 								onSelect={ onSelectMedia }
 								allowedTypes={ allowedMediaTypes }
+								addToGallery
 								multiple
 								value={ mediaFiles.map( file => file.id ) }
 								render={ ( { open } ) => (

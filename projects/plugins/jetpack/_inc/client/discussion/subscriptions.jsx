@@ -91,7 +91,7 @@ class SubscriptionsComponent extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
-					disableInUserlessMode
+					disableInSiteConnectionMode
 					module={ subscriptions }
 					support={ {
 						text: __(

@@ -66,7 +66,7 @@ export const SSO = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'sso' ) }
 						support={ {
 							text: __(
