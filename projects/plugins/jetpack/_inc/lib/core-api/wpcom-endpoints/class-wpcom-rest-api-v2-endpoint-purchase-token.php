@@ -63,7 +63,7 @@ class WPCOM_REST_API_V2_Endpoint_Purchase_Token extends WP_REST_Controller {
 	/**
 	 * Returns a purchase token used for site-connected (non user-authenticated) checkout.
 	 *
-	 * @return array|WP_Error The current purchase token or WP_Error with error details.
+	 * @return string|WP_Error The current purchase token or WP_Error with error details.
 	 */
 	public function get_purchase_token() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -71,12 +71,7 @@ class WPCOM_REST_API_V2_Endpoint_Purchase_Token extends WP_REST_Controller {
 			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
 		}
 
-		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
-		$response       = array(
-			'purchaseToken' => $purchase_token,
-		);
-
-		return $response;
+		return Jetpack_Options::get_option( 'purchase_token', '' );
 	}
 
 	/**
