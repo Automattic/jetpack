@@ -80,7 +80,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 			// The priority has to be lower than 10 to run before _wp_sidebars_changed.
 			// Which migrates widgets from old theme to the new one.
-			add_action( 'after_switch_theme', array( $this, 'save_old_sidebars_widgets' ), 5 );
+			add_action( 'after_switch_theme', array( $this, 'save_old_sidebars_widgets' ), 5, 0 );
 			add_action( 'pre_update_option_sidebars_widgets', array( $this, 'remove_wp_migrated_widgets' ) );
 		}
 
