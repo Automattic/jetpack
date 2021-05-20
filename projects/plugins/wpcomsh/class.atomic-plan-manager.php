@@ -29,7 +29,7 @@ class Atomic_Plan_Manager {
 	 * Atomic Plan Manager instance
 	 */
 	private static $instance;
-	
+
 	/**
 	 * Initialize the plan manager
 	 *
@@ -54,7 +54,7 @@ class Atomic_Plan_Manager {
 
 	/**
 	 * Return the local plan slug
-	 * If a local plan slug can't be found it will 
+	 * If a local plan slug can't be found it will
 	 * return BUSINESS_PLAN_SLUG by default
 	 *
 	 * @return string
@@ -126,7 +126,6 @@ class Atomic_Plan_Manager {
 		// so we need to disable atomic features caps.
 		$theme_caps = [
 			'edit_themes',
-			'switch_themes',
 			'install_themes',
 			'update_themes',
 			'delete_themes',
