@@ -847,6 +847,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'purchase-token',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_purchase_token',
+					'permission_callback' => __CLASS__ . '::purchase_token_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => __CLASS__ . '::delete_purchase_token',
+					'permission_callback' => __CLASS__ . '::purchase_token_permission_check',
+				),
+			)
+		);
 	}
 
 	/**
@@ -969,6 +986,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Return a purchase token used for site-connected (non user-authenticated) checkout.
+	 *
+	 * @return string|WP_Error The current purchase token or WP_Error with error details.
+	 */
+	public static function get_purchase_token() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
+		}
+
+		return Jetpack_Options::get_option( 'purchase_token', '' );
+	}
+
+	/**
+	 * Delete the current purchase token.
+	 *
+	 * @return boolean|WP_Error Whether the token was deleted or WP_Error with error details.
+	 */
+	public static function delete_purchase_token() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
+		}
+
+		return Jetpack_Options::delete_option( 'purchase_token' );
 	}
 
 	public static function get_plans( $request ) {
@@ -1390,6 +1435,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_edit_others_posts', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Verify that site can view and delete the site's purchase token.
+	 *
+	 * @return bool Whether site has level-site auth or user has the capability 'manage_options'.
+	 */
+	public static function purchase_token_permission_check() {
+		if ( apply_filters( 'jetpack_site_level_auth', false ) ) {
+			return true;
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_permission_manage_purchase_token', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
