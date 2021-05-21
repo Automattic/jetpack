@@ -10,8 +10,10 @@
  */
 global $pagenow;
 
-// phpcs:ignore
-if ( ( $pagenow === 'edit.php' && isset( $_GET['post_type'] ) && $_GET['post_type'] === 'page' ) || $pagenow === 'post.php' ) {
+if (
+	( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && 'page' === $_GET['post_type'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	|| 'post.php' === $pagenow
+) {
 	require_once __DIR__ . '/class-posts-list-page-notification.php';
 	Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::init();
 }
