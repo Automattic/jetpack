@@ -6290,7 +6290,7 @@ endif;
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		_deprecated_function( 'Jetpack::sync_idc_optin', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis::sync_idc_optin' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::sync_idc_optin' );
 		return Identity_Crisis::sync_idc_optin();
 	}
 
