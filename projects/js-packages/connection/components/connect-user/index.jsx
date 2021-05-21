@@ -3,6 +3,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import PropTypes from 'prop-types';
 
 /**
@@ -61,15 +62,11 @@ const ConnectUser = props => {
 
 	if ( ! authorizationUrl ) {
 		return null;
-		//throw new Error( 'Connect User URL (Authorization URL) is missing' );
 	}
 
 	if ( forceCalypsoFlow ) {
 		redirectFunc(
-			authorizationUrl +
-				( from
-					? ( authorizationUrl.includes( '?' ) ? '&' : '?' ) + 'from=' + encodeURIComponent( from )
-					: '' )
+			addQueryArgs( authorizationUrl, { from: from ? encodeURIComponent( from ) : null } )
 		);
 		return null;
 	}
