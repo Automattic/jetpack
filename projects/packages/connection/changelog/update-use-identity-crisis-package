@@ -1,4 +1,4 @@
 Significance: minor
-Type: changed
+Type: added
 
-Updates references from Sync Functions to Urls and use normalized home_url and site_url for site registration.
+Added Urls class, migrated from Sync Functions.
