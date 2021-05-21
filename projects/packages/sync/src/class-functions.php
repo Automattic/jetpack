@@ -407,7 +407,7 @@ class Functions {
 	 * @return mixed|null URL.
 	 */
 	public static function get_raw_url( $option_name ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_raw_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Urls::get_raw_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_url' );
 		return Urls::get_raw_url( $option_name );
 	}
 
