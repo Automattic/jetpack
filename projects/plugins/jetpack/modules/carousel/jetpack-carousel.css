@@ -449,6 +449,7 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	width: 209px !important;
 	margin-top: 20px;
 	margin-left: 40px;
+	margin-bottom: 20px;
 	flex-shrink: 0;
 }
 
