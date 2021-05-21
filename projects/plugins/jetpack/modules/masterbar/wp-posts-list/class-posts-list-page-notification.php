@@ -129,7 +129,7 @@ class Posts_List_Page_Notification {
 			return;
 		}
 
-		$text_notice = __( 'The content of your latest posts page is automatically generated and cannot be edited', 'jetpack' );
+		$text_notice = __( 'The content of your latest posts page is automatically generated and cannot be edited.', 'jetpack' );
 		?>
 		<script>
 			document.querySelector(".posts-page .check-column").innerHTML = '' +
