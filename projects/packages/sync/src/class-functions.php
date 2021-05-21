@@ -419,7 +419,7 @@ class Functions {
 	 * @return mixed|string URL.
 	 */
 	public static function normalize_www_in_url( $option, $url_function ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::normalize_www_in_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Urls::normalize_www_in_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::normalize_www_in_url' );
 		return Urls::normalize_www_in_url( $option, $url_function );
 	}
 
