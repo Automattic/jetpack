@@ -163,17 +163,15 @@ function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
-	$image      = wp_get_attachment_image_src( $media['id'], 'full', false );
-	$crop_class = '';
+	$image = wp_get_attachment_image_src( $media['id'], 'full', false );
 	if ( $image ) {
 		list( $src, $width, $height ) = $image;
-		$crop_class                   = get_image_crop_class( $width, $height );
 	}
 
 	// if image does not match.
 	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
-		$width  = isset( $media['width'] ) ? $media['width'] : EMBED_SIZE[0];
-		$height = isset( $media['height'] ) ? $media['height'] : EMBED_SIZE[1];
+		$width  = isset( $media['width'] ) ? $media['width'] : null;
+		$height = isset( $media['height'] ) ? $media['height'] : null;
 		return sprintf(
 			'<img
 				title="%1$s"
@@ -183,11 +181,12 @@ function render_image( $media ) {
 			/>',
 			esc_attr( $media['title'] ),
 			esc_attr( $media['alt'] ),
-			get_image_crop_class( $width, $height ),
+			$width && $height ? get_image_crop_class( $width, $height ) : '',
 			esc_attr( $media['url'] )
 		);
 	}
 
+	$crop_class = get_image_crop_class( $width, $height );
 	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
 	// `sizes` is optimized for 1080x1920 (9:16) images
 	// Note that the Story block does not have thumbnail support, it will load the right
