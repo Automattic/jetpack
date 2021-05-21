@@ -14,7 +14,6 @@ import {
 	setSearchQuery,
 	setSort,
 	setFilter,
-	setStaticFilter,
 	initializeQueryValues,
 } from '../actions';
 import {
@@ -230,11 +229,11 @@ describe( 'filters Reducer', () => {
 describe( 'staticFilters Reducer', () => {
 	test( 'defaults to empty object', () => {
 		const state = staticFilters( undefined, {} );
-		expect( state ).toBe( {} );
+		expect( state ).toEqual( {} );
 	} );
 	test( 'is set to empty object by a clear query values action', () => {
-		expect( staticFilters( undefined, clearQueryValues() ) ).toBe( {} );
-		expect( staticFilters( 'newest', clearQueryValues() ) ).toBe( {} );
+		expect( staticFilters( undefined, clearQueryValues() ) ).toEqual( {} );
+		expect( staticFilters( 'newest', clearQueryValues() ) ).toEqual( {} );
 	} );
 } );
 
