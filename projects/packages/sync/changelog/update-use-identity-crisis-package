@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: deprecated
 
-Updated package dependencies.
+Deprecated URL methods in `Automattic\Jetpack\Sync\Functions` in favor of `Automattic\Jetpack\Connection\Urls`.
