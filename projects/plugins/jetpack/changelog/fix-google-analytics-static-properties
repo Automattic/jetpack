@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Updated Jetpack_Google_Analytics to use static property $analytics

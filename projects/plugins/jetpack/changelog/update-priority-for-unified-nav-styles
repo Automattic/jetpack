@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update the priority for overriding unified nav styles.

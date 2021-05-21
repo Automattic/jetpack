@@ -1,6 +1,7 @@
 {
 	"name": "automattic/js-connection",
 	"description": "Jetpack Connection Component.",
+	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.2.x-dev"

@@ -2708,6 +2708,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
+			'facebook'                             => array(
+				'description'       => esc_html__( 'Facebook Domain Verification', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_verification_service',
+				'jp_group'          => 'verification-tools',
+			),
 
 			// WordAds.
 			'enable_header_ad'                     => array(
