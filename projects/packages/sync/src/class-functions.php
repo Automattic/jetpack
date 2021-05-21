@@ -395,7 +395,7 @@ class Functions {
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_protocol_normalized_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Urls::get_protocol_normalized_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::get_protocol_normalized_url' );
 		return Urls::get_protocol_normalized_url( $callable, $new_value );
 	}
 
