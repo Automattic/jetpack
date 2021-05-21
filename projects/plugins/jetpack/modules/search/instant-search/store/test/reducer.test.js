@@ -14,10 +14,12 @@ import {
 	setSearchQuery,
 	setSort,
 	setFilter,
+	setStaticFilter,
 	initializeQueryValues,
 } from '../actions';
 import {
 	filters,
+	staticFilters,
 	hasError,
 	isHistoryNavigation,
 	isLoading,
@@ -222,6 +224,17 @@ describe( 'filters Reducer', () => {
 	test( 'is reset by a clear query values action', () => {
 		const state = filters( { post_types: [ 'post' ] }, clearQueryValues() );
 		expect( state ).toEqual( {} );
+	} );
+} );
+
+describe( 'staticFilters Reducer', () => {
+	test( 'defaults to empty object', () => {
+		const state = staticFilters( undefined, {} );
+		expect( state ).toBe( {} );
+	} );
+	test( 'is set to empty object by a clear query values action', () => {
+		expect( staticFilters( undefined, clearQueryValues() ) ).toBe( {} );
+		expect( staticFilters( 'newest', clearQueryValues() ) ).toBe( {} );
 	} );
 } );
 

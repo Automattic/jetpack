@@ -61,7 +61,7 @@ class SearchFilters extends Component {
 		);
 
 	renderStaticFilterComponent = ( configuration ) => {
-		if ( configuration.hasOwnProperty('visible') && ! configuration.visible ) {
+		if ( configuration.hasOwnProperty( 'visible' ) && ! configuration.visible ) {
 			return null;
 		}
 

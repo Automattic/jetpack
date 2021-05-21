@@ -47,10 +47,10 @@ export function getFilterKeys(
 }
 
 /**
-* Get a list of provided static filters.
-*
-* @return []Object
-*/
+ * Get a list of provided static filters.
+ *
+ * @returns {Array} list of available static filters.
+ */
 export function getAvailableStaticFilters () {
 	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
 		return [];
@@ -62,7 +62,7 @@ export function getAvailableStaticFilters () {
 /**
  * Get static filter keys.
  *
- * @return []string
+ * @returns {Array} list of available static filters keys.
  */
 export function getStaticFilterKeys() {
 	const staticFilters = getAvailableStaticFilters();

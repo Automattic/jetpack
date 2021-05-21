@@ -132,13 +132,13 @@ const filterKeyToEsFilter = new Map( [
 /**
  * Build static filters object
  *
- * @param staticFilters
- * @return Object
+ * @param {object} staticFilters - list of static filter key-value.
+ * @returns {object} - list of selected static filters.
  */
 function buildStaticFilters( staticFilters ) {
 	const selectedFilters = {};
 	Object.keys( staticFilters ).forEach( ( key ) => {
-		const value = staticFilters[key];
+		const value = staticFilters[ key ];
 		if ( key === 'group_id' ) {
 			if ( value !== '__NO_GROUP__' ) {
 				// Do not set filter if for no_groups, it should just use current blog.
@@ -274,7 +274,7 @@ function generateApiQueryString( {
 		size: postsPerPage,
 	};
 
-	if ( staticFilters && Object.keys(staticFilters).length > 0 ) {
+	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
 		params = {
 			...params,
 			...buildStaticFilters( staticFilters )
