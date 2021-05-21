@@ -172,12 +172,19 @@ function render_image( $media ) {
 
 	// if image does not match.
 	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
+		$width  = isset( $media['width'] ) ? $media['width'] : EMBED_SIZE[0];
+		$height = isset( $media['height'] ) ? $media['height'] : EMBED_SIZE[1];
 		return sprintf(
-			'<img src="%1$s" alt="%2$s" class="wp-story-image" width="%3$s" height="%4$s" />',
-			esc_url( $media['url'] ),
-			esc_attr( isset( $media['alt'] ) ? $media['alt'] : '' ),
-			EMBED_SIZE[0],
-			EMBED_SIZE[1]
+			'<img
+				title="%1$s"
+				alt="%2$s"
+				class="wp-block-jetpack-story_image wp-story-image %3$s"
+				src="%4$s"
+			/>',
+			esc_attr( $media['title'] ),
+			esc_attr( $media['alt'] ),
+			get_image_crop_class( $width, $height ),
+			esc_attr( $media['url'] )
 		);
 	}
 
@@ -238,31 +245,13 @@ function render_video( $media ) {
 	}
 
 	if ( ! empty( $media['poster'] ) ) {
-		$poster_width  = $media['width'];
-		$poster_height = $media['height'];
-		$meta_width    = $media['width'];
-		$meta_height   = $media['height'];
-		$content_width = (int) Jetpack::get_content_width();
-		if ( is_numeric( $content_width ) ) {
-			$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
-			$poster_width  = $content_width;
-		}
-		$poster_url = add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $media['poster'] );
-		return sprintf(
-			'<img
-				title="%1$s"
-				alt="%2$s"
-				class="wp-block-jetpack-story_image wp-story-image %3$s"
-				src="%4$s"
-				width="%5$s"
-				height="%6$s"
-			/>',
-			esc_attr( $media['title'] ),
-			esc_attr( $media['alt'] ),
-			get_image_crop_class( $meta_width, $meta_height ),
-			esc_attr( $poster_url ),
-			esc_attr( $meta_width ),
-			esc_attr( $meta_height )
+		return render_image(
+			array_merge(
+				$media,
+				array(
+					'url' => $media['poster'],
+				)
+			)
 		);
 	}
 
