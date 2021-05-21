@@ -39,7 +39,7 @@ describe( 'Connection', () => {
 		await resetWordpressInstall();
 	} );
 
-	it( 'In-placez', async () => {
+	it( 'In-place', async () => {
 		await step( 'Can start in-place connection', async () => {
 			await doInPlaceConnection();
 		} );
