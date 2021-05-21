@@ -22,6 +22,10 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 	public function test_it_has_instance_loaded() {
 		$instance = Posts_List_Page_Notification::init();
 
+		$this->assertSame( 10, has_action( 'init', array( $instance, 'init_actions' ) ) );
+
+		$instance->init_actions();
+
 		$this->assertSame( 10, has_action( 'map_meta_cap', array( $instance, 'disable_posts_page' ) ) );
 		$this->assertSame( 10, has_action( 'post_class', array( $instance, 'add_posts_page_css_class' ) ) );
 		$this->assertSame( 10, has_action( 'admin_print_footer_scripts-edit.php', array( $instance, 'add_notification_icon' ) ) );
