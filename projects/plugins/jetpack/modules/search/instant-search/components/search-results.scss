@@ -227,13 +227,7 @@ $modal-max-width-lg: 95%;
 	line-height: 1;
 	width: 60px;
 	border-bottom: 1px solid $color-layout-borders;
-
-	// Override 2021 styling
-	body.jps-theme-twentytwentyone & {
-		&:not( :hover ):not( :active ):not( .has-background ) {
-			background-color: transparent;
-		}
-	}
+	background-color: transparent !important;
 
 	&:focus {
 		outline: 1px dotted;
@@ -243,8 +237,10 @@ $modal-max-width-lg: 95%;
 		fill: $color-text-lighter;
 	}
 	&:focus,
-	&:hover {
+	&:hover,
+	&:active {
 		border-color: $color-layout-borders;
+		background-color: transparent !important;
 		svg.gridicon {
 			fill: $color-text-light;
 		}
