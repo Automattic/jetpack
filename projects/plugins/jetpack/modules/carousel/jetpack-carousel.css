@@ -379,7 +379,7 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 .jp-carousel-titleanddesc-desc {
 	overflow: hidden;
-	text-overflow: ellipsis;
+	overflow-wrap: break-word;
 }
 
 .jp-carousel-titleanddesc-title {
