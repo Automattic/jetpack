@@ -52,11 +52,7 @@ export function getFilterKeys(
 * @return []Object
 */
 export function getAvailableStaticFilters () {
-	if ( ! window[ SERVER_OBJECT_NAME ] ) {
-		return [];
-	}
-
-	if ( ! window[ SERVER_OBJECT_NAME ].staticFilters ) {
+	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
 		return [];
 	}
 
