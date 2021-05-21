@@ -68,7 +68,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ userCanManageModules && (
 						<SettingsGroup
 							disableInOfflineMode
-							disableInUserlessMode
+							disableInSiteConnectionMode
 							module={ { module: 'publicize' } }
 							support={ {
 								text: __(

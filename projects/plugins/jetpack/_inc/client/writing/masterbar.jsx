@@ -30,7 +30,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ { module: 'masterbar' } }
 						support={ {
 							text: __(
