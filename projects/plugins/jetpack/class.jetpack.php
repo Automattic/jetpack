@@ -6243,7 +6243,7 @@ endif;
 	 * @return bool
 	 */
 	public static function validate_sync_error_idc_option() {
-		_deprecated_function( 'Jetpack::validate_sync_error_idc_option', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis::validate_sync_error_idc_option' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::validate_sync_error_idc_option' );
 		return Identity_Crisis::validate_sync_error_idc_option();
 	}
 
