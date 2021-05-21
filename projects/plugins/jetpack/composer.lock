@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "54c3f15fdcb25ab9eeb26dc757fbaf18",
+    "content-hash": "db9f1d355b384579a810d7fc2f05d61b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -711,7 +711,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "6942a8b2d3a32e2faa5ecbab2f32a4b11f70ff79"
+                "reference": "489949796bf3f14a0179e588404816c8ea4bb743"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -741,7 +741,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.15.x-dev"
+                    "dev-master": "1.16.x-dev"
                 }
             },
             "autoload": {
