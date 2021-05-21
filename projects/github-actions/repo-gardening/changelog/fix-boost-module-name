@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Boost: fix module name; it does not need to include a [Block] prefix.
