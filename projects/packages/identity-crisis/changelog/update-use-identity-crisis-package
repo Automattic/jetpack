@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Use Connection/Utils for home_url and site_url functions migrated from Sync.
+Use Connection/Urls for home_url and site_url functions migrated from Sync.
