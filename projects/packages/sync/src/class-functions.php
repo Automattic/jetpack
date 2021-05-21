@@ -360,7 +360,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function main_network_site_url() {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::main_network_site_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Urls::main_network_site_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::main_network_site_url' );
 		return Urls::main_network_site_url();
 	}
 
