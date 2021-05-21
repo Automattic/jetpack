@@ -350,7 +350,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function site_url() {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::site_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Urls::site_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::site_url' );
 		return Urls::site_url();
 	}
 
