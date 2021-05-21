@@ -114,6 +114,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 .jp-carousel-left-column-wrapper {
 	flex-grow: 1;
+	flex-shrink: 1;
+	overflow: hidden;
 }
 
 .jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
@@ -374,6 +376,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	font-weight: 400;
 	width: 100%;
 }
+
+.jp-carousel-titleanddesc-desc {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .jp-carousel-titleanddesc-title {
 	font: 300 1.5em/1.1 "Helvetica Neue", sans-serif !important;
 	text-transform: none !important; /* prevents uppercase from leaking through */
@@ -441,6 +449,7 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	width: 209px !important;
 	margin-top: 20px;
 	margin-left: 40px;
+	flex-shrink: 0;
 }
 
 .jp-carousel-image-meta li,
