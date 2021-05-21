@@ -163,9 +163,9 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
-			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-			add_action( 'current_screen', array( $this, 'unread_count' ) );
 		}
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'current_screen', array( $this, 'unread_count' ) );
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
@@ -179,7 +179,7 @@ class Grunion_Contact_Form_Plugin {
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
-				'show_in_menu'          => 'edit.php?post_type=feedback',
+				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
 				'rewrite'               => false,
@@ -435,10 +435,10 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Add the 'Export' and 'Form Responses' menu item as a submenu of Feedback.
+	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
-		$slug = 'edit.php?post_type=feedback';
+		$slug = 'feedback';
 
 		add_menu_page(
 			__( 'Feedback', 'jetpack' ),
@@ -450,28 +450,19 @@ class Grunion_Contact_Form_Plugin {
 			45
 		);
 
-		remove_submenu_page(
-			$slug,
-			$slug
-		);
-
 		add_submenu_page(
 			$slug,
 			__( 'Form Responses', 'jetpack' ),
 			__( 'Form Responses', 'jetpack' ),
 			'edit_pages',
-			$slug,
+			'edit.php?post_type=feedback',
 			null,
 			0
 		);
 
-		add_submenu_page(
+		remove_submenu_page(
 			$slug,
-			__( 'Export responses as CSV', 'jetpack' ),
-			__( 'Export CSV', 'jetpack' ),
-			'export',
-			'feedback-export',
-			array( $this, 'export_form' )
+			$slug
 		);
 	}
 
@@ -494,14 +485,16 @@ class Grunion_Contact_Form_Plugin {
 		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
-			global $menu;
-			if ( isset( $menu ) && is_array( $menu ) && ! empty( $menu ) ) {
-				foreach ( $menu as $index => $menu_item ) {
+			global $submenu;
+			if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
+				foreach ( $submenu['feedback'] as $index => $menu_item ) {
 					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
 						$unread = get_option( 'feedback_unread_count', 0 );
 						if ( $unread > 0 ) {
-							$unread_count       = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
-							$menu[ $index ][0] .= $unread_count;
+							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
+
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['feedback'][ $index ][0] .= $unread_count;
 						}
 						break;
 					}

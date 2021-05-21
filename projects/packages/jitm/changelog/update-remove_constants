@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+JITM: remove jetpack-constants dependency from composer.json
