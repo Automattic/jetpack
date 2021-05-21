@@ -54,6 +54,7 @@ class Posts_List_Page_Notification {
 		\add_filter( 'map_meta_cap', array( $this, 'disable_posts_page' ), 10, 4 );
 		\add_filter( 'post_class', array( $this, 'add_posts_page_css_class' ), 10, 3 );
 		\add_action( 'admin_print_footer_scripts-edit.php', array( $this, 'add_notification_icon' ) );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_css' ) );
 	}
 
 	/**
@@ -91,6 +92,15 @@ class Posts_List_Page_Notification {
 	}
 
 	/**
+	 * Load the CSS for the WP Posts List
+	 *
+	 * We would probably need to move this elsewhere when new features are introduced to wp-posts-list.
+	 */
+	public function enqueue_css() {
+		\wp_enqueue_style( 'wp-posts-list', plugins_url( 'wp-posts-list.css', __FILE__ ), array(), JETPACK__VERSION );
+	}
+
+	/**
 	 * Adds a CSS class on the page configured as a Posts Page.
 	 *
 	 * @param array  $classes A list of CSS classes.
@@ -122,7 +132,8 @@ class Posts_List_Page_Notification {
 		$text_notice = __( 'The content of your latest posts page is automatically generated and cannot be edited', 'jetpack' );
 		?>
 		<script>
-			document.querySelector(".posts-page .check-column").innerHTML = '<span title="<?php echo esc_html( $text_notice ); ?>" style="margin-left: 8px" class="dashicons dashicons-info-outline"></span>';
+			document.querySelector(".posts-page .check-column").innerHTML = '' +
+					'<div class="info"><span class="icon dashicons dashicons-info-outline"></span><span class="message"><?php echo esc_html( $text_notice ); ?></span></div>';
 		</script>
 		<?php
 	}
