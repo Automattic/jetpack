@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Replace user locale with WordPress.com user locale on Atomic.

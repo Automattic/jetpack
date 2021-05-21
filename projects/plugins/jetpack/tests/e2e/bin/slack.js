@@ -183,46 +183,47 @@ async function reportJobRun( status ) {
 // region helper methods
 /**
  * Pulls all Github information into a single object
+ * Expecting an env variable named GITHUB_CONTEXT having the github context as value in json format
  *
  * @return {Object} object with all information
  */
-function getGithubInfo() {
-	const { GITHUB_EVENT_PATH, GITHUB_RUN_ID } = process.env;
+function getGithubContext() {
+	const { GITHUB_CONTEXT } = process.env;
 
-	if ( ! GITHUB_EVENT_PATH || ! GITHUB_RUN_ID ) {
+	if ( ! GITHUB_CONTEXT ) {
 		throw new Error(
-			'Undefined GITHUB_EVENT_PATH and/or GITHUB_RUN_ID. Are you running this in Github actions?'
+			'Undefined GITHUB_CONTEXT. You should be running this in Github actions and github context should be dumped into GITHUB_CONTEXT env var.'
 		);
 	}
 
-	const event = JSON.parse( fs.readFileSync( GITHUB_EVENT_PATH, 'utf8' ) );
+	const ctx = JSON.parse( GITHUB_CONTEXT );
 
 	const gh = {
 		run: {
-			id: GITHUB_RUN_ID,
-			url: `${ event.repository.html_url }/actions/runs/${ GITHUB_RUN_ID }`,
+			id: ctx.run_id,
+			url: `${ ctx.server_url }/${ ctx.repository }/actions/runs/${ ctx.run_id }`,
 		},
 		branch: {},
 	};
 
-	if ( event.pull_request ) {
+	if ( ctx.event_name === 'pull_request' ) {
 		gh.pr = {};
-		gh.pr.number = event.pull_request.number;
-		gh.pr.url = event.pull_request.html_url;
-		gh.pr.title = event.pull_request.title;
+		gh.pr.number = ctx.event.pull_request.number;
+		gh.pr.url = ctx.event.pull_request.html_url;
+		gh.pr.title = ctx.event.pull_request.title;
 
-		gh.branch.name = event.pull_request.head.ref;
+		gh.branch.name = ctx.head_ref;
 	} else {
-		gh.branch.name = event.ref.substr( 11 );
+		gh.branch.name = ctx.ref.substr( 11 );
 	}
 
-	gh.branch.url = `${ event.repository.html_url }/tree/${ gh.branch.name }`;
+	gh.branch.url = `${ ctx.server_url }/${ ctx.repository }/tree/${ gh.branch.name }`;
 
 	return gh;
 }
 
 function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
-	const gh = getGithubInfo();
+	const gh = getGithubContext();
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
 

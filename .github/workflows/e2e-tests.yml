@@ -122,10 +122,7 @@ jobs:
     - name: Set up Gutenberg
       if: matrix.group == 'gutenberg'
       working-directory: projects/plugins/jetpack/tests/e2e
-      run: |
-        export GUTENBERG=latest
-        echo "$GUTENBERG" >> $GITHUB_ENV;
-        ./bin/env.sh config-gb
+      run: ./bin/env.sh gb-setup
 
     - name: Run ${{ matrix.group }} tests
       working-directory: projects/plugins/jetpack/tests/e2e
@@ -147,6 +144,13 @@ jobs:
         name: test-output-${{ matrix.group }}
         path: projects/plugins/jetpack/tests/e2e/output
 
+    - name: Send Slack notification
+      if: ${{ failure() }}
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      working-directory: projects/plugins/jetpack/tests/e2e
+      run: NODE_ENV=test node ./bin/slack.js run ${{ matrix.group }}
+
     - uses: testspace-com/setup-testspace@v1
       with:
         domain: ${{github.repository_owner}}
@@ -157,17 +161,13 @@ jobs:
         testspace "[${{ matrix.group }}]output/reports/junit-*.xml"
       if: always()
 
-    - name: Send Slack notification
-      if: ${{ failure() }}
-      working-directory: projects/plugins/jetpack/tests/e2e
-      run: NODE_ENV=test node ./bin/slack.js run ${{ matrix.group }}
-
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
     needs: e2e-tests
     env:
       CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+      GITHUB_CONTEXT: ${{ toJson(github) }}
 
     steps:
       - uses: actions/checkout@v2

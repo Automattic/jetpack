@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Supplying a default value for Calendly input values to avoid React controlled component console error.

@@ -2023,11 +2023,11 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
-		$is_userless = self::connection()->is_userless();
+		$is_site_connection = self::connection()->is_site_connection();
 
 		foreach ( $modules as $index => $module ) {
-			// If we're in offline/user-less mode, disable modules requiring a connection/user connection.
-			if ( $is_offline_mode || $is_userless ) {
+			// If we're in offline/site-connection mode, disable modules requiring a connection/user connection.
+			if ( $is_offline_mode || $is_site_connection ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = self::get_module( $module );
@@ -2037,7 +2037,7 @@ class Jetpack {
 					continue;
 				}
 
-				if ( $is_userless && $modules_data[ $module ]['requires_user_connection'] ) {
+				if ( $is_site_connection && $modules_data[ $module ]['requires_user_connection'] ) {
 					continue;
 				}
 			}
@@ -7430,7 +7430,7 @@ endif;
 			self::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), $redirect_on_activation_error, $send_state_messages );
 		} else {
 			// Default modules that don't require a user were already activated on site_register.
-			// This time let's activate only those that require a user, this assures we don't reactivate manually deactivated modules while the site was user-less.
+			// This time let's activate only those that require a user, this assures we don't reactivate manually deactivated modules while the site was connected only at a site level.
 			self::activate_default_modules( false, false, $other_modules, $redirect_on_activation_error, $send_state_messages, null, true );
 			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		}

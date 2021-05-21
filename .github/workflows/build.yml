@@ -100,7 +100,7 @@ jobs:
     name: Create artifact for Jetpack Beta plugin
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request' && github.repository == 'Automattic/jetpack'
+    if: github.repository == 'Automattic/jetpack'
     timeout-minutes: 15  # 2021-01-18: Successful runs seem to usually take ~2 minutes, but sometimes the upload is slow and it takes 12.
     steps:
       - uses: actions/checkout@v2

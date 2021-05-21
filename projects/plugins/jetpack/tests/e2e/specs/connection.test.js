@@ -3,7 +3,7 @@ import config from 'config';
 import { step } from '../lib/env/test-setup';
 import {
 	doInPlaceConnection,
-	doUserlessConnection,
+	doSiteLevelConnection,
 	loginToWpComIfNeeded,
 	loginToWpSite,
 	doClassicConnection,
@@ -56,8 +56,8 @@ describe( 'Connection', () => {
 			await ( await Sidebar.init( page ) ).removeCookieByName( 'wordpress_logged_in' );
 		} );
 
-		await step( 'Can start Userless connection', async () => {
-			await doUserlessConnection();
+		await step( 'Can start Site Level connection', async () => {
+			await doSiteLevelConnection();
 		} );
 
 		await step( 'Can assert that site is connected', async () => {
