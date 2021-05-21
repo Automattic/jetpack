@@ -149,6 +149,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_segment',
 		'import_engine',
 		'is_wpforteams_site',
+		'p2_hub_blog_id',
 		'site_creation_flow',
 		'is_cloud_eligible',
 		'selected_features',
@@ -637,6 +638,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_wpforteams_site':
 					$options[ $key ] = $site->is_wpforteams_site();
 					break;
+				case 'p2_hub_blog_id':
+					$options[ $key ] = $site->get_p2_hub_blog_id();
+					break;
+
 				case 'site_creation_flow':
 					$site_creation_flow = $site->get_site_creation_flow();
 					if ( $site_creation_flow ) {
