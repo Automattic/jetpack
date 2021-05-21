@@ -6278,7 +6278,7 @@ endif;
 	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
-		_deprecated_function( 'Jetpack::get_sync_error_idc_option', 'jetpack-9.8', '/Automattic/Jetpack/Identity_Crisis::get_sync_error_idc_option' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Identity_Crisis::get_sync_error_idc_option' );
 		return Identity_Crisis::get_sync_error_idc_option( $response );
 	}
 
