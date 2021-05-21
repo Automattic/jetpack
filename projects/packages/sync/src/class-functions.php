@@ -330,7 +330,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function get_raw_or_filtered_url( $url_type ) {
-		_deprecated_function( '/Automattic/Jetpack/Sync/Functions::get_raw_or_filtered_url', 'jetpack-9.8', '/Automattic/Jetpack/Connection/Urls::get_raw_or_filtered_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_or_filtered_url' );
 		return Urls::get_raw_or_filtered_url( $url_type );
 	}
 
