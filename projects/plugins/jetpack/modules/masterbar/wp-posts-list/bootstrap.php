@@ -8,12 +8,16 @@
 /**
  * Load the Posts_List_Notification.
  */
-global $pagenow;
+function masterbar_init_wp_posts_list() {
+	global $pagenow;
 
-if (
-	( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && 'page' === $_GET['post_type'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	|| 'post.php' === $pagenow
-) {
-	require_once __DIR__ . '/class-posts-list-page-notification.php';
-	Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::init();
+	if (
+		( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && 'page' === $_GET['post_type'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		|| 'post.php' === $pagenow
+	) {
+		require_once __DIR__ . '/class-posts-list-page-notification.php';
+		Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::init();
+	}
 }
+
+add_action( 'init', 'masterbar_init_wp_posts_list', 1 );
