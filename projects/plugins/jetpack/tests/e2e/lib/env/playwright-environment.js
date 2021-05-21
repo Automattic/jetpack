@@ -1,4 +1,3 @@
-const NodeEnvironment = require( 'jest-environment-node' );
 const { chromium } = require( 'playwright' );
 const os = require( 'os' );
 const fs = require( 'fs' );
@@ -9,11 +8,12 @@ const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
+const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
-class PlaywrightCustomEnvironment extends NodeEnvironment {
+class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async setup() {
 		await super.setup();
 
@@ -40,7 +40,9 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.global.context.close();
 	}
 
-	async handleTestEvent( event ) {
+	async handleTestEvent( event, state ) {
+		await super.handleTestEvent( event, state );
+
 		let eventName;
 
 		if ( event.hook ) {
@@ -249,4 +251,4 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	}
 }
 
-module.exports = PlaywrightCustomEnvironment;
+module.exports = PlaywrightEnvironment;
