@@ -44,7 +44,7 @@ export default function SendAMessageSave( { attributes, className } ) {
 	const target = openInNewTab ? '_blank' : '_self';
 
 	return (
-		<div className={ cssClassNames }>
+		<div className={ cssClassNames } style="color: red">
 			<a
 				className="whatsapp-block__button"
 				href={ getWhatsAppUrl() }
