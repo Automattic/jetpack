@@ -42,11 +42,18 @@ class Posts_List_Page_Notification {
 	 * @param string $posts_page_id The Posts page configured in WordPress.
 	 */
 	public function __construct( $posts_page_id ) {
+		add_action( 'init', array( $this, 'init_actions' ) );
+
+		$this->posts_page_id = '' === $posts_page_id ? null : (int) $posts_page_id;
+	}
+
+	/**
+	 * Add in all hooks.
+	 */
+	public function init_actions() {
 		\add_filter( 'map_meta_cap', array( $this, 'disable_posts_page' ), 10, 4 );
 		\add_filter( 'post_class', array( $this, 'add_posts_page_css_class' ), 10, 3 );
 		\add_action( 'admin_print_footer_scripts-edit.php', array( $this, 'add_notification_icon' ) );
-
-		$this->posts_page_id = '' === $posts_page_id ? null : (int) $posts_page_id;
 	}
 
 	/**
