@@ -67,9 +67,18 @@ async function hasEditorialInputRequestedLabel( octokit, owner, repo, number ) {
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
  */
 async function notifyEditorial( payload, octokit ) {
-	const { number, repository } = payload;
+	const { number, pull_request, repository } = payload;
+	const { head, base } = pull_request;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;
+
+	// Bail early for OSS contributors. They do not have access to Slack tokens.
+	if ( head.repo.full_name !== base.repo.full_name ) {
+		debug(
+			`notify-editorial: Design input will not be requerested for PR #${ number }, it was created from a fork. Aborting.`
+		);
+		return;
+	}
 
 	const slackToken = getInput( 'slack_token' );
 	if ( ! slackToken ) {
