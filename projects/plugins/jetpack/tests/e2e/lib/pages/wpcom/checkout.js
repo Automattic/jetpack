@@ -10,10 +10,14 @@ export default class CheckoutPage extends WpPage {
 
 	async processPurchase( cardCredentials ) {
 		// Enter billing info
-		const isBillingFilledIn = await this.isElementVisible( 'select#country-selector', 2000 );
 
-		if ( ! isBillingFilledIn ) {
-			await this.selectOption( `select#country-selector`, cardCredentials.cardCountryCode );
+		const isBillingNotFilledIn = await this.isElementVisible(
+			'#country-selector:not([disabled])',
+			5000
+		);
+
+		if ( isBillingNotFilledIn ) {
+			await this.selectOption( `#country-selector`, cardCredentials.cardCountryCode );
 			await this.type( '#contact-postal-code', cardCredentials.cardPostCode, {
 				delay: 10,
 			} );
