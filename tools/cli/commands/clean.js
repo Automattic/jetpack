@@ -28,15 +28,19 @@ export function cleanDefine( yargs ) {
 					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 					type: 'string',
 				} )
-				.option( 'ignored', {
-					alias: 'i',
-					type: 'boolean',
-					description: 'Remove git ignored files',
+				.positional( 'include', {
+					describe: 'Files/folders to include for deletion',
+					type: 'string',
+					choices: [ 'node_modules', 'composer.lock', 'vendor', 'working', 'everything', ]
 				} )
 				.option( 'all', {
 					alias: 'a',
 					type: 'boolean',
-					description: 'Remove all unversioned files from the entire monorepo ',
+					description: 'Remove files from the entire monorepo ',
+				} )
+				.option( 'dist', {
+					type: 'boolean',
+					description: 'Remove distributed files (vendor, node_modules)'
 				} );
 		},
 		async argv => {
@@ -57,9 +61,6 @@ export function cleanDefine( yargs ) {
  */
 export async function cleanCli( argv ) {
 	argv = normalizeCleanArgv( argv );
-	if ( argv.all ) {
-		argv.project = '.';
-	}
 	if ( ! argv.project ) {
 		argv = await promptForScope( argv );
 		switch ( argv.scope ) {
@@ -75,18 +76,55 @@ export async function cleanCli( argv ) {
 				break;
 		}
 	}
-	await promptForClean( argv );
-	await makeOptions( argv );
-	console.log( argv );
-	await runCommand( argv, '-n' ); // dry run
-	const runConfirm = await confirmRemove();
-	if ( runConfirm ) {
-		console.log( `Doin' it live` );
-		//await runCommand( argv, '-f' ); // do it live.
+	if ( ! argv.includes ) {
+		await promptForClean( argv );
 	}
+	await makeOptions( argv );
+	await handleCommands( argv );
+
 	return;
 }
 
+async function handleCommands( argv ) {
+	let mode = '';
+	if ( argv.cmd !== 'find' ) {
+		mode = '-n';
+	}
+	await runCommand( argv.cmd, argv.options, '-n' ); // dry run
+	if ( argv.include.toClean === 'both' ) {
+		runCommand( argv.cmd, [ `clean`, argv.project ], '-n' );
+	}
+
+	const runConfirm = await confirmRemove();
+
+	if ( runConfirm ) {
+		console.log( chalk.green( `Cleaning files...` ) );
+		//await runCommand( argv.cmd, argv.options, '-f' ); // do it live.
+		if ( argv.include.toClean === 'both' ) {
+			console.log( chalk.green( 'Cleaning working files...' ) );
+			//runCommand( argv.cmd, [ `clean`, argv.project ], '-f' );
+		}
+	}
+}
+
+async function parseArgs( argv ) {
+	if ( argv.all ) {
+		argv.project = '.';
+	}
+	if ( argv.dist ) {
+		argv.options.push( 'node_modules', 'vendor' );
+	}
+
+	if ( argv.include ) {
+		const defaultIgnored = [ 'vendor', 'composer.lock', 'node_modules' ];
+		if ( defaultIgnored.includes( argv.include ) ) {
+			argv.include.ignored = [ argv.include ];
+		}
+		argv.options.push( argv.include );
+	}
+
+	return argv;
+}
 /**
  * Compiles options for git clean.
  *
@@ -94,8 +132,32 @@ export async function cleanCli( argv ) {
  * @returns {object} argv.
  */
 export async function makeOptions( argv ) {
-	argv.options = [ 'clean' ];
+	if (
+			argv.include.toClean === 'vendor' ||
+			argv.include.toClean === 'node_modules' ||
+			argv.include.toClean === 'composer.lock'
+	) {
+		argv.options = []; // to replace with '-r'
+		argv.cmd = 'find'; //to replace with 'rm'
+		argv = await makeRemove( argv );
+	} else {
+		argv.options = [ 'clean' ];
+		argv.cmd = 'git';
+		argv = await makeClean( argv );
+	}
 
+	//argv = await parseArgs( argv );
+	console.log(argv);
+	return argv;
+}
+
+/**
+ * For running git clean to remove untracked files.
+ *
+ * @param {object} argv - arguments passed.
+ * @returns {object} argv.
+ */
+async function makeClean ( argv ) {
 	// If we're running in root, we need to flag we want to remove files in subdirectories.
 	if ( argv.project === '.' ) {
 		argv.options.push( '-d' );
@@ -103,32 +165,58 @@ export async function makeOptions( argv ) {
 		argv.options.push( argv.project );
 	}
 
-	// Add option to remove git ignored files.
-	if ( argv.clean.toClean !== 'working' ) {
-		argv.options.push( argv.clean.toClean );
+	if ( argv.include.toClean === 'ignored' || argv.include.toClean === 'both' ) {
+			argv.options.push( '-X' );
 	}
 
 	// Add any ignored files that we want to delete.
-	if ( ! argv.clean.ignoreInclude ) {
-		argv.clean.ignoreInclude = [];
+	if ( ! argv.include.ignored ) {
+		argv.include.ignored = [];
 	}
-	await addIgnored( argv.clean.ignoreInclude, argv.options );
-
+	await checkExclude( argv.include.ignored, argv.options );
 	return argv;
 }
 
 /**
+ * For running git clean to remove untracked files.
+ *
+ * @param {object} argv - arguments passed.
+ * @returns {object} argv.
+ */
+async function makeRemove( argv ) {
+	const toClean = argv.include.toClean;
+	switch ( argv.scope ) {
+		case 'project':
+			argv.options.push( `projects/${argv.project}/${toClean}` );
+			break;
+		case 'type':
+			argv.options.push( `${argv.project}/*/${toClean}` );
+			break;
+		case 'all':
+			argv.options.push( `${toClean}` );
+			argv.options.push( `projects/*/*/${toClean}` );
+			break;
+	}	return argv;
+}
+
+async function getOptions ( argv ) {
+	const options = argv.options.join( ' ' );
+	console.log(options);
+	return options;
+}
+/**
  * Excludes files that we don't want to delete.
  *
- * @param {Array} ignoreInclude - files that are gitignored that we want to delete.
+ * @param {Array} toDelete - files that are gitignored that we want to delete.
  * @param {Array} options - the git clean options.
  * @returns {Array} options.
  */
-async function addIgnored( ignoreInclude, options ) {
+async function checkExclude( toDelete, options ) {
 	const defaultIgnored = [ 'vendor', 'composer.lock', 'node_modules' ];
-	for ( const toDelete of defaultIgnored ) {
-		if ( ! ignoreInclude.includes( toDelete ) ) {
-			options.push( `-e "\!${ toDelete }"` ); //todo: add eslint ignore for backslash which prevents potential bash history substitution issues.
+	for ( const fileFolder of defaultIgnored ) {
+		if ( ! toDelete.includes( fileFolder ) ) {
+			options.push( `-e` );
+			options.push( "\\!${ fileFolder }" ); // This doesn't work :/
 		}
 	}
 	return options;
@@ -137,17 +225,18 @@ async function addIgnored( ignoreInclude, options ) {
 /**
  * Runs the actual command.
  *
- * @param {object} argv - the arguments passed.
+ * @param {string} cmd - the shell command to run.
+ * @param {object} options - the command options passed.
  * @param {string} mode - specifies dry run (-n) or force (-f).
  */
-export async function runCommand( argv, mode ) {
-	const data = child_process.spawnSync( `git`, [ ...argv.options, mode ], {
+export async function runCommand( cmd, options, mode = '' ) {
+	console.log(mode);
+	const data = child_process.spawnSync( cmd, [ ...options, mode ], {
 		stdio: 'inherit',
 	} );
-
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
-		console.error( chalk.red( argv.error ) );
+		console.error( 'Error!' );
 		process.exit( data.status );
 	}
 }
@@ -208,6 +297,23 @@ export async function promptForScope( argv ) {
  * @returns {argv} argv
  */
 export async function promptForClean( argv ) {
+	const ignoreChoices = [
+		{
+			name: 'vendor',
+			checked: false,
+		},
+		{
+			name: 'node_modules',
+			checked: false,
+		}
+	];
+	// Composer.lock is checked in for root and plugins, so don't show option to remove for those cases.
+	if ( argv.project !== 'projects/plugins' ) {
+		ignoreChoices.push( {
+			name: 'composer.lock',
+			checked: false,
+		} );
+	}
 	const response = await inquirer.prompt( [
 		{
 			type: 'list',
@@ -222,43 +328,26 @@ export async function promptForClean( argv ) {
 				},
 				{
 					name: 'Only git-ignored files/folders.',
-					value: '-X',
+					value: 'ignored',
 				},
 				{
 					name: 'Both working files and git-ignored files/folders',
-					value: '-x',
+					value: 'both',
 				},
+				...ignoreChoices
 			],
-		},
-		{
-			type: 'confirm',
-			name: 'folders',
-			value: '-d',
-			default: true,
-			message: `Do you wish to delete folders/files within root subdirectories as well?`,
-			when: argv.type === 'all',
 		},
 		{
 			type: 'checkbox',
-			name: 'ignoreInclude',
+			name: 'ignored',
 			message: `Delete any of the following? (you will need to run 'jetpack install ${ argv.project }' to reinstall them)`,
-			choices: [
-				{
-					name: 'vendor',
-					checked: false,
-				},
-				{
-					name: 'node_modules',
-					checked: false,
-				},
-				{
-					name: 'composer.lock',
-					checked: false,
-				},
-			],
-			when: answers => answers.toClean !== 'working',
+			choices: ignoreChoices,
+			when: answers => answers.toClean === 'both' || 'ignored',
 		},
 	] );
-	argv.clean = { ...response };
+	argv.include = { ...response };
 	return argv;
 }
+
+// jetpack clean [project] node_modules/composer.lock/vendor/working/all
+// If we want to remove working AND untracked, we have to do them separately and use X to exclude.
