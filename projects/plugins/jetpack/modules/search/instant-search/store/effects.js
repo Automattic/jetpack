@@ -190,6 +190,7 @@ function clearFilterQueryString( action ) {
 
 	const queryObject = getQuery();
 	getFilterKeys().forEach( key => delete queryObject[ key ] );
+	getStaticFilterKeys().forEach( key => delete queryObject[ key ] );
 	setQuery( queryObject );
 }
 
