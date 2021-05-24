@@ -75,7 +75,7 @@ async function notifyDesign( payload, octokit ) {
 	// Bail early for OSS contributors. They do not have access to Slack tokens.
 	if ( head.repo.full_name !== base.repo.full_name ) {
 		debug(
-			`notify-design: Design input will not be requerested for PR #${ number }, it was created from a fork. Aborting.`
+			`notify-design: Design input will not be requested for PR #${ number }, it was created from a fork. Aborting.`
 		);
 		return;
 	}

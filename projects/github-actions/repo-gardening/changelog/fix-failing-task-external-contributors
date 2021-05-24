@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tasks relying on Slack running on pull_request events: bail early wwithout failing when PR was opened from a fork.
+Tasks relying on Slack running on pull_request events: bail early without failing when PR was opened from a fork.
