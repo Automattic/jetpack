@@ -258,7 +258,7 @@ describe( 'staticFilters Reducer', () => {
 		} ) );
 		const state = staticFilters( undefined, setStaticFilter( 'group_id', 'p2' ) );
 		expect( state ).toEqual( {
-			group_id: [ 'p2' ],
+			group_id: 'p2',
 		} );
 		windowSpy.mockRestore();
 	} );
