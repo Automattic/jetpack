@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Removed use of experimental feature and replaced with new `useBlockProps` hook to ensure video block continues to function correctly
