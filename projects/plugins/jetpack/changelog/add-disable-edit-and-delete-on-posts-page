@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Disabled editing and deleting pages in WP-Admin Pages list screen for the page that is configured as a Posts page.
