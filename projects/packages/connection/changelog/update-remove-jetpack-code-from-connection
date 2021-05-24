@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Connection package independence: Move a Jetpack specfic connection routine out of the package and into the plugin

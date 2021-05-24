@@ -19,14 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.15.2-alpha';
-
-	/**
-	 * Whether the JITMs have been registered.
-	 *
-	 * @var bool
-	 */
-	private static $jitms_registered = false;
+	const PACKAGE_VERSION = '1.16.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -54,12 +47,10 @@ class JITM {
 	 * Sets up JITM action callbacks if needed.
 	 */
 	public function register() {
-		if ( self::$jitms_registered ) {
+		if ( did_action( 'jetpack_registered_jitms' ) ) {
 			// JITMs have already been registered.
 			return;
 		}
-
-		self::$jitms_registered = true;
 
 		if ( ! $this->jitms_enabled() ) {
 			// Do nothing.
@@ -74,6 +65,14 @@ class JITM {
 		 * These are sync actions that we need to keep track of for jitms.
 		 */
 		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+
+		/**
+		 * Fires when the JITMs are registered. This action is used to ensure that
+		 * JITMs are registered only once.
+		 *
+		 * @since 9.8
+		 */
+		do_action( 'jetpack_registered_jitms' );
 	}
 
 	/**

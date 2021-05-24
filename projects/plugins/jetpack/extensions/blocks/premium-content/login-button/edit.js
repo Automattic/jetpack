@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from '@wordpress/element';
 import { PanelBody, RangeControl } from '@wordpress/components';
-import { InspectorControls, RichText, __experimentalBlock as Block } from '@wordpress/block-editor';
+import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -49,10 +49,14 @@ function LoginButtonEdit( props ) {
 
 	const colorProps = getColorAndStyleProps( attributes );
 
+	const blockProps = useBlockProps( {
+		className: 'wp-block-button',
+	} );
+
 	return (
 		<>
 			{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
-			<Block.div className="wp-block-button">
+			<div { ...blockProps }>
 				<RichText
 					placeholder={ __( 'Add text…', 'jetpack' ) }
 					value={ text }
@@ -66,7 +70,7 @@ function LoginButtonEdit( props ) {
 						...colorProps.style,
 					} }
 				/>
-			</Block.div>
+			</div>
 			<InspectorControls>
 				<ColorEdit { ...props } />
 				<BorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />

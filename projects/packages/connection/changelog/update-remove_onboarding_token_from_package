@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove onboarding_token logic in the Remote provision XMLRPC method from the Connection package and add it to the Jetpack plugin

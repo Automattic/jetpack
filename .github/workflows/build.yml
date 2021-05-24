@@ -1,8 +1,12 @@
 name: Build
 on:
   push:
-    branches: [ '**' ]
+    branches: [ 'master', '**/branch-**' ]
   pull_request:
+concurrency:
+  # Cancel concurrent jobs on pull_request but not push, by including the run_id in the concurrency group for the latter.
+  group: build-${{ github.event_name == 'push' && github.run_id || 'pr' }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"
@@ -12,9 +16,6 @@ jobs:
     name: Build all projects
     runs-on: ubuntu-latest
     timeout-minutes: 15  # 2021-03-16: Successful runs seem to take 9-10 minutes now.
-
-    # Push also covers pull requests for non-forked repos. So only run on PR for forked PRs.
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     steps:
       - uses: actions/checkout@v2
@@ -99,7 +100,7 @@ jobs:
     name: Create artifact for Jetpack Beta plugin
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
+    if: github.repository == 'Automattic/jetpack'
     timeout-minutes: 15  # 2021-01-18: Successful runs seem to usually take ~2 minutes, but sometimes the upload is slow and it takes 12.
     steps:
       - uses: actions/checkout@v2
@@ -164,12 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
-    # Mirror master and any branch matching "*/branch-*". But note the latter is special cased
-    # in .github/files/push-all-projects.sh.
-    # Keep this in sync with the corresponding condition in cancel-dups.yml.
-    if: >
-      ( github.ref == 'refs/heads/master' || contains( github.ref, '/branch-' ) ) &&
-      github.event_name == 'push'  && github.repository == 'Automattic/jetpack'
+    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:

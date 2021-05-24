@@ -141,7 +141,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_appearance_menu( false, false );
 
 		// Check Customize menu always links to WP Admin.
-		$this->assertSame( 'customize.php', array_pop( $submenu['themes.php'] )[2] );
+		$this->assertSame( 'customize.php', array_pop( $submenu[ 'https://wordpress.com/themes/' . static::$domain ] )[2] );
 	}
 
 	/**

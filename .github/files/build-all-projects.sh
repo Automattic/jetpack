@@ -141,6 +141,25 @@ for SLUG in "${SLUGS[@]}"; do
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
 	fi
 
+	# Copy license.
+	LICENSE=$(jq -r '.license // ""' composer.json)
+	if [[ -n "$LICENSE" ]]; then
+		echo "License: $LICENSE"
+		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License file copied."
+		else
+			echo "::error file=projects/$SLUG/composer.json::License value not approved."
+			EXIT=1
+			continue
+		fi
+	else
+		echo "No license declared."
+		# TODO: Make this an error?
+	fi
+
+	# Copy SECURITY.md
+	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
+
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{
 		# Include unignored files by default.

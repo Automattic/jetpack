@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import getJetpackData from './get-jetpack-data';
-import { isSimpleSite } from './site-type-utils';
+import { isSimpleSite, isAtomicSite } from './site-type-utils';
 import getSiteFragment from './get-site-fragment';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import { requiresPaidPlan } from './register-jetpack-block';
@@ -50,10 +50,10 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 				);
 		  }
 		: () => {
-				// The editor for CPTs has an `edit/` route fragment prefixed
+				// The editor for CPTs has an `edit/` route fragment prefixed.
 				const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-				// Post-checkout: redirect back here
+				// Post-checkout: redirect back here.
 				return isSimpleSite()
 					? addQueryArgs(
 							'/' +
@@ -74,6 +74,14 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 							}
 					  );
 		  } )();
+
+	// Redirect to calypso plans page for WoC sites.
+	if ( isAtomicSite() ) {
+		return addQueryArgs( `https://wordpress.com/plans/${ getSiteFragment() }`, {
+			redirect_to,
+			customerType: 'business',
+		} );
+	}
 
 	return (
 		planPathSlug &&

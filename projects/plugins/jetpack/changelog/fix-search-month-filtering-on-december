@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Search: Fix a bug that malformed the API request when filtering for results posted/updated in December.

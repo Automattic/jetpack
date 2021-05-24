@@ -77,7 +77,7 @@ const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
  * @param {string} type - Date range type (year vs month).
  * @returns {object} date filter.
  */
-function generateDateRangeFilter( fieldName, input, type ) {
+export function generateDateRangeFilter( fieldName, input, type ) {
 	let year, month;
 	if ( type === 'year' ) {
 		[ , year, , ] = input.match( DATE_REGEX );
@@ -89,8 +89,10 @@ function generateDateRangeFilter( fieldName, input, type ) {
 	let startDate = '';
 	let endDate = '';
 	if ( month ) {
+		const nextMonth = +month + 1;
+		const nextMonthPadded = nextMonth < 10 ? `0${ nextMonth }` : `${ nextMonth }`;
 		startDate = `${ year }-${ month }-01`;
-		endDate = `${ year }-${ +month + 1 }-01`;
+		endDate = nextMonth <= 12 ? `${ year }-${ nextMonthPadded }-01` : `${ +year + 1 }-01-01`;
 	} else if ( year ) {
 		startDate = `${ year }-01-01`;
 		endDate = `${ +year + 1 }-01-01`;

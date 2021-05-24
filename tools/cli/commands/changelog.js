@@ -252,7 +252,11 @@ async function checkSpecialProjects( needChangelog ) {
 		const composerJSON = readComposerJson( proj );
 		// todo - handle duplicate special projects with the same type of requirements.
 		// todo - If we want to generate changelogger questions dynamically, we can push the entire composerJSON.extra.changelogger.types object.
-		if ( composerJSON.extra.changelogger && composerJSON.extra.changelogger.types ) {
+		if (
+			composerJSON.extra &&
+			composerJSON.extra.changelogger &&
+			composerJSON.extra.changelogger.types
+		) {
 			needChangelog.splice( needChangelog.indexOf( proj ), 1 );
 			specialProjects.push( proj );
 		}
@@ -269,7 +273,6 @@ async function changelogAdd( argv ) {
 	if ( argv._[ 1 ] === 'add' && ! argv.project ) {
 		const needChangelog = await changedProjects();
 		const uniqueProjects = await checkSpecialProjects( needChangelog );
-
 		// If we don't detect any modified projects, shortcircuit to default changelogger.
 		if ( needChangelog.length === 0 && uniqueProjects.length === 0 ) {
 			changelogArgs( argv );
@@ -441,25 +444,18 @@ async function gitAdd( argv ) {
  * @returns {Array} modifiedProjects - projects that need a changelog.
  */
 async function changedProjects() {
-	const modifiedProjects = [];
-	const gitFiles = [];
+	const re = /^projects\/([^/]+\/[^/]+)\//; // regex matches project file path, ie 'project/packages/connection/..'
+	const modifiedProjects = new Set();
 	const git = simpleGit();
 	const gitStatus = await git.status();
-	const projects = allProjects();
-	// Get all files that were worked with (created, deleted, modified, etc)
 	for ( const file of gitStatus.files ) {
-		gitFiles.push( file.path );
-	}
-
-	// See if any files modified match our project list.
-	for ( const proj of projects ) {
-		for ( const file of gitFiles ) {
-			if ( file.includes( proj ) && ! modifiedProjects.includes( proj ) ) {
-				modifiedProjects.push( proj );
-			}
+		const match = file.path.match( re );
+		if ( match ) {
+			modifiedProjects.add( match[ 1 ] );
 		}
 	}
-	return modifiedProjects;
+
+	return allProjects().filter( proj => modifiedProjects.has( proj ) );
 }
 
 /**

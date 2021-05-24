@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add docblock for `jetpack_on_connection_ui_init` hook.

@@ -158,8 +158,6 @@ async function logDebugLog() {
 		logger.debug( '#### WP DEBUG.LOG ####' );
 		logger.debug( log );
 	}
-
-	logger.slack( { message: log, type: 'debuglog' } );
 }
 
 async function logAccessLog() {
@@ -168,7 +166,6 @@ async function logAccessLog() {
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `access_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), apacheLog );
-	logger.slack( { type: 'debuglog', message: apacheLog } );
 }
 
 /**

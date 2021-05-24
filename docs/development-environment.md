@@ -66,7 +66,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 ## Installing development tools
 
 ### Minimum required versions
- * Node.js - LTS (Currently 12, see engines section of package.json)
+ * Node.js - LTS (Currently 14, see engines section of package.json)
  * Yarn - 1.3 (See engines section of package.json)
  * PHP - 7.4 (in case you're running WordPress locally)
  * Composer - 1.9.0
@@ -222,19 +222,19 @@ To get started, there are several ways to run the unit tests, depending on how y
 	To run the PHP unit tests for Jetpack if you're running Docker, you can run the following:
 	
 	```sh
-	yarn docker:phpunit
+	jetpack docker phpunit
 	```
 	
 	This will run unit tests for Jetpack. You can pass arguments to phpunit like so:
 	
 	```sh
-	yarn docker:phpunit --filter=Protect
+	jetpack docker phpunit --filter=Protect
 	```
 	
 	This command runs the tests as a multi site install
 	
 	```sh
-	yarn docker:phpunit:multisite --filter=Protect
+	jetpack docker phpunit:multisite --filter=Protect
 	```
  
 	To run tests for specific packages, you can run the tests locally, from within the package's directory:

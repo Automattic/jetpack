@@ -137,7 +137,7 @@ export function CalendlyEdit( props ) {
 					id="embedCode"
 					onChange={ event => setEmbedCode( event.target.value ) }
 					placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-					value={ embedCode }
+					value={ embedCode || '' }
 					className="components-placeholder__input"
 				/>
 				<div>

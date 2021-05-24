@@ -21,8 +21,6 @@ export default class AuthorizePage extends WpPage {
 			if ( repeat ) {
 				const message = 'Jetpack connection failed. Retrying once again.';
 				logger.error( message );
-				logger.slack( { message, type: 'message' } );
-
 				return await this.approve( false );
 			}
 			throw error;
