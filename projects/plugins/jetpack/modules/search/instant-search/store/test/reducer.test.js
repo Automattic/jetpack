@@ -27,6 +27,7 @@ import {
 	searchQuery,
 	sort,
 } from '../reducer';
+import { SERVER_OBJECT_NAME } from '../../lib/constants';
 
 describe( 'hasError Reducer', () => {
 	test( 'defaults to false', () => {
