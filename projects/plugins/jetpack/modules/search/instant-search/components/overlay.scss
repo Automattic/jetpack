@@ -27,7 +27,7 @@ $overlay-horizontal-padding-lg: 3em;
 	z-index: 9999999999999;
 
 	// Override font for Argent theme.
-	body.theme-argent & {
+	body.jps-theme-argent & * {
 		font-family: Helvetica, sans-serif; // "Cabin" looks ridiculous in the overlay.
 	}
 

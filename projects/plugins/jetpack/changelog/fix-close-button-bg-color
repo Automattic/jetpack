@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Add a Jetpack Search class name to body and fix background for modal close button.
