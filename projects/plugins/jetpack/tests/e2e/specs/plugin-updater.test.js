@@ -59,6 +59,7 @@ describe( 'Jetpack updater', () => {
 		await step( 'Can connect Jetpack', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
 			await doInPlaceConnection();
+			await jetpackPage.openDashboard();
 			const jetpackPage = await JetpackPage.init( page );
 			expect( await jetpackPage.isConnected() ).toBeTruthy();
 		} );
