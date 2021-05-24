@@ -18,6 +18,7 @@ module.exports = {
 		reporter: true,
 		jpConnect: true,
 		siteUrl: true,
+		allure: true,
 	},
 	settings: {
 		jest: {
