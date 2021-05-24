@@ -8,6 +8,7 @@ const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
+const { ContentType } = require( 'jest-circus-allure-environment' );
 const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
@@ -33,6 +34,8 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		this.global.siteUrl = fs
 			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
 			.replace( 'http:', 'https:' );
+
+		this.global.reporter = this.global.allure;
 	}
 
 	async teardown() {
@@ -209,7 +212,16 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
-		await this.saveScreenshot( eventFullName );
+
+		const screenshots = await this.saveScreenshot( eventFullName );
+		for ( const screenshot of screenshots ) {
+			await this.global.allure.attachment(
+				eventFullName,
+				fs.readFileSync( screenshot ),
+				ContentType.PNG
+			);
+		}
+
 		await this.logHTML( eventFullName );
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
@@ -224,9 +236,13 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 * @return {Promise<void>}
 	 */
 	async saveScreenshot( fileName ) {
+		const screenshots = [];
+
 		for ( const page of this.global.context.pages() ) {
-			await takeScreenshot( page, fileName );
+			screenshots.push( await takeScreenshot( page, fileName ) );
 		}
+
+		return screenshots;
 	}
 
 	/**

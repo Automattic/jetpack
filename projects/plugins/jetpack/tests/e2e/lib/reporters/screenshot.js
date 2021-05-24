@@ -14,8 +14,10 @@ const { fileNameFormatter } = require( '../utils-helper' );
  * @return {Promise<void>}
  */
 async function takeScreenshot( page, fileName ) {
+	let filePath;
+
 	try {
-		const filePath = path.resolve(
+		filePath = path.resolve(
 			config.get( 'dirs.screenshots' ),
 			`${ fileNameFormatter( fileName ) }.png`
 		);
@@ -24,6 +26,8 @@ async function takeScreenshot( page, fileName ) {
 	} catch ( error ) {
 		logger.error( `Failed to save screenshot: ${ error }` );
 	}
+
+	return filePath;
 }
 
 module.exports = { takeScreenshot };
