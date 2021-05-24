@@ -1126,5 +1126,4 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response_data = $response->get_data();
 		$this->assertNull( $response_data['connectionOwner'] );
 	}
-
 } // class end
