@@ -475,7 +475,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "3594a55fa382221dc688f7892c36c9d63f4fdd00"
+                "reference": "16cd13e421fffd1a99fd95245ac8363d0d249b4c"
             },
             "require": {
                 "automattic/jetpack-status": "^1.7"
@@ -493,7 +493,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
