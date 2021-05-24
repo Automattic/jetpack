@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update Meta Module so get_object_by_id returns all meta values.
