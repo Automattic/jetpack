@@ -8,7 +8,6 @@ const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
-const { ContentType } = require( 'jest-circus-allure-environment' );
 const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
