@@ -47,11 +47,9 @@ class Redirect {
 		$accepted_args = array( 'site', 'path', 'query', 'anchor', 'unlinked' );
 
 		$source_key = 'source';
-		$is_url     = false;
 
 		if ( 0 === strpos( $source, 'https://' ) ) {
 			$source_key = 'url';
-			$is_url     = true;
 			$source_url = \wp_parse_url( $source );
 
 			// discard any query and fragments.
@@ -76,16 +74,6 @@ class Redirect {
 			$url = add_query_arg( $to_be_added, $url );
 		}
 
-		/**
-		 * Filters the return of the Redirect URL.
-		 *
-		 * @since 8.6.0
-		 *
-		 * @param string  $url    The redirect URL.
-		 * @param string  $source The $source informed to Redirect::get_url.
-		 * @param array   $args   The arguments informed to Redirect::get_url.
-		 * @param boolean $is_url Whether $source is a URL or not.
-		 */
-		return \apply_filters( 'jetpack_redirects_get_url', $url, $source, $args, $is_url );
+		return $url;
 	}
 }

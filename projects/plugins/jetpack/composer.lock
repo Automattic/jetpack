@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "854cc70ebc456425d1aa64d8ff3410a7",
+    "content-hash": "db9f1d355b384579a810d7fc2f05d61b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -712,7 +712,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "767af7aed416e2db1092c4225b38d13bc874a17a"
+                "reference": "489949796bf3f14a0179e588404816c8ea4bb743"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -722,7 +722,7 @@
                 "automattic/jetpack-logo": "^1.5",
                 "automattic/jetpack-options": "^1.12",
                 "automattic/jetpack-partner": "^1.5",
-                "automattic/jetpack-redirect": "^1.5",
+                "automattic/jetpack-redirect": "^1.6",
                 "automattic/jetpack-status": "^1.7",
                 "automattic/jetpack-tracking": "^1.13"
             },
@@ -742,7 +742,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.15.x-dev"
+                    "dev-master": "1.16.x-dev"
                 }
             },
             "autoload": {
@@ -1105,7 +1105,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "3594a55fa382221dc688f7892c36c9d63f4fdd00"
+                "reference": "16cd13e421fffd1a99fd95245ac8363d0d249b4c"
             },
             "require": {
                 "automattic/jetpack-status": "^1.7"
@@ -1123,7 +1123,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
