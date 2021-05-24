@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Hide the FAB icon on Yoast admin pages to avoid overlap with the Yoast help icon.

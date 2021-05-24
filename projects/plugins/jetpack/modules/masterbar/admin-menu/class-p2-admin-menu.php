@@ -46,6 +46,7 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		remove_submenu_page( 'plugins.php', 'plugins.php' );
 
 		remove_submenu_page( 'paid-upgrades.php', 'https://wordpress.com/domains/manage/' . $this->domain );
+		remove_submenu_page( 'paid-upgrades.php', 'https://wordpress.com/email/' . $this->domain );
 
 		$themes_slug = 'https://wordpress.com/themes/' . $this->domain;
 		remove_submenu_page( $themes_slug, $themes_slug );

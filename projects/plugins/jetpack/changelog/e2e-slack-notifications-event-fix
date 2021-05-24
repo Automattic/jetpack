@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+E2E tests: use github object to get context info for slack notification

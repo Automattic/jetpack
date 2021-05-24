@@ -200,7 +200,7 @@ async function getLabelsToAdd( octokit, owner, repo, number ) {
 		const boostModules = file.match( /^app\/modules\/(?<boostModule>[^/]*)\// );
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
-			keywords.add( `[Block] ${ cleanName( boostModuleName ) }` );
+			keywords.add( `${ cleanName( boostModuleName ) }` );
 		}
 
 		// Compatibility with 3rd party tools (Boost and Jetpack).
