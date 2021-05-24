@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Search: modal close button has dark background in light mode (Twenty Twenty One theme)
+Search: Add a Jetpack Search class name to body and fix background for modal close button.
