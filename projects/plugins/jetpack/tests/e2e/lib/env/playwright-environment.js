@@ -213,15 +213,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
 
-		const screenshots = await this.saveScreenshot( eventFullName );
-		for ( const screenshot of screenshots ) {
-			await this.global.allure.attachment(
-				eventFullName,
-				fs.readFileSync( screenshot ),
-				ContentType.PNG
-			);
-		}
-
+		await this.saveScreenshot( eventFullName );
 		await this.logHTML( eventFullName );
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
@@ -239,7 +231,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		const screenshots = [];
 
 		for ( const page of this.global.context.pages() ) {
-			screenshots.push( await takeScreenshot( page, fileName ) );
+			screenshots.push( await takeScreenshot( page, fileName, this.global.allure ) );
 		}
 
 		return screenshots;
