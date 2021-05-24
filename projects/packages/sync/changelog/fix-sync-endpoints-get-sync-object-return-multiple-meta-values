@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Update Meta Module so get_objects_b_by_id returns all meta values.
+Update Meta Module so get_object_by_id returns all meta values.
