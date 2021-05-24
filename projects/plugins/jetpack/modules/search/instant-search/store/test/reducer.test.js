@@ -14,6 +14,7 @@ import {
 	setSearchQuery,
 	setSort,
 	setFilter,
+	setStaticFilter,
 	initializeQueryValues,
 } from '../actions';
 import {
@@ -231,9 +232,55 @@ describe( 'staticFilters Reducer', () => {
 		const state = staticFilters( undefined, {} );
 		expect( state ).toEqual( {} );
 	} );
+
 	test( 'is set to empty object by a clear query values action', () => {
 		expect( staticFilters( undefined, clearQueryValues() ) ).toEqual( {} );
 		expect( staticFilters( 'newest', clearQueryValues() ) ).toEqual( {} );
+	} );
+
+	test( 'is updated by a set filter action with a string value', () => {
+		const mockStaticFilters = [
+			{
+				filter_id: 'group_id',
+				name: 'example',
+				selected: null,
+				type: 'group',
+				values: [
+					{ name: 'All P2', value: 'p2' },
+					{ name: 'Lighthouse', value: 'lighthouse' }
+				],
+			},
+		];
+		const windowSpy = jest.spyOn( window, 'window', 'get' );
+		windowSpy.mockImplementation( () => ( {
+			[ SERVER_OBJECT_NAME ]: { staticFilters: mockStaticFilters },
+		} ) );
+		const state = staticFilters( undefined, setStaticFilter( 'group_id', 'p2' ) );
+		expect( state ).toEqual( {
+			group_id: [ 'p2' ],
+		} );
+		windowSpy.mockRestore();
+	} );
+	test( 'ignores set filter actions with invalid filter names', () => {
+		const mockStaticFilters = [
+			{
+				filter_id: 'group_id',
+				name: 'example',
+				selected: null,
+				type: 'group',
+				values: [
+					{ name: 'All P2', value: 'p2' },
+					{ name: 'Lighthouse', value: 'lighthouse' }
+				],
+			},
+		];
+		const windowSpy = jest.spyOn( window, 'window', 'get' );
+		windowSpy.mockImplementation( () => ( {
+			[ SERVER_OBJECT_NAME ]: { staticFilters: mockStaticFilters },
+		} ) );
+		const state = staticFilters( undefined, setStaticFilter( 'what', 'how' ) );
+		expect( state ).toEqual( {} );
+		windowSpy.mockRestore();
 	} );
 } );
 
