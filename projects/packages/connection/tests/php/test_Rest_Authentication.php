@@ -88,6 +88,13 @@ class REST_Authentication_Test extends TestCase {
 			$this->assertInstanceOf( $expected_outputs['errors'], $this->rest_authentication->wp_rest_authentication_errors( null ) );
 		} else {
 			$this->assertEquals( $expected_outputs['errors'], $this->rest_authentication->wp_rest_authentication_errors( null ) );
+			// Make sure in case of successful site-level authentication the `jetpack_site_level_auth` filter is set.
+			$is_site_level_auth = apply_filters( 'jetpack_site_level_auth', false );
+			if ( true === $expected_outputs['errors'] && is_null( $expected_outputs['authenticate'] ) ) {
+				$this->assertTrue( $is_site_level_auth );
+			} else {
+				$this->assertFalse( $is_site_level_auth );
+			}
 		}
 	}
 
@@ -117,8 +124,14 @@ class REST_Authentication_Test extends TestCase {
 			'user_id'   => 123,
 		);
 
+		$blog_token_data = array(
+			'type'      => 'blog',
+			'token_key' => '123.abc',
+			'user_id'   => 0,
+		);
+
 		return array(
-			'no for parameter'                => array(
+			'no for parameter'                   => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'token'     => 'token',
@@ -132,7 +145,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => null,
 				),
 			),
-			'for parameter is not jetpack'    => array(
+			'for parameter is not jetpack'       => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'_for'      => 'not_jetpack',
@@ -147,7 +160,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => null,
 				),
 			),
-			'no token or signature parameter' => array(
+			'no token or signature parameter'    => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'_for' => 'jetpack',
@@ -160,7 +173,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => null,
 				),
 			),
-			'no request method'               => array(
+			'no request method'                  => array(
 				'test_inputs'  => array(
 					'get_params' => array(
 						'_for'      => 'jetpack',
@@ -174,7 +187,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => 'WP_Error',
 				),
 			),
-			'invalid request method'          => array(
+			'invalid request method'             => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
@@ -189,7 +202,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => 'WP_Error',
 				),
 			),
-			'successful GET request'          => array(
+			'successful GET request'             => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
@@ -204,7 +217,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => true,
 				),
 			),
-			'successful POST request'         => array(
+			'successful POST request'            => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
@@ -219,7 +232,7 @@ class REST_Authentication_Test extends TestCase {
 					'errors'       => true,
 				),
 			),
-			'signature verification failed'   => array(
+			'signature verification failed'      => array(
 				'test_inputs'  => array(
 					'get_params'     => array(
 						'_for'      => 'jetpack',
@@ -232,6 +245,36 @@ class REST_Authentication_Test extends TestCase {
 				'test_outputs' => array(
 					'authenticate' => null,
 					'errors'       => 'WP_Error',
+				),
+			),
+			'successful GET request blog token'  => array(
+				'test_inputs'  => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'GET',
+					'verified'       => $blog_token_data,
+				),
+				'test_outputs' => array(
+					'authenticate' => null,
+					'errors'       => true,
+				),
+			),
+			'successful POST request blog token' => array(
+				'test_inputs'  => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'POST',
+					'verified'       => $blog_token_data,
+				),
+				'test_outputs' => array(
+					'authenticate' => null,
+					'errors'       => true,
 				),
 			),
 		);
