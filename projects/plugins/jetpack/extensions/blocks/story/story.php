@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\Story;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'story';
@@ -119,15 +118,12 @@ function enrich_media_files( $media_files ) {
 					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
 				}
 
+				// resize poster to fit the story embed size.
 				if ( $poster_url ) {
 					$poster_width  = ! empty( $media_file['width'] ) ? $media_file['width'] : EMBED_SIZE[0];
 					$poster_height = ! empty( $media_file['height'] ) ? $media_file['height'] : EMBED_SIZE[1];
-					$content_width = (int) Jetpack::get_content_width();
-					if ( 0 === $content_width ) {
-						$content_width = EMBED_SIZE[0];
-					}
-					$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
-					$poster_width  = $content_width;
+					$poster_height = round( ( EMBED_SIZE[0] * $poster_height ) / $poster_width );
+					$poster_width  = EMBED_SIZE[0];
 					$poster_url    = add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url );
 				}
 
