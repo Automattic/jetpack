@@ -27,17 +27,21 @@ function stripQueryString( url ) {
  */
 export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 	const [ src, setSrc ] = useState( null );
+	const initialSrcWithoutQueryString = stripQueryString( initialSrc );
+
+	// Photon does not support SVGs
+	const isSVG = initialSrcWithoutQueryString?.substr( -4 ).toLowerCase() === '.svg';
 
 	useEffect( () => {
-		if ( isPhotonEnabled ) {
-			const photonSrc = photon( stripQueryString( initialSrc ), {
+		if ( isPhotonEnabled && ! isSVG ) {
+			const photonSrc = photon( initialSrcWithoutQueryString, {
 				resize: `${ width },${ height }`,
 			} );
 			setSrc( photonSrc ? photonSrc : initialSrc );
 		} else {
 			setSrc( initialSrc );
 		}
-	}, [ initialSrc, width, height, isPhotonEnabled ] );
+	}, [ initialSrc, width, height, isPhotonEnabled, initialSrcWithoutQueryString, isSVG ] );
 
 	return src;
 }
