@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Janitorial: avoid PHP notices in some edge-cases
