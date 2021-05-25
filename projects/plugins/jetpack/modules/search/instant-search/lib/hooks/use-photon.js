@@ -31,8 +31,10 @@ export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 
 	// Photon only supports GIF, JPG and PNG
 	// @see https://developer.wordpress.com/docs/photon/
-	const supportedImageTypes = [ 'gif', 'jpg', 'png' ];
-	const fileExtension = initialSrcWithoutQueryString?.substr( -3 ).toLowerCase();
+	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png' ];
+	const fileExtension = initialSrcWithoutQueryString
+		?.substring( initialSrcWithoutQueryString.lastIndexOf( '.' ) + 1 )
+		.toLowerCase();
 	const isSupportedImageType = supportedImageTypes.includes( fileExtension );
 
 	useEffect( () => {
