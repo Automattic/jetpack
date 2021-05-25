@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search: prevent standard sidebar widgets ending up in the search modal sidebar when switching themes

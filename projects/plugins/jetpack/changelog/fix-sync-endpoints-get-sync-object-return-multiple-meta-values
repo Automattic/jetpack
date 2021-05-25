@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Update Sync unit tests to align with new return format of get_object_by_id.

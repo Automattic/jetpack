@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-WordPress.com API: allow switching from locale variant to primary in Site Settings endpoint.
