@@ -12,6 +12,44 @@
  * @since 8.3.0
  */
 class Jetpack_Instant_Search extends Jetpack_Search {
+	/**
+	 * The name of instant search sidebar
+	 *
+	 * @since 9.8.0
+	 *
+	 * @var string
+	 */
+	const JETPACK_INSTANT_SEARCH_SIDEBAR = 'jetpack-instant-search-sidebar';
+
+	/**
+	 * Variable to save old sidebars_widgets value.
+	 *
+	 * The value is set when action `after_switch_theme` is applied and cleared on filter `pre_update_option_sidebars_widgets`.
+	 * The filters mentioned above run on /wp-admin/themes.php?activated=true, a request closely following switching theme.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @var array
+	 */
+	private $old_sidebars_widgets;
+
+	/**
+	 * Get singleton instance of Jetpack Instant Search.
+	 *
+	 * Instantiates and sets up a new instance if needed, or returns the singleton.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @return Jetpack_Instant_Search The Jetpack_Instant_Search singleton.
+	 */
+	public static function instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new Jetpack_Instant_Search();
+			self::$instance->setup();
+		}
+
+		return self::$instance;
+	}
 
 	/**
 	 * Loads the php for this version of search
@@ -41,8 +79,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
 			add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
+			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
+			// The priority has to be lower than 10 to run before _wp_sidebars_changed.
+			// Which migrates widgets from old theme to the new one.
+			add_action( 'after_switch_theme', array( $this, 'save_old_sidebars_widgets' ), 5, 0 );
+			add_action( 'pre_update_option_sidebars_widgets', array( $this, 'remove_wp_migrated_widgets' ) );
 		}
 
 		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
@@ -664,5 +707,61 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_PRODUCT );
+	}
+
+	/**
+	 * Save sidebars_widgets option before it's migrated by WordPress
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param array $old_sidebars_widgets The sidebars_widgets option value to be saved.
+	 */
+	public function save_old_sidebars_widgets( $old_sidebars_widgets = null ) {
+		$this->old_sidebars_widgets = ! is_null( $old_sidebars_widgets ) ? $old_sidebars_widgets : wp_get_sidebars_widgets();
+	}
+
+	/**
+	 * Clean WordPress auto-migrated sidebar widgets from instant search sidebar before saving option sidebars_widgets
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param array $sidebars_widgets The sidebars_widgets option value to be filtered.
+	 * @return array The sidebars_widgets option value to be saved
+	 */
+	public function remove_wp_migrated_widgets( $sidebars_widgets ) {
+		// Hook the action only when it is a theme switch i.e. $this->old_sidebars_widgets is not empty.
+		if ( empty( $this->old_sidebars_widgets ) ) {
+			return $sidebars_widgets;
+		}
+
+		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
+			if ( 0 === stripos( $sidebar, static::JETPACK_INSTANT_SEARCH_SIDEBAR ) ) {
+				// An 'equal' would work for the condition, but we want to cover 'less than' as well, just for extra insurance.
+				// If the new Jetpack sidebar has already got less widgets, no need to run the code following the condition.
+				if ( count( $sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] ) <= count( $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] ) ) {
+					break;
+				}
+
+				$lost_widgets                            = array_diff( $sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ], $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] );
+				$sidebars_widgets['wp_inactive_widgets'] = array_merge( $lost_widgets, (array) $sidebars_widgets['wp_inactive_widgets'] );
+
+				$sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] = $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ];
+			}
+		}
+		$this->old_sidebars_widgets = null;
+
+		return $sidebars_widgets;
+	}
+
+	/**
+	 * Add current theme name as a body class for easier override
+	 *
+	 * @param string[] $classes An array of body class names.
+	 *
+	 * @return string[] The array of classes after filtering
+	 */
+	public function add_body_class( $classes ) {
+		$classes[] = 'jps-theme-' . get_stylesheet();
+		return $classes;
 	}
 }

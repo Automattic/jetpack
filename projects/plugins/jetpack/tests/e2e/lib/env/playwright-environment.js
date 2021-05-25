@@ -1,4 +1,3 @@
-const NodeEnvironment = require( 'jest-environment-node' );
 const { chromium } = require( 'playwright' );
 const os = require( 'os' );
 const fs = require( 'fs' );
@@ -9,11 +8,12 @@ const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
+const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
 const TMP_DIR = path.join( os.tmpdir(), 'jest_playwright_global_setup' );
 
-class PlaywrightCustomEnvironment extends NodeEnvironment {
+class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async setup() {
 		await super.setup();
 
@@ -33,6 +33,8 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		this.global.siteUrl = fs
 			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
 			.replace( 'http:', 'https:' );
+
+		this.global.reporter = this.global.allure;
 	}
 
 	async teardown() {
@@ -40,7 +42,9 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 		await this.global.context.close();
 	}
 
-	async handleTestEvent( event ) {
+	async handleTestEvent( event, state ) {
+		await super.handleTestEvent( event, state );
+
 		let eventName;
 
 		if ( event.hook ) {
@@ -207,6 +211,7 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 */
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
+
 		await this.saveScreenshot( eventFullName );
 		await this.logHTML( eventFullName );
 
@@ -222,9 +227,13 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	 * @return {Promise<void>}
 	 */
 	async saveScreenshot( fileName ) {
+		const screenshots = [];
+
 		for ( const page of this.global.context.pages() ) {
-			await takeScreenshot( page, fileName );
+			screenshots.push( await takeScreenshot( page, fileName, this.global.allure ) );
 		}
+
+		return screenshots;
 	}
 
 	/**
@@ -249,4 +258,4 @@ class PlaywrightCustomEnvironment extends NodeEnvironment {
 	}
 }
 
-module.exports = PlaywrightCustomEnvironment;
+module.exports = PlaywrightEnvironment;
