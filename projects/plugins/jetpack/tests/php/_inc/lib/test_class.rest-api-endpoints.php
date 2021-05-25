@@ -1150,6 +1150,69 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test fetching a site's purchase token with a blog token.
+	 *
+	 * @since 9.8.0
+	 */
+	public function test_get_purchase_token_site_level_auth() {
+		$admin          = $this->create_and_get_user( 'administrator' );
+		$purchase_token = '1ApurchaseToken1';
+		$blog_token     = 'a.blog.token' . $admin->ID;
+		$user_token     = 'a.user.token' . $admin->ID;
+
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'user_token', $user_token );
+		Jetpack_Options::update_option( 'blog_token', $blog_token );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request(
+			'purchase-token',
+			array(),
+			'GET',
+			// phpcs:ignore Generic.Arrays.DisallowShortArraySyntax.Found
+			[
+				'_for'      => 'jetpack',
+				'token'     => $blog_token,
+				'timestamp' => $timestamp,
+				'nonce'     => $nonce,
+				'body-hash' => $body_hash,
+				// This is intentionally using base64_encode().
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'signature' => base64_encode(
+					hash_hmac(
+						'sha1',
+						implode(
+							"\n",
+							array(
+								$blog_token,
+								$timestamp,
+								$nonce,
+								$body_hash,
+								'get',
+								'example.org',
+								'80',
+								'/jetpack/v4/purchase-token',
+								'qstest=yep',
+							)
+						) . "\n",
+						'secret_blog',
+						true
+					)
+				),
+			]
+		);
+
+		// Confirm purchase token exists.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $purchase_token, $response->get_data() );
+	}
+
+	/**
 	 * Test fetching a site's purchase token with a non-administrator user.
 	 *
 	 * @since 9.8.0
