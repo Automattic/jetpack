@@ -139,6 +139,8 @@ class Rest_Authentication {
 
 			$verified = $this->connection_manager->verify_xml_rpc_signature();
 
+			// Enable `jetpack_site_level_auth` filter for requests authenticated at site-level. This allow
+			// clients to communicate with a Jetpack site's Core REST API endpoints with blog token.
 			if (
 				$verified &&
 				isset( $verified['type'] ) &&
