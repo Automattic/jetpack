@@ -1130,7 +1130,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a site's purchase token.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_get_purchase_token() {
 		$purchase_token = '1ApurchaseToken1';
@@ -1152,7 +1152,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a site's purchase token with a blog token.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_get_purchase_token_site_level_auth() {
 		$admin          = $this->create_and_get_user( 'administrator' );
@@ -1215,7 +1215,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a site's purchase token with a non-administrator user.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_get_purchase_token_non_admin_user() {
 		$purchase_token = '1ApurchaseToken1';
@@ -1237,7 +1237,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test fetching a site's purchase token when no site is registered.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_get_purchase_token_no_site_registered() {
 		$purchase_token = '1ApurchaseToken1';
@@ -1258,7 +1258,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test deleting a site's purchase token.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_delete_purchase_token() {
 		$purchase_token = '1ApurchaseToken1';
@@ -1293,7 +1293,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test deleting a site's purchase token with a non-administrator user.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_delete_purchase_token_non_admin_user() {
 		$purchase_token = '1ApurchaseToken1';
@@ -1315,7 +1315,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test deleting a site's purchase token when no site is registered.
 	 *
-	 * @since 9.8.0
+	 * @since 9.9.0
 	 */
 	public function test_delete_purchase_token_no_site_registered() {
 		$purchase_token = '1ApurchaseToken1';
