@@ -4,6 +4,7 @@
 import chalk from 'chalk';
 import child_process from 'child_process';
 import inquirer from 'inquirer';
+import path from 'path';
 
 /**
  * Internal dependencies
@@ -86,24 +87,53 @@ export async function cleanCli( argv ) {
 }
 
 async function handleCommands( argv ) {
-	let mode = '';
-	if ( argv.cmd !== 'find' ) {
-		mode = '-n';
-	}
-	await runCommand( argv.cmd, argv.options, '-n' ); // dry run
-	if ( argv.include.toClean === 'both' ) {
-		runCommand( argv.cmd, [ `clean`, argv.project ], '-n' );
+	// Dry Run
+	if ( argv.cmd === 'find' ) {
+		await runCommand( argv.cmd, argv.dryOptions );
+	} else {
+		await runCommand( argv.cmd, [ ...argv.options, '-n' ] ); // dry run
+		if ( argv.include.toClean === 'both' ) {
+			runCommand( argv.cmd, [ `clean`, argv.project, '-n' ] );
+		}
 	}
 
+	// Confirm we want to delete.
 	const runConfirm = await confirmRemove();
 
+	// Live Commands
 	if ( runConfirm ) {
+		console.log( chalk.green( `Cleaning files...` ) );
+		if ( argv.cmd === 'find' ) {
+			argv.cmd = 'rm',
+			makeRemove( argv );
+			console.log( 'cleaning' );
+			//await runCommand( argv.cmd, argv.options );
+		}
+
 		console.log( chalk.green( `Cleaning files...` ) );
 		//await runCommand( argv.cmd, argv.options, '-f' ); // do it live.
 		if ( argv.include.toClean === 'both' ) {
 			console.log( chalk.green( 'Cleaning working files...' ) );
 			//runCommand( argv.cmd, [ `clean`, argv.project ], '-f' );
 		}
+	}
+}
+
+/**
+ * Runs the actual command.
+ *
+ * @param {string} cmd - the shell command to run.
+ * @param {object} options - the command options passed.
+ * @param {string} mode - specifies dry run (-n) or force (-f).
+ */
+ export async function runCommand( cmd, options ) {
+	const data = child_process.spawnSync( cmd, [ ...options ], {
+		stdio: 'inherit',
+	} );
+	// Node.js exit code status 0 === success
+	if ( data.status !== 0 ) {
+		console.error( 'Error!' );
+		process.exit( data.status );
 	}
 }
 
@@ -137,7 +167,7 @@ export async function makeOptions( argv ) {
 			argv.include.toClean === 'node_modules' ||
 			argv.include.toClean === 'composer.lock'
 	) {
-		argv.options = []; // to replace with '-r'
+		argv.options = [ argv.project ]; // to replace with '-rf'
 		argv.cmd = 'find'; //to replace with 'rm'
 		argv = await makeRemove( argv );
 	} else {
@@ -147,7 +177,7 @@ export async function makeOptions( argv ) {
 	}
 
 	//argv = await parseArgs( argv );
-	console.log(argv);
+	console.log( argv );
 	return argv;
 }
 
@@ -185,6 +215,14 @@ async function makeClean ( argv ) {
  */
 async function makeRemove( argv ) {
 	const toClean = argv.include.toClean;
+	if ( argv.cmd === 'find' ) {
+		if ( argv.scope === 'project' ) {
+			argv.project = `projects/${argv.project}`;
+		}
+		argv.dryOptions = [ argv.project, '-name', toClean, '-prune' ];
+		return argv;
+	}
+	argv.options.push( '-rf' );
 	switch ( argv.scope ) {
 		case 'project':
 			argv.options.push( `projects/${argv.project}/${toClean}` );
@@ -196,14 +234,10 @@ async function makeRemove( argv ) {
 			argv.options.push( `${toClean}` );
 			argv.options.push( `projects/*/*/${toClean}` );
 			break;
-	}	return argv;
+	}
+	return argv;
 }
 
-async function getOptions ( argv ) {
-	const options = argv.options.join( ' ' );
-	console.log(options);
-	return options;
-}
 /**
  * Excludes files that we don't want to delete.
  *
@@ -220,25 +254,6 @@ async function checkExclude( toDelete, options ) {
 		}
 	}
 	return options;
-}
-
-/**
- * Runs the actual command.
- *
- * @param {string} cmd - the shell command to run.
- * @param {object} options - the command options passed.
- * @param {string} mode - specifies dry run (-n) or force (-f).
- */
-export async function runCommand( cmd, options, mode = '' ) {
-	console.log(mode);
-	const data = child_process.spawnSync( cmd, [ ...options, mode ], {
-		stdio: 'inherit',
-	} );
-	// Node.js exit code status 0 === success
-	if ( data.status !== 0 ) {
-		console.error( 'Error!' );
-		process.exit( data.status );
-	}
 }
 
 /**
