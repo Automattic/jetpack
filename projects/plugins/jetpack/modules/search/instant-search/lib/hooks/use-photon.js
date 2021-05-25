@@ -29,11 +29,14 @@ export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 	const [ src, setSrc ] = useState( null );
 	const initialSrcWithoutQueryString = stripQueryString( initialSrc );
 
-	// Photon does not support SVGs
-	const isSVG = initialSrcWithoutQueryString?.substr( -4 ).toLowerCase() === '.svg';
+	// Photon only supports GIF, JPG and PNG
+	// @see https://developer.wordpress.com/docs/photon/
+	const supportedImageTypes = [ 'gif', 'jpg', 'png' ];
+	const fileExtension = initialSrcWithoutQueryString?.substr( -3 ).toLowerCase();
+	const isSupportedImageType = supportedImageTypes.includes( fileExtension );
 
 	useEffect( () => {
-		if ( isPhotonEnabled && ! isSVG ) {
+		if ( isPhotonEnabled && isSupportedImageType ) {
 			const photonSrc = photon( initialSrcWithoutQueryString, {
 				resize: `${ width },${ height }`,
 			} );
@@ -41,7 +44,14 @@ export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 		} else {
 			setSrc( initialSrc );
 		}
-	}, [ initialSrc, width, height, isPhotonEnabled, initialSrcWithoutQueryString, isSVG ] );
+	}, [
+		initialSrc,
+		width,
+		height,
+		isPhotonEnabled,
+		initialSrcWithoutQueryString,
+		isSupportedImageType,
+	] );
 
 	return src;
 }
