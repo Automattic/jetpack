@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Cache API calls for fetching labels and files on the PR.

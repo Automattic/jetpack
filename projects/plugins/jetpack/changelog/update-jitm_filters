@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-JITM: remove unnecessary add_filter calls for the JITM filters.

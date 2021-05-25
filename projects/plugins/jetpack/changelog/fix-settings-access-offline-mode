@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Dashboard: ensure that the Jetpack settings page can be accessed when using Jetpack's Offline mode.

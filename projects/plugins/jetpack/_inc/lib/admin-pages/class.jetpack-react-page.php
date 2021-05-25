@@ -540,9 +540,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 function jetpack_current_user_data() {
 	$jetpack_connection = new Connection_Manager( 'jetpack' );
 
-	$current_user   = wp_get_current_user();
-	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	$dotcom_data    = $jetpack_connection->get_connected_user_data();
+	$current_user      = wp_get_current_user();
+	$is_user_connected = $jetpack_connection->is_user_connected( $current_user->ID );
+	$is_master_user    = $is_user_connected && (int) $current_user->ID && (int) Jetpack_Options::get_option( 'master_user' ) === (int) $current_user->ID;
+	$dotcom_data       = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
@@ -556,7 +557,7 @@ function jetpack_current_user_data() {
 		: false );
 
 	$current_user_data = array(
-		'isConnected' => $jetpack_connection->is_user_connected( $current_user->ID ),
+		'isConnected' => $is_user_connected,
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,

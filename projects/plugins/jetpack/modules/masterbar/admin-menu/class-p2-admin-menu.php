@@ -33,18 +33,20 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 		) {
 			require_lib( 'wpforteams' );
 
-			if ( \WPForTeams\Workspace\is_part_of_active_workspace( get_current_blog_id() ) ) {
-				remove_menu_page( 'https://wordpress.com/plans/' . $this->domain );
+			// Only hubs can have plans.
+			if ( ! \WPForTeams\Workspace\is_workspace_hub( get_current_blog_id() ) ) {
+				remove_menu_page( 'paid-upgrades.php' );
 			}
 		}
 
 		remove_menu_page( 'link-manager.php' );
-		remove_menu_page( 'edit.php?post_type=feedback' );
+		remove_menu_page( 'feedback' );
 		remove_menu_page( 'plugins.php' );
 		remove_menu_page( 'https://wordpress.com/plugins/' . $this->domain );
 		remove_submenu_page( 'plugins.php', 'plugins.php' );
 
-		remove_submenu_page( 'https://wordpress.com/plans/' . $this->domain, 'https://wordpress.com/domains/manage/' . $this->domain );
+		remove_submenu_page( 'paid-upgrades.php', 'https://wordpress.com/domains/manage/' . $this->domain );
+		remove_submenu_page( 'paid-upgrades.php', 'https://wordpress.com/email/' . $this->domain );
 
 		$themes_slug = 'https://wordpress.com/themes/' . $this->domain;
 		remove_submenu_page( $themes_slug, $themes_slug );

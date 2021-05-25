@@ -330,7 +330,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function get_raw_or_filtered_url( $url_type ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_or_filtered_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_or_filtered_url' );
 		return Urls::get_raw_or_filtered_url( $url_type );
 	}
 
@@ -340,7 +340,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function home_url() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::home_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::home_url' );
 		return Urls::home_url();
 	}
 
@@ -350,7 +350,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function site_url() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::site_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::site_url' );
 		return Urls::site_url();
 	}
 
@@ -360,7 +360,7 @@ class Functions {
 	 * @return string
 	 */
 	public static function main_network_site_url() {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::main_network_site_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::main_network_site_url' );
 		return Urls::main_network_site_url();
 	}
 
@@ -395,7 +395,7 @@ class Functions {
 	 * @return string Normalized URL.
 	 */
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::get_protocol_normalized_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::get_protocol_normalized_url' );
 		return Urls::get_protocol_normalized_url( $callable, $new_value );
 	}
 
@@ -407,7 +407,7 @@ class Functions {
 	 * @return mixed|null URL.
 	 */
 	public static function get_raw_url( $option_name ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::get_raw_url' );
 		return Urls::get_raw_url( $option_name );
 	}
 
@@ -419,7 +419,7 @@ class Functions {
 	 * @return mixed|string URL.
 	 */
 	public static function normalize_www_in_url( $option, $url_function ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.8', '\\Automattic\\Jetpack\\Connection\\Urls::normalize_www_in_url' );
+		_deprecated_function( __METHOD__, 'jetpack-9.9', '\\Automattic\\Jetpack\\Connection\\Urls::normalize_www_in_url' );
 		return Urls::normalize_www_in_url( $option, $url_function );
 	}
 

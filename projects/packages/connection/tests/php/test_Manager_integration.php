@@ -551,4 +551,146 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 		static::assertTrue( $result );
 	}
 
+	/**
+	 * Test that User tokens behave according to expectations after attempting to disconnect a user.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @dataProvider get_disconnect_user_outcomes
+	 *
+	 * @param bool $remote_response           Response from the unlink_user XML-RPC request.
+	 * @param int  $expected_user_token_count Number of user tokens left on site after Manager::disconnect_user has completed.
+	 */
+	public function test_disconnect_user( $remote_response, $expected_user_token_count ) {
+		$master_user_id = wp_insert_user(
+			array(
+				'user_login' => 'sample_user',
+				'user_pass'  => 'asdqwe',
+				'role'       => 'administrator',
+			)
+		);
+		$editor_id      = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		if ( $remote_response ) {
+			$callback = 'intercept_disconnect_success';
+		} else {
+			$callback = 'intercept_disconnect_failure';
+		}
+
+		add_filter(
+			'pre_http_request',
+			array(
+				$this,
+				$callback,
+			),
+			10,
+			3
+		);
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$master_user_id => sprintf( '%s.%s.%d', 'masterkey', 'private', $master_user_id ),
+				$editor_id      => sprintf( '%s.%s.%d', 'editorkey', 'private', $editor_id ),
+			)
+		);
+
+		$this->manager->disconnect_user( $editor_id );
+
+		remove_filter(
+			'pre_http_request',
+			array(
+				$this,
+				$callback,
+			),
+			10,
+			3
+		);
+
+		$this->assertCount( $expected_user_token_count, $this->manager->get_connected_users() );
+	}
+
+	/**
+	 * Intercept the disconnect user API request sent to WP.com, and mock success response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_disconnect_success( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 200;
+			return $response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Intercept the disconnect user API request sent to WP.com, and mock failure response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_disconnect_failure( $response, $args, $url ) {
+		if ( strpos( $url, 'https://jetpack.wordpress.com/xmlrpc.php' ) !== false ) {
+			$response = array();
+
+			$response['body'] = '
+				<methodResponse>
+					<params>
+						<param>
+							<value>1</value>
+						</param>
+					</params>
+				</methodResponse>
+			';
+
+			$response['response']['code'] = 500;
+			return $response;
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Data for test_disconnect_user
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_outcomes() {
+		return array(
+			'success' => array(
+				true,
+				1,
+			),
+			'failure' => array(
+				false,
+				2,
+			),
+		);
+	}
 }
