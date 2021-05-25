@@ -79,6 +79,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
 			add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
+			add_filter( 'body_class', array( $this, 'add_body_class' ), 10 );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 			// The priority has to be lower than 10 to run before _wp_sidebars_changed.
@@ -750,5 +751,17 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->old_sidebars_widgets = null;
 
 		return $sidebars_widgets;
+	}
+
+	/**
+	 * Add current theme name as a body class for easier override
+	 *
+	 * @param string[] $classes An array of body class names.
+	 *
+	 * @return string[] The array of classes after filtering
+	 */
+	public function add_body_class( $classes ) {
+		$classes[] = 'jps-theme-' . get_stylesheet();
+		return $classes;
 	}
 }
