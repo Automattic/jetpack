@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "db9f1d355b384579a810d7fc2f05d61b",
+    "content-hash": "f676587038d993060bd8c2c9bfedf6b2",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -401,7 +401,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "7496da70056b79ca1c1489d430c5ced50c83ae1c"
+                "reference": "777f4e0eab022a356394c3244474dca5920508e2"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
@@ -426,7 +426,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.27.x-dev"
+                    "dev-master": "1.28.x-dev"
                 }
             },
             "autoload": {
@@ -784,7 +784,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "489949796bf3f14a0179e588404816c8ea4bb743"
+                "reference": "01aa71455f315e281118fcb59d1a4eccaabd8ff8"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^1.4",
@@ -1177,7 +1177,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "70accd1e7688d85357795202d17a67314ff6015d"
+                "reference": "3b8e138b90448c4c537dbdd205d8b01adf0c2a6d"
             },
             "require": {
                 "automattic/jetpack-status": "^1.8"
