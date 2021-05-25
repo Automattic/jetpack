@@ -36,7 +36,7 @@ class Story_Block_Test extends \WP_UnitTestCase {
 	public function set_up() {
 		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( 'jetpack/story' );
 		\Automattic\Jetpack\Extensions\Story\register_block();
-		// TODO: test videopress by creating attachments that matches the media used in the fixtures.
+		add_filter( 'get_post_metadata', array( $this, 'get_metadata' ), 10, 2 );
 	}
 
 	/**
@@ -48,6 +48,34 @@ class Story_Block_Test extends \WP_UnitTestCase {
 		if ( ! $this->was_registered ) {
 			unregister_block_type( 'jetpack/story' );
 		}
+		remove_filter( 'get_post_metadata', array( $this, 'get_attachment_metadata' ) );
+	}
+
+	/**
+	 * Mock function to retrieve metadata about some post attachement
+	 *
+	 * @param mixed $metadata   Current metadata value.
+	 * @param int   $object_id  ID of the object.
+	 */
+	public function get_metadata( $metadata, $object_id ) {
+		// Attachment with id 14 represents the videopress media
+		// in `extensions/blocks/story/test/fixtures/jetpack__story__story-with-videopress.html`.
+		if ( 14 === $object_id ) {
+			return array(
+				array(
+					'width'      => 320,
+					'height'     => 640,
+					'original'   => array(
+						'url' => 'https://videos.files.wordpress.com/xxyyzz/videopress.mp4',
+					),
+					'videopress' => array(
+						'description' => 'This is the video description',
+						'poster'      => 'http://localhost/wp-includes/images/videopress_poster.png',
+					),
+				),
+			);
+		}
+		return $metadata;
 	}
 
 	/**

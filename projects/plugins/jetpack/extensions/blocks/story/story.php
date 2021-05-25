@@ -16,7 +16,7 @@ use Jetpack_Gutenberg;
 const FEATURE_NAME = 'story';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
-const EMBED_SIZE        = array( 180, 320 );
+const EMBED_SIZE        = array( 360, 640 ); // twice as many pixels for retina displays.
 const CROP_UP_TO        = 0.2;
 const MAX_BULLETS       = 7;
 const IMAGE_BREAKPOINTS = '(max-width: 460px) 576w, (max-width: 614px) 768w, 120vw'; // 120vw to match the 20% CROP_UP_TO ratio
@@ -108,42 +108,41 @@ function enrich_media_files( $media_files ) {
 				if ( ! $video_meta ) {
 					return $media_file;
 				}
+
+				$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
+
+				// Set the poster attribute for the video tag if a poster image is available.
+				$poster_url = null;
+				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
+					$poster_url = $video_meta['videopress']['poster'];
+				} elseif ( ! empty( $video_meta['thumb'] ) ) {
+					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
+				}
+
+				if ( $poster_url ) {
+					$poster_width  = ! empty( $media_file['width'] ) ? $media_file['width'] : EMBED_SIZE[0];
+					$poster_height = ! empty( $media_file['height'] ) ? $media_file['height'] : EMBED_SIZE[1];
+					$content_width = (int) Jetpack::get_content_width();
+					if ( 0 === $content_width ) {
+						$content_width = EMBED_SIZE[0];
+					}
+					$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
+					$poster_width  = $content_width;
+					$poster_url    = add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url );
+				}
+
 				$media_file = array_merge(
 					$media_file,
 					array(
 						'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : $media_file['width'] ),
 						'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : $media_file['height'] ),
 						'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'],
-						'url'     => ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'],
+						'url'     => $video_url,
 						'title'   => get_the_title( $attachment_id ),
 						'caption' => wp_get_attachment_caption( $attachment_id ),
+						'poster'  => $poster_url,
 					)
 				);
-
-				$poster_url = null;
-				// Set the poster attribute for the video tag if a poster image is available.
-				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
-					$poster_url = $video_meta['videopress']['poster'];
-				} elseif ( ! empty( $video_meta['thumb'] ) ) {
-					$video_url  = wp_get_attachment_url( $attachment_id );
-					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
-				}
-
-				if ( $poster_url ) {
-					$poster_width  = esc_attr( $media_file['width'] );
-					$poster_height = esc_attr( $media_file['height'] );
-					$content_width = (int) Jetpack::get_content_width();
-					if ( is_numeric( $content_width ) ) {
-						$poster_height = round( ( $content_width * $poster_height ) / $poster_width );
-						$poster_width  = $content_width;
-					}
-					$media_file = array_merge(
-						$media_file,
-						array(
-							'poster' => add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url ),
-						)
-					);
-				}
 
 				return $media_file;
 			},
@@ -172,6 +171,8 @@ function render_image( $media ) {
 	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
 		$width  = isset( $media['width'] ) ? $media['width'] : null;
 		$height = isset( $media['height'] ) ? $media['height'] : null;
+		$title  = isset( $media['title'] ) ? $media['title'] : '';
+		$alt    = isset( $media['alt'] ) ? $media['alt'] : '';
 		return sprintf(
 			'<img
 				title="%1$s"
@@ -179,8 +180,8 @@ function render_image( $media ) {
 				class="wp-block-jetpack-story_image wp-story-image %3$s"
 				src="%4$s"
 			/>',
-			esc_attr( $media['title'] ),
-			esc_attr( $media['alt'] ),
+			esc_attr( $title ),
+			esc_attr( $alt ),
 			$width && $height ? get_image_crop_class( $width, $height ) : '',
 			esc_attr( $media['url'] )
 		);
@@ -248,7 +249,8 @@ function render_video( $media ) {
 			array_merge(
 				$media,
 				array(
-					'url' => $media['poster'],
+					'type' => 'image',
+					'url'  => $media['poster'],
 				)
 			)
 		);
