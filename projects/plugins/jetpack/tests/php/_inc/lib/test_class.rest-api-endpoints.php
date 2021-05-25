@@ -1150,6 +1150,28 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test fetching a site's purchase token with a non-administrator user.
+	 *
+	 * @since 9.8.0
+	 */
+	public function test_get_purchase_token_non_admin_user() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Request fails because the user doesn't have the `manage_options` permission.
+		$this->assertResponseStatus( 403, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_manage_purchase_token' ), $response );
+	}
+
+	/**
 	 * Test fetching a site's purchase token when no site is registered.
 	 *
 	 * @since 9.8.0
@@ -1203,6 +1225,28 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Confirm the purchase token does not exist.
 		$this->assertResponseStatus( 200, $response );
 		$this->assertSame( '', $response->get_data() );
+	}
+
+	/**
+	 * Test deleting a site's purchase token with a non-administrator user.
+	 *
+	 * @since 9.8.0
+	 */
+	public function test_delete_purchase_token_non_admin_user() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Fetch the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Request fails because the user doesn't have the `manage_options` permission.
+		$this->assertResponseStatus( 403, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_manage_purchase_token' ), $response );
 	}
 
 	/**
