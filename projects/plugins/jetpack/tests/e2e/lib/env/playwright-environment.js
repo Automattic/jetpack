@@ -8,6 +8,7 @@ const pwContextOptions = require( '../../playwright.config' ).pwContextOptions;
 const { fileNameFormatter } = require( '../utils-helper' );
 const { takeScreenshot } = require( '../reporters/screenshot' );
 const config = require( 'config' );
+const { ContentType } = require( 'jest-circus-allure-environment' );
 const AllureNodeEnvironment = require( 'jest-circus-allure-environment' ).default;
 const { E2E_DEBUG, PAUSE_ON_FAILURE } = process.env;
 
@@ -33,8 +34,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		this.global.siteUrl = fs
 			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
 			.replace( 'http:', 'https:' );
-
-		this.global.reporter = this.global.allure;
 	}
 
 	async teardown() {
@@ -138,7 +137,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		this.global.page = await this.global.context.newPage();
 		// Even though this was already called by the page opened event
 		// we're calling it again with an event name to give the video file a nice name
-		await this.saveVideoFilePathsForPage( this.global.page, eventName );
+		// await this.saveVideoFilePathsForPage( this.global.page, eventName );
 	}
 
 	async onNewPage( page ) {
@@ -163,7 +162,20 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
 
-		await this.saveVideoFilePathsForPage( page );
+		page.on( 'close', async () => {
+			if ( page.video() ) {
+				const videoName = this.global.expect.getState().currentTestName;
+				const videoPath = `${ config.get( 'dirs.videos' ) }/${ Date.now() }_${ videoName }.webm`;
+				await page.video().saveAs( videoPath );
+				await this.global.allure.attachment(
+					videoName,
+					fs.readFileSync( videoPath ),
+					ContentType.WEBM
+				);
+			}
+		} );
+
+		// await this.saveVideoFilePathsForPage( page );
 	}
 
 	async closePage() {
@@ -212,7 +224,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	async onFailure( eventFullName, parentName, eventName, error ) {
 		logger.error( chalk.red( `FAILURE: ${ error }` ) );
 
-		await this.saveScreenshot( eventFullName );
+		await this.saveScreenshots( eventFullName );
 		await this.logHTML( eventFullName );
 
 		if ( E2E_DEBUG && PAUSE_ON_FAILURE && this.global.page ) {
@@ -226,14 +238,10 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	 * @param {string} fileName screenshot file name
 	 * @return {Promise<void>}
 	 */
-	async saveScreenshot( fileName ) {
-		const screenshots = [];
-
+	async saveScreenshots( fileName ) {
 		for ( const page of this.global.context.pages() ) {
-			screenshots.push( await takeScreenshot( page, fileName, this.global.allure ) );
+			await takeScreenshot( page, fileName, this.global.allure );
 		}
-
-		return screenshots;
 	}
 
 	/**
