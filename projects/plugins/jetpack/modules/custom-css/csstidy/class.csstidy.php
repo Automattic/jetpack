@@ -279,6 +279,7 @@ class csstidy {
 		$this->settings['preserve_css'] = false;
 		$this->settings['timestamp'] = false;
 		$this->settings['template'] = ''; // say that propertie exist
+		$this->settings['preserve_css_variables'] = false;
 		$this->set_cfg('template','default'); // call load_template
 		$this->optimise = new csstidy_optimise($this);
 
@@ -1178,7 +1179,19 @@ class csstidy {
 		$property = strtolower($property);
 		if (in_array(trim($property), $GLOBALS['csstidy']['multiple_properties'])) $property = trim($property);
 		$all_properties = & $GLOBALS['csstidy']['all_properties'];
-		return (isset($all_properties[$property]) && strpos($all_properties[$property], strtoupper($this->get_cfg('css_level'))) !== false );
+		return ((isset($all_properties[ $property]) && strpos($all_properties[ $property ], strtoupper( $this->get_cfg('css_level'))) !== false) 
+					|| ($this->get_cfg('preserve_css_variables') && $this->property_is_css_variable($property)));
+	}
+
+	/**
+	 * Checks if a property is a css variable
+	 * @param string $property
+	 * @return bool;
+	 * @access public
+	 * @version 1.0
+	 */
+	function property_is_css_variable($property) {
+		return preg_match('/^--[a-zA-Z0-9\-_]*/', $property);
 	}
 
 	/**
