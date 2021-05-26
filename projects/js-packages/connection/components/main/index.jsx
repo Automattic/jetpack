@@ -9,47 +9,45 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import InPlaceConnection from '../in-place-connection';
 import restApi from '../../tools/jetpack-rest-api-client';
+import ConnectUser from '../connect-user';
 
 /**
- * The in-place connection component.
+ * The RNA connection component.
  *
  * @param {object} props -- The properties.
- * @param {string} props.authorizationUrl -- The authorization URL.
  * @param {string} props.connectLabel -- The "Connect" button label.
  * @param {string} props.inPlaceTitle -- The title for the In-Place Connection component.
  * @param {boolean} props.forceCalypsoFlow -- Whether to go straight to Calypso flow, skipping the In-Place flow.
  * @param {string} props.apiRoot -- API root URL, required.
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
- * @param {boolean} props.isRegistered -- Whether the site is registered (has blog token), required.
- * @param {boolean} props.isUserConnected -- Whether the current user is connected (has user token), required.
- * @param {boolean} props.hasConnectedOwner -- Whether the site has connection owner, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
  * @param {Function} props.onUserConnected -- The callback to be called when the connection is fully established.
- * @param {Function} props.redirectFunc -- The redirect function (`window.location.assign()` by default).
  *
- * @returns {React.Component} The in-place connection component.
+ * @returns {React.Component} The RNA connection component.
  */
 const Main = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
 
+	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
+
+	const [ isFetchingConnectionStatus, setIsFetchingConnectionStatus ] = useState( false );
+	const [ connectionStatus, setConnectionStatus ] = useState( {} );
+
 	const {
 		apiRoot,
 		apiNonce,
 		connectLabel,
-		authorizationUrl,
-		forceCalypsoFlow,
-		isRegistered,
-		isUserConnected,
 		onRegistered,
 		onUserConnected,
 		registrationNonce,
-		redirectFunc,
-		from,
 		redirectUri,
+		forceCalypsoFlow,
+		inPlaceTitle,
+		from,
+		children,
 	} = props;
 
 	/**
@@ -61,39 +59,32 @@ const Main = props => {
 	}, [ apiRoot, apiNonce ] );
 
 	/**
-	 * Initialize the user connection process.
+	 * Fetch the connection status on the first render.
+	 * To be only run once.
 	 */
-	const connectUser = useCallback(
-		url => {
-			url = url || authorizationUrl;
+	useEffect( () => {
+		setIsFetchingConnectionStatus( true );
 
-			if ( ! url.includes( '?' ) ) {
-				url += '?';
-			}
-
-			if ( from ) {
-				url += '&from=' + encodeURIComponent( from );
-			}
-
-			if ( ! url ) {
-				throw new Error( 'Authorization URL is required' );
-			}
-
-			if ( forceCalypsoFlow ) {
-				redirectFunc( url );
-				return;
-			}
-
-			setIsUserConnecting( true );
-		},
-		[ authorizationUrl, forceCalypsoFlow, setIsUserConnecting, redirectFunc, from ]
-	);
+		restApi
+			.fetchSiteConnectionStatus()
+			.then( response => {
+				setIsFetchingConnectionStatus( false );
+				setConnectionStatus( response );
+			} )
+			.catch( error => {
+				setIsFetchingConnectionStatus( false );
+				throw error;
+			} );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	/**
 	 * Callback for the user connection success.
 	 */
 	const onUserConnectedCallback = useCallback( () => {
 		setIsUserConnecting( false );
+		setConnectionStatus( status => {
+			return { ...status, isUserConnected: true };
+		} );
 
 		if ( onUserConnected ) {
 			onUserConnected();
@@ -107,8 +98,8 @@ const Main = props => {
 		e => {
 			e && e.preventDefault();
 
-			if ( isRegistered ) {
-				connectUser();
+			if ( connectionStatus.isRegistered ) {
+				setIsUserConnecting( true );
 				return;
 			}
 
@@ -123,38 +114,61 @@ const Main = props => {
 						onRegistered( response );
 					}
 
-					connectUser( response.authorizeUrl );
+					setAuthorizationUrl( response.authorizeUrl );
+					setIsUserConnecting( true );
+					setConnectionStatus( status => {
+						return { ...status, isRegistered: true };
+					} );
 				} )
 				.catch( error => {
+					setIsRegistering( false );
 					throw error;
 				} );
 		},
-		[ setIsRegistering, isRegistered, onRegistered, connectUser, registrationNonce, redirectUri ]
+		[
+			setIsRegistering,
+			setAuthorizationUrl,
+			connectionStatus,
+			setConnectionStatus,
+			onRegistered,
+			registrationNonce,
+			redirectUri,
+		]
 	);
 
-	if ( isRegistered && isUserConnected ) {
-		return null;
-	}
+	const childrenCallback = useCallback( () => {
+		if ( children && {}.toString.call( children ) === '[object Function]' ) {
+			return children( connectionStatus );
+		}
+	}, [ connectionStatus, children ] );
 
 	return (
 		<div className="jp-connection-main">
-			{ ! isUserConnecting && (
-				<Button
-					label={ connectLabel }
-					onClick={ registerSite }
-					isPrimary
-					disabled={ isRegistering || isUserConnecting }
-				>
-					{ connectLabel }
-				</Button>
-			) }
+			{ childrenCallback() }
+
+			{ isFetchingConnectionStatus && `Loading...` }
+
+			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) &&
+				! isFetchingConnectionStatus && (
+					<Button
+						label={ connectLabel }
+						onClick={ registerSite }
+						isPrimary
+						disabled={ isRegistering || isUserConnecting }
+					>
+						{ connectLabel }
+					</Button>
+				) }
 
 			{ isUserConnecting && (
-				<InPlaceConnection
+				<ConnectUser
 					connectUrl={ authorizationUrl }
-					title={ props.inPlaceTitle }
+					redirectUri={ redirectUri }
+					inPlaceTitle={ inPlaceTitle }
 					onComplete={ onUserConnectedCallback }
-					displayTOS={ props.hasConnectedOwner || isRegistered }
+					displayTOS={ connectionStatus.hasConnectedOwner || connectionStatus.isRegistered }
+					forceCalypsoFlow={ forceCalypsoFlow }
+					from={ from }
 				/>
 			) }
 		</div>
@@ -162,28 +176,22 @@ const Main = props => {
 };
 
 Main.propTypes = {
-	authorizationUrl: PropTypes.string.isRequired,
 	connectLabel: PropTypes.string,
 	inPlaceTitle: PropTypes.string,
 	forceCalypsoFlow: PropTypes.bool,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
-	isRegistered: PropTypes.bool.isRequired,
-	isUserConnected: PropTypes.bool.isRequired,
-	hasConnectedOwner: PropTypes.bool.isRequired,
 	onRegistered: PropTypes.func,
 	onUserConnected: PropTypes.func,
 	registrationNonce: PropTypes.string.isRequired,
-	redirectFunc: PropTypes.func,
 	from: PropTypes.string,
-	redirectUri: PropTypes.string,
+	redirectUri: PropTypes.string.isRequired,
 };
 
 Main.defaultProps = {
 	inPlaceTitle: __( 'Connect your WordPress.com account', 'jetpack' ),
 	forceCalypsoFlow: false,
 	connectLabel: __( 'Connect', 'jetpack' ),
-	redirectFunc: url => window.location.assign( url ),
 };
 
 export default Main;

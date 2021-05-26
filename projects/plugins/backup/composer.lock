@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b6f6cc87aa9b1a93f0fa7402e9513ab4",
+    "content-hash": "5ec4ebe360579bccf59f6a4500383b54",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -174,7 +174,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "3e84b4afb43d31d2ceb74b2c4125f551842c293b"
+                "reference": "3bee7d1b23146e684488ea8dbbaf76ee5e8b65f5"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
@@ -199,7 +199,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.27.x-dev"
+                    "dev-master": "1.28.x-dev"
                 }
             },
             "autoload": {
@@ -242,10 +242,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "8991a5c1d48b2fa40840b2178be4d0ec4d9b1b51"
+                "reference": "72a09bbe875a4f439afaa2b0b79ef84ac404d34d"
             },
             "require": {
-                "automattic/jetpack-connection": "^1.27",
+                "automattic/jetpack-connection": "^1.28",
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-device-detection": "^1.4"
             },
