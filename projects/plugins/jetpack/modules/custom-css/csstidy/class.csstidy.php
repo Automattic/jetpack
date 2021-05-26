@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -1179,7 +1180,7 @@ class csstidy {
 		$property = strtolower($property);
 		if (in_array(trim($property), $GLOBALS['csstidy']['multiple_properties'])) $property = trim($property);
 		$all_properties = & $GLOBALS['csstidy']['all_properties'];
-		return ((isset($all_properties[ $property]) && strpos($all_properties[ $property ], strtoupper( $this->get_cfg('css_level'))) !== false) 
+		return ((isset($all_properties[$property]) && strpos($all_properties[$property], strtoupper($this->get_cfg('css_level'))) !== false) 
 					|| ($this->get_cfg('preserve_css_variables') && $this->property_is_css_variable($property)));
 	}
 
