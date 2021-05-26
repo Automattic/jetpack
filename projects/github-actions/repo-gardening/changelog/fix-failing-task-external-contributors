@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Tasks relying on Slack running on pull_request events: bail early without failing when PR was opened from a fork.
+Slack notification tasks: both tasks now listen for pull_request_target events so they can be run on PRs open from forks.

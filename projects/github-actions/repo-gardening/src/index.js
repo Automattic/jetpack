@@ -46,12 +46,12 @@ const automations = [
 		task: ifNotClosed( checkDescription ),
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'labeled' ],
 		task: ifNotClosed( notifyDesign ),
 	},
 	{
-		event: 'pull_request',
+		event: 'pull_request_target',
 		action: [ 'labeled' ],
 		task: ifNotClosed( notifyEditorial ),
 	},
