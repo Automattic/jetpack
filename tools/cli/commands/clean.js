@@ -4,7 +4,6 @@
 import chalk from 'chalk';
 import child_process from 'child_process';
 import inquirer from 'inquirer';
-import path from 'path';
 
 /**
  * Internal dependencies
@@ -81,12 +80,17 @@ export async function cleanCli( argv ) {
 		await promptForClean( argv );
 	}
 	await makeOptions( argv );
-	await handleCommands( argv );
+	await commandRoute( argv );
 
 	return;
 }
 
-async function handleCommands( argv ) {
+/**
+ * Handle prepping the commands before routing to run the command.
+ *
+ * @param {object} argv - arguments passed.
+ */
+async function commandRoute( argv ) {
 	// Dry Run
 	if ( argv.cmd === 'find' ) {
 		await runCommand( argv.cmd, argv.dryOptions );
@@ -106,16 +110,16 @@ async function handleCommands( argv ) {
 		if ( argv.cmd === 'find' ) {
 			argv.cmd = 'rm',
 			makeRemove( argv );
-			console.log( 'cleaning' );
 			//await runCommand( argv.cmd, argv.options );
+			return;
 		}
 
-		console.log( chalk.green( `Cleaning files...` ) );
-		//await runCommand( argv.cmd, argv.options, '-f' ); // do it live.
+		await runCommand( argv.cmd, [ `clean`, ...argv.options, '-f' ] ); // do it live.
 		if ( argv.include.toClean === 'both' ) {
 			console.log( chalk.green( 'Cleaning working files...' ) );
-			//runCommand( argv.cmd, [ `clean`, argv.project ], '-f' );
+			runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
 		}
+		console.log( chalk.green( `Clean completed! ${argv.project} cleans up so nicely, doesn't it?` ) );
 	}
 }
 
@@ -124,7 +128,6 @@ async function handleCommands( argv ) {
  *
  * @param {string} cmd - the shell command to run.
  * @param {object} options - the command options passed.
- * @param {string} mode - specifies dry run (-n) or force (-f).
  */
  export async function runCommand( cmd, options ) {
 	const data = child_process.spawnSync( cmd, [ ...options ], {
@@ -132,11 +135,17 @@ async function handleCommands( argv ) {
 	} );
 	// Node.js exit code status 0 === success
 	if ( data.status !== 0 ) {
-		console.error( 'Error!' );
+		console.error( 'There was a problem! See error above.' );
 		process.exit( data.status );
 	}
 }
 
+/**
+ * Parse passed arguments passed through.
+ *
+ * @param {object} argv - the arguments passed.
+ * @returns {object} argv.
+ */
 async function parseArgs( argv ) {
 	if ( argv.all ) {
 		argv.project = '.';
@@ -188,11 +197,13 @@ export async function makeOptions( argv ) {
  * @returns {object} argv.
  */
 async function makeClean ( argv ) {
+	if ( argv.scope === 'project' ) {
+		argv.project = `projects/${argv.project}`;
+	}
+	argv.options.push( argv.project );
 	// If we're running in root, we need to flag we want to remove files in subdirectories.
 	if ( argv.project === '.' ) {
 		argv.options.push( '-d' );
-	} else {
-		argv.options.push( argv.project );
 	}
 
 	if ( argv.include.toClean === 'ignored' || argv.include.toClean === 'both' ) {
@@ -203,12 +214,13 @@ async function makeClean ( argv ) {
 	if ( ! argv.include.ignored ) {
 		argv.include.ignored = [];
 	}
+
 	await checkExclude( argv.include.ignored, argv.options );
 	return argv;
 }
 
 /**
- * For running git clean to remove untracked files.
+ * For running rm -rf to remove specific files.
  *
  * @param {object} argv - arguments passed.
  * @returns {object} argv.
@@ -338,15 +350,15 @@ export async function promptForClean( argv ) {
 			}?`,
 			choices: [
 				{
-					name: 'Only working files/folders.',
+					name: 'Working Files/Folders (Only).',
 					value: 'working',
 				},
 				{
-					name: 'Only git-ignored files/folders.',
+					name: 'Git-Ignored Files (Only).',
 					value: 'ignored',
 				},
 				{
-					name: 'Both working files and git-ignored files/folders',
+					name: 'Both Working/Git-Ignored',
 					value: 'both',
 				},
 				...ignoreChoices
@@ -357,12 +369,9 @@ export async function promptForClean( argv ) {
 			name: 'ignored',
 			message: `Delete any of the following? (you will need to run 'jetpack install ${ argv.project }' to reinstall them)`,
 			choices: ignoreChoices,
-			when: answers => answers.toClean === 'both' || 'ignored',
+			when: answers => ( answers.toClean === 'both' ) || ( answers.toClean === 'ignored' )
 		},
 	] );
 	argv.include = { ...response };
 	return argv;
 }
-
-// jetpack clean [project] node_modules/composer.lock/vendor/working/all
-// If we want to remove working AND untracked, we have to do them separately and use X to exclude.
