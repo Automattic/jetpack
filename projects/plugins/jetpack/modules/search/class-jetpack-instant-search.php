@@ -716,18 +716,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	}
 
 	/**
-	 * Add current theme name as a body class for easier override
-	 *
-	 * @param string[] $classes An array of body class names.
-	 *
-	 * @return string[] The array of classes after filtering
-	 */
-	public function add_body_class( $classes ) {
-		$classes[] = 'jps-theme-' . get_stylesheet();
-		return $classes;
-	}
-
-	/**
 	 * Save sidebars_widgets option before it's migrated by WordPress
 	 *
 	 * @since 9.8.0
@@ -774,5 +762,17 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$this->old_sidebars_widgets = null;
 
 		return $sidebars_widgets;
+	}
+
+	/**
+	 * Add current theme name as a body class for easier override
+	 *
+	 * @param string[] $classes An array of body class names.
+	 *
+	 * @return string[] The array of classes after filtering
+	 */
+	public function add_body_class( $classes ) {
+		$classes[] = 'jps-theme-' . get_stylesheet();
+		return $classes;
 	}
 }
