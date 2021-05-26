@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Modified csstidy to allow css variable properties
+
+
