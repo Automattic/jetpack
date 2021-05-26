@@ -85,14 +85,14 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			case 'hook_success':
 				logger.info( chalk.green( `SUCCESS: ${ eventName }` ) );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage();
+					await this.closePage( eventName );
 				}
 				break;
 			case 'hook_failure':
 				logger.info( chalk.red( `HOOK FAILED: ${ eventName }` ) );
 				await this.onFailure( eventName, event.hook.parent.name, event.hook.type, event.error );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.closePage();
+					await this.closePage( eventName );
 				}
 				break;
 			case 'test_fn_start':
@@ -106,7 +106,7 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 				await this.onFailure( eventName, event.test.parent.name, event.test.name, event.error );
 				break;
 			case 'test_done':
-				await this.closePage();
+				await this.closePage( eventName );
 				break;
 			case 'run_describe_finish':
 				break;
@@ -133,14 +133,14 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		this.global.videoFiles = {};
 	}
 
-	async newPage( eventName = '' ) {
+	async newPage( eventName ) {
+		console.log( `NEW PAGE FOR: ${ eventName }` );
 		this.global.page = await this.global.context.newPage();
-		// Even though this was already called by the page opened event
-		// we're calling it again with an event name to give the video file a nice name
-		// await this.saveVideoFilePathsForPage( this.global.page, eventName );
 	}
 
 	async onNewPage( page ) {
+		console.log( `NEW PAGE: ${ JSON.stringify( this.global.expect.getState(), null, 2 ) }` );
+
 		// Observe console logging
 		page.on( 'console', message => {
 			const type = message.type();
@@ -161,41 +161,32 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 
 			logger.debug( `CONSOLE: ${ type.toUpperCase() }: ${ text }` );
 		} );
+	}
 
-		page.on( 'close', async () => {
-			if ( page.video() ) {
-				const videoName = this.global.expect.getState().currentTestName;
-				const videoPath = `${ config.get( 'dirs.videos' ) }/${ Date.now() }_${ videoName }.webm`;
-				await page.video().saveAs( videoPath );
+	async closePage( eventName ) {
+		console.log( `NEW PAGE FOR: ${ eventName }` );
+		await this.global.page.close();
+
+		if ( this.global.page.video() ) {
+			// const videoName = this.global.expect.getState().currentTestName;
+			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
+			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
+
+			try {
+				await this.global.page.video().saveAs( videoPath );
+			} catch ( error ) {
+				logger.error( `There was an error saving the video file!\n${ error }` );
+			}
+
+			try {
 				await this.global.allure.attachment(
 					videoName,
 					fs.readFileSync( videoPath ),
 					ContentType.WEBM
 				);
+			} catch ( error ) {
+				logger.error( `There was an error attaching the video to test report!\n${ error }` );
 			}
-		} );
-
-		// await this.saveVideoFilePathsForPage( page );
-	}
-
-	async closePage() {
-		await this.global.page.close();
-	}
-
-	async saveVideoFilePathsForPage( page, eventName = '' ) {
-		// Save the pair of the current page videoPath and the event name
-		// to use later in video files renaming
-
-		try {
-			const srcVideoPath = await page.video().path();
-			const ext = path.extname( srcVideoPath );
-			const dir = path.dirname( srcVideoPath );
-			this.global.videoFiles[ srcVideoPath ] = path.join(
-				dir,
-				`${ fileNameFormatter( eventName ) }${ ext }`
-			);
-		} catch ( error ) {
-			logger.error( `Cannot get page's video file path! Is video capture active? \n ${ error }` );
 		}
 	}
 
