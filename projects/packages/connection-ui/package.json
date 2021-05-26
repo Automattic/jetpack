@@ -13,6 +13,9 @@
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"watch": "yarn build && yarn gulp watch"
 	},
+	"resolutions": {
+		"**/browserslist": "^4.16.6"
+	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.5.0",
 		"@automattic/jetpack-connection": "link:../../js-packages/connection",

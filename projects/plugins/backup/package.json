@@ -20,6 +20,9 @@
 		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
 		"watch": "yarn build && yarn gulp watch"
 	},
+	"resolutions": {
+		"**/browserslist": "^4.16.6"
+	},
 	"dependencies": {
 		"@automattic/jetpack-connection": "link:../../js-packages/connection",
 		"@wordpress/data": "4.27.3",

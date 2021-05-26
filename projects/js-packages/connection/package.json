@@ -4,6 +4,9 @@
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
+	"resolutions": {
+		"**/browserslist": "^4.16.6"
+	},
 	"dependencies": {
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/components": "9.2.6",
