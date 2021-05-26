@@ -740,6 +740,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$synced = Functions::get_post_types();
 		foreach( $wp_post_types as $post_type => $post_type_object ) {
 			$post_type_object->rest_controller_class = false;
+			$post_type_object->rest_controller       = null;
 			if ( ! isset( $post_type_object->supports ) ) {
 				$post_type_object->supports = array();
 			}
