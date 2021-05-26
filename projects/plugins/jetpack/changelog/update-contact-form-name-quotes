@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Contact Form: remove double quotes from names in email headers to improve compatiblity with different emailing solutions for WordPress.

@@ -1,60 +1,64 @@
 lockfileVersion: 5.3
 
-specifiers:
-  '@babel/core': 7.13.16
-  '@babel/preset-env': 7.13.15
-  '@slack/web-api': 6.1.0
-  '@wordpress/env': 4.0.2
-  '@wordpress/eslint-plugin': 9.0.3
-  axios: 0.21.1
-  babel-jest: 26.6.3
-  chalk: 4.1.1
-  config: 3.3.6
-  eslint: 7.24.0
-  eslint-plugin-jest: 24.3.5
-  jest: 26.6.3
-  jest-circus: 26.6.3
-  jest-environment-node: 26.6.2
-  jest-junit: 12.0.0
-  jest-runner-groups: 2.0.1
-  jest-stare: 2.2.1
-  localtunnel: 2.0.1
-  lodash: 4.17.21
-  mkdirp: 1.0.4
-  playwright: 1.10.0
-  pm2: 4.5.6
-  rimraf: 3.0.2
-  shell-escape: 0.2.0
-  winston: 3.3.3
-  yargs: 16.2.0
+importers:
 
-devDependencies:
-  '@babel/core': 7.13.16
-  '@babel/preset-env': 7.13.15_@babel+core@7.13.16
-  '@slack/web-api': 6.1.0
-  '@wordpress/env': 4.0.2
-  '@wordpress/eslint-plugin': 9.0.3_eslint@7.24.0
-  axios: 0.21.1
-  babel-jest: 26.6.3_@babel+core@7.13.16
-  chalk: 4.1.1
-  config: 3.3.6
-  eslint: 7.24.0
-  eslint-plugin-jest: 24.3.5_eslint@7.24.0
-  jest: 26.6.3
-  jest-circus: 26.6.3
-  jest-environment-node: 26.6.2
-  jest-junit: 12.0.0
-  jest-runner-groups: 2.0.1
-  jest-stare: 2.2.1
-  localtunnel: 2.0.1
-  lodash: 4.17.21
-  mkdirp: 1.0.4
-  playwright: 1.10.0
-  pm2: 4.5.6
-  rimraf: 3.0.2
-  shell-escape: 0.2.0
-  winston: 3.3.3
-  yargs: 16.2.0
+  .:
+    specifiers:
+      '@babel/core': 7.13.16
+      '@babel/preset-env': 7.13.15
+      '@slack/web-api': 6.1.0
+      '@wordpress/env': 4.0.2
+      '@wordpress/eslint-plugin': 9.0.3
+      axios: 0.21.1
+      babel-jest: 26.6.3
+      chalk: 4.1.1
+      config: 3.3.6
+      eslint: 7.24.0
+      eslint-plugin-jest: 24.3.5
+      jest: 26.6.3
+      jest-circus: 26.6.3
+      jest-circus-allure-environment: 1.1.0
+      jest-environment-node: 26.6.2
+      jest-junit: 12.0.0
+      jest-runner-groups: 2.0.1
+      jest-stare: 2.2.1
+      localtunnel: 2.0.1
+      lodash: 4.17.21
+      mkdirp: 1.0.4
+      playwright: 1.10.0
+      pm2: 4.5.6
+      rimraf: 3.0.2
+      shell-escape: 0.2.0
+      winston: 3.3.3
+      yargs: 16.2.0
+    devDependencies:
+      '@babel/core': 7.13.16
+      '@babel/preset-env': 7.13.15_@babel+core@7.13.16
+      '@slack/web-api': 6.1.0
+      '@wordpress/env': 4.0.2
+      '@wordpress/eslint-plugin': 9.0.3_eslint@7.24.0
+      axios: 0.21.1
+      babel-jest: 26.6.3_@babel+core@7.13.16
+      chalk: 4.1.1
+      config: 3.3.6
+      eslint: 7.24.0
+      eslint-plugin-jest: 24.3.5_eslint@7.24.0
+      jest: 26.6.3
+      jest-circus: 26.6.3
+      jest-circus-allure-environment: 1.1.0
+      jest-environment-node: 26.6.2
+      jest-junit: 12.0.0
+      jest-runner-groups: 2.0.1
+      jest-stare: 2.2.1
+      localtunnel: 2.0.1
+      lodash: 4.17.21
+      mkdirp: 1.0.4
+      playwright: 1.10.0
+      pm2: 4.5.6
+      rimraf: 3.0.2
+      shell-escape: 0.2.0
+      winston: 3.3.3
+      yargs: 16.2.0
 
 packages:
 
@@ -1844,6 +1848,14 @@ packages:
       uri-js: 4.4.1
     dev: true
 
+  /allure-js-commons/2.0.0-beta.9:
+    resolution: {integrity: sha512-uTJiBEJFaY+UUH69aXC7I6Etj66ZzTf4ZWEOSEHpWclvQ76gF5Z/woUYri+XlBdsRcR5W1Ks0KVA/b1dFhyZJQ==}
+    dependencies:
+      mkdirp: 1.0.4
+      properties: 1.2.1
+      uuid: 8.3.2
+    dev: true
+
   /amp-message/0.1.2:
     resolution: {integrity: sha1-p48cmJlQh602GSpBKY5NtJ49/EU=}
     dependencies:
@@ -1892,6 +1904,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       color-convert: 2.0.1
+    dev: true
+
+  /ansi_up/5.0.1:
+    resolution: {integrity: sha512-HGOTjFQECRKZM9fIlGhJfR2pcK8PMUWzFOqcPwqBEnNIa4P2r0Di+g2hxCX0hL0n1NUtAHGRA+fUyA/OajZYFw==}
     dev: true
 
   /anymatch/2.0.0:
@@ -4442,6 +4458,30 @@ packages:
       throat: 5.0.0
     dev: true
 
+  /jest-circus-allure-environment/1.1.0:
+    resolution: {integrity: sha512-8dmF6L6zcDCqwmFglLCyTaoed+vvuTvnKvOJkzGfz+onERdzscPTacaXaDMywFaNF3h3c5+uwfCeVSObwMeBeA==}
+    engines: {node: '>=12.x'}
+    dependencies:
+      '@jest/environment': 26.6.2
+      '@jest/reporters': 26.6.2
+      '@jest/types': 26.6.2
+      allure-js-commons: 2.0.0-beta.9
+      ansi_up: 5.0.1
+      jest-circus: 26.6.3
+      jest-docblock: 26.0.0
+      jest-environment-node: 26.6.2
+      lodash: 4.17.21
+      prettier: 2.3.0
+      pretty-format: 26.6.2
+      strip-ansi: 6.0.0
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - ts-node
+      - utf-8-validate
+    dev: true
+
   /jest-circus/26.6.3:
     resolution: {integrity: sha512-ACrpWZGcQMpbv13XbzRzpytEJlilP/Su0JtNCi5r/xLpOUhnaIJr8leYYpLEMgPFURZISEHrnnpmB54Q/UziPw==}
     engines: {node: '>= 10.14.2'}
@@ -6089,6 +6129,12 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
+  /prettier/2.3.0:
+    resolution: {integrity: sha512-kXtO4s0Lz/DW/IJ9QdWhAf7/NmPWQXkFr/r/WkR3vyI+0v8amTDxiaQSLzs8NBlytfLWX/7uQUMIW677yLKl4w==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    dev: true
+
   /pretty-format/26.6.2:
     resolution: {integrity: sha512-7AeGuCYNGmycyQbCqd/3PWH4eOoX/OiCa0uphp57NVTeAGdJGaAliecxwBDHYQCIvrW7aDBZCYeNTP/WX69mkg==}
     engines: {node: '>= 10'}
@@ -6136,6 +6182,11 @@ packages:
       graceful-fs: 4.2.6
       retry: 0.12.0
       signal-exit: 3.0.3
+    dev: true
+
+  /properties/1.2.1:
+    resolution: {integrity: sha1-Dul6f8AgsaKlW4ZZ7aSqjYaQlL0=}
+    engines: {node: '>=0.10'}
     dev: true
 
   /proxy-agent/4.0.1:
@@ -7319,7 +7370,6 @@ packages:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
     dev: true
-    optional: true
 
   /v8-compile-cache/2.2.0:
     resolution: {integrity: sha512-gTpR5XQNKFwOd4clxfnhaqvfqMpqEwr4tOtCyz4MtYZX2JYhfr1JvBFKdS+7K/9rfpZR3VLX+YWBbKoxCgS43Q==}

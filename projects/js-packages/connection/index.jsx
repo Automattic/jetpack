@@ -18,6 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export { default as JetpackConnection } from './components/main';
 export { default as InPlaceConnection } from './components/in-place-connection';
+export { default as ConnectUser } from './components/connect-user';
 
 /**
  * Helpers.
