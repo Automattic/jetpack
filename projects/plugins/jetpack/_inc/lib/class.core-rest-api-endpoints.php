@@ -1,7 +1,9 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\get_purchases; // phpcs:ignore MediaWiki.Classes.UnusedUseStatement.UnusedUse
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Licensing;
@@ -1443,7 +1445,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Whether site has level-site auth or user has the capability 'manage_options'.
 	 */
 	public static function purchase_token_permission_check() {
-		if ( apply_filters( 'jetpack_site_level_auth', false ) ) {
+		if ( Rest_Authentication::is_signed_with_blog_token() ) {
 			return true;
 		}
 

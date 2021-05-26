@@ -88,13 +88,6 @@ class REST_Authentication_Test extends TestCase {
 			$this->assertInstanceOf( $expected_outputs['errors'], $this->rest_authentication->wp_rest_authentication_errors( null ) );
 		} else {
 			$this->assertEquals( $expected_outputs['errors'], $this->rest_authentication->wp_rest_authentication_errors( null ) );
-			// Make sure in case of successful site-level authentication the `jetpack_site_level_auth` filter is set.
-			$is_site_level_auth = apply_filters( 'jetpack_site_level_auth', false );
-			if ( true === $expected_outputs['errors'] && is_null( $expected_outputs['authenticate'] ) ) {
-				$this->assertTrue( $is_site_level_auth );
-			} else {
-				$this->assertFalse( $is_site_level_auth );
-			}
 		}
 	}
 
@@ -276,6 +269,177 @@ class REST_Authentication_Test extends TestCase {
 					'authenticate' => null,
 					'errors'       => true,
 				),
+			),
+		);
+	}
+
+	/**
+	 * Tests is_signed_with_blog_token.
+	 *
+	 * @param array $test_inputs The array containing the test inputs.
+	 * @param bool  $expected    The array containg the expected test outputs.
+	 *
+	 * @covers REST_Authentication::is_signed_with_blog_token
+	 * @dataProvider is_signed_with_blog_token_data_provider
+	 */
+	public function test_is_signed_with_blog_token( $test_inputs, $expected ) {
+		$_GET = $test_inputs['get_params'];
+		if ( isset( $test_inputs['request_method'] ) ) {
+			$_SERVER['REQUEST_METHOD'] = $test_inputs['request_method'];
+		}
+
+		$this->manager->expects( $this->any() )
+			->method( 'verify_xml_rpc_signature' )
+			->will( $this->returnValue( $test_inputs['verified'] ) );
+
+		$this->rest_authentication->wp_rest_authenticate( '' );
+
+		$this->assertSame( $expected, Rest_Authentication::is_signed_with_blog_token() );
+	}
+
+	/**
+	 * The data provider for test_wp_rest_authenticate.
+	 *
+	 * @return array An array containg the test inputs and expected outputs. Each test array has the format:
+	 *     ['test_inputs'] => [
+	 *         ['get'] =>
+	 *             ['_for'] => (string) The _for parameter value. Optional.
+	 *             ['token'] => (string) The token parameter value. Optional.
+	 *             ['signature'] => (string) The signature parameter value. Optional.
+	 *         ['request_method'] => (string) The request method. Optional.
+	 *         ['verified'] => (false|array) The mocked return value of Manager::verify_xml_rpc_signature. Required.
+	 *     ],
+	 *     ['expected'] => (bool) The expected return value of wp_rest_authenticate. Required.
+	 */
+	public function is_signed_with_blog_token_data_provider() {
+		$token_data = array(
+			'type'      => 'user',
+			'token_key' => '123abc',
+			'user_id'   => 123,
+		);
+
+		$blog_token_data = array(
+			'type'      => 'blog',
+			'token_key' => '123.abc',
+			'user_id'   => 0,
+		);
+
+		return array(
+			'no for parameter'                   => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'GET',
+					'verified'       => $token_data,
+				),
+				'expected'    => false,
+			),
+			'for parameter is not jetpack'       => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'not_jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'GET',
+					'verified'       => $token_data,
+				),
+				'expected'    => false,
+			),
+			'no token or signature parameter'    => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for' => 'jetpack',
+					),
+					'request_method' => 'GET',
+					'verified'       => $token_data,
+				),
+				'expected'    => false,
+			),
+			'no request method'                  => array(
+				'test_inputs' => array(
+					'get_params' => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'verified'   => $token_data,
+				),
+				'expected'    => false,
+			),
+			'invalid request method'             => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'DELETE',
+					'verified'       => $token_data,
+				),
+				'expected'    => false,
+			),
+			'successful GET request'             => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'GET',
+					'verified'       => $token_data,
+				),
+				'expected'    => false,
+			),
+			'successful POST request'            => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'POST',
+					'verified'       => $token_data,
+				),
+				'expected'    => false,
+			),
+			'signature verification failed'      => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'GET',
+					'verified'       => false,
+				),
+				'expected'    => false,
+			),
+			'successful GET request blog token'  => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'GET',
+					'verified'       => $blog_token_data,
+				),
+				'expected'    => true,
+			),
+			'successful POST request blog token' => array(
+				'test_inputs' => array(
+					'get_params'     => array(
+						'_for'      => 'jetpack',
+						'token'     => 'token',
+						'signature' => 'signature',
+					),
+					'request_method' => 'POST',
+					'verified'       => $blog_token_data,
+				),
+				'expected'    => true,
 			),
 		);
 	}
