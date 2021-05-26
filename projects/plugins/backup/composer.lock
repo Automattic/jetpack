@@ -434,7 +434,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
-                "reference": "f8cb7c3731146ebdb63f703b8674504dd2708c3e"
+                "reference": "de833a41411fb82163b4c08a52d3471c294b60cc"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6"
@@ -451,7 +451,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.12.x-dev"
+                    "dev-master": "1.13.x-dev"
                 }
             },
             "autoload": {
