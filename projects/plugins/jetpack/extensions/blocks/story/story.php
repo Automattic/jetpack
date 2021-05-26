@@ -268,7 +268,7 @@ function render_video( $media ) {
 }
 
 /**
- * Render a static embed story picking a thumbnail
+ * Pick a thumbnail to render a static/embedded story
  *
  * @param array $media_files  - list of Media files.
  *
