@@ -11,4 +11,8 @@
 
 ## 0.1.0 - 2021-04-27
 ### Added
-- RNA Connection: InPlaceConnection component added.
+- `InPlaceConnection` component added.
+
+## 0.2.0 - 2021-05-18
+- `Main` and `ConnectUser` components added.
+- `JetpackRestApiClient` API client added.
