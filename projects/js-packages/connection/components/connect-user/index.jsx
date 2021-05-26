@@ -66,7 +66,10 @@ const ConnectUser = props => {
 
 	if ( forceCalypsoFlow ) {
 		redirectFunc(
-			addQueryArgs( authorizationUrl, { from: from ? encodeURIComponent( from ) : null } )
+			addQueryArgs( authorizationUrl, {
+				from: from ? encodeURIComponent( from ) : null,
+				something: 'something else',
+			} )
 		);
 		return null;
 	}
