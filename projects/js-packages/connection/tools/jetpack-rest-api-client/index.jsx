@@ -3,8 +3,6 @@
  */
 import { assign } from 'lodash';
 
-/* eslint-disable no-unused-vars */
-
 /**
  * Helps create new custom error classes to better notify upper layers.
  *
@@ -82,6 +80,19 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+
+		fetchAuthorizationUrl: redirectUri =>
+			getRequest(
+				`${ apiRoot }jetpack/v4/connection/authorize_url?no_iframe=1&redirect_uri=${ encodeURIComponent(
+					redirectUri
+				) }`,
+				getParams
+			)
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		fetchSiteConnectionStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection`, getParams ).then( parseJsonResponse ),
 	};
 
 	/**
@@ -125,8 +136,6 @@ function JetpackRestApiClient( root, nonce ) {
 
 	assign( this, methods );
 }
-
-/* eslint-enable no-unused-vars */
 
 /**
  * Check the response status.
