@@ -25,6 +25,7 @@ Before checking out a branch using pnpm, you'll likely want to remove any `node_
 ```bash
 rm -rf node_modules projects/*/*/node_modules projects/plugins/jetpack/tests/e2e/node_modules tools/cli/node_modules
 ```
+You may also want to uninstall the Jetpack CLI from yarn with `yarn cli-unlink`.
 Then, after checking out the branch, execute `pnpm install` or `pnpm cli-setup`.
 
 If you forget to do this, you'll most like get the following message when checking out the branch:
@@ -33,7 +34,10 @@ warning Jetpack_Monorepo@: The engine "pnpm" appears to be invalid.
 error Jetpack_Monorepo@: The engine "yarn" is incompatible with this module. Expected version "use pnpm instead - see docs/yarn-upgrade.md". Got "1.22.10"
 error Commands cannot run with an incompatible environment.
 ```
-That's ok. Just remove the `node_modules/` as above and `pnpm install`.
+That's ok, nothing is broken. Just do the above steps.
+
+If you move back to a branch that's still using yarn (and want to do actual work on it), you may want to remove `node_modules/` again so as to not confuse yarn with
+pnpm's structure.
 
 ### Command changes
 
