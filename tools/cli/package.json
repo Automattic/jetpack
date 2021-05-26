@@ -26,6 +26,7 @@
 		"configstore": "5.0.1",
 		"esm": "3.2.25",
 		"execa": "5.0.0",
+		"simple-git": "2.37.0",
 		"inquirer": "7.3.3",
 		"js-yaml": "4.1.0",
 		"listr": "0.14.3",
