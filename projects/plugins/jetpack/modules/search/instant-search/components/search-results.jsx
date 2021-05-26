@@ -75,6 +75,12 @@ class SearchResults extends Component {
 				num,
 				corrected_query
 			);
+		} else if ( this.props.groupName ) {
+			return sprintf(
+				_n( 'Found %s result in %s', 'Found %s results in %s', total, 'jetpack' ),
+				num,
+				this.props.groupName
+			);
 		} else if ( hasQuery ) {
 			return sprintf(
 				_n( 'Found %s result', 'Found %s results', total, 'jetpack' ),
@@ -100,7 +106,7 @@ class SearchResults extends Component {
 					dangerouslySetInnerHTML={ {
 						__html: `
 							.jetpack-instant-search *::selection,
-							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
+							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark {
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}

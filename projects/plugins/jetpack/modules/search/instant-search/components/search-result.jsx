@@ -11,8 +11,9 @@ import { h, Component } from 'preact';
 import SearchResultMinimal from './search-result-minimal';
 import SearchResultExpanded from './search-result-expanded';
 import SearchResultProduct from './search-result-product';
+import SearchResultMultiSite from './search-result-multisite';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
-import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT } from '../lib/constants';
+import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT, RESULT_FORMAT_MULTISITE } from '../lib/constants';
 import './search-result.scss';
 
 class SearchResult extends Component {
@@ -52,6 +53,8 @@ class SearchResult extends Component {
 			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
 		} else if ( this.props.resultFormat === RESULT_FORMAT_EXPANDED ) {
 			return <SearchResultExpanded onClick={ this.onClick } { ...this.props } />;
+		} else if ( this.props.resultFormat === RESULT_FORMAT_MULTISITE ) {
+			return <SearchResultMultiSite onClick={ this.onClick } { ...this.props } />;
 		}
 
 		return <SearchResultMinimal onClick={ this.onClick } { ...this.props } />;

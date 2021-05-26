@@ -10,7 +10,7 @@ import lru from 'tiny-lru/lib/tiny-lru.esm';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS, RESULT_FORMAT_PRODUCT, SERVER_OBJECT_NAME } from './constants';
+import { MINUTE_IN_MILLISECONDS, RESULT_FORMAT_PRODUCT, RESULT_FORMAT_MULTISITE, SERVER_OBJECT_NAME } from './constants';
 
 let abortController;
 
@@ -241,6 +241,18 @@ function generateApiQueryString( {
 			'wc.sale_price',
 		] );
 	}
+
+	/**
+	 * Fetch additional fields for multi site results
+	 */
+	if ( resultFormat === RESULT_FORMAT_MULTISITE ) {
+		fields = fields.concat( [
+			'author',
+			'blog_name',
+			'blog_icon_url',
+		] );
+	}
+	RESULT_FORMAT_MULTISITE
 
 	return encode(
 		flatten( {
