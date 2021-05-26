@@ -111,7 +111,6 @@ importers:
       '@wordpress/browserslist-config': 3.0.1
       '@wordpress/components': 9.2.6
       '@wordpress/i18n': ^3.9.0
-      '@wordpress/url': 2.11.0
       jetpack-js-test-runner: workspace:*
       lodash: 4.17.21
       nyc: 15.1.0
@@ -121,7 +120,6 @@ importers:
       '@wordpress/browserslist-config': 3.0.1
       '@wordpress/components': 9.2.6
       '@wordpress/i18n': 3.20.0
-      '@wordpress/url': 2.11.0
       lodash: 4.17.21
       prop-types: 15.7.2
     devDependencies:

@@ -1,7 +1,7 @@
 name: Gardening
 on:
   pull_request_target:
-    types: [opened]
+    types: [opened, labeled]
   pull_request: # When a PR is opened, edited, updated, closed, or a label is added.
     types: [opened, synchronize, labeled, edited, closed]
   push:

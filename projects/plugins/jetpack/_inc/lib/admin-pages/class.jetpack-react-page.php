@@ -3,6 +3,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
@@ -299,7 +300,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
 		 */
 		$connection_status = array(
-			'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
+			'isInIdentityCrisis' => Identity_Crisis::validate_sync_error_idc_option(),
 			'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
 
 			/**
