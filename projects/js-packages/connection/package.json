@@ -8,7 +8,6 @@
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/i18n": "^3.9.0",
-		"@wordpress/url": "2.11.0",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
