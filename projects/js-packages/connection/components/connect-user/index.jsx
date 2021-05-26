@@ -64,8 +64,6 @@ const ConnectUser = props => {
 		return null;
 	}
 
-	const somethingUrl = addQueryArgs( authorizationUrl, { something: 'something else' } );
-
 	if ( forceCalypsoFlow ) {
 		redirectFunc(
 			addQueryArgs( authorizationUrl, { from: from ? encodeURIComponent( from ) : null } )
@@ -76,7 +74,6 @@ const ConnectUser = props => {
 
 	return (
 		<InPlaceConnection
-			somethingUrl={ somethingUrl }
 			connectUrl={ authorizationUrl }
 			title={ inPlaceTitle }
 			onComplete={ onComplete }

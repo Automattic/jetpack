@@ -1821,7 +1821,7 @@ class Manager {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 */
 	public function disconnect_site() {
-
+		return true; // Testing testing testing.
 	}
 
 	/**
