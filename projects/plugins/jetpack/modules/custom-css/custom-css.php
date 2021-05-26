@@ -222,7 +222,7 @@ class Jetpack_Custom_CSS {
 		$csstidy->set_cfg( 'css_level',                  'CSS3.0' );
 		$csstidy->set_cfg( 'preserve_css',               true );
 		$csstidy->set_cfg( 'template',                   dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl' );
-		$csstidy->set_cfg( 'preserve_css_variables',     true );
+		$csstidy->set_cfg( 'preserve_css_variables', true );
 
 		$css = $orig = $args['css'];
 
