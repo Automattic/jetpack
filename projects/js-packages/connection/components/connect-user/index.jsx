@@ -74,7 +74,7 @@ const ConnectUser = props => {
 	return (
 		<InPlaceConnection
 			connectUrl={ authorizationUrl }
-			title={ inPlaceTitle }
+			title={ inPlaceTitle + 'something test' }
 			onComplete={ onComplete }
 			displayTOS={ displayTOS }
 		/>
