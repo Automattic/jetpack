@@ -20,6 +20,9 @@ module.exports = {
 	globals: {
 		siteUrl: resolveSiteUrl(),
 	},
+	testEnvironmentOptions: {
+		resultsDir: 'output/allure-results',
+	},
 	reporters: [
 		'default',
 		[

@@ -124,10 +124,11 @@ for SLUG in "${SLUGS[@]}"; do
 			DIDCL=true
 		fi
 		if [[ -n "$(git ls-files "projects/$SLUG/composer.lock")" ]]; then
-			cd "$BASE/projects/$SLUG"
+			PROJECTFOLDER="$BASE/projects/$SLUG"
+			cd "$PROJECTFOLDER"
 			debug "Updating $SLUG composer.lock"
 			OLD="$(<composer.lock)"
-			"$BASE/tools/composer-update-monorepo.sh" --quiet "$SLUG"
+			"$BASE/tools/composer-update-monorepo.sh" --quiet "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && ! $DIDCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
 				changelogger "$SLUG" '' 'Updated composer.lock.'
