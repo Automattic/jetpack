@@ -118,15 +118,6 @@ function enrich_media_files( $media_files ) {
 					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
 				}
 
-				// resize poster to fit the story embed size.
-				if ( $poster_url ) {
-					$poster_width  = ! empty( $media_file['width'] ) ? $media_file['width'] : EMBED_SIZE[0];
-					$poster_height = ! empty( $media_file['height'] ) ? $media_file['height'] : EMBED_SIZE[1];
-					$poster_height = round( ( EMBED_SIZE[0] * $poster_height ) / $poster_width );
-					$poster_width  = EMBED_SIZE[0];
-					$poster_url    = add_query_arg( 'resize', rawurlencode( $poster_width . ',' . $poster_height ), $poster_url );
-				}
-
 				$media_file = array_merge(
 					$media_file,
 					array(
@@ -136,7 +127,7 @@ function enrich_media_files( $media_files ) {
 						'url'     => $video_url,
 						'title'   => get_the_title( $attachment_id ),
 						'caption' => wp_get_attachment_caption( $attachment_id ),
-						'poster'  => $poster_url,
+						'poster'  => add_query_arg( 'w', EMBED_SIZE[0], $poster_url ),
 					)
 				);
 
