@@ -7,10 +7,16 @@ const {
 	defaultRequestToExternal,
 	defaultRequestToHandle,
 } = require( '@wordpress/dependency-extraction-webpack-plugin/util' );
+const { readFileSync } = require( 'fs' );
 const path = require( 'path' );
 const webpack = require( 'webpack' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const pluginFileContent = readFileSync( path.join( __dirname, '../jetpack.php' ) ).toString();
+const jetpackAlphaNumericVersion = pluginFileContent
+	.match( /define\(\s+'JETPACK__VERSION',\s+'([0-9A-Za-z.-]+)'\s+\)/ )[ 1 ]
+	.replace( /[^0-9A-Za-z]+/g, '-' );
 
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
@@ -29,7 +35,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 			],
 		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
-		'output-filename': 'jp-search-[name].bundle.js',
+		'output-filename': `jp-search-[name].bundle.${ jetpackAlphaNumericVersion }.js`,
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );

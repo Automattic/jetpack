@@ -719,6 +719,16 @@ class Jetpack_Search_Helpers {
 			: JETPACK__VERSION;
 	}
 
+	/**
+	 * Get alphanumberic Jetpack version
+	 *
+	 * @since 9.8.0
+	 * @param string $replace The string non-alphanumeric charactors are replaced by.
+	 * @return string $script_version Alphanumberic version number.
+	 */
+	public static function get_alphanumeric_version( $replace = '-' ) {
+		return strtolower( preg_replace( '/[^A-Za-z0-9]/', $replace, JETPACK__VERSION ) );
+	}
 
 	/**
 	 * Generates a customizer settings ID for a given post type.

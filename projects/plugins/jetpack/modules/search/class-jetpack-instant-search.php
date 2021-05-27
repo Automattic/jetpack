@@ -106,8 +106,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @param string $plugin_base_path - Base path for use in plugins_url.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		$polyfill_relative_path = $path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.js';
-		$script_relative_path   = $path_prefix . '_inc/build/instant-search/jp-search-main.bundle.js';
+		$filename_cache_buster  = Jetpack_Search_Helpers::get_alphanumeric_version();
+		$polyfill_relative_path = $path_prefix . "_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle.${filename_cache_buster}.js";
+		$script_relative_path   = $path_prefix . "_inc/build/instant-search/jp-search-main.bundle.${filename_cache_buster}.js";
 
 		if (
 			! file_exists( JETPACK__PLUGIN_DIR . $polyfill_relative_path ) ||
@@ -120,7 +121,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$polyfill_path    = plugins_url( $polyfill_relative_path, $plugin_base_path );
 		wp_enqueue_script( 'jetpack-instant-search-ie11', $polyfill_path, array(), $polyfill_version, true );
 		$polyfill_payload_path = plugins_url(
-			$path_prefix . '_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.js',
+			$path_prefix . "_inc/build/instant-search/jp-search-ie11-polyfill-payload.bundle.${filename_cache_buster}.js",
 			$plugin_base_path
 		);
 		$this->inject_polyfill_js_options( $polyfill_payload_path );
