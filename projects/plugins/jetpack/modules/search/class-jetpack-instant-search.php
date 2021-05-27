@@ -724,7 +724,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function save_old_sidebars_widgets( $old_sidebars_widgets = null ) {
 		// The function should only run before _wp_sidebars_changed which migrates the sidebars.
-		// So when _wp_sidebars_changed doens't exist, we should skip the logic.
+		// So when _wp_sidebars_changed doesn't exist, we should skip the logic.
 		if ( has_filter( 'after_switch_theme', '_wp_sidebars_changed' ) !== false ) {
 			$this->old_sidebars_widgets = ! is_null( $old_sidebars_widgets ) ? $old_sidebars_widgets : wp_get_sidebars_widgets();
 		}
