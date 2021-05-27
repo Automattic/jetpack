@@ -727,7 +727,7 @@ class Jetpack_Search_Helpers {
 	 * @return string $script_version Alphanumberic version number.
 	 */
 	public static function get_alphanumeric_version( $replace = '-' ) {
-		// Examples of JETPACK__VERSION is like: `9.8-alpha`, `9.8-beta`, `9.8`, `9.8.1`, `9.8.2`.
+		// Examples of JETPACK__VERSION are: `9.8-alpha`, `9.8-beta`, `9.8`, `9.8.1`, `9.8.2`.
 		return strtolower( preg_replace( '/[^A-Za-z0-9]/', $replace, JETPACK__VERSION ) );
 	}
 
