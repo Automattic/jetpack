@@ -40,9 +40,12 @@ class Posts_List_Page_Notification {
 	 * Posts_List_Page_Notification constructor.
 	 *
 	 * @param string $posts_page_id The Posts page configured in WordPress.
+	 * @param string $show_on_front The show_on_front site option.
 	 */
-	public function __construct( $posts_page_id ) {
-		add_action( 'init', array( $this, 'init_actions' ) );
+	public function __construct( $posts_page_id, $show_on_front ) {
+		if ( 'page' === $show_on_front ) {
+			add_action( 'init', array( $this, 'init_actions' ) );
+		}
 
 		$this->posts_page_id = '' === $posts_page_id ? null : (int) $posts_page_id;
 	}
@@ -64,7 +67,7 @@ class Posts_List_Page_Notification {
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new self( \get_option( 'page_for_posts' ) );
+			self::$instance = new self( \get_option( 'page_for_posts' ), \get_option( 'show_on_front' ) );
 		}
 
 		return self::$instance;

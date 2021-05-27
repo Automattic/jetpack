@@ -35,7 +35,7 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 	 * Check if it appends the CSS class.
 	 */
 	public function test_it_appends_css_class() {
-		$instance = new Posts_List_Page_Notification( '5' );
+		$instance = new Posts_List_Page_Notification( '5', 'page' );
 
 		$classes = $instance->add_posts_page_css_class( array(), 'fox', 5 );
 		$this->assertEquals( array( 'posts-page' ), $classes );
@@ -51,12 +51,21 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 	 * Check if do_not_allow capability is added on Posts Page.
 	 */
 	public function test_it_disables_posts_page() {
-		$instance = new Posts_List_Page_Notification( '5' );
+		$instance = new Posts_List_Page_Notification( '5', 'page' );
 
 		$this->assertEquals( array( 'do_not_allow' ), $instance->disable_posts_page( array(), 'edit_post', '6', array( 0 => 5 ) ) );
 		$this->assertEquals( array( 'do_not_allow' ), $instance->disable_posts_page( array(), 'delete_post', '6', array( 0 => 5 ) ) );
 
 		$this->assertEquals( array(), $instance->disable_posts_page( array(), 'edit_post', '6', array( 0 => 6 ) ) );
 		$this->assertEquals( array(), $instance->disable_posts_page( array(), 'delete_post', '6', array( 0 => 6 ) ) );
+	}
+
+	/**
+	 * Check that the hooks are not loaded when the show_on_front option is not "page".
+	 */
+	public function test_it_is_not_loaded_when_show_on_front_option_is_not_page() {
+		$instance = new Posts_List_Page_Notification( '5', 'posts' );
+
+		$this->assertFalse( has_action( 'init', array( $instance, 'init_actions' ) ) );
 	}
 }
