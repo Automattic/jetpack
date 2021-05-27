@@ -50,7 +50,7 @@ const InPlaceConnection = props => {
 	 * @param {object} e -- Event object.
 	 */
 	const receiveData = e => {
-		if ( e.source !== iframeRef.current.contentWindow ) {
+		if ( ! iframeRef.current || e.source !== iframeRef.current.contentWindow ) {
 			return;
 		}
 
@@ -139,7 +139,7 @@ InPlaceConnection.propTypes = {
 
 InPlaceConnection.defaultProps = {
 	isLoading: false,
-	height: '220',
+	height: '300',
 	width: '100%',
 	scrollToIframe: false,
 };

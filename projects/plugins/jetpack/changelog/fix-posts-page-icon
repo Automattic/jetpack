@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixed regression introduced in posts page icon notification WP-Admin edit.php page.

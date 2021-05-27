@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2021-05-25
+### Added
+- Add "isUserConnected" to the connection status data.
+- Connection: add the default value of JETPACK__WPCOM_JSON_API_BASE to the Connection Utils class.
+
+### Changed
+- Connection package independence: Move a Jetpack specfic connection routine out of the package and into the plugin
+- Package Independence: Add a filter to the remote_uri returned by remote_register XMLRPC method
+
+### Removed
+- Removed "user-less" jargon from code
+- Remove do_post_authorization routine and add a hook instead
+- Remove onboarding_token logic in the Remote provision XMLRPC method from the Connection package and add it to the Jetpack plugin
+
+### Fixed
+- Disconnection flow: disconnect users from WordPress.com before to delete data locally.
+
 ## [1.26.0] - 2021-04-27
 ### Added
 - Adds segmentation "from" parameter to the registration flow
@@ -344,6 +361,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.27.0]: https://github.com/Automattic/jetpack-connection/compare/v1.26.0...v1.27.0
 [1.26.0]: https://github.com/Automattic/jetpack-connection/compare/v1.25.2...v1.26.0
 [1.25.2]: https://github.com/Automattic/jetpack-connection/compare/v1.25.1...v1.25.2
 [1.25.1]: https://github.com/Automattic/jetpack-connection/compare/v1.25.0...v1.25.1
