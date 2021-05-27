@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Refactored to improve testability. No functionality is affected.

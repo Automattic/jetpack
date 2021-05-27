@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix plan name display in Upgrades menu entry for translations with spaces or non-Latin characters

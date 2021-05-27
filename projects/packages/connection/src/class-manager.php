@@ -938,8 +938,8 @@ class Manager {
 			'jetpack_register_request_body',
 			array_merge(
 				array(
-					'siteurl'            => site_url(),
-					'home'               => home_url(),
+					'siteurl'            => Urls::site_url(),
+					'home'               => Urls::home_url(),
 					'gmt_offset'         => $gmt_offset,
 					'timezone_string'    => (string) get_option( 'timezone_string' ),
 					'site_name'          => (string) get_option( 'blogname' ),
@@ -1718,8 +1718,8 @@ class Manager {
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),
-				'site_url'              => site_url(),
-				'home_url'              => home_url(),
+				'site_url'              => Urls::site_url(),
+				'home_url'              => Urls::home_url(),
 				'site_icon'             => get_site_icon_url(),
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),

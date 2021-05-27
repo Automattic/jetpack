@@ -2,6 +2,113 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 9.8-beta - 2021-05-25
+### Enhancements
+- Contact Form: the "Feedback > Export CSV" submenu entry has been removed. The export functionality is still available in "Feedback > Form Responses".
+- Form block: allow replacing the "Message Sent" heading with custom phrase.
+- Instagram Reel: add oEmbed support for Instagram Reel posts.
+- Instant Search: add 'open when visitor submits the form' overlay trigger.
+- Instant Search: apply configured highlight color to text highlights.
+- Site Verification Tools: adds an option for Facebook domain verification.
+- Story Block: add new block that enables you to use photos and videos to create engaging and tappable fullscreen slideshows.
+
+### Improved compatibility
+- Blocks: ensure blocks are compatible with upcoming Full Site Editor feature.
+- Dashboard: hide Settings page for non-admin users when in site-only connection.
+- Instant Search: ensure search input is the correct width if an input max-width has been specified in the theme.
+- Related Posts: add height attribute to post images for better compatibility with page performance analysis tools.
+- Related Posts: avoid Fatal Errors when using plugins that may interact with WordPress' customizer in specific ways.
+- SEO Tools: ensure Jetpack SEO does not conflict with SEOPress.
+- Story Block: Improve accessibility and resolve z-index issues when playing in fullscreen.
+
+### Bug fixes
+- Contact Form: remove double quotes from names in email headers to improve compatibility with different emailing solutions for WordPress.
+- Dashboard: ensure connected user details properly displayed.
+- Dashboard: display the Sharing settings tab when editors only need to customize Publicize settings for their own account.
+- Dashboard: ensure that the Jetpack settings page can be accessed when using Jetpack's Offline mode.
+- Dashboard: do not display Protect card for non-admin users while in site-only connection.
+- Dashboard: do not show multiple connection prompts in the Publicize settings card.
+- General: ensures that the send_auth_cookies filter is respected.
+- Instant Search: fixes for design conflicts.
+- Instant Search: prevent standard sidebar widgets ending up in the search modal sidebar when switching themes.
+- Stats: fixes the date used to fetch the Top posts in the Top posts dashboard widget.
+- Social Previews: don't show duplicate buttons when a featured image is selected.
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add REST API v2 endpoint for editing transients.
+- Add a way to connect E2E sites headlessly
+- Add userless and classic connection tests
+- Comment: Story block: Add more media options to choose from in the editor
+- Comment: Story Block: Improve rendering in email notifications
+- Comment: Story Block: Use CSS scale3d() instead of scale()
+- E2E: Fix wp-config setup script to match latest core changes
+- E2E tests: fixed typo in help of infrastructure script
+- E2E tests: use github object to get context info for slack notification
+- E2E tests: Change the timeout to wait for loading animation in connection frame, before the approve button is displayed.
+- E2E tests: fix for failing test when Mailchimp is already set up
+- E2E tests: generate Allure results
+- E2E tests: group test runs in CI
+- E2E tests: improved Slack notifications
+- E2E tests: Increase timeout for loading animation on connection flow
+- E2E tests: runner groups
+- E2E tests: fix Slack notification for scheduled jobs
+- Ensure video/videopress mime type is set on attachments when a videopress update xmlrpc call is received
+- Fixed new PHPCS errors.
+- Fix LEGACY_META_OPTION handling for WPcom simple sites
+- For users that are able to update the `LEGACY_META_OPTION` option, avoid trying to update `TITLE_FORMATS_OPTION` which would display an 403 in Calypso.
+- Hide plan links for P2 sites that can't have plans
+- Hide plan link to email plan for P2 sites
+- JITM: remove unnecessary add_filter calls for the JITM filters.
+- No changelog needed, this is a fix for a Calypso feature that has not been enabled yet
+- Refactored to improve testability. No functionality is affected.
+- Remove CodeClimate
+- Removed the carousel reblog functionality (unused in Jetpack).
+- Removed use of experimental feature and replaced with new `useBlockProps` hook to ensure video block continues to function correctly
+- Search: added search happy route E2E tests
+- Simplify wpcom/v2 delete transient endpoint logic.
+- Story block: address minor display issues
+- Story block: fix edit button in the block's toolbar to use the pencil icon instead of Select Media text
+- Story Block: Fix video not loading on safari and Chrome iOS
+- Update Sync unit tests to align with new return format of get_object_by_id.
+- Update the required version of "connection-ui" package.
+- Add an API function to get hub a P2 hub id.
+- Updated package dependencies
+- Business Hours Block: Add server rendered PHP fixtures test.
+- Clicking the Write button in masterbar will now use WP Admin block editor.
+- Connection package independence: Filters the remote_register XMLRPC endpoint redirect URI
+- Connection package independence: Move a Jetpack specfic connection routine out of the package and into the plugin
+- Ensure that the WPCOM toolbar remains enabled with AMP in wp-admin
+- Fixed compatibility issue with Page Optimize plugin for RTL layouts for jetpack-admin-menu and colors stylesheets
+- Hook into the Connection package remote_connect to perform Jetpack specific routines
+- Increase the priority of the Subscriptions block
+- jp-tracks-functions script moved to Tracking package.
+- Remove "user-less" jargon from code
+- Remove onboarding_token logic in the Remote provision XMLRPC method from the Connection package and add it to the Jetpack plugin
+- Turns off css tidy shorthand optimization to prevent clashes with gutenberg block validation
+- update jetpack-redirect dependency
+- Update Sync Connection Tests to utilize fix nomenclature
+- Update the priority for overriding unified nav styles.
+- Adds Advanced General menu item that points to WP Admin regardless of whether the Advanced Dashboard toggle is enabled or not.
+- Add upsell nudges in sidebar for WordPress.com users.
+- Disabled editing and deleting pages in WP-Admin Pages list screen for the page that is configured as a Posts page.
+- Enable the Plans tab for unlinked users
+- jetpack disconnect CLI command: Add support to delete the connection owner and improve error message
+- Offer features depending on the current plan of the site rather on the current platform of the site.
+- Standardize wording for connecting the user.
+- Admin Pages: prompt connect instead of upgrade when WordPress.com account is not connected
+- Calendly block: add target existence check before running init scripts
+- Changing the WPCOM subscription email control type from 'text' to 'email'.
+- Fixed the Upgrades, Jetpack and Settings menu item slugs in WP-Admin
+- Fix plan name display in Upgrades menu entry for translations with spaces or non-Latin characters
+- Fix the height of the User Authentication Dialog on the dashboard
+- Hide the FAB icon on Yoast admin pages to avoid overlap with the Yoast help icon.
+- Paid blocks: Remove nested upgrade nudges on the frontend.
+- Premium Content blocks: Fix parent block selector button when premium content blocks are nested within other blocks.
+- Replace user locale with WordPress.com user locale on Atomic.
+- Updated Jetpack_Google_Analytics to use static property $analytics
+- Update logic for showing a Redirect flag in the sidebar
+- WordPress.com API: allow switching from locale variant to primary in Site Settings endpoint.
+
 ## 9.7-beta - 2021-04-27
 ### Enhancements
 - Blocks: improve test coverage for better reliability of each one of Jetpack's blocks.
