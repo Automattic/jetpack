@@ -27,17 +27,33 @@ function stripQueryString( url ) {
  */
 export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 	const [ src, setSrc ] = useState( null );
+	const initialSrcWithoutQueryString = stripQueryString( initialSrc );
+
+	// Photon only supports GIF, JPG and PNG
+	// @see https://developer.wordpress.com/docs/photon/
+	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png' ];
+	const fileExtension = initialSrcWithoutQueryString
+		?.substring( initialSrcWithoutQueryString.lastIndexOf( '.' ) + 1 )
+		.toLowerCase();
+	const isSupportedImageType = supportedImageTypes.includes( fileExtension );
 
 	useEffect( () => {
-		if ( isPhotonEnabled ) {
-			const photonSrc = photon( stripQueryString( initialSrc ), {
+		if ( isPhotonEnabled && isSupportedImageType ) {
+			const photonSrc = photon( initialSrcWithoutQueryString, {
 				resize: `${ width },${ height }`,
 			} );
 			setSrc( photonSrc ? photonSrc : initialSrc );
 		} else {
 			setSrc( initialSrc );
 		}
-	}, [ initialSrc, width, height, isPhotonEnabled ] );
+	}, [
+		initialSrc,
+		width,
+		height,
+		isPhotonEnabled,
+		initialSrcWithoutQueryString,
+		isSupportedImageType,
+	] );
 
 	return src;
 }
