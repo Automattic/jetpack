@@ -81,6 +81,19 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $event->args[3]['is_auto_save'] );
 	}
 
+	/**
+	 * Verify that the `save_post_page` event is raised when a page is saved
+	 */
+	public function test_save_post_page_syncs_event() {
+		$post_page_id = $this->factory->post->create( array( 'post_type' => 'page' ) );
+
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'save_post_page' );
+
+		$this->assertEquals( $post_page_id, $event->args[0] );
+		$this->assertEquals( $post_page_id, $event->args[1]->ID );
+	}
+
 	public function test_trash_post_trashes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();

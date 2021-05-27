@@ -138,7 +138,7 @@ class Posts extends Module {
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
 		add_action( 'wp_after_insert_post', array( $this, 'wp_after_insert_post' ), 11, 2 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
-		add_action( 'save_post_page', $callable, 10, 2 );
+		add_action( 'save_post_page', $callable, 10, 3 );
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
