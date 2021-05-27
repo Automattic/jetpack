@@ -1,7 +1,6 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\get_purchases; // phpcs:ignore MediaWiki.Classes.UnusedUseStatement.UnusedUse
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
