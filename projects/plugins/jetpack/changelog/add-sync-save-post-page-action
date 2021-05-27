@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Add a phpunit test for syncing the save_post_page action
