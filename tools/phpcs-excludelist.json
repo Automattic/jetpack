@@ -539,7 +539,6 @@
 	"projects/plugins/jetpack/tests/php/sync/test_interface.jetpack-sync-codec.php",
 	"projects/plugins/jetpack/tests/php/sync/test_interface.jetpack-sync-replicastore.php",
 	"projects/plugins/jetpack/tests/php/test_class.functions.opengraph.php",
-	"projects/plugins/jetpack/tests/php/test_class.jetpack-idc.php",
 	"projects/plugins/jetpack/tests/php/test_deprecation.php",
 	"projects/plugins/jetpack/tests/php/test_functions.photon.php",
 	"projects/plugins/jetpack/tools/build-module-headings-translations.php",

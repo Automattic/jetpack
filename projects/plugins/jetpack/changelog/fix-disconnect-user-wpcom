@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: REST Endpoints tests: mock successful XML-RPC response to fix failing tests.
-
-
