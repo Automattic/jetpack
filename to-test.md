@@ -1,4 +1,4 @@
-## 9.4
+## 9.8
 
 ### Before you start
 
@@ -6,82 +6,62 @@
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
-### Blocks
+### Story Block
 
-#### Podcast Player Block
+The Story block is now available from the block inserter in web browsers (previously available in the mobile apps). The Story block allows you to combine photos and videos to create an engaging, tappable full-screen slideshow on your site’s posts and pages.
 
-In anticipation of further changes to the Podcast Player Block and its integration with other Jetpack blocks, we've made a number of changes to the Podcast Player block. Here is what you can try:
+When testing it out, try:
 
-- Insert a new block, and add a podcast
-- Try adding different podcast URLs: an RSS feed URL, or the URL of page with one or more podcasts in it.
-- You should now see skip back / forward buttons that you can use in the editor and on the frontend.
+- Using both photos and videos to create a Story
+- Once published, try viewing your Story on different web browsers and mobile devices
+- Change site themes and make sure the Story still looks great
+- Try playing a Story using your keyboard: tab to focus on player, space to play/pause, escape to leave fullscreen
 
-#### Payments Block
+### Connection Flow
 
-We've made a number of changes to the Payments block in order to be able to implement the Premium Content Block (which uses the Payments block button). You'll want to make sure the Payments block still works:
+We've made some minor changes to Jetpack's connection flow in this release.
 
-- Try adding a block on a free site, and follow the upgrade prompts.
-- Try adding a block on a site with a plan, and follow the prompt to connect to Stripe.
-- Try using the block.
+You'll want to try connecting your site to WordPress.com in different browsers, while logged in or logged out of your WordPress.com account, and ensure that connection is always possible.
 
-### Dashboard
+In addition to that, we would recommend that you go through the Jetpack Settings screen after connecting to WordPress.com. Ensure that you can enable all features, apart from those that require a paid plan.
 
-This release introduces a new page in the Jetpack dashboard: the new Recommendations tab will help you get started with recommended features of Jetpack.
+### Contact Form
 
-To test this, try the following scenarios:
+There have been a couple changes to the Contact Form:
 
-**Initial prompts flow:**
+- Contact Form block: you are now able to set a custom header message shown after successful form submission
+- Double quotes around names are removed in email headers for emails sent via the Contact Form
 
-1. Start with a free site and navigate to `/wp-admin/admin.php?page=jetpack#/recommendations`.
-2. Verify that you are redirected to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`.
-3. Ensure that you have not selected "Store" and click "Continue".
-4. Verify that you navigate to `#/recommendations/monitor`.
-5. Click back in your browser and select "Store", then click "Continue".
-6. Verify that you navigate to `#/recommendations/woocommerce`.
-7. Navigate to `/wp-admin/index.php` and then back to `/wp-admin/admin.php?page=jetpack#/recommendations`.
-8. Verify that you are redirected to `#/recommendations/woocommerce`.
-9. Choose "Decide later for each of the prompts and verify that you are taken successively through `#/recommendations/monitor`, `#/recommendations/related-posts`, `#/recommendations/creative-mail`, and `#/recommendations/site-accelerator`.
-10. Verify that the summary screen has no recommendations enabled.
-11. Now return to `#/recommendations/monitor` and go back through the flow, selecting some recommendations and skipping others. Verify that the summary screen reflects your choices.
-12. Enable the remaining recommendations on the summary screen and verify that it updates to reflect these changes.
-13. Check the various "Learn more" and "Settings" buttons for each feature and make sure they are appropriate for that feature.
-14. Check that the "View all Jetpack features' link works.
+### Embeds
 
-**Summary upsell flows:**
+Instagram Reel permalinks are now able to be embedded:
 
-1. On a free site visit `/wp-admin/admin.php?page=jetpack#/recommendations/summary`.
-2. Verify that an upsell prompt for Backup Daily shows.
-3. Sandbox your site and in wpcom edit `/wp-content/rest-api-plugins/endpoints/jetpack-recommendations.php` so that the `WP_REST_Response` in `get_upsell()` returns `'hide_upsell' => true`.
-4. Reload `#/recommendations/summary` and verify that the fallback sidebar upsell is displayed (no prices or product names should show).
-5. Upgrade the site to Backup Daily.
-6. Return to `#/recommendations/summary`. If the app sidebar prompt is displaying, wait a few minutes for Rewind to update, then reload the page.
-7. Verify that the one-click restores prompt is displaying.
-8. Use the prompt to add your credentials and then return to `#/recommendations/summary`. Verify that the "Manage your security" prompt displays in the sidebar and that the link works.
-9. Start another free site and upgrade it to a paid plan that doesn't include backup or scan (e.g. anti-spam).
-10. Navigate back to `#/recommendations/summary` and verify that the app sidebar prompt shows and that the app badges work.
+- On a post add an Instagram block
+- Enter the Reel URL which should automatically embed
 
-**Jetpack plugin upgrade flow:**
+### Instant Search
 
-1. Start with a site on an old version of Jetpack that includes the Setup Wizard (9.3 meets this criteria).
-2. Use the Code Snippets plugin and add the following snippet to enable the Setup Wizard:
+Improvements were made to Jetpack Search, a paid upgrade to the Jetpack plugin that provides higher quality results and an improved search experience.
 
-```php
-add_filter( 'jetpack_show_setup_wizard', '__return_true' );
-add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );
-```
+To test, try:
 
-3. Navigate to `/wp-admin/admin.php?page=jetpack#/setup/features` and click "I'm done for now" to complete the Setup Wizard.
-4. On that site upgrade Jetpack so that it includes the Recommendations.
-5. Verify that the Recommendations are not available from the dashboard, and that `#/recommendations` redirects to `#/dashboard`
-6. Perform the above steps again but this time do not complete the Setup Wizard and verify that the Recommendations are available.
+- On a site with Jetpack Search, open the Customizer > Jetpack Search settings. There is now an option to only open the search results overlay once a user has submitted their search, rather than showing instantly as typing occurs
+- Run some test searches and make sure results appear as expected and that there are no design conflicts
+- Try switching themes and again check for any design conflicts with the search results overlay
 
-### Sharing
+### Carousel
 
-In this release, we've removed the jQuery dependency of the Sharing buttons. To test this out, we would recommend the following:
+We've made additional improvements to the Carousel feature in this release. To test it, try the following:
 
-- Add multiple buttons to your site, including the Email sharing button, and hide some behind the "More" button.
-- Try using the different button styles
-- Ensure that the buttons work well.
+1. Go to Jetpack > Settings in your dashboard, and ensure that the Carousel feature is enabled.
+2. Scroll down to the bottom of the page, click on the "Modules" menu item, and ensure the Tiled Galleries feature is enabled in the Module list.
+3. Go to Posts > Add New, and add media to your post in different ways:
+	- single image block linking to an attachment page
+	- tiled gallery
+	- gallery block
+	- gallery in a classic block
+	- tiled gallery in a classic block
 
+You'll want to make sure Carousel works as expected in all scenarios, in different browsers. You can also test things when disabling Jetpack's Site Accelerator under Jetpack > Settings > Performance.
 
 **Thank you for all your help!**

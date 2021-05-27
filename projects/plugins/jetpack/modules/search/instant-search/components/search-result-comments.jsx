@@ -9,6 +9,7 @@ import { h } from 'preact';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import './search-result-comments.scss';
 
 const SearchResultComments = ( { comments, iconSize = 18 } ) => {
 	if ( ! comments ) {
@@ -16,10 +17,10 @@ const SearchResultComments = ( { comments, iconSize = 18 } ) => {
 	}
 
 	return (
-		<div className="jetpack-instant-search__result-comments">
+		<div className="jetpack-instant-search__search-result-comments">
 			<Gridicon icon="comment" size={ iconSize } />
 			<span
-				className="jetpack-instant-search__result-comments-text"
+				className="jetpack-instant-search__search-result-comments-text"
 				//eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={ {
 					__html: comments.join( ' ... ' ),

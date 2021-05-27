@@ -10,7 +10,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * WP-CLI installed.
 * MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
 * phpMyAdmin to aid in viewing the database.
-* Handy NPM/Yarn shorthand commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage.
+* Handy shorthand commands like `jetpack docker up` and `jetpack docker phpunit` to simplify the usage.
 
 ## To get started
 
@@ -40,7 +40,7 @@ Anything you put in `.env` overrides values in `default.env`. You should modify 
 
 Finally, spin up the containers:
 ```sh
-yarn docker:up
+jetpack docker up
 ```
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now.
@@ -58,12 +58,12 @@ WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic i
 ## Custom mounts, environment Variables, `.env` Files, and Ports
 
 You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
-1. The host environment in which the `yarn docker:*` (`docker-compose`) commands run when creating/managing the containers.
+1. The host environment in which the `jetpack docker *` (`docker-compose`) commands run when creating/managing the containers.
 2. The containers' environments.
 
 ### Host Environment
 
-You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 yarn docker:up`) or, preferably, in a `./.env` file in Jetpack's root directory.
+You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in a `./.env` file in Jetpack's root directory.
 
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
 * `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
@@ -81,6 +81,16 @@ You can use the file `tools/docker/compose-extras.yml` to add mounts or alter th
 
 You can use the file `tools/docker/compose-volumes.yml` to add additional mounts for WordPress plugins and themes. Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
+### Building on M1 Macs
+
+If you're using the new [M1/Apple Silicon version of Docker](https://docs.docker.com/docker-for-mac/apple-m1/), you will need to add the following to your `tools/docker/compose-extras.yml` file to ensure a successful build:
+
+```
+services:
+  db:
+    platform: linux/x86_64
+```
+
 ## Working with containers
 
 ### Quick install WordPress
@@ -88,7 +98,7 @@ You can use the file `tools/docker/compose-volumes.yml` to add additional mounts
 You can just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
-yarn docker:install
+jetpack docker install
 ```
 
 This will give you a single site with user/pass `wordpress` (unless you changed these from `./tools/docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
@@ -96,19 +106,19 @@ This will give you a single site with user/pass `wordpress` (unless you changed 
 To convert installed single site into a multisite, run:
 
 ```sh
-yarn docker:multisite-convert
+jetpack docker multisite-convert
 ```
 
 To remove WordPress installation and start over, run:
 
 ```sh
-yarn docker:uninstall
+jetpack docker uninstall
 ```
 
 ### Start containers
 
 ```sh
-yarn docker:up
+jetpack docker up
 ```
 
 Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
@@ -118,19 +128,19 @@ This command will rebuild the WordPress container if you made any changes to `do
 For running the containers in the background, use:
 
 ```sh
-yarn docker:up -- -d
+jetpack docker up -- -d
 ```
 
 ### Stop containers
 
 ```sh
-yarn docker:stop
+jetpack docker stop
 ```
 
 Stops all containers. Wrapper for `docker-composer stop`.
 
 ```sh
-yarn docker:down
+jetpack docker down
 ```
 
 Will stop all of the containers created by this docker-compose configuration and remove them, too. It won’t remove the images. Just the containers that have just been stopped.
@@ -140,38 +150,24 @@ Will stop all of the containers created by this docker-compose configuration and
 These commands require the WordPress container to be running.
 
 ```sh
-yarn docker:phpunit
+jetpack docker phpunit
 ```
 
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
 
 ```sh
-yarn docker:phpunit --filter=Protect
+jetpack docker phpunit --filter=Protect
 ```
 
 This command runs the tests as a multi site install
 ```sh
-yarn docker:phpunit:multisite --filter=Protect
+jetpack docker phpunit:multisite --filter=Protect
 ```
 
-For all package unit tests
+To run tests for specific packages, you can run the tests locally, from within the package's directory:
 ```sh
-yarn docker:phpunit:package
-```
-
-For a specific package's tests
-```sh
-yarn docker:phpunit:package autoloader
-```
-
-If you need to clear out a particular package's composer.lock
-```sh
-yarn docker:phpunit:package autoloader -c
-```
-
-To run all package unit tests and clear all composer.lock files within
-```sh
-yarn docker:phpunit:package -c
+cd projects/packages/assets
+composer phpunit
 ```
 
 ### Starting over
@@ -179,7 +175,7 @@ yarn docker:phpunit:package -c
 To remove all docker images, all MySQL data, and all docker-related files from your local machine run:
 
 ```sh
-yarn docker:clean
+jetpack docker clean
 ```
 
 **Note:** this command does not work in Windows.
@@ -189,22 +185,22 @@ yarn docker:clean
 You can run [WP CLI](https://make.wordpress.org/cli/) commands inside WordPress container:
 
 ```sh
-yarn docker:wp COMMAND
+jetpack docker wp COMMAND
 ```
 
 For example run [`cron event list`](https://developer.wordpress.org/cli/commands/cron/event/list/):
 
 ```sh
-yarn docker:wp cron event list
+jetpack docker wp cron event list
 ```
 
 [`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy WP-CLI command you can use like so:
 
 ```bash
-yarn docker:wp shell
+jetpack docker wp shell
 ```
 
-By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `yarn docker:wp shell --basic`
+By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `jetpack docker wp shell --basic`
 
 Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
 
@@ -231,7 +227,7 @@ You can also access it via phpMyAdmin at [http://localhost:8181](http://localhos
 
 Another way to accessing the database is MySQL client using the following command:
 ```sh
-yarn docker:db
+jetpack docker db
 ```
 This command utilizes credentials from the config file (`~/.my.cnf`) to log you into MySQL without entering any connection information.
 
@@ -295,7 +291,7 @@ You can start your ngrok tunnel like so:
 These two commands are all you need to run to get Docker running when you start your computer:
 ```bash
 ./ngrok start jetpack
-yarn docker:up -d
+jetpack docker up -d
 ```
 ### Docker Ngrok
 
@@ -316,10 +312,10 @@ NGROK_REGION=us
 
 **2. Start docker with Ngrok**
 
-Start container with `yarn docker:ngrok-up -d`
-Stop container with `yarn docker:ngrok-down -d`
+Start container with `jetpack docker ngrok-up -d`
+Stop container with `jetpack docker ngrok-down -d`
 
-All the other docker-compose commands can be invoked via `yarn docker:ngrok COMMAND`
+All the other docker-compose commands can be invoked via `jetpack docker ngrok COMMAND`
 
 ### Configuration file
 
@@ -366,18 +362,18 @@ If you are an Automattician, you can use Jurassic Tube tunneling service with fu
 
 As it is developed internally, you can review the source code and participate in adding new features.
 
-* Start the tunnel: `yarn docker:jt-up your-username your-subdomain`
-* Break the connection: `yarn docker:jt-down`
+* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
+* Break the connection: `jetpack docker jt-down`
 
 You can also set default values:
 
 ```shell script
-yarn docker:jt-config username your-username
-yarn docker:jt-config subdomain your-subdomain
+jetpack docker jt-config username your-username
+jetpack docker jt-config subdomain your-subdomain
 ```
 That will let you omit those parameters while initiating the connection:
 ```shell script
-yarn docker:jt-up
+jetpack docker jt-up
 ```
 
 More information: PCYsg-snO-p2.
@@ -388,15 +384,15 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
-1. First ensure your containers are stopped (`yarn docker:stop`).
-2. Edit `tools/docker/compose-volumes.yml`. This file will be generated when running `yarn docker:up`, containing content from a sample file `tools/docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
+1. First ensure your containers are stopped (`jetpack docker stop`).
+2. Edit `tools/docker/compose-volumes.yml`. This file will be generated when running `jetpack docker up`, containing content from a sample file `tools/docker/compose-volumes.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
 3. Start containers and include your custom volumes by running:
    ```bash
-   yarn docker:up
+   jetpack docker up
    ```
 
 Note that any folder within the `projects/plugins` directory will be automatically linked.
-If you're starting a new monorepo plugin, you may need to `yarn docker:stop` and `yarn docker:up` to re-run the initial linking step so it can be added.
+If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
 ## Debugging
 
@@ -409,7 +405,7 @@ Logs are stored in your file system under `./tools/docker/logs` directory.
 To `tail -f` the PHP error log, run:
 
 ```sh
-yarn docker:tail
+jetpack docker tail
 ```
 
 #### MySQL Slow Query Log
@@ -432,7 +428,7 @@ To debug emails via web-interface, open [http://localhost:1080](http://localhost
 You can use the [WP CLI](https://make.wordpress.org/cli/) to update the version of WordPress running inside the Docker container. Example command:
 
 ```
-yarn docker:wp core update --version=5.3.4 --force
+jetpack docker wp core update --version=5.3.4 --force
 ```
 
 This is useful if you want to check your code is compatible with the minimum version of WP Jetpack supports, which can be found in the [readme.txt](../readme.txt). We always support the latest patched version of the branch we specify as "Requires at least" in the readme file. You can match it with the exact version on the [WordPress Releases page](https://wordpress.org/download/releases/).
@@ -445,55 +441,6 @@ You’ll likely need to install a browser extension like the following:
 
 * [The easiest Xdebug](https://addons.mozilla.org/en-US/firefox/addon/the-easiest-xdebug/) for Mozilla Firefox
 * [Xdebug Helper](https://chrome.google.com/webstore/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc) for Google Chrome
-
-#### Remote debugging with Atom editor
-
-![Screenshot showing Atom editor with Xdebug](https://user-images.githubusercontent.com/746152/37091829-573605f6-21e8-11e8-9f16-3908854fd7d6.png)
-
-You’ll need to install the [php-debug](https://atom.io/packages/php-debug) package for Atom. Features of this package include:
-* Add Breakpoints
-* Step through debugging (Over, In, Out)
-* Stack and Context views
-* Add watch points to inspect current values of variables
-
-##### Configuring Atom editor
-
-1. Install [php-debug](https://atom.io/packages/php-debug) package for your Atom editor.
-
-1. Configure php-debug:
-
-	1. To listen on all addresses (**Server Address**: `0.0.0.0`)
-	    ![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
-
-	2. To map your current Jetpack directory to the docker file system path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
-
-		![Screenshot showing "Path Maps" input](https://user-images.githubusercontent.com/746152/37150779-c891a7f4-22b1-11e8-9293-f34679df82f5.png)
-
-1. Make sure you installed the Chrome extension on your browser and configure it to send the IDE Key `xdebug-atom`
-
-	* In the case of the **Xdebug Helper** extension, you get to set this by right-clicking (secondary click) on the extensions’ icon and clicking **Options**:
-
-		![Screenshot showing Xdebug helper menu](https://user-images.githubusercontent.com/746152/37093557-82b766a6-21ee-11e8-8c0f-93f7ae72b9dc.png)
-
-	* Set the IDE key field to `Other`, enter `xdebug-atom` in the text field, and press Save.
-
-		![Screenshot showing IDE Key](https://user-images.githubusercontent.com/746152/37178231-ac46f92e-2300-11e8-88ec-31434a3d8fc7.png)
-
-1. Going back to Atom, proceed to toggle debugging on from the **Package** Menu item:
-
-	![Screenshot showing Package menu items](https://user-images.githubusercontent.com/746152/37092536-08f8e4fa-21eb-11e8-8f5c-bcf70029612b.png)
-
-	* Expect to see the debugger console window opening:
-
-	![Screenshot showing debugger console](https://user-images.githubusercontent.com/746152/37092608-3f649e26-21eb-11e8-87b8-02a8ae7e9a98.png)
-
-	* This window will read `Listening on address port 0.0.0.0:9000` until you go to the WordPress site and refresh to make a new request. Then this window will read: `Connected` for a short time until the request ends. Note that it will also remain as such if you had added a break point and the code flow has stopped:
-
-	![Screenshot showing "connected"](https://user-images.githubusercontent.com/746152/37092711-9d8d1fb4-21eb-11e8-93f6-dd1edf89e6fa.png)
-
-1. You should be able to set breakpoints now:
-
-	![Screen animation showing setting a breakpoint](https://user-images.githubusercontent.com/746152/37093212-591fe7d8-21ed-11e8-8352-47839ce58964.gif)
 
 #### Remote debugging with PhpStorm editor
 
@@ -517,7 +464,7 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 
 1. In the server configuration window, check the 'Use path mappings' check box.
 
-1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/tools/docker/wordpress' to '/var/www/html'
+1. In the server configuration window, map the root folder to '/usr/local/src/jetpack-monorepo' and 'tools/docker/wordpress' to '/var/www/html'.
 
 1. In the server configuration window, click 'Apply' then 'Ok'.
 
@@ -540,39 +487,32 @@ In the debug panel in VSCode, select Add Configuration. Since you have PHP Debug
 You will need to supply a pathMappings value to the `launch.json` configuration. This value connects the debugger to the volume in Docker with the Jetpack code. Your `launch.json` file should have this configuration when you're done.
 
 ```json
-	{
-		"version": "0.2.0",
-		"configurations": [
-			{
-				"name": "Listen for XDebug",
-				"type": "php",
-				"request": "launch",
-				"port": 9000,
-				"pathMappings": {
-					"/var/www/html/wp-content/plugins/jetpack": "${workspaceRoot}"
-				}
-			},
-			{
-				"name": "Launch currently open script",
-				"type": "php",
-				"request": "launch",
-				"program": "${file}",
-				"cwd": "${fileDirname}",
-				"port": 9000
-			}
-		]
-	}
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "pathMappings": {
+                "/usr/local/src/jetpack-monorepo": "${workspaceRoot}",
+                "/var/www/html": "${workspaceRoot}/tools/docker/wordpress",
+            }
+        },
+        {
+            "name": "Launch currently open script",
+            "type": "php",
+            "request": "launch",
+            "program": "${file}",
+            "cwd": "${fileDirname}",
+            "port": 9003
+        }
+    ]
+}
 ```
 
-You'll need to set up the `XDEBUG_CONFIG` environment variable to enable remote debugging, and set the address and the port that the PHP Xdebug extension will use to connect to the debugger running in VSCode. Add the variable to your `.env` file.
-
-`XDEBUG_CONFIG=remote_host=host.docker.internal remote_port=9000 remote_enable=1`
-
-You [will also have to configure the IDE key](https://github.com/mac-cain13/xdebug-helper-for-chrome/issues/89) for the Chrome/ Mozilla extension. In your `php.ini` file (you'll find that file at `tools/docker/config/php.ini` in the Docker environment), add:
-
-`xdebug.idekey = VSCODE`
-
-Now, in your browser's Xdebug Helper preferences, look for the IDE Key setting:
+In your browser's Xdebug Helper preferences, look for the IDE Key setting:
 
 1. Select 'Other'
 2. Add `VSCODE` as the key.

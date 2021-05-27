@@ -165,24 +165,8 @@
 	z-index: z-index( '.dops-search', '.dops-search__input' ) + 1;
 }
 
-.dops-search .dops-spinner {
-	display: none;
-}
-
 .dops-search.is-searching .dops-search__open-icon {
 	display: none;
-}
-
-.dops-search.is-searching .dops-spinner {
-	flex: 0 0 auto;
-	display: flex;
-	align-items: center;
-	height: 100%;
-	z-index: z-index( '.dops-search', '.dops-search.is-searching .dops-spinner' );
-
-	.dops-spinner__image {
-		width: 50px;
-	}
 }
 
 .animating.dops-search-opening .dops-search input {

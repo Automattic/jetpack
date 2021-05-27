@@ -6,34 +6,20 @@ import { __ } from '@wordpress/i18n';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import {
 	Button,
-	ButtonGroup,
 	ExternalLink,
-	IconButton,
-	PanelBody,
 	Placeholder,
 	Spinner,
-	TextControl,
-	ToggleControl,
-	Toolbar,
 	withNotices,
 	ResizableBox,
-	RangeControl,
-	BaseControl,
 } from '@wordpress/components';
-import {
-	BlockAlignmentToolbar,
-	BlockControls,
-	InspectorControls,
-	PanelColorSettings,
-} from '@wordpress/block-editor';
-import classnames from 'classnames';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
  */
 import AddPoint from './add-point';
-import Locations from './locations';
 import Map from './component.js';
+import Controls from './controls';
 import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
 import { compose } from '@wordpress/compose';
@@ -58,7 +44,6 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 	bottomLeft: false,
 	topLeft: false,
 };
-
 class MapEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -86,10 +71,8 @@ class MapEdit extends Component {
 		setAttributes( { points: newPoints } );
 		this.setState( { addPointVisibility: false } );
 	};
-	updateAlignment = value => {
-		this.props.setAttributes( { align: value } );
-		// Allow one cycle for alignment change to take effect
-		setTimeout( this.mapRef.current.sizeMap, 0 );
+	setPointVisibility = () => {
+		this.setState( { addPointVisibility: true } );
 	};
 	updateAPIKeyControl = event => {
 		this.setState( {
@@ -147,43 +130,13 @@ class MapEdit extends Component {
 	};
 
 	/**
-	 * Change event handler for the map height sidebar control. Ensures the height is valid,
-	 * and updates both the height attribute, and the map component's height in the DOM.
-	 *
-	 * @param {Event} event The change event object.
-	 */
-	onHeightChange = event => {
-		const { attributes, setAttributes } = this.props;
-		const { mapHeight } = attributes;
-
-		let height = parseInt( event.target.value, 10 );
-
-		if ( isNaN( height ) ) {
-			// Set map height to default size and input box to empty string
-			height = null;
-		} else if ( null == mapHeight ) {
-			// There was previously no height defined, so set the default.
-			height = this.mapRef.current.mapRef.current.offsetHeight;
-		} else if ( height < MIN_HEIGHT ) {
-			// Set map height to minimum size
-			height = MIN_HEIGHT;
-		}
-
-		setAttributes( {
-			mapHeight: height,
-		} );
-
-		setTimeout( this.mapRef.current.sizeMap, 0 );
-	};
-
-	/**
 	 * Event handler for the ResizableBox component. Updates both the height attribute,
 	 * and the map component's height in the DOM.
 	 *
-	 * @param {Event} event The event object.
-	 * @param {ResizeDirection} direction A string representing which resize handler was used.
-	 * @param {HtmlDivElement} elt A ref to the ResizeableBox's container element.
-	 * @param {NumberSize} delta Information about how far the element was resized.
+	 * @param {Event} event - The event object.
+	 * @param {string} direction - A string representing which resize handler was used.
+	 * @param {HTMLElement} elt - A ref to the ResizeableBox's container element.
+	 * @param {object} delta - Information about how far the element was resized.
 	 */
 	onMapResize = ( event, direction, elt, delta ) => {
 		const { onResizeStop, setAttributes } = this.props;
@@ -216,9 +169,7 @@ class MapEdit extends Component {
 			zoom,
 			mapCenter,
 			markerColor,
-			align,
 			preview,
-			scrollToZoom,
 			mapHeight,
 			showFullscreenButton,
 		} = attributes;
@@ -226,144 +177,35 @@ class MapEdit extends Component {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,
-			apiKeySource,
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
 		const inspectorControls = (
-			<Fragment>
+			<>
 				<BlockControls>
-					<BlockAlignmentToolbar
-						value={ align }
-						onChange={ this.updateAlignment }
-						controls={ [ 'center', 'wide', 'full' ] }
+					<Controls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						state={ this.state }
+						setPointVisibility={ this.setPointVisibility }
+						context="toolbar"
+						mapRef={ this.mapRef }
 					/>
-					<Toolbar>
-						<IconButton
-							icon={ settings.markerIcon }
-							label={ __( 'Add a marker', 'jetpack' ) }
-							onClick={ () => this.setState( { addPointVisibility: true } ) }
-						/>
-					</Toolbar>
 				</BlockControls>
 				<InspectorControls>
-					<PanelColorSettings
-						title={ __( 'Colors', 'jetpack' ) }
-						initialOpen={ true }
-						colorSettings={ [
-							{
-								value: markerColor,
-								onChange: value => setAttributes( { markerColor: value } ),
-								label: __( 'Marker Color', 'jetpack' ),
-							},
-						] }
+					<Controls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						state={ this.state }
+						setState={ this.setState }
+						mapRef={ this.mapRef }
+						instanceId={ instanceId }
+						minHeight={ MIN_HEIGHT }
+						removeAPIKey={ this.removeAPIKey }
+						updateAPIKey={ this.updateAPIKey }
 					/>
-					<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
-						<BaseControl
-							label={ __( 'Height in pixels', 'jetpack' ) }
-							id={ `block-jetpack-map-height-input-${ instanceId }` }
-						>
-							<input
-								type="number"
-								id={ `block-jetpack-map-height-input-${ instanceId }` }
-								className="wp-block-jetpack-map__height_input"
-								onChange={ event => {
-									setAttributes( { mapHeight: event.target.value } );
-									// If this input isn't focussed, the onBlur handler won't be triggered
-									// to commit the map size, so we need to check for that.
-									if ( event.target !== document.activeElement ) {
-										setTimeout( this.mapRef.current.sizeMap, 0 );
-									}
-								} }
-								onBlur={ this.onHeightChange }
-								value={ mapHeight || '' }
-								min={ MIN_HEIGHT }
-								step="10"
-							/>
-						</BaseControl>
-						<RangeControl
-							label={ __( 'Zoom level', 'jetpack' ) }
-							help={
-								points.length > 1 &&
-								__(
-									'The default zoom level cannot be changed when there are two or more markers on the map.',
-									'jetpack'
-								)
-							}
-							disabled={ points.length > 1 }
-							value={ zoom }
-							onChange={ value => {
-								setAttributes( { zoom: value } );
-								setTimeout( this.mapRef.current.updateZoom, 0 );
-							} }
-							min={ 0 }
-							max={ 22 }
-						/>
-						<ToggleControl
-							label={ __( 'Show street names', 'jetpack' ) }
-							checked={ mapDetails }
-							onChange={ value => setAttributes( { mapDetails: value } ) }
-						/>
-						<ToggleControl
-							label={ __( 'Scroll to zoom', 'jetpack' ) }
-							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
-							checked={ scrollToZoom }
-							onChange={ value => setAttributes( { scrollToZoom: value } ) }
-						/>
-						<ToggleControl
-							label={ __( 'Show Fullscreen Button', 'jetpack' ) }
-							help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
-							checked={ showFullscreenButton }
-							onChange={ value => setAttributes( { showFullscreenButton: value } ) }
-						/>
-					</PanelBody>
-					{ points.length ? (
-						<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
-							<Locations
-								points={ points }
-								onChange={ value => {
-									setAttributes( { points: value } );
-								} }
-							/>
-						</PanelBody>
-					) : null }
-					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
-						<TextControl
-							help={
-								'wpcom' === apiKeySource && (
-									<>
-										{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
-										<ExternalLink href="https://account.mapbox.com/access-tokens/">
-											{ __( 'Find it on Mapbox', 'jetpack' ) }
-										</ExternalLink>
-									</>
-								)
-							}
-							label={ __( 'Mapbox Access Token', 'jetpack' ) }
-							value={ apiKeyControl }
-							onChange={ value => this.setState( { apiKeyControl: value } ) }
-						/>
-						<ButtonGroup>
-							<Button
-								type="button"
-								onClick={ this.updateAPIKey }
-								disabled={ ! apiKeyControl || apiKeyControl === apiKey }
-								isDefault
-							>
-								{ __( 'Update Token', 'jetpack' ) }
-							</Button>
-							<Button
-								type="button"
-								onClick={ this.removeAPIKey }
-								disabled={ 'wpcom' === apiKeySource }
-								isDefault
-							>
-								{ __( 'Remove Token', 'jetpack' ) }
-							</Button>
-						</ButtonGroup>
-					</PanelBody>
 				</InspectorControls>
-			</Fragment>
+			</>
 		);
 		const placholderAPIStateLoading = (
 			<Placeholder icon={ settings.icon }>
@@ -403,7 +245,6 @@ class MapEdit extends Component {
 							onChange={ this.updateAPIKeyControl }
 						/>
 						<Button
-							isLarge
 							isSecondary
 							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
 							onClick={ this.updateAPIKey }

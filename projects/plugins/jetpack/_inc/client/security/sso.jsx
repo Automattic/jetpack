@@ -14,6 +14,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const SSO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -65,6 +66,7 @@ export const SSO = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'sso' ) }
 						support={ {
 							text: __(
@@ -82,7 +84,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						</p>
 						<ModuleToggle
 							slug="sso"
-							disabled={ unavailableInOfflineMode }
+							disabled={ unavailableInOfflineMode || ! this.props.hasConnectedOwner }
 							activated={ isSSOActive }
 							toggling={ this.props.isSavingAnyOption( 'sso' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -123,6 +125,14 @@ export const SSO = withModuleSettingsFormHelpers(
 							</CompactFormToggle>
 						</FormFieldset>
 					</SettingsGroup>
+
+					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
+						<ConnectUserBar
+							feature="sso"
+							featureLabel={ __( 'Secure Sign-On', 'jetpack' ) }
+							text={ __( 'Connect to enable WordPress.com Secure Sign-On.', 'jetpack' ) }
+						/>
+					) }
 				</SettingsCard>
 			);
 		}

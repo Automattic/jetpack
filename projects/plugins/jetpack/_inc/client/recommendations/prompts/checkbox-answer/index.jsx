@@ -19,10 +19,16 @@ import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 import './style.scss';
 
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
-	const toggleCheckbox = useCallback( () => {
-		const newCheckedValue = ! checked;
-		updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
-	}, [ answerKey, checked, updateCheckboxAnswer ] );
+	const toggleCheckbox = useCallback(
+		e => {
+			if ( e.target.type !== 'checkbox' ) {
+				return;
+			}
+			const newCheckedValue = ! checked;
+			updateCheckboxAnswer( { [ answerKey ]: newCheckedValue } );
+		},
+		[ answerKey, checked, updateCheckboxAnswer ]
+	);
 
 	const stopEventPropagation = useCallback( e => {
 		e.stopPropagation();
@@ -44,9 +50,11 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 			tabIndex={ 0 }
 		>
 			<div className="jp-checkbox-answer__checkbox">
-				<input type="checkbox" checked={ checked } tabIndex={ -1 } />
+				<input id={ answerKey } type="checkbox" defaultChecked={ checked } tabIndex={ -1 } />
 			</div>
-			<div className="jp-checkbox-answer__title">{ title }</div>
+			<label htmlFor={ answerKey } className="jp-checkbox-answer__title">
+				{ title }
+			</label>
 			<div
 				className="jp-checkbox-answer__info"
 				onClick={ stopEventPropagation }

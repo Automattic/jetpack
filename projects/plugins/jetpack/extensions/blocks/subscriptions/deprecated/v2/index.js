@@ -8,6 +8,12 @@ import { __ } from '@wordpress/i18n';
  */
 import save from './save';
 
+/**
+ * Deprecation reason:
+ *
+ * Addition of option to display button on new line and renaming of color
+ * attributes to better support use of SubmitButton component.
+ */
 export default {
 	attributes: {
 		subscribePlaceholder: { type: 'string', default: __( 'Email Address', 'jetpack' ) },

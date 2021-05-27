@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * This is the actual Instagram widget along with other code that only applies to the widget.
@@ -381,6 +382,18 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
+		if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! ( new Manager() )->is_user_connected() ) {
+			echo '<p>';
+			printf(
+				// translators: %1$1 and %2$s are the opening and closing a tags creating a link to the Jetpack dashboard.
+				esc_html__( 'In order to use this widget you need %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
+				'<a href="' . esc_url( Jetpack::admin_url() ) . '">',
+				'</a>'
+			);
+			echo '</p>';
+			return;
+		}
+
 		// If coming back to the widgets page from an action, expand this widget.
 		if ( isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number ) {
 			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
@@ -587,11 +600,17 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			$instance['token_id'] = $old_instance['token_id'];
 		}
 
-		$instance['title'] = wp_strip_all_tags( $new_instance['title'] );
+		if ( isset( $new_instance['title'] ) ) {
+			$instance['title'] = wp_strip_all_tags( $new_instance['title'] );
+		}
 
-		$instance['columns'] = max( 1, min( $this->valid_options['max_columns'], (int) $new_instance['columns'] ) );
+		if ( isset( $new_instance['columns'] ) ) {
+			$instance['columns'] = max( 1, min( $this->valid_options['max_columns'], (int) $new_instance['columns'] ) );
+		}
 
-		$instance['count'] = max( 1, min( $this->valid_options['max_count'], (int) $new_instance['count'] ) );
+		if ( isset( $new_instance['count'] ) ) {
+			$instance['count'] = max( 1, min( $this->valid_options['max_count'], (int) $new_instance['count'] ) );
+		}
 
 		return $instance;
 	}
@@ -600,7 +619,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 add_action(
 	'widgets_init',
 	function () {
-		if ( Jetpack::is_active() ) {
+		if ( Jetpack::is_connection_ready() ) {
 			register_widget( 'Jetpack_Instagram_Widget' );
 		}
 	}

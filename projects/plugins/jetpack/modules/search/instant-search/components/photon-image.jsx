@@ -4,46 +4,55 @@
  * External dependencies
  */
 import { h } from 'preact';
-import photon from 'photon';
+import { useEffect, useRef, useState } from 'preact/hooks';
 
 /**
- * Strips query string values from URLs; photon can't handle them.
- *
- * @param {string} url - Image URL
- *
- * @returns {string} - Image URL without any query strings.
+ * Internal dependencies
  */
-function stripQueryString( url ) {
-	return url.split( '?', 1 )[ 0 ];
-}
+import { usePhoton } from '../lib/hooks/use-photon';
 
-const PhotonImage = ( {
-	useDiv,
-	src,
-	maxWidth = 300,
-	maxHeight = 300,
-	alt,
-	isPrivateSite,
-	...otherProps
-} ) => {
-	let srcToDisplay = src;
+const PhotonImage = props => {
+	const {
+		alt,
+		isPhotonEnabled,
+		maxHeight = 600,
+		maxWidth = 600,
+		src: originalSrc,
+		lazyLoad = true,
+		...otherProps
+	} = props;
 
-	if ( ! isPrivateSite ) {
-		const photonSrc = photon( stripQueryString( src ), { resize: `${ maxWidth },${ maxHeight }` } );
-		if ( photonSrc !== null ) {
-			srcToDisplay = photonSrc;
+	const image = useRef();
+	const [ lazySrc, setLazySrc ] = useState( null );
+	const src = usePhoton( originalSrc, maxWidth, maxHeight, isPhotonEnabled );
+
+	// Enable lazy loading via IntersectionObserver if possible.
+	useEffect( () => {
+		// Wait until src is available
+		if ( ! src ) {
+			return;
 		}
-	}
 
-	return useDiv ? (
-		<div
-			style={ { backgroundImage: `url("${ srcToDisplay }")` } }
-			title={ alt }
-			{ ...otherProps }
-		/>
-	) : (
-		<img src={ srcToDisplay } alt={ alt } { ...otherProps } />
-	);
+		let observer = null;
+		if ( lazyLoad && 'IntersectionObserver' in window ) {
+			observer = new window.IntersectionObserver( ( entries, obs ) => {
+				for ( const entry of entries ) {
+					if ( entry.isIntersecting ) {
+						setLazySrc( src );
+						obs.unobserve( entry.target );
+					}
+				}
+			} );
+			observer.observe( image.current );
+		} else {
+			setLazySrc( src );
+		}
+		return () => {
+			observer?.disconnect();
+		};
+	}, [ lazyLoad, src ] );
+
+	return <img alt={ alt } ref={ image } src={ lazySrc } { ...otherProps } />;
 };
 
 export default PhotonImage;

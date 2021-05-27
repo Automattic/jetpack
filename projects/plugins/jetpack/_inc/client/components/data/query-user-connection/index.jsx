@@ -7,13 +7,16 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchUserConnectionData, isFetchingUserData, isOfflineMode } from 'state/connection';
+import { userCanConnectAccount } from 'state/initial-state';
+import { fetchUserConnectionData, isFetchingUserData } from 'state/connection';
 
 export class QueryUserConnectionData extends React.Component {
 	UNSAFE_componentWillMount() {
-		if ( ! ( this.props.isFetchingUserData || this.props.isOfflineMode ) ) {
-			this.props.fetchUserConnectionData();
+		if ( this.props.isFetchingUserData || ! this.props.userCanConnectAccount ) {
+			return;
 		}
+
+		this.props.fetchUserConnectionData();
 	}
 
 	render() {
@@ -25,7 +28,7 @@ export default connect(
 	state => {
 		return {
 			isFetchingUserData: isFetchingUserData( state ),
-			isOfflineMode: isOfflineMode( state ),
+			userCanConnectAccount: userCanConnectAccount( state ),
 		};
 	},
 	dispatch => {

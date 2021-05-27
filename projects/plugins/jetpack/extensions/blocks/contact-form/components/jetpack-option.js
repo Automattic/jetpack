@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { IconButton } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
 
 class JetpackOption extends Component {
@@ -65,7 +65,7 @@ class JetpackOption extends Component {
 					ref={ this.textInput }
 				/>
 				{ isSelected && (
-					<IconButton
+					<Button
 						className="jetpack-option__remove"
 						icon="trash"
 						label={ __( 'Remove option', 'jetpack' ) }

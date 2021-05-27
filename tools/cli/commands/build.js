@@ -2,17 +2,22 @@
  * External dependencies
  */
 import chalk from 'chalk';
-import path from 'path';
-import execa from 'execa';
 import Listr from 'listr';
+import VerboseRenderer from 'listr-verbose-renderer';
+import UpdateRenderer from 'listr-update-renderer';
 
 /**
  * Internal dependencies
  */
 import { chalkJetpackGreen } from '../helpers/styling.js';
-import { promptForProject } from '../helpers/promptForProject.js';
-import { readComposerJson } from '../helpers/readJson';
-import { installProjectTask } from '../helpers/tasks/installProjectTask';
+import promptForProject from '../helpers/promptForProject.js';
+import { readComposerJson } from '../helpers/json';
+import installProjectTask from '../helpers/tasks/installProjectTask';
+import { allProjectsByType } from '../helpers/projectHelpers';
+import { normalizeBuildArgv, normalizeProject } from '../helpers/normalizeArgv';
+import buildProjectTask from '../helpers/tasks/buildProjectTask';
+import projectBuildCommand from '../helpers/projectBuildCommand';
+import listrOpts from '../helpers/tasks/listrOpts';
 
 /**
  * Relays build commands to a particular project.
@@ -20,17 +25,11 @@ import { installProjectTask } from '../helpers/tasks/installProjectTask';
  * @param {object} options - The argv options.
  */
 async function buildRouter( options ) {
-	options = {
-		project: '',
-		production: false,
-		...options,
-	};
-
 	if ( options.project ) {
 		const data = readComposerJson( options.project );
-		data !== false ? await build( options.project, options.production, data ) : false;
+		data !== false ? await build( options.project, options.production, data, options.v ) : false;
 	} else {
-		console.error( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a valid project!' ) );
 	}
 }
 
@@ -40,27 +39,9 @@ async function buildRouter( options ) {
  * @param {string} project - The project.
  * @param {boolean} production - If a production build should be made.
  * @param {object} composerJson - The project's composer.json file, parsed.
+ * @param {boolean} verbose - If verbose output is desired.
  */
-export async function build( project, production, composerJson ) {
-	let command = '';
-
-	if ( composerJson.scripts ) {
-		const buildDev = composerJson.scripts[ 'build-development' ]
-			? 'composer build-development'
-			: null;
-		const buildProd = composerJson.scripts[ 'build-production' ]
-			? 'composer build-production'
-			: null;
-		// If production, prefer production script. If dev, prefer dev. Either case, fall back to the other if exists.
-		command = production ? buildProd || buildDev : buildDev || buildProd;
-	}
-
-	if ( ! command ) {
-		// If neither build step is defined, abort.
-		console.warn( chalk.yellow( 'This project does not have a build step defined.' ) );
-		return;
-	}
-
+export async function build( project, production, composerJson, verbose ) {
 	console.log(
 		chalkJetpackGreen(
 			`Hell yeah! It is time to build ${ project }!\n` +
@@ -68,22 +49,71 @@ export async function build( project, production, composerJson ) {
 		)
 	);
 
-	const builder = new Listr( [
-		{
-			title: `Building ${ project }`,
-			task: () => {
-				return new Listr( [
-					installProjectTask( { project: project } ),
-					{
-						title: `Building ${ project }`,
-						task: () => execa.command( command, { cwd: path.resolve( `projects/${ project }` ) } ),
-					},
-				] );
+	const opts = {
+		renderer: verbose ? VerboseRenderer : UpdateRenderer,
+	};
+
+	const builder = new Listr(
+		[
+			{
+				title: `Building ${ project }`,
+				task: () => {
+					return new Listr(
+						[
+							installProjectTask( { project: project, v: verbose, production: production } ),
+							buildProjectTask( { project: project, v: verbose, production: production } ),
+						],
+						opts
+					);
+				},
 			},
-		},
-	] );
+		],
+		opts
+	);
 
 	builder.run().catch( err => {
+		console.error( err );
+		process.exit( err.exitCode || 1 );
+	} );
+}
+
+/**
+ * Builds all packages.
+ *
+ * @param {object} options - The options passed from the command line.
+ */
+function buildAllPackages( options ) {
+	const tasks = [];
+	const opts = listrOpts( options );
+
+	allProjectsByType( 'packages' ).forEach( project => {
+		if ( projectBuildCommand( project, options.production ) ) {
+			tasks.push( {
+				title: `Building ${ project }`,
+				task: () => {
+					return new Listr(
+						[
+							installProjectTask( {
+								project: project,
+								v: options.v,
+								production: options.production,
+							} ),
+							buildProjectTask( {
+								project: project,
+								v: options.v,
+								production: options.production,
+							} ),
+						],
+						opts
+					);
+				},
+			} );
+		}
+	} );
+
+	const builds = new Listr( tasks, opts );
+
+	builds.run().catch( err => {
 		console.error( err );
 	} );
 }
@@ -94,6 +124,13 @@ export async function build( project, production, composerJson ) {
  * @param {object} argv - The argv for the command line.
  */
 export async function buildCli( argv ) {
+	argv = normalizeBuildArgv( argv );
+
+	if ( argv.project === 'packages' ) {
+		buildAllPackages( argv );
+		return;
+	}
+	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	await buildRouter( argv );
 }

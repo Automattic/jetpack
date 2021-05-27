@@ -12,6 +12,8 @@
 
 namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;
 
+use Jetpack\Docker\MuPlugin\Monorepo;
+
 /**
  * Fix the plugins_url in the Docker dev environment.
  *
@@ -25,8 +27,7 @@ namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;
 function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 	global $wp_plugin_paths;
 
-	$monorepo = '/usr/local/src/jetpack-monorepo/';
-	$packages = $monorepo . 'projects/packages/';
+	$packages = ( new Monorepo() )->get( 'packages' );
 
 	if ( strpos( $url, $packages ) !== false && strpos( $plugin, $packages ) === 0 ) {
 		// Look through available monorepo plugins until we find one with the plugin symlink.

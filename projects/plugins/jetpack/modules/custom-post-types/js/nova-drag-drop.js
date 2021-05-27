@@ -13,7 +13,7 @@
 
 	function dragMenus() {
 		list.sortable( {
-			cancel: '.no-items',
+			cancel: '.no-items, .inline-edit-row',
 			stop: function ( event, ui ) {
 				if ( ui.item.is( ':first-child' ) ) {
 					return list.sortable( 'cancel' );

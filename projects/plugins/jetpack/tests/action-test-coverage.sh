@@ -2,6 +2,10 @@
 
 set -eo pipefail
 
+PLUGINDIR="$PWD"
+
+cd "$MONOREPO_BASE/projects/plugins/jetpack"
+
 echo "::group::Jetpack yarn install"
 yarn install
 echo "::endgroup::"
@@ -13,6 +17,8 @@ echo "::endgroup::"
 echo "::group::Jetpack Extensions coverage"
 yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
 echo "::endgroup::"
+
+cd "$PLUGINDIR"
 
 echo "::group::Jetpack Backend coverage"
 phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/backend/clover.xml"

@@ -8,6 +8,10 @@
 
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.DiscouragedPHPFunctions, WordPress.Security.EscapeOutput.OutputNotEscaped
 
+ob_start();
+require_once __DIR__ . '/../../tools/find-project-deps.php';
+ob_end_clean();
+
 // Files that mean all tests should be run.
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 $infrastructure_files = array(
@@ -36,7 +40,11 @@ if ( array_search( '--debug', $argv, true ) !== false ) {
 	 * @param array ...$args Arguments to printf. A newline is automatically appended.
 	 */
 	function debug( ...$args ) {
-		$args[0] = "\e[1;30m${args[0]}\e[0m\n";
+		if ( getenv( 'CI' ) ) {
+			$args[0] = "\e[34m${args[0]}\e[0m\n";
+		} else {
+			$args[0] = "\e[1;30m${args[0]}\e[0m\n";
+		}
 		fprintf( STDERR, ...$args );
 	}
 } else {
@@ -181,90 +189,24 @@ function get_changed_projects() {
 	return array_keys( $projects );
 }
 
-/**
- * Get the path to a file in a project.
- *
- * @param string $project The project slug to check.
- * @param string $path Path components to check.
- * @return string
- */
-function project_path( $project, $path ) {
-	return 'monorepo' === $project ? $path : "projects/$project/$path";
-}
-
-/**
- * Check whether any of a project's extra dependencies have changed.
- *
- * Dependencies declared in composer.json `.extra.dependencies`.
- *
- * @param string $project The project slug to check.
- * @param array  $changed Array mapping project slugs to "changed" flags.
- * @return bool
- */
-function check_extra_deps( $project, $changed ) {
-	$json = json_decode( file_get_contents( project_path( $project, 'composer.json' ) ), true );
-	if ( isset( $json['extra']['dependencies'] ) ) {
-		foreach ( $json['extra']['dependencies'] as $dep ) {
-			if ( ! empty( $changed[ $dep ] ) ) {
-				debug( 'Project %s depends on %s, marking it changed.', $project, $dep );
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
- * Check whether any of a project's composer dependencies have changed.
- *
- * @param string $project The project slug to check.
- * @param array  $changed Array mapping project slugs to "changed" flags.
- * @return bool
- */
-function check_composer_deps( $project, $changed ) {
-	static $package_map = null;
-
-	if ( null === $package_map ) {
-		$package_map = array();
-		foreach ( get_all_projects() as $p ) {
-			if ( substr( $p, 0, 9 ) === 'packages/' ) {
-				$json = json_decode( file_get_contents( project_path( $p, 'composer.json' ) ), true );
-				if ( isset( $json['name'] ) ) {
-					$package_map[ $json['name'] ] = $p;
-				}
-			}
-		}
-	}
-
-	$json = json_decode( file_get_contents( project_path( $project, 'composer.json' ) ), true );
-	$deps = array_merge(
-		isset( $json['require'] ) ? $json['require'] : array(),
-		isset( $json['require-dev'] ) ? $json['require-dev'] : array()
-	);
-	foreach ( $package_map as $package => $p ) {
-		if ( isset( $deps[ $package ] ) && ! empty( $changed[ $p ] ) ) {
-			debug( 'Project %s depends on composer package %s from %s, marking it changed.', $project, $package, $p );
-			return true;
-		}
-	}
-	return false;
-}
-
 // Get a list of projects indicating which are changed.
 $projects = array_fill_keys( get_changed_projects(), true ) + array_fill_keys( get_all_projects(), false );
 
 // Figure out if any projects depend on a changed project. Repeat to propagate until none are found.
+$deps = get_dependencies();
 do {
 	$any = false;
 	foreach ( $projects as $project => $changed ) {
-		if ( $changed ) {
+		if ( $changed || ! isset( $deps[ $project ] ) ) {
 			continue;
 		}
-		if ( check_extra_deps( $project, $projects ) ||
-			check_composer_deps( $project, $projects )
-		) {
-			$projects[ $project ] = true;
-			$any                  = true;
+		foreach ( $deps[ $project ] as $slug ) {
+			if ( ! empty( $projects[ $slug ] ) ) {
+				debug( 'Project %s depends on %s, marking it as changed.', $project, $slug );
+				$projects[ $project ] = true;
+				$any                  = true;
+				break;
+			}
 		}
 	}
 } while ( $any );

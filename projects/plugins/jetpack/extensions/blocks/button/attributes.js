@@ -50,4 +50,7 @@ export default {
 	borderRadius: {
 		type: 'number',
 	},
+	width: {
+		type: 'string',
+	},
 };

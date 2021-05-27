@@ -179,11 +179,6 @@ export function getSupportedBlockType( state, blockName ) {
 		return SUPPORTED_BLOCKS[ blockName ];
 	}
 
-	// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
-	if ( blockName.startsWith( 'core-embed/' ) ) {
-		return SUPPORTED_BLOCKS[ 'core/embed' ];
-	}
-
 	return undefined;
 }
 

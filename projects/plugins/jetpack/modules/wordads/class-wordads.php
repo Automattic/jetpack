@@ -360,13 +360,14 @@ class WordAds {
 		if ( self::is_amp() ) {
 			return;
 		}
-		$pagetype  = (int) $this->params->get_page_type_ipw();
-		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
-		$site_id   = $this->params->blog_id;
-		$consent   = (int) isset( $_COOKIE['personalized-ads-consent'] );
+		$hosting_type = jetpack_is_atomic_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.
+		$pagetype     = (int) $this->params->get_page_type_ipw();
+		$data_tags    = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
+		$site_id      = $this->params->blog_id;
+		$consent      = (int) isset( $_COOKIE['personalized-ads-consent'] );
 		?>
 		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: 2, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?> };
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: <?php echo esc_js( $hosting_type ); ?>, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?>, ad: { label: { text: '<?php echo esc_js( __( 'Advertisements', 'jetpack' ) ); ?>' }, reportAd: { text: '<?php echo esc_js( __( 'Report this ad', 'jetpack' ) ); ?>' } } };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};

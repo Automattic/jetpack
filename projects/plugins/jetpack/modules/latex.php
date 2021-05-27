@@ -110,7 +110,7 @@ function latex_render( $latex, $fg, $bg, $s = 0 ) {
 	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
 
 	return sprintf(
-		'<img src="%1$s" alt="%2$s" title="%2$s" class="latex" />',
+		'<img src="%1$s" alt="%2$s" class="latex" />',
 		esc_url( $url ),
 		$alt
 	);

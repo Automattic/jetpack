@@ -38,7 +38,7 @@
 }
 
 #live-preview {
-	border-bottom: 1px solid #dfdfdf;
+	border-bottom: 1px solid #dcdcde;
 	padding-bottom: 60px;
 }
 
@@ -428,7 +428,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 #services-config a.remove {
-	background: #ddd;
+	background: #dcdcde;
 	color: #fff;
 	padding: 0px 4px 2px;
 	border-radius: 15px;

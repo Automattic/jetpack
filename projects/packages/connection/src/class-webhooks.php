@@ -68,7 +68,7 @@ class Webhooks {
 	 * Perform the authorization action.
 	 */
 	public function handle_authorize() {
-		if ( $this->connection->is_active() && $this->connection->is_user_connected() ) {
+		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
 			$redirect_url = apply_filters( 'jetpack_client_authorize_already_authorized_url', admin_url() );
 			wp_safe_redirect( $redirect_url );
 

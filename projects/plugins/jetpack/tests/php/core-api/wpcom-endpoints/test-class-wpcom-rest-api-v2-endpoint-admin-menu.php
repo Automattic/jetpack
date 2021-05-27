@@ -96,7 +96,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 		$menu_item = array_pop( $menu );
 
 		$this->assertNotEmpty( $menu_item );
-		$this->assertSame( $menu_item['children'][0]['slug'], $menu_item['slug'], 'Parent and submenu should be the same.' );
+		$this->assertSame( $menu_item['children'][0]['url'], $menu_item['url'], 'Parent and submenu should be the same.' );
 	}
 
 	/**
@@ -173,6 +173,11 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'count' => 5,
 				),
 			),
+			// Hidden menu item.
+			array(
+				array( 'Hidden', 'read', 'hidden', '', 'hide-if-js' ),
+				array(),
+			),
 		);
 	}
 
@@ -238,6 +243,50 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'count'  => 15,
 				),
 			),
+			// Hidden submenu item.
+			array(
+				array( 'Hidden', 'read', 'hidden', 'Hidden', 'hide-if-js' ),
+				array( 'My Plugin', 'read', 'my-plugin', 'My Plugin', '', '', '' ),
+				array(),
+			),
+		);
+	}
+
+	/**
+	 * Check if the menu URL is properly generated from the first submenu slug.
+	 */
+	public function test_if_the_first_submenu_url_is_used_for_menu_url() {
+		global $menu;
+
+		add_menu_page( '', 'Foo', 'read', 'foo' );
+		$fnc = function () { }; /// needed for the slug to register as a page.
+		add_submenu_page( 'foo', 'title', 'title', 'read', 'sharing', $fnc, 0 );
+
+		$foo_item = array();
+
+		foreach ( $menu as $menu_item ) {
+			if ( 'foo' === $menu_item[2] ) {
+				$foo_item = $menu_item;
+				break;
+			}
+		}
+
+		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
+
+		$prepare_menu_item = $class->getMethod( 'prepare_menu_item' );
+		$prepare_menu_item->setAccessible( true );
+
+		$expected = array(
+			'icon'  => 'dashicons-admin-generic',
+			'slug'  => 'foo',
+			'title' => 'Foo',
+			'type'  => 'menu-item',
+			'url'   => 'http://example.org/wp-admin/admin.php?page=sharing',
+		);
+
+		$this->assertSame(
+			$expected,
+			$prepare_menu_item->invokeArgs( new WPCOM_REST_API_V2_Endpoint_Admin_Menu(), array( $foo_item ) )
 		);
 	}
 
@@ -386,7 +435,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
 				'jetpack',
 				null,
-				'https://jetpack.com/redirect/?source=calypso-backups&#038;site=example.org',
+				'https://jetpack.com/redirect/?source=calypso-backups&site=example.org',
 			),
 			// WooCommerce URLs.
 			array(
@@ -399,13 +448,32 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'wc-admin&amp;path=/analytics/products',
 				'wc-admin&amp;path=/analytics/overview',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=/analytics/products' ),
+				admin_url( 'admin.php?page=wc-admin&path=/analytics/products' ),
 			),
 			array(
 				'wc-admin&amp;path=customers',
 				'woocommerce',
 				'__return_true',
-				admin_url( 'admin.php?page=wc-admin&amp;path=customers' ),
+				admin_url( 'admin.php?page=wc-admin&path=customers' ),
+			),
+			// Disallowed URLs.
+			array(
+				'javascript:alert("Hello")',
+				'',
+				null,
+				'',
+			),
+			array(
+				'http://example.com',
+				'',
+				null,
+				'',
+			),
+			array(
+				'https://wordpress.commerce.malicious-site.com',
+				'',
+				null,
+				'',
 			),
 		);
 	}
@@ -418,12 +486,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 *
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_update_data
-	 * @covers ::parse_markup_data
+	 * @covers ::parse_menu_item
 	 */
-	public function test_parse_markup_data( $menu_item, $expected ) {
+	public function test_parse_menu_item( $menu_item, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
-		$prepare_menu_item_url = $class->getMethod( 'parse_markup_data' );
+		$prepare_menu_item_url = $class->getMethod( 'parse_menu_item' );
 		$prepare_menu_item_url->setAccessible( true );
 
 		$this->assertSame(
@@ -452,23 +520,57 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				),
 			),
 			array(
+				'<span class="update-plugins count-0"><span class="update-count">0</span></span> Zero updates',
+				array(
+					'title' => 'Zero updates',
+				),
+			),
+			array(
 				'Finally some updates <span class="update-plugins count-5"><span class="update-count">5</span></span>',
 				array(
-					'title' => 'Finally some updates',
 					'count' => 5,
+					'title' => 'Finally some updates',
+				),
+			),
+			array(
+				'<span class="update-plugins count-5"><span class="update-count">5</span></span> finally some updates',
+				array(
+					'count' => 5,
+					'title' => 'Finally some updates',
 				),
 			),
 			array(
 				'Plugin updates <span class="update-plugins count-5"><span class="plugin-count">5</span></span>',
 				array(
-					'title' => 'Plugin updates',
 					'count' => 5,
+					'title' => 'Plugin updates',
 				),
 			),
 			array(
-				'Unexpected markup <span class="unexpected-classname">badge name</span>',
+				'<span class="update-plugins count-5"><span class="plugin-count">5</span></span> plugin updates',
 				array(
-					'title' => 'Unexpected markup',
+					'count' => 5,
+					'title' => 'Plugin updates',
+				),
+			),
+			array(
+				'Comments <span class="awaiting-mod count-2"><span class="pending-count" aria-hidden="true">2</span><span class="comments-in-moderation-text screen-reader-text">Comments in moderation</span></span>',
+				array(
+					'count' => 2,
+					'title' => 'Comments',
+				),
+			),
+			array(
+				'<span class="awaiting-mod count-2"><span class="pending-count" aria-hidden="true">2</span><span class="comments-in-moderation-text screen-reader-text"> comments in moderation</span></span> Comments',
+				array(
+					'count' => 2,
+					'title' => 'Comments',
+				),
+			),
+			array(
+				'<span class="unexpected-classname">badge name</span> Unexpected <font style="vertical-align: inherit;"><font style="vertical-align: inherit;">markup</font></font><span class="awaiting-mod"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;"></font></font></span> <span class="unexpected-classname">badge name</span>',
+				array(
+					'title' => 'Badge name Unexpected markup badge name',
 				),
 			),
 		);

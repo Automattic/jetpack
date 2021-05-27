@@ -17,8 +17,22 @@
 			max-width: 500px;
 			p {
 				font-size: 13px;
-				margin: 0 0 10px;
+				margin: 20px 0 10px;
 			}
+
+			p:first-child {
+				margin-top: 0;
+			}
+		}
+
+		&__instructions {
+			.components-select-control__input {
+				padding: 0 24px 0 8px;
+			}
+		}
+
+		label {
+			font-size: 13px;
 		}
 	}
 
@@ -49,23 +63,30 @@
 			margin-right: 4px;
 		}
 
-		&__field-currency {
-			width: 30%;
-		}
-
 		&__field-error .components-text-control__input {
 			border: 1px solid;
 			border-color: var( --color-error );
 		}
 
 		&__field-price {
-			margin: 0 0 0 5%;
 			width: 65%;
 		}
 
 		&__price-container {
 			display: flex;
 			flex-wrap: wrap;
+
+			.components-input-control__container {
+				top: 4px;
+			}
+
+			div.membership-button__field-currency {
+				border-right: 10px solid transparent;
+			}
+
+			p {
+				margin-top: 0;
+			}
 		}
 	}
 

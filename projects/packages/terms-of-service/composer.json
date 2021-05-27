@@ -4,12 +4,13 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-options": "^1.12",
+		"automattic/jetpack-status": "^1.8"
 	},
 	"require-dev": {
 		"brain/monkey": "2.6.0",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -18,11 +19,11 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"@composer install",
+			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-coverage": [
-			"@composer install",
+			"@composer update",
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
@@ -41,6 +42,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-terms-of-service"
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-terms-of-service",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-terms-of-service/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.9.x-dev"
+		}
 	}
 }

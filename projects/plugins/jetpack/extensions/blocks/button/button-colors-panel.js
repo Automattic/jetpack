@@ -11,9 +11,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { IS_GRADIENT_AVAILABLE } from './constants';
 
 export default function ButtonColorsPanel( {
+	isGradientAvailable,
 	backgroundColor,
 	fallbackBackgroundColor,
 	fallbackTextColor,
@@ -37,7 +37,7 @@ export default function ButtonColorsPanel( {
 		/>
 	);
 
-	if ( IS_GRADIENT_AVAILABLE ) {
+	if ( isGradientAvailable ) {
 		return (
 			<PanelColorGradientSettings
 				settings={ [

@@ -1,0 +1,28 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/eventbrite",
+        "isValid": true,
+        "attributes": {
+            "url": "https://www.eventbrite.com.au/e/food-hub-unsw-tickets-144144099883",
+            "eventId": 144144099883,
+            "style": "modal"
+        },
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/button",
+                "isValid": true,
+                "attributes": {
+                    "element": "a",
+                    "saveInPostContent": false,
+                    "uniqueId": "eventbrite-widget-id",
+                    "text": "Register"
+                },
+                "innerBlocks": [],
+                "originalContent": ""
+            }
+        ],
+        "originalContent": "<div class=\"wp-block-jetpack-eventbrite\"></div>"
+    }
+]

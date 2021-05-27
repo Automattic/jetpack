@@ -98,6 +98,9 @@
 		<testsuite name="idc">
 			<file>tests/php/test_class.jetpack-idc.php</file>
 		</testsuite>
+		<testsuite name="get_modules">
+			<file>tests/php/test-get-modules.php</file>
+		</testsuite>
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
 		</testsuite>
@@ -121,6 +124,9 @@
 		</testsuite>
 		<testsuite name="extensions">
 			<directory prefix="test" suffix=".php">tests/php/extensions</directory>
+		</testsuite>
+		<testsuite name="seo-tools">
+			<directory prefix="test" suffix=".php">tests/php/modules/seo-tools</directory>
 		</testsuite>
 	</testsuites>
 	<groups>

@@ -15,6 +15,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
@@ -39,7 +40,7 @@ function sharedaddy_loaded() {
  */
 function jetpack_sharedaddy_configuration_url() {
 	$status = new Status();
-	if ( $status->is_offline_mode() || $status->is_staging_site() || ! Jetpack::is_user_connected() ) {
+	if ( $status->is_offline_mode() || $status->is_staging_site() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 		return admin_url( 'options-general.php?page=sharing' );
 	}
 

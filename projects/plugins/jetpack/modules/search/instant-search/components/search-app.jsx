@@ -10,14 +10,17 @@ import { createPortal } from 'preact/compat';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 import { connect } from 'react-redux';
+import stringify from 'fast-json-stable-stringify';
 
 /**
  * Internal dependencies
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
+	clearQueryValues,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -30,12 +33,13 @@ import {
 	getSearchQuery,
 	getSort,
 	getWidgetOutsideOverlay,
+	hasActiveQuery,
 	hasError,
-	hasFilters,
 	hasNextPage,
+	isHistoryNavigation,
 	isLoading,
 } from '../store/selectors';
-import { bindCustomizerChanges } from '../lib/customize';
+import { bindCustomizerChanges, bindCustomizerMessages, isInCustomizer } from '../lib/customize';
 import './search-app.scss';
 
 class SearchApp extends Component {
@@ -48,22 +52,23 @@ class SearchApp extends Component {
 		this.input = createRef();
 		this.state = {
 			overlayOptions: { ...this.props.initialOverlayOptions },
-			showResults: this.props.initialShowResults,
+			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
 		};
 		this.getResults = debounce( this.getResults, 200 );
-		this.props.initializeQueryValues( {
-			defaultSort: this.props.defaultSort,
-		} );
+		this.props.initializeQueryValues();
 	}
 
 	componentDidMount() {
+		// By debouncing this upon mounting, we avoid making unnecessary requests.
+		//
+		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
+		//      Once our Redux effects have executed, the search query will be updated to "apple" and
+		//      getResults will be invoked once more.
 		this.getResults();
-		this.getResults.flush();
-
 		this.addEventListeners();
 		this.disableAutocompletion();
 
-		if ( this.hasActiveQuery() ) {
+		if ( this.props.hasActiveQuery ) {
 			this.showResults();
 		}
 	}
@@ -72,9 +77,10 @@ class SearchApp extends Component {
 		if (
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
-			prevProps.filters !== this.props.filters
+			// Note the special handling for filters prop, which use object values.
+			stringify( prevProps.filters ) !== stringify( this.props.filters )
 		) {
-			this.onChangeQueryString();
+			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
 	}
 
@@ -85,8 +91,9 @@ class SearchApp extends Component {
 
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
+		bindCustomizerMessages( this.toggleResults );
 
-		window.addEventListener( 'popstate', this.handleBrowserHistoryNavigation );
+		window.addEventListener( 'popstate', this.handleHistoryNavigation );
 
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
@@ -102,10 +109,17 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		// NOTE: Summoned overlay will not automatically be scrolled to the top
+		//       when used in conjuction with slideInUp animation.
+		// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	removeEventListeners() {
-		window.removeEventListener( 'popstate', this.handleBrowserHistoryNavigation );
+		window.removeEventListener( 'popstate', this.handleHistoryNavigation );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
@@ -119,6 +133,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
+		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
 		} );
 	}
 
@@ -137,26 +155,44 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
+	scrollOverlayToTop( event ) {
+		if ( event?.propertyName !== 'transform' ) {
+			return;
+		}
+		const overlay = event.target;
+		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
+		if ( overlay.scrollTo ) {
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			overlay.scrollTo( 0, 0 );
+		} else {
+			overlay.scrollTop = 0;
+		}
+	}
+
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 
-	hasActiveQuery() {
-		return this.props.searchQuery !== '' || this.props.hasFilters;
-	}
-
-	handleBrowserHistoryNavigation = () => {
+	handleHistoryNavigation = () => {
 		// Treat history navigation as brand new query values; re-initialize.
-		this.props.initializeQueryValues( {
-			defaultSort: this.props.defaultSort,
-		} );
+		// Note that this re-initialization will trigger onChangeQueryString via side effects.
+		this.props.initializeQueryValues( { isHistoryNavigation: true } );
 	};
 
 	handleSubmit = event => {
 		event.preventDefault();
 		this.handleInput.flush();
+
+		// handleInput didn't respawn the overlay. Do it manually -- form submission must spawn an overlay.
+		if ( ! this.state.showResults ) {
+			const value = event.target.querySelector( this.props.themeOptions.searchInputSelector )
+				?.value;
+			// Don't do a falsy check; empty string is an allowed value.
+			typeof value === 'string' && this.props.setSearchQuery( value );
+			this.showResults();
+		}
 	};
 
 	handleKeydown = event => {
@@ -174,10 +210,16 @@ class SearchApp extends Component {
 			return;
 		}
 
+		if ( this.state.overlayOptions.overlayTrigger === 'submit' ) {
+			return;
+		}
+
 		this.props.setSearchQuery( event.target.value );
+
 		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
 			this.showResults();
 		}
+
 		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
 			this.props.response?.results && this.showResults();
 		}
@@ -201,8 +243,10 @@ class SearchApp extends Component {
 		this.showResults();
 	};
 
+	// Treat overlay trigger clicks to be equivalent to setting an empty string search query.
 	handleOverlayTriggerClick = event => {
 		event.stopImmediatePropagation();
+		this.props.setSearchQuery( '' );
 		this.showResults();
 	};
 
@@ -215,28 +259,53 @@ class SearchApp extends Component {
 		);
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-		this.preventBodyScroll();
+	hideResults = isHistoryNav => {
+		this.restoreBodyScroll();
+		restorePreviousHref(
+			this.props.initialHref,
+			() => {
+				this.setState( { showResults: false } );
+				this.props.clearQueryValues();
+			},
+			isHistoryNav
+		);
 	};
 
-	hideResults = () => {
-		this.restoreBodyScroll();
-		restorePreviousHref( this.props.initialHref, () => {
-			this.setState( { showResults: false } );
+	// Used for showResults and Customizer integration.
+	toggleResults = showResults => {
+		// Necessary when reacting to onMessage transport Customizer controls.
+		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
+		if ( this.state.showResults === showResults ) {
+			return;
+		}
+
+		this.setState( { showResults }, () => {
+			if ( showResults ) {
+				this.preventBodyScroll();
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
 		} );
 	};
 
-	onChangeQueryString = () => {
+	showResults = this.toggleResults.bind( this, true );
+
+	onChangeQueryString = isHistoryNav => {
 		this.getResults();
 
-		if ( this.hasActiveQuery() && ! this.state.showResults ) {
+		if ( this.props.hasActiveQuery && ! this.state.showResults ) {
 			this.showResults();
 		}
 
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.value = this.props.searchQuery;
-		} );
+		if ( ! this.props.hasActiveQuery && isHistoryNav ) {
+			this.hideResults( isHistoryNav );
+		}
+
+		this.props.searchQuery !== null &&
+			document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+				input.value = this.props.searchQuery;
+			} );
 	};
 
 	loadNextPage = () => {
@@ -256,6 +325,7 @@ class SearchApp extends Component {
 			sort: this.props.sort,
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
+			isInCustomizer: isInCustomizer(),
 		} );
 	};
 
@@ -269,7 +339,6 @@ class SearchApp extends Component {
 				colorTheme={ this.state.overlayOptions.colorTheme }
 				hasOverlayWidgets={ this.props.hasOverlayWidgets }
 				isVisible={ this.state.showResults }
-				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
 					closeOverlay={ this.hideResults }
@@ -280,6 +349,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.props.isLoading }
+					isPhotonEnabled={ this.props.options.isPhotonEnabled }
 					isPrivateSite={ this.props.options.isPrivateSite }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
@@ -295,6 +365,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body
@@ -303,16 +374,24 @@ class SearchApp extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state, props ) => ( {
 		filters: getFilters( state ),
+		hasActiveQuery: hasActiveQuery( state ),
 		hasError: hasError( state ),
-		hasFilters: hasFilters( state ),
+		isHistoryNavigation: isHistoryNavigation( state ),
 		hasNextPage: hasNextPage( state ),
 		isLoading: isLoading( state ),
 		response: getResponse( state ),
 		searchQuery: getSearchQuery( state ),
-		sort: getSort( state ),
+		sort: getSort( state, props.defaultSort ),
 		widgetOutsideOverlay: getWidgetOutsideOverlay( state ),
 	} ),
-	{ initializeQueryValues, makeSearchRequest, setFilter, setSearchQuery, setSort }
+	{
+		clearQueryValues,
+		initializeQueryValues,
+		makeSearchRequest,
+		setFilter,
+		setSearchQuery,
+		setSort,
+	}
 )( SearchApp );

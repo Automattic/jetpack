@@ -8,8 +8,8 @@ import child_process from 'child_process';
 /**
  * Internal dependencies
  */
-import { promptForProject } from '../helpers/promptForProject';
-import { readComposerJson } from '../helpers/readJson';
+import promptForProject from '../helpers/promptForProject';
+import { readComposerJson } from '../helpers/json';
 import { chalkJetpackGreen } from '../helpers/styling';
 import { allProjects } from '../helpers/projectHelpers';
 
@@ -20,7 +20,7 @@ let output = true;
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the build commands defined.
+ * @returns {object} Yargs with the watch commands defined.
  */
 export function watchDefine( yargs ) {
 	yargs.command(

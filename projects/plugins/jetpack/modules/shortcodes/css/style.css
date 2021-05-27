@@ -44,7 +44,7 @@ body.presentation-wrapper-fullscreen-parent {
  */
 .presentation-wrapper {
 	margin: 20px auto;
-	border: 1px solid #e5e5e5;
+	border: 1px solid #dcdcde;
 	overflow: hidden;
 	line-height: normal;
 }
@@ -152,7 +152,7 @@ body.presentation-wrapper-fullscreen-parent {
 	z-index: 100;
 	display: table;
 	border-radius: 50px;
-	background-color: #e5e5e5;
+	background-color: #dcdcde;
 	background-color: rgba(0, 0, 0, 0.75);
 
 	-webkit-transition : opacity .5s;

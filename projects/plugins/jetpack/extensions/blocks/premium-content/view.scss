@@ -17,9 +17,13 @@
 }
 
 /* Login button */
-
-.wp-block-premium-content-login-button {
-	margin-bottom: 8px;
+.wp-block-premium-content-login-button.aligncenter {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.wp-block-premium-content-login-button.alignright {
+	float: right;
 }
 
 /* Legacy Subscribe/Login buttons */

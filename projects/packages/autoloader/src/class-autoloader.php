@@ -74,41 +74,8 @@ class Autoloader {
 		/** @var Hook_Manager $hook_manager */
 		$hook_manager = $container->get( Hook_Manager::class );
 
-		// When the active and cached plugin lists do not match we should
-		// update the cache. This will prevent plugins that have been
-		// deactivated from being considered in other requests.
-		$hook_manager->add_action(
-			'shutdown',
-			function () use ( $plugins_handler, $cached_plugins, $was_included_by_autoloader ) {
-				// Don't save a broken cache if an error happens during some plugin's initialization.
-				if ( ! did_action( 'plugins_loaded' ) ) {
-					// Ensure that the cache is emptied to prevent consecutive failures if the cache is to blame.
-					if ( ! empty( $cached_plugins ) ) {
-						$plugins_handler->cache_plugins( array() );
-					}
-
-					return;
-				}
-
-				// Load the active plugins fresh since the list we pulled earlier might not contain
-				// plugins that were activated but did not reset the autoloader. This happens
-				// when a plugin is in the cache but not "active" when the autoloader loads.
-				// We also want to make sure that plugins which are deactivating are not
-				// considered "active" so that they will be removed from the cache now.
-				$active_plugins = $plugins_handler->get_active_plugins( false, ! $was_included_by_autoloader );
-
-				// The paths should be sorted for easy comparisons with those loaded from the cache.
-				// Note we don't need to sort the cached entries because they're already sorted.
-				sort( $active_plugins );
-
-				// We don't want to waste time saving a cache that hasn't changed.
-				if ( $cached_plugins === $active_plugins ) {
-					return;
-				}
-
-				$plugins_handler->cache_plugins( $active_plugins );
-			}
-		);
+		// Register a shutdown handler to clean up the autoloader.
+		$hook_manager->add_action( 'shutdown', new Shutdown_Handler( $plugins_handler, $cached_plugins, $was_included_by_autoloader ) );
 
 		// phpcs:enable Generic.Commenting.DocComment.MissingShort
 	}

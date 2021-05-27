@@ -33,6 +33,16 @@ class Jetpack_Search_Options {
 	const OPTION_PREFIX = 'jetpack_search_';
 
 	/**
+	 * Available result formats.
+	 *
+	 * @since 9.6.0
+	 * @var string
+	 */
+	const RESULT_FORMAT_MINIMAL  = 'minimal';
+	const RESULT_FORMAT_EXPANDED = 'expanded';
+	const RESULT_FORMAT_PRODUCT  = 'product';
+
+	/**
 	 * Returns a boolean for whether instant search is enabled.
 	 *
 	 * @since 8.3.0

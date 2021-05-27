@@ -16,7 +16,7 @@
     margin-top: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
-    background-color: #72777c;
+    background-color: #787c82;
     color: #fff;
     font-size: 11px;
     line-height: 21px;
@@ -27,7 +27,7 @@
 }
 
 .fixed .column-comment_likes .comment-like-count:hover {
-    background-color: #0073aa;
+    background-color: #2271b1;
 }
 
 .fixed .column-comment_likes .vers:before {

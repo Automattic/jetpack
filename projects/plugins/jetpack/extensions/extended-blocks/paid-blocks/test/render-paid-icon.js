@@ -19,7 +19,7 @@ const iconWithSrc = {
 			<G />
 		</SVG>
 	),
-	foreground: '#555d66',
+	foreground: '#50575e',
 };
 
 const iconWithSrcWithPaidIcon = {
@@ -29,7 +29,7 @@ const iconWithSrcWithPaidIcon = {
 			<PaidSymbol key="paid-symbol" />
 		</SVG>
 	),
-	foreground: '#555d66',
+	foreground: '#50575e',
 };
 
 const iconWithouthSrc = (

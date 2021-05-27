@@ -99,9 +99,6 @@ class Jetpack_Beta {
 			self::maybe_schedule_autoupdate();
 			Jetpack_Beta_Admin::init();
 		}
-
-		$current_version = $this->get_branch_and_section();
-		self::update_autoload_dev_constant( $current_version[1] );
 	}
 
 	/**
@@ -303,7 +300,6 @@ class Jetpack_Beta {
 		add_action( 'shutdown', array( __CLASS__, 'switch_active' ), 5 );
 		add_action( 'shutdown', array( __CLASS__, 'remove_dev_plugin' ), 20 );
 		delete_option( self::$option );
-		delete_option( 'jetpack_autoload_dev' );
 	}
 
 	/**
@@ -884,8 +880,6 @@ class Jetpack_Beta {
 			// Deactivate the plugin.
 			self::replace_active_plugin( 'jetpack-pressable-beta/jetpack.php' );
 		}
-
-		self::update_autoload_dev_constant( $section );
 
 		if ( 'stable' === $section &&
 		file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_PLUGIN_FILE ) ) {
@@ -1493,25 +1487,5 @@ class Jetpack_Beta {
 	 */
 	public static function clear_autoloader_plugin_cache() {
 		delete_transient( 'jetpack_autoloader_plugin_paths' );
-	}
-
-	/**
-	 * Sets the 'jetpack_autoload_dev' option when a Jetpack version is activated:
-	 *   - Sets the option to true when a development version of Jetpack is activated.
-	 *   - Sets the option to false when the stable or release candidate version is  activated.
-	 *
-	 * This option is used to set the JETPACK_AUTOLOAD_DEV constant in jetpack-beta.php. The constant
-	 * is used by the Jetpack autoloader to determine whether stable or development versions of
-	 * packages should be preferred.
-	 *
-	 * @param string $section The section value for the activating Jetpack version.
-	 */
-	public static function update_autoload_dev_constant( $section ) {
-		if ( in_array( $section, array( 'stable', 'rc' ), true ) ) {
-				// The stable and rc versions use stable package versions.
-				update_option( 'jetpack_autoload_dev', 0 );
-		} else {
-				update_option( 'jetpack_autoload_dev', 1 );
-		}
 	}
 }

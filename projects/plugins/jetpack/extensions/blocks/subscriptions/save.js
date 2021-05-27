@@ -46,6 +46,7 @@ export default function Save( { className, attributes } ) {
 		customBorderColor,
 		padding,
 		spacing,
+		buttonWidth,
 	} = attributes;
 
 	const isGradientAvailable = !! getGradientClass;
@@ -95,6 +96,8 @@ export default function Save( { className, attributes } ) {
 			? customButtonGradient
 			: customButtonBackgroundColor;
 
+	const buttonWidthStyle = buttonWidth ? buttonWidth : undefined;
+
 	const getBlockClassName = () => {
 		return classnames(
 			className,
@@ -122,6 +125,7 @@ export default function Save( { className, attributes } ) {
 		custom_border_radius: borderRadius || DEFAULT_BORDER_RADIUS_VALUE,
 		custom_border_weight: borderWeight || DEFAULT_BORDER_WEIGHT_VALUE,
 		custom_border_color: customBorderColor,
+		custom_button_width: buttonWidthStyle,
 		custom_padding: padding || DEFAULT_PADDING_VALUE,
 		custom_spacing: spacing || DEFAULT_SPACING_VALUE,
 		submit_button_classes: submitButtonClasses,

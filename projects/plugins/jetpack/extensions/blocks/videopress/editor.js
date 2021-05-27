@@ -153,7 +153,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				muted: {
 					type: 'boolean',
 				},
-				playsInline: {
+				playsinline: {
 					type: 'boolean',
 				},
 				poster: {
@@ -162,6 +162,18 @@ const addVideoPressSupport = ( settings, name ) => {
 				preload: {
 					type: 'string',
 					default: 'metadata',
+				},
+				seekbarPlayedColor: {
+					type: 'string',
+					default: '',
+				},
+				seekbarLoadingColor: {
+					type: 'string',
+					default: '',
+				},
+				seekbarColor: {
+					type: 'string',
+					default: '',
 				},
 				src: {
 					type: 'string',

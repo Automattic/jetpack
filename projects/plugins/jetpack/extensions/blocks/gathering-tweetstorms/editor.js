@@ -2,15 +2,21 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
+import { BlockControls } from '@wordpress/editor';
+import {
+	withNotices,
+	ToolbarButton,
+	ToolbarGroup,
+	ToolbarItem,
+	Spinner,
+} from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import useGatherTweetstorm from './use-gather-tweetstorm';
-import { withNotices, Button, ToolbarGroup, Spinner } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import './editor.scss';
-import { BlockControls } from '@wordpress/editor';
 
 /**
  * Intercepts the registration of the Core Twitter embed block, and adds functionality
@@ -28,8 +34,7 @@ const addTweetstormToTweets = blockSettings => {
 	}
 
 	// Allow hooking into the Twitter embed block pre and post Gutenberg 8.8.
-	// @todo The 'core-embed/twitter' check can be removed when WordPress 5.6 is the minimum version.
-	if ( 'core-embed/twitter' !== blockSettings.name && 'core/embed' !== blockSettings.name ) {
+	if ( 'core/embed' !== blockSettings.name ) {
 		return blockSettings;
 	}
 
@@ -45,11 +50,7 @@ const addTweetstormToTweets = blockSettings => {
 			} );
 
 			// Only wrap the Twitter variant of the core/embed block.
-			// @todo The core/embed' check can be removed when WordPress 5.6 is the minimum version.
-			if (
-				'core/embed' === blockSettings.name &&
-				'twitter' !== props.attributes.providerNameSlug
-			) {
+			if ( 'twitter' !== props.attributes.providerNameSlug ) {
 				return <CoreEdit { ...props } />;
 			}
 
@@ -58,7 +59,7 @@ const addTweetstormToTweets = blockSettings => {
 					{ noticeUI }
 					<BlockControls>
 						<ToolbarGroup className="gathering-tweetstorms__embed-toolbar">
-							<Button
+							<ToolbarButton
 								className="gathering-tweetstorms__embed-toolbar-button"
 								onClick={ () => unleashStorm( url, noticeOperations ) }
 								label={ __(
@@ -69,8 +70,8 @@ const addTweetstormToTweets = blockSettings => {
 								disabled={ isGatheringStorm || ! url }
 							>
 								{ __( 'Unroll', 'jetpack' ) }
-							</Button>
-							{ isGatheringStorm && <Spinner /> }
+							</ToolbarButton>
+							{ isGatheringStorm && <ToolbarItem as={ Spinner } /> }
 						</ToolbarGroup>
 					</BlockControls>
 					<CoreEdit { ...props } />

@@ -1,8 +1,10 @@
 export default {
-	participantLabel: {
+	label: {
 		type: 'string',
+		source: 'html',
+		selector: '.wp-block-jetpack-dialogue__participant',
 	},
-	participantSlug: {
+	slug: {
 		type: 'string',
 	},
 	timestamp: {

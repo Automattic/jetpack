@@ -1,0 +1,16 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/rating-star",
+        "isValid": true,
+        "attributes": {
+            "rating": 3,
+            "maxRating": 7,
+            "color": "#39414D",
+            "align": "left",
+            "className": "is-style-outlined"
+        },
+        "innerBlocks": [],
+        "originalContent": "<figure class=\"wp-block-jetpack-rating-star is-style-outlined\" style=\"text-align:left\"><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span><span style=\"color:#39414D\">★</span></figure>"
+    }
+]

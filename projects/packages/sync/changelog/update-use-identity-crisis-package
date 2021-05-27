@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecated URL methods in `Automattic\Jetpack\Sync\Functions` in favor of `Automattic\Jetpack\Connection\Urls`.

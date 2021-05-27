@@ -7,12 +7,12 @@ import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import Card from 'components/card';
 import getRedirectUrl from 'lib/jp-redirect';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const Masterbar = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -30,6 +30,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
+						disableInSiteConnectionMode
 						module={ { module: 'masterbar' } }
 						support={ {
 							text: __(
@@ -55,14 +56,13 @@ export const Masterbar = withModuleSettingsFormHelpers(
 							{ __( 'Enable the WordPress.com toolbar', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
+
 					{ ! this.props.isUnavailableInOfflineMode( 'masterbar' ) && ! this.props.isLinked && (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
-						>
-							{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
-						</Card>
+						<ConnectUserBar
+							feature="masterbar"
+							featureLabel={ __( 'WordPress.com Toolbar', 'jetpack' ) }
+							text={ __( 'Connect to enable the WordPress.com toolbar.', 'jetpack' ) }
+						/>
 					) }
 				</SettingsCard>
 			);

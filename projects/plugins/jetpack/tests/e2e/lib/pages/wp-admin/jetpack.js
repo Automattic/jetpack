@@ -1,43 +1,50 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitAndClick, isEventuallyVisible } from '../../page-helper';
+import WpPage from '../wp-page';
+import logger from '../../logger';
 
-export default class JetpackPage extends Page {
+export default class JetpackPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '#jp-plugin-container';
-		super( page, { expectedSelector } );
+		const url = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
+		super( page, { expectedSelectors: [ '#jp-plugin-container' ], url } );
 	}
 
 	async connect() {
+		logger.step( 'Starting Jetpack connection' );
 		const connectButtonSelector = '.jp-connect-full__button-container .dops-button';
-		return await waitAndClick( this.page, connectButtonSelector );
+		return await this.click( connectButtonSelector, { timeout: 60000 } );
 	}
 
 	async openMyPlan() {
+		logger.step( 'Switching to My Plan tab' );
 		const myPlanButton = "a[href*='my-plan'] span";
-		return await waitAndClick( this.page, myPlanButton );
+		return await this.click( myPlanButton );
 	}
 
 	async isFree() {
+		logger.step( 'Checking if Free plan is active' );
 		const freePlanImage = ".my-plan-card__icon img[src*='free']";
-		return await isEventuallyVisible( this.page, freePlanImage, 20000 );
+		return await this.isElementVisible( freePlanImage );
 	}
 
 	async isComplete() {
+		logger.step( 'Checking if Complete plan is active' );
 		const premiumPlanImage = ".my-plan-card__icon img[src*='complete']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
+		return await this.isElementVisible( premiumPlanImage );
 	}
 
 	async isSecurity() {
+		logger.step( 'Checking if Security plan is active' );
 		const proPlanImage = ".my-plan-card__icon img[src*='security']";
-		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
+		return await this.isElementVisible( proPlanImage );
 	}
 
 	async isConnected() {
+		logger.step( 'Checking if Jetpack is connected' );
+		await this.waitForNetworkIdle();
 		const connectionInfo = '.jp-connection-settings__info';
-		return await isEventuallyVisible( this.page, connectionInfo, 5000 );
+		return await this.isElementVisible( connectionInfo );
 	}
 
 	async forceVariation( variation = 'original' ) {
@@ -61,11 +68,14 @@ export default class JetpackPage extends Page {
 	}
 
 	async isConnectBannerVisible() {
+		logger.step( 'Checking if Connect banner is visible' );
+
 		const containerSelector = '.jp-connect-full__container-card';
 		const buttonSelector = ".jp-connect-full__button-container a[href*='register']";
 
-		const isCardVisible = await isEventuallyVisible( this.page, containerSelector );
-		const isConnectButtonVisible = await isEventuallyVisible( this.page, buttonSelector );
+		const isCardVisible = await this.isElementVisible( containerSelector );
+		const isConnectButtonVisible = await this.isElementVisible( buttonSelector );
+
 		return isCardVisible && isConnectButtonVisible;
 	}
 }

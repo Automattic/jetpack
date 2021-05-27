@@ -29,7 +29,10 @@ import {
 	SITE_RECONNECT_FAIL,
 	SITE_RECONNECT_SUCCESS,
 } from 'state/action-types';
-import { getModulesThatRequireConnection } from 'state/modules';
+import {
+	getModulesThatRequireConnection,
+	getModulesThatRequireUserConnection,
+} from 'state/modules';
 
 export const status = (
 	state = { siteConnected: window.Initial_State.connectionStatus },
@@ -40,7 +43,17 @@ export const status = (
 			return assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
 			return assign( {}, state, { siteConnected: action.siteConnected } );
+		case USER_CONNECTION_DATA_FETCH_SUCCESS:
+			if ( true === action.userConnectionData?.currentUser?.isConnected ) {
+				return assign( {}, state, {
+					siteConnected: {
+						...state.siteConnected,
+						hasConnectedOwner: true,
+					},
+				} );
+			}
 
+			return state;
 		default:
 			return state;
 	}
@@ -161,6 +174,22 @@ export function isSiteConnected( state ) {
 		return false;
 	}
 	return state.jetpack.connection.status.siteConnected.isActive;
+}
+
+/**
+ * Checks if the site is registered with WordPress.com.
+ *
+ * @param {object} state -- Global state tree
+ * @returns {boolean} True if site is registered WordPress.com (has blog token). False if site is in Offline Mode or there's no connection data.
+ */
+export function isSiteRegistered( state ) {
+	if (
+		'object' !== typeof state.jetpack.connection.status.siteConnected ||
+		true === state.jetpack.connection.status.siteConnected.offlineMode.isActive
+	) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnected.isRegistered;
 }
 
 /**
@@ -326,6 +355,28 @@ export function requiresConnection( state, slug ) {
  */
 export function isUnavailableInOfflineMode( state, module ) {
 	return isOfflineMode( state ) && requiresConnection( state, module );
+}
+
+/**
+ * Checks if the module requires user to be connected.
+ *
+ * @param  {object} state - Global state tree
+ * @param  {string} slug - Module slug.
+ * @returns {boolean} True if module requires connection.
+ */
+export function requiresUserConnection( state, slug ) {
+	return includes( getModulesThatRequireUserConnection( state ), slug );
+}
+
+/**
+ * Checks if the current module is unavailable in Site Connection mode.
+ *
+ * @param  {object} state - Global state tree
+ * @param  {string} module - Module slug.
+ * @returns {boolean} True if site is in Site Connection mode and module requires connection. False otherwise.
+ */
+export function isUnavailableInSiteConnectionMode( state, module ) {
+	return ! hasConnectedOwner( state ) && requiresUserConnection( state, module );
 }
 
 /**

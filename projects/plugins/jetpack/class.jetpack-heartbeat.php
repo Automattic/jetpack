@@ -174,7 +174,7 @@ class Jetpack_Heartbeat {
 	 */
 	public function add_stats_to_heartbeat( $stats ) {
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			return $stats;
 		}
 

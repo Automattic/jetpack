@@ -10,6 +10,7 @@
  * to check for Jetpack::is_active() too early in the load flow.
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
@@ -27,8 +28,8 @@ use Automattic\Jetpack\Redirect;
  * @return array Empty array to shortcircuit wp_notify_postauthor execution. $emails if we want to disable the filter.
  */
 function jetpack_notify_postauthor( $emails, $comment_id ) {
-	// Don't do anything if Jetpack isn't active.
-	if ( ! Jetpack::is_active() || empty( $emails ) ) {
+	// Don't do anything if Jetpack isn't connected.
+	if ( ! Jetpack::is_connection_ready() || empty( $emails ) ) {
 		return $emails;
 	}
 
@@ -244,7 +245,7 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 	 */
 
 	// If Jetpack is not active, or if Notify moderators options is not set, let the default flow go on.
-	if ( ! $notify_moderator || ! get_option( 'moderation_notify' ) || ! Jetpack::is_active() ) {
+	if ( ! $notify_moderator || ! get_option( 'moderation_notify' ) || ! Jetpack::is_connection_ready() ) {
 		return $notify_moderator;
 	}
 
@@ -407,5 +408,5 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
  */
 function jetpack_notify_is_user_connected_by_email( $email ) {
 	$user = get_user_by( 'email', $email );
-	return Jetpack::is_user_connected( $user->ID );
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user->ID );
 }

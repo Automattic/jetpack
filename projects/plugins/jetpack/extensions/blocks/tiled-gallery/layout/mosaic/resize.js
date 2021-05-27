@@ -6,9 +6,9 @@ import { GUTTER_WIDTH } from '../../constants';
 /**
  * Distribute a difference across ns so that their sum matches the target
  *
- * @param {Array<number>}  parts  Array of numbers to fit
- * @param {number}         target Number that sum should match
- * @return {Array<number>}        Adjusted parts
+ * @param   {Array<number>}  parts  - Array of numbers to fit
+ * @param   {number}         target - Number that sum should match
+ * @returns {Array<number>}         - Adjusted parts
  */
 function adjustFit( parts, target ) {
 	const diff = target - parts.reduce( ( sum, n ) => sum + n, 0 );
@@ -94,8 +94,8 @@ function applyColRatio( row, { rawHeight, rowWidth } ) {
 		} );
 	} );
 
-	const colWidthPercentages = adjustedWidths.map(
-		adjustedWidth => ( adjustedWidth / rowWidth ) * 100
+	const colWidthPercentages = adjustedWidths.map( adjustedWidth =>
+		parseFloat( ( adjustedWidth / rowWidth ) * 100 ).toFixed( 5 )
 	);
 
 	return colWidthPercentages;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Slack notification tasks: both tasks now listen for pull_request_target events so they can be run on PRs open from forks.

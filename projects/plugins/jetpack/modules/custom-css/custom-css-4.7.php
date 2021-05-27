@@ -135,10 +135,10 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function admin_menu() {
 		// Add in our legacy page to support old bookmarks and such.
-		add_submenu_page( null, __( 'CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'admin_page' ) );
+		add_submenu_page( null, __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'admin_page' ) );
 
 		// Add in our new page slug that will redirect to the customizer.
-		$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'admin_page' ) );
+		$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'admin_page' ) );
 		add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
 	}
 

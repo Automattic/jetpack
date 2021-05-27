@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
-import { Toolbar, ToolbarButton } from '@wordpress/components';
+import { ToolbarGroup, ToolbarButton, ToolbarItem } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -38,15 +38,19 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 		<div>
 			<Fragment>
 				<BlockControls>
-					<Toolbar>
-						<MediaUpload
-							onSelect={ onSelectMedia( setAttributes ) }
-							allowedTypes={ [ 'image' ] }
-							value={ featuredMediaId }
-							render={ ( { open } ) => (
-								<EditButton label={ __( 'Edit Image', 'jetpack' ) } onClick={ open } />
+					<ToolbarGroup>
+						<ToolbarItem>
+							{ () => (
+								<MediaUpload
+									onSelect={ onSelectMedia( setAttributes ) }
+									allowedTypes={ [ 'image' ] }
+									value={ featuredMediaId }
+									render={ ( { open } ) => (
+										<EditButton label={ __( 'Edit Image', 'jetpack' ) } onClick={ open } />
+									) }
+								/>
 							) }
-						/>
+						</ToolbarItem>
 						<ToolbarButton
 							icon={ 'trash' }
 							title={ __( 'Remove Image', 'jetpack' ) }
@@ -58,7 +62,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 								} )
 							}
 						/>
-					</Toolbar>
+					</ToolbarGroup>
 				</BlockControls>
 				<figure>
 					<img src={ featuredMediaUrl } alt={ featuredMediaTitle } />

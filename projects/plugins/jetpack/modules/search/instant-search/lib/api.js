@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import axios, { CancelToken } from 'axios';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
 import stringify from 'fast-json-stable-stringify';
@@ -11,14 +10,17 @@ import lru from 'tiny-lru/lib/tiny-lru.esm';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS, SERVER_OBJECT_NAME } from './constants';
+import { MINUTE_IN_MILLISECONDS, RESULT_FORMAT_PRODUCT, SERVER_OBJECT_NAME } from './constants';
 
-let cancelToken = CancelToken.source();
+let abortController;
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
 const cache = lru( 30, 5 * MINUTE_IN_MILLISECONDS );
 const backupCache = lru( 30, 30 * MINUTE_IN_MILLISECONDS );
+
+// Set up initial abort controller
+resetAbortController();
 
 /**
  * Builds ElasticSerach aggregations for filters defined by search widgets.
@@ -37,7 +39,7 @@ export function buildFilterAggregations( widgets = [] ) {
 }
 
 /**
- * Builds ElasticSerach aggregations for a given filter.
+ * Builds ElasticSearch aggregations for a given filter.
  *
  * @param {object[]} filter - a filter object from a widget configuration object.
  * @returns {object} filter aggregations
@@ -75,7 +77,7 @@ const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
  * @param {string} type - Date range type (year vs month).
  * @returns {object} date filter.
  */
-function generateDateRangeFilter( fieldName, input, type ) {
+export function generateDateRangeFilter( fieldName, input, type ) {
 	let year, month;
 	if ( type === 'year' ) {
 		[ , year, , ] = input.match( DATE_REGEX );
@@ -87,8 +89,10 @@ function generateDateRangeFilter( fieldName, input, type ) {
 	let startDate = '';
 	let endDate = '';
 	if ( month ) {
+		const nextMonth = +month + 1;
+		const nextMonthPadded = nextMonth < 10 ? `0${ nextMonth }` : `${ nextMonth }`;
 		startDate = `${ year }-${ month }-01`;
-		endDate = `${ year }-${ +month + 1 }-01`;
+		endDate = nextMonth <= 12 ? `${ year }-${ nextMonthPadded }-01` : `${ +year + 1 }-01-01`;
 	} else if ( year ) {
 		startDate = `${ year }-01-01`;
 		endDate = `${ +year + 1 }-01-01`;
@@ -185,6 +189,14 @@ function mapSortToApiValue( sort ) {
 	return SORT_QUERY_MAP.get( sort, 'score_default' );
 }
 
+/* eslint-disable jsdoc/require-param,jsdoc/check-param-names */
+/**
+ * Generate the query string for an API request
+ *
+ * @param {object} options - Options object for the function
+ *
+ * @returns {string} The generated query string.
+ */
 function generateApiQueryString( {
 	aggregations,
 	excludedPostTypes,
@@ -195,7 +207,12 @@ function generateApiQueryString( {
 	sort,
 	postsPerPage = 10,
 	adminQueryFilter,
+	isInCustomizer = false,
 } ) {
+	if ( query === null ) {
+		query = '';
+	}
+
 	let fields = [
 		'date',
 		'permalink.url.raw',
@@ -208,16 +225,21 @@ function generateApiQueryString( {
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 
-	switch ( resultFormat ) {
-		case 'product':
-			fields = fields.concat( [
-				'meta._wc_average_rating.double',
-				'meta._wc_review_count.long',
-				'wc.currency_position',
-				'wc.currency_symbol',
-				'wc.price',
-				'wc.sale_price',
-			] );
+	/* Fetch additional fields for product results
+	 *
+	 * We always need these in the Customizer too, because the API request is not
+	 * repeated when switching result format
+	 */
+	if ( resultFormat === RESULT_FORMAT_PRODUCT || isInCustomizer ) {
+		fields = fields.concat( [
+			'meta._wc_average_rating.double',
+			'meta._wc_review_count.long',
+			'wc.formatted_price',
+			'wc.formatted_regular_price',
+			'wc.formatted_sale_price',
+			'wc.price',
+			'wc.sale_price',
+		] );
 	}
 
 	return encode(
@@ -233,7 +255,15 @@ function generateApiQueryString( {
 		} )
 	);
 }
+/* eslint-enable jsdoc/require-param,jsdoc/check-param-names */
 
+/**
+ * Turn a proxy request into a promise
+ *
+ * @param {Function} proxyRequest - The wpcom-proxy-request function
+ * @param {string} path - The API path to use
+ * @returns {Promise} A promise to a proxy request response
+ */
 function promiseifedProxyRequest( proxyRequest, path ) {
 	return new Promise( function ( resolve, reject ) {
 		proxyRequest( { path, apiVersion: '1.3' }, function ( err, body, headers ) {
@@ -245,13 +275,19 @@ function promiseifedProxyRequest( proxyRequest, path ) {
 	} );
 }
 
+/**
+ * Generate an error handler for a given cache key
+ *
+ * @param {string} cacheKey - The cache key to use
+ * @returns {Function} An error handler to be used with a search request
+ */
 function errorHandlerFactory( cacheKey ) {
 	return function errorHandler( error ) {
 		// TODO: Display a message about falling back to a cached value in the interface.
 		const fallbackValue = cache.get( cacheKey ) || backupCache.get( cacheKey );
 
 		// Fallback to cached value if request has been cancelled.
-		if ( axios.isCancel( error ) ) {
+		if ( error.name === 'AbortError' ) {
 			return fallbackValue
 				? { _isCached: true, _isError: false, _isOffline: false, ...fallbackValue }
 				: null;
@@ -266,15 +302,40 @@ function errorHandlerFactory( cacheKey ) {
 	};
 }
 
-function responseHandlerFactory( cacheKey ) {
+/**
+ * Generate a response handler for a given cache key
+ *
+ * @param {string} cacheKey - The cache key to use
+ * @param {number} requestId - Sequential ID used to determine recency of requests.
+ * @returns {Function} A response handler to be used with a search request
+ */
+function responseHandlerFactory( cacheKey, requestId ) {
 	return function responseHandler( responseJson ) {
-		cache.set( cacheKey, responseJson );
-		backupCache.set( cacheKey, responseJson );
-		return responseJson;
+		const response = { ...responseJson, requestId };
+		cache.set( cacheKey, response );
+		backupCache.set( cacheKey, response );
+		return response;
 	};
 }
 
-export function search( options ) {
+/**
+ * Abort the existing request and set up a new abort controller, for new requests.
+ */
+function resetAbortController() {
+	if ( abortController ) {
+		abortController.abort();
+	}
+	abortController = new AbortController();
+}
+
+/**
+ * Perform a search.
+ *
+ * @param {object} options - Search options
+ * @param {number} requestId - Sequential ID used to determine recency of requests.
+ * @returns {Promise} A promise to the JSON response object
+ */
+export function search( options, requestId ) {
 	const key = stringify( Array.from( arguments ) );
 
 	// Use cached value from the last 30 minutes if browser is offline
@@ -298,7 +359,7 @@ export function search( options ) {
 
 	const queryString = generateApiQueryString( options );
 	const errorHandler = errorHandlerFactory( key );
-	const responseHandler = responseHandlerFactory( key );
+	const responseHandler = responseHandlerFactory( key, requestId );
 
 	const pathForPublicApi = `/sites/${ options.siteId }/search?${ queryString }`;
 
@@ -316,15 +377,13 @@ export function search( options ) {
 	const urlForPrivateApi = `${ apiRoot }wpcom/v2/search?${ queryString }`;
 	const url = isPrivateSite ? urlForPrivateApi : urlForPublicApi;
 
-	cancelToken.cancel( 'New search requested, cancelling previous search requests.' );
-	cancelToken = CancelToken.source();
+	resetAbortController();
 
 	// NOTE: API Nonce is necessary to authenticate requests to class-wpcom-rest-api-v2-endpoint-search.php.
-	return axios( {
-		url,
-		cancelToken: cancelToken.token,
+	return fetch( url, {
 		headers: isPrivateSite ? { 'X-WP-Nonce': apiNonce } : {},
-		withCredentials: isPrivateSite,
+		credentials: isPrivateSite ? 'include' : 'same-origin',
+		signal: abortController.signal,
 	} )
 		.then( response => {
 			if ( response.status !== 200 ) {
@@ -334,7 +393,7 @@ export function search( options ) {
 			}
 			return response;
 		} )
-		.then( r => r.data )
+		.then( r => r.json() )
 		.then( responseHandler )
 		.catch( errorHandler );
 }

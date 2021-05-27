@@ -148,7 +148,7 @@ $grid-size: 8px;
 	}
 
 	.jetpack-external-media-browser__media__count {
-		background-color: #ddd;
+		background-color: #dcdcde;
 		padding: 3px 4px;
 		border-radius: 8px;
 		margin-bottom: auto;
@@ -413,5 +413,11 @@ $grid-size: 8px;
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
 		margin-right: 8px;
+		margin-bottom: 1em;
 	}
+}
+
+// Override DropDown component styles when warpping the "Set featured image" button.
+.editor-post-featured-image .components-dropdown {
+	display: initial;
 }

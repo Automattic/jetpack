@@ -7,6 +7,7 @@ use Automattic\Jetpack\Sync\Defaults;
  */
 
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Settings;
 
 require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
@@ -26,6 +27,32 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->post_id = $this->factory->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		$this->sender->do_sync();
+	}
+
+	/**
+	 * Verify that meta_values below size limit are not tuncated.
+	 */
+	public function test_meta_adheres_size_limit_max() {
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH - 1 );
+		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
+
+		$this->sender->do_sync();
+
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta, true );
+		$this->assertEquals( $meta_test_value, $meta_key_value );
+	}
+
+	/**
+	 * Verify that meta_values above size limit are truncated.
+	 */
+	public function test_meta_adheres_size_limit_exceeded() {
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
+		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
+
+		$this->sender->do_sync();
+
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta, true );
+		$this->assertEquals( '', $meta_key_value );
 	}
 
 	public function test_added_post_meta_is_synced() {
@@ -221,6 +248,30 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 	function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ), 'Synced option doesn\'t match local option.' );
+	}
+
+	/**
+	 * Verify that meta_values above size limit are truncated in get_object_by_id
+	 */
+	public function test_get_object_by_id_size_limit_exceeded() {
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH );
+		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
+
+		$module = Modules::get_module( 'meta' );
+		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$this->assertEquals( '', $metas[0]['meta_value'] );
+	}
+
+	/**
+	 * Verify that meta_values below size limit are not truncated in get_object_by_id
+	 */
+	public function test_get_object_by_id_size_limit_max() {
+		$meta_test_value = str_repeat( 'X', Posts::MAX_POST_META_LENGTH - 1 );
+		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
+
+		$module = Modules::get_module( 'meta' );
+		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$this->assertEquals( $meta_test_value, $metas[0]['meta_value'] );
 	}
 
 }

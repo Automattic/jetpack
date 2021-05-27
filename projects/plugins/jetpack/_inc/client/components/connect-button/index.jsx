@@ -44,6 +44,7 @@ export class ConnectButton extends React.Component {
 		asLink: PropTypes.bool,
 		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
+		customConnect: PropTypes.func,
 	};
 
 	static defaultProps = {
@@ -78,10 +79,16 @@ export class ConnectButton extends React.Component {
 		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
 			return;
 		}
+
 		// Track click
 		analytics.tracks.recordJetpackClick( 'link_account_in_place' );
-		// Dispatch user in place authorization.
-		this.props.authorizeUserInPlace();
+
+		if ( this.props.customConnect ) {
+			this.props.customConnect();
+		} else {
+			// Dispatch user in place authorization.
+			this.props.authorizeUserInPlace();
+		}
 	};
 
 	renderUserButton = () => {
@@ -97,7 +104,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ this.props.connectLegend || __( 'Unlink me from WordPress.com', 'jetpack' ) }
+						{ this.props.connectLegend || __( 'Disconnect your WordPress.com account', 'jetpack' ) }
 					</a>
 				</div>
 			);
@@ -114,7 +121,8 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com', 'jetpack' );
+			connectLegend =
+				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
 
 		// Secondary users in-place connection flow
 

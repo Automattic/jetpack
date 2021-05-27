@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     branches: [ 'master', '*/branch-*' ]
+concurrency:
+  group: tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"
@@ -41,6 +44,7 @@ jobs:
       WP_BRANCH: ${{ matrix.wp }}
       PHP_VERSION: ${{ matrix.php }}
       NODE_VERSION: ${{ matrix.node }}
+      MONOREPO_BASE: ${{ github.workspace }}
     strategy:
       fail-fast: false
       matrix:
@@ -85,32 +89,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Use yarn cache
         uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
-          path: /home/runner/.cache/yarn/v6
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-
-      - name: Init CodeClimate for code coverage
-        if: matrix.script == 'test-coverage'
-        env:
-          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
-        run: |
-          # As suggested here https://github.com/codeclimate/test-reporter/issues/406#issuecomment-578483422
-          if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
-            echo "GIT_BRANCH=$GITHUB_REF" >> $GITHUB_ENV
-            echo "GIT_COMMIT_SHA=$GITHUB_SHA" >> $GITHUB_ENV
-          else
-            git fetch --no-tags --prune --depth=1 origin +refs/heads/$GITHUB_HEAD_REF:refs/remotes/origin/$GITHUB_HEAD_REF
-            echo "GIT_BRANCH=$GITHUB_HEAD_REF" >> $GITHUB_ENV
-            echo "GIT_COMMIT_SHA=$(git rev-parse origin/$GITHUB_HEAD_REF)" >> $GITHUB_ENV
-          fi
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
 
       - name: Detect changed projects
         id: changed
@@ -136,6 +124,14 @@ jobs:
           node --version
           which yarn
           yarn --version
+          which jq
+          jq --version
+
+      - name: Monorepo install
+        run: |
+          echo "::group::Yarn"
+          yarn install
+          echo "::endgroup::"
 
       - name: Run project tests
         env:
@@ -188,8 +184,6 @@ jobs:
 
       - name: Process coverage results
         if: matrix.script == 'test-coverage'
-        env:
-          CC_TEST_REPORTER_ID: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8
         run: .github/files/process-coverage.sh
 
       - name: Check for artifacts

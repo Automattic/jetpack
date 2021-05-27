@@ -80,7 +80,14 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'site-accelerator':
 			return {
 				activateFeature: () => {
-					return dispatch( updateSettings( { photon: true, 'photon-cdn': true } ) );
+					return dispatch(
+						updateSettings( {
+							photon: true,
+							'photon-cdn': true,
+							tiled_galleries: true,
+							'tiled-gallery': true,
+						} )
+					);
 				},
 			};
 		case 'woocommerce':

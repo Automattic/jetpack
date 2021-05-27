@@ -11,7 +11,7 @@ export const getURLFromEmbedCode = embedCode => {
 };
 
 export const getTextFromEmbedCode = embedCode => {
-	let text = embedCode.match( /false;"\>([^<]+)\<\// );
+	let text = embedCode.match( /false;">([^<]+)<\// );
 	if ( text ) {
 		return text[ 1 ];
 	}

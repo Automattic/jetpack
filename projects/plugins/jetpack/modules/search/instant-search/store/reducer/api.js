@@ -49,6 +49,15 @@ export function isLoading( state = false, action ) {
 export function response( state = {}, action ) {
 	switch ( action.type ) {
 		case 'RECORD_SUCCESSFUL_SEARCH_REQUEST': {
+			// A more recent response has already been saved.
+			if (
+				'requestId' in state &&
+				'requestId' in action.response &&
+				state.requestId > action.response.requestId
+			) {
+				return state;
+			}
+
 			const newState = { ...action.response };
 			// For paginated results, merge previous search results with new search results.
 			if ( action.options.pageHandle ) {
@@ -57,6 +66,13 @@ export function response( state = {}, action ) {
 					...( ! Array.isArray( newState.aggregations ) ? newState.aggregations : {} ),
 				};
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
+			}
+
+			// NOTE: There's a bug in the API where paginating to the next page can return an empty response.
+			//       This is most likely caused by setting excluded post types. Since `response.total` is unreliable
+			//       in this instance, manually set it to the length of the results array.
+			if ( Array.isArray( newState.results ) && newState.results.length !== newState.total ) {
+				newState.total = newState.results.length;
 			}
 			return newState;
 		}

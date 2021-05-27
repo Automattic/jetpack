@@ -11,7 +11,6 @@ import { __, _x } from '@wordpress/i18n';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
-import Card from 'components/card';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import getRedirectUrl from 'lib/jp-redirect';
 import { ModuleToggle } from 'components/module-toggle';
@@ -20,6 +19,7 @@ import { isModuleFound as _isModuleFound } from 'state/search';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ConnectUserBar from 'components/connect-user-bar';
 
 class PostByEmail extends React.Component {
 	regeneratePostByEmailAddress = event => {
@@ -55,6 +55,7 @@ class PostByEmail extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
+					disableInSiteConnectionMode
 					module={ postByEmail }
 					support={ {
 						text: __(
@@ -114,14 +115,13 @@ class PostByEmail extends React.Component {
 						</Button>
 					</FormFieldset>
 				</SettingsGroup>
+
 				{ ! this.props.isUnavailableInOfflineMode( 'post-by-email' ) && ! this.props.isLinked && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						href={ `${ this.props.connectUrl }&from=unlinked-user-pbe` }
-					>
-						{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
-					</Card>
+					<ConnectUserBar
+						feature="post-by-email"
+						featureLabel={ __( 'Post by Email', 'jetpack' ) }
+						text={ __( 'Connect to enable publishing via email.', 'jetpack' ) }
+					/>
 				) }
 			</SettingsCard>
 		);

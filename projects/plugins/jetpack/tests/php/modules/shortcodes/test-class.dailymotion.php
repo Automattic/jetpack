@@ -1,6 +1,9 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * The global $content_width value.
@@ -37,7 +40,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_id() {
-		$id = 'x8oma9';
+		$id      = 'x8oma9';
 		$content = '[dailymotion id=' . $id . ']';
 
 		$shortcode_content = do_shortcode( $content );
@@ -64,8 +67,8 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_title() {
-		$id = 'x8oma9';
-		$title = '2';
+		$id      = 'x8oma9';
+		$title   = '2';
 		$content = '[dailymotion id=' . $id . ' title=' . $title . ']';
 
 		$shortcode_content = do_shortcode( $content );
@@ -79,8 +82,8 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_user() {
-		$id = 'x8oma9';
-		$user = '3';
+		$id      = 'x8oma9';
+		$user    = '3';
 		$content = '[dailymotion id=' . $id . ' user=' . $user . ']';
 
 		$shortcode_content = do_shortcode( $content );
@@ -94,8 +97,8 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_video() {
-		$id = 'x8oma9';
-		$video = '4';
+		$id      = 'x8oma9';
+		$video   = '4';
 		$content = '[dailymotion id=' . $id . ' video=' . $video . ']';
 
 		$shortcode_content = do_shortcode( $content );
@@ -110,9 +113,9 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	 */
 	public function test_shortcodes_dailymotion_width_height() {
 		$video_id = 'x8oma9';
-		$width = '350';
-		$height = '500';
-		$content = '[dailymotion id=' . $video_id . ' width=' . $width . ' height=' . $height . ']';
+		$width    = '350';
+		$height   = '500';
+		$content  = '[dailymotion id=' . $video_id . ' width=' . $width . ' height=' . $height . ']';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -122,14 +125,14 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 	}
 
 		/**
-	 * @author mathildes
-	 * @covers ::dailymotion_shortcode
-	 * @since 4.2.0
-	 */
+		 * @author mathildes
+		 * @covers ::dailymotion_shortcode
+		 * @since 4.2.0
+		 */
 	public function test_shortcodes_dailymotion_params() {
 		// only testing a subset of params
 		$video_id = 'x8oma9';
-		$content = '[dailymotion id='
+		$content  = '[dailymotion id='
 			. $video_id
 			. ' autoplay=1 endscreen-enable=0 mute=1 sharing-enable=0 start=45 subtitles-default=en ui-highlight=ffcc33 ui-logo=0 ui-start-screen-info=0 ui-theme=dark]';
 
@@ -164,27 +167,27 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 			),
 			'plain_id'                => array(
 				'[dailymotion ' . $id . ']',
-				'<amp-dailymotion data-videoid="'. $id .'" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height .'"></amp-dailymotion>',
+				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
 			'id_value_as_attribute'   => array(
 				'[dailymotion id=' . $id . ']',
-				'<amp-dailymotion data-videoid="'. $id .'" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height .'"></amp-dailymotion>',
+				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
 			'dailymotion_value'       => array(
 				'[dailymotion=' . $id . ']',
-				'<amp-dailymotion data-videoid="'. $id .'" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height .'"></amp-dailymotion>',
+				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
 			'width_in_attributes'     => array(
 				'[dailymotion ' . $id . ' width=300]',
-				'<amp-dailymotion data-videoid="'. $id .'" layout="responsive" width="300" height="235"></amp-dailymotion>',
+				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="300" height="235"></amp-dailymotion>',
 			),
 			'0_width_in_attributes'   => array(
 				'[dailymotion ' . $id . ' width=0]',
-				'<amp-dailymotion data-videoid="'. $id .'" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height .'"></amp-dailymotion>',
+				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
 			'id_as_dailymotion_value' => array(
 				'[dailymotion=' . $id . ']',
-				'<amp-dailymotion data-videoid="'. $id .'" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height .'"></amp-dailymotion>',
+				'<amp-dailymotion data-videoid="' . $id . '" layout="responsive" width="' . self::CONTENT_WIDTH . '" height="' . $default_height . '"></amp-dailymotion>',
 			),
 		);
 	}

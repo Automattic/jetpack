@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
 
@@ -305,7 +306,6 @@ EXPECTED;
 	}
 
 	public function test_get_other_linked_admins_one_admin_returns_false() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 		delete_transient( 'jetpack_other_linked_admins' );
 		$other_admins = Jetpack::get_other_linked_admins();
 		$this->assertFalse( $other_admins );
@@ -313,7 +313,6 @@ EXPECTED;
 	}
 
 	public function test_get_other_linked_admins_more_than_one_not_false() {
-		$this->setExpectedDeprecated( 'Jetpack::is_user_connected' );
 		delete_transient( 'jetpack_other_linked_admins' );
 		$master_user = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		$connected_admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
@@ -374,52 +373,52 @@ EXPECTED;
 
 	function test_idc_optin_default() {
 		if ( is_multisite() ) {
-			$this->assertFalse( Jetpack::sync_idc_optin() );
+			$this->assertFalse( Identity_Crisis::sync_idc_optin() );
 		} else {
-			$this->assertTrue( Jetpack::sync_idc_optin() );
+			$this->assertTrue( Identity_Crisis::sync_idc_optin() );
 		}
 	}
 
 	function test_idc_optin_filter_overrides_development_version() {
 		add_filter( 'jetpack_development_version', '__return_true' );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$this->assertFalse( Jetpack::sync_idc_optin() );
+		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
 		remove_filter( 'jetpack_development_version', '__return_true' );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
 	}
 
 	function test_idc_optin_casts_to_bool() {
 		add_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
-		$this->assertTrue( Jetpack::sync_idc_optin() );
+		$this->assertTrue( Identity_Crisis::sync_idc_optin() );
 		remove_filter( 'jetpack_sync_idc_optin', array( $this, 'return_string_1' ) );
 	}
 
 	function test_idc_optin_true_when_constant_true() {
 		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
-		$this->assertTrue( Jetpack::sync_idc_optin() );
+		$this->assertTrue( Identity_Crisis::sync_idc_optin() );
 	}
 
 	function test_idc_optin_false_when_constant_false() {
 		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
-		$this->assertFalse( Jetpack::sync_idc_optin() );
+		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
 	}
 
 	function test_idc_optin_filter_overrides_constant() {
 		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
-		$this->assertFalse( Jetpack::sync_idc_optin() );
+		$this->assertFalse( Identity_Crisis::sync_idc_optin() );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
 	}
 
 	function test_sync_error_idc_validation_returns_false_if_no_option() {
 		Jetpack_Options::delete_option( 'sync_error_idc' );
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 	}
 
 	function test_sync_error_idc_validation_returns_true_when_option_matches_expected() {
 		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+		Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option() );
+		$this->assertTrue( Identity_Crisis::validate_sync_error_idc_option() );
 		Jetpack_Options::delete_option( 'sync_error_idc' );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_true' );
 	}
@@ -429,11 +428,11 @@ EXPECTED;
 	 */
 	public function test_sync_error_idc_validation_returns_false_when_wpcom_option_matches_expected() {
 		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		$option                  = Jetpack::get_sync_error_idc_option();
+		$option                  = Identity_Crisis::get_sync_error_idc_option();
 		$option['wpcom_home']    = $option['home'];
 		$option['wpcom_siteurl'] = $option['siteurl'];
 		Jetpack_Options::update_option( 'sync_error_idc', $option );
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 
 		// Verify the migrate_for_idc is set.
 		$this->assertTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
@@ -448,11 +447,11 @@ EXPECTED;
 	 */
 	public function test_sync_error_idc_validation_returns_true_when_wpcom_option_does_not_match_expected() {
 		add_filter( 'jetpack_sync_idc_optin', '__return_true' );
-		$option                  = Jetpack::get_sync_error_idc_option();
+		$option                  = Identity_Crisis::get_sync_error_idc_option();
 		$option['wpcom_home']    = $option['home'];
 		$option['wpcom_siteurl'] = 'coolrunnings.test';
 		Jetpack_Options::update_option( 'sync_error_idc', $option );
-		$this->assertTrue( Jetpack::validate_sync_error_idc_option() );
+		$this->assertTrue( Identity_Crisis::validate_sync_error_idc_option() );
 
 		// Verify the migrate_for_idc is not set.
 		$this->assertNotTrue( Jetpack_Options::get_option( 'migrate_for_idc' ) );
@@ -468,24 +467,24 @@ EXPECTED;
 			'siteurl' => 'coolsite.com/wp/',
 		) );
 
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 	}
 
 	function test_sync_error_idc_validation_cleans_up_when_part_of_validation_fails() {
-		$test = Jetpack::get_sync_error_idc_option();
+		$test            = Identity_Crisis::get_sync_error_idc_option();
 		$test['siteurl'] = 'coolsite.com/wp/';
 		Jetpack_Options::update_option( 'sync_error_idc', $test );
 
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 	}
 
 	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
-		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
+		Jetpack_Options::update_option( 'sync_error_idc', Identity_Crisis::get_sync_error_idc_option() );
 		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 
-		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
+		$this->assertFalse( Identity_Crisis::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
 	}
 
@@ -554,7 +553,7 @@ EXPECTED;
 			'siteurl' => 'coolsite.com/wp/'
 		);
 
-		$this->assertSame( $expected, Jetpack::get_sync_error_idc_option() );
+		$this->assertSame( $expected, Identity_Crisis::get_sync_error_idc_option() );
 
 		// Cleanup
 		update_option( 'home', $original_home );
@@ -573,7 +572,7 @@ EXPECTED;
 			'siteurl' => '72.182.131.109/~wordpress/wp/'
 		);
 
-		$this->assertSame( $expected, Jetpack::get_sync_error_idc_option() );
+		$this->assertSame( $expected, Identity_Crisis::get_sync_error_idc_option() );
 
 		// Cleanup
 		update_option( 'home', $original_home );
@@ -616,98 +615,6 @@ EXPECTED;
 		$url = '123.456.789.0';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
-	}
-
-	/**
-	 * The generate_secrets method should return and store the secret.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_stores_secrets() {
-		$secret = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-	}
-
-	/**
-	 * The generate_secrets method should return the same secret after calling generate several times.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_does_not_regenerate_secrets() {
-		$secret = Jetpack::generate_secrets( 'name' );
-		$secret2 = Jetpack::generate_secrets( 'name' );
-		$secret3 = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, $secret2 );
-		$this->assertEquals( $secret, $secret3 );
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-	}
-
-	/**
-	 * The generate_secrets method should work with filters on wp_generate_password.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_works_with_filters() {
-		add_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
-		add_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
-
-		$secret = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-
-		remove_filter( 'random_password', array( __CLASS__, 'cyrillic_salt' ), 20 );
-		remove_filter( 'random_password', array( __CLASS__, 'kanji_salt' ), 21 );
-	}
-
-	/**
-	 * The generate_secrets method should work with long strings.
-	 *
-	 * @author zinigor
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_works_with_long_strings() {
-		add_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
-
-		$secret = Jetpack::generate_secrets( 'name' );
-
-		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
-
-		remove_filter( 'random_password', array( __CLASS__, 'multiply_filter' ), 20 );
-	}
-
-	/**
-	 * The get_secrets method should return an error for unknown secrets
-	 *
-	 * @author roccotripaldi
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_returns_error_for_unknown_secrets() {
-		Jetpack::generate_secrets( 'name' );
-		$unknown_action = Jetpack::get_secrets( 'unknown', get_current_user_id() );
-		$unknown_user_id = Jetpack::get_secrets( 'name', 5 );
-
-		$this->assertInstanceOf( 'WP_Error', $unknown_action );
-		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_action->errors );
-		$this->assertInstanceOf( 'WP_Error', $unknown_user_id );
-		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_user_id->errors );
-	}
-
-	/**
-	 * The get_secrets method should return an error for expired secrets
-	 *
-	 * @author roccotripaldi
-	 * @covers Jetpack::generate_secrets
-	 */
-	function test_generate_secrets_returns_error_for_expired_secrets() {
-		Jetpack::generate_secrets( 'name', get_current_user_id(), -600 );
-		$expired = Jetpack::get_secrets( 'name', get_current_user_id() );
-		$this->assertInstanceOf( 'WP_Error', $expired );
-		$this->assertArrayHasKey( 'verify_secrets_expired', $expired->errors );
 	}
 
 	/**
@@ -931,19 +838,19 @@ EXPECTED;
 	 * Mocked `setup_xmlrpc_handlers`.
 	 *
 	 * @param array         $request_params Incoming request parameters.
-	 * @param bool          $is_active Whether the connection is currently active.
+	 * @param bool          $has_connected_owner Whether the site has a connected owner.
 	 * @param bool          $is_signed Whether the signature check has been successful.
 	 * @param WP_User|false $user User for the mocked Jetpack_XMLRPC_Server.
 	 * @return bool
 	 */
-	private function mocked_setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $user = false ) {
+	private function mocked_setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $user = false ) {
 		$GLOBALS['HTTP_RAW_POST_DATA'] = '';
 
 		Constants::set_constant( 'XMLRPC_REQUEST', true );
 
 		$jetpack       = new MockJetpack();
 		$xmlrpc_server = new MockJetpack_XMLRPC_Server( $user );
-		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $is_active, $is_signed, $xmlrpc_server );
+		return $jetpack::connection()->setup_xmlrpc_handlers( $request_params, $has_connected_owner, $is_signed, $xmlrpc_server );
 	}
 
 	/**
@@ -977,6 +884,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 			'jetpack.idcUrlValidation',
 			'jetpack.unlinkUser',
@@ -1011,6 +919,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 
 			'jetpack.testAPIUserCode',
@@ -1063,6 +972,7 @@ EXPECTED;
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.remoteConnect',
 			'jetpack.jsonAPI',
 
 			'jetpack.testAPIUserCode',
@@ -1144,14 +1054,28 @@ EXPECTED;
 		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
 
 		$required = array(
+			'jetpack.verifyAction',
+			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
 			'jetpack.remoteConnect',
-			'jetpack.getUser',
+			'jetpack.jsonAPI',
+
+			'jetpack.disconnectBlog',
+			'jetpack.unlinkUser',
+			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
+
+			'jetpack.syncObject',
 		);
 
-		// Nothing else is allowed.
-		$allowed = array();
+		$allowed = array(
+			'jetpack.subscriptions.subscribe',
+			'jetpack.updatePublicizeConnections',
+			'jetpack.getHeartbeatData',
+		);
 
 		$this->assertXMLRPCMethodsComply( $required, $allowed, array_keys( $methods ) );
 	}

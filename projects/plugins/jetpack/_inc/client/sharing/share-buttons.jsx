@@ -26,14 +26,13 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 
 		render() {
 			const isLinked = this.props.isLinked,
-				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isOfflineMode = this.props.isOfflineMode,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const configCard = () => {
-				if ( isOfflineMode ) {
+				if ( isOfflineMode || ! isLinked ) {
 					return (
 						<Card
 							compact
@@ -45,30 +44,16 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					);
 				}
 
-				if ( isLinked ) {
-					return (
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackClickConfigure }
-							target="_blank"
-							rel="noopener noreferrer"
-							href={ getRedirectUrl( 'calypso-marketing-sharing-buttons', { site: siteRawUrl } ) }
-						>
-							{ __( 'Configure your sharing buttons', 'jetpack' ) }
-						</Card>
-					);
-				}
-
 				return (
 					<Card
 						compact
 						className="jp-settings-card__configure-link"
+						onClick={ this.trackClickConfigure }
 						target="_blank"
 						rel="noopener noreferrer"
-						href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }
+						href={ getRedirectUrl( 'calypso-marketing-sharing-buttons', { site: siteRawUrl } ) }
 					>
-						{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
+						{ __( 'Configure your sharing buttons', 'jetpack' ) }
 					</Card>
 				);
 			};
@@ -82,7 +67,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						disableInOfflineMode
-						module={ { module: 'sharing' } }
+						module={ { module: 'sharedaddy' } }
 						support={ {
 							text: __(
 								'You can customize the sharing buttons and choose which services to display.',
@@ -106,6 +91,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
 						</ModuleToggle>
 					</SettingsGroup>
+
 					{ isActive && configCard() }
 				</SettingsCard>
 			);

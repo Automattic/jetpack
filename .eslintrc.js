@@ -1,7 +1,7 @@
 module.exports = {
 	root: true,
 	parser: 'babel-eslint',
-	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier', 'prettier/react' ],
+	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier' ],
 	env: {
 		browser: true,
 		es6: true,
@@ -140,5 +140,8 @@ module.exports = {
 		// Workaround for ESLint failing to parse files with template literals
 		// with this error: "TypeError: Cannot read property 'range' of null"
 		'template-curly-spacing': 'off',
+
+		// Disabled pending #16099.
+		'inclusive-language/use-inclusive-words': 0,
 	},
 };

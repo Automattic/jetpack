@@ -13,6 +13,7 @@ import SearchResultExpanded from './search-result-expanded';
 import SearchResultProduct from './search-result-product';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
 import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT } from '../lib/constants';
+import './search-result.scss';
 
 class SearchResult extends Component {
 	componentDidMount() {

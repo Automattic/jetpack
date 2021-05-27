@@ -1,13 +1,11 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
+import WpPage from '../wp-page';
 
-export default class Sidebar extends Page {
+export default class Sidebar extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '#adminmenumain';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ '#adminmenuwrap' ] } );
 	}
 
 	async selectJetpack() {
@@ -40,13 +38,13 @@ export default class Sidebar extends Page {
 	}
 
 	async _selectMenuItem( menuSelector, menuItemSelector ) {
-		const menuElement = await waitForSelector( this.page, menuSelector );
-		const classes = await page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
+		const menuElement = await this.waitForElementToBeVisible( menuSelector );
+		const classes = await this.page.$eval( menuSelector, e => e.getAttribute( 'class' ) );
 
 		if ( ! classes.includes( 'wp-menu-open' ) && ! classes.includes( 'wp-has-current-submenu' ) ) {
 			await menuElement.click();
 		}
 
-		return await waitAndClick( this.page, menuItemSelector );
+		return await this.click( menuItemSelector );
 	}
 }

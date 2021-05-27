@@ -56,6 +56,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		$user = wp_get_current_user();
 		$user->add_cap( 'jetpack_reconnect' );
+		$user->add_cap( 'jetpack_connect' );
 
 		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
@@ -87,7 +88,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/remote_authorize` endpoint.
 	 */
 	public function test_remote_authorize() {
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		wp_cache_set(
@@ -113,7 +114,7 @@ class Test_REST_Endpoints extends TestCase {
 		$options_filter = function ( $value ) use ( $secrets ) {
 			return $secrets;
 		};
-		add_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
+		add_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 
 		$user_caps_filter = function ( $allcaps, $caps, $args, $user ) {
 			if ( $user instanceof WP_User && self::USER_ID === $user->ID ) {
@@ -133,9 +134,9 @@ class Test_REST_Endpoints extends TestCase {
 		$data     = $response->get_data();
 
 		remove_filter( 'user_has_cap', $user_caps_filter );
-		remove_filter( 'pre_option_' . Manager::SECRETS_OPTION_NAME, $options_filter );
+		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ) );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 
 		wp_cache_delete( self::USER_ID, 'users' );
 
@@ -161,6 +162,29 @@ class Test_REST_Endpoints extends TestCase {
 			$this->assertTrue( $data['offlineMode']['isActive'] );
 		} finally {
 			remove_filter( 'jetpack_offline_mode', '__return_true' );
+		}
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/connection` endpoint jetpack_connection_status filter.
+	 */
+	public function test_connection_jetpack_connection_status_filter() {
+		add_filter(
+			'jetpack_connection_status',
+			function ( $status_data ) {
+				$this->assertTrue( is_array( $status_data ) );
+				return array();
+			}
+		);
+		try {
+			$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/connection' );
+
+			$response = $this->server->dispatch( $this->request );
+			$data     = $response->get_data();
+
+			$this->assertSame( array(), $data );
+		} finally {
+			remove_all_filters( 'jetpack_connection_status' );
 		}
 	}
 
@@ -206,12 +230,12 @@ class Test_REST_Endpoints extends TestCase {
 	public function test_connection_reconnect_full() {
 		$this->setup_reconnect_test( null );
 		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
-		add_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10, 3 );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
 
 		$response = $this->server->dispatch( $this->build_reconnect_request() );
 		$data     = $response->get_data();
 
-		remove_filter( 'pre_http_request', array( $this, 'intercept_register_request' ), 10 );
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
 		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
 		$this->shutdown_reconnect_test( null );
 
@@ -271,6 +295,65 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `connection/reconnect` endpoint, site_connection (full reconnect).
+	 */
+	public function test_connection_reconnect_site_connection() {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'completed', $data['status'] );
+	}
+
+	/**
+	 * Testing the `connection/reconnect` endpoint when the token validation request fails.
+	 */
+	public function test_connection_reconnect_when_token_validation_request_fails() {
+		$this->setup_reconnect_test( 'token_validation_failed' );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		$this->shutdown_reconnect_test( 'token_validation_failed' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( 'in_progress', $data['status'] );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint.
+	 */
+	public function test_connection_register() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
+	}
+
+	/**
 	 * This filter callback allow us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
@@ -278,7 +361,7 @@ class Test_REST_Endpoints extends TestCase {
 	 * @return array
 	 */
 	public function bypass_raw_options( array $options ) {
-		$options[ Manager::SECRETS_OPTION_NAME ] = true;
+		$options[ Secrets::LEGACY_SECRETS_OPTION_NAME ] = true;
 
 		return $options;
 	}
@@ -292,7 +375,7 @@ class Test_REST_Endpoints extends TestCase {
 	 *
 	 * @return array
 	 */
-	public function intercept_register_request( $response, $args, $url ) {
+	public static function intercept_register_request( $response, $args, $url ) {
 		if ( false === strpos( $url, 'jetpack.register' ) ) {
 			return $response;
 		}
@@ -361,6 +444,30 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		return $this->build_validate_tokens_response( null );
+	}
+
+	/**
+	 * Intercept the `jetpack-token-health` API request sent to WP.com, and mock failed response.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public function intercept_validate_tokens_request_failed( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack-token-health' ) ) {
+			return $response;
+		}
+
+		return array(
+			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
+			'response' => array(
+				'code'    => 500,
+				'message' => 'failed',
+			),
+		);
 	}
 
 	/**
@@ -486,6 +593,27 @@ class Test_REST_Endpoints extends TestCase {
 
 	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Site level / user-less connection set-up.
+	 *
+	 * @param mixed  $value The current option value.
+	 * @param string $name Option name.
+	 *
+	 * @return mixed
+	 */
+	public function mock_jetpack_site_connection_options( $value, $name ) {
+		switch ( $name ) {
+			case 'blog_token':
+				return self::BLOG_TOKEN;
+			case 'id':
+				return self::BLOG_ID;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Intercept the `Jetpack_Options` call and mock the values.
+	 * Full connection set-up.
 	 *
 	 * @param mixed  $value The current option value.
 	 * @param string $name Option name.
@@ -498,6 +626,12 @@ class Test_REST_Endpoints extends TestCase {
 				return self::BLOG_TOKEN;
 			case 'id':
 				return self::BLOG_ID;
+			case 'master_user':
+				return self::USER_ID;
+			case 'user_tokens':
+				return array(
+					self::USER_ID => 'new.usertoken.' . self::USER_ID,
+				);
 		}
 
 		return $value;
@@ -544,6 +678,17 @@ class Test_REST_Endpoints extends TestCase {
 					3
 				);
 				break;
+			case 'token_validation_failed':
+				add_filter(
+					'pre_http_request',
+					array(
+						$this,
+						'intercept_validate_tokens_request_failed',
+					),
+					10,
+					3
+				);
+				break;
 			case null:
 				add_filter(
 					'pre_http_request',
@@ -583,6 +728,16 @@ class Test_REST_Endpoints extends TestCase {
 					array(
 						$this,
 						'intercept_validate_tokens_request_invalid_user_token',
+					),
+					10
+				);
+				break;
+			case 'token_validation_failed':
+				remove_filter(
+					'pre_http_request',
+					array(
+						$this,
+						'intercept_validate_tokens_request_failed',
 					),
 					10
 				);

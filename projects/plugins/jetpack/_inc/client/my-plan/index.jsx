@@ -38,7 +38,7 @@ export function MyPlan( props ) {
 				activeProducts={ props.activeProducts }
 				plan={ sitePlan }
 				purchases={ props.purchases }
-				siteRawUrl={ props.siteRawUrl }
+				siteAdminUrl={ props.siteAdminUrl }
 			/>
 			<MyPlanBody
 				activeFeatures={ activeFeatures }

@@ -1,21 +1,40 @@
 /**
  * External dependencies
  */
-import path from 'path';
-import mkdirp from 'mkdirp';
+const path = require( 'path' );
+const config = require( 'config' );
+const logger = require( '../logger' );
+const fs = require( 'fs' );
+const { ContentType } = require( 'jest-circus-allure-environment' );
+const { fileNameFormatter } = require( '../utils-helper' );
 
-const screenshotsPath = path.resolve( __dirname, '../../reports/screenshots' );
-const toFilename = s => s.replace( /[^a-z0-9.-]+/gi, '-' );
+/**
+ * Takes a screenshot of the given page
+ *
+ * @param {page} page Playwright page type
+ * @param {string} fileName screenshot file name
+ * @param {Object} allure instance of allure reporter
+ * @return {Promise<void>}
+ */
+async function takeScreenshot( page, fileName, allure ) {
+	let filePath;
 
-export async function takeScreenshot( currentBlock, name ) {
-	const fileName = toFilename( `${ new Date().toISOString() }-${ currentBlock }-${ name }.png` );
-	const filePath = path.join( screenshotsPath, fileName );
-	mkdirp.sync( screenshotsPath );
+	try {
+		filePath = path.resolve(
+			config.get( 'dirs.screenshots' ),
+			`${ fileNameFormatter( fileName ) }.png`
+		);
+		await page.screenshot( { path: filePath, fullPage: true } );
+		logger.debug( `Screenshot saved: ${ filePath }` );
 
-	await page.screenshot( {
-		path: filePath,
-		fullPage: true,
-	} );
+		if ( allure ) {
+			await allure.attachment( fileName, fs.readFileSync( filePath ), ContentType.PNG );
+		}
+	} catch ( error ) {
+		logger.error( `Failed to save screenshot: ${ error }` );
+	}
 
 	return filePath;
 }
+
+module.exports = { takeScreenshot };

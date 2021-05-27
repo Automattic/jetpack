@@ -5,7 +5,15 @@
  * @package automattic/jetpack
  * @since   8.4
  */
+
+// Dummy comment so phpcs sees the above as a file doc comment.
+require_once __DIR__ . '/trait.http-request-cache.php';
+
+/**
+ * Unit test for Inline PDF embeds.
+ */
 class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.

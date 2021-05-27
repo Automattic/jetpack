@@ -51,7 +51,7 @@ span.wp-media-buttons-icon:before {
 .media-modal .trash-attachment,
 .media-modal .untrash-attachment,
 .wp-core-ui .button-link-delete {
-	color: #a00;
+	color: #d63638;
 }
 
 .media-modal .delete-attachment:hover,
@@ -62,7 +62,7 @@ span.wp-media-buttons-icon:before {
 .media-modal .untrash-attachment:focus,
 .wp-core-ui .button-link-delete:hover,
 .wp-core-ui .button-link-delete:focus {
-	color: #dc3232;
+	color: #d63638;
 }
 
 /* Forms */
@@ -771,3 +771,9 @@ div#wp-responsive-toggle a:before {
 
 /* Gutenberg Support */
 @import 'gutenberg';
+
+/* Inline Help Support */
+@import 'inline-help';
+
+/* Upsell Banner */
+@import "upsell-banner";

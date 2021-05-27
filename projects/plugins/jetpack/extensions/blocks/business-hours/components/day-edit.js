@@ -4,7 +4,7 @@
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { IconButton, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { isEmpty } from 'lodash';
 
 const defaultOpen = '09:00';
@@ -44,10 +44,11 @@ class DayEdit extends Component {
 					</div>
 					<div className="business-hours__remove">
 						{ day.hours.length > 1 && (
-							<IconButton
+							<Button
 								isSmall
 								isLink
 								icon="trash"
+								label={ __( 'Remove Hours', 'jetpack' ) }
 								onClick={ () => {
 									this.removeInterval( intervalIndex );
 								} }
@@ -59,13 +60,9 @@ class DayEdit extends Component {
 					<div className="business-hours__row business-hours-row__add">
 						<div className={ classNames( day.name, 'business-hours__day' ) }>&nbsp;</div>
 						<div className={ classNames( day.name, 'business-hours__hours' ) }>
-							<IconButton
-								isLink
-								label={ __( 'Add Hours', 'jetpack' ) }
-								onClick={ this.addInterval }
-							>
+							<Button isLink label={ __( 'Add Hours', 'jetpack' ) } onClick={ this.addInterval }>
 								{ __( 'Add Hours', 'jetpack' ) }
-							</IconButton>
+							</Button>
 						</div>
 						<div className="business-hours__remove">&nbsp;</div>
 					</div>

@@ -186,8 +186,8 @@ const Popovers = createReactClass( {
 						lineHeight: `${ width / 3 }px`,
 						textAlign: 'center',
 						float: 'left',
-						backgroundColor: '#eee',
-						border: '1px solid #ddd',
+						backgroundColor: '#f0f0f1',
+						border: '1px solid #dcdcde',
 						boxSixing: 'border-box',
 					} }
 					key={ `rubic-${ i }` }

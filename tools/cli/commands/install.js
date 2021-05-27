@@ -3,16 +3,15 @@
  */
 import chalk from 'chalk';
 import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
-import UpdateRenderer from 'listr-update-renderer';
 
 /**
  * Internal dependencies
  */
-import { promptForProject } from '../helpers/promptForProject.js';
-import { installProjectTask } from '../helpers/tasks/installProjectTask';
+import promptForProject from '../helpers/promptForProject.js';
+import installProjectTask from '../helpers/tasks/installProjectTask';
 import { allProjects } from '../helpers/projectHelpers';
-import { normalizeInstallArgv } from '../helpers/normalizeArgv';
+import { normalizeInstallArgv, normalizeProject } from '../helpers/normalizeArgv';
+import listrOpts from '../helpers/tasks/listrOpts';
 
 /**
  * Installs a project.
@@ -37,15 +36,13 @@ export async function install( argv ) {
 
 	argv.project ? tasks.push( installProjectTask( argv ) ) : null;
 
-	const opts = {
-		concurrent: ! argv.v,
-		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
-	};
+	const opts = listrOpts( argv );
 
 	const installs = new Listr( tasks, opts );
 
 	installs.run().catch( err => {
 		console.error( err );
+		process.exit( err.exitCode || 1 );
 	} );
 }
 
@@ -56,6 +53,7 @@ export async function install( argv ) {
  */
 export async function installCli( argv ) {
 	argv = normalizeInstallArgv( argv );
+	argv = normalizeProject( argv );
 
 	if ( ! argv.root && ! argv.all ) {
 		argv = await promptForProject( argv );
@@ -64,7 +62,7 @@ export async function installCli( argv ) {
 	if ( argv.project || argv.root || argv.all ) {
 		await install( argv );
 	} else {
-		console.error( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a valid project!' ) );
 	}
 }
 
@@ -73,7 +71,7 @@ export async function installCli( argv ) {
  *
  * @param {object} yargs - The Yargs dependency.
  *
- * @returns {object} Yargs with the build commands defined.
+ * @returns {object} Yargs with the install commands defined.
  */
 export function installDefine( yargs ) {
 	yargs.command(

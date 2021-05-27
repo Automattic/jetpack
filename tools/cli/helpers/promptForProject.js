@@ -6,12 +6,10 @@ import inquirer from 'inquirer';
 /**
  * Internal dependencies
  */
-import { dirs, projectTypes } from './projectHelpers';
+import { dirs, projectTypes, allProjects } from './projectHelpers';
 
 /**
  * Prompt for project.
- *
- * If the --default flag is set, it will select the Jetpack plugin.
  *
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
@@ -19,23 +17,26 @@ import { dirs, projectTypes } from './projectHelpers';
  *
  * @returns {object} argv object with the project property.
  */
-export async function promptForProject( options ) {
+export default async function promptForProject( options ) {
 	const questions = [];
 	let typeAnswer;
 
 	if ( ! options.project || options.project.length === 0 ) {
-		typeAnswer = await inquirer.prompt( {
-			type: 'list',
-			name: 'type',
-			message: 'What type of project are you working on today?',
-			choices: projectTypes,
-		} );
+		if ( ! options.type || options.type.length === 0 ) {
+			typeAnswer = await promptForType();
+		} else if ( ! projectTypes.includes( options.type ) ) {
+			throw new Error( 'Must be an existing project type.' );
+		} else {
+			typeAnswer = { type: options.type };
+		}
 		questions.push( {
 			type: 'list',
 			name: 'project',
 			message: 'Please choose which project',
 			choices: dirs( './projects/' + typeAnswer.type ),
 		} );
+	} else if ( ! allProjects().includes( options.project ) ) {
+		return new Error( 'Must be an existing project.' );
 	}
 
 	const finalAnswers = await inquirer.prompt( questions );
@@ -43,5 +44,62 @@ export async function promptForProject( options ) {
 	return {
 		...options,
 		project: options.project || typeAnswer.type + '/' + finalAnswers.project,
+	};
+}
+
+/**
+ * Prompt for type.
+ *
+ * If no type is passed via `options`, then it will prompt for the type of project.
+ *
+ * @param {object} options - Passthrough of an object, meant to accept argv.
+ *
+ * @returns {object} object with the type property appended.
+ */
+export async function promptForType( options = { type: '' } ) {
+	let typeAnswer;
+	if ( ! options.type || options.type.length === 0 ) {
+		typeAnswer = await inquirer.prompt( {
+			type: 'list',
+			name: 'type',
+			message: 'What type of project are you working on today?',
+			choices: projectTypes.sort(),
+		} );
+	} else if ( ! projectTypes.includes( options.type ) ) {
+		return new Error( 'Must be an accepted project type.' );
+	}
+
+	return {
+		...options,
+		type: options.type || typeAnswer.type,
+	};
+}
+
+/**
+ * Prompt for new project name.
+ *
+ * If no name is passed via `options`, then it will prompt for the name of project.
+ *
+ * @param {object} options - Passthrough of an object, meant to accept argv.
+ *
+ * @returns {object} object with the name property appended.
+ */
+export async function promptForName( options = { name: '' } ) {
+	let nameAnswer;
+
+	if ( ! options.name || options.name.length === 0 ) {
+		nameAnswer = await inquirer.prompt( {
+			type: 'input',
+			name: 'name',
+			message: 'What is your project called?',
+		} );
+	}
+
+	let name = options.name || nameAnswer.name;
+	name = name.trim().toLowerCase();
+
+	return {
+		...options,
+		name: name,
 	};
 }

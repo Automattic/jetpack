@@ -98,6 +98,7 @@ class Broken_Token {
 		add_action( 'admin_post_set_invalid_user_tokens', array( $this, 'admin_post_set_invalid_user_tokens' ) );
 		add_action( 'admin_post_set_invalid_current_user_token', array( $this, 'admin_post_set_invalid_current_user_token' ) );
 		add_action( 'admin_post_clear_blog_token', array( $this, 'admin_post_clear_blog_token' ) );
+		add_action( 'admin_post_clear_current_user_token', array( $this, 'admin_post_clear_current_user_token' ) );
 		add_action( 'admin_post_clear_user_tokens', array( $this, 'admin_post_clear_user_tokens' ) );
 		add_action( 'admin_post_randomize_master_user', array( $this, 'admin_post_randomize_master_user' ) );
 		add_action( 'admin_post_randomize_master_user_and_token', array( $this, 'admin_post_randomize_master_user_and_token' ) );
@@ -234,6 +235,12 @@ class Broken_Token {
 			<input type="hidden" name="action" value="set_invalid_user_tokens">
 			<?php wp_nonce_field( 'set-invalid-user-tokens' ); ?>
 			<input type="submit" value="Set invalid user tokens" class="button button-primary button-break-it">
+		</form>
+		<br>
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+			<input type="hidden" name="action" value="clear_current_user_token">
+			<?php wp_nonce_field( 'clear-current-user-token' ); ?>
+			<input type="submit" value="Clear user token (current user)" class="button button-primary button-break-it">
 		</form>
 		<br>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
@@ -380,6 +387,25 @@ class Broken_Token {
 		check_admin_referer( 'clear-user-tokens' );
 		$this->notice_type = 'jetpack-broken';
 		Jetpack_Options::delete_option( 'user_tokens' );
+		$this->admin_post_redirect_referrer();
+	}
+
+	/**
+	 * Clear current user token.
+	 */
+	public function admin_post_clear_current_user_token() {
+		check_admin_referer( 'clear-current-user-token' );
+		$this->notice_type = 'jetpack-broken';
+
+		$tokens = Jetpack_Options::get_option( 'user_tokens' );
+
+		$id = get_current_user_id();
+		if ( isset( $tokens[ $id ] ) ) {
+			unset( $tokens[ $id ] );
+		}
+
+		Jetpack_Options::update_option( 'user_tokens', $tokens );
+
 		$this->admin_post_redirect_referrer();
 	}
 

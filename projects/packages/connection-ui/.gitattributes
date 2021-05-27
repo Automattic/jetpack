@@ -1,5 +1,6 @@
 # Files not needed to be distributed in the package.
 .gitattributes    export-ignore
+.github/          export-ignore
 package.json      export-ignore
 webpack.config.js export-ignore
 gulpfile.babel.js export-ignore
@@ -10,6 +11,7 @@ gulpfile.babel.js export-ignore
 /build/index.js         production-include
 
 # Files to exclude from the mirror repo
+/changelog/**     production-exclude
 .gitignore        production-exclude
 _inc/**           production-exclude
 yarn.lock         production-exclude

@@ -1,22 +1,23 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitAndClick } from '../../page-helper';
+import WpPage from '../wp-page';
 
-export default class InPlacePlansPage extends Page {
+export default class InPlacePlansPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.plans-prompt__footer a';
-		super( page, { expectedSelector, explicitWaitMS: 60000 } );
+		super( page, {
+			expectedSelectors: [ '.plans-prompt__footer a' ],
+			explicitWaitMS: 60000,
+		} );
 	}
 
 	async selectFreePlan() {
 		const freePlanButton = '.plans-prompt__footer a';
-		return await waitAndClick( this.page, freePlanButton );
+		return await this.click( freePlanButton );
 	}
 
 	async selectProPlan() {
 		const freePlanButton = ".plan-features__table-item a[href*='business']";
-		return await waitAndClick( this.page, freePlanButton );
+		return await this.click( freePlanButton );
 	}
 }

@@ -8,46 +8,27 @@ import { find, isEmpty, isEqual, map, times } from 'lodash';
  * WordPress dependencies
  */
 import { InspectorControls } from '@wordpress/block-editor';
-import {
-	Button,
-	ExternalLink,
-	Notice,
-	PanelBody,
-	PanelRow,
-	Placeholder,
-	RadioControl,
-	RangeControl,
-	Spinner,
-	ToggleControl,
-	withNotices,
-} from '@wordpress/components';
+import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf, _n } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import { MAX_IMAGE_COUNT, NEW_INSTAGRAM_CONNECTION } from './constants';
+import { NEW_INSTAGRAM_CONNECTION } from './constants';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
 import useInstagramGallery from './use-instagram-gallery';
 import ImageTransition from './image-transition';
 import isCurrentUserConnected from '../../shared/is-current-user-connected';
+import InstagramGalleryInspectorControls from './controls';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
 	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
-	const {
-		accessToken,
-		align,
-		columns,
-		count,
-		instagramUser,
-		isStackedOnMobile,
-		spacing,
-	} = attributes;
+	const { accessToken, align, columns, count, isStackedOnMobile, spacing } = attributes;
 
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -93,34 +74,15 @@ const InstagramGalleryEdit = props => {
 		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
 		{ 'is-stacked-on-mobile': isStackedOnMobile }
 	);
-	const gridStyle = { gridGap: spacing };
-	const photoStyle = { padding: spacing };
-
-	const renderSidebarNotice = () => {
-		const accountImageTotal = images.length;
-
-		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
-			const noticeContent = accountImageTotal
-				? sprintf(
-						/* translators: placeholder is a number. */
-						_n(
-							'There is currently only %s post in your Instagram account.',
-							'There are currently only %s posts in your Instagram account.',
-							accountImageTotal,
-							'jetpack'
-						),
-						accountImageTotal
-				  )
-				: __( 'There are currently no posts in your Instagram account.', 'jetpack' );
-			return (
-				<div className="wp-block-jetpack-instagram-gallery__count-notice">
-					<Notice isDismissible={ false } status="info">
-						{ noticeContent }
-					</Notice>
-				</div>
-			);
-		}
+	const gridStyle = {
+		gridGap: spacing,
+		// Used to only apply padding when stacked in mobile viewport.
+		[ `--latest-instagram-posts-spacing` ]: spacing ? `${ spacing }px` : undefined,
 	};
+	const photoStyle = { padding: spacing }; // Needed so the updates to the grid gap render when changed.
+
+	const shouldRenderSidebarNotice = () =>
+		showSidebar && ! showLoadingSpinner && images.length < count;
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
@@ -130,6 +92,7 @@ const InstagramGalleryEdit = props => {
 					alt={ image.title || image.url }
 					src={ image.url }
 					attributes={ attributes }
+					spacing={ spacing }
 				/>
 			);
 		}
@@ -155,7 +118,7 @@ const InstagramGalleryEdit = props => {
 
 	const renderPlaceholderInstructions = () => {
 		if ( ! currentUserConnected ) {
-			return __( "First, you'll need to connect to WordPress.com.", 'jetpack' );
+			return __( "First, you'll need to connect your WordPress.com account.", 'jetpack' );
 		}
 		if ( ! isRequestingUserConnections && ! userConnections.length ) {
 			return __( 'Connect to Instagram to start sharing your images.', 'jetpack' );
@@ -195,7 +158,7 @@ const InstagramGalleryEdit = props => {
 						) }
 					</p>
 				) }
-				<Button disabled={ isButtonDisabled } isLarge isPrimary onClick={ connectBlockToInstagram }>
+				<Button disabled={ isButtonDisabled } isPrimary onClick={ connectBlockToInstagram }>
 					{ isConnecting && __( 'Connecting…', 'jetpack' ) }
 					{ isRequestingUserConnections && __( 'Loading your connections…', 'jetpack' ) }
 					{ ! isConnecting &&
@@ -221,8 +184,7 @@ const InstagramGalleryEdit = props => {
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
 							href={ wpcomConnectUrl }
-							isLarge
-							isPrimary
+							isSecondary
 						>
 							{ __( 'Connect to WordPress.com', 'jetpack' ) }
 						</Button>
@@ -253,54 +215,14 @@ const InstagramGalleryEdit = props => {
 
 			{ showSidebar && (
 				<InspectorControls>
-					<PanelBody title={ __( 'Account Settings', 'jetpack' ) }>
-						<PanelRow>
-							<span>{ __( 'Account', 'jetpack' ) }</span>
-							<ExternalLink href={ `https://www.instagram.com/${ instagramUser }/` }>
-								@{ instagramUser }
-							</ExternalLink>
-						</PanelRow>
-						{ currentUserConnected && (
-							<PanelRow>
-								<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
-									{ __( 'Disconnect your account', 'jetpack' ) }
-								</Button>
-							</PanelRow>
-						) }
-					</PanelBody>
-					<PanelBody title={ __( 'Display Settings', 'jetpack' ) }>
-						{ renderSidebarNotice() }
-						<RangeControl
-							label={ __( 'Number of Posts', 'jetpack' ) }
-							value={ count }
-							onChange={ value => setAttributes( { count: value } ) }
-							min={ 1 }
-							max={ MAX_IMAGE_COUNT }
-						/>
-						<RangeControl
-							label={ __( 'Number of Columns', 'jetpack' ) }
-							value={ columns }
-							onChange={ value => setAttributes( { columns: value } ) }
-							min={ 1 }
-							max={ 6 }
-						/>
-						<RangeControl
-							label={ __( 'Image Spacing (px)', 'jetpack' ) }
-							value={ spacing }
-							onChange={ value => setAttributes( { spacing: value } ) }
-							min={ 0 }
-							max={ 50 }
-						/>
-						<ToggleControl
-							label={ __( 'Stack on mobile', 'jetpack' ) }
-							checked={ isStackedOnMobile }
-							onChange={ () =>
-								setAttributes( {
-									isStackedOnMobile: ! isStackedOnMobile,
-								} )
-							}
-						/>
-					</PanelBody>
+					<InstagramGalleryInspectorControls
+						accountImageTotal={ images.length }
+						attributes={ attributes }
+						currentUserConnected={ currentUserConnected }
+						disconnectFromService={ disconnectFromService }
+						shouldRenderSidebarNotice={ shouldRenderSidebarNotice() }
+						setAttributes={ setAttributes }
+					/>
 				</InspectorControls>
 			) }
 		</div>

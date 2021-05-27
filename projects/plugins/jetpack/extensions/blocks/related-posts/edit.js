@@ -3,11 +3,16 @@
  */
 import { __ } from '@wordpress/i18n';
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, RangeControl, ToggleControl, Toolbar, Path, SVG } from '@wordpress/components';
+import { Path, SVG } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { withSelect } from '@wordpress/data';
 import { compose, withInstanceId } from '@wordpress/compose';
+
+/**
+ * Internal dependencies
+ */
+import { RelatedPostsBlockControls, RelatedPostsInspectorControls } from './controls';
 
 export const MAX_POSTS_TO_SHOW = 6;
 
@@ -19,10 +24,12 @@ function PlaceholderPostEdit( props ) {
 			aria-labelledby={ props.id + '-heading' }
 		>
 			<strong id={ props.id + '-heading' } className="jp-related-posts-i2__post-link">
-				{ __(
-					"Preview unavailable: you haven't published enough posts with similar content.",
-					'jetpack'
-				) }
+				{ props.isInSiteEditor
+					? __( 'Preview unavailable in site editor.', 'jetpack' )
+					: __(
+							"Preview unavailable: you haven't published enough posts with similar content.",
+							'jetpack'
+					  ) }
 			</strong>
 			{ props.displayThumbnails && (
 				<figure
@@ -139,25 +146,10 @@ function RelatedPostsPreviewRows( props ) {
 	);
 }
 
-class RelatedPostsEdit extends Component {
+export class RelatedPostsEdit extends Component {
 	render() {
-		const { attributes, className, posts, setAttributes, instanceId } = this.props;
+		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
 		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
-
-		const layoutControls = [
-			{
-				icon: 'grid-view',
-				title: __( 'Grid View', 'jetpack' ),
-				onClick: () => setAttributes( { postLayout: 'grid' } ),
-				isActive: postLayout === 'grid',
-			},
-			{
-				icon: 'list-view',
-				title: __( 'List View', 'jetpack' ),
-				onClick: () => setAttributes( { postLayout: 'list' } ),
-				isActive: postLayout === 'list',
-			},
-		];
 
 		// To prevent the block from crashing, we need to limit ourselves to the
 		// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -189,6 +181,7 @@ class RelatedPostsEdit extends Component {
 						displayThumbnails={ displayThumbnails }
 						displayDate={ displayDate }
 						displayContext={ displayContext }
+						isInSiteEditor={ isInSiteEditor }
 					/>
 				);
 			}
@@ -197,36 +190,14 @@ class RelatedPostsEdit extends Component {
 		return (
 			<Fragment>
 				<InspectorControls>
-					<PanelBody title={ __( 'Related Posts Settings', 'jetpack' ) }>
-						<ToggleControl
-							label={ __( 'Display thumbnails', 'jetpack' ) }
-							checked={ displayThumbnails }
-							onChange={ value => setAttributes( { displayThumbnails: value } ) }
-						/>
-						<ToggleControl
-							label={ __( 'Display date', 'jetpack' ) }
-							checked={ displayDate }
-							onChange={ value => setAttributes( { displayDate: value } ) }
-						/>
-						<ToggleControl
-							label={ __( 'Display context (category or tag)', 'jetpack' ) }
-							checked={ displayContext }
-							onChange={ value => setAttributes( { displayContext: value } ) }
-						/>
-						<RangeControl
-							label={ __( 'Number of posts', 'jetpack' ) }
-							value={ postsToShow }
-							onChange={ value =>
-								setAttributes( { postsToShow: Math.min( value, MAX_POSTS_TO_SHOW ) } )
-							}
-							min={ 1 }
-							max={ MAX_POSTS_TO_SHOW }
-						/>
-					</PanelBody>
+					<RelatedPostsInspectorControls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+					/>
 				</InspectorControls>
 
 				<BlockControls>
-					<Toolbar controls={ layoutControls } />
+					<RelatedPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
 				</BlockControls>
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
@@ -243,10 +214,12 @@ export default compose(
 	withInstanceId,
 	withSelect( select => {
 		const { getCurrentPost } = select( 'core/editor' );
-		const posts = get( getCurrentPost(), 'jetpack-related-posts', [] );
+		const currentPost = getCurrentPost();
+		const posts = get( currentPost, 'jetpack-related-posts', [] );
 
 		return {
 			posts,
+			isInSiteEditor: isEmpty( currentPost ),
 		};
 	} )
 )( RelatedPostsEdit );

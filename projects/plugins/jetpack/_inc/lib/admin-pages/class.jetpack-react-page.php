@@ -1,6 +1,9 @@
 <?php
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Status;
@@ -39,18 +42,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// If this is the first time the user is viewing the admin, don't show JITMs.
 		// This filter is added just in time because this function is called on admin_menu
 		// and JITMs are initialized on admin_init
-		if ( Jetpack::is_active() && ! Jetpack_Options::get_option( 'first_admin_view', false ) ) {
+		if ( Jetpack::is_connection_ready() && ! Jetpack_Options::get_option( 'first_admin_view', false ) ) {
 			Jetpack_Options::update_option( 'first_admin_view', true );
 			add_filter( 'jetpack_just_in_time_msgs', '__return_false' );
-		}
-	}
-
-	/**
-	 * Add Jetpack Setup sub-link for eligible users
-	 */
-	function jetpack_add_set_up_sub_nav_item() {
-		if ( $this->show_setup_wizard() ) {
-			add_submenu_page( 'jetpack', __( 'Set up', 'jetpack' ), __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/setup', '__return_null' );
 		}
 	}
 
@@ -62,19 +56,86 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_dashboard_sub_nav_item() {
-		if ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
 			add_submenu_page( 'jetpack', __( 'Dashboard', 'jetpack' ), __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/dashboard', '__return_null' );
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
 	}
 
 	/**
-	 * If user is allowed to see the Jetpack Admin, add Settings sub-link.
+	 * Determine whether a user can access the Jetpack Settings page.
+	 *
+	 * Rules are:
+	 * - user is allowed to see the Jetpack Admin
+	 * - site is connected or in offline mode
+	 * - non-admins only need access to the settings when there are modules they can manage.
+	 *
+	 * @return bool $can_access_settings Can the user access settings.
+	 */
+	private function can_access_settings() {
+		$connection = new Connection_Manager( 'jetpack' );
+		$status     = new Status();
+
+		// User must have the necessary permissions to see the Jetpack settings pages.
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return false;
+		}
+
+		// In offline mode, allow access to admins.
+		if ( $status->is_offline_mode() && current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		// If not in offline mode but site is not connected, bail.
+		if ( ! Jetpack::is_connection_ready() ) {
+			return false;
+		}
+
+		/*
+		 * Additional checks for non-admins.
+		*/
+		if ( ! current_user_can( 'manage_options' ) ) {
+			// If the site isn't connected at all, bail.
+			if ( ! $connection->has_connected_owner() ) {
+				return false;
+			}
+
+			/*
+			 * If they haven't connected their own account yet,
+			 * they have no use for the settings page.
+			 * They will not be able to manage any settings.
+			 */
+			if ( ! $connection->is_user_connected() ) {
+				return false;
+			}
+
+			/*
+			 * Non-admins only have access to settings
+			 * for the following modules:
+			 * - Publicize
+			 * - Post By Email
+			 * If those modules are not available, bail.
+			 */
+			if (
+				! Jetpack::is_module_active( 'post-by-email' )
+				&& ! Jetpack::is_module_active( 'publicize' )
+			) {
+				return false;
+			}
+		}
+
+		// fallback.
+		return true;
+	}
+
+	/**
+	 * Jetpack Settings sub-link.
 	 *
 	 * @since 4.3.0
+	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( ( new Status() )->is_offline_mode() || Jetpack::is_active() ) && current_user_can( 'edit_posts' ) ) {
+		if ( $this->can_access_settings() ) {
 			add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'jetpack#/settings', '__return_null' );
 		}
 	}
@@ -169,7 +230,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			true
 		);
 
-		if ( ! $is_offline_mode && Jetpack::is_active() ) {
+		if ( ! $is_offline_mode && Jetpack::is_connection_ready() ) {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
@@ -186,6 +247,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	function get_initial_state() {
 		global $is_safari;
+
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
@@ -238,7 +300,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		 * Adds information to the `connectionStatus` API field that is unique to the Jetpack React dashboard.
 		 */
 		$connection_status = array(
-			'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
+			'isInIdentityCrisis' => Identity_Crisis::validate_sync_error_idc_option(),
 			'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
 
 			/**
@@ -303,7 +365,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
-				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
@@ -326,12 +387,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
-			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ), // TODO: delete.
 			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
-			'isSafari'                    => $is_safari,
+			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error' => Licensing::instance()->last_error(),
+				'error'           => Licensing::instance()->last_error(),
+				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
 			),
 		);
 	}
@@ -356,16 +417,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$core_api_endpoint = new Jetpack_Core_API_Data();
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
-	}
-
-
-	/**
-	 * Returns a boolean for whether the Setup Wizard should be displayed or not.
-	 *
-	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
-	 */
-	public function show_setup_wizard() {
-		return Jetpack_Wizard::can_be_displayed();
 	}
 
 	/**
@@ -487,9 +538,12 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * @return array
  */
 function jetpack_current_user_data() {
-	$current_user   = wp_get_current_user();
-	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	$dotcom_data    = Jetpack::get_connected_user_data();
+	$jetpack_connection = new Connection_Manager( 'jetpack' );
+
+	$current_user      = wp_get_current_user();
+	$is_user_connected = $jetpack_connection->is_user_connected( $current_user->ID );
+	$is_master_user    = $is_user_connected && (int) $current_user->ID && (int) Jetpack_Options::get_option( 'master_user' ) === (int) $current_user->ID;
+	$dotcom_data       = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
@@ -503,7 +557,7 @@ function jetpack_current_user_data() {
 		: false );
 
 	$current_user_data = array(
-		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
+		'isConnected' => $is_user_connected,
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,
@@ -512,6 +566,7 @@ function jetpack_current_user_data() {
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
+			'connect_user'       => current_user_can( 'jetpack_connect_user' ),
 			'disconnect'         => current_user_can( 'jetpack_disconnect' ),
 			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
@@ -519,8 +574,8 @@ function jetpack_current_user_data() {
 			'edit_posts'         => current_user_can( 'edit_posts' ),
 			'publish_posts'      => current_user_can( 'publish_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
-			'view_stats'		 => current_user_can( 'view_stats' ),
-			'manage_plugins'	 => current_user_can( 'install_plugins' )
+			'view_stats'         => current_user_can( 'view_stats' ),
+			'manage_plugins'     => current_user_can( 'install_plugins' )
 									&& current_user_can( 'activate_plugins' )
 									&& current_user_can( 'update_plugins' )
 									&& current_user_can( 'delete_plugins' ),

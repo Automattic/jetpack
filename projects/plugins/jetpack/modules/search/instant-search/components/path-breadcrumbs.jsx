@@ -20,8 +20,6 @@ const PathBreadcrumbs = ( { className, onClick, url } ) => {
 				className="jetpack-instant-search__path-breadcrumb-link"
 				href={ `//${ url }` }
 				onClick={ onClick }
-				rel="noopener noreferrer"
-				target="_blank"
 			>
 				{ splitDomainPath( url ).map( ( piece, index, pieces ) => (
 					<span className="jetpack-instant-search__path-breadcrumb-piece">

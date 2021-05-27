@@ -1,6 +1,9 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * Mock global $content_width value.

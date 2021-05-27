@@ -1,7 +1,11 @@
 /**
- * External dependencies
+ * This deprecation was needed as a showFullscreenButton attributes was
+ * added to the block so this needs to be added with a default setting
+ * of true to those blocks that don't currently have it set.
+ *
+ * The migration method also has to pull in the style changes from
+ * deprecation V2 to remove the mapStyle attribute.
  */
-import { omit } from 'lodash';
 
 /**
  * Internal dependencies
@@ -50,10 +54,6 @@ const attributes = {
 	mapHeight: {
 		type: 'integer',
 	},
-	showFullscreenButton: {
-		type: 'boolean',
-		default: true,
-	},
 };
 
 export default {
@@ -67,8 +67,10 @@ export default {
 		)
 			.replace( /\s+/g, ' ' )
 			.trim();
+		const { mapStyle, ...newAttributes } = oldAttributes;
 		return {
-			...omit( oldAttributes, 'mapStyle' ),
+			...newAttributes,
+			showFullscreenButton: true,
 			className,
 		};
 	},

@@ -7,8 +7,6 @@ import {
 	Placeholder,
 	SandBox,
 	Button,
-	IconButton,
-	Toolbar,
 	Spinner,
 	ExternalLink,
 	withNotices,
@@ -20,15 +18,17 @@ import { BlockControls, BlockIcon, InnerBlocks } from '@wordpress/block-editor';
  */
 import { innerButtonBlock } from './';
 import attributeDetails from './attributes';
-import { convertToLink, eventIdFromUrl } from './utils';
+import { convertToLink, eventIdFromUrl, normalizeUrlInput } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';
+import { ToolbarControls } from './controls';
 import './editor.scss';
-class EventbriteEdit extends Component {
+
+export class EventbriteEdit extends Component {
 	state = {
 		editedUrl: this.props.attributes.url || '',
 		editingUrl: false,
@@ -71,6 +71,7 @@ class EventbriteEdit extends Component {
 	};
 
 	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
+	setEditingUrl = editingUrl => this.setState( { editingUrl } );
 
 	setErrorNotice = () => {
 		const { noticeOperations, onReplace } = this.props;
@@ -92,9 +93,7 @@ class EventbriteEdit extends Component {
 			event.preventDefault();
 		}
 
-		const { editedUrl } = this.state;
-
-		this.setUrl( editedUrl );
+		this.setUrl( normalizeUrlInput( this.state.editedUrl ) );
 
 		this.setState( { editingUrl: false } );
 	};
@@ -155,23 +154,6 @@ class EventbriteEdit extends Component {
 		);
 	}
 
-	renderBlockControls() {
-		return (
-			<BlockControls>
-				<Toolbar>
-					<IconButton
-						className="components-toolbar__control"
-						label={ __( 'Edit URL', 'jetpack' ) }
-						icon="edit"
-						onClick={ () => this.setState( { editingUrl: true } ) }
-					/>
-				</Toolbar>
-			</BlockControls>
-		);
-	}
-
-	// @todo Remove isDefault and isLarge from Button when the minimum WP version
-	// supported by JP uses Gutenberg > 7.2
 	renderEditEmbed() {
 		const { className, noticeUI } = this.props;
 		const { editedUrl } = this.state;
@@ -200,7 +182,7 @@ class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						<Button isLarge isSecondary type="submit">
+						<Button isSecondary type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 					</form>
@@ -277,7 +259,9 @@ class EventbriteEdit extends Component {
 		return (
 			<>
 				{ this.renderInspectorControls() }
-				{ this.renderBlockControls() }
+				<BlockControls>
+					<ToolbarControls setEditingUrl={ this.setEditingUrl } />
+				</BlockControls>
 				{ style === 'modal' ? (
 					<InnerBlocks
 						template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }

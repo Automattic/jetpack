@@ -17,6 +17,7 @@ import {
 	PanelBody,
 	ToggleControl,
 	ToolbarGroup,
+	ToolbarItem,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
@@ -51,49 +52,53 @@ const Controls = props => {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<Dropdown
-						contentClassName="jetpack-donations__currency-popover"
-						renderToggle={ ( { onToggle, isOpen } ) => {
-							const openOnArrowDown = event => {
-								if ( ! isOpen && event.keyCode === DOWN ) {
-									event.preventDefault();
-									event.stopPropagation();
-									onToggle();
-								}
-							};
+					<ToolbarItem>
+						{ () => (
+							<Dropdown
+								contentClassName="jetpack-donations__currency-popover"
+								renderToggle={ ( { onToggle, isOpen } ) => {
+									const openOnArrowDown = event => {
+										if ( ! isOpen && event.keyCode === DOWN ) {
+											event.preventDefault();
+											event.stopPropagation();
+											onToggle();
+										}
+									};
 
-							return (
-								<Button
-									className="jetpack-donations__currency-toggle"
-									icon={
-										<>
-											{ CURRENCIES[ currency ].symbol + ' - ' + currency }
-											<Dashicon icon="arrow-down" />
-										</>
-									}
-									label={ __( 'Change currency', 'jetpack' ) }
-									onClick={ onToggle }
-									onKeyDown={ openOnArrowDown }
-								/>
-							);
-						} }
-						renderContent={ ( { onClose } ) => (
-							<MenuGroup>
-								{ Object.keys( SUPPORTED_CURRENCIES ).map( ccy => (
-									<MenuItem
-										isSelected={ ccy === currency }
-										onClick={ () => {
-											setAttributes( { currency: ccy } );
-											onClose();
-										} }
-										key={ `jetpack-donations-currency-${ ccy }` }
-									>
-										{ CURRENCIES[ ccy ].symbol + ' - ' + ccy }
-									</MenuItem>
-								) ) }
-							</MenuGroup>
+									return (
+										<Button
+											className="jetpack-donations__currency-toggle"
+											icon={
+												<>
+													{ CURRENCIES[ currency ].symbol + ' - ' + currency }
+													<Dashicon icon="arrow-down" />
+												</>
+											}
+											label={ __( 'Change currency', 'jetpack' ) }
+											onClick={ onToggle }
+											onKeyDown={ openOnArrowDown }
+										/>
+									);
+								} }
+								renderContent={ ( { onClose } ) => (
+									<MenuGroup>
+										{ Object.keys( SUPPORTED_CURRENCIES ).map( ccy => (
+											<MenuItem
+												isSelected={ ccy === currency }
+												onClick={ () => {
+													setAttributes( { currency: ccy } );
+													onClose();
+												} }
+												key={ `jetpack-donations-currency-${ ccy }` }
+											>
+												{ CURRENCIES[ ccy ].symbol + ' - ' + ccy }
+											</MenuItem>
+										) ) }
+									</MenuGroup>
+								) }
+							/>
 						) }
-					/>
+					</ToolbarItem>
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>

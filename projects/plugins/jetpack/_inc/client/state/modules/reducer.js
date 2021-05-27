@@ -196,6 +196,18 @@ export function getModules( state ) {
 }
 
 /**
+ * Returns an array of module slugs for all active modules on the site.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {Array}         Array of module slugs.
+ */
+export function getActiveModules( state ) {
+	return Object.keys( state.jetpack.modules.items ).filter(
+		module_slug => state.jetpack.modules.items[ module_slug ].activated
+	);
+}
+
+/**
  * Returns a module object by its name as present in the state
  * @param  {Object} state Global state tree
  * @param  {String}  name module name
@@ -231,6 +243,20 @@ export function getModulesByFeature( state, feature ) {
 export function getModulesThatRequireConnection( state ) {
 	return Object.keys( state.jetpack.modules.items ).filter(
 		module_slug => state.jetpack.modules.items[ module_slug ].requires_connection
+	);
+}
+
+/**
+ * Returns an array of modules that require user to be connected.
+ *
+ * The module's header comments indicates if it requires user connection or not.
+ *
+ * @param  {object} state - Global state tree
+ * @returns {Array} Array of modules that require user connection.
+ */
+export function getModulesThatRequireUserConnection( state ) {
+	return Object.keys( state.jetpack.modules.items ).filter(
+		module_slug => state.jetpack.modules.items[ module_slug ].requires_user_connection
 	);
 }
 

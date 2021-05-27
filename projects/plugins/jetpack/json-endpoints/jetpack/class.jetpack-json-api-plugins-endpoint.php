@@ -144,7 +144,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		$autoupdate           = in_array( $plugin_file, (array) get_site_option( 'auto_update_plugins', array() ), true );
+		$plugin['plugin'] = $plugin_file;
+		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
+		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
 		$plugin['autoupdate'] = $autoupdate;
 
 		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
@@ -180,8 +184,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['action_links'] = $action_link;
 		}
 
-		$autoupdate = $this->plugin_has_autoupdates_enabled( $plugin_file );
-		$plugin['autoupdate']      = $autoupdate;
+		$plugin['plugin'] = $plugin_file;
+		if ( ! class_exists( 'WP_Automatic_Updater' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		}
+		$autoupdate           = ( new WP_Automatic_Updater() )->should_update( 'plugin', (object) $plugin, WP_PLUGIN_DIR );
+		$plugin['autoupdate'] = $autoupdate;
 
 		$autoupdate_translation = $this->plugin_has_translations_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
@@ -198,14 +206,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $plugin;
 	}
 
-	protected function plugin_has_autoupdates_enabled( $plugin_file ) {
-		return (bool) in_array( $plugin_file, (array) get_site_option( 'auto_update_plugins', array() ), true );
-	}
-
 	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {
 		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
 	}
-
 
 	protected function get_file_mod_capabilities() {
 		$reasons_can_not_autoupdate = array();
@@ -263,6 +266,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 			$formatted_plugin = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
 
+			// If this endpoint accepts site based authentication and a blog token is used, skip capabilities check.
+			if ( $this->accepts_site_based_authentication() ) {
+				$plugins[] = $formatted_plugin;
+				continue;
+			}
+
 			/*
 			 * Do not show network-active plugins
 			 * to folks who do not have the permission to see them.
@@ -295,6 +304,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 		if ( isset( $args['network_wide'] ) && $args['network_wide'] ) {
 			$this->network_wide = true;
+		}
+
+		// If this endpoint accepts site based authentication and a blog token is used, skip capabilities check.
+		if ( $this->accepts_site_based_authentication() ) {
+			return true;
 		}
 
 		if ( $this->network_wide && ! current_user_can( 'manage_network_plugins' ) ) {

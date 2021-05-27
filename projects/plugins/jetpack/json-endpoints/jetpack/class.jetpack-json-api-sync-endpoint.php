@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Actions;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Queue_Buffer;
@@ -120,6 +121,37 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_End
 		return array( 'histogram' => $histogram, 'type' => $store->get_checksum_type() );
 	}
 }
+
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+/**
+ * POST /sites/%s/sync/health
+ */
+class Jetpack_JSON_API_Sync_Modify_Health_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
+
+	/**
+	 * Callback for sync/health endpoint.
+	 *
+	 * @return array|WP_Error result of request.
+	 */
+	protected function result() {
+		$args = $this->input();
+
+		switch ( $args['status'] ) {
+			case Health::STATUS_IN_SYNC:
+			case Health::STATUS_OUT_OF_SYNC:
+				Health::update_status( $args['status'] );
+				break;
+			default:
+				return new WP_Error( 'invalid_status', 'Invalid Sync Status Provided.' );
+		}
+
+		// re-fetch so we see what's really being stored.
+		return array(
+			'success' => Health::get_status(),
+		);
+	}
+}
+// phpcs:enable
 
 // POST /sites/%s/sync/settings
 class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {

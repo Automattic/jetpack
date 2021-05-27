@@ -1,30 +1,26 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
+import WpPage from '../wp-page';
 import logger from '../../logger';
 
-export default class AuthorizePage extends Page {
+export default class AuthorizePage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.jetpack-connect__logged-in-form';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ '.jetpack-connect__logged-in-form' ] } );
 	}
 
 	async approve( repeat = true ) {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
 		try {
 			return await Promise.all( [
-				waitAndClick( this.page, authorizeButtonSelector ),
+				this.click( authorizeButtonSelector ),
 				this.waitToDisappear(),
-				this.page.waitForNavigation( { waitUntil: 'networkidle2', timeout: 50000 } ),
+				this.waitForDomContentLoaded( 50000 ),
 			] );
 		} catch ( error ) {
 			if ( repeat ) {
 				const message = 'Jetpack connection failed. Retrying once again.';
-				logger.info( message );
-				logger.slack( { message, type: 'message' } );
-
+				logger.error( message );
 				return await this.approve( false );
 			}
 			throw error;
@@ -32,12 +28,7 @@ export default class AuthorizePage extends Page {
 	}
 
 	async waitToDisappear() {
-		await waitForSelector( this.page, '.jetpack-connect__logged-in-form-loading', {
-			hidden: true,
-		} );
-
-		return await waitForSelector( this.page, '.jetpack-connect__authorize-form button', {
-			hidden: true,
-		} );
+		await this.waitForElementToBeHidden( '.jetpack-connect__logged-in-form-loading' );
+		await this.waitForElementToBeHidden( '.jetpack-connect__authorize-form button' );
 	}
 }

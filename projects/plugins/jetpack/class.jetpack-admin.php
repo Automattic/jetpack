@@ -40,7 +40,6 @@ class Jetpack_Admin {
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
-		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_set_up_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
@@ -77,6 +76,8 @@ class Jetpack_Admin {
 				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
+
+		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
 	}
 
 	/**
@@ -110,7 +111,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_offline_mode();
+		$jetpack_active    = Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -132,14 +133,18 @@ class Jetpack_Admin {
 								? substr( $short_desc, 0, 140 ) . '...'
 								: $short_desc );
 
-				$module_array['module']            = $module;
-				$module_array['activated']         = ( $jetpack_active ? in_array( $module, $active_modules ) : false );
-				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
-				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
-				$module_array['available']         = self::is_module_available( $module_array );
-				$module_array['short_description'] = $short_desc_trunc;
-				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
-				$module_array['override']          = $overrides->get_module_override( $module );
+				$module_array['module'] = $module;
+
+				$is_available = self::is_module_available( $module_array );
+
+				$module_array['activated']          = ( $jetpack_active ? in_array( $module, $active_modules, true ) : false );
+				$module_array['deactivate_nonce']   = wp_create_nonce( 'jetpack_deactivate-' . $module );
+				$module_array['activate_nonce']     = wp_create_nonce( 'jetpack_activate-' . $module );
+				$module_array['available']          = $is_available;
+				$module_array['unavailable_reason'] = $is_available ? false : self::get_module_unavailable_reason( $module_array );
+				$module_array['short_description']  = $short_desc_trunc;
+				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
+				$module_array['override']           = $overrides->get_module_override( $module );
 
 				ob_start();
 				/**
@@ -212,7 +217,7 @@ class Jetpack_Admin {
 
 		uasort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_connection_ready() ) {
 			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
 		}
 
@@ -245,15 +250,101 @@ class Jetpack_Admin {
 			return false;
 		}
 
+		/*
+		 * In Offline mode, modules that require a site or user
+		 * level connection should be unavailable.
+		 */
 		if ( ( new Status() )->is_offline_mode() ) {
-			return ! ( $module['requires_connection'] );
-		} else {
-			if ( ! Jetpack::is_active() ) {
-				return false;
-			}
-
-			return Jetpack_Plan::supports( $module['module'] );
+			return ! ( $module['requires_connection'] || $module['requires_user_connection'] );
 		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return false;
+		}
+
+		/*
+		 * Jetpack connected at a site level only. Make sure to make
+		 * modules that require a user connection unavailable.
+		 */
+		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
+			return false;
+		}
+
+		return Jetpack_Plan::supports( $module['module'] );
+
+	}
+
+	/**
+	 * Returns why a module is unavailable.
+	 *
+	 * @param  array $module The module.
+	 * @return string|false A string stating why the module is not available or false if the module is available.
+	 */
+	public static function get_module_unavailable_reason( $module ) {
+		if ( ! is_array( $module ) || empty( $module ) ) {
+			return false;
+		}
+
+		if ( self::is_module_available( $module ) ) {
+			return false;
+		}
+
+		/**
+		 * We never want to show VaultPress as activatable through Jetpack so return an empty string.
+		 */
+		if ( 'vaultpress' === $module['module'] ) {
+			return '';
+		}
+
+		/*
+		 * WooCommerce Analytics should only be available
+		 * when running WooCommerce 3+
+		 */
+		if (
+			'woocommerce-analytics' === $module['module']
+			&& (
+					! class_exists( 'WooCommerce' )
+					|| version_compare( WC_VERSION, '3.0', '<' )
+				)
+			) {
+			return __( 'Requires WooCommerce 3+ plugin', 'jetpack' );
+		}
+
+		/*
+		 * In Offline mode, modules that require a site or user
+		 * level connection should be unavailable.
+		 */
+		if ( ( new Status() )->is_offline_mode() ) {
+			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
+				return __( 'Offline mode', 'jetpack' );
+			}
+		}
+
+		/*
+		 * Jetpack not connected.
+		 */
+		if ( ! Jetpack::is_connection_ready() ) {
+			return __( 'Jetpack is not connected', 'jetpack' );
+		}
+
+		/*
+		 * Jetpack connected at a site level only and module requires a user connection.
+		 */
+		if ( ! Jetpack::connection()->has_connected_owner() && $module['requires_user_connection'] ) {
+			return __( 'Requires a connected WordPress.com account', 'jetpack' );
+		}
+
+		/*
+		 * Plan restrictions.
+		 */
+		if ( ! Jetpack_Plan::supports( $module['module'] ) ) {
+			return __( 'Not supported by current plan', 'jetpack' );
+		}
+
+		return '';
 	}
 
 	function handle_unrecognized_action( $action ) {
@@ -328,6 +419,47 @@ class Jetpack_Admin {
 	function debugger_page() {
 		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
+	}
+
+	/**
+	 * Determines if JITMs should display on a particular screen.
+	 *
+	 * @param bool   $value The default value of the filter.
+	 * @param string $screen_id The ID of the screen being tested for JITM display.
+	 *
+	 * @return bool True if JITMs should display, false otherwise.
+	 */
+	public function should_display_jitms_on_screen( $value, $screen_id ) {
+		// Disable all JITMs on these pages.
+		if (
+		in_array(
+			$screen_id,
+			array(
+				'jetpack_page_akismet-key-config',
+				'admin_page_jetpack_modules',
+			),
+			true
+		) ) {
+			return false;
+		}
+
+		// Disable all JITMs on pages where the recommendations banner is displaying.
+		if (
+			in_array(
+				$screen_id,
+				array(
+					'dashboard',
+					'plugins',
+					'jetpack_page_stats',
+				),
+				true
+			)
+			&& \Jetpack_Recommendations_Banner::can_be_displayed()
+		) {
+			return false;
+		}
+
+		return $value;
 	}
 }
 Jetpack_Admin::init();

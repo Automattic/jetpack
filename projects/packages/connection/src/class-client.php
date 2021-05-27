@@ -72,8 +72,7 @@ class Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$connection = new Manager();
-		$token      = $connection->get_access_token( $args['user_id'] );
+		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new \WP_Error( 'missing_token' );
 		}
@@ -204,6 +203,11 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		if ( false === $fallback ) {
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
+		}
+
 		/**
 		 * SSL verification (`sslverify`) for the JetpackClient remote request
 		 * defaults to off, use this filter to force it on.
@@ -217,11 +221,6 @@ class Client {
 		 */
 		if ( apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
 			return wp_remote_request( $url, $args );
-		}
-
-		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
-		if ( false === $fallback ) {
-			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
 		}
 
 		if ( (int) $fallback ) {

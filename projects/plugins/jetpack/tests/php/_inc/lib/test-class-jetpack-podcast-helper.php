@@ -69,12 +69,14 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 			->method( 'load_feed' )
 			->will( $this->returnValue( $rss ) );
 
+		$id = wp_unique_id( 'podcast-track-' );
+
 		$podcast_helper->expects( $this->exactly( 1 ) )
 			->method( 'setup_tracks_callback' )
 			->will(
 				$this->returnValue(
 					array(
-						'id'          => wp_unique_id( 'podcast-track-' ),
+						'id'          => $id,
 						'link'        => 'https://example.org',
 						'src'         => 'https://example.org',
 						'type'        => 'episode',
@@ -96,7 +98,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 		$this->assertSame(
 			$episode,
 			array(
-				'id'          => 'podcast-track-1',
+				'id'          => $id,
 				'link'        => 'https://example.org',
 				'src'         => 'https://example.org',
 				'type'        => 'episode',

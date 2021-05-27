@@ -43,6 +43,8 @@ class Jetpack_SEO {
 		}
 
 		add_filter( 'jetpack_open_graph_tags', array( $this, 'set_custom_og_tags' ) );
+		Jetpack_SEO_Posts::register_post_meta();
+		Jetpack_SEO_Posts::register_gutenberg_extension();
 	}
 
 	private function get_authors() {
@@ -111,7 +113,6 @@ class Jetpack_SEO {
 
 		// Try to target things if we're on a "specific" page of any kind.
 		if ( is_singular() ) {
-			// Business users can overwrite the description.
 			if ( ! ( is_front_page() && Jetpack_SEO_Utils::get_front_page_meta_description() ) ) {
 				$description = Jetpack_SEO_Posts::get_post_description( get_post() );
 

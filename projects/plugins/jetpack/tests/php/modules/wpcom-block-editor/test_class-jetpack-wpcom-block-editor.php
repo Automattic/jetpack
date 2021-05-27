@@ -1,8 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-
-require_once dirname( __FILE__ ) . '/../../../../modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
+require_jetpack_file( 'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' );
 
 /**
  * Class WP_Test_Jetpack_WPCOM_Block_Editor.
@@ -40,8 +38,8 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 		// No Jetpack token.
 		$this->assertFalse( $wpcom_block_editor->verify_frame_nonce( $this->create_nonce(), 'action' ) );
 
-		// Set user token.
-		Connection_Utils::update_user_token( $this->user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $this->user_id ), true );
+		( new Automattic\Jetpack\Connection\Tokens() )->update_user_token( $this->user_id, sprintf( '%s.%d.%d', 'token', JETPACK__API_VERSION, $this->user_id ), true );
+
 		$nonce = $this->create_nonce();
 
 		// User ID mismatch.
@@ -79,7 +77,7 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->user_id );
+			$token = ( new Automattic\Jetpack\Connection\Tokens() )->get_access_token( $this->user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;

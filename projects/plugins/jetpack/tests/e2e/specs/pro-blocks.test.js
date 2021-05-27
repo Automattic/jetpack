@@ -1,21 +1,31 @@
-/**
- * Internal dependencies
- */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
-import MailchimpBlock from '../lib/blocks/mailchimp';
+import MailchimpBlock from '../lib/pages/wp-admin/blocks/mailchimp';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import { activateModule, execMultipleWpCommands } from '../lib/utils-helper';
-import SimplePaymentBlock from '../lib/blocks/simple-payments';
-import WordAdsBlock from '../lib/blocks/word-ads';
-import { catchBeforeAll, step } from '../lib/setup-env';
+import SimplePaymentBlock from '../lib/pages/wp-admin/blocks/simple-payments';
+import WordAdsBlock from '../lib/pages/wp-admin/blocks/word-ads';
+import { step } from '../lib/env/test-setup';
 
+/**
+ *
+ * @group post-connection
+ * @group pro-blocks
+ * @group blocks
+ * @group gutenberg
+ */
 describe( 'Paid blocks', () => {
-	catchBeforeAll( async () => {
-		await syncJetpackPlanData( 'complete' );
+	let blockEditor;
 
+	beforeAll( async () => {
+		await syncJetpackPlanData( 'complete' );
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
+	} );
+
+	beforeEach( async () => {
+		blockEditor = await BlockEditorPage.visit( page );
+		await blockEditor.resolveWelcomeGuide( false );
 	} );
 
 	afterAll( async () => {
@@ -26,23 +36,20 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'MailChimp Block', async () => {
-		let blockEditor;
-		let blockInfo;
+		let blockId;
 
 		await step( 'Can visit the block editor and add a MailChimp block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
-			blockInfo = await blockEditor.insertBlock( MailchimpBlock.name(), MailchimpBlock.title() );
+			blockId = await blockEditor.insertBlock( MailchimpBlock.name(), MailchimpBlock.title() );
 		} );
 
 		await step( 'Can connect to a MailChimp', async () => {
-			const mcBlock = new MailchimpBlock( blockInfo, page );
+			const mcBlock = new MailchimpBlock( blockId, page );
 			await mcBlock.connect();
 		} );
 
 		await step( 'Can publish a post and assert that MailChimp block is rendered', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
-
 			await blockEditor.viewPost();
 			const frontend = await PostFrontendPage.init( page );
 			expect( await frontend.isRenderedBlockPresent( MailchimpBlock ) ).toBeTruthy();
@@ -50,31 +57,28 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'Pay with PayPal', async () => {
-		let blockEditor;
-		let blockInfo;
+		let blockId;
 
 		await step( 'Can visit the block editor and add a Pay with PayPal block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
 
-			blockInfo = await blockEditor.insertBlock(
+			blockId = await blockEditor.insertBlock(
 				SimplePaymentBlock.name(),
 				SimplePaymentBlock.title()
 			);
 		} );
 
 		await step( 'Can fill details of Pay with PayPal block', async () => {
-			const spBlock = new SimplePaymentBlock( blockInfo, page );
+			const spBlock = new SimplePaymentBlock( blockId, page );
 			await spBlock.fillDetails();
 		} );
 
 		await step(
 			'Can publish a post and assert that Pay with PayPal block is rendered',
 			async () => {
-				await blockEditor.focus();
+				await blockEditor.selectPostTitle();
 				await blockEditor.publishPost();
 				await blockEditor.viewPost();
-
 				const frontend = await PostFrontendPage.init( page );
 				expect( await frontend.isRenderedBlockPresent( SimplePaymentBlock ) ).toBeTruthy();
 			}
@@ -82,24 +86,22 @@ describe( 'Paid blocks', () => {
 	} );
 
 	it( 'WordAds block', async () => {
-		let blockEditor;
-		let blockInfo;
+		let blockId;
 
 		await step( 'Can visit the block editor and add a WordAds block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
-			blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
-			await blockEditor.focus();
+			blockId = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
+			await blockEditor.selectPostTitle();
 		} );
 
 		await step( 'Can switch to Wide Skyscraper ad format', async () => {
-			const adBlock = new WordAdsBlock( blockInfo, page );
+			const adBlock = new WordAdsBlock( blockId, page );
 			await adBlock.focus();
 			await adBlock.switchFormat( 4 ); // switch to Wide Skyscraper ad format
 		} );
 
 		await step( 'Can publish a post and assert that WordAds block is rendered', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 

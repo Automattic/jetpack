@@ -64,8 +64,8 @@
 }
 
 .blocked-attacks {
-	background: #fafafa;
-	border-bottom: 1px #eee solid;
+	background: #f6f7f7;
+	border-bottom: 1px #f0f0f1 solid;
 	padding-bottom: 35px;
 }
 

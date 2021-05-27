@@ -37,7 +37,9 @@ diff.forEach( file => {
 				case 'del':
 					x = c.content.replace( /^-\s*|,?\s*$/g, '' );
 					lines.push(
-						`::warning file=${ file.to },line=${ c.ln }::Good job! ${ x } no longer has any lint errors,%0Aand should be removed from the exclude list.`
+						'---', // Bracket message containing newlines for better visibility in GH's logs.
+						`::warning file=${ file.to },line=${ c.ln }::Good job! ${ x } no longer has any lint errors,%0Aand should be removed from the exclude list.`,
+						'---'
 					);
 					break;
 				case 'normal':
@@ -47,9 +49,11 @@ diff.forEach( file => {
 	} );
 	if ( anyAdded ) {
 		exit = 1;
+		console.log( '---' ); // Bracket message containing newlines for better visibility in GH's logs.
 		console.log(
 			`::error file=${ file.to }::When checking for fixed exclusions, CI found added lines.%0AThis probably means you didn't maintain binary sort order when editing this file.%0APlease fix.`
 		);
+		console.log( '---' );
 	} else if ( lines.length ) {
 		exit = 1;
 		console.log( lines.join( '\n' ) );

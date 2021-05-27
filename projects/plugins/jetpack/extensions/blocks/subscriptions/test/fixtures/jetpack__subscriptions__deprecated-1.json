@@ -1,0 +1,13 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/subscriptions",
+        "isValid": true,
+        "attributes": {
+            "submitButtonText": "Subscribe",
+            "showSubscribersTotal": false
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-subscriptions\">[jetpack_subscription_form show_subscribers_total=\"false\" show_only_email_and_button=\"true\"]</div>"
+    }
+]

@@ -74,11 +74,11 @@ wp_localize_script(
 	/* Reset */
 	html { height: 100%; }
 	body, div, ul, ol, li, h1, h2, h3, h4, h5, h6, form, fieldset, legend, input, button, textarea, p, blockquote, th, td { margin: 0; padding: 0; }
-	body { background: #F9F9F9; font-family:"Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif; font-size:12px; color: #333; line-height:1.5em; height: 100%; width: 100%; padding-bottom: 20px !important; }
+	body { background: #f6f7f7; font-family:"Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif; font-size:12px; color: #333; line-height:1.5em; height: 100%; width: 100%; padding-bottom: 20px !important; }
 	a { color: #21759B; text-decoration: none; }
 	a:hover { text-decoration: underline; text-shadow: none !important; }
 	h1 { font-size: 21px; color:#5A5A5A; font-family:Georgia,"Times New Roman",Times,serif; font-weight:normal; margin-bottom: 21px; }
-	h3 { font-size: 13px; color: #666; margin-bottom: 18px; }
+	h3 { font-size: 13px; color: #646970; margin-bottom: 18px; }
 	input { width: 301px; }
 	input[type='text'] { padding: 3px 5px; margin-right: 4px; -moz-border-radius:3px; border-radius:3px; -webkit-border-radius:3px; }
 	input[type='text']:focus { border: 2px solid #80B8D9; outline: 0 !important; }
@@ -87,15 +87,15 @@ wp_localize_script(
 	img { border: none; }
 	label { color: #222; font-weight: bold; display: block; margin-bottom: 4px; }
 	label.radio { width: auto; margin: -2px 0 0 5px; }
-	label span.label-required { color: #AAA; margin-left: 4px; font-weight: normal; }
+	label span.label-required { color: #a7aaad; margin-left: 4px; font-weight: normal; }
 	td { vertical-align: top; }
 	select { width: 300px; }
 	textarea { height: 100px; width: 311px; }
 	/* Core */
-	#media-upload-header { border-bottom: 1px solid #DFDFDF; font-weight:bold; margin:0; padding:3px 5px 0 5px; position:relative; background: #FFF; }
+	#media-upload-header { border-bottom: 1px solid #dcdcde; font-weight:bold; margin:0; padding:3px 5px 0 5px; position:relative; background: #FFF; }
 	#sidemenu { bottom:-1px; font-size:12px; list-style:none outside none; padding-left:10px; position:relative; left:0; margin:0 5px; overflow:hidden; }
 	#sidemenu a { text-decoration:none; border-top: 1px solid #FFF; display:block; float:left; line-height:28px; padding:0 13px; outline: none; }
-	#sidemenu a.current { background-color:#F9F9F9; border-color:#DFDFDF #DFDFDF #F9F9F9; color:#D54E21; -moz-border-radius:4px 4px 0 0; border-radius:4px 4px 0 0; -webkit-border-radius:4px 4px 0 0; border-style:solid; border-width:1px; font-weight:normal; }
+	#sidemenu a.current { background-color:#f6f7f7; border-color:#dcdcde #dcdcde #f6f7f7; color:#d63638; -moz-border-radius:4px 4px 0 0; border-radius:4px 4px 0 0; -webkit-border-radius:4px 4px 0 0; border-style:solid; border-width:1px; font-weight:normal; }
 	#sidemenu li { display:inline; margin-bottom:6px; line-height:200%; list-style:none outside none; margin:0; padding:0; text-align:center; white-space:nowrap; }
 	.button { background-color:#f2f2f2; border-color:#BBBBBB; min-width:80px; text-align:center; color:#464646; text-shadow:0 1px 0 #FFFFFF; border-style:solid; border-width:1px; cursor:pointer; width: auto; font-size:11px !important; line-height:13px; padding:3px 11px; margin-top: 12px; text-decoration:none; -moz-border-radius:11px; border-radius:11px; -webkit-border-radius:11px }
 	.button-primary { background-color:#21759B; font-weight: bold; border-color:#298CBA; text-align:center; color:#EAF2FA; text-shadow:0 -1px 0 rgba(0, 0, 0, 0.3); border-style:solid; border-width:1px; cursor:pointer; width: auto; font-size:11px !important; line-height:13px; padding:3px 11px; margin-top: 21px; text-decoration:none; -moz-border-radius:11px; border-radius:11px; -webkit-border-radius:11px }
@@ -120,7 +120,7 @@ wp_localize_script(
 	.fb-reorder { cursor: move; position: relative; }
 	.fb-reorder:hover div { display: block !important; width: 130px !important; position: absolute; top: 0; right: 0; z-index: 200; padding: 5px 10px; color: #555; font-size: 11px; background: #FFF; border: 1px solid #CCC; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 	.fb-right { position: absolute; right: 0; top: 0; width: 315px; margin: 57px 21px 0 0; }
-	.fb-right .fb-new-fields { border: none; background: #F9F9F9; padding: 0; }
+	.fb-right .fb-new-fields { border: none; background: #f6f7f7; padding: 0; }
 	.fb-right input[type='text'] { width: 195px; margin-bottom: 14px; }
 	.fb-right label { color: #444; width: 100px; float: left; font-weight: normal; }
 	.fb-right select { width: 195px !important; margin-bottom: 14px; }

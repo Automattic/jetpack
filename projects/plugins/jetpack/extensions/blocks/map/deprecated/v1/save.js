@@ -17,7 +17,6 @@ class MapSave extends Component {
 			markerColor,
 			scrollToZoom,
 			mapHeight,
-			showFullscreenButton,
 		} = attributes;
 		const pointsList = points.map( ( point, index ) => {
 			const { longitude, latitude } = point.coordinates;
@@ -41,7 +40,6 @@ class MapSave extends Component {
 				data-marker-color={ markerColor }
 				data-scroll-to-zoom={ scrollToZoom || null }
 				data-map-height={ mapHeight || null }
-				data-show-fullscreen-button={ showFullscreenButton || null }
 			>
 				{ points.length > 0 && <ul>{ pointsList }</ul> }
 			</div>

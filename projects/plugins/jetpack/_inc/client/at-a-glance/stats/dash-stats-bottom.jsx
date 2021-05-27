@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 /**
  * WordPress dependencies
@@ -20,6 +21,7 @@ import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import getRedirectUrl from 'lib/jp-redirect';
 import { numberFormat } from 'components/number-format';
+import { userCanConnectAccount } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -130,13 +132,13 @@ class DashStatsBottom extends Component {
 							) }
 					</div>
 				</div>
-				{ ! this.props.isLinked && (
+				{ ! this.props.isLinked && this.props.userCanConnectAccount && (
 					<Card compact className="jp-settings-card__configure-link">
 						<ConnectButton
 							connectUser={ true }
 							from="unlinked-user-connect"
 							connectLegend={ __(
-								'Connect your account to WordPress.com to view more stats',
+								'Connect your WordPress.com account to view more stats',
 								'jetpack'
 							) }
 						/>
@@ -163,4 +165,8 @@ DashStatsBottom.defaultProps = {
 	dateFormat: 'F j, Y',
 };
 
-export default DashStatsBottom;
+export default connect( state => {
+	return {
+		userCanConnectAccount: userCanConnectAccount( state ),
+	};
+} )( DashStatsBottom );

@@ -1,13 +1,11 @@
 /**
  * Internal dependencies
  */
-import Page from './page';
-import { waitAndClick, waitForSelector } from '../page-helper';
+import WpPage from './wp-page';
 
-export default class PostFrontendPage extends Page {
+export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.post';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ '.post' ] } );
 	}
 
 	/**
@@ -24,8 +22,8 @@ export default class PostFrontendPage extends Page {
 	async logout() {
 		const accountBarSelector = '#wp-admin-bar-my-account';
 		const logoutOptionSelector = '#wp-admin-bar-logout';
-		await waitForSelector( this.page, accountBarSelector );
-		await this.page.hover( accountBarSelector );
-		await waitAndClick( this.page, logoutOptionSelector );
+		await this.waitForElementToBeVisible( accountBarSelector );
+		await this.hover( accountBarSelector );
+		await this.click( logoutOptionSelector );
 	}
 }

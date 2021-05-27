@@ -5,6 +5,8 @@
  * @package automattic/jetpack-autoloader
  */
 
+namespace Automattic\Jetpack\Autoloader\jpCurrent;
+
 /**
  * Class Test_Container
  */

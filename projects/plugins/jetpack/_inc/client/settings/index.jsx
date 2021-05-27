@@ -1,11 +1,10 @@
 /**
  * External dependencies
- *
- * @format
  */
-
 import React from 'react';
 import { __, sprintf } from '@wordpress/i18n';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -18,71 +17,87 @@ import Security from 'security';
 import Sharing from 'sharing';
 import Traffic from 'traffic';
 import Writing from 'writing';
-import { withRouter } from 'react-router-dom';
+import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
 
 class Settings extends React.Component {
 	static displayName = 'SearchableSettings';
 
 	render() {
+		const {
+			location = { pathname: '' },
+			rewindStatus,
+			searchTerm,
+			siteAdminUrl,
+			siteRawUrl,
+			userCanManageModules,
+		} = this.props;
+		const { pathname } = location;
 		const commonProps = {
-			searchTerm: this.props.searchTerm,
-			rewindStatus: this.props.rewindStatus,
-			userCanManageModules: this.props.userCanManageModules,
+			searchTerm,
+			rewindStatus,
+			userCanManageModules,
 		};
 
 		return (
 			<div className="jp-settings-container">
 				<div className="jp-no-results">
-					{ commonProps.searchTerm
+					{ searchTerm
 						? sprintf(
 								/* translators: placeholder is a searchterm entered in searchform. */
 								__( 'No search results found for %s', 'jetpack' ),
-								commonProps.searchTerm
+								searchTerm
 						  )
 						: __( 'Enter a search term to find settings or close search.', 'jetpack' ) }
 				</div>
 				<Security
-					siteAdminUrl={ this.props.siteAdminUrl }
-					siteRawUrl={ this.props.siteRawUrl }
+					siteAdminUrl={ siteAdminUrl }
+					siteRawUrl={ siteRawUrl }
 					active={
-						'/security' === this.props.location.pathname ||
-						( '/settings' === this.props.location.pathname && commonProps.userCanManageModules )
+						'/security' === pathname || ( '/settings' === pathname && userCanManageModules )
 					}
 					{ ...commonProps }
 				/>
 				<Discussion
-					siteRawUrl={ this.props.siteRawUrl }
-					active={ '/discussion' === this.props.location.pathname }
+					siteRawUrl={ siteRawUrl }
+					active={ '/discussion' === pathname }
 					{ ...commonProps }
 				/>
-				<Performance
-					active={ '/performance' === this.props.location.pathname }
-					{ ...commonProps }
-				/>
+				<Performance active={ '/performance' === pathname } { ...commonProps } />
 				<Traffic
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/traffic' === this.props.location.pathname }
+					siteRawUrl={ siteRawUrl }
+					siteAdminUrl={ siteAdminUrl }
+					active={ '/traffic' === pathname }
 					{ ...commonProps }
 				/>
 				<Writing
-					siteAdminUrl={ this.props.siteAdminUrl }
+					siteAdminUrl={ siteAdminUrl }
 					active={
-						'/writing' === this.props.location.pathname ||
-						( '/settings' === this.props.location.pathname && ! commonProps.userCanManageModules )
+						'/writing' === pathname ||
+						( ! userCanManageModules &&
+							this.props.isModuleActivated( 'post-by-email' ) &&
+							! this.props.isModuleActivated( 'publicize' ) )
 					}
 					{ ...commonProps }
 				/>
 				<Sharing
-					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/sharing' === this.props.location.pathname }
+					siteAdminUrl={ siteAdminUrl }
+					active={
+						'/sharing' === pathname ||
+						( '/settings' === pathname &&
+							! userCanManageModules &&
+							this.props.isModuleActivated( 'publicize' ) )
+					}
 					{ ...commonProps }
 				/>
-				<Privacy active={ '/privacy' === this.props.location.pathname } { ...commonProps } />
-				<SearchableModules searchTerm={ this.props.searchTerm } />
+				<Privacy active={ '/privacy' === pathname } { ...commonProps } />
+				<SearchableModules searchTerm={ searchTerm } />
 			</div>
 		);
 	}
 }
 
-export default withRouter( Settings );
+export default connect( state => {
+	return {
+		isModuleActivated: module => isModuleActivatedSelector( state, module ),
+	};
+} )( withRouter( Settings ) );

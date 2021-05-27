@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Composer alias for dev-master, to improve dependencies

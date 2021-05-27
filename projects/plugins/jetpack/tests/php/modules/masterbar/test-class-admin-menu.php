@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
+use Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
 use Automattic\Jetpack\Status;
 
 require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
@@ -82,47 +83,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
-	 */
-	public function test_get_instance() {
-		$instance = Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
-	}
-
-	/**
-	 * Tests add_admin_menu_separator
-	 *
-	 * @covers ::add_admin_menu_separator
-	 */
-	public function test_add_admin_menu_separator() {
-		global $menu;
-
-		// Start with a clean slate.
-		$temp_menu = $menu;
-		$menu      = array();
-
-		static::$admin_menu->add_admin_menu_separator( 15 );
-		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
-
-		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
-		$this->assertSame( 'manage_options', $menu[10][1] );
-		$this->assertSame( 'separator-custom-5', $menu[10][2] );
-		$this->assertSame( 'read', $menu[15][1] );
-		$this->assertSame( 'separator-custom-4', $menu[15][2] );
-
-		// Restore filtered $menu.
-		$menu = $temp_menu;
-	}
-
-	/**
 	 * Test_Admin_Menu.
 	 *
 	 * @covers ::reregister_menu_items
@@ -134,7 +94,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame(
 			array_keys( $menu ),
-			array( 2, 3, '3.86682', 4, 5, 10, 15, 20, 25, 59, 60, 65, 70, 75, 80 ),
+			array( 2, '3.86682', 4, 5, 10, 15, 20, 25, 30, 50, 51, 59, 60, 61, 65, 70, 75, 80 ),
 			'Admin menu should not have unexpected top menu items.'
 		);
 
@@ -167,29 +127,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_my_home_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_my_home_menu( false );
-
-		$slug = 'https://wordpress.com/home/' . static::$domain;
-
-		$my_home_menu_item = array(
-			'My Home',
-			'read',
-			$slug,
-			'My Home',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-home',
-		);
-		$this->assertSame( $menu[2], $my_home_menu_item );
+		static::$admin_menu->add_my_home_menu();
 
 		// Has My Home submenu item when there are other submenu items.
-		$my_home_submenu_item = array(
-			'My Home',
-			'read',
-			$slug,
-			'My Home',
-		);
-		$this->assertContains( $my_home_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, array_shift( $submenu['index.php'] )[2] );
+
 		// Reset data.
 		$menu    = static::$menu_data;
 		$submenu = static::$submenu_data;
@@ -199,9 +141,39 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 			0 => array( 'Home', 'read', 'index.php' ),
 		);
 
-		static::$admin_menu->add_my_home_menu( false );
+		static::$admin_menu->add_my_home_menu();
 
-		$this->assertArrayNotHasKey( 'https://wordpress.com/home/' . static::$domain, $submenu );
+		$this->assertSame( 'https://wordpress.com/home/' . static::$domain, $menu[2][2] );
+		$this->assertSame( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['index.php'][0][4] );
+	}
+
+	/**
+	 * Tests add_upsell_nudge
+	 *
+	 * @covers ::add_upsell_nudge
+	 */
+	public function test_add_upsell_nudge() {
+		global $menu;
+		$nudge = array(
+			'content' => 'Free domain with an <a href="somehref">annual plan</a>',
+			'cta'     => '<b>Upgrade</b>',
+			'link'    => '/plans/example.com?addDomainFlow=true',
+		);
+		static::$admin_menu->add_upsell_nudge( $nudge );
+
+		$markup = '
+<div class="upsell_banner">
+	<div class="banner__info">
+		<div class="banner__title">Free domain with an annual plan</div>
+	</div>
+	<div class="banner__action">
+		<button type="button" class="button">Upgrade</button>
+	</div>
+</div>';
+		$link   = 'https://wordpress.com/plans/example.com?addDomainFlow=true';
+
+		$this->assertSame( $markup, $menu[1][0] );
+		$this->assertSame( $link, $menu[1][2] );
 	}
 
 	/**
@@ -210,31 +182,11 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_stats_menu
 	 */
 	public function test_add_stats_menu() {
-		global $menu, $submenu;
+		global $menu;
 
 		static::$admin_menu->add_stats_menu();
 
-		$menu_title = __( 'Stats', 'jetpack' );
-
-		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
-			$menu_title .= sprintf(
-				'<img class="sidebar-unified__sparkline" width="80" height="20" src="%1$s" alt="%2$s">',
-				esc_url( home_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
-				esc_attr__( 'Hourly views', 'jetpack' )
-			);
-		}
-		$stats_menu_item = array(
-			$menu_title,
-			'edit_posts',
-			'https://wordpress.com/stats/day/' . static::$domain,
-			'Stats',
-			'menu-top toplevel_page_https://wordpress.com/stats/day/' . static::$domain,
-			'toplevel_page_https://wordpress.com/stats/day/' . static::$domain,
-			'dashicons-chart-bar',
-		);
-
-		$this->assertSame( $menu['3.86682'], $stats_menu_item );
-		$this->assertArrayNotHasKey( 'https://wordpress.com/stats/day/' . static::$domain, $submenu );
+		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu['3.86682'][2] );
 	}
 
 	/**
@@ -242,64 +194,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::add_upgrades_menu
 	 */
-	public function test_add_wpcom_upgrades_menu() {
-		global $menu, $submenu;
+	public function test_add_upgrades_menu() {
+		global $submenu;
 
-		static::$admin_menu->add_upgrades_menu();
+		static::$admin_menu->add_upgrades_menu( 'Test Plan' );
 
-		$slug = 'https://wordpress.com/plans/' . static::$domain;
-
-		$upgrades_menu_item = array(
-			'Upgrades',
-			'manage_options',
-			$slug,
-			'Upgrades',
-			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'dashicons-cart',
-		);
-		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
-
-		$plans_submenu_item = array(
-			'Plans',
-			'manage_options',
-			$slug,
-			'Plans',
-		);
-		$this->assertContains( $plans_submenu_item, $submenu[ $slug ] );
-
-		$purchases_submenu_item = array(
-			'Purchases',
-			'manage_options',
-			'https://wordpress.com/purchases/subscriptions/' . static::$domain,
-			'Purchases',
-		);
-		$this->assertContains( $purchases_submenu_item, $submenu[ $slug ] );
-	}
-
-	/**
-	 * Tests add_jetpack_upgrades_menu
-	 *
-	 * @covers ::add_jetpack_upgrades_menu
-	 */
-	public function test_add_jetpack_upgrades_menu() {
-		global $menu, $submenu;
-
-		static::$admin_menu->add_upgrades_menu();
-
-		$slug = 'https://wordpress.com/plans/' . static::$domain;
-
-		$upgrades_menu_item = array(
-			'Upgrades',
-			'manage_options',
-			$slug,
-			'Upgrades',
-			'menu-top toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'toplevel_page_https://wordpress.com/plans/' . static::$domain,
-			'dashicons-cart',
-		);
-		$this->assertSame( $menu['4.80608'], $upgrades_menu_item );
-		$this->assertArrayNotHasKey( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu );
+		$this->assertSame( 'Upgrades<span class="inline-text" style="display:none">Test Plan</span>', $submenu['paid-upgrades.php'][0][0] );
+		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 	}
 
 	/**
@@ -308,22 +210,12 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_posts_menu
 	 */
 	public function test_add_posts_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
-		static::$admin_menu->add_posts_menu( false );
+		static::$admin_menu->add_posts_menu();
 
-		$posts_menu_item = array(
-			'Posts',
-			'edit_posts',
-			'https://wordpress.com/posts/' . static::$domain,
-			'Posts',
-			'menu-top toplevel_page_https://wordpress.com/posts/' . static::$domain,
-			'toplevel_page_https://wordpress.com/posts/' . static::$domain,
-			'dashicons-admin-post',
-		);
-
-		$this->assertSame( $menu[5], $posts_menu_item );
-		$this->assertArrayNotHasKey( 'edit.php', $submenu );
+		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
 	}
 
 	/**
@@ -334,36 +226,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_media_menu() {
 		global $menu, $submenu;
 
-		static::$admin_menu->add_media_menu( false );
+		static::$admin_menu->add_media_menu();
 
-		$slug = 'https://wordpress.com/media/' . static::$domain;
-
-		$media_menu_item = array(
-			'Media',
-			'upload_files',
-			$slug,
-			'Media',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-media',
-		);
-
-		$this->assertSame( $menu[10], $media_menu_item );
-		$this->assertArrayNotHasKey( $slug, $submenu );
-
-		$library_submenu_item = array(
-			'Library',
-			'upload_files',
-			'upload.php',
-		);
-		$this->assertNotContains( $library_submenu_item, $submenu['upload.php'] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'upload_files',
-			'media-new.php',
-		);
-		$this->assertNotContains( $add_new_submenu_item, $submenu['upload.php'] );
+		$this->assertSame( 'https://wordpress.com/media/' . static::$domain, $menu[10][2] );
+		$this->assertFalse( static::$admin_menu->has_visible_items( $submenu['upload.php'] ) );
 	}
 
 	/**
@@ -372,22 +238,12 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_page_menu
 	 */
 	public function test_add_page_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
-		static::$admin_menu->add_page_menu( false );
+		static::$admin_menu->add_page_menu();
 
-		$posts_menu_item = array(
-			'Pages',
-			'edit_pages',
-			'https://wordpress.com/pages/' . static::$domain,
-			'Pages',
-			'menu-top toplevel_page_https://wordpress.com/pages/' . static::$domain,
-			'toplevel_page_https://wordpress.com/pages/' . static::$domain,
-			'dashicons-admin-page',
-		);
-
-		$this->assertSame( $menu[20], $posts_menu_item );
-		$this->assertEmpty( $submenu['edit.php?post_type=page'] );
+		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
+		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
 	}
 
 	/**
@@ -399,8 +255,8 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		global $menu, $submenu;
 
 		// Don't show post types that don't want to be shown.
-		$revision = get_post_type_object( 'revision' );
-		static::$admin_menu->add_custom_post_type_menu( $revision, false );
+		get_post_type_object( 'revision' );
+		static::$admin_menu->add_custom_post_type_menu( 'revision' );
 
 		$last_item = array_pop( $menu );
 		$this->assertNotSame( 'https://wordpress.com/types/revision/' . static::$domain, $last_item[2] );
@@ -413,40 +269,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 				'menu_position' => 2020,
 			)
 		);
-		static::$admin_menu->add_custom_post_type_menu( 'custom_test_type', false );
+
+		static::$admin_menu->add_custom_post_type_menu( 'custom_test_type' );
 
 		// Clean up.
 		unregister_post_type( 'custom_test_type' );
 
-		$slug = 'https://wordpress.com/types/custom_test_type/' . static::$domain;
-
-		$custom_menu_item = array(
-			'Custom Test Types',
-			'edit_posts',
-			$slug,
-			'Custom Test Types',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-post',
-		);
-
-		$this->assertSame( $menu[2020], $custom_menu_item );
-
-		$custom_submenu_item = array(
-			'Custom Test Types',
-			'edit_posts',
-			'https://wordpress.com/types/custom_test_type/' . static::$domain,
-			'Custom Test Types',
-		);
-		$this->assertContains( $custom_submenu_item, $submenu[ $slug ] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'edit_posts',
-			'https://wordpress.com/edit/custom_test_type/' . static::$domain,
-			'Add New',
-		);
-		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/types/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
+		$this->assertSame( 'https://wordpress.com/edit/custom_test_type/' . static::$domain, array_shift( $submenu['edit.php?post_type=custom_test_type'] )[2] );
 	}
 
 	/**
@@ -457,30 +287,10 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_comments_menu() {
 		global $menu, $submenu;
 
-		// Only users that can edit posts get to see the comments menu.
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
-		$menu = array();
-		static::$admin_menu->add_comments_menu( false );
-		$this->assertEmpty( $menu );
+		static::$admin_menu->add_comments_menu();
 
-		// Reset.
-		wp_set_current_user( static::$user_id );
-		$menu = static::$menu_data;
-
-		static::$admin_menu->add_comments_menu( false );
-
-		$comments_menu_item = array(
-			'Comments <span class="awaiting-mod count-0"><span class="pending-count" aria-hidden="true">0</span><span class="comments-in-moderation-text screen-reader-text">0 Comments in moderation</span></span>',
-			'edit_posts',
-			'https://wordpress.com/comments/all/' . static::$domain,
-			'Comments',
-			'menu-top toplevel_page_https://wordpress.com/comments/all/' . static::$domain,
-			'toplevel_page_https://wordpress.com/comments/all/' . static::$domain,
-			'dashicons-admin-comments',
-		);
-
-		$this->assertSame( $menu[25], $comments_menu_item );
-		$this->assertEmpty( $submenu['edit-comments.php'] );
+		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
+		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['edit-comments.php'] ) );
 	}
 
 	/**
@@ -489,57 +299,36 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_appearance_menu
 	 */
 	public function test_add_appearance_menu() {
+		global $submenu;
+
+		static::$admin_menu->add_appearance_menu();
+
+		$this->assertSame( 'https://wordpress.com/themes/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain, array_shift( $submenu['themes.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=nav_menus', array_shift( $submenu['themes.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/customize/' . static::$domain . '?autofocus%5Bpanel%5D=widgets', array_shift( $submenu['themes.php'] )[2] );
+	}
+
+	/**
+	 * Tests add_plugins_menu
+	 *
+	 * @covers ::add_plugins_menu
+	 */
+	public function test_add_plugins_menu() {
 		global $menu, $submenu;
-		$customize_slug = 'customize.php';
-		static::$admin_menu->add_appearance_menu( false );
 
-		$slug = 'https://wordpress.com/themes/' . static::$domain;
+		static::$admin_menu->add_plugins_menu();
 
-		$appearance_menu_item = array(
-			'Appearance',
-			'switch_themes',
-			$slug,
-			'Appearance',
-			'menu-top toplevel_page_' . $slug,
-			'menu-appearance',
-			'dashicons-admin-appearance',
-		);
+		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
+		$this->assertFalse( self::$admin_menu->has_visible_items( $submenu['plugins.php'] ) );
 
-		$this->assertSame( $menu[60], $appearance_menu_item );
-		$this->assertArrayNotHasKey( 'themes.php', $submenu );
+		// Reset.
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
 
-		$themes_submenu_item = array(
-			'Themes',
-			'switch_themes',
-			'https://wordpress.com/themes/' . static::$domain,
-			'Themes',
-		);
-		$this->assertContains( $themes_submenu_item, $submenu[ $slug ] );
-
-		$customize_submenu_item = array(
-			'Customize',
-			'customize',
-			$customize_slug,
-			'Customize',
-		);
-
-		$this->assertContains( $customize_submenu_item, $submenu[ $slug ] );
-
-		$widgets_submenu_item = array(
-			'Widgets',
-			'customize',
-			$customize_slug . '?autofocus%5Bpanel%5D=widgets',
-			'Widgets',
-		);
-		$this->assertContains( $widgets_submenu_item, $submenu[ $slug ] );
-
-		$menus_submenu_item = array(
-			'Menus',
-			'customize',
-			$customize_slug . '?autofocus%5Bpanel%5D=nav_menus',
-			'Menus',
-		);
-		$this->assertContains( $menus_submenu_item, $submenu[ $slug ] );
+		// Check submenu are kept when using WP Admin links.
+		static::$admin_menu->add_plugins_menu( true );
+		$this->assertNotEmpty( $submenu['plugins.php'] );
 	}
 
 	/**
@@ -552,63 +341,41 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// Current user can't list users.
 		wp_set_current_user( $this->factory->user->create( array( 'role' => 'editor' ) ) );
-		$menu = array();
+		$menu    = array(
+			70 => array(
+				'Profile',
+				'read',
+				'profile.php',
+				'',
+				'menu-top menu-icon-users',
+				'menu-users',
+				'dashicons-admin-users',
+			),
+		);
+		$submenu = array(
+			'profile.php' => array(
+				0 => array( 'Profile', 'read', 'profile.php' ),
+			),
+		);
 
-		static::$admin_menu->add_users_menu( false );
+		static::$admin_menu->add_users_menu();
 
-		$this->assertEmpty( $menu );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['profile.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['profile.php'][2][2] );
 
 		// Reset.
 		wp_set_current_user( static::$user_id );
-		$menu = static::$menu_data;
+		$menu    = static::$menu_data;
+		$submenu = static::$submenu_data;
 
-		static::$admin_menu->add_users_menu( false );
+		// On multisite the administrator is not allowed to create users.
+		grant_super_admin( self::$user_id );
+		static::$admin_menu->add_users_menu();
 
-		$slug = 'https://wordpress.com/people/team/' . static::$domain;
-
-		$users_menu_item = array(
-			'Users',
-			'list_users',
-			$slug,
-			'Users',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-users',
-		);
-		$this->assertSame( $menu[70], $users_menu_item );
-		$this->assertEmpty( $submenu['users.php'] );
-
-		$all_people_submenu_item = array(
-			'All People',
-			'list_users',
-			$slug,
-			'All People',
-		);
-		$this->assertContains( $all_people_submenu_item, $submenu[ $slug ] );
-
-		$add_new_submenu_item = array(
-			'Add New',
-			'promote_users',
-			'https://wordpress.com/people/new/' . static::$domain,
-			'Add New',
-		);
-		$this->assertContains( $add_new_submenu_item, $submenu[ $slug ] );
-
-		$profile_submenu_item = array(
-			'My Profile',
-			'read',
-			'https://wordpress.com/me',
-			'My Profile',
-		);
-		$this->assertContains( $profile_submenu_item, $submenu[ $slug ] );
-
-		$account_submenu_item = array(
-			'Account Settings',
-			'read',
-			'https://wordpress.com/me/account',
-			'Account Settings',
-		);
-		$this->assertContains( $account_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
 	}
 
 	/**
@@ -617,49 +384,14 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
-		global $menu, $submenu;
+		global $submenu;
 
-		$slug = 'https://wordpress.com/marketing/tools/' . static::$domain;
-		static::$admin_menu->add_tools_menu( false );
+		static::$admin_menu->add_tools_menu();
 
-		$tools_menu_item = array(
-			'Tools',
-			'manage_options',
-			$slug,
-			'Tools',
-			'menu-top toplevel_page_' . $slug,
-			'toplevel_page_' . $slug,
-			'dashicons-admin-tools',
-		);
-
-		$this->assertSame( $menu[75], $tools_menu_item );
-		$this->assertArrayNotHasKey( 'tools.php', $submenu );
-
-		// Contains the following menu items.
-
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'https://wordpress.com/import/' . static::$domain,
-			'Import',
-		);
-		$this->assertContains( $import_submenu_item, $submenu[ $slug ] );
-
-		// NOT contains the following menu items.
-
-		$tools_submenu_item = array(
-			'Available Tools',
-			'edit_posts',
-			'tools.php',
-		);
-		$this->assertNotContains( $tools_submenu_item, $submenu[ $slug ] );
-
-		$import_submenu_item = array(
-			'Import',
-			'import',
-			'import.php',
-		);
-		$this->assertNotContains( $import_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, $submenu['tools.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, $submenu['tools.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -670,59 +402,150 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_options_menu() {
 		global $submenu;
 
-		$slug = 'https://wordpress.com/settings/general/' . static::$domain;
-		static::$admin_menu->add_options_menu( false );
+		static::$admin_menu->add_options_menu();
 
-		$this->assertNotContains( 'options-discussion.php', $submenu[ $slug ] );
-		$this->assertNotContains( 'options-writing.php', $submenu[ $slug ] );
-
-		$general_submenu_item = array(
-			'General',
-			'manage_options',
-			$slug,
-			'General',
-		);
-		$this->assertContains( $general_submenu_item, $submenu[ $slug ] );
+		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, array_shift( $submenu['options-general.php'] )[2] );
+		$this->assertSame( 'options-general.php', $submenu['options-general.php'][1][2] );
 	}
 
 	/**
-	 * Tests migrate_submenus
+	 * Tests add_jetpack_menu
+	 * §
 	 *
-	 * @covers ::migrate_submenus
+	 * @covers ::add_jetpack_menu
 	 */
-	public function test_migrate_submenus() {
+	public function test_add_jetpack_menu() {
 		global $submenu;
 
-		$new_slug = 'made-up-slug';
+		static::$admin_menu->add_jetpack_menu();
 
-		// Start with a clean slate.
-		$temp_submenu = $submenu;
-		$submenu      = static::$submenu_data;
+		$this->assertSame( 'https://wordpress.com/activity-log/' . static::$domain, $submenu['jetpack'][3][2] );
+		$this->assertSame( 'https://wordpress.com/backup/' . static::$domain, $submenu['jetpack'][4][2] );
+		$this->assertSame( 'https://wordpress.com/jetpack-search/' . static::$domain, $submenu['jetpack'][5][2] );
+	}
 
-		// New slug doesn't exist yet.
-		static::$admin_menu->migrate_submenus( 'edit.php', $new_slug );
-		$this->assertArrayNotHasKey( 'edit.php', $submenu );
-		$this->assertSame( static::$submenu_data['edit.php'], $submenu[ $new_slug ] );
+	/**
+	 * Tests add_gutenberg_menus
+	 *
+	 * @covers ::add_gutenberg_menus
+	 */
+	public function test_add_gutenberg_menus() {
+		global $menu;
+		static::$admin_menu->add_gutenberg_menus( false );
 
-		// New slug exists.
-		static::$admin_menu->migrate_submenus( 'upload.php', $new_slug );
-		$this->assertArrayNotHasKey( 'upload.php', $submenu );
-		$expected = array_replace( static::$submenu_data['edit.php'], static::$submenu_data['upload.php'] );
-		$this->assertSame( $expected, $submenu[ $new_slug ] );
+		// FSE is no longer where it was put by default.
+		$this->assertArrayNotHasKey( 100, $menu );
+		$this->assertArrayHasKey( 61, $menu );
 
-		// Old slug doesn't exist.
-		$this->assertArrayNotHasKey( 'unkown', $submenu );
-		$pre_migration = $submenu;
-		static::$admin_menu->migrate_submenus( 'unkown', $new_slug );
-		$this->assertSame( $pre_migration, $submenu );
+		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
+		$fse_menu = array(
+			'Site Editor',
+			'edit_theme_options',
+			$fse_link,
+			'Site Editor',
+			'menu-top toplevel_page_' . $fse_link,
+			'toplevel_page_' . $fse_link,
+			'dashicons-layout',
+		);
+		$this->assertSame( $menu[61], $fse_menu );
+	}
 
-		// Slugs are the same.
-		$this->assertArrayHasKey( 'index.php', $submenu );
-		$pre_migration = $submenu;
-		static::$admin_menu->migrate_submenus( 'index.php', 'index.php' );
-		$this->assertSame( $pre_migration, $submenu );
+	/**
+	 * Check if the hidden menus are at the end of the submenu.
+	 */
+	public function test_if_the_hidden_menus_are_at_the_end_of_submenu() {
+		global $submenu;
 
-		// Restore filtered $submenu.
-		$submenu = $temp_submenu;
+		$submenu = array(
+			'options-general.php' => array(
+				array( '', 'read', 'test-slug', '', '' ),
+				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', '' ),
+				array( '', 'read', 'test-slug', '' ),
+				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+				array( '', 'read', 'test-slug', '', '' ),
+			),
+		);
+
+		static::$admin_menu->sort_hidden_submenus();
+		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
+		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
+
+		$this->assertEquals( $submenu['options-general.php'][3], array( '', 'read', 'test-slug', '' ) );
+
+		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
+
+		$this->assertEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][6][4] );
+		$this->assertEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][7][4] );
+
+		$submenu = self::$submenu_data;
+	}
+
+	/**
+	 * Check if the parent menu is hidden when the submenus are hidden.
+	 *
+	 * @dataProvider hide_menu_based_on_submenu_provider
+	 *
+	 * @param array $menu_items The mock menu array.
+	 * @param array $submenu_items The mock submenu array.
+	 * @param array $expected The expected result.
+	 */
+	public function test_if_it_hides_menu_based_on_submenu( $menu_items, $submenu_items, $expected ) {
+		global $submenu, $menu;
+
+		$menu    = $menu_items;
+		$submenu = $submenu_items;
+
+		static::$admin_menu->hide_parent_of_hidden_submenus();
+
+		$this->assertEquals( $expected, $menu[0] );
+
+		// reset the menu arrays.
+		$menu    = self::$menu_data;
+		$submenu = self::$submenu_data;
+	}
+
+	/**
+	 * The data provider for test_if_it_hides_menu_based_on_submenu.
+	 *
+	 * @return array
+	 */
+	public function hide_menu_based_on_submenu_provider() {
+		return array(
+			array(
+				array(
+					array( '', 'non-existing-capability', 'test-slug', '', '' ),
+				),
+				array(
+					'test-slug' => array(
+						array(
+							'test',
+							'',
+							'',
+							'',
+							Base_Admin_Menu::HIDE_CSS_CLASS,
+						),
+					),
+				),
+				array( '', 'non-existing-capability', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+			),
+			array(
+				array(
+					array( '', 'read', 'test-slug', '', '' ),
+				),
+				array(
+					'test-slug' => array(
+						array(
+							'test',
+							'',
+							'test-slug',
+							'',
+							Base_Admin_Menu::HIDE_CSS_CLASS,
+						),
+					),
+				),
+				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
+			),
+		);
 	}
 }

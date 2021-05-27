@@ -18,7 +18,8 @@ import {
 	PanelBody,
 	RangeControl,
 	SelectControl,
-	Toolbar,
+	ToolbarGroup,
+	ToolbarItem,
 	withNotices,
 } from '@wordpress/components';
 
@@ -222,18 +223,22 @@ class TiledGalleryEdit extends Component {
 			<BlockControls>
 				{ !! images.length && (
 					<Fragment>
-						<Toolbar>
-							<MediaUpload
-								onSelect={ this.onSelectImages }
-								allowedTypes={ ALLOWED_MEDIA_TYPES }
-								multiple
-								gallery
-								value={ images.map( img => img.id ) }
-								render={ ( { open } ) => (
-									<EditButton label={ __( 'Edit Gallery', 'jetpack' ) } onClick={ open } />
+						<ToolbarGroup>
+							<ToolbarItem>
+								{ () => (
+									<MediaUpload
+										onSelect={ this.onSelectImages }
+										allowedTypes={ ALLOWED_MEDIA_TYPES }
+										multiple
+										gallery
+										value={ images.map( img => img.id ) }
+										render={ ( { open } ) => (
+											<EditButton label={ __( 'Edit Gallery', 'jetpack' ) } onClick={ open } />
+										) }
+									/>
 								) }
-							/>
-						</Toolbar>
+							</ToolbarItem>
+						</ToolbarGroup>
 						<FilterToolbar
 							value={ imageFilter }
 							onChange={ value => {

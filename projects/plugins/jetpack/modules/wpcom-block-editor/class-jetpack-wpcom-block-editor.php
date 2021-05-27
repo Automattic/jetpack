@@ -7,6 +7,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Tokens;
 /**
  * WordPress.com Block editor for Jetpack
  */
@@ -17,6 +18,13 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @var int
 	 */
 	private $nonce_user_id;
+
+	/**
+	 * An array to store auth cookies until we can determine if they should be sent
+	 *
+	 * @var array
+	 */
+	private $set_cookie_args;
 
 	/**
 	 * Singleton
@@ -35,6 +43,20 @@ class Jetpack_WPCOM_Block_Editor {
 	 * Jetpack_WPCOM_Block_Editor constructor.
 	 */
 	private function __construct() {
+		$this->set_cookie_args = array();
+		add_action( 'init', array( $this, 'init_actions' ) );
+	}
+
+	/**
+	 * Add in all hooks.
+	 */
+	public function init_actions() {
+		// Bail early if Jetpack's block editor extensions are disabled on the site.
+		/* This filter is documented in class.jetpack-gutenberg.php */
+		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
+			return;
+		}
+
 		if ( $this->is_iframed_block_editor() ) {
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
@@ -224,7 +246,7 @@ class Jetpack_WPCOM_Block_Editor {
 			return false;
 		}
 
-		$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
+		$token = ( new Tokens() )->get_access_token( $this->nonce_user_id );
 		if ( ! $token ) {
 			return false;
 		}
@@ -268,7 +290,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function filter_salt( $salt, $scheme ) {
 		if ( 'jetpack_frame_nonce' === $scheme ) {
-			$token = Jetpack_Data::get_access_token( $this->nonce_user_id );
+			$token = ( new Tokens() )->get_access_token( $this->nonce_user_id );
 
 			if ( $token ) {
 				$salt = $token->secret;
@@ -431,8 +453,29 @@ class Jetpack_WPCOM_Block_Editor {
 
 		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 5 );
 		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 4 );
-		add_action( 'clear_auth_cookie', array( $this, 'clear_auth_cookies' ) );
-		add_filter( 'send_auth_cookies', '__return_false' );
+		add_filter( 'send_auth_cookies', array( $this, 'maybe_send_cookies' ), 9999 );
+	}
+
+	/**
+	 * Checks if we've stored any cookies to send and then sends them
+	 * if the send_auth_cookies value is true.
+	 *
+	 * @param bool $send_cookies The filtered value that determines whether to send auth cookies.
+	 */
+	public function maybe_send_cookies( $send_cookies ) {
+
+		if ( ! empty( $this->set_cookie_args ) && $send_cookies ) {
+			array_map(
+				function ( $cookie ) {
+					call_user_func_array( 'jetpack_shim_setcookie', $cookie );
+				},
+				$this->set_cookie_args
+			);
+			$this->set_cookie_args = array();
+			return false;
+		}
+
+		return $send_cookies;
 	}
 
 	/**
@@ -476,7 +519,7 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 		$samesite = $this->get_samesite_attr_for_auth_cookies( $secure );
 
-		jetpack_shim_setcookie(
+		$this->set_cookie_args[] = array(
 			$auth_cookie_name,
 			$auth_cookie,
 			array(
@@ -486,10 +529,10 @@ class Jetpack_WPCOM_Block_Editor {
 				'secure'   => $secure,
 				'httponly' => true,
 				'samesite' => $samesite,
-			)
+			),
 		);
 
-		jetpack_shim_setcookie(
+		$this->set_cookie_args[] = array(
 			$auth_cookie_name,
 			$auth_cookie,
 			array(
@@ -499,7 +542,7 @@ class Jetpack_WPCOM_Block_Editor {
 				'secure'   => $secure,
 				'httponly' => true,
 				'samesite' => $samesite,
-			)
+			),
 		);
 	}
 
@@ -527,7 +570,7 @@ class Jetpack_WPCOM_Block_Editor {
 
 		$samesite = $this->get_samesite_attr_for_auth_cookies( $secure_logged_in_cookie );
 
-		jetpack_shim_setcookie(
+		$this->set_cookie_args[] = array(
 			LOGGED_IN_COOKIE,
 			$logged_in_cookie,
 			array(
@@ -537,11 +580,11 @@ class Jetpack_WPCOM_Block_Editor {
 				'secure'   => $secure_logged_in_cookie,
 				'httponly' => true,
 				'samesite' => $samesite,
-			)
+			),
 		);
 
 		if ( COOKIEPATH !== SITECOOKIEPATH ) {
-			jetpack_shim_setcookie(
+			$this->set_cookie_args[] = array(
 				LOGGED_IN_COOKIE,
 				$logged_in_cookie,
 				array(
@@ -551,46 +594,9 @@ class Jetpack_WPCOM_Block_Editor {
 					'secure'   => $secure_logged_in_cookie,
 					'httponly' => true,
 					'samesite' => $samesite,
-				)
+				),
 			);
 		}
-	}
-
-	/**
-	 * Removes all of the cookies associated with authentication.
-	 *
-	 * This is copied from core's `wp_clear_auth_cookie` since disabling the core auth cookies prevents also the auth
-	 * cookies from being cleared.
-	 *
-	 * @see wp_clear_auth_cookie
-	 */
-	public function clear_auth_cookies() {
-		// Auth cookies.
-		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN );
-		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN );
-		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, PLUGINS_COOKIE_PATH, COOKIE_DOMAIN );
-		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, PLUGINS_COOKIE_PATH, COOKIE_DOMAIN );
-		setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
-
-		// Settings cookies.
-		setcookie( 'wp-settings-' . get_current_user_id(), ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH );
-		setcookie( 'wp-settings-time-' . get_current_user_id(), ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH );
-
-		// Old cookies.
-		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
-		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
-
-		// Even older cookies.
-		setcookie( USER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( PASS_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
-		setcookie( USER_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
-		setcookie( PASS_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
-
-		// Post password cookie.
-		setcookie( 'wp-postpass_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 	}
 }
 

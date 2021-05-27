@@ -91,40 +91,5 @@ if [[ "$OP" == "get" ]]; then
 	exit
 fi
 
-# Normalize versions.
-normalize_version_number "$VERSION_RAW"
-TARGET_VERSION="$NORMALIZED_VERSION"
-normalize_version_number "$VERSION_RAW" 3
-TARGET_VERSION_3="$NORMALIZED_VERSION"
-
-# Update the WordPress plugin header version
-sed -i.bak -E "s/^ \* Version: .+/ * Version: ${TARGET_VERSION}/" "$PLUGIN_FILE"
-rm "$PLUGIN_FILE.bak" # We need a backup file because macOS requires it.
-
-# Update composer.json and package.json
-for FILE in "$PLUGIN_DIR/composer.json" "$PLUGIN_DIR/package.json"; do
-	if [[ -f "$FILE" ]]; then
-		JSON=$(jq --arg v "$TARGET_VERSION_3" 'if .version then .version |= $v else . end' "$FILE" | "$BASE/tools/prettier" --parser=json-stringify)
-		if [[ "$JSON" != "$(<"$FILE")" ]]; then
-			echo "$JSON" > "$FILE"
-		fi
-	fi
-done
-
-# Update declared constants
-if [[ -f "$PLUGIN_DIR/composer.json" ]]; then
-	jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " " + .value' "$PLUGIN_DIR/composer.json" | while IFS=" " read -r C F; do
-		if [[ ! -f "$PLUGIN_DIR/$F" ]]; then
-			warn "Warning: File $PLUGIN_DIR/$F does not exist, cannot replace version constant $C."
-		else
-			CE=$(sed 's/[.\[\]\\*^$\/()+?{}|]/\\&/g' <<<"${C}")
-			VE=$(sed 's/[&\\/]/\\&/g' <<<"${TARGET_VERSION}")
-			CONTENTS=$(sed -E "s/^([[:blank:]]*define\( '$CE', ')[^']*(' \);)$/\1$VE\2/" "$PLUGIN_DIR/$F")
-			if [[ "$CONTENTS" != "$(<"$PLUGIN_DIR/$F")" ]]; then
-				echo "$CONTENTS" > "$PLUGIN_DIR/$F"
-			else
-				warn "Warning: Did not find version constant $C in $PLUGIN_DIR/$F."
-			fi
-		fi
-	done
-fi
+# Use tools/project-version.sh to do the actual setting
+exec $BASE/tools/project-version.sh -u "$VERSION_RAW" "${PLUGIN_DIR#$BASE/projects/}"

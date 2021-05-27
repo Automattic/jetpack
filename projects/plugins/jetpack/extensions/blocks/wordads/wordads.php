@@ -74,7 +74,7 @@ class WordAds {
 			Jetpack_Gutenberg::set_extension_unavailable( self::BLOCK_NAME, 'WordAds unavailable' );
 			return;
 		}
-		// Make the block available. Just in case it wasn't registed before.
+		// Make the block available. Just in case it wasn't registered before.
 		Jetpack_Gutenberg::set_extension_available( self::BLOCK_NAME );
 	}
 
@@ -106,7 +106,7 @@ class WordAds {
 			return $wordads->get_ad( 'inline', 'house' );
 		}
 
-		// section_id is mostly depricated at this point, but it helps us (devs) keep track of which ads end up where
+		// section_id is mostly deprecated at this point, but it helps us (devs) keep track of which ads end up where
 		// 6 is to keep track of gutenblock ads.
 		$section_id = $wordads->params->blog_id . '6';
 		$align      = 'center';

@@ -86,7 +86,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$domains = array_unique( array_map( array( $this, 'get_subscription_domain_name' ), $subscriptions ) );
 
-		return $domains;
+		return array_values( $domains );
 	}
 
 	/**
@@ -102,7 +102,17 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$domains = $this->domain_subscriptions_for_site_owned_by_user( $user_id );
 			if ( ! empty( $domains ) ) {
-				return new WP_Error( 'user_owns_domain_subscription', join( ', ', $domains ) );
+				$error = new WP_Error( 'user_owns_domain_subscription', join( ', ', $domains ) );
+				$error->add_data( $domains, 'additional_data' );
+				return $error;
+			}
+
+			$active_user_subscriptions = WPCOM_Store::get_user_subscriptions( $user_id, get_current_blog_id() );
+			if ( ! empty( $active_user_subscriptions ) ) {
+				$product_names = array_values( wp_list_pluck( $active_user_subscriptions, 'product_name' ) );
+				$error         = new WP_Error( 'user_has_active_subscriptions', 'User has active subscriptions' );
+				$error->add_data( $product_names, 'additional_data' );
+				return $error;
 			}
 		}
 

@@ -1,71 +1,82 @@
-/**
- * Internal dependencies
- */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
-import PinterestBlock from '../lib/blocks/pinterest';
-import EventbriteBlock from '../lib/blocks/eventbrite';
-import { catchBeforeAll, step } from '../lib/setup-env';
+import PinterestBlock from '../lib/pages/wp-admin/blocks/pinterest';
+import EventbriteBlock from '../lib/pages/wp-admin/blocks/eventbrite';
+import { step } from '../lib/env/test-setup';
+import config from 'config';
+
+/**
+ *
+ * @group post-connection
+ * @group free-blocks
+ * @group blocks
+ * @group gutenberg
+ */
 
 describe( 'Free blocks', () => {
-	catchBeforeAll( async () => {
+	let blockEditor;
+
+	beforeAll( async () => {
 		await syncJetpackPlanData( 'free' );
 	} );
 
+	beforeEach( async () => {
+		blockEditor = await BlockEditorPage.visit( page );
+		await blockEditor.resolveWelcomeGuide( false );
+	} );
+
 	it( 'Pinterest block', async () => {
-		const pinId = '180003316347175596';
-		let blockEditor;
+		const pinId = config.get( 'blocks.pinterest.pinId' );
 
 		await step( 'Can visit the block editor and add a Pinterest block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
-			const blockInfo = await blockEditor.insertBlock(
+			const blockId = await blockEditor.insertBlock(
 				PinterestBlock.name(),
 				PinterestBlock.title()
 			);
 
-			const pinterestBlock = new PinterestBlock( blockInfo, page, pinId );
+			const pinterestBlock = new PinterestBlock( blockId, page, pinId );
 			await pinterestBlock.addEmbed();
 		} );
 
 		await step( 'Can publish a post with a Pinterest block', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 		} );
 
 		await step( 'Can assert that Pinterest block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } );
+			expect( await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } ) ).toBeTruthy();
 		} );
 	} );
 
 	it( 'Eventbrite block', async () => {
 		const eventId = '112691417062';
-		let blockEditor;
 
 		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
-			blockEditor = await BlockEditorPage.visit( page );
-			const blockInfo = await blockEditor.insertBlock(
+			const blockId = await blockEditor.insertBlock(
 				EventbriteBlock.name(),
 				EventbriteBlock.title()
 			);
 
-			const eventbriteBlock = new EventbriteBlock( blockInfo, page, eventId );
+			const eventbriteBlock = new EventbriteBlock( blockId, page, eventId );
 			await eventbriteBlock.addEmbed();
 		} );
 
 		await step( 'Can publish a post with a Eventbrite block', async () => {
-			await blockEditor.focus();
+			await blockEditor.selectPostTitle();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 		} );
 
 		await step( 'Can assert that Eventbrite block is rendered', async () => {
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( EventbriteBlock, {
-				eventId,
-			} );
+			expect(
+				await frontend.isRenderedBlockPresent( EventbriteBlock, {
+					eventId,
+				} )
+			).toBeTruthy();
 		} );
 	} );
 } );

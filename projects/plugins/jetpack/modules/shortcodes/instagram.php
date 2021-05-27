@@ -15,6 +15,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'init', 'jetpack_instagram_enable_embeds' );
@@ -36,11 +37,13 @@ function jetpack_instagram_enable_embeds() {
 	 *
 	 * We can drop the `wp_oembed_remove_provider` line once Core stops adding its own Instagram provider:
 	 * https://core.trac.wordpress.org/ticket/50861.
+	 *
+	 * @todo Remove once 5.6 is our minimum version. (Technically WP dropped their provider in 5.5.2).
 	 */
 	wp_oembed_remove_provider( '#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i' );
 
 	wp_oembed_add_provider(
-		'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv)/.*#i',
+		'#https?://(www\.)?instagr(\.am|am\.com)/(p|tv|reel)/.*#i',
 		'https://graph.facebook.com/v5.0/instagram_oembed/',
 		true
 	);
@@ -49,7 +52,7 @@ function jetpack_instagram_enable_embeds() {
 	 * Handle an alternate Instagram URL format, where the username is also part of the URL.
 	 */
 	wp_oembed_add_provider(
-		'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv)/([^\/]*)#i',
+		'#https?://(?:www\.)?instagr(?:\.am|am\.com)/(?:[^/]*)/(p|tv|reel)/([^\/]*)#i',
 		'https://graph.facebook.com/v5.0/instagram_oembed/',
 		true
 	);
@@ -57,7 +60,7 @@ function jetpack_instagram_enable_embeds() {
 	/**
 	 * Add auth token required by Instagram's oEmbed REST API, or proxy through WP.com.
 	 */
-	add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 2 );
+	add_filter( 'oembed_fetch_url', 'jetpack_instagram_oembed_fetch_url', 10, 3 );
 
 	/**
 	 * Add JP auth headers if we're proxying through WP.com.
@@ -214,16 +217,17 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
  *
  * @param string $provider URL of the oEmbed provider.
  * @param string $url      URL of the content to be embedded.
+ * @param array  $args      Additional arguments for retrieving embed HTML.
  *
  * @return string
  */
-function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
+function jetpack_instagram_oembed_fetch_url( $provider, $url, $args ) {
 	if ( ! wp_startswith( $provider, 'https://graph.facebook.com/v5.0/instagram_oembed/' ) ) {
 		return $provider;
 	}
 
 	// Get a set of URL and parameters supported by Facebook.
-	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url );
+	$clean_parameters = jetpack_instagram_get_allowed_parameters( $url, $args );
 
 	// Replace existing URL by our clean version.
 	if ( ! empty( $clean_parameters['url'] ) ) {
@@ -247,7 +251,7 @@ function jetpack_instagram_oembed_fetch_url( $provider, $url ) {
 
 	// If we don't have an access token, we go through the WP.com proxy instead.
 	// To that end, we need to make sure that we're connected to WP.com.
-	if ( ! Jetpack::is_active_and_not_offline_mode() ) {
+	if ( ! Jetpack::is_connection_ready() || ( new Status() )->is_offline_mode() ) {
 		return $provider;
 	}
 

@@ -2,11 +2,12 @@
  * External dependencies
  */
 import debugFactory from 'debug';
+import { debounce, noop } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useState, useRef, useReducer, useMemo } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
@@ -14,10 +15,12 @@ import {
 	Placeholder,
 	RangeControl,
 	TextControl,
+	ToolbarButton,
 	ToolbarGroup,
 	withNotices,
 	ToggleControl,
 	Spinner,
+	ComboboxControl,
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -44,8 +47,10 @@ import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { makeCancellable } from './utils';
 import { fetchPodcastFeed } from './api';
+import { podcastPlayerReducer, actions } from './state';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 import { PODCAST_FEED, EMBED_BLOCK } from './constants';
+import { maybeCopyElementsToSiteEditorContext } from '../../shared/block-editor-asset-loader';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -90,85 +95,121 @@ const PodcastPlayerEdit = ( {
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
+	const [ hasMigratedStyles, setHasMigratedStyles ] = useState( false );
+
 	// State.
-	const [ editedUrl, setEditedUrl ] = useState( url || '' );
-	const [ isEditing, setIsEditing ] = useState( false );
-	const [ feedData, setFeedData ] = useState( exampleFeedData || {} );
 	const cancellableFetch = useRef();
-	const [ isInteractive, setIsInteractive ] = useState( false );
+	const [ { selectedGuid, checkUrl, ...state }, dispatch ] = useReducer( podcastPlayerReducer, {
+		editedUrl: url || '',
+		isEditing: ! url && ! exampleFeedData,
+		isLoading: false,
+		feedData: exampleFeedData || {},
+		isInteractive: false,
+		selectedGuid: selectedEpisodes?.[ 0 ]?.guid,
+		checkUrl: url || '',
+	} );
 
-	const fetchFeed = useCallback(
-		requestParams => {
-			cancellableFetch.current = makeCancellable( fetchPodcastFeed( requestParams ) );
+	const fetchFeed = useMemo(
+		() =>
+			debounce( requestParams => {
+				dispatch( { type: actions.START_FETCH } );
+				cancellableFetch.current?.cancel();
+				cancellableFetch.current = makeCancellable(
+					fetchPodcastFeed( { ...requestParams, fetchEpisodeOptions: true } )
+				);
 
-			cancellableFetch.current.promise.then(
-				response => {
-					if ( response?.isCanceled ) {
-						debug( 'Block was unmounted during fetch', response );
-						return; // bail if canceled to avoid setting state
+				cancellableFetch.current.promise.then(
+					response => {
+						removeAllNotices();
+						if ( response?.isCanceled ) {
+							debug( 'Block was unmounted during fetch', response );
+							return; // bail if canceled to avoid setting state
+						}
+
+						// Check what type of response we got and act accordingly.
+						switch ( response?.type ) {
+							case PODCAST_FEED:
+								setAttributes( {
+									url: requestParams.url,
+									selectedEpisodes: requestParams.guids.map( guid => ( { guid } ) ),
+								} );
+								return dispatch( { type: actions.FEED_RECEIVED, payload: response.data } );
+							case EMBED_BLOCK:
+								return replaceWithEmbedBlock();
+						}
+					},
+					error => {
+						if ( error?.isCanceled ) {
+							debug( 'Block was unmounted during fetch', error );
+							return; // bail if canceled to avoid setting state
+						}
+
+						// Show error and allow to edit URL.
+						debug( 'feed error', error );
+						removeAllNotices();
+						createErrorNotice(
+							// Error messages already come localized.
+							error.message ||
+								// Fallback to a generic message.
+								__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+						);
+						dispatch( { type: actions.START_EDITING } );
 					}
-
-					// Check what type of response we got and act accordingly.
-					switch ( response?.type ) {
-						case PODCAST_FEED:
-							return setFeedData( response.data );
-						case EMBED_BLOCK:
-							return replaceWithEmbedBlock();
-					}
-				},
-				error => {
-					if ( error?.isCanceled ) {
-						debug( 'Block was unmounted during fetch', error );
-						return; // bail if canceled to avoid setting state
-					}
-
-					// Show error and allow to edit URL.
-					debug( 'feed error', error );
-					createErrorNotice(
-						// Error messages already come localized.
-						error.message ||
-							// Fallback to a generic message.
-							__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-					);
-					setIsEditing( true );
-				}
-			);
-		},
-		[ createErrorNotice, replaceWithEmbedBlock ]
+				);
+			}, 300 ),
+		[ replaceWithEmbedBlock, setAttributes, createErrorNotice, removeAllNotices ]
 	);
 
+	// Call once on mount or unmount (the return callback).
 	useEffect( () => {
 		return () => {
 			cancellableFetch?.current?.cancel?.();
 		};
 	}, [] );
 
-	// Load RSS feed.
-	useEffect( () => {
-		// Clean notices.
-		removeAllNotices();
+	// The Podcast player audio element requires wpmedialement styles.
+	// These aren't available in the Site Editor context, so we have to copy them in.
+	const podCastPlayerRef = useCallback(
+		node => {
+			if ( node !== null && ! hasMigratedStyles ) {
+				maybeCopyElementsToSiteEditorContext(
+					[ 'link#mediaelement-css', 'link#wp-mediaelement-css' ],
+					node
+				);
+				setHasMigratedStyles( true );
+			}
+		},
+		[ hasMigratedStyles ]
+	);
 
+	// Load RSS feed initially and when the feed or selected episode changes.
+	useEffect( () => {
 		// Don't do anything if no url is set.
-		if ( ! url ) {
+		if ( '' === checkUrl ) {
 			return;
 		}
 
-		// Clean current podcast feed and fetch a new one.
-		setFeedData( {} );
 		fetchFeed( {
-			url,
-			guids: selectedEpisodes.map( episode => episode.guid ),
+			url: checkUrl,
+			guids: selectedGuid ? [ selectedGuid ] : [],
 		} );
+
 		return () => cancellableFetch?.current?.cancel?.();
-	}, [ fetchFeed, removeAllNotices, url, selectedEpisodes ] );
+	}, [ fetchFeed, checkUrl, selectedGuid ] );
+
+	// Make sure itemsToShow is 1 when we have a selected episode
+	useEffect( () => {
+		if ( selectedGuid && 1 !== itemsToShow ) {
+			setAttributes( { itemsToShow: 1 } );
+		}
+	}, [ selectedGuid, itemsToShow, setAttributes ] );
 
 	// Bring back the overlay after block gets deselected.
 	useEffect( () => {
-		if ( ! isSelected && isInteractive ) {
-			setIsInteractive( false );
+		if ( ! isSelected && state.isInteractive ) {
+			dispatch( { type: actions.PREVENT_INTERACTIONS } );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ isSelected ] );
+	}, [ isSelected, state.isInteractive ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed is valid. If so, set the
@@ -177,50 +218,50 @@ const PodcastPlayerEdit = ( {
 	 *
 	 * @param {object} event - Form on submit event object.
 	 */
-	const checkPodcastLink = useCallback(
-		event => {
-			event.preventDefault();
-			removeAllNotices();
+	const checkPodcastLink = event => {
+		event.preventDefault();
 
-			if ( ! editedUrl ) {
-				return;
-			}
+		if ( '' === state.editedUrl ) {
+			return;
+		}
 
-			/*
-			 * Ensure URL has `http` appended to it (if it doesn't already) before we
-			 * accept it as the entered URL.
-			 */
-			const prependedURL = prependHTTP( editedUrl );
+		/*
+		 * Ensure URL has `http` appended to it (if it doesn't already) before we
+		 * accept it as the entered URL.
+		 */
+		const prependedURL = prependHTTP( state.editedUrl );
 
-			if ( ! isURL( prependedURL ) ) {
-				createErrorNotice(
-					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-				);
-				return;
-			}
+		if ( ! isURL( prependedURL ) ) {
+			createErrorNotice(
+				__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+			);
+			return;
+		}
 
-			/*
-			 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
-			 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
-			 */
-			if ( prependedURL === url ) {
-				fetchFeed( { url } );
-			} else {
-				setAttributes( { url: prependedURL } );
-			}
+		/*
+		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
+		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
+		 */
+		if ( prependedURL === checkUrl ) {
+			// Reset the feedData, so that we display the spinner.
+			dispatch( { type: actions.CLEAR_FEED } );
+			fetchFeed( {
+				url: checkUrl,
+				guids: selectedEpisodes[ 0 ]?.guid ? [ selectedEpisodes[ 0 ].guid ] : [],
+			} );
+		} else {
+			dispatch( { type: actions.CHECK_URL, payload: prependedURL } );
+		}
 
-			/*
-			 * Also update the temporary `input` value in order that clicking `Replace`
-			 * in the UI will show the "corrected" version of the URL (ie: with `http`
-			 * prepended if it wasn't originally present).
-			 */
-			setEditedUrl( prependedURL );
-			setIsEditing( false );
-		},
-		[ editedUrl, url, fetchFeed, createErrorNotice, removeAllNotices, setAttributes ]
-	);
+		/*
+		 * Also update the temporary `input` value in order that clicking `Replace`
+		 * in the UI will show the "corrected" version of the URL (ie: with `http`
+		 * prepended if it wasn't originally present).
+		 */
+		dispatch( { type: actions.FINISH_EDITING, payload: prependedURL } );
+	};
 
-	if ( isEditing || ( ! url && ! exampleFeedData ) ) {
+	if ( state.isEditing ) {
 		return (
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }
@@ -234,9 +275,9 @@ const PodcastPlayerEdit = ( {
 						type="text"
 						inputMode="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
-						value={ editedUrl || '' }
+						value={ state.editedUrl }
 						className={ 'components-placeholder__input' }
-						onChange={ setEditedUrl }
+						onChange={ editedUrl => dispatch( { type: actions.EDIT_URL, payload: editedUrl } ) }
 					/>
 					<Button isPrimary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
@@ -251,8 +292,9 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	// Loading state for fetching the feed.
-	if ( ! feedData.tracks || ! feedData.tracks.length ) {
+	// With no tracks data, this is either the first load or the URL has changed
+	// and we need the data to refresh before displaying the other controls.
+	if ( ! state.feedData.tracks?.length ) {
 		return (
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }
@@ -273,27 +315,37 @@ const PodcastPlayerEdit = ( {
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<Button
+					<ToolbarButton
 						aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
-						onClick={ () => setIsEditing( true ) }
+						onClick={ () => dispatch( { type: actions.START_EDITING } ) }
 					>
 						{ __( 'Replace', 'jetpack' ) }
-					</Button>
+					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					{ 0 === selectedEpisodes.length && (
+					{ ( ComboboxControl || 0 === selectedEpisodes.length ) && (
 						<RangeControl
 							label={ __( 'Number of items', 'jetpack' ) }
 							value={ itemsToShow }
-							onChange={ value => setAttributes( { itemsToShow: value } ) }
+							onChange={ value => setAttributes( { itemsToShow: selectedGuid ? 1 : value } ) }
 							min={ DEFAULT_MIN_ITEMS }
 							max={ DEFAULT_MAX_ITEMS }
 							required
+							disabled={ !! selectedGuid }
 						/>
 					) }
-
+					{ ComboboxControl && (
+						<ComboboxControl
+							className="jetpack-podcast-player__episode-selector"
+							value={ selectedGuid }
+							onChange={ guid => dispatch( { type: actions.SELECT_EPISODE, payload: guid } ) }
+							options={ state.feedData.options || [] }
+							label={ __( 'Episode', 'jetpack' ) }
+							onFilterValueChange={ noop }
+						/>
+					) }
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }
 						checked={ showCoverArt }
@@ -342,14 +394,14 @@ const PodcastPlayerEdit = ( {
 				</PanelColorSettings>
 			</InspectorControls>
 
-			<div id={ playerId } className={ className }>
+			<div id={ playerId } className={ className } ref={ podCastPlayerRef }>
 				<PodcastPlayer
 					playerId={ playerId }
 					attributes={ validatedAttributes }
-					tracks={ feedData.tracks }
-					cover={ feedData.cover }
-					title={ feedData.title }
-					link={ feedData.link }
+					tracks={ state.feedData.tracks }
+					cover={ state.feedData.cover }
+					title={ state.feedData.title }
+					link={ state.feedData.link }
 				/>
 				{ /*
 				 * Disabled because the overlay div doesn't actually have a role or
@@ -358,13 +410,18 @@ const PodcastPlayerEdit = ( {
 				 * interacting with the embed preview that the overlay covers.
 				 */ }
 				{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
-				{ ! isInteractive && (
+				{ ! state.isInteractive && ! state.isLoading && (
 					<div
 						className="jetpack-podcast-player__interactive-overlay"
-						onMouseUp={ () => setIsInteractive( true ) }
+						onMouseUp={ () => dispatch( { type: actions.MAKE_INTERACTIVE } ) }
 					/>
 				) }
 				{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
+				{ state.isLoading && (
+					<div className="jetpack-podcast-player__loading-overlay">
+						<Spinner />
+					</div>
+				) }
 			</div>
 		</>
 	);

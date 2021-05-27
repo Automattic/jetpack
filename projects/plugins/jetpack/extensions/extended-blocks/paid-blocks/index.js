@@ -19,7 +19,6 @@ import {
 	isUpgradable,
 	isStillUsableWithFreePlan,
 } from '../../shared/plan-utils';
-import paidBlockEdit from './edit';
 import renderPaidIcon from './render-paid-icon.js';
 
 import './editor.scss';
@@ -41,6 +40,14 @@ const jetpackPaidBlock = ( settings, name ) => {
 		if ( ! isStillUsableWithFreePlan( name ) ) {
 			settings.icon = renderPaidIcon( settings.icon );
 		}
+
+		// Add the attributes for rendering upgrade nudges.
+		if ( ! settings.attributes.shouldDisplayFrontendBanner ) {
+			settings.attributes.shouldDisplayFrontendBanner = {
+				type: 'boolean',
+				default: true,
+			};
+		}
 	}
 
 	return settings;
@@ -48,9 +55,6 @@ const jetpackPaidBlock = ( settings, name ) => {
 
 // Extend BlockType.
 addFilter( 'blocks.registerBlockType', 'jetpack/paid-block', jetpackPaidBlock );
-
-// Extend BlockEdit.
-addFilter( 'editor.BlockEdit', 'jetpack/paid-block-edit', paidBlockEdit, 30 );
 
 // Extend BlockListBlock.
 addFilter( 'editor.BlockListBlock', 'jetpack/paid-block-with-warning', withUpgradeBanner );

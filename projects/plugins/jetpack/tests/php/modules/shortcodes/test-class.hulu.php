@@ -1,6 +1,9 @@
 <?php
 
+require_once __DIR__ . '/trait.http-request-cache.php';
+
 class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
+	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
 	 * Stores the correct server to fetch Hulu embeds from.
@@ -41,22 +44,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 		$this->video_id = '771496';
 		$this->video_eid = '_hHzwnAcj3RrXMJFDDvkuw';
 
-		// Back compat for PHPUnit 3!
-		// @todo Remove this when WP's PHP version bumps.
-		if ( is_callable( array( $this, 'getGroups' ) ) ) {
-			$groups = $this->getGroups();
-		} else {
-			$annotations = $this->getAnnotations();
-			$groups = array();
-			foreach ( $annotations as $source ) {
-				if ( ! isset( $source['group'] ) ) {
-					continue;
-				}
-				$groups = array_merge( $groups, $source['group'] );
-			}
-		}
-
-		if ( in_array( 'external-http', $groups ) ) {
+		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
 			// Used by WordPress.com - does nothing in Jetpack.
 			add_filter( 'tests_allow_http_request', '__return_true' );
 		} else {

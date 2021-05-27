@@ -7,7 +7,12 @@ import { compose } from '@wordpress/compose';
 import { filter, get, map, pick } from 'lodash';
 import { isBlobURL } from '@wordpress/blob';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
+import {
+	BlockIcon,
+	MediaPlaceholder,
+	BlockControls,
+	InspectorControls,
+} from '@wordpress/block-editor';
 import { mediaUpload } from '@wordpress/editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
 
@@ -15,7 +20,7 @@ import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
  * Internal dependencies
  */
 import { icon } from '.';
-import Controls from './controls';
+import { PanelControls, ToolbarControls } from './controls';
 import Slideshow from './slideshow';
 import './editor.scss';
 
@@ -30,7 +35,7 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 	return imageProps;
 };
 
-class SlideshowEdit extends Component {
+export class SlideshowEdit extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
@@ -126,14 +131,23 @@ class SlideshowEdit extends Component {
 
 		const imageSizeOptions = this.getImageSizeOptions();
 		const controls = (
-			<Controls
-				allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
-				attributes={ attributes }
-				imageSizeOptions={ imageSizeOptions }
-				onChangeImageSize={ this.updateImagesSize }
-				onSelectImages={ this.onSelectImages }
-				setAttributes={ attrs => this.setAttributes( attrs ) }
-			/>
+			<>
+				<InspectorControls>
+					<PanelControls
+						attributes={ attributes }
+						imageSizeOptions={ imageSizeOptions }
+						onChangeImageSize={ this.updateImagesSize }
+						setAttributes={ attrs => this.setAttributes( attrs ) }
+					/>
+				</InspectorControls>
+				<BlockControls>
+					<ToolbarControls
+						allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
+						attributes={ attributes }
+						onSelectImages={ this.onSelectImages }
+					/>
+				</BlockControls>
+			</>
 		);
 
 		if ( images.length === 0 ) {

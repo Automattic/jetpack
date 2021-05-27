@@ -2,87 +2,115 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { useEffect, useCallback, useMemo } from '@wordpress/element';
-import { InnerBlocks, InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { useCallback, useMemo, useState } from '@wordpress/element';
+import { InnerBlocks, InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import {
 	Panel,
 	PanelBody,
-	ToggleControl,
-	ToolbarButton,
-	ToolbarGroup,
+	withNotices,
+	Placeholder,
+	FormFileUpload,
+	Button,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import './editor.scss';
-import ParticipantsDropdown, { ParticipantsSelector } from './components/participants-controls';
+import { ParticipantsSelector } from './components/participants-controls';
 import TranscriptionContext from './components/context';
+import { TranscriptIcon as icon } from '../../shared/icons';
+import createBlocksFromInnerBlocksTemplate from '../../shared/create-block-from-inner-blocks-template';
+import {
+	getParticipantByLabel,
+	parseTranscriptFile,
+	pickExtensionFromFileName,
+	isAcceptedTranscriptExtension,
+	ACCEPTED_FILE_EXTENSIONS,
+	TRANSCRIPT_MAX_FILE_SIZE,
+} from './utils';
 
-import { list as defaultParticipants } from './participants.json';
+const TRANSCRIPTION_TEMPLATE = [ [ 'jetpack/dialogue' ] ];
 
-const TRANSCRIPTION_TEMPLATE = [
-	[ 'core/heading', { placeholder: __( 'Conversation title', 'jetpack' ) } ],
-	[ 'jetpack/dialogue', {
-		participantLabel: defaultParticipants[ 0 ].label,
-		participantSlug: defaultParticipants[ 0 ].slug,
-	} ],
-	[ 'jetpack/dialogue', {
-		participantLabel: defaultParticipants[ 1 ].label,
-		participantSlug: defaultParticipants[ 1 ].slug,
-	} ],
-	[ 'jetpack/dialogue', {
-		participantLabel: defaultParticipants[ 2 ].label,
-		participantSlug: defaultParticipants[ 2 ].slug,
-	} ],
-];
-
-function ConversationEdit( { className, attributes, setAttributes } ) {
-	const { participants = [], showTimestamps } = attributes;
-
-	// Set initial conversation participants.
-	useEffect( () => {
-		if ( participants?.length ) {
-			return;
-		}
-
-		setAttributes( { participants: defaultParticipants } );
-	}, [ participants, setAttributes ] );
+function ConversationEdit( {
+	className,
+	attributes,
+	setAttributes,
+	noticeUI,
+	clientId,
+	noticeOperations,
+} ) {
+	const { participants = [], showTimestamps, skipUpload } = attributes;
+	const [ isProcessingFile, setIsProcessingFile ] = useState( '' );
+	const { insertBlocks } = useDispatch( 'core/block-editor' );
 
 	const updateParticipants = useCallback(
-		updatedParticipant =>
+		updatedParticipant => {
 			setAttributes( {
 				participants: participants.map( participant => {
 					if ( participant.slug !== updatedParticipant.slug ) {
 						return participant;
 					}
+
 					return {
 						...participant,
 						...updatedParticipant,
 					};
 				} ),
-			} ),
+			} );
+		},
 		[ setAttributes, participants ]
 	);
 
-	const setBlockAttributes = useCallback( setAttributes, [] );
+	const addNewParticipant = useCallback(
+		function ( { label, slug } ) {
+			if ( ! label ) {
+				return;
+			}
+
+			const sanitizedSpeakerLabel = label.trim();
+			// Do not add speakers with empty names.
+			if ( ! sanitizedSpeakerLabel?.length ) {
+				return;
+			}
+
+			// Do not add a new participant with the same label.
+			const existingParticipant = getParticipantByLabel( participants, sanitizedSpeakerLabel );
+			if ( existingParticipant ) {
+				return existingParticipant;
+			}
+
+			// Creates the participant slug.
+			const newParticipantSlug = slug || `speaker-${ +new Date() }`;
+
+			const newParticipant = {
+				slug: newParticipantSlug,
+				label: sanitizedSpeakerLabel,
+			};
+
+			setAttributes( {
+				participants: [ ...participants, newParticipant ],
+			} );
+
+			return newParticipant;
+		},
+		[ participants, setAttributes ]
+	);
+
+	const setBlockAttributes = useCallback( setAttributes, [ setAttributes ] );
 
 	// Context bridge.
 	const contextProvision = useMemo(
 		() => ( {
 			setAttributes: setBlockAttributes,
 			updateParticipants,
-			getParticipantIndex: slug => participants.map( part => part.slug ).indexOf( slug ),
-			getNextParticipantIndex: ( slug, offset = 0 ) =>
-				( contextProvision.getParticipantIndex( slug ) + 1 + offset ) % participants.length,
-			getNextParticipant: ( slug, offset = 0 ) =>
-				participants[ contextProvision.getNextParticipantIndex( slug, offset ) ],
-
+			addNewParticipant,
 			attributes: {
 				showTimestamps,
 			},
 		} ),
-		[ participants, setBlockAttributes, showTimestamps, updateParticipants ]
+		[ addNewParticipant, setBlockAttributes, showTimestamps, updateParticipants ]
 	);
 
 	function deleteParticipant( deletedParticipantSlug ) {
@@ -91,72 +119,128 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 		} );
 	}
 
-	function addNewParticipant( newSpakerValue ) {
-		const newParticipantSlug = participants.length
-			? participants[ participants.length - 1 ].slug.replace( /(\d+)/, n => Number( n ) + 1 )
-			: 'speaker-0';
-		setAttributes( {
-			participants: [
-				...participants,
-				{
-					label: newSpakerValue,
-					slug: newParticipantSlug,
-					hasBoldStyle: true,
-				},
-			],
+	function showTranscriptProcessErrorMessage( message ) {
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice( message );
+		setIsProcessingFile( false );
+	}
+
+	function uploadTranscriptFile( event ) {
+		const transcriptFile = event.target.files?.[ 0 ];
+
+		// Check file exists.
+		if ( ! transcriptFile ) {
+			return showTranscriptProcessErrorMessage( __( 'Transcript file not found.', 'jetpack' ) );
+		}
+
+		// Check file MAX size.
+		if (
+			( transcriptFile?.size && transcriptFile.size <= 0 ) || // min size
+			! transcriptFile?.size ||
+			transcriptFile.size > TRANSCRIPT_MAX_FILE_SIZE // max size
+		) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file size.', 'jetpack' ) );
+		}
+
+		// Check file type.
+		if ( transcriptFile?.type?.length && transcriptFile.type !== 'text/plain' ) {
+			return showTranscriptProcessErrorMessage( __( 'Invalid transcript file type.', 'jetpack' ) );
+		}
+
+		// Check format by extension.
+		const fileExtension = pickExtensionFromFileName( transcriptFile?.name );
+		if ( ! isAcceptedTranscriptExtension( fileExtension ) ) {
+			return showTranscriptProcessErrorMessage(
+				__( 'Invalid transcript file extension.', 'jetpack' )
+			);
+		}
+
+		setIsProcessingFile( true );
+
+		parseTranscriptFile( transcriptFile, function ( { conversation, dialogues }, err ) {
+			if ( err ) {
+				return showTranscriptProcessErrorMessage( err );
+			}
+
+			setAttributes( {
+				participants: conversation.speakers,
+				skipUpload: ! conversation?.length,
+			} );
+
+			const dialogueBlocksTemplate = dialogues.map( dialogue =>
+				dialogue.slug || dialogue.timestamp
+					? [ 'jetpack/dialogue', dialogue ]
+					: [ 'core/paragraph', dialogue ]
+			);
+
+			const dialogueBlocks = createBlocksFromInnerBlocksTemplate( dialogueBlocksTemplate );
+			insertBlocks( dialogueBlocks, 0, clientId );
+			setIsProcessingFile( false );
 		} );
 	}
 
 	const baseClassName = 'wp-block-jetpack-conversation';
 
+	if ( ! participants?.length && ! skipUpload ) {
+		return (
+			<Placeholder
+				label={ __( 'Conversation', 'jetpack' ) }
+				instructions={
+					<>
+						{ __(
+							'Upload a transcript file or create a conversation with blank content.',
+							'jetpack'
+						) }
+						<div>
+							<em>
+								{ __( 'Accepted file formats:', 'jetpack' ) }
+								<strong> { ACCEPTED_FILE_EXTENSIONS }</strong>.
+							</em>
+						</div>
+					</>
+				}
+				icon={ <BlockIcon icon={ icon } /> }
+				notices={ noticeUI }
+			>
+				<div className={ `${ baseClassName }__placeholder` }>
+					<FormFileUpload
+						multiple={ false }
+						isLarge
+						className="wp-block-jetpack-slideshow__add-item-button"
+						onChange={ uploadTranscriptFile }
+						accept={ ACCEPTED_FILE_EXTENSIONS }
+						isPrimary
+						title={ `${ __( 'Accepted file formats:', 'jetpack' ) } ${ ACCEPTED_FILE_EXTENSIONS }` }
+						disabled={ isProcessingFile }
+					>
+						{ __( 'Upload transcript', 'jetpack' ) }
+					</FormFileUpload>
+
+					<Button
+						isTertiary
+						disabled={ isProcessingFile }
+						onClick={ () => setAttributes( { skipUpload: true } ) }
+					>
+						{ __( 'Skip upload', 'jetpack' ) }
+					</Button>
+				</div>
+			</Placeholder>
+		);
+	}
+
 	return (
 		<TranscriptionContext.Provider value={ contextProvision }>
 			<div className={ className }>
-				<BlockControls>
-					<ToolbarGroup>
-						<ParticipantsDropdown
-							className={ baseClassName }
-							participants={ participants }
-							label={ __( 'Participants', 'jetpack' ) }
-							onChange={ updateParticipants }
-							onDelete={ deleteParticipant }
-							onAdd={ addNewParticipant }
-						/>
-					</ToolbarGroup>
-
-					<ToolbarGroup>
-						<ToolbarButton
-							isActive={ showTimestamps }
-							onClick={ () => setAttributes( { showTimestamps: ! showTimestamps } ) }
-						>
-							{ __( 'Timestamps', 'jetpack' ) }
-						</ToolbarButton>
-					</ToolbarGroup>
-				</BlockControls>
-
 				<InspectorControls>
 					<Panel>
 						<PanelBody
-							title={ __( 'Participants', 'jetpack' ) }
+							title={ __( 'Speakers', 'jetpack' ) }
 							className={ `${ baseClassName }__participants` }
 						>
 							<ParticipantsSelector
 								className={ baseClassName }
 								participants={ participants }
-								onChange={ updateParticipants }
 								onDelete={ deleteParticipant }
-								onAdd={ addNewParticipant }
-							/>
-						</PanelBody>
-
-						<PanelBody
-							title={ __( 'Timestamps', 'jetpack' ) }
-							className={ `${ baseClassName }__timestamps` }
-						>
-							<ToggleControl
-								label={ __( 'Show timestamps', 'jetpack' ) }
-								checked={ showTimestamps }
-								onChange={ value => setAttributes( { showTimestamps: value } ) }
 							/>
 						</PanelBody>
 					</Panel>
@@ -168,4 +252,4 @@ function ConversationEdit( { className, attributes, setAttributes } ) {
 	);
 }
 
-export default ConversationEdit;
+export default withNotices( ConversationEdit );

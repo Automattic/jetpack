@@ -7,7 +7,7 @@ import {
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, Toolbar, ToolbarButton, Path } from '@wordpress/components';
+import { PanelBody, ToggleControl, ToolbarGroup, ToolbarButton, Path } from '@wordpress/components';
 
 /**
  * Internal Dependencies
@@ -20,7 +20,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 	return (
 		<>
 			<BlockControls>
-				<Toolbar>
+				<ToolbarGroup>
 					<ToolbarButton
 						title={ __( 'Required', 'jetpack' ) }
 						icon={ renderMaterialIcon(
@@ -34,7 +34,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 						} }
 						className={ required ? 'is-pressed' : undefined }
 					/>
-				</Toolbar>
+				</ToolbarGroup>
 			</BlockControls>
 
 			<InspectorControls>

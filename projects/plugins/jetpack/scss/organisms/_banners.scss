@@ -107,7 +107,7 @@
 		position: relative;
 		bottom: 0;
 		box-shadow:
-			0 0 0 1px #ccd0d4,
+			0 0 0 1px #c3c4c7,
 			0 1px 1px 1px  rgba(0,0,0,.04);
 
 
@@ -187,6 +187,10 @@
 	&.bottom {
 		margin-top: rem( 80px );
 	}
+}
+
+#jp-connect-full__step2-header {
+	display: none;
 }
 
 .jp-connect-full__tos-blurb {
@@ -295,7 +299,7 @@
 .updated.jp-wpcom-connect__container {
 	border-left: none;
 	padding: 0;
-	border: 1px solid #ccd0d4;
+	border: 1px solid #c3c4c7;
 	box-shadow: 0 1px 1px  rgba(0,0,0,.04);
 
 	@media screen and (max-width: 782px) {
@@ -484,8 +488,4 @@
 	left: 0;
 	top: rem(-3px);
 	fill: #eec74f;
-}
-
-#jp-authenticate-no_user_test_mode {
-	display: none;
 }

@@ -31,7 +31,7 @@ div.sharedaddy h3.sd-title:before {
 	display: block;
 	width: 100%;
 	min-width: 30px;
-	border-top: 1px solid #ddd;
+	border-top: 1px solid #dcdcde;
 	margin-bottom: 1em;
 }
 
@@ -145,7 +145,7 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content>ul>li .digg_button>a:hover,
 .sd-social-official .sd-content>ul>li .digg_button>a:active {
 	color: #555;
-	background: #fafafa;
+	background: #f6f7f7;
 	border: 1px solid #999999;
 }
 
@@ -621,7 +621,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-press-this a.sd-button {
-	background: #1e8cbe;
+	background: #4f94d4;
 	color: #fff !important;
 }
 
@@ -665,7 +665,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sharing-screen-reader-text:hover,
 .sharing-screen-reader-text:active,
 .sharing-screen-reader-text:focus {
-	background-color: #f1f1f1;
+	background-color: #f0f0f1;
 	border-radius: 3px;
 	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
 	clip: auto !important;

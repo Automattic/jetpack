@@ -87,7 +87,7 @@ class Jetpack_Mapbox_Helper {
 	private static function get_wpcom_site_id() {
 		if ( self::is_wpcom() ) {
 			return get_current_blog_id();
-		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+		} elseif ( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) {
 			return Jetpack_Options::get_option( 'id' );
 		}
 		return false;

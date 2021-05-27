@@ -6,6 +6,9 @@
 name: PHP Compatibility
 
 on: pull_request
+concurrency:
+  group: phpcompatibility-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   changed_files:
@@ -44,17 +47,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: shivammathur/setup-php@v2
+      - name: Read PHP and Node versions
+        id: versions
+        run: |
+          echo "::set-output name=php-version::$(<.github/php-version)"
+          echo "::set-output name=node-version::$(<.nvmrc)"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: ${{ steps.versions.outputs.php-version }}
           tools: composer
+          extensions: mysql, imagick
           coverage: none
 
       - name: Get Composer cache directory
         id: composer-cache
         run: |
           echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v2
+      - name: Use composer cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -63,8 +75,12 @@ jobs:
 
       - name: Tool versions
         run: |
+          which php
           php --version
+          which composer
           composer --version
+          which jq
+          jq --version
 
       - name: Install dependencies
         run: composer install

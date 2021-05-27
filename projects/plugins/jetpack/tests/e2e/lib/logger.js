@@ -1,5 +1,6 @@
-import { createLogger, format, transports } from 'winston';
-const LEVEL = Symbol.for( 'level' );
+const { createLogger, format, transports, addColors } = require( 'winston' );
+const config = require( 'config' );
+const path = require( 'path' );
 
 const myCustomLevels = {
 	levels: {
@@ -7,22 +8,24 @@ const myCustomLevels = {
 		warn: 4,
 		notice: 5,
 		info: 6,
-		debug: 7,
-		slack: 9,
+		step: 7,
+		action: 8,
+		cli: 9,
+		debug: 10,
+	},
+	colors: {
+		action: 'cyan',
+		step: 'cyan',
+		cli: 'cyanBG black',
 	},
 };
 
-/**
- * Log only the messages the match `level`.
- *
- * @param {string} level
- */
-function filterOnly( level ) {
-	return format( function ( info ) {
-		if ( info[ LEVEL ] === level ) {
-			return info;
-		}
-	} )();
+addColors( myCustomLevels.colors );
+
+let consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || 'debug';
+
+if ( process.env.CI ) {
+	consoleLogLevel = 'error';
 }
 
 const stringFormat = format.combine(
@@ -35,10 +38,12 @@ const stringFormat = format.combine(
 		}
 
 		return msg;
-	} )
+	} ),
+	format.uncolorize()
 );
 
-const logger = createLogger( {
+// eslint-disable-next-line no-unused-vars
+const logger = ( module.exports = createLogger( {
 	levels: myCustomLevels.levels,
 	format: format.combine(
 		format.timestamp( {
@@ -49,54 +54,21 @@ const logger = createLogger( {
 		format.json()
 	),
 	transports: [
-		//
-		// - Write to all logs with level `info` and below to `quick-start-combined.log`.
-		// - Write all logs error (and below) to `quick-start-error.log`.
-		//
-		new transports.File( { filename: 'logs/e2e-json.log' } ),
 		new transports.File( {
-			filename: 'logs/e2e-simple.log',
+			filename: path.resolve( config.get( 'dirs.logs' ), 'e2e-debug.log' ),
 			format: stringFormat,
+			level: 'debug',
 		} ),
-		// Slack specific logging transport that is used later to send a report to slack.
-		new transports.File( {
-			filename: 'logs/e2e-slack.log',
-			level: 'slack',
 
+		new transports.Console( {
 			format: format.combine(
-				filterOnly( 'slack' ),
-				format.printf( info => {
-					if ( typeof info.message === 'object' ) {
-						const obj = info.message;
-
-						info = Object.assign( info, obj );
-						delete info.message;
-						if ( info.error ) {
-							// Manually serialize error object, since `stringify` can not handle it
-							const error = {
-								name: info.error.name,
-								message: info.error.message,
-								stack: info.error.stack,
-							};
-							info.error = error;
-						}
-					}
-
-					return JSON.stringify( info );
+				format.timestamp(),
+				format.colorize(),
+				format.printf( ( { level, message, timestamp } ) => {
+					return `${ timestamp } ${ level }: ${ message }`;
 				} )
 			),
+			level: consoleLogLevel,
 		} ),
 	],
-} );
-
-// If we're running tests locally with debug enabled then **ALSO** log to the `console`
-// with the colorized simple format.
-if ( process.env.E2E_DEBUG || ! process.env.CI ) {
-	logger.add(
-		new transports.Console( {
-			format: stringFormat,
-		} )
-	);
-}
-
-export default logger;
+} ) );

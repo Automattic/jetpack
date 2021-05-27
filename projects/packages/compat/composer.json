@@ -4,6 +4,9 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^1.2"
+	},
 	"autoload": {
 		"files": [
 			"functions.php"
@@ -12,9 +15,25 @@
 			"legacy"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-compat"
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-compat",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.6.x-dev"
+		}
 	}
 }

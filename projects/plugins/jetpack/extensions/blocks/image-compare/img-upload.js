@@ -6,8 +6,8 @@ import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
-const ImgUpload = props => {
-	const { image, noticeOperations, noticeUI, onChange, placeHolderTitle, placeHolderLabel } = props;
+export const ImgUpload = props => {
+	const { image, noticeOperations, noticeUI, onChange, placeHolderLabel } = props;
 
 	const renderImage = <img id={ image.id } src={ image.url } alt={ image.alt } />;
 

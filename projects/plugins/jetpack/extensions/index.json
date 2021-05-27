@@ -26,7 +26,8 @@
 		"repeat-visitor",
 		"revue",
 		"send-a-message",
-		"send-a-message/whatsapp-button",
+		"whatsapp-button",
+		"seo",
 		"sharing",
 		"shortlinks",
 		"simple-payments",
@@ -43,7 +44,6 @@
 	],
 	"experimental": [
 		"anchor-fm",
-		"seo",
 		"premium-content",
 		"conversation",
 		"dialogue"

@@ -12,7 +12,7 @@
  */
 function get_menu_fixture() {
 	return array(
-		2  => array(
+		2   => array(
 			'Dashboard',
 			'read',
 			'index.php',
@@ -21,7 +21,7 @@ function get_menu_fixture() {
 			'menu-dashboard',
 			'dashicons-dashboard',
 		),
-		3  => array(
+		3   => array(
 			'Jetpack',
 			'jetpack_admin_page',
 			'jetpack',
@@ -30,14 +30,14 @@ function get_menu_fixture() {
 			'toplevel_page_jetpack',
 			'div',
 		),
-		4  => array(
+		4   => array(
 			'',
 			'read',
 			'separator1',
 			'',
 			'wp-menu-separator',
 		),
-		10 => array(
+		10  => array(
 			'Media',
 			'upload_files',
 			'upload.php',
@@ -46,7 +46,7 @@ function get_menu_fixture() {
 			'menu-media',
 			'dashicons-admin-media',
 		),
-		15 => array(
+		15  => array(
 			'Links',
 			'manage_links',
 			'edit-tags.php?taxonomy=link_category',
@@ -55,7 +55,7 @@ function get_menu_fixture() {
 			'menu-links',
 			'dashicons-admin-links',
 		),
-		25 => array(
+		25  => array(
 			'Comments <span class="awaiting-mod count-3"><span class="pending-count" aria-hidden="true">3</span><span class="comments-in-moderation-text screen-reader-text">3 Comments in moderation</span></span>',
 			'edit_posts',
 			'edit-comments.php',
@@ -64,7 +64,7 @@ function get_menu_fixture() {
 			'menu-comments',
 			'dashicons-admin-comments',
 		),
-		5  => array(
+		5   => array(
 			'Posts',
 			'edit_posts',
 			'edit.php',
@@ -73,7 +73,7 @@ function get_menu_fixture() {
 			'menu-posts',
 			'dashicons-admin-post',
 		),
-		20 => array(
+		20  => array(
 			'Pages',
 			'edit_pages',
 			'edit.php?post_type=page',
@@ -82,14 +82,23 @@ function get_menu_fixture() {
 			'menu-pages',
 			'dashicons-admin-page',
 		),
-		59 => array(
+		30  => array(
+			'Custom Test Types',
+			'edit_posts',
+			'edit.php?post_type=custom_test_type',
+			'',
+			'menu-top menu-icon-page',
+			'menu-custom_test_type',
+			'dashicons-admin-post',
+		),
+		59  => array(
 			'',
 			'read',
 			'separator2',
 			'',
 			'wp-menu-separator',
 		),
-		60 => array(
+		60  => array(
 			'Appearance',
 			'switch_themes',
 			'themes.php',
@@ -98,7 +107,7 @@ function get_menu_fixture() {
 			'menu-appearance',
 			'dashicons-admin-appearance',
 		),
-		65 => array(
+		65  => array(
 			'Plugins <span class="update-plugins count-4"><span class="plugin-count">4</span></span>',
 			'activate_plugins',
 			'plugins.php',
@@ -107,7 +116,7 @@ function get_menu_fixture() {
 			'menu-plugins',
 			'dashicons-admin-plugins',
 		),
-		70 => array(
+		70  => array(
 			'Users <span class="update-plugins count-0"><span class="plugin-count">0</span></span>',
 			'list_users',
 			'users.php',
@@ -116,7 +125,7 @@ function get_menu_fixture() {
 			'menu-users',
 			'dashicons-admin-users',
 		),
-		75 => array(
+		75  => array(
 			'Tools',
 			'edit_posts',
 			'tools.php',
@@ -125,7 +134,7 @@ function get_menu_fixture() {
 			'menu-tools',
 			'dashicons-admin-tools',
 		),
-		80 => array(
+		80  => array(
 			'Settings',
 			'manage_options',
 			'options-general.php',
@@ -134,7 +143,36 @@ function get_menu_fixture() {
 			'menu-settings',
 			'dashicons-admin-settings',
 		),
+		100 => array(
+			'Site Editor <span class="awaiting-mod">beta</span>',
+			'edit_theme_options',
+			'gutenberg-edit-site',
+			'Site Editor (beta)',
+			'menu-top toplevel_page_gutenberg-edit-site',
+			'toplevel_page_gutenberg-edit-site',
+			'dashicons-layout',
+		),
 	);
+}
+
+/**
+ * WPCom Menu fixture data.
+ *
+ * @return \string[][]
+ */
+function get_wpcom_menu_fixture() {
+	$gutenberg_menus = array(
+		101 => array(
+			'Gutenberg',
+			'edit_posts',
+			'gutenberg',
+			'Gutenberg',
+			'menu-top toplevel_page_gutenberg',
+			'toplevel_page_gutenberg',
+			'dashicons-edit',
+		),
+	);
+	return get_menu_fixture() + $gutenberg_menus;
 }
 
 /**
@@ -209,6 +247,18 @@ function get_submenu_fixture() {
 				'post-new.php?post_type=page',
 			),
 		),
+		'edit.php?post_type=custom_test_type'  => array(
+			5  => array(
+				'All Custom Test Types',
+				'edit_pages',
+				'edit.php?post_type=custom_test_type',
+			),
+			10 => array(
+				'Add New',
+				'edit_pages',
+				'post-new.php?post_type=custom_test_type',
+			),
+		),
 		'themes.php'                           => array(
 			5  => array(
 				'Themes',
@@ -218,7 +268,7 @@ function get_submenu_fixture() {
 			6  => array(
 				'Customize',
 				'customize',
-				'customize.php?return=%2Ftrunk%2Fwp-admin%2Fadmin.php%3Fpage%3Djetpack',
+				'customize.php?return',
 				'',
 				'hide-if-no-customize',
 			),
@@ -412,4 +462,11 @@ function get_submenu_fixture() {
 			),
 		),
 	);
+}
+
+/**
+ * Mock for testing
+ */
+function gutenberg_is_fse_theme() {
+	return true;
 }

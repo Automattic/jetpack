@@ -4,10 +4,14 @@
 import React from 'react';
 
 /**
+ * WordPress dependencies
+ */
+import { Spinner } from '@wordpress/components';
+
+/**
  * Internal dependencies
  */
 import Button from 'components/button';
-import Spinner from 'components/spinner';
 
 /**
  * Style dependencies

@@ -1,77 +1,104 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-/**
- * WordPress dependencies
- */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
-import { getTunnelSiteUrl } from '../../utils-helper';
+import WpPage from '../wp-page';
+import logger from '../../logger';
 
-export default class BlockEditorPage extends Page {
+export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.block-editor';
-		const url = getTunnelSiteUrl() + '/wp-admin/post-new.php';
-		super( page, { expectedSelector, url } );
+		const url = siteUrl + '/wp-admin/post-new.php';
+		super( page, { expectedSelectors: [ '#editor' ], url } );
 	}
 
-	static async init( page, showWelcomeGuide = false ) {
-		const it = await super.init( page );
+	//region selectors
 
+	get insertBlockBtnSel() {
+		return '.edit-post-header-toolbar__inserter-toggle';
+	}
+
+	get searchBlockFldSel() {
+		return '.block-editor-inserter__search-input';
+	}
+
+	blockSel( blockName ) {
+		return `.editor-block-list-item-jetpack-${ blockName }`;
+	}
+
+	insertedBlockSel( blockName ) {
+		return `div[data-type='jetpack/${ blockName }']`;
+	}
+
+	get publishPanelToggleBtnSel() {
+		return '.editor-post-publish-panel__toggle';
+	}
+
+	get publishPostBtnSel() {
+		return '.editor-post-publish-button';
+	}
+
+	get postPublishBtnSel() {
+		return '.post-publish-panel__postpublish-buttons';
+	}
+
+	get postPublishViewPostBtnSel() {
+		return `${ this.postPublishBtnSel } a`;
+	}
+
+	get postTitleFldSel() {
+		return '.editor-post-title__input';
+	}
+
+	//endregion
+
+	async resolveWelcomeGuide( show = false ) {
 		const isWelcomeGuideActive = await page.evaluate( () =>
 			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
 		);
 
-		if ( showWelcomeGuide !== isWelcomeGuideActive ) {
+		if ( show !== isWelcomeGuideActive ) {
 			await page.evaluate( () =>
 				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
 			);
 
-			await it.reload();
+			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
+			await this.reload();
 		}
+	}
 
-		return it;
+	async searchForBlock( searchTerm ) {
+		logger.step( `Search block: '${ searchTerm }'` );
+		await this.click( this.insertBlockBtnSel );
+		await this.type( this.searchBlockFldSel, searchTerm );
 	}
 
 	async insertBlock( blockName, blockTitle ) {
-		await searchForBlock( blockTitle );
-		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		await scrollIntoView( this.page, blockIconSelector );
-
-		await waitAndClick( this.page, blockIconSelector );
-		const blockInfo = await this.getInsertedBlock();
-		return blockInfo;
+		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }` );
+		await this.searchForBlock( blockTitle );
+		await this.click( this.blockSel( blockName ) );
+		return await this.getInsertedBlock( blockName );
 	}
 
-	async getInsertedBlock() {
-		const blocks = await getAllBlocks();
-		return blocks[ blocks.length - 1 ];
+	async getInsertedBlock( blockName ) {
+		return (
+			await this.waitForElementToBeVisible( this.insertedBlockSel( blockName ) )
+		 ).getAttribute( 'data-block' );
 	}
 
 	async publishPost() {
-		await waitAndClick( this.page, '.editor-post-publish-panel__toggle' );
-
-		// Disable reason: Wait for the animation to complete, since otherwise the
-		// click attempt may occur at the wrong point.
-		// Also, for some reason post-publish bar wont show up it we click to fast :/
-		await page.waitForTimeout( 1000 );
-
-		await waitAndClick( this.page, '.editor-post-publish-button' );
-		await page.waitForTimeout( 500 );
-
-		await waitForSelector( this.page, '.components-snackbar' );
-		return await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
+		logger.step( `Publish post` );
+		await this.click( this.publishPanelToggleBtnSel );
+		await this.click( this.publishPostBtnSel );
+		await this.waitForElementToBeVisible( this.postPublishViewPostBtnSel );
 	}
 
 	async viewPost() {
-		await waitForSelector( this.page, '.post-publish-panel__postpublish-buttons a' );
-		await waitAndClick( this.page, '.post-publish-panel__postpublish-buttons a' );
+		logger.step( `View post` );
+		await this.click( this.postPublishViewPostBtnSel );
 	}
 
-	async focus() {
-		await this.page.focus( '.editor-post-title__input' );
-		await waitAndClick( this.page, '.editor-post-title__input' );
+	async selectPostTitle() {
+		await this.focus( this.postTitleFldSel );
+		await this.click( this.postTitleFldSel );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
@@ -81,8 +108,8 @@ export default class BlockEditorPage extends Page {
 		}
 		let count = 0;
 		while ( count < 20 && ! block ) {
-			await this.page.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitFor: 'networkidle0' } );
+			await this.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
+			await this.reload( { waitUntil: 'domcontentloaded' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
 		}

@@ -409,19 +409,38 @@ abstract class Sharing_Source {
 		// Add JS after sharing-js has been enqueued.
 		wp_add_inline_script( 'sharing-js',
 			"var windowOpen;
-			document.body.addEventListener( 'click', function ( event ) {
-				if ( event.target && (
-					event.target.matches && event.target.matches( 'a.share-$name' ) ||
-					event.target.msMatchesSelector && event.target.msMatchesSelector( 'a.share-$name' )
-				) ) {
-					// If there's another sharing window open, close it.
-					if ( typeof windowOpen !== 'undefined' ) {
-						windowOpen.close();
-					}
-					windowOpen = window.open( event.target.getAttribute( 'href' ), 'wpcom$name', '$opts' );
-					return false;
+			( function () {
+				function matches( el, sel ) {
+					return !! (
+						el.matches && el.matches( sel ) ||
+						el.msMatchesSelector && el.msMatchesSelector( sel )
+					);
 				}
-			} );"
+
+				document.body.addEventListener( 'click', function ( event ) {
+					if ( ! event.target ) {
+						return;
+					}
+
+					var el;
+					if ( matches( event.target, 'a.share-$name' ) ) {
+						el = event.target;
+					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-$name' ) ) {
+						el = event.target.parentNode;
+					}
+
+					if ( el ) {
+						event.preventDefault();
+
+						// If there's another sharing window open, close it.
+						if ( typeof windowOpen !== 'undefined' ) {
+							windowOpen.close();
+						}
+						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcom$name', '$opts' );
+						return false;
+					}
+				} );
+			} )();"
 		);
 	}
 }

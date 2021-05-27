@@ -16,7 +16,7 @@ import {
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { ENTER } from '@wordpress/keycodes';
 
-const Rating = ( { id, setRating, children } ) => {
+export const Rating = ( { id, setRating, children } ) => {
 	const setNewRating = newRating => () => setRating( newRating );
 	const maybeSetNewRating = newRating => ( { keyCode } ) =>
 		keyCode === ENTER ? setRating( newRating ) : null;
@@ -46,7 +46,11 @@ export default Symbol =>
 					// Whole number.
 					newRating = newRating - 0.5;
 				}
+			} else if ( rating === 0.5 && newRating === 1 ) {
+				// Clicking the 0.5 star updates to 0 stars.
+				newRating = 0;
 			}
+
 			setAttributes( { rating: newRating } );
 		};
 

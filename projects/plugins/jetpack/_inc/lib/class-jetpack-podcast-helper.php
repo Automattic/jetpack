@@ -39,10 +39,11 @@ class Jetpack_Podcast_Helper {
 	 * @return array|WP_Error  The player data or a error object.
 	 */
 	public function get_player_data( $args = array() ) {
-		$guids = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
+		$guids           = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
+		$episode_options = isset( $args['episode-options'] ) && $args['episode-options'];
 
 		// Try loading data from the cache.
-		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) );
+		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
@@ -75,6 +76,9 @@ class Jetpack_Podcast_Helper {
 			$title = $rss->get_title();
 			$title = $this->get_plain_text( $title );
 
+			$description = $rss->get_description();
+			$description = $this->get_plain_text( $description );
+
 			$cover = $rss->get_image_url();
 			$cover = ! empty( $cover ) ? esc_url( $cover ) : null;
 
@@ -82,11 +86,27 @@ class Jetpack_Podcast_Helper {
 			$link = ! empty( $link ) ? esc_url( $link ) : null;
 
 			$player_data = array(
-				'title'  => $title,
-				'link'   => $link,
-				'cover'  => $cover,
-				'tracks' => $tracks,
+				'title'       => $title,
+				'description' => $description,
+				'link'        => $link,
+				'cover'       => $cover,
+				'tracks'      => $tracks,
 			);
+
+			if ( $episode_options ) {
+				$player_data['options'] = array();
+				foreach ( $rss->get_items() as $episode ) {
+					$enclosure = $this->get_audio_enclosure( $episode );
+					// If the episode doesn't have playable audio, then don't include it.
+					if ( is_wp_error( $enclosure ) ) {
+						continue;
+					}
+					$player_data['options'][] = array(
+						'label' => $this->get_plain_text( $episode->get_title() ),
+						'value' => $episode->get_id(),
+					);
+				}
+			}
 
 			// Cache for 1 hour.
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
@@ -154,8 +174,19 @@ class Jetpack_Podcast_Helper {
 			return $rss;
 		}
 
-		// Get first ten items and format them.
-		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
+		/**
+		 * Allow requesting a specific number of tracks from SimplePie's `get_items` call.
+		 * The default number of tracks is ten.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param int    $number Number of tracks fetched. Default is 10.
+		 * @param object $rss    The SimplePie object built from core's `fetch_feed` call.
+		 */
+		$tracks_quantity = apply_filters( 'jetpack_podcast_helper_list_quantity', 10, $rss );
+
+		// Process the requested number of items from our feed.
+		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $tracks_quantity ) );
 
 		// Filter out any tracks that are empty.
 		// Reset the array indicies.
@@ -298,6 +329,7 @@ class Jetpack_Podcast_Helper {
 			return array();
 		}
 
+		$publish_date = $episode->get_gmdate( DATE_ATOM );
 		// Build track data.
 		$track = array(
 			'id'               => wp_unique_id( 'podcast-track-' ),
@@ -309,6 +341,7 @@ class Jetpack_Podcast_Helper {
 			'title'            => $this->get_plain_text( $episode->get_title() ),
 			'image'            => esc_url( $this->get_episode_image_url( $episode ) ),
 			'guid'             => $this->get_plain_text( $episode->get_id() ),
+			'publish_date'     => $publish_date ? $publish_date : null,
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -378,21 +411,22 @@ class Jetpack_Podcast_Helper {
 			'title'      => 'jetpack-podcast-player-data',
 			'type'       => 'object',
 			'properties' => array(
-				'title'  => array(
+				'title'   => array(
 					'description' => __( 'The title of the podcast.', 'jetpack' ),
 					'type'        => 'string',
 				),
-				'link'   => array(
+				'link'    => array(
 					'description' => __( 'The URL of the podcast website.', 'jetpack' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
-				'cover'  => array(
+				'cover'   => array(
 					'description' => __( 'The URL of the podcast cover image.', 'jetpack' ),
 					'type'        => 'string',
 					'format'      => 'uri',
 				),
-				'tracks' => self::get_tracks_schema(),
+				'tracks'  => self::get_tracks_schema(),
+				'options' => self::get_options_schema(),
 			),
 		);
 	}
@@ -439,6 +473,38 @@ class Jetpack_Podcast_Helper {
 					),
 					'title'            => array(
 						'description' => __( 'The episode title.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'publish_date'     => array(
+						'description' => __( 'The UTC publish date and time of the episode', 'jetpack' ),
+						'type'        => 'string',
+						'format'      => 'date-time',
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Gets the episode options schema.
+	 *
+	 * Useful for json schema in REST API endpoints.
+	 *
+	 * @return array Tracks json schema.
+	 */
+	public static function get_options_schema() {
+		return array(
+			'description' => __( 'The options that will be displayed in the episode selection UI', 'jetpack' ),
+			'type'        => 'array',
+			'items'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'label' => array(
+						'description' => __( 'The display label of the option, the episode title.', 'jetpack' ),
+						'type'        => 'string',
+					),
+					'value' => array(
+						'description' => __( 'The value used for that option, the episode GUID', 'jetpack' ),
 						'type'        => 'string',
 					),
 				),

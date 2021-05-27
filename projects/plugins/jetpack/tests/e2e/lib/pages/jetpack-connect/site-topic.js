@@ -1,13 +1,11 @@
 /**
  * Internal dependencies
  */
-import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import WpPage from '../wp-page';
 
-export default class JetpackSiteTopicPage extends Page {
+export default class JetpackSiteTopicPage extends WpPage {
 	constructor( page ) {
-		const expectedSelector = '.jetpack-connect__step .site-topic__content';
-		super( page, { expectedSelector } );
+		super( page, { expectedSelectors: [ '.jetpack-connect__step .site-topic__content' ] } );
 	}
 
 	async selectSiteTopic( siteTopic ) {
@@ -15,15 +13,10 @@ export default class JetpackSiteTopicPage extends Page {
 		const siteTopicButtonSelector = '.site-topic__content button[type="submit"]';
 		const siteTopicSpinnerSelector = '.suggestion-search .spinner';
 
-		const siteTopicElement = await waitForSelector( this.page, siteTopicInputSelector, {
-			visible: true,
-		} );
-		await siteTopicElement.click( { clickCount: 3 } );
-		await siteTopicElement.type( siteTopic );
+		await this.click( siteTopicInputSelector, { clickCount: 3 } );
+		await this.type( siteTopicInputSelector, siteTopic );
 
-		await waitForSelector( this.page, siteTopicSpinnerSelector, {
-			hidden: true,
-		} );
-		return await waitAndClick( this.page, siteTopicButtonSelector );
+		await this.waitForElementToBeHidden( siteTopicSpinnerSelector );
+		await this.click( siteTopicButtonSelector );
 	}
 }

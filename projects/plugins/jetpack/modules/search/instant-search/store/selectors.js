@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { RELEVANCE_SORT_KEY } from '../lib/constants';
 import { getUnselectableFilterKeys, mapFilterKeyToFilter } from '../lib/filters';
 
 /**
@@ -57,10 +58,15 @@ export function getSearchQuery( state ) {
  * Get the sort key.
  *
  * @param {object} state - Current state.
+ * @param {string?} defaultSort - Default sort order specified via the Customizer.
  * @returns {string} sort - The selected sort key for the search interface.
  */
-export function getSort( state ) {
-	return state.sort;
+export function getSort( state, defaultSort ) {
+	// Default non-string defaultSort to 'relevance'
+	if ( typeof defaultSort !== 'string' ) {
+		defaultSort = RELEVANCE_SORT_KEY;
+	}
+	return typeof state.sort === 'string' ? state.sort : defaultSort;
 }
 
 /**
@@ -84,6 +90,16 @@ export function hasFilters( state ) {
 }
 
 /**
+ * Checks if there is an active search-related query values.
+ *
+ * @param {object} state - Current state.
+ * @returns {object} hasActiveQuery - true if any search-related query value has been defined.
+ */
+export function hasActiveQuery( state ) {
+	return getSearchQuery( state ) !== null || hasFilters( state ) || state.sort !== null;
+}
+
+/**
  * This selector combines multiple widgets outside overlay into a single widget consisting only of the `filters` key.
  * After combining the widgets, we the filter out all unselected filter values.
  *
@@ -103,4 +119,14 @@ export function getWidgetOutsideOverlay( state ) {
 		.map( mapFilterKeyToFilter );
 
 	return { filters };
+}
+
+/**
+ * Returns true if the query string change was performed by a history navigation.
+ *
+ * @param {object} state - Current state.
+ * @returns {boolean} isHistoryNavigation.
+ */
+export function isHistoryNavigation( state ) {
+	return state.isHistoryNavigation;
 }

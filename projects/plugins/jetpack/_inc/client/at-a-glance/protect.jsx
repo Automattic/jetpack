@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
 import DashItem from 'components/dash-item';
 import { getProtectCount } from 'state/at-a-glance';
 import getRedirectUrl from 'lib/jp-redirect';
-import { isOfflineMode } from 'state/connection';
+import { isOfflineMode, hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
 import { isModuleAvailable } from 'state/modules';
 import { numberFormat } from 'components/number-format';
 import QueryProtectCount from 'components/data/query-dash-protect';
@@ -27,9 +27,13 @@ class DashProtect extends Component {
 		isOfflineMode: PropTypes.bool.isRequired,
 		protectCount: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
+		authorizeUserInPlace: PropTypes.func.isRequired,
 	};
 
 	activateProtect = () => this.props.updateOptions( { protect: true } );
+
+	connect = () => this.props.authorizeUserInPlace();
 
 	getContent() {
 		const labelName = __( 'Protect', 'jetpack' );
@@ -41,7 +45,11 @@ class DashProtect extends Component {
 			link: getRedirectUrl( 'jetpack-support-protect' ),
 		};
 
-		if ( this.props.getOptionValue( 'protect' ) ) {
+		if (
+			this.props.getOptionValue( 'protect' ) &&
+			! this.props.isOfflineMode &&
+			this.props.hasConnectedOwner
+		) {
 			const protectCount = this.props.protectCount;
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
@@ -81,19 +89,34 @@ class DashProtect extends Component {
 				module="protect"
 				support={ support }
 				className="jp-dash-item__is-inactive"
+				noToggle={ ! this.props.hasConnectedOwner }
 			>
 				<p className="jp-dash-item__description">
-					{ this.props.isOfflineMode
-						? __( 'Unavailable in Offline Mode', 'jetpack' )
-						: createInterpolateElement(
-								__(
-									'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
-									'jetpack'
-								),
-								{
-									a: <a href="javascript:void(0)" onClick={ this.activateProtect } />,
-								}
-						  ) }
+					{ this.props.isOfflineMode && __( 'Unavailable in Offline Mode', 'jetpack' ) }
+
+					{ ! this.props.isOfflineMode &&
+						! this.props.hasConnectedOwner &&
+						createInterpolateElement(
+							__(
+								'<a>Connect your WordPress.com</a> account to keep your site protected from malicious sign in attempts.',
+								'jetpack'
+							),
+							{
+								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+							}
+						) }
+
+					{ ! this.props.isOfflineMode &&
+						this.props.hasConnectedOwner &&
+						createInterpolateElement(
+							__(
+								'<a>Activate Protect</a> to keep your site protected from malicious sign in attempts.',
+								'jetpack'
+							),
+							{
+								a: <a href="javascript:void(0)" onClick={ this.activateProtect } />,
+							}
+						) }
 				</p>
 			</DashItem>
 		);
@@ -111,8 +134,16 @@ class DashProtect extends Component {
 	}
 }
 
-export default connect( state => ( {
-	protectCount: getProtectCount( state ),
-	isOfflineMode: isOfflineMode( state ),
-	isModuleAvailable: isModuleAvailable( state, 'protect' ),
-} ) )( DashProtect );
+export default connect(
+	state => ( {
+		protectCount: getProtectCount( state ),
+		isOfflineMode: isOfflineMode( state ),
+		isModuleAvailable: isModuleAvailable( state, 'protect' ),
+		hasConnectedOwner: hasConnectedOwner( state ),
+	} ),
+	dispatch => ( {
+		authorizeUserInPlace: () => {
+			return dispatch( authorizeUserInPlace() );
+		},
+	} )
+)( DashProtect );

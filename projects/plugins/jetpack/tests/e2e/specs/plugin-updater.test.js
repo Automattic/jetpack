@@ -1,25 +1,27 @@
-/**
- * Internal dependencies
- */
-import { catchBeforeAll, step } from '../lib/setup-env';
-import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
+import { step } from '../lib/env/test-setup';
+import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
-	getTunnelSiteUrl,
 	resetWordpressInstall,
 	execMultipleWpCommands,
 } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
+import DashboardPage from '../lib/pages/wp-admin/dashboard';
+import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
 
+/**
+ *
+ * @group pre-connection
+ * @group update
+ */
 describe( 'Jetpack updater', () => {
-	catchBeforeAll( async () => {
+	beforeAll( async () => {
 		await prepareUpdaterTest();
-		const url = getTunnelSiteUrl();
 
 		await execMultipleWpCommands(
 			'wp plugin deactivate jetpack-dev',
@@ -27,13 +29,17 @@ describe( 'Jetpack updater', () => {
 			'wp plugin install --activate jetpack',
 			'wp plugin activate e2e-plugin-updater',
 			'wp option set e2e_jetpack_upgrader_update_version 8.8-alpha',
-			`wp option set e2e_jetpack_upgrader_plugin_url ${ url }/wp-content/uploads/jetpack.zip`
+			`wp option set e2e_jetpack_upgrader_plugin_url ${ siteUrl }/wp-content/uploads/jetpack.zip`
 		);
 	} );
 
 	afterAll( async () => {
 		await execWpCommand( 'wp plugin uninstall --deactivate jetpack' );
 		await resetWordpressInstall();
+	} );
+
+	beforeEach( async () => {
+		await DashboardPage.visit( page );
 	} );
 
 	it( 'Plugin updater', async () => {
@@ -51,7 +57,10 @@ describe( 'Jetpack updater', () => {
 		} );
 
 		await step( 'Can connect Jetpack', async () => {
-			await connectThroughWPAdmin( { mockPlanData: true, plan: 'free' } );
+			await ( await Sidebar.init( page ) ).selectJetpack();
+			await doInPlaceConnection();
+			const jetpackPage = await JetpackPage.init( page );
+			expect( await jetpackPage.isConnected() ).toBeTruthy();
 		} );
 	} );
 } );

@@ -29,6 +29,7 @@
 /_inc/build/maps/**                                      production-exclude
 /_inc/client/**                                          production-exclude
 /babel.config*                                           production-exclude
+/changelog/**                                            production-exclude
 /composer.lock                                           production-exclude
 /css/*.css.map                                           production-exclude
 /css/*.css.min.map                                       production-exclude
@@ -58,8 +59,9 @@
 /tests/**                                                production-exclude
 /tools/**                                                production-exclude
 /vendor/automattic/**/README.md                          production-exclude
-/vendor/automattic/**/assets/*.scss                      production-exclude
+/vendor/automattic/**/src/css/*.scss                     production-exclude
 /vendor/automattic/**/composer.json                      production-exclude
 /vendor/automattic/jetpack-autoloader/**                 production-exclude
+/vendor/automattic/jetpack-changelogger/**               production-exclude
 /wp-cli-templates/**                                     production-exclude
 /yarn.lock                                               production-exclude

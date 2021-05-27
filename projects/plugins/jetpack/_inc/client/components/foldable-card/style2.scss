@@ -2,6 +2,12 @@
 
 .dops-foldable-card.dops-card {
 
+	.jp-form-settings-group.foldable-wrapper & {
+		padding-right: 0;
+		margin-bottom: 0;
+		box-shadow: none;
+	}
+
 	&.offlinemode-disabled {
 		.dops-foldable-card__summary,
 		.dops-foldable-card__summary_expanded {

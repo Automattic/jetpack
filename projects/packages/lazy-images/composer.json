@@ -4,12 +4,13 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-assets": "@dev"
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-assets": "^1.11"
 	},
 	"require-dev": {
 		"automattic/wordbless": "dev-master",
-		"yoast/phpunit-polyfills": "0.2.0"
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -26,12 +27,12 @@
 			"yarn build"
 		],
 		"phpunit": [
-			"@composer install",
+			"@composer update",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"",
 		"test-coverage": [
-			"@composer install",
+			"@composer update",
 			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
@@ -50,6 +51,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-lazy-images"
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-lazy-images",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-lazy-images/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.4.x-dev"
+		}
 	}
 }

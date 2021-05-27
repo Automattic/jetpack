@@ -39,9 +39,12 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attributes, $content ) {
 	$save_in_post_content = get_attribute( $attributes, 'saveInPostContent' );
 
-	if ( Blocks::is_amp_request() ) {
-		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
-	}
+	// The Jetpack Button block depends on the core button block styles.
+	// The following ensures that those styles are enqueued when rendering this block.
+	enqueue_existing_button_style_dependency( 'core/button' );
+	enqueue_existing_button_style_dependency( 'core/buttons' );
+
+	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 
 	if ( $save_in_post_content || ! class_exists( 'DOMDocument' ) ) {
 		return $content;
@@ -55,8 +58,10 @@ function render_block( $attributes, $content ) {
 
 	$button_classes = get_button_classes( $attributes );
 	$button_styles  = get_button_styles( $attributes );
+	$wrapper_styles = get_button_wrapper_styles( $attributes );
 
-	$button_attributes = sprintf( ' class="%s" style="%s"', esc_attr( $button_classes ), esc_attr( $button_styles ) );
+	$wrapper_attributes = sprintf( ' class="%s" style="%s"', esc_attr( $classes ), esc_attr( $wrapper_styles ) );
+	$button_attributes  = sprintf( ' class="%s" style="%s"', esc_attr( $button_classes ), esc_attr( $button_styles ) );
 
 	if ( empty( $unique_id ) ) {
 		$button_attributes .= ' data-id-attr="placeholder"';
@@ -77,7 +82,7 @@ function render_block( $attributes, $content ) {
 		: '<' . $element . $button_attributes . '>' . $text . '</' . $element . '>';
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	return '<div class="' . esc_attr( $classes ) . '">' . $button . '</div>';
+	return '<div "' . $wrapper_attributes . '">' . $button . '</div>';
 }
 
 /**
@@ -148,6 +153,7 @@ function get_button_styles( $attributes ) {
 	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
 	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
 	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+	$has_width                   = array_key_exists( 'width', $attributes );
 
 	if ( ! $has_named_text_color && $has_custom_text_color ) {
 		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
@@ -169,6 +175,29 @@ function get_button_styles( $attributes ) {
 	// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
+	}
+
+	if ( $has_width ) {
+		$styles[] = sprintf( 'width: %s;', $attributes['width'] );
+		$styles[] = 'max-width: 100%';
+	}
+
+	return implode( ' ', $styles );
+}
+
+/**
+ * Get the Button wrapper block styles.
+ *
+ * @param array $attributes Array containing the block attributes.
+ *
+ * @return string
+ */
+function get_button_wrapper_styles( $attributes ) {
+	$styles    = array();
+	$has_width = array_key_exists( 'width', $attributes );
+
+	if ( $has_width ) {
+		$styles[] = 'max-width: 100%';
 	}
 
 	return implode( ' ', $styles );
@@ -195,5 +224,21 @@ function get_attribute( $attributes, $attribute_name ) {
 
 	if ( isset( $default_attributes[ $attribute_name ] ) ) {
 		return $default_attributes[ $attribute_name ];
+	}
+}
+
+/**
+ * Enqueue style for an existing block.
+ *
+ * The Jetpack Button block depends on styles from the core button block.
+ * In case that block is not already within the post content, we can use
+ * this function to ensure the block's style assets are enqueued.
+ *
+ * @param string $block_name Block type name including namespace.
+ */
+function enqueue_existing_button_style_dependency( $block_name ) {
+	$existing_block = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
+	if ( isset( $existing_block ) && ! empty( $existing_block->style ) ) {
+		wp_enqueue_style( $existing_block->style );
 	}
 }

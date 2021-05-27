@@ -14,8 +14,8 @@ use Automattic\Jetpack\Connection\Manager;
 
 // Getting the existing blog token created at registration step.
 $manager = new Manager( 'plugin-slug' );
-$blog_token = $manager->get_access_token();
-$user_token = $manager->get_access_token( get_current_user_id() );
+$blog_token = ( new Tokens() )->get_access_token();
+$user_token = ( new Tokens() )->get_access_token( get_current_user_id() );
 $auth_url   = $manager->get_authorization_url();
 
 // Checking if the user is already connected. If not, the token will

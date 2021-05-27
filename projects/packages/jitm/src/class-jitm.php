@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.7.3'; // TODO: Keep in sync with version specified in composer.json.
+	const PACKAGE_VERSION = '1.16.1-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -35,7 +35,7 @@ class JITM {
 	 * @return Post_Connection_JITM|Pre_Connection_JITM JITM instance.
 	 */
 	public static function get_instance() {
-		if ( ( new Connection_Manager() )->is_active() ) {
+		if ( ( new Connection_Manager() )->is_connected() ) {
 			$jitm = new Post_Connection_JITM();
 		} else {
 			$jitm = new Pre_Connection_JITM();
@@ -44,20 +44,53 @@ class JITM {
 	}
 
 	/**
-	 * Determines if JITMs are enabled.
-	 *
-	 * @return bool Enable JITMs.
+	 * Sets up JITM action callbacks if needed.
 	 */
 	public function register() {
+		if ( did_action( 'jetpack_registered_jitms' ) ) {
+			// JITMs have already been registered.
+			return;
+		}
+
+		if ( ! $this->jitms_enabled() ) {
+			// Do nothing.
+			return;
+		}
+
+		add_action( 'rest_api_init', array( __NAMESPACE__ . '\\Rest_Api_Endpoints', 'register_endpoints' ) );
+
+		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
+
+		/**
+		 * These are sync actions that we need to keep track of for jitms.
+		 */
+		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+
+		/**
+		 * Fires when the JITMs are registered. This action is used to ensure that
+		 * JITMs are registered only once.
+		 *
+		 * @since 9.8
+		 */
+		do_action( 'jetpack_registered_jitms' );
+	}
+
+	/**
+	 * Checks the jetpack_just_in_time_msgs filters and whether the site
+	 * is offline to determine whether JITMs are enabled.
+	 *
+	 * @return bool True if JITMs are enabled, else false.
+	 */
+	public function jitms_enabled() {
 		/**
 		 * Filter to turn off all just in time messages
 		 *
 		 * @since 3.7.0
 		 * @since 5.4.0 Correct docblock to reflect default arg value
 		 *
-		 * @param bool false Whether to show just in time messages.
+		 * @param bool true Whether to show just in time messages.
 		 */
-		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
+		if ( ! apply_filters( 'jetpack_just_in_time_msgs', true ) ) {
 			return false;
 		}
 
@@ -66,7 +99,6 @@ class JITM {
 			return false;
 		}
 
-		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 		return true;
 	}
 
@@ -80,14 +112,15 @@ class JITM {
 	 * @param \WP_Screen $screen WP Core's screen object.
 	 */
 	public function prepare_jitms( $screen ) {
-		if ( ! in_array(
-			$screen->id,
-			array(
-				'jetpack_page_akismet-key-config',
-				'admin_page_jetpack_modules',
-			),
-			true
-		) ) {
+		/**
+		 * Filter to hide JITMs on certain screens.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param bool true Whether to show just in time messages.
+		 * @param string $string->id The ID of the current screen.
+		 */
+		if ( apply_filters( 'jetpack_display_jitms_on_screen', true, $screen->id ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
@@ -104,7 +137,7 @@ class JITM {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
 			'jetpack-jitm-css',
-			plugins_url( "assets/jetpack-admin-jitm{$min}.css", __DIR__ ),
+			plugins_url( "css/jetpack-admin-jitm{$min}.css", __FILE__ ),
 			false,
 			self::PACKAGE_VERSION .
 			'-201243242'
@@ -115,7 +148,7 @@ class JITM {
 
 		wp_enqueue_script(
 			'jetpack-jitm-new',
-			Assets::get_file_url_for_environment( '_inc/build/jetpack-jitm.min.js', '_inc/jetpack-jitm.js' ),
+			Assets::get_file_url_for_environment( 'js/jetpack-jitm.min.js', 'js/jetpack-jitm.js', __FILE__ ),
 			array( 'jquery' ),
 			self::PACKAGE_VERSION,
 			true
@@ -182,7 +215,10 @@ class JITM {
 	}
 
 	/**
-	 * Generate the icon to display on the JITM
+	 * Generate the icon to display on the JITM.
+	 *
+	 * All icons supported in this method should be included in the array returned by
+	 * JITM::get_supported_icons.
 	 *
 	 * @param string $content_icon Icon type name.
 	 * @param bool   $full_jp_logo_exists Is there a big JP logo already displayed on this screen.
@@ -212,6 +248,21 @@ class JITM {
 	}
 
 	/**
+	 * Returns an array containing the supported icons for JITMs.
+	 *
+	 * The list includes an empty string, which is used when no icon should be displayed.
+	 *
+	 * @return array The list of supported icons.
+	 */
+	public function get_supported_icons() {
+		return array(
+			'jetpack',
+			'woocommerce',
+			'',
+		);
+	}
+
+	/**
 	 * Stores dismiss data into an option
 	 *
 	 * @param string $key Dismiss key.
@@ -235,5 +286,31 @@ class JITM {
 		);
 
 		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
+	}
+
+	/**
+	 * Sets the 'jetpack_last_plugin_sync' transient when the active_plugins option is synced.
+	 *
+	 * @param array $params The action parameters.
+	 *
+	 * @return array Returns the action parameters unchanged.
+	 */
+	public function jetpack_track_last_sync_callback( $params ) {
+		/**
+		 * This filter is documented in the Automattic\Jetpack\JITMS\Post_Connection_JITM class.
+		 */
+		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', true ) ) {
+			return $params;
+		}
+
+		if ( is_array( $params ) && isset( $params[0] ) ) {
+			$option = $params[0];
+			if ( 'active_plugins' === $option ) {
+				// Use the cache if we can, but not terribly important if it gets evicted.
+				set_transient( 'jetpack_last_plugin_sync', time(), HOUR_IN_SECONDS );
+			}
+		}
+
+		return $params;
 	}
 }

@@ -43,10 +43,10 @@ const PromptLayout = props => {
 
 PromptLayout.propTypes = {
 	answer: PropTypes.element.isRequired,
-	description: PropTypes.element.isRequired,
-	illustration: PropTypes.element.isRequired,
+	description: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
+	illustrationPath: PropTypes.string.isRequired,
 	progressBar: PropTypes.element.isRequired,
-	question: PropTypes.element.isRequired,
+	question: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ).isRequired,
 };
 
 export { PromptLayout };

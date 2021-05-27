@@ -92,7 +92,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 			return sprintf( '%1$s %2$s', $title, $this->row_actions( $action ) );
 		}
 
-		if ( $jp->is_active() ) {
+		if ( $jp->is_connection_ready() ) {
 			// Build url for disconnecting
 			$url = $jpms->get_url(
 				array(

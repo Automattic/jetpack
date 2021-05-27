@@ -65,6 +65,42 @@ export class PodcastPlayer extends Component {
 	};
 
 	/**
+	 * Load the audio track into the player
+	 *
+	 * @private
+	 * @param {number} track - The track number
+	 * @returns {boolean} Whether loading of the track was successful
+	 */
+	loadTrack = track => {
+		const trackData = this.getTrack( track );
+		if ( ! trackData ) {
+			return false;
+		}
+
+		if ( this.state.currentTrack !== track ) {
+			this.setState( { currentTrack: track } );
+		}
+
+		const { title, link, description } = trackData;
+		this.props.updateMediaSourceData( this.props.playerId, {
+			title,
+			link,
+		} );
+
+		/*
+		 * Read that we're loading the track and its description. This is
+		 * dismissible via ctrl on VoiceOver.
+		 */
+		speak(
+			/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]". */
+			`${ sprintf( __( 'Loading: %s', 'jetpack' ), title ) } ${ description }`,
+			'assertive'
+		);
+
+		return true;
+	};
+
+	/**
 	 * Load audio from the track, start playing.
 	 *
 	 * @private
@@ -74,29 +110,11 @@ export class PodcastPlayer extends Component {
 		// Record that user has interacted.
 		this.recordUserInteraction();
 
-		const trackData = this.getTrack( track );
-		if ( ! trackData ) {
+		if ( ! this.loadTrack( track ) ) {
 			return;
 		}
 
-		this.setState( { currentTrack: track } );
-
-		const { title, link } = this.getTrack( track );
-		this.props.updateMediaSourceData( this.props.playerId, {
-			title,
-			link,
-		} );
 		this.props.playMediaSource( this.props.playerId );
-
-		/*
-		 * Read that we're loading the track and its description. This is
-		 * dismissible via ctrl on VoiceOver.
-		 */
-		speak(
-			/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]". */
-			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
-			'assertive'
-		);
 	};
 
 	/**
@@ -174,24 +192,17 @@ export class PodcastPlayer extends Component {
 		this.props.setMediaSourceCurrentTime( this.props.playerId, this.props.currentTime + 30 );
 	};
 
-	updateMediaData = ( event ) => {
-		this.props.updateMediaSourceData(
-			this.props.playerId,
-			{
-				duration: event.target?.duration,
-				domId: event.target?.id,
-			}
-		);
-	}
+	updateMediaData = event => {
+		this.props.updateMediaSourceData( this.props.playerId, {
+			duration: event.target?.duration,
+			domId: event.target?.id,
+		} );
+	};
 
-	componentDidMount() {
-		const { playerId } = this.props;
-		if ( ! playerId ) {
-			return;
-		}
-
+	registerPlayer() {
 		// Register Media source monstly episode data.
 		const track = this.getTrack( this.state.currentTrack ) || {};
+		const { playerId } = this.props;
 
 		this.props.registerMediaSource( playerId, {
 			title: track.title,
@@ -203,12 +214,44 @@ export class PodcastPlayer extends Component {
 		this.props.setDefaultMediaSource( playerId );
 	}
 
+	componentDidMount() {
+		if ( ! this.props.playerId ) {
+			return;
+		}
+
+		this.registerPlayer();
+	}
+
 	componentWillUnmount() {
 		if ( ! this.props.playerId ) {
 			return;
 		}
 
 		this.props.unregisterMediaSource( this.props.playerId );
+	}
+
+	componentDidUpdate( prevProps ) {
+		const trackGuids = tracks => ( tracks?.length ? tracks.map( track => track.guid ) : [] );
+		const guids = trackGuids( this.props.tracks );
+		const prevGuids = new Set( trackGuids( prevProps.tracks ) );
+
+		// This equality check is a bit rough. It relies on the guids being unique for example, but
+		// it should be fine for our requirements.
+		if ( guids.length !== prevGuids.size || ! guids.every( guid => prevGuids.has( guid ) ) ) {
+			this.loadTrack( 0 );
+		}
+	}
+
+	static getDerivedStateFromProps( props, state ) {
+		// There might be a better way, but this is to avoid renders breaking when the current
+		// track is set to an index higher than the number of tracks we've received.
+		if ( props.tracks.length <= state.currentTrack ) {
+			return {
+				...state,
+				currentTrack: 0,
+			};
+		}
+		return null;
 	}
 
 	render() {

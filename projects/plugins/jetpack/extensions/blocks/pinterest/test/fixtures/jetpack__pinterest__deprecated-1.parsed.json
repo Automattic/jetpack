@@ -1,0 +1,13 @@
+[
+    {
+        "blockName": "jetpack/pinterest",
+        "attrs": {
+            "url": "https://www.pinterest.com.au/bakingamoment/bread-recipes/"
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-pinterest\"><a data-pin-do=\"embedBoard\" href=\"https://www.pinterest.com.au/bakingamoment/bread-recipes/\"></a></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-pinterest\"><a data-pin-do=\"embedBoard\" href=\"https://www.pinterest.com.au/bakingamoment/bread-recipes/\"></a></div>\n"
+        ]
+    }
+]

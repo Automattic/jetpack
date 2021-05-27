@@ -1,15 +1,11 @@
 /**
- * External dependencies
- */
-import { omit } from 'lodash';
-
-/**
  * Internal dependencies
  */
 import { settings as mapSettings } from './settings.js';
 import edit from './edit';
 import save from './save';
 import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
 import './style.scss';
 import './editor.scss';
 export const { name } = mapSettings;
@@ -36,12 +32,5 @@ export const settings = {
 	edit,
 	save,
 	example: mapSettings.example,
-	deprecated: [
-		{
-			attributes: omit( mapSettings.attributes, 'showFullscreenButton' ),
-			migrate: attributes => ( { ...attributes, showFullscreenButton: true } ),
-			save,
-		},
-		deprecatedV1,
-	],
+	deprecated: [ deprecatedV2, deprecatedV1 ],
 };

@@ -17,7 +17,12 @@ import { isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { userCanManageModules } from 'state/initial-state';
-import { isOfflineMode, isUnavailableInOfflineMode } from 'state/connection';
+import {
+	isOfflineMode,
+	isUnavailableInOfflineMode,
+	isUnavailableInSiteConnectionMode,
+} from 'state/connection';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -44,13 +49,21 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 				results = [];
 			forEach( allModules, ( moduleData, slug ) => {
 				if ( this.props.isModuleFound( slug ) && includes( safelist, slug ) ) {
-					// Not available in offline mode.
-					if (
-						this.props.isOfflineMode &&
-						this.props.isUnavailableInOfflineMode( moduleData.module )
-					) {
+					const isModuleUnavailableInOfflineMode =
+						this.props.isOfflineMode && this.props.isUnavailableInOfflineMode( moduleData.module );
+					const isModuleUnavailableInSiteConnectionMode =
+						! this.props.hasConnectedOwner &&
+						this.props.isUnavailableInSiteConnectionMode( moduleData.module );
+
+					// Not available in offline or SiteConnection mode.
+					if ( isUnavailableInOfflineMode || isUnavailableInSiteConnectionMode ) {
 						return results.push(
-							<ActiveCard key={ slug } moduleData={ moduleData } offlineMode={ true } />
+							<ActiveCard
+								key={ slug }
+								moduleData={ moduleData }
+								offlineMode={ isModuleUnavailableInOfflineMode }
+								siteConnectionMode={ isModuleUnavailableInSiteConnectionMode }
+							/>
 						);
 					}
 
@@ -89,17 +102,27 @@ SearchableModules.defaultProps = {
 class ActiveCard extends Component {
 	render() {
 		const m = this.props.moduleData,
-			offlineMode = this.props.offlineMode;
+			offlineMode = this.props.offlineMode,
+			siteConnectionMode = this.props.siteConnectionMode;
 
 		return (
 			<SettingsCard module={ m.module } header={ m.name } action={ m.module } hideButton>
 				<SettingsGroup
 					disableInOfflineMode={ offlineMode }
+					disableInSiteConnectionMode={ siteConnectionMode }
 					module={ { module: m.module } }
 					support={ { link: m.learn_more_button } }
 				>
 					{ m.description }
 				</SettingsGroup>
+
+				{ siteConnectionMode && (
+					<ConnectUserBar
+						feature={ m.module }
+						featureLabel={ m.name }
+						text={ __( 'Connect to configure.', 'jetpack' ) }
+					/>
+				) }
 			</SettingsCard>
 		);
 	}
@@ -112,5 +135,7 @@ export default connect( state => {
 		canManageModules: userCanManageModules( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
+		isUnavailableInSiteConnectionMode: module_name =>
+			isUnavailableInSiteConnectionMode( state, module_name ),
 	};
 } )( SearchableModules );

@@ -1,24 +1,30 @@
-# Writing a good Changelog Entry
+# Writing A Good Changelog Entry
 
-Part of our standard PR template is "Proposed changelog entry for your changes". This document will help you write a good one.
+Part of our standard [Pull Request process](./monorepo.md#jetpack-changelogger) includes submitting a changelog entry for your changes, which this document provides guidance on.
 
-## Do I even need one?
+## How do I create a changelog entry?
 
-Our changelog is intended for the users of Jetpack, primarily end users but also third-party developers who use our public APIs and packages.
+**[Follow the instructions here to use the changelogger tool to create a new entry.](./monorepo.md#using-the-jetpack-changelogger)**
 
-If you've changed something that users will notice, like improving the display of a block or fixing a bug that prevents a site feature from working, then by all means suggest a changelog entry.
+## Do I even need to write a changelog entry?
 
-If you've improved our CI or development environments, or refactored old code without user-visible changes, or something like that, it's probably not something that's worth mentioning in the changelog. But don't worry, we still appreciate it! And remember to say so in the appropriate section of the PR template, don't just leave it blank.
+Yes, almost every change to a project should have a changelog entry.
 
-If you're unsure, feel free to go ahead and suggest a changelog entry, or to ask.
+For the Jetpack plugin, our changelog is intended primarily for end users and third-party developers who use our public APIs and packages. As of 9.7, we've added an "Other changes" section for non-user-facing changes.
 
-P.S. If your PR doesn't need a changelog entry, feel free to remove the "Needs Changelog" tag that a bot adds after merging.
+Other projects in the Jetpack monorepo also benefit from managing an accurate changelog.
+
+If you've done something really trivial, you would still include a change file with a ["Comment" header](./monorepo.md#using-the-jetpack-changelogger) which would be omitted from the generated changelog, but still serve as documentation to other developers.
+
+If you're ever unsure, feel free to ask for help.
 
 ## What should I write?
 
-Our changelog entries typically begin with a component name, such as "Payments Block" or "Sync".
+### In the Jetpack plugin
 
-The rest of the changelog entry is a sentence fragment (beginning with a bare infinitive verb) describing what the PR does. Remember that this is aimed at end users, so be wary of jargon and details of the code. If it helps, consider filling in blank in the sentence "This PR will ______".
+The actual changelog text typically begins with a relevant component name, feature, tool, or other topic, followed by a colon, such as "Payments Block:" or "Sync:".
+
+The rest of the changelog entry is a sentence fragment (beginning with a bare infinitive verb) describing what the PR does. Remember that this is aimed at end users, so be wary of jargon and details of the code. If it helps, think about filling in the blank "This PR will ______".
 
 Some good examples:
 
@@ -32,4 +38,8 @@ Some good examples:
 * General: ensure Jetpack's full compatibility with the upcoming WordPress 5.6 release.
 * General: update Jetpack's minimum required WordPress version to 5.5, in anticipation of the upcoming WordPress 5.6 release.
 
-You can find many more examples by looking through [changelog.txt](../changelog.txt).
+You can find more examples by looking at [prior Jetpack releases](https://github.com/Automattic/jetpack-production/releases).
+
+### In other projects
+
+Other projects are generally single components, and so usually do not need a component name prefix. For example, everything in packages/sync would probably be "Sync:". But feel free to use one if it does make sense.

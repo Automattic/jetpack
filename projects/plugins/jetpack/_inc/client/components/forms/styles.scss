@@ -140,3 +140,9 @@ button.jp-form-input-suffix {
 	top: -24px;
 	z-index: 1;
 }
+
+.jp-form-textarea {
+	&-wide {
+		width: 100%;
+	}
+}

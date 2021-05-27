@@ -2,16 +2,19 @@
  * Internal dependencies
  */
 import { search } from '../lib/api';
-import { RELEVANCE_SORT_KEY, SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
+import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
 import { getFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
+	clearFilters,
 	recordFailedSearchRequest,
 	recordSuccessfulSearchRequest,
 	setFilter,
 	setSearchQuery,
 	setSort,
 } from './actions';
+
+let requestCounter = 0;
 
 /**
  * Effect handler which will fetch search results from the API.
@@ -20,7 +23,8 @@ import {
  * @param {object} store -  Store instance.
  */
 function makeSearchAPIRequest( action, store ) {
-	search( action.options )
+	requestCounter++;
+	search( action.options, requestCounter )
 		.then( response => {
 			if ( response === null ) {
 				// Request has been cancelled by a more recent request.
@@ -48,14 +52,16 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize search query value for the reducer.
 	//
-	if ( queryObject.s ) {
+	if ( 's' in queryObject ) {
 		store.dispatch( setSearchQuery( queryObject.s, false ) );
+	} else {
+		store.dispatch( setSearchQuery( null, false ) );
 	}
 
 	//
 	// Initialize sort value for the reducer.
 	//
-	let sort = RELEVANCE_SORT_KEY;
+	let sort;
 	if ( VALID_SORT_KEYS.includes( queryObject.sort ) ) {
 		// Set sort value from `sort` query value.
 		sort = queryObject.sort;
@@ -69,15 +75,13 @@ function initializeQueryValues( action, store ) {
 	} else if ( 'relevance' === queryObject.orderby ) {
 		// Set sort value from legacy `orderby` query value.
 		sort = 'relevance';
-	} else if ( VALID_SORT_KEYS.includes( action.defaultSort ) ) {
-		// Set sort value from customizer configured default sort value.
-		sort = action.defaultSort;
 	}
-	store.dispatch( setSort( sort, false ) );
+	typeof sort === 'string' && store.dispatch( setSort( sort, false ) );
 
 	//
 	// Initialize filter value for the reducer.
 	//
+	store.dispatch( clearFilters( false ) );
 	getFilterKeys()
 		.filter( filterKey => filterKey in queryObject )
 		.forEach( filterKey =>
@@ -96,11 +100,13 @@ function updateSearchQueryString( action ) {
 	}
 
 	const queryObject = getQuery();
-	if ( action.query === '' ) {
-		delete queryObject.s;
-	} else {
+
+	if ( action.query !== null ) {
 		queryObject.s = action.query;
+	} else {
+		delete queryObject.s;
 	}
+
 	setQuery( queryObject );
 }
 
@@ -147,8 +153,14 @@ function updateFilterQueryString( action ) {
 
 /**
  * Effect handler which will clear filter queries from the location bar
+ *
+ * @param {object} action - Action which had initiated the effect handler.
  */
-function clearFilterQueryString() {
+function clearFilterQueryString( action ) {
+	if ( action.propagateToWindow === false ) {
+		return;
+	}
+
 	const queryObject = getQuery();
 	getFilterKeys().forEach( key => delete queryObject[ key ] );
 	setQuery( queryObject );

@@ -346,7 +346,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'height'        => '200',
 			'type'          => 'profile',
 			'widget-id'     => '',
-			'border-color'  => '#e8e8e8',
+			'border-color'  => '#f0f0f1',
 			'theme'         => 'light',
 			'chrome'        => array(),
 			'tweet-limit'   => 1,

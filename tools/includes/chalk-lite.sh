@@ -55,7 +55,7 @@ function debug {
 }
 
 function success {
-	if [[ $(tput colors) -gt 8 ]]; then
+	if [[ $(tput colors 2>/dev/null) -gt 8 ]]; then
 		chalk '1;38;5;41' "$@"
 	else
 		chalk '1;32' "$@"
@@ -92,7 +92,7 @@ function green {
 }
 
 function jetpackGreen {
-	if [[ $(tput colors) -gt 8 ]]; then
+	if [[ $(tput colors 2>/dev/null) -gt 8 ]]; then
 		chalk '38;5;41' "$@"
 	else
 		chalk '32' "$@"

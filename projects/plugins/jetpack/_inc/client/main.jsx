@@ -33,12 +33,10 @@ import {
 	getCurrentVersion,
 	getTracksUserData,
 	showRecommendations,
-	showSetupWizard,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import { Recommendations } from 'recommendations';
-import { SetupWizard } from 'setup-wizard';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Footer from 'components/footer';
@@ -64,14 +62,6 @@ const recommendationsRoutes = [
 	'/recommendations/creative-mail',
 	'/recommendations/site-accelerator',
 	'/recommendations/summary',
-];
-
-const setupRoutes = [
-	'/setup',
-	'/setup/intro',
-	'/setup/income',
-	'/setup/updates',
-	'/setup/features',
 ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
@@ -256,19 +246,6 @@ class Main extends React.Component {
 					/>
 				);
 				break;
-			case '/setup':
-			case '/setup/intro':
-			case '/setup/income':
-			case '/setup/updates':
-			case '/setup/features':
-				if ( this.props.showSetupWizard ) {
-					navComponent = null;
-					pageComponent = <SetupWizard />;
-				} else {
-					this.props.history.replace( '/dashboard' );
-					pageComponent = this.getAtAGlance();
-				}
-				break;
 			case '/recommendations':
 			case '/recommendations/site-type':
 			case '/recommendations/woocommerce':
@@ -327,17 +304,16 @@ class Main extends React.Component {
 
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
-		return [
-			...setupRoutes,
-			...dashboardRoutes,
-			...recommendationsRoutes,
-			...settingsRoutes,
-		].includes( this.props.location.pathname );
+		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
+			this.props.location.pathname
+		);
 	}
 
 	shouldShowFooter() {
-		// Only show on the dashboard and settings page
-		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
+		// Only show on the dashboard, settings, and recommendations pages
+		return [ ...dashboardRoutes, ...settingsRoutes, ...recommendationsRoutes ].includes(
+			this.props.location.pathname
+		);
 	}
 
 	shouldShowAuthIframe() {
@@ -410,7 +386,6 @@ export default connect(
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
 			showRecommendations: showRecommendations( state ),
-			showSetupWizard: showSetupWizard( state ),
 		};
 	},
 	dispatch => ( {

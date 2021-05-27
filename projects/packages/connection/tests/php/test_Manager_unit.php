@@ -40,8 +40,14 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_access_token', 'get_connection_owner_id' ) )
+			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom' ) )
 			->getMock();
+
+		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->setMethods( array( 'get_access_token', 'disconnect_user' ) )
+			->getMock();
+
+		$this->manager->method( 'get_tokens' )->will( $this->returnValue( $this->tokens ) );
 
 		$this->user_id = wp_insert_user(
 			array(
@@ -61,6 +67,7 @@ class ManagerTest extends TestCase {
 		wp_set_current_user( 0 );
 		WorDBless_Users::init()->clear_all_users();
 		unset( $this->manager );
+		unset( $this->tokens );
 		Constants::clear_constants();
 	}
 
@@ -74,7 +81,7 @@ class ManagerTest extends TestCase {
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
@@ -87,7 +94,7 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_not_connected() {
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( false ) );
 
@@ -185,7 +192,7 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( false ) );
 
@@ -204,7 +211,7 @@ class ManagerTest extends TestCase {
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
@@ -221,7 +228,7 @@ class ManagerTest extends TestCase {
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
 		);
-		$this->manager->expects( $this->once() )
+		$this->tokens->expects( $this->once() )
 			->method( 'get_access_token' )
 			->will( $this->returnValue( $access_token ) );
 
@@ -271,10 +278,11 @@ class ManagerTest extends TestCase {
 	 * @dataProvider jetpack_connection_custom_caps_data_provider
 	 *
 	 * @param bool   $in_offline_mode Whether offline mode is active.
+	 * @param bool   $owner_exists Whether a connection owner exists.
 	 * @param string $custom_cap The custom capability that is being tested.
 	 * @param array  $expected_caps The expected output.
 	 */
-	public function test_jetpack_connection_custom_caps( $in_offline_mode, $custom_cap, $expected_caps ) {
+	public function test_jetpack_connection_custom_caps( $in_offline_mode, $owner_exists, $custom_cap, $expected_caps ) {
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		add_filter(
 			'jetpack_offline_mode',
@@ -282,6 +290,10 @@ class ManagerTest extends TestCase {
 				return $in_offline_mode;
 			}
 		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $owner_exists ); // 0 or 1 is alright for our testing purposes.
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
@@ -292,22 +304,25 @@ class ManagerTest extends TestCase {
 	 *
 	 * Structure of the test data arrays:
 	 *     [0] => 'in_offline_mode'   boolean Whether offline mode is active.
-	 *     [1] => 'custom_cap'        string The custom capability that is being tested.
-	 *     [2] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
+	 *     [1] => 'owner_exists'      boolean Whether a connection owner exists.
+	 *     [2] => 'custom_cap'        string The custom capability that is being tested.
+	 *     [3] => 'expected_caps'     array The expected output of the call to jetpack_connection_custom_caps.
 	 */
 	public function jetpack_connection_custom_caps_data_provider() {
 
 		return array(
-			'offline mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
-			'offline mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
-			'offline mode, jetpack_disconnect'       => array( true, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'offline mode, jetpack_connect_user'     => array( true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
-			'offline mode, unknown cap'              => array( true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
-			'not offline mode, jetpack_connect'      => array( false, 'jetpack_connect', array( 'manage_options' ) ),
-			'not offline mode, jetpack_reconnect'    => array( false, 'jetpack_reconnect', array( 'manage_options' ) ),
-			'not offline mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'not offline mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
-			'not offline mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'offline mode, owner exists, jetpack_connect'  => array( true, true, 'jetpack_connect', array( 'do_not_allow' ) ),
+			'offline mode, owner exists, jetpack_reconnect' => array( true, true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
+			'offline mode, owner exists, jetpack_disconnect' => array( true, true, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'offline mode, owner exists, jetpack_connect_user' => array( true, true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
+			'offline mode, no owner, jetpack_connect_user' => array( true, false, 'jetpack_connect_user', array( 'do_not_allow' ) ),
+			'offline mode, owner exists, unknown cap'      => array( true, true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'not offline mode, owner exists, jetpack_connect' => array( false, true, 'jetpack_connect', array( 'manage_options' ) ),
+			'not offline mode, owner exists, jetpack_reconnect' => array( false, true, 'jetpack_reconnect', array( 'manage_options' ) ),
+			'not offline mode, owner exists, jetpack_disconnect' => array( false, true, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'not offline mode, owner exists, jetpack_connect_user' => array( false, true, 'jetpack_connect_user', array( 'read' ) ),
+			'not offline mode, no owner, jetpack_connect_user' => array( false, false, 'jetpack_connect_user', array( 'manage_options' ) ),
+			'not offline mode, owner exists, unknown cap'  => array( false, true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
 		);
 	}
 
@@ -321,24 +336,80 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$manager = ( new Manager() );
 		// Missing secret.
 		$invalid_token_error = new WP_Error( 'invalid_token' );
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Secret is null.
 		$access_token->secret = null;
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Secret is empty.
 		$access_token->secret = '';
-		$this->assertEquals( $invalid_token_error, $manager->get_signed_token( $access_token ) );
+		$this->assertEquals( $invalid_token_error, ( new Tokens() )->get_signed_token( $access_token ) );
 		// Valid secret.
 		$access_token->secret = 'abcd.1234';
 
-		$signed_token = $manager->get_signed_token( $access_token );
+		$signed_token = ( new Tokens() )->get_signed_token( $access_token );
 		$this->assertTrue( strpos( $signed_token, 'token' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'timestamp' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'nonce' ) !== false );
 		$this->assertTrue( strpos( $signed_token, 'signature' ) !== false );
+	}
+
+	/**
+	 * Test disconnecting a user from WordPress.com.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_user
+	 * @dataProvider get_disconnect_user_scenarios
+	 *
+	 * @param bool $remote   Was the remote disconnection successful.
+	 * @param bool $local    Was the remote disconnection successful.
+	 * @param bool $expected Expected outcome.
+	 */
+	public function test_disconnect_user( $remote, $local, $expected ) {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		$this->manager->method( 'unlink_user_from_wpcom' )
+			->will( $this->returnValue( $remote ) );
+
+		$this->tokens->method( 'disconnect_user' )
+			->will( $this->returnValue( $local ) );
+
+		$result = $this->manager->disconnect_user( $editor_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test data for test_disconnect_user
+	 *
+	 * @return array
+	 */
+	public function get_disconnect_user_scenarios() {
+		return array(
+			'Successful remote and local disconnection' => array(
+				true,
+				true,
+				true,
+			),
+			'Failed remote and successful local disconnection' => array(
+				false,
+				true,
+				false,
+			),
+			'Successful remote and failed local disconnection' => array(
+				true,
+				false,
+				false,
+			),
+		);
 	}
 
 	/**

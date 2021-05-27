@@ -14,6 +14,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -27,7 +28,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 		render() {
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
-				connectUrl = this.props.connectUrl,
+				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
 				userCanManageModules = this.props.userCanManageModules;
@@ -37,27 +38,19 @@ export const Publicize = withModuleSettingsFormHelpers(
 					return;
 				}
 
-				return isLinked ? (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackClickConfigure }
-						target="_blank"
-						rel="noopener noreferrer"
-						href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
-					>
-						{ __( 'Connect your social media accounts', 'jetpack' ) }
-					</Card>
-				) : (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						target="_blank"
-						rel="noopener noreferrer"
-						href={ `${ connectUrl }&from=unlinked-user-connect-publicize` }
-					>
-						{ __( 'Create a Jetpack account to use this feature', 'jetpack' ) }
-					</Card>
+				return (
+					isLinked && (
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackClickConfigure }
+							target="_blank"
+							rel="noopener noreferrer"
+							href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
+						>
+							{ __( 'Connect your social media accounts', 'jetpack' ) }
+						</Card>
+					)
 				);
 			};
 
@@ -75,6 +68,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ userCanManageModules && (
 						<SettingsGroup
 							disableInOfflineMode
+							disableInSiteConnectionMode
 							module={ { module: 'publicize' } }
 							support={ {
 								text: __(
@@ -92,7 +86,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</p>
 							<ModuleToggle
 								slug="publicize"
-								disabled={ unavailableInOfflineMode }
+								disabled={ unavailableInOfflineMode || ! this.props.isLinked }
 								activated={ isActive }
 								toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 								toggleModule={ this.props.toggleModuleNow }
@@ -101,6 +95,15 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</ModuleToggle>
 						</SettingsGroup>
 					) }
+
+					{ ! isLinked && ! isOfflineMode && (
+						<ConnectUserBar
+							feature="publicize"
+							featureLabel={ __( 'Publicize', 'jetpack' ) }
+							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
+						/>
+					) }
+
 					{ isActive && configCard() }
 				</SettingsCard>
 			);

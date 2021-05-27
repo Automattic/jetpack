@@ -1,10 +1,19 @@
 <?php
 
+use Automattic\Jetpack\Connection\Secrets;
+
 class Jetpack_Keyring_Service_Helper {
 	/**
 	 * @var Jetpack_Keyring_Service_Helper
 	 **/
 	private static $instance = null;
+
+	/**
+	 * Whether the `sharing` page is registered.
+	 *
+	 * @var bool
+	 */
+	private static $is_sharing_page_registered = false;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
@@ -42,33 +51,32 @@ class Jetpack_Keyring_Service_Helper {
 	 * Constructor
 	 */
 	private function __construct() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_sharing_menu' ), 21 );
+		add_action( 'admin_menu', array( __CLASS__, 'register_sharing_page' ) );
 
 		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
 
 	/**
-	 * We need a `sharing` submenu page to be able to connect and disconnect services.
+	 * We need a `sharing` page to be able to connect and disconnect services.
 	 */
-	public static function add_sharing_menu() {
-		global $submenu;
-
-		if (
-			! isset( $submenu['options-general.php'] )
-			|| ! is_array( $submenu['options-general.php'] )
-		) {
+	public static function register_sharing_page() {
+		if ( self::$is_sharing_page_registered ) {
 			return;
 		}
 
-		$general_settings_names = array_map(
-			function ( $menu ) {
-				return array_values( $menu )[0];
-			},
-			$submenu['options-general.php']
-		);
-		if ( ! in_array( 'Sharing', $general_settings_names, true ) ) {
-			add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
+		self::$is_sharing_page_registered = true;
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
 		}
+
+		global $_registered_pages;
+
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$hookname = get_plugin_page_hookname( 'sharing', 'options-general.php' );
+		add_action( $hookname, array( __CLASS__, 'admin_page_load' ) );
+		$_registered_pages[ $hookname ] = true; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	}
 
 	function get_services( $filter = 'all' ) {
@@ -118,34 +126,43 @@ class Jetpack_Keyring_Service_Helper {
 	}
 
 	static function connect_url( $service_name, $for ) {
-		return add_query_arg( array(
-			'action'   => 'request',
-			'service'  => $service_name,
-			'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-			'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-			'for'      => $for,
-		), menu_page_url( 'sharing', false ) );
+		return add_query_arg(
+			array(
+				'action'   => 'request',
+				'service'  => $service_name,
+				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
+				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+				'for'      => $for,
+			),
+			admin_url( 'options-general.php?page=sharing' )
+		);
 	}
 
 	static function refresh_url( $service_name, $for ) {
-		return add_query_arg( array(
-			'action'   => 'request',
-			'service'  => $service_name,
-			'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-			'refresh'  => 1,
-			'for'      => $for,
-			'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-		), admin_url( 'options-general.php?page=sharing' ) );
+		return add_query_arg(
+			array(
+				'action'   => 'request',
+				'service'  => $service_name,
+				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
+				'refresh'  => 1,
+				'for'      => $for,
+				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+			),
+			admin_url( 'options-general.php?page=sharing' )
+		);
 	}
 
 	static function disconnect_url( $service_name, $id ) {
-		return add_query_arg( array(
-			'action'   => 'delete',
-			'service'  => $service_name,
-			'id'       => $id,
-			'kr_nonce' => wp_create_nonce( 'keyring-request' ),
-			'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-		), menu_page_url( 'sharing', false ) );
+		return add_query_arg(
+			array(
+				'action'   => 'delete',
+				'service'  => $service_name,
+				'id'       => $id,
+				'kr_nonce' => wp_create_nonce( 'keyring-request' ),
+				'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+			),
+			admin_url( 'options-general.php?page=sharing' )
+		);
 	}
 
 	static function admin_page_load() {
@@ -160,7 +177,7 @@ class Jetpack_Keyring_Service_Helper {
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					$verification = Jetpack::generate_secrets( 'publicize' );
+					$verification = ( new Secrets() )->generate( 'publicize' );
 					if ( ! $verification ) {
 						$url = Jetpack::admin_url( 'jetpack#/settings' );
 						wp_die( sprintf( __( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack' ), $url ) );

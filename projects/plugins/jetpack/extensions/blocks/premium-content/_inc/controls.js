@@ -3,7 +3,7 @@
  */
 import { Fragment } from '@wordpress/element';
 import { BlockControls } from '@wordpress/block-editor';
-import { DropdownMenu, Toolbar } from '@wordpress/components';
+import { DropdownMenu, ToolbarGroup, ToolbarItem } from '@wordpress/components';
 import { Icon, update } from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
@@ -36,31 +36,35 @@ export default function Controls( props ) {
 	}
 	return (
 		<BlockControls>
-			<Toolbar>
-				<DropdownMenu
-					// @ts-ignore We want a label with our Dashicon.Icon
-					icon={
-						<Fragment>
-							<Icon icon={ update } />{ ' ' }
-							{ planDescription && <Fragment>{ planDescription }</Fragment> }
-						</Fragment>
-					}
-					label={ __( 'Select a plan', 'jetpack' ) }
-					className={ 'premium-content-toolbar-button' }
-				>
-					{ ( { onClose } ) => (
-						<Fragment>
-							<Plans
-								{ ...props }
-								onSelected={ onSelected }
-								onClose={ onClose }
-								selectedPlan={ currentPlan }
-							/>
-							<NewPlan { ...props } onClose={ onClose } />
-						</Fragment>
+			<ToolbarGroup>
+				<ToolbarItem>
+					{ () => (
+						<DropdownMenu
+							// @ts-ignore We want a label with our Dashicon.Icon
+							icon={
+								<Fragment>
+									<Icon icon={ update } />{ ' ' }
+									{ planDescription && <Fragment>{ planDescription }</Fragment> }
+								</Fragment>
+							}
+							label={ __( 'Select a plan', 'jetpack' ) }
+							className={ 'premium-content-toolbar-button' }
+						>
+							{ ( { onClose } ) => (
+								<Fragment>
+									<Plans
+										{ ...props }
+										onSelected={ onSelected }
+										onClose={ onClose }
+										selectedPlan={ currentPlan }
+									/>
+									<NewPlan { ...props } onClose={ onClose } />
+								</Fragment>
+							) }
+						</DropdownMenu>
 					) }
-				</DropdownMenu>
-			</Toolbar>
+				</ToolbarItem>
+			</ToolbarGroup>
 		</BlockControls>
 	);
 }
