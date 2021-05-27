@@ -740,7 +740,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function remove_wp_migrated_widgets( $sidebars_widgets ) {
 		// Hook the action only when it is a theme switch i.e. $this->old_sidebars_widgets is not empty.
-		// Some extra checks to make sure the hook has minmized affection.
+		// Ensure that the hook only runs when necessary. 
 		if (
 			empty( $this->old_sidebars_widgets )
 			|| ! is_array( $this->old_sidebars_widgets )
