@@ -108,7 +108,7 @@ function enrich_media_files( $media_files ) {
 					return $media_file;
 				}
 
-				$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : $media_file['url'];
+				$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : wp_get_attachment_url( $attachment_id );
 
 				// Set the poster attribute for the video tag if a poster image is available.
 				$poster_url = null;
