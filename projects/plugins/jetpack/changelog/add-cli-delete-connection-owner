@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-jetpack disconnect CLI command: Add support to delete the connection owner and improve error message

@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "9.8.0-alpha",
+	"version": "9.9.0-alpha",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -177,6 +177,7 @@
 		"css-loader": "5.1.1",
 		"enzyme": "3.11.0",
 		"eslint": "7.25.0",
+		"fs-extra": "10.0.0",
 		"glob": "7.1.6",
 		"jest": "26.6.3",
 		"lodash": "4.17.21",

@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -30,9 +30,13 @@ export default function save( { attributes } ) {
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 		...colorProps.style,
 	};
+	const blockProps = useBlockProps.save( {
+		className: containerClasses,
+	} );
+
 	return (
 		// eslint-disable-next-line wpcalypso/jsx-classname-namespace
-		<div className={ containerClasses }>
+		<div { ...blockProps }>
 			<RichText.Content
 				tagName="a"
 				className={ buttonClasses }

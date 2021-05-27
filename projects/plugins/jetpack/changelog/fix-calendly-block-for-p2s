@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Calendly block: add target existence check before running init scripts
