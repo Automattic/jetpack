@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync the save_post_page action when a page is saved
