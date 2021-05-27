@@ -5841,12 +5841,12 @@ packages:
       '@emotion/native': 10.0.27_88480db83d3b7400155217a2792cf198
       '@emotion/styled': 10.0.27_88480db83d3b7400155217a2792cf198
       '@wordpress/a11y': 2.15.3
-      '@wordpress/compose': 3.11.0
+      '@wordpress/compose': 3.25.3_react@16.13.1
       '@wordpress/deprecated': 2.12.3
       '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.18.0
+      '@wordpress/element': 2.20.3
       '@wordpress/hooks': 2.12.3
-      '@wordpress/i18n': 3.9.0
+      '@wordpress/i18n': 3.20.0
       '@wordpress/icons': 1.4.0
       '@wordpress/is-shallow-equal': 1.8.0
       '@wordpress/keycodes': 2.19.3
@@ -6000,9 +6000,9 @@ packages:
     resolution: {integrity: sha512-UiYCj3PosFzI/UibfrXnv5pIuAbaX55hXkRwGyIY3lpdaiejwQ6GwnqxukbcT8Slx/jaPCEvx3BuxaE9cIeBXw==}
     dependencies:
       '@babel/runtime': 7.13.10
-      '@wordpress/compose': 3.11.0
+      '@wordpress/compose': 3.25.3_react@16.13.1
       '@wordpress/deprecated': 2.12.3
-      '@wordpress/element': 2.18.0
+      '@wordpress/element': 2.20.3
       '@wordpress/is-shallow-equal': 1.8.0
       '@wordpress/priority-queue': 1.11.2
       '@wordpress/redux-routine': 3.14.2
@@ -6604,10 +6604,10 @@ packages:
     resolution: {integrity: sha512-jRYVTxuD9S+5XGZ7vUD5B1haQMH9qZIfQocQug1tcedfXL5Z0+8solnCRiwBB2/2Fp8VvVeEEMYqqTtsfMWxkA==}
     dependencies:
       '@babel/runtime': 7.14.0
-      '@wordpress/compose': 3.11.0
-      '@wordpress/data': 4.14.2_react@16.13.1
+      '@wordpress/compose': 3.25.3_react@16.13.1
+      '@wordpress/data': 4.27.3_react@16.13.1
       '@wordpress/deprecated': 2.12.3
-      '@wordpress/element': 2.18.0
+      '@wordpress/element': 2.20.3
       '@wordpress/escape-html': 1.12.2
       '@wordpress/is-shallow-equal': 1.8.0
       '@wordpress/keycodes': 2.19.3
@@ -17037,7 +17037,7 @@ packages:
     dependencies:
       array.prototype.flat: 1.2.4
       global-cache: 1.2.1
-      react-with-styles: 3.2.3_react-dom@16.13.1+react@16.13.1
+      react-with-styles: 3.2.3
 
   /react-with-styles/3.2.3:
     resolution: {integrity: sha512-MTI1UOvMHABRLj5M4WpODfwnveHaip6X7QUMI2x6zovinJiBXxzhA9AJP7MZNaKqg1JRFtHPXZdroUC8KcXwlQ==}
