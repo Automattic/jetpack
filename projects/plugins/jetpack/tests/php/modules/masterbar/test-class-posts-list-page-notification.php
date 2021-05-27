@@ -20,7 +20,7 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 	 * Check if the actions are attached.
 	 */
 	public function test_it_has_instance_loaded() {
-		$instance = Posts_List_Page_Notification::init();
+		$instance = new Posts_List_Page_Notification( '5', 'page', '4' );
 
 		$this->assertSame( 10, has_action( 'init', array( $instance, 'init_actions' ) ) );
 
