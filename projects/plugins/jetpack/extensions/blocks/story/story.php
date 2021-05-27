@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Story;
 
 use Automattic\Jetpack\Blocks;
+use Jetpack;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'story';
@@ -118,6 +119,14 @@ function enrich_media_files( $media_files ) {
 					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
 				}
 
+				if ( $poster_url ) {
+					// Use the global content width for thumbnail resize so we match the `w=` query parameter
+					// that jetpack is going to add when "Enable site accelerator" is enabled for images.
+					$content_width = (int) Jetpack::get_content_width();
+					$new_width     = $content_width > 0 ? $content_width : EMBED_SIZE[0];
+					$poster_url    = add_query_arg( 'w', $new_width, $poster_url );
+				}
+
 				$media_file = array_merge(
 					$media_file,
 					array(
@@ -127,7 +136,7 @@ function enrich_media_files( $media_files ) {
 						'url'     => $video_url,
 						'title'   => get_the_title( $attachment_id ),
 						'caption' => wp_get_attachment_caption( $attachment_id ),
-						'poster'  => add_query_arg( 'w', EMBED_SIZE[0], $poster_url ),
+						'poster'  => $poster_url,
 					)
 				);
 
