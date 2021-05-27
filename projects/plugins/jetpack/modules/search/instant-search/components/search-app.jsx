@@ -127,7 +127,7 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
-			input.removeEventListener( 'keydown', this.handleKeydown );
+			input.removeEventListener( 'keyup', this.handleKeyup );
 			input.removeEventListener( 'input', this.handleInput );
 			input.removeEventListener( 'compositionstart', this.handleCompositionStart );
 			input.removeEventListener( 'compositionend', this.handleCompositionEnd );
