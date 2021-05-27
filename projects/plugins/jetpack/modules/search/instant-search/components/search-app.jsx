@@ -51,6 +51,10 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = createRef();
 		this.state = {
+			// When typing in CJK, the following events fire in order:
+			// keydown, compositionstart, compositionupdate, input, keyup, keydown,compositionend, keyup
+			// We toggle isComposing on compositionstart and compositionend events.
+			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
 			isComposing: false,
 			overlayOptions: { ...this.props.initialOverlayOptions },
 			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
