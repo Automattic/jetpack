@@ -5,6 +5,8 @@
  * @package automattic/jetpack-backup
  */
 
+use Automattic\Jetpack\Config;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -31,6 +33,8 @@ class Jetpack_Backup {
 			function () {
 				Automattic\Jetpack\Connection\Manager::configure();
 				Automattic\Jetpack\ConnectionUI\Admin::init();
+				$config = new Config();
+				$config->ensure( 'sync' );
 			}
 		);
 	}
