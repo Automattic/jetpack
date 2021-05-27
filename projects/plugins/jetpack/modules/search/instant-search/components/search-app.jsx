@@ -103,7 +103,9 @@ class SearchApp extends Component {
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
-			// keyup event is fired after compositionend, to avoid duplicating text.
+			// keydown handler is causing text duplication because it actively sets the search input
+			// value after system input method empty the input but before filling the input again.
+			// so changed to keyup event which is fired after compositionend when Enter is pressed.
 			input.addEventListener( 'keyup', this.handleKeyup );
 			input.addEventListener( 'input', this.handleInput );
 			input.addEventListener( 'compositionstart', this.handleCompositionStart );
