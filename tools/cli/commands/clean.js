@@ -105,12 +105,14 @@ async function commandRoute( argv ) {
 	const runConfirm = await confirmRemove();
 
 	// Live Commands
-	if ( runConfirm ) {
+	if ( runConfirm.confirm ) {
 		console.log( chalk.green( `Cleaning files...` ) );
 		if ( argv.cmd === 'find' ) {
 			argv.cmd = 'rm',
-			makeRemove( argv );
-			//await runCommand( argv.cmd, argv.options );
+			argv = await makeRemove( argv );
+			console.log(argv);
+			await runCommand( argv.cmd, argv.options ); //todo run this again and make sure the one from tools/cli/node_modules gets removed
+			console.log( chalk.green( `Clean completed! ${argv.project} cleans up so nicely, doesn't it?` ) );
 			return;
 		}
 
@@ -131,6 +133,7 @@ async function commandRoute( argv ) {
  */
  export async function runCommand( cmd, options ) {
 	const data = child_process.spawnSync( cmd, [ ...options ], {
+		shell: true,
 		stdio: 'inherit',
 	} );
 	// Node.js exit code status 0 === success
@@ -171,13 +174,14 @@ async function parseArgs( argv ) {
  * @returns {object} argv.
  */
 export async function makeOptions( argv ) {
-	if (
-			argv.include.toClean === 'vendor' ||
-			argv.include.toClean === 'node_modules' ||
-			argv.include.toClean === 'composer.lock'
+	if 
+	(
+		argv.include.toClean === 'vendor' ||
+		argv.include.toClean === 'node_modules' ||
+		argv.include.toClean === 'composer.lock'
 	) {
-		argv.options = [ argv.project ]; // to replace with '-rf'
-		argv.cmd = 'find'; //to replace with 'rm'
+		argv.options = [ '-rf' ];
+		argv.cmd = 'find'; //for dry run, to be replaced with 'rm'
 		argv = await makeRemove( argv );
 	} else {
 		argv.options = [ 'clean' ];
@@ -201,6 +205,7 @@ async function makeClean ( argv ) {
 		argv.project = `projects/${argv.project}`;
 	}
 	argv.options.push( argv.project );
+
 	// If we're running in root, we need to flag we want to remove files in subdirectories.
 	if ( argv.project === '.' ) {
 		argv.options.push( '-d' );
@@ -208,14 +213,14 @@ async function makeClean ( argv ) {
 
 	if ( argv.include.toClean === 'ignored' || argv.include.toClean === 'both' ) {
 			argv.options.push( '-X' );
+			await checkExclude( argv.include.ignored, argv.options );
 	}
 
 	// Add any ignored files that we want to delete.
 	if ( ! argv.include.ignored ) {
 		argv.include.ignored = [];
 	}
-
-	await checkExclude( argv.include.ignored, argv.options );
+	
 	return argv;
 }
 
@@ -234,7 +239,7 @@ async function makeRemove( argv ) {
 		argv.dryOptions = [ argv.project, '-name', toClean, '-prune' ];
 		return argv;
 	}
-	argv.options.push( '-rf' );
+
 	switch ( argv.scope ) {
 		case 'project':
 			argv.options.push( `projects/${argv.project}/${toClean}` );
@@ -243,9 +248,8 @@ async function makeRemove( argv ) {
 			argv.options.push( `${argv.project}/*/${toClean}` );
 			break;
 		case 'all':
-			argv.options.push( `${toClean}` );
-			argv.options.push( `projects/*/*/${toClean}` );
-			break;
+			argv.cmd = 'find'
+			argv.options = [ '.',  '-name', `"${toClean}"`, '-prune', '-exec', 'rm', '-rf', '{}', '+' ];
 	}
 	return argv;
 }
@@ -262,7 +266,7 @@ async function checkExclude( toDelete, options ) {
 	for ( const fileFolder of defaultIgnored ) {
 		if ( ! toDelete.includes( fileFolder ) ) {
 			options.push( `-e` );
-			options.push( "\\!${ fileFolder }" ); // This doesn't work :/
+			options.push( `\!${ fileFolder }` );
 		}
 	}
 	return options;
@@ -277,7 +281,7 @@ async function confirmRemove() {
 	const response = await inquirer.prompt( {
 		type: 'confirm',
 		name: 'confirm',
-		message: 'Okay to delete the above files/folders?',
+		message: chalk.green( 'Okay to delete the above files/folders?' ),
 	} );
 
 	return response;
