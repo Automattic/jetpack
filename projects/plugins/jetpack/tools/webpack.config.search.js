@@ -13,6 +13,13 @@ const webpack = require( 'webpack' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+/**
+ * As the version number in package.json deesn't have the same format as it is in PHP.
+ * So we extract the Jetpack version from plugin PHP file and to make sure Webpack
+ * gets exactly the same.
+ *
+ * Examples of JETPACK__VERSION are: `9.8-alpha`, `9.8-beta`, `9.8`, `9.8.1`, `9.8.2`.
+ */
 const pluginFileContent = readFileSync( path.join( __dirname, '../jetpack.php' ) ).toString();
 const jetpackAlphaNumericVersion = pluginFileContent
 	.match( /define\(\s+'JETPACK__VERSION',\s+'([0-9A-Za-z.-]+)'\s+\)/ )[ 1 ]
