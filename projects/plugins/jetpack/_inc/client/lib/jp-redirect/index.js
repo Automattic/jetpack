@@ -25,7 +25,11 @@
  */
 export default function getRedirectUrl( source, args = {} ) {
 	const queryVars = {};
-	const calypsoEnv = window.Initial_State?.calypsoEnv;
+
+	let calypsoEnv;
+	if ( typeof window !== 'undefined' ) {
+		calypsoEnv = window.Initial_State?.calypsoEnv;
+	}
 
 	if ( source.search( 'https://' ) === 0 ) {
 		const parsedUrl = new URL( source );
