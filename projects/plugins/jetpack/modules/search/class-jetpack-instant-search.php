@@ -740,15 +740,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function remove_wp_migrated_widgets( $sidebars_widgets ) {
 		// Hook the action only when it is a theme switch i.e. $this->old_sidebars_widgets is not empty.
-		// Ensure that the hook only runs when necessary. 
+		// Ensure that the hook only runs when necessary.
 		if (
 			empty( $this->old_sidebars_widgets )
 			|| ! is_array( $this->old_sidebars_widgets )
 			|| ! is_array( $sidebars_widgets )
 			|| ! array_key_exists( static::JETPACK_INSTANT_SEARCH_SIDEBAR, $sidebars_widgets )
 			|| ! array_key_exists( static::JETPACK_INSTANT_SEARCH_SIDEBAR, $this->old_sidebars_widgets )
-			// If the new Jetpack sidebar has already got less widgets, no need to run the code following the condition.
-			// An 'equal' would work for the condition, but we want to cover 'less than' as well, just for extra insurance.
+			// If the new Jetpack sidebar already has fewer widgets, skip execution.
+			// Uses less than comparison for defensive programming.
 			|| count( $sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] ) <= count( $this->old_sidebars_widgets[ static::JETPACK_INSTANT_SEARCH_SIDEBAR ] )
 		) {
 			return $sidebars_widgets;
