@@ -31,7 +31,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 *
 	 * @var array
 	 */
-	private $old_sidebars_widgets;
+	protected $old_sidebars_widgets;
 
 	/**
 	 * Get singleton instance of Jetpack Instant Search.
@@ -44,7 +44,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Jetpack_Instant_Search();
+			self::$instance = new static();
 			self::$instance->setup();
 		}
 
