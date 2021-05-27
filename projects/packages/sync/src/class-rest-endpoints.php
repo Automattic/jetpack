@@ -14,7 +14,12 @@ use WP_Error;
  *
  * @since 9.9.0
  */
-class Endpoints {
+class REST_Endpoints {
+
+	/**
+	 * @var array Items pending send.
+	 */
+	public $items = [];
 
 	/**
 	 * Initialize REST routes.
@@ -106,6 +111,115 @@ class Endpoints {
 						'description' => __( 'New Sync health status', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => false,
+					),
+				),
+			)
+		);
+
+		// Retrieve Sync Object(s).
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/object',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::get_sync_objects',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'module_name' => array(
+						'description' => __( 'Name of Sync module', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => false,
+					),
+					'object_type' => array(
+						'description' => __( 'Object Type', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => false,
+					),
+					'object_ids' => array(
+						'description' => __( 'Objects Identifiers', 'jetpack' ),
+						'type'        => 'array',
+						'required'    => false,
+					),
+				),
+			)
+		);
+
+		// Retrieve Sync Object(s).
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/now',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::do_sync',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'queue' => array(
+						'description' => __( 'Name of Sync queue.', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
+
+		// Checkout Sync Objects.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/checkout',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::checkout',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
+
+		// Checkin Sync Objects.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/close',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::close',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
+
+		// Unlock Sync Queue.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/unlock',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::unlock_queue',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'queue' => array(
+						'description' => __( 'Name of Sync queue.', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
+
+		// Retrieve range of Object Ids.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/now',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_object_id_range',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'sync_module' => array(
+						'description' => __( 'Name of Sync module.', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'batch_size' => array(
+						'description' => __( 'Size of batches', 'jetpack' ),
+						'type'        => 'int',
+						'required'    => true,
 					),
 				),
 			)
@@ -376,6 +490,218 @@ class Endpoints {
 	}
 
 	/**
+	 * Retrieve Sync Objects.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_sync_objects( $request ) {
+		$args = $request->get_params();
+
+		$module_name = $args['module_name'];
+		// Verify valid Sync Module.
+		if ( ! $sync_module = Modules::get_module( $module_name ) ) {
+			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
+		}
+
+		Actions::mark_sync_read_only();
+
+		$codec = Sender::get_instance()->get_codec();
+		Settings::set_is_syncing( true );
+		$objects = $codec->encode( $sync_module->get_objects_by_id( $args['object_type'], $args['object_ids'] ) );
+		Settings::set_is_syncing( false );
+
+		return rest_ensure_response(
+			array(
+				'objects' => $objects,
+				'codec' => $codec->name(),
+			)
+		);
+	}
+
+	/**
+	 * Request Sync processing.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function do_sync( $request ) {
+
+		$queue_name = self::validate_queue( $request->get_param('queue') );
+		if ( is_wp_error( $queue_name ) ){
+			return $queue_name;
+		}
+
+		$sender = Sender::get_instance();
+		$response = $sender->do_sync_for_queue( new Queue( $queue_name ) );
+
+		return rest_ensure_response(
+			array(
+				'response' => $response
+			)
+		);
+	}
+
+	/**
+	 * Request sync data from specified queue.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function checkout( $request ) {
+		$args = $request->get_params();
+		$queue_name = self::validate_queue( $args['queue'] );
+
+		if ( is_wp_error( $queue_name ) ) {
+			return $queue_name;
+		}
+
+		$number_of_items = $args['number_of_items'];
+		if ( $number_of_items < 1 || $number_of_items > 100 ) {
+			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
+		}
+
+		// REST Sender
+		$sender = new REST_Sender();
+
+		if ( 'immediate' === $queue_name ) {
+			return rest_ensure_response( $sender->immediate_full_sync_pull( $number_of_items ) );
+		}
+
+		return rest_ensure_response( $sender->queue_pull( $queue_name, $number_of_items, $args ) );
+	}
+
+	/**
+	 * Unlock a Sync queue.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function unlock_queue( $request ) {
+
+		$queue_name = $request->get_param( 'queue' );
+
+		if ( ! in_array( $queue_name, array( 'sync', 'full_sync' ) ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
+		}
+		$queue = new Queue( $queue_name );
+
+		// False means that there was no lock to delete.
+		$response = $queue->unlock();
+		return rest_ensure_response(
+			array(
+				'success' => $response
+			)
+		);
+	}
+
+	/**
+	 * Checkin Sync actions.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function close( $request ) {
+
+		$request_body = $request->get_params();
+		$queue_name = self::validate_queue( $request_body['queue'] );
+
+		if ( is_wp_error( $queue_name ) ) {
+			return $queue_name;
+		}
+
+		if ( empty( $request_body['buffer_id'] ) ) {
+			return new WP_Error( 'missing_buffer_id', 'Please provide a buffer id', 400 );
+		}
+
+		if ( ! is_array( $request_body['item_ids'] ) ) {
+			return new WP_Error( 'missing_item_ids', 'Please provide a list of item ids in the item_ids argument', 400 );
+		}
+
+		//Limit to A-Z,a-z,0-9,_,-
+		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
+		$request_body['item_ids']  = array_filter( array_map( array( 'Automattic\Jetpack\Sync\REST_Endpoints', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
+
+		$queue = new Queue( $queue_name );
+
+		$items = $queue->peek_by_id( $request_body['item_ids'] );
+
+		// Update Full Sync Status if queue is "full_sync".
+		if ( 'full_sync' === $queue_name ) {
+			$full_sync_module = Modules::get_module( 'full-sync' );
+			$full_sync_module->update_sent_progress_action( $items );
+		}
+
+		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
+		$response = $queue->close( $buffer, $request_body['item_ids'] );
+
+		// Perform another checkout?
+		if ( isset( $request_body['continue'] ) && $request_body['continue'] ) {
+			if ( in_array( $queue_name, array( 'full_sync', 'immediate' ), true ) ) {
+				// Send Full Sync Actions.
+				Sender::get_instance()->do_full_sync();
+			} else {
+				// Send Incremental Sync Actions.
+				if ( $queue->has_any_items() ) {
+					Sender::get_instance()->do_sync();
+				}
+			}
+		}
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => $response,
+				'status' => Actions::get_sync_status(),
+			)
+		);
+	}
+
+	/**
+	 * Retrieve range of Object Ids for a specified Sync module.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function get_object_id_range( $request ) {
+
+		$module_name = $request->get_param('sync_module');
+		$batch_size  = $request->get_param('batch_size');
+
+		if ( ! self::is_valid_sync_module( $module_name ) ) {
+			return new WP_Error( 'invalid_module', 'This sync module cannot be used to calculate a range.', 400 );
+		}
+		$module = Modules::get_module( $module_name );
+
+		return rest_ensure_response(
+			array(
+				'ranges' => $module->get_min_max_object_ids_for_batches( $batch_size ),
+			)
+		);
+	}
+
+	/**
 	 * Verify that request has default permissions to perform sync actions.
 	 *
 	 * @since 9.9.0
@@ -412,6 +738,42 @@ class Endpoints {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync, full_sync or immediate', 400 );
 		}
 		return $value;
+	}
+
+	/**
+	 * Validate name is a valid Sync module.
+	 *
+	 * @param string $module_name Name of Sync Module.
+	 *
+	 * @return bool
+	 */
+	protected function is_valid_sync_module( $module_name ) {
+		return in_array(
+			$module_name,
+			array(
+				'comments',
+				'posts',
+				'terms',
+				'term_relationships',
+				'users',
+			),
+			true
+		);
+	}
+
+	/**
+	 * Sanitize Item Ids
+	 * @param $item
+	 *
+	 * @return string|string[]|null
+	 */
+	protected static function sanitize_item_ids( $item ) {
+		// lets not delete any options that don't start with jpsq_sync-
+		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
+			return null;
+		}
+		//Limit to A-Z,a-z,0-9,_,-,.
+		return preg_replace( '/[^A-Za-z0-9-_.]/', '', $item );
 	}
 
 }
