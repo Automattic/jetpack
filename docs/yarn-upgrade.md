@@ -68,5 +68,5 @@ when using calypso-build; currently a hack is needed (see [projects/plugins/jetp
 option directly.
 
 
-[end of support for Yarn 1]: https://github.com/yarnpkg/yarn/compare/977943e%5E..14bcd15#diff-185833cb26d7ac66a4d39042fd576a820c2c2c6d05ad18973bb9c7dce77267c5R29-R32
+[end of support for Yarn 1]: https://github.com/yarnpkg/yarn/compare/977943e%5E...14bcd15#diff-185833cb26d7ac66a4d39042fd576a820c2c2c6d05ad18973bb9c7dce77267c5R29-R32
 [projects/plugins/jetpack/babel.config.js]: ../projects/plugins/jetpack/babel.config.js
