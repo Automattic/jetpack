@@ -126,7 +126,6 @@
 	"pnpm": {
 		"overrides": {
 			"@automattic/calypso-build>node-sass@4.13.0": "^4.13.0",
-			"@wordpress/rich-text@3.12.2>@wordpress/data@^4.14.2": "^4.14.2 <=4.23.1",
 			"yargs@^7.1.0>yargs-parser": "^20.0.0",
 			"isomorphic-fetch@^2.1.1>node-fetch": "^2.6.1",
 			"terser-webpack-plugin@^1.4.3>serialize-javascript": "^5.0.0",
