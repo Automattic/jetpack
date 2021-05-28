@@ -728,8 +728,9 @@ class Jetpack_Search_Helpers {
 	 */
 	public static function get_alphanumeric_version( $replace = '-' ) {
 		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// Examples of JETPACK__VERSION are: `9.8-alpha`, `9.8-beta`, `9.8`, `9.8.1`, `9.8.2`.
-		return strtolower( preg_replace( '/[^A-Za-z0-9]/', $replace, JETPACK__VERSION ) );
+		// 1. Examples of JETPACK__VERSION are: `9.8-alpha`, `9.8-beta`, `9.8`, `9.8.1`, `9.8.2`.
+		// 2. WPCOM doesn't have JETPACK__VERSION
+		return defined( 'JETPACK__VERSION' ) ? strtolower( preg_replace( '/[^A-Za-z0-9]/', $replace, JETPACK__VERSION ) ) : '';
 	}
 
 	/**
