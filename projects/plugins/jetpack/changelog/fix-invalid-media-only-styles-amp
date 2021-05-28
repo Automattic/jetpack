@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Invalid ï¿ï¿ï¿@media only styles for AMP have been fixed
+Fix invalid `@media only` block styles
