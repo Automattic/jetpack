@@ -22,3 +22,7 @@ export function recordTrainTracksRender( properties ) {
 export function recordTrainTracksInteract( properties ) {
 	recordEvent( 'jetpack_instant_search_traintracks_interact', properties );
 }
+
+export function recordStaticFilterSelect( properties ) {
+	recordEvent( 'jetpack_instant_search_static_filter_select', properties );
+}

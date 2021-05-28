@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import SearchFilter from './search-filter';
 import { mapFilterToFilterKey, mapFilterToType, getAvailableStaticFilters } from '../lib/filters';
 import { clearFilters, setFilter, setStaticFilter } from '../store/actions';
+import { recordStaticFilterSelect } from '../lib/tracks';
 import './search-filters.scss';
 
 class SearchFilters extends Component {
@@ -27,6 +28,7 @@ class SearchFilters extends Component {
 	};
 
 	onChangeStaticFilter = ( filterName, filterValue ) => {
+		recordStaticFilterSelect( { filterName, filterValue } );
 		this.props.setStaticFilter( filterName, filterValue );
 		this.props.onChange && this.props.onChange();
 	};
