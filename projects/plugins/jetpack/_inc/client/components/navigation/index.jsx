@@ -51,6 +51,15 @@ export class Navigation extends React.Component {
 
 	render() {
 		let navTabs;
+
+		const jetpackPlansPath = getRedirectUrl(
+			this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
+			{
+				site: this.props.siteUrl,
+				...( this.props.purchaseToken ? { purchasetoken: this.props.purchaseToken } : {} ),
+			}
+		);
+
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
 				<NavTabs selectedText={ this.props.routeName }>
@@ -74,10 +83,7 @@ export class Navigation extends React.Component {
 					) }
 					{ ! this.props.isOfflineMode && (
 						<NavItem
-							path={ getRedirectUrl(
-								this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
-								{ site: this.props.siteUrl, purchasetoken: this.props.purchaseToken }
-							) }
+							path={ jetpackPlansPath }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
 						>
