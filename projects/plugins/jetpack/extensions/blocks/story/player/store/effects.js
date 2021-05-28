@@ -75,11 +75,9 @@ function syncWithMediaElement( action, store ) {
 		return;
 	}
 
-	if ( muted ) {
-		mediaElement.muted = muted;
-		if ( ! muted ) {
-			mediaElement.volume = 0.5; //settings.volume;
-		}
+	mediaElement.muted = muted;
+	if ( ! muted ) {
+		mediaElement.volume = 0.5; //settings.volume;
 	}
 
 	if ( playing ) {
