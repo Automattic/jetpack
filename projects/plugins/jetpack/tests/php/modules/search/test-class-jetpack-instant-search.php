@@ -13,7 +13,6 @@ require_jetpack_file( 'modules/search/class.jetpack-search.php' );
 require_jetpack_file( 'modules/search/class.jetpack-search-helpers.php' );
 require_jetpack_file( 'modules/search/class-jetpack-search-options.php' );
 require_jetpack_file( 'modules/search/class-jetpack-instant-search.php' );
-require_once __DIR__ . '/class-jetpack-instant-search-child.php';
 
 /**
  * Jetpack_Instant_Search test cases
@@ -25,7 +24,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	/**
 	 * Jetpack Instant Search instance
 	 *
-	 * @var Jetpack_Instant_Search_Child $instant_search
+	 * @var Jetpack_Instant_Search $instant_search
 	 */
 	public static $instant_search;
 
@@ -34,7 +33,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		static::$instant_search = Jetpack_Instant_Search_Child::instance();
+		static::$instant_search = Jetpack_Instant_Search::instance();
 	}
 
 	/**
@@ -43,7 +42,6 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	 * @since 9.8.0
 	 */
 	public function test_remove_wp_migrated_widgets() {
-		static::$instant_search->set_old_sidebars_widgets();
 		$old_sidebars_widgets = $this->get_old_sidebars_widgets_data();
 		$new_sidebars_widgets = array(
 			'wp_inactive_widgets'            => array( 'search-2' ),
@@ -60,7 +58,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 			'sidebar-2'                      => array(),
 			'array_version'                  => 3,
 		);
-		static::$instant_search->set_old_sidebars_widgets( $old_sidebars_widgets );
+		$this->set_private_member_value( static::$instant_search, 'old_sidebars_widgets', $old_sidebars_widgets );
 
 		$this->assertEquals(
 			$expected_sidebars_widgets,
@@ -72,23 +70,25 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	 * Can set old_sidebars_widgets value when _wp_sidebars_changed action is set
 	 */
 	public function test_save_old_sidebars_widgets_with__wp_sidebars_changed() {
-		static::$instant_search->set_old_sidebars_widgets();
+		// Set old_sidebars_widgets to null.
+		$this->set_private_member_value( static::$instant_search, 'old_sidebars_widgets' );
 		$old_sidebars_widgets = $this->get_old_sidebars_widgets_data();
 		static::$instant_search->save_old_sidebars_widgets( $old_sidebars_widgets );
 
-		$this->assertEquals( $old_sidebars_widgets, static::$instant_search->get_old_sidebars_widgets() );
+		$this->assertEquals( $old_sidebars_widgets, $this->get_private_member_value( static::$instant_search, 'old_sidebars_widgets' ) );
 	}
 
 	/**
 	 * Can not set old_sidebars_widgets value when _wp_sidebars_changed action is set
 	 */
 	public function test_save_old_sidebars_widgets_with_no__wp_sidebars_changed() {
-		static::$instant_search->set_old_sidebars_widgets();
+		// Set old_sidebars_widgets to null.
+		$this->set_private_member_value( static::$instant_search, 'old_sidebars_widgets' );
 		$old_sidebars_widgets = $this->get_old_sidebars_widgets_data();
 		remove_action( 'after_switch_theme', '_wp_sidebars_changed' );
 		static::$instant_search->save_old_sidebars_widgets( $old_sidebars_widgets );
 
-		$this->assertNull( static::$instant_search->get_old_sidebars_widgets() );
+		$this->assertNull( $this->get_private_member_value( static::$instant_search, 'old_sidebars_widgets' ) );
 	}
 
 	/**
@@ -104,5 +104,38 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 			'sidebar-2'                      => array( 'archives-2', 'categories-2', 'meta-2' ),
 			'array_version'                  => 3,
 		);
+	}
+
+	/**
+	 * Use reflection to get private member value.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param object $object The object to operate on.
+	 * @param string $member_name Name of the private member.
+	 *
+	 * @return mixed The value of the private member.
+	 */
+	private function get_private_member_value( $object, $member_name ) {
+		$ref = new ReflectionObject( $object );
+		$m   = $ref->getProperty( $member_name );
+		$m->setAccessible( true );
+		return $m->getValue( $object );
+	}
+
+	/**
+	 * Use reflection to set value to private member.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param object $object The object to operate on.
+	 * @param string $member_name Name of the private member.
+	 * @param mixed  $value Value of the private member.
+	 */
+	private function set_private_member_value( $object, $member_name, $value = null ) {
+		$ref = new ReflectionObject( $object );
+		$m   = $ref->getProperty( $member_name );
+		$m->setAccessible( true );
+		$m->setValue( $object, $value );
 	}
 }
