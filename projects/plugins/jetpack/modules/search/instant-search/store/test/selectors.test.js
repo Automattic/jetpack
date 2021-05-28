@@ -36,20 +36,12 @@ describe( 'getSort', () => {
 
 describe( 'hasActiveQuery', () => {
 	test( 'returns false if reducers are at their initial values', () => {
-		expect(
-			hasActiveQuery( { searchQuery: null, filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( false );
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
 	} );
 	test( 'returns true if there is a defined search query', () => {
-		expect(
-			hasActiveQuery( { searchQuery: '', filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( true );
-		expect(
-			hasActiveQuery( { searchQuery: 'hello', filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( true );
-		expect(
-			hasActiveQuery( { searchQuery: null, filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( false );
+		expect( hasActiveQuery( { searchQuery: '', filters: {}, sort: null } ) ).toEqual( true );
+		expect( hasActiveQuery( { searchQuery: 'hello', filters: {}, sort: null } ) ).toEqual( true );
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
 	} );
 	test( 'returns true if there are defined filters', () => {
 		expect(
@@ -57,33 +49,15 @@ describe( 'hasActiveQuery', () => {
 				searchQuery: null,
 				filters: { post_types: [ 'post', 'page' ] },
 				sort: null,
-				staticFilters: {},
 			} )
 		).toEqual( true );
-		expect(
-			hasActiveQuery( { searchQuery: null, filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( false );
-	} );
-	test( 'returns true if there are defined static filters', () => {
-		expect(
-			hasActiveQuery( {
-				searchQuery: null,
-				filters: {},
-				sort: null,
-				staticFilters: { group_id: '__NO_GROUP__' },
-			} )
-		).toEqual( true );
-		expect(
-			hasActiveQuery( { searchQuery: null, filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( false );
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
 	} );
 	test( 'returns true if there is a defined sort value', () => {
-		expect(
-			hasActiveQuery( { searchQuery: null, filters: {}, sort: 'relevance', staticFilters: {} } )
-		).toEqual( true );
-		expect(
-			hasActiveQuery( { searchQuery: null, filters: {}, sort: null, staticFilters: {} } )
-		).toEqual( false );
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: 'relevance' } ) ).toEqual(
+			true
+		);
+		expect( hasActiveQuery( { searchQuery: null, filters: {}, sort: null } ) ).toEqual( false );
 	} );
 } );
 
