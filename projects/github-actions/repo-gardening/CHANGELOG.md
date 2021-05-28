@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.3] - 2021-05-28
 ### Fixed
-- Slack notification tasks: both tasks now listen for pull_request_target events so they can be run on PRs open from forks.
+- Slack notification tasks: both tasks now listen for `pull_request_target` events so they can be run on PRs opened from forks.
 
 ## [1.2.2] - 2021-05-21
 ### Fixed
