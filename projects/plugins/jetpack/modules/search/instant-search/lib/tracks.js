@@ -23,6 +23,11 @@ export function recordTrainTracksInteract( properties ) {
 	recordEvent( 'jetpack_instant_search_traintracks_interact', properties );
 }
 
+/**
+ * Fires a static filter selection event to Tracks.
+ *
+ * @param {object} properties - Event properties to send to Tracks.
+ */
 export function recordStaticFilterSelect( properties ) {
 	recordEvent( 'jetpack_instant_search_static_filter_select', properties );
 }
