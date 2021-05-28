@@ -15,6 +15,7 @@ import {
 	getCurrentMediaElement,
 	getCurrentMediaDuration,
 	getPreviousSlideMediaElement,
+	getSettings,
 	getSlideCount,
 } from './selectors';
 
@@ -63,6 +64,7 @@ function syncWithMediaElement( action, store ) {
 	const playing = isPlaying( getState(), playerId );
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
 	const previousMediaElement = getPreviousSlideMediaElement( getState(), playerId );
+	const settings = getSettings( getState(), playerId );
 
 	if ( isVideo( previousMediaElement ) ) {
 		previousMediaElement.currentTime = 0;
@@ -75,9 +77,11 @@ function syncWithMediaElement( action, store ) {
 		return;
 	}
 
-	mediaElement.muted = muted;
-	if ( ! muted ) {
-		mediaElement.volume = 0.5; //settings.volume;
+	if ( muted !== mediaElement.muted ) {
+		mediaElement.muted = muted;
+		if ( ! muted ) {
+			mediaElement.volume = settings.volume;
+		}
 	}
 
 	if ( playing ) {
