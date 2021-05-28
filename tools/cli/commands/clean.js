@@ -107,19 +107,20 @@ async function commandRoute( argv ) {
 	// Live Commands
 	if ( runConfirm.confirm ) {
 		console.log( chalk.green( `Cleaning files...` ) );
+		// For tracked files using 'rm -rf'
 		if ( argv.cmd === 'find' ) {
 			argv.cmd = 'rm',
 			argv = await makeRemove( argv );
-			console.log(argv);
-			await runCommand( argv.cmd, argv.options ); //todo run this again and make sure the one from tools/cli/node_modules gets removed
-			console.log( chalk.green( `Clean completed! ${argv.project} cleans up so nicely, doesn't it?` ) );
-			return;
+			await runCommand( argv.cmd, argv.options );
 		}
 
-		await runCommand( argv.cmd, [ `clean`, ...argv.options, '-f' ] ); // do it live.
-		if ( argv.include.toClean === 'both' ) {
-			console.log( chalk.green( 'Cleaning working files...' ) );
-			runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
+		// For untracked files using 'git clean'
+		if ( argv.cmd === 'git' ) {
+			await runCommand( argv.cmd, [ `clean`, ...argv.options, '-f' ] ); // do it live.
+			if ( argv.include.toClean === 'both' ) {
+				console.log( chalk.green( 'Cleaning working files...' ) );
+				runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
+			}
 		}
 		console.log( chalk.green( `Clean completed! ${argv.project} cleans up so nicely, doesn't it?` ) );
 	}
@@ -168,13 +169,13 @@ async function parseArgs( argv ) {
 	return argv;
 }
 /**
- * Compiles options for git clean.
+ * Compiles options depending on the command we need to run.
  *
  * @param {object} argv - arguments passed.
  * @returns {object} argv.
  */
 export async function makeOptions( argv ) {
-	if 
+	if
 	(
 		argv.include.toClean === 'vendor' ||
 		argv.include.toClean === 'node_modules' ||
@@ -220,12 +221,12 @@ async function makeClean ( argv ) {
 	if ( ! argv.include.ignored ) {
 		argv.include.ignored = [];
 	}
-	
+
 	return argv;
 }
 
 /**
- * For running rm -rf to remove specific files.
+ * For running rm -rf to remove specific tracked files.
  *
  * @param {object} argv - arguments passed.
  * @returns {object} argv.
@@ -240,16 +241,18 @@ async function makeRemove( argv ) {
 		return argv;
 	}
 
-	switch ( argv.scope ) {
-		case 'project':
-			argv.options.push( `projects/${argv.project}/${toClean}` );
-			break;
-		case 'type':
-			argv.options.push( `${argv.project}/*/${toClean}` );
-			break;
-		case 'all':
-			argv.cmd = 'find'
-			argv.options = [ '.',  '-name', `"${toClean}"`, '-prune', '-exec', 'rm', '-rf', '{}', '+' ];
+	if ( argv.cmd === 'rm' ) {
+		switch ( argv.scope ) {
+			case 'project':
+				argv.options.push( `projects/${argv.project}/${toClean}` );
+				break;
+			case 'type':
+				argv.options.push( `${argv.project}/*/${toClean}` );
+				break;
+			case 'all':
+				argv.cmd = 'find';
+				argv.options = [ '.', '-name', `"${toClean}"`, '-prune', '-print', '-exec', 'rm', '-rf', '{}', '+' ];
+		}
 	}
 	return argv;
 }
