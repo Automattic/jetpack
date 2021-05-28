@@ -24,9 +24,10 @@ const pluginFileContent = readFileSync( path.join( __dirname, '../jetpack.php' )
 const jetpackAlphaNumericVersionMatch = pluginFileContent.match(
 	/define\(\s+'JETPACK__VERSION',\s+'([0-9A-Za-z.-]+)'\s+\)/
 );
-const jetpackAlphaNumericVersion = jetpackAlphaNumericVersionMatch
-	? `.${ jetpackAlphaNumericVersionMatch[ 1 ].replace( /[^0-9A-Za-z]+/g, '-' ) }`
-	: '';
+const bundleVersionExtension =
+	jetpackAlphaNumericVersionMatch?.length > 0
+		? `.${ jetpackAlphaNumericVersionMatch[ 1 ].replace( /[^0-9A-Za-z]+/g, '-' ) }`
+		: '';
 
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
@@ -45,7 +46,7 @@ const baseWebpackConfig = getBaseWebpackConfig(
 			],
 		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
-		'output-filename': `jp-search-[name].bundle${ jetpackAlphaNumericVersion }.js`,
+		'output-filename': `jp-search-[name].bundle${ bundleVersionExtension }.js`,
 		'output-path': path.join( __dirname, '../_inc/build/instant-search' ),
 	}
 );
