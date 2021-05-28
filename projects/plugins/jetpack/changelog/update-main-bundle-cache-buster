@@ -1,4 +1,4 @@
 Significance: minor
 Type: compat
 
-Search: add cache buster string in main bundle filename
+Search: Add cachebuster in main bundle filename for Jetpack plugin to avoid inconsitency caused by CDN cache (WPCOM unchanged).
