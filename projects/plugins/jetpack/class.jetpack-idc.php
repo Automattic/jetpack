@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable Squiz.Commenting.FileComment.SpacingAfterComment
 /**
  * Identity Crisis handler.
  *
