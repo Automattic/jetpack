@@ -183,6 +183,30 @@ function get_image_crop_class( $width, $height ) {
 }
 
 /**
+ * Returns a URL for the site icon.
+ *
+ * @param int    $size - Size for (square) sitei icon.
+ * @param string $fallback - Fallback URL to use if no site icon is found.
+ *
+ * @returns string
+ */
+function get_blavatar_or_site_icon_url( $size, $fallback ) {
+	$permalink = get_permalink( get_the_ID() );
+
+	if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+		$domain = blavatar_domain( $permalink );
+
+		if ( ! blavatar_exists( $domain ) ) {
+			return $fallback;
+		}
+
+		return blavatar_url( $domain, 'img', $size );
+	} else {
+		return get_site_icon_url( $size, $fallback );
+	}
+}
+
+/**
  * Render a video inside a slide
  *
  * @param array $media  - Video information.
@@ -416,7 +440,7 @@ function render_block( $attributes ) {
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),
-		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_attr( get_blavatar_or_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
 		render_top_right_icon( $settings ),
