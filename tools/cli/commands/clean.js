@@ -10,6 +10,7 @@ import inquirer from 'inquirer';
  */
 import promptForProject, { promptForType } from '../helpers/promptForProject';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv';
+import { runCommand } from '../helpers/runCommand'
 
 /**
  * Command definition for the build subcommand.
@@ -122,6 +123,10 @@ async function commandRoute( argv ) {
 				runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
 			}
 		}
+/* 		Object.keys(require.cache ).forEach( function ( key ) {
+			console.log(key);
+			delete require.cache[ key ];
+		} ); */
 		console.log( chalk.green( `Clean completed! ${argv.project} cleans up so nicely, doesn't it?` ) );
 	}
 }
@@ -132,7 +137,7 @@ async function commandRoute( argv ) {
  * @param {string} cmd - the shell command to run.
  * @param {object} options - the command options passed.
  */
- export async function runCommand( cmd, options ) {
+/*  export async function runCommand( cmd, options ) {
 	const data = child_process.spawnSync( cmd, [ ...options ], {
 		shell: true,
 		stdio: 'inherit',
@@ -142,7 +147,7 @@ async function commandRoute( argv ) {
 		console.error( 'There was a problem! See error above.' );
 		process.exit( data.status );
 	}
-}
+} */
 
 /**
  * Parse passed arguments passed through.
