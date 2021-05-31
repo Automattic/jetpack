@@ -21,7 +21,6 @@ import { NavigateBeforeIcon, NavigateNextIcon } from './icons';
 export default function Overlay( {
 	ended,
 	hasPrevious,
-	hasNext,
 	onNextSlide,
 	onPreviousSlide,
 	icon,
@@ -74,17 +73,11 @@ export default function Overlay( {
 					</DecoratedButton>
 				</div>
 			) }
-			{ hasNext && (
-				<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
-					<DecoratedButton
-						size={ 44 }
-						label={ __( 'Next Slide', 'jetpack' ) }
-						className="outlined-w"
-					>
-						{ isRTL() ? <NavigateBeforeIcon size={ 24 } /> : <NavigateNextIcon size={ 24 } /> }
-					</DecoratedButton>
-				</div>
-			) }
+			<div className="wp-story-next-slide" onClick={ onNextSlideHandler }>
+				<DecoratedButton size={ 44 } label={ __( 'Next Slide', 'jetpack' ) } className="outlined-w">
+					{ isRTL() ? <NavigateBeforeIcon size={ 24 } /> : <NavigateNextIcon size={ 24 } /> }
+				</DecoratedButton>
+			</div>
 		</div>
 	);
 }

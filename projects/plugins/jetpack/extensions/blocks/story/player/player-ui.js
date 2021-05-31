@@ -211,7 +211,6 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 					showSlideCount={ settings.showSlideCount }
 					ended={ ended }
 					hasPrevious={ currentSlideIndex > 0 }
-					hasNext={ currentSlideIndex < slides.length - 1 }
 					onPreviousSlide={ tryPreviousSlide }
 					onNextSlide={ tryNextSlide }
 				/>
