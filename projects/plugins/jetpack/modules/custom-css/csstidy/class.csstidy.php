@@ -279,7 +279,7 @@ class csstidy {
 		$this->settings['preserve_css'] = false;
 		$this->settings['timestamp'] = false;
 		$this->settings['template'] = ''; // say that propertie exist
-		$this->settings['preserve_css_variables'] = false;
+		$this->settings['preserve_css_variables']     = false;
 		$this->set_cfg('template','default'); // call load_template
 		$this->optimise = new csstidy_optimise($this);
 
@@ -1186,7 +1186,7 @@ class csstidy {
 	/**
 	 * Checks if a property is a css variable
 	 * Valid patterns must start with `--` and use alphanumeric characters optionally separated by `-` or `_`. They must not end with a `-` or `_`.
-	 * 
+	 *
 	 * @param string $property The property name to be checked.
 	 * @return bool;
 	 * @access public
