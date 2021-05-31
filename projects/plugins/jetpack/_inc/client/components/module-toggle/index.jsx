@@ -18,6 +18,8 @@ import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
+import { getConnectUrl, hasConnectedOwner } from 'state/connection';
+import ConnectModal from './connect-modal';
 
 class ModuleToggleComponent extends Component {
 	static displayName = 'ModuleToggle';
@@ -30,6 +32,8 @@ class ModuleToggleComponent extends Component {
 		compact: PropTypes.bool,
 		id: PropTypes.string,
 		overrideCondition: PropTypes.string,
+		hasConnectedOwner: PropTypes.bool,
+		requiresConnectionOwner: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -38,9 +42,24 @@ class ModuleToggleComponent extends Component {
 		overrideCondition: '',
 	};
 
+	state = {
+		showConnectModal: false,
+	};
+
 	toggleModule = () => {
 		this.trackModuleToggle( this.props.slug, this.props.activated );
+
+		// show a dialog if we're not connected but require an owner
+		if ( this.props.requiresConnectionOwner && ! this.props.hasConnectedOwner ) {
+			this.setState( { showConnectModal: true } );
+			return;
+		}
+
 		return this.props.toggleModule( this.props.slug, this.props.activated );
+	};
+
+	hideConnectModal = () => {
+		this.setState( { showConnectModal: false } );
 	};
 
 	trackModuleToggle = ( slug, activated ) => {
@@ -107,17 +126,20 @@ class ModuleToggleComponent extends Component {
 
 	render() {
 		return (
-			<CompactFormToggle
-				checked={ this.props.activated || this.props.isModuleActivated }
-				toggling={ this.props.toggling }
-				className={ this.props.className }
-				disabled={ this.props.disabled || this.isDisabledByOverride() }
-				id={ this.props.id }
-				onChange={ this.toggleModule }
-				disabledReason={ this.getDisabledReason() }
-			>
-				{ this.props.children }
-			</CompactFormToggle>
+			<>
+				<CompactFormToggle
+					checked={ this.props.activated || this.props.isModuleActivated }
+					toggling={ this.props.toggling }
+					className={ this.props.className }
+					disabled={ this.props.disabled || this.isDisabledByOverride() }
+					id={ this.props.id }
+					onChange={ this.toggleModule }
+					disabledReason={ this.getDisabledReason() }
+				>
+					{ this.props.children }
+				</CompactFormToggle>
+				<ConnectModal show={ this.state.showConnectModal } closeModal={ this.hideConnectModal } />
+			</>
 		);
 	}
 }
@@ -125,5 +147,6 @@ class ModuleToggleComponent extends Component {
 export const ModuleToggle = connect( state => {
 	return {
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 	};
 } )( ModuleToggleComponent );

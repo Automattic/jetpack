@@ -33,6 +33,16 @@ import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
+// import {
+// 	isFetchingConnectUrl as _isFetchingConnectUrl,
+// 	getConnectUrl as _getConnectUrl,
+// 	fetchUserConnectionData,
+// 	authorizeUserInPlaceSuccess,
+// 	isAuthorizingUserInPlace,
+// 	hasConnectedOwner,
+// 	isSiteRegistered,
+// } from 'state/connection';
+
 import './style.scss';
 
 export class ConnectButton extends React.Component {
@@ -91,6 +101,28 @@ export class ConnectButton extends React.Component {
 		}
 	};
 
+	loadPopup = ( e, url ) => {
+		e.preventDefault();
+
+		// Track click
+		analytics.tracks.recordJetpackClick( 'link_account_in_popup' );
+
+		url = url + '&close_window_after_authorize=1&calypso_env=development';
+
+		const dialog = window.open(
+			url,
+			'jetpack-connect',
+			'status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=1,height=660,width=500'
+		);
+		var timer = setInterval( function () {
+			// detect authorized status and closed dialog
+			if ( dialog.closed ) {
+				clearInterval( timer );
+				console.warn( 'detected dialog closed' );
+			}
+		}, 1000 );
+	};
+
 	renderUserButton = () => {
 		// Already linked
 		if ( this.props.isLinked ) {
@@ -113,7 +145,6 @@ export class ConnectButton extends React.Component {
 		let connectUrl = this.props.connectUrl;
 		if ( this.props.from ) {
 			connectUrl += `&from=${ this.props.from }`;
-			connectUrl += '&additional-user';
 		}
 
 		const buttonProps = {
@@ -139,6 +170,10 @@ export class ConnectButton extends React.Component {
 			! this.props.doNotUseConnectionIframe
 		) {
 			buttonProps.onClick = this.loadIframe;
+		}
+
+		if ( this.props.connectInPopup ) {
+			buttonProps.onClick = e => this.loadPopup( e, connectUrl );
 		}
 
 		return this.props.asLink ? (

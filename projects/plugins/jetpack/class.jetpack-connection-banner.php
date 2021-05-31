@@ -229,7 +229,7 @@ class Jetpack_Connection_Banner {
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 				'forceVariation'        => $force_variation,
-				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
+				'connectUrl'            => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
 				'identity'              => $identity,
@@ -382,7 +382,7 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Jetpack offers security, performance, and marketing tools made for WordPress sites by WordPress experts. Set up Jetpack to enable new features for this site; don\'t let your subscription go to waste!',
+									'Jetpack offers security, performance, and marketing tools made for WordPress sites by WordPress experts. Activate Jetpack to enable new features for this site; don\'t let your subscription go to waste!',
 									'jetpack'
 								);
 								?>
@@ -393,7 +393,7 @@ class Jetpack_Connection_Banner {
 								<a
 									href="<?php echo esc_url( $this->build_connect_url_for_slide( '90' ) ); ?>"
 									class="dops-button is-primary jp-banner__alt-connect-button">
-									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+									<?php esc_html_e( 'Let\'s Go', 'jetpack' ); ?>
 								</a>
 							</div>
 
@@ -441,11 +441,7 @@ class Jetpack_Connection_Banner {
 				<?php endif; ?>
 
 				<div id="jp-connect-full__step1-header" class="jp-connect-full__step-header">
-					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
-				</div>
-
-				<div id="jp-connect-full__step2-header" class="jp-connect-full__step-header">
-					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Jetpack is activated!', 'jetpack' ); ?><br /><?php esc_html_e( 'Unlock more amazing features by connecting a user account', 'jetpack' ); ?></h2>
+					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Ready for liftoff.', 'jetpack' ); ?></h2>
 				</div>
 
 				<p class="jp-connect-full__tos-blurb">
@@ -455,7 +451,7 @@ class Jetpack_Connection_Banner {
 				<p class="jp-connect-full__button-container">
 					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
 					   class="dops-button is-primary jp-connect-button">
-						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+						<?php esc_html_e( 'Let\'s Go', 'jetpack' ); ?>
 					</a>
 				</p>
 

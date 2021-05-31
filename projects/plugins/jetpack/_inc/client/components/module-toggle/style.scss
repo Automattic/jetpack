@@ -6,3 +6,25 @@
 .form-toggle.is-compact.is-toggling:checked + .form-toggle__label .form-toggle__switch:after {
 	left: 0;
 }
+
+.jp-connect-dialog__modal {
+	.dops-card {
+		padding: 24px;
+	}
+}
+
+.jp-connect-dialog__header {
+	h2 {
+		margin-top: 0;
+		font-size: 28px;
+		line-height: 24px;
+	}
+	display: flex;
+	flex-direction: row;
+	align-content: center;
+	justify-content: space-between;
+}
+
+.jp-connect-dialog__button {
+	// margin: 16px;
+}

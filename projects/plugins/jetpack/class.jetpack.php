@@ -4425,6 +4425,10 @@ p {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
+					if ( ! empty( $_GET['close_window_after_authorize'] ) ) {
+						$url = add_query_arg( 'close_window_after_authorize', $_GET['close_window_after_authorize'], $url );
+					}
+
 					wp_redirect( $url );
 					exit;
 				case 'activate':
@@ -5320,6 +5324,7 @@ endif;
 	 * @return boolean
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
+		return true;
 		// Do some fancy tests to see if ssl is being supported
 		if ( $force_recheck || false === ( $ssl = get_transient( 'jetpack_https_test' ) ) ) {
 			$message = '';

@@ -18,13 +18,13 @@ class Jetpack_Pre_Connection_JITMs {
 	 * @return array An array containing the pre-connection JITM messages.
 	 */
 	private function get_raw_messages() {
-		$button_caption = __( 'Set up Jetpack', 'jetpack' );
+		$button_caption = __( 'Let\'s Go', 'jetpack' );
 		/* Translators: placeholders are links. */
-		$media_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to Site Accelerator.', 'jetpack' );
+		$media_description = __( 'Click on the <strong>Let\'s Go</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to Site Accelerator.', 'jetpack' );
 		/* Translators: placeholders are links. */
-		$widgets_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to great additional widgets.', 'jetpack' );
+		$widgets_description = __( 'Click on the <strong>Let\'s Go</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to great additional widgets.', 'jetpack' );
 		/* Translators: placeholders are links. */
-		$posts_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to in-depth stats about your site.', 'jetpack' );
+		$posts_description = __( 'Click on the <strong>Let\'s Go</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to in-depth stats about your site.', 'jetpack' );
 
 		$messages = array(
 			array(
