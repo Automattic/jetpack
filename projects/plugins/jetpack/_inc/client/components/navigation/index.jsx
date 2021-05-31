@@ -56,7 +56,9 @@ export class Navigation extends React.Component {
 			this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
 			{
 				site: this.props.siteUrl,
-				...( this.props.purchaseToken ? { purchasetoken: this.props.purchaseToken } : {} ),
+				...( this.props.purchaseToken
+					? { query: `purchasetoken=${ this.props.purchaseToken }` }
+					: {} ),
 			}
 		);
 
