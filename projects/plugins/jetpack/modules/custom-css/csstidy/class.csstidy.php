@@ -1,5 +1,4 @@
 <?php
-// phpcs:ignoreFile
 /**
  * CSSTidy - CSS Parser and Optimiser
  *
@@ -1180,20 +1179,21 @@ class csstidy {
 		$property = strtolower($property);
 		if (in_array(trim($property), $GLOBALS['csstidy']['multiple_properties'])) $property = trim($property);
 		$all_properties = & $GLOBALS['csstidy']['all_properties'];
-		return ((isset($all_properties[$property]) && strpos($all_properties[$property], strtoupper($this->get_cfg('css_level'))) !== false)
-					|| ($this->get_cfg('preserve_css_variables') && $this->property_is_css_variable($property)));
+		return ( ( isset( $all_properties[ $property ] ) && strpos( $all_properties[ $property ], strtoupper( $this->get_cfg( 'css_level' ) ) ) !== false )
+					|| ( $this->get_cfg( 'preserve_css_variables' ) && $this->property_is_css_variable( $property ) ) );
 	}
 
 	/**
 	 * Checks if a property is a css variable
 	 * Valid patterns must start with `--` and use alphanumeric characters optionally separated by `-` or `_`. They must not end with a `-` or `_`.
-	 * @param string $property
+	 * 
+	 * @param string $property The property name to be checked.
 	 * @return bool;
 	 * @access public
 	 * @version 1.0
 	 */
-	function property_is_css_variable($property) {
-		return preg_match('/^--([a-zA-Z0-9]+[\-_]?)+(?<![\-_])$/', $property);
+	public function property_is_css_variable( $property ) {
+		return preg_match( '/^--([a-zA-Z0-9]+[\-_]?)+(?<![\-_])$/', $property );
 	}
 
 	/**
