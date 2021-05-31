@@ -79,7 +79,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Can not set old_sidebars_widgets value when _wp_sidebars_changed action is set
+	 * Can not set old_sidebars_widgets value when no _wp_sidebars_changed action is set
 	 */
 	public function test_save_old_sidebars_widgets_with_no__wp_sidebars_changed() {
 		// Set old_sidebars_widgets to null.
