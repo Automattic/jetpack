@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: harden fetching comments in Carousel view.
