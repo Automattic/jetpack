@@ -182,7 +182,7 @@ class Jetpack_Beta_Admin {
 	 * @since 2.5.0
 	 */
 	public static function to_test_general_rules_content() {
-		$test_rules = WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/docs/testing/testing-tips.md';
+		$test_rules = JPBETA__PLUGIN_DIR . '/docs/testing/testing-tips.md';
 		if ( ! file_exists( $test_rules ) ) {
 			return;
 		}
