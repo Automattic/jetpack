@@ -5,8 +5,6 @@
  * @package automattic/jetpack-backup
  */
 
-use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
@@ -14,21 +12,6 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
  * The React initial state.
  */
 class Initial_State {
-
-	/**
-	 * The connection manager object.
-	 *
-	 * @var Manager
-	 */
-	private $manager;
-
-	/**
-	 * The constructor.
-	 */
-	public function __construct() {
-		$this->manager = new Manager();
-	}
-
 	/**
 	 * Get the initial state data.
 	 *
@@ -36,17 +19,13 @@ class Initial_State {
 	 */
 	private function get_data() {
 		return array(
-			'connectionStatus' => REST_Connector::connection_status( false ),
-			'API'              => array(
+			'API'            => array(
 				'WP_API_root'       => esc_url_raw( rest_url() ),
 				'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
-			'connectionData'   => array(
+			'connectionData' => array(
 				'doNotUseConnectionIframe' => ! $this->can_use_connection_iframe(),
-				'authorizationUrl'         => ( $this->manager->is_connected() && ! $this->manager->is_user_connected() )
-					? $this->manager->get_authorization_url( null, admin_url( 'admin.php?page=jetpack-backup' ) )
-					: null,
 			),
 		);
 	}
