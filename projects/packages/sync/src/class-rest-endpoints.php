@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 
 /**
@@ -17,9 +18,11 @@ use WP_Error;
 class REST_Endpoints {
 
 	/**
-	 * @var array Items pending send.
+	 *  Items pending send.
+	 *
+	 * @var array
 	 */
-	public $items = [];
+	public $items = array();
 
 	/**
 	 * Initialize REST routes.
@@ -135,7 +138,7 @@ class REST_Endpoints {
 						'type'        => 'string',
 						'required'    => false,
 					),
-					'object_ids' => array(
+					'object_ids'  => array(
 						'description' => __( 'Objects Identifiers', 'jetpack' ),
 						'type'        => 'array',
 						'required'    => false,
@@ -216,7 +219,7 @@ class REST_Endpoints {
 						'type'        => 'string',
 						'required'    => true,
 					),
-					'batch_size' => array(
+					'batch_size'  => array(
 						'description' => __( 'Size of batches', 'jetpack' ),
 						'type'        => 'int',
 						'required'    => true,
@@ -503,7 +506,8 @@ class REST_Endpoints {
 
 		$module_name = $args['module_name'];
 		// Verify valid Sync Module.
-		if ( ! $sync_module = Modules::get_module( $module_name ) ) {
+		$sync_module = Modules::get_module( $module_name );
+		if ( ! $sync_module ) {
 			return new WP_Error( 'invalid_module', 'You specified an invalid sync module' );
 		}
 
@@ -517,7 +521,7 @@ class REST_Endpoints {
 		return rest_ensure_response(
 			array(
 				'objects' => $objects,
-				'codec' => $codec->name(),
+				'codec'   => $codec->name(),
 			)
 		);
 	}
@@ -533,17 +537,17 @@ class REST_Endpoints {
 	 */
 	public static function do_sync( $request ) {
 
-		$queue_name = self::validate_queue( $request->get_param('queue') );
-		if ( is_wp_error( $queue_name ) ){
+		$queue_name = self::validate_queue( $request->get_param( 'queue' ) );
+		if ( is_wp_error( $queue_name ) ) {
 			return $queue_name;
 		}
 
-		$sender = Sender::get_instance();
+		$sender   = Sender::get_instance();
 		$response = $sender->do_sync_for_queue( new Queue( $queue_name ) );
 
 		return rest_ensure_response(
 			array(
-				'response' => $response
+				'response' => $response,
 			)
 		);
 	}
@@ -558,7 +562,7 @@ class REST_Endpoints {
 	 * @return \WP_REST_Response
 	 */
 	public static function checkout( $request ) {
-		$args = $request->get_params();
+		$args       = $request->get_params();
 		$queue_name = self::validate_queue( $args['queue'] );
 
 		if ( is_wp_error( $queue_name ) ) {
@@ -570,7 +574,7 @@ class REST_Endpoints {
 			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
 		}
 
-		// REST Sender
+		// REST Sender.
 		$sender = new REST_Sender();
 
 		if ( 'immediate' === $queue_name ) {
@@ -593,7 +597,7 @@ class REST_Endpoints {
 
 		$queue_name = $request->get_param( 'queue' );
 
-		if ( ! in_array( $queue_name, array( 'sync', 'full_sync' ) ) ) {
+		if ( ! in_array( $queue_name, array( 'sync', 'full_sync' ), true ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', 400 );
 		}
 		$queue = new Queue( $queue_name );
@@ -602,7 +606,7 @@ class REST_Endpoints {
 		$response = $queue->unlock();
 		return rest_ensure_response(
 			array(
-				'success' => $response
+				'success' => $response,
 			)
 		);
 	}
@@ -619,7 +623,7 @@ class REST_Endpoints {
 	public static function close( $request ) {
 
 		$request_body = $request->get_params();
-		$queue_name = self::validate_queue( $request_body['queue'] );
+		$queue_name   = self::validate_queue( $request_body['queue'] );
 
 		if ( is_wp_error( $queue_name ) ) {
 			return $queue_name;
@@ -633,7 +637,7 @@ class REST_Endpoints {
 			return new WP_Error( 'missing_item_ids', 'Please provide a list of item ids in the item_ids argument', 400 );
 		}
 
-		//Limit to A-Z,a-z,0-9,_,-
+		// Limit to A-Z,a-z,0-9,_,- .
 		$request_body['buffer_id'] = preg_replace( '/[^A-Za-z0-9]/', '', $request_body['buffer_id'] );
 		$request_body['item_ids']  = array_filter( array_map( array( 'Automattic\Jetpack\Sync\REST_Endpoints', 'sanitize_item_ids' ), $request_body['item_ids'] ) );
 
@@ -647,7 +651,7 @@ class REST_Endpoints {
 			$full_sync_module->update_sent_progress_action( $items );
 		}
 
-		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
+		$buffer   = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
 		// Perform another checkout?
@@ -670,7 +674,7 @@ class REST_Endpoints {
 		return rest_ensure_response(
 			array(
 				'success' => $response,
-				'status' => Actions::get_sync_status(),
+				'status'  => Actions::get_sync_status(),
 			)
 		);
 	}
@@ -686,8 +690,8 @@ class REST_Endpoints {
 	 */
 	public static function get_object_id_range( $request ) {
 
-		$module_name = $request->get_param('sync_module');
-		$batch_size  = $request->get_param('batch_size');
+		$module_name = $request->get_param( 'sync_module' );
+		$batch_size  = $request->get_param( 'batch_size' );
 
 		if ( ! self::is_valid_sync_module( $module_name ) ) {
 			return new WP_Error( 'invalid_module', 'This sync module cannot be used to calculate a range.', 400 );
@@ -709,7 +713,7 @@ class REST_Endpoints {
 	 * @return bool Whether user has capability 'manage_options' or a blog token is used.
 	 */
 	public static function verify_default_permissions() {
-		if ( current_user_can( 'manage_options' ) ) { // TODO || check for valid blog token.
+		if ( current_user_can( 'manage_options' ) || Rest_Authentication::is_signed_with_blog_token() ) {
 			return true;
 		}
 
@@ -762,17 +766,18 @@ class REST_Endpoints {
 	}
 
 	/**
-	 * Sanitize Item Ids
-	 * @param $item
+	 * Sanitize Item Ids.
+	 *
+	 * @param string $item Sync item identifier.
 	 *
 	 * @return string|string[]|null
 	 */
 	protected static function sanitize_item_ids( $item ) {
-		// lets not delete any options that don't start with jpsq_sync-
+		// lets not delete any options that don't start with jpsq_sync- .
 		if ( ! is_string( $item ) || substr( $item, 0, 5 ) !== 'jpsq_' ) {
 			return null;
 		}
-		//Limit to A-Z,a-z,0-9,_,-,.
+		// Limit to A-Z,a-z,0-9,_,-,. .
 		return preg_replace( '/[^A-Za-z0-9-_.]/', '', $item );
 	}
 
