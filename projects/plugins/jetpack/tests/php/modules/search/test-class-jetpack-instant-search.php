@@ -96,7 +96,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	 *
 	 * @since 9.9.0
 	 */
-	private function get_old_sidebars_widgets_data() {
+	private function get_old_sidebars_widgets_fixture() {
 		return array(
 			'wp_inactive_widgets'            => array( 'search-2' ),
 			'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-2' ),
