@@ -42,7 +42,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	 * @since 9.8.0
 	 */
 	public function test_remove_wp_migrated_widgets() {
-		$old_sidebars_widgets = $this->get_old_sidebars_widgets_data();
+		$old_sidebars_widgets = $this->get_old_sidebars_widgets_fixture();
 		$new_sidebars_widgets = array(
 			'wp_inactive_widgets'            => array( 'search-2' ),
 			'jetpack-instant-search-sidebar' => array( 'jetpack-search-filters-2', 'archives-2', 'categories-2', 'meta-2' ),
@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	public function test_save_old_sidebars_widgets_with__wp_sidebars_changed() {
 		// Set old_sidebars_widgets to null.
 		$this->set_private_member_value( static::$instant_search, 'old_sidebars_widgets' );
-		$old_sidebars_widgets = $this->get_old_sidebars_widgets_data();
+		$old_sidebars_widgets = $this->get_old_sidebars_widgets_fixture();
 		static::$instant_search->save_old_sidebars_widgets( $old_sidebars_widgets );
 
 		$this->assertEquals( $old_sidebars_widgets, $this->get_private_member_value( static::$instant_search, 'old_sidebars_widgets' ) );
@@ -84,7 +84,7 @@ class WP_Test_Jetpack_Instant_Search extends WP_UnitTestCase {
 	public function test_save_old_sidebars_widgets_with_no__wp_sidebars_changed() {
 		// Set old_sidebars_widgets to null.
 		$this->set_private_member_value( static::$instant_search, 'old_sidebars_widgets' );
-		$old_sidebars_widgets = $this->get_old_sidebars_widgets_data();
+		$old_sidebars_widgets = $this->get_old_sidebars_widgets_fixture();
 		remove_action( 'after_switch_theme', '_wp_sidebars_changed' );
 		static::$instant_search->save_old_sidebars_widgets( $old_sidebars_widgets );
 
