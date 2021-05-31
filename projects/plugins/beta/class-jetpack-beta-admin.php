@@ -167,12 +167,12 @@ class Jetpack_Beta_Admin {
 		switch ( $section ) {
 			case 'pr':
 				return self::to_test_pr_content( $branch );
-			case 'master':
-				return self::to_test_general_rules_content();
 			case 'rc':
 				return self::to_test_file_content();
+			default: // Master "bleeding edge" or latest stable.
+				return self::to_test_general_rules_content();
+
 		}
-		return null;
 	}
 
 	/**
