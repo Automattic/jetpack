@@ -1,0 +1,4 @@
+Significance: minor
+Type: major
+
+Changes the main connection flow and chooses between in-place or calypso flows only after the site registration

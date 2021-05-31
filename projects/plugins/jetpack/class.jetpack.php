@@ -6043,9 +6043,8 @@ endif;
 			? $_REQUEST
 			: $environment;
 
-		//phpcs:ignore MediaWiki.Classes.UnusedUseStatement.UnusedUse,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		list( $env_token, $env_version, $env_user_id ) = explode( ':', $environment['token'] );
-		$token = ( new Tokens() )->get_access_token( $env_user_id, $env_token );
+		list( $env_token,, $env_user_id ) = explode( ':', $environment['token'] );
+		$token                            = ( new Tokens() )->get_access_token( $env_user_id, $env_token );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.', 'jetpack' ) );
 		}
