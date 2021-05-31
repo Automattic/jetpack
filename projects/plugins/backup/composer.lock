@@ -174,12 +174,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "64313d7411d0e4835926e0b46feb8647480caa93"
+                "reference": "89075941c275ac160a2868cc8342a5a2625270d2"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
                 "automattic/jetpack-options": "^1.13",
+                "automattic/jetpack-redirect": "^1.6",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.8",
                 "automattic/jetpack-terms-of-service": "^1.9",
@@ -463,6 +464,60 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for wp-options to manage specific Jetpack options.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-redirect",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/redirect",
+                "reference": "3b8e138b90448c4c537dbdd205d8b01adf0c2a6d"
+            },
+            "require": {
+                "automattic/jetpack-status": "^1.8"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2",
+                "brain/monkey": "2.6.0",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-redirect",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-redirect/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "1.6.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer update",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer update",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Utilities to build URLs to the jetpack.com/redirect/ service",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
