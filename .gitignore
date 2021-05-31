@@ -23,6 +23,7 @@ npm-debug.log
 .eslintcache
 .eslintignore-required
 .phpcs.xml
+.pnpm-debug.log
 phpcs.xml
 .phpunit.result.cache
 
