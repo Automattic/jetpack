@@ -61,7 +61,7 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 		$this->instance->parse( $input );
 		$this->assertEquals(
 			$expected_output,
-			$expected_output
+			$this->instance->print->plain()
 		);
 	}
 }
