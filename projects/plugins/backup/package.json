@@ -12,16 +12,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php",
+		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-client && pnpm run build-php",
 		"build-client": "gulp",
-		"build-concurrently": "yarn install-if-deps-outdated && yarn clean && yarn concurrently 'yarn build-client' 'yarn build-php'",
+		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
 		"clean": "rm -rf build/",
-		"install-if-deps-outdated": "yarn install --check-files --production=false --frozen-lockfile",
-		"watch": "yarn build && yarn gulp watch"
+		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
+		"watch": "pnpm run build && pnpx gulp watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-connection": "link:../../js-packages/connection",
+		"@automattic/jetpack-connection": "workspace:^0.3.0-alpha",
 		"@wordpress/data": "4.27.3",
 		"@wordpress/i18n": "3.20.0",
 		"react": "16.13.1",
@@ -42,6 +42,7 @@
 	},
 	"engines": {
 		"node": "^14.16.0",
-		"yarn": "^1.3.2"
+		"pnpm": "^6.5.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

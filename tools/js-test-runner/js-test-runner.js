@@ -6,16 +6,20 @@ require.extensions[ '.css' ] = noop;
 require.extensions[ '.scss' ] = noop;
 require.extensions[ '.svg' ] = noop;
 
-const basepath = require( 'path' ).dirname( __dirname );
+const path = require( 'path' );
+const basepath = path.dirname( path.dirname( __dirname ) );
 require( '@babel/register' )( {
 	ignore: [ /node_modules/ ],
 	only: [
-		function ( path ) {
-			return path.startsWith( basepath );
+		function ( filepath ) {
+			return filepath.startsWith( basepath );
 		},
 	],
-	presets: [ '@babel/preset-react', [ '@babel/preset-env', { targets: { node: 'current' } } ] ],
-	plugins: [ '@babel/plugin-transform-runtime' ],
+	presets: [
+		require.resolve( '@babel/preset-react' ),
+		[ require.resolve( '@babel/preset-env' ), { targets: { node: 'current' } } ],
+	],
+	plugins: [ require.resolve( '@babel/plugin-transform-runtime' ) ],
 } );
 
 const program = require( 'commander' ),
