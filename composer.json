@@ -60,7 +60,8 @@
 			"@phpcs:lint:required"
 		],
 		"test-js": [
-			"cd tools/cli && yarn install && yarn test"
+			"pnpm install",
+			"cd tools/cli && pnpm test"
 		]
 	},
 	"scripts-descriptions": {

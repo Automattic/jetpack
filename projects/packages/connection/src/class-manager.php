@@ -1016,7 +1016,7 @@ class Manager {
 		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
 		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
 
-		if ( ! $registration_details->allow_inplace_authorization ) {
+		if ( ! $allow_inplace_authorization ) {
 			// Forces register_site REST endpoint to return the Calypso authorization URL.
 			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
 		}

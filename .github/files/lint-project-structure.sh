@@ -132,7 +132,7 @@ tools/check-renovate-ignore-list.js
 debug "Checking .nvmrc vs package.json engines"
 RANGE="$(jq -r '.engines.node' package.json)"
 VER="$(<.nvmrc)"
-if ! yarn run semver --range "$RANGE" "$VER" &>/dev/null; then
+if ! pnpx semver --range "$RANGE" "$VER" &>/dev/null; then
 	EXIT=1
 	echo "::error file=.nvmrc::Node version $VER in .nvmrc does not satisfy requirement $RANGE from package.json"
 fi
