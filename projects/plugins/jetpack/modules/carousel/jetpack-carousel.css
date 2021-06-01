@@ -114,6 +114,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 .jp-carousel-left-column-wrapper {
 	flex-grow: 1;
+	flex-shrink: 1;
+	overflow: hidden;
 }
 
 .jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
@@ -374,6 +376,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	font-weight: 400;
 	width: 100%;
 }
+
+.jp-carousel-titleanddesc-desc {
+	overflow: hidden;
+	overflow-wrap: break-word;
+}
+
 .jp-carousel-titleanddesc-title {
 	font: 300 1.5em/1.1 "Helvetica Neue", sans-serif !important;
 	text-transform: none !important; /* prevents uppercase from leaking through */
@@ -441,6 +449,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	width: 209px !important;
 	margin-top: 20px;
 	margin-left: 40px;
+	margin-bottom: 20px;
+	flex-shrink: 0;
 }
 
 .jp-carousel-image-meta li,
@@ -664,14 +674,14 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 }
 @keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
 }
 
 #jp-carousel-comment-form-submit-and-info-wrapper {
@@ -727,7 +737,13 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-button-submit {
 	margin-top: 20px;
-	float:right;
+	float: right;
+	display: block;
+	border: solid 1px white;
+	background: rgba(34,34,34,0.9);
+	border-radius: 3px;
+	padding: 8px 16px;
+	font-size: 14px;
 }
 
 #jp-carousel-comment-form-container {
@@ -757,7 +773,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font: 13px/1.4 "Helvetica Neue", sans-serif !important;
 	border: 1px solid rgba( 255, 255, 255, 0.17 );
 	-webkit-box-shadow: inset 0px 0px 5px 5px rgba(0, 0, 0, 1);
-	        box-shadow: inset 0px 0px 5px 5px rgba(0, 0, 0, 1);
+					box-shadow: inset 0px 0px 5px 5px rgba(0, 0, 0, 1);
 }
 
 .jp-carousel-comment-post-error {
@@ -843,11 +859,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light #jp-carousel-comment-form-button-submit {
-	color: #333;
-	background: #fff;
-	background: -moz-linear-gradient(bottom,  #dcdcde,  #fff);
-	background: -webkit-gradient(linear, left bottom, left top, from(#dcdcde), to(#fff));
-	border: 1px solid #a7aaad;
+	color: black;
+	border: solid 1px black;
+	background: #fbfbfb;
 }
 
 .jp-carousel-light .jp-carousel-image-meta {
@@ -917,7 +931,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: #f6f7f7;
 	border:1px solid #dcdcde;
 	-webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
-	        box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
+					box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
 }
 
 .jp-carousel-light .jp-carousel-slide {

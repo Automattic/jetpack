@@ -33,7 +33,7 @@ export const defaultPlayerSettings = {
 	},
 	defaultAspectRatio: 720 / 1280,
 	cropUpTo: 0.2, // crop percentage allowed, after which media is displayed in letterbox
-	volume: 0.5,
+	volume: 0.8,
 	maxBullets: 7,
 	maxBulletsFullscreen: 14,
 };

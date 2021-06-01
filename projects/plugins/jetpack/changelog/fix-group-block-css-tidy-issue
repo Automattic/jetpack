@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Turns off css tidy shorthand optimisation to prevent clashes with gutenberg block validation

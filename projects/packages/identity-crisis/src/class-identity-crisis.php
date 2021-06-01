@@ -9,9 +9,9 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants as Constants;
 use Automattic\Jetpack\Status as Status;
-use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Tracking as Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
@@ -222,7 +222,7 @@ class Identity_Crisis {
 	public static function check_identity_crisis() {
 		$connection = new Connection_Manager( 'jetpack' );
 
-		if ( ! $connection->is_active() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
+		if ( ! $connection->is_connected() || ( new Status() )->is_offline_mode() || ! self::validate_sync_error_idc_option() ) {
 			return false;
 		}
 
@@ -358,8 +358,8 @@ class Identity_Crisis {
 		$local_options = get_transient( 'jetpack_idc_local' );
 		if ( false === $local_options ) {
 			$local_options = array(
-				'home'    => Functions::home_url(),
-				'siteurl' => Functions::site_url(),
+				'home'    => Urls::home_url(),
+				'siteurl' => Urls::site_url(),
 			);
 			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
 		}
@@ -448,11 +448,11 @@ class Identity_Crisis {
 			<?php $this->render_notice_header(); ?>
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo esc_html( $this->get_non_admin_notice_text() ); ?>
+					<?php echo $this->get_non_admin_notice_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</h3>
 
 				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo esc_html( $this->get_non_admin_contact_admin_text() ); ?>
+					<?php echo $this->get_non_admin_contact_admin_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</p>
 			</div>
 		</div>
@@ -487,7 +487,7 @@ class Identity_Crisis {
 	 */
 	public function enqueue_admin_bar_css() {
 
-		$build_assets = require_once __DIR__ . '/../build/index.asset.php';
+		$build_assets = require __DIR__ . '/../build/index.asset.php';
 
 		wp_enqueue_style(
 			'jetpack-idc-admin-bar-css',
@@ -503,12 +503,12 @@ class Identity_Crisis {
 	 * @return void
 	 */
 	public function enqueue_idc_notice_files() {
-		$build_assets                   = require_once __DIR__ . '/../build/index.asset.php';
+		$build_assets                   = require __DIR__ . '/../build/index.asset.php';
 		$build_assets['dependencies'][] = 'jquery';
 
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			Assets::get_file_url_for_environment( 'build/index.js', 'build/index.js', plugin_dir_url( __DIR__ ) ),
+			plugin_dir_url( __DIR__ ) . 'build/index.js',
 			$build_assets['dependencies'],
 			$build_assets['version'],
 			true
@@ -546,7 +546,7 @@ class Identity_Crisis {
 		);
 		wp_enqueue_style(
 			'jetpack-idc-css',
-			plugin_dir_url( __DIR__ ) . 'build/jetpack-idc.css',
+			plugin_dir_url( __DIR__ ) . 'build/css/jetpack-idc.css',
 			array( 'jetpack-dops-style' ),
 			self::PACKAGE_VERSION
 		);
@@ -566,7 +566,7 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__header__emblem">
 				<?php
 				$jetpack_logo = new Jetpack_Logo();
-				echo esc_html( $jetpack_logo->get_jp_emblem() );
+				echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				?>
 			</div>
 			<p class="jp-idc-notice__header__text">
@@ -617,11 +617,11 @@ class Identity_Crisis {
 		<div class="jp-idc-notice__first-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo esc_html( $this->get_first_step_header_lead() ); ?>
+					<?php echo $this->get_first_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</h3>
 
 				<p class="jp-idc-notice__content-header__explanation">
-					<?php echo esc_html( $this->get_first_step_header_explanation() ); ?>
+					<?php echo $this->get_first_step_header_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</p>
 			</div>
 
@@ -630,19 +630,19 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__actions">
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo esc_html( $this->get_confirm_safe_mode_action_explanation() ); ?>
+						<?php echo $this->get_confirm_safe_mode_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</p>
 					<button id="jp-idc-confirm-safe-mode-action" class="dops-button">
-						<?php echo esc_html( $this->get_confirm_safe_mode_button_text() ); ?>
+						<?php echo $this->get_confirm_safe_mode_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</button>
 				</div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo esc_html( $this->get_first_step_fix_connection_action_explanation() ); ?>
+						<?php echo $this->get_first_step_fix_connection_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</p>
 					<button id="jp-idc-fix-connection-action" class="dops-button">
-						<?php echo esc_html( $this->get_first_step_fix_connection_button_text() ); ?>
+						<?php echo $this->get_first_step_fix_connection_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</button>
 				</div>
 			</div>
@@ -660,7 +660,7 @@ class Identity_Crisis {
 		<div class="jp-idc-notice__second-step">
 			<div class="jp-idc-notice__content-header">
 				<h3 class="jp-idc-notice__content-header__lead">
-					<?php echo esc_html( $this->get_second_step_header_lead() ); ?>
+					<?php echo $this->get_second_step_header_lead(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</h3>
 			</div>
 
@@ -669,26 +669,26 @@ class Identity_Crisis {
 			<div class="jp-idc-notice__actions">
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo esc_html( $this->get_migrate_site_action_explanation() ); ?>
+						<?php echo $this->get_migrate_site_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</p>
 					<button id="jp-idc-migrate-action" class="dops-button">
-						<?php echo esc_html( $this->get_migrate_site_button_text() ); ?>
+						<?php echo $this->get_migrate_site_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</button>
 				</div>
 
 				<div class="jp-idc-notice__action">
 					<p class="jp-idc-notice__action__explanation">
-						<?php echo esc_html( $this->get_start_fresh_action_explanation() ); ?>
+						<?php echo $this->get_start_fresh_action_explanation(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</p>
 					<button id="jp-idc-reconnect-site-action" class="dops-button">
-						<?php echo esc_html( $this->get_start_fresh_button_text() ); ?>
+						<?php echo $this->get_start_fresh_button_text(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 					</button>
 				</div>
 
 			</div>
 
 			<p class="jp-idc-notice__unsure-prompt">
-				<?php echo esc_html( $this->get_unsure_prompt() ); ?>
+				<?php echo $this->get_unsure_prompt(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</p>
 		</div>
 		<?php
@@ -1017,5 +1017,3 @@ class Identity_Crisis {
 		return apply_filters( 'jetpack_idc_non_admin_contact_admin_text', $string );
 	}
 }
-
-add_action( 'plugins_loaded', array( 'Identity_Crisis', 'init' ) );

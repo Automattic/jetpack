@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-E2E tests: fix Slack notification for scheduled jobs
