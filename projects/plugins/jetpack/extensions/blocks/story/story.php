@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Story;
 use Automattic\Jetpack\Blocks;
 use Jetpack;
 use Jetpack_Gutenberg;
+use Jetpack_PostImages;
 
 const FEATURE_NAME = 'story';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -191,18 +192,11 @@ function get_image_crop_class( $width, $height ) {
  * @returns string
  */
 function get_blavatar_or_site_icon_url( $size, $fallback ) {
-	$permalink = get_permalink( get_the_ID() );
-
-	if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
-		$domain = blavatar_domain( $permalink );
-
-		if ( ! blavatar_exists( $domain ) ) {
-			return $fallback;
-		}
-
-		return blavatar_url( $domain, 'img', $size );
+	$image_array = Jetpack_PostImages::from_blavatar( get_the_ID(), $size );
+	if ( ! empty( $image_array ) ) {
+		return $image_array[0]['src'];
 	} else {
-		return get_site_icon_url( $size, $fallback );
+		return $fallback;
 	}
 }
 
