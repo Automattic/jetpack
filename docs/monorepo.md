@@ -32,12 +32,10 @@ First time working with the monorepo? We got you covered.
 
 For the first time only:
 
-* From the root of the repo, run `yarn install && yarn cli-setup`
+* From the root of the repo, run `pnpm cli-setup` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
 * That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
-This does a couple of things: 1. Adds a global symlink per yarn link so you can run the cli from any directory and 2. allows any changes made to the CLI to be immediately reflected on your local system.
-
-Once you’ve done that, it’s easy: run jetpack while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
+Once you’ve done that, it’s easy: run `jetpack` (or `pnpx jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
 
 ## Jetpack Generate Wizard
 
@@ -131,7 +129,7 @@ Tests for a project are only run for a PR if changes are made to the project or 
 * For Composer packages included in the monorepo, via `.require` and `.require-dev` in `composer.json`.
 * For any other dependencies, via `.extra.dependencies` in `composer.json`.
 
-The test environment will be set up with appropriate tools, including node, yarn, php, phpdbg, and composer. Unless otherwise specified below, the version of node will be that specified in the monorepo root's `.nvmrc` and php will be that specified in the monorepo root's `.github/php-version`. Other necessary tools may be pulled in via composer and yarn.
+The test environment will be set up with appropriate tools, including node, pnpm, php, phpdbg, and composer. Unless otherwise specified below, the version of node will be that specified in the monorepo root's `.nvmrc` and php will be that specified in the monorepo root's `.github/php-version`. Other necessary tools may be pulled in via composer and pnpm.
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 

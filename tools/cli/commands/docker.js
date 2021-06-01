@@ -10,9 +10,9 @@ import chalk from 'chalk';
  * @param {object} argv - Arguments passed.
  */
 const defaultDockerCmdHandler = argv => {
-	const args = process.argv.slice( 4 ); // node yarn docker <cmd> [args..]
+	const args = process.argv.slice( 4 ); // node pnpm run docker <cmd> [args..]
 	try {
-		spawnSync( `yarn`, [ `docker:${ argv._[ 1 ] }`, ...args ], { stdio: 'inherit' } );
+		spawnSync( `pnpm`, [ 'run', `docker:${ argv._[ 1 ] }`, '--', ...args ], { stdio: 'inherit' } );
 	} catch ( error ) {
 		console.error( chalk.bgRed( `Failed to execute command docker:${ argv._[ 1 ] }. Error:` ) );
 		console.log( error );
