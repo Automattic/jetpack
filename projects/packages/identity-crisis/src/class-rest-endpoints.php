@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\IdentityCrisis;
 use Jetpack;
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Server;
 
 /**
  * This class will handle Identity Crisis Endpoints
@@ -139,8 +140,13 @@ class REST_Endpoints {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			return true;
 		}
+		$error_msg = esc_html__(
+			'You do not have the correct user permissions to perform this action.
+			Please contact your site admin if you think this is a mistake.',
+			'jetpack'
+		);
 
-		return new WP_Error( 'invalid_user_permission_identity_crisis', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_identity_crisis', $error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 }
