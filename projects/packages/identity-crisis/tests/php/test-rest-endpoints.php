@@ -19,10 +19,6 @@ use WP_REST_Server;
  */
 class Test_REST_Endpoints extends TestCase {
 
-	const BLOG_TOKEN = 'new.blogtoken';
-	const BLOG_ID    = 42;
-	const USER_ID    = 111;
-
 	/**
 	 * REST Server object.
 	 *
@@ -79,7 +75,6 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/identity-crisis/confirm-safe-mode` endpoint.
 	 */
 	public function test_confirm_safe_mode() {
-		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		Jetpack_Options::update_option( 'safe_mode_confirmed', false );
 
@@ -94,19 +89,15 @@ class Test_REST_Endpoints extends TestCase {
 
 		$user->remove_cap( 'jetpack_disconnect' );
 
-		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
-
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'success', $data['code'] );
 		$this->assertTrue( Jetpack_Options::get_option( 'safe_mode_confirmed' ) );
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/identity-crisis/confirm-safe-mode` endpoint.
+	 * Testing the `/jetpack/v4/identity-crisis/confirm-safe-mode` endpoint returns an error when user does not have permissions.
 	 */
 	public function test_confirm_safe_mode_no_access() {
-		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		Jetpack_Options::update_option( 'safe_mode_confirmed', false );
 
@@ -114,9 +105,6 @@ class Test_REST_Endpoints extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
-
-		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 
 		$this->assertEquals( 401, $response->get_status() );
 		$this->assertFalse( Jetpack_Options::get_option( 'safe_mode_confirmed' ) );
@@ -126,7 +114,6 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/identity-crisis/migrate` endpoint.
 	 */
 	public function test_migrate_stats_and_subscribers() {
-		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		Jetpack_Options::update_option( 'sync_error_idc', true );
 		Jetpack_Options::update_option( 'migrate_for_idc', false );
@@ -142,9 +129,6 @@ class Test_REST_Endpoints extends TestCase {
 
 		$user->remove_cap( 'jetpack_disconnect' );
 
-		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
-
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'success', $data['code'] );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
@@ -152,10 +136,9 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/identity-crisis/migrate` endpoint.
+	 * Testing the `/jetpack/v4/identity-crisis/migrate` endpoint returns an error when user does not have permissions.
 	 */
 	public function test_migrate_stats_and_subscribers_no_access() {
-		add_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ), 10, 3 );
 
 		Jetpack_Options::update_option( 'sync_error_idc', true );
 		Jetpack_Options::update_option( 'migrate_for_idc', false );
@@ -165,89 +148,10 @@ class Test_REST_Endpoints extends TestCase {
 
 		$response = $this->server->dispatch( $request );
 
-		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
-		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
-
 		$this->assertEquals( 401, $response->get_status() );
 		$this->assertFalse( Jetpack_Options::get_option( 'safe_mode_confirmed' ) );
 		$this->assertTrue( Jetpack_Options::get_option( 'sync_error_idc' ) );
 		$this->assertFalse( Jetpack_Options::get_option( 'migrate_for_idc' ) );
-	}
-
-	/**
-	 * Intercept the `jetpack-token-health` API request sent to WP.com, and mock the "invalid blog token" response.
-	 *
-	 * @param bool|array $response The existing response.
-	 * @param array      $args The request arguments.
-	 * @param string     $url The request URL.
-	 *
-	 * @return array
-	 */
-	public function intercept_auth_token_request( $response, $args, $url ) {
-		if ( false === strpos( $url, '/jetpack.token/' ) ) {
-			return $response;
-		}
-
-		return array(
-			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode(
-				array(
-					'access_token' => 'mock.token',
-					'token_type'   => 'X_JETPACK',
-					'scope'        => ( new Manager() )->sign_role( 'administrator' ),
-				)
-			),
-			'response' => array(
-				'code'    => 200,
-				'message' => 'OK',
-			),
-		);
-	}
-
-	/**
-	 * Intercept the `Jetpack_Options` call and mock the values.
-	 * Site level / user-less connection set-up.
-	 *
-	 * @param mixed  $value The current option value.
-	 * @param string $name Option name.
-	 *
-	 * @return mixed
-	 */
-	public function mock_jetpack_site_connection_options( $value, $name ) {
-		switch ( $name ) {
-			case 'blog_token':
-				return self::BLOG_TOKEN;
-			case 'id':
-				return self::BLOG_ID;
-		}
-
-		return $value;
-	}
-
-	/**
-	 * Intercept the `Jetpack_Options` call and mock the values.
-	 * Full connection set-up.
-	 *
-	 * @param mixed  $value The current option value.
-	 * @param string $name Option name.
-	 *
-	 * @return mixed
-	 */
-	public function mock_jetpack_options( $value, $name ) {
-		switch ( $name ) {
-			case 'blog_token':
-				return self::BLOG_TOKEN;
-			case 'id':
-				return self::BLOG_ID;
-			case 'master_user':
-				return self::USER_ID;
-			case 'user_tokens':
-				return array(
-					self::USER_ID => 'new.usertoken.' . self::USER_ID,
-				);
-		}
-
-		return $value;
 	}
 
 }
