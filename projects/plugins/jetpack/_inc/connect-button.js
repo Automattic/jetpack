@@ -17,9 +17,21 @@ jQuery( document ).ready( function ( $ ) {
 				connectionHelpSections.fadeOut( 600 );
 			}
 			$( '.jp-connect-full__tos-blurb' ).hide();
-			connectButton.hide();
-			jetpackConnectButton.triggerLoadingState();
 
+			connectButton.hide();
+
+			// trigger loading state
+			var loadingText = $( '<span>' )
+				.addClass( 'jp-connect-full__button-container-loading' )
+				.text( jpConnect.buttonTextRegistering )
+				.appendTo( '.jp-connect-full__button-container' );
+
+			var spinner = $( '<div>' ).addClass( 'jp-spinner' );
+			var spinnerOuter = $( '<div>' ).addClass( 'jp-spinner__outer' ).appendTo( spinner );
+			$( '<div>' ).addClass( 'jp-spinner__inner' ).appendTo( spinnerOuter );
+			loadingText.after( spinner );
+
+			// register site
 			var registerUrl = jpConnect.apiBaseUrl + '/connection/register';
 			var connectButtonFrom;
 
@@ -43,21 +55,11 @@ jQuery( document ).ready( function ( $ ) {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
 					from: connectButtonFrom,
+					no_iframe: 'original' === jpConnect.forceVariation,
 				},
 				error: jetpackConnectButton.handleRegisterError,
 				success: jetpackConnectButton.handleRegisterSuccess,
 			} );
-		},
-		triggerLoadingState: function () {
-			var loadingText = $( '<span>' )
-				.addClass( 'jp-connect-full__button-container-loading' )
-				.text( jpConnect.buttonTextRegistering )
-				.appendTo( '.jp-connect-full__button-container' );
-
-			var spinner = $( '<div>' ).addClass( 'jp-spinner' );
-			var spinnerOuter = $( '<div>' ).addClass( 'jp-spinner__outer' ).appendTo( spinner );
-			$( '<div>' ).addClass( 'jp-spinner__inner' ).appendTo( spinnerOuter );
-			loadingText.after( spinner );
 		},
 		handleRegisterSuccess: function ( data ) {
 			if ( window.location.href == jpConnect.dashboardUrl ) {
@@ -69,6 +71,8 @@ jQuery( document ).ready( function ( $ ) {
 		handleRegisterError: function ( error ) {
 			// TODO - ask user to retry
 			console.error( error );
+			// If something goes wrong, we take users to Calypso.
+			window.location = connectButton.attr( 'href' );
 		},
 	};
 

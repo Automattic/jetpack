@@ -938,8 +938,8 @@ class Manager {
 			'jetpack_register_request_body',
 			array_merge(
 				array(
-					'siteurl'            => site_url(),
-					'home'               => home_url(),
+					'siteurl'            => Urls::site_url(),
+					'home'               => Urls::home_url(),
 					'gmt_offset'         => $gmt_offset,
 					'timezone_string'    => (string) get_option( 'timezone_string' ),
 					'site_name'          => (string) get_option( 'blogname' ),
@@ -1012,6 +1012,23 @@ class Manager {
 		);
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
+
+		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
+		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
+
+		if ( ! $allow_inplace_authorization ) {
+			// Forces register_site REST endpoint to return the Calypso authorization URL.
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+		}
+
+		add_filter(
+			'jetpack_register_site_rest_response',
+			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
+				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
+				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
+				return $response;
+			}
+		);
 
 		/**
 		 * Fires when a site is registered on WordPress.com.
@@ -1701,8 +1718,8 @@ class Manager {
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),
-				'site_url'              => site_url(),
-				'home_url'              => home_url(),
+				'site_url'              => Urls::site_url(),
+				'home_url'              => Urls::home_url(),
 				'site_icon'             => get_site_icon_url(),
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),

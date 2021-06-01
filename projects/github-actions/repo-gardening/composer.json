@@ -9,8 +9,8 @@
 	},
 	"scripts": {
 		"build-development": [
-			"yarn install",
-			"yarn build"
+			"pnpm install",
+			"pnpm run build"
 		]
 	},
 	"repositories": [

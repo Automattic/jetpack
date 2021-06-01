@@ -14,4 +14,3 @@ gulpfile.babel.js export-ignore
 /changelog/**     production-exclude
 .gitignore        production-exclude
 _inc/**           production-exclude
-yarn.lock         production-exclude
