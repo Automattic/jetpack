@@ -12,7 +12,7 @@ import { _x } from '@wordpress/i18n';
  */
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
-import { isCurrentUserLinked, isOfflineMode } from 'state/connection';
+import { hasConnectedOwner, isCurrentUserLinked, isOfflineMode } from 'state/connection';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
@@ -53,7 +53,7 @@ export class Navigation extends React.Component {
 		let navTabs;
 
 		const jetpackPlansPath = getRedirectUrl(
-			this.props.isLinked ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
+			this.props.hasConnectedOwner ? 'jetpack-plans' : 'jetpack-nav-site-only-plans',
 			{
 				site: this.props.siteUrl,
 				...( this.props.purchaseToken
@@ -137,6 +137,7 @@ export default connect( state => {
 		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		isLinked: isCurrentUserLinked( state ),
+		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
 		siteUrl: getSiteRawUrl( state ),
 		purchaseToken: getPurchaseToken( state ),
