@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Repeat Visitor Block: Add JS and PHP block fixture tests.
