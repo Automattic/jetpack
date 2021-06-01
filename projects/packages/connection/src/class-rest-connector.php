@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Connection\REST_Endpoints\Token_Endpoints;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
@@ -474,11 +475,24 @@ class REST_Connector {
 			}
 		}
 
-		return rest_ensure_response(
-			array(
-				'authorizeUrl' => $authorize_url,
-			)
+		/**
+		 * Filters the response of jetpack/v4/connection/register endpoint
+		 *
+		 * @param array $response Array response
+		 * @since 9.8.0
+		 */
+		$response_body = apply_filters(
+			'jetpack_register_site_rest_response',
+			array()
 		);
+
+		// We manipulate the alternate URLs after the filter is applied, so they can not be overwritten.
+		$response_body['authorizeUrl'] = $authorize_url;
+		if ( ! empty( $response_body['alternateAuthorizeUrl'] ) ) {
+			$response_body['alternateAuthorizeUrl'] = Redirect::get_url( $response_body['alternateAuthorizeUrl'] );
+		}
+
+		return rest_ensure_response( $response_body );
 	}
 
 	/**

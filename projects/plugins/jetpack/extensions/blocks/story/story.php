@@ -91,6 +91,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 
 				// Set the poster attribute for the video tag if a poster image is available.
+				$poster_url = null;
 				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
 					$poster_url = $video_meta['videopress']['poster'];
 				} elseif ( ! empty( $video_meta['thumb'] ) ) {
