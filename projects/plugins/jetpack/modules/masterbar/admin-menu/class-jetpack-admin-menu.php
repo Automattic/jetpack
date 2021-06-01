@@ -245,19 +245,4 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function add_options_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/general/' . $this->domain, null, 'dashicons-admin-settings', 80 );
 	}
-
-	/**
-	 * Adds WP Admin menu.
-	 */
-	public function add_wp_admin_menu() {
-		global $menu;
-
-		// Attempt to get last position.
-		ksort( $menu );
-		end( $menu );
-		$position = key( $menu );
-
-		$this->add_admin_menu_separator( ++ $position );
-		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
-	}
 }
