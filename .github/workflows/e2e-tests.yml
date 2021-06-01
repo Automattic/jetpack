@@ -147,14 +147,6 @@ jobs:
         name: test-output-${{ matrix.group }}
         path: projects/plugins/jetpack/tests/e2e/output
 
-    - name: Trigger test report workflow
-      continue-on-error: true
-      run: |
-        curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
-        -H "Accept: application/vnd.github.v3+json" \
-        -u ${{ secrets.GITHUB_TOKEN }} \
-        --data '{"event_type": "Run ${{ github.run_id }}", "client_payload": { "repository": "automattic/jetpack", "run_id": "${{ github.run_id }}", "run_number": "${{ github.run_number }}" }}'
-
     - name: Send Slack notification
       if: ${{ failure() }}
       env:
@@ -171,6 +163,20 @@ jobs:
       run: |
         testspace "[${{ matrix.group }}]output/reports/junit-*.xml"
       if: always()
+
+  test-reports:
+    name: "Trigger test report workflow"
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+
+    steps:
+      - name: Trigger test report workflow
+        continue-on-error: true
+        run: |
+          curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
+          -H "Accept: application/vnd.github.v3+json" \
+          -u user:${{ secrets.GITHUB_TOKEN }} \
+          --data '{"event_type": "Run ${{ github.run_id }}", "client_payload": { "repository": "automattic/jetpack", "run_id": "${{ github.run_id }}", "run_number": "${{ github.run_number }}" }}'
 
   slack-notification:
     name: "Slack notification"
