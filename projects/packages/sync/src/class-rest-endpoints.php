@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
+use WP_REST_Server;
 
 /**
  * This class will handle Sync v4 REST Endpoints.
@@ -71,9 +72,27 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'fields' => array(
-						'description' => __( 'Fields that should be included in status.', 'jetpack' ),
-						'type'        => 'array',
+						'description' => __( 'Comma seperated list of additional fields that should be included in status.', 'jetpack' ),
+						'type'        => 'string',
 						'required'    => false,
+					),
+				),
+			)
+		);
+
+		// Update Sync health status.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/health',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::sync_health',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'status' => array(
+						'description' => __( 'New Sync health status', 'jetpack' ),
+						'type'        => 'string',
+						'required'    => true,
 					),
 				),
 			)
@@ -84,37 +103,15 @@ class REST_Endpoints {
 			'jetpack/v4',
 			'/sync/settings',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_sync_settings',
-				'permission_callback' => __CLASS__ . '::verify_default_permissions',
-			)
-		);
-
-		// Update Sync settings.
-		register_rest_route(
-			'jetpack/v4',
-			'/sync/settings',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::get_sync_settings',
-				'permission_callback' => __CLASS__ . '::verify_default_permissions',
-			)
-		);
-
-		// Update Sync health status.
-		register_rest_route(
-			'jetpack/v4',
-			'/sync/status',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::sync_health',
-				'permission_callback' => __CLASS__ . '::verify_default_permissions',
-				'args'                => array(
-					'status' => array(
-						'description' => __( 'New Sync health status', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => false,
-					),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_sync_settings',
+					'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_sync_settings',
+					'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				),
 			)
 		);
@@ -152,7 +149,7 @@ class REST_Endpoints {
 			'jetpack/v4',
 			'/sync/now',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::do_sync',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
@@ -208,7 +205,7 @@ class REST_Endpoints {
 		// Retrieve range of Object Ids.
 		register_rest_route(
 			'jetpack/v4',
-			'/sync/now',
+			'/sync/object-id-range',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_object_id_range',
@@ -453,7 +450,7 @@ class REST_Endpoints {
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public static function get_sync_setings() {
+	public static function get_sync_settings() {
 		return rest_ensure_response( Settings::get_settings() );
 	}
 
@@ -467,8 +464,7 @@ class REST_Endpoints {
 	 * @return \WP_REST_Response
 	 */
 	public static function update_sync_settings( $request ) {
-		$args = $request->get_params();
-
+		$args          = $request->get_params();
 		$sync_settings = Settings::get_settings();
 
 		foreach ( $args as $key => $value ) {
