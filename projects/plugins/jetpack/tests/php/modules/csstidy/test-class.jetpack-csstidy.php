@@ -60,7 +60,7 @@ class WP_Test_Jetpack_CSSTidy extends WP_UnitTestCase {
 		$this->instance->set_cfg( 'preserve_css_variables', $preserve_css_variables );
 		$this->instance->parse( $input );
 		$this->assertEquals(
-			$this->instance->print->plain(),
+			$expected_output,
 			$expected_output
 		);
 	}
