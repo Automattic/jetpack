@@ -401,12 +401,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "64313d7411d0e4835926e0b46feb8647480caa93"
+                "reference": "89075941c275ac160a2868cc8342a5a2625270d2"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
                 "automattic/jetpack-heartbeat": "^1.3",
                 "automattic/jetpack-options": "^1.13",
+                "automattic/jetpack-redirect": "^1.6",
                 "automattic/jetpack-roles": "^1.4",
                 "automattic/jetpack-status": "^1.8",
                 "automattic/jetpack-terms-of-service": "^1.9",
