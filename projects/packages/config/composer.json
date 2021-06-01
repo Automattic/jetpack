@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -23,6 +23,7 @@
 	],
 	"minimum-stability": "dev",
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-config",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"

@@ -15,22 +15,21 @@ import JetpackColophon from './jetpack-colophon';
 import './sidebar.scss';
 
 const Sidebar = props => {
-	const hasFiltersSelectedOutsideOverlay = props.widgetOutsideOverlay.filters?.length > 0;
 	return (
 		<div className="jetpack-instant-search__sidebar">
-			{ hasFiltersSelectedOutsideOverlay && (
-				<SearchFilters
-					filters={ props.filters }
-					loading={ props.isLoading }
-					locale={ props.locale }
-					postTypes={ props.postTypes }
-					results={ props.response }
-					showClearFiltersButton={ hasFiltersSelectedOutsideOverlay }
-					widget={ props.widgetOutsideOverlay }
-				/>
-			) }
+			{ /* If widgetOutsideOverlay doesn't contain any filters,
+			     this component will just show the title and clear filters button. */ }
+			<SearchFilters
+				filters={ props.filters }
+				loading={ props.isLoading }
+				locale={ props.locale }
+				postTypes={ props.postTypes }
+				results={ props.response }
+				showClearFiltersButton={ true }
+				widget={ props.widgetOutsideOverlay }
+			/>
 			<WidgetAreaContainer />
-			{ props.widgets.map( ( widget, index ) => {
+			{ props.widgets.map( widget => {
 				// Creates portals to elements moved into the WidgetAreaContainer.
 				return createPortal(
 					<div
@@ -43,7 +42,8 @@ const Sidebar = props => {
 							locale={ props.locale }
 							postTypes={ props.postTypes }
 							results={ props.response }
-							showClearFiltersButton={ ! hasFiltersSelectedOutsideOverlay && index === 0 }
+							showClearFiltersButton={ false }
+							showTitle={ false }
 							widget={ widget }
 						/>
 					</div>,

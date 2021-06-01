@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Blocks: Add editor style dependency when registering Jetpack blocks to ensure support for the new site editor.

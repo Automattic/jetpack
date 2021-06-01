@@ -258,8 +258,8 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		$meta   = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( '', $meta['meta_value'] );
+		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$this->assertEquals( '', $metas[0]['meta_value'] );
 	}
 
 	/**
@@ -270,8 +270,8 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, $meta_test_value );
 
 		$module = Modules::get_module( 'meta' );
-		$meta   = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( $meta_test_value, $meta['meta_value'] );
+		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
+		$this->assertEquals( $meta_test_value, $metas[0]['meta_value'] );
 	}
 
 }

@@ -901,8 +901,8 @@ class Jetpack_Custom_CSS {
 
 	static function menu() {
 		$parent = 'themes.php';
-		$title = __( 'Edit CSS', 'jetpack' );
-		$hook = add_theme_page( $title, $title, 'edit_theme_options', 'editcss', array( 'Jetpack_Custom_CSS', 'admin' ) );
+		$title  = __( 'Additional CSS', 'jetpack' );
+		$hook   = add_theme_page( $title, $title, 'edit_theme_options', 'editcss', array( 'Jetpack_Custom_CSS', 'admin' ) );
 
 		add_action( "load-revision.php", array( 'Jetpack_Custom_CSS', 'prettify_post_revisions' ) );
 		add_action( "load-$hook", array( 'Jetpack_Custom_CSS', 'update_title' ) );
@@ -1622,6 +1622,11 @@ class Jetpack_Safe_CSS {
 		$csstidy->set_cfg( 'merge_selectors', false );
 		$csstidy->set_cfg( 'remove_last_;', false );
 		$csstidy->set_cfg( 'css_level', 'CSS3.0' );
+
+		// Turn off css shorthands when in block editor context as it breaks block validation.
+		if ( true === isset( $_REQUEST['_gutenberg_nonce'] ) && wp_verify_nonce( $_REQUEST['_gutenberg_nonce'], 'gutenberg_request' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			$csstidy->set_cfg( 'optimise_shorthands', 0 );
+		}
 
 		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );
 		$css = wp_kses_split( $css, array(), array() );

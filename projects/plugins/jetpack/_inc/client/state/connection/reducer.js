@@ -177,6 +177,22 @@ export function isSiteConnected( state ) {
 }
 
 /**
+ * Checks if the site is registered with WordPress.com.
+ *
+ * @param {object} state -- Global state tree
+ * @returns {boolean} True if site is registered WordPress.com (has blog token). False if site is in Offline Mode or there's no connection data.
+ */
+export function isSiteRegistered( state ) {
+	if (
+		'object' !== typeof state.jetpack.connection.status.siteConnected ||
+		true === state.jetpack.connection.status.siteConnected.offlineMode.isActive
+	) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnected.isRegistered;
+}
+
+/**
  * Returns an object with information about the Offline Mode.
  *
  * @param  {Object}      state Global state tree
@@ -353,13 +369,13 @@ export function requiresUserConnection( state, slug ) {
 }
 
 /**
- * Checks if the current module is unavailable in userless mode.
+ * Checks if the current module is unavailable in Site Connection mode.
  *
  * @param  {object} state - Global state tree
  * @param  {string} module - Module slug.
- * @returns {boolean} True if site is in userless mode and module requires connection. False otherwise.
+ * @returns {boolean} True if site is in Site Connection mode and module requires connection. False otherwise.
  */
-export function isUnavailableInUserlessMode( state, module ) {
+export function isUnavailableInSiteConnectionMode( state, module ) {
 	return ! hasConnectedOwner( state ) && requiresUserConnection( state, module );
 }
 

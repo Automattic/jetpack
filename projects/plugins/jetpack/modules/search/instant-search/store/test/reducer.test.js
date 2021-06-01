@@ -67,6 +67,7 @@ describe( 'isLoading Reducer', () => {
 describe( 'response Reducer', () => {
 	const actionOptions = { pageHandle: 'someString' };
 	const actionResponse = {
+		total: 1,
 		aggregations: { taxonomy_0: { buckets: [] } },
 		results: [ { id: 1, result_type: 'post' } ],
 	};
@@ -87,6 +88,7 @@ describe( 'response Reducer', () => {
 	test( 'appends aggregations and results to previous paginated results', () => {
 		const state = response(
 			{
+				total: 1,
 				aggregations: { taxonomy_1: { buckets: [] } },
 				results: [ { id: 2, result_type: 'page' } ],
 			},
@@ -96,12 +98,65 @@ describe( 'response Reducer', () => {
 			} )
 		);
 		expect( state ).toEqual( {
+			total: 2,
 			aggregations: { taxonomy_1: { buckets: [] }, taxonomy_0: { buckets: [] } },
 			results: [
 				{ id: 2, result_type: 'page' },
 				{ id: 1, result_type: 'post' },
 			],
 		} );
+	} );
+	test( 'returns the correct total value for paginated results', () => {
+		// Response with an expected total and results value.
+		expect(
+			response(
+				{
+					total: 1,
+					aggregations: { taxonomy_1: { buckets: [] } },
+					results: [ { id: 2, result_type: 'page' } ],
+				},
+				recordSuccessfulSearchRequest( { options: actionOptions, response: actionResponse } )
+			)
+		).toEqual( {
+			total: 2,
+			aggregations: { taxonomy_1: { buckets: [] }, taxonomy_0: { buckets: [] } },
+			results: [
+				{ id: 2, result_type: 'page' },
+				{ id: 1, result_type: 'post' },
+			],
+		} );
+
+		// An empty response.
+		const emptyResponse = { total: 0, aggregations: {}, results: [] };
+		expect(
+			response(
+				{
+					total: 1,
+					aggregations: { taxonomy_1: { buckets: [] } },
+					results: [ { id: 2, result_type: 'page' } ],
+				},
+				recordSuccessfulSearchRequest( { options: actionOptions, response: emptyResponse } )
+			)
+		).toEqual( {
+			total: 1,
+			aggregations: { taxonomy_1: { buckets: [] } },
+			results: [ { id: 2, result_type: 'page' } ],
+		} );
+	} );
+	test( 'ignores responses older than the current response', () => {
+		const initialState = {
+			requestId: 1,
+			aggregations: { taxonomy_1: { buckets: [] } },
+			results: [ { id: 2, result_type: 'page' } ],
+		};
+		const state = response(
+			initialState,
+			recordSuccessfulSearchRequest( {
+				options: actionOptions,
+				response: { ...actionResponse, requestId: 0 },
+			} )
+		);
+		expect( state ).toEqual( initialState );
 	} );
 } );
 

@@ -65,13 +65,13 @@ jetpack plugin project:
 For a single block:
 
 ```sh
-yarn fixtures:generate `path\to\block\test\validate.js`
+pnpm fixtures:generate `path\to\block\test\validate.js`
 ```
 
 For all blocks:
 
 ```sh
-yarn fixtures:generate
+pnpm fixtures:generate
 ```
 
 When using this command, please be sure to manually verify that the
@@ -82,9 +82,9 @@ the attributes are serialized correctly.
 
 ## Add a deprecation fixture
 
-When adding a fixture for a block deprecation follow the same steps as above but name the new fixture file as `core__image__dreprecated-1.html`) where the number at the end represents the deprecation version. The content of this file should match the saved block content the deprecated version of the block
+When adding a fixture for a block deprecation follow the same steps as above but name the new fixture file as `core__image__deprecated-1.html`) where the number at the end represents the deprecation version. The content of this file should match the saved block content of the deprecated version of the block.
 
-In the case of deprecations the content of the `.json` and `.serialized.html` files should match the content of the produced by the latest version of the block save method, ie. they should mimic what would happen to a blocks content when a deprecated version is loaded in the editor and migrated to be compatible with the new save method.
+In the case of deprecations, the content of the `.json` and `.serialized.html` files should match the content produced by the latest version of the block save method, ie. they should mimic what would happen to a block's content when a deprecated version is loaded in the editor and migrated to be compatible with the new save method.
 
 ## Updating fixtures
 
@@ -95,20 +95,20 @@ Run the command to regenerate the files:
 For a single block:
 
 ```sh
-yarn fixtures:regenerate `path\to\block\test\validate.js`
+pnpm fixtures:regenerate `path\to\block\test\validate.js`
 ```
 
 For all blocks:
 
 ```sh
-yarn fixtures:regenerate
+pnpm fixtures:regenerate
 ```
 
 After regenerating fixtures, check that the content of the `.parsed.json` and `.serialized.html` files are as expected. An error should be thrown if any of the fixtures are invalid after parsing.
 
 ## Running the tests
 
-The fixture tests will be run as part of running the `fixtures:generate` and `fixtures:regenerate` scripts and also as part of the `yarn test-extensions` test run. They can also be run independently with `yarn fixtures:test`
+The fixture tests will be run as part of running the `fixtures:generate` and `fixtures:regenerate` scripts and also as part of the `pnpm test-extensions` test run. They can also be run independently with `pnpm fixtures:test`
 
 ## Related
 

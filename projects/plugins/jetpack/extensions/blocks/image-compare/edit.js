@@ -4,7 +4,7 @@
 import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useLayoutEffect } from '@wordpress/element';
+import { useLayoutEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -25,6 +25,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	// Check for useResizeObserver, not available in older Gutenberg.
 	let resizeListener = null;
 	let sizes = null;
+	const juxtaposeRef = useRef();
 	if ( useResizeObserver ) {
 		// Let's look for resize so we can trigger the thing.
 		[ resizeListener, sizes ] = useResizeObserver();
@@ -56,7 +57,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	// Watching for changes to key variables to trigger scan.
 	useLayoutEffect( () => {
 		if ( imageBefore.url && imageAfter.url && typeof juxtapose !== 'undefined' ) {
-			juxtapose.scanPage();
+			juxtapose.makeSlider( juxtaposeRef?.current );
 		}
 	}, [ imageBefore, imageAfter, orientation ] );
 
@@ -66,7 +67,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 			<InspectorControls key="controls">
 				<ImageCompareControls { ...{ attributes, setAttributes } } />
 			</InspectorControls>
-			<div className={ classes } data-mode={ orientation || 'horizontal' }>
+			<div ref={ juxtaposeRef } className={ classes } data-mode={ orientation || 'horizontal' }>
 				<Placeholder label={ null }>
 					<div className="image-compare__image-before">
 						<ImgUpload

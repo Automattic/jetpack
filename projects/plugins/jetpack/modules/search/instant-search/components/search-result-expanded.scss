@@ -1,12 +1,6 @@
 @import '../lib/styles/_helper.scss';
 $image-square-size: 128px;
 
-.jetpack-instant-search__search-results-list.is-format-product {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 0;
-}
-
 .jetpack-instant-search__search-result-expanded {
 	display: flex;
 	flex-flow: column;
@@ -35,7 +29,6 @@ $image-square-size: 128px;
 	max-width: 100%;
 
 	@include break-small-up() {
-		min-height: $image-square-size;
 		width: 100%;
 	}
 
@@ -49,13 +42,18 @@ $image-square-size: 128px;
 	color: $color-text;
 }
 
-.jetpack-instant-search__search-result-expanded__image-container {
+.jetpack-instant-search__search-result-expanded__image-link {
 	margin-left: 1em;
+	@include break-small-down() {
+		order: -1;
+		margin: 0 auto 0.5em auto;
+	}
+}
+
+.jetpack-instant-search__search-result-expanded__image-container {
 	width: $image-square-size;
 
 	@include break-small-down() {
-		margin: 0 auto 0.5em auto;
-		order: -1;
 		width: 2 * $image-square-size;
 	}
 
@@ -64,27 +62,28 @@ $image-square-size: 128px;
 	}
 }
 
+// Aspect ratio box trick
+// See https://css-tricks.com/aspect-ratio-boxes/
+.jetpack-instant-search__search-result-expanded__image-container {
+	position: relative;
+	&:before {
+		display: block;
+		content: '';
+		width: 100%;
+		padding-top: 100%;
+	}
+}
 .jetpack-instant-search__search-result-expanded__image {
-	min-height: $image-square-size;
-	width: $image-square-size;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
+}
+
+.jetpack-instant-search__search-result-expanded__image {
 	border-radius: 5px;
-
-	// Image is shown above text content in mobile view, make bigger
-	@include break-small-down() {
-		min-height: 2 * $image-square-size;
-		width: 2 * $image-square-size;
-	}
-}
-.jetpack-instant-search__search-result-expanded__image {
-	background-size: contain;
-	background-position: center;
-	background-repeat: no-repeat;
-
-	@include break-small-up() {
-		background-size: cover;
-	}
-}
-
-.jetpack-instant-search__search-result-expanded__img {
-	margin: 0.5em 0.5em 0.5em 0;
 }

@@ -125,6 +125,9 @@
 		<testsuite name="extensions">
 			<directory prefix="test" suffix=".php">tests/php/extensions</directory>
 		</testsuite>
+		<testsuite name="seo-tools">
+			<directory prefix="test" suffix=".php">tests/php/modules/seo-tools</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>

@@ -3,7 +3,6 @@
  */
 import React, { Component } from 'react';
 import { includes } from 'lodash';
-import classNames from 'classnames';
 import { __, _x, sprintf } from '@wordpress/i18n';
 
 /**
@@ -19,6 +18,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ConnectUserBar from 'components/connect-user-bar';
 
 export const Protect = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -94,80 +94,91 @@ export const Protect = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ _x( 'Brute force attack protection', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Protect', 'Settings header', 'jetpack' ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
-					<FoldableCard
-						onOpen={ this.trackOpenCard }
-						header={ toggle }
-						className={ classNames( { 'jp-foldable-settings-disable': unavailableInOfflineMode } ) }
+					<SettingsGroup
+						hasChild
+						disableInOfflineMode
+						disableInSiteConnectionMode
+						module={ this.props.getModule( 'protect' ) }
+						className="foldable-wrapper"
 					>
-						<SettingsGroup
-							hasChild
-							disableInOfflineMode
-							module={ this.props.getModule( 'protect' ) }
-							support={ {
-								text: __(
-									'Protects your site from traditional and distributed brute force login attacks.',
-									'jetpack'
-								),
-								link: getRedirectUrl( 'jetpack-support-protect' ),
-							} }
-						>
-							<FormFieldset>
-								{ this.props.currentIp && (
-									<div>
-										<div className="jp-form-label-wide">
-											{ sprintf(
-												/* translators: placeholder is an IP address. */
-												__( 'Your current IP: %s', 'jetpack' ),
-												this.props.currentIp
-											) }
-										</div>
-										{
-											<Button
-												disabled={
-													! isProtectActive ||
-													unavailableInOfflineMode ||
-													this.currentIpIsSafelisted() ||
-													this.props.isSavingAnyOption( [
-														'protect',
-														'jetpack_protect_global_whitelist',
-													] )
-												}
-												onClick={ this.addToSafelist }
-											>
-												{ __( 'Add to Always Allowed list', 'jetpack' ) }
-											</Button>
-										}
-									</div>
-								) }
-								<FormLabel>
-									<FormLegend>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLegend>
-									<Textarea
-										disabled={
-											! isProtectActive ||
-											unavailableInOfflineMode ||
-											this.props.isSavingAnyOption( [
-												'protect',
-												'jetpack_protect_global_whitelist',
-											] )
-										}
-										name={ 'jetpack_protect_global_whitelist' }
-										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-										onChange={ this.updateText }
-										value={ this.state.safelist }
-									/>
-								</FormLabel>
-								<span className="jp-form-setting-explanation">
-									{ __(
-										'You may mark an IP address (or series of addresses) as "Always allowed", preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
+						<FoldableCard onOpen={ this.trackOpenCard } header={ toggle }>
+							<SettingsGroup
+								hasChild
+								module={ this.props.getModule( 'protect' ) }
+								support={ {
+									text: __(
+										'Protects your site from traditional and distributed brute force login attacks.',
 										'jetpack'
+									),
+									link: getRedirectUrl( 'jetpack-support-protect' ),
+								} }
+							>
+								<FormFieldset>
+									{ this.props.currentIp && (
+										<div>
+											<div className="jp-form-label-wide">
+												{ sprintf(
+													/* translators: placeholder is an IP address. */
+													__( 'Your current IP: %s', 'jetpack' ),
+													this.props.currentIp
+												) }
+											</div>
+											{
+												<Button
+													disabled={
+														! isProtectActive ||
+														unavailableInOfflineMode ||
+														this.currentIpIsSafelisted() ||
+														this.props.isSavingAnyOption( [
+															'protect',
+															'jetpack_protect_global_whitelist',
+														] )
+													}
+													onClick={ this.addToSafelist }
+												>
+													{ __( 'Add to Always Allowed list', 'jetpack' ) }
+												</Button>
+											}
+										</div>
 									) }
-								</span>
-							</FormFieldset>
-						</SettingsGroup>
-					</FoldableCard>
+									<FormLabel>
+										<FormLegend>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLegend>
+										<Textarea
+											disabled={
+												! isProtectActive ||
+												unavailableInOfflineMode ||
+												this.props.isSavingAnyOption( [
+													'protect',
+													'jetpack_protect_global_whitelist',
+												] )
+											}
+											name={ 'jetpack_protect_global_whitelist' }
+											placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
+											onChange={ this.updateText }
+											value={ this.state.safelist }
+										/>
+									</FormLabel>
+									<span className="jp-form-setting-explanation">
+										{ __(
+											'You may mark an IP address (or series of addresses) as "Always allowed", preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
+											'jetpack'
+										) }
+									</span>
+								</FormFieldset>
+							</SettingsGroup>
+						</FoldableCard>
+					</SettingsGroup>
+
+					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
+						<ConnectUserBar
+							feature="protect"
+							featureLabel={ __( 'Protect', 'jetpack' ) }
+							text={ __( 'Connect to set up brute force attack protection.', 'jetpack' ) }
+						/>
+					) }
 				</SettingsCard>
 			);
 		}

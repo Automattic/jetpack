@@ -14,7 +14,7 @@ import promptForProject from '../helpers/promptForProject.js';
 import { readComposerJson } from '../helpers/json';
 import installProjectTask from '../helpers/tasks/installProjectTask';
 import { allProjectsByType } from '../helpers/projectHelpers';
-import { normalizeBuildArgv } from '../helpers/normalizeArgv';
+import { normalizeBuildArgv, normalizeProject } from '../helpers/normalizeArgv';
 import buildProjectTask from '../helpers/tasks/buildProjectTask';
 import projectBuildCommand from '../helpers/projectBuildCommand';
 import listrOpts from '../helpers/tasks/listrOpts';
@@ -29,7 +29,7 @@ async function buildRouter( options ) {
 		const data = readComposerJson( options.project );
 		data !== false ? await build( options.project, options.production, data, options.v ) : false;
 	} else {
-		console.error( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a valid project!' ) );
 	}
 }
 
@@ -130,7 +130,7 @@ export async function buildCli( argv ) {
 		buildAllPackages( argv );
 		return;
 	}
-
+	argv = normalizeProject( argv );
 	argv = await promptForProject( argv );
 	await buildRouter( argv );
 }

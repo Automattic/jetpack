@@ -10,7 +10,7 @@ import Listr from 'listr';
 import promptForProject from '../helpers/promptForProject.js';
 import installProjectTask from '../helpers/tasks/installProjectTask';
 import { allProjects } from '../helpers/projectHelpers';
-import { normalizeInstallArgv } from '../helpers/normalizeArgv';
+import { normalizeInstallArgv, normalizeProject } from '../helpers/normalizeArgv';
 import listrOpts from '../helpers/tasks/listrOpts';
 
 /**
@@ -53,6 +53,7 @@ export async function install( argv ) {
  */
 export async function installCli( argv ) {
 	argv = normalizeInstallArgv( argv );
+	argv = normalizeProject( argv );
 
 	if ( ! argv.root && ! argv.all ) {
 		argv = await promptForProject( argv );
@@ -61,7 +62,7 @@ export async function installCli( argv ) {
 	if ( argv.project || argv.root || argv.all ) {
 		await install( argv );
 	} else {
-		console.error( chalk.red( 'You did not choose a project!' ) );
+		console.error( chalk.red( 'You did not choose a valid project!' ) );
 	}
 }
 

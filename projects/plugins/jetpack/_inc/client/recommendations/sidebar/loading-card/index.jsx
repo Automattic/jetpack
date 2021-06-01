@@ -16,7 +16,7 @@ import './style.scss';
 export const LoadingCard = () => {
 	return (
 		<div className="jp-recommendations-loading-card">
-			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt="" />
+			<img src={ imagePath + '/jetpack-logomark-blue.svg' } alt="Loading recommendations" />
 		</div>
 	);
 };

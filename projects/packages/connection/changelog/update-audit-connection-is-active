@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Connection: Replace is_active usage towards gradually deprecating it.

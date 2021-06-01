@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Implement a 60 second back-off for non-200 respones, if no retry-after header is present in the response.

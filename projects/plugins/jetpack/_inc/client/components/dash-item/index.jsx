@@ -36,6 +36,7 @@ export class DashItem extends Component {
 		isModule: PropTypes.bool,
 		support: PropTypes.object,
 		overrideContent: PropTypes.element,
+		noToggle: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -44,6 +45,7 @@ export class DashItem extends Component {
 		pro: false,
 		isModule: true,
 		support: { text: '', link: '' },
+		noToggle: false,
 	};
 
 	toggleModule = () => {
@@ -78,6 +80,7 @@ export class DashItem extends Component {
 					this.props.module
 				) &&
 					this.props.isOfflineMode ) ||
+				this.props.noToggle ||
 				// Avoid toggle for manage as it's no longer a module
 				'manage' === this.props.module ? (
 					''

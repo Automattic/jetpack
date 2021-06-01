@@ -20,6 +20,7 @@ input.jetpack-instant-search__box-input.search-field {
 	color: $color-text-light;
 	font-size: 18px;
 	height: 60px;
+	max-width: none;
 	line-height: 1;
 	margin: 0;
 	padding: 0 14px;
@@ -59,12 +60,14 @@ input.jetpack-instant-search__box-input.search-field {
 	@include remove-button-styling();
 	color: $color-text-lighter;
 	cursor: pointer;
-	font-size: 0.9em;
+	font-size: 1em;
+	font-weight: normal;
 	height: 60px;
 	line-height: 1;
 	margin: 0 0.25em 0 0;
 	transition: 0.1s linear all;
 	width: 60px;
+	word-wrap: normal;
 
 	&:hover,
 	&:focus {

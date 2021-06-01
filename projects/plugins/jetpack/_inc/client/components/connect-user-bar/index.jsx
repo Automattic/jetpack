@@ -3,7 +3,7 @@
  */
 import React, { useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -32,7 +32,11 @@ const ConnectUserBar = props => {
 		<Card compact className="jp-connect-user-bar__card">
 			{ ! showConnect && (
 				<div className="jp-connect-user-bar__text">
-					This feature is provided by the WordPress.com cloud. { props.text }
+					{ sprintf(
+						/* translators: placeholder is text adding extra instructions on what to do next. */
+						__( 'This feature is provided by the WordPress.com cloud. %s', 'jetpack' ),
+						props.text
+					) }
 				</div>
 			) }
 			{ ! showConnect && (
@@ -40,7 +44,7 @@ const ConnectUserBar = props => {
 					<ConnectButton
 						connectUser={ true }
 						from="unlinked-user-connect"
-						connectLegend={ __( 'Connect my WordPress.com account', 'jetpack' ) }
+						connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
 						customConnect={ customConnect }
 					/>
 				</div>

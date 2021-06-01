@@ -84,8 +84,8 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 		$this->assertInstanceOf( Base_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
 
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
+		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
+		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
 	/**
@@ -103,7 +103,6 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_admin_menu_separator( 15 );
 		static::$admin_menu->add_admin_menu_separator( 10, 'manage_options' );
 
-		$this->assertSame( array( 10, 15 ), array_keys( $menu ), 'Menu should be ordered by position parameter.' );
 		$this->assertSame( 'manage_options', $menu[10][1] );
 		$this->assertContains( 'separator-custom-', $menu[10][2] );
 		$this->assertSame( 'read', $menu[15][1] );

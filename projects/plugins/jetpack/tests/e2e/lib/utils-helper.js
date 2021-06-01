@@ -5,10 +5,8 @@ const { execSync, exec } = require( 'child_process' );
 const config = require( 'config' );
 const fs = require( 'fs' );
 const path = require( 'path' );
-/**
- * Internal dependencies
- */
-const logger = require( './logger' ).default;
+const shellescape = require( 'shell-escape' );
+const logger = require( './logger' );
 const { E2E_DEBUG } = process.env;
 
 /**
@@ -45,32 +43,51 @@ async function resetWordpressInstall() {
 
 async function prepareUpdaterTest() {
 	const cmd =
-		'yarn wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
+		'pnpx wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
 
 	await execShellCommand( cmd );
 }
 
 /**
- * Provisions Jetpack plan through Jetpack Start flow
+ * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
+ * @param {number} userId WPCOM user ID
  * @param {string} plan One of free, personal, premium, or professional.
  * @param {string} user Local user name, id, or e-mail
  * @return {string} authentication URL
  */
-function provisionJetpackStartConnection( plan = 'professional', user = 'wordpress' ) {
+async function provisionJetpackStartConnection( userId, plan = 'free', user = 'admin' ) {
+	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
 	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
 
-	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl }`;
+	const cmd = `sh ../../../../../tools/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ siteUrl } --wpcom_user_id=${ userId }`;
 
 	const response = execSyncShellCommand( cmd );
-	logger.info( response );
+	logger.cli( response );
 
 	const json = JSON.parse( response );
 	if ( json.success !== true ) {
 		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
 	}
 
-	return json.next_url;
+	const out = execSyncShellCommand(
+		shellescape( [
+			'pnpx',
+			'wp-env',
+			'run',
+			'tests-cli',
+			shellescape( [
+				'wp',
+				'--user=admin',
+				'jetpack',
+				'authorize_user',
+				`--token=${ json.access_token }`,
+			] ),
+		] )
+	);
+	logger.cli( out );
+
+	return true;
 }
 
 /**
@@ -98,13 +115,13 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
+	const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
 	const result = await execShellCommand( cmd );
 
-	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
-	// Here we cleaning this up.
+	// By default, `wp-env run` adds a newline to the end of the output.
+	// Here we clean this up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
+		return result.trim();
 	}
 
 	return result;
@@ -120,18 +137,18 @@ async function execMultipleWpCommands( ...commands ) {
 }
 
 async function logDebugLog() {
-	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	let log = execSyncShellCommand( 'pnpx wp-env run tests-wordpress cat wp-content/debug.log' );
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
-	const filename = `logs/debug_${ escapedDate }.log`;
-	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), log );
+	const filename = `debug_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), log );
 
 	const lines = log.split( '\n' );
 	log = lines
 		.filter( line => {
 			return ! (
-				line.startsWith( '$ ' ) ||
-				line.includes( 'yarn run' ) ||
+				line.startsWith( '> ' ) ||
+				line.includes( 'pnpm run' ) ||
 				line.includes( 'Done ' )
 			);
 		} )
@@ -141,17 +158,14 @@ async function logDebugLog() {
 		logger.debug( '#### WP DEBUG.LOG ####' );
 		logger.debug( log );
 	}
-
-	logger.slack( { message: log, type: 'debuglog' } );
 }
 
 async function logAccessLog() {
-	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
+	const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
-	const filename = `logs/access_${ escapedDate }.log`;
-	fs.writeFileSync( path.resolve( config.get( 'testOutputDir' ), filename ), apacheLog );
-	logger.slack( { type: 'debuglog', message: apacheLog } );
+	const filename = `access_${ escapedDate }.log`;
+	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), apacheLog );
 }
 
 /**
@@ -192,6 +206,58 @@ function getAccountCredentials( accountName ) {
 	return globalConfig.get( accountName );
 }
 
+/**
+ * Reads and returns the content of the file expected to store an URL.
+ * The file path is stored in config.
+ * No validation is done on the file content, so an invalid URL can be returned.
+ *
+ * @return {string} the file content, or undefined in file doesn't exist or cannot be read
+ */
+function getReusableUrlFromFile() {
+	let urlFromFile;
+	try {
+		urlFromFile = fs
+			.readFileSync( config.get( 'temp.tunnels' ), 'utf8' )
+			.replace( 'http:', 'https:' );
+	} catch ( error ) {
+		if ( error.code === 'ENOENT' ) {
+			// We expect this, reduce noise in logs
+			console.warn( "Tunnels file doesn't exist" );
+		} else {
+			console.error( error );
+		}
+	}
+	return urlFromFile;
+}
+
+/**
+ * There are two ways to set the target site url:
+ * 1. Write it in 'temp.tunnels' file
+ * 2. Set SITE_URL env variable. This overrides any value written in file
+ * If none of the above is valid we throw an error
+ */
+function resolveSiteUrl() {
+	let url = process.env.SITE_URL;
+
+	if ( ! url ) {
+		url = getReusableUrlFromFile();
+	}
+
+	validateUrl( url );
+	return url;
+}
+
+/**
+ * Throw an error if the passed parameter is not a valid URL
+ *
+ * @param {string} url the string to to be validated as URL
+ */
+function validateUrl( url ) {
+	if ( ! new URL( url ) ) {
+		throw new Error( `Undefined or invalid SITE_URL!` );
+	}
+}
+
 module.exports = {
 	execShellCommand,
 	execSyncShellCommand,
@@ -205,4 +271,7 @@ module.exports = {
 	logAccessLog,
 	fileNameFormatter,
 	getAccountCredentials,
+	getReusableUrlFromFile,
+	resolveSiteUrl,
+	validateUrl,
 };

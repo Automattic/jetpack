@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
 
@@ -36,12 +37,12 @@ class Jetpack_Provision { //phpcs:ignore
 
 		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
 		// functions/callables so that we can test if this site is in IDC.
-		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
+		if ( Jetpack::is_connection_ready() && ! Identity_Crisis::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
 			Actions::do_full_sync( array( 'functions' => true ) );
 			Actions::$sender->do_full_sync();
 		}
 
-		if ( Jetpack::validate_sync_error_idc_option() ) {
+		if ( Identity_Crisis::validate_sync_error_idc_option() ) {
 			return new WP_Error(
 				'site_in_safe_mode',
 				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
@@ -52,7 +53,8 @@ class Jetpack_Provision { //phpcs:ignore
 		if ( ! Jetpack::connection()->is_connected() || ( isset( $named_args['force_register'] ) && (int) $named_args['force_register'] ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
-			$registered = Jetpack::try_registration();
+			Jetpack::connection()->add_register_request_param( 'from', 'jetpack-start' );
+			$registered = Jetpack::connection()->try_registration();
 			if ( is_wp_error( $registered ) ) {
 				return $registered;
 			} elseif ( ! $registered ) {
@@ -68,7 +70,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 		$site_icon = get_site_icon_url();
 
-		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
+		$auto_enable_sso = ( ! Jetpack::connection()->has_connected_owner() || Jetpack::is_module_active( 'sso' ) );
 
 		/** This filter is documented in class.jetpack-cli.php */
 		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {

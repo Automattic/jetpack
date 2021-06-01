@@ -8,7 +8,6 @@ tools/docker/wordpress/
 
 # Ignored by default, but we should check it
 !.github/
-.github/actions/required-review/dist/
 
 ### Jetpack
 projects/plugins/jetpack/.size-limit.js
@@ -29,10 +28,11 @@ projects/plugins/jetpack/vendor/
 # Temporary ignore until Jest is set up
 projects/plugins/jetpack/extensions/**/test/
 
-### Projects
+### Other projects
 projects/*/*/vendor
-
-### Packages
-projects/packages/jitm/src/js/jetpack-jitm.js
-projects/packages/lazy-images/src/js/IntersectionObserver-polyfill.js
+projects/github-actions/*/dist
 projects/packages/*/wordpress
+projects/packages/connection-ui/build
+projects/packages/jitm/src/js/jetpack-jitm.js
+projects/packages/lazy-images/src/js/intersectionobserver-polyfill.js
+projects/plugins/backup/build

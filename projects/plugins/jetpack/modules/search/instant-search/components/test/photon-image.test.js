@@ -27,3 +27,9 @@ test( 'returns the original URL for a private site', () => {
 	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ false } /> );
 	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
 } );
+
+test( 'returns the original URL for a SVG image', () => {
+	const imageUrl = 'http://example.com/okapi.svg';
+	const { getByRole } = render( <PhotonImage src={ imageUrl } isPhotonEnabled={ true } /> );
+	expect( getByRole( 'img' ).src ).toEqual( imageUrl );
+} );

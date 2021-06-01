@@ -58,7 +58,8 @@ elif [[ -n "$CI" ]]; then
 fi
 
 function get_packages {
-	PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
+	PACKAGES1=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-master"] then [ $in.extra["branch-alias"]["dev-master"], ( $in.extra["branch-alias"]["dev-master"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
+	PACKAGES2=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES1")
 }
 
 get_packages
@@ -80,10 +81,11 @@ if $UPDATE; then
 		ARGS=()
 		ARGS=( add --no-interaction --significance=patch )
 		if [[ "$SLUG" == "plugins/jetpack" ]]; then
-			ARGS+=( --type=compat --entry= --comment="${2:-$3}" )
+			ARGS+=( --type=other )
 		else
-			ARGS+=( --type=changed --entry="$2" --comment="$3" )
+			ARGS+=( --type=changed )
 		fi
+		ARGS+=( --entry="$2" --comment="$3" )
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
@@ -104,6 +106,11 @@ fi
 EXIT=0
 for SLUG in "${SLUGS[@]}"; do
 	debug "Checking dependencies of $SLUG"
+	if [[ "$SLUG" == packages/* ]]; then
+		PACKAGES="$PACKAGES2"
+	else
+		PACKAGES="$PACKAGES1"
+	fi
 	FILE="projects/$SLUG/composer.json"
 	if $UPDATE; then
 		JSON=$(jq --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$FILE" | tools/prettier --parser=json-stringify)
@@ -117,10 +124,11 @@ for SLUG in "${SLUGS[@]}"; do
 			DIDCL=true
 		fi
 		if [[ -n "$(git ls-files "projects/$SLUG/composer.lock")" ]]; then
-			cd "$BASE/projects/$SLUG"
+			PROJECTFOLDER="$BASE/projects/$SLUG"
+			cd "$PROJECTFOLDER"
 			debug "Updating $SLUG composer.lock"
 			OLD="$(<composer.lock)"
-			composer update --root-reqs --quiet
+			"$BASE/tools/composer-update-monorepo.sh" --quiet "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && ! $DIDCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
 				changelogger "$SLUG" '' 'Updated composer.lock.'
@@ -142,9 +150,11 @@ for SLUG in "${SLUGS[@]}"; do
 				error "$M: Must depend on monorepo package $PKG version $VER"
 			fi
 		done < <( jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( $packages[.key] as $vals | $vals and ( [ .value ] | inside( $vals ) | not ) ) | .key + " " + ( $packages[.key] | join( " or " ) )' "$FILE" )
-		if [[ "$EXIT" != "0" ]]; then
-			jetpackGreen 'You might use `tools/check-composer-deps.sh -u` to fix these errors.'
-		fi
 	fi
 done
+
+if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
+	jetpackGreen 'You might use `tools/check-composer-deps.sh -u` to fix these errors.'
+fi
+
 exit $EXIT

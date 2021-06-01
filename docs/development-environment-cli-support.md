@@ -12,15 +12,13 @@ tools/check-development-environment.sh
 
 The Jetpack CLI is used for management of monorepo projects.
 
-Install via
+If you normally use just one Jetpack Monorepo checkout, you can add `jetpack` to your path by running
 ```sh
-yarn install
+pnpm cli-setup
 ```
+from the monorepo root.
 
-In some instances, this will not work depending on permissions, etc. You may need to add `~/.yarn/bin` to your system's PATH. 
-If `jetpack` is still not available, you can run `yarn jetpack` from the repo root only.
-
-`jetpack`, when installed, will work from anywhere within the repo.
+You can also use `pnpx --no jetpack` from (almost) anywhere in the monorepo. If you commonly use multiple checkouts, you might add this as a shell alias or a stub script in your path so as to always run the current checkout's instance.
 
 ### Bash version is proper
 
@@ -60,15 +58,15 @@ PHPUnit is the tool that helps us run unit tests for Jetpack.
 
 ### Docker images are available
 
-The containers for the Jetpack docker images are created when you ran `yarn docker:up`.
+The containers for the Jetpack docker images are created when you ran `jetpack docker up`.
 
 ### Docker containers are available
 
-The containers for the Jetpack docker containers are created when you ran `yarn docker:up`.
+The containers for the Jetpack docker containers are created when you ran `jetpack docker up`.
 
 ### Docker containers are running
 
-If you are using the Jetpack Docker Image, make sure you run `yarn docker:up`.
+If you are using the Jetpack Docker Image, make sure you run `jetpack docker up`.
 
 ### Docker is running
 
@@ -79,7 +77,7 @@ Make sure the Docker Daemon is running.
 The directory `node_modules` is where Jetpack's JavaScript dependencies live. It gets initialized by doing:
 
 ```sh
-yarn
+pnpm install
 ```
 
 ### Node version is proper

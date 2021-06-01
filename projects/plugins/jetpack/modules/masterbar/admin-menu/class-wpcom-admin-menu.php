@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Status;
+use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -15,6 +16,16 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class WPcom_Admin_Menu.
  */
 class WPcom_Admin_Menu extends Admin_Menu {
+	/**
+	 * WPcom_Admin_Menu constructor.
+	 */
+	protected function __construct() {
+		parent::__construct();
+
+		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
+		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
+	}
 
 	/**
 	 * Sets up class properties for REST API requests.
@@ -42,6 +53,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
+			$nudge = $this->get_upsell_nudge();
+			if ( $nudge ) {
+				parent::add_upsell_nudge( $nudge );
+			}
 			$this->add_new_site_link();
 		}
 
@@ -84,20 +99,12 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		global $menu;
-
 		if ( count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
 			return;
 		}
 
-		// Attempt to get last position.
-		$position = 1000;
-		while ( isset( $menu[ $position ] ) ) {
-			$position++;
-		}
-
-		$this->add_admin_menu_separator( ++$position );
-		add_menu_page( __( 'Add new site', 'jetpack' ), __( 'Add new site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt', ++$position );
+		$this->add_admin_menu_separator();
+		add_menu_page( __( 'Add New Site', 'jetpack' ), __( 'Add New Site', 'jetpack' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
 	/**
@@ -120,7 +127,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		if ( is_redirected_domain( $this->domain ) ) {
+		if ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $this->domain ) ) {
 			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack' ) . '</span>';
 		}
 
@@ -172,6 +179,40 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Returns the first available upsell nudge.
+	 *
+	 * @return array
+	 */
+	public function get_upsell_nudge() {
+		require_lib( 'jetpack-jitm/jitm-engine' );
+		$jitm_engine = new JITM\Engine();
+
+		$message_path = 'calypso:sites:sidebar_notice';
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+		$user_roles   = implode( ',', $current_user->roles );
+		$query_string = array(
+			'message_path' => $message_path,
+		);
+
+		// Get the top message only.
+		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
+
+		if ( isset( $message[0] ) ) {
+			$message = $message[0];
+			return array(
+				'content'                      => $message->content['message'],
+				'cta'                          => $message->CTA['message'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'link'                         => $message->CTA['link'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'tracks_impression_event_name' => $message->tracks['display']['name'],
+				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
+				'tracks_click_event_name'      => $message->tracks['click']['name'],
+				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+			);
+		}
+	}
+
+	/**
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
@@ -190,11 +231,26 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Upgrades menu.
+	 *
+	 * @param string $plan The current WPCOM plan of the blog.
 	 */
-	public function add_upgrades_menu() {
-		parent::add_upgrades_menu();
+	public function add_upgrades_menu( $plan = null ) {
+		if ( class_exists( 'WPCOM_Store_API' ) ) {
+			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+			if ( array_key_exists( 'product_name_short', $products ) ) {
+				$plan = $products['product_name_short'];
+			}
+		}
+		parent::add_upgrades_menu( $plan );
 
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, 10 );
+		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
+
+		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack' ), __( 'Domains', 'jetpack' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+		}
 	}
 
 	/**
@@ -204,9 +260,12 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		$customize_url = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+		// $wp_admin_themes can have a `true` value here if the user has activated the "Show advanced dashboard pages" account setting.
+		// We force $wp_admin_themes to `false` anyways, since Simple sites should always see the Calypso Theme showcase.
+		$wp_admin_themes = false;
+		$customize_url   = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
 
-		remove_submenu_page( 'themes.php', 'theme-editor.php' );
+		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
 		$user_can_customize = current_user_can( 'customize' );
 
@@ -214,7 +273,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
 			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_url );
-			add_submenu_page( 'themes.php', esc_attr__( 'Edit CSS', 'jetpack' ), __( 'Edit CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
+			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
 	}
 
@@ -242,17 +301,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Export on Simple sites is always handled on Calypso.
-		parent::add_tools_menu( $wp_admin_import, false );
-	}
-
-	/**
 	 * Adds Settings menu.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
@@ -261,11 +309,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_options_menu( $wp_admin );
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
-
-		// Replace sharing menu if it exists. See Publicize_UI::sharing_menu.
-		if ( remove_submenu_page( 'options-general.php', 'sharing' ) ) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/sharing-buttons/' . $this->domain, null, 30 );
-		}
 	}
 
 	/**
@@ -316,5 +359,74 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Plugins on Simple sites are always managed on Calypso.
 		parent::add_plugins_menu( false );
+	}
+
+	/**
+	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
+	 */
+	public function ajax_sidebar_state() {
+		$expanded    = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$user_id     = get_current_user_id();
+		$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
+		if ( empty( $preferences ) ) {
+			$preferences = array();
+		}
+
+		$value = array_merge( (array) $preferences, array( 'sidebarCollapsed' => ! $expanded ) );
+		$value = array_filter(
+			$value,
+			function ( $preference ) {
+				return null !== $preference;
+			}
+		);
+
+		update_user_attribute( $user_id, 'calypso_preferences', $value );
+
+		die();
+	}
+
+	/**
+	 * Syncs the sidebar collapsed state from Calypso Preferences.
+	 */
+	public function sync_sidebar_collapsed_state() {
+		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
+
+		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
+		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+	}
+
+	/**
+	 * Removes unwanted submenu items.
+	 *
+	 * These submenus are added across wp-content and should be removed together with these function calls.
+	 */
+	public function remove_submenus() {
+		global $_registered_pages;
+
+		remove_submenu_page( 'index.php', 'akismet-stats' );
+		remove_submenu_page( 'index.php', 'my-comments' );
+		remove_submenu_page( 'index.php', 'stats' );
+		remove_submenu_page( 'index.php', 'subscriptions' );
+
+		/* @see https://github.com/Automattic/wp-calypso/issues/49210 */
+		remove_submenu_page( 'index.php', 'my-blogs' );
+		$_registered_pages['admin_page_my-blogs'] = true; // phpcs:ignore
+
+		remove_submenu_page( 'paid-upgrades.php', 'premium-themes' );
+		remove_submenu_page( 'paid-upgrades.php', 'domains' );
+		remove_submenu_page( 'paid-upgrades.php', 'my-upgrades' );
+		remove_submenu_page( 'paid-upgrades.php', 'billing-history' );
+
+		remove_submenu_page( 'themes.php', 'customize.php?autofocus[panel]=amp_panel&return=' . rawurlencode( admin_url() ) );
+
+		remove_submenu_page( 'users.php', 'wpcom-invite-users' ); // Wpcom_Invite_Users::action_admin_menu.
+
+		remove_submenu_page( 'options-general.php', 'adcontrol' );
+
+		// Remove menu item but continue allowing access.
+		foreach ( array( 'openidserver', 'webhooks' ) as $page_slug ) {
+			remove_submenu_page( 'options-general.php', $page_slug );
+			$_registered_pages[ 'admin_page_' . $page_slug ] = true; // phpcs:ignore
+		}
 	}
 }

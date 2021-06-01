@@ -127,7 +127,7 @@ class Test_Nonce_Handler extends TestCase {
 				global $wpdb;
 
 				$query_filter_delete_run = true;
-				self::assertEquals( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( " . implode( ', ', $nonce_ids ) . ' )', $query );
+				self::assertStringStartsWith( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( " . implode( ', ', $nonce_ids ) . " ) AND option_name LIKE 'jetpack_nonce_", $query );
 			}
 
 			return $result;

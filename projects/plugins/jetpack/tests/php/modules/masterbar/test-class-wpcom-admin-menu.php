@@ -100,8 +100,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertInstanceOf( WPcom_Admin_Menu::class, $instance );
 		$this->assertSame( $instance, static::$admin_menu );
 
-		$this->assertSame( 99999, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
+		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
+		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
 	}
 
 	/**
@@ -150,15 +150,15 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_new_site_link();
 
 		$new_site_menu_item = array(
-			'Add new site',
+			'Add New Site',
 			'read',
 			'https://wordpress.com/start?ref=calypso-sidebar',
-			'Add new site',
+			'Add New Site',
 			'menu-top toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'toplevel_page_https://wordpress.com/start?ref=calypso-sidebar',
 			'dashicons-plus-alt',
 		);
-		$this->assertSame( $menu[1002], $new_site_menu_item ); // 1001 is the separator position, 1002 is the link position
+		$this->assertSame( array_pop( $menu ), $new_site_menu_item );
 	}
 
 	/**
@@ -251,7 +251,16 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, array_pop( $submenu['paid-upgrades.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
+
+		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
+		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
+			$this->assertSame( 'https://wordpress.com/email/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
+			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][4][2] );
+		} else {
+			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
+		}
 	}
 
 	/**
@@ -269,17 +278,29 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_tools_menu
+	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" off
 	 *
 	 * @covers ::add_tools_menu
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_tools_menu( false, true );
+		static::$admin_menu->add_tools_menu( false, false );
+		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
+		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
+	}
 
-		// Check Export menu item always links to Calypso.
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
+	/**
+	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" on
+	 *
+	 * @covers ::add_tools_menu
+	 */
+	public function test_add_tools_menu_advanced() {
+		global $submenu;
+
+		static::$admin_menu->add_tools_menu( true, true );
+		$this->assertSame( 'import.php', $submenu['tools.php'][3][2] );
+		$this->assertSame( 'export.php', $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -293,7 +314,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu();
 
 		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
-		$this->assertSame( 'https://wordpress.com/marketing/sharing-buttons/' . static::$domain, $submenu['options-general.php'][8][2] );
 	}
 
 	/**

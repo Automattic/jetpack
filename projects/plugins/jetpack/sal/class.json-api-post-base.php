@@ -146,11 +146,7 @@ abstract class SAL_Post {
 			}
 		}
 
-		if ( ! empty( $metadata ) ) {
-			return $metadata;
-		} else {
-			return false;
-		}
+		return $metadata;
 	}
 
 	public function get_meta() {

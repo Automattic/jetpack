@@ -1,5 +1,6 @@
 /node_modules
 /config/local-*
+/config/tmp/*
 /output
 plan-data.txt
 e2e_tunnels.txt

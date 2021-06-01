@@ -5,13 +5,13 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-assets": "^1.11",
-		"automattic/jetpack-options": "^1.11",
-		"automattic/jetpack-status": "^1.7",
+		"automattic/jetpack-options": "^1.13",
+		"automattic/jetpack-status": "^1.8",
 		"automattic/jetpack-terms-of-service": "^1.9"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -44,6 +44,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-tracking",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-tracking/compare/v${old}...v${new}"

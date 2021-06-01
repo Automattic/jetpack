@@ -24,6 +24,7 @@ class DashMonitor extends Component {
 	static propTypes = {
 		isOfflineMode: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
 
 	activateAndTrack = () => {
@@ -48,7 +49,11 @@ class DashMonitor extends Component {
 			link: getRedirectUrl( 'jetpack-support-monitor' ),
 		};
 
-		if ( this.props.getOptionValue( 'monitor' ) ) {
+		if (
+			this.props.getOptionValue( 'monitor' ) &&
+			! this.props.isOfflineMode &&
+			this.props.hasConnectedOwner
+		) {
 			return (
 				<DashItem label={ labelName } module="monitor" support={ support } status="is-working">
 					<p className="jp-dash-item__description">
@@ -82,6 +87,7 @@ class DashMonitor extends Component {
 				module="monitor"
 				support={ support }
 				className="jp-dash-item__is-inactive"
+				noToggle={ ! this.props.hasConnectedOwner }
 			>
 				<p className="jp-dash-item__description">
 					{ this.props.isOfflineMode

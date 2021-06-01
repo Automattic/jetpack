@@ -292,7 +292,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
  * @since 4.0
  */
 function jetpack_my_community_init() {
-	if ( Jetpack::is_active() ) {
+	if ( Jetpack::is_connection_ready() ) {
 		register_widget( 'Jetpack_My_Community_Widget' );
 	}
 }

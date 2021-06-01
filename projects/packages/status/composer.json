@@ -7,7 +7,7 @@
 	"require-dev": {
 		"brain/monkey": "2.6.0",
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -39,12 +39,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-status",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.7.x-dev"
+			"dev-master": "1.8.x-dev"
 		}
 	}
 }

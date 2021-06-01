@@ -32,12 +32,10 @@ First time working with the monorepo? We got you covered.
 
 For the first time only:
 
-* From the root of the repo, run `yarn install && yarn cli-link`
+* From the root of the repo, run `pnpm cli-setup` (if you want the `jetpack` CLI tool installed globally) or `pnpm install` (if you don't).
 * That’s it. You won’t need to do that again unless you nuke your node_modules directory.
 
-This does a couple of things: 1. Adds a global symlink per yarn link so you can run the cli from any directory and 2. allows any changes made to the CLI to be immediately reflected on your local system.
-
-Once you’ve done that, it’s easy: run jetpack while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
+Once you’ve done that, it’s easy: run `jetpack` (or `pnpx jetpack`) while anywhere in the Jetpack repo. To explore on your own, run `jetpack --help` to see the available commands.
 
 ## Jetpack Generate Wizard
 
@@ -105,9 +103,9 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
-* `.extra.autotagger`: Set true to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
+* `.extra.autotagger`: Set truthy to enable automatic release-version tagging in the mirror repo. See [Mirror repositories > Autotagger](#autotagger) for details.
 * `.extra.dependencies`: This optional array specifies the "slugs" of any within-monorepo dependencies that can't otherwise be inferred. The "slug" consists of the two levels of directory under `projects/`, e.g. `plugins/jetpack` or `packages/lazy-images`. See [Testing](#testing) for details.
-* `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "https://github.com/Automattic/jetpack-_something_".
+* `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
 * `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
@@ -128,10 +126,10 @@ The Jetpack Monorepo includes GitHub actions to run a number of CI checks on all
 
 Tests for a project are only run for a PR if changes are made to the project or its dependencies. Dependencies may be specified as:
 
-* For Composer packages included in the monorepo, via `.require' and `.require-dev` in `composer.json`.
+* For Composer packages included in the monorepo, via `.require` and `.require-dev` in `composer.json`.
 * For any other dependencies, via `.extra.dependencies` in `composer.json`.
 
-The test environment will be set up with appropriate tools, including node, yarn, php, phpdbg, and composer. Unless otherwise specified below, the version of node will be that specified in the monorepo root's `.nvmrc` and php will be that specified in the monorepo root's `.github/php-version`. Other necessary tools may be pulled in via composer and yarn.
+The test environment will be set up with appropriate tools, including node, pnpm, php, phpdbg, and composer. Unless otherwise specified below, the version of node will be that specified in the monorepo root's `.nvmrc` and php will be that specified in the monorepo root's `.github/php-version`. Other necessary tools may be pulled in via composer and pnpm.
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 
@@ -198,10 +196,7 @@ If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `c
 
 If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output.
 
-Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired, as long as the files themselves are named appropriately. Supported formats are:
-
-* clover: Name files to end in `clover.xml`.
-* lcov: Name files to end in `lcov.info`. Remove any `lcov-report` directories.
+Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
 For PHP tests, you'll probably run PHPUnit as `phpdbg -qrr "$(which phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
 
@@ -211,7 +206,7 @@ There's no need to be concerned about collisions with other projects' coverage f
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
-1. Create the mirror repo on GitHub. It will most likely be named like "https://github.com/Automattic/jetpack-_something_".
+1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
    2. The default branch should be `master`, matching the monorepo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
@@ -226,6 +221,8 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 ### Autotagger
 
 If `.extra.autotagger` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will read the most recent version from the mirrored `CHANGELOG.md` in each push to master, and create the tag if that version has no prerelease or build suffix.
+
+If `.extra.autotagger` is set to an object with a truthy value for `major` (i.e. if `.extra.autotagger.major` is truthy), the GitHub Action will additionally create or update a major-version tag as is common for GitHub Action repositories.
 
 This is intended to work in combination with [Changelogger](#jetpack-changelogger): When any change files are present in the project, a `-alpha` version entry will be written to the changelog so the autotagging will not be triggered. To release a new version, you'd do the following:
 
@@ -268,9 +265,9 @@ The body is separated from the headers by a blank line, and is the text that act
 
 ### Using the Jetpack Changelogger
 
-The changelogger tool is dev-required by each project via Composer, and after `composer install` may be run to interactively add a change file using:
+The changelogger tool can be used via [Jetpack's CLI tool](#first-time). You may use the following command to generate changelog entries for each project that needs one:
 
-`vendor/bin/changelogger add`
+`jetpack changelog add`
 
 **Does it matter what the change file is named?** Starting the file name with `.` should not be used. Also consider avoiding names that have extensions like `.php` or `.js` to avoid confusing other tools.
 

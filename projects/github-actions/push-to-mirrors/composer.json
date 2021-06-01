@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},
 	"repositories": [
 		{
@@ -17,6 +17,9 @@
 		}
 	],
 	"extra": {
+		"autotagger": {
+			"major": true
+		},
 		"mirror-repo": "Automattic/action-push-to-mirrors",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/action-push-to-mirrors/compare/v${old}...v${new}"

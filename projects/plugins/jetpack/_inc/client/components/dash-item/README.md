@@ -22,3 +22,4 @@ This is the base component and acts as a wrapper for an At A Glance item's title
 #### Props
 - `label` - *optional* (string) Title of the dash item.
 - `status` - *optional* (string) Sets the status colors and icons of the item. Available arguments are `is-success`, `is-warning`, `is-error`, and `is-info`.
+- `noToggle` - *optional* (bool) If `true`, the component will not disable the enable/disable toggle.

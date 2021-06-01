@@ -153,7 +153,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				muted: {
 					type: 'boolean',
 				},
-				playsInline: {
+				playsinline: {
 					type: 'boolean',
 				},
 				poster: {

@@ -209,17 +209,12 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Sets the 'master_user' and 'user_tokens' options so the site is considered connected.
+	 * Sets the 'master_user', 'id' and 'blog_token' options so the site is considered connected.
 	 */
 	private function add_connection_options() {
-		$user_id = 1;
-		Jetpack_Options::update_option( 'master_user', $user_id );
-		Jetpack_Options::update_option(
-			'user_tokens',
-			array(
-				$user_id => 'apple.a.' . $user_id,
-			)
-		);
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'master_user', 1 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 	}
 
 	/**

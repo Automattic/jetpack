@@ -1,6 +1,6 @@
  12 | WARNING | [x] Use statements are not alphabetically sorted (MediaWiki.Classes.UnsortedUseStatements.UnsortedUse)
- 15 | WARNING | [x] Unnecessary use statement in the same namespace (MediaWiki.Classes.UnusedUseStatement.UnnecessaryUse)
- 16 | WARNING | [x] Unused use statement (MediaWiki.Classes.UnusedUseStatement.UnusedUse)
+ 15 | WARNING | [x] Unnecessary use statement "Unnecessary" in the same namespace (MediaWiki.Classes.UnusedUseStatement.UnnecessaryUse)
+ 16 | WARNING | [x] Unused use statement "Unused" (MediaWiki.Classes.UnusedUseStatement.UnusedUse)
  37 | WARNING | [x] Floats should have a leading 0 (MediaWiki.AlternativeSyntax.LeadingZeroInFloat.Found)
  40 | WARNING | [x] require_once keyword must not be used as a function. (MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.ParenthesesAroundKeywords)
  41 | WARNING | [x] clone keyword must not be used as a function. (MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.ParenthesesAroundKeywords)

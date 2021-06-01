@@ -5,10 +5,10 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
-		"automattic/jetpack-options": "^1.11"
+		"automattic/jetpack-options": "^1.13"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -27,6 +27,7 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-heartbeat",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-heartbeat/compare/v${old}...v${new}"

@@ -18,32 +18,32 @@ import analytics from 'lib/analytics';
  */
 import './style.scss';
 
-const ProductCardUpsell = props => {
-	const { upgradeUrl, upsell } = props;
-
-	const {
-		billing_timeframe,
-		cost_timeframe,
-		cta_text,
-		currency_code,
-		description,
-		features,
-		header,
-		price,
-		title,
-	} = upsell;
-
+const ProductCardUpsell = ( {
+	billing_timeframe,
+	cost_timeframe,
+	cta_text,
+	currency_code,
+	description,
+	features,
+	header,
+	price,
+	product_slug,
+	title,
+	upgradeUrl,
+} ) => {
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_display', {
 			type: 'upsell_with_price',
+			product_slug,
 		} );
-	}, [] );
+	}, [ product_slug ] );
 
 	const onUpsellClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_summary_sidebar_click', {
 			type: 'upsell_with_price',
+			product_slug,
 		} );
-	}, [] );
+	}, [ product_slug ] );
 
 	const currencyObject = getCurrencyObject( price, currency_code );
 
@@ -89,7 +89,7 @@ const ProductCardUpsell = props => {
 				</Button>
 				<ul className="jp-recommendations-sidebar-card__features">
 					{ features.map( feature => (
-						<li>
+						<li key={ feature }>
 							<Gridicon icon="checkmark-circle" />
 							{ feature }
 						</li>

@@ -91,7 +91,7 @@ class SubscriptionsComponent extends React.Component {
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
-					disableInUserlessMode
+					disableInSiteConnectionMode
 					module={ subscriptions }
 					support={ {
 						text: __(
@@ -146,11 +146,11 @@ class SubscriptionsComponent extends React.Component {
 				</SettingsGroup>
 				{ getSubClickableCard() }
 
-				{ ! this.props.isLinked && (
+				{ ! this.props.isLinked && ! this.props.isOfflineMode && (
 					<ConnectUserBar
 						feature="subscriptions"
 						featureLabel={ __( 'Subscriptions', 'jetpack' ) }
-						text={ __( 'Sign in to manage your subscriptions settings.', 'jetpack' ) }
+						text={ __( 'Connect to manage your subscriptions settings.', 'jetpack' ) }
 					/>
 				) }
 			</SettingsCard>

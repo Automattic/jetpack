@@ -23,7 +23,9 @@ export const Monitor = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const isMonitorActive = this.props.getOptionValue( 'monitor' ),
+			const hasConnectedOwner = this.props.hasConnectedOwner,
+				isOfflineMode = this.props.isOfflineMode,
+				isMonitorActive = this.props.getOptionValue( 'monitor' ),
 				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'monitor' );
 			return (
 				<SettingsCard
@@ -35,7 +37,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInUserlessMode
+						disableInSiteConnectionMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
 							text: __(
@@ -47,7 +49,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 					>
 						<ModuleToggle
 							slug="monitor"
-							disabled={ unavailableInOfflineMode || ! this.props.hasConnectedOwner }
+							disabled={ unavailableInOfflineMode || ! hasConnectedOwner }
 							activated={ isMonitorActive }
 							toggling={ this.props.isSavingAnyOption( 'monitor' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -60,7 +62,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
-					{ this.props.hasConnectedOwner && (
+					{ hasConnectedOwner && (
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
@@ -73,11 +75,11 @@ export const Monitor = withModuleSettingsFormHelpers(
 						</Card>
 					) }
 
-					{ ! this.props.hasConnectedOwner && (
+					{ ! hasConnectedOwner && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="monitor"
 							featureLabel={ __( 'Downtime Monitoring', 'jetpack' ) }
-							text={ __( 'Sign in to set up your status alerts.', 'jetpack' ) }
+							text={ __( 'Connect to set up your status alerts.', 'jetpack' ) }
 						/>
 					) }
 				</SettingsCard>

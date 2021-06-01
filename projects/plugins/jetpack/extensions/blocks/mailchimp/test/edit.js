@@ -14,6 +14,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 /**
  * Internal dependencies
  */
+import { JETPACK_DATA_PATH } from '../../../shared/get-jetpack-data';
 import MailchimpSubscribeEdit from '../edit';
 import { settings } from '../../button';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
@@ -77,9 +78,27 @@ describe( 'Mailchimp block edit component', () => {
 
 	beforeEach( () => {
 		setAttributes.mockClear();
+		window[ JETPACK_DATA_PATH ] = {
+			jetpack: {
+				is_current_user_connected: true,
+			},
+		};
 	} );
 
-	test( 'calls api on mount', async () => {
+	test( 'fetches user auth url on mount if current user is not connected', async () => {
+		window[ JETPACK_DATA_PATH ] = {
+			jetpack: {
+				is_current_user_connected: false,
+			},
+		};
+		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		expect( window.fetch ).toHaveBeenCalledWith(
+			expect.stringContaining( '/jetpack/v4/connection/url?from=jetpack-block-editor&redirect=' ),
+			expect.anything()
+		);
+	} );
+
+	test( 'fetches mailchimp connect url on mount if current user is connected', async () => {
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 		expect( window.fetch ).toHaveBeenCalledWith(
 			'/wpcom/v2/mailchimp?_locale=user',

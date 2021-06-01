@@ -210,43 +210,39 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		if ( self::is_wpcom() && self::wpcom_has_status_message() ) {
 			global $themecolors;
+			$message = '';
+
 			switch ( $_GET['blogsub'] ) {
 				case 'confirming':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'Thanks for subscribing! You&rsquo;ll get an email with a link to confirm your subscription. If you don&rsquo;t get it, please <a href="https://en.support.wordpress.com/contact/">contact us</a>.' );
-					echo "</div>";
+					$message = __( 'Thanks for subscribing! You&rsquo;ll get an email with a link to confirm your subscription. If you don&rsquo;t get it, please <a href="https://en.support.wordpress.com/contact/">contact us</a>.', 'jetpack' );
 					break;
 				case 'blocked':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'Subscriptions have been blocked for this email address.' );
-					echo "</div>";
+					$message = __( 'Subscriptions have been blocked for this email address.', 'jetpack' );
 					break;
 				case 'flooded':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'You already have several pending email subscriptions. Approve or delete a few through your <a href="https://subscribe.wordpress.com/">Subscription Manager</a> before attempting to subscribe to more blogs.' );
-					echo "</div>";
+					$message = __( 'You already have several pending email subscriptions. Approve or delete a few through your <a href="https://subscribe.wordpress.com/">Subscription Manager</a> before attempting to subscribe to more blogs.', 'jetpack' );
 					break;
 				case 'spammed':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					echo wp_kses_post( sprintf( __( 'Because there are many pending subscriptions for this email address, we have blocked the subscription. Please <a href="%s">activate or delete</a> pending subscriptions before attempting to subscribe.' ), 'https://subscribe.wordpress.com/' ) );
-					echo "</div>";
+					/* translators: %s is a URL */
+					$message = sprintf( __( 'Because there are many pending subscriptions for this email address, we have blocked the subscription. Please <a href="%s">activate or delete</a> pending subscriptions before attempting to subscribe.', 'jetpack' ), 'https://subscribe.wordpress.com/' );
 					break;
 				case 'subscribed':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'You&rsquo;re already subscribed to this site.' );
-					echo "</div>";
+					$message = __( 'You&rsquo;re already subscribed to this site.', 'jetpack' );
 					break;
 				case 'pending':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'You have a pending subscription already; we just sent you another email. Click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don&rsquo;t receive it.' );
-					echo "</div>";
+					$message = __( 'You have a pending subscription already; we just sent you another email. Click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don&rsquo;t receive it.', 'jetpack' );
 					break;
 				case 'confirmed':
-					echo "<div style='background-color: #{$themecolors['bg']}; border: 1px solid #{$themecolors['border']}; color: #{$themecolors['text']}; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;'>";
-					_e( 'Congrats, you&rsquo;re subscribed! You&rsquo;ll get an email with the details of your subscription and an unsubscribe link.' );
-					echo "</div>";
+					$message = __( 'Congrats, you&rsquo;re subscribed! You&rsquo;ll get an email with the details of your subscription and an unsubscribe link.', 'jetpack' );
 					break;
 			}
+
+			$border_color = isset( $themecolors['border'] ) ? " #{$themecolors['border']}" : '';
+			printf(
+				'<div style="border: 1px solid%1$s; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">%2$s</div>',
+				esc_attr( $border_color ),
+				wp_kses_post( $message )
+			);
 		}
 	}
 
@@ -324,7 +320,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<?php
 					printf(
 						'<input
-							type="text"
+							type="email"
 							name="email"
 							%1$s
 							style="%2$s"

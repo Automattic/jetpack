@@ -150,6 +150,15 @@ abstract class SAL_Site {
 	abstract protected function is_wpforteams_site();
 
 	/**
+	 * Get hub blog id for P2 sites.
+	 *
+	 * @return null
+	 */
+	public function get_p2_hub_blog_id() {
+		return null;
+	}
+
+	/**
 	 * Getter for the p2 organization ID.
 	 *
 	 * @return int
@@ -158,8 +167,13 @@ abstract class SAL_Site {
 		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
 	}
 
+	/**
+	 * Detect whether a site is a WordPress.com on Atomic site.
+	 *
+	 * @return bool
+	 */
 	public function is_wpcom_atomic() {
-		return false;
+		return jetpack_is_atomic_site();
 	}
 
 	public function is_wpcom_store() {
@@ -461,7 +475,8 @@ abstract class SAL_Site {
 			 * @param bool $view_hosting Can site access Hosting section. Default to false.
 			 */
 			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
-			'view_stats'          => stats_is_blog_user( $this->blog_id )
+			'view_stats'          => stats_is_blog_user( $this->blog_id ),
+			'activate_plugins'    => current_user_can( 'activate_plugins' ),
 		);
 	}
 

@@ -77,7 +77,7 @@ const DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})/;
  * @param {string} type - Date range type (year vs month).
  * @returns {object} date filter.
  */
-function generateDateRangeFilter( fieldName, input, type ) {
+export function generateDateRangeFilter( fieldName, input, type ) {
 	let year, month;
 	if ( type === 'year' ) {
 		[ , year, , ] = input.match( DATE_REGEX );
@@ -89,8 +89,10 @@ function generateDateRangeFilter( fieldName, input, type ) {
 	let startDate = '';
 	let endDate = '';
 	if ( month ) {
+		const nextMonth = +month + 1;
+		const nextMonthPadded = nextMonth < 10 ? `0${ nextMonth }` : `${ nextMonth }`;
 		startDate = `${ year }-${ month }-01`;
-		endDate = `${ year }-${ +month + 1 }-01`;
+		endDate = nextMonth <= 12 ? `${ year }-${ nextMonthPadded }-01` : `${ +year + 1 }-01-01`;
 	} else if ( year ) {
 		startDate = `${ year }-01-01`;
 		endDate = `${ +year + 1 }-01-01`;
@@ -304,13 +306,15 @@ function errorHandlerFactory( cacheKey ) {
  * Generate a response handler for a given cache key
  *
  * @param {string} cacheKey - The cache key to use
+ * @param {number} requestId - Sequential ID used to determine recency of requests.
  * @returns {Function} A response handler to be used with a search request
  */
-function responseHandlerFactory( cacheKey ) {
+function responseHandlerFactory( cacheKey, requestId ) {
 	return function responseHandler( responseJson ) {
-		cache.set( cacheKey, responseJson );
-		backupCache.set( cacheKey, responseJson );
-		return responseJson;
+		const response = { ...responseJson, requestId };
+		cache.set( cacheKey, response );
+		backupCache.set( cacheKey, response );
+		return response;
 	};
 }
 
@@ -328,9 +332,10 @@ function resetAbortController() {
  * Perform a search.
  *
  * @param {object} options - Search options
+ * @param {number} requestId - Sequential ID used to determine recency of requests.
  * @returns {Promise} A promise to the JSON response object
  */
-export function search( options ) {
+export function search( options, requestId ) {
 	const key = stringify( Array.from( arguments ) );
 
 	// Use cached value from the last 30 minutes if browser is offline
@@ -354,7 +359,7 @@ export function search( options ) {
 
 	const queryString = generateApiQueryString( options );
 	const errorHandler = errorHandlerFactory( key );
-	const responseHandler = responseHandlerFactory( key );
+	const responseHandler = responseHandlerFactory( key, requestId );
 
 	const pathForPublicApi = `/sites/${ options.siteId }/search?${ queryString }`;
 

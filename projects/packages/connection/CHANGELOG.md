@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2021-05-25
+### Added
+- Add "isUserConnected" to the connection status data.
+- Connection: add the default value of JETPACK__WPCOM_JSON_API_BASE to the Connection Utils class.
+
+### Changed
+- Connection package independence: Move a Jetpack specfic connection routine out of the package and into the plugin
+- Package Independence: Add a filter to the remote_uri returned by remote_register XMLRPC method
+
+### Removed
+- Removed "user-less" jargon from code
+- Remove do_post_authorization routine and add a hook instead
+- Remove onboarding_token logic in the Remote provision XMLRPC method from the Connection package and add it to the Jetpack plugin
+
+### Fixed
+- Disconnection flow: disconnect users from WordPress.com before to delete data locally.
+
+## [1.26.0] - 2021-04-27
+### Added
+- Adds segmentation "from" parameter to the registration flow
+- Connection: moving the registration REST endpoint to the package.
+
+### Changed
+- Added "userless" parameter to the authorization URL.
+- Updated package dependencies.
+
+## [1.25.2] - 2021-04-13
+### Fixed
+- Connection: nonce cleanup safeguard against accidental option removal.
+
+## [1.25.1] - 2021-04-08
+### Fixed
+- Avoid determine_current_user going through infinite loops
+- Tokens: Fix token validation logic.
+
+## [1.25.0] - 2021-03-30
+### Added
+- Add new test for blog token health to support user-less sites
+- Composer alias for dev-master, to improve dependencies
+
+### Changed
+- API Nonces: performance optimization and refactoring
+- Replace is_active usage towards gradually deprecating it.
+- Do not use is_active to determine the XMLRPC methods that should be registered
+- Make connected_plugins REST endpoint available for the Jetpack Debugger
+- Move Jetpack specific XMLRPC methods from the Connection package into the plugin
+- Update package dependencies.
+- User-less connection: Reconnect without asking the user to connect their WPCOM account
+
+### Deprecated
+- add deprecation notice and remove user-less check in is_active
+
+### Fixed
+- Only check offline mode when needed in map_meta_cap filters
+- Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.
+
 ## [1.24.0] - 2021-02-23
 
 - Refactor secrets and tokens
@@ -305,6 +361,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.27.0]: https://github.com/Automattic/jetpack-connection/compare/v1.26.0...v1.27.0
+[1.26.0]: https://github.com/Automattic/jetpack-connection/compare/v1.25.2...v1.26.0
+[1.25.2]: https://github.com/Automattic/jetpack-connection/compare/v1.25.1...v1.25.2
+[1.25.1]: https://github.com/Automattic/jetpack-connection/compare/v1.25.0...v1.25.1
+[1.25.0]: https://github.com/Automattic/jetpack-connection/compare/v1.24.0...v1.25.0
 [1.24.0]: https://github.com/Automattic/jetpack-connection/compare/v1.23.2...v1.24.0
 [1.23.2]: https://github.com/Automattic/jetpack-connection/compare/v1.23.1...v1.23.2
 [1.23.1]: https://github.com/Automattic/jetpack-connection/compare/v1.23.0...v1.23.1

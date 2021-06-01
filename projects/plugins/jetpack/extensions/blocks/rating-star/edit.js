@@ -46,7 +46,11 @@ export default Symbol =>
 					// Whole number.
 					newRating = newRating - 0.5;
 				}
+			} else if ( rating === 0.5 && newRating === 1 ) {
+				// Clicking the 0.5 star updates to 0 stars.
+				newRating = 0;
 			}
+
 			setAttributes( { rating: newRating } );
 		};
 

@@ -8,7 +8,7 @@
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0",
-		"automattic/jetpack-changelogger": "1.1.x-dev"
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -27,12 +27,13 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-options",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-options/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.11.x-dev"
+			"dev-master": "1.13.x-dev"
 		}
 	}
 }

@@ -21,11 +21,13 @@ $overlay-horizontal-padding-lg: 3em;
 	opacity: 1;
 	overflow-x: hidden;
 	overflow-y: auto;
-	transition: opacity 0.15s ease-in-out;
+	transition: background-color $search-results-slide-in-time linear,
+		opacity $overlay-fade-in-time linear, transform 0.1ms linear;
+	will-change: opacity, transform;
 	z-index: 9999999999999;
 
 	// Override font for Argent theme.
-	body.theme-argent & {
+	body.jps-theme-argent & * {
 		font-family: Helvetica, sans-serif; // "Cabin" looks ridiculous in the overlay.
 	}
 
@@ -43,7 +45,10 @@ $overlay-horizontal-padding-lg: 3em;
 	}
 
 	&.is-hidden {
-		transform: translateX( 100vw );
+		background: transparent;
+		opacity: 0;
+		transform: translate3d( 0, 100vh, 0 );
+		transition-delay: 0s, $search-results-slide-in-time, $search-results-slide-in-time;
 	}
 
 	*,

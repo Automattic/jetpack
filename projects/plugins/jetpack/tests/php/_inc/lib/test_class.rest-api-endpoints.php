@@ -412,18 +412,14 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status() {
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		wp_set_current_user( $user->ID );
-
 		// Mock a connection
-		Jetpack_Options::update_option( 'master_user', $user->ID );
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection' );
 
-		// Success, authenticated user and connected site
+		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array(
 			'isActive'    => true,
@@ -445,20 +441,15 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status_staging() {
 
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		wp_set_current_user( $user->ID );
-
-		// Mock a connection
-		Jetpack_Options::update_option( 'master_user', $user->ID );
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
 		add_filter( 'jetpack_is_staging_site', '__return_true' );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection' );
 
-		// Success, authenticated user and connected site
+		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array(
 			'isActive'    => true,
@@ -574,6 +565,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Mock a connection
 		Jetpack_Options::update_option( 'master_user', $user->ID );
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
 		// Create REST request in JSON format and dispatch
@@ -695,6 +688,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Mock site already registered
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
 
@@ -718,6 +713,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
 
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
 
@@ -740,8 +737,12 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$transient_key = "jetpack_connected_user_data_$user->ID";
 		set_transient( $transient_key, 'dummy', DAY_IN_SECONDS );
 
+		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
+
 		// Create REST request in JSON format and dispatch.
 		$this->create_and_get_request( 'connection/user', array( 'linked' => false ), 'POST' );
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
 
 		// Transient should be deleted after unlinking user.
 		$this->assertFalse( get_transient( $transient_key ) );
@@ -1124,5 +1125,148 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response_data = $response->get_data();
 		$this->assertNull( $response_data['connectionOwner'] );
+	}
+
+	/**
+	 * Test fetching a site's purchase token.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_get_purchase_token() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm purchase token exists.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $purchase_token, $response->get_data() );
+	}
+
+	/**
+	 * Test fetching a site's purchase token with a non-administrator user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_get_purchase_token_non_admin_user() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Request fails because the user doesn't have the `manage_options` permission.
+		$this->assertResponseStatus( 403, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_manage_purchase_token' ), $response );
+	}
+
+	/**
+	 * Test fetching a site's purchase token when no site is registered.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_get_purchase_token_no_site_registered() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm that the request failed.
+		$this->assertResponseStatus( 500, $response );
+		$this->assertResponseData( array( 'code' => 'site_not_registered' ), $response );
+	}
+
+	/**
+	 * Test deleting a site's purchase token.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_delete_purchase_token() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm the purchase token exists.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( $purchase_token, $response->get_data() );
+
+		// Delete the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'DELETE' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertTrue( $response->get_data() );
+
+		// Fetch purchase token again.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Confirm the purchase token does not exist.
+		$this->assertResponseStatus( 200, $response );
+		$this->assertSame( '', $response->get_data() );
+	}
+
+	/**
+	 * Test deleting a site's purchase token with a non-administrator user.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_delete_purchase_token_non_admin_user() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user();
+		wp_set_current_user( $user->ID );
+
+		// Fetch the purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'GET' );
+
+		// Request fails because the user doesn't have the `manage_options` permission.
+		$this->assertResponseStatus( 403, $response );
+		$this->assertResponseData( array( 'code' => 'invalid_permission_manage_purchase_token' ), $response );
+	}
+
+	/**
+	 * Test deleting a site's purchase token when no site is registered.
+	 *
+	 * @since 9.9.0
+	 */
+	public function test_delete_purchase_token_no_site_registered() {
+		$purchase_token = '1ApurchaseToken1';
+		Jetpack_Options::update_option( 'purchase_token', $purchase_token );
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Fetch purchase token.
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'DELETE' );
+
+		// Confirm that the request failed.
+		$this->assertResponseStatus( 500, $response );
+		$this->assertResponseData( array( 'code' => 'site_not_registered' ), $response );
 	}
 } // class end

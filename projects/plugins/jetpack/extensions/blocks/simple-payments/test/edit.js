@@ -11,6 +11,14 @@ import '@testing-library/jest-dom/extend-expect';
 import { SimplePaymentsEdit } from '../edit';
 
 const setAttributes = jest.fn();
+beforeEach( () => {
+	Intl.NumberFormat = jest
+		.fn()
+		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
+} );
+afterEach( () => {
+	jest.resetAllMocks();
+} );
 
 const props = {
 	attributes: {
@@ -19,11 +27,8 @@ const props = {
 	postLinKText: 'Click here to buy',
 	setAttributes,
 	isSelected: true,
+	isPostEditor: true,
 };
-
-beforeEach( () => {
-	setAttributes.mockClear();
-} );
 
 describe( 'Edit component', () => {
 	test( 'shows Pay with Paypal image but no input fields if not selected', () => {
@@ -125,11 +130,11 @@ describe( 'Edit component', () => {
 		const notSelectedProps = {
 			...props,
 			isSelected: false,
-			attributes: { email: 'bob@bob.com', currency: 'USD', price: 10.00, title: 'White TShirt' },
+			attributes: { email: 'bob@bob.com', currency: 'AUD', price: 10.0, title: 'White TShirt' },
 		};
 		render( <SimplePaymentsEdit { ...notSelectedProps } /> );
 
 		expect( screen.getByText( 'White TShirt' ) ).toBeInTheDocument();
-		expect( screen.getByText( '$10.00' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'A$10.00' ) ).toBeInTheDocument();
 	} );
 } );

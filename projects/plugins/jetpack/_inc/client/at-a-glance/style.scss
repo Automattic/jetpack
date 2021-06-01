@@ -69,10 +69,11 @@
 	position: relative;
 }
 
-.jp-at-a-glance__stats-chart .dops-spinner {
+.jp-at-a-glance__stats-chart .components-spinner {
 	position: absolute;
 	top: 50%;
 	left: 50%;
+	transform: translate( -50%, -50% );
 }
 
 .jp-at-a-glance__stats-bottom {

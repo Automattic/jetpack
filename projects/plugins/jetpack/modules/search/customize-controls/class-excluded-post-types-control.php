@@ -105,6 +105,8 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 			/>
 		<?php
 
+		$is_only_one_unchecked = ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
+
 		foreach ( $post_types as $post_type ) {
 			$input_id = Jetpack_Search_Helpers::generate_post_type_customizer_id( $post_type );
 			?>
@@ -115,6 +117,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 					type="checkbox"
 					value="<?php echo esc_attr( $post_type->name ); ?>"
 					<?php checked( $this->is_checked( $post_type ) ); ?>
+					<?php disabled( ! $this->is_checked( $post_type ) && $is_only_one_unchecked ); ?>
 				/>
 				<label for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $post_type->label ); ?></label>
 			</div>

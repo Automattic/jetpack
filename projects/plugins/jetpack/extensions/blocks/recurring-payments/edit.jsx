@@ -10,12 +10,9 @@ import { withSelect, withDispatch } from '@wordpress/data';
 import {
 	Button,
 	ExternalLink,
-	PanelBody,
 	Placeholder,
 	Spinner,
 	TextControl,
-	ToolbarButton,
-	ToolbarGroup,
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
@@ -32,9 +29,10 @@ import {
 	isPriceValid,
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
-import getSiteFragment from '../../shared/get-site-fragment';
+import getConnectUrl from '../../shared/get-connect-url';
 import { icon, removeInvalidProducts } from '.';
-import { flashIcon } from '../../shared/icons';
+import { PanelControls, ToolbarControls } from './controls';
+import { formatPriceForNumberInputValue, formatProductAmount } from './util';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -44,22 +42,7 @@ const PRODUCT_NOT_ADDING = 0;
 const PRODUCT_FORM = 1;
 const PRODUCT_FORM_SUBMITTED = 2;
 
-/**
- * Formats a price with the right format for a numeric input value.
- *
- * @param {number} price - Price to format.
- * @param {string} currency - Currency code.
- * @returns {string} - Formatted price.
- */
-const formatPriceForNumberInputValue = ( price, currency ) => {
-	// By using `formatCurrency` we ensure the resulting price contains the relevant decimals for the given currency (i.e. 0.5 > 0.50).
-	return formatCurrency( price, currency, {
-		decimal: '.', // Values for numeric inputs need to use a dot notation for decimals.
-		symbol: '', // Values for numeric inputs cannot contain any currency symbol, only numbers.
-	} );
-};
-
-class MembershipsButtonEdit extends Component {
+export class MembershipsButtonEdit extends Component {
 	constructor() {
 		super( ...arguments );
 		this.state = {
@@ -225,33 +208,6 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
-	renderAmount = product => {
-		const amount = formatCurrency( parseFloat( product.price ), product.currency );
-		if ( product.interval === '1 month' ) {
-			return sprintf(
-				/* translators: placeholder is a price. */
-				__( '%s / month', 'jetpack' ),
-				amount
-			);
-		}
-		if ( product.interval === '1 year' ) {
-			return sprintf(
-				/* translators: placeholder is a price. */
-				__( '%s / year', 'jetpack' ),
-				amount
-			);
-		}
-		if ( product.interval === 'one-time' ) {
-			return amount;
-		}
-		return sprintf(
-			/* translators: %1$s is a price, %2$s is a period (1 year for example) */
-			__( '%1$s / %2$s', 'jetpack' ),
-			amount,
-			product.interval
-		);
-	};
-
 	renderAddMembershipAmount = forceShowForm => {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
@@ -398,7 +354,7 @@ class MembershipsButtonEdit extends Component {
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
-					{ this.renderAmount( product ) }
+					{ formatProductAmount( product ) }
 				</Button>
 			) ) }
 		</div>
@@ -416,28 +372,9 @@ class MembershipsButtonEdit extends Component {
 
 	renderUpgradeNudges = () => {
 		const { notices } = this.props;
-		const { connected, connectURL } = this.state;
 
 		return (
 			<>
-				{ ! this.hasUpgradeNudge &&
-					! this.state.shouldUpgrade &&
-					connected === API_STATE_NOTCONNECTED && (
-						<BlockControls>
-							<ToolbarGroup>
-								<ToolbarButton
-									icon={ flashIcon }
-									onClick={ e => {
-										this.props.autosaveAndRedirect( e, connectURL );
-									} }
-									className="connect-stripe components-tab-button"
-								>
-									{ __( 'Connect Stripe', 'jetpack' ) }
-								</ToolbarButton>
-							</ToolbarGroup>
-						</BlockControls>
-					) }
-
 				{ ! this.hasUpgradeNudge && this.state.shouldUpgrade && (
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
@@ -524,7 +461,7 @@ class MembershipsButtonEdit extends Component {
 	};
 
 	render = () => {
-		const { products } = this.state;
+		const { connected, connectURL, products } = this.state;
 
 		/**
 		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
@@ -540,24 +477,23 @@ class MembershipsButtonEdit extends Component {
 
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
-					<SelectControl
-						label={ __( 'Payment plan', 'jetpack' ) }
-						value={ this.props.attributes.planId }
-						onChange={ this.setMembershipAmount }
-						options={ products.map( product => ( {
-							label: this.renderAmount( product ),
-							value: product.id,
-							key: product.id,
-						} ) ) }
-					/>
-				</PanelBody>
-				<PanelBody title={ __( 'Management', 'jetpack' ) }>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ getSiteFragment() }` }>
-						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
-					</ExternalLink>
-				</PanelBody>
+				<PanelControls
+					attributes={ this.props.attributes }
+					products={ products }
+					setMembershipAmount={ this.setMembershipAmount }
+				/>
 			</InspectorControls>
+		);
+
+		const blockControls = (
+			<BlockControls>
+				<ToolbarControls
+					connected={ connected !== API_STATE_NOTCONNECTED }
+					connectURL={ getConnectUrl( this.props.postId, connectURL ) }
+					hasUpgradeNudge={ this.hasUpgradeNudge }
+					shouldUpgrade={ this.state.shouldUpgrade }
+				/>
+			</BlockControls>
 		);
 
 		return (
@@ -567,6 +503,7 @@ class MembershipsButtonEdit extends Component {
 				{ ! this.isPremiumContentChild && this.renderPlanNotices() }
 
 				{ showControls && inspectorControls }
+				{ blockControls }
 
 				<InnerBlocks
 					template={ [

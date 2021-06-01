@@ -435,7 +435,7 @@ class Jetpack_Memberships {
 		return (
 			self::is_supported_jetpack_recurring_payments() ||
 			(
-				Jetpack::is_active() &&
+				Jetpack::is_connection_ready() &&
 				/** This filter is documented in class.jetpack-gutenberg.php */
 				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
 			)
@@ -453,7 +453,7 @@ class Jetpack_Memberships {
 		}
 		// For Jetpack sites.
 		return (
-			Jetpack::is_active() &&
+			Jetpack::is_connection_ready() &&
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}

@@ -1,8 +1,5 @@
-/**
- * Internal dependencies
- */
 import { step } from '../lib/env/test-setup';
-import { connectThroughWPAdmin } from '../lib/flows/jetpack-connect';
+import { doInPlaceConnection } from '../lib/flows/jetpack-connect';
 import {
 	execWpCommand,
 	prepareUpdaterTest,
@@ -12,10 +9,16 @@ import {
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
+import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
 // Disable pre-connect for this test suite
 process.env.SKIP_CONNECT = true;
 
+/**
+ *
+ * @group pre-connection
+ * @group update
+ */
 describe( 'Jetpack updater', () => {
 	beforeAll( async () => {
 		await prepareUpdaterTest();
@@ -54,7 +57,10 @@ describe( 'Jetpack updater', () => {
 		} );
 
 		await step( 'Can connect Jetpack', async () => {
-			await connectThroughWPAdmin( { mockPlanData: true, plan: 'free' } );
+			await ( await Sidebar.init( page ) ).selectJetpack();
+			await doInPlaceConnection();
+			const jetpackPage = await JetpackPage.init( page );
+			expect( await jetpackPage.isConnected() ).toBeTruthy();
 		} );
 	} );
 } );

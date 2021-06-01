@@ -9,6 +9,40 @@
       "entries": [
           {
               "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
+              "version": "1.0.4",
+              "link": null,
+              "timestamp": "2021-03-30T00:00:00+0000",
+              "prologue": "Only headings H1 and H3 have content, H2 should not appear.",
+              "epilogue": "",
+              "changes": [
+                  {
+                      "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
+                      "significance": null,
+                      "timestamp": "2021-03-30T00:00:00+0000",
+                      "subheading": "H1",
+                      "author": "",
+                      "content": "A."
+                  },
+                  {
+                      "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
+                      "significance": null,
+                      "timestamp": "2021-03-30T00:00:00+0000",
+                      "subheading": "H2",
+                      "author": "",
+                      "content": ""
+                  },
+                  {
+                      "__class__": "Automattic\\Jetpack\\Changelog\\ChangeEntry",
+                      "significance": null,
+                      "timestamp": "2021-03-30T00:00:00+0000",
+                      "subheading": "H3",
+                      "author": "",
+                      "content": "B."
+                  }
+              ]
+          },
+          {
+              "__class__": "Automattic\\Jetpack\\Changelog\\ChangelogEntry",
               "version": "1.0.3",
               "link": null,
               "timestamp": "2021-02-23T00:00:00+0000",
@@ -148,6 +182,16 @@
 
 ## Expected output from `format()`
   ~~~~~~~~markdown format-output
+  ## 1.0.4 - 2021-03-30
+
+  Only headings H1 and H3 have content, H2 should not appear.
+
+  ### H1
+  - A.
+
+  ### H3
+  - B.
+
   ## 1.0.3 - 2021-02-23
 
   Only heading H1 has content, H2 should not appear.

@@ -57,6 +57,10 @@
 			margin: 0;
 			position: relative;
 			width: 100%;
+			.wp-block-jetpack-slideshow_image {
+				pointer-events: none;
+				user-select: none;
+			}
 		}
 	}
 
@@ -238,7 +242,7 @@
 	}
 }
 
-@media only email {
+.is-email {
 	.wp-block-jetpack-slideshow .wp-block-jetpack-slideshow_container {
 		overflow: visible;
 		opacity: 1;

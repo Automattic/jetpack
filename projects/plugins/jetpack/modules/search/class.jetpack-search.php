@@ -160,7 +160,7 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() || ! $this->is_search_supported() ) {
+		if ( ! Jetpack::is_connection_ready() || ! $this->is_search_supported() ) {
 			/**
 			 * Fires when the Jetpack Search fails and would fallback to MySQL.
 			 *
@@ -552,6 +552,7 @@ class Jetpack_Search {
 			'post_type'           => 'any',
 			'ignore_sticky_posts' => true,
 			'suppress_filters'    => true,
+			'posts_per_page'      => $query->get( 'posts_per_page' ),
 		);
 
 		$posts_query = new WP_Query( $args );

@@ -19,9 +19,9 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally, and changelogger.
+# Install JS generally, and changelogger.
 echo "::group::Monorepo setup"
-yarn install
+pnpm install
 echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
@@ -46,23 +46,15 @@ for SLUG in "${SLUGS[@]}"; do
 
 	cd "${PROJECT_DIR}"
 
-	# Read mirror repo from composer.json, if it exists
 	if [[ ! -f "composer.json" ]]; then
 		echo "Project does not have composer.json, skipping"
 		continue
 	fi
 
-	GIT_SLUG=$(jq -r '.extra["mirror-repo"] // ""' composer.json)
-	if [[ -z "$GIT_SLUG" ]]; then
-		echo "Failed to determine project repo name from composer.json, skipping"
-		continue
-	fi
-	echo "Repo name: $GIT_SLUG"
-
 	## clone, delete files in the clone, and copy (new) files over
 	# this handles file deletions, additions, and changes seamlessly
 
-	echo "::group::Building ${GIT_SLUG}"
+	echo "::group::Building ${SLUG}"
 
 	# If composer.json contains a reference to the monorepo repo, add one pointing to our production clones just before it.
 	# That allows us to pick up the built version for plugins like Jetpack.
@@ -73,12 +65,16 @@ for SLUG in "${SLUGS[@]}"; do
 		echo "$JSON" > composer.json
 		if [[ -e "composer.lock" ]]; then
 			OLDLOCK=$(<composer.lock)
-			composer update --root-reqs --no-install
+			PACKAGES=()
+			mapfile -t PACKAGES < <( composer info --locked --name-only | sed -e 's/ *$//' | grep --fixed-strings --line-regexp --file=<( jq --argjson repo "$REPO" -rn '$repo.options.versions // {} | keys[]' ) )
+			if [[ ${#PACKAGES[@]} -gt 0 ]]; then
+				composer update --no-install "${PACKAGES[@]}"
+			fi
 		else
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
@@ -92,7 +88,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 	echo "::endgroup::"
 	if $FAIL; then
-		echo "::error::Build of ${GIT_SLUG} failed"
+		echo "::error::Build of ${SLUG} failed"
 		EXIT=1
 		continue
 	fi
@@ -115,7 +111,7 @@ for SLUG in "${SLUGS[@]}"; do
 			echo "::group::Updating changelog"
 			if ! $CHANGELOGGER write --prologue='This is an alpha version! The changes listed here are not final.' --default-first-version --prerelease=alpha --release-date=unreleased --no-interaction --yes -vvv; then
 				echo "::endgroup::"
-				echo "::error::Changelog update for ${GIT_SLUG} failed"
+				echo "::error::Changelog update for ${SLUG} failed"
 				EXIT=1
 				continue
 			fi
@@ -124,6 +120,14 @@ for SLUG in "${SLUGS[@]}"; do
 			echo "Not updating changelog, there are no change files."
 		fi
 	fi
+
+	# Read mirror repo from composer.json
+	GIT_SLUG=$(jq -r '.extra["mirror-repo"] // ""' composer.json)
+	if [[ -z "$GIT_SLUG" ]]; then
+		echo "Failed to determine project repo name from composer.json, skipping"
+		continue
+	fi
+	echo "Repo name: $GIT_SLUG"
 
 	BUILD_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	echo "Build dir: $BUILD_DIR"
@@ -136,6 +140,25 @@ for SLUG in "${SLUGS[@]}"; do
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
 	fi
+
+	# Copy license.
+	LICENSE=$(jq -r '.license // ""' composer.json)
+	if [[ -n "$LICENSE" ]]; then
+		echo "License: $LICENSE"
+		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License file copied."
+		else
+			echo "::error file=projects/$SLUG/composer.json::License value not approved."
+			EXIT=1
+			continue
+		fi
+	else
+		echo "No license declared."
+		# TODO: Make this an error?
+	fi
+
+	# Copy SECURITY.md
+	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{

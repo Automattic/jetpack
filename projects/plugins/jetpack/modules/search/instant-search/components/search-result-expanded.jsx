@@ -57,25 +57,24 @@ export default function SearchResultExpanded( props ) {
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
 			</div>
-			<div className="jetpack-instant-search__search-result-expanded__image-container">
-				<a
-					className="jetpack-instant-search__search-result-expanded__image-link"
-					href={ `//${ fields[ 'permalink.url.raw' ] }` }
-					onClick={ props.onClick }
-				>
+			<a
+				className="jetpack-instant-search__search-result-expanded__image-link"
+				href={ `//${ fields[ 'permalink.url.raw' ] }` }
+				onClick={ props.onClick }
+			>
+				<div className="jetpack-instant-search__search-result-expanded__image-container">
 					{ firstImage ? (
 						// NOTE: Wouldn't it be amazing if we filled the container's background
 						//       with the primary color of the image?
 						<PhotonImage
-							alt=""
+							alt={ highlight.title }
 							className="jetpack-instant-search__search-result-expanded__image"
 							isPhotonEnabled={ this.props.isPhotonEnabled }
 							src={ `//${ firstImage }` }
-							useDiv
 						/>
 					) : null }
-				</a>
-			</div>
+				</div>
+			</a>
 		</li>
 	);
 }

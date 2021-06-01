@@ -74,7 +74,7 @@ const ConnectUserFrame = props => {
 					title=""
 					width="347"
 					height="353"
-					source={ props.source }
+					location={ props.source }
 				/>
 			</div>
 		</div>

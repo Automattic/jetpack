@@ -533,8 +533,21 @@ class Table_Checksum {
 
 		$this->validate_fields( array( $this->range_field ) );
 
+		// Performance :: When getting the postmeta range we do not want to filter by the whitelist.
+		// The reason for this is that it leads to a non-performant query that can timeout.
+		// Instead lets get the range based on posts regardless of meta.
+		$filter_values = $this->filter_values;
+		if ( 'postmeta' === $this->table ) {
+			$this->filter_values = null;
+		}
+
 		// `trim()` to make sure we don't add the statement if it's empty.
 		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
+
+		// Reset Post meta filter.
+		if ( 'postmeta' === $this->table ) {
+			$this->filter_values = $filter_values;
+		}
 
 		$filter_statement = '';
 		if ( ! empty( $filters ) ) {

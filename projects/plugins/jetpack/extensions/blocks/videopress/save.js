@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { RichText } from '@wordpress/block-editor';
+import { RichText, useBlockProps } from '@wordpress/block-editor';
 import classnames from 'classnames';
 
 /**
@@ -19,6 +19,7 @@ const VideoPressSave = CoreVideoSave => props => {
 			guid,
 			loop,
 			muted,
+			playsinline,
 			poster,
 			preload,
 			videoPressClassNames,
@@ -29,6 +30,12 @@ const VideoPressSave = CoreVideoSave => props => {
 			seekbarLoadingColor,
 		} = {},
 	} = props;
+
+	const blockProps = useBlockProps.save( {
+		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+			[ `align${ align }` ]: align,
+		} ),
+	} );
 
 	if ( ! guid ) {
 		/**
@@ -48,6 +55,7 @@ const VideoPressSave = CoreVideoSave => props => {
 		controls,
 		loop,
 		muted,
+		playsinline,
 		poster,
 		preload,
 		seekbarColor,
@@ -56,11 +64,7 @@ const VideoPressSave = CoreVideoSave => props => {
 	} );
 
 	return (
-		<figure
-			className={ classnames( 'wp-block-video', className, videoPressClassNames, {
-				[ `align${ align }` ]: align,
-			} ) }
-		>
+		<figure { ...blockProps }>
 			<div className="wp-block-embed__wrapper">
 				{ `\n${ url }\n` /* URL needs to be on its own line. */ }
 			</div>

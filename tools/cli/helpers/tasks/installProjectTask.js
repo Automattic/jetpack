@@ -18,6 +18,26 @@ import { chalkJetpackGreen } from '../styling';
 import { normalizeInstallArgv } from '../normalizeArgv';
 
 /**
+ * The `pnpm install` command promise for this run.
+ */
+let pnpmInstallPromise = null;
+
+/**
+ * Test if a lockfile is checked in.
+ *
+ * @param {string} cwd - Path being processed.
+ * @param {string} lockFile - Lock file name.
+ * @returns {boolean} - Whether the lock file exists and is checked in.
+ */
+async function hasLockFile( cwd, lockFile ) {
+	if ( ! fs.existsSync( path.resolve( cwd, lockFile ) ) ) {
+		return false;
+	}
+	const { stdout } = await execa.command( `git ls-files ${ lockFile }`, { cwd: cwd } );
+	return !! stdout;
+}
+
+/**
  * Preps the task for an individual project.
  *
  * @param {object} argv - Argv object for an install command. Must contain project and root at least.
@@ -34,22 +54,31 @@ export default function installProjectTask( argv ) {
 	}
 	const cwd = argv.root ? process.cwd() : path.resolve( `projects/${ argv.project }` );
 	const composerEnabled = argv.root ? true : Boolean( readComposerJson( argv.project, false ) );
-	const yarnEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
+	const pnpmEnabled = argv.root ? true : Boolean( readPackageJson( argv.project, false ) );
 	argv.project = argv.root ? 'Monorepo' : argv.project;
 
 	const command = async ( pkgMgr, verbose ) => {
-		// Determine whether 'install' or 'upgrade' is needed. Notes:
-		//  - composer accepts both "update" and "upgrade", while yarn only accepts "upgrade".
-		//  - composer accepts "install" with no lockfile, despite complaining that it wants "update" instead.
-		//  - yarn requires "install" with no lockfile, "upgrade" errors out.
-		let subcommand = 'install';
-		if ( fs.existsSync( path.resolve( cwd, `${ pkgMgr }.lock` ) ) ) {
-			const { stdout } = await execa.command( `git ls-files ${ pkgMgr }.lock`, { cwd: cwd } );
-			subcommand = stdout ? 'install' : 'upgrade';
+		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
+		// For pnpm, the lockfile is always checked in thanks to the workspace thing.
+		let subcommand;
+		let args = ''; // eslint-disable-line prefer-const
+		if ( pkgMgr === 'composer' ) {
+			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
+		} else if ( pkgMgr === 'pnpm' ) {
+			if ( pnpmInstallPromise ) {
+				return pnpmInstallPromise;
+			}
+			subcommand = 'install';
+		} else {
+			throw new Error( `Unknown package manager ${ pkgMgr }` );
 		}
-		return verbose
-			? execa.commandSync( `${ pkgMgr } ${ subcommand }`, { cwd: cwd, stdio: 'inherit' } )
-			: execa.command( `${ pkgMgr } ${ subcommand }`, { cwd: cwd } );
+		const ret = verbose
+			? execa.commandSync( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd, stdio: 'inherit' } )
+			: execa.command( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd } );
+		if ( pkgMgr === 'pnpm' ) {
+			pnpmInstallPromise = ret;
+		}
+		return ret;
 	};
 
 	const task = ( pkgMgr, enabled ) => {
@@ -70,7 +99,7 @@ export default function installProjectTask( argv ) {
 		title: chalk.yellow( `Installing ${ argv.project }` ),
 		task: () => {
 			return new Listr(
-				[ task( 'Composer', composerEnabled ), task( 'Yarn', yarnEnabled ) ],
+				[ task( 'Composer', composerEnabled ), task( 'Pnpm', pnpmEnabled ) ],
 				opts
 			);
 		},

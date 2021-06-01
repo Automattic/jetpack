@@ -4,7 +4,7 @@ if $(wp --allow-root core is-installed); then
 	echo
 	echo "WordPress has already been installed. Uninstall it first by running:"
 	echo
-	echo "  yarn docker:uninstall"
+	echo "  jetpack docker uninstall"
 	echo
 	exit 1;
 fi
@@ -32,6 +32,10 @@ wp --allow-root plugin install core-control --activate
 # Install WP-Control
 # https://wordpress.org/plugins/wp-crontrol/
 wp --allow-root plugin install wp-crontrol --activate
+
+# Install Gutenberg
+# https://wordpress.org/plugins/gutenberg/
+wp --allow-root plugin install gutenberg --activate
 
 # Activate Jetpack
 wp --allow-root plugin activate jetpack

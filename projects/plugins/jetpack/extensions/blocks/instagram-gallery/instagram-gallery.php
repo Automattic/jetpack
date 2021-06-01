@@ -23,7 +23,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
 			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
@@ -61,8 +61,10 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 		)
 	);
 
-	$grid_style  = 'grid-gap: ' . $spacing . 'px;';
-	$photo_style = 'padding: ' . $spacing . 'px;';
+	$grid_style = sprintf(
+		'grid-gap: %1$spx; --latest-instagram-posts-spacing: %1$spx;',
+		$spacing
+	);
 
 	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
@@ -109,7 +111,6 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 				class="wp-block-jetpack-instagram-gallery__grid-post"
 				href="<?php echo esc_url( $image->link ); ?>"
 				rel="noopener noreferrer"
-				style="<?php echo esc_attr( $photo_style ); ?>"
 				target="_blank"
 			>
 				<img

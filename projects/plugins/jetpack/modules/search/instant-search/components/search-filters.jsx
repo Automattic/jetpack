@@ -18,6 +18,7 @@ import './search-filters.scss';
 class SearchFilters extends Component {
 	static defaultProps = {
 		showClearFiltersButton: true,
+		showTitle: true,
 	};
 
 	onChangeFilter = ( filterName, filterValue ) => {
@@ -62,7 +63,11 @@ class SearchFilters extends Component {
 		const aggregations = this.props.results?.aggregations;
 		return (
 			<div className="jetpack-instant-search__search-filters">
-				<div className="jetpack-instant-search__search-filters-title">Filter options</div>
+				{ this.props.showTitle && (
+					<div className="jetpack-instant-search__search-filters-title">
+						{ __( 'Filter options', 'jetpack' ) }
+					</div>
+				) }
 				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
 					<a
 						class="jetpack-instant-search__clear-filters-link"

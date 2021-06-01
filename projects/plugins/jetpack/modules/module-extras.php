@@ -59,7 +59,7 @@ $connected_tools = array(
 );
 
 // Add connected features to our existing list if the site is currently connected.
-if ( Jetpack::is_active() ) {
+if ( Jetpack::is_connection_ready() ) {
 	$tools = array_merge( $tools, $connected_tools );
 }
 

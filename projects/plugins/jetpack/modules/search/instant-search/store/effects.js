@@ -14,6 +14,8 @@ import {
 	setSort,
 } from './actions';
 
+let requestCounter = 0;
+
 /**
  * Effect handler which will fetch search results from the API.
  *
@@ -21,7 +23,8 @@ import {
  * @param {object} store -  Store instance.
  */
 function makeSearchAPIRequest( action, store ) {
-	search( action.options )
+	requestCounter++;
+	search( action.options, requestCounter )
 		.then( response => {
 			if ( response === null ) {
 				// Request has been cancelled by a more recent request.

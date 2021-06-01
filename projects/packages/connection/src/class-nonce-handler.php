@@ -176,16 +176,27 @@ class Nonce_Handler {
 			)
 		);
 
-		if ( ! is_array( $ids ) || ! count( $ids ) ) {
-			// There's either nothing to remove, or there's an error and we can't proceed.
+		if ( ! is_array( $ids ) ) {
+			// There's an error and we can't proceed.
+			return false;
+		}
+
+		// Removing zeroes in case AUTO_INCREMENT of the options table is broken, and all ID's are zeroes.
+		$ids = array_filter( $ids );
+
+		if ( ! count( $ids ) ) {
+			// There's nothing to remove.
 			return false;
 		}
 
 		$ids_fill = implode( ', ', array_fill( 0, count( $ids ), '%d' ) );
 
+		$args   = $ids;
+		$args[] = 'jetpack_nonce_%';
+
 		// The Code Sniffer is unable to understand what's going on...
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-		return $wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} )", $ids ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		return $wpdb->query( $wpdb->prepare( "DELETE FROM `{$wpdb->options}` WHERE `option_id` IN ( {$ids_fill} ) AND option_name LIKE %s", $args ) );
 	}
 
 	/**

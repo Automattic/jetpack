@@ -37,9 +37,9 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes
  *
- * @param array $media_files  List of media, each as an array containing the media attributes.
+ * @param array $media_files  - List of media, each as an array containing the media attributes.
  *
- * @return array $media_files
+ * @returns array $media_files
  */
 function with_width_height_srcset_and_sizes( $media_files ) {
 	return array_map(
@@ -91,6 +91,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 
 				// Set the poster attribute for the video tag if a poster image is available.
+				$poster_url = null;
 				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
 					$poster_url = $video_meta['videopress']['poster'];
 				} elseif ( ! empty( $video_meta['thumb'] ) ) {
@@ -123,9 +124,9 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 /**
  * Render an image inside a slide
  *
- * @param array $media  Image information.
+ * @param array $media  - Image information.
  *
- * @return string
+ * @returns string
  */
 function render_image( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
@@ -156,10 +157,10 @@ function render_image( $media ) {
 /**
  * Return the css crop class if image width and height requires it
  *
- * @param array $width  Image width.
- * @param array $height  Image height.
+ * @param int $width   - Image width.
+ * @param int $height  - Image height.
  *
- * @return string The CSS class which will display a cropped image
+ * @returns string The CSS class which will display a cropped image
  */
 function get_image_crop_class( $width, $height ) {
 	$crop_class          = '';
@@ -184,9 +185,9 @@ function get_image_crop_class( $width, $height ) {
 /**
  * Render a video inside a slide
  *
- * @param array $media  Video information.
+ * @param array $media  - Video information.
  *
- * @return string
+ * @returns string
  */
 function render_video( $media ) {
 	if ( empty( $media['id'] ) || empty( $media['mime'] ) || empty( $media['url'] ) ) {
@@ -249,10 +250,10 @@ function render_video( $media ) {
 /**
  * Render a slide
  *
- * @param array $media  Media information.
- * @param array $index  Index of the slide, first slide will be displayed by default, others hidden.
+ * @param array $media  - Media information.
+ * @param int   $index  - Index of the slide, first slide will be displayed by default, others hidden.
  *
- * @return string
+ * @returns string
  */
 function render_slide( $media, $index = 0 ) {
 	$media_template = '';
@@ -286,9 +287,9 @@ function render_slide( $media, $index = 0 ) {
 /**
  * Render the top right icon on top of the story embed
  *
- * @param array $settings The block settings.
+ * @param array $settings  - The block settings.
  *
- * @return string
+ * @returns string
  */
 function render_top_right_icon( $settings ) {
 	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
@@ -322,16 +323,16 @@ function render_top_right_icon( $settings ) {
 /**
  * Render a pagination bullet
  *
- * @param array $slide_index The slide index it corresponds to.
- * @param array $class_name Optional css class name(s) to customize the bullet element.
+ * @param int    $slide_index  - The slide index it corresponds to.
+ * @param string $class_name   - Optional css class name(s) to customize the bullet element.
  *
- * @return string
+ * @returns string
  */
 function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
-		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
+		'<div class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
-		</a>',
+		</div>',
 		esc_attr( $class_name ),
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
@@ -341,9 +342,9 @@ function render_pagination_bullet( $slide_index, $class_name = '' ) {
 /**
  * Render pagination on top of the story embed
  *
- * @param array $settings The block settings.
+ * @param array $settings  - The block settings.
  *
- * @return string
+ * @returns string
  */
 function render_pagination( $settings ) {
 	$show_slide_count = isset( $settings['showSlideCount'] ) ? $settings['showSlideCount'] : false;
@@ -366,9 +367,9 @@ function render_pagination( $settings ) {
 /**
  * Render story block
  *
- * @param array $attributes  Block attributes.
+ * @param array $attributes  - Block attributes.
  *
- * @return string
+ * @returns string
  */
 function render_block( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
@@ -384,41 +385,40 @@ function render_block( $attributes ) {
 	);
 
 	return sprintf(
-		'<div class="%1$s" aria-labelledby="%2$s" data-settings="%3$s">
-			<div style="display: contents;">
-				<div class="wp-story-container">
-					<div class="wp-story-meta">
-						<div class="wp-story-icon">
-							<img alt="%4$s" src="%5$s" width="40" height="40">
-						</div>
-						<div>
-							<div class="wp-story-title">
-								%6$s
+		'<div class="%1$s" data-id="%2$s" data-settings="%3$s">
+			<div class="wp-story-app">
+				<div class="wp-story-display-contents" style="display: contents;">
+					<a class="wp-story-container" href="%4$s" title="%5$s">
+						<div class="wp-story-meta">
+							<div class="wp-story-icon">
+								<img alt="%6$s" src="%7$s" width="40" height="40">
+							</div>
+							<div>
+								<div class="wp-story-title">
+									%8$s
+								</div>
 							</div>
 						</div>
-						<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
-							<i class="jetpack-material-icons close md-24"></i>
-						</a>
-					</div>
-					<div class="wp-story-wrapper">
-						%7$s
-					</div>
-					<a class="wp-story-overlay" href="%8$s" title="%9$s">
-						%10$s
+						<div class="wp-story-wrapper">
+							%9$s
+						</div>
+						<div class="wp-story-overlay">
+							%10$s
+						</div>
+						%11$s
 					</a>
-					%11$s
 				</div>
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
 		esc_attr( 'wp-story-' . get_the_ID() ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
+		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
+		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
-		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
-		__( 'Play story in new tab', 'jetpack' ),
 		render_top_right_icon( $settings ),
 		render_pagination( $settings )
 	);

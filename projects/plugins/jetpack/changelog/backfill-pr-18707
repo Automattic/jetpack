@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Auto-updates: Respect auto-update constant/filters in plugin API endpoints.

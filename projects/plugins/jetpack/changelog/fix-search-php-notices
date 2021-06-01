@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Search: fix an issue that led to a PHP notice for undefined index.

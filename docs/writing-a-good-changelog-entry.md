@@ -8,15 +8,19 @@ Part of our standard [Pull Request process](./monorepo.md#jetpack-changelogger) 
 
 ## Do I even need to write a changelog entry?
 
-For Jetpack, our changelog is intended primarily for end users and third-party developers who use our public APIs and packages. Other projects in the Jetpack monorepo also benefit from managing an accurate changelog.
+Yes, almost every change to a project should have a changelog entry.
 
-If you've changed something that users will notice, like improving the display of a block or fixing a bug that prevents a feature from working, then by all means submit a suggested changelog entry.
+For the Jetpack plugin, our changelog is intended primarily for end users and third-party developers who use our public APIs and packages. As of 9.7, we've added an "Other changes" section for non-user-facing changes.
 
-If you've improved our CI or development environments, or refactored old code without user-visible changes, it's probably not a change that needs a changelog entry intended for end users. However, you would still include a change file with a ["Comment" header](./monorepo.md#using-the-jetpack-changelogger) which would be omitted from the generated changelog, but still serve as documentation to other developers.
+Other projects in the Jetpack monorepo also benefit from managing an accurate changelog.
+
+If you've done something really trivial, you would still include a change file with a ["Comment" header](./monorepo.md#using-the-jetpack-changelogger) which would be omitted from the generated changelog, but still serve as documentation to other developers.
 
 If you're ever unsure, feel free to ask for help.
 
 ## What should I write?
+
+### In the Jetpack plugin
 
 The actual changelog text typically begins with a relevant component name, feature, tool, or other topic, followed by a colon, such as "Payments Block:" or "Sync:".
 
@@ -35,3 +39,7 @@ Some good examples:
 * General: update Jetpack's minimum required WordPress version to 5.5, in anticipation of the upcoming WordPress 5.6 release.
 
 You can find more examples by looking at [prior Jetpack releases](https://github.com/Automattic/jetpack-production/releases).
+
+### In other projects
+
+Other projects are generally single components, and so usually do not need a component name prefix. For example, everything in packages/sync would probably be "Sync:". But feel free to use one if it does make sense.

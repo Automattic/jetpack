@@ -1372,7 +1372,7 @@ class Replicastore implements Replicastore_Interface {
 		switch ( $table ) {
 			case 'postmeta':
 			case 'commentmeta':
-				$bucket_size = 5000; // Meta bucket size is restricted to 5,000 items.
+				$bucket_size = 1000; // Meta bucket size is restricted to 1000 items.
 		}
 
 		return (int) ceil( $object_count / $bucket_size );

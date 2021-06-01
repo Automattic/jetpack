@@ -28,6 +28,9 @@
 	<exclude-pattern>/projects/packages/*/wordpress/*</exclude-pattern>
 
 	<!-- Ignore built files -->
+	<exclude-pattern>/projects/packages/connection-ui/build/*</exclude-pattern>
+	<exclude-pattern>/projects/packages/identity-crisis/build/*</exclude-pattern>
+	<exclude-pattern>/projects/plugins/backup/build/*</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/_inc/blocks/*</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/_inc/build/*</exclude-pattern>
 	<exclude-pattern>/projects/plugins/jetpack/modules/photon-cdn/jetpack-manifest.php</exclude-pattern>

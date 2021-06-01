@@ -16,11 +16,15 @@
 	}
 
 	&-embed-form-editor {
+		margin: 0;
+
 		textarea {
 			margin-right: 1px;
 			flex: 1;
 			height: 36px;
 			padding-top: 9px;
+			font-family: inherit;
+			font-size: inherit;
 		}
 	}
 

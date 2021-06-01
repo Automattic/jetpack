@@ -17,6 +17,7 @@ import stringify from 'fast-json-stable-stringify';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { OVERLAY_CLASS_NAME } from '../lib/constants';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
@@ -50,6 +51,11 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = createRef();
 		this.state = {
+			// When typing in CJK, the following events fire in order:
+			// keydown, compositionstart, compositionupdate, input, keyup, keydown,compositionend, keyup
+			// We toggle isComposing on compositionstart and compositionend events.
+			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
+			isComposing: false,
 			overlayOptions: { ...this.props.initialOverlayOptions },
 			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
 		};
@@ -58,9 +64,12 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		// By debouncing this upon mounting, we avoid making unnecessary requests.
+		//
+		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
+		//      Once our Redux effects have executed, the search query will be updated to "apple" and
+		//      getResults will be invoked once more.
 		this.getResults();
-		this.getResults.flush();
-
 		this.addEventListeners();
 		this.disableAutocompletion();
 
@@ -94,8 +103,13 @@ class SearchApp extends Component {
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
-			input.addEventListener( 'keydown', this.handleKeydown );
+			// keydown handler is causing text duplication because it actively sets the search input
+			// value after system input method empty the input but before filling the input again.
+			// so changed to keyup event which is fired after compositionend when Enter is pressed.
+			input.addEventListener( 'keyup', this.handleKeyup );
 			input.addEventListener( 'input', this.handleInput );
+			input.addEventListener( 'compositionstart', this.handleCompositionStart );
+			input.addEventListener( 'compositionend', this.handleCompositionEnd );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
@@ -105,6 +119,13 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
+
+		// NOTE: Summoned overlay will not automatically be scrolled to the top
+		//       when used in conjuction with slideInUp animation.
+		// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
+		} );
 	}
 
 	removeEventListeners() {
@@ -112,8 +133,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
-			input.removeEventListener( 'keydown', this.handleKeydown );
+			input.removeEventListener( 'keyup', this.handleKeyup );
 			input.removeEventListener( 'input', this.handleInput );
+			input.removeEventListener( 'compositionstart', this.handleCompositionStart );
+			input.removeEventListener( 'compositionend', this.handleCompositionEnd );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
@@ -122,6 +145,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
+		} );
+
+		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
+			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
 		} );
 	}
 
@@ -138,6 +165,20 @@ class SearchApp extends Component {
 
 	restoreBodyScroll() {
 		document.body.style.overflowY = null;
+	}
+
+	scrollOverlayToTop( event ) {
+		if ( event?.propertyName !== 'transform' ) {
+			return;
+		}
+		const overlay = event.target;
+		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
+		if ( overlay.scrollTo ) {
+			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
+			overlay.scrollTo( 0, 0 );
+		} else {
+			overlay.scrollTop = 0;
+		}
 	}
 
 	getResultFormat = () => {
@@ -166,7 +207,7 @@ class SearchApp extends Component {
 		}
 	};
 
-	handleKeydown = event => {
+	handleKeyup = event => {
 		// If user presses enter, propagate the query value and immediately show the results.
 		if ( event.key === 'Enter' ) {
 			this.props.setSearchQuery( event.target.value );
@@ -181,14 +222,33 @@ class SearchApp extends Component {
 			return;
 		}
 
+		// Is the user still composing input with a CJK language?
+		if ( this.state.isComposing ) {
+			return;
+		}
+
+		if ( this.state.overlayOptions.overlayTrigger === 'submit' ) {
+			return;
+		}
+
 		this.props.setSearchQuery( event.target.value );
+
 		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
 			this.showResults();
 		}
+
 		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
 			this.props.response?.results && this.showResults();
 		}
 	}, 200 );
+
+	handleCompositionStart = () => {
+		this.setState( { isComposing: true } );
+	};
+
+	handleCompositionEnd = () => {
+		this.setState( { isComposing: false } );
+	};
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
@@ -224,11 +284,6 @@ class SearchApp extends Component {
 		);
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-		this.preventBodyScroll();
-	};
-
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -241,11 +296,25 @@ class SearchApp extends Component {
 		);
 	};
 
+	// Used for showResults and Customizer integration.
 	toggleResults = showResults => {
+		// Necessary when reacting to onMessage transport Customizer controls.
+		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
+		if ( this.state.showResults === showResults ) {
+			return;
+		}
+
 		this.setState( { showResults }, () => {
-			showResults ? this.preventBodyScroll() : this.restoreBodyScroll();
+			if ( showResults ) {
+				this.preventBodyScroll();
+			} else {
+				// This codepath will only be executed in the Customizer.
+				this.restoreBodyScroll();
+			}
 		} );
 	};
+
+	showResults = this.toggleResults.bind( this, true );
 
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
@@ -253,6 +322,7 @@ class SearchApp extends Component {
 		if ( this.props.hasActiveQuery && ! this.state.showResults ) {
 			this.showResults();
 		}
+
 		if ( ! this.props.hasActiveQuery && isHistoryNav ) {
 			this.hideResults( isHistoryNav );
 		}
@@ -320,6 +390,7 @@ class SearchApp extends Component {
 					sort={ this.props.sort }
 					widgets={ this.props.options.widgets }
 					widgetOutsideOverlay={ this.props.widgetOutsideOverlay }
+					hasNonSearchWidgets={ this.props.options.hasNonSearchWidgets }
 				/>
 			</Overlay>,
 			document.body

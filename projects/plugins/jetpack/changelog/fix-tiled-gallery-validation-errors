@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Tiled Gallery: Prevent block validation errors for mosaic and column layouts.

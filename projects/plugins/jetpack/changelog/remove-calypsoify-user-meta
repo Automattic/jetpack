@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Calypsoify: Removed the setting mechanism and associated unused code

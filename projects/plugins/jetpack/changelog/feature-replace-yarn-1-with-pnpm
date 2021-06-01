@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Change build and E2E tests to use pnpm rather than yarn. Add some missing direct deps too, and remove a few unnecessary ones.

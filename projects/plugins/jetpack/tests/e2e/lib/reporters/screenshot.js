@@ -3,7 +3,9 @@
  */
 const path = require( 'path' );
 const config = require( 'config' );
-const logger = require( '../logger' ).default;
+const logger = require( '../logger' );
+const fs = require( 'fs' );
+const { ContentType } = require( 'jest-circus-allure-environment' );
 const { fileNameFormatter } = require( '../utils-helper' );
 
 /**
@@ -11,23 +13,28 @@ const { fileNameFormatter } = require( '../utils-helper' );
  *
  * @param {page} page Playwright page type
  * @param {string} fileName screenshot file name
- * @param {boolean} logToSlack whether to also log this file to slack log
+ * @param {Object} allure instance of allure reporter
  * @return {Promise<void>}
  */
-async function takeScreenshot( page, fileName, logToSlack = false ) {
+async function takeScreenshot( page, fileName, allure ) {
+	let filePath;
+
 	try {
-		const filePath = path.resolve(
-			config.screenshotsDir,
+		filePath = path.resolve(
+			config.get( 'dirs.screenshots' ),
 			`${ fileNameFormatter( fileName ) }.png`
 		);
 		await page.screenshot( { path: filePath, fullPage: true } );
 		logger.debug( `Screenshot saved: ${ filePath }` );
-		if ( logToSlack ) {
-			logger.slack( { type: 'file', message: filePath } );
+
+		if ( allure ) {
+			await allure.attachment( fileName, fs.readFileSync( filePath ), ContentType.PNG );
 		}
 	} catch ( error ) {
 		logger.error( `Failed to save screenshot: ${ error }` );
 	}
+
+	return filePath;
 }
 
 module.exports = { takeScreenshot };

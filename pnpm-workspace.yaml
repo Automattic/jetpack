@@ -1,0 +1,4 @@
+packages:
+  - 'projects/*/*'
+  - 'tools/cli'
+  - 'tools/js-test-runner'

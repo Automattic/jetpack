@@ -5,6 +5,8 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Jetpack's Pre-Connection JITMs. These can be displayed with the JITM package.
  */
@@ -16,29 +18,28 @@ class Jetpack_Pre_Connection_JITMs {
 	 * @return array An array containing the pre-connection JITM messages.
 	 */
 	private function get_raw_messages() {
-		$jetpack_setup_url = $this->generate_admin_url(
-			array(
-				'page'    => 'jetpack',
-				'#/setup' => '',
-			)
-		);
+		$button_caption = __( 'Set up Jetpack', 'jetpack' );
+		/* Translators: placeholders are links. */
+		$media_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to Site Accelerator.', 'jetpack' );
+		/* Translators: placeholders are links. */
+		$widgets_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to great additional widgets.', 'jetpack' );
+		/* Translators: placeholders are links. */
+		$posts_description = __( 'Click on the <strong>Set up Jetpack</strong> button to agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com, and gain access to in-depth stats about your site.', 'jetpack' );
 
 		$messages = array(
 			array(
 				'id'             => 'jpsetup-upload',
 				'message_path'   => '/wp:upload:admin_notices/',
 				'message'        => __( 'Do you want lightning-fast images?', 'jetpack' ),
-				'description'    => __( 'Set up Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
-				'button_link'    => $jetpack_setup_url,
-				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
+				'description'    => $this->generate_description_with_tos( $media_description ),
+				'button_caption' => $button_caption,
 			),
 			array(
 				'id'             => 'jpsetup-widgets',
 				'message_path'   => '/wp:widgets:admin_notices/',
 				'message'        => __( 'Looking for even more widgets?', 'jetpack' ),
-				'description'    => __( 'Set up Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
-				'button_link'    => $jetpack_setup_url,
-				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
+				'description'    => $this->generate_description_with_tos( $widgets_description ),
+				'button_caption' => $button_caption,
 			),
 		);
 
@@ -47,13 +48,54 @@ class Jetpack_Pre_Connection_JITMs {
 				'id'             => 'jpsetup-posts',
 				'message_path'   => '/wp:edit-post:admin_notices/',
 				'message'        => __( 'Do you know which of these posts gets the most traffic?', 'jetpack' ),
-				'description'    => __( 'Set up Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
-				'button_link'    => $jetpack_setup_url,
-				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
+				'description'    => $this->generate_description_with_tos( $posts_description ),
+				'button_caption' => $button_caption,
 			);
 		}
 
+		foreach ( $messages as $key => $message ) {
+			/*
+			 * Add Connect URL to each message, with from including jitm id.
+			 */
+			$jetpack_setup_url               = $this->generate_admin_url(
+				array(
+					'page' => 'jetpack#/setup',
+					'from' => sprintf( 'pre-connection-jitm-%s', $message['id'] ),
+				)
+			);
+			$messages[ $key ]['button_link'] = $jetpack_setup_url;
+		}
+
 		return $messages;
+	}
+
+	/**
+	 * Generate a description text with links to ToS documents.
+	 *
+	 * Those messages must mention the ToS agreement message,
+	 * but do not use the standard message defined in jetpack_render_tos_blurb.
+	 * Instead, they use their own custom messages.
+	 *
+	 * @param string $description Description string with placeholders.
+	 *
+	 * @return string
+	 */
+	private function generate_description_with_tos( $description ) {
+		return sprintf(
+			wp_kses(
+				$description,
+				array(
+					'a'      => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
+					'strong' => true,
+				)
+			),
+			esc_url( Redirect::get_url( 'wpcom-tos' ) ),
+			esc_url( Redirect::get_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
+		);
 	}
 
 	/**

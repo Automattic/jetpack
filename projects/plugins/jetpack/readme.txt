@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 9.5
+Stable tag: 9.6
 Requires at least: 5.6
 Requires PHP: 5.6
 Tested up to: 5.7
@@ -12,7 +12,7 @@ The best WP plugin for backup, anti spam, malware scan, CDN, AMP, social, search
 
 = The most popular WordPress plugin for just about everything. =
 
-Security, performance, marketing, and design tools — Jetpack is made by the WordPress experts to make WP sites safer and faster, and help you grow your traffic.
+Security, performance, marketing, and design tools — Jetpack is made by WordPress experts to make WP sites safer and faster, and help you grow your traffic.
 
 = 24/7 AUTO SITE SECURITY =
 We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scanning, and spam protection. Essential features like brute force protection and downtime / uptime monitoring are free.
@@ -95,11 +95,11 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 
 Yes! Jetpack's core features are and always will be free.
 
-These include: site stats, a high-speed CDN for images, related posts, downtime monitoring, brute force attack protection, automated sharing to social networks, sidebar customization, and much more.
+These include: site stats, a high-speed CDN for images, related posts, downtime monitoring, brute force attack protection, automated sharing to social networks, sidebar customization, SEO (search engine optimization) tools, and much more.
 
 = Should I purchase a paid plan? =
 
-It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is often “yes.” For context, Jetpack's paid services include real-time backups, security scanning, premium themes, spam filtering, video hosting, site monetization, SEO (search engine optimization) tools, search, priority support, and more.
+It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is often “yes.” For context, Jetpack's paid services include real-time backups, security scanning, premium themes, spam filtering, video hosting, site monetization, search, priority support, and more.
 
 To learn more about the essential security and WordPress services we provide and see how we can improve your site, visit [our plans page](https://jetpack.com/pricing?from=wporg).
 
@@ -238,82 +238,38 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Union�
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
+### 9.8-beta - 2021-05-25
+#### Enhancements
+- Contact Form: the "Feedback > Export CSV" submenu entry has been removed. The export functionality is still available in "Feedback > Form Responses".
+- Form block: allow replacing the "Message Sent" heading with custom phrase.
+- Instagram Reel: add oEmbed support for Instagram Reel posts.
+- Instant Search: add 'open when visitor submits the form' overlay trigger.
+- Instant Search: apply configured highlight color to text highlights.
+- Site Verification Tools: adds an option for Facebook domain verification.
+- Story Block: add new block that enables you to use photos and videos to create engaging and tappable fullscreen slideshows.
 
-= 9.5.2 = 
+#### Improved compatibility
+- Blocks: ensure blocks are compatible with upcoming Full Site Editor feature.
+- Dashboard: hide Settings page for non-admin users when in site-only connection.
+- Instant Search: ensure search input is the correct width if an input max-width has been specified in the theme.
+- Related Posts: add height attribute to post images for better compatibility with page performance analysis tools.
+- Related Posts: avoid Fatal Errors when using plugins that may interact with WordPress' customizer in specific ways.
+- SEO Tools: ensure Jetpack SEO does not conflict with SEOPress.
+- Story Block: Improve accessibility and resolve z-index issues when playing in fullscreen.
 
-* Release date: March 16, 2021
-
-**Improved compatibility**
-
-* Block Editor: avoid conflicts between multiple Jetpack blocks and Gutenberg version 10.1.0.
-
-**Bug fixes**
-
-* Instant Search: prevent IE11 from spawning overlay on load.
-* WordPress.com Toolbar and customizations: fix multiple issues causing navigation panel discrepancies between the WP-Admin dashboard and the WordPress.com dashboard.
-
-= 9.5.1 =
-
-* Release date: March 4, 2021
-
-**Bug fixes**
-
-* Sharing: avoid potential conflicts with the Blog Posts Block from Newspack.
-* Subscriptions Block: avoid validation errors when customizing font size on a site using the Gutenberg plugin.
-
-= 9.5 =
-
-* Release date: March 2, 2021
-* Release post: https://wp.me/p1moTy-uSv
-
-**Enhancements**
-
-* Carousel: improve the experience on mobile devices by allowing touch events (pinch, zoom).
-* Instant Search: improve the design of the Search modal.
-* Instant Search: open search result links in the current window rather than opening a new one.
-* Podcast Player Block: allow filtering the number of tracks returned when fetching new podcast episodes.
-* Podcast Player Block: add publication date to the data returned when fetching new podcast episodes.
-* Recommendations: add a dashboard banner to help users discover the best Jetpack features.
-* Related Posts: improve performance by removing jQuery dependency.
-* SEO Tools: make the feature available for all sites.
-* Social Icons Widget: add new icons.
-* Social Menu: add new icons.
-* Synchronization: improve reliability of data by excluding blocked taxonomies.
-* Tiled Galleries: improve performance by removing jQuery dependency.
-* Video Block: add support for custom video player progress bar colors.
-* Widgets: display notice in the customizer when one needs to connect their account before using the Instagram widget.
-
-**Improved compatibility**
-
-* Block Editor: update all blocks to be fully compatible with WordPress 5.7.
-* General: Jetpack now requires WordPress 5.6, and is fully compatible with WordPress 5.7.
-* Protect: ensure that the blocked login page is fully compatible with the Robots API changes introduced in WordPress 5.7.
-
-**Bug fixes**
-
-* Autoloader: prevent transitive plugin execution.
-* Carousel: ensure that the Carousel view is available regardless of your gallery's link settings.
-* Comments: improve respect for the Core moderation option in particular cases.
-* Connection flow: ensuring Jetpack Dashboard successfully loads after reconnect.
-* Cookies & Consent Widget: ensure the widget can be edited from the new block-based widget editor.
-* Custom Content Types: allow Newspack's Blog Posts block to display Testimonial and Portfolio posts.
-* Dashboard: improve performance by reducing excessive API calls.
-* Dashboard: improve product upgrade flow for non-connected Jetpack users.
-* Instant Search: fix closing of the overlay using the Escape key in IE11.
-* Instant Search: improve compatibility with browser forward/back navigation.
-* Instant Search: avoid issues when changes made in customizer would not immediately appear in preview.
-* Jetpack Videos: fix responsiveness of Video poster images.
-* Map Block: avoid issues when resize event listener was not removed when the component was unmounted.
-* Markdown: avoid filters loading too early when creating a new site within a Multisite network.
-* Payments Block: avoid layout issues when setting up a new payment plan.
-* Pay With Paypal Block: ensure that line breaks can be used in product description.
-* Secure Sign On: improve the connection flow when users first log in via SSO.
-* Sharing: avoid displaying block content in Open Graph Meta tags when not needed.
-* Sharing: ensure that sharing popup opens properly in Firefox.
-* Shortcodes: use arguments provided by shortcode attributes for the Instagram embeds.
-* Video Block: avoid potential PHP notice when working with Jetpack Videos.
-* WhatsApp block: adjust width of block options toolbar.
+#### Bug fixes
+- Contact Form: remove double quotes from names in email headers to improve compatibility with different emailing solutions for WordPress.
+- Dashboard: ensure connected user details properly displayed.
+- Dashboard: display the Sharing settings tab when editors only need to customize Publicize settings for their own account.
+- Dashboard: ensure that the Jetpack settings page can be accessed when using Jetpack's Offline mode.
+- Dashboard: do not display Protect card for non-admin users while in site-only connection.
+- Dashboard: do not show multiple connection prompts in the Publicize settings card.
+- General: ensures that the send_auth_cookies filter is respected.
+- Instant Search: fixes for design conflicts.
+- Instant Search: prevent standard sidebar widgets ending up in the search modal sidebar when switching themes.
+- Stats: fixes the date used to fetch the Top posts in the Top posts dashboard widget.
+- Social Previews: don't show duplicate buttons when a featured image is selected.
 
 --------
 
-[See the previous changelogs here](https://raw.githubusercontent.com/Automattic/jetpack/master/projects/plugins/jetpack/changelog.txt)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/jetpack/CHANGELOG.md#changelog)

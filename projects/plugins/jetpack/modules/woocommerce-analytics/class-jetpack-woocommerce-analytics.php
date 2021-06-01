@@ -54,8 +54,8 @@ class Jetpack_WooCommerce_Analytics {
 		if ( is_user_logged_in() && in_array( 'administrator', wp_get_current_user()->roles, true ) ) {
 			return false;
 		}
-		// Make sure Jetpack is installed and active.
-		if ( ! Jetpack::is_active() ) {
+		// Make sure Jetpack is installed and connected.
+		if ( ! Jetpack::is_connection_ready() ) {
 			return false;
 		}
 		// Ensure the WooCommerce class exists and is a valid version.

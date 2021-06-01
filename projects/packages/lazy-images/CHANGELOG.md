@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] - 2021-05-25
+### Changed
+- Updated package dependencies.
+
+## [1.4.3] - 2021-04-27
+### Changed
+- Updated package dependencies
+
+## [1.4.2] - 2021-03-30
+### Added
+- Composer alias for dev-master, to improve dependencies
+
+### Changed
+- Update package dependencies.
+
+### Fixed
+- Update icon file used for tests, WP 5.7 no longer silences exif errors.
+- Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.
+
 ## [1.4.1] - 2021-02-23
 
 - Update dependency webpack to v4.46.0
@@ -67,6 +86,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[1.4.4]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Automattic/jetpack-lazy-images/compare/v1.2.2...v1.3.0

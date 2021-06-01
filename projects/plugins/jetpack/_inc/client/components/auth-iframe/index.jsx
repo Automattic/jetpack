@@ -6,6 +6,7 @@ import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { __ } from '@wordpress/i18n';
+import { InPlaceConnection, thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -17,9 +18,8 @@ import {
 	authorizeUserInPlaceSuccess,
 	isAuthorizingUserInPlace,
 	hasConnectedOwner,
+	isSiteRegistered,
 } from 'state/connection';
-
-import './style.scss';
 
 export class AuthIframe extends React.Component {
 	static displayName = 'AuthIframe';
@@ -30,83 +30,54 @@ export class AuthIframe extends React.Component {
 		width: PropTypes.string,
 		scrollToIframe: PropTypes.bool,
 		onAuthorized: PropTypes.func,
-		hasConnectedOwner: PropTypes.bool,
-		source: PropTypes.string,
+		displayTOS: PropTypes.bool,
+		location: PropTypes.string,
 	};
 
 	static defaultProps = {
 		title: __( 'Connect your WordPress.com account', 'jetpack' ),
-		height: '220',
+		height: '330',
 		width: '100%',
 		scrollToIframe: true,
 		onAuthorized: noop,
 	};
 
-	componentDidMount = () => {
-		// Scroll to the iframe container
-		if ( this.props.scrollToIframe ) {
-			window.scrollTo( 0, this.refs.iframeWrap.offsetTop - 10 );
-		}
-		// Add an event listener to identify successful authorization via iframe.
-		window.addEventListener( 'message', this.receiveData );
+	/**
+	 * Authentication completed, adjust the state.
+	 */
+	onComplete = () => {
+		// Dispatch successful authorization.
+		this.props.authorizeUserInPlaceSuccess();
+
+		// Fetch user connection data after successful authorization to trigger state refresh
+		// for linked user.
+		this.props.fetchUserConnectionData();
+
+		// Trigger 'onAuthorized' callback, if provided
+		this.props.onAuthorized();
 	};
 
-	receiveData = e => {
-		if ( e.source !== this.refs.iframe.contentWindow ) {
-			return;
-		}
-
-		switch ( e.data ) {
-			case 'close':
-				// Remove listener, our job here is done.
-				window.removeEventListener( 'message', this.receiveData );
-				// Dispatch successful authorization.
-				this.props.authorizeUserInPlaceSuccess();
-				// Fetch user connection data after successful authorization to trigger state refresh
-				// for linked user.
-				this.props.fetchUserConnectionData();
-				// Trigger 'onAuthorized' callback, if provided
-				this.props.onAuthorized();
-				break;
-			case 'wpcom_nocookie':
-				// Third-party cookies blocked. Let's redirect.
-				window.location.replace( this.props.connectUrl );
-				break;
-		}
-	};
+	/**
+	 * Third-party cookies are disabled, using the fallback.
+	 *
+	 * @returns {void}
+	 */
+	onThirdPartyCookiesBlocked = () => thirdPartyCookiesFallbackHelper( this.props.connectUrl );
 
 	render = () => {
-		// The URL looks like https://jetpack.wordpress.com/jetpack.authorize_iframe/1/. We need to include the trailing
-		// slash below so that we don't end up with something like /jetpack.authorize_iframe_iframe/
-		let src = this.props.connectUrl.replace( 'authorize/', 'authorize_iframe/' );
-		let height = this.props.height;
-
-		if ( this.props.hasConnectedOwner ) {
-			src += '&display-tos';
-			height = ( parseInt( height ) + 50 ).toString();
-		}
-
-		src += '&iframe_height=' + parseInt( height );
-
-		if ( this.props.source ) {
-			src += '&iframe_source=' + this.props.source;
-		}
-
 		return (
-			<div ref="iframeWrap" className="dops-card fade-in jp-iframe-wrap">
-				{ this.props.title && <h1>{ this.props.title }</h1> }
-				{ this.props.fetchingConnectUrl ? (
-					<p>{ __( 'Loading…', 'jetpack' ) }</p>
-				) : (
-					<iframe
-						ref="iframe"
-						title={ this.props.title }
-						width={ this.props.width }
-						height={ height }
-						src={ src }
-					></iframe>
-				) }
-			</div>
+			<InPlaceConnection
+				connectUrl={ this.props.connectUrl }
+				height={ this.props.height }
+				width={ this.props.width }
+				isLoading={ this.props.fetchingConnectUrl }
+				title={ this.props.title }
+				displayTOS={ this.props.displayTOS }
+				scrollToIframe={ this.props.scrollToIframe }
+				onComplete={ this.onComplete }
+				location={ this.props.location }
+				onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
+			/>
 		);
 	};
 }
@@ -117,7 +88,7 @@ export default connect(
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
 			connectUrl: _getConnectUrl( state ),
 			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
-			hasConnectedOwner: hasConnectedOwner( state ),
+			displayTOS: hasConnectedOwner( state ) || isSiteRegistered( state ), // Display TOS in site connection mode and for secondary users.
 		};
 	},
 	dispatch => {

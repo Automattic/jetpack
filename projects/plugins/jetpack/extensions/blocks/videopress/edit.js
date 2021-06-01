@@ -21,7 +21,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
-	__experimentalBlock as Block,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -37,12 +37,6 @@ import { getClassNames } from './utils';
 import SeekbarColorSettings from './seekbar-color-settings';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
-
-// For Gutenberg versions that support it, use the figure block wrapper (from '@wordpress/block-editor')
-// to wrap the VideoPress component the same way the underlying `core/video` block is wrapped.
-// (Otherwise there's an issue with Gutenberg >= 8.1 where the VideoPress block becomes unselectable,
-// see https://github.com/Automattic/jetpack/issues/15922.)
-const BlockFigureWrapper = Block ? Block.figure : 'figure';
 
 const VideoPressEdit = CoreVideoEdit =>
 	class extends Component {
@@ -170,8 +164,17 @@ const VideoPressEdit = CoreVideoEdit =>
 			}
 
 			this.setState( { isFetchingMedia: true } );
-			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } );
-			this.setState( { isFetchingMedia: false } );
+			const media = await apiFetch( { path: `/wp/v2/media/${ id }` } )
+				.catch( () => {
+					// Renders the fallback in the editor when there is an error fetching the media. Do not clear
+					// the guid, as this would cause the placeholder to render on the frontend for posts saved in
+					// this state, resulting in inconsistent behavior.
+					this.setState( { fallback: true } );
+					return null;
+				} )
+				.finally( () => {
+					this.setState( { isFetchingMedia: false } );
+				} );
 
 			const { id: currentId } = this.props.attributes;
 			if ( id !== currentId ) {
@@ -256,24 +259,12 @@ const VideoPressEdit = CoreVideoEdit =>
 				attributes,
 				instanceId,
 				isFetchingPreview,
-				isSelected,
 				isUploading,
 				preview,
 				setAttributes,
 			} = this.props;
 			const { fallback, isFetchingMedia, isUpdatingRating, interactive, rating } = this.state;
-			const {
-				align,
-				autoplay,
-				caption,
-				className,
-				controls,
-				loop,
-				muted,
-				poster,
-				preload,
-				videoPressClassNames,
-			} = attributes;
+			const { autoplay, caption, controls, loop, muted, playsinline, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
 
@@ -311,6 +302,11 @@ const VideoPressEdit = CoreVideoEdit =>
 								label={ __( 'Playback Controls', 'jetpack' ) }
 								onChange={ this.toggleAttribute( 'controls' ) }
 								checked={ controls }
+							/>
+							<ToggleControl
+								label={ __( 'Play Inline', 'jetpack' ) }
+								onChange={ this.toggleAttribute( 'playsinline' ) }
+								checked={ playsinline }
 							/>
 							<SelectControl
 								label={ __( 'Preload', 'jetpack' ) }
@@ -436,42 +432,69 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<BlockFigureWrapper
-						className={ classnames( 'wp-block-video', className, videoPressClassNames, {
-							[ `align${ align }` ]: align,
-						} ) }
-					>
-						<div className="wp-block-embed__wrapper">
-							<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
-						</div>
-
-						{
-							/*
-							Disable the video player when the block isn't selected,
-							so the user clicking on it won't play the
-							video when the controls are enabled.
-						*/
-							! interactive && (
-								<div
-									className="block-library-embed__interactive-overlay"
-									onMouseUp={ this.hideOverlay }
-								/>
-							)
-						}
-						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
-							<RichText
-								tagName="figcaption"
-								placeholder={ __( 'Write caption…', 'jetpack' ) }
-								value={ caption }
-								onChange={ value => setAttributes( { caption: value } ) }
-								inlineToolbar
-							/>
-						) }
-					</BlockFigureWrapper>
+					<VpBlock
+						{ ...this.props }
+						hideOverlay={ this.hideOverlay }
+						html={ html }
+						scripts={ scripts }
+						interactive={ interactive }
+						caption={ caption }
+					/>
 				</Fragment>
 			);
 		}
 	};
+
+// The actual, final rendered video player markup
+// In a separate function component so that `useBlockProps` could be called.
+const VpBlock = props => {
+	const {
+		html,
+		scripts,
+		interactive,
+		caption,
+		isSelected,
+		hideOverlay,
+		attributes,
+		setAttributes,
+	} = props;
+
+	const { align, className, videoPressClassNames } = attributes;
+
+	const blockProps = useBlockProps( {
+		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+			[ `align${ align }` ]: align,
+		} ),
+	} );
+
+	return (
+		<figure { ...blockProps }>
+			<div className="wp-block-embed__wrapper">
+				<SandBox html={ html } scripts={ scripts } type={ videoPressClassNames } />
+			</div>
+
+			{
+				/*
+					Disable the video player when the block isn't selected,
+					so the user clicking on it won't play the
+					video when the controls are enabled.
+				*/
+				! interactive && (
+					<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
+				)
+			}
+			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
+				<RichText
+					tagName="figcaption"
+					placeholder={ __( 'Write caption…', 'jetpack' ) }
+					value={ caption }
+					onChange={ value => setAttributes( { caption: value } ) }
+					inlineToolbar
+				/>
+			) }
+		</figure>
+	);
+};
 
 export default createHigherOrderComponent(
 	compose( [
@@ -482,6 +505,7 @@ export default createHigherOrderComponent(
 				guid,
 				loop,
 				muted,
+				playsinline,
 				poster,
 				preload,
 				seekbarColor,
@@ -496,6 +520,7 @@ export default createHigherOrderComponent(
 				controls,
 				loop,
 				muted,
+				playsinline,
 				poster,
 				preload,
 				seekbarColor,
