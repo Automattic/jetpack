@@ -18,6 +18,11 @@ import { chalkJetpackGreen } from '../styling';
 import { normalizeInstallArgv } from '../normalizeArgv';
 
 /**
+ * The `pnpm install` command promise for this run.
+ */
+let pnpmInstallPromise = null;
+
+/**
  * Test if a lockfile is checked in.
  *
  * @param {string} cwd - Path being processed.
@@ -55,19 +60,25 @@ export default function installProjectTask( argv ) {
 	const command = async ( pkgMgr, verbose ) => {
 		// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 		// For pnpm, the lockfile is always checked in thanks to the workspace thing.
-		// @todo We only really need to run `pnpm install` once globally. But how to track that?
 		let subcommand;
 		let args = ''; // eslint-disable-line prefer-const
 		if ( pkgMgr === 'composer' ) {
 			subcommand = ( await hasLockFile( cwd, 'composer.lock' ) ) ? 'install' : 'update';
 		} else if ( pkgMgr === 'pnpm' ) {
+			if ( pnpmInstallPromise ) {
+				return pnpmInstallPromise;
+			}
 			subcommand = 'install';
 		} else {
 			throw new Error( `Unknown package manager ${ pkgMgr }` );
 		}
-		return verbose
+		const ret = verbose
 			? execa.commandSync( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd, stdio: 'inherit' } )
 			: execa.command( `${ pkgMgr } ${ subcommand } ${ args }`, { cwd: cwd } );
+		if ( pkgMgr === 'pnpm' ) {
+			pnpmInstallPromise = ret;
+		}
+		return ret;
 	};
 
 	const task = ( pkgMgr, enabled ) => {
