@@ -214,6 +214,26 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/sync/unlock` endpoint.
+	 */
+	public function test_sync_unlock() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/unlock' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync" }' );
+
+		$response = $this->server->dispatch( $request );
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( get_option( 'jpsq_sync_checkout' ) );
+
+	}
+
+	/**
 	 * Array of Sync Endpoints and method.
 	 *
 	 * @return int[][]
