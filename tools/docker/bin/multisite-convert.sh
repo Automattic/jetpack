@@ -4,7 +4,7 @@ if ! $(wp --allow-root core is-installed); then
 	echo
 	echo "WordPress has to be installed first. To install, run:"
 	echo
-	echo "  yarn docker:install"
+	echo "  jetpack docker install"
 	echo
 	exit 1;
 fi
