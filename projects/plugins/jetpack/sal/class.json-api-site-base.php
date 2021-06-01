@@ -167,8 +167,13 @@ abstract class SAL_Site {
 		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
 	}
 
+	/**
+	 * Detect whether a site is a WordPress.com on Atomic site.
+	 *
+	 * @return bool
+	 */
 	public function is_wpcom_atomic() {
-		return false;
+		return jetpack_is_atomic_site();
 	}
 
 	public function is_wpcom_store() {
