@@ -245,7 +245,7 @@ class Test_REST_Endpoints extends TestCase {
 			array( 'sync/settings', 'GET', null ),
 			array( 'sync/status', 'GET', null ),
 			array( 'sync/health', 'POST', '{ "status": "' . Health::STATUS_IN_SYNC . '" }' ),
-			array( 'sync/object', 'POST', null ),
+			array( 'sync/object', 'GET', null ),
 			array( 'sync/now', 'POST', '{ "queue": "sync" }' ),
 			array( 'sync/checkout', 'POST', null ),
 			array( 'sync/close', 'POST', null ),

@@ -28,7 +28,7 @@ class REST_Endpoints {
 	/**
 	 * Initialize REST routes.
 	 */
-	public function initialize_rest_api() {
+	public static function initialize_rest_api() {
 
 		// Request a Full Sync.
 		register_rest_route(
@@ -121,7 +121,7 @@ class REST_Endpoints {
 			'jetpack/v4',
 			'/sync/object',
 			array(
-				'methods'             => WP_REST_Server::EDITABLE,
+				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_sync_objects',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
