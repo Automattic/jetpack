@@ -72,8 +72,8 @@ fi
 
 # Add a change file for every project touched in the PR, if any.
 BASE=$PWD
-echo "::group::Monorepo yarn install, for prettier"
-yarn install
+echo "::group::Monorepo JS install, for prettier"
+pnpm install
 echo "::endgroup::"
 echo "::group::Installing changelogger"
 cd projects/packages/changelogger

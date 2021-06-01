@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Publicly includes whether the site is a WP.com Atomic one as part of the Sites API.

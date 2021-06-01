@@ -17,8 +17,8 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 
 ## Pre-requisites
 
-* This readme assumes that `node`, `yarn` and `docker` are already installed on your machine.
-* Make sure you built Jetpack first. `yarn install && yarn jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
+* This readme assumes that `node`, `pnpm` and `docker` are already installed on your machine.
+* Make sure you built Jetpack first. `pnpm install && pnpx jetpack build` in the monorepo root directory should walk you through it. You can also refer to the monorepo documentation in how to build Jetpack.
 
 ## Environment setup
 
@@ -29,7 +29,7 @@ Jetpack E2E tests relies on encrypted configuration file, which is included in t
 To decrypt the config file (a8c only):
 
 - Find a decryption key. Search secret store for "E2E Jetpack CONFIG_KEY"
-- Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
+- Run `CONFIG_KEY=YOUR_KEY pnpm test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
 
 ### WP Site Configuration
 
@@ -47,12 +47,12 @@ These tests use `localtunnel` library to expose localhost:8889 via a public url.
 
 To start a tunnel:
 ```
-yarn tunnel-on
+pnpm tunnel-on
 ```
 
 To stop the tunnel:
 ```
-yarn tunnel-off
+pnpm tunnel-off
 ```
 
 The tunnel url will be stored in a file so that it can be read by the tests and then reused by the tunnel script. See config files for details. If you want a different url, simply delete the file or update its content. 
@@ -67,43 +67,43 @@ The tunnel url will be stored in a file so that it can be read by the tests and 
 
 Once you target WP environment is running on `localhost:8889` you can run the tests.
 
-Run all tests: `yarn test-e2e`
+Run all tests: `pnpm test-e2e`
 
 Playwright runs headless by default (i.e. browser is not visible). However, sometimes it's useful to observe the browser while running tests. To see the browser window, and the running tests you can pass `HEADLESS=false` as follows:
 
 ```bash
-HEADLESS=false yarn test-e2e
+HEADLESS=false pnpm test-e2e
 ```
 
 To run an individual test, use the direct path to the spec. For example:
 
 ```bash
-yarn test-e2e ./specs/dummy.test.js
+pnpm test-e2e -- ./specs/dummy.test.js
 ```
 
 For the best experience while debugging and/or writing new tests `E2E_DEBUG` constant is recommended to use.
 
 ```bash
-E2E_DEBUG=true yarn test-e2e ./specs/some.test.js -t 'Test name'
+E2E_DEBUG=true pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
 ```
 
 ### Selecting tests to run
 
 ```bash
 # One spec (test file)
-yarn test-e2e ./specs/some.test.js
+pnpm test-e2e -- ./specs/some.test.js
 
 # One test from a test file
-yarn test-e2e ./specs/some.test.js -t 'Test name'
+pnpm test-e2e -- ./specs/some.test.js -t 'Test name'
 
 # All tests having 'blocks' in their name
-yarn test-e2e --testNamePattern=blocks
+pnpm test-e2e -- --testNamePattern=blocks
 
 # All tests except the updater one(s)
-yarn test-e2e --testPathIgnorePatterns=updater
+pnpm test-e2e -- --testPathIgnorePatterns=updater
 
 # Filter by groups - run all tests in 'post-connection' group
-yarn test-e2e --group=post-connection
+pnpm test-e2e -- --group=post-connection
 
 ```
 
