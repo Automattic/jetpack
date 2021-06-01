@@ -99,11 +99,11 @@
 		"simple-git": "2.37.0"
 	},
 	"devDependencies": {
-		"@babel/core": "7.12.10",
-		"@babel/plugin-transform-runtime": "7.12.15",
-		"@babel/preset-env": "7.12.13",
-		"@babel/preset-react": "7.12.10",
-		"@babel/register": "7.12.10",
+		"@babel/core": "7.14.3",
+		"@babel/plugin-transform-runtime": "7.14.3",
+		"@babel/preset-env": "7.14.4",
+		"@babel/preset-react": "7.13.13",
+		"@babel/register": "7.13.16",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/eslint-plugin": "7.4.0",
 		"@wordpress/i18n": "3.9.0",
