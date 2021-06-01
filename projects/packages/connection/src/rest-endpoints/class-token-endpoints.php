@@ -92,15 +92,9 @@ class Token_Endpoints {
 	 * @return bool|WP_Error.
 	 */
 	public static function update_user_token_permission_check() {
-		if ( Rest_Authentication::is_signed_with_blog_token() ) {
-			return true;
-		}
-
-		if ( current_user_can( 'jetpack_connect' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_permission_update_user_token', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_update_user_token', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 }
