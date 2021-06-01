@@ -111,7 +111,7 @@ function checkFailed( before = 'The linter reported some problems. ', after = ''
  */
 function sortPackageJson( jsFiles ) {
 	if ( jsFiles.includes( 'package.json' ) ) {
-		spawnSync( 'npx', [ 'sort-package-json' ], {
+		spawnSync( 'pnpx', [ 'sort-package-json' ], {
 			shell: true,
 			stdio: 'inherit',
 		} );
@@ -166,10 +166,14 @@ function runEslint( toLintFiles ) {
 		return;
 	}
 
-	const eslintResult = spawnSync( 'yarn', [ 'lint-file', '--max-warnings=0', ...toLintFiles ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
+	const eslintResult = spawnSync(
+		'pnpm',
+		[ 'run', 'lint-file', '--', '--max-warnings=0', ...toLintFiles ],
+		{
+			shell: true,
+			stdio: 'inherit',
+		}
+	);
 
 	if ( eslintResult && eslintResult.status ) {
 		// If we get here, required files have failed eslint. Let's return early and avoid the duplicate information.
@@ -188,7 +192,7 @@ function runEslintChanged( toLintFiles ) {
 		return;
 	}
 
-	const eslintResult = spawnSync( 'yarn', [ 'lint-changed', ...toLintFiles ], {
+	const eslintResult = spawnSync( 'pnpm', [ 'run', 'lint-changed', '--', ...toLintFiles ], {
 		shell: true,
 		stdio: 'inherit',
 	} );
