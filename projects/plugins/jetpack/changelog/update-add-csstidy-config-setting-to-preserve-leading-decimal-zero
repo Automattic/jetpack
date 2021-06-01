@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Adds a setting to csstidy to tell the optimizer to preserve leading decimal zeros.
