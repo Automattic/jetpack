@@ -68,10 +68,10 @@ export function response( state = {}, action ) {
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
 			}
 
-			// NOTE: There's a bug in the API where paginating to the next page can return an empty response.
-			//       This is most likely caused by setting excluded post types. Since `response.total` is unreliable
-			//       in this instance, manually set it to the length of the results array.
-			if ( Array.isArray( newState.results ) && newState.results.length !== newState.total ) {
+			// NOTE: There was a bug in the API where `response.total` was erroneously set to 0 when paginating
+			//       with excluded post types. To prevent this from erroneously rendering a "no result" search results
+			//       page, we override the total if the size of our results exceed the `response.total` value.
+			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
 			return newState;
