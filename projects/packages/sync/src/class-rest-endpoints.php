@@ -729,7 +729,7 @@ class REST_Endpoints {
 	 *
 	 * @return WP_Error
 	 */
-	protected function validate_queue( $value ) {
+	protected static function validate_queue( $value ) {
 		if ( ! isset( $value ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name is required', 400 );
 		}
@@ -747,7 +747,7 @@ class REST_Endpoints {
 	 *
 	 * @return bool
 	 */
-	protected function is_valid_sync_module( $module_name ) {
+	protected static function is_valid_sync_module( $module_name ) {
 		return in_array(
 			$module_name,
 			array(
