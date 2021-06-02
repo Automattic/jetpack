@@ -24,5 +24,5 @@ function load_connection_ui() {
 To do that, you need to run the following commands:
 ```bash
 cd vendor/automattic/jetpack-connection-ui
-yarn build
+pnpm build
 ```

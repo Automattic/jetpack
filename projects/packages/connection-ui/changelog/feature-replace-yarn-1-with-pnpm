@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update docs to replace yarn with pnpm.
