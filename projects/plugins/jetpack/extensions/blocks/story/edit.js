@@ -114,7 +114,7 @@ export default withNotices( function StoryEdit( {
 			onSelect={ onSelectMedia }
 			accept={ ALLOWED_MEDIA_TYPES.map( type => type + '/*' ).join( ',' ) }
 			allowedTypes={ ALLOWED_MEDIA_TYPES }
-			multiple
+			multiple="add"
 			value={ mediaFiles }
 			notices={ hasImages ? undefined : noticeUI }
 			onError={ noticeOperations.createErrorNotice }
