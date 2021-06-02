@@ -29,15 +29,6 @@ export default class JetpackConnectionErrors extends React.Component {
 						action={ action }
 					/>
 				);
-			case 'display':
-				return (
-					<SimpleNotice
-						text={ message }
-						status={ 'is-error' }
-						icon={ 'link-break' }
-						showDismiss={ false }
-					/>
-				);
 			case 'support':
 				return (
 					<SimpleNotice
