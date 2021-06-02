@@ -14,9 +14,9 @@ const webpack = require( 'webpack' );
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 /**
- * As the version number in package.json deesn't have the same format as it is in PHP.
- * So we extract the Jetpack version from plugin PHP file and to make sure Webpack
- * gets exactly the same.
+ * Since the version number in package.json doesn't match PHP's `JETPACK__VERSION` constant,
+ * we rely on extracting the `JETPACK__VERSION` constant directly from the plugin PHP file
+ * for use in our Webpack configuration. 
  *
  * Examples of JETPACK__VERSION are: `9.8-alpha`, `9.8-beta`, `9.8`, `9.8.1`, `9.8.2`.
  */
