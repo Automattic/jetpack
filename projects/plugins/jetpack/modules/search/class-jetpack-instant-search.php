@@ -106,7 +106,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @param string $plugin_base_path - Base path for use in plugins_url.
 	 */
 	public function load_assets_with_parameters( $path_prefix, $plugin_base_path ) {
-		// WPCOM doesn't have JETPACK__VERSION avaible, query string based cachebuster is used anyway.
+		// WPCOM doesn't have JETPACK__VERSION available and relies on query strings for cache-busting.
 		$jetpack_alpahnumeric_version = Jetpack_Search_Helpers::get_alphanumeric_version();
 		$bundle_version_extention     = $jetpack_alpahnumeric_version ? ".{$jetpack_alpahnumeric_version}" : '';
 		$polyfill_relative_path       = $path_prefix . "_inc/build/instant-search/jp-search-ie11-polyfill-loader.bundle${bundle_version_extention}.js";
