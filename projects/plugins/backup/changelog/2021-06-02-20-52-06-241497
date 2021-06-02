@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix babel/wepback config for module not found errors.
