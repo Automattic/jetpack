@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
@@ -84,6 +85,9 @@ class Test_REST_Endpoints extends TestCase {
 		delete_transient( 'jetpack_assumed_site_creation_date' );
 
 		WorDBless_Options::init()->clear_options();
+
+		unset( $_SERVER['REQUEST_METHOD'] );
+		$_GET = array();
 	}
 
 	/**
@@ -436,7 +440,43 @@ class Test_REST_Endpoints extends TestCase {
 	 */
 	public function test_set_user_token_success() {
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
-		add_filter( 'jetpack_is_signed_with_blog_token', '__return_true', 10, 2 );
+
+		$token     = 'new:1:0';
+		$timestamp = (string) time();
+		$nonce     = 'testing123';
+		$body_hash = '';
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = $token;
+		$_GET['timestamp'] = $timestamp;
+		$_GET['nonce']     = $nonce;
+		$_GET['body-hash'] = $body_hash;
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					$data  = array(
+						$token,
+						$timestamp,
+						$nonce,
+						$body_hash,
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
 
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
@@ -449,32 +489,10 @@ class Test_REST_Endpoints extends TestCase {
 		$data     = $response->get_data();
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
-		remove_filter( 'jetpack_is_signed_with_blog_token', '__return_true' );
 
 		static::assertTrue( $data['success'] );
 		static::assertEquals( 200, $response->status );
 		static::assertEquals( array( 1 => $user_token ), Jetpack_Options::get_option( 'user_tokens' ) );
-	}
-
-	/**
-	 * Testing the `user-token` endpoint using blog token authorization.
-	 * Response: site not connected.
-	 */
-	public function test_set_user_token_site_not_connected() {
-		add_filter( 'jetpack_is_signed_with_blog_token', '__return_true', 10, 2 );
-
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
-		$this->request->set_header( 'Content-Type', 'application/json' );
-
-		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
-
-		$response = $this->server->dispatch( $this->request );
-		$data     = $response->get_data();
-
-		remove_filter( 'jetpack_is_signed_with_blog_token', '__return_true' );
-
-		static::assertEquals( 'site_not_connected', $data['code'] );
-		static::assertEquals( 500, $response->status );
 	}
 
 	/**

@@ -215,15 +215,6 @@ class Rest_Authentication {
 	public static function is_signed_with_blog_token() {
 		$instance = self::init();
 
-		$is_signed_with_blog_token = true === $instance->rest_authentication_status && 'blog' === $instance->rest_authentication_type;
-
-		/**
-		 * Use the filter to overwrite the default blog token authentication status.
-		 *
-		 * @since 9.9.0
-		 *
-		 * @param bool Whether the request is signed with the blog token.
-		 */
-		return apply_filters( 'jetpack_is_signed_with_blog_token', $is_signed_with_blog_token );
+		return true === $instance->rest_authentication_status && 'blog' === $instance->rest_authentication_type;
 	}
 }
