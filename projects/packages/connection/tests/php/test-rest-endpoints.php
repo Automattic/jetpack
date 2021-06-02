@@ -6,6 +6,7 @@ use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
@@ -413,7 +414,71 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
-	 * This filter callback allow us to skip the database query by `Jetpack_Options` to retrieve the option.
+	 * Testing the `user-token` endpoint using blog token authorization.
+	 * Response: failed authorization.
+	 */
+	public function test_set_user_token_unauthroized() {
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		static::assertEquals( 'invalid_permission_update_user_token', $data['code'] );
+		static::assertEquals( 401, $data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `user-token` endpoint using blog token authorization.
+	 * Response: user token updated.
+	 */
+	public function test_set_user_token_success() {
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		add_filter( 'jetpack_is_signed_with_blog_token', '__return_true', 10, 2 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$user_token = 'test.test.1';
+
+		$this->request->set_body( wp_json_encode( array( 'user_token' => $user_token ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		remove_filter( 'jetpack_is_signed_with_blog_token', '__return_true' );
+
+		static::assertTrue( $data['success'] );
+		static::assertEquals( 200, $response->status );
+		static::assertEquals( array( 1 => $user_token ), Jetpack_Options::get_option( 'user_tokens' ) );
+	}
+
+	/**
+	 * Testing the `user-token` endpoint using blog token authorization.
+	 * Response: site not connected.
+	 */
+	public function test_set_user_token_site_not_connected() {
+		add_filter( 'jetpack_is_signed_with_blog_token', '__return_true', 10, 2 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/user-token' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'user_token' => 'test.test.1' ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'jetpack_is_signed_with_blog_token', '__return_true' );
+
+		static::assertEquals( 'site_not_connected', $data['code'] );
+		static::assertEquals( 500, $response->status );
+	}
+
+	/**
+	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
 	 *
