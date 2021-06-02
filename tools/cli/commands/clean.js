@@ -10,7 +10,7 @@ import inquirer from 'inquirer';
  */
 import promptForProject, { promptForType } from '../helpers/promptForProject';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv';
-import { runCommand } from '../helpers/runCommand'
+import { runCommand } from '../helpers/runCommand';
 
 /**
  * Command definition for the build subcommand.
@@ -32,7 +32,7 @@ export function cleanDefine( yargs ) {
 				.positional( 'include', {
 					describe: 'Files/folders to include for deletion',
 					type: 'string',
-					choices: [ 'node_modules', 'composer.lock', 'vendor', 'working', 'everything', ]
+					choices: [ 'node_modules', 'composer.lock', 'vendor', 'working', 'everything' ],
 				} )
 				.option( 'all', {
 					alias: 'a',
@@ -41,7 +41,7 @@ export function cleanDefine( yargs ) {
 				} )
 				.option( 'dist', {
 					type: 'boolean',
-					description: 'Remove distributed files (vendor, node_modules)'
+					description: 'Remove distributed files (vendor, node_modules)',
 				} );
 		},
 		async argv => {
@@ -110,8 +110,7 @@ async function commandRoute( argv ) {
 		console.log( chalk.green( `Cleaning files...` ) );
 		// For tracked files using 'rm -rf'
 		if ( argv.cmd === 'find' ) {
-			argv.cmd = 'rm',
-			argv = await makeRemove( argv );
+			( argv.cmd = 'rm' ), ( argv = await makeRemove( argv ) );
 			await runCommand( argv.cmd, argv.options );
 		}
 
@@ -123,11 +122,10 @@ async function commandRoute( argv ) {
 				runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
 			}
 		}
-/* 		Object.keys(require.cache ).forEach( function ( key ) {
-			console.log(key);
-			delete require.cache[ key ];
-		} ); */
-		console.log( chalk.green( `Clean completed! ${argv.project} cleans up so nicely, doesn't it?` ) );
+
+		console.log(
+			chalk.green( `Clean completed! ${ argv.project } cleans up so nicely, doesn't it?` )
+		);
 	}
 }
 
@@ -180,8 +178,7 @@ async function parseArgs( argv ) {
  * @returns {object} argv.
  */
 export async function makeOptions( argv ) {
-	if
-	(
+	if (
 		argv.include.toClean === 'vendor' ||
 		argv.include.toClean === 'node_modules' ||
 		argv.include.toClean === 'composer.lock'
@@ -206,9 +203,9 @@ export async function makeOptions( argv ) {
  * @param {object} argv - arguments passed.
  * @returns {object} argv.
  */
-async function makeClean ( argv ) {
+async function makeClean( argv ) {
 	if ( argv.scope === 'project' ) {
-		argv.project = `projects/${argv.project}`;
+		argv.project = `projects/${ argv.project }`;
 	}
 	argv.options.push( argv.project );
 
@@ -218,8 +215,8 @@ async function makeClean ( argv ) {
 	}
 
 	if ( argv.include.toClean === 'ignored' || argv.include.toClean === 'both' ) {
-			argv.options.push( '-X' );
-			await checkExclude( argv.include.ignored, argv.options );
+		argv.options.push( '-X' );
+		await checkExclude( argv.include.ignored, argv.options );
 	}
 
 	// Add any ignored files that we want to delete.
@@ -240,7 +237,7 @@ async function makeRemove( argv ) {
 	const toClean = argv.include.toClean;
 	if ( argv.cmd === 'find' ) {
 		if ( argv.scope === 'project' ) {
-			argv.project = `projects/${argv.project}`;
+			argv.project = `projects/${ argv.project }`;
 		}
 		argv.dryOptions = [ argv.project, '-name', toClean, '-prune' ];
 		return argv;
@@ -249,14 +246,25 @@ async function makeRemove( argv ) {
 	if ( argv.cmd === 'rm' ) {
 		switch ( argv.scope ) {
 			case 'project':
-				argv.options.push( `projects/${argv.project}/${toClean}` );
+				argv.options.push( `projects/${ argv.project }/${ toClean }` );
 				break;
 			case 'type':
-				argv.options.push( `${argv.project}/*/${toClean}` );
+				argv.options.push( `${ argv.project }/*/${ toClean }` );
 				break;
 			case 'all':
 				argv.cmd = 'find';
-				argv.options = [ '.', '-name', `"${toClean}"`, '-prune', '-print', '-exec', 'rm', '-rf', '{}', '+' ];
+				argv.options = [
+					'.',
+					'-name',
+					`"${ toClean }"`,
+					'-prune',
+					'-print',
+					'-exec',
+					'rm',
+					'-rf',
+					'{}',
+					'+',
+				];
 		}
 	}
 	return argv;
@@ -344,7 +352,7 @@ export async function promptForClean( argv ) {
 		{
 			name: 'node_modules',
 			checked: false,
-		}
+		},
 	];
 	// Composer.lock is checked in for root and plugins, so don't show option to remove for those cases.
 	if ( argv.project !== 'projects/plugins' ) {
@@ -373,7 +381,7 @@ export async function promptForClean( argv ) {
 					name: 'Both Working/Git-Ignored',
 					value: 'both',
 				},
-				...ignoreChoices
+				...ignoreChoices,
 			],
 		},
 		{
@@ -381,7 +389,7 @@ export async function promptForClean( argv ) {
 			name: 'ignored',
 			message: `Delete any of the following? (you will need to run 'jetpack install ${ argv.project }' to reinstall them)`,
 			choices: ignoreChoices,
-			when: answers => ( answers.toClean === 'both' ) || ( answers.toClean === 'ignored' )
+			when: answers => answers.toClean === 'both' || answers.toClean === 'ignored',
 		},
 	] );
 	argv.include = { ...response };
