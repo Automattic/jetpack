@@ -2,4 +2,3 @@ node_modules
 vendor
 composer.lock
 src/js/*.min.js
-yarn.lock

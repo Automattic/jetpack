@@ -6,16 +6,16 @@ PLUGINDIR="$PWD"
 
 cd "$MONOREPO_BASE/projects/plugins/jetpack"
 
-echo "::group::Jetpack yarn install"
-yarn install
+echo "::group::Jetpack JS install"
+pnpm install
 echo "::endgroup::"
 
 echo "::group::Jetpack Admimnpage coverage"
-yarn nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR/adminpage" yarn test-adminpage
+pnpx nyc --reporter=clover -x '_inc/**/**/test/*.js' --report-dir="$COVERAGE_DIR/adminpage" pnpm run test-adminpage
 echo "::endgroup::"
 
 echo "::group::Jetpack Extensions coverage"
-yarn test-extensions --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
+pnpm run test-extensions -- --coverage --collectCoverageFrom='extensions/**/*.js' --coverageDirectory="$COVERAGE_DIR/extensions" --coverageReporters=clover
 echo "::endgroup::"
 
 cd "$PLUGINDIR"
