@@ -19,9 +19,9 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally, and changelogger.
+# Install JS generally, and changelogger.
 echo "::group::Monorepo setup"
-yarn install
+pnpm install
 echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
@@ -74,7 +74,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
@@ -140,6 +140,25 @@ for SLUG in "${SLUGS[@]}"; do
 	if jq -e '.extra.autotagger // false' composer.json > /dev/null; then
 		cp -r "$BASE/.github/files/gh-autotagger/." "$BUILD_DIR/.github/."
 	fi
+
+	# Copy license.
+	LICENSE=$(jq -r '.license // ""' composer.json)
+	if [[ -n "$LICENSE" ]]; then
+		echo "License: $LICENSE"
+		if cp "$BASE/.github/licenses/$LICENSE.txt" "$BUILD_DIR/LICENSE.txt"; then
+			echo "License file copied."
+		else
+			echo "::error file=projects/$SLUG/composer.json::License value not approved."
+			EXIT=1
+			continue
+		fi
+	else
+		echo "No license declared."
+		# TODO: Make this an error?
+	fi
+
+	# Copy SECURITY.md
+	cp "$BASE/SECURITY.md" "$BUILD_DIR/SECURITY.md"
 
 	# Copy only wanted files, based on .gitignore and .gitattributes.
 	{

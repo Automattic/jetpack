@@ -88,7 +88,7 @@ export default connect(
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
 			connectUrl: _getConnectUrl( state ),
 			isAuthorizingInPlace: isAuthorizingUserInPlace( state ),
-			displayTOS: hasConnectedOwner( state ) || isSiteRegistered( state ), // Display TOS in userless mode and for secondary users.
+			displayTOS: hasConnectedOwner( state ) || isSiteRegistered( state ), // Display TOS in site connection mode and for secondary users.
 		};
 	},
 	dispatch => {

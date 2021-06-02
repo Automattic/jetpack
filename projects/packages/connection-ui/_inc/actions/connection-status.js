@@ -1,17 +1,9 @@
-const CONNECTION_STATUS_REGISTERED = 'CONNECTION_STATUS_REGISTERED';
-const CONNECTION_STATUS_USER_CONNECTED = 'CONNECTION_STATUS_USER_CONNECTED';
+const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 
 const connectionStatusActions = {
-	connectionStatusSetRegistered: isRegistered => {
-		return { type: CONNECTION_STATUS_REGISTERED, isRegistered };
-	},
-	connectionStatusSetUserConnected: isUserConnected => {
-		return { type: CONNECTION_STATUS_USER_CONNECTED, isUserConnected };
+	setConnectionStatus: connectionStatus => {
+		return { type: SET_CONNECTION_STATUS, connectionStatus };
 	},
 };
 
-export {
-	CONNECTION_STATUS_REGISTERED,
-	CONNECTION_STATUS_USER_CONNECTED,
-	connectionStatusActions as default,
-};
+export { SET_CONNECTION_STATUS, connectionStatusActions as default };

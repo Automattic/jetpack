@@ -29,6 +29,12 @@ function jetpack_verification_services() {
 			'format' => '44d68e1216009f40',
 			'url'    => 'https://webmaster.yandex.com/sites/',
 		),
+		'facebook'  => array(
+			'name'   => 'Facebook Domain Verification',
+			'key'    => 'facebook-domain-verification',
+			'format' => 'rvv8b23jxlp1lq41I9rwsvpzncy1fd',
+			'url'    => 'https://business.facebook.com/settings/',
+		),
 	);
 }
 

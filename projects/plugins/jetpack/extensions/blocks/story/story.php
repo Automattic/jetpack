@@ -91,6 +91,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 
 				// Set the poster attribute for the video tag if a poster image is available.
+				$poster_url = null;
 				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
 					$poster_url = $video_meta['videopress']['poster'];
 				} elseif ( ! empty( $video_meta['thumb'] ) ) {
@@ -329,9 +330,9 @@ function render_top_right_icon( $settings ) {
  */
 function render_pagination_bullet( $slide_index, $class_name = '' ) {
 	return sprintf(
-		'<a href="#" class="wp-story-pagination-bullet %s" aria-label="%s">
+		'<div class="wp-story-pagination-bullet %s" aria-label="%s">
 			<div class="wp-story-pagination-bullet-bar"></div>
-		</a>',
+		</div>',
 		esc_attr( $class_name ),
 		/* translators: %d is the slide number (1, 2, 3...) */
 		sprintf( __( 'Go to slide %d', 'jetpack' ), $slide_index )
@@ -387,40 +388,37 @@ function render_block( $attributes ) {
 		'<div class="%1$s" data-id="%2$s" data-settings="%3$s">
 			<div class="wp-story-app">
 				<div class="wp-story-display-contents" style="display: contents;">
-					<div role="button" class="wp-story-container">
+					<a class="wp-story-container" href="%4$s" title="%5$s">
 						<div class="wp-story-meta">
 							<div class="wp-story-icon">
-								<img alt="%4$s" src="%5$s" width="40" height="40">
+								<img alt="%6$s" src="%7$s" width="40" height="40">
 							</div>
 							<div>
 								<div class="wp-story-title">
-									%6$s
+									%8$s
 								</div>
 							</div>
-							<a class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
-								<i class="jetpack-material-icons close md-24"></i>
-							</a>
 						</div>
 						<div class="wp-story-wrapper">
-							%7$s
+							%9$s
 						</div>
-						<a class="wp-story-overlay" href="%8$s" title="%9$s">
+						<div class="wp-story-overlay">
 							%10$s
-						</a>
+						</div>
 						%11$s
-					</div>
+					</a>
 				</div>
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
-		esc_attr( 'wp-story-' . get_the_ID() ),
+		esc_attr( 'wp-story-' . get_the_ID() . '-' . wp_rand( 0, 0xffff ) ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
+		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
+		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		! empty( $media_files[0] ) ? render_slide( $media_files[0] ) : '',
-		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
-		__( 'Play story in new tab', 'jetpack' ),
 		render_top_right_icon( $settings ),
 		render_pagination( $settings )
 	);

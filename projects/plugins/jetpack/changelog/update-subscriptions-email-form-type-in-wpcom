@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Changing the WPCOM subscription email control type from 'text' to 'email'.

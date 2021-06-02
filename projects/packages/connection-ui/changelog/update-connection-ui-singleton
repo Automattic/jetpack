@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Initialize the main connection-ui Admin class only once since it may be called multiple times.

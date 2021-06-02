@@ -7,23 +7,18 @@ The package encapsulates the Connection functionality.
 Contains the whole connection flow, including site registration and user authorization.
 
 ### Properties
-- *authorizationUrl* - string, the authorization URL.
 - *connectLabel* - string, the "Connect" button label.
 - *inPlaceTitle* - string, the title for the In-Place Connection component.
 - *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
-- *isRegistered* - boolean, whether the site is registered (has blog token).
-- *isUserConnected* - boolean, whether the current user is connected (has user token).
-- *hasConnectedOwner* - boolean, whether the site has connection owner.
 - *onRegistered* - callback, to be called upon registration success.
 - *onUserConnected* - callback, to be called when the connection is fully established.
-- *redirectFunc* - callback, the redirect function (`window.location.assign()` by default).
 - *from* - string, custom string parameter to identify where the request is coming from.
-- *redirectUrl* - string, wp-admin URI so the user to get redirected there after Calypso connection flow.
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 
-### Usage
+### Basic Usage
 ```jsx
 import React, { useCallback } from 'react';
 import { JetpackConnection } from '@automattic/jetpack-connection';
@@ -35,15 +30,79 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	authorizationUrl="https://jetpack.wordpress.com/jetpack.authorize/1/?..."
-	isRegistered={ false }
-	isUserConnected={ false }
-	hasConnectedOwner={ false }
 	forceCalypsoFlow={ false }
 	onRegistered={ onRegistered }
 	onUserConnected={ onUserConnected }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
+/>
+```
+
+### Advanced Connection Status Handling
+
+You can use the component to keep the connection status updated in your application,
+or display custom output inside the component (including connection status).
+
+To do that, you should pass a custom callback function into the `JetpackConnection` component:
+
+```jsx
+import React, { useState } from 'react';
+import { JetpackConnection } from '@automattic/jetpack-connection';
+
+const [ connectionStatus, setConnectionStatus ] = useState( {} );
+
+<JetpackConnection
+	apiRoot="https://example.org/wp-json/" 
+	apiNonce="12345"
+	registrationNonce="54321"
+	forceCalypsoFlow={ false }
+	from="connection-ui"
+	redirectUri="tools.php?page=wpcom-connection-manager"
+>
+	{ status => {
+		setConnectionStatus( status );
+		
+		return <div className="connection-status-card">
+			{ status.isRegistered && ! status.isUserConnected && (
+					<strong>Site Registered</strong>
+			) }
+			{ status.isRegistered && status.isUserConnected && (
+					<strong>Site and User Connected</strong>
+			) }
+		</div>;
+	} }
+</JetpackConnection>
+```
+
+## Component `ConnectUser`
+This component encapsulates the user connecting functionality.
+
+Upon the first rendering, it initiates the user connection flow, and either redirects the user to Calypso,
+or renders the `InPlaceConnection` component.
+
+### Properties
+
+- *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
+- *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
+- *displayTOS* - boolean (required), whether we should display the terms of service during In-Place flow.
+- *inPlaceTitle* - string, title for the In-Place Connection component.
+- *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
+- *onComplete* - callback, to be called when the connection is fully established.
+- *from* - string, indicates where the connection request is coming from.
+- *redirectFunc* - function, the redirect function (`window.location.assign()` by default).
+
+## Usage
+```jsx
+import { ConnectUser } from '@automattic/jetpack-connection';
+
+<ConnectUser
+	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
+	redirectUri="tools.php?page=wpcom-connection-manager"
+	inPlaceTitle="Sample Connection"
+	onComplete={ () => alert( 'Connected' ) }
+	displayTOS={ false }
+	forceCalypsoFlow={ false }
+	from="connection-ui"
 />
 ```
 
@@ -68,7 +127,7 @@ It includes:
 
 ### Usage
 ```jsx
-import InPlaceConnection from 'in-place-connection';
+import { InPlaceConnection } from '@automattic/jetpack-connection';
 
 <InPlaceConnection
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"

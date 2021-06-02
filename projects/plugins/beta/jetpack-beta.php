@@ -73,8 +73,3 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
 
 add_action( 'init', array( 'Jetpack_Beta', 'instance' ) );
 add_action( 'muplugins_loaded', array( 'Jetpack_Beta', 'is_network_enabled' ) );
-
-// Set the JETPACK_AUTOLOAD_DEV constant.
-if ( ! defined( 'JETPACK_AUTOLOAD_DEV' ) ) {
-	define( 'JETPACK_AUTOLOAD_DEV', get_option( 'jetpack_autoload_dev', 1 ) );
-}

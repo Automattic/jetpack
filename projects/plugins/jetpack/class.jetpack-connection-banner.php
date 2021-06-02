@@ -64,7 +64,7 @@ class Jetpack_Connection_Banner {
 			return false;
 		}
 
-		// Don't show the connect notice if a userless connection is established and there are no stored licenses.
+		// Don't show the connect notice if a site connection is established and there are no stored licenses.
 		// Stored licenses indicate that a purchased product may not be provisioned yet hence we need to keep
 		// showing the notice to nudge the user to connect in order to have their product(s) provisioned.
 		if ( $is_connected && ! $has_licenses ) {
@@ -382,7 +382,7 @@ class Jetpack_Connection_Banner {
 							<p>
 								<?php
 								esc_html_e(
-									'Jetpack offers security, performance, and marketing tools made for WordPress sites by the WordPress experts. Set up Jetpack to enable new features for this site; don\'t let your subscription go to waste!',
+									'Jetpack offers security, performance, and marketing tools made for WordPress sites by WordPress experts. Set up Jetpack to enable new features for this site; don\'t let your subscription go to waste!',
 									'jetpack'
 								);
 								?>
@@ -418,7 +418,7 @@ class Jetpack_Connection_Banner {
 
 		$has_no_owner = ! Jetpack::connection()->has_connected_owner();
 		?>
-		<div class="jp-connect-full__container <?php echo $has_no_owner ? 'jp-jetpack-connect__userless' : ''; ?>"><div class="jp-connect-full__container-card">
+		<div class="jp-connect-full__container <?php echo $has_no_owner ? 'jp-jetpack-connect__site_connection' : ''; ?>"><div class="jp-connect-full__container-card">
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<?php
