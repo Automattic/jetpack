@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Connection\REST_Endpoints\Token_Endpoints;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
