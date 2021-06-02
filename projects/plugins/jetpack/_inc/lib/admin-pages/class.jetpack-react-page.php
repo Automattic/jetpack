@@ -170,7 +170,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			// If we still have nothing, display an error
 			echo '<p>';
 			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
-			echo '<code>yarn distclean && yarn build</code>';
+			echo '<code>pnpm run distclean && pnpx jetpack build plugins/jetpack</code>';
 			echo '</p>';
 		} else {
 

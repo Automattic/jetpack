@@ -19,22 +19,23 @@
 		"automattic/jetpack-blocks": "1.4.x-dev",
 		"automattic/jetpack-compat": "1.6.x-dev",
 		"automattic/jetpack-config": "1.4.x-dev",
-		"automattic/jetpack-connection": "1.27.x-dev",
+		"automattic/jetpack-connection": "1.28.x-dev",
 		"automattic/jetpack-connection-ui": "1.1.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-error": "1.3.x-dev",
 		"automattic/jetpack-heartbeat": "1.3.x-dev",
-		"automattic/jetpack-jitm": "1.15.x-dev",
+		"automattic/jetpack-identity-crisis": "0.1.x-dev",
+		"automattic/jetpack-jitm": "1.16.x-dev",
 		"automattic/jetpack-lazy-images": "1.4.x-dev",
 		"automattic/jetpack-licensing": "1.4.x-dev",
 		"automattic/jetpack-logo": "1.5.x-dev",
-		"automattic/jetpack-options": "1.12.x-dev",
+		"automattic/jetpack-options": "1.13.x-dev",
 		"automattic/jetpack-partner": "1.5.x-dev",
-		"automattic/jetpack-redirect": "1.5.x-dev",
+		"automattic/jetpack-redirect": "1.6.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
-		"automattic/jetpack-status": "1.7.x-dev",
-		"automattic/jetpack-sync": "1.21.x-dev",
+		"automattic/jetpack-status": "1.8.x-dev",
+		"automattic/jetpack-sync": "1.22.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.13.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"
@@ -45,11 +46,11 @@
 	"scripts": {
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-production-concurrently"
+			"pnpm run build-production-concurrently"
 		],
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-concurrently"
+			"pnpm run build-concurrently"
 		],
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
@@ -58,8 +59,8 @@
 		],
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn install",
-			"yarn concurrently 'yarn:test-adminpage' 'yarn:test-extensions' 'yarn:test-search'"
+			"pnpm install",
+			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions' 'pnpm:test-search'"
 		],
 		"test-php": [
 			"Composer\\Config::disableProcessTimeout",
@@ -68,7 +69,7 @@
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn watch"
+			"pnpm run watch"
 		]
 	},
 	"repositories": [
@@ -92,7 +93,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ9_8_alpha"
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ9_9_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",

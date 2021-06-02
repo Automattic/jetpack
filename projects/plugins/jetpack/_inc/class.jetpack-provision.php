@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Secrets;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
 
@@ -36,12 +37,12 @@ class Jetpack_Provision { //phpcs:ignore
 
 		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
 		// functions/callables so that we can test if this site is in IDC.
-		if ( Jetpack::is_connection_ready() && ! Jetpack::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
+		if ( Jetpack::is_connection_ready() && ! Identity_Crisis::validate_sync_error_idc_option() && Actions::sync_allowed() ) {
 			Actions::do_full_sync( array( 'functions' => true ) );
 			Actions::$sender->do_full_sync();
 		}
 
-		if ( Jetpack::validate_sync_error_idc_option() ) {
+		if ( Identity_Crisis::validate_sync_error_idc_option() ) {
 			return new WP_Error(
 				'site_in_safe_mode',
 				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )

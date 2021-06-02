@@ -783,12 +783,15 @@ class Manager {
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false ) {
 		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
 
-		$result = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+		// Attempt to disconnect the user from WordPress.com.
+		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
+		if ( ! $is_disconnected_from_wpcom ) {
+			return false;
+		}
 
-		if ( $result ) {
-			$xml = new \Jetpack_IXR_Client( compact( 'user_id' ) );
-			$xml->query( 'jetpack.unlink_user', $user_id );
-
+		// Disconnect the user locally.
+		$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+		if ( $is_disconnected_locally ) {
 			// Delete cached connected user data.
 			$transient_key = "jetpack_connected_user_data_$user_id";
 			delete_transient( $transient_key );
@@ -802,7 +805,29 @@ class Manager {
 			 */
 			do_action( 'jetpack_unlinked_user', $user_id );
 		}
-		return $result;
+
+		return $is_disconnected_locally;
+	}
+
+	/**
+	 * Request to wpcom for a user to be unlinked from their WordPress.com account
+	 *
+	 * @access public
+	 *
+	 * @param Integer $user_id the user identifier.
+	 *
+	 * @return Boolean Whether the disconnection of the user was successful.
+	 */
+	public function unlink_user_from_wpcom( $user_id ) {
+		// Attempt to disconnect the user from WordPress.com.
+		$xml = new \Jetpack_IXR_Client( compact( 'user_id' ) );
+
+		$xml->query( 'jetpack.unlink_user', $user_id );
+		if ( $xml->isError() ) {
+			return false;
+		}
+
+		return (bool) $xml->getResponse();
 	}
 
 	/**
@@ -913,8 +938,8 @@ class Manager {
 			'jetpack_register_request_body',
 			array_merge(
 				array(
-					'siteurl'            => site_url(),
-					'home'               => home_url(),
+					'siteurl'            => Urls::site_url(),
+					'home'               => Urls::home_url(),
 					'gmt_offset'         => $gmt_offset,
 					'timezone_string'    => (string) get_option( 'timezone_string' ),
 					'site_name'          => (string) get_option( 'blogname' ),
@@ -987,6 +1012,23 @@ class Manager {
 		);
 
 		$this->get_tokens()->update_blog_token( (string) $registration_details->jetpack_secret );
+
+		$allow_inplace_authorization = isset( $registration_details->allow_inplace_authorization ) ? $registration_details->allow_inplace_authorization : false;
+		$alternate_authorization_url = isset( $registration_details->alternate_authorization_url ) ? $registration_details->alternate_authorization_url : '';
+
+		if ( ! $allow_inplace_authorization ) {
+			// Forces register_site REST endpoint to return the Calypso authorization URL.
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+		}
+
+		add_filter(
+			'jetpack_register_site_rest_response',
+			function ( $response ) use ( $allow_inplace_authorization, $alternate_authorization_url ) {
+				$response['allowInplaceAuthorization'] = $allow_inplace_authorization;
+				$response['alternateAuthorizeUrl']     = $alternate_authorization_url;
+				return $response;
+			}
+		);
 
 		/**
 		 * Fires when a site is registered on WordPress.com.
@@ -1676,8 +1718,8 @@ class Manager {
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),
-				'site_url'              => site_url(),
-				'home_url'              => home_url(),
+				'site_url'              => Urls::site_url(),
+				'home_url'              => Urls::home_url(),
 				'site_icon'             => get_site_icon_url(),
 				'site_lang'             => get_locale(),
 				'site_created'          => $this->get_assumed_site_creation_date(),

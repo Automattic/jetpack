@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Redirect;
 use PHPUnit\Framework\TestCase;
 use Requests_Utility_CaseInsensitiveDictionary;
 use WorDBless\Options as WorDBless_Options;
@@ -349,8 +350,66 @@ class Test_REST_Endpoints extends TestCase {
 
 		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
 
+		// Manually clears filter added by Manager::register().
+		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+
+		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
+		$this->assertFalse( $data['allowInplaceAuthorization'] );
+		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint with allow_inplace_authorization as true.
+	 */
+	public function test_connection_register_allow_inplace() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10, 3 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_allow_inplace' ), 10 );
+
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize_iframe/' ) );
+
+		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
+		$this->assertTrue( $data['allowInplaceAuthorization'] );
+		$this->assertSame( '', $data['alternateAuthorizeUrl'] );
+	}
+
+	/**
+	 * Testing the `connection/register` endpoint with alternate_authorization_url
+	 */
+	public function test_connection_register_with_alternate_auth_url() {
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10, 3 );
+
+		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/connection/register' );
+		$this->request->set_header( 'Content-Type', 'application/json' );
+
+		$this->request->set_body( wp_json_encode( array( 'registration_nonce' => wp_create_nonce( 'jetpack-registration-nonce' ) ) ) );
+
+		$response = $this->server->dispatch( $this->request );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request_with_alternate_auth_url' ), 10 );
+
+		// Manually clears filter added by Manager::register().
+		remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false', 20 );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+
+		// Asserts jetpack_register_site_rest_response filter is being properly hooked to add data from wpcom register endpoint response.
+		$this->assertFalse( $data['allowInplaceAuthorization'] );
+		$this->assertSame( Redirect::get_url( 'https://dummy.com' ), $data['alternateAuthorizeUrl'] );
 	}
 
 	/**
@@ -380,12 +439,59 @@ class Test_REST_Endpoints extends TestCase {
 			return $response;
 		}
 
+		return self::get_register_request_mock_response();
+	}
+
+	/**
+	 * Intercept the `jetpack.register` API request sent to WP.com, and mock the response with allow_inplace_authorization as true.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public static function intercept_register_request_with_allow_inplace( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return self::get_register_request_mock_response( true );
+	}
+
+	/**
+	 * Intercept the `jetpack.register` API request sent to WP.com, and mock the response with a value in alternate_authorization_url key.
+	 *
+	 * @param bool|array $response The existing response.
+	 * @param array      $args The request arguments.
+	 * @param string     $url The request URL.
+	 *
+	 * @return array
+	 */
+	public static function intercept_register_request_with_alternate_auth_url( $response, $args, $url ) {
+		if ( false === strpos( $url, 'jetpack.register' ) ) {
+			return $response;
+		}
+
+		return self::get_register_request_mock_response( false, 'https://dummy.com' );
+	}
+
+	/**
+	 * Gets a mocked REST response from jetpack.register WPCOM endpoint
+	 *
+	 * @param boolean $allow_inplace_authorization the value of allow_inplace_authorization returned by the server.
+	 * @param string  $alternate_authorization_url the value of alternate_authorization_url returned by the server.
+	 * @return array
+	 */
+	private static function get_register_request_mock_response( $allow_inplace_authorization = false, $alternate_authorization_url = '' ) {
 		return array(
 			'headers'  => new Requests_Utility_CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
 			'body'     => wp_json_encode(
 				array(
-					'jetpack_id'     => '12345',
-					'jetpack_secret' => 'sample_secret',
+					'jetpack_id'                  => '12345',
+					'jetpack_secret'              => 'sample_secret',
+					'allow_inplace_authorization' => $allow_inplace_authorization,
+					'alternate_authorization_url' => $alternate_authorization_url,
 				)
 			),
 			'response' => array(

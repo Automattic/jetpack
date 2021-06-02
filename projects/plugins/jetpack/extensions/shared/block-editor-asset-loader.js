@@ -5,6 +5,7 @@
  * @param   {HTMLElement} elementRef - The element whose context we want to return.
  * @returns {Object}                 - The current document (`currentDoc`) and window (`currentWindow`) contexts.
  */
+
 export function getLoadContext( elementRef ) {
 	const currentDoc = elementRef.ownerDocument;
 	const currentWindow = currentDoc.defaultView || currentDoc.parentWindow;
@@ -91,4 +92,70 @@ export function maybeCopyElementsToSiteEditorContext(
 
 		return results;
 	}
+}
+
+/**
+ * This function will check if the given css and js resources are present in the head of the document
+ * for current block, and if not will load those resources into the head.
+ *
+ * It's a temporary work-around to until core gutenberg has an API to allow loading of 3rd party resources
+ * into the current editor iframe.
+ *
+ * @param   {Array}       resources - An array of css and js resources to copy to iframe head.
+ * @param   {Object}      callbacks - A map of any callbacks for js resources to be called when script loaded.
+ * @param   {HTMLElement} elementRef  - A reference for an element within the current block.
+ */
+export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
+	const resourcePath = `${ window.Jetpack_Block_Assets_Base_Url.url }editor-assets`;
+	const { currentDoc } = getLoadContext( elementRef );
+
+	const currentHead = currentDoc.getElementsByTagName( 'head' )[ 0 ];
+
+	resources.forEach( resource => {
+		const [ filename, fileExtension ] = resource.file.split( '/' ).pop().split( '.' );
+
+		if ( fileExtension === 'css' ) {
+			if ( currentDoc.getElementById( resource.id ) ) {
+				return;
+			}
+			const cssLink = currentDoc.createElement( 'link' );
+			cssLink.id = resource.id;
+			cssLink.rel = 'stylesheet';
+			cssLink.href = `${ resourcePath }/${ filename }-${ resource.version }.${ fileExtension }`;
+			currentHead.appendChild( cssLink );
+		}
+
+		if ( fileExtension === 'js' ) {
+			const callback = callbacks[ resource.id ] ? callbacks[ resource.id ] : null;
+			if ( currentDoc.getElementById( resource.id ) ) {
+				return callback();
+			}
+			const jsScript = currentDoc.createElement( 'script' );
+			jsScript.id = resource.id;
+			jsScript.type = 'text/javascript';
+			jsScript.src = `${ resourcePath }/${ filename }-${ resource.version }.${ fileExtension }`;
+			jsScript.onload = callback;
+			currentHead.appendChild( jsScript );
+		}
+	} );
+}
+
+/**
+ * Returns a promise that resolves when a specified object becomes available on specified window.
+ *
+ * @param   {HTMLElement} currentWindow - The window on which to check for the object.
+ * @param   {Object} objectName         - The object to check for.
+ * @returns {Promise}                   - Whether `elementRef` is contained within an Editor iframe.
+ */
+export function waitForObject( currentWindow, objectName ) {
+	return new Promise( resolve => {
+		const waitFor = () => {
+			if ( currentWindow[ objectName ] ) {
+				resolve( currentWindow[ objectName ] );
+			} else {
+				currentWindow.requestAnimationFrame( waitFor );
+			}
+		};
+		waitFor();
+	} );
 }

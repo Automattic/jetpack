@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
@@ -136,6 +137,27 @@ class REST_Connector {
 						'type'        => 'boolean',
 					),
 					'redirect_uri'       => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'type'        => 'string',
+					),
+				),
+			)
+		);
+
+		// Get authorization URL.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/authorize_url',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_authorize_url' ),
+				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'args'                => array(
+					'no_iframe'    => array(
+						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
+						'type'        => 'boolean',
+					),
+					'redirect_uri' => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
 					),
@@ -448,6 +470,48 @@ class REST_Connector {
 			if ( ! $request->get_param( 'no_iframe' ) ) {
 				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 			}
+		}
+
+		/**
+		 * Filters the response of jetpack/v4/connection/register endpoint
+		 *
+		 * @param array $response Array response
+		 * @since 9.8.0
+		 */
+		$response_body = apply_filters(
+			'jetpack_register_site_rest_response',
+			array()
+		);
+
+		// We manipulate the alternate URLs after the filter is applied, so they can not be overwritten.
+		$response_body['authorizeUrl'] = $authorize_url;
+		if ( ! empty( $response_body['alternateAuthorizeUrl'] ) ) {
+			$response_body['alternateAuthorizeUrl'] = Redirect::get_url( $response_body['alternateAuthorizeUrl'] );
+		}
+
+		return rest_ensure_response( $response_body );
+	}
+
+	/**
+	 * Get the authorization URL.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_authorize_url( $request ) {
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
+		if ( ! $request->get_param( 'no_iframe' ) ) {
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+		}
+
+		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
+
+		if ( ! $request->get_param( 'no_iframe' ) ) {
+			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 		}
 
 		return rest_ensure_response(

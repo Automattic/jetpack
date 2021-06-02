@@ -22,10 +22,10 @@ const baseWebpackConfig = getBaseWebpackConfig(
 				'../modules/search/instant-search/ie11-polyfill.js'
 			),
 			'ie11-polyfill-payload': [
-				'core-js',
-				'regenerator-runtime/runtime',
-				'whatwg-fetch',
-				'abortcontroller-polyfill/dist/polyfill-patch-fetch',
+				require.resolve( 'core-js' ),
+				require.resolve( 'regenerator-runtime/runtime' ),
+				require.resolve( 'whatwg-fetch' ),
+				require.resolve( 'abortcontroller-polyfill/dist/polyfill-patch-fetch' ),
 			],
 		},
 		'output-chunk-filename': 'jp-search.chunk-[name]-[hash].js',
@@ -50,7 +50,7 @@ function requestToExternal( request ) {
 
 const moduleConfig = { ...baseWebpackConfig.module };
 // NOTE: tiny-lru publishes non-ES5 as a browser target. It's necessary to let babel-loader transpile this module.
-moduleConfig.rules[ 0 ].exclude = /[\\/]node_modules[\\/](?!(tiny-lru)[\\/])/;
+moduleConfig.rules[ 0 ].exclude = /[\\/]node_modules[\\/](?!(\.pnpm|tiny-lru)[\\/])/;
 
 module.exports = {
 	...baseWebpackConfig,
@@ -66,6 +66,7 @@ module.exports = {
 		modules: [
 			path.resolve( __dirname, '../_inc/client' ),
 			path.resolve( __dirname, '../node_modules' ),
+			'node_modules',
 		],
 	},
 	node: {
