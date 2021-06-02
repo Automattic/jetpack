@@ -418,7 +418,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Force Calypso when SSO is disabled.
 		if ( $this->is_api_request && ! $this->is_sso_enabled ) {
-			parent::add_page_menu( false );
+			parent::add_comments_menu( false );
 		}
 
 		// Otherwise always use WP Admin.
