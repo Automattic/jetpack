@@ -19,9 +19,9 @@ fi
 echo "::set-output name=build-base::$BUILD_BASE"
 [[ -n "$GITHUB_ENV" ]] && echo "BUILD_BASE=$BUILD_BASE" >> $GITHUB_ENV
 
-# Install Yarn generally, and changelogger.
+# Install JS generally, and changelogger.
 echo "::group::Monorepo setup"
-yarn install
+pnpm install
 echo "::endgroup::"
 echo "::group::Changelogger setup"
 (cd projects/packages/changelogger && composer install)
@@ -74,7 +74,7 @@ for SLUG in "${SLUGS[@]}"; do
 			OLDLOCK=
 		fi
 	fi
-	if (cd $BASE && yarn jetpack build "${SLUG}" -v --production); then
+	if (cd $BASE && pnpx jetpack build "${SLUG}" -v --production); then
 		FAIL=false
 	else
 		FAIL=true
