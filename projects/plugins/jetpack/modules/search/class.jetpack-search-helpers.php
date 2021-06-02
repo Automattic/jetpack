@@ -723,8 +723,8 @@ class Jetpack_Search_Helpers {
 	 * Get alphanumberic Jetpack version
 	 *
 	 * @since 9.8.0
-	 * @param string $replace The string non-alphanumeric charactors are replaced by.
-	 * @return string $script_version Alphanumberic version number.
+	 * @param string $replace String to replace non-alphanumeric charactors in the Jetpack version constant.
+	 * @return string $script_version Jetpack version formatted to consist purely of alphanumerics (e.g. `9.8-alpha` becomes `9-8-alpha`).
 	 */
 	public static function get_alphanumeric_version( $replace = '-' ) {
 		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
