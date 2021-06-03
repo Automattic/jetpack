@@ -105,6 +105,9 @@ module.exports = {
 			requestToExternal,
 			requestToHandle: defaultRequestToHandle,
 		} ),
+		new webpack.ProvidePlugin( {
+			h: [ 'preact', 'h' ],
+		} ),
 	],
 	optimization: {
 		splitChunks: {

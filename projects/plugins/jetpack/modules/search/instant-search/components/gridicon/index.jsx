@@ -1,5 +1,3 @@
-/** @jsx h **/
-
 /* !!!
 This is a fork of the Jetpack Gridicon code:
  https://github.com/Automattic/jetpack/blob/f8078c2cd12ac508334da2fb08e37a92cf283c14/_inc/client/components/gridicon/index.jsx
@@ -10,7 +8,7 @@ It has been modified to work with Preact, and only includes the icons that we ne
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 
 import './style.scss';

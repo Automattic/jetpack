@@ -1,4 +1,4 @@
-/** @jsx h
+/**
  * @jest-environment jsdom
  */
 /* global expect */
@@ -6,7 +6,7 @@
 /**
  * External dependencies
  */
-import { h } from 'preact';
+import React from 'react';
 import { render } from '@testing-library/preact';
 import '@testing-library/jest-dom/extend-expect';
 

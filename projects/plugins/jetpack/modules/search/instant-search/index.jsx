@@ -1,5 +1,3 @@
-/** @jsx h */
-
 // NOTE: This must be imported first before any other imports.
 // See: https://github.com/webpack/webpack/issues/2776#issuecomment-233208623
 import './set-webpack-public-path';
@@ -7,7 +5,9 @@ import './set-webpack-public-path';
 /**
  * External dependencies
  */
-import { h, render } from 'preact';
+// NOTE: "render" import here actually aliases to preact/compat, not React.render.
+// eslint-disable-next-line react/no-deprecated
+import React, { render } from 'react';
 import { Provider } from 'react-redux';
 
 /**
