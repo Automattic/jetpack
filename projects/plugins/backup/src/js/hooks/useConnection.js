@@ -18,7 +18,7 @@ import { STORE_ID } from '../store';
 export default function useConnection() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const APIRoot = useSelect( select => select( STORE_ID ).getAPIRoot(), [] );
-	const doNotUseConnectionIframe = useSelect(
+	const doNotConnectInPlace = useSelect(
 		select => select( STORE_ID ).getDoNotUseConnectionIframe(),
 		[]
 	);
@@ -31,7 +31,7 @@ export default function useConnection() {
 			<JetpackConnection
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
-				forceCalypsoFlow={ doNotUseConnectionIframe }
+				forceCalypsoFlow={ doNotConnectInPlace }
 				registrationNonce={ registrationNonce }
 				from="jetpack-backup"
 				redirectUri="admin.php?page=jetpack-backup"

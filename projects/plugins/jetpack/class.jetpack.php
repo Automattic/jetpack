@@ -4428,8 +4428,8 @@ p {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
 
-					if ( ! empty( $_GET['close_window_after_authorize'] ) ) {
-						$url = add_query_arg( 'close_window_after_authorize', $_GET['close_window_after_authorize'], $url );
+					if ( ! empty( $_GET['close_window_after_auth'] ) ) {
+						$url = add_query_arg( 'close_window_after_auth', $_GET['close_window_after_auth'], $url );
 					}
 
 					wp_redirect( $url );

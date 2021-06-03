@@ -6,7 +6,7 @@ import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { __ } from '@wordpress/i18n';
-import { InPlaceConnection, thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection';
+import { PopUpConnection } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -28,7 +28,7 @@ export class AuthIframe extends React.Component {
 		title: PropTypes.string.isRequired,
 		height: PropTypes.string,
 		width: PropTypes.string,
-		scrollToIframe: PropTypes.bool,
+		scrollToButton: PropTypes.bool,
 		onAuthorized: PropTypes.func,
 		displayTOS: PropTypes.bool,
 		location: PropTypes.string,
@@ -38,7 +38,7 @@ export class AuthIframe extends React.Component {
 		title: __( 'Connect your WordPress.com account', 'jetpack' ),
 		height: '330',
 		width: '100%',
-		scrollToIframe: true,
+		scrollToButton: true,
 		onAuthorized: noop,
 	};
 
@@ -57,26 +57,18 @@ export class AuthIframe extends React.Component {
 		this.props.onAuthorized();
 	};
 
-	/**
-	 * Third-party cookies are disabled, using the fallback.
-	 *
-	 * @returns {void}
-	 */
-	onThirdPartyCookiesBlocked = () => thirdPartyCookiesFallbackHelper( this.props.connectUrl );
-
 	render = () => {
 		return (
-			<InPlaceConnection
+			<PopUpConnection
 				connectUrl={ this.props.connectUrl }
 				height={ this.props.height }
 				width={ this.props.width }
 				isLoading={ this.props.fetchingConnectUrl }
 				title={ this.props.title }
 				displayTOS={ this.props.displayTOS }
-				scrollToIframe={ this.props.scrollToIframe }
-				onComplete={ this.onComplete }
+				scrollToButton={ this.props.scrollToButton } // not applicable
+				onClosed={ this.onClosed }
 				location={ this.props.location }
-				onThirdPartyCookiesBlocked={ this.onThirdPartyCookiesBlocked }
 			/>
 		);
 	};

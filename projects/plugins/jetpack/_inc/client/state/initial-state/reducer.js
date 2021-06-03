@@ -473,6 +473,6 @@ export function isSafari( state ) {
  *
  * @return {boolean} True, the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
  */
-export function doNotUseConnectionIframe( state ) {
-	return !! state.jetpack.initialState.doNotUseConnectionIframe;
+export function doNotConnectInPlace( state ) {
+	return !! state.jetpack.initialState.doNotConnectInPlace;
 }

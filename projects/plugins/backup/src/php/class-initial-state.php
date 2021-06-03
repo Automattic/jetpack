@@ -25,7 +25,7 @@ class Initial_State {
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			),
 			'connectionData' => array(
-				'doNotUseConnectionIframe' => ! $this->can_use_connection_iframe(),
+				'doNotConnectInPlace' => ! $this->can_use_connection_iframe(),
 			),
 		);
 	}

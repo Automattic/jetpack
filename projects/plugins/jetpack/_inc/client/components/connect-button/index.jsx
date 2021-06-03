@@ -29,7 +29,7 @@ import {
 	isUnlinkingUser as _isUnlinkingUser,
 	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
 } from 'state/connection';
-import { getSiteRawUrl, isSafari, doNotUseConnectionIframe } from 'state/initial-state';
+import { getSiteRawUrl, isSafari, doNotConnectInPlace } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
@@ -83,7 +83,7 @@ export class ConnectButton extends React.Component {
 		this.setState( { showModal: ! this.state.showModal } );
 	};
 
-	loadIframe = e => {
+	connectInPlace = e => {
 		e.preventDefault();
 		// If the iframe is already loaded or we don't have a connectUrl yet, return.
 		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
@@ -101,27 +101,27 @@ export class ConnectButton extends React.Component {
 		}
 	};
 
-	loadPopup = ( e, url ) => {
-		e.preventDefault();
+	// loadPopup = ( e, url ) => {
+	// 	e.preventDefault();
 
-		// Track click
-		analytics.tracks.recordJetpackClick( 'link_account_in_popup' );
+	// 	// Track click
+	// 	analytics.tracks.recordJetpackClick( 'link_account_in_popup' );
 
-		url = url + '&close_window_after_authorize=1&calypso_env=development';
+	// 	url = url + '&close_window_after_authorize=1&calypso_env=development';
 
-		const dialog = window.open(
-			url,
-			'jetpack-connect',
-			'status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=1,height=660,width=500'
-		);
-		var timer = setInterval( function () {
-			// detect authorized status and closed dialog
-			if ( dialog.closed ) {
-				clearInterval( timer );
-				console.warn( 'detected dialog closed' );
-			}
-		}, 1000 );
-	};
+	// 	const dialog = window.open(
+	// 		url,
+	// 		'jetpack-connect',
+	// 		'status=0,toolbar=0,location=1,menubar=0,directories=0,resizable=1,scrollbars=1,height=660,width=500'
+	// 	);
+	// 	var timer = setInterval( function () {
+	// 		// detect authorized status and closed dialog
+	// 		if ( dialog.closed ) {
+	// 			clearInterval( timer );
+	// 			console.warn( 'detected dialog closed' );
+	// 		}
+	// 	}, 1000 );
+	// };
 
 	renderUserButton = () => {
 		// Already linked
@@ -161,20 +161,16 @@ export class ConnectButton extends React.Component {
 		// we're falling back to the original flow on Safari desktop and mobile,
 		// thus ignore the 'connectInPlace' property value.
 
-		// We also check the `doNotUseConnectionIframe` initial global state property.
+		// We also check the `doNotConnectInPlace` initial global state property.
 		// This will override the button's `connectInPlace` property.
 
-		if (
-			this.props.connectInPlace &&
-			! this.props.isSafari &&
-			! this.props.doNotUseConnectionIframe
-		) {
-			buttonProps.onClick = this.loadIframe;
+		if ( this.props.connectInPlace && ! this.props.doNotConnectInPlace ) {
+			buttonProps.onClick = this.connectInPlace;
 		}
 
-		if ( this.props.connectInPopup ) {
-			buttonProps.onClick = e => this.loadPopup( e, connectUrl );
-		}
+		// if ( this.props.connectInPopup ) {
+		// 	buttonProps.onClick = e => this.loadPopup( e, connectUrl );
+		// }
 
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
@@ -274,7 +270,7 @@ export default connect(
 			isUnlinking: _isUnlinkingUser( state ),
 			isAuthorizing: _isAuthorizingUserInPlace( state ),
 			isSafari: isSafari( state ),
-			doNotUseConnectionIframe: doNotUseConnectionIframe( state ),
+			doNotConnectInPlace: doNotConnectInPlace( state ),
 		};
 	},
 	dispatch => {

@@ -226,7 +226,7 @@ class Jetpack_Connection_Banner {
 				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
 				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
-				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
+				'buttonTextRegistering' => __( 'Fueling boosters', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 				'forceVariation'        => $force_variation,
 				'connectUrl'            => Jetpack::admin_url( 'page=jetpack#/setup' ),

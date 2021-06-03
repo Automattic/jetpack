@@ -18,8 +18,7 @@ import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
-import { getConnectUrl, hasConnectedOwner } from 'state/connection';
-import ConnectModal from './connect-modal';
+import { hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
 
 class ModuleToggleComponent extends Component {
 	static displayName = 'ModuleToggle';
@@ -42,28 +41,19 @@ class ModuleToggleComponent extends Component {
 		overrideCondition: '',
 	};
 
-	state = {
-		showConnectModal: false,
-	};
-
 	toggleModule = () => {
-		this.trackModuleToggle( this.props.slug, this.props.activated );
-
 		// show a dialog if we're not connected but require an owner
 		if ( this.props.requiresConnectionOwner && ! this.props.hasConnectedOwner ) {
-			this.setState( { showConnectModal: true } );
+			this.props.authorizeUserInPlace();
 			return;
 		}
 
+		this.trackModuleToggle( this.props.slug, this.props.activated );
 		return this.props.toggleModule( this.props.slug, this.props.activated );
 	};
 
-	hideConnectModal = () => {
-		this.setState( { showConnectModal: false } );
-	};
-
 	trackModuleToggle = ( slug, activated ) => {
-		// The stats check is a hack around the fact that we're using <ModuleToggle for the settings there...
+		// The stats check is a hack around the fact that we're using <ModuleToggle> for the settings there...
 		'stats' !== slug &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
 				module: slug,
@@ -138,15 +128,21 @@ class ModuleToggleComponent extends Component {
 				>
 					{ this.props.children }
 				</CompactFormToggle>
-				<ConnectModal show={ this.state.showConnectModal } closeModal={ this.hideConnectModal } />
 			</>
 		);
 	}
 }
 
-export const ModuleToggle = connect( state => {
-	return {
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		hasConnectedOwner: hasConnectedOwner( state ),
-	};
-} )( ModuleToggleComponent );
+export const ModuleToggle = connect(
+	state => {
+		return {
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
+			hasConnectedOwner: hasConnectedOwner( state ),
+		};
+	},
+	dispatch => ( {
+		authorizeUserInPlace: () => {
+			return dispatch( authorizeUserInPlace() );
+		},
+	} )
+)( ModuleToggleComponent );

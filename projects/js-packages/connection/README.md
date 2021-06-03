@@ -27,7 +27,7 @@ const onRegistered = useCallback( () => alert( 'Site registered' ) );
 const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 
 <JetpackConnection
-	apiRoot="https://example.org/wp-json/" 
+	apiRoot="https://example.org/wp-json/"
 	apiNonce="12345"
 	registrationNonce="54321"
 	forceCalypsoFlow={ false }
@@ -52,7 +52,7 @@ import { JetpackConnection } from '@automattic/jetpack-connection';
 const [ connectionStatus, setConnectionStatus ] = useState( {} );
 
 <JetpackConnection
-	apiRoot="https://example.org/wp-json/" 
+	apiRoot="https://example.org/wp-json/"
 	apiNonce="12345"
 	registrationNonce="54321"
 	forceCalypsoFlow={ false }
@@ -61,7 +61,7 @@ const [ connectionStatus, setConnectionStatus ] = useState( {} );
 >
 	{ status => {
 		setConnectionStatus( status );
-		
+
 		return <div className="connection-status-card">
 			{ status.isRegistered && ! status.isUserConnected && (
 					<strong>Site Registered</strong>
@@ -118,7 +118,7 @@ It includes:
 - *isLoading* - boolean, whether to display the "Loading..." label in the component, defaults to `false`.
 - *width* - string|number, the iframe width, defaults to `100%`.
 - *height* - string|number, the iframe height, defaults to `220`.
-- *scrollToIframe* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
+- *scrollToButton* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
 - *onComplete* - callback, to be executed after connection process has completed.
 - *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
 - *connectUrl* - string (required), the connection URL.
@@ -143,19 +143,36 @@ import { InPlaceConnection } from '@automattic/jetpack-connection';
 />
 ```
 
-## Helper `thirdPartyCookiesFallback`
-The helper encapsulates the redirect to the fallback URL you provide.
+## Component `PopUpConnection`
+It includes:
+- a button that launches a connection dialog
+- connection URL handling
+- detecting popup closed so we can refresh connection state
 
-### Parameters
-- *fallbackURL* - string (required), the URL to be redirected to (usually WP.com "authorize" URL)
+### Properties
+- *title* - string (required), the iframe title.
+- *isLoading* - boolean, whether to display the "Loading..." label in the component, defaults to `false`.
+- *width* - string|number, the iframe width, defaults to `100%`.
+- *height* - string|number, the iframe height, defaults to `220`.
+- *scrollToButton* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
+- *onComplete* - callback, to be executed after connection process has completed.
+- *connectUrl* - string (required), the connection URL.
+- *displayTOS* - boolean (required), whether the iframe should display TOS or not.
+- *location* - string, component location identifier passed to WP.com.
 
 ### Usage
 ```jsx
-import InPlaceConnection from 'in-place-connection';
-import { thirdPartyCookiesFallbackHelper } from '@automattic/jetpack-connection/helpers';
+import { PopUpConnection } from '@automattic/jetpack-connection';
 
-<InPlaceConnection
-	onThirdPartyCookiesBlocked={ () => thirdPartyCookiesFallbackHelper( 'https://example.org/fallback-url/' ) }
-	// Other properties.
+<PopUpConnection
+	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
+	height="600"
+	width="400"
+	isLoading={ false }
+	title="Sample Connection"
+	displayTOS={ false }
+	scrollToButton={ false }
+	onComplete={ () => alert( 'Connected' ) }
+	location="sample-connection-form"
 />
 ```

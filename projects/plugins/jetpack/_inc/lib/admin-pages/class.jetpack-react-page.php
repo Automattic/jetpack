@@ -389,7 +389,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'products'                    => Jetpack::get_products_for_purchase(),
 			'recommendationsStep'         => Jetpack_Core_Json_Api_Endpoints::get_recommendations_step()['step'],
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
-			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
+			'doNotConnectInPlace'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
 				'error'           => Licensing::instance()->last_error(),
 				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
