@@ -29,7 +29,7 @@ const defaultOpts = yargs =>
 		} );
 
 /**
- * Gets a project name from the passed aguments. Defaults to 'dev' if not specified.
+ * Gets a project name from the passed arguments. Defaults to 'dev' if not specified.
  *
  * @param {Object} argv Yargs
  * @return {string} Project name
@@ -50,7 +50,7 @@ const getProjectName = argv => {
  * @return {Object} key-value pairs of ENV variables
  */
 const buildEnv = argv => {
-	const envOpts = { PORT: 80 };
+	const envOpts = { PORT_WORDPRESS: 80 };
 	if ( argv.type === 'e2e' ) {
 		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
 	}
