@@ -560,6 +560,10 @@ class REST_Connector {
 			return new WP_Error( 'invalid_argument_user_token', esc_html__( 'Invalid user token is provided', 'jetpack' ) );
 		}
 
+		if ( false === get_userdata( $token_parts[2] ) ) {
+			return new WP_Error( 'invalid_argument_user_id', esc_html__( 'Invalid user id is provided', 'jetpack' ) );
+		}
+
 		$connection = new Manager();
 
 		if ( ! $connection->is_connected() ) {

@@ -446,6 +446,15 @@ class Test_REST_Endpoints extends TestCase {
 		$nonce     = 'testing123';
 		$body_hash = '';
 
+		wp_cache_set(
+			1,
+			(object) array(
+				'ID'         => 1,
+				'user_email' => 'sample@example.org',
+			),
+			'users'
+		);
+
 		$_SERVER['REQUEST_METHOD'] = 'POST';
 
 		$_GET['_for']      = 'jetpack';
@@ -489,6 +498,7 @@ class Test_REST_Endpoints extends TestCase {
 		$data     = $response->get_data();
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		wp_cache_delete( 1, 'users' );
 
 		static::assertTrue( $data['success'] );
 		static::assertEquals( 200, $response->status );
