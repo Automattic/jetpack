@@ -62,6 +62,10 @@ class P2_Admin_Menu extends WPcom_Admin_Menu {
 	protected function __construct() {
 		parent::__construct();
 
+		if ( ! $this->should_customize_nav() ) {
+			return;
+		}
+
 		if (
 			defined( 'IS_WPCOM' ) && IS_WPCOM &&
 			function_exists( 'require_lib' )
