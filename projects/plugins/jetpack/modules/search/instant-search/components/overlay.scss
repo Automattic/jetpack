@@ -22,12 +22,7 @@ $overlay-horizontal-padding-lg: 3em;
 	overflow-x: hidden;
 	overflow-y: auto;
 	
-	// Animation
 	transition: opacity 0.2s ease-in;
-	animation-name: dialog-pop;
-	animation-duration: 0.3s;
-	animation-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
-	transform-origin: center center;
 
 	z-index: 9999999999999;
 
