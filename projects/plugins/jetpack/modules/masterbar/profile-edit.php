@@ -19,8 +19,14 @@ function masterbar_hide_profile_fields( $user ) {
 		return;
 	}
 	// Since there is no hook for altering profile fields, we will use CSS and JS.
-	$name_info_wpcom_link_message    = __( '<a href="https://wordpress.com/me">WordPress.com users can change their profile\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in WordPress.com Profile settings.</a>', 'jetpack' );
-	$contact_info_wpcom_link_message = __( '<a href="https://wordpress.com/me/account">WordPress.com users can change their profile\'s email & website address in WordPress.com Account settings.</a>', 'jetpack' );
+	$name_info_wpcom_link_message = sprintf(
+		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s">WordPress.com Profile settings.</a>', 'jetpack' ),
+		'https://wordpress.com/me',
+	);
+	$contact_info_wpcom_link_message = sprintf(
+		__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s">WordPress.com Account settings.</a>', 'jetpack' ),
+		'https://wordpress.com/me/account',
+	);
 	?>
 	<style>
 		.user-first-name-wrap,
@@ -37,13 +43,15 @@ function masterbar_hide_profile_fields( $user ) {
 		document.addEventListener( 'DOMContentLoaded', function() {
 			// Name Info.
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
-			var nameInfoWpcomLink           = document.createElement( 'p' );
+			var nameInfoWpcomLink           = document.createElement( 'div' );
+				nameInfoWpcomLink.className = 'notice inline notice-warning';
 			    nameInfoWpcomLink.innerHTML = '<?php echo wp_kses( $name_info_wpcom_link_message, 'a' ); ?>';
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
 			// Contact Info.
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
-			var contactInfoWpcomLink           = document.createElement( 'p' );
+			var contactInfoWpcomLink           = document.createElement( 'div' );
+				contactInfoWpcomLink.className = 'notice inline notice-warning';
 			    contactInfoWpcomLink.innerHTML = '<?php echo wp_kses( $contact_info_wpcom_link_message, 'a' ); ?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
