@@ -18,6 +18,7 @@ import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
 import { buildFilterAggregations } from './lib/api';
+import { isInCustomizer } from './lib/customize';
 import store from './store';
 
 const injectSearchApp = () => {
@@ -34,6 +35,9 @@ const injectSearchApp = () => {
 				initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 				// NOTE: initialShowResults is only used in the customizer. See lib/customize.js.
 				initialShowResults={ window[ SERVER_OBJECT_NAME ].showResults }
+				isInCustomizer={ isInCustomizer() }
+				shouldCreatePortal
+				shouldIntegrateWithDom
 				options={ window[ SERVER_OBJECT_NAME ] }
 				themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
 			/>
