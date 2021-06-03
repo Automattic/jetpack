@@ -68,9 +68,8 @@ export function response( state = {}, action ) {
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
 			}
 
-			// NOTE: There was a bug in the API where `response.total` was erroneously set to 0 when paginating
-			//       with excluded post types. To prevent this from erroneously rendering a "no result" search results
-			//       page, we override the total if the size of our results exceed the `response.total` value.
+			// NOTE: To prevent our interface from erroneously rendering a "no result" search results page wher
+			//       we actually have results, override the total if the size of our results exceed the `response.total` value.
 			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
