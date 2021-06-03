@@ -68,8 +68,8 @@ export function response( state = {}, action ) {
 				newState.results = [ ...( 'results' in state ? state.results : [] ), ...newState.results ];
 			}
 
-			// NOTE: To prevent our interface from erroneously rendering a "no result" search results page wher
-			//       we actually have results, override the total if the size of our results exceed the `response.total` value.
+			// To prevent our interface from erroneously rendering a "no result" search results page when
+			// we actually have results, override the total if the size of our results exceed the `response.total` value.
 			if ( Array.isArray( newState.results ) && newState.results.length > newState.total ) {
 				newState.total = newState.results.length;
 			}
