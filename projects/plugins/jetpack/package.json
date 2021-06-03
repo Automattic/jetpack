@@ -55,7 +55,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/calypso-build": "6.1.0",
+		"@automattic/calypso-build": "6.5.0",
 		"@automattic/calypso-color-schemes": "2.1.1",
 		"@automattic/components": "1.0.0-alpha.3",
 		"@automattic/format-currency": "1.0.0-alpha.0",
