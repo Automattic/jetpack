@@ -21,9 +21,14 @@ $overlay-horizontal-padding-lg: 3em;
 	opacity: 1;
 	overflow-x: hidden;
 	overflow-y: auto;
-	transition: background-color $search-results-slide-in-time linear,
-		opacity $overlay-fade-in-time linear, transform 0.1ms linear;
-	will-change: opacity, transform;
+	
+	// Animation
+	transition: opacity 0.2s ease-in;
+	animation-name: dialog-pop;
+	animation-duration: 0.3s;
+	animation-timing-function: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+	transform-origin: center center;
+
 	z-index: 9999999999999;
 
 	// Override font for Argent theme.
@@ -47,8 +52,7 @@ $overlay-horizontal-padding-lg: 3em;
 	&.is-hidden {
 		background: transparent;
 		opacity: 0;
-		transform: translate3d( 0, 100vh, 0 );
-		transition-delay: 0s, $search-results-slide-in-time, $search-results-slide-in-time;
+		visibility: hidden;
 	}
 
 	*,
