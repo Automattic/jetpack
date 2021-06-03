@@ -859,7 +859,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'permission_callback' => __CLASS__ . '::purchase_token_permission_check',
 				),
 				array(
-					'methods'             => WP_REST_Server::DELETABLE,
+					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => __CLASS__ . '::delete_purchase_token',
 					'permission_callback' => __CLASS__ . '::purchase_token_permission_check',
 				),
