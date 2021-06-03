@@ -22,7 +22,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	protected function __construct() {
 		parent::__construct();
 
-		if ( ! $this->should_override_nav() ) {
+		if ( ! $this->should_customize_nav() ) {
 			return;
 		}
 
