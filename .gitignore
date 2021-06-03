@@ -28,8 +28,8 @@ phpcs.xml
 .phpunit.result.cache
 
 ## Things for docker-composer
-/tools/docker/data/mysql/*
-!/tools/docker/data/mysql/.gitkeep
+/tools/docker/data/*
+!/tools/docker/data/.gitkeep
 /tools/docker/logs/*
 !/tools/docker/logs/.gitkeep
 # Custom environment for docker containers

@@ -94,7 +94,7 @@ for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 done
 
 # Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
-if [ ! -e /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack ]; then
+if [ ! -L /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack ]; then
 	ln -s /var/www/html/wp-content/plugins/jetpack /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack
 fi
 
