@@ -6,6 +6,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
@@ -94,6 +95,7 @@ class Jetpack_Redux_State_Helper {
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
+			'purchaseToken'               => self::get_purchase_token(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
@@ -322,4 +324,91 @@ class Jetpack_Redux_State_Helper {
 		}
 		return $connect_urls;
 	}
+
+	/**
+	 * Gets a purchase token that is used for Jetpack logged out visitor checkout.
+	 * The purchase token should be appended to all CTA url's that lead to checkout.
+	 *
+	 * @since 9.8.0
+	 * @return string|boolean
+	 */
+	public static function get_purchase_token() {
+		if ( ! Jetpack::current_user_can_purchase() ) {
+			return false;
+		}
+
+		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
+
+		if ( $purchase_token ) {
+			return $purchase_token;
+		}
+		// If the purchase token is not saved in the options table yet, then add it.
+		Jetpack_Options::update_option( 'purchase_token', self::generate_purchase_token(), true );
+		return Jetpack_Options::get_option( 'purchase_token', false );
+	}
+
+	/**
+	 * Generates a purchase token that is used for Jetpack logged out visitor checkout.
+	 *
+	 * @since 9.8.0
+	 * @return string
+	 */
+	public static function generate_purchase_token() {
+		return wp_generate_password( 12, false );
+	}
+}
+
+/**
+ * Gather data about the current user.
+ *
+ * @since 4.1.0
+ *
+ * @return array
+ */
+function jetpack_current_user_data() {
+	$jetpack_connection = new Connection_Manager( 'jetpack' );
+
+	$current_user      = wp_get_current_user();
+	$is_user_connected = $jetpack_connection->is_user_connected( $current_user->ID );
+	$is_master_user    = $is_user_connected && (int) $current_user->ID && (int) Jetpack_Options::get_option( 'master_user' ) === (int) $current_user->ID;
+	$dotcom_data       = $jetpack_connection->get_connected_user_data();
+
+	// Add connected user gravatar to the returned dotcom_data.
+	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
+		get_avatar_url(
+			$dotcom_data['email'],
+			array(
+				'size'    => 64,
+				'default' => 'mysteryman',
+			)
+		)
+		: false );
+
+	$current_user_data = array(
+		'isConnected' => $is_user_connected,
+		'isMaster'    => $is_master_user,
+		'username'    => $current_user->user_login,
+		'id'          => $current_user->ID,
+		'wpcomUser'   => $dotcom_data,
+		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
+		'permissions' => array(
+			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
+			'connect'            => current_user_can( 'jetpack_connect' ),
+			'connect_user'       => current_user_can( 'jetpack_connect_user' ),
+			'disconnect'         => current_user_can( 'jetpack_disconnect' ),
+			'manage_modules'     => current_user_can( 'jetpack_manage_modules' ),
+			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
+			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
+			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'publish_posts'      => current_user_can( 'publish_posts' ),
+			'manage_options'     => current_user_can( 'manage_options' ),
+			'view_stats'         => current_user_can( 'view_stats' ),
+			'manage_plugins'     => current_user_can( 'install_plugins' )
+									&& current_user_can( 'activate_plugins' )
+									&& current_user_can( 'update_plugins' )
+									&& current_user_can( 'delete_plugins' ),
+		),
+	);
+
+	return $current_user_data;
 }

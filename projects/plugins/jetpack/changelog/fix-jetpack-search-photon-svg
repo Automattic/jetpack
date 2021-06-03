@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Instant Search: don't photon-ize SVG images as they're not supported by Photon
