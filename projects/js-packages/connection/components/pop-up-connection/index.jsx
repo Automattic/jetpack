@@ -37,7 +37,8 @@ const PopUpConnection = props => {
 		// Track click
 		analytics.tracks.recordJetpackClick( 'link_account_in_popup' );
 
-		url = url + '&close_window_after_auth=1&calypso_env=development';
+		// close the window when done authorizing
+		url = url + '&close_window_after_auth=1';
 
 		const dialog = window.open(
 			url,
