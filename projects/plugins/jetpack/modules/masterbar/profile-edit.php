@@ -13,9 +13,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * @param WP_User $user The current WP_User object.
  */
 function masterbar_hide_profile_fields( $user ) {
-	$user_id            = $user->ID;
 	$connection_manager = new Connection_Manager( 'jetpack' );
-	if ( ! $connection_manager->is_user_connected( $user_id ) ) {
+	if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
 		// If this is a local user, show the default UX.
 		return;
 	}
