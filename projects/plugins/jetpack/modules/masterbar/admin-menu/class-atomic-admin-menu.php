@@ -405,7 +405,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// If Calypso is not forced, then always use WP Admin.
-		parent::add_comments_menu( $this->should_force_calypso_links() );
+		parent::add_comments_menu( ! $this->should_force_calypso_links() );
 	}
 
 	/**

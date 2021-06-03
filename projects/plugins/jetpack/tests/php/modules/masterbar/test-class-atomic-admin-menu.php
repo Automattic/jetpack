@@ -70,6 +70,14 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
+		add_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
+	}
+
+	/**
+	 * Remove mocked filters.
+	 */
+	public static function tearDownAfterClass() {
+		remove_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
 	}
 
 	/**
@@ -86,9 +94,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$submenu = static::$submenu_data;
 
 		wp_set_current_user( static::$user_id );
-
-		\Jetpack::activate_module( 'sso' );
-		$this->disable_api_request();
 	}
 
 	/**
@@ -277,16 +282,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_posts_menu( false );
 		$this->assertSame( 'edit.php', $submenu['edit.php'][5][2] );
 		$this->assertSame( 'post-new.php', $submenu['edit.php'][10][2] );
-
-		// Reset.
-		$submenu = static::$submenu_data;
-
-		// Make sure menu items link to Calypso for API requests when SSO is disabled.
-		$this->enable_api_request();
-		\Jetpack::deactivate_module( 'sso' );
-		static::$admin_menu->add_posts_menu( true );
-		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
 	}
 
 	/**
@@ -301,16 +296,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_page_menu( false );
 		$this->assertSame( 'edit.php?post_type=page', $submenu['edit.php?post_type=page'][5][2] );
 		$this->assertSame( 'post-new.php?post_type=page', $submenu['edit.php?post_type=page'][10][2] );
-
-		// Reset.
-		$submenu = static::$submenu_data;
-
-		// Make sure menu items link to Calypso for API requests when SSO is disabled.
-		$this->enable_api_request();
-		\Jetpack::deactivate_module( 'sso' );
-		static::$admin_menu->add_page_menu( true );
-		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
 	}
 
 	/**
@@ -367,14 +352,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$admin_menu->add_options_menu( true );
 		$last_submenu = array_pop( $submenu['options-general.php'] );
 		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
-
-		// Reset.
-		$submenu = static::$submenu_data;
-
-		$this->enable_api_request();
-		\Jetpack::deactivate_module( 'sso' );
-		$last_submenu = array_pop( $submenu['options-general.php'] );
-		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
 	}
 
 	/**
@@ -412,13 +389,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			// Check Customize menu always links to WP Admin.
 			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		}
-
-		// Reset.
-		$submenu = static::$submenu_data;
-
-		$this->enable_api_request();
-		\Jetpack::deactivate_module( 'sso' );
-		$this->assertArrayNotHasKey( 1, $submenu['themes.php'] );
 	}
 
 	/**
@@ -431,13 +401,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
-
-		// Reset.
-		$submenu = static::$submenu_data;
-
-		$this->enable_api_request();
-		\Jetpack::deactivate_module( 'sso' );
-		$this->assertArrayNotHasKey( 2, $submenu['users.php'] );
 	}
 
 	/**
@@ -451,16 +414,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		// Make sure menu items link to WP Admin.
 		static::$admin_menu->add_comments_menu( false );
 		$this->assertSame( 'edit-comments.php', $menu[25][2] );
-
-		// Reset.
-		$menu = static::$menu_data;
-
-		// Make sure menu items link to Calypso for API requests when SSO is disabled.
-		$this->enable_api_request();
-		\Jetpack::deactivate_module( 'sso' );
-		static::$admin_menu->add_comments_menu( true );
-		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
-
 	}
 
 	/**
@@ -477,22 +430,55 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Makes the admin class think the menu is requested by an API request.
+	 * Tests that Calypso links are forced on API requests when SSO is disabled.
 	 */
-	public function enable_api_request() {
+	public function test_calypso_menu_when_sso_disabled() {
+		global $menu, $submenu;
+
+		// Set up.
 		$admin_menu     = new ReflectionClass( static::$admin_menu );
 		$is_api_request = $admin_menu->getProperty( 'is_api_request' );
 		$is_api_request->setAccessible( true );
 		$is_api_request->setValue( static::$admin_menu, true );
+		$is_sso_enabled = $admin_menu->getProperty( 'is_sso_enabled' );
+		$is_sso_enabled->setAccessible( true );
+		$is_sso_enabled->setValue( static::$admin_menu, false );
+
+		// Register menus.
+		static::$admin_menu->add_posts_menu( true );
+		static::$admin_menu->add_page_menu( true );
+		static::$admin_menu->add_options_menu();
+		static::$admin_menu->add_appearance_menu();
+		static::$admin_menu->add_users_menu();
+		static::$admin_menu->add_comments_menu();
+
+		// Make sure menu items no WP Admin links are added for API requests when SSO is disabled.
+		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
+		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
+		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
+		$last_options_submenu = array_pop( $submenu['options-general.php'] );
+		$this->assertNotSame( 'options-writing.php', $last_options_submenu[2] );
+		if ( current_user_can( 'install_themes' ) ) {
+			$this->assertNotSame( 'theme-install.php', $submenu['themes.php'][1][2] );
+		}
+		$this->assertNotSame( 'users.php', $submenu['users.php'][2][2] );
+		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
+
+		// Reset.
+		$is_api_request->setValue( static::$admin_menu, false );
+		$is_sso_enabled->setValue( static::$admin_menu, true );
 	}
 
 	/**
-	 * Makes the admin class think the menu is requested by an API request.
+	 * Adds the SSO module to the list of active modules.
+	 *
+	 * @param array $modules List of active modules.
+	 *
+	 * @return array
 	 */
-	public function disable_api_request() {
-		$admin_menu     = new ReflectionClass( static::$admin_menu );
-		$is_api_request = $admin_menu->getProperty( 'is_api_request' );
-		$is_api_request->setAccessible( true );
-		$is_api_request->setValue( static::$admin_menu, false );
+	public static function mock_sso_module_enabled( $modules ) {
+		$modules[] = 'sso';
+		return $modules;
 	}
 }
