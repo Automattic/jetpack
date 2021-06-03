@@ -560,7 +560,9 @@ class REST_Connector {
 			return new WP_Error( 'invalid_argument_user_token', esc_html__( 'Invalid user token is provided', 'jetpack' ) );
 		}
 
-		if ( false === get_userdata( $token_parts[2] ) ) {
+		$user_id = (int) $token_parts[2];
+
+		if ( false === get_userdata( $user_id ) ) {
 			return new WP_Error( 'invalid_argument_user_id', esc_html__( 'Invalid user id is provided', 'jetpack' ) );
 		}
 
@@ -572,9 +574,11 @@ class REST_Connector {
 
 		$is_connection_owner = isset( $request['is_connection_owner'] )
 			? (bool) $request['is_connection_owner']
-			: ( new Manager() )->get_connection_owner_id() === (int) $token_parts[2];
+			: ( new Manager() )->get_connection_owner_id() === $user_id;
 
-		( new Tokens() )->update_user_token( $token_parts[2], $request['user_token'], $is_connection_owner );
+		( new Tokens() )->update_user_token( $user_id, $request['user_token'], $is_connection_owner );
+
+		do_action( 'jetpack_update_user_token_success', $user_id, $request['user_token'] );
 
 		return rest_ensure_response(
 			array(

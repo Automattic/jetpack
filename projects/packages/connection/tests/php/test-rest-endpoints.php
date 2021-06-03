@@ -441,6 +441,15 @@ class Test_REST_Endpoints extends TestCase {
 	public function test_set_user_token_success() {
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 
+		$action_hook_id    = null;
+		$action_hook_token = null;
+		$action_hook       = function ( $user_id, $user_token ) use ( &$action_hook_id, &$action_hook_token ) {
+			$action_hook_id    = $user_id;
+			$action_hook_token = $user_token;
+		};
+
+		add_action( 'jetpack_update_user_token_success', $action_hook, 10, 2 );
+
 		$token     = 'new:1:0';
 		$timestamp = (string) time();
 		$nonce     = 'testing123';
@@ -497,12 +506,15 @@ class Test_REST_Endpoints extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
+		remove_action( 'jetpack_update_user_token_success', $action_hook );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 		wp_cache_delete( 1, 'users' );
 
 		static::assertTrue( $data['success'] );
 		static::assertEquals( 200, $response->status );
 		static::assertEquals( array( 1 => $user_token ), Jetpack_Options::get_option( 'user_tokens' ) );
+		static::assertSame( 1, $action_hook_id, "The 'jetpack_update_user_token_success' action was not properly executed." );
+		static::assertEquals( $user_token, $action_hook_token, "The 'jetpack_update_user_token_success' action was not properly executed." );
 	}
 
 	/**
