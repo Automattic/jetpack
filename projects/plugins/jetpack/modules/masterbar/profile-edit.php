@@ -35,7 +35,7 @@ function masterbar_hide_profile_fields( $user ) {
 		}
 	</style>
 	<script>
-		document.addEventListener( 'DOMContentLoaded' , function() {
+		document.addEventListener( 'DOMContentLoaded', function() {
 			// Name Info.
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'p' );
