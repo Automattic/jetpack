@@ -45,6 +45,17 @@ class REST_Endpoints {
 			)
 		);
 
+		// IDC resolve: create an entirely new shadow site for this URL.
+		register_rest_route(
+			'jetpack/v4',
+			'/identity-crisis/start-fresh',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::start_fresh_connection',
+				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
+			)
+		);
+
 	}
 
 	/**
@@ -99,6 +110,22 @@ class REST_Endpoints {
 			esc_html__( 'Could not confirm migration.', 'jetpack' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	/**
+	 * This IDC resolution will disconnect the site and re-connect to a completely new
+	 * and separate shadow site than the original.
+	 *
+	 * It will first will disconnect the site without phoning home as to not disturb the production site.
+	 * It then builds a fresh connection URL and sends it back along with the response.
+	 *
+	 * @since 4.4.0
+	 * @return bool|WP_Error
+	 */
+	public static function start_fresh_connection() {
+		// First clear the options / disconnect.
+		do_action( 'jetpack_idc_disconnect' );
+		return apply_filters( 'jetpack_idc_build_connect_url', '' ); // ToDo what is the default url?
 	}
 
 	/**
