@@ -4362,14 +4362,19 @@ p {
 						exit;
 					}
 
-					$redirect_url = self::admin_url(
-						array(
-							'page'     => 'jetpack',
-							'action'   => 'authorize_redirect',
-							'dest_url' => rawurlencode( $dest_url ),
-							'done'     => '1',
-						)
+					$redirect_args = array(
+						'page'     => 'jetpack',
+						'action'   => 'authorize_redirect',
+						'dest_url' => rawurlencode( $dest_url ),
+						'done'     => '1',
 					);
+
+					if ( ! empty( $_GET['from'] ) && 'jetpack_site_only_checkout' === $_GET['from'] ) {
+						// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+						$redirect_args['from'] = $_GET['from'];
+					}
+
+					$redirect_url = self::admin_url( $redirect_args );
 
 					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
 					exit;
