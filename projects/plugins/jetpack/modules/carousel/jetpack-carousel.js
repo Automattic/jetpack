@@ -1006,18 +1006,17 @@
 
 		function calculateBestFit( slide ) {
 			var max = calculateMaxSlideDimensions();
-			var orig = getOriginalDimensions( slide ),
-				origRatio = orig.width / orig.height,
+			var origRatio = slide.attrs.origWidth / slide.attrs.origHeight,
 				wRatio = 1,
 				hRatio = 1,
 				width,
 				height;
 
-			if ( orig.width > max.width ) {
-				wRatio = max.width / orig.width;
+			if ( slide.attrs.origWidth > max.width ) {
+				wRatio = max.width / slide.attrs.origWidth;
 			}
-			if ( orig.height > max.height ) {
-				hRatio = max.height / orig.height;
+			if ( slide.attrs.origHeight > max.height ) {
+				hRatio = max.height / slide.attrs.origHeight;
 			}
 
 			if ( wRatio < hRatio ) {
@@ -1027,8 +1026,8 @@
 				height = max.height;
 				width = Math.floor( height * origRatio );
 			} else {
-				width = orig.width;
-				height = orig.height;
+				width = slide.attrs.origWidth;
+				height = slide.attrs.origHeight;
 			}
 
 			return {
@@ -1173,11 +1172,6 @@
 			return sizeParts;
 		}
 
-		function getOriginalDimensions( slide ) {
-			var parts = slide.attrs.origSize.split( ',' );
-			return { width: parseInt( parts[ 0 ], 10 ), height: parseInt( parts[ 1 ], 10 ) };
-		}
-
 		/**
 		 * Returns a number in a fraction format that represents the shutter speed.
 		 * @param Number speed
@@ -1276,7 +1270,7 @@
 				return false;
 			}
 			var original;
-			var origSize = currentSlide.attrs.origSize.split( ',' );
+			var origSize = [ currentSlide.attrs.origWidth, currentSlide.attrs.origHeight ];
 			var imageLinkParser = document.createElement( 'a' );
 
 			imageLinkParser.href = currentSlide.attrs.src.replace( /\?.+$/, '' );
@@ -1452,6 +1446,22 @@
 			}
 		}
 
+		function getOriginalDimensions( el ) {
+			var size = el.getAttribute( 'data-orig-size' ) || '';
+
+			if ( size ) {
+				var parts = size.split( ',' );
+				return { width: parseInt( parts[ 0 ], 10 ), height: parseInt( parts[ 1 ], 10 ) };
+			} else {
+				return {
+					width:
+						el.getAttribute( 'data-original-width' ) || el.getAttribute( 'width' ) || undefined,
+					height:
+						el.getAttribute( 'data-original-height' ) || el.getAttribute( 'height' ) || undefined,
+				};
+			}
+		}
+
 		function initCarouselSlides( items, startIndex ) {
 			carousel.slides = [];
 
@@ -1463,42 +1473,7 @@
 				domUtil.show( carousel.prevButton );
 			}
 
-			// Calculate the new src.
-			Array.prototype.forEach.call( items, function ( item ) {
-				var origSizeStr = item.getAttribute( 'data-orig-size' ) || '';
-				var max = calculateMaxSlideDimensions();
-				var parts = origSizeStr.split( ',' );
-				var mediumFile = item.getAttribute( 'data-medium-file' ) || '';
-				var largeFile = item.getAttribute( 'data-large-file' ) || '';
-
-				var src;
-
-				var origSize = { width: undefined, height: undefined };
-
-				if ( parts.length === 2 ) {
-					origSize.width = parseInt( parts[ 0 ], 10 );
-					origSize.height = parseInt( parts[ 1 ], 10 );
-				}
-
-				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
-					src = wpcom.carousel.generateImgSrc( item, max );
-				} else {
-					src = item.getAttribute( 'data-orig-file' );
-
-					src = selectBestImageUrl( {
-						origFile: src,
-						origWidth: origSize.width,
-						origHeight: origSize.height,
-						maxWidth: max.width,
-						maxHeight: max.height,
-						mediumFile: mediumFile,
-						largeFile: largeFile,
-					} );
-				}
-
-				// Set the final src.
-				item.setAttribute( 'data-gallery-src', src );
-			} );
+			var max = calculateMaxSlideDimensions();
 
 			// If the startIndex is not 0 then preload the clicked image first.
 			if ( startIndex !== 0 ) {
@@ -1518,10 +1493,8 @@
 					attachmentId: item.getAttribute( 'data-attachment-id' ) || '0',
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
-					origSize: item.getAttribute( 'data-orig-size' ) || '',
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
-					src: item.getAttribute( 'data-gallery-src' ) || '',
 					mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: item.getAttribute( 'data-orig-file' ) || '',
@@ -1538,7 +1511,31 @@
 					attrs.caption = tiledCaption;
 				}
 
-				if ( attrs.attachmentId !== '0' && attrs.origSize.length ) {
+				var origDimensions = getOriginalDimensions( item );
+
+				attrs.origWidth = origDimensions.width;
+				attrs.origHeight = origDimensions.height;
+
+				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
+					attrs.src = wpcom.carousel.generateImgSrc( item, max );
+				} else {
+					attrs.src = item.getAttribute( 'data-orig-file' );
+
+					attrs.src = selectBestImageUrl( {
+						origFile: attrs.src,
+						origWidth: attrs.origWidth,
+						origHeight: attrs.origHeight,
+						maxWidth: max.width,
+						maxHeight: max.height,
+						mediumFile: attrs.mediumFile,
+						largeFile: attrs.largeFile,
+					} );
+				}
+
+				// Set the final src.
+				item.setAttribute( 'data-gallery-src', attrs.src );
+
+				if ( attrs.attachmentId !== '0' ) {
 					attrs.title = util.texturize( attrs.title );
 					attrs.desc = util.texturize( attrs.desc );
 					attrs.caption = util.texturize( attrs.caption );
