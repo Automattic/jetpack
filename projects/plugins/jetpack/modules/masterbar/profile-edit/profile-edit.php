@@ -5,9 +5,6 @@
  * @package Jetpack
  */
 
-// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterOpen
-// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
-
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
@@ -39,36 +36,36 @@ function masterbar_hide_profile_fields( $user ) {
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
 				nameInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				nameInfoWpcomLink.innerHTML = '<?php
-					echo wp_kses(
-						$name_info_wpcom_link_message,
-						array(
-							'a' => array(
-								'href'   => array(),
-								'rel'    => array(),
-								'target' => array(),
-							),
-						)
-					);
-				?>';
+				nameInfoWpcomLink.innerHTML = '<?php // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterOpen
+													echo wp_kses(
+														$name_info_wpcom_link_message,
+														array(
+															'a' => array(
+																'href'   => array(),
+																'rel'    => array(),
+																'target' => array(),
+															),
+														)
+													);
+												?>'; // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
 			// Contact Info.
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-			    contactInfoWpcomLink.innerHTML = '<?php
-					echo wp_kses(
-						$contact_info_wpcom_link_message,
-						array(
-							'a' => array(
-								'href'   => array(),
-								'rel'    => array(),
-								'target' => array(),
-							),
-						)
-					);
-				?>';
+			    contactInfoWpcomLink.innerHTML = '<?php // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterOpen
+													echo wp_kses(
+														$contact_info_wpcom_link_message,
+														array(
+															'a' => array(
+																'href'   => array(),
+																'rel'    => array(),
+																'target' => array(),
+															),
+														)
+													);
+												?>'; // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
 
