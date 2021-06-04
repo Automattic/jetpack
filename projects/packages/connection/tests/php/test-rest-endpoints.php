@@ -448,7 +448,7 @@ class Test_REST_Endpoints extends TestCase {
 			$action_hook_token = $user_token;
 		};
 
-		add_action( 'jetpack_update_user_token_success', $action_hook, 10, 2 );
+		add_action( 'jetpack_updated_user_token', $action_hook, 10, 2 );
 
 		$token     = 'new:1:0';
 		$timestamp = (string) time();
@@ -506,7 +506,7 @@ class Test_REST_Endpoints extends TestCase {
 		$response = $this->server->dispatch( $this->request );
 		$data     = $response->get_data();
 
-		remove_action( 'jetpack_update_user_token_success', $action_hook );
+		remove_action( 'jetpack_updated_user_token', $action_hook );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 		wp_cache_delete( 1, 'users' );
 

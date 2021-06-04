@@ -578,7 +578,15 @@ class REST_Connector {
 
 		( new Tokens() )->update_user_token( $user_id, $request['user_token'], $is_connection_owner );
 
-		do_action( 'jetpack_update_user_token_success', $user_id, $request['user_token'] );
+		/**
+		 * Fires when the user token gets successfully replaced.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @param int $user_id User ID.
+		 * @param string $token New user token.
+		 */
+		do_action( 'jetpack_updated_user_token', $user_id, $request['user_token'] );
 
 		return rest_ensure_response(
 			array(
