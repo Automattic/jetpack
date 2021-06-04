@@ -243,7 +243,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection-ui",
-                "reference": "72a09bbe875a4f439afaa2b0b79ef84ac404d34d"
+                "reference": "66fa4e7c0feed1c9ef99ea58aaabe2780b88f383"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.28",
@@ -272,11 +272,11 @@
             "scripts": {
                 "build-development": [
                     "Composer\\Config::disableProcessTimeout",
-                    "yarn build"
+                    "pnpm run build"
                 ],
                 "build-production": [
                     "Composer\\Config::disableProcessTimeout",
-                    "yarn build"
+                    "pnpm run build"
                 ]
             },
             "license": [

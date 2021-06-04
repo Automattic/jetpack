@@ -16,7 +16,7 @@ jQuery( document ).ready( function ( $ ) {
 		screenPadding,
 		originalOverflow = $( 'body' ).css( 'overflow' ),
 		originalHOverflow = $( 'html' ).css( 'overflow' ),
-		proportion = 85,
+		proportion = 80,
 		lastKnownLocationHash = '',
 		scrollPos,
 		isUserTyping = false;
