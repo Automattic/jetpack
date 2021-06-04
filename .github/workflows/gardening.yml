@@ -37,7 +37,7 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        uses: .github/actions/read-versions
+        uses: ./.github/actions/read-versions
 
       - name: Setup Node
         uses: actions/setup-node@v2

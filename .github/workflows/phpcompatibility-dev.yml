@@ -49,7 +49,7 @@ jobs:
 
       - name: Read PHP and Node versions
         id: versions
-        uses: .github/actions/read-versions
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

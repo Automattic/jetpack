@@ -51,7 +51,7 @@ jobs:
 
     - name: Read tool versions
       id: versions
-      uses: .github/actions/read-versions
+      uses: ./.github/actions/read-versions
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -174,7 +174,7 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        uses: .github/actions/read-versions
+        uses: ./.github/actions/read-versions
 
       - name: Setup Node
         uses: actions/setup-node@v2
