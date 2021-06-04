@@ -155,7 +155,7 @@ function enrich_video_meta( $media_file ) {
 		$poster_url    = add_query_arg( 'w', $new_width, $poster_url );
 	}
 
-	$media_file = array_merge(
+	return array_merge(
 		$media_file,
 		array(
 			'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : $media_file['width'] ),
@@ -167,8 +167,6 @@ function enrich_video_meta( $media_file ) {
 			'poster'  => $poster_url,
 		)
 	);
-
-	return $media_file;
 }
 
 /**
