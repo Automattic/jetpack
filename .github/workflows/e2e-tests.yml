@@ -217,6 +217,7 @@ jobs:
   test-reports:
     name: "Trigger test report workflow"
     runs-on: ubuntu-latest
+    if: always()
     needs: e2e-tests
 
     steps:
