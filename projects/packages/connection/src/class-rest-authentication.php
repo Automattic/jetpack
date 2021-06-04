@@ -83,7 +83,7 @@ class Rest_Authentication {
 	 *
 	 * @param int|bool $user User ID if one has been determined, false otherwise.
 	 *
-	 * @return int|null The user id or null if the request was not authenticated.
+	 * @return int|null The user id or null if the request was authenticated via blog token, or not authenticated at all.
 	 */
 	public function wp_rest_authenticate( $user ) {
 		if ( $this->doing_determine_current_user_filter ) {
