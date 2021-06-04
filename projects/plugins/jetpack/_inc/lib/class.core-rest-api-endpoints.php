@@ -293,17 +293,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Confirm that a site in identity crisis should be in staging mode
-		register_rest_route(
-			'jetpack/v4',
-			'/identity-crisis/confirm-safe-mode',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::confirm_safe_mode',
-				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
-			)
-		);
-
 		// IDC resolve: create an entirely new shadow site for this URL.
 		register_rest_route(
 			'jetpack/v4',
@@ -311,17 +300,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::start_fresh_connection',
-				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
-			)
-		);
-
-		// Handles the request to migrate stats and subscribers during an identity crisis.
-		register_rest_route(
-			'jetpack/v4',
-			'identity-crisis/migrate',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::migrate_stats_and_subscribers',
 				'permission_callback' => __CLASS__ . '::identity_crisis_mitigation_permission_check',
 			)
 		);
@@ -2180,59 +2158,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'code' => 'success',
 				'data' => $data->current->orderedItems,
 			)
-		);
-	}
-
-	/**
-	 * Handles identity crisis mitigation, confirming safe mode for this site.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return bool | WP_Error True if option is properly set.
-	 */
-	public static function confirm_safe_mode() {
-		$updated = Jetpack_Options::update_option( 'safe_mode_confirmed', true );
-		if ( $updated ) {
-			return rest_ensure_response(
-				array(
-					'code' => 'success',
-				)
-			);
-		}
-		return new WP_Error(
-			'error_setting_jetpack_safe_mode',
-			esc_html__( 'Could not confirm safe mode.', 'jetpack' ),
-			array( 'status' => 500 )
-		);
-	}
-
-	/**
-	 * Handles identity crisis mitigation, migrating stats and subscribers from old url to this, new url.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return bool | WP_Error True if option is properly set.
-	 */
-	public static function migrate_stats_and_subscribers() {
-		if ( Jetpack_Options::get_option( 'sync_error_idc' ) && ! Jetpack_Options::delete_option( 'sync_error_idc' ) ) {
-			return new WP_Error(
-				'error_deleting_sync_error_idc',
-				esc_html__( 'Could not delete sync error option.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
-		}
-
-		if ( Jetpack_Options::get_option( 'migrate_for_idc' ) || Jetpack_Options::update_option( 'migrate_for_idc', true ) ) {
-			return rest_ensure_response(
-				array(
-					'code' => 'success',
-				)
-			);
-		}
-		return new WP_Error(
-			'error_setting_jetpack_migrate',
-			esc_html__( 'Could not confirm migration.', 'jetpack' ),
-			array( 'status' => 500 )
 		);
 	}
 
