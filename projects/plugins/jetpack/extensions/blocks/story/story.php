@@ -403,6 +403,9 @@ function render_pagination( $settings ) {
  * @returns string
  */
 function render_block( $attributes ) {
+	// Let's use a counter to have a different id for each story rendered in the same context.
+	static $story_block_counter = 0;
+
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	$media_files              = isset( $attributes['mediaFiles'] ) ? enrich_media_files( $attributes['mediaFiles'] ) : array();
@@ -442,7 +445,7 @@ function render_block( $attributes ) {
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
-		esc_attr( 'wp-story-' . get_the_ID() . '-' . wp_rand( 0, 0xffff ) ),
+		esc_attr( 'wp-story-' . get_the_ID() . '-' . strval( ++$story_block_counter ) ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		__( 'Play story in new tab', 'jetpack' ),
