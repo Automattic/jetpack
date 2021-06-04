@@ -232,11 +232,11 @@ jobs:
           curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
           -H "Accept: application/vnd.github.v3+json" \
           -u user:${{ secrets.E2E_TEST_REPORTS_TOKEN }} \
-          --data '{"event_type": "Run $GITHUB_RUN_ID",
-          "client_payload": {
-          "repository": "$GITHUB_REPOSITORY",
-          "run_id": "$GITHUB_RUN_ID",
-          "run_number": "$GITHUB_RUN_NUMBER",
-          "branch": "$BRANCH",
-          "pr": ${{ github.event.pull_request.number }}
-          }}'
+          --data "{\"event_type\": \"Run $GITHUB_RUN_ID\",
+          \"client_payload\": {
+          \"repository\": \"$GITHUB_REPOSITORY\",
+          \"run_id\": \"$GITHUB_RUN_ID\",
+          \"run_number\": \"$GITHUB_RUN_NUMBER\",
+          \"branch\": \"$BRANCH\",
+          \"pr\": \"${{ github.event.pull_request.number }}\"
+          }}"
