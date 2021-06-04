@@ -19,16 +19,34 @@ function masterbar_hide_profile_fields( $user ) {
 		return;
 	}
 	// Since there is no hook for altering profile fields, we will use CSS and JS.
-	$name_info_wpcom_link_message = sprintf(
-		/* translators: 1 link */
-		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Profile settings.</a>', 'jetpack' ),
-		'https://wordpress.com/me'
-	);
-	$contact_info_wpcom_link_message = sprintf(
-		/* translators: 1 link */
-		__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
-		'https://wordpress.com/me/account'
-	);
+	$name_info_wpcom_link_message = wp_kses(
+										sprintf(
+											/* translators: 1 link */
+											__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Profile settings.</a>', 'jetpack' ),
+											'https://wordpress.com/me'
+										),
+										array(
+											'a' => array(
+												'href'   => array(),
+												'rel'    => array(),
+												'target' => array(),
+											),
+										)
+									);
+	$contact_info_wpcom_link_message = wp_kses(
+											sprintf(
+												/* translators: 1 link */
+												__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
+												'https://wordpress.com/me/account'
+											),
+											array(
+												'a' => array(
+													'href'   => array(),
+													'rel'    => array(),
+													'target' => array(),
+												),
+											)
+										);
 	?>
 	<script>
 		document.addEventListener( 'DOMContentLoaded', function() {
@@ -36,20 +54,7 @@ function masterbar_hide_profile_fields( $user ) {
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
 				nameInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
-				nameInfoWpcomLink.innerHTML = '<?php
-													echo wp_kses(
-														$name_info_wpcom_link_message,
-														array(
-															'a' => array(
-																'href'   => array(),
-																'rel'    => array(),
-																'target' => array(),
-															),
-														)
-													);
-												// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd
-												?>';
+				nameInfoWpcomLink.innerHTML = '<?php echo $name_info_wpcom_link_message ?>';
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
 			// Contact Info.
@@ -57,19 +62,7 @@ function masterbar_hide_profile_fields( $user ) {
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
 				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
-				contactInfoWpcomLink.innerHTML = '<?php
-													echo wp_kses(
-														$contact_info_wpcom_link_message,
-														array(
-															'a' => array(
-																'href'   => array(),
-																'rel'    => array(),
-																'target' => array(),
-															),
-														)
-													);
-													// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd
-													?>';
+				contactInfoWpcomLink.innerHTML = '<?php echo $contact_info_wpcom_link_message ?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
 
