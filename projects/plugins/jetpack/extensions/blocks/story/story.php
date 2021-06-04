@@ -320,15 +320,9 @@ function render_static_slide( $media_files ) {
 		}
 	}
 
-	// if no media was found try to render a video tag without poster.
-	if ( empty( $media_template ) ) {
-		foreach ( $media_files as $media ) {
-			switch ( $media['type'] ) {
-				case 'video':
-					$media_template = render_video( $media );
-					break 2;
-			}
-		}
+	// if no "static" media was found for the thumbnail try to render a video tag without poster.
+	if ( empty( $media_template ) && ! empty( $media_files ) ) {
+		$media_template = render_video( $media_files[0] );
 	}
 
 	return sprintf(
