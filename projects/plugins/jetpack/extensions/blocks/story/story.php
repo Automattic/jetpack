@@ -55,9 +55,8 @@ function is_same_resource( $url1, $url2 ) {
 }
 
 /**
- * Enrich media files with extra information we can retrieve from the media library.
- * Add missing `width`, `height`, `srcset` and `sizes` properties to images of the mediaFiles block attributes.
- * Add missing `width`, `height`, `poster` properties to videos of the mediaFiles block attributes.
+ * Enrich media files retrieved from the story block attributes
+ * with extra information we can retrieve from the media library.
  *
  * @param array $media_files  - List of media, each as an array containing the media attributes.
  *
@@ -67,34 +66,8 @@ function enrich_media_files( $media_files ) {
 	return array_filter(
 		array_map(
 			function ( $media_file ) {
-				$attachment_id = isset( $media_file['id'] ) ? $media_file['id'] : null;
 				if ( 'image' === $media_file['type'] ) {
-					$image = wp_get_attachment_image_src( $attachment_id, 'full', false );
-					if ( ! $image ) {
-						return $media_file;
-					}
-					list( $src, $width, $height ) = $image;
-					// Bail if url stored in block attributes is different than the media library one for that id.
-					if ( isset( $media_file['url'] ) && ! is_same_resource( $media_file['url'], $src ) ) {
-						return $media_file;
-					}
-					$image_meta = wp_get_attachment_metadata( $attachment_id );
-					if ( ! is_array( $image_meta ) ) {
-						return $media_file;
-					}
-					$size_array = array( absint( $width ), absint( $height ) );
-					return array_merge(
-						$media_file,
-						array(
-							'width'   => absint( $width ),
-							'height'  => absint( $height ),
-							'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
-							'sizes'   => IMAGE_BREAKPOINTS,
-							'title'   => get_the_title( $attachment_id ),
-							'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
-							'caption' => wp_get_attachment_caption( $attachment_id ),
-						)
-					);
+					return enrich_image_meta( $media_file );
 				}
 				// VideoPress videos can sometimes have type 'file', and mime 'video/videopress' or 'video/mp4'.
 				// Let's fix `type` for those.
@@ -104,47 +77,98 @@ function enrich_media_files( $media_files ) {
 				if ( 'video' !== $media_file['type'] ) { // we only support images and videos at this point.
 					return null;
 				}
-				$video_meta = wp_get_attachment_metadata( $attachment_id );
-				if ( ! $video_meta ) {
-					return $media_file;
-				}
-
-				$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : wp_get_attachment_url( $attachment_id );
-
-				// Set the poster attribute for the video tag if a poster image is available.
-				$poster_url = null;
-				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
-					$poster_url = $video_meta['videopress']['poster'];
-				} elseif ( ! empty( $video_meta['thumb'] ) ) {
-					$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
-				}
-
-				if ( $poster_url ) {
-					// Use the global content width for thumbnail resize so we match the `w=` query parameter
-					// that jetpack is going to add when "Enable site accelerator" is enabled for images.
-					$content_width = (int) Jetpack::get_content_width();
-					$new_width     = $content_width > 0 ? $content_width : EMBED_SIZE[0];
-					$poster_url    = add_query_arg( 'w', $new_width, $poster_url );
-				}
-
-				$media_file = array_merge(
-					$media_file,
-					array(
-						'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : $media_file['width'] ),
-						'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : $media_file['height'] ),
-						'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'],
-						'url'     => $video_url,
-						'title'   => get_the_title( $attachment_id ),
-						'caption' => wp_get_attachment_caption( $attachment_id ),
-						'poster'  => $poster_url,
-					)
-				);
-
-				return $media_file;
+				return enrich_video_meta( $media_file );
 			},
 			$media_files
 		)
 	);
+}
+
+/**
+ * Enrich image information with extra data we can retrieve from the media library.
+ * Add missing `width`, `height`, `srcset`, `sizes`, `title`, `alt` and `caption` properties to the image.
+ *
+ * @param array $media_file  - An array containing the media attributes for a specific image.
+ *
+ * @returns array $media_file_enriched
+ */
+function enrich_image_meta( $media_file ) {
+	$attachment_id = isset( $media_file['id'] ) ? $media_file['id'] : null;
+	$image         = wp_get_attachment_image_src( $attachment_id, 'full', false );
+	if ( ! $image ) {
+		return $media_file;
+	}
+	list( $src, $width, $height ) = $image;
+	// Bail if url stored in block attributes is different than the media library one for that id.
+	if ( isset( $media_file['url'] ) && ! is_same_resource( $media_file['url'], $src ) ) {
+		return $media_file;
+	}
+	$image_meta = wp_get_attachment_metadata( $attachment_id );
+	if ( ! is_array( $image_meta ) ) {
+		return $media_file;
+	}
+	$size_array = array( absint( $width ), absint( $height ) );
+	return array_merge(
+		$media_file,
+		array(
+			'width'   => absint( $width ),
+			'height'  => absint( $height ),
+			'srcset'  => wp_calculate_image_srcset( $size_array, $src, $image_meta, $attachment_id ),
+			'sizes'   => IMAGE_BREAKPOINTS,
+			'title'   => get_the_title( $attachment_id ),
+			'alt'     => get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ),
+			'caption' => wp_get_attachment_caption( $attachment_id ),
+		)
+	);
+}
+
+/**
+ * Enrich video information with extra data we can retrieve from the media library.
+ * Add missing `width`, `height`, `alt`, `url`, `title`, `caption` and `poster` properties to the image.
+ *
+ * @param array $media_file  - An array containing the media attributes for a specific video.
+ *
+ * @returns array $media_file_enriched
+ */
+function enrich_video_meta( $media_file ) {
+	$attachment_id = isset( $media_file['id'] ) ? $media_file['id'] : null;
+	$video_meta    = wp_get_attachment_metadata( $attachment_id );
+	if ( ! $video_meta ) {
+		return $media_file;
+	}
+
+	$video_url = ! empty( $video_meta['original']['url'] ) ? $video_meta['original']['url'] : wp_get_attachment_url( $attachment_id );
+
+	// Set the poster attribute for the video tag if a poster image is available.
+	$poster_url = null;
+	if ( ! empty( $video_meta['videopress']['poster'] ) ) {
+		$poster_url = $video_meta['videopress']['poster'];
+	} elseif ( ! empty( $video_meta['thumb'] ) ) {
+		$poster_url = str_replace( wp_basename( $video_url ), $video_meta['thumb'], $video_url );
+	}
+
+	if ( $poster_url ) {
+		// Use the global content width for thumbnail resize so we match the `w=` query parameter
+		// that jetpack is going to add when "Enable site accelerator" is enabled for images.
+		$content_width = (int) Jetpack::get_content_width();
+		$new_width     = $content_width > 0 ? $content_width : EMBED_SIZE[0];
+		$poster_url    = add_query_arg( 'w', $new_width, $poster_url );
+	}
+
+	$media_file = array_merge(
+		$media_file,
+		array(
+			'width'   => absint( ! empty( $video_meta['width'] ) ? $video_meta['width'] : $media_file['width'] ),
+			'height'  => absint( ! empty( $video_meta['height'] ) ? $video_meta['height'] : $media_file['height'] ),
+			'alt'     => ! empty( $video_meta['videopress']['description'] ) ? $video_meta['videopress']['description'] : $media_file['alt'],
+			'url'     => $video_url,
+			'title'   => get_the_title( $attachment_id ),
+			'caption' => wp_get_attachment_caption( $attachment_id ),
+			'poster'  => $poster_url,
+		)
+	);
+
+	return $media_file;
 }
 
 /**
