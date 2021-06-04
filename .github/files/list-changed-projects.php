@@ -19,9 +19,8 @@ $infrastructure_files = array(
 	'.github/files/generate-ci-matrix.php',
 	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
-	'.github/php-version',
+	'.github/versions.sh',
 	'.github/workflows/tests.yml',
-	'.nvmrc',
 );
 
 // Globs that should be ignored. Supports `*`, `**`, and `?`.

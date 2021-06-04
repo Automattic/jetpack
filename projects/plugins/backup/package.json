@@ -33,6 +33,7 @@
 		"@babel/helper-module-imports": "7.13.12",
 		"@babel/preset-env": "7.13.12",
 		"@babel/register": "7.13.14",
+		"@babel/runtime": "7.14.0",
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/dependency-extraction-webpack-plugin": "3.1.2",
 		"concurrently": "6.0.2",
