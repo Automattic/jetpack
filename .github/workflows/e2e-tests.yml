@@ -222,8 +222,7 @@ jobs:
 
     steps:
       - name: Trigger test report workflow
-        run: |
-          curl -X POST https://api.github.com/repos/automattic/jetpack-e2e-reports/dispatches \
-          -H "Accept: application/vnd.github.v3+json" \
-          -u user:${{ secrets.E2E_TEST_REPORTS_TOKEN }} \
-          --data '{"event_type": "Run ${{ github.run_id }}", "client_payload": { "repository": "automattic/jetpack", "run_id": "${{ github.run_id }}", "run_number": "${{ github.run_number }}" }}'
+        env:
+          TOKEN: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+        run: ./bin/trigger-reporter.sh
