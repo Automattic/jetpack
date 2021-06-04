@@ -91,6 +91,7 @@ function with_width_height_srcset_and_sizes( $media_files ) {
 				);
 
 				// Set the poster attribute for the video tag if a poster image is available.
+				$poster_url = null;
 				if ( ! empty( $video_meta['videopress']['poster'] ) ) {
 					$poster_url = $video_meta['videopress']['poster'];
 				} elseif ( ! empty( $video_meta['thumb'] ) ) {
@@ -410,7 +411,7 @@ function render_block( $attributes ) {
 			</div>
 		</div>',
 		esc_attr( Blocks::classes( FEATURE_NAME, $attributes, array( 'wp-story', 'aligncenter' ) ) ),
-		esc_attr( 'wp-story-' . get_the_ID() ),
+		esc_attr( 'wp-story-' . get_the_ID() . '-' . wp_rand( 0, 0xffff ) ),
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		__( 'Play story in new tab', 'jetpack' ),

@@ -70,7 +70,7 @@ function get_dependencies() {
 			$deps = array_merge( $deps, $json['extra']['dependencies'] );
 		}
 
-		// Collect yarn dependencies and devDependencies.
+		// Collect JS dependencies and devDependencies.
 		if ( file_exists( "$path/package.json" ) ) {
 			$json = json_decode( file_get_contents( "$path/package.json" ), true );
 			foreach ( $js_package_map as $package => $pkgslug ) {

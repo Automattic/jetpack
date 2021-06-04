@@ -6,7 +6,7 @@
 	"require": {
 		"automattic/jetpack-connection": "^1.28",
 		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-options": "^1.12",
+		"automattic/jetpack-options": "^1.13",
 		"automattic/jetpack-status": "^1.8",
 		"automattic/jetpack-tracking": "^1.13",
 		"automattic/jetpack-logo": "^1.5"
@@ -24,11 +24,11 @@
 	"scripts": {
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"NODE_ENV='production' yarn build"
+			"NODE_ENV='production' pnpm run build"
 		],
 		"phpunit": [
 			"@composer install",
