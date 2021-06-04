@@ -9,13 +9,13 @@
 	"scripts": {
 		"test-js": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn install",
-			"yarn test"
+			"pnpm install",
+			"pnpm run test"
 		],
 		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn install",
-			"yarn nyc --report-dir=\"$COVERAGE_DIR\" yarn test"
+			"pnpm install",
+			"pnpx nyc --report-dir=\"$COVERAGE_DIR\" pnpm run test"
 		]
 	},
 	"repositories": [

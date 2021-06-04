@@ -113,7 +113,7 @@ main() {
 
 	assert command_is_available node
 	assert node_version_is_proper
-	assert command_is_available yarn
+	assert command_is_available pnpm
 	check  nvm_is_available || check command_is_available n
 	assert node_modules_are_available
 
