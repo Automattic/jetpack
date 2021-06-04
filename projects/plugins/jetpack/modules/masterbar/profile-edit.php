@@ -20,11 +20,11 @@ function masterbar_hide_profile_fields( $user ) {
 	}
 	// Since there is no hook for altering profile fields, we will use CSS and JS.
 	$name_info_wpcom_link_message = sprintf(
-		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s">WordPress.com Profile settings.</a>', 'jetpack' ),
+		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Profile settings.</a>', 'jetpack' ),
 		'https://wordpress.com/me',
 	);
 	$contact_info_wpcom_link_message = sprintf(
-		__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s">WordPress.com Account settings.</a>', 'jetpack' ),
+		__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
 		'https://wordpress.com/me/account',
 	);
 	?>
