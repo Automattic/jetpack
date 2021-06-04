@@ -5,6 +5,9 @@
  * @package Jetpack
  */
 
+// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterOpen
+// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
+
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
@@ -19,11 +22,13 @@ function masterbar_hide_profile_fields( $user ) {
 		return;
 	}
 	// Since there is no hook for altering profile fields, we will use CSS and JS.
-	$name_info_wpcom_link_message = sprintf(
+	$name_info_wpcom_link_message    = sprintf(
+		/* translators: 1 link */
 		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Profile settings.</a>', 'jetpack' ),
 		'https://wordpress.com/me',
 	);
 	$contact_info_wpcom_link_message = sprintf(
+		/* translators: 1 link */
 		__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
 		'https://wordpress.com/me/account',
 	);
@@ -34,26 +39,36 @@ function masterbar_hide_profile_fields( $user ) {
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
 				nameInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-			    nameInfoWpcomLink.innerHTML = '<?php echo wp_kses( $name_info_wpcom_link_message, array(
-												'a' => array(
-													'href' => array(),
-													'rel' => array(),
-													'target' => array(),
-												),
-											) ); ?>';
+				nameInfoWpcomLink.innerHTML = '<?php
+					echo wp_kses(
+						$name_info_wpcom_link_message,
+						array(
+							'a' => array(
+								'href'   => array(),
+								'rel'    => array(),
+								'target' => array(),
+							),
+						)
+					);
+				?>';
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
 			// Contact Info.
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-			    contactInfoWpcomLink.innerHTML = '<?php echo wp_kses( $contact_info_wpcom_link_message, array(
-													'a' => array(
-														'href' => array(),
-														'rel' => array(),
-														'target' => array(),
-													),
-												) ); ?>';
+			    contactInfoWpcomLink.innerHTML = '<?php
+					echo wp_kses(
+						$contact_info_wpcom_link_message,
+						array(
+							'a' => array(
+								'href'   => array(),
+								'rel'    => array(),
+								'target' => array(),
+							),
+						)
+					);
+				?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
 
