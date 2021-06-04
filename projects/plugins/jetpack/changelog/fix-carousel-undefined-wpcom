@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: avoid JavaScript errors when trying to load the Carousel view when logged out of your WordPress site.
