@@ -28,17 +28,6 @@ function masterbar_hide_profile_fields( $user ) {
 		'https://wordpress.com/me/account',
 	);
 	?>
-	<style>
-		.user-first-name-wrap,
-		.user-last-name-wrap,
-		.user-nickname-wrap,
-		.user-display-name-wrap,
-		.user-email-wrap,
-		.user-url-wrap,
-		.user-description-wrap {
-			display: none;
-		}
-	</style>
 	<script>
 		document.addEventListener( 'DOMContentLoaded', function() {
 			// Name Info.
@@ -69,7 +58,17 @@ function masterbar_hide_profile_fields( $user ) {
 		});
 
 	</script>
-
 	<?php
 }
+
+/**
+ * Load the CSS for the WP Profile Edit screen
+ *
+ * These rules are hiding the profile fields that should be edited through WordPress.com.
+ */
+function masterbar_hide_profile_fields_css() {
+	wp_enqueue_style( 'profile-edit', plugins_url( 'profile-edit.css', __FILE__ ), array(), JETPACK__VERSION );
+}
+
 add_action( 'personal_options', 'masterbar_hide_profile_fields' );
+add_action( 'admin_enqueue_scripts', 'masterbar_hide_profile_fields_css' );

@@ -1,0 +1,9 @@
+.user-first-name-wrap,
+.user-last-name-wrap,
+.user-nickname-wrap,
+.user-display-name-wrap,
+.user-email-wrap,
+.user-url-wrap,
+.user-description-wrap {
+	display: none;
+}
