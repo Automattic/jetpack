@@ -2,7 +2,6 @@
  * External dependencies
  */
 import chalk from 'chalk';
-import child_process from 'child_process';
 import inquirer from 'inquirer';
 
 /**
@@ -11,6 +10,7 @@ import inquirer from 'inquirer';
 import promptForProject, { promptForType } from '../helpers/promptForProject';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv';
 import { runCommand } from '../helpers/runCommand';
+import { allProjects } from '../helpers/projectHelpers';
 
 /**
  * Command definition for the build subcommand.
@@ -62,6 +62,12 @@ export function cleanDefine( yargs ) {
  */
 export async function cleanCli( argv ) {
 	argv = normalizeCleanArgv( argv );
+	if ( argv.all ) {
+		argv.project = '.';
+	}
+	if ( argv.project ) {
+		await parseProj( argv );
+	}
 	if ( ! argv.project ) {
 		argv = await promptForScope( argv );
 		switch ( argv.scope ) {
@@ -130,45 +136,45 @@ async function commandRoute( argv ) {
 }
 
 /**
- * Runs the actual command.
- *
- * @param {string} cmd - the shell command to run.
- * @param {object} options - the command options passed.
- */
-/*  export async function runCommand( cmd, options ) {
-	const data = child_process.spawnSync( cmd, [ ...options ], {
-		shell: true,
-		stdio: 'inherit',
-	} );
-	// Node.js exit code status 0 === success
-	if ( data.status !== 0 ) {
-		console.error( 'There was a problem! See error above.' );
-		process.exit( data.status );
-	}
-} */
-
-/**
- * Parse passed arguments passed through.
+ * Parse passed project paramater.
  *
  * @param {object} argv - the arguments passed.
  * @returns {object} argv.
  */
-async function parseArgs( argv ) {
-	if ( argv.all ) {
+async function parseProj( argv ) {
+	console.log(argv);
+	//Bail if we've specified the 'all' option already.
+	if ( argv.project === '.' ) {
+		return;
+	}
+
+	// If we're cleaning all.
+	if ( argv.project === 'all' ) {
 		argv.project = '.';
-	}
-	if ( argv.dist ) {
-		argv.options.push( 'node_modules', 'vendor' );
+		return;
 	}
 
-	if ( argv.include ) {
-		const defaultIgnored = [ 'vendor', 'composer.lock', 'node_modules' ];
-		if ( defaultIgnored.includes( argv.include ) ) {
-			argv.include.ignored = [ argv.include ];
+	// If we're passing a specific project
+	const allProj = allProjects();
+	for ( const proj of allProj ) {
+		if ( argv.project === proj ) {
+			argv.project = `projects/${argv.project}`;
+			return;
 		}
-		argv.options.push( argv.include );
 	}
 
+	// If we're passing a type.
+	const types = ['github-actions', 'js-packages', 'packages', 'plugins' ];
+	for ( const type of types ) {
+		if ( argv.project === type ) {
+			argv.project = `projects/${type}`;
+			return;
+		}
+	}
+
+	// Default - if none of the above match, switch to interactive mode.
+	console.log( chalk.red( 'Invalid project type, defaulting to interactive mode' ) );
+	delete argv.project;
 	return argv;
 }
 /**
@@ -192,7 +198,6 @@ export async function makeOptions( argv ) {
 		argv = await makeClean( argv );
 	}
 
-	//argv = await parseArgs( argv );
 	console.log( argv );
 	return argv;
 }
