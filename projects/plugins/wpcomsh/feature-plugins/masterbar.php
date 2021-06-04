@@ -91,12 +91,30 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
 /**
  * Hides the "Admin Color Scheme" entry on /wp-admin/profile.php,
  * and adds an action that prints a calypso page link.
+ * This applies only to WPCOM connected users.
  **/
 function wpcomsh_hide_color_schemes() {
+	// Do nothing if we can't tell whether the User is connected.
+	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+		return false;
+	}
+	$connection_manager        = new Connection_Manager( 'jetpack' );
+	$user_id_from_query_string = isset( $_GET[ 'user_id' ] ) ? $_GET[ 'user_id' ] : false;
+
+	if ( ! $connection_manager->is_user_connected( $user_id_from_query_string ) ) {
+		// If this is a local user, show the default UX.
+		return;
+	}
+
 	remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
-	add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
+
+	if ( ! $user_id_from_query_string ) {
+		// Show Calypso page link only to a user editing their profile.
+		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
+	}
 }
 add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
+add_action( 'load-user-edit.php', 'wpcomsh_hide_color_schemes' );
 
 /**
  * Gets data from the `wpcom.getUser` XMLRPC response and set it as user options. This is hooked
