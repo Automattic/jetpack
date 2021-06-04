@@ -226,6 +226,21 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds WP Admin menu.
+	 */
+	public function add_wp_admin_menu() {
+		global $menu;
+
+		// Attempt to get last position.
+		ksort( $menu );
+		end( $menu );
+		$position = key( $menu );
+
+		$this->add_admin_menu_separator( ++ $position );
+		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
+	}
+
+	/**
 	 * Checks whether the navigation customizations should be performed.
 	 *
 	 * @return bool

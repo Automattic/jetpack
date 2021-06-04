@@ -88,11 +88,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->add_new_site_link();
 		}
 
-		// Add WP Admin menu when Calypso is enforced.
-		if ( $this->should_force_calypso_links() ) {
-			$this->add_wp_admin_menu();
-		}
-
 		ksort( $GLOBALS['menu'] );
 	}
 

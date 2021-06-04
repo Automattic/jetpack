@@ -497,21 +497,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds WP Admin menu.
-	 */
-	public function add_wp_admin_menu() {
-		global $menu;
-
-		// Attempt to get last position.
-		ksort( $menu );
-		end( $menu );
-		$position = key( $menu );
-
-		$this->add_admin_menu_separator( ++ $position );
-		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
-	}
-
-	/**
 	 * Whether to use wp-admin pages rather than Calypso.
 	 *
 	 * @return bool
