@@ -61,7 +61,6 @@ function masterbar_hide_profile_fields( $user ) {
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 				contactInfoWpcomLink.innerHTML = '<?php echo $contact_info_wpcom_link_message ?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
