@@ -4,10 +4,10 @@ import './set-webpack-public-path';
 
 /**
  * External dependencies
+ * NOTE: We directly import preact here since we don't expect this file to be used in a React context.
  */
-// NOTE: "render" import here actually aliases to preact/compat, not React.render.
-// eslint-disable-next-line react/no-deprecated
-import React, { render } from 'react';
+import React from 'preact/compat';
+import { render } from 'preact';
 import { Provider } from 'react-redux';
 
 /**
