@@ -19,7 +19,7 @@ function masterbar_hide_profile_fields( $user ) {
 		return;
 	}
 	// Since there is no hook for altering profile fields, we will use CSS and JS.
-	$name_info_wpcom_link_message    = sprintf(
+	$name_info_wpcom_link_message = sprintf(
 		/* translators: 1 link */
 		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Profile settings.</a>', 'jetpack' ),
 		'https://wordpress.com/me'
@@ -36,7 +36,7 @@ function masterbar_hide_profile_fields( $user ) {
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
 				nameInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterOpen
+				// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 				nameInfoWpcomLink.innerHTML = '<?php
 													echo wp_kses(
 														$name_info_wpcom_link_message,
@@ -48,7 +48,7 @@ function masterbar_hide_profile_fields( $user ) {
 															),
 														)
 													);
-												// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
+												// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 												?>';
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
@@ -56,7 +56,7 @@ function masterbar_hide_profile_fields( $user ) {
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterOpen
+				// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 				contactInfoWpcomLink.innerHTML = '<?php
 													echo wp_kses(
 														$contact_info_wpcom_link_message,
@@ -68,7 +68,7 @@ function masterbar_hide_profile_fields( $user ) {
 															),
 														)
 													);
-													// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
+													// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 													?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
