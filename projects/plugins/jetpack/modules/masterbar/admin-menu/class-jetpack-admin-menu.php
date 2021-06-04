@@ -232,6 +232,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function should_customize_nav() {
 		// No nav customizations on WP Admin.
-		return ! $this->is_api_request;
+		return $this->is_api_request;
 	}
 }
