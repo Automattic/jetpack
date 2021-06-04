@@ -36,7 +36,7 @@ function masterbar_hide_profile_fields( $user ) {
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
 				nameInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				nameInfoWpcomLink.innerHTML = '<?php // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
+				nameInfoWpcomLink.innerHTML = '<?php // phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 													echo wp_kses(
 														$name_info_wpcom_link_message,
 														array(
@@ -47,7 +47,7 @@ function masterbar_hide_profile_fields( $user ) {
 															),
 														)
 													);
-												// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
+												// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 												?>';
 			nameInfo.parentNode.insertBefore( nameInfoWpcomLink, nameInfo.nextSibling );
 
@@ -55,7 +55,7 @@ function masterbar_hide_profile_fields( $user ) {
 			var contactInfo                    = document.querySelector( '.user-email-wrap' ).closest( 'table' );
 			var contactInfoWpcomLink           = document.createElement( 'div' );
 				contactInfoWpcomLink.className = 'notice inline notice-large notice-warning';
-				contactInfoWpcomLink.innerHTML = '<?php // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
+				contactInfoWpcomLink.innerHTML = '<?php // phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 													echo wp_kses(
 														$contact_info_wpcom_link_message,
 														array(
@@ -66,7 +66,7 @@ function masterbar_hide_profile_fields( $user ) {
 															),
 														)
 													);
-													// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
+													// phpcs:ignore Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 													?>';
 			contactInfo.parentNode.insertBefore( contactInfoWpcomLink, contactInfo.nextSibling );
 		});
