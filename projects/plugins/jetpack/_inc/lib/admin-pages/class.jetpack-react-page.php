@@ -245,6 +245,38 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '" };', 'before' );
 	}
 
+	/**
+	 * Gets a purchase token that is used for Jetpack logged out visitor checkout.
+	 * The purchase token should be appended to all CTA url's that lead to checkout.
+	 *
+	 * @since 9.8.0
+	 * @return string|boolean
+	 */
+	public function get_purchase_token() {
+		if ( ! Jetpack::current_user_can_purchase() ) {
+			return false;
+		}
+
+		$purchase_token = Jetpack_Options::get_option( 'purchase_token', false );
+
+		if ( $purchase_token ) {
+			return $purchase_token;
+		}
+		// If the purchase token is not saved in the options table yet, then add it.
+		Jetpack_Options::update_option( 'purchase_token', $this->generate_purchase_token(), true );
+		return Jetpack_Options::get_option( 'purchase_token', false );
+	}
+
+	/**
+	 * Generates a purchase token that is used for Jetpack logged out visitor checkout.
+	 *
+	 * @since 9.8.0
+	 * @return string
+	 */
+	public function generate_purchase_token() {
+		return wp_generate_password( 12, false );
+	}
+
 	function get_initial_state() {
 		global $is_safari;
 
@@ -319,6 +351,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
+			'purchaseToken'               => $this->get_purchase_token(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison

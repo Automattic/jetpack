@@ -7561,4 +7561,26 @@ endif;
 
 		return $products;
 	}
+
+	/**
+	 * Determine if the current user is allowed to make Jetpack purchases without
+	 * a WordPress.com account
+	 *
+	 * @return boolean True if the user can make purchases, false if not
+	 */
+	public static function current_user_can_purchase() {
+
+		// The site must be site-connected to Jetpack (no users connected).
+		if ( ! self::connection()->is_site_connection() ) {
+			return false;
+		}
+
+		// Make sure only administrators can make purchases.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
 }
