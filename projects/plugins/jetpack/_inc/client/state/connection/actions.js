@@ -117,6 +117,7 @@ export const fetchUserConnectionData = () => {
 					type: USER_CONNECTION_DATA_FETCH_SUCCESS,
 					userConnectionData: userConnectionData,
 				} );
+				return userConnectionData;
 			} )
 			.catch( error => {
 				dispatch( {

@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { PopUpConnection } from '@automattic/jetpack-connection';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 /**
  * Internal dependencies
@@ -28,7 +29,7 @@ export class AuthIframe extends React.Component {
 		title: PropTypes.string.isRequired,
 		height: PropTypes.string,
 		width: PropTypes.string,
-		scrollToButton: PropTypes.bool,
+		scrollTo: PropTypes.bool,
 		onAuthorized: PropTypes.func,
 		displayTOS: PropTypes.bool,
 		location: PropTypes.string,
@@ -38,23 +39,37 @@ export class AuthIframe extends React.Component {
 		title: __( 'Connect your WordPress.com account', 'jetpack' ),
 		height: '330',
 		width: '100%',
-		scrollToButton: true,
+		scrollTo: true,
 		onAuthorized: noop,
 	};
 
 	/**
 	 * Authentication completed, adjust the state.
 	 */
-	onComplete = () => {
-		// Dispatch successful authorization.
-		this.props.authorizeUserInPlaceSuccess();
-
+	onClosed = () => {
 		// Fetch user connection data after successful authorization to trigger state refresh
 		// for linked user.
-		this.props.fetchUserConnectionData();
+		this.props
+			.fetchUserConnectionData()
+			.then( connectionData => {
+				console.warn( 'got connection data', connectionData );
 
-		// Trigger 'onAuthorized' callback, if provided
-		this.props.onAuthorized();
+				// if we aren't connected after the popup closes
+				// then let's let the user know they didn't finish connecting
+				if ( ! connectionData.connectionOwner ) {
+					this.props.warnNotConnected();
+					return; // later: show warning?
+				}
+
+				// Dispatch successful authorization.
+				this.props.authorizeUserInPlaceSuccess();
+
+				// Trigger 'onAuthorized' callback, if provided
+				this.props.onAuthorized();
+			} )
+			.catch( err => {
+				console.error( 'got connection error', err );
+			} );
 	};
 
 	render = () => {
@@ -66,7 +81,7 @@ export class AuthIframe extends React.Component {
 				isLoading={ this.props.fetchingConnectUrl }
 				title={ this.props.title }
 				displayTOS={ this.props.displayTOS }
-				scrollToButton={ this.props.scrollToButton } // not applicable
+				scrollTo={ this.props.scrollTo }
 				onClosed={ this.onClosed }
 				location={ this.props.location }
 			/>
@@ -90,6 +105,11 @@ export default connect(
 			},
 			authorizeUserInPlaceSuccess: () => {
 				return dispatch( authorizeUserInPlaceSuccess() );
+			},
+			warnNotConnected: () => {
+				return dispatch(
+					createNotice( 'is-warning', __( 'Not Connected' ), { id: 'NOTICE_NOT_CONNECTED' } )
+				);
 			},
 		};
 	}

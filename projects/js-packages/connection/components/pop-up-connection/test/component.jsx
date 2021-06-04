@@ -15,7 +15,7 @@ describe( 'PopUpConnection', () => {
 	const testProps = {
 		title: 'Sample Title',
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
-		scrollToIframe: false,
+		scrollTo: false,
 		displayTOS: false,
 		location: 'testing',
 	};
@@ -54,9 +54,5 @@ describe( 'PopUpConnection', () => {
 		const renderer = new ShallowRenderer();
 		renderer.render( <PopUpConnection { ...testProps } displayTOS={ true } /> );
 		const wrapper = shallow( renderer.getRenderOutput() );
-
-		it( 'has a link to jetpack.wordpress.com', () => {
-			expect( wrapper.find( 'iframe' ).props().src ).to.be.contain( '&display-tos' );
-		} );
 	} );
 } );

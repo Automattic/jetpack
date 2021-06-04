@@ -15,7 +15,7 @@ describe( 'InPlaceConnection', () => {
 	const testProps = {
 		title: 'Sample Title',
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
-		scrollToIframe: false,
+		scrollTo: false,
 		displayTOS: false,
 		location: 'testing',
 	};

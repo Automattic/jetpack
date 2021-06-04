@@ -70,7 +70,7 @@ const ConnectUserFrame = props => {
 
 			<div className="jp-connect-user-frame__right">
 				<AuthIframe
-					scrollToIframe={ false }
+					scrollTo={ false }
 					title=""
 					width="347"
 					height="353"

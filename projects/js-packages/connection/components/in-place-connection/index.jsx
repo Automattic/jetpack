@@ -19,7 +19,7 @@ import './style.scss';
  * @param {string|number} props.width -- Iframe width.
  * @param {string|number} props.height -- Iframe height.
  * @param {boolean} props.displayTOS -- Whether the site has connection owner connected.
- * @param {boolean} props.scrollToIframe -- Whether we need to auto-scroll the window upon element rendering.
+ * @param {boolean} props.scrollTo -- Whether we need to auto-scroll the window upon element rendering.
  * @param {string} props.connectUrl -- The connection URL.
  * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
  * @param {Function} props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
@@ -33,7 +33,7 @@ const InPlaceConnection = props => {
 		isLoading,
 		width,
 		displayTOS,
-		scrollToIframe,
+		scrollTo,
 		connectUrl,
 		onComplete,
 		onThirdPartyCookiesBlocked,
@@ -78,7 +78,7 @@ const InPlaceConnection = props => {
 		 */
 		() => {
 			// Scroll to the iframe container
-			if ( scrollToIframe ) {
+			if ( scrollTo ) {
 				window.scrollTo( 0, iframeWrapRef.current.offsetTop - 10 );
 			}
 
@@ -131,7 +131,7 @@ InPlaceConnection.propTypes = {
 	height: PropTypes.string,
 	connectUrl: PropTypes.string.isRequired,
 	displayTOS: PropTypes.bool.isRequired,
-	scrollToIframe: PropTypes.bool,
+	scrollTo: PropTypes.bool,
 	onComplete: PropTypes.func,
 	onThirdPartyCookiesBlocked: PropTypes.func,
 	location: PropTypes.string,
@@ -141,7 +141,7 @@ InPlaceConnection.defaultProps = {
 	isLoading: false,
 	height: '300',
 	width: '100%',
-	scrollToIframe: false,
+	scrollTo: false,
 };
 
 export default InPlaceConnection;

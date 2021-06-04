@@ -118,7 +118,7 @@ It includes:
 - *isLoading* - boolean, whether to display the "Loading..." label in the component, defaults to `false`.
 - *width* - string|number, the iframe width, defaults to `100%`.
 - *height* - string|number, the iframe height, defaults to `220`.
-- *scrollToButton* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
+- *scrollTo* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
 - *onComplete* - callback, to be executed after connection process has completed.
 - *onThirdPartyCookiesBlocked* - callback, to be executed if third-party cookies are blocked.
 - *connectUrl* - string (required), the connection URL.
@@ -136,7 +136,7 @@ import { InPlaceConnection } from '@automattic/jetpack-connection';
 	isLoading={ false }
 	title="Sample Connection"
 	displayTOS={ false }
-	scrollToIframe={ false }
+	scrollTo={ false }
 	onComplete={ () => alert( 'Connected' ) }
 	onThirdPartyCookiesBlocked={ () => window.location.replace( 'https://example.org/fallback-url/' ) }
 	location="sample-connection-form"
@@ -154,8 +154,8 @@ It includes:
 - *isLoading* - boolean, whether to display the "Loading..." label in the component, defaults to `false`.
 - *width* - string|number, the iframe width, defaults to `100%`.
 - *height* - string|number, the iframe height, defaults to `220`.
-- *scrollToButton* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
-- *onComplete* - callback, to be executed after connection process has completed.
+- *scrollTo* - boolean, whether after iframe rendering, window should scroll to its current position. Defaults to `false`.
+- *onClosed* - callback, to be executed after connection dialog has been closed.
 - *connectUrl* - string (required), the connection URL.
 - *displayTOS* - boolean (required), whether the iframe should display TOS or not.
 - *location* - string, component location identifier passed to WP.com.
@@ -171,8 +171,8 @@ import { PopUpConnection } from '@automattic/jetpack-connection';
 	isLoading={ false }
 	title="Sample Connection"
 	displayTOS={ false }
-	scrollToButton={ false }
-	onComplete={ () => alert( 'Connected' ) }
+	scrollTo={ false }
+	onClosed={ () => alert( 'Dialog closed, check for authorization' ) }
 	location="sample-connection-form"
 />
 ```

@@ -22,8 +22,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const hasConnectedOwner = this.props.hasConnectedOwner,
-				isOfflineMode = this.props.isOfflineMode,
+			const isOfflineMode = this.props.isOfflineMode,
 				isMonitorActive = this.props.getOptionValue( 'monitor' ),
 				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'monitor' );
 			return (
@@ -52,6 +51,9 @@ export const Monitor = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'monitor' ) }
 							toggleModule={ this.props.toggleModuleNow }
 							requiresConnectionOwner={ true }
+							connectionReason={ __(
+								'We require a WordPress.com account in order to tell you when your site is down'
+							) }
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __(
@@ -73,14 +75,6 @@ export const Monitor = withModuleSettingsFormHelpers(
 							{ __( 'Configure your notification settings', 'jetpack' ) }
 						</Card>
 					) }
-
-					{ /* { ! hasConnectedOwner && ! isOfflineMode && (
-						<ConnectUserBar
-							feature="monitor"
-							featureLabel={ __( 'Downtime Monitoring', 'jetpack' ) }
-							text={ __( 'Connect to set up your status alerts.', 'jetpack' ) }
-						/>
-					) } */ }
 				</SettingsCard>
 			);
 		}

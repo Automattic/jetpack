@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import './style.scss';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import restApi from 'rest-api';
 
 /**
  * The popup connection component. Useful for authorizing the site inline after site-level connection.
@@ -18,18 +19,36 @@ import analytics from 'lib/analytics';
  * @param {string} props.title -- Element title.
  * @param {boolean} props.isLoading -- Whether the element is still loading.
  * @param {boolean} props.displayTOS -- Whether the site has connection owner connected.
- * @param {boolean} props.scrollToButton -- Whether we need to auto-scroll the window upon element rendering.
+ * @param {boolean} props.scrollTo -- Whether we need to auto-scroll the window upon element rendering.
  * @param {string} props.connectUrl -- The connection URL.
  * @param {Function} props.onClosed -- The callback to be called when the pop-up dialog is closed.
+ * @param {Function} props.onSuccess -- The callback to be called when the connecton is successful
  * @param {string} props.location -- Component location identifier passed to WP.com.
  *
  * @returns {React.Component} The popup connection component.
  */
 const PopUpConnection = props => {
-	const { title, isLoading, displayTOS, scrollToButton, connectUrl, onClosed } = props;
+	const { title, isLoading, displayTOS, scrollTo, connectUrl, onClosed, onSuccess } = props;
 
 	const buttonWrapRef = useRef();
 	const [ dialogIsOpen, setDialogIsOpen ] = useState( false );
+
+	// const refreshConnectionData = () => {
+	// 	restApi
+	// 		.fetchUserConnectionData()
+	// 		.then( userConnectionData => {
+	// 			if ( userConnectionData.currentOwner ) {
+	// 				if ( onClosed ) {
+	// 					onClosed();
+	// 				}
+	// 			} else {
+	// 				// display notice that connection was not successful
+	// 			}
+	// 		} )
+	// 		.catch( error => {
+	// 			// display notice that connection was not successful
+	// 		} );
+	// }
 
 	const loadPopup = ( e, url ) => {
 		e.preventDefault();
@@ -48,20 +67,14 @@ const PopUpConnection = props => {
 
 		setDialogIsOpen( true );
 
-		dialog.addEventListener( 'visibilitychange', () => {
-			console.warn( 'detected dialog not visible' );
-		} );
-
-		document.addEventListener( 'visibilitychange', () => {
-			console.warn( 'detected main page not visible' );
-		} );
-
 		var timer = setInterval( function () {
 			// detect authorized status and closed dialog
 			if ( dialog.closed ) {
 				clearInterval( timer );
 				console.warn( 'detected dialog closed' );
 				setDialogIsOpen( false );
+				// refreshConnectionData();
+
 				if ( onClosed ) {
 					onClosed();
 				}
@@ -69,41 +82,15 @@ const PopUpConnection = props => {
 		}, 1000 );
 	};
 
-	// /**
-	//  * Handles messages received from inside the iframe.
-	//  *
-	//  * @param {object} e -- Event object.
-	//  */
-	// const receiveData = e => {
-	// 	if ( ! iframeRef.current || e.source !== iframeRef.current.contentWindow ) {
-	// 		return;
-	// 	}
-
-	// 	switch ( e.data ) {
-	// 		case 'close':
-	// 			// Remove listener, our job here is done.
-	// 			window.removeEventListener( 'message', receiveData );
-
-	// 			if ( onClosed ) {
-	// 				onClosed();
-	// 			}
-	// 			break;
-	// 	}
-	// };
-
 	useEffect(
 		/**
 		 * The component initialization.
 		 */
 		() => {
 			// Scroll to the button container
-			if ( scrollToButton ) {
+			if ( scrollTo ) {
 				window.scrollTo( 0, buttonWrapRef.current.offsetTop - 10 );
 			}
-
-			// Add an event listener to identify successful authorization via iframe.
-			// window.addEventListener( 'message', receiveData );
-			console.warn( 'listening for dialog closed' );
 		}
 	);
 
@@ -113,10 +100,6 @@ const PopUpConnection = props => {
 
 	if ( ! src.includes( '?' ) ) {
 		src += '?';
-	}
-
-	if ( displayTOS ) {
-		src += '&display-tos';
 	}
 
 	const buttonProps = {
@@ -129,6 +112,7 @@ const PopUpConnection = props => {
 	return (
 		<div className="dops-card fade-in" ref={ buttonWrapRef }>
 			<Button { ...buttonProps }>{ title }</Button>
+			{ displayTOS && <p>Terms of service goes here</p> }
 		</div>
 	);
 };
@@ -138,14 +122,14 @@ PopUpConnection.propTypes = {
 	isLoading: PropTypes.bool,
 	connectUrl: PropTypes.string.isRequired,
 	displayTOS: PropTypes.bool.isRequired,
-	scrollToButton: PropTypes.bool,
+	scrollTo: PropTypes.bool,
 	onClosed: PropTypes.func,
 	location: PropTypes.string,
 };
 
 PopUpConnection.defaultProps = {
 	isLoading: false,
-	scrollToButton: false,
+	scrollTo: false,
 };
 
 export default PopUpConnection;

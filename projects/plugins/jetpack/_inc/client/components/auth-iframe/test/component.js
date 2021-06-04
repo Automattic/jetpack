@@ -15,7 +15,7 @@ describe( 'AuthIframe', () => {
 	const testProps = {
 		fetchingConnectUrl: true,
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/',
-		scrollToIframe: false,
+		scrollTo: false,
 		hasConnectedOwner: false,
 		displayTOS: false,
 	};

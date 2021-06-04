@@ -15,82 +15,64 @@ import Modal from 'components/modal';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 import ConnectButton from 'components/connect-button';
+// import { PopUpConnection } from '@automattic/jetpack-connection';
+import AuthIframe from 'components/auth-iframe';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 // import QueryConnectionStatus from 'components/data/query-connection-status';
 
 class JetpackConnectModal extends Component {
 	static propTypes = {
-		show: PropTypes.bool,
 		showSurvey: PropTypes.bool,
-		closeModal: PropTypes.func,
+		onAuthorized: PropTypes.func,
+		onRequestClose: PropTypes.func,
 	};
 
 	static defaultProps = {
-		show: false,
 		showSurvey: false,
-		closeModal: noop,
+		onRequestClose: noop,
 	};
 
-	// disconnectJetpack = () => {
-	// 	this.props.disconnectSite( true );
-	// };
-
-	handleDialogCloseClick = () => {
-		// const { closeDialog, location, purpose } = this.props;
-		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', {
-			location,
-			purpose,
-		} );
-		closeDialog();
+	onAuthorized = () => {
+		this.props.showAuthorizedNotice();
+		this.props.onAuthorized();
+		this.props.onRequestClose();
 	};
 
 	render() {
-		const { show, showSurvey, toggleModal } = this.props;
-
-		// const customConnect = useCallback( () => {
-		// 	analytics.tracks.recordJetpackClick( {
-		// 		target: 'connection-bar-click',
-		// 		feature: props.feature,
-		// 		is_user_wpcom_connected: 'no',
-		// 		is_connection_owner: 'no',
-		// 	} );
-
-		// 	setShowConnect( true );
-		// }, [ setShowConnect, props.feature ] );
-
 		return (
-			show && (
-				<Modal className="jp-connect-dialog__modal" onRequestClose={ this.props.closeModal }>
-					<Card>
-						<div className="jp-connect-dialog__header">
-							<h2>{ __( 'Connect Jetpack', 'jetpack' ) }</h2>
-							<Gridicon
-								icon="cross"
-								className="jetpack-termination-dialog__close-icon"
-								onClick={ this.props.closeModal }
-							/>
-						</div>
-						<div className="jp-connect-dialog__button">
-							{ /* <QueryConnectionStatus/> */ }
-							<ConnectButton
-								connectUser={ true }
-								from="unlinked-user-connect"
-								connectLegend={ __( 'Connect your WordPress.com account', 'jetpack' ) }
-								connectInPlace={ false }
-								connectInPopup={ true }
-								// customConnect={ customConnect }
-							/>
-						</div>
-					</Card>
-				</Modal>
-			)
+			<Modal className="jp-connect-dialog__modal" onRequestClose={ this.props.onRequestClose }>
+				<Card>
+					<div className="jp-connect-dialog__header">
+						<h2>{ __( 'Connect Jetpack', 'jetpack' ) }</h2>
+						<Gridicon
+							icon="cross"
+							className="jetpack-termination-dialog__close-icon"
+							onClick={ this.props.onRequestClose }
+						/>
+					</div>
+					<div className="jp-connect-dialog__button">
+						{ this.props.children }
+						<AuthIframe
+							scrollTo={ false }
+							title={ __( 'Connect to the WordPress.com cloud', 'jetpack' ) }
+							location="connect-modal"
+							onAuthorized={ this.onAuthorized }
+						/>
+					</div>
+				</Card>
+			</Modal>
 		);
 	}
 }
 
 export default connect( null, dispatch => {
 	return {
-		// disconnectSite: () => {
-		// 	return dispatch( disconnectSite( true ) );
-		// },
+		showAuthorizedNotice: () => {
+			return dispatch(
+				createNotice( 'is-info', __( 'Connected Successfully', 'jetpack' ), {
+					id: 'NOTICE_CONNECTED',
+				} )
+			);
+		},
 	};
 } )( JetpackConnectModal );

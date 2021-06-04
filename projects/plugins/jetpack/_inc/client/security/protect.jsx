@@ -84,6 +84,10 @@ export const Protect = withModuleSettingsFormHelpers(
 						activated={ isProtectActive }
 						toggling={ this.props.isSavingAnyOption( 'protect' ) }
 						toggleModule={ this.props.toggleModuleNow }
+						requiresConnectionOwner={ true }
+						connectionReason={ __(
+							'We require a WordPress.com account in order to notify you of brute force attacks'
+						) }
 					>
 						<span className="jp-form-toggle-explanation">
 							{ this.props.getModule( 'protect' ).description }
@@ -100,7 +104,6 @@ export const Protect = withModuleSettingsFormHelpers(
 					<SettingsGroup
 						hasChild
 						disableInOfflineMode
-						disableInSiteConnectionMode
 						module={ this.props.getModule( 'protect' ) }
 						className="foldable-wrapper"
 					>
@@ -171,14 +174,6 @@ export const Protect = withModuleSettingsFormHelpers(
 							</SettingsGroup>
 						</FoldableCard>
 					</SettingsGroup>
-
-					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
-						<ConnectUserBar
-							feature="protect"
-							featureLabel={ __( 'Protect', 'jetpack' ) }
-							text={ __( 'Connect to set up brute force attack protection.', 'jetpack' ) }
-						/>
-					) }
 				</SettingsCard>
 			);
 		}

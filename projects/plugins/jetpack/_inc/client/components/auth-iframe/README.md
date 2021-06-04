@@ -9,7 +9,7 @@ In order to display the authorization iframe, just dispatch the `authorizeUserIn
 - *title* - (required) the iframe title.
 - *width* - the iframe width. Defaults to `100%`
 - *height* - the iframe height. Defaults to `220`
-- *scrollToIframe* - whether after iframe rendering, window should scroll to it's current position. Defaults to `true`.
+- *scrollTo* - whether after iframe rendering, window should scroll to it's current position. Defaults to `true`.
 - *onAuthorized* - a function associated to the successful authorization.
 - *location* - where the component is displayed, passed into WP.com for further use.
 
@@ -24,7 +24,7 @@ render() {
             title="Link your account to WordPress.com"
             width="300"
             height="300"
-            scrollToIframe = { true }
+            scrollTo = { true }
             onAuthorized={ someFunction }
 			location="connect-user-bar"
         />

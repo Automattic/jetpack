@@ -346,7 +346,7 @@ class Main extends React.Component {
 					{ this.shouldShowAuthIframe() && (
 						<AuthIframe
 							{ ...( this.props.isReconnectingSite && {
-								scrollToIframe: false,
+								scrollTo: false,
 								title: __( 'Reconnect to WordPress.com by approving the connection', 'jetpack' ),
 							} ) }
 						/>

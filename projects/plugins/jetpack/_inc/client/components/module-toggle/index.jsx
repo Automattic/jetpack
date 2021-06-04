@@ -18,6 +18,7 @@ import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { getModuleOverride } from 'state/modules';
 import getRedirectUrl from 'lib/jp-redirect';
+import ConnectModal from './connect-modal';
 import { hasConnectedOwner, authorizeUserInPlace } from 'state/connection';
 
 class ModuleToggleComponent extends Component {
@@ -33,6 +34,7 @@ class ModuleToggleComponent extends Component {
 		overrideCondition: PropTypes.string,
 		hasConnectedOwner: PropTypes.bool,
 		requiresConnectionOwner: PropTypes.bool,
+		connectionReason: PropTypes.any,
 	};
 
 	static defaultProps = {
@@ -41,13 +43,31 @@ class ModuleToggleComponent extends Component {
 		overrideCondition: '',
 	};
 
-	toggleModule = () => {
+	state = {
+		showPreToggleModal: false,
+	};
+
+	// componentDidUpdate = (prevProps, prevState, snapshot) => {
+	//     if (prevProps.specificProperty !== this.props.specificProperty) {
+	//         // Do whatever you want
+	//     }
+	// }
+
+	tryToggleModule = () => {
 		// show a dialog if we're not connected but require an owner
-		if ( this.props.requiresConnectionOwner && ! this.props.hasConnectedOwner ) {
-			this.props.authorizeUserInPlace();
+		if (
+			! this.props.activated &&
+			this.props.requiresConnectionOwner &&
+			! this.props.hasConnectedOwner
+		) {
+			// this.props.authorizeUserInPlace();
+			this.setState( { showPreToggleModal: true } );
 			return;
 		}
+		this.toggleModule();
+	};
 
+	toggleModule = () => {
 		this.trackModuleToggle( this.props.slug, this.props.activated );
 		return this.props.toggleModule( this.props.slug, this.props.activated );
 	};
@@ -118,16 +138,24 @@ class ModuleToggleComponent extends Component {
 		return (
 			<>
 				<CompactFormToggle
-					checked={ this.props.activated || this.props.isModuleActivated }
+					checked={ this.props.activated }
 					toggling={ this.props.toggling }
 					className={ this.props.className }
 					disabled={ this.props.disabled || this.isDisabledByOverride() }
 					id={ this.props.id }
-					onChange={ this.toggleModule }
+					onChange={ this.tryToggleModule }
 					disabledReason={ this.getDisabledReason() }
 				>
 					{ this.props.children }
 				</CompactFormToggle>
+				{ this.state.showPreToggleModal && (
+					<ConnectModal
+						onRequestClose={ () => this.setState( { showPreToggleModal: false } ) }
+						onAuthorized={ this.toggleModule } // this is a bit presumptuous but makes for a better demo
+					>
+						{ this.props.connectionReason }
+					</ConnectModal>
+				) }
 			</>
 		);
 	}
