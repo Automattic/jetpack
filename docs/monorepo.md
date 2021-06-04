@@ -129,7 +129,7 @@ Tests for a project are only run for a PR if changes are made to the project or 
 * For Composer packages included in the monorepo, via `.require` and `.require-dev` in `composer.json`.
 * For any other dependencies, via `.extra.dependencies` in `composer.json`.
 
-The test environment will be set up with appropriate tools, including node, pnpm, php, phpdbg, and composer. Unless otherwise specified below, the version of node will be that specified in the monorepo root's `.nvmrc` and php will be that specified in the monorepo root's `.github/php-version`. Other necessary tools may be pulled in via composer and pnpm.
+The test environment will be set up with appropriate tools, including node, pnpm, php, phpdbg, and composer. Unless otherwise specified below, the versions of node and php will be those specified in `.github/versions.sh`. Other necessary tools may be pulled in via composer and pnpm.
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 
@@ -139,8 +139,8 @@ The following environment variables are avaliable for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
-- `NODE_VERSION`: The version of Node in use. Same as `.nvmrc`.
-- `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as `.github/php-version`.
+- `NODE_VERSION`: The version of Node in use, as specified in `.github/versions.sh`.
+- `PHP_VERSION`: The version of PHP in use. Unless otherwise specified below, it will be the same as in `.github/versions.sh`.
 - `TEST_SCRIPT`: The test script being run.
 
 ### Linting
@@ -157,7 +157,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 5.6 to 8.0. If you have tests that only need to be run once, run them when `PHP_VERSION` matches `.github/php-version`.
+Tests are run with a variety of supported PHP versions from 5.6 to 8.0. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -178,7 +178,7 @@ We currently make use of the following packages in testing; it's encouraged to u
 
 WordPress plugins generally want to run within WordPress. All monorepo plugins are copied into place in a WordPress installation and tests are run from there. An appropriate version of PHPUnit is made available in the path; installing it via Composer is not needed.
 
-Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and master versions of WordPress using the version in `.github/php-version`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'master' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
+Tests will be run against the latest version of WordPress using the variety of supported PHP versions, and against the previous and master versions of WordPress using the PHP version in `.github/versions.sh`. The environment variable `WP_BRANCH` will be set to 'latest', 'previous', or 'master' accordingly. If you have tests that only need to be run once, run them when `WP_BRANCH` is 'latest'.
 
 Note that WordPress currently requires a version of PHPUnit that does not natively support PHP 8.0. Their current approach is to monkey-patch it via `composer.json` which monorepo plugins cannot duplicate. [This example bootstrap.php](./examples/bootstrap.php) illustrates how to handle it.
 
