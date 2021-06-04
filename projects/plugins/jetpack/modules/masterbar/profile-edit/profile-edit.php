@@ -22,12 +22,12 @@ function masterbar_hide_profile_fields( $user ) {
 	$name_info_wpcom_link_message    = sprintf(
 		/* translators: 1 link */
 		__( 'WordPress.com users can change their profile\\\'s basic details ( i.e., First Name, Last Name, Display Name, About ) in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Profile settings.</a>', 'jetpack' ),
-		'https://wordpress.com/me',
+		'https://wordpress.com/me'
 	);
 	$contact_info_wpcom_link_message = sprintf(
 		/* translators: 1 link */
 		__( 'WordPress.com users can change their profile\\\'s email & website address in <a href="%1$s" target="_blank" rel="noopener noreferrer">WordPress.com Account settings.</a>', 'jetpack' ),
-		'https://wordpress.com/me/account',
+		'https://wordpress.com/me/account'
 	);
 	?>
 	<script>
@@ -44,7 +44,7 @@ function masterbar_hide_profile_fields( $user ) {
 																'href'   => array(),
 																'rel'    => array(),
 																'target' => array(),
-															),
+															)
 														)
 													);
 												?>'; // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
@@ -62,7 +62,7 @@ function masterbar_hide_profile_fields( $user ) {
 																'href'   => array(),
 																'rel'    => array(),
 																'target' => array(),
-															),
+															)
 														)
 													);
 												?>'; // phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeEnd
