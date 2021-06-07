@@ -30,9 +30,10 @@ export function cleanDefine( yargs ) {
 					type: 'string',
 				} )
 				.positional( 'include', {
+					alias: 'i',
 					describe: 'Files/folders to include for deletion',
 					type: 'string',
-					choices: [ 'node_modules', 'composer.lock', 'vendor', 'working', 'everything' ],
+					choices: [ 'node_modules', 'composer.lock', 'vendor', 'working', 'ignored' ],
 				} )
 				.option( 'all', {
 					alias: 'a',
@@ -62,13 +63,20 @@ export function cleanDefine( yargs ) {
  */
 export async function cleanCli( argv ) {
 	argv = normalizeCleanArgv( argv );
+
+	if ( argv.dist ) {
+		distClean( argv );
+		return;
+	}
+
 	if ( argv.all ) {
 		argv.project = '.';
 	}
+
+	// Handle the scope and project we want to work with
 	if ( argv.project ) {
 		await parseProj( argv );
-	}
-	if ( ! argv.project ) {
+	} else {
 		argv = await promptForScope( argv );
 		switch ( argv.scope ) {
 			case 'project':
@@ -83,13 +91,47 @@ export async function cleanCli( argv ) {
 				break;
 		}
 	}
-	if ( ! argv.includes ) {
+
+	// Handle what files we want to delete.
+	if ( argv.include ) {
+		await parseToClean( argv );
+	} else {
 		await promptForClean( argv );
 	}
 	await makeOptions( argv );
 	await commandRoute( argv );
 
 	return;
+}
+
+/**
+ * Clean all build files.
+ *
+ * @param {object} argv - arguments passed.
+ */
+async function distClean( argv ) {
+	argv.scope = 'all';
+	argv.project = '.';
+	argv.include = {};
+
+	// Bail if we don't get confirmation.
+	const runConfirm = await confirmRemove( argv );
+	if ( ! runConfirm.confirm ) {
+		return;
+	}
+
+	console.log( chalk.green( `Cleaning files...` ) );
+	// Clean node_modules.
+	argv.include.toClean = 'node_modules';
+	argv.cmd = 'rm';
+	await makeRemove( argv );
+	await runCommand( argv.cmd, argv.options );
+
+	// Clean vendor.
+	argv.include.toClean = 'vendor';
+	argv.cmd = 'rm';
+	await makeRemove( argv );
+	await runCommand( argv.cmd, argv.options );
 }
 
 /**
@@ -109,7 +151,7 @@ async function commandRoute( argv ) {
 	}
 
 	// Confirm we want to delete.
-	const runConfirm = await confirmRemove();
+	const runConfirm = await confirmRemove( argv );
 
 	// Live Commands
 	if ( runConfirm.confirm ) {
@@ -129,6 +171,10 @@ async function commandRoute( argv ) {
 			}
 		}
 
+		// Success message
+		if ( argv.project === '.' ) {
+			argv.project = 'Everything';
+		}
 		console.log(
 			chalk.green( `Clean completed! ${ argv.project } cleans up so nicely, doesn't it?` )
 		);
@@ -142,7 +188,7 @@ async function commandRoute( argv ) {
  * @returns {object} argv.
  */
 async function parseProj( argv ) {
-	console.log(argv);
+	console.log( argv );
 	//Bail if we've specified the 'all' option already.
 	if ( argv.project === '.' ) {
 		return;
@@ -158,16 +204,16 @@ async function parseProj( argv ) {
 	const allProj = allProjects();
 	for ( const proj of allProj ) {
 		if ( argv.project === proj ) {
-			argv.project = `projects/${argv.project}`;
+			argv.project = `projects/${ argv.project }`;
 			return;
 		}
 	}
 
 	// If we're passing a type.
-	const types = ['github-actions', 'js-packages', 'packages', 'plugins' ];
+	const types = [ 'github-actions', 'js-packages', 'packages', 'plugins' ];
 	for ( const type of types ) {
 		if ( argv.project === type ) {
-			argv.project = `projects/${type}`;
+			argv.project = `projects/${ type }`;
 			return;
 		}
 	}
@@ -177,6 +223,21 @@ async function parseProj( argv ) {
 	delete argv.project;
 	return argv;
 }
+
+/**
+ * Parse the included files we want to clean.
+ *
+ * @param {object} argv - the arguments passed.
+ * @returns {object} argv.
+ */
+async function parseToClean( argv ) {
+	argv.include = { toClean: argv.include };
+	if ( argv.include.toClean === 'ignored' ) {
+		argv.include.ignored = [ 'vendor', 'composer.lock', 'node_modules' ];
+	}
+	return argv;
+}
+
 /**
  * Compiles options depending on the command we need to run.
  *
@@ -287,7 +348,7 @@ async function checkExclude( toDelete, options ) {
 	for ( const fileFolder of defaultIgnored ) {
 		if ( ! toDelete.includes( fileFolder ) ) {
 			options.push( `-e` );
-			options.push( `\!${ fileFolder }` );
+			options.push( `!${ fileFolder }` );
 		}
 	}
 	return options;
@@ -296,13 +357,18 @@ async function checkExclude( toDelete, options ) {
 /**
  * Confirm that we want to remove the listed files.
  *
+ * @param {object} argv - the arguments passed.
  * @returns {object} response - response data.
  */
-async function confirmRemove() {
+async function confirmRemove( argv ) {
+	let confirmMessage = 'Okay to delete the above files/folders?';
+	if ( argv.dist ) {
+		confirmMessage = 'Okay to delete all built files (node_modules and vendor?';
+	}
 	const response = await inquirer.prompt( {
 		type: 'confirm',
 		name: 'confirm',
-		message: chalk.green( 'Okay to delete the above files/folders?' ),
+		message: chalk.green( confirmMessage ),
 	} );
 
 	return response;
