@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+E2E tests reports: send PR number to test reporter

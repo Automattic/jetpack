@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Business Hours Block tests
  *
@@ -10,7 +10,10 @@
  */
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/business-hours/business-hours.php';
 
-const BLOCK_NAME = 'jetpack/business-hours';
+/**
+ * Include a test case that we can inherit from to make it easier to test against existing fixtures.
+ */
+require_once __DIR__ . '/class-block-fixture-testcase.php';
 
 /**
  * Business Hours Block tests.
@@ -20,7 +23,7 @@ const BLOCK_NAME = 'jetpack/business-hours';
  *
  * The goal is to catch when changes to serialized markup affects server rendering of the block.
  */
-class Business_Hours_Block_Test extends \WP_UnitTestCase {
+class Business_Hours_Block_Test extends \Jetpack_Block_Fixture_TestCase {
 	/**
 	 * A variable to track whether or not the block was already registered before the test was run.
 	 *
@@ -31,12 +34,21 @@ class Business_Hours_Block_Test extends \WP_UnitTestCase {
 	private $was_registered = false;
 
 	/**
+	 * The name of the block under test.
+	 *
+	 * @access private
+	 *
+	 * @var string
+	 */
+	const BLOCK_NAME = 'jetpack/business-hours';
+
+	/**
 	 * Setup and ensure the block is registered before running the tests.
 	 *
 	 * @before
 	 */
 	public function set_up() {
-		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( BLOCK_NAME );
+		$this->was_registered = \Automattic\Jetpack\Blocks::is_registered( self::BLOCK_NAME );
 		\Automattic\Jetpack\Extensions\Business_Hours\register_block();
 	}
 
@@ -55,7 +67,7 @@ class Business_Hours_Block_Test extends \WP_UnitTestCase {
 	 * Test that the block is registered, which means that it can be registered.
 	 */
 	public function test_block_can_be_registered() {
-		$is_registered = \Automattic\Jetpack\Blocks::is_registered( BLOCK_NAME );
+		$is_registered = \Automattic\Jetpack\Blocks::is_registered( self::BLOCK_NAME );
 		$this->assertTrue( $is_registered );
 	}
 
@@ -66,55 +78,10 @@ class Business_Hours_Block_Test extends \WP_UnitTestCase {
 	 * If no server rendered fixture can be found, then one is created.
 	 */
 	public function test_server_side_rendering_based_on_serialized_fixtures() {
-		// phpcs:disable WordPress.WP.AlternativeFunctions
-		$fixtures_path = 'extensions/blocks/business-hours/test/fixtures/';
-		$file_pattern  = '*.serialized.html';
-		$files         = glob( JETPACK__PLUGIN_DIR . $fixtures_path . $file_pattern );
-
-		$fail_messages = array();
-
-		foreach ( $files as $file ) {
-			$block_markup = trim( file_get_contents( $file ) );
-
-			$parsed_blocks   = parse_blocks( $block_markup );
-			$rendered_output = render_block( $parsed_blocks[0] );
-
-			$target_markup_filename = str_replace( '.serialized.html', '.server-rendered.html', $file );
-
-			// Create a server rendered fixture if one does not exist.
-			if ( ! file_exists( $target_markup_filename ) ) {
-				file_put_contents( $target_markup_filename, $rendered_output );
-				$fail_messages[] =
-					sprintf(
-						"No server rendered fixture could be found for the %s block's %s fixture\n" .
-						"A fixture file has been created in: %s\n",
-						BLOCK_NAME,
-						basename( $file ),
-						$fixtures_path . basename( $target_markup_filename )
-					);
-			}
-
-			$server_rendered_fixture = file_get_contents( $target_markup_filename );
-			$this->assertEquals(
-				$rendered_output,
-				trim( $server_rendered_fixture ),
-				sprintf(
-					'The results of render_block for %s called with serialized markup from %s do not match ' .
-					"the server-rendered fixture: %s\n",
-					BLOCK_NAME,
-					basename( $file ),
-					basename( $target_markup_filename )
-				)
-			);
-		}
-
-		// Fail the test if any fixtures were missing, and report that fixtures have been generated.
-		if ( ! empty( $fail_messages ) ) {
-			$this->fail(
-				implode( "\n", $fail_messages ) .
-				"\nTry running this test again. Be sure to commit generated fixture files with any code changes."
-			);
-		}
-		// phpcs:enable WordPress.WP.AlternativeFunctions
+		$this->generate_server_side_rendering_based_on_serialized_fixtures(
+			self::BLOCK_NAME,
+			'business-hours',
+			'.server-rendered.html'
+		);
 	}
 }
