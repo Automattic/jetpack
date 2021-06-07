@@ -12,7 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  *
  * @param WP_User $user The current WP_User object.
  */
-function masterbar_hide_profile_fields( $user ) {
+function jetpack_masterbar_hide_profile_fields( $user ) {
 	$connection_manager = new Connection_Manager( 'jetpack' );
 	if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
 		// If this is a local user, show the default UX.
@@ -39,6 +39,10 @@ function masterbar_hide_profile_fields( $user ) {
 	?>
 	<script>
 		document.addEventListener( 'DOMContentLoaded', function() {
+			// Field to be hidden.
+			var fieldsToHide = '#your-profile .user-first-name-wrap, #your-profile .user-last-name-wrap, #your-profile .user-nickname-wrap, #your-profile .user-display-name-wrap, #your-profile .user-email-wrap, #your-profile .user-url-wrap, #your-profile .user-description-wrap';
+			document.querySelectorAll(fieldsToHide).forEach( element => element.classList.add( 'hidden') );
+
 			// Name Info.
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
 			var nameInfoWpcomLink           = document.createElement( 'div' );
@@ -58,14 +62,4 @@ function masterbar_hide_profile_fields( $user ) {
 	<?php
 }
 
-/**
- * Load the CSS for the WP Profile Edit screen
- *
- * These rules are hiding the profile fields that should be edited through WordPress.com.
- */
-function masterbar_hide_profile_fields_css() {
-	wp_enqueue_style( 'profile-edit', plugins_url( 'profile-edit.css', __FILE__ ), array(), JETPACK__VERSION );
-}
-
-add_action( 'personal_options', 'masterbar_hide_profile_fields' );
-add_action( 'admin_enqueue_scripts', 'masterbar_hide_profile_fields_css' );
+add_action( 'personal_options', 'jetpack_masterbar_hide_profile_fields' );
