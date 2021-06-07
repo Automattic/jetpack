@@ -50,7 +50,7 @@ const getProjectName = argv => {
  * @returns {object} key-value pairs of ENV variables
  */
 const buildEnv = argv => {
-	const envOpts = { PORT_WORDPRESS: 80 };
+	const envOpts = {};
 	if ( argv.type === 'e2e' ) {
 		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
 	}

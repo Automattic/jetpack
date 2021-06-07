@@ -41,9 +41,9 @@ services:
       - ./logs/${COMPOSE_PROJECT_NAME}/php:/var/log/php
       - ./bin:/var/scripts
     ports:
-      - '${PORT_WORDPRESS:-8889}:80'
+      - '${PORT_WORDPRESS:-80}:80'
     env_file:
       - default.env
       - .env
     environment:
-      - HOST_PORT=${PORT_WORDPRESS:-8889}
+      - HOST_PORT=${PORT_WORDPRESS:-80}
