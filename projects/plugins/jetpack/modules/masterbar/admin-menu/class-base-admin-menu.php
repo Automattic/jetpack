@@ -546,14 +546,4 @@ abstract class Base_Admin_Menu {
 	public function should_customize_nav() {
 		return true;
 	}
-
-	/**
-	 * Checks whether Calypso links should be enforced.
-	 *
-	 * @return bool
-	 */
-	public function should_force_calypso_links() {
-		// Force Calypso links on API requests when SSO is disabled.
-		return false;
-	}
 }

@@ -92,41 +92,22 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Whether to use wp-admin pages rather than Calypso.
-	 *
-	 * @return bool
-	 */
-	public function should_link_to_wp_admin() {
-		if ( $this->should_force_calypso_links() ) {
-			return false;
-		}
-
-		return parent::should_link_to_wp_admin();
-	}
-
-	/**
-	 * Adds Posts menu.
+	 * Forces Posts menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_posts_menu` in parent class.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_posts_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $this->should_force_calypso_links() ) {
-			parent::add_posts_menu( false );
-		}
-
 		return false; // return explicit `false` to force WPAdmin links.
 	}
 
 	/**
-	 * Adds Page menu.
+	 * Forces Pages menu to WPAdmin for Atomic sites only.
+	 * Overloads `add_page_menu` in parent class.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_page_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $this->should_force_calypso_links() ) {
-			parent::add_page_menu( false );
-		}
-
 		return false; // return explicit `false` to force WPAdmin links.
 	}
 
@@ -325,12 +306,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 6 );
 
-		// Do not add links to WP Admin when there is already one or if Calypso is forced.
-		if ( $wp_admin || $this->should_force_calypso_links() ) {
-			return;
+		// No need to add a menu linking to WP Admin if there is already one.
+		if ( ! $wp_admin ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 		}
-
-		add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 	}
 
 	/**
@@ -342,11 +321,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Customize on Atomic sites is always done on WP Admin.
 		parent::add_appearance_menu( $wp_admin_themes, true );
-
-		// Do not add links to WP Admin when Calypso is forced.
-		if ( $this->should_force_calypso_links() ) {
-			return;
-		}
 
 		add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 	}
@@ -374,11 +348,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_users_menu( $wp_admin = false ) {
 		parent::add_users_menu( $wp_admin );
 
-		// Do not add links to WP Admin when Calypso is forced.
-		if ( $this->should_force_calypso_links() ) {
-			return;
-		}
-
 		add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
 	}
 
@@ -394,13 +363,12 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Comments menu.
+	 * Always use WP Admin for comments.
 	 *
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// If Calypso is not forced, then always use WP Admin.
-		parent::add_comments_menu( ! $this->should_force_calypso_links() );
+		parent::add_comments_menu( true );
 	}
 
 	/**
@@ -419,16 +387,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		);
 
 		wp_die();
-	}
-
-	/**
-	 * Checks whether Calypso links should be enforced.
-	 *
-	 * @return bool
-	 */
-	public function should_force_calypso_links() {
-		// Force Calypso links on API requests when SSO is disabled.
-		return $this->is_api_request && ! $this->is_sso_enabled;
 	}
 
 	/**

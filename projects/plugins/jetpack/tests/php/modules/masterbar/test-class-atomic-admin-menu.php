@@ -430,44 +430,14 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests that Calypso links are forced on API requests when SSO is disabled.
+	 * Tests that menu doesn't change when SSO is disabled.
 	 */
-	public function test_calypso_menu_when_sso_disabled() {
-		global $menu, $submenu;
+	public function test_no_nav_overrides_when_sso_disabled() {
+		remove_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
 
-		// Set up.
-		$admin_menu     = new ReflectionClass( static::$admin_menu );
-		$is_api_request = $admin_menu->getProperty( 'is_api_request' );
-		$is_api_request->setAccessible( true );
-		$is_api_request->setValue( static::$admin_menu, true );
-		$is_sso_enabled = $admin_menu->getProperty( 'is_sso_enabled' );
-		$is_sso_enabled->setAccessible( true );
-		$is_sso_enabled->setValue( static::$admin_menu, false );
+		$this->assertSame( false, has_action( 'admin_menu', array( static::$admin_menu, 'reregister_menu_items' ) ) );
 
-		// Register menus.
-		static::$admin_menu->add_posts_menu( true );
-		static::$admin_menu->add_page_menu( true );
-		static::$admin_menu->add_options_menu();
-		static::$admin_menu->add_appearance_menu();
-		static::$admin_menu->add_users_menu();
-		static::$admin_menu->add_comments_menu();
-
-		// Make sure menu items no WP Admin links are added for API requests when SSO is disabled.
-		$this->assertSame( 'https://wordpress.com/posts/' . static::$domain, $submenu['edit.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/post/' . static::$domain, $submenu['edit.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/pages/' . static::$domain, $submenu['edit.php?post_type=page'][0][2] );
-		$this->assertSame( 'https://wordpress.com/page/' . static::$domain, $submenu['edit.php?post_type=page'][1][2] );
-		$last_options_submenu = array_pop( $submenu['options-general.php'] );
-		$this->assertNotSame( 'options-writing.php', $last_options_submenu[2] );
-		if ( current_user_can( 'install_themes' ) ) {
-			$this->assertNotSame( 'theme-install.php', $submenu['themes.php'][1][2] );
-		}
-		$this->assertNotSame( 'users.php', $submenu['users.php'][2][2] );
-		$this->assertSame( 'https://wordpress.com/comments/all/' . static::$domain, $menu[25][2] );
-
-		// Reset.
-		$is_api_request->setValue( static::$admin_menu, false );
-		$is_sso_enabled->setValue( static::$admin_menu, true );
+		add_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
 	}
 
 	/**
