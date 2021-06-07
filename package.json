@@ -70,7 +70,6 @@
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
 		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
-		"test-spelling": "mdspell -n -a -x --en-us **/*.md",
 		"validate-es5": "pnpx eslint --parser-options=ecmaVersion:5 --no-eslintrc --no-ignore",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
