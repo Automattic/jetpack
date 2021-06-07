@@ -4,6 +4,7 @@
 import { spawnSync } from 'child_process';
 import chalk from 'chalk';
 import { createWriteStream, existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';
+import yaml from 'js-yaml';
 
 const dockerFolder = `tools/docker`;
 
@@ -17,6 +18,7 @@ const defaultOpts = yargs =>
 	yargs
 		.option( 'type', {
 			alias: 't',
+			default: 'dev',
 			describe: 'Container type',
 		} )
 		.option( 'name', {
@@ -94,28 +96,25 @@ const setVolumes = argv => {
 		copyFileSync( sampleFile, volumesFile );
 	}
 
-	const volumesContents = readFileSync( volumesFile, 'utf8' );
-	const indentedContents = volumesContents
-		.split( '\n' )
-		.map( l => '      ' + l )
-		.join( '\n' );
-	let header = `## FIXME: Built by \`jetpack docker\` CLI
-## This file regenerates automatically every time up/down/stop command is called.
+	const volumes = yaml.load( readFileSync( volumesFile, 'utf8' ) );
+	const volumesObj = {
+		version: '3.3',
+		services: { wordpress: { volumes } },
+	};
 
-version: '3.3'
-services:
-  wordpress:
-    volumes:
-${ indentedContents }`;
-
+	console.log( JSON.stringify( volumesObj ) );
 	if ( argv.type === 'dev' ) {
 		// Update the abs path to wordpress installation
-		header += `
-  sftp:
-    volumes:
-${ indentedContents.replace( /\/var\/www\/html/, '/home/wordpress/var/www/html' ) }`;
+		volumesObj.services.sftp = {
+			volumes: volumes.map( vol =>
+				vol.replace( /\/var\/www\/html/, '/home/wordpress/var/www/html' )
+			),
+		};
 	}
-	writeFileSync( volumesBuiltFile, header );
+
+	console.log( JSON.stringify( volumesObj ) );
+
+	writeFileSync( volumesBuiltFile, yaml.dump( volumesObj ) );
 };
 
 /**
