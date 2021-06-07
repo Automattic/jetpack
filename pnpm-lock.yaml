@@ -314,7 +314,7 @@ importers:
       bounding-client-rect: 1.0.5
       chai: 4.3.4
       chalk: 4.1.1
-      classnames: 2.2.6
+      classnames: 2.3.1
       click-outside: 2.0.2
       clipboard: 2.0.6
       commander: 7.2.0
@@ -429,7 +429,7 @@ importers:
       '@wordpress/url': 2.11.0
       abortcontroller-polyfill: 1.7.1
       bounding-client-rect: 1.0.5
-      classnames: 2.2.6
+      classnames: 2.3.1
       click-outside: 2.0.2
       clipboard: 2.0.6
       component-uid: 0.0.2
@@ -7310,10 +7310,6 @@ packages:
       define-property: 0.2.5
       isobject: 3.0.1
       static-extend: 0.1.2
-
-  /classnames/2.2.6:
-    resolution: {integrity: sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==}
-    dev: false
 
   /classnames/2.3.1:
     resolution: {integrity: sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==}
