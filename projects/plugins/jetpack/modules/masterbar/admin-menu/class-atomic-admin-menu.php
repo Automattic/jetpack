@@ -16,24 +16,12 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Atomic_Admin_Menu.
  */
 class Atomic_Admin_Menu extends Admin_Menu {
-	/**
-	 * Whether the SSO module is enabled.
-	 *
-	 * @var bool
-	 */
-	protected $is_sso_enabled = false;
 
 	/**
 	 * Atomic_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		$this->is_sso_enabled = \Jetpack::is_module_active( 'sso' );
-
 		parent::__construct();
-
-		if ( ! $this->should_customize_nav() ) {
-			return;
-		}
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
@@ -387,15 +375,5 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		);
 
 		wp_die();
-	}
-
-	/**
-	 * Checks whether the navigation customizations should be performed.
-	 *
-	 * @return bool
-	 */
-	public function should_customize_nav() {
-		// No nav overrides on WP Admin when the SSO module is disabled.
-		return $this->is_api_request || $this->is_sso_enabled;
 	}
 }

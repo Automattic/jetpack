@@ -70,14 +70,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		static::$user_id      = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$menu_data    = get_wpcom_menu_fixture();
 		static::$submenu_data = get_submenu_fixture();
-		add_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
-	}
-
-	/**
-	 * Remove mocked filters.
-	 */
-	public static function tearDownAfterClass() {
-		remove_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
 	}
 
 	/**
@@ -427,28 +419,5 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
-	}
-
-	/**
-	 * Tests that menu doesn't change when SSO is disabled.
-	 */
-	public function test_no_nav_overrides_when_sso_disabled() {
-		remove_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
-
-		$this->assertSame( false, has_action( 'admin_menu', array( static::$admin_menu, 'reregister_menu_items' ) ) );
-
-		add_filter( 'jetpack_active_modules', array( get_called_class(), 'mock_sso_module_enabled' ) );
-	}
-
-	/**
-	 * Adds the SSO module to the list of active modules.
-	 *
-	 * @param array $modules List of active modules.
-	 *
-	 * @return array
-	 */
-	public static function mock_sso_module_enabled( $modules ) {
-		$modules[] = 'sso';
-		return $modules;
 	}
 }
