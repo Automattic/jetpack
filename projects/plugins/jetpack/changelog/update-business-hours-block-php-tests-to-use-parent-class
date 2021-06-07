@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Business Hours Block: Refactor PHP server-rendered fixture test to use parent class.

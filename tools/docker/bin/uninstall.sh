@@ -29,5 +29,5 @@ wp --allow-root config delete BLOG_ID_CURRENT_SITE
 echo
 echo "WordPress uninstalled. To install it again, run:"
 echo
-echo "  yarn docker:install"
+echo "  jetpack docker install"
 echo
