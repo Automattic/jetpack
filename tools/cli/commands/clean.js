@@ -38,7 +38,7 @@ export function cleanDefine( yargs ) {
 				.option( 'all', {
 					alias: 'a',
 					type: 'boolean',
-					description: 'Remove files from the entire monorepo ',
+					description: 'Remove everything from monorepo root',
 				} )
 				.option( 'dist', {
 					type: 'boolean',
@@ -69,27 +69,11 @@ export async function cleanCli( argv ) {
 		return;
 	}
 
-	if ( argv.all ) {
-		argv.project = '.';
-	}
-
 	// Handle the scope and project we want to work with
 	if ( argv.project ) {
 		await parseProj( argv );
 	} else {
-		argv = await promptForScope( argv );
-		switch ( argv.scope ) {
-			case 'project':
-				argv = await promptForProject( argv );
-				break;
-			case 'type':
-				argv = await promptForType( argv );
-				argv.project = 'projects/' + argv.type;
-				break;
-			case 'all':
-				argv.project = '.';
-				break;
-		}
+		await promptProj( argv );
 	}
 
 	// Handle what files we want to delete.
@@ -221,7 +205,8 @@ async function parseProj( argv ) {
 	// Default - if none of the above match, switch to interactive mode.
 	console.log( chalk.red( 'Invalid project type, defaulting to interactive mode' ) );
 	delete argv.project;
-	return argv;
+	await promptProj( argv );
+	return;
 }
 
 /**
@@ -258,8 +243,6 @@ export async function makeOptions( argv ) {
 		argv.cmd = 'git';
 		argv = await makeClean( argv );
 	}
-
-	console.log( argv );
 	return argv;
 }
 
@@ -355,6 +338,27 @@ async function checkExclude( toDelete, options ) {
 }
 
 /**
+ * Prompts for the scope, project and type if none were given.
+ *
+ * @param {object} argv - the arguments passed.
+ */
+async function promptProj( argv ) {
+	argv = await promptForScope( argv );
+	switch ( argv.scope ) {
+		case 'project':
+			argv = await promptForProject( argv );
+			break;
+		case 'type':
+			argv = await promptForType( argv );
+			argv.project = 'projects/' + argv.type;
+			break;
+		case 'all':
+			argv.project = '.';
+			break;
+	}
+	return;
+}
+/**
  * Confirm that we want to remove the listed files.
  *
  * @param {object} argv - the arguments passed.
@@ -415,6 +419,10 @@ export async function promptForScope( argv ) {
  * @returns {argv} argv
  */
 export async function promptForClean( argv ) {
+	let promptProject = argv.project;
+	if ( argv.project === '.' || argv.project === 'all' ) {
+		promptProject = 'the monorepo root';
+	}
 	const ignoreChoices = [
 		{
 			name: 'vendor',
@@ -436,9 +444,7 @@ export async function promptForClean( argv ) {
 		{
 			type: 'list',
 			name: 'toClean',
-			message: `What untracked files and folders are you looking to delete for ${
-				argv.all ? 'the monorepo root' : argv.project
-			}?`,
+			message: `What untracked files and folders are you looking to delete for ${ promptProject }?`,
 			choices: [
 				{
 					name: 'Working Files/Folders (Only).',
