@@ -40,8 +40,8 @@ function jetpack_masterbar_hide_profile_fields( $user ) {
 	<script>
 		document.addEventListener( 'DOMContentLoaded', function() {
 			// Field to be hidden.
-			var fieldsToHide = '#your-profile .user-first-name-wrap, #your-profile .user-last-name-wrap, #your-profile .user-nickname-wrap, #your-profile .user-display-name-wrap, #your-profile .user-email-wrap, #your-profile .user-url-wrap, #your-profile .user-description-wrap';
-			document.querySelectorAll(fieldsToHide).forEach( element => element.classList.add( 'hidden') );
+			var fieldsToHide = '.user-first-name-wrap, .user-last-name-wrap, .user-nickname-wrap, .user-display-name-wrap, .user-email-wrap, .user-url-wrap, .user-description-wrap';
+			document.querySelectorAll( fieldsToHide ).forEach( element => element.classList.add( 'hidden' ) );
 
 			// Name Info.
 			var nameInfo                    = document.querySelector( '.user-first-name-wrap' ).closest( 'table' );
