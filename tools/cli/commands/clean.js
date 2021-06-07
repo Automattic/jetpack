@@ -64,8 +64,21 @@ export function cleanDefine( yargs ) {
 export async function cleanCli( argv ) {
 	argv = normalizeCleanArgv( argv );
 
+	if ( argv.all ) {
+		// Bail if we don't get confirmation.
+		const runConfirm = await confirmRemove( argv );
+		if ( ! runConfirm.confirm ) {
+			return;
+		}
+		await cleanAll( argv );
+		return;
+	}
 	if ( argv.dist ) {
-		distClean( argv );
+		const runConfirm = await confirmRemove( argv );
+		if ( ! runConfirm.confirm ) {
+			return;
+		}
+		await distClean( argv );
 		return;
 	}
 
@@ -98,13 +111,7 @@ async function distClean( argv ) {
 	argv.project = '.';
 	argv.include = {};
 
-	// Bail if we don't get confirmation.
-	const runConfirm = await confirmRemove( argv );
-	if ( ! runConfirm.confirm ) {
-		return;
-	}
-
-	console.log( chalk.green( `Cleaning files...` ) );
+	console.log( chalk.green( `Cleaning build files (this may take awhile)...` ) );
 	// Clean node_modules.
 	argv.include.toClean = 'node_modules';
 	argv.cmd = 'rm';
@@ -116,6 +123,26 @@ async function distClean( argv ) {
 	argv.cmd = 'rm';
 	await makeRemove( argv );
 	await runCommand( argv.cmd, argv.options );
+
+	return;
+}
+
+/**
+ * Clean everything (except checked in composer.lock)
+ *
+ * @param {object} argv - arguments passed.
+ */
+async function cleanAll( argv ) {
+	// Clean node modules and vendor
+	await distClean( argv );
+
+	//Clean any untracked and working files
+	argv.cmd = 'git';
+	argv.include.toClean = 'both';
+	argv.include.ignored = [ 'vendor', 'node_modules' ];
+	await makeOptions( argv );
+	await commandRoute( argv );
+	return;
 }
 
 /**
@@ -151,7 +178,7 @@ async function commandRoute( argv ) {
 			await runCommand( argv.cmd, [ `clean`, ...argv.options, '-f' ] ); // do it live.
 			if ( argv.include.toClean === 'both' ) {
 				console.log( chalk.green( 'Cleaning working files...' ) );
-				runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
+				await runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
 			}
 		}
 
@@ -218,7 +245,7 @@ async function parseProj( argv ) {
 async function parseToClean( argv ) {
 	argv.include = { toClean: argv.include };
 	if ( argv.include.toClean === 'ignored' ) {
-		argv.include.ignored = [ 'vendor', 'composer.lock', 'node_modules' ];
+		argv.include.ignored = [ 'vendor', 'node_modules' ];
 	}
 	return argv;
 }
@@ -367,7 +394,11 @@ async function promptProj( argv ) {
 async function confirmRemove( argv ) {
 	let confirmMessage = 'Okay to delete the above files/folders?';
 	if ( argv.dist ) {
-		confirmMessage = 'Okay to delete all built files (node_modules and vendor?';
+		confirmMessage = 'Okay to delete all built files (node_modules and vendor)?';
+	}
+	if ( argv.all && ! argv.cmd ) {
+		confirmMessage =
+			'You want to clean absolutely everything from the monorepo? (working files, node_modules, vendor, and git-ignored files?)';
 	}
 	const response = await inquirer.prompt( {
 		type: 'confirm',
