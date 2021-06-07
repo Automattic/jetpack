@@ -22,16 +22,13 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
