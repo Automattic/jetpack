@@ -64,6 +64,7 @@ export function cleanDefine( yargs ) {
 export async function cleanCli( argv ) {
 	argv = normalizeCleanArgv( argv );
 
+	// Handle cleaning everything.
 	if ( argv.all ) {
 		// Bail if we don't get confirmation.
 		const runConfirm = await confirmRemove( argv );
@@ -73,6 +74,8 @@ export async function cleanCli( argv ) {
 		await cleanAll( argv );
 		return;
 	}
+
+	// Handle cleaning build files (node_modules and vendor).
 	if ( argv.dist ) {
 		const runConfirm = await confirmRemove( argv );
 		if ( ! runConfirm.confirm ) {
@@ -160,13 +163,12 @@ async function commandRoute( argv ) {
 			runCommand( argv.cmd, [ `clean`, argv.project, '-n' ] );
 		}
 	}
-
 	// Confirm we want to delete.
 	const runConfirm = await confirmRemove( argv );
 
 	// Live Commands
 	if ( runConfirm.confirm ) {
-		console.log( chalk.green( `Cleaning files...` ) );
+		console.log( chalk.green( `Cleaning files (this may take awhile)...` ) );
 		// For tracked files using 'rm -rf'
 		if ( argv.cmd === 'find' ) {
 			( argv.cmd = 'rm' ), ( argv = await makeRemove( argv ) );
@@ -180,6 +182,13 @@ async function commandRoute( argv ) {
 				console.log( chalk.green( 'Cleaning working files...' ) );
 				await runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
 			}
+		}
+
+		// Cleanup any remaining node_modules folders on process exit if that's what we're cleaning
+		if ( argv.include.toClean === 'node_modules' ) {
+			process.on( 'exit', async () => {
+				await runCommand( 'rm', [ '-rf', 'node_modules', 'tools/cli/node_modules' ] );
+			} );
 		}
 
 		// Success message
@@ -199,14 +208,15 @@ async function commandRoute( argv ) {
  * @returns {object} argv.
  */
 async function parseProj( argv ) {
-	console.log( argv );
 	//Bail if we've specified the 'all' option already.
 	if ( argv.project === '.' ) {
+		argv.scope = 'all';
 		return;
 	}
 
 	// If we're cleaning all.
 	if ( argv.project === 'all' ) {
+		argv.scope = 'all';
 		argv.project = '.';
 		return;
 	}
@@ -215,6 +225,7 @@ async function parseProj( argv ) {
 	const allProj = allProjects();
 	for ( const proj of allProj ) {
 		if ( argv.project === proj ) {
+			argv.scope = 'project';
 			argv.project = `projects/${ argv.project }`;
 			return;
 		}
@@ -224,6 +235,7 @@ async function parseProj( argv ) {
 	const types = [ 'github-actions', 'js-packages', 'packages', 'plugins' ];
 	for ( const type of types ) {
 		if ( argv.project === type ) {
+			argv.scope = 'type';
 			argv.project = `projects/${ type }`;
 			return;
 		}
@@ -263,7 +275,7 @@ export async function makeOptions( argv ) {
 		argv.include.toClean === 'composer.lock'
 	) {
 		argv.options = [ '-rf' ];
-		argv.cmd = 'find'; //for dry run, to be replaced with 'rm'
+		argv.cmd = 'find'; // For dry run first.
 		argv = await makeRemove( argv );
 	} else {
 		argv.options = [ 'clean' ];
