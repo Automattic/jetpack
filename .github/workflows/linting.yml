@@ -157,10 +157,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Read PHP and Node versions
+        id: versions
+        uses: ./.github/actions/read-versions
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           coverage: none
 
       - name: Get Composer cache directory
@@ -212,15 +216,13 @@ jobs:
 
       - name: Read PHP and Node versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -268,15 +270,13 @@ jobs:
 
       - name: Read PHP and Node versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -333,15 +333,13 @@ jobs:
 
       - name: Read PHP and Node versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -393,16 +391,13 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -476,16 +471,13 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -563,16 +555,13 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -644,15 +633,13 @@ jobs:
 
       - name: Read PHP and Node versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -691,15 +678,13 @@ jobs:
 
       - name: Read PHP and Node versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -741,16 +726,13 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ steps.versions.outputs.php-version }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -827,10 +809,7 @@ jobs:
 
       - name: Read tool versions
         id: versions
-        run: |
-          echo "::set-output name=php-version::$(<.github/php-version)"
-          echo "::set-output name=pnpm-version::$(<.github/pnpm-version)"
-          echo "::set-output name=node-version::$(<.nvmrc)"
+        uses: ./.github/actions/read-versions
 
       - name: Setup Node
         uses: actions/setup-node@v2
