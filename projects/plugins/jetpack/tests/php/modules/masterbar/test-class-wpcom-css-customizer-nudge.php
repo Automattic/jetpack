@@ -21,7 +21,7 @@ class Test_WPCOM_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	/**
 	 * A mock Customize manager.
 	 *
-	 * @var WP_Customize_Manager
+	 * @var \WP_Customize_Manager
 	 */
 	private $wp_customize;
 

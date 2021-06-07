@@ -6,7 +6,7 @@
  * @package Jetpack
  */
 
-use Automattic\Jetpack\Dashboard_Customizations\CSS_Nudge_Customize_Control;
+namespace Automattic\Jetpack\Dashboard_Customizations;
 
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
@@ -16,15 +16,15 @@ require_jetpack_file( 'modules/masterbar/nudges/bootstrap.php' );
 /**
  * Class Test_CSS_Nudge_Customize_Control
  */
-class Test_CSS_Nudge_Customize_Control extends WP_UnitTestCase {
+class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the HTML for the nudge section is properly generated.
 	 */
 	public function test_if_the_html_is_generated_properly() {
-		register_css_nudge_control();
-
 		$manager = new \WP_Customize_Manager();
+
+		register_css_nudge_control( $manager );
 		$control = new CSS_Nudge_Customize_Control(
 			$manager,
 			'foo',
