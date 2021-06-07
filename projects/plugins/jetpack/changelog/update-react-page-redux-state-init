@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Admin Page: Modularize Redux initialization into a separate helper class.
