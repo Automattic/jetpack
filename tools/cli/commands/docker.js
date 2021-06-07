@@ -102,7 +102,6 @@ const setVolumes = argv => {
 		services: { wordpress: { volumes } },
 	};
 
-	console.log( JSON.stringify( volumesObj ) );
 	if ( argv.type === 'dev' ) {
 		// Update the abs path to wordpress installation
 		volumesObj.services.sftp = {
@@ -111,8 +110,6 @@ const setVolumes = argv => {
 			),
 		};
 	}
-
-	console.log( JSON.stringify( volumesObj ) );
 
 	writeFileSync( volumesBuiltFile, yaml.dump( volumesObj ) );
 };

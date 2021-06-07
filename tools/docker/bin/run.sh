@@ -94,8 +94,9 @@ for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 done
 
 # Symlink jetpack into wordpress-develop for WP >= 5.6-beta1
-if [ ! -L /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack ]; then
-	ln -s /var/www/html/wp-content/plugins/jetpack /tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack
+WP_TESTS_JP_DIR="/tmp/wordpress-develop/tests/phpunit/data/plugins/jetpack"
+if [ ! -L $WP_TESTS_JP_DIR ] || [ ! -e $WP_TESTS_JP_DIR ]; then
+	ln -s /var/www/html/wp-content/plugins/jetpack $WP_TESTS_JP_DIR
 fi
 
 # Add a PsySH dependency to wp-cli
