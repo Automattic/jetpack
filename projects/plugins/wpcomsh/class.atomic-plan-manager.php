@@ -89,7 +89,7 @@ class Atomic_Plan_Manager {
 	 *
 	 * @return bool
 	 */
-	public function has_atomic_supported_plan() {
+	public static function has_atomic_supported_plan() {
 		$supported_plans = [
 			self::BUSINESS_PLAN_SLUG,
 			self::ECOMMERCE_PLAN_SLUG,
@@ -110,7 +110,7 @@ class Atomic_Plan_Manager {
 	 */
 	public function map_atomic_plan_cap( $caps, $cap ) {
 
-		if ( $this->has_atomic_supported_plan() ) {
+		if ( self::has_atomic_supported_plan() ) {
 			return $caps;
 		}
 
