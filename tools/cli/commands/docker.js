@@ -10,8 +10,8 @@ const dockerFolder = `tools/docker`;
 /**
  * Sets default options that are common for most of the commands
  *
- * @param {Object} yargs Yargs
- * @return {Object} Modified Yargs object
+ * @param {object} yargs - Yargs
+ * @returns {object} Modified Yargs object
  */
 const defaultOpts = yargs =>
 	yargs
@@ -31,8 +31,8 @@ const defaultOpts = yargs =>
 /**
  * Gets a project name from the passed arguments. Defaults to 'dev' if not specified.
  *
- * @param {Object} argv Yargs
- * @return {string} Project name
+ * @param {object} argv - Yargs
+ * @returns {string} Project name
  */
 const getProjectName = argv => {
 	let project = 'dev';
@@ -46,8 +46,8 @@ const getProjectName = argv => {
 /**
  * Builds a map of ENV variables for specified configuration
  *
- * @param {Object} argv Yargs
- * @return {Object} key-value pairs of ENV variables
+ * @param {object} argv - Yargs
+ * @returns {object} key-value pairs of ENV variables
  */
 const buildEnv = argv => {
 	const envOpts = { PORT_WORDPRESS: 80 };
@@ -83,7 +83,7 @@ const setExtras = () => {
 /**
  * Generates Volumes compose file
  *
- * @param {Object} argv Yargs
+ * @param {object} argv - Yargs
  */
 const setVolumes = argv => {
 	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
@@ -121,8 +121,8 @@ ${ indentedContents.replace( /\/var\/www\/html/, '/home/wordpress/var/www/html' 
 /**
  * Default executor with error handler
  *
- * @param {Object} argv Yargs
- * @param {Function} fnc Function to execute
+ * @param {object} argv - Yargs
+ * @param {Function} fnc - Function to execute
  */
 const executor = ( argv, fnc ) => {
 	try {
@@ -141,9 +141,9 @@ const executor = ( argv, fnc ) => {
 /**
  * Executor for `docker-compose` commands
  *
- * @param {Object} argv Yargs
- * @param {Array} opts Array of arguments
- * @param {Object} envOpts key-value pairs of the ENV variables to set
+ * @param {object} argv - Yargs
+ * @param {Array} opts - Array of arguments
+ * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
 	executor( argv, () => {
@@ -168,8 +168,8 @@ const composeExecutor = ( argv, opts, envOpts ) => {
 /**
  * Builds an array of compose files matching configuration options.
  *
- * @param {Object} argv Yargs
- * @return {Array} Array of shell arguments
+ * @param {object} argv - Yargs
+ * @returns {Array} Array of shell arguments
  */
 const buildComposeFiles = argv => {
 	const defaultCompose = [ `-f${ dockerFolder }/docker-compose.yml` ];
@@ -187,8 +187,8 @@ const buildComposeFiles = argv => {
 /**
  * Builds an array of opts that are required to run arbitrary compose command.
  *
- * @param {Object} argv Yargs
- * @return {Array} Array of options required for specified command
+ * @param {object} argv - Yargs
+ * @returns {Array} Array of options required for specified command
  */
 const buildDefaultCmd = argv => {
 	const opts = buildComposeFiles( argv );
@@ -211,7 +211,7 @@ const buildDefaultCmd = argv => {
 /**
  * Default handler for the monorepo Docker commands.
  *
- * @param {Object} argv - Arguments passed.
+ * @param {object} argv - Arguments passed.
  */
 const defaultDockerCmdHandler = argv => {
 	executor( argv, setEnv );
@@ -226,8 +226,8 @@ const defaultDockerCmdHandler = argv => {
 /**
  * Builds an array of opts that are required to execute specified command in wordpress container
  *
- * @param {Object} argv Yargs
- * @return {Array} Array of options required for specified command
+ * @param {object} argv - Yargs
+ * @returns {Array} Array of options required for specified command
  */
 const buildExecCmd = argv => {
 	const opts = buildComposeFiles( argv );
@@ -276,7 +276,7 @@ const buildExecCmd = argv => {
 /**
  * Execution handler for `... exec wordpress` commands
  *
- * @param {Object} argv Yargs object
+ * @param {object} argv - Yargs object
  */
 const execDockerCmdHandler = argv => {
 	const envOpts = buildEnv( argv );
@@ -288,7 +288,7 @@ const execDockerCmdHandler = argv => {
 /**
  * Execution handler for Jurassic Tube commands
  *
- * @param {Object} argv Yargs object
+ * @param {object} argv - Yargs object
  */
 const execJtCmdHandler = argv => {
 	const jtConfigFile = `${ dockerFolder }/bin/jt/config.sh`;
@@ -324,9 +324,9 @@ const execJtCmdHandler = argv => {
 /**
  * Definition for the Docker commands.
  *
- * @param {Object} yargs - The Yargs dependency.
+ * @param {object} yargs - The Yargs dependency.
  *
- * @return {Object} Yargs with the Docker commands defined.
+ * @returns {object} Yargs with the Docker commands defined.
  */
 export function dockerDefine( yargs ) {
 	yargs.command( {
