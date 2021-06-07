@@ -4708,10 +4708,10 @@ packages:
       '@emotion/native': 10.0.27_@emotion+core@10.1.1
       '@emotion/styled': 10.0.27_@emotion+core@10.1.1
       '@wordpress/a11y': 2.15.3
-      '@wordpress/compose': 3.25.3
+      '@wordpress/compose': 3.11.0
       '@wordpress/deprecated': 2.12.3
       '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.20.3
+      '@wordpress/element': 2.11.0
       '@wordpress/hooks': 2.12.3
       '@wordpress/i18n': 3.20.0
       '@wordpress/icons': 1.4.0
@@ -4751,10 +4751,10 @@ packages:
       '@emotion/native': 10.0.27_5f216699bc8c1f24088b3bf77b7cbbdf
       '@emotion/styled': 10.0.27_5f216699bc8c1f24088b3bf77b7cbbdf
       '@wordpress/a11y': 2.15.3
-      '@wordpress/compose': 3.25.3_react@16.14.0
+      '@wordpress/compose': 3.11.0
       '@wordpress/deprecated': 2.12.3
       '@wordpress/dom': 2.18.0
-      '@wordpress/element': 2.20.3
+      '@wordpress/element': 2.11.0
       '@wordpress/hooks': 2.12.3
       '@wordpress/i18n': 3.20.0
       '@wordpress/icons': 1.4.0
@@ -4788,8 +4788,8 @@ packages:
   /@wordpress/compose/3.11.0:
     resolution: {integrity: sha512-CNbLn9NtG2A0X71wjEux126uEHpWp3v546FtSgMoWlq73z3LEEBDoEeS2glIPAbIK6e1X2UibsKrn5Tn651tlg==}
     dependencies:
-      '@babel/runtime': 7.13.10
-      '@wordpress/element': 2.18.0
+      '@babel/runtime': 7.14.0
+      '@wordpress/element': 2.20.3
       '@wordpress/is-shallow-equal': 1.8.0
       lodash: 4.17.21
       mousetrap: 1.6.5
@@ -5188,6 +5188,15 @@ packages:
       - react-native
       - reakit-utils
     dev: true
+
+  /@wordpress/element/2.11.0:
+    resolution: {integrity: sha512-56ZO8a+E7QEsYwiqS+3BQPSHrCPsOAIEz5smXzntb2f6BjvOKeA64pup40mdn1pNGexe06LBA8cjoZVdLBHB1w==}
+    dependencies:
+      '@babel/runtime': 7.14.0
+      '@wordpress/escape-html': 1.12.2
+      lodash: 4.17.21
+      react: 16.14.0
+      react-dom: 16.14.0_react@16.14.0
 
   /@wordpress/element/2.18.0:
     resolution: {integrity: sha512-aR1gOXFxIDcrLCSANe5PwOwYH40n29LzjqBascNkFo6f0LBekCZPbI3Bqq4EtoH/zjq2RKAO9PVPlQRDoQUlmA==}
