@@ -28,16 +28,19 @@ const useLongPress = callback => {
 				if ( savedCallback.current ) {
 					savedCallback.current( true );
 				}
+				touchTimer.current = null;
 			}, 200 );
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [] ),
-		onTouchEnd: useCallback( () => {
-			if ( touchTimer.current ) {
-				clearTimeout( touchTimer.current );
-				touchTimer.current = null;
+		onTouchEnd: useCallback( event => {
+			if ( ! touchTimer.current ) {
 				if ( savedCallback.current ) {
 					savedCallback.current( false );
 				}
+				// prevent triggering click events
+				event.stopPropagation();
+			} else {
+				clearTimeout( touchTimer.current );
 			}
 			if ( targetElement.current ) {
 				targetElement.current.removeEventListener( 'touchend', preventGhostClick );
