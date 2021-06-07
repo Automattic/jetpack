@@ -1214,7 +1214,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertEquals( $purchase_token, $response->get_data() );
 
 		// Delete the purchase token.
-		$response = $this->create_and_get_request( 'purchase-token', array(), 'DELETE' );
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'POST' );
 
 		$this->assertResponseStatus( 200, $response );
 		$this->assertTrue( $response->get_data() );
@@ -1263,7 +1263,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Fetch purchase token.
-		$response = $this->create_and_get_request( 'purchase-token', array(), 'DELETE' );
+		$response = $this->create_and_get_request( 'purchase-token', array(), 'POST' );
 
 		// Confirm that the request failed.
 		$this->assertResponseStatus( 500, $response );
