@@ -1,13 +1,13 @@
-// .eslintrc.js
 module.exports = {
+	// Use root level ESlint configuration.
+	// JavaScript files inside this folder are meant to be transpiled by Webpack.
 	root: true,
-	extends: [ 'plugin:@wordpress/eslint-plugin/recommended' ],
+	extends: [ '../../.eslintrc.js' ],
 	env: {
 		browser: false,
 	},
 	rules: {
-		'arrow-parens': [ 0, 'as-needed' ],
-		'no-console': 0,
+		'no-console': 'off',
 		'no-process-exit': 'off',
 	},
 };
