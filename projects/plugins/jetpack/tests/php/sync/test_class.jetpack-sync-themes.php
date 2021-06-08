@@ -372,11 +372,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_added' );
 
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-		// $this->assertEquals( $event->args[0], $sidebar_id, 'Added to sidebar not found' );
-		// $this->assertEquals( $event->args[1], 'calendar-1', 'Added widget not found' );
-		// $this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
-		// $this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
+		$this->assertEquals( $event->args[0], $sidebar_id, 'Added to sidebar not found' );
+		$this->assertEquals( $event->args[1], 'calendar-1', 'Added widget not found' );
+		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
+		$this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
 
 		// Reorder widget
 		$sidebar_widgets  = array(

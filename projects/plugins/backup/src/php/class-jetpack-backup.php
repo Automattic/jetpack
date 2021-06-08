@@ -25,27 +25,13 @@ class Jetpack_Backup {
 			}
 		);
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init ConnectionUI.
 		add_action(
 			'plugins_loaded',
 			function () {
-				$config = new Automattic\Jetpack\Config();
-				// Connection package.
-				$config->ensure(
-					'connection',
-					array(
-						'slug'     => JETPACK_BACKUP_PLUGIN_SLUG,
-						'name'     => JETPACK_BACKUP_PLUGIN_NAME,
-						'url_info' => JETPACK_BACKUP_PLUGIN_URI,
-					)
-				);
-				// Sync package.
-				$config->ensure( 'sync' );
-
-				// Connection Manager UI.
+				Automattic\Jetpack\Connection\Manager::configure();
 				Automattic\Jetpack\ConnectionUI\Admin::init();
-			},
-			1
+			}
 		);
 	}
 
