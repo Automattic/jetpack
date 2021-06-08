@@ -169,12 +169,12 @@ class SearchApp extends Component {
 		} );
 	};
 
-	updateOverlayOptions( newOverlayOptions, callback ) {
+	updateOverlayOptions = ( newOverlayOptions, callback ) => {
 		this.setState(
 			state => ( { overlayOptions: { ...state.overlayOptions, ...newOverlayOptions } } ),
 			callback
 		);
-	}
+	};
 
 	render() {
 		const noop = input => input;
