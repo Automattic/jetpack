@@ -23,9 +23,9 @@ function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_once __DIR__ . '/additional-css/class-wpcom-additional-css-manager.php';
 		$manager = new WPCOM_Additional_CSS_Manager( $domain );
-	} else {
-		require_once __DIR__ . '/additional-css/class-wporg-additional-css-manager.php';
-		$manager = new WPORG_Additional_CSS_Manager( $domain );
+	} elseif ( jetpack_is_atomic_site() ) {
+		require_once __DIR__ . '/additional-css/class-atomic-additional-css-manager.php';
+		$manager = new Atomic_Additional_CSS_Manager( $domain );
 	}
 
 	$manager->register_nudge( $customize_manager );
@@ -35,7 +35,15 @@ function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) 
  * Load the bootstrap on init action.
  */
 function load_bootstrap_on_init() {
-	if ( \apply_filters( 'customize_enable_additional_css_nudge', false ) ) {
+
+	/**
+	 * Disable Additional CSS section from Customizer in WPCOM and Atomic and replace it with a nudge.
+	 *
+	 * @module masterbar
+	 *
+	 * @since 9.9.0
+	 */
+	if ( \apply_filters( 'jetpack_customize_enable_additional_css_nudge', false ) ) {
 		\add_action( 'customize_register', __NAMESPACE__ . '\register_css_nudge_control' );
 	}
 }

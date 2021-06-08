@@ -12,14 +12,14 @@ require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-wporg-additional-css-manager.php' );
+require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-atomic-additional-css-manager.php' );
 require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-nudge-customize-control.php' );
 require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-wpcom-css-customizer-nudge.php' );
 
 /**
- * Class Test_WPORG_Additional_Css_Manager
+ * Class Test_Atomic_Additional_CSS_Manager
  */
-class Test_WPORG_Additional_Css_Manager extends \WP_UnitTestCase {
+class Test_Atomic_Additional_CSS_Manager extends \WP_UnitTestCase {
 	/**
 	 * A mock Customize manager.
 	 *
@@ -42,7 +42,7 @@ class Test_WPORG_Additional_Css_Manager extends \WP_UnitTestCase {
 	 * Check if the nudge contains the proper url and message copy.
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
-		$manager = new WPORG_Additional_CSS_Manager( 'foo.com' );
+		$manager = new Atomic_Additional_CSS_Manager( 'foo.com' );
 
 		$manager->register_nudge( $this->wp_customize );
 		$this->assertEquals(
@@ -53,6 +53,5 @@ class Test_WPORG_Additional_Css_Manager extends \WP_UnitTestCase {
 			'Purchase a Business Plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
-
 	}
 }

@@ -10,11 +10,11 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 /**
- * Class WPORG_Disable_Additional_CSS
+ * Class Atomic_Additional_CSS_Manager
  *
  * @package Automattic\Jetpack\Dashboard_Customizations
  */
-class WPORG_Additional_CSS_Manager {
+class Atomic_Additional_CSS_Manager {
 
 	/**
 	 * The site domain.
@@ -24,7 +24,7 @@ class WPORG_Additional_CSS_Manager {
 	private $domain;
 
 	/**
-	 * WPORG_Additional_CSS_Manager constructor.
+	 * Atomic_Additional_CSS_Manager constructor.
 	 *
 	 * @param string $domain the Site domain.
 	 */
@@ -33,7 +33,7 @@ class WPORG_Additional_CSS_Manager {
 	}
 
 	/**
-	 * Replace the Additional CSS section from Customizer with an upgrade nudge.
+	 * Replace the Additional CSS section from Customiz¡er with an upgrade nudge.
 	 *
 	 * @param \WP_Customize_Manager $wp_customize_manager Core customize manager.
 	 */
