@@ -1197,7 +1197,7 @@ jQuery( document ).ready( function ( $ ) {
 
 			origSize = { width: parseInt( parts[ 0 ], 10 ), height: parseInt( parts[ 1 ], 10 ) };
 
-			if ( typeof wpcom !== undefined && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
+			if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
 				src = wpcom.carousel.generateImgSrc( srcItem.get( 0 ), max );
 			} else {
 				src = srcItem.data( 'orig-file' );
