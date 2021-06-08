@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.56
+ * Version: 2.7.57
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.56' );
+define( 'WPCOMSH_VERSION', '2.7.57' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1313,3 +1313,15 @@ add_filter(
 		);
 	}
 );
+
+/**
+ * Fix for a problem where the custom_logo theme mod could get corrupted by a combination
+ * of the Jetpack site-logo theme mod, and Gutenberg's site logo block
+ */
+function wpcomsh_jetpack_override_custom_logo_theme_mod( $custom_logo ) {
+	if ( is_array( $custom_logo ) ) {
+		return false;
+	}
+	return $custom_logo;
+}
+add_filter( 'theme_mod_custom_logo', 'wpcomsh_jetpack_override_custom_logo_theme_mod', 20 );
