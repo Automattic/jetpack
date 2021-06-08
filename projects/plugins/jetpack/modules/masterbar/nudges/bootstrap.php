@@ -28,6 +28,10 @@ function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) 
 		$manager = new Atomic_Additional_CSS_Manager( $domain );
 	}
 
+	if ( ! isset( $manager ) ) {
+		return;
+	}
+
 	$manager->register_nudge( $customize_manager );
 }
 
@@ -42,6 +46,8 @@ function load_bootstrap_on_init() {
 	 * @module masterbar
 	 *
 	 * @since 9.9.0
+	 *
+	 * @param bool
 	 */
 	if ( \apply_filters( 'jetpack_customize_enable_additional_css_nudge', false ) ) {
 		\add_action( 'customize_register', __NAMESPACE__ . '\register_css_nudge_control' );
