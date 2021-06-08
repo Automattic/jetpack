@@ -123,8 +123,21 @@ class REST_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function start_fresh_connection() {
-		// First clear the options / disconnect.
+		/**
+		 * Fires when Users have requested through Identity Crisis for the connection to be reset.
+		 * Should be used to disconnect any connections and reset options.
+		 *
+		 * @since 9.9.0
+		 */
 		do_action( 'jetpack_idc_disconnect' );
+
+		/**
+		 * Filters the connection url that users should be redirected to for re-establishing their connection.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @param string    $connection_url Connection URL user should be redirected to.
+		 */
 		return apply_filters( 'jetpack_idc_build_connect_url', '' ); // ToDo what is the default url?
 	}
 
