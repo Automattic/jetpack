@@ -3,6 +3,7 @@
  */
 import chalk from 'chalk';
 import inquirer from 'inquirer';
+import child_process from 'child_process';
 
 /**
  * Internal dependencies
@@ -11,6 +12,7 @@ import promptForProject, { promptForType } from '../helpers/promptForProject';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv';
 import { runCommand } from '../helpers/runCommand';
 import { allProjects } from '../helpers/projectHelpers';
+import fs from 'fs';
 
 /**
  * Command definition for the build subcommand.
@@ -62,46 +64,141 @@ export function cleanDefine( yargs ) {
  * @param {argv}  argv - the arguments passed.
  */
 export async function cleanCli( argv ) {
-	argv = normalizeCleanArgv( argv );
-
-	// Handle cleaning everything.
-	if ( argv.all ) {
-		// Bail if we don't get confirmation.
-		const runConfirm = await confirmRemove( argv );
-		if ( ! runConfirm.confirm ) {
-			return;
-		}
-		await cleanAll( argv );
-		return;
-	}
-
-	// Handle cleaning build files (node_modules and vendor).
-	if ( argv.dist ) {
-		const runConfirm = await confirmRemove( argv );
-		if ( ! runConfirm.confirm ) {
-			return;
-		}
-		await distClean( argv );
-		return;
-	}
-
-	// Handle the scope and project we want to work with
 	if ( argv.project ) {
 		await parseProj( argv );
 	} else {
 		await promptProj( argv );
 	}
 
-	// Handle what files we want to delete.
 	if ( argv.include ) {
 		await parseToClean( argv );
 	} else {
 		await promptForClean( argv );
 	}
-	await makeOptions( argv );
-	await commandRoute( argv );
 
+	const allFiles = await collectAllFiles( argv.toClean );
+	const toCleanFiles = await collectCleanFiles( allFiles, argv.toClean );
+	const runConfirm = await confirmRemove( argv );
+
+	if ( ! runConfirm.confirm ) {
+		console.log( chalk.red( 'Cancelling jetpack clean.' ) );
+		return;
+	}
+
+	await cleanFiles( toCleanFiles, argv );
 	return;
+}
+
+/**
+ * Delete the files that we want.
+ *
+ * @param {Array} toCleanFiles - files that we want to clean.
+ * @param {object} argv - the arguments passed.
+ */
+async function cleanFiles( toCleanFiles, argv ) {
+	for ( const file of toCleanFiles ) {
+		fs.rm( file, { recursive: true, force: true }, ( err ) => {
+			console.log( 'Cleaning ', file );
+			if ( err ) {
+				// File deletion failed
+				console.error( err.message );
+				return;
+			}
+		} );
+	}
+
+	// Cleanup root and tools node_modules folder if that's what we're deleting.
+	if ( argv.scope === 'all' && argv.toClean.includes( 'node_modules' ) ) {
+		process.on( 'exit', async () => {
+			await runCommand( 'rm', [ '-rf', 'node_modules', 'tools/cli/node_modules' ] );
+		} );
+	}
+}
+/**
+ * Returns list of files that we want to delete.
+ *
+ * @param {Array} allFiles - a list of all possible deletable files.
+ * @param {Array} toClean - what kind of files we want to delete.
+ * @returns {Array} deleteQueue - files that we want to delete.
+ */
+async function collectCleanFiles( allFiles, toClean ) {
+	const deleteQueue = [];
+	for ( const file of toClean ) {
+		switch ( file ) {
+			case 'untracked':
+				deleteQueue.push( ...allFiles.untracked );
+				break;
+			case 'docker':
+				deleteQueue.push( ...allFiles.docker );
+				break;
+			case 'node_modules':
+				deleteQueue.push( ...allFiles.node_modules );
+				break;
+			case 'composer.lock':
+				deleteQueue.push( ...allFiles.composerLock );
+				break;
+			case 'vendor':
+				deleteQueue.push( ...allFiles.vendor );
+				break;
+			case 'other':
+				deleteQueue.push( ...allFiles.other );
+				break;
+		}
+	}
+
+	for ( const file of deleteQueue ) {
+		console.log( file );
+	}
+
+	return deleteQueue;
+}
+/**
+ * Gets list of files that could be deleted.
+ *
+ * @param {Array} toClean - files that we want to clean.
+ * @returns {object} allFiles.
+ */
+async function collectAllFiles( toClean ) {
+	const allFiles = {
+		untracked: [],
+		docker: [],
+		node_modules: [],
+		vendor: [],
+		composerLock: [],
+		other: [],
+		combined: [],
+	};
+
+	if ( toClean.includes( 'untracked' ) ) {
+		allFiles.untracked = child_process.execSync( 'git ls-files --exclude-standard --directory --other' );
+		allFiles.untracked = allFiles.untracked.toString().trim().split( '\n' );
+	}
+
+	allFiles.other = child_process.execSync( 'git ls-files --exclude-standard --directory --ignored --other' );
+	allFiles.other = allFiles.other.toString().trim().split( '\n' );
+
+	allFiles.combined = allFiles.untracked.concat( allFiles.other );
+
+	for ( const file of allFiles.combined ) {
+		if ( file.match( /^\.env$|^tools\/docker\// ) ) {
+			allFiles.docker.push( file );
+			allFiles.other.splice( allFiles.other.indexOf( file ) );
+		}
+		if ( file.match( /(^|\/)node_modules\/$/ ) ) {
+			allFiles.node_modules.push( file );
+			allFiles.other.splice( allFiles.other.indexOf( file ) );
+		}
+		if ( file.match( /(^|\/)vendor\/$/ ) ) {
+			allFiles.vendor.push( file );
+			allFiles.other.splice( allFiles.other.indexOf( file ) );
+		}
+		if ( file.match( /(^|\/)composer\.lock$/ ) ) {
+			allFiles.composerLock.push( file );
+			allFiles.other.splice( allFiles.other.indexOf( file ) );
+		}
+	}
+
+	return allFiles;
 }
 
 /**
@@ -466,52 +563,45 @@ export async function promptForClean( argv ) {
 	if ( argv.project === '.' || argv.project === 'all' ) {
 		promptProject = 'the monorepo root';
 	}
-	const ignoreChoices = [
-		{
-			name: 'vendor',
-			checked: false,
-		},
-		{
-			name: 'node_modules',
-			checked: false,
-		},
-	];
-	// Composer.lock is checked in for root and plugins, so don't show option to remove for those cases.
-	if ( argv.project !== 'projects/plugins' ) {
-		ignoreChoices.push( {
-			name: 'composer.lock',
-			checked: false,
-		} );
-	}
 	const response = await inquirer.prompt( [
 		{
-			type: 'list',
+			type: 'checkbox',
 			name: 'toClean',
 			message: `What untracked files and folders are you looking to delete for ${ promptProject }?`,
 			choices: [
 				{
-					name: 'Working Files/Folders (Only).',
-					value: 'working',
+					name: 'Untracked Files',
+					value: 'untracked',
 				},
 				{
-					name: 'Git-Ignored Files (Only).',
+					name: 'Other Ignored Files',
 					value: 'ignored',
 				},
 				{
-					name: 'Both Working/Git-Ignored',
-					value: 'both',
+					name: 'Docker Environment',
+					value: 'docker',
 				},
-				...ignoreChoices,
+				{
+					name: 'node_modules',
+					value: 'node_modules',
+				},
+				{
+					name: 'composer.lock',
+					value: 'composer.lock',
+				},
+				{
+					name: 'vendor',
+					value: 'vendor',
+				},
 			],
 		},
-		{
-			type: 'checkbox',
-			name: 'ignored',
-			message: `Delete any of the following? (you will need to run 'jetpack install ${ argv.project }' to reinstall them)`,
-			choices: ignoreChoices,
-			when: answers => answers.toClean === 'both' || answers.toClean === 'ignored',
-		},
 	] );
-	argv.include = { ...response };
+	argv.toClean = response.toClean;
 	return argv;
 }
+// Choose which directory we want
+// Choose what to delete
+// Get a list of files that could be chosen for deletion
+// Filter those files based on what we chose
+// Display the files that would be deleted.
+// Remove them.
