@@ -51,7 +51,7 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.state = {
 			overlayOptions: { ...this.props.initialOverlayOptions },
-			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
+			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.props.initializeQueryValues();
@@ -104,7 +104,7 @@ class SearchApp extends Component {
 		restorePreviousHref(
 			this.props.initialHref,
 			() => {
-				this.setState( { showResults: false } );
+				this.setState( { isVisible: false } );
 				this.props.clearQueryValues();
 			},
 			isHistoryNav
@@ -112,15 +112,15 @@ class SearchApp extends Component {
 	};
 
 	// Used for showResults and Customizer integration.
-	toggleResults = showResults => {
+	toggleResults = isVisible => {
 		// Necessary when reacting to onMessage transport Customizer controls.
 		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
-		if ( this.state.showResults === showResults ) {
+		if ( this.state.isVisible === isVisible ) {
 			return;
 		}
 
-		this.setState( { showResults }, () => {
-			if ( showResults ) {
+		this.setState( { isVisible }, () => {
+			if ( isVisible ) {
 				this.preventBodyScroll();
 			} else {
 				// This codepath will only be executed in the Customizer.
@@ -134,7 +134,7 @@ class SearchApp extends Component {
 	onChangeQueryString = isHistoryNav => {
 		this.getResults();
 
-		if ( this.props.hasActiveQuery && ! this.state.showResults ) {
+		if ( this.props.hasActiveQuery && ! this.state.isVisible ) {
 			this.showResults();
 		}
 
@@ -186,17 +186,20 @@ class SearchApp extends Component {
 			<Fragment>
 				{ this.props.isInCustomizer && (
 					<CustomizerEventHandler
-						updateOverlayOptions={ this.updateOverlayOptions }
-						toggleResults={ this.toggleResults }
 						showResults={ this.showResults }
+						toggleResults={ this.toggleResults }
+						updateOverlayOptions={ this.updateOverlayOptions }
 					/>
 				) }
 				{ this.props.shouldIntegrateWithDom && (
 					<DomEventHandler
 						initializeQueryValues={ this.props.initializeQueryValues }
-						themeOptions={ this.props.themeOptions }
+						isVisible={ this.state.isVisible }
+						overlayOptions={ this.state.overlayOptions }
 						setFilter={ this.props.setFilter }
 						setSearchQuery={ this.props.setSearchQuery }
+						showResults={ this.showResults }
+						themeOptions={ this.props.themeOptions }
 					/>
 				) }
 				{ portalFn(
@@ -205,7 +208,7 @@ class SearchApp extends Component {
 						closeOverlay={ this.hideResults }
 						colorTheme={ this.state.overlayOptions.colorTheme }
 						hasOverlayWidgets={ this.props.hasOverlayWidgets }
-						isVisible={ this.state.showResults }
+						isVisible={ this.state.isVisible }
 					>
 						<SearchResults
 							closeOverlay={ this.hideResults }
@@ -218,7 +221,7 @@ class SearchApp extends Component {
 							isLoading={ this.props.isLoading }
 							isPhotonEnabled={ this.props.options.isPhotonEnabled }
 							isPrivateSite={ this.props.options.isPrivateSite }
-							isVisible={ this.state.showResults }
+							isVisible={ this.state.isVisible }
 							locale={ this.props.options.locale }
 							onChangeSearch={ this.props.setSearchQuery }
 							onChangeSort={ this.props.setSort }

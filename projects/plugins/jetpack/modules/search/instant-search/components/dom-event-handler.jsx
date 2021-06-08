@@ -128,7 +128,7 @@ export default class DomEventHandler extends Component {
 				);
 			}
 		}
-		this.showResults();
+		this.props.showResults();
 	};
 
 	handleHistoryNavigation = () => {
@@ -149,18 +149,18 @@ export default class DomEventHandler extends Component {
 			return;
 		}
 
-		if ( this.state.overlayOptions.overlayTrigger === 'submit' ) {
+		if ( this.props.overlayOptions.overlayTrigger === 'submit' ) {
 			return;
 		}
 
 		this.props.setSearchQuery( event.target.value );
 
-		if ( this.state.overlayOptions.overlayTrigger === 'immediate' ) {
-			this.showResults();
+		if ( this.props.overlayOptions.overlayTrigger === 'immediate' ) {
+			this.props.showResults();
 		}
 
-		if ( this.state.overlayOptions.overlayTrigger === 'results' ) {
-			this.props.response?.results && this.showResults();
+		if ( this.props.overlayOptions.overlayTrigger === 'results' ) {
+			this.props.response?.results && this.props.showResults();
 		}
 	}, 200 );
 
@@ -168,7 +168,7 @@ export default class DomEventHandler extends Component {
 		// If user presses enter, propagate the query value and immediately show the results.
 		if ( event.key === 'Enter' ) {
 			this.props.setSearchQuery( event.target.value );
-			this.showResults();
+			this.props.showResults();
 		}
 	};
 
@@ -176,7 +176,7 @@ export default class DomEventHandler extends Component {
 	handleOverlayTriggerClick = event => {
 		event.stopImmediatePropagation();
 		this.props.setSearchQuery( '' );
-		this.showResults();
+		this.props.showResults();
 	};
 
 	handleSubmit = event => {
@@ -184,12 +184,12 @@ export default class DomEventHandler extends Component {
 		this.handleInput.flush();
 
 		// handleInput didn't respawn the overlay. Do it manually -- form submission must spawn an overlay.
-		if ( ! this.state.showResults ) {
+		if ( ! this.props.isVisible ) {
 			const value = event.target.querySelector( this.props.themeOptions.searchInputSelector )
 				?.value;
 			// Don't do a falsy check; empty string is an allowed value.
 			typeof value === 'string' && this.props.setSearchQuery( value );
-			this.showResults();
+			this.props.showResults();
 		}
 	};
 
