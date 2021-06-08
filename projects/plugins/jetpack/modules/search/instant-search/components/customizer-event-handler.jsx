@@ -8,6 +8,7 @@ import { Component } from 'react';
  */
 import { bindCustomizerChanges, bindCustomizerMessages } from '../lib/customize';
 
+// This component is used to bind WordPress Customizer events to the Jetpack Search application.
 export default class CustomizerEventHandler extends Component {
 	componentDidMount() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );

@@ -12,6 +12,7 @@ import debounce from 'lodash/debounce';
  */
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
 
+// This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
 	constructor() {
 		super( ...arguments );
