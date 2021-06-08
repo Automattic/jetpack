@@ -70,7 +70,7 @@ class JITM {
 		 * Fires when the JITMs are registered. This action is used to ensure that
 		 * JITMs are registered only once.
 		 *
-		 * @since 9.8.0
+		 * @since 9.8
 		 */
 		do_action( 'jetpack_registered_jitms' );
 	}
