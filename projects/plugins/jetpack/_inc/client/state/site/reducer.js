@@ -140,7 +140,7 @@ export const errors = ( state = {}, action ) => {
 					// We offer a link to support to help them fix the issue.
 					resolveAction = 'support';
 					defaultErrorMessage = __(
-						'Jetpack encountered an error and was unable to display the Dashboard. Please try refreshing the page. If the problem persists, get in touch with support.',
+						'Jetpack encountered an error and was unable to display the Dashboard. Please try refreshing the page.',
 						'jetpack'
 					);
 					break;
