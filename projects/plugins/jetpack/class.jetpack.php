@@ -4370,8 +4370,7 @@ p {
 					);
 
 					if ( ! empty( $_GET['from'] ) && 'jetpack_site_only_checkout' === $_GET['from'] ) {
-						// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-						$redirect_args['from'] = $_GET['from'];
+						$redirect_args['from'] = 'jetpack_site_only_checkout';
 					}
 
 					$redirect_url = self::admin_url( $redirect_args );
