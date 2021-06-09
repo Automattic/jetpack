@@ -68,6 +68,8 @@ class Site_Logo {
 	/**
 	 * Add our logo uploader to the Customizer.
 	 *
+	 * This uses the old Jetpack format. This function should only load in a context where `custom-logo` is not supported.
+	 *
 	 * @param object $wp_customize Customizer object.
 	 * @uses current_theme_supports()
 	 * @uses current_theme_supports()

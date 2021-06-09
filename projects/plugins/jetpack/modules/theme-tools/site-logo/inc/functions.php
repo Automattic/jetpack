@@ -18,15 +18,15 @@ function jetpack_get_site_logo( $show = 'url' ) {
 	$logo = site_logo()->logo;
 
 	// Return false if no logo is set
-	if ( ! isset( $logo['id'] ) || 0 == $logo['id'] ) {
+	if ( empty( $logo ) ) {
 		return false;
 	}
 
 	// Return the ID if specified, otherwise return the URL by default
 	if ( 'id' == $show ) {
-		return $logo['id'];
+		return $logo;
 	} else {
-		return esc_url_raw( set_url_scheme( $logo['url'] ) );
+		return esc_url_raw( set_url_scheme( wp_get_attachment_url( $logo ) ) );
 	}
 }
 
@@ -132,6 +132,7 @@ function jetpack_the_site_logo() {
 	$jetpack_logo = site_logo()->logo;
 
 	// Use WP Core logo if present, otherwise use Jetpack's.
+	// This shouldn't really ever fire anymore with the conversion code to Core's format, but leaving it just to be safe.
 	if ( ! $logo_id && isset( $jetpack_logo['id'] ) ) {
 		$logo_id = $jetpack_logo['id'];
 	}

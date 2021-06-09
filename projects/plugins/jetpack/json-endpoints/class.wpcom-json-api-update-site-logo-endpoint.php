@@ -73,22 +73,20 @@ class WPCOM_JSON_API_Update_Site_Logo_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( isset( $args['id'] ) ) {
-			$logo_settings['id'] = (int) $args['id'];
-		}
-		if ( isset( $args['url'] ) ) {
-			$logo_settings['url'] = $args['url'];
-		}
-		if ( isset( $args['url'] ) || isset( $args['id'] ) ) {
-			update_option( 'site_logo', $logo_settings );
+			update_option( 'site_logo', (int) $args['id'] );
 		}
 
 		return $this->get_current_settings();
 	}
 
 	function get_current_settings() {
-		$logo_settings = get_option( 'site_logo' );
-		if ( ! is_array( $logo_settings ) ) {
-			$logo_settings = array();
+		$logo_settings = array();
+		$option        = get_option( 'site_logo' );
+		if ( is_numeric( $option ) ) {
+			$logo_settings = array(
+				'id'  => (int) $option,
+				'url' => wp_get_attachment_url( $option ),
+			);
 		}
 		return $logo_settings;
 	}

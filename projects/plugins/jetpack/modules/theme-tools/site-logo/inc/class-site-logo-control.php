@@ -87,7 +87,7 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	public function has_site_logo() {
 		$logo = get_option( 'site_logo' );
 
-		if ( empty( $logo['url'] ) ) {
+		if ( empty( $logo ) ) {
 			return false;
 		} else {
 			return true;
