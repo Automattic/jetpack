@@ -4373,9 +4373,7 @@ p {
 						$redirect_args['from'] = 'jetpack_site_only_checkout';
 					}
 
-					$redirect_url = self::admin_url( $redirect_args );
-
-					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
+					wp_safe_redirect( static::build_authorize_url( self::admin_url( $redirect_args ) ) );
 					exit;
 				case 'authorize':
 					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );
