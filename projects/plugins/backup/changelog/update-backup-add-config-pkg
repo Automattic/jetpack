@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Utilize the config package for sync and connection.
