@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.57
+ * Version: 2.7.58
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.57' );
+define( 'WPCOMSH_VERSION', '2.7.58' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -139,6 +139,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'post-type-switcher/post-type-switcher.php' => '"post-type-switcher" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset-wp/reset-wp.php' => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'secure-file-manager/secure-file-manager.php' => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'ultimate-reset/ultimate-reset.php' => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-wp-reset/ultimate-wordpress-reset.php' => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'username-changer/username-changer.php' => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'username-updater/username-updater.php' => '"username-updater" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -213,13 +214,16 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'send-email-from-admin/send-email-from-admin.php' => '"send-email-from-admin" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
 
 		// cloning/staging
-		'wp-staging/wp-staging.php' => 'wp-staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
+		'flo-launch/flo-launch.php' => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. flo-launch has been deactivated.',
+		'wp-staging/wp-staging.php' => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
 
 		// misc
 		'adult-mass-photos-downloader/adult-mass-photos-downloader.php' => '"adult-mass-photos-downloader" is not supported on WordPress.com.',
 		'adult-mass-videos-embedder/adult-mass-videos-embedder.php' => '"adult-mass-videos-embedder" is not supported on WordPress.com.',
 		'ari-adminer/ari-adminer.php' => '"ari-adminer" is not supported on WordPress.com.',
 		'automatic-video-posts' => '"automatic-video-posts" is not supported on WordPress.com.',
+		'blogmatic/index.php' => '"blogmatic is not supported on WordPress.com.',
+		'blogmatic-poster/index.php' => '"blogmatic-poster is not supported on WordPress.com.',
 		'bwp-minify/bwp-minify.php' => '"bwp-minify" is not supported on WordPress.com.',
 		'clearfy/clearfy.php' => '"clearfy" is not supported on WordPress.com.',
 		'cornerstone/main.php' => '"cornerstone" is not supported on WordPress.com.',
@@ -232,6 +236,7 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'really-simple-ssl/rlrsssl-really-simple-ssl.php' => '"really-simple-ssl" is not supported on WordPress.com.',
 		'robo-gallery/robogallery.php' => '"robo-gallery" is not supported on WordPress.com.',
 		'speed-contact-bar/speed-contact-bar.php' => '"speed-contact-bar" is not supported on WordPress.com.',
+		'trafficzion/trafficzion.php' => '"trafficzion" is not supported on WordPress.com.',
 		'unplug-jetpack/unplug-jetpack.php' => '"unplug-jetpack" is not supported on WordPress.com.',
 		'video-importer/video-importer.php' => '"video-importer" is not supported on WordPress.com.',
 		'woozone/plugin.php' => '"woozone" is not supported on WordPress.com.',
