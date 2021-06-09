@@ -23,7 +23,7 @@ import fs from 'fs';
  */
 export function cleanDefine( yargs ) {
 	yargs.command(
-		'clean [project]',
+		'clean [project] [include]',
 		'Removes unversioned files and folder from a specific project.',
 		yarg => {
 			yarg
@@ -35,7 +35,7 @@ export function cleanDefine( yargs ) {
 					alias: 'i',
 					describe: 'Files/folders to include for deletion',
 					type: 'string',
-					choices: [ 'node_modules', 'composer.lock', 'vendor', 'working', 'ignored' ],
+					choices: [ 'untracked', 'ignored', 'docker', 'node_modules', 'composer.lock', 'vendor' ],
 				} )
 				.option( 'all', {
 					alias: 'a',
@@ -64,10 +64,20 @@ export function cleanDefine( yargs ) {
  * @param {argv}  argv - the arguments passed.
  */
 export async function cleanCli( argv ) {
+	if ( argv.all ) {
+		argv.project = '.';
+		argv.include = [ 'untracked', 'ignored', 'docker', 'node_modules', 'composer.lock', 'vendor' ];
+	}
+
+	if ( argv.dist ) {
+		argv.project = '.';
+		argv.include = [ 'node_modules', 'vendor' ];
+	}
+
 	if ( argv.project ) {
-		await parseProj( argv );
+		argv = await parseProj( argv );
 	} else {
-		await promptProj( argv );
+		argv = await promptProj( argv );
 	}
 
 	if ( argv.include ) {
@@ -76,10 +86,12 @@ export async function cleanCli( argv ) {
 		await promptForClean( argv );
 	}
 
-	const allFiles = await collectAllFiles( argv.toClean );
+	// Collect the files we want to clean.
+	const allFiles = await collectAllFiles( argv.toClean, argv );
 	const toCleanFiles = await collectCleanFiles( allFiles, argv.toClean );
-	const runConfirm = await confirmRemove( argv );
 
+	// Confirm the deletion.
+	const runConfirm = await confirmRemove( argv );
 	if ( ! runConfirm.confirm ) {
 		console.log( chalk.red( 'Cancelling jetpack clean.' ) );
 		return;
@@ -97,14 +109,14 @@ export async function cleanCli( argv ) {
  */
 async function cleanFiles( toCleanFiles, argv ) {
 	for ( const file of toCleanFiles ) {
-		fs.rm( file, { recursive: true, force: true }, ( err ) => {
-			console.log( 'Cleaning ', file );
-			if ( err ) {
-				// File deletion failed
-				console.error( err.message );
-				return;
-			}
-		} );
+		console.log( `Cleaning ${ file }` );
+		try {
+			fs.rmSync( file, { recursive: true, force: true } );
+		} catch ( e ) {
+			// Although it looks like rmSync doesn't do any error reporting, it probably should.
+			console.error( chalk.red( e.message ) );
+			process.exit( 1 );
+		}
 	}
 
 	// Cleanup root and tools node_modules folder if that's what we're deleting.
@@ -113,7 +125,16 @@ async function cleanFiles( toCleanFiles, argv ) {
 			await runCommand( 'rm', [ '-rf', 'node_modules', 'tools/cli/node_modules' ] );
 		} );
 	}
+
+	console.log(
+		chalk.green(
+			`Clean completed! ${
+				argv.project === '.' ? 'Everything' : argv.project
+			} cleans up so nicely, doesn't it?`
+		)
+	);
 }
+
 /**
  * Returns list of files that we want to delete.
  *
@@ -156,9 +177,10 @@ async function collectCleanFiles( allFiles, toClean ) {
  * Gets list of files that could be deleted.
  *
  * @param {Array} toClean - files that we want to clean.
+ * @param {object} argv - the arguments passed.
  * @returns {object} allFiles.
  */
-async function collectAllFiles( toClean ) {
+async function collectAllFiles( toClean, argv ) {
 	const allFiles = {
 		untracked: [],
 		docker: [],
@@ -170,11 +192,15 @@ async function collectAllFiles( toClean ) {
 	};
 
 	if ( toClean.includes( 'untracked' ) ) {
-		allFiles.untracked = child_process.execSync( 'git ls-files --exclude-standard --directory --other' );
+		allFiles.untracked = child_process.execSync(
+			`git ls-files ${ argv.project } --exclude-standard --directory --other`
+		);
 		allFiles.untracked = allFiles.untracked.toString().trim().split( '\n' );
 	}
 
-	allFiles.other = child_process.execSync( 'git ls-files --exclude-standard --directory --ignored --other' );
+	allFiles.other = child_process.execSync(
+		`git ls-files ${ argv.project } --exclude-standard --directory --ignored --other`
+	);
 	allFiles.other = allFiles.other.toString().trim().split( '\n' );
 
 	allFiles.combined = allFiles.untracked.concat( allFiles.other );
@@ -202,103 +228,6 @@ async function collectAllFiles( toClean ) {
 }
 
 /**
- * Clean all build files.
- *
- * @param {object} argv - arguments passed.
- */
-async function distClean( argv ) {
-	argv.scope = 'all';
-	argv.project = '.';
-	argv.include = {};
-
-	console.log( chalk.green( `Cleaning build files (this may take awhile)...` ) );
-	// Clean node_modules.
-	argv.include.toClean = 'node_modules';
-	argv.cmd = 'rm';
-	await makeRemove( argv );
-	await runCommand( argv.cmd, argv.options );
-
-	// Clean vendor.
-	argv.include.toClean = 'vendor';
-	argv.cmd = 'rm';
-	await makeRemove( argv );
-	await runCommand( argv.cmd, argv.options );
-
-	return;
-}
-
-/**
- * Clean everything (except checked in composer.lock)
- *
- * @param {object} argv - arguments passed.
- */
-async function cleanAll( argv ) {
-	// Clean node modules and vendor
-	await distClean( argv );
-
-	//Clean any untracked and working files
-	argv.cmd = 'git';
-	argv.include.toClean = 'both';
-	argv.include.ignored = [ 'vendor', 'node_modules' ];
-	await makeOptions( argv );
-	await commandRoute( argv );
-	return;
-}
-
-/**
- * Handle prepping the commands before routing to run the command.
- *
- * @param {object} argv - arguments passed.
- */
-async function commandRoute( argv ) {
-	// Dry Run
-	if ( argv.cmd === 'find' ) {
-		await runCommand( argv.cmd, argv.dryOptions );
-	} else {
-		await runCommand( argv.cmd, [ ...argv.options, '-n' ] ); // dry run
-		if ( argv.include.toClean === 'both' ) {
-			runCommand( argv.cmd, [ `clean`, argv.project, '-n' ] );
-		}
-	}
-	// Confirm we want to delete.
-	const runConfirm = await confirmRemove( argv );
-
-	// Live Commands
-	if ( runConfirm.confirm ) {
-		console.log( chalk.green( `Cleaning files (this may take awhile)...` ) );
-		// For tracked files using 'rm -rf'
-		if ( argv.cmd === 'find' ) {
-			( argv.cmd = 'rm' ), ( argv = await makeRemove( argv ) );
-			await runCommand( argv.cmd, argv.options );
-		}
-
-		// For untracked files using 'git clean'
-		if ( argv.cmd === 'git' ) {
-			await runCommand( argv.cmd, [ `clean`, ...argv.options, '-f' ] ); // do it live.
-			if ( argv.include.toClean === 'both' ) {
-				console.log( chalk.green( 'Cleaning working files...' ) );
-				await runCommand( argv.cmd, [ `clean`, ...argv.project, '-f' ] );
-			}
-		}
-
-		// Cleanup any remaining node_modules folders on process exit if that's what we're cleaning
-		if ( argv.include.toClean === 'node_modules' ) {
-			process.on( 'exit', async () => {
-				await runCommand( 'rm', [ '-rf', 'node_modules', 'tools/cli/node_modules' ] );
-			} );
-		}
-
-		// Success message
-		if ( argv.project === '.' ) {
-			argv.project = 'Everything';
-		}
-		console.log(
-			chalk.green( `Clean completed! ${ argv.project } cleans up so nicely, doesn't it?` )
-		);
-	}
-}
-
-/**
  * Parse passed project paramater.
  *
  * @param {object} argv - the arguments passed.
@@ -308,14 +237,14 @@ async function parseProj( argv ) {
 	//Bail if we've specified the 'all' option already.
 	if ( argv.project === '.' ) {
 		argv.scope = 'all';
-		return;
+		return argv;
 	}
 
 	// If we're cleaning all.
 	if ( argv.project === 'all' ) {
 		argv.scope = 'all';
 		argv.project = '.';
-		return;
+		return argv;
 	}
 
 	// If we're passing a specific project
@@ -324,7 +253,7 @@ async function parseProj( argv ) {
 		if ( argv.project === proj ) {
 			argv.scope = 'project';
 			argv.project = `projects/${ argv.project }`;
-			return;
+			return argv;
 		}
 	}
 
@@ -334,7 +263,7 @@ async function parseProj( argv ) {
 		if ( argv.project === type ) {
 			argv.scope = 'type';
 			argv.project = `projects/${ type }`;
-			return;
+			return argv;
 		}
 	}
 
@@ -342,7 +271,7 @@ async function parseProj( argv ) {
 	console.log( chalk.red( 'Invalid project type, defaulting to interactive mode' ) );
 	delete argv.project;
 	await promptProj( argv );
-	return;
+	return argv;
 }
 
 /**
@@ -352,10 +281,7 @@ async function parseProj( argv ) {
  * @returns {object} argv.
  */
 async function parseToClean( argv ) {
-	argv.include = { toClean: argv.include };
-	if ( argv.include.toClean === 'ignored' ) {
-		argv.include.ignored = [ 'vendor', 'node_modules' ];
-	}
+	argv.toClean = argv.include;
 	return argv;
 }
 
@@ -477,12 +403,14 @@ async function checkExclude( toDelete, options ) {
  * Prompts for the scope, project and type if none were given.
  *
  * @param {object} argv - the arguments passed.
+ * @returns {object} argv.
  */
 async function promptProj( argv ) {
 	argv = await promptForScope( argv );
 	switch ( argv.scope ) {
 		case 'project':
 			argv = await promptForProject( argv );
+			argv.project = `projects/${ argv.project }`;
 			break;
 		case 'type':
 			argv = await promptForType( argv );
@@ -492,7 +420,7 @@ async function promptProj( argv ) {
 			argv.project = '.';
 			break;
 	}
-	return;
+	return argv;
 }
 /**
  * Confirm that we want to remove the listed files.
@@ -599,9 +527,3 @@ export async function promptForClean( argv ) {
 	argv.toClean = response.toClean;
 	return argv;
 }
-// Choose which directory we want
-// Choose what to delete
-// Get a list of files that could be chosen for deletion
-// Filter those files based on what we chose
-// Display the files that would be deleted.
-// Remove them.
