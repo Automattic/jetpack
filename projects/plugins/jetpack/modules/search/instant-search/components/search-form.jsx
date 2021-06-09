@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { Component, h } from 'preact';
+import React, { Component } from 'react';
 
 /**
  * Internal dependencies
