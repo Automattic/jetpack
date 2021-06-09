@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
+import { getPlanClass } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
 import getRedirectUrl from 'lib/jp-redirect';
 import { imagePath } from 'constants/urls';
@@ -86,11 +86,7 @@ class MyPlanBody extends React.Component {
 			],
 			planClass
 		);
-		const premiumThemesActive = includes(
-				this.props.activeFeatures,
-				FEATURE_UNLIMITED_PREMIUM_THEMES
-			),
-			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+		const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			hideVaultPressCard =
 				! this.props.showBackups ||
 				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
@@ -500,37 +496,6 @@ class MyPlanBody extends React.Component {
 									</div>
 								</div>
 							) }
-
-						{ premiumThemesActive && (
-							<div className="jp-landing__plan-features-card">
-								<div className="jp-landing__plan-features-img">
-									<img
-										src={ imagePath + '/jetpack-themes.svg' }
-										className="jp-landing__plan-features-icon"
-										alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-									/>
-								</div>
-								<div className="jp-landing__plan-features-text">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Try a premium theme', 'jetpack' ) }
-									</h3>
-									<p>
-										{ __(
-											'Access beautifully designed premium themes at no extra cost.',
-											'jetpack'
-										) }
-									</p>
-									<Button
-										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
-										href={ getRedirectUrl( 'calypso-themes-premium', {
-											site: this.props.siteRawUrl,
-										} ) }
-									>
-										{ __( 'Browse premium themes', 'jetpack' ) }
-									</Button>
-								</div>
-							</div>
-						) }
 
 						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
 							<div className="jp-landing__plan-features-card">
