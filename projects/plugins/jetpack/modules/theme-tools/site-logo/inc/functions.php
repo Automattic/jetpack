@@ -131,8 +131,8 @@ function jetpack_the_site_logo() {
 	$logo_id      = get_theme_mod( 'custom_logo' );
 	$jetpack_logo = site_logo()->logo;
 
-	// Use WP Core logo if present, otherwise use Jetpack's.
-	if ( ! $logo_id && isset( $jetpack_logo['id'] ) ) {
+	// Use WP Core logo if present and is an id (of an attachment), otherwise use Jetpack's.
+	if ( ! is_numeric( $logo_id ) && isset( $jetpack_logo['id'] ) ) {
 		$logo_id = $jetpack_logo['id'];
 	}
 

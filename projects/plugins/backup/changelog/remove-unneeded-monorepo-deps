@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add @wordpress/browserslist-config entry to package.json
+
+
