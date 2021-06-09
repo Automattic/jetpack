@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Edit User: hide profile fields ( First Name, Last Name, Display Name, About, Email, Website ) for WordPress.com users. These fields can be edited in WordPress.com from their respective users.

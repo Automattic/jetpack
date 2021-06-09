@@ -20,11 +20,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		// Constant is not defined until parse_request.
-		if ( ! $this->is_api_request ) {
-			$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
-		}
-
 		/*
 		 * Whether links should point to Calypso or wp-admin.
 		 *

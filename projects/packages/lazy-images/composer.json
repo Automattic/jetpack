@@ -20,11 +20,11 @@
 	"scripts": {
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-production"
+			"pnpm run build-production"
 		],
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"phpunit": [
 			"@composer update",
