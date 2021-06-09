@@ -28,7 +28,7 @@ export function cleanDefine( yargs ) {
 		yarg => {
 			yarg
 				.positional( 'project', {
-					describe: 'Project in the form of type/name, e.g. plugins/jetpack',
+					describe: 'Project in the form of type/name, e.g. plugins/jetpack, or type, e.g. plugins, or "all"',
 					type: 'string',
 				} )
 				.positional( 'include', {
@@ -40,11 +40,11 @@ export function cleanDefine( yargs ) {
 				.option( 'all', {
 					alias: 'a',
 					type: 'boolean',
-					description: 'Remove everything from monorepo root',
+					description: 'Clean all types of files everywhere in the monorepo',
 				} )
 				.option( 'dist', {
 					type: 'boolean',
-					description: 'Remove distributed files (vendor, node_modules)',
+					description: 'Remove package manager directories (vendor, node_modules)',
 				} );
 		},
 		async argv => {
@@ -91,7 +91,7 @@ export async function cleanCli( argv ) {
 	const toCleanFiles = await collectCleanFiles( allFiles, argv.toClean );
 
 	// Confirm the deletion.
-	const runConfirm = await confirmRemove( argv );
+	const runConfirm = await confirmRemove( argv, toCleanFiles );
 	if ( ! runConfirm.confirm ) {
 		console.log( chalk.red( 'Cancelling jetpack clean.' ) );
 		return;
@@ -165,10 +165,6 @@ async function collectCleanFiles( allFiles, toClean ) {
 				deleteQueue.push( ...allFiles.other );
 				break;
 		}
-	}
-
-	for ( const file of deleteQueue ) {
-		console.log( file );
 	}
 
 	return deleteQueue;
@@ -426,16 +422,21 @@ async function promptProj( argv ) {
  * Confirm that we want to remove the listed files.
  *
  * @param {object} argv - the arguments passed.
+ * @param {Array} toCleanFiles - files we want to clean.
  * @returns {object} response - response data.
  */
-async function confirmRemove( argv ) {
+async function confirmRemove( argv, toCleanFiles ) {
+	for ( const file of toCleanFiles ) {
+		console.log( file );
+	}
+
 	let confirmMessage = 'Okay to delete the above files/folders?';
 	if ( argv.dist ) {
-		confirmMessage = 'Okay to delete all built files (node_modules and vendor)?';
+		confirmMessage = 'Okay to delete all package manager directories (vendor and node_modules)?';
 	}
 	if ( argv.all && ! argv.cmd ) {
 		confirmMessage =
-			'You want to clean absolutely everything from the monorepo? (working files, node_modules, vendor, and git-ignored files?)';
+			'You want to clean absolutely everything from the monorepo? (untracked files, node_modules, vendor, and git-ignored files?)';
 	}
 	const response = await inquirer.prompt( {
 		type: 'confirm',
@@ -489,7 +490,7 @@ export async function promptForScope( argv ) {
 export async function promptForClean( argv ) {
 	let promptProject = argv.project;
 	if ( argv.project === '.' || argv.project === 'all' ) {
-		promptProject = 'the monorepo root';
+		promptProject = 'everywhere in the monorepo';
 	}
 	const response = await inquirer.prompt( [
 		{
