@@ -67,17 +67,6 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
-		// If there are static filters available, but they are not part of the initial url, we will set their default value
-		const availableStaticFilters = getAvailableStaticFilters();
-
-		console.log(availableStaticFilters)
-		console.log(this.props.staticFilters)
-
-		if ( availableStaticFilters.length > 0 && this.props.staticFilters.length === 0 ) {
-			availableStaticFilters
-				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
-		}
-
 		// By debouncing this upon mounting, we avoid making unnecessary requests.
 		//
 		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
@@ -317,6 +306,14 @@ class SearchApp extends Component {
 		// Both bindCustomizerChanges and bindCustomizerMessages are bound to such controls.
 		if ( this.state.showResults === showResults ) {
 			return;
+		}
+
+		// If there are static filters available, but they are not part of the initial url, we will set their default value
+		const availableStaticFilters = getAvailableStaticFilters();
+
+		if ( availableStaticFilters.length > 0 && Object.keys( this.props.staticFilters ).length === 0 ) {
+			availableStaticFilters
+				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
 		}
 
 		this.setState( { showResults }, () => {
