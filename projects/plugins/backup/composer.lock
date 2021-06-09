@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ec4ebe360579bccf59f6a4500383b54",
+    "content-hash": "8e603e88ece6e9086fe486d108cdac1e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -163,6 +163,42 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-config",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/config",
+                "reference": "5cc8275ac867ff99e527da0df9e8f14ec53b11fd"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-config",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "1.4.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -430,6 +466,129 @@
             }
         },
         {
+            "name": "automattic/jetpack-identity-crisis",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/identity-crisis",
+                "reference": "1eb72f5a0f7ef1e4e8c72a416f39e1a9de2a059b"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.28",
+                "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-logo": "^1.5",
+                "automattic/jetpack-options": "^1.13",
+                "automattic/jetpack-status": "^1.8",
+                "automattic/jetpack-tracking": "^1.13"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-identity-crisis",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-identity-crisis.php"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "NODE_ENV='production' pnpm run build"
+                ],
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Identity Crisis.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-logo",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/logo",
+                "reference": "fded849729d28f06f5db6c986fc64a17a320b213"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-logo",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "1.5.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer update",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer update",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A logo for Jetpack",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-options",
             "version": "dev-master",
             "dist": {
@@ -464,6 +623,60 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for wp-options to manage specific Jetpack options.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-password-checker",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/password-checker",
+                "reference": "dec6ead3b3b26af31d8d46a608e97f4251cb036a"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-password-checker",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-password-checker/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer update",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer update",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Password Checker.",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -620,6 +833,52 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-sync",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/sync",
+                "reference": "ae18e0e2c9414c1607150a71db3bbb4e5b424db7"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.28",
+                "automattic/jetpack-constants": "^1.6",
+                "automattic/jetpack-heartbeat": "^1.3",
+                "automattic/jetpack-identity-crisis": "^0.1",
+                "automattic/jetpack-options": "^1.13",
+                "automattic/jetpack-password-checker": "^0.1",
+                "automattic/jetpack-roles": "^1.4",
+                "automattic/jetpack-status": "^1.8"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-sync",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "1.22.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "transport-options": {
                 "monorepo": true,
                 "relative": true
@@ -3798,8 +4057,10 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
-        "automattic/jetpack-connection-ui": 20
+        "automattic/jetpack-connection-ui": 20,
+        "automattic/jetpack-sync": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

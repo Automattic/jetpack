@@ -142,6 +142,34 @@ describe( 'response Reducer', () => {
 			aggregations: { taxonomy_1: { buckets: [] } },
 			results: [ { id: 2, result_type: 'page' } ],
 		} );
+
+		// A response with total value bigger than stored total value.
+		const biggerResponse = {
+			total: 3,
+			aggregations: {},
+			results: [
+				{ id: 1, result_type: 'page' },
+				{ id: 3, result_type: 'page' },
+			],
+		};
+		expect(
+			response(
+				{
+					total: 1,
+					aggregations: { taxonomy_1: { buckets: [] } },
+					results: [ { id: 2, result_type: 'page' } ],
+				},
+				recordSuccessfulSearchRequest( { options: actionOptions, response: biggerResponse } )
+			)
+		).toEqual( {
+			total: 3,
+			aggregations: { taxonomy_1: { buckets: [] } },
+			results: [
+				{ id: 2, result_type: 'page' },
+				{ id: 1, result_type: 'page' },
+				{ id: 3, result_type: 'page' },
+			],
+		} );
 	} );
 	test( 'ignores responses older than the current response', () => {
 		const initialState = {
