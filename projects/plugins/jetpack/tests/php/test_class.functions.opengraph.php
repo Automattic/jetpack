@@ -50,7 +50,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		$default_url = jetpack_og_get_image();
 
 		// Test Jetpack's Site Logo
-		update_option( 'site_logo', array( 'id' => $this->icon_id, 'url' => wp_get_attachment_url( $this->icon_id ) ) );
+		update_option( 'site_logo', $this->icon_id );
 		require_once JETPACK__PLUGIN_DIR . 'modules/theme-tools/site-logo/inc/functions.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/theme-tools/site-logo/inc/class-site-logo.php';
 
