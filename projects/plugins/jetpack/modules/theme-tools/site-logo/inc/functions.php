@@ -133,7 +133,7 @@ function jetpack_the_site_logo() {
 
 	// Use WP Core logo if present, otherwise use Jetpack's.
 	// This shouldn't really ever fire anymore with the conversion code to Core's format, but leaving it just to be safe.
-	if ( ! $logo_id && isset( $jetpack_logo['id'] ) ) {
+	if ( ! is_numeric( $logo_id ) && isset( $jetpack_logo['id'] ) ) {
 		$logo_id = $jetpack_logo['id'];
 	}
 
