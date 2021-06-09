@@ -1,10 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h } from 'preact';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import React, { useEffect, useRef, useState } from 'react';
 
 /**
  * Internal dependencies
