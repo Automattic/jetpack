@@ -18,12 +18,14 @@ import stringify from 'fast-json-stable-stringify';
 import Overlay from './overlay';
 import SearchResults from './search-results';
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
+	setStaticFilter,
 	setSearchQuery,
 	setSort,
 } from '../store/actions';
@@ -65,6 +67,14 @@ class SearchApp extends Component {
 	}
 
 	componentDidMount() {
+		// If there are static filters available, but they are not part of the initial url, we will set their default value
+		const availableStaticFilters = getAvailableStaticFilters();
+
+		if ( availableStaticFilters.length > 0 && this.props.staticFilters.length === 0 ) {
+			availableStaticFilters
+				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
+		}
+
 		// By debouncing this upon mounting, we avoid making unnecessary requests.
 		//
 		// E.g. Given `/?s=apple`, the search app will mount with search query "" and invoke getResults.
@@ -420,6 +430,7 @@ export default connect(
 		clearQueryValues,
 		initializeQueryValues,
 		makeSearchRequest,
+		setStaticFilter,
 		setFilter,
 		setSearchQuery,
 		setSort,

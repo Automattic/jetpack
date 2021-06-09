@@ -3,7 +3,7 @@
  */
 import { search } from '../lib/api';
 import { SORT_DIRECTION_ASC, VALID_SORT_KEYS } from '../lib/constants';
-import { getAvailableStaticFilters, getFilterKeys, getStaticFilterKeys } from '../lib/filters';
+import { getFilterKeys, getStaticFilterKeys } from '../lib/filters';
 import { getQuery, setQuery } from '../lib/query-string';
 import {
 	clearFilters,
@@ -92,9 +92,10 @@ function initializeQueryValues( action, store ) {
 	//
 	// Initialize static filters
 	//
-	getAvailableStaticFilters()
-		.forEach( filter =>
-			store.dispatch( setStaticFilter( filter.filter_id, filter.selected, false ) )
+	getStaticFilterKeys()
+		.filter( filterKey => filterKey in queryObject )
+		.forEach( filterKey =>
+			store.dispatch( setStaticFilter( filterKey, queryObject[ filterKey ], false ) )
 		);
 }
 
