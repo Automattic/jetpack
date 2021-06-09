@@ -13,24 +13,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
-
-	/**
-	 * Jetpack_Admin_Menu constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-	}
-
-	/**
-	 * Dequeues unnecessary scripts.
-	 */
-	public function dequeue_scripts() {
-		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
-	}
-
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -47,19 +29,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Change the menu only when rendered in Calypso.
-		if ( $this->is_api_request || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			// Reset menus so there are no third-party plugin items.
-			$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// Reset menus so there are no third-party plugin items.
+		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-			parent::reregister_menu_items();
+		parent::reregister_menu_items();
 
-			$this->add_feedback_menu();
-			$this->add_wp_admin_menu();
+		$this->add_feedback_menu();
+		$this->add_wp_admin_menu();
 
-			ksort( $GLOBALS['menu'] );
-		}
+		ksort( $GLOBALS['menu'] );
 	}
 
 	/**
