@@ -1,11 +1,9 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { Component, h, Fragment } from 'preact';
-import { createPortal } from 'preact/compat';
-// NOTE: We only import the debounce package here for to reduced bundle size.
+import React, { Component, Fragment } from 'react';
+import { createPortal } from 'react-dom';
+// NOTE: We only import the debounce function here for reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
