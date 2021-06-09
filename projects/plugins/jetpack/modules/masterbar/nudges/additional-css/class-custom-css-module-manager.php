@@ -73,12 +73,11 @@ class Custom_CSS_Module_Manager {
 	 * @return string
 	 */
 	public static function customizer_link( $args = array() ) {
-		$args = \wp_parse_args(
-			$args,
-			array(
-				'return_url' => rawurlencode( \wp_unslash( $_SERVER['REQUEST_URI'] ) ),
-			)
+		$return_url_array = ! isset( $_SERVER['REQUEST_URI'] ) ? array() : array(
+			'return_url' => rawurlencode( \wp_unslash( esc_url( $_SERVER['REQUEST_URI'] ) ) ),
 		);
+
+		$args = \wp_parse_args( $args, $return_url_array );
 
 		return \add_query_arg(
 			array(
@@ -87,7 +86,7 @@ class Custom_CSS_Module_Manager {
 						'section' => 'custom_css',
 					),
 				),
-				'return' => $args['return_url'],
+				'return' => esc_url( $args['return_url'] ),
 			),
 			\admin_url( 'customize.php' )
 		);
