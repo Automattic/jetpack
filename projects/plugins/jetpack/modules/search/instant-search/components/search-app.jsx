@@ -70,6 +70,9 @@ class SearchApp extends Component {
 		// If there are static filters available, but they are not part of the initial url, we will set their default value
 		const availableStaticFilters = getAvailableStaticFilters();
 
+		console.log(availableStaticFilters)
+		console.log(this.props.staticFilters)
+
 		if ( availableStaticFilters.length > 0 && this.props.staticFilters.length === 0 ) {
 			availableStaticFilters
 				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
