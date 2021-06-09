@@ -73,9 +73,8 @@ class Custom_CSS_Module_Manager {
 	 * @return string
 	 */
 	public static function customizer_link( $args = array() ) {
-		$return_url_array = ! isset( $_SERVER['REQUEST_URI'] ) ? array() : array(
-			'return_url' => rawurlencode( \wp_unslash( esc_url( $_SERVER['REQUEST_URI'] ) ) ),
-		);
+		$unslashed_url    = ! isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : null;
+		$return_url_array = null === $unslashed_url ? array() : array( 'return_url' => rawurlencode( $unslashed_url ) );
 
 		$args = \wp_parse_args( $args, $return_url_array );
 

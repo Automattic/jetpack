@@ -16,7 +16,7 @@ use \Automattic\Jetpack\Status;
  */
 function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) {
 	require_once __DIR__ . '/additional-css/class-css-nudge-customize-control.php';
-	require_once __DIR__ . '/additional-css/class-wpcom-css-customizer-nudge.php';
+	require_once __DIR__ . '/additional-css/class-css-customizer-nudge.php';
 
 	$domain = ( new Status() )->get_site_suffix();
 
@@ -37,6 +37,8 @@ function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) 
 
 /**
  * Load the bootstrap on init action.
+ *
+ * We need to load on init because otherwise the filter will not be set to true in WPCOM (since the add_filter is set on init).
  */
 function load_bootstrap_on_init() {
 

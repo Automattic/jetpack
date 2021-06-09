@@ -1,6 +1,6 @@
 <?php
 /**
- * WPCOM_CSS_Customizer_Nudge file.
+ * CSS_Customizer_Nudge file.
  * CSS Nudge implementation for Atomic and WPCOM.
  *
  * @package Jetpack
@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
  *
  * @package Automattic\Jetpack\Dashboard_Customizations
  */
-class WPCOM_CSS_Customizer_Nudge {
+class CSS_Customizer_Nudge {
 	/**
 	 * Call to Action URL.
 	 *
@@ -36,7 +36,7 @@ class WPCOM_CSS_Customizer_Nudge {
 	private $control_name;
 
 	/**
-	 * WPCOM_CSS_Customizer constructor.
+	 * CSS_Customizer_Nudge constructor.
 	 *
 	 * @param string $cta_url      The URL to the plans.
 	 * @param string $nudge_copy   The nudge text.

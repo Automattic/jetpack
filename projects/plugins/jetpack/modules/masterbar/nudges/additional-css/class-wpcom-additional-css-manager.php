@@ -38,7 +38,7 @@ class WPCOM_Additional_CSS_Manager {
 	 * @param \WP_Customize_Manager $wp_customize_manager The core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		$nudge = new WPCOM_CSS_Customizer_Nudge(
+		$nudge = new CSS_Customizer_Nudge(
 			$this->get_nudge_url(),
 			__( 'Purchase a Premium Plan to<br> activate CSS customization', 'jetpack' ),
 			'jetpack_custom_css'

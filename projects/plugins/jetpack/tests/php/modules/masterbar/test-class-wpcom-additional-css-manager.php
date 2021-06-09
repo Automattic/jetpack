@@ -14,7 +14,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
 require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-wpcom-additional-css-manager.php' );
 require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-nudge-customize-control.php' );
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-wpcom-css-customizer-nudge.php' );
+require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-customizer-nudge.php' );
 
 /**
  * Class Test_WPCOM_Additional_Css_Manager

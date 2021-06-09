@@ -39,7 +39,7 @@ class Atomic_Additional_CSS_Manager {
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
 
-		$nudge = new WPCOM_CSS_Customizer_Nudge(
+		$nudge = new CSS_Customizer_Nudge(
 			$this->get_nudge_url(),
 			__( 'Purchase a Business Plan to<br> activate CSS customization', 'jetpack' )
 		);

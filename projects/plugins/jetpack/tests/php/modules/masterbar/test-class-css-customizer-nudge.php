@@ -15,9 +15,9 @@ require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 require_jetpack_file( 'modules/masterbar/nudges/bootstrap.php' );
 
 /**
- * Class Test_WPCOM_CSS_Customizer_Nudge
+ * Class Test_CSS_Customizer_Nudge
  */
-class Test_WPCOM_CSS_Customizer_Nudge extends \WP_UnitTestCase {
+class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	/**
 	 * A mock Customize manager.
 	 *
@@ -41,7 +41,7 @@ class Test_WPCOM_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 * Check if the assets are registered.
 	 */
 	public function test_it_enqueues_the_assets() {
-		$nudge = new WPCOM_CSS_Customizer_Nudge( 'url', 'message' );
+		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
 
 		$nudge->customize_register_nudge( $this->wp_customize );
 
@@ -61,7 +61,7 @@ class Test_WPCOM_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 * Check if it creates the css nudge control.
 	 */
 	public function test_if_it_creates_a_css_nudge_control() {
-		$nudge = new WPCOM_CSS_Customizer_Nudge( 'url', 'message' );
+		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
 
 		$nudge->customize_register_nudge( $this->wp_customize );
 
@@ -73,7 +73,7 @@ class Test_WPCOM_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 * Check if the url and message are passed correctly to the custom control object.
 	 */
 	public function test_if_the_url_and_message_are_passed_correctly() {
-		$nudge = new WPCOM_CSS_Customizer_Nudge( 'url', 'message' );
+		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
 
 		$nudge->customize_register_nudge( $this->wp_customize );
 
