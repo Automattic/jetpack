@@ -6,6 +6,7 @@ import Listr from 'listr';
 import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
 import execa from 'execa';
+import PATH from 'path-name';
 
 /**
  * Internal dependencies
@@ -30,11 +31,7 @@ function cliLink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Enabling global access to the CLI` ),
-								task: () => command( 'yarn link', options.v, path.resolve( 'tools/cli' ) ),
-							},
-							{
-								title: chalkJetpackGreen( `Setting the monorepo to use the CLI` ),
-								task: () => command( 'yarn link jetpack-cli', options.v, process.cwd() ),
+								task: () => command( 'pnpm link --global', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
 						opts
@@ -68,12 +65,8 @@ function cliUnlink( options ) {
 					return new Listr(
 						[
 							{
-								title: chalkJetpackGreen( `Disconnecting the CLI from the monorepo` ),
-								task: () => command( 'yarn unlink jetpack-cli', options.v, process.cwd() ),
-							},
-							{
 								title: chalkJetpackGreen( `Removing global access to the CLI` ),
-								task: () => command( 'yarn unlink', options.v, path.resolve( 'tools/cli' ) ),
+								task: () => command( 'pnpm unlink', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
 						opts
@@ -137,7 +130,22 @@ export function cliDefine( yargs ) {
  * @returns {object} - The execa command to run.
  */
 function command( cmd, verbose, cwd ) {
+	// If this is being run via the cli-link script from the monorepo root package.json, pnpm may
+	// have prepended node-gyp-bin and node_modules/.bin directories. Remove them so pnpm doesn't
+	// try to link the CLI into one of those.
+	const env = { ...process.env };
+	if ( env[ PATH ] ) {
+		const d = path.delimiter.replace( /[-[\]{}()*+?.\\^$|]/g, '\\$&' );
+		const s = path.sep.replace( /[-[\]{}()*+?.\\^$|]/g, '\\$&' );
+		env[ PATH ] = env[ PATH ].replace(
+			new RegExp(
+				`^(?:[^${ d }]*${ s }node-gyp-bin${ d })?(?:[^${ d }]*${ s }node_modules${ s }\\.bin${ d })+`
+			),
+			''
+		);
+	}
+
 	return verbose
-		? execa.commandSync( `${ cmd }`, { cwd: cwd, stdio: 'inherit' } )
-		: execa.command( `${ cmd }`, { cwd: cwd } );
+		? execa.commandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
+		: execa.command( `${ cmd }`, { cwd: cwd, env: env } );
 }

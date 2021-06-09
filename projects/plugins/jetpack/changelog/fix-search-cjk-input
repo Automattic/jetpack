@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Search: don't open overlay when user is composing text using an input method editor (Chinese, Japanese, Korean and Indic languages)

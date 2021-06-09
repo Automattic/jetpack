@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable site-level authentication (blog token) for REST API endpoints
