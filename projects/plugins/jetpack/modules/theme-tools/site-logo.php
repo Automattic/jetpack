@@ -32,7 +32,7 @@ function site_logo_init() {
 		// Is the Site Logo in the old Jetpack format?
 		if ( ! empty( $jp_logo['id'] ) ) {
 			set_theme_mod( 'custom_logo', $jp_logo['id'] );
-			update_option( 'site_logo', $jp_logo['id'] );
+			update_option( 'site_logo', $jp_logo['id'] ); // This is the convention used by the Site Logo block, part of WP 5.8+.
 		}
 	}
 
