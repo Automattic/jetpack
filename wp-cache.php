@@ -1189,6 +1189,8 @@ table.wpsc-settings-table {
 			echo "\n";
 			wp_cache_edit_rejected();
 			echo "\n";
+			wp_cache_edit_rejected_cookies();
+			echo "\n";
 			wp_cache_edit_accepted();
 			echo '</fieldset>';
 
@@ -1977,6 +1979,34 @@ function wp_cache_edit_rejected_pages() {
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
+}
+
+function wp_cache_update_rejected_cookies() {
+	global $cache_rejected_cookies, $wp_cache_config_file, $valid_nonce;
+
+	if ( isset( $_POST['wp_rejected_cookies'] ) && $valid_nonce ) {
+		$text = wp_cache_sanitize_value( str_replace( '\\\\', '\\', $_POST['wp_rejected_cookies'] ), $cache_rejected_cookies );
+		wp_cache_setting( 'cache_rejected_cookies', $cache_rejected_cookies );
+	}
+}
+
+function wp_cache_edit_rejected_cookies() {
+	global $cache_rejected_cookies;
+
+	$admin_url = admin_url( 'options-general.php?page=wpsupercache' );
+	wp_cache_update_rejected_cookies();
+
+	echo '<a name="rejectcookies"></a><fieldset class="options"><h4>' . __( 'Rejected Cookies', 'wp-super-cache' ) . '</h4>';
+	echo '<form name="wp_edit_rejected_cookies" action="' . esc_url_raw( add_query_arg( 'tab', 'settings', $admin_url ) . '#rejectcookies' ) . '" method="post">';
+	echo "<p>" . __( 'Do not cache pages when these cookies are set. Add the cookie names here, one per line. Matches on fragments, so "test" will match "WordPress_test_cookie".', 'wp-super-cache' ) . "</p>\n";
+	echo '<textarea name="wp_rejected_cookies" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
+	foreach ( $cache_rejected_cookies as $file) {
+		echo esc_html( $file ) . "\n";
+	}
+	echo '</textarea> ';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save', 'wp-super-cache' ) . '" /></div>';
+	wp_nonce_field('wp-cache');
+	echo "</form>\n";
 }
 
 function wp_cache_update_rejected_strings() {

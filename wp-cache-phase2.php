@@ -1606,6 +1606,21 @@ function wp_cache_get_response_headers() {
 	return $headers;
 }
 
+function wpsc_is_rejected_cookie() {
+	global $cache_rejected_cookies;
+	if ( false == is_array( $cache_rejected_cookies ) ) {
+		return false;
+	}
+
+	foreach ( $cache_rejected_cookies as $expr ) {
+		if ( $expr !== '' && $match = preg_grep( "~$expr~", array_keys( $_COOKIE ) ) ) {
+			wp_cache_debug( 'wpsc_is_rejected_cookie: found cookie: ' . $expr );
+			return true;
+		}
+	}
+	return false;
+}
+
 function wp_cache_is_rejected($uri) {
 	global $cache_rejected_uri;
 

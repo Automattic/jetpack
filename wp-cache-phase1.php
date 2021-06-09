@@ -77,6 +77,13 @@ if ( wpsc_is_backend() ) {
 	return true;
 }
 
+if ( wpsc_is_rejected_cookie() ) {
+	define( 'DONOTCACHEPAGE', 1 );
+	$cache_enabled = false;
+	wp_cache_debug( 'Caching disabled because rejected cookie found.' );
+	return true;
+}
+
 if ( wpsc_is_caching_user_disabled() ) {
 	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
 	return true;
