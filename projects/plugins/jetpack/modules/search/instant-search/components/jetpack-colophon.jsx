@@ -1,5 +1,3 @@
-/** @jsx h */
-
 // The PALETTE global comes from '@automattic/color-studio' at build time.
 // This is done so that the individual color values are bundled as hardcoded literals, rather than
 // having to include the entire color set in the bundle.
@@ -9,7 +7,7 @@
 /**
  * External dependencies
  */
-import { h, Fragment } from 'preact';
+import React, { Fragment } from 'react';
 import { __ } from '@wordpress/i18n';
 
 /**

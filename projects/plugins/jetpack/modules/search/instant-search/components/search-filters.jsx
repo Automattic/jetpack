@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Component } from 'preact';
+import React, { Component } from 'react';
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 

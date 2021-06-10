@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, createRef, Component } from 'preact';
+import React, { createRef, Component } from 'react';
 import strip from 'strip';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
