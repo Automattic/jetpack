@@ -13,7 +13,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run install-if-deps-outdated && pnpm run clean && pnpm run build-js",
-		"build-js": "calypso-build --output-path=./dist lazy-images='./src/js/lazy-images.js' && cp ./node_modules/intersection-observer/intersection-observer.js dist/",
+		"build-js": "calypso-build --output-path=./dist lazy-images='./src/js/lazy-images.js' intersection-observer=./node_modules/intersection-observer/intersection-observer.js && cp ./node_modules/intersection-observer/intersection-observer.js ./dist/intersection-observer.src.js",
 		"build-production": "pnpm run distclean && pnpm run install-if-deps-outdated && pnpm run build-production-js",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js && pnpm run validate-es5 -- ./dist/",
 		"clean": "rm -rf dist",
