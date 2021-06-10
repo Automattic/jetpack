@@ -14,8 +14,10 @@ export function normalizeInstallArgv( argv ) {
 	return {
 		// Defaults.
 		project: '',
+		include: '',
 		root: false,
 		all: false,
+		dist: false,
 		v: false,
 		// Override from `argv`.
 		...argv,

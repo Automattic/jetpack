@@ -10,7 +10,6 @@ import child_process from 'child_process';
  */
 import promptForProject, { promptForType } from '../helpers/promptForProject';
 import { normalizeCleanArgv } from '../helpers/normalizeArgv';
-import { runCommand } from '../helpers/runCommand';
 import { allProjects } from '../helpers/projectHelpers';
 import fs from 'fs';
 
@@ -28,13 +27,15 @@ export function cleanDefine( yargs ) {
 		yarg => {
 			yarg
 				.positional( 'project', {
-					describe: 'Project in the form of type/name, e.g. plugins/jetpack, or type, e.g. plugins, or "all"',
+					describe:
+						'Project in the form of type/name, e.g. plugins/jetpack, or type, e.g. plugins, or "all"',
 					type: 'string',
 				} )
+				.array( 'include' )
 				.positional( 'include', {
 					alias: 'i',
 					describe: 'Files/folders to include for deletion',
-					type: 'string',
+					type: 'Array',
 					choices: [ 'untracked', 'ignored', 'docker', 'node_modules', 'composer.lock', 'vendor' ],
 				} )
 				.option( 'all', {
@@ -64,6 +65,8 @@ export function cleanDefine( yargs ) {
  * @param {argv}  argv - the arguments passed.
  */
 export async function cleanCli( argv ) {
+	argv = await normalizeCleanArgv( argv );
+
 	if ( argv.all ) {
 		argv.project = '.';
 		argv.include = [ 'untracked', 'ignored', 'docker', 'node_modules', 'composer.lock', 'vendor' ];
@@ -128,7 +131,7 @@ async function cleanFiles( toCleanFiles, argv ) {
 
 	// The `esm` module has an 'exit' handler that will re-create some node_modules dirs to save its cached data.
 	// Register our own 'exit' handler to re-delete them after esm re-creates them, when applicable.
-	const nodeModulesDirs = toCleanFiles.filter( ( file ) => file.match( /(^|\/)node_modules\/$/ ) );
+	const nodeModulesDirs = toCleanFiles.filter( file => file.match( /(^|\/)node_modules\/$/ ) );
 	if ( nodeModulesDirs.length ) {
 		process.on( 'exit', () => {
 			for ( const file of nodeModulesDirs ) {
@@ -179,7 +182,7 @@ async function collectCleanFiles( allFiles, toClean ) {
 	}
 
 	// Remove any empty elements
-	deleteQueue = deleteQueue.filter( ( file ) => {
+	deleteQueue = deleteQueue.filter( file => {
 		return file !== '';
 	} );
 
@@ -211,7 +214,9 @@ async function collectAllFiles( toClean, argv ) {
 		allFiles.untracked = allFiles.untracked.toString().trim().split( '\n' );
 	}
 
-	allFiles.combined = child_process.execSync( `git ls-files ${ argv.project } --exclude-standard --directory --ignored --other` );
+	allFiles.combined = child_process.execSync(
+		`git ls-files ${ argv.project } --exclude-standard --directory --ignored --other`
+	);
 	allFiles.combined = allFiles.combined.toString().trim().split( '\n' );
 	for ( const file of allFiles.combined ) {
 		if ( file.match( /^\.env$|^tools\/docker\// ) ) {
@@ -285,120 +290,6 @@ async function parseProj( argv ) {
 async function parseToClean( argv ) {
 	argv.toClean = argv.include;
 	return argv;
-}
-
-/**
- * Compiles options depending on the command we need to run.
- *
- * @param {object} argv - arguments passed.
- * @returns {object} argv.
- */
-export async function makeOptions( argv ) {
-	if (
-		argv.include.toClean === 'vendor' ||
-		argv.include.toClean === 'node_modules' ||
-		argv.include.toClean === 'composer.lock'
-	) {
-		argv.options = [ '-rf' ];
-		argv.cmd = 'find'; // For dry run first.
-		argv = await makeRemove( argv );
-	} else {
-		argv.options = [ 'clean' ];
-		argv.cmd = 'git';
-		argv = await makeClean( argv );
-	}
-	return argv;
-}
-
-/**
- * For running git clean to remove untracked files.
- *
- * @param {object} argv - arguments passed.
- * @returns {object} argv.
- */
-async function makeClean( argv ) {
-	if ( argv.scope === 'project' ) {
-		argv.project = `projects/${ argv.project }`;
-	}
-	argv.options.push( argv.project );
-
-	// If we're running in root, we need to flag we want to remove files in subdirectories.
-	if ( argv.project === '.' ) {
-		argv.options.push( '-d' );
-	}
-
-	if ( argv.include.toClean === 'ignored' || argv.include.toClean === 'both' ) {
-		argv.options.push( '-X' );
-		await checkExclude( argv.include.ignored, argv.options );
-	}
-
-	// Add any ignored files that we want to delete.
-	if ( ! argv.include.ignored ) {
-		argv.include.ignored = [];
-	}
-
-	return argv;
-}
-
-/**
- * For running rm -rf to remove specific tracked files.
- *
- * @param {object} argv - arguments passed.
- * @returns {object} argv.
- */
-async function makeRemove( argv ) {
-	const toClean = argv.include.toClean;
-	if ( argv.cmd === 'find' ) {
-		if ( argv.scope === 'project' ) {
-			argv.project = `projects/${ argv.project }`;
-		}
-		argv.dryOptions = [ argv.project, '-name', toClean, '-prune' ];
-		return argv;
-	}
-
-	if ( argv.cmd === 'rm' ) {
-		switch ( argv.scope ) {
-			case 'project':
-				argv.options.push( `projects/${ argv.project }/${ toClean }` );
-				break;
-			case 'type':
-				argv.options.push( `${ argv.project }/*/${ toClean }` );
-				break;
-			case 'all':
-				argv.cmd = 'find';
-				argv.options = [
-					'.',
-					'-name',
-					`"${ toClean }"`,
-					'-prune',
-					'-print',
-					'-exec',
-					'rm',
-					'-rf',
-					'{}',
-					'+',
-				];
-		}
-	}
-	return argv;
-}
-
-/**
- * Excludes files that we don't want to delete.
- *
- * @param {Array} toDelete - files that are gitignored that we want to delete.
- * @param {Array} options - the git clean options.
- * @returns {Array} options.
- */
-async function checkExclude( toDelete, options ) {
-	const defaultIgnored = [ 'vendor', 'composer.lock', 'node_modules' ];
-	for ( const fileFolder of defaultIgnored ) {
-		if ( ! toDelete.includes( fileFolder ) ) {
-			options.push( `-e` );
-			options.push( `!${ fileFolder }` );
-		}
-	}
-	return options;
 }
 
 /**
@@ -502,7 +393,7 @@ export async function promptForClean( argv ) {
 		{
 			type: 'checkbox',
 			name: 'toClean',
-			message: `What untracked files and folders are you looking to delete for ${ promptProject }?`,
+			message: `What files and folders are you looking to delete for ${ promptProject }?`,
 			choices: [
 				{
 					name: 'Untracked Files',
