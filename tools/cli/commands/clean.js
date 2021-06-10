@@ -175,7 +175,7 @@ async function collectCleanFiles( allFiles, toClean ) {
 			case 'vendor':
 				deleteQueue.push( ...allFiles.vendor );
 				break;
-			case 'other':
+			case 'ignored':
 				deleteQueue.push( ...allFiles.other );
 				break;
 		}
@@ -231,6 +231,7 @@ async function collectAllFiles( toClean, argv ) {
 			allFiles.other.push( file );
 		}
 	}
+
 	return allFiles;
 }
 
