@@ -29,12 +29,12 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 			$manager,
 			'foo',
 			array(
-				'cta_url'    => 'url',
+				'cta_url'    => 'https://wordpress.com',
 				'nudge_copy' => 'foo',
 			)
 		);
 
-		$this->assertEquals( 'url', $control->cta_url );
+		$this->assertEquals( 'https://wordpress.com', $control->cta_url );
 		$this->assertEquals( 'foo', $control->nudge_copy );
 		ob_start();
 		$control->render_content();
@@ -45,7 +45,7 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 					foo
 				</p>
 				<div class="button-container">
-					<button type="button" class="button-primary navigate-to" data-navigate-to-page="url">Upgrade Now</button>
+					<button type="button" class="button-primary navigate-to" data-navigate-to-page="https://wordpress.com">Upgrade Now</button>
 				</div>
 			</div>';
 		$this->assertEquals( $expected_output, $content );
