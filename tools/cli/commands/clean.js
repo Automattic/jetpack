@@ -90,6 +90,12 @@ export async function cleanCli( argv ) {
 	const allFiles = await collectAllFiles( argv.toClean, argv );
 	const toCleanFiles = await collectCleanFiles( allFiles, argv.toClean );
 
+	// Bail if there are no files to delete.
+	if ( ! toCleanFiles.length ) {
+		console.log( chalk.green( 'No files to delete!' ) );
+		return;
+	}
+
 	// Confirm the deletion.
 	const runConfirm = await confirmRemove( argv, toCleanFiles );
 	if ( ! runConfirm.confirm ) {
@@ -120,9 +126,12 @@ async function cleanFiles( toCleanFiles, argv ) {
 	}
 
 	// Cleanup root and tools node_modules folder if that's what we're deleting.
-	if ( argv.scope === 'all' && argv.toClean.includes( 'node_modules' ) ) {
-		process.on( 'exit', async () => {
-			await runCommand( 'rm', [ '-rf', 'node_modules', 'tools/cli/node_modules' ] );
+	const nodeModulesDirs = toCleanFiles.filter( ( file ) => file.match( /(^|\/)node_modules\/$/ ) );
+	if ( nodeModulesDirs.length ) {
+		process.on( 'exit', () => {
+			for ( const file of nodeModulesDirs ) {
+				fs.rmSync( file, { recursive: true, force: true } );
+			}
 		} );
 	}
 
@@ -143,7 +152,7 @@ async function cleanFiles( toCleanFiles, argv ) {
  * @returns {Array} deleteQueue - files that we want to delete.
  */
 async function collectCleanFiles( allFiles, toClean ) {
-	const deleteQueue = [];
+	let deleteQueue = [];
 	for ( const file of toClean ) {
 		switch ( file ) {
 			case 'untracked':
@@ -166,6 +175,11 @@ async function collectCleanFiles( allFiles, toClean ) {
 				break;
 		}
 	}
+
+	// Remove any empty elements
+	deleteQueue = deleteQueue.filter( ( file ) => {
+		return file !== '';
+	} );
 
 	return deleteQueue;
 }
@@ -194,32 +208,21 @@ async function collectAllFiles( toClean, argv ) {
 		allFiles.untracked = allFiles.untracked.toString().trim().split( '\n' );
 	}
 
-	allFiles.other = child_process.execSync(
-		`git ls-files ${ argv.project } --exclude-standard --directory --ignored --other`
-	);
-	allFiles.other = allFiles.other.toString().trim().split( '\n' );
-
-	allFiles.combined = allFiles.untracked.concat( allFiles.other );
-
+	allFiles.combined = child_process.execSync( `git ls-files ${ argv.project } --exclude-standard --directory --ignored --other` );
+	allFiles.combined = allFiles.combined.toString().trim().split( '\n' );
 	for ( const file of allFiles.combined ) {
 		if ( file.match( /^\.env$|^tools\/docker\// ) ) {
 			allFiles.docker.push( file );
-			allFiles.other.splice( allFiles.other.indexOf( file ) );
-		}
-		if ( file.match( /(^|\/)node_modules\/$/ ) ) {
+		} else if ( file.match( /(^|\/)node_modules\/$/ ) ) {
 			allFiles.node_modules.push( file );
-			allFiles.other.splice( allFiles.other.indexOf( file ) );
-		}
-		if ( file.match( /(^|\/)vendor\/$/ ) ) {
+		} else if ( file.match( /(^|\/)vendor\/$/ ) ) {
 			allFiles.vendor.push( file );
-			allFiles.other.splice( allFiles.other.indexOf( file ) );
-		}
-		if ( file.match( /(^|\/)composer\.lock$/ ) ) {
+		} else if ( file.match( /(^|\/)composer\.lock$/ ) ) {
 			allFiles.composerLock.push( file );
-			allFiles.other.splice( allFiles.other.indexOf( file ) );
+		} else {
+			allFiles.other.push( file );
 		}
 	}
-
 	return allFiles;
 }
 
