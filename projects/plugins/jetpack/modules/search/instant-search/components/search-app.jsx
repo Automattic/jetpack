@@ -1,10 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { Component, createRef, h } from 'preact';
-import { createPortal } from 'preact/compat';
+import React, { Component, createPortal, createRef } from 'react';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -18,17 +15,20 @@ import stringify from 'fast-json-stable-stringify';
 import Overlay from './overlay';
 import SearchResults from './search-results';
 import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
+	setStaticFilter,
 	setSearchQuery,
 	setSort,
 } from '../store/actions';
 import {
 	getFilters,
+	getStaticFilters,
 	getResponse,
 	getSearchQuery,
 	getSort,
@@ -83,7 +83,8 @@ class SearchApp extends Component {
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
 			// Note the special handling for filters prop, which use object values.
-			stringify( prevProps.filters ) !== stringify( this.props.filters )
+			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
+			prevProps.staticFilters !== this.props.staticFilters
 		) {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
@@ -284,6 +285,18 @@ class SearchApp extends Component {
 		);
 	};
 
+	/**
+	 * Initialize static filters if we have none in the state.
+	 */
+	initializeStaticFilters = () => {
+		const availableStaticFilters = getAvailableStaticFilters();
+
+		if ( availableStaticFilters.length > 0 && Object.keys( this.props.staticFilters ).length === 0 ) {
+			availableStaticFilters
+				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
+		}
+	}
+
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -303,6 +316,9 @@ class SearchApp extends Component {
 		if ( this.state.showResults === showResults ) {
 			return;
 		}
+
+		// If there are static filters available, but they are not part of the url/state, we will set their default value
+		showResults && this.initializeStaticFilters();
 
 		this.setState( { showResults }, () => {
 			if ( showResults ) {
@@ -343,6 +359,7 @@ class SearchApp extends Component {
 			aggregations: pageHandle ? {} : this.props.aggregations,
 			excludedPostTypes: this.props.options.excludedPostTypes,
 			filter: this.props.filters,
+			staticFilters: this.props.staticFilters,
 			pageHandle,
 			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
@@ -370,6 +387,7 @@ class SearchApp extends Component {
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					enableSort={ this.state.overlayOptions.enableSort }
 					filters={ this.props.filters }
+					staticFilters={ this.props.staticFilters }
 					hasError={ this.props.hasError }
 					hasNextPage={ this.props.hasNextPage }
 					highlightColor={ this.state.overlayOptions.highlightColor }
@@ -401,6 +419,7 @@ class SearchApp extends Component {
 export default connect(
 	( state, props ) => ( {
 		filters: getFilters( state ),
+		staticFilters: getStaticFilters( state ),
 		hasActiveQuery: hasActiveQuery( state ),
 		hasError: hasError( state ),
 		isHistoryNavigation: isHistoryNavigation( state ),
@@ -415,6 +434,7 @@ export default connect(
 		clearQueryValues,
 		initializeQueryValues,
 		makeSearchRequest,
+		setStaticFilter,
 		setFilter,
 		setSearchQuery,
 		setSort,
