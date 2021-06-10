@@ -17,6 +17,7 @@ const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin
 /**
  * Internal dependencies
  */
+const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
 // const { workerCount } = require( './webpack.common' ); // todo: shard...
 
 /**
@@ -141,6 +142,11 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
+		resolve: {
+			...extensionsWebpackConfig.resolve,
+			// We want the compiled version, not the "calypso:src" sources.
+			mainFields: undefined,
+		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
 			new CopyWebpackPlugin( [
@@ -149,10 +155,16 @@ module.exports = [
 					to: 'index.json',
 				},
 			] ),
+			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
 	{
 		...componentsWebpackConfig,
+		resolve: {
+			...componentsWebpackConfig.resolve,
+			// We want the compiled version, not the "calypso:src" sources.
+			mainFields: undefined,
+		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(

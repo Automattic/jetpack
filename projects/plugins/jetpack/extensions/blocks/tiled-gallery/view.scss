@@ -122,7 +122,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	}
 }
 
-@media only email {
+.is-email {
 	.tiled-gallery__gallery {
 		display: block;
 	}

@@ -5,4 +5,3 @@ vendor
 wordpress
 composer.lock
 src/js/*.min.js
-yarn.lock

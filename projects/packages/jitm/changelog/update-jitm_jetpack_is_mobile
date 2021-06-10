@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-JITM: Use the Device_Detection package to determine if the device is mobile.

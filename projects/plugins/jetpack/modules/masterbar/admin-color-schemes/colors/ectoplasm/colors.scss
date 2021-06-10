@@ -17,5 +17,13 @@ $color-primary-light: #b5de00; // Calypso --color-primary-light
 $color-surface: $studio-white; // Calypso --color-surface
 $color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
 
+// Sidebar Nudges
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $highlight-color;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: rgb(100, 125, 0);
+
 @import "../_core-overrides";
 @import "../_inline-help";
+@import "../_upsell-banner";

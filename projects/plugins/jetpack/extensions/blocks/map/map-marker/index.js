@@ -7,6 +7,7 @@ import { Component } from '@wordpress/element';
  * Internal dependencies
  */
 import './style.scss';
+import { getLoadContext } from '../../../shared/block-editor-asset-loader';
 
 export class MapMarker extends Component {
 	componentDidMount() {
@@ -29,10 +30,11 @@ export class MapMarker extends Component {
 		return [ point.coordinates.longitude, point.coordinates.latitude ];
 	};
 	renderMarker() {
-		const { map, point, mapboxgl, markerColor } = this.props;
+		const { map, point, mapboxgl, markerColor, mapRef } = this.props;
 		const { handleClick } = this;
 		const mapboxPoint = [ point.coordinates.longitude, point.coordinates.latitude ];
-		const el = this.marker ? this.marker.getElement() : document.createElement( 'div' );
+		const { currentDoc } = getLoadContext( mapRef.current );
+		const el = this.marker ? this.marker.getElement() : currentDoc.createElement( 'div' );
 		if ( this.marker ) {
 			this.marker.setLngLat( mapboxPoint );
 		} else {

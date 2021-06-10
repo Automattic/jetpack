@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Fixed compatibility issue with Page Optimize plugin for RTL layouts for jetpack-admin-menu and colors stylesheets

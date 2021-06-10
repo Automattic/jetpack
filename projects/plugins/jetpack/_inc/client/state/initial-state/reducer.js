@@ -222,6 +222,28 @@ export function getApiRootUrl( state ) {
 	return get( state.jetpack.initialState, 'WP_API_root' );
 }
 
+/**
+ * Returns a purchase token that is used for Jetpack logged out visitor checkout.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string|boolean} purchase token or false if not the connection owner.
+ */
+export function getPurchaseToken( state ) {
+	return get( state.jetpack.initialState, 'purchaseToken' );
+}
+
+/**
+ * Returns current Calypso environment.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @returns {string} Calypso environment name.
+ */
+export function getCalypsoEnv( state ) {
+	return get( state.jetpack.initialState, 'calypsoEnv' );
+}
+
 export function getTracksUserData( state ) {
 	return get( state.jetpack.initialState, 'tracksUserData' );
 }
@@ -366,6 +388,8 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
 	const uid = userId || getUserId( state );
+	const purchaseToken = getPurchaseToken( state );
+	const calypsoEnv = getCalypsoEnv( state );
 
 	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
 		source += '-monthly';
@@ -377,7 +401,9 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
 		( uid ? `&u=${ uid }` : '' ) +
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
-		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' )
+		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' ) +
+		( purchaseToken ? `&purchasetoken=${ purchaseToken }` : '' ) +
+		( calypsoEnv ? `&calypso_env=${ calypsoEnv }` : '' )
 	);
 };
 

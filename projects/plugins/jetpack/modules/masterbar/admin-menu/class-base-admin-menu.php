@@ -45,26 +45,16 @@ abstract class Base_Admin_Menu {
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
-		add_action( 'admin_menu', array( $this, 'set_is_api_request' ), 99997 );
-		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
+		$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || 0 === strpos( $_SERVER['REQUEST_URI'], '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+		$this->domain         = ( new Status() )->get_site_suffix();
 
+		add_action( 'admin_menu', array( $this, 'reregister_menu_items' ), 99998 );
 		add_action( 'admin_menu', array( $this, 'hide_parent_of_hidden_submenus' ), 99999 );
 
-		add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
-		add_filter( 'rest_request_before_callbacks', array( $this, 'rest_api_init' ), 11 );
-
-		$this->domain = ( new Status() )->get_site_suffix();
-	}
-
-	/**
-	 * Determine if the current request is from API
-	 */
-	public function set_is_api_request() {
-		// Constant is not defined until parse_request.
 		if ( ! $this->is_api_request ) {
-			$this->is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
+			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
+			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 		}
 	}
 
@@ -81,17 +71,6 @@ abstract class Base_Admin_Menu {
 		}
 
 		return static::$instances[ $class ];
-	}
-
-	/**
-	 * Sets up class properties for REST API requests.
-	 *
-	 * @param \WP_REST_Response $response Response from the endpoint.
-	 */
-	public function rest_api_init( $response ) {
-		$this->is_api_request = true;
-
-		return $response;
 	}
 
 	/**
@@ -410,11 +389,6 @@ abstract class Base_Admin_Menu {
 	 */
 	public function override_svg_icons() {
 		global $menu;
-
-		// Only do this if we're not in an API request, as we override the $menu global.
-		if ( $this->is_api_request ) {
-			return;
-		}
 
 		$svg_items = array();
 		foreach ( $menu as $idx => $menu_item ) {

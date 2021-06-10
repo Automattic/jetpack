@@ -13,24 +13,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
-
-	/**
-	 * Jetpack_Admin_Menu constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-	}
-
-	/**
-	 * Dequeues unnecessary scripts.
-	 */
-	public function dequeue_scripts() {
-		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
-	}
-
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -47,19 +29,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Change the menu only when rendered in Calypso.
-		if ( $this->is_api_request || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			// Reset menus so there are no third-party plugin items.
-			$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// Reset menus so there are no third-party plugin items.
+		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-			parent::reregister_menu_items();
+		parent::reregister_menu_items();
 
-			$this->add_feedback_menu();
-			$this->add_wp_admin_menu();
+		$this->add_feedback_menu();
+		$this->add_wp_admin_menu();
 
-			ksort( $GLOBALS['menu'] );
-		}
+		ksort( $GLOBALS['menu'] );
 	}
 
 	/**
@@ -181,12 +160,18 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 *
 	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
 	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
+	 * @return string The Customizer URL.
 	 */
 	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain, null, 'dashicons-admin-appearance', 60 );
-		add_submenu_page( 'themes.php', esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+		$themes_url = 'https://wordpress.com/themes/' . $this->domain;
 		// Customize on Jetpack sites is always done on WP Admin (unsupported by Calypso).
-		add_submenu_page( 'themes.php', esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', 'customize.php' );
+		$customize_url = 'customize.php';
+
+		add_menu_page( esc_attr__( 'Appearance', 'jetpack' ), __( 'Appearance', 'jetpack' ), 'switch_themes', $themes_url, null, 'dashicons-admin-appearance', 60 );
+		add_submenu_page( $themes_url, esc_attr__( 'Themes', 'jetpack' ), __( 'Themes', 'jetpack' ), 'switch_themes', 'https://wordpress.com/themes/' . $this->domain );
+		add_submenu_page( $themes_url, esc_attr__( 'Customize', 'jetpack' ), __( 'Customize', 'jetpack' ), 'customize', $customize_url );
+
+		return $customize_url;
 	}
 
 	/**

@@ -4,6 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { PanelBody } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { PluginPrePublishPanel } from '@wordpress/edit-post';
 
 /**
  * Internal dependencies
@@ -38,6 +39,12 @@ export const SocialPreviews = function SocialPreviews( { showUpgradeNudge } ) {
 					/>
 				</PanelBody>
 			</JetpackPluginSidebar>
+			<PluginPrePublishPanel title={ __( 'Social Previews', 'jetpack' ) }>
+				<SocialPreviewsPanel
+					openModal={ () => setIsOpened( true ) }
+					showUpgradeNudge={ showUpgradeNudge }
+				/>
+			</PluginPrePublishPanel>
 		</>
 	);
 };

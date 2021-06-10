@@ -1,10 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { Component, createRef, h } from 'preact';
-import { createPortal } from 'preact/compat';
+import React, { Component, createPortal, createRef } from 'react';
 // NOTE: We only import the debounce package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -51,6 +48,11 @@ class SearchApp extends Component {
 		super( ...arguments );
 		this.input = createRef();
 		this.state = {
+			// When typing in CJK, the following events fire in order:
+			// keydown, compositionstart, compositionupdate, input, keyup, keydown,compositionend, keyup
+			// We toggle isComposing on compositionstart and compositionend events.
+			// (CJK = Chinese, Japanese, Korean; see https://en.wikipedia.org/wiki/CJK_characters)
+			isComposing: false,
 			overlayOptions: { ...this.props.initialOverlayOptions },
 			showResults: !! this.props.initialShowResults, // initialShowResults can be undefined
 		};
@@ -98,8 +100,13 @@ class SearchApp extends Component {
 		// Add listeners for input and submit
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.addEventListener( 'submit', this.handleSubmit );
-			input.addEventListener( 'keydown', this.handleKeydown );
+			// keydown handler is causing text duplication because it actively sets the search input
+			// value after system input method empty the input but before filling the input again.
+			// so changed to keyup event which is fired after compositionend when Enter is pressed.
+			input.addEventListener( 'keyup', this.handleKeyup );
 			input.addEventListener( 'input', this.handleInput );
+			input.addEventListener( 'compositionstart', this.handleCompositionStart );
+			input.addEventListener( 'compositionend', this.handleCompositionEnd );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
@@ -123,8 +130,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
-			input.removeEventListener( 'keydown', this.handleKeydown );
+			input.removeEventListener( 'keyup', this.handleKeyup );
 			input.removeEventListener( 'input', this.handleInput );
+			input.removeEventListener( 'compositionstart', this.handleCompositionStart );
+			input.removeEventListener( 'compositionend', this.handleCompositionEnd );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.overlayTriggerSelector ).forEach( button => {
@@ -195,7 +204,7 @@ class SearchApp extends Component {
 		}
 	};
 
-	handleKeydown = event => {
+	handleKeyup = event => {
 		// If user presses enter, propagate the query value and immediately show the results.
 		if ( event.key === 'Enter' ) {
 			this.props.setSearchQuery( event.target.value );
@@ -207,6 +216,11 @@ class SearchApp extends Component {
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
 		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
 		if ( event.inputType?.includes( 'format' ) || event.target.value === '' ) {
+			return;
+		}
+
+		// Is the user still composing input with a CJK language?
+		if ( this.state.isComposing ) {
 			return;
 		}
 
@@ -224,6 +238,14 @@ class SearchApp extends Component {
 			this.props.response?.results && this.showResults();
 		}
 	}, 200 );
+
+	handleCompositionStart = () => {
+		this.setState( { isComposing: true } );
+	};
+
+	handleCompositionEnd = () => {
+		this.setState( { isComposing: false } );
+	};
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
