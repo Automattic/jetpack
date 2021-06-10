@@ -114,6 +114,7 @@ export async function cleanCli( argv ) {
  * @param {object} argv - the arguments passed.
  */
 async function cleanFiles( toCleanFiles, argv ) {
+	console.error( chalk.green( 'Cleaning files! This may take awhile...' ) );
 	for ( const file of toCleanFiles ) {
 		console.log( `Cleaning ${ file }` );
 		try {
@@ -125,7 +126,8 @@ async function cleanFiles( toCleanFiles, argv ) {
 		}
 	}
 
-	// Cleanup root and tools node_modules folder if that's what we're deleting.
+	// The `esm` module has an 'exit' handler that will re-create some node_modules dirs to save its cached data.
+	// Register our own 'exit' handler to re-delete them after esm re-creates them, when applicable.
 	const nodeModulesDirs = toCleanFiles.filter( ( file ) => file.match( /(^|\/)node_modules\/$/ ) );
 	if ( nodeModulesDirs.length ) {
 		process.on( 'exit', () => {
@@ -183,6 +185,7 @@ async function collectCleanFiles( allFiles, toClean ) {
 
 	return deleteQueue;
 }
+
 /**
  * Gets list of files that could be deleted.
  *
