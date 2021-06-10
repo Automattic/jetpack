@@ -4,7 +4,7 @@ if $(wp --allow-root core is-installed); then
 	echo
 	echo "WordPress has already been installed. Uninstall it first by running:"
 	echo
-	echo "  yarn docker:uninstall"
+	echo "  jetpack docker uninstall"
 	echo
 	exit 1;
 fi

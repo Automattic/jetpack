@@ -167,11 +167,29 @@ class Jetpack_Beta_Admin {
 		switch ( $section ) {
 			case 'pr':
 				return self::to_test_pr_content( $branch );
-			case 'master':
 			case 'rc':
 				return self::to_test_file_content();
+			default: // Master "bleeding edge" or latest stable.
+				return self::to_test_general_rules_content();
+
 		}
-		return null;
+	}
+
+	/**
+	 * General rules and recommendations for new Beta Testers.
+	 * Displayed when no specific branch is picked.
+	 *
+	 * @since 2.5.0
+	 */
+	public static function to_test_general_rules_content() {
+		$test_rules = JPBETA__PLUGIN_DIR . '/docs/testing/testing-tips.md';
+		if ( ! file_exists( $test_rules ) ) {
+			return;
+		}
+		WP_Filesystem();
+		global $wp_filesystem;
+		$content = $wp_filesystem->get_contents( $test_rules );
+		return self::render_markdown( $content );
 	}
 
 	/** Return testing instructions for release candidate branch */

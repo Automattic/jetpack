@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
@@ -138,6 +139,50 @@ class REST_Connector {
 					'redirect_uri'       => array(
 						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
 						'type'        => 'string',
+					),
+				),
+			)
+		);
+
+		// Get authorization URL.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/authorize_url',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'connection_authorize_url' ),
+				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'args'                => array(
+					'no_iframe'    => array(
+						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
+						'type'        => 'boolean',
+					),
+					'redirect_uri' => array(
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'type'        => 'string',
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/user-token',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( static::class, 'update_user_token' ),
+					'permission_callback' => array( static::class, 'update_user_token_permission_check' ),
+					'args'                => array(
+						'user_token'          => array(
+							'description' => __( 'New user token', 'jetpack' ),
+							'type'        => 'string',
+							'required'    => true,
+						),
+						'is_connection_owner' => array(
+							'description' => __( 'Is connection owner', 'jetpack' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -450,6 +495,48 @@ class REST_Connector {
 			}
 		}
 
+		/**
+		 * Filters the response of jetpack/v4/connection/register endpoint
+		 *
+		 * @param array $response Array response
+		 * @since 9.8.0
+		 */
+		$response_body = apply_filters(
+			'jetpack_register_site_rest_response',
+			array()
+		);
+
+		// We manipulate the alternate URLs after the filter is applied, so they can not be overwritten.
+		$response_body['authorizeUrl'] = $authorize_url;
+		if ( ! empty( $response_body['alternateAuthorizeUrl'] ) ) {
+			$response_body['alternateAuthorizeUrl'] = Redirect::get_url( $response_body['alternateAuthorizeUrl'] );
+		}
+
+		return rest_ensure_response( $response_body );
+	}
+
+	/**
+	 * Get the authorization URL.
+	 *
+	 * @since 9.8.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public function connection_authorize_url( $request ) {
+		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
+
+		if ( ! $request->get_param( 'no_iframe' ) ) {
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+		}
+
+		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
+
+		if ( ! $request->get_param( 'no_iframe' ) ) {
+			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
+		}
+
 		return rest_ensure_response(
 			array(
 				'authorizeUrl' => $authorize_url,
@@ -457,4 +544,67 @@ class REST_Connector {
 		);
 	}
 
+	/**
+	 * The endpoint tried to partially or fully reconnect the website to WP.com.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function update_user_token( $request ) {
+		$token_parts = explode( '.', $request['user_token'] );
+
+		if ( count( $token_parts ) !== 3 || ! (int) $token_parts[2] || ! ctype_digit( $token_parts[2] ) ) {
+			return new WP_Error( 'invalid_argument_user_token', esc_html__( 'Invalid user token is provided', 'jetpack' ) );
+		}
+
+		$user_id = (int) $token_parts[2];
+
+		if ( false === get_userdata( $user_id ) ) {
+			return new WP_Error( 'invalid_argument_user_id', esc_html__( 'Invalid user id is provided', 'jetpack' ) );
+		}
+
+		$connection = new Manager();
+
+		if ( ! $connection->is_connected() ) {
+			return new WP_Error( 'site_not_connected', esc_html__( 'Site is not connected', 'jetpack' ) );
+		}
+
+		$is_connection_owner = isset( $request['is_connection_owner'] )
+			? (bool) $request['is_connection_owner']
+			: ( new Manager() )->get_connection_owner_id() === $user_id;
+
+		( new Tokens() )->update_user_token( $user_id, $request['user_token'], $is_connection_owner );
+
+		/**
+		 * Fires when the user token gets successfully replaced.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @param int $user_id User ID.
+		 * @param string $token New user token.
+		 */
+		do_action( 'jetpack_updated_user_token', $user_id, $request['user_token'] );
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+			)
+		);
+	}
+
+	/**
+	 * Verify that the API client is allowed to replace user token.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @return bool|WP_Error.
+	 */
+	public static function update_user_token_permission_check() {
+		return Rest_Authentication::is_signed_with_blog_token()
+			? true
+			: new WP_Error( 'invalid_permission_update_user_token', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
 }

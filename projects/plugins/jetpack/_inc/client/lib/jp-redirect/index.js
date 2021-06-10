@@ -26,6 +26,11 @@
 export default function getRedirectUrl( source, args = {} ) {
 	const queryVars = {};
 
+	let calypsoEnv;
+	if ( typeof window !== 'undefined' ) {
+		calypsoEnv = window.Initial_State?.calypsoEnv;
+	}
+
 	if ( source.search( 'https://' ) === 0 ) {
 		const parsedUrl = new URL( source );
 
@@ -50,6 +55,10 @@ export default function getRedirectUrl( source, args = {} ) {
 		jetpack_redirects.hasOwnProperty( 'currentSiteRawUrl' )
 	) {
 		queryVars.site = jetpack_redirects.currentSiteRawUrl;
+	}
+
+	if ( calypsoEnv ) {
+		queryVars.calypso_env = calypsoEnv;
 	}
 
 	const queryString = Object.keys( queryVars )

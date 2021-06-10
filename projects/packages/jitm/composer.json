@@ -6,13 +6,13 @@
 	"require": {
 		"automattic/jetpack-a8c-mc-stats": "^1.4",
 		"automattic/jetpack-assets": "^1.11",
-		"automattic/jetpack-connection": "^1.27",
+		"automattic/jetpack-connection": "^1.28",
 		"automattic/jetpack-device-detection": "^1.4",
 		"automattic/jetpack-logo": "^1.5",
-		"automattic/jetpack-options": "^1.12",
+		"automattic/jetpack-options": "^1.13",
 		"automattic/jetpack-partner": "^1.5",
 		"automattic/jetpack-redirect": "^1.6",
-		"automattic/jetpack-status": "^1.7",
+		"automattic/jetpack-status": "^1.8",
 		"automattic/jetpack-tracking": "^1.13"
 	},
 	"require-dev": {
@@ -37,11 +37,11 @@
 	"scripts": {
 		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build-production"
+			"pnpm run build-production"
 		],
 		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"yarn build"
+			"pnpm run build"
 		],
 		"phpunit": [
 			"@composer update",

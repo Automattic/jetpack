@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '1.16.0';
+	const PACKAGE_VERSION = '1.16.1-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -70,7 +70,7 @@ class JITM {
 		 * Fires when the JITMs are registered. This action is used to ensure that
 		 * JITMs are registered only once.
 		 *
-		 * @since 9.8
+		 * @since 9.8.0
 		 */
 		do_action( 'jetpack_registered_jitms' );
 	}
