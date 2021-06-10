@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
 Build using calypso-build, and use the intersection-observer npm module instead of bundling a copy.
