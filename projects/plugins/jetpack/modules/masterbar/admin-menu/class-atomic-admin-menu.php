@@ -377,4 +377,3 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		wp_die();
 	}
 }
-

@@ -1,10 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h, Fragment } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import React, { Fragment, useState, useEffect, useRef } from 'react';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
