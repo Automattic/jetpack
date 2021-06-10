@@ -49,7 +49,7 @@ class CSS_Nudge_Customize_Control extends \WP_Customize_Control {
 					' . wp_kses( $nudge_copy, array( 'br' => array() ) ) . '
 				</p>
 				<div class="button-container">
-					<button type="button" class="button-primary navigate-to" data-navigate-to-page="' . esc_html( $cta_url ) . '">' . esc_html( $nudge_button_copy ) . '</button>
+					<button type="button" class="button-primary navigate-to" data-navigate-to-page="' . esc_url( $cta_url ) . '">' . esc_html( $nudge_button_copy ) . '</button>
 				</div>
 			</div>';
 	}
