@@ -263,24 +263,6 @@ function generateApiQueryString( {
 		] );
 	}
 
-	let params = {
-		aggregations,
-		fields,
-		highlight_fields: highlightFields,
-		filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
-		query: encodeURIComponent( query ),
-		sort: mapSortToApiValue( sort ),
-		page_handle: pageHandle,
-		size: postsPerPage,
-	};
-
-	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
-		params = {
-			...params,
-			...buildStaticFilters( staticFilters )
-		};
-	}
-
 	/**
 	 * Fetch additional fields for multi site results
 	 */
@@ -292,17 +274,27 @@ function generateApiQueryString( {
 		] );
 	}
 
+	let params = {
+		aggregations,
+		fields,
+		highlight_fields: highlightFields,
+		filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
+		query: encodeURIComponent( query ),
+		sort: mapSortToApiValue( sort ),
+		page_handle: pageHandle,
+		size: postsPerPage,
+	};
+
+
+	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
+		params = {
+			...params,
+			...buildStaticFilters( staticFilters )
+		};
+	}
+
 	return encode(
-		flatten( {
-			aggregations,
-			fields,
-			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
-			query: encodeURIComponent( query ),
-			sort: mapSortToApiValue( sort ),
-			page_handle: pageHandle,
-			size: postsPerPage,
-		} )
+		flatten( params )
 	);
 }
 /* eslint-enable jsdoc/require-param,jsdoc/check-param-names */

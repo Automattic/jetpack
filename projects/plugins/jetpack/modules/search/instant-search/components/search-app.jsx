@@ -14,7 +14,7 @@ import stringify from 'fast-json-stable-stringify';
  */
 import Overlay from './overlay';
 import SearchResults from './search-results';
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
+import { OVERLAY_CLASS_NAME, RESULT_FORMAT_MULTISITE } from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
@@ -185,6 +185,22 @@ class SearchApp extends Component {
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
+
+		// Override the result format if group static filter is selected, use multisite.
+		const staticFilters = this.props.staticFilters;
+		let isMultiSite = false;
+		for ( const key in staticFilters ) {
+			const value = staticFilters[ key ];
+			if ( key === 'group_id' && value !== '__NO_GROUP__' ) {
+				// Do not set filter if for no_groups, it should just use current blog.
+				isMultiSite = true;
+			}
+		}
+
+		if ( isMultiSite ) {
+			return resultFormatQuery || RESULT_FORMAT_MULTISITE;
+		}
+
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 
