@@ -285,6 +285,18 @@ class SearchApp extends Component {
 		);
 	};
 
+	/**
+	 * Initialize static filters if we have none in the state.
+	 */
+	initializeStaticFilters = () => {
+		const availableStaticFilters = getAvailableStaticFilters();
+
+		if ( availableStaticFilters.length > 0 && Object.keys( this.props.staticFilters ).length === 0 ) {
+			availableStaticFilters
+				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
+		}
+	}
+
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -305,13 +317,8 @@ class SearchApp extends Component {
 			return;
 		}
 
-		// If there are static filters available, but they are not part of the initial url, we will set their default value
-		const availableStaticFilters = getAvailableStaticFilters();
-
-		if ( availableStaticFilters.length > 0 && Object.keys( this.props.staticFilters ).length === 0 ) {
-			availableStaticFilters
-				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
-		}
+		// If there are static filters available, but they are not part of the url/state, we will set their default value
+		showResults && this.initializeStaticFilters();
 
 		this.setState( { showResults }, () => {
 			if ( showResults ) {
