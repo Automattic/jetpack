@@ -15,6 +15,7 @@ import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './sidebar';
 import { getConstrastingColor } from '../lib/colors';
+import { getAvailableStaticFilters } from '../lib/filters';
 
 /**
  * Style dependencies
@@ -73,11 +74,17 @@ class SearchResults extends Component {
 				num,
 				corrected_query
 			);
-		} else if ( this.props.groupName ) {
+		} else if ( this.props.staticFilters && this.props.staticFilters.group_id !== '__NO_GROUP__' ) {
+			const group = getAvailableStaticFilters().filter( item => item.filter_id === 'group_id' );
+			const allP2 =
+				group.length === 1 && group[ 0 ].values
+					? group[ 0 ].values.filter( item => item.value !== '__NO_GROUP__' )
+					: {};
+			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack' );
 			return sprintf(
 				_n( 'Found %s result in %s', 'Found %s results in %s', total, 'jetpack' ),
 				num,
-				this.props.groupName
+				p2Name
 			);
 		} else if ( hasQuery ) {
 			return sprintf(

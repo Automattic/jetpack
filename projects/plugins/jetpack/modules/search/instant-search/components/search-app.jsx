@@ -84,7 +84,7 @@ class SearchApp extends Component {
 			prevProps.sort !== this.props.sort ||
 			// Note the special handling for filters prop, which use object values.
 			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
-			prevProps.staticFilters !== this.props.staticFilters
+			stringify( prevProps.staticFilters ) !== stringify( this.props.staticFilters )
 		) {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
@@ -307,11 +307,15 @@ class SearchApp extends Component {
 	initializeStaticFilters = () => {
 		const availableStaticFilters = getAvailableStaticFilters();
 
-		if ( availableStaticFilters.length > 0 && Object.keys( this.props.staticFilters ).length === 0 ) {
-			availableStaticFilters
-				.forEach( filter => this.props.setStaticFilter( filter.filter_id, filter.selected, true ) );
+		if (
+			availableStaticFilters.length > 0 &&
+			Object.keys( this.props.staticFilters ).length === 0
+		) {
+			availableStaticFilters.forEach( filter =>
+				this.props.setStaticFilter( filter.filter_id, filter.selected, true )
+			);
 		}
-	}
+	};
 
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
