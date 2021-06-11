@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Milestone detection: fallback to any milestone when we cannot find any with a due date.
