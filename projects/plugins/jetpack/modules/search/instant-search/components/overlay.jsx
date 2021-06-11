@@ -1,11 +1,8 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { h } from 'preact';
-import { useEffect } from 'preact/hooks';
+import React, { useEffect } from 'react';
 
 /**
  * Internal dependencies

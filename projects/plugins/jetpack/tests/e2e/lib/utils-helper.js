@@ -43,7 +43,7 @@ async function resetWordpressInstall() {
 
 async function prepareUpdaterTest() {
 	const cmd =
-		'yarn wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
+		'pnpx wp-env run tests-wordpress wp-content/plugins/jetpack-dev/tests/e2e/bin/prep.sh';
 
 	await execShellCommand( cmd );
 }
@@ -72,7 +72,7 @@ async function provisionJetpackStartConnection( userId, plan = 'free', user = 'a
 
 	const out = execSyncShellCommand(
 		shellescape( [
-			'yarn',
+			'pnpx',
 			'wp-env',
 			'run',
 			'tests-cli',
@@ -115,13 +115,13 @@ async function activateModule( page, module ) {
 }
 
 async function execWpCommand( wpCmd ) {
-	const cmd = `yarn wp-env run tests-cli "${ wpCmd }"`;
+	const cmd = `pnpx wp-env run tests-cli "${ wpCmd }"`;
 	const result = await execShellCommand( cmd );
 
-	// By default, `wp-env run` outputs the actual command beeing run, and also adds newline to the end of the output.
-	// Here we cleaning this up.
+	// By default, `wp-env run` adds a newline to the end of the output.
+	// Here we clean this up.
 	if ( typeof result !== 'object' && result.length > 0 ) {
-		return result.trim().split( '\n' ).slice( 1 ).join( '\n' );
+		return result.trim();
 	}
 
 	return result;
@@ -137,7 +137,7 @@ async function execMultipleWpCommands( ...commands ) {
 }
 
 async function logDebugLog() {
-	let log = execSyncShellCommand( 'yarn wp-env run tests-wordpress cat wp-content/debug.log' );
+	let log = execSyncShellCommand( 'pnpx wp-env run tests-wordpress cat wp-content/debug.log' );
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `debug_${ escapedDate }.log`;
@@ -147,8 +147,8 @@ async function logDebugLog() {
 	log = lines
 		.filter( line => {
 			return ! (
-				line.startsWith( '$ ' ) ||
-				line.includes( 'yarn run' ) ||
+				line.startsWith( '> ' ) ||
+				line.includes( 'pnpm run' ) ||
 				line.includes( 'Done ' )
 			);
 		} )
@@ -158,17 +158,14 @@ async function logDebugLog() {
 		logger.debug( '#### WP DEBUG.LOG ####' );
 		logger.debug( log );
 	}
-
-	logger.slack( { message: log, type: 'debuglog' } );
 }
 
 async function logAccessLog() {
-	const apacheLog = execSyncShellCommand( 'yarn wp-env logs tests --watch=false' );
+	const apacheLog = execSyncShellCommand( 'pnpx wp-env logs tests --watch=false' );
 
 	const escapedDate = new Date().toISOString().split( '.' )[ 0 ].replace( /:/g, '-' );
 	const filename = `access_${ escapedDate }.log`;
 	fs.writeFileSync( path.resolve( config.get( 'dirs.logs' ), filename ), apacheLog );
-	logger.slack( { type: 'debuglog', message: apacheLog } );
 }
 
 /**

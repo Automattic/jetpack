@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Status;
+use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -52,6 +53,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
+			$nudge = $this->get_upsell_nudge();
+			if ( $nudge ) {
+				parent::add_upsell_nudge( $nudge );
+			}
 			$this->add_new_site_link();
 		}
 
@@ -122,7 +127,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		if ( is_redirected_domain( $this->domain ) ) {
+		if ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $this->domain ) ) {
 			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack' ) . '</span>';
 		}
 
@@ -171,6 +176,40 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		return $menu;
+	}
+
+	/**
+	 * Returns the first available upsell nudge.
+	 *
+	 * @return array
+	 */
+	public function get_upsell_nudge() {
+		require_lib( 'jetpack-jitm/jitm-engine' );
+		$jitm_engine = new JITM\Engine();
+
+		$message_path = 'calypso:sites:sidebar_notice';
+		$current_user = wp_get_current_user();
+		$user_id      = $current_user->ID;
+		$user_roles   = implode( ',', $current_user->roles );
+		$query_string = array(
+			'message_path' => $message_path,
+		);
+
+		// Get the top message only.
+		$message = $jitm_engine->get_top_messages( $message_path, $user_id, $user_roles, $query_string );
+
+		if ( isset( $message[0] ) ) {
+			$message = $message[0];
+			return array(
+				'content'                      => $message->content['message'],
+				'cta'                          => $message->CTA['message'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'link'                         => $message->CTA['link'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'tracks_impression_event_name' => $message->tracks['display']['name'],
+				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
+				'tracks_click_event_name'      => $message->tracks['click']['name'],
+				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+			);
+		}
 	}
 
 	/**
@@ -231,9 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$user_can_customize = current_user_can( 'customize' );
 
 		if ( $user_can_customize ) {
-			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
-			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
-			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_url );
+			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
 			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
 	}

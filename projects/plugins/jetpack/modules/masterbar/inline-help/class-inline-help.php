@@ -19,20 +19,24 @@ class Inline_Help {
 	 * Inline_Help constructor.
 	 */
 	public function __construct() {
-		$this->register_actions();
+		add_action( 'current_screen', array( $this, 'register_actions' ) );
 	}
 
 	/**
 	 * Registers actions.
 	 *
+	 * @param object $current_screen Current screen object.
 	 * @return void
 	 */
-	public function register_actions() {
+	public function register_actions( $current_screen ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Do not inject the FAB icon on embedded screens since the parent window may already contain a FAB icon.
 		$is_framed = ! empty( $_GET['frame-nonce'] );
 
-		if ( $is_framed ) {
+		// Do not inject the FAB icon on Yoast screens to avoid overlap with the Yoast help icon.
+		$is_yoast = ! empty( $current_screen->base ) && false !== strpos( $current_screen->base, '_page_wpseo_' );
+
+		if ( $is_framed || $is_yoast ) {
 			return;
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended

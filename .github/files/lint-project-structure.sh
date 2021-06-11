@@ -128,4 +128,27 @@ done
 debug "Checking renovate ignore list"
 tools/check-renovate-ignore-list.js
 
+# - .nvmrc should match .github/versions.sh.
+. .github/versions.sh
+debug "Checking .nvmrc vs versions.sh"
+if [[ "$(<.nvmrc)" != "$NODE_VERSION" ]]; then
+	EXIT=1
+	echo "::error file=.nvmrc::Version in .nvmrc must be $NODE_VERSION, to match .github/versions.sh."
+fi
+
+# - package.json engines should be satisfied by .github/versions.sh.
+debug "Checking .github/versions.sh vs package.json engines"
+RANGE="$(jq -r '.engines.node' package.json)"
+if ! pnpx semver --range "$RANGE" "$NODE_VERSION" &>/dev/null; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","node"] then input_line_number - 1 else empty end' package.json)
+	echo "::error file=package.json,line=$LINE::Node version $NODE_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
+fi
+RANGE="$(jq -r '.engines.pnpm' package.json)"
+if ! pnpx semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
+	EXIT=1
+	LINE=$(jq --stream 'if length == 1 then .[0][:-1] else .[0] end | if . == ["engines","pnpm"] then input_line_number - 1 else empty end' package.json)
+	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
+fi
+
 exit $EXIT

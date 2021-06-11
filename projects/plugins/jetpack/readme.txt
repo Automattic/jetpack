@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: WP, backup, social, AMP, WooCommerce, malware, scan, spam, CDN, social
-Stable tag: 9.6
-Requires at least: 5.6
+Stable tag: 9.8.1
+Requires at least: 5.7
 Requires PHP: 5.6
-Tested up to: 5.7
+Tested up to: 5.8
 
 The best WP plugin for backup, anti spam, malware scan, CDN, AMP, social, search, contact form, and integrations with Woo, Facebook, Instagram, Google
 
@@ -12,7 +12,7 @@ The best WP plugin for backup, anti spam, malware scan, CDN, AMP, social, search
 
 = The most popular WordPress plugin for just about everything. =
 
-Security, performance, marketing, and design tools — Jetpack is made by the WordPress experts to make WP sites safer and faster, and help you grow your traffic.
+Security, performance, marketing, and design tools — Jetpack is made by WordPress experts to make WP sites safer and faster, and help you grow your traffic.
 
 = 24/7 AUTO SITE SECURITY =
 We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scanning, and spam protection. Essential features like brute force protection and downtime / uptime monitoring are free.
@@ -238,35 +238,48 @@ Our Cookie and Consent Banner can help you comply with GDPR. The European Union�
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 9.7-beta - 2021-04-27
+### 9.8.1 - 2021-06-08
+#### Bug fixes
+- Carousel: avoid JavaScript errors when trying to load the Carousel view when logged out of your WordPress site.
+- Related Posts: avoid squished images when image height isn't defined.
+- Story Block: allow multiple stories per post.
+- Story Block: allow selecting additional media items in media picker instead of only replacing the existing selection.
+
+### 9.8 - 2021-06-01
 #### Enhancements
-- Blocks: improve test coverage for better reliability of each one of Jetpack's blocks.
-- Carousel: improve general performance.
-- Dashboard: add explanation when a feature is unavailable.
-- Dashboard: improve the display of buttons in the update modal.
-- Jetpack Videos: add "Play Inline" setting to play a video inline instead of full-screen on mobile devices when enabled.
-- SEO Tools: improve usability of settings interface.
-- Widgets: improve message displayed in Blog Stats Widget when there are no stats to display.
-- WordAds: add Global Privacy Control (GPC) support to CCPA.
+- Contact Form: the "Feedback > Export CSV" submenu entry has been removed. The export functionality is still available in "Feedback > Form Responses".
+- Form block: allow replacing the "Message Sent" heading with custom phrase.
+- Instagram Reel: add oEmbed support for Instagram Reel posts.
+- Instant Search: add 'open when visitor submits the form' overlay trigger.
+- Instant Search: apply configured highlight color to text highlights.
+- Site Verification Tools: adds an option for Facebook domain verification.
+- Story Block: add new block that enables you to use photos and videos to create engaging and tappable fullscreen slideshows.
 
 #### Improved compatibility
-- Blocks: continous work to ensure full compatibility between Jetpack's Blocks and WordPress' upcoming Full Site Editing feature.
-- Featured Content: avoid PHP warnings when terms are fetched without a taxonomy to filter by.
-- Feature Hints: avoid Fatal errors when other plugins filter the plugin list.
-- General: improvements to bring multiple features up to WordPress coding standards.
-- Publicize: update Twitter text processing library to avoid errors when using PHP 8.
-- Sharing: avoid broken sharing icons when using IE11 and the legacy AMP plugin's theme.
+- Blocks: ensure blocks are compatible with upcoming Full Site Editor feature.
+- Blocks: ensure tiled gallery and slideshow blocks do not output invalid CSS when used with AMP plugin.
+- Dashboard: hide Settings page for non-admin users when in site-only connection.
+- Instant Search: ensure search input is the correct width if an input max-width has been specified in the theme.
+- Related Posts: add height attribute to post images for better compatibility with page performance analysis tools.
+- Related Posts: avoid Fatal Errors when using plugins that may interact with WordPress' customizer in specific ways.
+- SEO Tools: ensure Jetpack SEO does not conflict with SEOPress.
+- Story Block: Improve accessibility and resolve z-index issues when playing in fullscreen.
 
 #### Bug fixes
-- Image CDN: correct image URLs in srcset in certain cases.
-- Instant Search: enable link filtering on built-in WordPress taxonomies.
-- Instant Search: fix handling of customizer controls using refresh.
-- Instant Search: fix race condition for API responses.
-- Instant Search: prevent excluding all post types.
-- Instant Search: set the number of returned posts using the query's `posts_per_page` value.
-- Instant Search: improve settings interface usability.
-- Markdown: fix regression that broke links with single-quoted href attributes.
-- Sharing / Publicize: properly encode URLs in Open Graph tags.
+- Carousel: harden fetching comments in Carousel view.
+- Contact Form: remove double quotes from names in email headers to improve compatibility with different emailing solutions for WordPress.
+- Dashboard: display the Sharing settings tab when editors only need to customize Publicize settings for their own account.
+- Dashboard: do not display Protect card for non-admin users while in site-only connection.
+- Dashboard: do not show multiple connection prompts in the Publicize settings card.
+- Dashboard: ensure connected user details properly displayed.
+- Dashboard: ensure that the Jetpack settings page can be accessed when using Jetpack's Offline mode.
+- Fixed regression introduced in posts page icon notification WP-Admin edit.php page.
+- General: ensures that the send_auth_cookies filter is respected.
+- Instant Search: don't photon-ize SVG images as they're not supported by Photon
+- Instant Search: fixes for design conflicts.
+- Instant Search: prevent standard sidebar widgets ending up in the search modal sidebar when switching themes.
+- Social Previews: don't show duplicate buttons when a featured image is selected.
+- Stats: fixes the date used to fetch the Top posts in the Top posts dashboard widget.
 
 --------
 

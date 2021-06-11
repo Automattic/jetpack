@@ -4,6 +4,9 @@ on:
   pull_request:
   push:
     branches: [ 'master', '*/branch-*' ]
+concurrency:
+  group: tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   COMPOSER_ROOT_VERSION: "dev-master"
@@ -61,11 +64,15 @@ jobs:
         with:
           checkout: false
 
+      - name: Read tool versions
+        id: versions
+        uses: ./.github/actions/read-versions
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          tools: composer
+          tools: composer:${{ steps.versions.outputs.composer-version }}
           extensions: mysql, imagick
           coverage: none
 
@@ -86,16 +93,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Use yarn cache
+      - name: Use pnpm cache
         uses: actions/cache@v2
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ matrix.node }}-${{ hashFiles('**/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-pnpm-${{ matrix.node }}-
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: ${{ steps.versions.outputs.pnpm-version }}
 
       - name: Detect changed projects
         id: changed
@@ -119,15 +128,15 @@ jobs:
           composer --version
           which node
           node --version
-          which yarn
-          yarn --version
+          which pnpm
+          pnpm --version
           which jq
           jq --version
 
       - name: Monorepo install
         run: |
-          echo "::group::Yarn"
-          yarn install
+          echo "::group::Pnpm"
+          pnpm install
           echo "::endgroup::"
 
       - name: Run project tests

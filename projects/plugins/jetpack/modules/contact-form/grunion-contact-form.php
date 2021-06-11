@@ -163,22 +163,23 @@ class Grunion_Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'admin_init', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'admin_footer-edit.php', array( $this, 'export_form' ) );
-			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-			add_action( 'current_screen', array( $this, 'unread_count' ) );
 		}
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'current_screen', array( $this, 'unread_count' ) );
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
 			'feedback', array(
 				'labels'                => array(
-					'name'               => __( 'Feedback', 'jetpack' ),
-					'singular_name'      => __( 'Feedback', 'jetpack' ),
-					'search_items'       => __( 'Search Feedback', 'jetpack' ),
-					'not_found'          => __( 'No feedback found', 'jetpack' ),
-					'not_found_in_trash' => __( 'No feedback found', 'jetpack' ),
+					'name'               => __( 'Form Responses', 'jetpack' ),
+					'singular_name'      => __( 'Form Responses', 'jetpack' ),
+					'search_items'       => __( 'Search Responses', 'jetpack' ),
+					'not_found'          => __( 'No responses found', 'jetpack' ),
+					'not_found_in_trash' => __( 'No responses found', 'jetpack' ),
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
+				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
 				'rewrite'               => false,
@@ -434,16 +435,34 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Add the 'Export' menu item as a submenu of Feedback.
+	 * Add the 'Form Responses' menu item as a submenu of Feedback.
 	 */
 	public function admin_menu() {
+		$slug = 'feedback';
+
+		add_menu_page(
+			__( 'Feedback', 'jetpack' ),
+			__( 'Feedback', 'jetpack' ),
+			'edit_pages',
+			$slug,
+			null,
+			'dashicons-feedback',
+			45
+		);
+
 		add_submenu_page(
+			$slug,
+			__( 'Form Responses', 'jetpack' ),
+			__( 'Form Responses', 'jetpack' ),
+			'edit_pages',
 			'edit.php?post_type=feedback',
-			__( 'Export feedback as CSV', 'jetpack' ),
-			__( 'Export CSV', 'jetpack' ),
-			'export',
-			'feedback-export',
-			array( $this, 'export_form' )
+			null,
+			0
+		);
+
+		remove_submenu_page(
+			$slug,
+			$slug
 		);
 	}
 
@@ -466,14 +485,16 @@ class Grunion_Contact_Form_Plugin {
 		if ( isset( $screen->post_type ) && 'feedback' == $screen->post_type ) {
 			update_option( 'feedback_unread_count', 0 );
 		} else {
-			global $menu;
-			if ( isset( $menu ) && is_array( $menu ) && ! empty( $menu ) ) {
-				foreach ( $menu as $index => $menu_item ) {
+			global $submenu;
+			if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
+				foreach ( $submenu['feedback'] as $index => $menu_item ) {
 					if ( 'edit.php?post_type=feedback' == $menu_item[2] ) {
 						$unread = get_option( 'feedback_unread_count', 0 );
 						if ( $unread > 0 ) {
-							$unread_count       = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
-							$menu[ $index ][0] .= $unread_count;
+							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
+
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['feedback'][ $index ][0] .= $unread_count;
 						}
 						break;
 					}
@@ -900,13 +921,13 @@ class Grunion_Contact_Form_Plugin {
 		?>
 
 		<div id="feedback-export" style="display:none">
-			<h2><?php _e( 'Export feedback as CSV', 'jetpack' ); ?></h2>
+			<h2><?php esc_html_e( 'Export responses as CSV', 'jetpack' ); ?></h2>
 			<div class="clear"></div>
 			<form action="<?php echo admin_url( 'admin-post.php' ); ?>" method="post" class="form">
 				<?php wp_nonce_field( 'feedback_export', 'feedback_export_nonce' ); ?>
 
 				<input name="action" value="feedback_export" type="hidden">
-				<label for="post"><?php _e( 'Select feedback to download', 'jetpack' ); ?></label>
+				<label for="post"><?php esc_html_e( 'Select responses to download', 'jetpack' ); ?></label>
 				<select name="post">
 					<option value="all"><?php esc_html_e( 'All posts', 'jetpack' ); ?></option>
 					<?php echo $this->get_feedbacks_as_options(); ?>

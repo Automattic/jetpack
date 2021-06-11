@@ -234,7 +234,7 @@ class Jetpack_Carousel {
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
-				array( 'jquery' ),
+				array(),
 				$this->asset_version( JETPACK__VERSION ),
 				true
 			);
@@ -457,7 +457,7 @@ class Jetpack_Carousel {
 							<?php endif ?>
 						</div>
 						<ul class="jp-carousel-image-exif" style="display: none;"></ul>
-						<a class="jp-carousel-image-download" style="display: none;"></a>
+						<a class="jp-carousel-image-download" target="_blank" style="display: none;"></a>
 						<div class="jp-carousel-image-map" style="display: none;"></div>
 					</div>
 				</div>
@@ -723,8 +723,69 @@ class Jetpack_Carousel {
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
 
 		if ( ! $attachment_id ) {
-			echo json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
-			die();
+			wp_send_json_error(
+				__( 'Missing attachment ID.', 'jetpack' ),
+				403
+			);
+			return;
+		}
+
+		$attachment_post = get_post( $attachment_id );
+		// If we have no info about that attachment, bail.
+		if ( ! ( $attachment_post instanceof WP_Post ) ) {
+			wp_send_json_error(
+				__( 'Missing attachment info.', 'jetpack' ),
+				403
+			);
+			return;
+		}
+
+		// This AJAX call should only be used to fetch comments of attachments.
+		if ( 'attachment' !== $attachment_post->post_type ) {
+			wp_send_json_error(
+				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				403
+			);
+			return;
+		}
+
+		$parent_post = get_post_parent( $attachment_id );
+
+		/*
+		 * If we have no info about that parent post, no extra checks.
+		 * The attachment doesn't have a parent post, so is public.
+		 * If we have a parent post, let's ensure the user has access to it.
+		 */
+		if ( $parent_post instanceof WP_Post ) {
+			/*
+			 * Fetch info about user making the request.
+			 * If we have no info, bail.
+			 * Even logged out users should get a WP_User user with id 0.
+			 */
+			$current_user = wp_get_current_user();
+			if ( ! ( $current_user instanceof WP_User ) ) {
+				wp_send_json_error(
+					__( 'Missing user info.', 'jetpack' ),
+					403
+				);
+				return;
+			}
+
+			/*
+			 * If a post is private / draft
+			 * and the current user doesn't have access to it,
+			 * bail.
+			 */
+			if (
+				'publish' !== $parent_post->post_status
+				&& ! current_user_can( 'read_post', $parent_post->ID )
+			) {
+				wp_send_json_error(
+					__( 'You aren’t authorized to do that.', 'jetpack' ),
+					403
+				);
+				return;
+			}
 		}
 
 		if ( $offset < 1 ) {

@@ -6,12 +6,7 @@ runOnChange() {
 	echo "$changedFiles" | grep -q "^$1" && echo -e "$2"
 }
 
-runOnChange 'yarn.lock\|composer.lock' "A lock file has changed. Consider updating your working copy by running: jetpack install -r"
-for f in $(git ls-files '**/yarn.lock'); do
-	slug="${f#projects/}"
-	slug="${slug%/yarn.lock}"
-	runOnChange "$f" "$f has changed. Consider updating your working copy by running: jetpack build $slug"
-done
+runOnChange 'pnpm-lock.yaml\|composer.lock' "A lock file has changed. Consider updating your working copy by running: jetpack install -r"
 for f in $(git ls-files '**/composer.lock'); do
 	slug="${f#projects/}"
 	slug="${slug%/composer.lock}"

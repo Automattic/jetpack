@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2021-05-12
+### Added
+- New option, `--filename-auto-suffix`, to ensure that a reused branch won't prevent entry creation in non-interactive mode.
+
+### Deprecated
+- Changelogger `Config::setOutput()` is no longer needed. Config will throw a ConfigException instead of printing an error.
+
+### Fixed
+- If composer.json is not present in the current directory, check parents and ask if the parent should be used (like composer does).
+
 ## [1.1.2] - 2021-04-08
 ### Fixed
 - Don't insert extra newlines if a subsection has no non-empty entries.
@@ -26,6 +36,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[1.2.0]: https://github.com/Automattic/jetpack-changelogger/compare/1.1.2...1.2.0
 [1.1.2]: https://github.com/Automattic/jetpack-changelogger/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/Automattic/jetpack-changelogger/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/Automattic/jetpack-changelogger/compare/1.0.0...1.1.0
