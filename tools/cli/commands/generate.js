@@ -406,7 +406,7 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 			type: 'confirm',
 			name: 'autotagger',
 			default: true,
-			message: 'Enable autotagger for the mirror repo?',
+			message: 'Have mirror repo create new tags automatically (based on CHANGELOG.md)?',
 		},
 	] );
 
@@ -418,9 +418,9 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 					name
 			)
 		);
-		await addMirrorRepo( composerJson, name, org );
+		await addMirrorRepo( composerJson, name, org, answers.autotagger );
 	} else if ( answers.useExisting ) {
-		await addMirrorRepo( composerJson, name, org );
+		await addMirrorRepo( composerJson, name, org, answers.autotagger );
 	} else if ( answers.newName ) {
 		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
 	}
@@ -429,9 +429,6 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 	// Validate the name, then check for repo exists again.
 
 	// If validated, add it to composerJson. If not repeat.
-
-	// Add autotagger option
-	composerJson.extra.autotagger = answers.autotagger;
 }
 
 /**
@@ -440,14 +437,17 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
  * @param {object} composerJson - composer.json object.
  * @param {string} name - Repo name.
  * @param {string} org - Repo owner.
+ * @param {boolean} autotagger - if we want autotagger enabled.
  */
-function addMirrorRepo( composerJson, name, org ) {
+function addMirrorRepo( composerJson, name, org, autotagger ) {
 	composerJson.extra = composerJson.extra || {};
 	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
 	composerJson.extra.changelogger = composerJson.extra.changelogger || {};
 	composerJson.extra.changelogger[
 		'link-template'
 	] = `https://github.com/${ org }/${ name }/compare/v\${old}...v\${new}`;
+	// Add autotagger option
+	composerJson.extra.autotagger = autotagger;
 }
 
 /**
