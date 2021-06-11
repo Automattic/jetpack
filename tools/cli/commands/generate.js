@@ -514,9 +514,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.5\n' +
+		'Requires at least: 5.7\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 5.6\n' +
+		'Tested up to: 5.8\n' +
 		'Stable tag: 1.0\n' +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
