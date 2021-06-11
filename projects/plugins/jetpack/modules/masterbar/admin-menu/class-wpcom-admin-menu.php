@@ -270,9 +270,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		$user_can_customize = current_user_can( 'customize' );
 
 		if ( $user_can_customize ) {
-			// If the user does not have the custom CSS option then present them with the CSS nudge upsell section instead.
-			$custom_css_section = '1' === get_option( 'custom-design-upgrade' ) ? 'jetpack_custom_css' : 'css_nudge'; //phpcs:ignore
-			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => $custom_css_section ) ), $customize_url );
+			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
 			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
 	}
