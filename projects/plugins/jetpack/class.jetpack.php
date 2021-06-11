@@ -4362,16 +4362,18 @@ p {
 						exit;
 					}
 
-					$redirect_url = self::admin_url(
-						array(
-							'page'     => 'jetpack',
-							'action'   => 'authorize_redirect',
-							'dest_url' => rawurlencode( $dest_url ),
-							'done'     => '1',
-						)
+					$redirect_args = array(
+						'page'     => 'jetpack',
+						'action'   => 'authorize_redirect',
+						'dest_url' => rawurlencode( $dest_url ),
+						'done'     => '1',
 					);
 
-					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
+					if ( ! empty( $_GET['from'] ) && 'jetpack_site_only_checkout' === $_GET['from'] ) {
+						$redirect_args['from'] = 'jetpack_site_only_checkout';
+					}
+
+					wp_safe_redirect( static::build_authorize_url( self::admin_url( $redirect_args ) ) );
 					exit;
 				case 'authorize':
 					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );

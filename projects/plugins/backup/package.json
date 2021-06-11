@@ -20,6 +20,9 @@
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:^0.3.0-alpha",
 		"@wordpress/data": "4.27.3",
