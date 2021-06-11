@@ -131,6 +131,7 @@ export const settings = {
 		},
 		productId: {
 			type: 'number',
+			unique: true,
 		},
 		title: {
 			type: 'string',
