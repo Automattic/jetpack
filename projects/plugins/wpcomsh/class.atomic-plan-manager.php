@@ -1,29 +1,44 @@
 <?php
+
+use WPCOMSH_Feature_Manager\Manage_Additional_CSS_Feature;
+
 /**
  * Class Atomic_Plan_Manager
  * The plan manager gets initialize after all mu-plugins are loaded and
  * gates features based on the site plan.
  */
-
 class Atomic_Plan_Manager {
 
 	/**
 	 * Free plan slug
+	 *
 	 * @var string
 	 */
-	const FREE_PLAN_SLUG       = 'free';
+	const FREE_PLAN_SLUG = 'free';
+
+	/**
+	 * Personal plan slug
+	 *
+	 * @TODO This constant was added as a placeholder since at the time AT did not had a "Personal" plan implemented.
+	 *       With the actual implementation of personal plan, this should be handled properly.
+	 *
+	 * @var string
+	 */
+	const PERSONAL_PLAN_SLUG = 'personal';
 
 	/**
 	 * Business plan slug
+	 *
 	 * @var string
 	 */
-	const BUSINESS_PLAN_SLUG   = 'business';
+	const BUSINESS_PLAN_SLUG = 'business';
 
 	/**
 	 * Ecommerce plan slug
+	 *
 	 * @var string
 	 */
-	const ECOMMERCE_PLAN_SLUG  = 'ecommerce';
+	const ECOMMERCE_PLAN_SLUG = 'ecommerce';
 
 	/**
 	 * Atomic Plan Manager instance
@@ -49,7 +64,9 @@ class Atomic_Plan_Manager {
 	 * Register any plan related hooks.
 	 */
 	private function add_hooks() {
-		add_filter( 'map_meta_cap', array( $this , 'map_atomic_plan_cap' ), 10, 2 );
+		add_filter( 'map_meta_cap', array( $this, 'map_atomic_plan_cap' ), 10, 2 );
+
+		( new Manage_Additional_CSS_Feature( self::current_plan_slug() ) )->manage();
 	}
 
 	/**
@@ -68,15 +85,15 @@ class Atomic_Plan_Manager {
 			$at_options = get_option( 'at_options', array() );
 			if ( ! is_array( $at_options ) ) {
 				$at_options = array( 'plan_slug' => self::BUSINESS_PLAN_SLUG );
-			} else if ( ! isset( $at_options[ 'plan_slug' ] ) ) {
-				$at_options[ 'plan_slug' ] = self::BUSINESS_PLAN_SLUG;
+			} elseif ( ! isset( $at_options['plan_slug'] ) ) {
+				$at_options['plan_slug'] = self::BUSINESS_PLAN_SLUG;
 			}
-			return $at_options[ 'plan_slug' ];
+			return $at_options['plan_slug'];
 		}
 
 		// Otherwise, persistent data.
 		$persistent_data = new Atomic_Persistent_Data();
-		$wpcom_plan = $persistent_data->WPCOM_PLAN;
+		$wpcom_plan      = $persistent_data->WPCOM_PLAN;
 		if ( empty( $wpcom_plan ) ) {
 			return self::FREE_PLAN_SLUG;
 		}
@@ -90,10 +107,10 @@ class Atomic_Plan_Manager {
 	 * @return bool
 	 */
 	public static function has_atomic_supported_plan() {
-		$supported_plans = [
+		$supported_plans = array(
 			self::BUSINESS_PLAN_SLUG,
 			self::ECOMMERCE_PLAN_SLUG,
-		];
+		);
 
 		$plan_slug = self::current_plan_slug();
 		return in_array( $plan_slug, $supported_plans, true );
@@ -124,20 +141,20 @@ class Atomic_Plan_Manager {
 
 		// Else the site is a free Atomic site
 		// so we need to disable atomic features caps.
-		$theme_caps = [
+		$theme_caps = array(
 			'edit_themes',
 			'install_themes',
 			'update_themes',
 			'delete_themes',
 			'upload_themes',
-		];
+		);
 
-		$plugin_caps = [
+		$plugin_caps = array(
 			'activate_plugins',
 			'install_plugins',
 			'edit_plugins',
 			'upload_plugins',
-		];
+		);
 
 		$all_atomic_caps = array_merge( $theme_caps, $plugin_caps );
 
