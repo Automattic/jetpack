@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update RNA Connection usage based on Automattic/jetpack/pull/19837
