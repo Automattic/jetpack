@@ -619,7 +619,7 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Get unlimited access to hundreds of professional themes, and customize your site exactly how you like it.',
+										'Get access to professionally crafted themes offered on WordPress.com, and customize your site exactly how you like it.',
 										'jetpack'
 									) }
 								</p>
@@ -627,7 +627,7 @@ class MyPlanBody extends React.Component {
 									onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
 									href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
 								>
-									{ __( 'Explore free themes', 'jetpack' ) }
+									{ __( 'Explore themes', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>
