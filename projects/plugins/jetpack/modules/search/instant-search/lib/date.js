@@ -6,10 +6,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Get user friendly date string from y-m-d h:i:s to Apr 3, 2020
  *
- * @param {string} dateTime
- * @return {string}
+ * @param {string} dateTime - y-m-d h:i:s date string
+ * @returns {string} - human friendly date string
  */
-export const getDateString = ( dateTime ) => {
+export const getDateString = dateTime => {
 	const dateTimeParts = dateTime.split( ' ' );
 	if ( ! Array.isArray( dateTimeParts ) || dateTimeParts.length !== 2 ) {
 		return dateTime;
@@ -64,5 +64,5 @@ export const getDateString = ( dateTime ) => {
 			break;
 	}
 
-	return `${monthString} ${day}, ${year}`;
+	return `${ monthString } ${ day }, ${ year }`;
 };
