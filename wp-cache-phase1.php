@@ -116,7 +116,7 @@ if ( function_exists( 'add_filter' ) ) { // loaded since WordPress 4.6
 	add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
 }
 
-$wp_cache_request_uri = $_SERVER['REQUEST_URI']; // Cache this in case any plugin modifies it.
+$wp_cache_request_uri = wpsc_remove_tracking_params_from_uri( $_SERVER['REQUEST_URI'] ); // Cache this in case any plugin modifies it and filter out tracking parameters.
 
 if ( defined( 'DOING_CRON' ) ) {
 	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
