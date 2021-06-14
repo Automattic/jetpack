@@ -16,7 +16,9 @@
 		"build-client": "gulp",
 		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
-		"clean": "rm -rf build/",
+		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-php' 'NODE_ENV=production BABEL_ENV=production pnpm:build-client'",
+		"clean-all": "rm -rf build/ node_modules/ vendor/",
+		"clean-build": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
