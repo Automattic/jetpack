@@ -427,7 +427,7 @@ class Options extends Module {
 			$object = $this->get_object_by_id( $object_type, $id );
 
 			// Only add object if we have the object.
-			if ( $object ) {
+			if ( 'OPTION-DOES-NOT-EXIST' !== $object ) {
 				if ( 'all' === $id ) {
 					// If all was requested it contains all options and can simply be returned.
 					return $object;
@@ -446,7 +446,7 @@ class Options extends Module {
 	 *
 	 * @param string $object_type Type of the sync object.
 	 * @param string $id          ID of the sync object.
-	 * @return \WP_Post|bool Filtered \WP_Post object, or false if the object is not a post.
+	 * @return mixed              Value of Option or 'OPTION-DOES-NOT-EXIST' if not found.
 	 */
 	public function get_object_by_id( $object_type, $id ) {
 		if ( 'option' === $object_type ) {
@@ -463,7 +463,7 @@ class Options extends Module {
 			}
 		}
 
-		return false;
+		return 'OPTION-DOES-NOT-EXIST';
 	}
 
 }
