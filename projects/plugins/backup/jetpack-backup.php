@@ -36,6 +36,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Constant definitions.
 define( 'JETPACK_BACKUP_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_BACKUP_PLUGIN_ROOT_FILE', __FILE__ );
+define( 'JETPACK_BACKUP_PLUGIN_SLUG', 'jetpack-backup' );
+define( 'JETPACK_BACKUP_PLUGIN_NAME', 'Jetpack Backup' );
+define( 'JETPACK_BACKUP_PLUGIN_URI', 'https://jetpack.com/jetpack-backup' );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_BACKUP_PLUGIN_DIR . 'vendor/autoload_packages.php';

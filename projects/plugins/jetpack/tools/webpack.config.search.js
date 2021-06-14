@@ -68,6 +68,8 @@ module.exports = {
 			path.resolve( __dirname, '../node_modules' ),
 			'node_modules',
 		],
+		// We want the compiled version, not the "calypso:src" sources.
+		mainFields: undefined,
 	},
 	node: {
 		fs: 'empty',

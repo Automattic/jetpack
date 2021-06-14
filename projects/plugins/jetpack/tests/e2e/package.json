@@ -20,6 +20,7 @@
 		"tunnel-on": "pm2 start bin/ecosystem.config.js && pm2 logs --nostream --lines 4",
 		"tunnel-reset": "rm -rf config/tmp && pnpm run tunnel-on",
 		"tunnel-off": "pm2 delete bin/ecosystem.config.js && NODE_ENV=test node bin/tunnel.js off",
+		"tunnel-write-logs": "pm2 logs --nostream --lines 10000 > output/logs/tunnel.log",
 		"pretest-e2e": "pnpm run clean",
 		"test-e2e": "NODE_CONFIG_DIR='./config' jest --config jest.config.js --runInBand --verbose --detectOpenHandles --json --outputFile=output/summary.json",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./config/encrypted.enc -out ./config/local-test.js",

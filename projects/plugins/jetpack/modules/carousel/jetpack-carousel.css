@@ -1,7 +1,3 @@
-[data-carousel-extra] {
-	cursor: pointer; /* adds a cursor when the carousel takes effect */
-}
-
 .jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
 }
@@ -20,7 +16,7 @@
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 15vh;
+	bottom: 20vh;
 }
 
 div.jp-carousel-fadeaway {
@@ -82,8 +78,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
-	top: 86vh; /* Fallback, if calc is not supported */
-	top: calc( 85vh + 5px );
+	top: 81vh; /* Fallback, if calc is not supported */
+	top: calc( 80vh + 5px );
 	bottom: 0;
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;

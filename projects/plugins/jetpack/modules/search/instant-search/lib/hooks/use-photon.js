@@ -2,7 +2,7 @@
  * External dependencies
  */
 import photon from 'photon';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'react';
 
 /**
  * Strips query string values from URLs; photon can't handle them.
