@@ -314,10 +314,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns a allowed option
 	 */
 	public function test_get_objects_by_id_singular() {
-		update_option( 'jetpack_api_cache_enabled', 1 );
 		$module      = Modules::get_module( 'options' );
 		$options     = $module->get_all_options();
-		$get_options = $module->get_objects_by_id( 'option', array( 'jetpack_api_cache_enabled' ) );
-		$this->assertEquals( $options['jetpack_api_cache_enabled'], $get_options['jetpack_api_cache_enabled'] );
+		$get_options = $module->get_objects_by_id( 'option', array( 'active_plugins' ) );
+		$this->assertEquals( $options['active_plugins'], $get_options['active_plugins'] );
 	}
 }
