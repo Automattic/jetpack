@@ -894,7 +894,7 @@ class Manager {
 	 *
 	 * @param Integer $new_owner_id The ID of the user to become the connection owner.
 	 *
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @return Boolean Whether the ownership transfer was successful.
 	 */
 	public function update_connection_owner_wpcom( $new_owner_id ) {
 		// Notify WPCOM about the connection owner change.
