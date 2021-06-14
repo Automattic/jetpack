@@ -524,4 +524,55 @@ class Updates extends Module {
 		return 3;
 	}
 
+	/**
+	 * Retrieve a set of updates by their IDs.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Object type.
+	 * @param array  $ids         Object IDs.
+	 * @return array Array of objects.
+	 */
+	public function get_objects_by_id( $object_type, $ids ) {
+		if ( empty( $ids ) || empty( $object_type ) || 'update' !== $object_type ) {
+			return array();
+		}
+
+		$objects = array();
+		foreach ( (array) $ids as $id ) {
+			$object = $this->get_object_by_id( $object_type, $id );
+
+			if ( 'all' === $id ) {
+				// If all was requested it contains all updates and can simply be returned.
+				return $object;
+			}
+			$objects[ $id ] = $object;
+		}
+
+		return $objects;
+	}
+
+	/**
+	 * Retrieve a update by its id.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Type of the sync object.
+	 * @param string $id          ID of the sync object.
+	 * @return mixed              Value of Update.
+	 */
+	public function get_object_by_id( $object_type, $id ) {
+		if ( 'update' === $object_type ) {
+
+			// Only whitelisted constants can be returned.
+			if ( in_array( $id, array( 'core', 'plugins', 'themes' ), true ) ) {
+				return get_site_transient( 'update_' . $id );
+			} elseif ( 'all' === $id ) {
+				return $this->get_all_updates();
+			}
+		}
+
+		return false;
+	}
+
 }
