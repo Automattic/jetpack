@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add support to callables to sync/object endpoint.
