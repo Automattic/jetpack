@@ -613,9 +613,15 @@ class Callables extends Module {
 	 */
 	public function get_object_by_id( $object_type, $id ) {
 		if ( 'callable' === $object_type ) {
+
 			// Only whitelisted options can be returned.
-			if ( in_array( $id, $this->callable_whitelist, true ) ) {
-				return $this->get_callable( $id );
+			if ( array_key_exists( $id, $this->get_callable_whitelist() ) ) {
+				// requires master user to be in context.
+				$current_user_id = get_current_user_id();
+				wp_set_current_user( \Jetpack_Options::get_option( 'master_user' ) );
+				$callable = $this->get_callable( $this->callable_whitelist[ $id ] );
+				wp_set_current_user( $current_user_id );
+				return $callable;
 			} elseif ( 'all' === $id ) {
 				return $this->get_all_callables();
 			}
