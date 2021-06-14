@@ -842,4 +842,21 @@ class Themes extends Module {
 		return 1;
 	}
 
+	/**
+	 * Retrieve a set of constants by their IDs.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Object type.
+	 * @param array  $ids         Object IDs.
+	 * @return array Array of objects.
+	 */
+	public function get_objects_by_id( $object_type, $ids ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( 'theme-info' !== $object_type ) {
+			return array();
+		}
+
+		return array( $this->get_theme_info() );
+	}
+
 }
