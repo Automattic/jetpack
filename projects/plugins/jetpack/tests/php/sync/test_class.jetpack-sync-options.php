@@ -316,7 +316,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function test_get_objects_by_id_singular() {
 		$module      = Modules::get_module( 'options' );
 		$options     = $module->get_all_options();
-		$get_options = $module->get_objects_by_id( 'option', array( 'active_plugins' ) );
-		$this->assertEquals( $options['active_plugins'], $get_options['active_plugins'] );
+		$get_options = $module->get_objects_by_id( 'option', array( 'test_option' ) );
+		$this->assertEquals( $options['test_option'], $get_options['test_option'] );
 	}
 }
