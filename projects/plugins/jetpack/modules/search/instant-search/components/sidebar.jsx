@@ -1,10 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h } from 'preact';
-import { createPortal } from 'preact/compat';
+import React, { createPortal } from 'react';
 import SearchFilters from './search-filters';
 import WidgetAreaContainer from './widget-area-container';
 

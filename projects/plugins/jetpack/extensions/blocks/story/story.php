@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Story;
 use Automattic\Jetpack\Blocks;
 use Jetpack;
 use Jetpack_Gutenberg;
+use Jetpack_PostImages;
 
 const FEATURE_NAME = 'story';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -251,6 +252,23 @@ function get_image_crop_class( $width, $height ) {
 }
 
 /**
+ * Returns a URL for the site icon.
+ *
+ * @param int    $size - Size for (square) sitei icon.
+ * @param string $fallback - Fallback URL to use if no site icon is found.
+ *
+ * @returns string
+ */
+function get_blavatar_or_site_icon_url( $size, $fallback ) {
+	$image_array = Jetpack_PostImages::from_blavatar( get_the_ID(), $size );
+	if ( ! empty( $image_array ) ) {
+		return $image_array[0]['src'];
+	} else {
+		return $fallback;
+	}
+}
+
+/**
  * Render a video inside a slide
  *
  * @param array $media  - Video information.
@@ -466,7 +484,7 @@ function render_block( $attributes ) {
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),
-		esc_attr( get_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
+		esc_attr( get_blavatar_or_site_icon_url( 80, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_the_title() ),
 		render_static_slide( $media_files ),
 		render_top_right_icon( $settings ),
