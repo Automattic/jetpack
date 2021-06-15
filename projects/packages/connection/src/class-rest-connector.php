@@ -187,6 +187,24 @@ class REST_Connector {
 				),
 			)
 		);
+
+		// Set the connection owner.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'set_connection_owner' ),
+				'permission_callback' => array( static::class, 'set_connection_owner_permission_check' ),
+				'args'                => array(
+					'owner' => array(
+						'description' => __( 'New owner', 'jetpack' ),
+						'type'        => 'integer',
+						'required'    => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -606,5 +624,46 @@ class REST_Connector {
 		return Rest_Authentication::is_signed_with_blog_token()
 			? true
 			: new WP_Error( 'invalid_permission_update_user_token', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Change the connection owner.
+	 *
+	 * @since 9.9.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function set_connection_owner( $request ) {
+		$new_owner_id = $request['owner'];
+
+		$owner_set = ( new Manager() )->update_connection_owner( $new_owner_id );
+
+		if ( is_wp_error( $owner_set ) ) {
+			return $owner_set;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Check that user has permission to change the master user.
+	 *
+	 * @since 6.2.0
+	 * @since 7.7.0 Update so that any user with jetpack_disconnect privs can set owner.
+	 *
+	 * @return bool|WP_Error True if user is able to change master user.
+	 */
+	public static function set_connection_owner_permission_check() {
+		if ( current_user_can( 'jetpack_disconnect' ) ) {
+			return true;
+		}
+
+		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 }
