@@ -14,7 +14,7 @@ use WP_REST_Server;
 /**
  * This class will handle Identity Crisis Endpoints
  *
- * @since 9.8.0
+ * @since 9.9.0
  */
 class REST_Endpoints {
 
