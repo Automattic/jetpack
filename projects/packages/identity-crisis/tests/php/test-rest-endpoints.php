@@ -6,7 +6,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
-use Jetpack_options;
+use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WP_REST_Request;
@@ -49,10 +49,10 @@ class Test_REST_Endpoints extends TestCase {
 		do_action( 'rest_api_init' );
 		new REST_Connector( new Manager() );
 
-		$this->api_host_original                                  = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
-		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		$this->api_host_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		Constants::set_contstant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
-		Constants::$set_constants['JETPACK__API_BASE'] = 'https://jetpack.wordpress.com/jetpack.';
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 
 		set_transient( 'jetpack_assumed_site_creation_date', '2020-02-28 01:13:27' );
 	}

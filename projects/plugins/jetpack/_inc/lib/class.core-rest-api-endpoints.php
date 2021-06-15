@@ -1348,21 +1348,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Verify that user can mitigate an identity crisis.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return bool Whether user has capability 'jetpack_disconnect'.
-	 */
-	public static function identity_crisis_mitigation_permission_check() {
-		if ( current_user_can( 'jetpack_disconnect' ) ) {
-			return true;
-		}
-
-		return new WP_Error( 'invalid_user_permission_identity_crisis', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
 	 * Verify that user can update Jetpack general settings.
 	 *
 	 * @since 4.3.0
