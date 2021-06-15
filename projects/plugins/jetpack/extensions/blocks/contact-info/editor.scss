@@ -1,0 +1,33 @@
+.jetpack-contact-info-block {
+	/* css class added to increase specificity */
+	.block-editor-plain-text.block-editor-plain-text:focus {
+		box-shadow: none;
+	}
+
+	.block-editor-plain-text {
+		flex-grow: 1;
+		min-height: unset;
+		display: block;
+		margin: 0.5em 0;
+		padding: 0;
+		box-shadow: none;
+		font-family: inherit;
+		font-size: inherit;
+		color: inherit;
+		line-height: inherit;
+		border: none;
+		border-radius: 4px;
+		resize: none;
+	}
+}
+
+// Overrides to make the preview look good
+.block-editor-inserter__preview {
+	.jetpack-contact-info-block {
+		padding: 16px;
+
+		> .block-editor-inner-blocks > .block-editor-block-list__layout {
+			margin: 0;
+		}
+	}
+}

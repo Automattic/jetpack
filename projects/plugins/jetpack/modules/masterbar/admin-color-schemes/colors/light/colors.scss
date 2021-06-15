@@ -1,0 +1,36 @@
+// make use of color studio variables for consistency across products
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+
+$masterbar-background: #e5e5e5;
+$menu-submenu-background: #fff;
+$text-color: #333;
+$highlight-color: #888;
+$base-color-rgb: rgb(229, 229, 229);
+$nav-unification-sidebar-text-alternative: #1d2327;
+$menu-highlight-text: #fff;
+
+// Calypso color variables used in e.g. inline help
+$color-primary: #04a4cc; // Calypso --color-primary
+$color-primary-dark: $studio-blue-70; // Calypso --color-primary-dark
+$color-primary-light: $studio-blue-30; // Calypso --color-primary-light
+$color-surface: $studio-white; // Calypso --color-surface
+$color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
+
+// Sidebar Nudges
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $color-primary;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: $studio-blue-60;
+
+// Light theme specifics
+#wpadminbar #wp-admin-bar-blog > a.ab-item:before,
+#wpadminbar #wp-admin-bar-newdash > a.ab-item:before,
+#wpadminbar #wp-admin-bar-notes .noticon-bell:before {
+	filter: brightness(0.1);
+}
+
+@import "../_core-overrides";
+@import "../_inline-help";
+@import "../_upsell-banner";

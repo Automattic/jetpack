@@ -1,0 +1,5 @@
+node_modules
+
+# Test file is copied to these locations. Can ignore it if not cleaned up by the test.
+tests/data/dest/
+tests/data/source/copy.md

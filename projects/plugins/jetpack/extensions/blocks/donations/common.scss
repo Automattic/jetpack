@@ -1,0 +1,107 @@
+// Common styles for both views (editor and frontend).
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.wp-block-jetpack-donations {
+	.donations__container {
+		border: 1px solid $gray-400;
+	}
+
+	.donations__nav {
+		display: flex;
+		border-bottom: 1px solid $gray-400;
+	}
+
+	.donations__nav-item {
+		font-weight: bold;
+		display: inline-block;
+		flex: 1;
+		text-align: center;
+		font-size: 16px;
+		padding: 12px;
+		border-left: 1px solid $gray-400;
+		background: $white;
+		color: $gray-900;
+		cursor: pointer;
+
+		@include break-small() {
+			padding: 16px 24px;
+		}
+
+		&:first-child {
+			border-left: none;
+		}
+
+		&.is-active {
+			background: var( --wp-admin-theme-color );
+			color: $white;
+			cursor: default;
+		}
+	}
+
+	.donations__content {
+		padding: 16px;
+
+		@include break-small() {
+			padding: 32px;
+		}
+
+		h4,
+		p {
+			margin: 0 0 16px;
+
+			@include break-small() {
+				margin: 0 0 24px;
+			}
+		}
+	}
+
+	.donations__amounts {
+		margin-bottom: 16px;
+		display: flex;
+		flex-wrap: wrap;
+
+		@include break-small() {
+			margin: 0 0 24px;
+		}
+	}
+
+	.donations__amount {
+		display: inline-block;
+		padding: 16px 24px;
+		background-color: $white;
+		color: $gray-900;
+		border: 1px solid $gray-400;
+		margin-right: 8px;
+		margin-bottom: 8px;
+		font-weight: 600;
+		font-size: 16px;
+		white-space: nowrap;
+
+		&.has-error {
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px $alert-red;
+			outline: 2px solid transparent;
+			outline-offset: -2px;
+		}
+	}
+
+	.donations__custom-amount .donations__amount-value {
+		display: inline-block;
+		margin-left: 4px;
+		min-width: 60px;
+	}
+
+	.donations__separator {
+		margin-bottom: 16px;
+		margin-top: 16px;
+
+		@include break-small() {
+			margin-bottom: 32px;
+			margin-top: 32px;
+		}
+	}
+
+	.donations__donate-button-wrapper,
+	.donations__donate-button {
+		margin: 0;
+	}
+}

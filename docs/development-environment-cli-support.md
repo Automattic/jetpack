@@ -8,9 +8,41 @@ tools/check-development-environment.sh
 
 ## Topics
 
+### Command is available: jetpack
+
+The Jetpack CLI is used for management of monorepo projects.
+
+If you normally use just one Jetpack Monorepo checkout, you can add `jetpack` to your path by running
+```sh
+pnpm cli-setup
+```
+from the monorepo root.
+
+You can also use `pnpx --no jetpack` from (almost) anywhere in the monorepo. If you commonly use multiple checkouts, you might add this as a shell alias or a stub script in your path so as to always run the current checkout's instance.
+
+### Bash version is proper
+
+Several scripts require bash 4 or later. If you're on Mac OS X, you likely have an old version and can install an upgraded version with `brew install bash`.
+
+### Command is available: docker
+
+The command `docker` comes with the Docker app in most environments.
+
+This command is essential for running the Jetpack Docker Development Environment.
+
+### Command is available: docker-compose
+
+The command `docker-compose` comes with the Docker app in most environments nowadays but it was not the case with old versions of the Docker app.
+
+This command is needed for leveraging the multiple docker containers that encompass the Jetpack Docker Development Environment.
+
 ### Command is available: git
 
 You need GIT for contributing to Jetpack.
+
+### Command is available: jq
+
+Several scripts use `jq` for processing JSON data. If it's not available from your OS vendor, see [its website](https://stedolan.github.io/jq/).
 
 ### Command is available: n
 
@@ -24,31 +56,19 @@ PHP is needed all around the build process for Jetpack bundles.
 
 PHPUnit is the tool that helps us run unit tests for Jetpack.
 
-### Command is available: docker
-
-The command `docker` comes with the Docker app in most environments.
-
-This command is essential for running the Jetpack Docker Development Environment.
-
-### Command is available: docker-compose
-
-The command `docker-compose` comes with the Docker app in most environments nowawadays but it wasn not the case with old versions of the Docker app.
-
-This command is needed for leveraging the multiple docker containers that encompass the Jetpack Docker Development Environment.
-
 ### Docker images are available
 
-The containers for the Jetpack docker images are created when you ran `yarn docker:up`.
+The containers for the Jetpack docker images are created when you ran `jetpack docker up`.
 
 ### Docker containers are available
 
-The containers for the Jetpack docker containers are created when you ran `yarn docker:up`.
+The containers for the Jetpack docker containers are created when you ran `jetpack docker up`.
 
 ### Docker containers are running
 
-If you are using the Jetpack Docker Image, make sure you run `yarn docker:up`.
+If you are using the Jetpack Docker Image, make sure you run `jetpack docker up`.
 
-### Docker Is running
+### Docker is running
 
 Make sure the Docker Daemon is running.
 
@@ -57,7 +77,7 @@ Make sure the Docker Daemon is running.
 The directory `node_modules` is where Jetpack's JavaScript dependencies live. It gets initialized by doing:
 
 ```sh
-yarn
+pnpm install
 ```
 
 ### Node version is proper

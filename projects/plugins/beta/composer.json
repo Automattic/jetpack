@@ -1,0 +1,36 @@
+{
+	"name": "automattic/jetpack-beta",
+	"description": "Serves beta and PR branches of Jetpack to a WordPress install near you!",
+	"homepage": "https://jetpack.com/",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/Automattic/jetpack/issues"
+	},
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "1.2.x-dev"
+	},
+	"autoload": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"sort-packages": true
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-beta",
+		"release-branch-prefix": "jetpack-beta",
+		"version-constants": {
+			"JPBETA_VERSION": "jetpack-beta.php"
+		}
+	}
+}

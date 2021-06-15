@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use `composer update` rather than `install` in scripts, as composer.lock isn't checked in.

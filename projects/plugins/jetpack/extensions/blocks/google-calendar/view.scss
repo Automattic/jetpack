@@ -1,0 +1,42 @@
+/**
+ * Shared Editor and Front End styles for Google Calendar
+ */
+.wp-block-jetpack-google-calendar {
+	min-width: 420px;
+	iframe {
+		width: 100%;
+		border: none;
+	}
+
+	/**
+	 * The following rules are purely enhancements for when JS is turned when an AMP page is viewed. Granted this will be
+	 * a very rare scenario. Also, the rules here should eventually be merged into ampshared.css in AMP itself, at which
+	 * point they can be removed from the block. They are included here as a proof of concept to show how the noscript
+	 * fallback experience can be improved on AMP pages.
+	 */
+
+	> amp-iframe > [placeholder] {
+		/* Overrides https://github.com/ampproject/amphtml/blob/8fb1a06a49088fb87de9b24646dee2058d910a87/css/ampshared.css#L303 */
+		line-height: 1;
+	}
+
+	> amp-iframe > noscript {
+		/*
+		 * Overrides https://github.com/ampproject/amphtml/blob/8fb1a06a49088fb87de9b24646dee2058d910a87/css/ampshared.css#L283
+		 * Won't be necessary after https://github.com/ampproject/amphtml/pull/29846
+		 */
+		display: inline-block !important;
+	}
+
+	> amp-iframe > noscript > iframe {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1; /* Match sibling [placeholder] z-index: https://github.com/ampproject/amphtml/blob/8fb1a06a49088fb87de9b24646dee2058d910a87/css/ampshared.css#L354 */
+	}
+
+}

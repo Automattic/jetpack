@@ -1,0 +1,170 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.wp-block-jetpack-business-hours {
+	overflow: hidden;
+
+	dd, dt {
+		@media (min-width: 480px ) {
+			display: inline-block;
+		}
+	}
+
+	dt {
+		min-width: 30%;
+		vertical-align: top;
+	}
+
+	dd {
+		margin: 0;
+		@media (min-width: 480px ) {
+			max-width: calc( 70% - 0.5em );
+		}
+	}
+
+	.components-toggle-control__label,
+	.components-base-control__label {
+	  	// Sets labels to 13px for consistency in the Site Editor.
+	  	// The Site Editor iframe doesn't include common styles,
+	  	// from which the font size of the labels are inherited.
+	  	// https://github.com/WordPress/gutenberg/blob/3da717b8d0ac7d7821fc6d0475695ccf3ae2829f/packages/base-styles/_variables.scss#L16
+		font-size: $default-font-size;
+	 }
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.jetpack-business-hours__item {
+		margin-bottom: 0.5em;
+	}
+
+	.business-hours__row {
+		display: flex;
+		line-height: normal;
+		margin-bottom: 4px;
+
+		&.business-hours-row__add,
+		&.business-hours-row__closed {
+			margin-bottom: 20px;
+		}
+
+		.business-hours__day {
+			width: 44%;
+			display: flex;
+			align-items: start;
+
+			.business-hours__day-name {
+				width: 60%;
+				font-weight: bold;
+				overflow-x: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.components-form-toggle {
+				margin-right: 4px;
+				margin-top: 4px;
+			}
+		}
+
+		.business-hours__hours {
+			width: 44%;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			flex-wrap: wrap;
+
+			.components-button {
+				padding: 0;
+			}
+
+			.components-base-control {
+				display: inline-block;
+				margin-bottom: 0;
+				width: 48%;
+
+				&.business-hours__open {
+					margin-right: 4%;
+				}
+
+				.components-base-control__label {
+					margin-bottom: 0;
+				}
+			}
+		}
+	}
+
+	.business-hours__remove {
+		align-self: flex-end;
+		margin-bottom: 8px;
+		text-align: center;
+		width: 10%;
+	}
+
+	.business-hours-row__add button:hover {
+		box-shadow: none !important;
+	}
+
+	.business-hours__remove button {
+		display: block;
+		margin: 0 auto;
+	}
+
+	.business-hours-row__add .components-button.is-default:hover,
+	.business-hours__remove .components-button.is-default:hover,
+	.business-hours-row__add .components-button.is-default:focus,
+	.business-hours__remove .components-button.is-default:focus,
+	.business-hours-row__add .components-button.is-default:active,
+	.business-hours__remove .components-button.is-default:active {
+		background: none;
+		box-shadow: none;
+	}
+}
+
+/**
+ * We consider the editor area to be small when the business hours block is:
+ *   - within a column block
+ *   - in a screen < xlarge size with the sidebar open
+ *   - in a screen < small size
+ * In these cases we'll apply small screen styles.
+ */
+@mixin editor-area-is-small {
+	@media ( max-width: $break-xlarge ) {
+		.is-sidebar-opened {
+			@content;
+		}
+	}
+	@media ( max-width: $break-small ) {
+		@content;
+	}
+
+	.wp-block-columns {
+		@content;
+	}
+}
+
+@include editor-area-is-small() {
+	.wp-block-jetpack-business-hours {
+		.business-hours__row {
+			flex-wrap: wrap;
+
+			&.business-hours-row__add {
+				.business-hours__day,
+				.business-hours__remove {
+					display: none;
+				}
+			}
+
+			.business-hours__day {
+				width: 100%;
+			}
+
+			.business-hours__hours {
+				width: 78%;
+			}
+			.business-hours__remove {
+				width: 18%;
+			}
+		}
+	}
+}

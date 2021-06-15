@@ -1,0 +1,22 @@
+# Jetpack Approvers need to review changes to the monorepo itself.
+- name: Monorepo itself
+  paths:
+   - '!projects/**'
+  teams:
+   - jetpack-approvers
+
+# Jetpack Approvers review the Jetpack plugin and all packages.
+- name: Jetpack and packages
+  paths:
+   - 'projects/packages/**'
+   - 'projects/plugins/jetpack/**'
+  teams:
+   - jetpack-approvers
+
+# Jetpack Approvers review everything that hasn't been specifically assigned above.
+# This needs to be last.
+- name: Default to Jetpack Approvers
+  paths: unmatched
+  teams:
+   - jetpack-approvers
+

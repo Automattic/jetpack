@@ -192,7 +192,7 @@ Fetch Jetpack's current connection status.
 {
 	"isActive": true,
 	"isStaging": false,
-	"devMode": {
+	"offlineMode": {
 		"isActive":false,
 		"constant":false,
 		"url":false,
@@ -266,7 +266,7 @@ Accepts a JSON object in the body like:
 }
 ```
 
-POSTing with `isActive` as `false` will disconect the site. Sending `isActive: true` has no effect.
+POSTing with `isActive` as `false` will disconnect the site. Sending `isActive: true` has no effect.
 
 #### POST /wp-json/jetpack/v4/connection/user
 
@@ -280,14 +280,14 @@ Accepts a JSON object in the body like:
 }
 ```
 
-POSTing with `linked` as `false` will disconect the site. Sending `linked: true` has no effect.
+POSTing with `linked` as `false` will disconnect the site. Sending `linked: true` has no effect.
 
 
 ### Jetpack modules
 
 #### GET /wp-json/jetpack/v4/module/all
 
-Get a list of all Jetpacks modules, its description, other properties and the module's options
+Get a list of all Jetpack's modules, its description, other properties and the module's options
 
 **Note**. The response has a big payload in the body. Use it carefully.
 
@@ -300,7 +300,6 @@ The response is huge. Try it on your browser's console for discovery. Here's a c
 	"protect": {
 	        "name": "Protect",
 		"description": "Block suspicious-looking sign in activity",
-		"jumpstart_desc": "",
 		"sort": 1,
 		"recommendation_order": 4,
 		"introduced": "3.4",
@@ -339,7 +338,6 @@ Get a single module description and properties by its slug.
 {
     "name": "Likes",
     "description": "Give visitors an easy way to show they appreciate your content.",
-    "jumpstart_desc": "Give visitors an easy way to show they appreciate your content.",
     "sort": 23,
     "recommendation_order": 20,
     "introduced": "2.2",
@@ -352,8 +350,7 @@ Get a single module description and properties by its slug.
         "Social"
     ],
     "feature": [
-        "Engagement",
-        "Jumpstart"
+        "Engagement"
     ],
     "additional_search_queries": "like, likes, wordpress.com",
     "options": {
@@ -435,18 +432,6 @@ Accepts a JSON object in the body like:
 	"option-key": "new-option-value"
 }
 ```
-
-#### POST /wp-json/jetpack/v4/jumpstart/activate
-
-Activate Jumpstart turning on some options and settings to a recommended state.
-
-**This endpoint does not take Body parameters**
-
-#### POST /wp-json/jetpack/v4/jumpstart/deactivate
-
-Deactivate Jumpstart reverting options to their default state.
-
-**This endpoint does not take Body parameters**
 
 #### POST /wp-json/jetpack/v4/reset/:options_or_modules
 

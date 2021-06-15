@@ -1,0 +1,25 @@
+[
+    {
+        "blockName": "jetpack/contact-info",
+        "attrs": {},
+        "innerBlocks": [
+            {
+                "blockName": "jetpack/email",
+                "attrs": {
+                    "email": "hello@yourjetpack.blog"
+                },
+                "innerBlocks": [],
+                "innerHTML": "\n\t<div class=\"wp-block-jetpack-email\"><a href=\"mailto:hello@yourjetpack.blog\">hello@yourjetpack.blog</a></div>\n\t",
+                "innerContent": [
+                    "\n\t<div class=\"wp-block-jetpack-email\"><a href=\"mailto:hello@yourjetpack.blog\">hello@yourjetpack.blog</a></div>\n\t"
+                ]
+            }
+        ],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-contact-info\"></div>\n\t",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-contact-info\">",
+            null,
+            "</div>\n\t"
+        ]
+    }
+]

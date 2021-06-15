@@ -1,0 +1,25 @@
+[
+    {
+        "blockName": "jetpack/mailchimp",
+        "attrs": {},
+        "innerBlocks": [
+            {
+                "blockName": "jetpack/button",
+                "attrs": {
+                    "element": "button",
+                    "uniqueId": "mailchimp-widget-id",
+                    "text": "Join my email list"
+                },
+                "innerBlocks": [],
+                "innerHTML": "",
+                "innerContent": []
+            }
+        ],
+        "innerHTML": "\n\n",
+        "innerContent": [
+            "\n",
+            null,
+            "\n"
+        ]
+    }
+]

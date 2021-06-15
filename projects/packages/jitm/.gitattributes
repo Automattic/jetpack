@@ -1,0 +1,14 @@
+# Files not needed to be distributed in the package.
+.gitattributes    export-ignore
+.github/          export-ignore
+package.json      export-ignore
+webpack.config.js export-ignore
+
+# Files to include in the mirror repo
+/src/js/jetpack-jitm.min.js  production-include
+
+# Files to exclude from the mirror repo
+/changelog/**    production-exclude
+.gitignore        production-exclude
+phpunit.xml.dist  production-exclude
+tests/**          production-exclude

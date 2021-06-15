@@ -1,0 +1,50 @@
+/**
+ * Editor styles for Podcast Player
+ */
+
+/* Back-compat for pre-G2 ToolbarButton elements containing text */
+.block-editor-block-contextual-toolbar[data-type='jetpack/podcast-player']
+	.components-toolbar__control,
+[data-type='jetpack/podcast-player']
+	.block-editor-block-contextual-toolbar
+	.components-toolbar__control {
+	width: auto;
+	padding: 0 1em;
+}
+
+.jetpack-podcast-player__interactive-overlay,
+.jetpack-podcast-player__loading-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.jetpack-podcast-player__loading-overlay {
+	background: rgba( 255, 255, 255, 0.7 );
+	display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// Placeholder styles
+.jetpack-podcast-player__placeholder {
+	.components-base-control,
+	.components-base-control__field {
+		display: flex;
+		flex-grow: 1;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-placeholder__learn-more {
+		margin-top: 1em;
+	}
+}
+
+.block-editor-block-inspector .components-base-control.jetpack-podcast-player__episode-selector {
+	margin-bottom: 24px;
+}

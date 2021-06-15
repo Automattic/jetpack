@@ -1,0 +1,46 @@
+.wp-block-jetpack-revue__form {
+	display: none;
+	&.is-visible {
+		display: block;
+	}
+
+	> div {
+		margin-bottom: 0.75em;
+	}
+}
+
+.wp-block-jetpack-revue {
+	.wp-block-button {
+		margin-top: 0;
+	}
+
+	input {
+		display: block;
+		margin-top: 0.25em;
+		width: 100%;
+		@media screen and ( min-width: 600px ) {
+			max-width: 300px;
+		}
+	}
+
+	label {
+		display: block;
+		font-weight: bold;
+	}
+
+	.required {
+		color: #a7aaad;
+		font-weight: normal;
+	}
+}
+
+.wp-block-jetpack-revue__message {
+	display: none;
+	&.is-visible {
+		display: block;
+	}
+}
+
+.wp-block-jetpack-revue__fallback {
+	display: none;
+}

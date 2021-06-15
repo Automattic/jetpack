@@ -1,0 +1,17 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/calendly",
+        "isValid": true,
+        "attributes": {
+            "backgroundColor": "ffffff",
+            "hideEventTypeDetails": false,
+            "primaryColor": "00A2FF",
+            "textColor": "4D5055",
+            "style": "inline",
+            "url": "https://calendly.com/username"
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-calendly\"></div>"
+    }
+]

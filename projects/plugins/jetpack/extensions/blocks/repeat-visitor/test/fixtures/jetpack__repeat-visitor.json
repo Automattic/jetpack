@@ -1,0 +1,24 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/repeat-visitor",
+        "isValid": true,
+        "attributes": {
+            "criteria": "after-visits",
+            "threshold": 5
+        },
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "core/paragraph",
+                "isValid": true,
+                "attributes": {
+                    "content": "You're a repeat visitor!"
+                },
+                "innerBlocks": [],
+                "originalContent": "<p>You're a repeat visitor!</p>"
+            }
+        ],
+        "originalContent": "<div class=\"wp-block-jetpack-repeat-visitor\"></div>"
+    }
+]

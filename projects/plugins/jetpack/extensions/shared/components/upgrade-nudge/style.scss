@@ -1,0 +1,42 @@
+@import '../../styles/gutenberg-base-styles.scss';
+@import "~@automattic/color-studio/dist/color-variables";
+
+.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 14px;
+	height: 48px;
+	background: $studio-black;
+	padding: 0 20px;
+	border-radius: 2px;
+	box-shadow: 0 0 1px inset $studio-white; }
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .banner-title,
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .banner-description {
+		color: $studio-white; }
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .jetpack-upgrade-plan-banner__title,
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .jetpack-upgrade-plan-banner__description {
+		margin-right: 10px; }
+	.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button {
+		flex-shrink: 0;
+		line-height: 1;
+		margin-left: auto;
+		height: 28px; }
+		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary {
+			background: $studio-pink-40;
+			color: $studio-white; }
+		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary:hover {
+			background: $studio-pink-30; }
+		.jetpack-upgrade-plan-banner .jetpack-upgrade-plan-banner__wrapper .components-button.is-primary.is-busy {
+			background-size: 100px 100%;
+			background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%); }
+
+.jetpack-upgrade-plan-banner.block-editor-block-list__block {
+	margin-top: 0;
+	margin-bottom: 0; }
+
+.jetpack-upgrade-plan-banner.wp-block[data-align=right], .jetpack-upgrade-plan-banner.wp-block[data-align=left] {
+	height: 48px; }
+	.jetpack-upgrade-plan-banner.wp-block[data-align=right] .jetpack-upgrade-plan-banner__wrapper, .jetpack-upgrade-plan-banner.wp-block[data-align=left] .jetpack-upgrade-plan-banner__wrapper {
+		max-width: 580px;
+		width: 100%; }

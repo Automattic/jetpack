@@ -1,0 +1,135 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.wp-block-jetpack-simple-payments {
+	font-family: $default-font;
+	font-size: $default-font-size;
+	display: grid;
+	grid-template-columns: 200px auto;
+	grid-column-gap: 10px;
+
+	.simple-payments__field {
+		.components-base-control__field {
+			margin-bottom: 1em;
+		}
+		// Reset empty space under textarea on Chrome
+		textarea {
+			display: block;
+		}
+	}
+
+	.simple-payments__field {
+		input,
+		textarea {
+			font: inherit;
+		}
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	// Hide some labels from the form.
+	.simple-payments__field.simple-payments__field-title,
+	.simple-payments__field.simple-payments__field-content,
+	.simple-payments__field.simple-payments__field-email {
+		.components-base-control__label {
+			clip: rect( 0 0 0 0 );
+			clip-path: inset( 50% );
+			height: 1px;
+			overflow: hidden;
+			position: absolute;
+			white-space: nowrap;
+			width: 1px;
+		}
+	}
+
+	.simple-payments__field-has-error {
+		.components-text-control__input,
+		.components-textarea-control__input {
+			border-color: var( --color-error );
+		}
+	}
+
+	// Adjust price container (currency and price).
+	.simple-payments__price-container {
+		display: flex;
+		flex-wrap: wrap;
+
+		.components-input-control__label,
+		.components-base-control__label {
+			margin: 0 0 4px 0;
+			font-weight: 400;
+			display: block;
+		}
+
+		select.components-select-control__input {
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			max-width: none;
+			height: auto;
+			padding: 3px 8px 1px;
+		}
+
+		div.components-input-control__container {
+			position: relative;
+		}
+
+		.simple-payments__field-currency {
+			margin-right: 5px;
+			.components-input-control__container {
+				width: calc( 100% - 5px );
+			}
+		}
+
+		.simple-payments__field-price .components-base-control__field {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.help-message {
+			flex: 1 1 100%;
+			margin-top: 0;
+		}
+
+		.components-input-control__suffix > div {
+			-webkit-box-align: center;
+			align-items: center;
+			bottom: 0px;
+			box-sizing: border-box;
+			display: flex;
+			padding: 0px 4px;
+			pointer-events: none;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+		}
+	}
+
+	.simple-payments__field-email {
+		.components-text-control__input {
+			max-width: 400px;
+		}
+	}
+
+	.simple-payments__field-multiple {
+		.components-toggle-control__label {
+			line-height: 1.4em;
+		}
+	}
+
+	.simple-payments__field-content .components-textarea-control__input {
+		min-height: 32px;
+		width: 100%;
+		padding: 8px;
+	}
+}
+
+.jetpack-simple-payments__purchase-link-text {
+	.components-base-control {
+		margin-bottom: 0;
+	}
+
+	input.components-text-control__input {
+		margin-bottom: 5px;
+	}
+}

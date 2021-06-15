@@ -1,0 +1,39 @@
+// make use of color studio variables for consistency across products
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+
+$masterbar-background: #101517;
+$menu-submenu-background: #333333;
+$text-color: #fff;
+$highlight-color: #006fad;
+$base-color-rgb: rgb(35,40,45);
+$nav-unification-sidebar-text-alternative: #a2aab2;
+$menu-highlight-text: #00b9eb;
+
+// Calypso color variables used in e.g. inline help
+$color-primary: $studio-gray-90; // Calypso --color-primary
+$color-primary-dark: $studio-gray-70; // Calypso --color-primary-dark
+$color-primary-light: $studio-gray-30; // Calypso --color-primary-light
+$color-surface: $studio-white; // Calypso --color-surface
+$color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
+
+// Sidebar Nudges
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $studio-pink;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: $studio-pink-60;
+
+@import "../_core-overrides";
+@import "../_inline-help";
+@import "../_upsell-banner";
+
+// Fresh theme specifics
+#wpadminbar .ab-top-menu > #wp-admin-bar-blog.my-sites > .ab-item {
+	background: #23282d;
+}
+
+.site__info > .site__badge {
+	background: #dcdcde;
+	color: #1d2327;
+}

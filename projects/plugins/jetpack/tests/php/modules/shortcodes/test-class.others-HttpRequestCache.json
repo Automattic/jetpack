@@ -1,0 +1,617 @@
+{
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Falbum.link%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Falbum.link%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fpods.link%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fpods.link%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.com%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.com%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.co%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.co%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fartist.link%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fartist.link%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fplaylist.link%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fplaylist.link%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fmylink.page%2Fhello&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fmylink.page%2Fhello\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Fca%2Fi%2F1288547996&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Fca%2Fi%2F1288547996\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Falbum.link%2Fsong%2Fca%2Fi%2F1288547996&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Falbum.link%2Fsong%2Fca%2Fi%2F1288547996\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Fi%2F1288547996&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Fi%2F1288547996\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.com%2Fsong%2Fi%2F1288547996&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.com%2Fsong%2Fi%2F1288547996\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.co%2Fsong%2Fs%2F6r1siiMXYLrao42oiqQrgj&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.co%2Fsong%2Fs%2F6r1siiMXYLrao42oiqQrgj\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fartist.link%2Fsong%2Fy%2FUUDjpNpETzo&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fartist.link%2Fsong%2Fy%2FUUDjpNpETzo\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fplaylist.link%2Fsong%2Fy%2F6366dxFf-Os&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fplaylist.link%2Fsong%2Fy%2F6366dxFf-Os\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fmylink.page%2Fsong%2Fy%2FH8tLS_NOWLs&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fmylink.page%2Fsong%2Fy%2FH8tLS_NOWLs\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Fsong%2Fg%2FTg6zuj3cjgwcgrdi6ewlqdjk6iq&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Fsong%2Fg%2FTg6zuj3cjgwcgrdi6ewlqdjk6iq\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Falbum.link%2Fsong%2Fd%2F138241229&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Falbum.link%2Fsong%2Fd%2F138241229\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.com%2Fsong%2Ft%2F72268642&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.com%2Fsong%2Ft%2F72268642\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.co%2Fsong%2Fa%2FB01NAE38YO&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.co%2Fsong%2Fa%2FB01NAE38YO\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fartist.link%2Fsong%2Fn%2Ftra.246588040&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fartist.link%2Fsong%2Fn%2Ftra.246588040\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fplaylist.link%2Fsong%2Fsc%2F347741803&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fplaylist.link%2Fsong%2Fsc%2F347741803\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fplaylist.link%2Fsong%2Fya%2F32504596&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fplaylist.link%2Fsong%2Fya%2F32504596\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fmylink.page%2Fsong%2Fp%2FTR%3A5791220&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fmylink.page%2Fsong%2Fp%2FTR%3A5791220\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Fsp%2F1767083&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Fsp%2F1767083\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Falbum.link%2Fca%2Fi%2F1279947491&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Falbum.link%2Fca%2Fi%2F1279947491\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Falbum%2Fi%2F1279947491&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Falbum%2Fi%2F1279947491\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Falbum.link%2Falbum%2Fs%2F6JckISQKS5IwOH4YrFrfIB&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Falbum.link%2Falbum%2Fs%2F6JckISQKS5IwOH4YrFrfIB\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.com%2Falbum%2Fy%2FOLAK5uy_nErvzigwPVzj76NSzpte5pmiViP_F0gNE&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.com%2Falbum%2Fy%2FOLAK5uy_nErvzigwPVzj76NSzpte5pmiViP_F0gNE\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.co%2Falbum%2Fg%2FB7xsarspqwsinxzont6zdvd2hny&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.co%2Falbum%2Fg%2FB7xsarspqwsinxzont6zdvd2hny\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fartist.link%2Falbum%2Fd%2F14843037&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fartist.link%2Falbum%2Fd%2F14843037\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fplaylist.link%2Falbum%2Ft%2F67784530&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fplaylist.link%2Falbum%2Ft%2F67784530\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fmylink.page%2Falbum%2Fa%2FB01N48U32A&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fmylink.page%2Falbum%2Fa%2FB01N48U32A\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Falbum.link%2Fn%2Falb.246588025&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Falbum.link%2Fn%2Falb.246588025\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fsong.link%2Falbum%2Fsc%2F228667052&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fsong.link%2Falbum%2Fsc%2F228667052\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.com%2Falbum%2Fya%2F297720&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.com%2Falbum%2Fya%2F297720\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fodesli.co%2Falbum%2Fp%2FAL%3A668238&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fodesli.co%2Falbum%2Fp%2FAL%3A668238\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fartist.link%2Falbum%2Fsp%2F145895&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fartist.link%2Falbum%2Fsp%2F145895\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fpods.link%2Fus%2Fi%2F360084272&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fpods.link%2Fus%2Fi%2F360084272\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://odesli.co/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fmylink.page%2Fpodcast%2Fi%2F360084272&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"version\":\"1.0\",\"type\":\"rich\",\"provider_name\":\"Songlink\",\"provider_url\":\"https://song.link\",\"thumbnail_url\":\"https://s3-us-west-1.amazonaws.com/songlink-public/songlink_icon_blue_gradient_background_512x512.png\",\"thumbnail_width\":512,\"thumbnail_height\":512,\"referrer\":\"\",\"cache_age\":3600,\"html\":\"<iframe width=\\\"560\\\" height=\\\"367\\\" src=\\\"https://embed.song.link/?url=https%3A%2F%2Fmylink.page%2Fpodcast%2Fi%2F360084272\\\" frameborder=\\\"0\\\" allowtransparency allowfullscreen sandbox=\\\"allow-same-origin allow-scripts allow-presentation allow-popups allow-popups-to-escape-sandbox\\\"></iframe>\",\"width\":560,\"height\":367}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	],
+	"https://www.loom.com/v1/oembed?maxwidth=500&maxheight=750&url=https%3A%2F%2Fwww.loom.com%2Fshare%2Fe3dcec661c37487b818b8e3b8225ec27&dnt=1&format=json": [
+		{
+			"args": {
+				"body": null,
+				"method": "GET"
+			},
+			"response": {
+				"body": "{\"type\":\"video\",\"version\":\"1.0\",\"html\":\"<iframe src=\\\"https://www.loom.com/embed/e3dcec661c37487b818b8e3b8225ec27\\\" frameborder=\\\"0\\\" width=\\\"500\\\" height=\\\"375\\\" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>\",\"title\":\"How To Install a WordPress Plugin\",\"height\":375,\"width\":500,\"provider_name\":\"Loom\",\"provider_url\":\"https://www.loom.com\",\"thumbnail_height\":375,\"thumbnail_width\":500,\"thumbnail_url\":\"https://cdn.loom.com/sessions/thumbnails/e3dcec661c37487b818b8e3b8225ec27-full-1563200983193.jpg\",\"duration\":148}",
+				"response": {
+					"code": 200,
+					"message": "OK"
+				}
+			}
+		}
+	]
+}

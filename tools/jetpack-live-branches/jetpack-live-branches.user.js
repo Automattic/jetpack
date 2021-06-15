@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.13
+// @version      1.19
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -9,7 +9,7 @@
 
 /* global jQuery */
 
-( function() {
+( function () {
 	const $ = jQuery.noConflict();
 	doit();
 
@@ -17,9 +17,7 @@
 		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
 		const currentBranch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = currentBranch.includes( ':' );
-		const branchStatus = $( '.gh-header-meta .State' )
-			.text()
-			.trim();
+		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
 
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
@@ -41,6 +39,8 @@
 			);
 		} else {
 			const contents = `
+			<details>
+				<summary>Expand for JN site options:</summary>
 				<h4>Settings</h4>
 				${ getOptionsList(
 					[
@@ -88,6 +88,10 @@
 							name: 'classic-editor',
 						},
 						{
+							label: 'AMP',
+							name: 'amp',
+						},
+						{
 							label: 'WooCommerce',
 							name: 'woocommerce',
 						},
@@ -123,12 +127,32 @@
 							label: 'WP Job Manager',
 							name: 'wp-job-manager',
 						},
+						{
+							label: 'Jetpack CRM',
+							name: 'zero-bs-crm',
+						},
+						{
+							label: 'Jetpack Debug Helper',
+							name: 'jetpack-debug-helper',
+						},
 					],
 					33
 				) }
-				<p>
-					<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
-				</p>
+
+				<h4>Themes</h4>
+				${ getOptionsList(
+					[
+						{
+							label: 'TT1-Blocks FSE Theme',
+							name: 'tt1-blocks',
+						},
+					],
+					33
+				) }
+			</details>
+			<p>
+				<a id="jetpack-beta-branch-link" target="_blank" rel="nofollow noopener" href="#">…</a>
+			</p>
 			`;
 			appendHtml( markdownBody, contents );
 			updateLink();
@@ -155,7 +179,7 @@
 
 		function getOptionsList( options, columnWidth ) {
 			return `
-				<ul style="list-style: none; padding-left: 0; display: flex; flex-wrap: wrap;">
+				<ul style="list-style: none; padding-left: 0; margin-top: 24px; display: flex; flex-wrap: wrap;">
 					${ options
 						.map( option => {
 							return getOption( option, columnWidth );
@@ -171,18 +195,23 @@
 				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
 			$el.append( liveBranches );
-			$el.find( 'input[type=checkbox]' ).change( function( e ) {
-				e.stopPropagation();
-				e.preventDefault();
-				updateLink();
-			} );
+			$( 'body' ).on( 'change', $el.find( 'input[type=checkbox]' ), onInputChanged );
+		}
+
+		function onInputChanged( e ) {
+			e.stopPropagation();
+			e.preventDefault();
+			if ( e.target.checked ) {
+				e.target.setAttribute( 'checked', true );
+			} else {
+				e.target.removeAttribute( 'checked' );
+			}
+			updateLink();
 		}
 
 		function updateLink() {
 			const link = getLink( currentBranch );
-			$( '#jetpack-beta-branch-link' )
-				.attr( 'href', link )
-				.text( link );
+			$( '#jetpack-beta-branch-link' ).attr( 'href', link ).text( link );
 		}
 	}
 } )();

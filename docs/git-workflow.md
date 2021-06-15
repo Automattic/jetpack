@@ -13,6 +13,11 @@ Branches use the following naming conventions:
 
 For example, you can run: `git checkout master` and then `git checkout -b fix/whatsits` to create a new `fix/whatsits` branch off of `origin/master`.
 
+The Jetpack repo uses the following "reserved" branch name conventions:
+
+* `{something}/branch-{X.Y|something}` -- Used for release branches
+* `feature/{something}` -- Used for feature branches for larger feature projects when anticipated there will be multiple PRs into that feature branch.
+
 ## Mind your commits
 
 * [Check In Early, Check In Often](http://blog.codinghorror.com/check-in-early-check-in-often/).
@@ -20,9 +25,25 @@ For example, you can run: `git checkout master` and then `git checkout -b fix/wh
 
 ## Keeping Your Branch Up To Date
 
-While it is tempting to merge from `master` into your branch frequently, this leads to a messy history because each merge creates a merge commit. When working by yourself, it is best to use `git pull --rebase master`, but if you're pushing to a shared repo, it is best to not do any merging or rebasing until the feature is ready for final testing, and then do a [rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) at the very end. This is one reason why it is important to open pull requests whenever you have working code.
+There are two ways to update your branch with changes to `master` or a parent PR.
 
-If you have a Pull Request branch that cannot be merged into `master` due to a conflict (this can happen for long-running Pull Request discussions), it's still best to rebase the branch (rather than merge) and resolve any conflicts on your local copy before updating the Pull Request with `git push --force`. **Be aware** that this will **replace** any commits currently in your shared branch, so anyone who is also using that branch will be in trouble. Only use `git push --force` if the Pull Request is ready to merge and no one else is using it (or of you have coordinated the force-push with the other developers working on the branch).
+1. **Merge:** After a `git fetch`, execute `git merge origin/master` to pull in the latest changes. If there are conflicts, you'll need to resolve them by hand and then commit manually.
+   * Pro: GitHub deals with this much better.
+   * Pro: Collaborators can just `git pull` to update their local copy of the branch.
+   * Con: Can lead to a messy-looking history while the branch is in progress. Since we use "squash and merge" to commit PRs, though, this isn't an issue once the PR is finally accepted.
+   * Con: If there's a conflict while merging, you might wind up having to commit the merge commit with `--no-verify` to avoid our pre-commit hook complaining about things.
+   * Note: To get a clean view of the branch's history, use `git log --first-parent`.
+   * Note: To get a clean diff of the branch versus master, like what GitHub shows, use `git diff origin/master...HEAD` (note the three dots).
+2. **[Rebase](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request):** Execute `git pull --rebase origin master`, or do a `git fetch` then execute `git rebase origin/master`. It will reapply each patch, and if there are conflicts at any step you'll have to resolve them by hand and then `git rebase --continue`.
+   * Pro: Keeps the branch's history cleaner.
+   * Con: GitHub doesn't handle it very well. It may lose inline comments on the pre-rebase commits, and it will remove the old commit entries from the conversation (making it harder to determine the state of the PR when earlier comments were left) and instead show every one in the rebase as being "added" again at the time that the rebase was pushed.
+   * Con: Anyone else who has checked out your branch pre-rebase can't just `git pull`.
+   * Con: Our pre-commit verification doesn't run on rebases, so you might wind up with all commits tagged as "[not verified]".
+   * Note: When pushing the rebase to GitHub, use `git push --force-with-lease` as it's safer than the older `git push --force`.
+
+**In general, it's best to rebase if you haven't yet created the PR, and, in particular, it's good to rebase just before doing so. After the PR has been created, it's better for collaboration to merge instead.**
+
+If you're working on a collaborative branch, it's also a good idea to rebase your new commits on top of anyone else's new commits to the shared branch before pushing them. Once your updated branch has been pushed, rebasing will require coordination with everyone else working on the branch and thus should be avoided.
 
 ### Keeping your PR up to date as an external contributor
 

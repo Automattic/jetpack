@@ -1,0 +1,141 @@
+
+// This file cotains overrides to _admin.scss necessary to match Calypso color schemes
+
+// Make wpadminbar colors differ from submenu colors
+
+.admin-color-aquatic,
+.admin-color-classic-blue,
+.admin-color-classic-bright,
+.admin-color-classic-dark,
+.admin-color-contrast,
+.admin-color-nightfall,
+.admin-color-powder-snow,
+.admin-color-sakura,
+.admin-color-sunset {
+
+	#wpadminbar{
+		background: $masterbar-background !important;
+	}
+
+	#wpadminbar:not(.mobile) .ab-top-menu > li:hover > .ab-item,
+	#wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus,
+	#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus,
+	#wpadminbar.nojs .ab-top-menu > li.menupop:hover > .ab-item,
+	#wpadminbar .ab-top-menu > li.menupop.hover > .ab-item {
+		background: $masterbar-highlight-background;
+	}
+
+}
+
+// Make current submenu icon color stay the same on hover
+#adminmenu li.wp-has-current-submenu:hover div.wp-menu-image:before,
+#adminmenu .wp-has-current-submenu div.wp-menu-image:before,
+#adminmenu .current div.wp-menu-image:before,
+#adminmenu a.wp-has-current-submenu:hover div.wp-menu-image:before,
+#adminmenu a.current:hover div.wp-menu-image:before,
+#adminmenu li.wp-has-current-submenu a:focus div.wp-menu-image:before,
+#adminmenu li.wp-has-current-submenu.opensub div.wp-menu-image:before {
+	color: $menu-current-text;
+}
+
+// Make current submenu item color stay the same on hover/focus
+#adminmenu .wp-submenu li.current a,
+#adminmenu a.wp-has-current-submenu:focus + .wp-submenu li.current a,
+#adminmenu .wp-has-current-submenu.opensub .wp-submenu li.current a {
+
+	&:hover, &:focus {
+		color: $menu-submenu-current-text;
+	}
+}
+
+// Nav unification
+.admin-color-aquatic,
+.admin-color-classic-blue,
+.admin-color-classic-bright,
+.admin-color-classic-dark,
+.admin-color-contrast,
+.admin-color-nightfall,
+.admin-color-powder-snow,
+.admin-color-sakura,
+.admin-color-sunset {
+
+	// Masterbar - border below the Masterbar
+	#wpadminbar {
+		box-shadow: inset 0 -1px 0 $masterbar-background; // Calypso --color-masterbar-background
+	}
+
+	// Masterbar - My Sites active state
+	#wpadminbar .ab-top-menu > li.my-sites > .ab-item,
+	#wpadminbar .ab-top-menu > li.my-sites > .ab-item:hover {
+		background: $masterbar-active-background;
+	}
+
+	// Masterbar - Notification hover background
+	#wpadminbar #wp-admin-bar-notes.hover > .ab-item {
+		background: $masterbar-highlight-background;
+	}
+
+	// Masterbar - Notification active background
+	#wpadminbar .ab-top-menu > li.wpnt-show > .ab-item {
+		background: $masterbar-active-background !important; // important used in masterbar.css
+	}
+
+	// Site Card - Border around Site Card
+	#adminmenu li.toplevel_page_site-card {
+		border-bottom: 1px solid $nav-unification-sidebar-border;
+		border-top: 1px solid $nav-unification-sidebar-border;
+	}
+
+	// Site Card - Keep background the same color on hover
+	#adminmenu li.toplevel_page_site-card:hover,
+	#adminmenu li.toplevel_page_site-card a:hover {
+		background: $menu-background;
+	}
+
+	// Site Card - Site title
+	.site__info .site__title {
+		color: $menu-text;
+	}
+
+	// Site Card - Site domain
+	.site__info .site__domain {
+		color: $nav-unification-sidebar-text-alternative;
+	}
+
+	// Site Card - Site icon placeholder image background on hover/focus
+	#adminmenu .toplevel_page_site-card:hover div.wp-menu-image,
+	#adminmenu .toplevel_page_site-card a:focus div.wp-menu-image {
+		background-color: $menu-current-background;
+	}
+
+	// Site Card - Fade out for content overflowing the Site Card
+	.site__info .site__title::after,
+	.site__info .site__domain::after {
+		background: linear-gradient( 90deg, rgba( $color: $menu-background, $alpha: 0 ), rgba( $color: $menu-background, $alpha: 1 ) 90% );
+	}
+
+	// Site Card - Browse Sites button text & arrow
+	#adminmenuwrap > #adminmenu .site-switcher {
+		color: $nav-unification-sidebar-text-alternative;
+
+		div.wp-menu-image:before {
+			color: $nav-unification-sidebar-text-alternative;
+		}
+
+		&:hover,
+		&:hover div.wp-menu-image:before {
+			color: $menu-highlight-text;
+		}
+	}
+
+}
+
+// Ensure sidebar is visually separate from the content in the Contrast color scheme
+.admin-color-contrast #adminmenuback {
+	outline: 1px solid $nav-unification-sidebar-border;
+}
+
+.admin-color-contrast.folded #adminmenu .toplevel_page_site-notices .wp-menu-image,
+.admin-color-classic-bright.folded #adminmenu .toplevel_page_site-notices .wp-menu-image {
+	background-color: $studio-gray-80 !important;
+}
