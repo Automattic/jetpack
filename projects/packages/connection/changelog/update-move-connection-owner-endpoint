@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Move 'connection/owner' endpoint to Connection package.
