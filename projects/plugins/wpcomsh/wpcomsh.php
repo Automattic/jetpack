@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.59
+ * Version: 2.7.60
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.59' );
+define( 'WPCOMSH_VERSION', '2.7.60' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -297,31 +297,105 @@ function wpcomsh_set_up_auto_update_policy() {
 	if ( is_callable( 'Jetpack::is_active' ) && Jetpack::is_active() ) {
 		// Disable core auto updates for plugins because Jetpack updates plugins more safely and quickly
 		add_filter( 'plugins_auto_update_enabled', '__return_false' );
-	} else {
-		// Filter to act as if all unmanaged plugins are auto-updated
-		add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_list_unmanaged_plugins_for_auto_update' );
-
-		// Let's avoid saving auto updated plugins since we're auto updating all unmanaged plugins
-		add_filter( 'pre_update_option_auto_update_plugins', '__return_empty_array' );
 	}
 }
 add_action( 'plugins_loaded', 'wpcomsh_set_up_auto_update_policy' );
 
-function wpcomsh_list_unmanaged_plugins_for_auto_update() {
+/**
+ * Detects new plugins and defaults them to be auto-updated
+ *
+ * This is a pre-option filter for the auto_update_plugins option. Its purpose
+ * is to default newly added plugins to being auto-updated. After that, if users
+ * want to disable auto-updates for those plugins, they can.
+ */
+function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) {
+	// Listing plugins is a costly operation, so we only want to do this under certain circumstances.
+	$look_for_new_plugins = false;
+
+	// Does this look like a Jetpack plugin update attempt?
+	// ref: https://github.com/WordPress/wordpress-develop/blob/18ebf26bc3787e8ccc03438bd8375e4828030ca9/src/wp-admin/includes/class-wp-upgrader.php#L904
+	// ref: https://github.com/Automattic/jetpack/blob/82d102a231c34585150056329879e0745c954974/projects/plugins/jetpack/json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php#L331
+	if (
+		defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST &&
+		HOUR_IN_SECONDS < ( time() - get_option( 'auto_updater.lock', 0 ) )
+	) {
+		$look_for_new_plugins = true;
+	}
+
+	// We'd like admin operations via WP-CLI to have the latest auto-updated plugins list
+	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		$look_for_new_plugins = true;
+	}
+
+	// Is core doing update-related things?
+	// ref: https://github.com/WordPress/wordpress-develop/blob/98c9ab835e9e1e2195d336fa0ef913debb76edca/src/wp-includes/update.php#L966
+	if (
+		doing_action( 'load-plugins.php' ) ||
+		doing_action( 'load-update.php' ) ||
+		doing_action( 'load-update-core.php' ) ||
+		doing_action( 'wp_update_plugins' )
+	) {
+		$look_for_new_plugins = true;
+	}
+
+	if ( ! $look_for_new_plugins ) {
+		return $pre_auto_update_plugins;
+	}
+
+	// Remove this pre_option filter immediately because it:
+	// - calls get_option for the same option and will otherwise infinitely recurse
+	// - updates auto_update_plugins on-demand an only needs to run once
+	$filter_removed = remove_filter( 'pre_option_auto_update_plugins', __FUNCTION__ );
+	if ( ! $filter_removed ) {
+		// Return immediately because it's not safe to continue
+		return $pre_auto_update_plugins;
+	}
+
+	$baseline_plugins_list = get_option( 'wpcomsh_plugins_considered_for_auto_update' );
 	if ( ! function_exists( 'get_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 	}
+	$fresh_plugins_list = array_keys( get_plugins() );
+	$auto_update_plugins = get_option( 'auto_update_plugins', array() );
 
-	$all_plugins = array_keys( get_plugins() );
-	$unmanaged_plugins = array_filter(
-		$all_plugins,
-		function ( $plugin ) {
-			return ! wpcomsh_is_managed_plugin( $plugin );
+	$skip_new_plugins = false;
+
+	if ( false === $baseline_plugins_list && ! empty( $auto_update_plugins ) ) {
+		// We don't yet have a baseline plugin list, so we can't identify new plugins.
+		// Since the site already has a non-empty auto_update_plugins option,
+		// let's assume it matches the admin's intention and leave it as-is.
+		// This should be the first and only time we are missing a baseline plugin list.
+		// Plugins added in the future should be auto-updated by default.
+		$skip_new_plugins = true;
+	}
+
+	if ( false === $baseline_plugins_list ) {
+		$baseline_plugins_list = array();
+	}
+
+	$new_unmanaged_plugins = array();
+
+	if ( ! $skip_new_plugins ) {
+		$new_plugins = array_diff( $fresh_plugins_list, $baseline_plugins_list );
+		foreach ( $new_plugins as $new_plugin ) {
+			if ( ! wpcomsh_is_managed_plugin( $new_plugin ) ) {
+				$new_unmanaged_plugins[] = $new_plugin;
+			}
 		}
-	);
+	}
 
-	return $unmanaged_plugins;
+	if ( ! empty( $new_unmanaged_plugins ) ) {
+		$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $new_unmanaged_plugins ) );
+		update_option( 'auto_update_plugins', $auto_update_plugins );
+	}
+
+	if ( $baseline_plugins_list != $fresh_plugins_list ) {
+		update_option( 'wpcomsh_plugins_considered_for_auto_update', $fresh_plugins_list, false );
+	}
+
+	return $auto_update_plugins;
 }
+add_filter( 'pre_option_auto_update_plugins', 'wpcomsh_auto_update_new_plugins_by_default' );
 
 function wpcomsh_atomic_managed_theme_template_auto_update_label() {
 	/* translators: Message about how a managed theme is updated. */
