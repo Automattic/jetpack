@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Admin: Utilize new UI package for common interface across Jetpack plugins.
