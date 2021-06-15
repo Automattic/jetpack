@@ -975,48 +975,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test changing the master user.
-	 *
-	 * @since 6.2.0
-	 * @since 7.7.0 No longer need to be master user to update.
-	 */
-	public function test_change_owner() {
-
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_disconnect' );
-		wp_set_current_user( $user->ID );
-
-		// Mock site already registered
-		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
-
-		// Set up user as master user
-		Jetpack_Options::update_option( 'master_user', $user->ID );
-
-		// Attempt owner change with bad user
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
-		$this->assertResponseStatus( 400, $response );
-
-		// Attempt owner change to same user
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $user->ID ), 'POST' );
-		$this->assertResponseStatus( 400, $response );
-
-		// Create another user
-		$new_owner = $this->create_and_get_user( 'administrator' );
-		Jetpack_Options::update_option( 'user_tokens', array(
-			$user->ID => "honey.badger.$user->ID",
-			$new_owner->ID => "honey.badger.$new_owner->ID",
-		) );
-
-		// Change owner to valid user
-		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => $new_owner->ID ), 'POST' );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( $new_owner->ID, Jetpack_Options::get_option( 'master_user' ), 'Master user not changed' );
-		remove_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10 );
-	}
-
-	/**
 	 * Test saving and retrieving the recommendations data.
 	 *
 	 * @since 9.3.0
