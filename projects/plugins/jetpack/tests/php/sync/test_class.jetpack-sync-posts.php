@@ -1028,11 +1028,13 @@ POST_CONTENT;
 		register_post_type( 'non_public', $args );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'non_public' ) );
-
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
 		// Clean up.
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 		unregister_post_type( 'non_public' );
 
 		$this->assertSame( '', $synced_post->post_content_filtered );
