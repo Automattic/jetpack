@@ -12,26 +12,11 @@ importers:
 
   .:
     specifiers:
-      '@automattic/eslint-changed': workspace:1.0.1-alpha
-      '@wordpress/eslint-plugin': 7.4.0
-      babel-eslint: 10.1.0
       chalk: 4.1.1
-      eslint: 7.25.0
-      eslint-config-prettier: 8.3.0
-      eslint-config-wpcalypso: 6.1.0
-      eslint-loader: 4.0.2
-      eslint-plugin-es5: 1.5.0
-      eslint-plugin-inclusive-language: 1.2.1
-      eslint-plugin-jest: 24.3.6
-      eslint-plugin-jsdoc: 32.3.3
-      eslint-plugin-jsx-a11y: 6.4.1
-      eslint-plugin-lodash: 7.2.0
-      eslint-plugin-prettier: 3.4.0
-      eslint-plugin-react: 7.23.2
-      eslint-plugin-wpcalypso: 5.0.0
       glob: 7.1.6
       husky: 4.3.8
       jetpack-cli: workspace:1.0.0
+      jetpack-eslint: workspace:*
       parse-diff: 0.8.1
       prettier: npm:wp-prettier@2.0.5
       semver: 7.3.5
@@ -39,25 +24,10 @@ importers:
     dependencies:
       chalk: 4.1.1
     devDependencies:
-      '@automattic/eslint-changed': link:projects/js-packages/eslint-changed
-      '@wordpress/eslint-plugin': 7.4.0_eslint@7.25.0
-      babel-eslint: 10.1.0_eslint@7.25.0
-      eslint: 7.25.0
-      eslint-config-prettier: 8.3.0_eslint@7.25.0
-      eslint-config-wpcalypso: 6.1.0_6d3db79ccf2b505de9219d0afc266b20
-      eslint-loader: 4.0.2_eslint@7.25.0
-      eslint-plugin-es5: 1.5.0_eslint@7.25.0
-      eslint-plugin-inclusive-language: 1.2.1
-      eslint-plugin-jest: 24.3.6_eslint@7.25.0
-      eslint-plugin-jsdoc: 32.3.3_eslint@7.25.0
-      eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
-      eslint-plugin-lodash: 7.2.0_eslint@7.25.0
-      eslint-plugin-prettier: 3.4.0_1fb0897f48b0b69453836be230262d22
-      eslint-plugin-react: 7.23.2_eslint@7.25.0
-      eslint-plugin-wpcalypso: 5.0.0_eslint@7.25.0
       glob: 7.1.6
       husky: 4.3.8
       jetpack-cli: link:tools/cli
+      jetpack-eslint: link:tools/eslint
       parse-diff: 0.8.1
       prettier: /wp-prettier/2.0.5
       semver: 7.3.5
@@ -599,6 +569,42 @@ importers:
       chai: 4.3.4
       mocha: 8.2.1
       yargs-parser: 20.2.4
+
+  tools/eslint:
+    specifiers:
+      '@automattic/eslint-changed': workspace:1.0.1-alpha
+      '@wordpress/eslint-plugin': 7.4.0
+      babel-eslint: 10.1.0
+      eslint: 7.25.0
+      eslint-config-prettier: 8.3.0
+      eslint-config-wpcalypso: 6.1.0
+      eslint-loader: 4.0.2
+      eslint-plugin-es5: 1.5.0
+      eslint-plugin-inclusive-language: 1.2.1
+      eslint-plugin-jest: 24.3.6
+      eslint-plugin-jsdoc: 32.3.3
+      eslint-plugin-jsx-a11y: 6.4.1
+      eslint-plugin-lodash: 7.2.0
+      eslint-plugin-prettier: 3.4.0
+      eslint-plugin-react: 7.23.2
+      eslint-plugin-wpcalypso: 5.0.0
+    devDependencies:
+      '@automattic/eslint-changed': link:../../projects/js-packages/eslint-changed
+      '@wordpress/eslint-plugin': 7.4.0_eslint@7.25.0
+      babel-eslint: 10.1.0_eslint@7.25.0
+      eslint: 7.25.0
+      eslint-config-prettier: 8.3.0_eslint@7.25.0
+      eslint-config-wpcalypso: 6.1.0_6d3db79ccf2b505de9219d0afc266b20
+      eslint-loader: 4.0.2_eslint@7.25.0
+      eslint-plugin-es5: 1.5.0_eslint@7.25.0
+      eslint-plugin-inclusive-language: 1.2.1
+      eslint-plugin-jest: 24.3.6_eslint@7.25.0
+      eslint-plugin-jsdoc: 32.3.3_eslint@7.25.0
+      eslint-plugin-jsx-a11y: 6.4.1_eslint@7.25.0
+      eslint-plugin-lodash: 7.2.0_eslint@7.25.0
+      eslint-plugin-prettier: 3.4.0_e9d1ac6628d83db1359573269b37032a
+      eslint-plugin-react: 7.23.2_eslint@7.25.0
+      eslint-plugin-wpcalypso: 5.0.0_eslint@7.25.0
 
   tools/js-test-runner:
     specifiers:
@@ -3852,7 +3858,7 @@ packages:
       is-glob: 4.0.1
       lodash: 4.17.21
       semver: 7.3.5
-      tsutils: 3.20.0
+      tsutils: 3.21.0
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -6202,7 +6208,7 @@ packages:
       '@babel/types': 7.14.1
       eslint: 7.25.0
       eslint-visitor-keys: 1.3.0
-      resolve: 1.19.0
+      resolve: 1.20.0
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -8090,6 +8096,7 @@ packages:
         optional: true
     dependencies:
       ms: 2.1.2
+    dev: false
 
   /decamelize/1.2.0:
     resolution: {integrity: sha1-9lNNFRSCabIDUue+4m9QH5oZEpA=}
@@ -8949,7 +8956,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0
     dependencies:
       comment-parser: 1.1.5
-      debug: 4.3.2
+      debug: 4.3.1
       eslint: 7.25.0
       jsdoctypeparser: 9.0.0
       lodash: 4.17.21
@@ -8990,23 +8997,6 @@ packages:
       lodash: 4.17.21
     dev: true
 
-  /eslint-plugin-prettier/3.4.0_1fb0897f48b0b69453836be230262d22:
-    resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
-    engines: {node: '>=6.0.0'}
-    peerDependencies:
-      eslint: '>=5.0.0'
-      eslint-config-prettier: '*'
-      prettier: '>=1.13.0'
-    peerDependenciesMeta:
-      eslint-config-prettier:
-        optional: true
-    dependencies:
-      eslint: 7.25.0
-      eslint-config-prettier: 8.3.0_eslint@7.25.0
-      prettier: /wp-prettier/2.0.5
-      prettier-linter-helpers: 1.0.0
-    dev: true
-
   /eslint-plugin-prettier/3.4.0_78f889a4d298e472d2ac774dc8d2052c:
     resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
     engines: {node: '>=6.0.0'}
@@ -9021,6 +9011,22 @@ packages:
       eslint: 7.25.0
       eslint-config-prettier: 6.15.0_eslint@7.25.0
       prettier: /wp-prettier/2.2.1-beta-1
+      prettier-linter-helpers: 1.0.0
+    dev: true
+
+  /eslint-plugin-prettier/3.4.0_e9d1ac6628d83db1359573269b37032a:
+    resolution: {integrity: sha512-UDK6rJT6INSfcOo545jiaOwB701uAIt2/dR7WnFQoGCVl1/EMqdANBmwUaqqQ45aXprsTGzSa39LI1PyuRBxxw==}
+    engines: {node: '>=6.0.0'}
+    peerDependencies:
+      eslint: '>=5.0.0'
+      eslint-config-prettier: '*'
+      prettier: '>=1.13.0'
+    peerDependenciesMeta:
+      eslint-config-prettier:
+        optional: true
+    dependencies:
+      eslint: 7.25.0
+      eslint-config-prettier: 8.3.0_eslint@7.25.0
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -16643,15 +16649,6 @@ packages:
 
   /tslib/2.2.0:
     resolution: {integrity: sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==}
-    dev: true
-
-  /tsutils/3.20.0:
-    resolution: {integrity: sha512-RYbuQuvkhuqVeXweWT3tJLKOEJ/UUw9GjNEZGWdrLLlM+611o1gwLHBpxoFJKKl25fLprp2eVthtKs5JOrNeXg==}
-    engines: {node: '>= 6'}
-    peerDependencies:
-      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
-    dependencies:
-      tslib: 1.14.1
     dev: true
 
   /tsutils/3.21.0:
