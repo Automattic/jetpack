@@ -4,11 +4,11 @@
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "2.10.x-dev",
-		"automattic/jetpack-config": "1.4.x-dev",
-		"automattic/jetpack-connection": "1.28.x-dev",
-		"automattic/jetpack-connection-ui": "1.1.x-dev",
-		"automattic/jetpack-sync": "1.22.x-dev"
+		"automattic/jetpack-autoloader": "^2.10",
+		"automattic/jetpack-config": "^1.4",
+		"automattic/jetpack-connection": "^1.28",
+		"automattic/jetpack-connection-ui": "^1.1",
+		"automattic/jetpack-sync": "^1.22"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "0.2.0",
@@ -29,15 +29,7 @@
 			"pnpm run build-production-concurrently"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
