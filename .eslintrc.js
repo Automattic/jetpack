@@ -1,6 +1,6 @@
 module.exports = {
 	root: true,
-	parser: 'babel-eslint',
+	parser: '@babel/eslint-parser',
 	extends: [ 'wpcalypso', 'plugin:jsx-a11y/recommended', 'prettier' ],
 	env: {
 		browser: true,
@@ -15,6 +15,7 @@ module.exports = {
 		ecmaFeatures: {
 			jsx: true,
 		},
+		requireConfigFile: false,
 	},
 	settings: {},
 	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],

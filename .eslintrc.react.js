@@ -1,8 +1,25 @@
-// eslint config for react-using projects. Extend this instead of .eslintrc.js.
+// eslint config for react-using projects. Extend this instead of .eslintrc.js, probably like this:
+//
+// ```
+// module.exports = {
+// 	// This project uses react, so load the shared react config.
+// 	root: true,
+// 	extends: [ '../../../.eslintrc.react.js' ],
+// 	parserOptions: {
+// 		babelOptions: {
+// 			configFile: require.resolve( './babel.config.js' ),
+// 		},
+// 	},
+// };
+// ```
+
 module.exports = {
 	root: true,
-	parser: 'babel-eslint',
+	parser: '@babel/eslint-parser',
 	extends: [ 'wpcalypso/react', './.eslintrc.js' ],
+	parserOptions: {
+		requireConfigFile: true,
+	},
 	settings: {
 		react: {
 			version: 'detect', // React version. "detect" automatically picks the version you have installed.
