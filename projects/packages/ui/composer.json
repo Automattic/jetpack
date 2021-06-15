@@ -1,0 +1,33 @@
+{
+	"name": "automattic/jetpack-admin-page",
+	"description": "An admin page ui tool",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-logo": "^1.5"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "^1.2"
+	},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack\\AdminPage\\": "src/"
+		}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-ui",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-ui/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-master": "1.0.x-dev"
+		}
+	}
+}

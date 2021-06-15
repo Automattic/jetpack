@@ -2,7 +2,7 @@
 /**
  * An admin page wrapper
  *
- * @package jetpack-admin-page
+ * @package jetpack-ui
  */
 
 namespace Automattic\Jetpack\AdminPage;

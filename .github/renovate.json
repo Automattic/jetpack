@@ -15,7 +15,6 @@
 				"@automattic/jetpack-connection",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
-				"automattic/jetpack-admin-page",
 				"automattic/jetpack-analyzer",
 				"automattic/jetpack-assets",
 				"automattic/jetpack-autoloader",
@@ -44,7 +43,8 @@
 				"automattic/jetpack-status",
 				"automattic/jetpack-sync",
 				"automattic/jetpack-terms-of-service",
-				"automattic/jetpack-tracking"
+				"automattic/jetpack-tracking",
+				"automattic/jetpack-ui"
 			],
 			"enabled": false
 		},
