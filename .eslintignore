@@ -23,6 +23,7 @@ projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.co
 projects/plugins/jetpack/modules/custom-css/custom-css/js/core-customizer-css.js
 projects/plugins/jetpack/modules/widgets/search/js/search-widget-admin.js
 
+projects/plugins/jetpack/tests/e2e/output/
 projects/plugins/jetpack/vendor/
 
 # Temporary ignore until Jest is set up
@@ -33,5 +34,7 @@ projects/*/*/vendor
 projects/github-actions/*/dist
 projects/packages/*/wordpress
 projects/packages/connection-ui/build
+projects/packages/identity-crisis/build
 projects/packages/jitm/src/js/jetpack-jitm.js
+projects/packages/lazy-images/dist
 projects/plugins/backup/build
