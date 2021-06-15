@@ -223,20 +223,24 @@ function youtube_id( $url ) {
 	if ( isset( $args['start'] ) ) {
 		$start = (int) $args['start'];
 	} elseif ( isset( $args['t'] ) ) {
-		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
+		if ( is_numeric( $args['t'] ) ) {
+			$start = (int) $args['t'];
+		} else {
+			$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
-		foreach ( $time_pieces as $time_piece ) {
-			$int = (int) $time_piece;
-			switch ( substr( $time_piece, -1 ) ) {
-				case 'h':
-					$start += $int * 3600;
-					break;
-				case 'm':
-					$start += $int * 60;
-					break;
-				case 's':
-					$start += $int;
-					break;
+			foreach ( $time_pieces as $time_piece ) {
+				$int = (int) $time_piece;
+				switch ( substr( $time_piece, - 1 ) ) {
+					case 'h':
+						$start += $int * 3600;
+						break;
+					case 'm':
+						$start += $int * 60;
+						break;
+					case 's':
+						$start += $int;
+						break;
+				}
 			}
 		}
 	}
