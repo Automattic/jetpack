@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.1.0-alpha",
+	"version": "0.1.0",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-identity-crisis",

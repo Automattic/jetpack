@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Remove the 'authorizeUrl' RNA Connection parameter as it's no longer needed.
