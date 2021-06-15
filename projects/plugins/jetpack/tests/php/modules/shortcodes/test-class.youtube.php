@@ -60,6 +60,39 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests options within a YouTube URL as parsed as expected iframe parameters.
+	 *
+	 * @author kraftbj
+	 * @covers ::youtube_id
+	 * @dataProvider get_youtube_id_options
+	 * @since 9.9
+	 *
+	 * @param string $url The YouTube URL.
+	 * @param string $expected The expected iframe parameter output.
+	 */
+	public function test_shortcodes_youtube_id_options( $url, $expected ) {
+		$output = youtube_id( $url );
+
+		$this->assertContains( $expected, $output );
+	}
+
+	/**
+	 * Data provider with various YouTube URLs with the expected iframe parameter.
+	 */
+	public function get_youtube_id_options() {
+		return array(
+			't_as_seconds' => array(
+				'https://youtu.be/o-IvKy3322k?t=10683',
+				'start=10683',
+			),
+			't_as_mixed'   => array(
+				'https://youtu.be/o-IvKy3322k?t=1m1s',
+				'start=61',
+			),
+		);
+	}
+
+	/**
 	 * @author Toro_Unit
 	 * @covers ::youtube_shortcode
 	 * @since 3.9
@@ -74,7 +107,10 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 		wpcom_youtube_embed_crazy_url_init();
 		setup_postdata( $post );
 		ob_start();
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		the_content();
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 		$actual = ob_get_clean();
 		wp_reset_postdata();
 		$this->assertContains( '<span class="embed-youtube"', $actual );
