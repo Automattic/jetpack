@@ -15,6 +15,7 @@
 				"@automattic/jetpack-connection",
 				"automattic/jetpack-a8c-mc-stats",
 				"automattic/jetpack-abtest",
+				"automattic/jetpack-admin-page",
 				"automattic/jetpack-analyzer",
 				"automattic/jetpack-assets",
 				"automattic/jetpack-autoloader",
