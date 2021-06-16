@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enable sync/object endpoint support for theme-info
