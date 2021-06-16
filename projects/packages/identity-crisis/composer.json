@@ -9,7 +9,7 @@
 		"automattic/jetpack-options": "^1.13",
 		"automattic/jetpack-status": "^1.8",
 		"automattic/jetpack-tracking": "^1.13",
-		"automattic/jetpack-logo": "^1.5"
+		"automattic/jetpack-logo": "^1.6"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "^1.2",

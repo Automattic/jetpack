@@ -471,12 +471,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "1eb72f5a0f7ef1e4e8c72a416f39e1a9de2a059b"
+                "reference": "d78c5bcf0ce3b1002cd2380d272ba17bd3f659bc"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.28",
                 "automattic/jetpack-constants": "^1.6",
-                "automattic/jetpack-logo": "^1.5",
+                "automattic/jetpack-logo": "^1.6",
                 "automattic/jetpack-options": "^1.13",
                 "automattic/jetpack-status": "^1.8",
                 "automattic/jetpack-tracking": "^1.13"
@@ -544,7 +544,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "fded849729d28f06f5db6c986fc64a17a320b213"
+                "reference": "0d9a865d46c0f0b229c4f5bf8ea3ed5f446ed7c6"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^1.2",
@@ -558,7 +558,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.5.x-dev"
+                    "dev-master": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -4066,5 +4066,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }
