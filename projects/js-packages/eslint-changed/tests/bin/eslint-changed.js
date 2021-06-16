@@ -72,7 +72,11 @@ describe( 'bin/eslint-changed.js', () => {
 		const proc = await runEslintChanged( [ '--version' ] );
 		const data = await awaitExit( proc );
 		assert.strictEqual( data.exitCode, 0, 'Exit code is 0' );
-		assert.match( data.stdout, /^\d+\.\d+\.\d+\n$/s, 'Output looks like a version number' );
+		assert.match(
+			data.stdout,
+			/^\d+\.\d+\.\d+(?:-alpha)?\n$/s,
+			'Output looks like a version number'
+		);
 	} );
 
 	it( 'Fails when not passed --diff or --git', async () => {
@@ -238,6 +242,12 @@ describe( 'bin/eslint-changed.js', () => {
 
 			const opts = {
 				cwd: tmpdir,
+				env: {
+					GIT_AUTHOR_NAME: 'Testing',
+					GIT_AUTHOR_EMAIL: 'nobody@example.com',
+					GIT_COMMITTER_NAME: 'Testing',
+					GIT_COMMITTER_EMAIL: 'nobody@example.com',
+				},
 			};
 			childProcess.spawnSync( 'git', [ 'init', '.' ], opts );
 
