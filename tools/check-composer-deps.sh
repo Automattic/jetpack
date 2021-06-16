@@ -123,7 +123,7 @@ for SLUG in "${SLUGS[@]}"; do
 			changelogger "$SLUG" 'Updated package dependencies.'
 			DIDCL=true
 		fi
-		if [[ -n "$(git ls-files "projects/$SLUG/composer.lock")" ]]; then
+		if [[ -n "$(git -c core.quotepath=off ls-files "projects/$SLUG/composer.lock")" ]]; then
 			PROJECTFOLDER="$BASE/projects/$SLUG"
 			cd "$PROJECTFOLDER"
 			debug "Updating $SLUG composer.lock"
