@@ -48,7 +48,7 @@
 		"localtunnel": "2.0.1",
 		"lodash": "4.17.21",
 		"mkdirp": "1.0.4",
-		"playwright": "1.11.0",
+		"playwright": "1.12.2",
 		"pm2": "4.5.6",
 		"rimraf": "3.0.2",
 		"shell-escape": "0.2.0",
