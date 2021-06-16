@@ -20,6 +20,7 @@
 			"url": "../*"
 		}
 	],
+	"minimum-stability": "dev",
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-ui",
