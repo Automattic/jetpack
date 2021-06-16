@@ -50,7 +50,7 @@ class Test_REST_Endpoints extends TestCase {
 		new REST_Connector( new Manager() );
 
 		$this->api_host_original = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
-		Constants::set_contstant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 
