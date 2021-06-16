@@ -1623,9 +1623,10 @@ class Jetpack_Safe_CSS {
 		$csstidy->set_cfg( 'remove_last_;', false );
 		$csstidy->set_cfg( 'css_level', 'CSS3.0' );
 
-		// Turn off css shorthands when in block editor context as it breaks block validation.
+		// Turn off css shorthands and leading zero removal when in block editor context as it breaks block validation.
 		if ( true === isset( $_REQUEST['_gutenberg_nonce'] ) && wp_verify_nonce( $_REQUEST['_gutenberg_nonce'], 'gutenberg_request' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			$csstidy->set_cfg( 'optimise_shorthands', 0 );
+			$csstidy->set_cfg( 'preserve_leading_zeros', true );
 		}
 
 		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $css );

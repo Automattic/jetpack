@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove dependency on @wordpress/url as it caused dependency issues in build test flows.
