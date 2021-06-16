@@ -40,7 +40,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom' ) )
+			->setMethods( array( 'get_tokens', 'get_connection_owner_id', 'unlink_user_from_wpcom', 'update_connection_owner_wpcom' ) )
 			->getMock();
 
 		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
@@ -410,6 +410,146 @@ class ManagerTest extends TestCase {
 				false,
 			),
 		);
+	}
+
+	/**
+	 * Test updating the connection owner to a non-admin user.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_non_admin() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+
+		$expected = new WP_Error( 'new_owner_not_admin', __( 'New owner is not admin', 'jetpack' ), array( 'status' => 400 ) );
+
+		$result = $this->manager->update_connection_owner( $editor_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner to the existing owner.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_same_owner() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $admin_id );
+
+		$expected = new WP_Error( 'new_owner_is_existing_owner', __( 'New owner is same as existing owner', 'jetpack' ), array( 'status' => 400 ) );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner to a not connected admin.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_not_connected() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$expected = new WP_Error( 'new_owner_not_connected', __( 'New owner is not connected', 'jetpack' ), array( 'status' => 400 ) );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner when remote call to wpcom fails.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_with_failed_wpcom_request() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => $admin_id,
+		);
+		$this->tokens->expects( $this->once() )
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $this->user_id );
+		$this->manager->method( 'update_connection_owner_wpcom' )
+			->willReturn( false );
+
+		$expected = new WP_Error( 'error_setting_new_owner', __( 'Could not confirm new owner.', 'jetpack' ), array( 'status' => 500 ) );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Test updating the connection owner when remote call to wpcom succeeds.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner
+	 */
+	public function test_update_connection_owner_with_successful_wpcom_request() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'admin@admin.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => $admin_id,
+		);
+		$this->tokens->expects( $this->once() )
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
+
+		$this->manager->method( 'get_connection_owner_id' )
+			->withAnyParameters()
+			->willReturn( $this->user_id );
+		$this->manager->method( 'update_connection_owner_wpcom' )
+			->willReturn( true );
+
+		$result = $this->manager->update_connection_owner( $admin_id );
+
+		$this->assertTrue( $result );
 	}
 
 	/**
