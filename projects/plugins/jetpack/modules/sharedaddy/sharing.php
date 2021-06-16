@@ -10,7 +10,12 @@ if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 
 class Sharing_Admin {
 
-    private $admin_page = null;
+	/**
+	 * Admin page.
+	 *
+	 * @var \Automattic\Jetpack\UI\Page
+	 */
+	private $admin_page = null;
 
 	public function __construct() {
 		require_once WP_SHARING_PLUGIN_DIR . 'sharing-service.php';
@@ -96,7 +101,7 @@ class Sharing_Admin {
 				return;
 			}
 		}
-        $page = add_submenu_page(
+		$page = add_submenu_page(
 			'options-general.php',
 			__( 'Sharing Settings', 'jetpack' ),
 			__( 'Sharing', 'jetpack' ),
@@ -205,8 +210,11 @@ class Sharing_Admin {
 <?php
 	}
 
+	/**
+	 * Function to process and echo admin page.
+	 */
 	public function wrapper_admin_page() {
-		echo $this->admin_page->render( array( &$this, 'management_page' ) );
+		echo $this->admin_page->render( array( $this, 'management_page' ) );
 	}
 
 	public function management_page() {

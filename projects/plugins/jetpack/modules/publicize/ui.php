@@ -65,6 +65,9 @@ class Publicize_UI {
 		$this->admin_page = new Admin_Page( $page );
 	}
 
+	/**
+	 * Function to process and echo the admin page.
+	 */
 	function wrapper_admin_page() {
 	    echo $this->admin_page->render( array( $this, 'management_page' ) );
 	}

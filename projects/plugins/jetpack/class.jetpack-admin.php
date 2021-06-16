@@ -18,7 +18,8 @@ class Jetpack_Admin {
 
 	/**
 	 * Admin Page.
-	 * @var null
+	 *
+	 * @var \Automattic\Jetpack\UI\Page
 	 */
 	private $admin_page = null;
 

@@ -8,7 +8,12 @@ use Automattic\Jetpack\UI\Page as Admin_Page;
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
 
-    protected $admin_page;
+	/**
+	 * Admin page.
+	 *
+	 * @var \Automattic\Jetpack\UI\Page
+	 */
+	protected $admin_page;
 	// Add page specific actions given the page hook
 	abstract function add_page_actions( $hook );
 
@@ -74,7 +79,7 @@ abstract class Jetpack_Admin_Page {
 		}
 
 		// Initialize menu item for the page in the admin
-		$hook = $this->get_page_hook();
+		$hook             = $this->get_page_hook();
 		$this->admin_page = new Admin_Page( $hook );
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.

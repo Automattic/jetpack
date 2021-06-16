@@ -58,6 +58,8 @@ class Jetpack_Network {
 
 	/**
 	 * Admin page.
+	 *
+	 * @var \Automattic\Jetpack\UI\Page
 	 */
 	private $admin_page;
 
