@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Security: Hardening the Jetpack Logo by validating SVG tags against known good tags.

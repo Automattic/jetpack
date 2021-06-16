@@ -40,10 +40,7 @@ class Header {
 				<div class="jetpack-admin-page__logo">
 					<a class="jetpack-admin-page__logo-link" href="<?php echo esc_url( $jetpack_admin_url ); ?>">
 						<?php
-						echo wp_kses(
-							$logo->render(),
-							$logo->kses_svg_tags()
-						);
+						echo wp_kses( $logo->render(), $logo->kses_svg_tags() );
 						?>
 					</a>
 				</div>

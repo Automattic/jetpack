@@ -276,7 +276,7 @@ class Jetpack_Connection_Banner {
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<?php
 							$logo = new Logo();
-							echo $logo->render();
+							echo wp_kses( $logo->render(), $logo->kses_svg_tags() );
 							?>
 							<img
 								src="<?php echo plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ); ?>"
@@ -423,7 +423,7 @@ class Jetpack_Connection_Banner {
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<?php
 					$logo = new Logo();
-					echo $logo->render();
+					echo wp_kses( $logo->render(), $logo->kses_svg_tags() );
 					?>
 
 					<?php
