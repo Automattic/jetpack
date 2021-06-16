@@ -33,8 +33,19 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
+### 0.1.0-beta - 2021-06-15
+#### Added
+- Added RNA connection to the plugin.
+- Initial wire frame for the Jetpack Backup plugin.
 
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+#### Changed
+- Changes associated with plugin release process.
+- Updated package dependencies.
+- Update RNA Connection usage based on Automattic/jetpack/pull/19837.
+- Utilize the config package for sync and connection.
+
+#### Fixed
+- Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 == Arbitrary section ==
 
