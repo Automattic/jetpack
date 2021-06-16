@@ -1,10 +1,10 @@
 <?php
 
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\UI\Page as Admin_Page;
 
 // Build the Jetpack admin menu as a whole
-use Automattic\Jetpack\AdminPage\Page as AdminPage;
 
 /**
  * Class Jetpack_Admin
@@ -417,7 +417,7 @@ class Jetpack_Admin {
 			array( $this, 'wrap_debugger_page' )
 		);
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
-		$this->admin_page = new AdminPage( $debugger_hook );
+		$this->admin_page = new Admin_Page( $debugger_hook );
 	}
 
 	function wrap_debugger_page() {

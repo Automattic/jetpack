@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\AdminPage\Page as AdminPage;
+use Automattic\Jetpack\UI\Page as Admin_Page;
 
 /**
 * Only user facing pieces of Publicize are found here.
@@ -62,7 +62,7 @@ class Publicize_UI {
 			'sharing',
 			array( $this, 'wrapper_admin_page' )
 		);
-		$this->admin_page = new AdminPage( $page );
+		$this->admin_page = new Admin_Page( $page );
 	}
 
 	function wrapper_admin_page() {

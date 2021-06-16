@@ -5,7 +5,7 @@
  * @package jetpack-ui
  */
 
-namespace Automattic\Jetpack\AdminPage;
+namespace Automattic\Jetpack\UI;
 
 /**
  * Create and render a Jetpack logo.

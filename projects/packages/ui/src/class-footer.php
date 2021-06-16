@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack\AdminPage;
+namespace Automattic\Jetpack\UI;
 
 /**
  * Create and Render the Jetpack Footer

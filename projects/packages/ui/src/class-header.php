@@ -5,7 +5,7 @@
  * @package jetpack-logo
  */
 
-namespace Automattic\Jetpack\AdminPage;
+namespace Automattic\Jetpack\UI;
 
 use Automattic\Jetpack\Assets\Logo;
 

@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-admin-page",
+	"name": "automattic/jetpack-ui",
 	"description": "An admin page ui tool",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
@@ -10,9 +10,9 @@
 		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\AdminPage\\": "src/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"repositories": [
 		{

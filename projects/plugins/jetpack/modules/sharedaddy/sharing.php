@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack\AdminPage\Page as AdminPage;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\UI\Page as Admin_Page;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -105,7 +105,7 @@ class Sharing_Admin {
 			array( &$this, 'wrapper_admin_page' )
 		);
 
-		$this->admin_page = new AdminPage( $page );
+		$this->admin_page = new Admin_Page( $page );
 	}
 
 	public function ajax_save_services() {

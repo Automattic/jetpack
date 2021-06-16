@@ -5,10 +5,10 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\AdminPage\Page as AdminPage;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\UI\Page as Admin_Page;
 
 /**
  * Used to manage Jetpack installation on Multisite Network installs
@@ -306,7 +306,7 @@ class Jetpack_Network {
 		add_action( "admin_print_styles-$jetpack_sites_page_hook", array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
 		add_action( "admin_print_styles-$jetpack_settings_page_hook", array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
 
-		$this->admin_page = new AdminPage( array( $page, $jetpack_sites_page_hook, $jetpack_settings_page_hook ) );
+		$this->admin_page = new Admin_Page( array( $page, $jetpack_sites_page_hook, $jetpack_settings_page_hook ) );
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
 		 * the hook may have already fired by this point.

@@ -1,9 +1,9 @@
 <?php
 
-use Automattic\Jetpack\AdminPage\Page as AdminPage;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\UI\Page as Admin_Page;
 
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
@@ -75,7 +75,7 @@ abstract class Jetpack_Admin_Page {
 
 		// Initialize menu item for the page in the admin
 		$hook = $this->get_page_hook();
-		$this->admin_page = new AdminPage( $hook );
+		$this->admin_page = new Admin_Page( $hook );
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.
 		add_action( "load-$hook", array( $this, 'admin_help' ) );

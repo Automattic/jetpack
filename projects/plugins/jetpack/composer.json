@@ -13,7 +13,6 @@
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "1.4.x-dev",
 		"automattic/jetpack-abtest": "1.9.x-dev",
-		"automattic/jetpack-admin-page": "@dev",
 		"automattic/jetpack-assets": "1.11.x-dev",
 		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-backup": "1.0.x-dev",
@@ -39,6 +38,7 @@
 		"automattic/jetpack-sync": "1.22.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.13.x-dev",
+		"automattic/jetpack-ui": "1.0.0-dev",
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
