@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -478,5 +479,14 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$upgrader = new Theme_Upgrader( new Silent_Upgrader_Skin() );
 		$upgrader->install( $api->download_link, array( 'overwrite_package' => $overwrite ) );
+	}
+
+	/**
+	 * Verify that all constants are returned by get_objects_by_id.
+	 */
+	public function test_get_objects_by_id() {
+		$module     = Modules::get_module( 'themes' );
+		$theme_info = $module->get_objects_by_id( 'theme-info', array() );
+		$this->assertEquals( $module->expand_theme_data(), $theme_info );
 	}
 }

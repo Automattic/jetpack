@@ -24,6 +24,10 @@ class Main {
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
 		}
+
+		// Add REST endpoints.
+		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Sync\\REST_Endpoints', 'initialize_rest_api' ) );
+
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 	}
