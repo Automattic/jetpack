@@ -8,6 +8,8 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 
+const APP_VERSION = '1.0.1-alpha';
+
 const { program } = require( 'commander' );
 program
 	.usage(
@@ -47,7 +49,7 @@ program
 		'.js'
 	)
 	.option( '--format <name>', 'Eslint format to use for output.', 'stylish' )
-	.version( '1.0.0' );
+	.version( APP_VERSION );
 
 program.parse();
 const argv = program.opts();
@@ -213,6 +215,10 @@ async function main() {
 		diff = parseDiff( fs.readFileSync( argv.diff, 'utf8' ) );
 		diffBase = argv.diffBase || process.cwd();
 		files = getFilesFromDiff( diff );
+		if ( program.args.length ) {
+			const cmdLineFiles = new Set( program.args );
+			files = files.filter( file => cmdLineFiles.has( file ) );
+		}
 		debug( 'Determined files from diff:', files );
 		eslintOrig = JSON.parse( fs.readFileSync( argv.eslintOrig, 'utf8' ) );
 		eslintNew = JSON.parse( fs.readFileSync( argv.eslintNew, 'utf8' ) );
@@ -250,8 +256,9 @@ async function main() {
 		newLines[ fileName ] = nl;
 	} );
 
-	eslintOrig = eslintOrig.filter( x => oldLines[ x.filePath ] );
-	eslintNew = eslintNew.filter( x => newLines[ x.filePath ] );
+	files = new Set( files.map( file => path.resolve( diffBase, file ) ) );
+	eslintOrig = eslintOrig.filter( x => files.has( x.filePath ) && oldLines[ x.filePath ] );
+	eslintNew = eslintNew.filter( x => files.has( x.filePath ) && newLines[ x.filePath ] );
 
 	const origMsgs = {};
 	eslintOrig.forEach( file => {
