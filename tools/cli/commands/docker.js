@@ -28,6 +28,10 @@ const defaultOpts = yargs =>
 		.option( 'port', {
 			alias: 'p',
 			describe: 'WP port',
+		} )
+		.option( 'ngrok', {
+			type: 'bool',
+			describe: 'Flag to launch ngrok process',
 		} );
 
 /**
@@ -115,23 +119,75 @@ const setVolumes = argv => {
 };
 
 /**
+ * Checks whether the command should run in foreground
+ *
+ * @param {object} argv - argv
+ * @returns {boolean} whether command is running in foreground
+ */
+const isInForeground = argv => argv.detached || argv.ngrok;
+
+/**
+ * Prints some contents before command execution
+ *
+ * @param {object} argv - argv
+ */
+const printPreCmdMsg = argv => {
+	if ( argv.v ) {
+		console.log( argv );
+	}
+};
+
+/**
+ * Prints some contents after command execution
+ *
+ * @param {object} argv - argv
+ */
+const printPostCmdMsg = argv => {
+	if ( isInForeground( argv ) ) {
+		return;
+	}
+	if ( argv._[ 1 ] === 'up' ) {
+		const port = argv.port ? argv.port : '';
+		const msg = chalk.green( `Open http://localhost${ port }/ to see your site!` );
+		console.log( msg );
+	}
+};
+
+/**
  * Default executor with error handler
  *
  * @param {object} argv - Yargs
  * @param {Function} fnc - Function to execute
+ * @returns {any} resulting value from fnc
  */
 const executor = ( argv, fnc ) => {
 	try {
-		fnc( argv );
+		return fnc( argv );
 	} catch ( error ) {
 		console.error( chalk.bgRed( `Failed to execute the function. Error:` ) );
 		console.error( error );
 		process.exit( 1 );
 	}
+};
 
+const shellExecutor = ( argv, cmd, args, opts = {} ) => {
 	if ( argv.v ) {
-		console.log( argv );
+		console.log(
+			chalk.green( 'Running command:' ),
+			opts.env
+				? Object.entries( opts.env )
+						.map( a => `${ a[ 0 ] }=${ a[ 1 ] }` )
+						.join( ' ' )
+				: '',
+			cmd,
+			args.join( ' ' )
+		);
 	}
+	return spawnSync( cmd, args, {
+		stdio: 'inherit',
+		...opts,
+		env: { ...opts.env, ...process.env },
+	} );
 };
 
 /**
@@ -142,23 +198,7 @@ const executor = ( argv, fnc ) => {
  * @param {object} envOpts - key-value pairs of the ENV variables to set
  */
 const composeExecutor = ( argv, opts, envOpts ) => {
-	executor( argv, () => {
-		if ( argv.v ) {
-			console.log(
-				'Running command: ',
-				Object.entries( envOpts )
-					.map( a => `${ a[ 0 ] }=${ a[ 1 ] }` )
-					.join( ' ' ),
-				'docker-compose',
-				opts.join( ' ' )
-			);
-		}
-
-		spawnSync( `docker-compose`, opts, {
-			env: { ...envOpts, ...process.env },
-			stdio: 'inherit',
-		} );
-	} );
+	executor( argv, () => shellExecutor( argv, 'docker-compose', opts, { env: envOpts } ) );
 };
 
 /**
@@ -190,7 +230,7 @@ const buildDefaultCmd = argv => {
 	const opts = buildComposeFiles( argv );
 	if ( argv._[ 1 ] === 'up' ) {
 		opts.push( 'up' );
-		if ( argv.detached ) {
+		if ( isInForeground( argv ) ) {
 			opts.push( '-d' );
 		}
 	} else if ( argv._[ 1 ] === 'down' ) {
@@ -205,11 +245,40 @@ const buildDefaultCmd = argv => {
 };
 
 /**
+ * Creates a tunnel using globally installed ngrok and it's configuration file
+ *
+ * @param {object} argv - argv
+ */
+const launchNgrok = argv => {
+	const docsMessage = 'Please refer to Docker docs for details: tools/docker/README.md';
+	const existCheck = executor( argv, () => shellExecutor( argv, 'command', [ '-v', 'ngrok' ] ) );
+	if ( existCheck.status !== 0 ) {
+		console.error( chalk.red( `'ngrok' is not installed globally. ${ docsMessage }` ) );
+		process.exit( 1 );
+	}
+
+	const ngrokArgs = [ 'start', 'jetpack' ];
+	if ( argv.ngrok === 'sftp' ) {
+		ngrokArgs.push( 'jetpack-sftp' );
+	}
+	const startCheck = executor( argv, () => shellExecutor( argv, 'ngrok', ngrokArgs ) );
+	if ( startCheck.status !== 0 ) {
+		console.error(
+			chalk.red(
+				`Something is wrong with ngrok configuration. Examine ngrok errors above. ${ docsMessage }`
+			)
+		);
+	}
+};
+
+/**
  * Default handler for the monorepo Docker commands.
  *
  * @param {object} argv - Arguments passed.
  */
 const defaultDockerCmdHandler = argv => {
+	printPreCmdMsg( argv );
+
 	executor( argv, setEnv );
 	executor( argv, setVolumes );
 	executor( argv, setExtras );
@@ -217,6 +286,10 @@ const defaultDockerCmdHandler = argv => {
 	const opts = buildDefaultCmd( argv );
 	const envOpts = buildEnv( argv );
 	composeExecutor( argv, opts, envOpts );
+	if ( argv.type === 'dev' && argv.ngrok ) {
+		executor( argv, launchNgrok );
+	}
+	printPostCmdMsg( argv );
 };
 
 /**
@@ -237,9 +310,19 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'db' ) {
 		opts.push( 'mysql', '--defaults-group-suffix=docker' );
 	} else if ( cmd === 'phpunit' ) {
+		const unitArgs = argv._.slice( 2 );
+
 		opts.push(
 			'phpunit',
-			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist'
+			'--configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist',
+			...unitArgs
+		);
+	} else if ( cmd === 'phpunit-multisite' ) {
+		const unitArgs = argv._.slice( 2 );
+		opts.push(
+			'phpunit',
+			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml',
+			...unitArgs
 		);
 	} else if ( cmd === 'wp' ) {
 		const wpArgs = argv._.slice( 2 );
@@ -248,11 +331,6 @@ const buildExecCmd = argv => {
 		opts.push( '/var/scripts/tail.sh' );
 	} else if ( cmd === 'uninstall' ) {
 		opts.push( '/var/scripts/uninstall.sh' );
-	} else if ( cmd === 'phpunit-multisite' ) {
-		opts.push(
-			'phpunit',
-			'--configuration=/var/www/html/wp-content/plugins/jetpack/tests/php.multisite.xml'
-		);
 	} else if ( cmd === 'multisite-convert' ) {
 		opts.push( '/var/scripts/multisite-convert.sh' );
 	} else if ( cmd === 'update-core-unit-tests' ) {
@@ -275,6 +353,8 @@ const buildExecCmd = argv => {
  * @param {object} argv - Yargs object
  */
 const execDockerCmdHandler = argv => {
+	printPreCmdMsg( argv );
+
 	const envOpts = buildEnv( argv );
 	const opts = buildExecCmd( argv );
 
@@ -309,12 +389,7 @@ const execJtCmdHandler = argv => {
 		cmd = jtTunnelFile;
 	}
 
-	executor( argv, () => {
-		spawnSync( cmd, opts.concat( jtOpts ), {
-			env: { ...process.env },
-			stdio: 'inherit',
-		} );
-	} );
+	executor( argv, () => shellExecutor( argv, cmd, opts.concat( jtOpts ) ) );
 };
 
 /**
@@ -361,8 +436,9 @@ export function dockerDefine( yargs ) {
 					handler: argv => {
 						defaultDockerCmdHandler( argv );
 						const project = getProjectName( argv );
-						executor( argv, () => {
-							spawnSync(
+						executor( argv, () =>
+							shellExecutor(
+								argv,
 								'rm',
 								[
 									'-rf',
@@ -373,24 +449,22 @@ export function dockerDefine( yargs ) {
 									`${ dockerFolder }/logs/${ project }_mysql/`,
 									`${ dockerFolder }/data/${ project }_mysql/*`,
 								],
-								{ stdio: 'inherit', env: { ...process.env }, shell: true }
-							);
-						} );
+								{ shell: true }
+							)
+						);
 					},
 				} )
 				.command( {
 					command: 'build-image',
 					description: 'Builds local docker image',
 					handler: argv => {
-						console.log( '!! BUILD IMAGE HANDLER', argv );
 						executor( argv, () =>
-							spawnSync(
-								`docker`,
-								[ 'build', '-t', 'automattic/jetpack-wordpress-dev', `${ dockerFolder }` ],
-								{
-									stdio: 'inherit',
-								}
-							)
+							shellExecutor( argv, 'docker', [
+								'build',
+								'-t',
+								'automattic/jetpack-wordpress-dev',
+								dockerFolder,
+							] )
 						);
 					},
 				} )
