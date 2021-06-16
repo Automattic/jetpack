@@ -1067,6 +1067,9 @@ That was a cool video.';
 
 		$oembeded = explode( '#DIMENSIONS#', $oembeded );
 
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
+
 		$this->assertContains(
 			$oembeded[0],
 			apply_filters( 'the_content', $this->post->post_content ),
@@ -1098,6 +1101,8 @@ That was a cool video.';
 			apply_filters( 'the_content', $filtered ),
 			'$oembeded is NOT the same as filtered $filtered'
 		);
+
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
