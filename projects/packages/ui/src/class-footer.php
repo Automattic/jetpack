@@ -18,7 +18,6 @@ class Footer {
 	 * @return string
 	 */
 	public function render() {
-
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 		$jetpack_about_url = ( apply_filters( 'jetpack_in_dev_mode', false ) )
 			? admin_url( 'admin.php?page=jetpack_about' )
