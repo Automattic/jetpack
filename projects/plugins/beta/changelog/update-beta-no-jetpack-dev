@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Load markdown library from either a dev or stable version of Jetpack.
