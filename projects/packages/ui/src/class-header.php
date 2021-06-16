@@ -1,8 +1,8 @@
 <?php
 /**
- * A logo for Jetpack.
+ * Header class.
  *
- * @package jetpack-logo
+ * @package jetpack-ui
  */
 
 namespace Automattic\Jetpack\UI;
@@ -23,7 +23,16 @@ class Header {
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 
 		$logo = new Logo();
-		$logo = apply_filters( 'jetpack-admin-page-header-logo', $logo );
+		/**
+		 * Sets the Logo.
+		 *
+		 * @since 9.9.0
+		 *
+		 * @package ui
+		 *
+		 * @param object $logo Logo object.
+		 */
+		$logo = apply_filters( 'jetpack_ui_header_logo', $logo );
 		ob_start();
 		?>
 		<div class="jetpack-admin-page__header">
@@ -31,7 +40,10 @@ class Header {
 				<div class="jetpack-admin-page__logo">
 					<a class="jetpack-admin-page__logo-link" href="<?php echo esc_url( $jetpack_admin_url ); ?>">
 						<?php
-						echo $logo->render();
+						echo wp_kses(
+							$logo->render(),
+							$logo->kses_svg_tags()
+						);
 						?>
 					</a>
 				</div>

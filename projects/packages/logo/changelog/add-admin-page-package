@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added function to return array of allowed SVG tags for use with KSES

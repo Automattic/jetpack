@@ -1,4 +1,9 @@
 <?php
+/**
+ * Footer class.
+ *
+ * @package automattic/jetpack-ui
+ */
 
 namespace Automattic\Jetpack\UI;
 
@@ -71,9 +76,17 @@ class Footer {
 		/**
 		 * Filter the links present in the footer.
 		 *
-		 * @since 7.5.0
+		 * @since 9.9.0
+		 *
+		 * @param array $links {
+		 *      Footer links
+		 *
+		 *      @type string $url URL for link.
+		 *      @type string $title Title of link (used in <a title='title'> context).
+		 *      @type string $name Name of link (used in <a href...>name</a> context).
+		 * }
 		 */
-		$links = apply_filters( 'jetpack-admin-page-footter-links', $links );
+		$links = apply_filters( 'jetpack_ui_footer_links', $links );
 		?>
 		<div class="jetpack-admin-page__footer">
 			<div class="jp-footer__a8c-attr-container">

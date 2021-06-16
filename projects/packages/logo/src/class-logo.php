@@ -87,4 +87,31 @@ class Logo {
 			<path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z" />',
 		);
 	}
+
+	/**
+	 * Function to use with KSES to allow SVG elements.
+	 */
+	public function kses_svg_tags() {
+		return array(
+			'svg'     => array(
+				'xmlns'       => array(),
+				'fill'        => array(),
+				'viewbox'     => array(),
+				'role'        => array(),
+				'aria-hidden' => array(),
+				'focusable'   => array(),
+				'height'      => array(),
+				'x'           => array(),
+				'y'           => array(),
+			),
+			'path'    => array(
+				'd'    => array(),
+				'fill' => array(),
+			),
+			'polygon' => array(
+				'points' => array(),
+				'fill'   => array(),
+			),
+		);
+	}
 }
