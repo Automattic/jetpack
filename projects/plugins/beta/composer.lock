@@ -4,8 +4,66 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e7649788fd2a76ffee05ae00db18bb9",
+    "content-hash": "9694e433aff2bb1db166b97893d0f028",
     "packages": [
+        {
+            "name": "automattic/jetpack-autoloader",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/autoloader",
+                "reference": "95ff0278a5308e68e73dd68d1af98251fbbdbb4e"
+            },
+            "require": {
+                "composer-plugin-api": "^1.1 || ^2.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "^1.2",
+                "yoast/phpunit-polyfills": "0.2.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "autotagger": true,
+                "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
+                "mirror-repo": "Automattic/jetpack-autoloader",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-autoloader/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-master": "2.10.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/AutoloadGenerator.php"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Autoloader\\": "src"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer update",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer update",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
+                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Creates a custom autoloader for a plugin or theme.",
+            "transport-options": {
+                "monorepo": true,
+                "relative": true
+            }
+        },
         {
             "name": "automattic/jetpack-logo",
             "version": "dev-master",
@@ -62,7 +120,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ui",
-                "reference": "2c3335b6ca2c4cd0d5585036d7b6aec223fe8e0e"
+                "reference": "8bbe6d5b1b87d1e8795513521f8e67d8a87cc9e9"
             },
             "require": {
                 "automattic/jetpack-logo": "^1.6"
@@ -78,7 +136,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-ui/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "0.1.x-dev"
                 }
             },
             "autoload": {
@@ -1148,6 +1206,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-ui": 20,
         "automattic/jetpack-changelogger": 20
     },

@@ -8,7 +8,8 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-ui": "1.0.x-dev"
+		"automattic/jetpack-autoloader": "2.10.x-dev",
+		"automattic/jetpack-ui": "0.1.x-dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.2.x-dev"

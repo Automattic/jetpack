@@ -59,6 +59,65 @@ define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-gro
 
 defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
 
+/**
+ * This is where the loading of Jetpack Beta.
+ *
+ * First, we try to load our composer autoloader.
+ *
+ * - If it fails, we "pause" Jetpack by ending the loading process
+ *   and displaying an admin_notice to inform the site owner.
+ *   (We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.)
+ * - If it succeeds, we require load-jetpack.php, where all legacy files are required,
+ *   and where we add on to various hooks that we expect to always run.
+ */
+$jetpack_beta_autoloader = JPBETA__PLUGIN_DIR . 'vendor/autoload_packages.php';
+if ( is_readable( $jetpack_beta_autoloader ) ) {
+	require $jetpack_beta_autoloader;
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			sprintf(
+			/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack from GitHub, please refer to this document to set up your development environment: %1$s', 'jetpack' ),
+				'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+			)
+		);
+	}
+
+	/**
+	 * Outputs an admin notice for folks running Jetpack without having run composer install.
+	 *
+	 * @since 7.4.0
+	 */
+	function jetpack_admin_missing_autoloader() {
+		?>
+		<div class="notice notice-error is-dismissible">
+			<p>
+				<?php
+				printf(
+					wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+						__( 'Your installation of Jetpack Beta is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Ensure you have run jetpack install plugins/beta.', 'jetpack' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
+					),
+					'https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md'
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	add_action( 'admin_notices', 'jetpack_admin_missing_autoloader' );
+	return;
+}
+
 require_once 'class-jetpack-beta-autoupdate-self.php';
 require_once 'class-jetpackbetaclicommand.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
