@@ -16,7 +16,7 @@ use Jetpack\Docker\MuPlugin\Monorepo;
 
 // This allows us to use the most unstable version of packages, e.g. the monorepo versions.
 if ( ! defined( 'JETPACK_AUTOLOAD_DEV' ) ) {
-	define( JETPACK_AUTOLOAD_DEV, true );
+	define( 'JETPACK_AUTOLOAD_DEV', true );
 }
 
 /**
