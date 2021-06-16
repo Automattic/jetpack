@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use `absoluteRuntime` in babel JS build to avoid module not found errors.
