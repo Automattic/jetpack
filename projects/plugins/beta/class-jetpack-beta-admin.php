@@ -5,6 +5,8 @@
  * @package automattic/jetpack-beta
  */
 
+use Automattic\Jetpack\UI\Page as Admin_Page;
+
 /** Class Jetpack_Beta_Admin */
 class Jetpack_Beta_Admin {
 
@@ -53,6 +55,7 @@ class Jetpack_Beta_Admin {
 	public static function render() {
 		Jetpack_Beta::get_beta_manifest( true );
 		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
+		echo ( new Admin_Page( self::get_page_hook() ) )->render( 'jetpack_beta_admin_page' );
 	}
 
 	/** Return the beta plugin's settings link. */

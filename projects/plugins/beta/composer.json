@@ -7,7 +7,9 @@
 	"support": {
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
-	"require": {},
+	"require": {
+		"automattic/jetpack-ui": "1.0.x-dev"
+	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},

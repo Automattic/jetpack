@@ -5,7 +5,8 @@
  * @package automattic/jetpack-beta
  */
 
-?>
+function jetpack_beta_admin_page() {
+	?>
 
 <div class="jetpack-beta__master-head">
 	<div class="jetpack-beta-container">
@@ -121,3 +122,5 @@
 		</div>
 	<?php } ?>
 </div>
+	<?php
+}
