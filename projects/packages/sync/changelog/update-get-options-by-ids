@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Extend sync/object to support callables.

@@ -73,7 +73,7 @@ $head = $event->pull_request->head->sha;
 debug( 'Checking diff from %s...%s.', $base, $head );
 $pipes = null;
 $p     = proc_open(
-	sprintf( 'git diff --no-renames --name-only %s...%s', escapeshellarg( $base ), escapeshellarg( $head ) ),
+	sprintf( 'git -c core.quotepath=off diff --no-renames --name-only %s...%s', escapeshellarg( $base ), escapeshellarg( $head ) ),
 	array( array( 'pipe', 'r' ), array( 'pipe', 'w' ), STDERR ),
 	$pipes
 );

@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Use Connection/Urls for home_url and site_url functions migrated from Sync.
