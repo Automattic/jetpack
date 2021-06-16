@@ -1,13 +1,24 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-package.json      export-ignore
+# Files to include in mirror repo: Automattic/jetpack-backup-plugin
+build/**                                    production-include
+vendor/autoload.php                         production-include
+vendor/autoload_packages.php                production-include
+vendor/automattic/**                        production-include
+vendor/composer/**                          production-include
+vendor/jetpack-autoloader/**                production-include
 
-# Files to include in the mirror repo, but excluded via gitignore
-# /src/js/example.min.js  production-include
-
-# Files to exclude from the mirror repo, but included in the monorepo.
-.gitignore        production-exclude
-changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
-tests/**          production-exclude
+# Files to exclude from mirror repo: Automattic/jetpack-backup-plugin
+.babelrc                                    production-exclude
+.gitattributes                              production-exclude
+.gitignore                                  production-exclude
+babel.config.js                             production-exclude
+build/**/*.js.map                           production-exclude
+changelog/**                                production-exclude
+composer.lock                               production-exclude
+gulpfile.babel.js                           production-exclude
+package.json                                production-exclude
+phpunit.xml.dist                            production-exclude
+readme.md                                   production-exclude
+tests/**                                    production-exclude
+/vendor/automattic/jetpack-autoloader/**    production-exclude
+/vendor/automattic/jetpack-changelogger/**  production-exclude
+webpack.config.js                           production-exclude
