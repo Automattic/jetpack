@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Adding new REST endpoint /jetpack/v4/user-token that allows us to add/update user tokens remotely.
