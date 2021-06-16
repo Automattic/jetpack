@@ -31,7 +31,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-ui/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.0.x-dev"
+			"dev-master": "0.1.x-dev"
 		}
 	}
 }
