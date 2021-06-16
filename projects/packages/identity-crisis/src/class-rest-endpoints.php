@@ -120,7 +120,7 @@ class REST_Endpoints {
 	 * It then builds a fresh connection URL and sends it back along with the response.
 	 *
 	 * @since 4.4.0
-	 * @return bool|WP_Error
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function start_fresh_connection() {
 		/**
@@ -136,7 +136,7 @@ class REST_Endpoints {
 		 *
 		 * @since 9.9.0
 		 *
-		 * @param string    $connection_url Connection URL user should be redirected to.
+		 * @param WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
 		return apply_filters( 'jetpack_idc_build_connect_url', '' ); // ToDo what is the default url?
 	}
