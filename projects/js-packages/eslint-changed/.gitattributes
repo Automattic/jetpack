@@ -1,4 +1,4 @@
-/changelog/      production-exclude
+/changelog/**    production-exclude
 /.gitattributes  production-exclude
 /.gitignore      production-exclude
 /.nycrc          production-exclude
