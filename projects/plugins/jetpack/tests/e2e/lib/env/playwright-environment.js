@@ -42,8 +42,6 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	}
 
 	async handleTestEvent( event, state ) {
-		await super.handleTestEvent( event, state );
-
 		let eventName;
 
 		if ( event.hook ) {
@@ -74,12 +72,12 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			case 'run_describe_start':
 				break;
 			case 'test_start':
-				await this.newPage( eventName );
+				await this.newPage();
 				break;
 			case 'hook_start':
 				logger.info( `START: ${ eventName }` );
 				if ( event.hook.type === 'beforeAll' ) {
-					await this.newPage( eventName );
+					await this.newPage();
 				}
 				break;
 			case 'hook_success':
@@ -119,6 +117,11 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 			default:
 				break;
 		}
+
+		// important to be at the end otherwise videos won't get attached correctly in Allure reports
+		// allure reporter closes the tests events in super method and this need to happen
+		// after we close pages and save the videos or other resources we need attached
+		await super.handleTestEvent( event, state );
 	}
 
 	async newContext() {
@@ -127,20 +130,13 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 		this.global.context = await this.global.browser.newContext( pwContextOptions );
 		this.global.context.on( 'page', page => this.onNewPage( page ) );
 		this.global.context.on( 'close', () => this.onContextClose() );
-
-		// This will store the video files paths for each page in the current context
-		// We want to make sure it's empty when the context gets created
-		this.global.videoFiles = {};
 	}
 
-	async newPage( eventName ) {
-		console.log( `NEW PAGE FOR: ${ eventName }` );
+	async newPage() {
 		this.global.page = await this.global.context.newPage();
 	}
 
 	async onNewPage( page ) {
-		console.log( `NEW PAGE: ${ JSON.stringify( this.global.expect.getState(), null, 2 ) }` );
-
 		// Observe console logging
 		page.on( 'console', message => {
 			const type = message.type();
@@ -164,16 +160,15 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 	}
 
 	async closePage( eventName ) {
-		console.log( `NEW PAGE FOR: ${ eventName }` );
 		await this.global.page.close();
 
 		if ( this.global.page.video() ) {
-			// const videoName = this.global.expect.getState().currentTestName;
 			const videoName = fileNameFormatter( `${ eventName }.webm`, true );
 			const videoPath = `${ config.get( 'dirs.videos' ) }/${ videoName }`;
 
 			try {
 				await this.global.page.video().saveAs( videoPath );
+				logger.debug( `Video file saved: ${ videoPath }` );
 			} catch ( error ) {
 				logger.error( `There was an error saving the video file!\n${ error }` );
 			}
@@ -184,21 +179,9 @@ class PlaywrightEnvironment extends AllureNodeEnvironment {
 					fs.readFileSync( videoPath ),
 					ContentType.WEBM
 				);
+				logger.debug( `Video file attached to report` );
 			} catch ( error ) {
 				logger.error( `There was an error attaching the video to test report!\n${ error }` );
-			}
-		}
-	}
-
-	async onContextClose() {
-		// Rename video files. This can only be done after browser context is closed
-		// Each page has its own video file
-		for ( const [ src, dst ] of Object.entries( this.global.videoFiles ) ) {
-			try {
-				fs.renameSync( src, dst );
-				logger.debug( `Video file saved as ${ dst }` );
-			} catch ( error ) {
-				logger.error( `Renaming video file failed! \n ${ error }` );
 			}
 		}
 	}
