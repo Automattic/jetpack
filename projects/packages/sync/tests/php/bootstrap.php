@@ -2,7 +2,7 @@
 /**
  * Bootstrap.
  *
- * @package automattic/jetpack-identity-crisis
+ * @package automattic/jetpack-sync
  */
 
 /**
