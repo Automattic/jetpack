@@ -247,7 +247,7 @@ class Jetpack_Beta_Admin {
 		}
 
 		if ( ! class_exists( 'WPCom_Markdown' ) ) {
-			return $content;
+			return apply_filters( 'jetpack_beta_test_content', $content );
 		}
 		$rendered_html = WPCom_Markdown::get_instance()->transform(
 			$content,
