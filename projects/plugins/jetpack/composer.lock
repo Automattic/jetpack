@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8f7451e23abfa5788ad887561b0f0c0a",
+    "content-hash": "9fe3ace263bbd3977115f1b7683bdfc5",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -232,10 +232,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "a55443b257f63b65ec6d05709e8286d0d73ade73"
+                "reference": "5fb371087dab728ea1188acfa3698dbfa2b7320c"
+            },
+            "require": {
+                "automattic/jetpack-connection": "^1.28"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^1.2"
+                "automattic/jetpack-changelogger": "^1.2",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "0.2.0"
             },
             "type": "library",
             "extra": {
@@ -245,7 +250,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -254,6 +259,22 @@
                 ],
                 "classmap": [
                     "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "@composer install",
+                    "phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-update-cmd": [
+                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
                 ]
             },
             "license": [
