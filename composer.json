@@ -8,16 +8,28 @@
 		"issues": "https://github.com/Automattic/vaultpress/issues"
 	},
 	"require": {
-		"automattic/jetpack-logo": "1.3.0",
-		"automattic/jetpack-autoloader": "1.7.0"
+		"automattic/jetpack-logo": "1.5.5",
+		"automattic/jetpack-autoloader": "2.10.3"
 	},
 	"require-dev": {
 		"automattic/jetpack-standards": "master-dev"
 	},
 	"scripts": {
-		"php:compatibility": "composer install && vendor/bin/phpcs -p -s -n --runtime-set testVersion '5.3-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
-		"php:lint": "composer install && vendor/bin/phpcs -p -s",
-		"php:autofix": "composer install && vendor/bin/phpcbf",
-		"php:lint:errors": "composer install && vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
-	}
+		"php:compatibility": [
+			"@php:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"
+		],
+		"php:lint": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcs -p -s"
+		],
+		"php:autofix": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcbf -p"
+		],
+		"php:lint:errors": [
+			"@php:lint --runtime-set ignore_warnings_on_exit 1"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
 }
