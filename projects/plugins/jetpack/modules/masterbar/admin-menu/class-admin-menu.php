@@ -457,7 +457,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		/* translators: Jetpack sidebar menu item. */
 		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
-		$this->hide_submenu_page( 'jetpack', 'jetpack#/dashboard' );
 		$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
 		$this->hide_submenu_page( 'jetpack', 'stats' );
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
