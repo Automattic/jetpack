@@ -28,8 +28,18 @@ class Main {
 		// Add REST endpoints.
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Sync\\REST_Endpoints', 'initialize_rest_api' ) );
 
+		// Add IDC disconnect action.
+		add_action( 'jetpack_idc_disconnect', array( __CLASS__, 'on_jetpack_idc_disconnect', 100 ) );
+
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
+	}
+
+	/**
+	 * Delete all sync related data on Identity Crisis disconnect.
+	 */
+	public static function on_jetpack_idc_disconnect() {
+		Sender::get_instance()->uninstall();
 	}
 
 	/**
