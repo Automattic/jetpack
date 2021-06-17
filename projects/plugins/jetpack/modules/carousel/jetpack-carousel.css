@@ -292,6 +292,7 @@ div.jp-carousel-buttons a:hover {
 	cursor: default;
 	letter-spacing: 0 !important;
 	padding: 0.35em 25px 0.35em 0;
+	box-sizing: border-box;
 	position: fixed;
 	text-align: right;
 	width: 100%;
