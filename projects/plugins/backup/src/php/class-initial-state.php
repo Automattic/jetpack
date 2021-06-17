@@ -2,7 +2,7 @@
 /**
  * The React initial state.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-backup-plugin
  */
 
 use Automattic\Jetpack\Constants;

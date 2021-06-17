@@ -10,7 +10,7 @@
  * License: GPLv2 or later
  * Text Domain: jetpack-backup
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-backup-plugin
  */
 
 /*
