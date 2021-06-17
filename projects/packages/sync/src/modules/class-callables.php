@@ -572,4 +572,62 @@ class Callables extends Module {
 		return count( $this->get_callable_whitelist() );
 	}
 
+	/**
+	 * Retrieve a set of callables by their IDs.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Object type.
+	 * @param array  $ids         Object IDs.
+	 * @return array Array of objects.
+	 */
+	public function get_objects_by_id( $object_type, $ids ) {
+		if ( empty( $ids ) || empty( $object_type ) || 'callable' !== $object_type ) {
+			return array();
+		}
+
+		$objects = array();
+		foreach ( (array) $ids as $id ) {
+			$object = $this->get_object_by_id( $object_type, $id );
+
+			if ( 'CALLABLE-DOES-NOT-EXIST' !== $object ) {
+				if ( 'all' === $id ) {
+					// If all was requested it contains all options and can simply be returned.
+					return $object;
+				}
+				$objects[ $id ] = $object;
+			}
+		}
+
+		return $objects;
+	}
+
+	/**
+	 * Retrieve a callable by its name.
+	 *
+	 * @access public
+	 *
+	 * @param string $object_type Type of the sync object.
+	 * @param string $id          ID of the sync object.
+	 * @return mixed              Value of Callable.
+	 */
+	public function get_object_by_id( $object_type, $id ) {
+		if ( 'callable' === $object_type ) {
+
+			// Only whitelisted options can be returned.
+			if ( array_key_exists( $id, $this->get_callable_whitelist() ) ) {
+				// requires master user to be in context.
+				$current_user_id = get_current_user_id();
+				wp_set_current_user( \Jetpack_Options::get_option( 'master_user' ) );
+				$callable = $this->get_callable( $this->callable_whitelist[ $id ] );
+				wp_set_current_user( $current_user_id );
+				return $callable;
+			} elseif ( 'all' === $id ) {
+				return $this->get_all_callables();
+			}
+		}
+
+		return 'CALLABLE-DOES-NOT-EXIST';
+	}
+
 }
