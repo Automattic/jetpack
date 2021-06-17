@@ -758,6 +758,7 @@
 
 			// Center the main image.
 			loadFullImage( carousel.slides[ index ] );
+			capturePinchPanGesture();
 
 			domUtil.hide( carousel.caption );
 
@@ -1630,6 +1631,129 @@
 			carousel.gallery.innerHTML = '';
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 			selectSlideAtIndex( settings.startIndex );
+		}
+
+		function capturePinchPanGesture() {
+			carousel.currentSlide.currentImage = carousel.currentSlide.el.querySelector( 'img' );
+			var currentImage = carousel.currentSlide.currentImage;
+
+			currentImage.isZoomed = false;
+			currentImage.isPinching = false;
+			currentImage.initialScale = 1;
+			currentImage.currentScale = 1;
+
+			currentImage.isPanned = false;
+			currentImage.isPanning = false;
+			currentImage.initialX = 0;
+			currentImage.initialY = 0;
+			currentImage.currentX = 0;
+			currentImage.currentY = 0;
+			currentImage.xOffset = 0;
+			currentImage.yOffset = 0;
+
+			document.addEventListener( 'touchstart', pinchStart, { passive: false } );
+			document.addEventListener( 'touchstart', panStart, { passive: false } );
+
+			document.addEventListener( 'touchmove', pinchMove, { passive: false } );
+			document.addEventListener( 'touchmove', panMove, { passive: false } );
+
+			document.addEventListener( 'touchend', pinchEnd, { passive: false } );
+			document.addEventListener( 'touchend', panEnd, { passive: false } );
+		}
+
+		function pinchStart( e ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			if ( e.touches.length > 1 ) {
+				e.preventDefault();
+
+				currentImage.isPinching = true;
+			}
+		}
+
+		function pinchMove( e ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			if ( ! currentImage.isPinching ) {
+				return;
+			}
+
+			e.preventDefault();
+			currentImage.currentScale =
+				currentImage.initialScale * e.scale > 1 ? currentImage.initialScale * e.scale : 1;
+
+			setPinchPanTransform();
+		}
+
+		function pinchEnd( e ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			if ( ! currentImage.isPinching ) {
+				return;
+			}
+
+			e.preventDefault();
+
+			currentImage.isPinching = false;
+			currentImage.isZoomed = currentImage.currentScale > 1 ? true : false;
+			currentImage.initialScale = currentImage.currentScale;
+		}
+
+		function panStart( e ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			if ( e.touches.length !== 1 || ! currentImage.isZoomed || currentImage.isPinching ) {
+				return;
+			}
+
+			e.preventDefault();
+
+			currentImage.isPanning = true;
+			currentImage.initialX = e.touches[ 0 ].clientX - currentImage.xOffset;
+			currentImage.initialY = e.touches[ 0 ].clientY - currentImage.yOffset;
+		}
+
+		function panMove( e ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			if ( ! currentImage.isZoomed || ! currentImage.isPanning || currentImage.isPinching ) {
+				return;
+			}
+
+			e.preventDefault();
+
+			currentImage.currentX = e.touches[ 0 ].clientX - currentImage.initialX;
+			currentImage.currentY = e.touches[ 0 ].clientY - currentImage.initialY;
+
+			currentImage.xOffset = currentImage.currentX;
+			currentImage.yOffset = currentImage.currentY;
+
+			setPinchPanTransform();
+		}
+
+		function panEnd( e ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			if ( ! currentImage.isZoomed || ! currentImage.isPanning || currentImage.isPinching ) {
+				return;
+			}
+
+			e.preventDefault();
+		}
+
+		function setPinchPanTransform() {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			currentImage.style.setProperty(
+				'transform',
+				'scale(' +
+					currentImage.currentScale +
+					') translate3d(' +
+					currentImage.currentX * ( 1 / currentImage.currentScale ) +
+					'px, ' +
+					currentImage.currentY * ( 1 / currentImage.currentScale ) +
+					'px, 0)'
+			);
 		}
 
 		// Register the event listener for starting the gallery
