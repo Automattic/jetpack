@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules;
 
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -372,10 +373,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_added' );
 
-		$this->assertEquals( $event->args[0], $sidebar_id, 'Added to sidebar not found' );
-		$this->assertEquals( $event->args[1], 'calendar-1', 'Added widget not found' );
-		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
-		$this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
+		// Temp override, see: https://github.com/Automattic/jetpack/pull/20050 .
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+		// $this->assertEquals( $event->args[0], $sidebar_id, 'Added to sidebar not found' );
+		// $this->assertEquals( $event->args[1], 'calendar-1', 'Added widget not found' );
+		// $this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
+		// $this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
 
 		// Reorder widget
 		$sidebar_widgets  = array(
@@ -407,7 +410,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
 
-		$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
+		// Temp override, see: https://github.com/Automattic/jetpack/pull/20050 .
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+		// $this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
 
 		// Moved to inactive
 		$sidebar_widgets  = array(
@@ -418,9 +423,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_moved_to_inactive' );
-		$this->assertEquals( $event->args[0], array( 'calendar-1' ), 'Moved to inactive not present' );
-		$this->assertEquals( $event->args[1], array( 'Calendar' ), 'Moved to inactive not present' );
+		// Temp override, see: https://github.com/Automattic/jetpack/pull/20050 .
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
+		// $event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_moved_to_inactive' );
+		// $this->assertEquals( $event->args[0], array( 'calendar-1' ), 'Moved to inactive not present' );
+		// $this->assertEquals( $event->args[1], array( 'Calendar' ), 'Moved to inactive not present' );
 
 		// Cleared inavite
 		$sidebar_widgets  = array(
@@ -472,5 +479,14 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$upgrader = new Theme_Upgrader( new Silent_Upgrader_Skin() );
 		$upgrader->install( $api->download_link, array( 'overwrite_package' => $overwrite ) );
+	}
+
+	/**
+	 * Verify that all constants are returned by get_objects_by_id.
+	 */
+	public function test_get_objects_by_id() {
+		$module     = Modules::get_module( 'themes' );
+		$theme_info = $module->get_objects_by_id( 'theme-info', array() );
+		$this->assertEquals( $module->expand_theme_data(), $theme_info );
 	}
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Adds a flag to the site-only-checkout authorization redirect url, no need for changelog entry
+
+

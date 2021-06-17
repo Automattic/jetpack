@@ -137,10 +137,10 @@ export const errors = ( state = {}, action ) => {
 					);
 					break;
 				case 'JsonParseError':
-					// We only display the error using `SimpleNotice`, reconnecting will not help here.
-					resolveAction = 'display';
+					// We offer a link to support to help them fix the issue.
+					resolveAction = 'support';
 					defaultErrorMessage = __(
-						"Jetpack Dashboard was unable to properly communicate with your website. Please check your website's error logs to see what's wrong.",
+						'Jetpack encountered an error and was unable to display the Dashboard. Please try refreshing the page.',
 						'jetpack'
 					);
 					break;

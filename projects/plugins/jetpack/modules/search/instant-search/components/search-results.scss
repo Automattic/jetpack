@@ -217,7 +217,8 @@ $modal-max-width-lg: 95%;
 	width: 100%;
 }
 
-.jetpack-instant-search__overlay-close {
+// Applied to button. so we override any generic button styles from the theme
+button.jetpack-instant-search__overlay-close {
 	@include remove-button-styling();
 	align-items: center;
 	cursor: pointer;

@@ -4362,16 +4362,18 @@ p {
 						exit;
 					}
 
-					$redirect_url = self::admin_url(
-						array(
-							'page'     => 'jetpack',
-							'action'   => 'authorize_redirect',
-							'dest_url' => rawurlencode( $dest_url ),
-							'done'     => '1',
-						)
+					$redirect_args = array(
+						'page'     => 'jetpack',
+						'action'   => 'authorize_redirect',
+						'dest_url' => rawurlencode( $dest_url ),
+						'done'     => '1',
 					);
 
-					wp_safe_redirect( static::build_authorize_url( $redirect_url ) );
+					if ( ! empty( $_GET['from'] ) && 'jetpack_site_only_checkout' === $_GET['from'] ) {
+						$redirect_args['from'] = 'jetpack_site_only_checkout';
+					}
+
+					wp_safe_redirect( static::build_authorize_url( self::admin_url( $redirect_args ) ) );
 					exit;
 				case 'authorize':
 					_doing_it_wrong( __METHOD__, 'The `page=jetpack&action=authorize` webhook is deprecated. Use `handler=jetpack-connection-webhooks&action=authorize` instead', 'Jetpack 9.5.0' );
@@ -7561,4 +7563,26 @@ endif;
 
 		return $products;
 	}
+
+	/**
+	 * Determine if the current user is allowed to make Jetpack purchases without
+	 * a WordPress.com account
+	 *
+	 * @return boolean True if the user can make purchases, false if not
+	 */
+	public static function current_user_can_purchase() {
+
+		// The site must be site-connected to Jetpack (no users connected).
+		if ( ! self::connection()->is_site_connection() ) {
+			return false;
+		}
+
+		// Make sure only administrators can make purchases.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
 }
