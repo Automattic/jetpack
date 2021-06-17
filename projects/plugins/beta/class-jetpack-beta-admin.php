@@ -241,7 +241,13 @@ class Jetpack_Beta_Admin {
 
 		jetpack_require_lib( 'markdown' );
 		if ( ! class_exists( 'WPCom_Markdown' ) ) {
-			require_once WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/modules/markdown/easy-markdown.php';
+			if ( ! include_once WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/modules/markdown/easy-markdown.php' ) {
+				include_once WP_PLUGIN_DIR . '/jetpack/modules/markdown/easy-markdown.php';
+			};
+		}
+
+		if ( ! class_exists( 'WPCom_Markdown' ) ) {
+			return apply_filters( 'jetpack_beta_test_content', $content );
 		}
 		$rendered_html = WPCom_Markdown::get_instance()->transform(
 			$content,
