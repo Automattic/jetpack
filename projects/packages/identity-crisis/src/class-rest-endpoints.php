@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\IdentityCrisis;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
@@ -131,6 +132,7 @@ class REST_Endpoints {
 		 */
 		do_action( 'jetpack_idc_disconnect' );
 
+		$connection = new Connection_Manager();
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
@@ -138,7 +140,7 @@ class REST_Endpoints {
 		 *
 		 * @param WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		return apply_filters( 'jetpack_idc_build_connect_url', '' ); // ToDo what is the default url?
+		return apply_filters( 'jetpack_idc_build_connect_url', rest_ensure_response( $connection->get_authorization_url( null, null ) ) );
 	}
 
 	/**
