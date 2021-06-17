@@ -107,7 +107,7 @@ class MyPlanHeader extends React.Component {
 					...productProps,
 					details: expiration,
 					tagLine: __(
-						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, and priority support.',
+						'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.',
 						'jetpack'
 					),
 					title: __( 'Jetpack Professional', 'jetpack' ),

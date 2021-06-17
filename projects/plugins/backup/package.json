@@ -16,7 +16,10 @@
 		"build-client": "gulp",
 		"build-concurrently": "pnpm run install-if-deps-outdated && pnpm run clean && pnpx concurrently 'pnpm:build-client' 'pnpm:build-php'",
 		"build-php": "composer install --ignore-platform-reqs",
-		"clean": "rm -rf build/",
+		"build-production-concurrently": "pnpm run clean-all && pnpm run install-if-deps-outdated && pnpx concurrently 'pnpm:build-production-php' 'NODE_ENV=production BABEL_ENV=production pnpm run build-client'",
+		"build-production-php": "COMPOSER_MIRROR_PATH_REPOS=1 COMPOSER_ROOT_VERSION=dev-master composer install -o --no-dev --classmap-authoritative --prefer-dist",
+		"clean-all": "rm -rf build/ node_modules/ vendor/",
+		"clean-build": "rm -rf build/",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"watch": "pnpm run build && pnpx gulp watch"
 	},
@@ -24,7 +27,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@automattic/jetpack-connection": "workspace:^0.3.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.4.0-alpha",
 		"@wordpress/data": "4.27.3",
 		"@wordpress/i18n": "3.20.0",
 		"react": "16.14.0",

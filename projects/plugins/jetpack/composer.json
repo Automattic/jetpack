@@ -20,7 +20,7 @@
 		"automattic/jetpack-compat": "1.6.x-dev",
 		"automattic/jetpack-config": "1.4.x-dev",
 		"automattic/jetpack-connection": "1.28.x-dev",
-		"automattic/jetpack-connection-ui": "1.1.x-dev",
+		"automattic/jetpack-connection-ui": "1.2.x-dev",
 		"automattic/jetpack-constants": "1.6.x-dev",
 		"automattic/jetpack-device-detection": "1.4.x-dev",
 		"automattic/jetpack-error": "1.3.x-dev",
@@ -35,7 +35,7 @@
 		"automattic/jetpack-redirect": "1.6.x-dev",
 		"automattic/jetpack-roles": "1.4.x-dev",
 		"automattic/jetpack-status": "1.8.x-dev",
-		"automattic/jetpack-sync": "1.22.x-dev",
+		"automattic/jetpack-sync": "1.23.x-dev",
 		"automattic/jetpack-terms-of-service": "1.9.x-dev",
 		"automattic/jetpack-tracking": "1.13.x-dev",
 		"nojimage/twitter-text-php": "3.1.2"

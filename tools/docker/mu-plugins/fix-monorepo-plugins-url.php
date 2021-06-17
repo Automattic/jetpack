@@ -14,6 +14,11 @@ namespace Jetpack\Docker\MuPlugin\FixMonorepoPluginsUrl;
 
 use Jetpack\Docker\MuPlugin\Monorepo;
 
+// This allows us to use the most unstable version of packages, e.g. the monorepo versions.
+if ( ! defined( 'JETPACK_AUTOLOAD_DEV' ) ) {
+	define( 'JETPACK_AUTOLOAD_DEV', true );
+}
+
 /**
  * Fix the plugins_url in the Docker dev environment.
  *

@@ -128,6 +128,9 @@
 		<testsuite name="seo-tools">
 			<directory prefix="test" suffix=".php">tests/php/modules/seo-tools</directory>
 		</testsuite>
+		<testsuite name="csstidy">
+			<directory prefix="test" suffix=".php">tests/php/modules/csstidy</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
