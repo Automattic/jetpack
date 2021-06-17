@@ -61,7 +61,7 @@ const buildEnv = argv => {
 		envOpts.PORT_WORDPRESS = argv.port ? argv.port : 8889;
 	}
 
-	envOpts.COMPOSE_PROJECT_NAME = getProjectName( argv );
+	envOpts.COMPOSE_PROJECT_NAME = 'jetpack_' + getProjectName( argv );
 	return envOpts;
 };
 
