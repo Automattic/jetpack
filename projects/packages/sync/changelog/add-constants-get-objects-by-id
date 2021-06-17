@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Expand sync/object to support constants

@@ -209,13 +209,13 @@ async function collectAllFiles( toClean, argv ) {
 
 	if ( toClean.includes( 'untracked' ) ) {
 		allFiles.untracked = child_process.execSync(
-			`git ls-files ${ argv.project } --exclude-standard --directory --other`
+			`git -c core.quotepath=off ls-files ${ argv.project } --exclude-standard --directory --other`
 		);
 		allFiles.untracked = allFiles.untracked.toString().trim().split( '\n' );
 	}
 
 	allFiles.combined = child_process.execSync(
-		`git ls-files ${ argv.project } --exclude-standard --directory --ignored --other`
+		`git -c core.quotepath=off ls-files ${ argv.project } --exclude-standard --directory --ignored --other`
 	);
 	allFiles.combined = allFiles.combined.toString().trim().split( '\n' );
 	for ( const file of allFiles.combined ) {

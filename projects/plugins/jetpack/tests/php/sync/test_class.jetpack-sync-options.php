@@ -300,4 +300,23 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	function add_option_on_89() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 	}
+
+	/**
+	 * Verify that all options are returned by get_objects_by_id
+	 */
+	public function test_get_objects_by_id_all() {
+		$module      = Modules::get_module( 'options' );
+		$all_options = $module->get_objects_by_id( 'option', array( 'all' ) );
+		$this->assertEquals( $module->get_all_options(), $all_options );
+	}
+
+	/**
+	 * Verify that get_object_by_id returns a allowed option
+	 */
+	public function test_get_objects_by_id_singular() {
+		$module      = Modules::get_module( 'options' );
+		$options     = $module->get_all_options();
+		$get_options = $module->get_objects_by_id( 'option', array( 'test_option' ) );
+		$this->assertEquals( $options['test_option'], $get_options['test_option'] );
+	}
 }
