@@ -430,12 +430,17 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
 		add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
 
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 2 );
+
 		if ( $wp_admin ) {
 			return;
 		}
 
-		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
-		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
+		$submenus_to_update = array(
+			'options-writing.php'    => 'https://wordpress.com/settings/writing/' . $this->domain,
+			'options-discussion.php' => 'https://wordpress.com/settings/discussion/' . $this->domain,
+		);
+		$this->update_submenus( 'options-general.php', $submenus_to_update );
 	}
 
 	/**
