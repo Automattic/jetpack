@@ -420,7 +420,6 @@ class Jetpack {
 			add_action( 'plugins_loaded', array( self::$instance, 'plugin_upgrade' ) );
 			// Initialize Identity Crisis.
 			add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
-			add_filter( 'jetpack_idc_build_connect_url', array( 'Jetpack_Core_Json_Api_Endpoints', 'build_connect_url' ) );
 		}
 
 		return self::$instance;

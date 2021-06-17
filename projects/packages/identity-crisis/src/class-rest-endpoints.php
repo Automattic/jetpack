@@ -133,6 +133,7 @@ class REST_Endpoints {
 		do_action( 'jetpack_idc_disconnect' );
 
 		$connection = new Connection_Manager();
+		$connection->try_registration( true );
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
@@ -140,7 +141,7 @@ class REST_Endpoints {
 		 *
 		 * @param WP_REST_Response|WP_Error    $connection_url Connection URL user should be redirected to.
 		 */
-		return apply_filters( 'jetpack_idc_build_connect_url', rest_ensure_response( $connection->get_authorization_url( null, null ) ) );
+		return apply_filters( 'jetpack_idc_authorization_url', rest_ensure_response( $connection->get_authorization_url( null, null ) ) );
 	}
 
 	/**
