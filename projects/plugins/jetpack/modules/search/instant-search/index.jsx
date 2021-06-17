@@ -16,7 +16,6 @@ import { Provider } from 'react-redux';
 import SearchApp from './components/search-app';
 import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
-import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
 import { buildFilterAggregations } from './lib/api';
 import { isInCustomizer } from './lib/customize';
 import store from './store';
@@ -29,7 +28,6 @@ const injectSearchApp = () => {
 					...window[ SERVER_OBJECT_NAME ].widgets,
 					...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
 				] ) }
-				defaultSort={ window[ SERVER_OBJECT_NAME ].defaultSort }
 				hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
 				initialHref={ window.location.href }
 				initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
@@ -51,9 +49,6 @@ const injectSearchApp = () => {
  */
 export function initialize() {
 	if ( window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
-		initializeTracks();
-		resetTrackingCookies();
-		identifySite( window[ SERVER_OBJECT_NAME ].siteId );
 		injectSearchApp();
 	}
 }

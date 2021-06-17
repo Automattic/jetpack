@@ -17,6 +17,7 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { initializeTracks, identifySite, resetTrackingCookies } from '../lib/tracks';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
@@ -53,6 +54,7 @@ class SearchApp extends Component {
 		};
 		this.getResults = debounce( this.getResults, 200 );
 		this.props.initializeQueryValues();
+		this.initializeAnalytics();
 	}
 
 	componentDidMount() {
@@ -81,6 +83,12 @@ class SearchApp extends Component {
 
 	componentWillUnmount() {
 		this.restoreBodyScroll();
+	}
+
+	initializeAnalytics() {
+		initializeTracks();
+		resetTrackingCookies();
+		identifySite( this.props.options.siteId );
 	}
 
 	preventBodyScroll() {
