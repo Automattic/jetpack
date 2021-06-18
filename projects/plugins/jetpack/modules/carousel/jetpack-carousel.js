@@ -322,8 +322,8 @@
 
 		function initializeCarousel() {
 			if ( ! carousel.overlay ) {
-				carousel.container = document.querySelector( '.jp-carousel-wrap' );
-				carousel.overlay = carousel.container.querySelector( '.jp-carousel-overlay' );
+				carousel.overlay = document.querySelector( '.jp-carousel-overlay' );
+				carousel.container = carousel.overlay.querySelector( '.jp-carousel-wrap' );
 				carousel.gallery = carousel.container.querySelector( '.jp-carousel' );
 				carousel.info = document.querySelector( '.jp-carousel-info' );
 				carousel.caption = carousel.info.querySelector( '.jp-carousel-caption' );
@@ -679,7 +679,7 @@
 			disableKeyboardNavigation();
 
 			domUtil.emitEvent( carousel.container, 'jp_carousel.beforeClose' );
-
+			carousel.overlay.style.display = 'none';
 			restoreScroll();
 			swiper.destroy();
 
@@ -1217,6 +1217,7 @@
 			carousel.gallery.innerHTML = '';
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
+			carousel.overlay.style.display = 'block';
 
 			swiper = new Swiper( '.swiper-container', {
 				centeredSlides: true,
@@ -1230,8 +1231,6 @@
 				initialSlide: settings.startIndex,
 				on: {
 					init: function () {
-						var overlay = document.querySelectorAll( '.jp-carousel-overlay' )[ 0 ];
-						overlay.style.display = 'block';
 						selectSlideAtIndex( settings.startIndex );
 					},
 				},
