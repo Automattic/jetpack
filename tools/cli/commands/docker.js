@@ -303,7 +303,9 @@ const buildExecCmd = argv => {
 	opts.push( 'exec', 'wordpress' );
 	const cmd = argv._[ 1 ];
 
-	if ( cmd === 'install' ) {
+	if ( cmd === 'exec' ) {
+		opts.push( ...argv._.slice( 2 ) );
+	} else if ( cmd === 'install' ) {
 		opts.push( '/var/scripts/install.sh' );
 	} else if ( cmd === 'sh' ) {
 		opts.push( 'bash' );
@@ -469,6 +471,12 @@ export function dockerDefine( yargs ) {
 					},
 				} )
 				// Wordpress exec commands
+				.command( {
+					command: 'exec',
+					description: 'Execute arbitrary shell command inside docker container',
+					builder: yargExec => defaultOpts( yargExec ),
+					handler: argv => execDockerCmdHandler( argv ),
+				} )
 				.command( {
 					command: 'install',
 					description: 'Install WP for running container',
