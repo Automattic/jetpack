@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * WP CLI commands for vaultpress.
+ *
+ * @package automattic/vaultpress
+ */
 
 WP_CLI::add_command( 'vaultpress', 'VaultPress_CLI' );
 

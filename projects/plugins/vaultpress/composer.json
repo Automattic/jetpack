@@ -5,31 +5,59 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"support": {
-		"issues": "https://github.com/Automattic/vaultpress/issues"
+		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
-		"automattic/jetpack-logo": "1.5.5",
-		"automattic/jetpack-autoloader": "2.10.3"
+		"automattic/jetpack-logo": "1.5.x-dev",
+		"automattic/jetpack-autoloader": "2.10.x-dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-standards": "master-dev"
+		"yoast/phpunit-polyfills": "0.2.0",
+		"automattic/jetpack-changelogger": "^1.2"
 	},
 	"scripts": {
-		"php:compatibility": [
-			"@php:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"php:lint": [
+		"test-coverage": [
+			"@composer install",
+			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"phpcs -p -s"
+			"@clean",
+			"@composer install"
 		],
-		"php:autofix": [
+		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"phpcbf -p"
+			"@clean",
+			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
+			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
 		],
-		"php:lint:errors": [
-			"@php:lint --runtime-set ignore_warnings_on_exit 1"
+		"clean": [
+			"rm -rf vendor/"
 		]
 	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
 	"minimum-stability": "dev",
-	"prefer-stable": true
+	"prefer-stable": true,
+	"config": {
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_vaultpressⓥ2_2_0_alpha"
+	},
+	"extra": {
+		"mirror-repo": "Automattic/vaultpress",
+		"release-branch-prefix": "vaultpress"
+	}
 }

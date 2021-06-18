@@ -1,21 +1,2 @@
-## FOLDERS
-/.sass-cache/
-/node_modules
-/vendor/
-/wpcom-test-backup/
-/.vscode/
-/.idea/
-
-## FILES
-.DS_Store
-
-## Things provided by jetpack-standards
-## Some may want to commit these files, other may not. We're not.
-.codeclimate.yml
-.editorconfig
-.eslines.json
-.eslintrc.js
-.jshintrc
-.npmrc
-.phpcs.xml.dist
-.prettierrc
+vendor/
+node_modules/
