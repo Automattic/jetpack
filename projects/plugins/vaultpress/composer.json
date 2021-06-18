@@ -1,0 +1,35 @@
+{
+	"name": "automattic/vaultpress",
+	"description": "VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.",
+	"homepage": "https://vaultpress.com/",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/Automattic/vaultpress/issues"
+	},
+	"require": {
+		"automattic/jetpack-logo": "1.5.5",
+		"automattic/jetpack-autoloader": "2.10.3"
+	},
+	"require-dev": {
+		"automattic/jetpack-standards": "master-dev"
+	},
+	"scripts": {
+		"php:compatibility": [
+			"@php:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"
+		],
+		"php:lint": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcs -p -s"
+		],
+		"php:autofix": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpcbf -p"
+		],
+		"php:lint:errors": [
+			"@php:lint --runtime-set ignore_warnings_on_exit 1"
+		]
+	},
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}

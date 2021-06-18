@@ -1,0 +1,32 @@
+{
+	"name": "VaultPress",
+	"version": "2.1.2",
+	"description": "VaultPress is a subscription service offering real-time backup, automated security scanning, and support from WordPress experts.",
+	"homepage": "https://vaultpress.com",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/vaultpress.git"
+	},
+	"bugs": {
+		"url": "https://github.com/Automattic/vaultpress/issues"
+	},
+	"scripts": {
+		"clean": "yarn clean-composer",
+		"clean-composer": "rm -rf vendor/",
+		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files",
+		"distclean": "rm -rf node_modules && yarn clean",
+		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-php",
+		"build-php": "composer install",
+		"build-production": "yarn distclean && yarn && yarn build",
+		"php:compatibility": "composer php:compatibility",
+		"php:lint": "composer php:lint",
+		"php:autofix": "composer php:autofix"
+	},
+	"engines": {
+		"node": "^14.16.1",
+		"yarn": "^1.22.10"
+	}
+}
