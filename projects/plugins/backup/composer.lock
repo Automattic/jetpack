@@ -210,7 +210,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "e5a57697cfab32d60d6a6af2d25f355676b80444"
+                "reference": "89075941c275ac160a2868cc8342a5a2625270d2"
             },
             "require": {
                 "automattic/jetpack-constants": "^1.6",
