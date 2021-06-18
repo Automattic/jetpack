@@ -31,7 +31,7 @@ const injectSearchApp = () => {
 				hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
 				initialHref={ window.location.href }
 				initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
-				// NOTE: initialShowResults is only used in the customizer. See lib/customize.js.
+				// NOTE: initialIsVisible is only used in the customizer. See lib/customize.js.
 				initialIsVisible={ window[ SERVER_OBJECT_NAME ].showResults }
 				isInCustomizer={ isInCustomizer() }
 				shouldCreatePortal
