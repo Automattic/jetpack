@@ -1942,9 +1942,9 @@ class Manager {
 
 		$this->delete_all_connection_tokens( true );
 
-		Jetpack_Options::update_option( 'activated', 4 );
+		\Jetpack_Options::update_option( 'activated', 4 );
 
-		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
+		$jetpack_unique_connection = \Jetpack_Options::get_option( 'unique_connection' );
 		if ( $jetpack_unique_connection ) {
 			// Check then record unique disconnection if site has never been disconnected previously.
 			if ( - 1 === $jetpack_unique_connection['disconnected'] ) {
@@ -1959,7 +1959,7 @@ class Manager {
 				$jetpack_unique_connection['disconnected'] += 1;
 			}
 
-			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
+			\Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
 	}
 
