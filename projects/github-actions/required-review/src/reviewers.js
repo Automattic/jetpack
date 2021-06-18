@@ -15,7 +15,7 @@ async function fetchReviewers() {
 
 	const reviewers = {};
 	try {
-		for await ( const res of octokit.paginate.iterator( octokit.pulls.listReviews, {
+		for await ( const res of octokit.paginate.iterator( octokit.rest.pulls.listReviews, {
 			owner: owner,
 			repo: repo,
 			pull_number: pr,

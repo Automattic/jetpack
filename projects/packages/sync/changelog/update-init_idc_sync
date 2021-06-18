@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync: initialize the IDC package in the Sync package
