@@ -304,9 +304,7 @@ const buildExecCmd = argv => {
 	const cmd = argv._[ 1 ];
 
 	if ( cmd === 'exec' ) {
-		const rawArgs = process.argv.slice( 4 );
-		const cmdId = rawArgs.findIndex( arg => ! arg.startsWith( '-' ) );
-		opts.push( ...process.argv.slice( 4 + cmdId ) );
+		opts.push( ...argv._.slice( 2 ) );
 	} else if ( cmd === 'install' ) {
 		opts.push( '/var/scripts/install.sh' );
 	} else if ( cmd === 'sh' ) {
