@@ -45,9 +45,9 @@ class REST_Controller {
 		// Delete a Backup Helper Script.
 		register_rest_route(
 			'jetpack/v4',
-			'/delete-backup-helper-script',
+			'/backup-helper-script',
 			array(
-				'methods'             => WP_REST_Server::CREATABLE,
+				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => __CLASS__ . '::delete_backup_helper_script',
 				'permission_callback' => __CLASS__ . '::backup_helper_script_permissions_callback',
 				'args'                => array(

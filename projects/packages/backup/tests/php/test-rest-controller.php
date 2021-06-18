@@ -52,7 +52,8 @@ class Test_REST_Controller extends TestCase {
 			$_GET['timestamp'],
 			$_GET['nonce'],
 			$_GET['body-hash'],
-			$_GET['signature']
+			$_GET['signature'],
+			$_SERVER['REQUEST_METHOD']
 		);
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
@@ -60,9 +61,9 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/backup-helper-script` endpoint when the `helper` param is missing.
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint when the `helper` param is missing.
 	 */
-	public function test_backup_helper_script_missing_required_param() {
+	public function test_install_backup_helper_script_missing_required_param() {
 		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
@@ -70,9 +71,9 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/backup-helper-script` endpoint with admin user.
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint with admin user.
 	 */
-	public function test_backup_helper_script_unauthorized() {
+	public function test_install_backup_helper_script_unauthorized() {
 		$user = wp_get_current_user();
 		$user->set_role( 'administrator' );
 		$body    = array(
@@ -90,9 +91,9 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/backup-helper-script` endpoint on success.
+	 * Testing the `POST /jetpack/v4/backup-helper-script` endpoint on success.
 	 */
-	public function test_backup_helper_script_success() {
+	public function test_install_backup_helper_script_success() {
 		wp_set_current_user( 0 );
 		$body = array(
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
@@ -115,28 +116,30 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/delete-backup-helper-script` endpoint when the `path` param is missing.
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint when the `path` param is missing.
 	 */
 	public function test_delete_backup_helper_script_missing_required_param() {
-		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/delete-backup-helper-script' );
+		$request  = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertEquals( 'Missing parameter(s): path', $response->get_data()['message'] );
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/delete-backup-helper-script` endpoint with admin user.
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint with admin user.
 	 */
 	public function test_delete_backup_helper_script_unauthorized() {
 		$user = wp_get_current_user();
 		$user->set_role( 'administrator' );
-		$body    = array(
+		$body = array(
 			'path' => 'dummy',
 		);
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/delete-backup-helper-script' );
+
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 		$response = $this->server->dispatch( $request );
+
 		$this->assertEquals( 401, $response->get_status() );
 		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
 
@@ -145,7 +148,7 @@ class Test_REST_Controller extends TestCase {
 	}
 
 	/**
-	 * Testing the `/jetpack/v4/delete-backup-helper-script` endpoint on success.
+	 * Testing the `DELETE /jetpack/v4/backup-helper-script` endpoint on success.
 	 */
 	public function test_delete_backup_helper_script_success() {
 		wp_set_current_user( 0 );
@@ -153,7 +156,7 @@ class Test_REST_Controller extends TestCase {
 			'path' => 'dummy',
 		);
 
-		$request = new WP_REST_Request( 'POST', '/jetpack/v4/delete-backup-helper-script' );
+		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
 		$request->set_body( wp_json_encode( $body ) );
 
@@ -195,7 +198,7 @@ class Test_REST_Controller extends TestCase {
 				'sha1',
 				implode(
 					"\n",
-					$data  = array(
+					array(
 						$token,
 						$timestamp,
 						$nonce,
