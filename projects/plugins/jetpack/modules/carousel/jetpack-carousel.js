@@ -355,7 +355,7 @@
 					}
 				} );
 
-				carousel.container.addEventListener( 'click', function ( e ) {
+				carousel.overlay.addEventListener( 'click', function ( e ) {
 					var target = e.target;
 					var isTargetCloseHint = !! domUtil.closest( target, '.jp-carousel-close-hint' );
 					var isSmallScreen = !! window.matchMedia( '(max-device-width: 760px)' ).matches;

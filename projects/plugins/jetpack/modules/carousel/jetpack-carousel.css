@@ -13,7 +13,7 @@
 
 .jp-carousel-overlay {
 	font-family: 'Helvetica Neue', sans-serif !important;
-	z-index: 2147483647;
+	z-index: 10;
 	overflow-x: hidden;
 	overflow-y: auto;
 	direction: ltr;
@@ -172,8 +172,11 @@ div.jp-carousel-buttons a:hover {
 	letter-spacing: 0 !important;
 	padding: 0.35em 0 0;
 	position: fixed;
+	top: 25px;
+	right: 25px;
 	text-align: right;
-	width: calc( 100vw - 25px );
+	width: 45px;
+	height: 45px;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
