@@ -124,7 +124,7 @@ const setVolumes = argv => {
  * @param {object} argv - argv
  * @returns {boolean} whether command is running in foreground
  */
-const isInForeground = argv => argv.detached || argv.ngrok;
+const isInForeground = argv => ! argv.detached || argv.ngrok;
 
 /**
  * Prints some contents before command execution
@@ -230,7 +230,7 @@ const buildDefaultCmd = argv => {
 	const opts = buildComposeFiles( argv );
 	if ( argv._[ 1 ] === 'up' ) {
 		opts.push( 'up' );
-		if ( isInForeground( argv ) ) {
+		if ( argv.detached ) {
 			opts.push( '-d' );
 		}
 	} else if ( argv._[ 1 ] === 'down' ) {
