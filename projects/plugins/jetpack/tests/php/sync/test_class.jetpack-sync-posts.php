@@ -1028,11 +1028,13 @@ POST_CONTENT;
 		register_post_type( 'non_public', $args );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'non_public' ) );
-
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
 		// Clean up.
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 		unregister_post_type( 'non_public' );
 
 		$this->assertSame( '', $synced_post->post_content_filtered );
@@ -1052,7 +1054,7 @@ That was a cool video.';
 
 		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' #DIMENSIONS# src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\' sandbox=\'allow-scripts allow-same-origin allow-popups allow-presentation\'></iframe></span></p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" #DIMENSIONS# src="https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
 
 		$filtered = '<p>Check out this cool video:</p>
@@ -1064,6 +1066,9 @@ That was a cool video.';
 		wp_update_post( $this->post );
 
 		$oembeded = explode( '#DIMENSIONS#', $oembeded );
+
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 
 		$this->assertContains(
 			$oembeded[0],
@@ -1096,6 +1101,8 @@ That was a cool video.';
 			apply_filters( 'the_content', $filtered ),
 			'$oembeded is NOT the same as filtered $filtered'
 		);
+
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
