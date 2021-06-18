@@ -955,10 +955,10 @@
 			var direction = current && last && last.index < current.index ? 1 : -1;
 
 			if ( carousel.slides.length > 1 ) {
-				// Since we preload the `previousPrevious` and `nextNext` slides, we need
-				// to make sure they technically visible in the DOM, but invisible to the
-				// user. To hide them from the user, we position them outside the edges
-				// of the window.
+				// Since we preload the `previous`, `previousPrevious`, `next`, and `nextNext`
+				// slides, we need to make sure they technically visible in the DOM, but
+				// invisible to the user. To hide them from the user, we position them outside
+				// the edges of the window.
 				//
 				// This section of code only applies when there are more than three
 				// slides. Otherwise, the `previousPrevious` and `nextNext` slides will
@@ -984,23 +984,18 @@
 					}
 				}
 
-				setSlidePosition(
-					previous.el,
-					Math.floor( -getSlideWidth( previous ) + screenPadding * 0.75 )
-				);
+				setSlidePosition( previous.el, -getSlideWidth( previous ) - currentWidth );
 				domUtil.show( previous.el );
 
-				setSlidePosition( next.el, Math.ceil( galleryWidth - screenPadding * 0.75 ) );
+				setSlidePosition( next.el, galleryWidth + currentWidth );
 				domUtil.show( next.el );
 			}
 		}
 
 		function calculateMaxSlideDimensions() {
-			var screenHeightPercent = 80;
-
 			return {
-				width: window.innerWidth - screenPadding * 2,
-				height: Math.floor( ( window.innerHeight / 100 ) * screenHeightPercent - 60 ),
+				width: window.innerWidth,
+				height: window.innerHeight,
 			};
 		}
 
@@ -1070,7 +1065,7 @@
 				var max = calculateMaxSlideDimensions();
 
 				dimensions.left = 0;
-				dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 ) + 40;
+				dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 );
 
 				for ( var dimension in dimensions ) {
 					slide.el.style.setProperty( dimension, dimensions[ dimension ] + 'px' );
