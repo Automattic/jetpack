@@ -966,7 +966,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	line-height: 1;
 	font-weight: 400;
 	font-style: normal;
-	margin-left: 40px;
+	margin-left: 25px;
 }
 
 .jp-carousel-icon-comments {
@@ -1012,9 +1012,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-close-hint span {
-		font-size: 32px !important;
-		height: 32px;
-		width: 32px;
+		font-size: 36px !important;
+		height: 36px;
+		width: 36px;
 		font-weight: 800 !important;
 		color: #fff;
 	}
@@ -1044,6 +1044,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-image-meta {
 		display: none !important;
+		margin-top: 10px;
 	}
 
 	.jp-carousel-image-meta.jp-carousel-show {
@@ -1052,8 +1053,12 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-titleanddesc {
 		padding-top: 0 !important;
+		margin: 0 0 10px 0;
 		border: none !important;
-		display: none;
+	}
+
+	.jp-carousel-titleanddesc-desc p {
+		margin: 0;
 	}
 
 	.jp-carousel-titleanddesc.jp-carousel-show {
@@ -1061,7 +1066,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-titleanddesc-title {
-		font-size: 1em !important;
+		font-size: 1.1em !important;
+		margin-bottom: 5px;
+		font-weight: 400 !important;
 	}
 
 	.jp-carousel-left-column-wrapper {
@@ -1087,4 +1094,16 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		display: block;
 	}
 	/** Icons End **/
+}
+
+
+@media only screen and (max-width: 480px) {
+	.jp-carousel {
+		bottom: 30vh;
+	}
+
+	.jp-carousel-info {
+		top: 71vh; /* Fallback, if calc is not supported */
+		top: calc( 70vh + 5px );
+	}
 }
