@@ -225,7 +225,7 @@
 			scrollToElement: scrollToElement,
 			getJSONAttribute: getJSONAttribute,
 			convertToPlainText: convertToPlainText,
-			emitEvent: emitEvent,
+			emitEvent: emitEvent
 		};
 	} )();
 
@@ -464,6 +464,8 @@
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 						handleCommentFormClick( e );
+					} else if ( domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ) {
+						handleIconClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						if ( isSmallScreen ) {
 							handleCarouselGalleryTouch( e );
@@ -1175,6 +1177,39 @@
 		}
 
 		/**
+		 * Handles clicks to icons in the icon container.
+		 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
+		 */
+		function handleIconClick( e ) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var target = e.target;
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-info' ) ) {
+				var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+				var titleAndDescContainer = carousel.container.querySelector( '.jp-carousel-titleanddesc' );
+
+				if ( photoMetaContainer ) {
+					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
+					domUtil.scrollToElement( photoMetaContainer );
+				}
+
+				if ( titleAndDescContainer ) {
+					titleAndDescContainer.classList.toggle( 'jp-carousel-show' );
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				var commentsContainer = carousel.container.querySelector( '.jp-carousel-comments' );
+				if ( commentsContainer ) {
+					commentsContainer.classList.toggle( 'jp-carousel-show' );
+					domUtil.scrollToElement( commentsContainer );
+				}
+			}
+		}
+
+		/**
 		 * Returns a number in a fraction format that represents the shutter speed.
 		 * @param Number speed
 		 * @return String
@@ -1311,6 +1346,8 @@
 
 		function fetchComments( attachmentId, offset ) {
 			var shouldClear = offset === undefined;
+			var commentsIcon = carousel.container.querySelector( '.jp-carousel-icon-comments' );
+			commentsIcon.classList.remove( 'jp-carousel-show' );
 
 			clearInterval( commentInterval );
 
@@ -1324,6 +1361,7 @@
 
 			var comments = carousel.container.querySelector( '.jp-carousel-comments' );
 			var commentsLoading = carousel.container.querySelector( '#jp-carousel-comments-loading' );
+
 			domUtil.show( commentsLoading );
 
 			if ( shouldClear ) {
@@ -1374,6 +1412,10 @@
 					comments.innerHTML = '';
 				}
 
+				if ( data.length === 0 ) {
+					return;
+				}
+
 				for ( var i = 0; i < data.length; i++ ) {
 					var entry = data[ i ];
 					var comment = document.createElement( 'div' );
@@ -1405,7 +1447,9 @@
 				}
 
 				domUtil.show( comments );
+				commentsIcon.classList.add( 'jp-carousel-show' );
 				domUtil.hide( commentsLoading );
+
 			};
 
 			xhr.onerror = onError;

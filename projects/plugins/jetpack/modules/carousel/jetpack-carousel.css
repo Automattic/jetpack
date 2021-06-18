@@ -948,9 +948,39 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
 
+/** Icons Start **/
+.jp-carousel-photo-icons-container {
+	display: none;
+	text-align: right;
+}
+
+.jp-carousel-icon {
+	color: #fff;
+	cursor: pointer;
+	font-family: dashicons;
+	display: inline-block;
+	width: 32px;
+	height: 30px;
+	font-size: 30px;
+	display: inline-block;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+	margin-left: 40px;
+}
+
+.jp-carousel-icon-comments {
+	display: none;
+}
+
+.jp-carousel-icon-comments.jp-carousel-show {
+	display: inline-block;
+}
+
+/** Icons End **/
+
 /* Small screens */
 @media only screen and (max-width: 760px) {
-
 	.jp-carousel-info {
 		margin: 0 10px !important;
 	}
@@ -977,10 +1007,16 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-close-hint {
-	 	font-weight: 800 !important;
-		font-size: 26px !important;
 		position: fixed !important;
 		top: 0;
+	}
+
+	.jp-carousel-close-hint span {
+		font-size: 32px !important;
+		height: 32px;
+		width: 32px;
+		font-weight: 800 !important;
+		color: #fff;
 	}
 
 	.jp-carousel-slide img {
@@ -996,14 +1032,34 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		display: none;
 	}
 
+	.jp-carousel-comments,
+	#jp-carousel-comments-loading,
 	#jp-carousel-comment-form-container {
 		display: none !important;
+	}
+
+	.jp-carousel-comments.jp-carousel-show {
+		display: block !important;
+	}
+
+	.jp-carousel-image-meta {
+		display: none !important;
+	}
+
+	.jp-carousel-image-meta.jp-carousel-show {
+		display: block !important;
 	}
 
 	.jp-carousel-titleanddesc {
 		padding-top: 0 !important;
 		border: none !important;
+		display: none;
 	}
+
+	.jp-carousel-titleanddesc.jp-carousel-show {
+		display: block !important;
+	}
+
 	.jp-carousel-titleanddesc-title {
 		font-size: 1em !important;
 	}
@@ -1022,11 +1078,13 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		display: none;
 	}
 
-	.jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
-		display: block;
-	}
-
 	.jp-carousel-caption {
 		overflow: visible !important;
 	}
+
+	/** Icons Start **/
+	.jp-carousel-photo-icons-container {
+		display: block;
+	}
+	/** Icons End **/
 }
