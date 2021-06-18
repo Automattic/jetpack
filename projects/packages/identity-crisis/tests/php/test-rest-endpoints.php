@@ -178,6 +178,10 @@ class Test_REST_Endpoints extends TestCase {
 	 * Testing the `/jetpack/v4/identity-crisis/start-fresh` endpoint returns an error when user does not have permissions.
 	 */
 	public function test_start_fresh_no_access() {
+
+		$user = wp_get_current_user();
+		$user->remove_cap( 'jetpack_disconnect' );
+
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/start-fresh' );
 		$request->set_header( 'Content-Type', 'application/json' );
 
