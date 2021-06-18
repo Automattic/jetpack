@@ -21,6 +21,7 @@ import { initializeTracks, identifySite, resetTrackingCookies } from '../lib/tra
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
+	disableQueryStringIntegration,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
@@ -53,8 +54,13 @@ class SearchApp extends Component {
 			isVisible: !! this.props.initialIsVisible, // initialIsVisible can be undefined
 		};
 		this.getResults = debounce( this.getResults, 200 );
-		this.props.initializeQueryValues();
 		this.initializeAnalytics();
+
+		if ( this.props.shouldIntegrateWithDom ) {
+			this.props.initializeQueryValues();
+		} else {
+			this.props.disableQueryStringIntegration();
+		}
 	}
 
 	componentDidMount() {
@@ -266,6 +272,7 @@ export default connect(
 	} ),
 	{
 		clearQueryValues,
+		disableQueryStringIntegration,
 		initializeQueryValues,
 		makeSearchRequest,
 		setFilter,

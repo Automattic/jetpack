@@ -131,3 +131,15 @@ export function clearQueryValues() {
 		type: 'CLEAR_QUERY_VALUES',
 	};
 }
+
+/**
+ * Returns an action object used to disable query string integration.
+ * Used when search app is used in the Gutenberg context.
+ *
+ * @returns {object} Action object.
+ */
+export function disableQueryStringIntegration() {
+	return {
+		type: 'DISABLE_QUERY_STRING_INTEGRATION',
+	};
+}
