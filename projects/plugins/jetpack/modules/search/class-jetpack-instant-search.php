@@ -502,6 +502,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		// Set default result format to "expanded".
 		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', Jetpack_Search_Options::RESULT_FORMAT_EXPANDED );
 
+		// Set default overlay trigger to "immediate".
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'overlay_trigger', Jetpack_Search_Options::OVERLAY_TRIGGER_IMMEDIATE );
+
 		$this->auto_config_excluded_post_types();
 		$this->auto_config_overlay_sidebar_widgets();
 		$this->auto_config_woo_result_format();
