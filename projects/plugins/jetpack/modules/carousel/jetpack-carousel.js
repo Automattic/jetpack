@@ -399,6 +399,20 @@
 			}, 200 );
 		}
 
+		function visualViewportListener() {
+			if ( visualViewport.scale <= 1 ) {
+				return;
+			}
+			var currentSlide = carousel.currentSlide;
+
+			if ( typeof currentSlide !== 'undefined' && currentSlide.attrs && currentSlide.el ) {
+				var image = currentSlide.el.querySelector( 'img' );
+				if ( !! currentSlide.attrs.origFile && image.src !== currentSlide.attrs.origFile ) {
+					image.src = currentSlide.attrs.origFile;
+				}
+			}
+		}
+
 		function fitMeta() {
 			carousel.info.style.left = screenPadding + 'px';
 			carousel.info.style.right = screenPadding + 'px';
@@ -475,6 +489,9 @@
 
 				carousel.container.addEventListener( 'jp_carousel.beforeOpen', function () {
 					window.addEventListener( 'resize', resizeListener );
+					if ( typeof visualViewport !== 'undefined' ) {
+						visualViewport.addEventListener( 'resize', visualViewportListener );
+					}
 					resizeListener();
 				} );
 
@@ -485,6 +502,9 @@
 				carousel.container.addEventListener( 'jp_carousel.beforeClose', function () {
 					disableKeyboardNavigation();
 					window.removeEventListener( 'resize', resizeListener );
+					if ( typeof visualViewport !== 'undefined' ) {
+						visualViewport.addEventListener( 'resize', visualViewportListener );
+					}
 					domUtil.hide( carousel.prevButton );
 					domUtil.hide( carousel.nextButton );
 
