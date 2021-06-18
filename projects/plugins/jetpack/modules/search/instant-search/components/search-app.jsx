@@ -57,7 +57,7 @@ class SearchApp extends Component {
 		};
 
 		this.getResults = debounce( this.getResults, 200 );
-		this.initializeAnalytics();
+		this.props.enableAnalytics && this.initializeAnalytics();
 
 		if ( this.props.shouldIntegrateWithDom ) {
 			this.props.initializeQueryValues();
