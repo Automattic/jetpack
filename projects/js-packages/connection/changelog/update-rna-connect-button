@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Rename 'Main' component into 'ConnectButton'
