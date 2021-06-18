@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.61
+ * Version: 2.7.62
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
