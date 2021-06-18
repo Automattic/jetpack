@@ -166,12 +166,10 @@ class Test_REST_Endpoints extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
-		$data     = $response->get_data();
 
 		$user->remove_cap( 'jetpack_disconnect' );
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( '', $data );
 	}
 
 	/**
