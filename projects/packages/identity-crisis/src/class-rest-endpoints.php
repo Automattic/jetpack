@@ -133,7 +133,12 @@ class REST_Endpoints {
 		do_action( 'jetpack_idc_disconnect' );
 
 		$connection = new Connection_Manager();
-		$connection->try_registration( true );
+		$result     = $connection->try_registration( true );
+
+		// early return if site registration fails.
+		if ( ! $result || is_wp_error( $result ) ) {
+			return rest_ensure_response( $result );
+		}
 		/**
 		 * Filters the connection url that users should be redirected to for re-establishing their connection.
 		 *
