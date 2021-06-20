@@ -11,6 +11,10 @@
 	opacity: 0.5;
 }
 
+.swiper-container {
+	height: calc( 100vh - 90px );
+}
+
 .jp-carousel-overlay {
 	font-family: 'Helvetica Neue', sans-serif !important;
 	z-index: 10;
@@ -26,11 +30,15 @@
 	background: #000;
 }
 
+.swiper-container .swiper-button-prev {
+	left: 40px;
+}
+.swiper-container .swiper-button-next {
+	right: 40px;
+}
+
 .jp-carousel-container {
-	margin-left: auto;
-	margin-right: auto;
-	max-width: 800px;
-	margin-top: 100px;
+	margin-top: 60px;
 }
 
 .jp-carousel-msg {
@@ -49,6 +57,8 @@
 }
 
 .jp-carousel-info {
+	padding-left: 80px;
+	padding-right: 80px;
 	display: flex;
 	flex-direction: column;
 	text-align: left !important;
