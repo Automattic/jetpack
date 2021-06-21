@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: fix crashes when opening images with missing data.

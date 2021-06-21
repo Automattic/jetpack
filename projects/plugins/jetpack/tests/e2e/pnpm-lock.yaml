@@ -25,7 +25,7 @@ importers:
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
-      playwright: 1.10.0
+      playwright: 1.12.2
       pm2: 4.5.6
       rimraf: 3.0.2
       shell-escape: 0.2.0
@@ -53,7 +53,7 @@ importers:
       localtunnel: 2.0.1
       lodash: 4.17.21
       mkdirp: 1.0.4
-      playwright: 1.10.0
+      playwright: 1.12.2
       pm2: 4.5.6
       rimraf: 3.0.2
       shell-escape: 0.2.0
@@ -1922,7 +1922,7 @@ packages:
     engines: {node: '>= 8'}
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.2.2
+      picomatch: 2.3.0
     dev: true
 
   /argparse/1.0.10:
@@ -5956,6 +5956,11 @@ packages:
     engines: {node: '>=8.6'}
     dev: true
 
+  /picomatch/2.3.0:
+    resolution: {integrity: sha512-lY1Q/PiJGC2zOv/z391WOTD+Z02bCgsFfvxoXXf6h7kv9o+WmsmzYqrAwY63sNgOxE4xEdq0WyUnXfKeBrSvYw==}
+    engines: {node: '>=8.6'}
+    dev: true
+
   /pidusage/2.0.21:
     resolution: {integrity: sha512-cv3xAQos+pugVX+BfXpHsbyz/dLzX+lr44zNMsYiGxUw+kV5sgQCIcLd1z+0vq+KyC7dJ+/ts2PsfgWfSC3WXA==}
     engines: {node: '>=8'}
@@ -5996,9 +6001,9 @@ packages:
       find-up: 3.0.0
     dev: true
 
-  /playwright/1.10.0:
-    resolution: {integrity: sha512-b7SGBcCPq4W3pb4ImEDmNXtO0ZkJbZMuWiShsaNJd+rGfY/6fqwgllsAojmxGSgFmijYw7WxCoPiAIEDIH16Kw==}
-    engines: {node: '>=10.17.0'}
+  /playwright/1.12.2:
+    resolution: {integrity: sha512-tSZGeILY70T4imhCMCsvzhoaDm9baosIG5fQncSWprpjVc/X4yYdBQCLBMvOi98H50hvu9fhgy2hpsgFKCsUaw==}
+    engines: {node: '>=12'}
     hasBin: true
     requiresBuild: true
     dependencies:
@@ -6015,6 +6020,7 @@ packages:
       rimraf: 3.0.2
       stack-utils: 2.0.3
       ws: 7.4.6
+      yazl: 2.5.1
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -7700,4 +7706,10 @@ packages:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+    dev: true
+
+  /yazl/2.5.1:
+    resolution: {integrity: sha512-phENi2PLiHnHb6QBVot+dJnaAZ0xosj7p3fWl+znIjBDlnMI2PsZCJZ306BPTFOaHf5qdDEI8x5qFrSOBN5vrw==}
+    dependencies:
+      buffer-crc32: 0.2.13
     dev: true

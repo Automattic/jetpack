@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Getting rid of the 'authorizeUrl' parameter, retrieving the value via REST API, and extrating the user connection functionality into a separate 'ConnectUser' component.
