@@ -123,7 +123,7 @@ jobs:
       - name: Add test files and version
         id: version
         run: |
-          for file in to-test.md docs/testing/testing-tips.md; do
+          for file in docs/testing/testing-tips.md; do
             mkdir -p "$(dirname "to-upload/jetpack-dev/$file")"
             cp "monorepo/$file" "to-upload/jetpack-dev/$file"
           done
