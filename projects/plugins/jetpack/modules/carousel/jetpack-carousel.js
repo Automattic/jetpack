@@ -340,11 +340,7 @@
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 						handleCommentFormClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
-						if ( isSmallScreen ) {
-							return;
-						} else {
-							swiper.slideNext();
-						}
+						return;
 					}
 				} );
 
