@@ -227,7 +227,7 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
 	const dashboardUrl = 'https://automattic.github.io/jetpack-e2e-reports';
-	let reportUrl = dashboardUrl;
+	let reportUrl;
 
 	const buttons = [
 		{
