@@ -226,6 +226,8 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 	const gh = getGithubContext();
 
 	const btnStyle = isSuccess ? 'primary' : 'danger';
+	const dashboardUrl = 'https://automattic.github.io/jetpack-e2e-reports';
+	let reportUrl = dashboardUrl;
 
 	const buttons = [
 		{
@@ -270,7 +272,21 @@ function buildDefaultMessage( isSuccess, forceHeaderText = undefined ) {
 			: `${ isSuccess ? 'All tests passed' : 'There are test failures' } for PR \`<${ gh.pr.url }|${
 					gh.pr.title
 			  }>\``;
+
+		reportUrl = `${ dashboardUrl }/${ gh.pr.number }/report`;
+	} else {
+		reportUrl = `${ dashboardUrl }/${ gh.branch.name }/report`;
 	}
+
+	buttons.push( {
+		type: 'button',
+		text: {
+			type: 'plain_text',
+			text: `Report`,
+		},
+		url: reportUrl,
+		style: btnStyle,
+	} );
 
 	const blocks = [
 		{
