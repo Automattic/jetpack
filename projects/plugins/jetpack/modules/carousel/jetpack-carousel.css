@@ -295,10 +295,11 @@ div.jp-carousel-buttons a:hover {
 	color: #999;
 	cursor: default;
 	letter-spacing: 0 !important;
-	padding: 0.35em 0 0;
+	padding: 0.35em 25px 0.35em 0;
+	box-sizing: border-box;
 	position: fixed;
 	text-align: right;
-	width: calc( 100vw - 25px );
+	width: 100%;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
