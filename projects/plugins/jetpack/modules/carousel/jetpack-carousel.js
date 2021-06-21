@@ -674,17 +674,13 @@
 			swiper.destroy();
 			carousel.isOpen = false;
 
-			//domUtil.fadeOut( carousel.overlay, function () {
 			// Clear slide data for DOM garbage collection.
-
 			carousel.slides = [];
 			carousel.currentSlide = undefined;
 			carousel.gallery.innerHTML = '';
-
-			restoreScroll();
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
+			carousel.overlay.style.opacity = '0';
 			carousel.overlay.style.display = 'none';
-			//} );
 		}
 
 		function calculateMaxSlideDimensions() {
@@ -1235,6 +1231,7 @@
 			swiper.on( 'slideChange', function () {
 				selectSlideAtIndex( swiper.activeIndex );
 			} );
+			carousel.overlay.style.opacity = '1';
 		}
 
 		// Register the event listener for starting the gallery
