@@ -88,7 +88,7 @@ class Videopress_Attachment_Metadata {
 	 * @return bool
 	 */
 	private static function is_display_embed_valid( $display_embed ) {
-		return ( 0 === $display_embed || 1 === $display_embed );
+		return ( '0' === $display_embed || '1' === $display_embed );
 	}
 
 	/**
