@@ -5,7 +5,7 @@ set -eo pipefail
 BASE="$PWD"
 
 EXIT=0
-for FILE in $(git ls-files 'composer.lock' '**/composer.lock'); do
+for FILE in $(git -c core.quotepath=off ls-files 'composer.lock' '**/composer.lock'); do
 	DIR="$(dirname "$FILE")"
 	cd "$DIR"
 	echo "::group::$FILE - composer install"
@@ -23,7 +23,7 @@ for FILE in $(git ls-files 'composer.lock' '**/composer.lock'); do
 	cd "$BASE"
 done
 
-for FILE in $(git ls-files 'pnpm-lock.yaml' '**/pnpm-lock.yaml'); do
+for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.yaml'); do
 	cd $(dirname "$FILE")
 	echo "::group::$FILE - pnpm install"
 	pnpm install

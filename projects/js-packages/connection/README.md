@@ -8,13 +8,10 @@ Contains the whole connection flow, including site registration and user authori
 
 ### Properties
 - *connectLabel* - string, the "Connect" button label.
-- *inPlaceTitle* - string, the title for the In-Place Connection component.
-- *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
 - *apiRoot* - string (required), API root URL.
 - *apiNonce* - string (required), API Nonce.
 - *registrationNonce* - string (required), registration nonce.
 - *onRegistered* - callback, to be called upon registration success.
-- *onUserConnected* - callback, to be called when the connection is fully established.
 - *from* - string, custom string parameter to identify where the request is coming from.
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
 
@@ -30,9 +27,7 @@ const onUserConnected = useCallback( () => alert( 'User Connected' ) );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	forceCalypsoFlow={ false }
 	onRegistered={ onRegistered }
-	onUserConnected={ onUserConnected }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 />
@@ -55,7 +50,6 @@ const [ connectionStatus, setConnectionStatus ] = useState( {} );
 	apiRoot="https://example.org/wp-json/" 
 	apiNonce="12345"
 	registrationNonce="54321"
-	forceCalypsoFlow={ false }
 	from="connection-ui"
 	redirectUri="tools.php?page=wpcom-connection-manager"
 >
@@ -84,10 +78,6 @@ or renders the `InPlaceConnection` component.
 
 - *connectUrl* - string (required), the authorization URL (the no-iframe version, will be adjusted for In-Place flow automatically).
 - *redirectUrl* - string, wp-admin URI to redirect a user to after Calypso connection flow.
-- *displayTOS* - boolean (required), whether we should display the terms of service during In-Place flow.
-- *inPlaceTitle* - string, title for the In-Place Connection component.
-- *forceCalypsoFlow* - boolean, whether to go straight to Calypso flow, skipping the In-Place flow.
-- *onComplete* - callback, to be called when the connection is fully established.
 - *from* - string, indicates where the connection request is coming from.
 - *redirectFunc* - function, the redirect function (`window.location.assign()` by default).
 
@@ -98,15 +88,14 @@ import { ConnectUser } from '@automattic/jetpack-connection';
 <ConnectUser
 	connectUrl="https://jetpack.wordpress.com/jetpack.authorize/1/"
 	redirectUri="tools.php?page=wpcom-connection-manager"
-	inPlaceTitle="Sample Connection"
-	onComplete={ () => alert( 'Connected' ) }
-	displayTOS={ false }
-	forceCalypsoFlow={ false }
 	from="connection-ui"
 />
 ```
 
 ## Component `InPlaceConnection`
+
+__The component is deprecated and will soon be removed.__
+
 It includes:
 - the `iframe` HTML element
 - connection URL handling

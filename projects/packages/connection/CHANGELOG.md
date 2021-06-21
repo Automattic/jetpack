@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.28.0] - 2021-06-15
+### Added
+- Added Urls class, migrated from Sync Functions.
+- Adding new REST endpoint /jetpack/v4/user-token that allows us to add/update user tokens remotely.
+- Add new 'connection/authorize_url' endpoint.
+- Adds information received from the server to the register_site REST response.
+- Enable site-level authentication (blog token) for REST API endpoints.
+- Move 'connection/owner' endpoint to Connection package.
+
 ## [1.27.0] - 2021-05-25
 ### Added
 - Add "isUserConnected" to the connection status data.
@@ -361,6 +370,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.28.0]: https://github.com/Automattic/jetpack-connection/compare/v1.27.0...v1.28.0
 [1.27.0]: https://github.com/Automattic/jetpack-connection/compare/v1.26.0...v1.27.0
 [1.26.0]: https://github.com/Automattic/jetpack-connection/compare/v1.25.2...v1.26.0
 [1.25.2]: https://github.com/Automattic/jetpack-connection/compare/v1.25.1...v1.25.2

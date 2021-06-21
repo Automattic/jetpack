@@ -119,11 +119,11 @@ function sortPackageJson( jsFiles ) {
 }
 
 const gitFiles = parseGitDiffToPathArray(
-	'git diff --cached --name-only --diff-filter=ACM'
+	'git -c core.quotepath=off diff --cached --name-only --diff-filter=ACM'
 ).filter( Boolean );
-const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
-	Boolean
-);
+const dirtyFiles = parseGitDiffToPathArray(
+	'git -c core.quotepath=off diff --name-only --diff-filter=ACM'
+).filter( Boolean );
 const jsFiles = gitFiles.filter( filterJsFiles );
 const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
