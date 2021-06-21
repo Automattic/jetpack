@@ -1657,9 +1657,7 @@
 
 			e.preventDefault();
 
-			//currentImage.currentScale = currentImage.initialScale * e.scale > 1 ? currentImage.initialScale * e.scale : 1;
 			currentImage.currentScale = currentImage.initialScale * e.scale;
-
 			currentImage.isZoomed = currentImage.currentScale > 1 ? true : false;
 
 			if ( currentImage.isZoomed ) {
@@ -1690,7 +1688,7 @@
 					currentImageRect.width < window.innerWidth &&
 					currentImageRect.height < window.innerHeight
 				) {
-					resetPinchPanTransform( 200 ); // 200ms transition time
+					resetPinchPanTransform( 250 ); // 250ms transition time
 				}
 			}, 10 );
 		}
@@ -1762,7 +1760,7 @@
 			currentImage.xOffset = currentImage.currentX;
 			currentImage.yOffset = currentImage.currentY;
 
-			setPinchPanTransform( 200 ); // 200ms transition time
+			setPinchPanTransform( 250 ); // 250ms transition time
 
 			currentImage.isPanning = false;
 		}
