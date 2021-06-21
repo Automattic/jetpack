@@ -244,19 +244,15 @@
 				wipeUp: function () {},
 				wipeDown: function () {},
 			};
-
 			for ( var arg in args ) {
 				config[ arg ] = args[ arg ];
 			}
-
 			var startX, startY, isMoving, startTime, elapsedTime;
-
 			function cancelTouch() {
 				config.root.removeEventListener( 'touchmove', onTouchMove );
 				startX = null;
 				isMoving = false;
 			}
-
 			function onTouchMove( e ) {
 				if ( isMoving ) {
 					var x = e.touches[ 0 ].pageX;
@@ -283,7 +279,6 @@
 					}
 				}
 			}
-
 			function onTouchStart( e ) {
 				if ( e.touches.length === 1 ) {
 					startTime = new Date().getTime();
@@ -293,7 +288,6 @@
 					config.root.addEventListener( 'touchmove', onTouchMove, false );
 				}
 			}
-
 			if ( 'ontouchstart' in document.documentElement ) {
 				config.root.addEventListener( 'touchstart', onTouchStart, false );
 			}
@@ -985,23 +979,18 @@
 					}
 				}
 
-				setSlidePosition(
-					previous.el,
-					Math.floor( -getSlideWidth( previous ) + screenPadding * 0.75 )
-				);
+				setSlidePosition( previous.el, -getSlideWidth( previous ) - currentWidth );
 				domUtil.show( previous.el );
 
-				setSlidePosition( next.el, Math.ceil( galleryWidth - screenPadding * 0.75 ) );
+				setSlidePosition( next.el, galleryWidth + currentWidth );
 				domUtil.show( next.el );
 			}
 		}
 
 		function calculateMaxSlideDimensions() {
-			var screenHeightPercent = 80;
-
 			return {
-				width: window.innerWidth - screenPadding * 2,
-				height: Math.floor( ( window.innerHeight / 100 ) * screenHeightPercent - 60 ),
+				width: window.innerWidth,
+				height: window.innerHeight,
 			};
 		}
 
@@ -1071,7 +1060,7 @@
 				var max = calculateMaxSlideDimensions();
 
 				dimensions.left = 0;
-				dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 ) + 40;
+				dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 );
 
 				for ( var dimension in dimensions ) {
 					slide.el.style.setProperty( dimension, dimensions[ dimension ] + 'px' );
@@ -1635,24 +1624,9 @@
 
 		function capturePinchPanGesture() {
 			carousel.currentSlide.currentImage = carousel.currentSlide.el.querySelector( 'img' );
-			var currentImage = carousel.currentSlide.currentImage;
+			resetPinchPanTransform( 0 ); // 0ms transition time
 
-			currentImage.isZoomed = false;
-			currentImage.isPinching = false;
-			currentImage.initialScale = 1;
-			currentImage.currentScale = 1;
-
-			currentImage.isPanned = false;
-			currentImage.isPanning = false;
-			currentImage.initialX = 0;
-			currentImage.initialY = 0;
-			currentImage.currentX = 0;
-			currentImage.currentY = 0;
-			currentImage.xOffset = 0;
-			currentImage.yOffset = 0;
-
-			document.addEventListener( 'touchstart', pinchStart, { passive: false } );
-			document.addEventListener( 'touchstart', panStart, { passive: false } );
+			document.addEventListener( 'touchstart', pinchPanStart, { passive: false } );
 
 			document.addEventListener( 'touchmove', pinchMove, { passive: false } );
 			document.addEventListener( 'touchmove', panMove, { passive: false } );
@@ -1661,7 +1635,7 @@
 			document.addEventListener( 'touchend', panEnd, { passive: false } );
 		}
 
-		function pinchStart( e ) {
+		function pinchPanStart( e ) {
 			var currentImage = carousel.currentSlide.currentImage;
 
 			if ( e.touches.length > 1 ) {
@@ -1669,6 +1643,8 @@
 
 				currentImage.isPinching = true;
 			}
+
+			panStart( e );
 		}
 
 		function pinchMove( e ) {
@@ -1679,8 +1655,15 @@
 			}
 
 			e.preventDefault();
-			currentImage.currentScale =
-				currentImage.initialScale * e.scale > 1 ? currentImage.initialScale * e.scale : 1;
+
+			//currentImage.currentScale = currentImage.initialScale * e.scale > 1 ? currentImage.initialScale * e.scale : 1;
+			currentImage.currentScale = currentImage.initialScale * e.scale;
+
+			currentImage.isZoomed = currentImage.currentScale > 1 ? true : false;
+
+			if ( currentImage.isZoomed ) {
+				panMove( e );
+			}
 
 			setPinchPanTransform();
 		}
@@ -1694,17 +1677,25 @@
 
 			e.preventDefault();
 
-			currentImage.isPinching = false;
-			currentImage.isZoomed = currentImage.currentScale > 1 ? true : false;
-			currentImage.initialScale = currentImage.currentScale;
+			// Minor timeout to stop pinching and panning clashing
+			setTimeout( function () {
+				currentImage.isPinching = false;
+				currentImage.initialScale = currentImage.currentScale;
+
+				var currentImageRect = currentImage.getBoundingClientRect();
+
+				//Reset position if image size is less than viewport size.
+				if (
+					currentImageRect.width < window.innerWidth &&
+					currentImageRect.height < window.innerHeight
+				) {
+					resetPinchPanTransform( 200 ); // 200ms transition time
+				}
+			}, 10 );
 		}
 
 		function panStart( e ) {
 			var currentImage = carousel.currentSlide.currentImage;
-
-			if ( e.touches.length !== 1 || ! currentImage.isZoomed || currentImage.isPinching ) {
-				return;
-			}
 
 			e.preventDefault();
 
@@ -1716,7 +1707,7 @@
 		function panMove( e ) {
 			var currentImage = carousel.currentSlide.currentImage;
 
-			if ( ! currentImage.isZoomed || ! currentImage.isPanning || currentImage.isPinching ) {
+			if ( ! currentImage.isZoomed || ! currentImage.isPanning ) {
 				return;
 			}
 
@@ -1734,26 +1725,92 @@
 		function panEnd( e ) {
 			var currentImage = carousel.currentSlide.currentImage;
 
-			if ( ! currentImage.isZoomed || ! currentImage.isPanning || currentImage.isPinching ) {
-				return;
+			e.preventDefault();
+
+			// Snap images to sides and keep centered.
+			var currentImageRect = currentImage.getBoundingClientRect();
+
+			if ( currentImageRect.width > window.innerWidth ) {
+				if ( currentImageRect.left > 0 ) {
+					currentImage.currentX -= currentImageRect.x;
+				}
+
+				if ( window.innerWidth - currentImageRect.right > 0 ) {
+					currentImage.currentX += window.innerWidth - currentImageRect.right;
+				}
 			}
 
-			e.preventDefault();
+			if ( currentImageRect.width <= window.innerWidth ) {
+				currentImage.currentX = 0;
+			}
+
+			if ( currentImageRect.height > window.innerHeight ) {
+				if ( currentImageRect.top > 0 ) {
+					currentImage.currentY -= currentImageRect.y;
+				}
+
+				if ( window.innerHeight - currentImageRect.bottom > 0 ) {
+					currentImage.currentY += window.innerHeight - currentImageRect.bottom;
+				}
+			}
+
+			if ( currentImageRect.height <= window.innerHeight ) {
+				currentImage.currentY = 0;
+			}
+
+			currentImage.xOffset = currentImage.currentX;
+			currentImage.yOffset = currentImage.currentY;
+
+			setPinchPanTransform( 200 ); // 200ms transition time
+
+			currentImage.isPanning = false;
 		}
 
-		function setPinchPanTransform() {
+		function setPinchPanTransform( transitionTime ) {
 			var currentImage = carousel.currentSlide.currentImage;
+			var scaleModifier = 1 / currentImage.currentScale;
+
+			var xPos = currentImage.currentX === 0 ? 0 : currentImage.currentX * scaleModifier;
+			var yPos = currentImage.currentY === 0 ? 0 : currentImage.currentY * scaleModifier;
 
 			currentImage.style.setProperty(
 				'transform',
-				'scale(' +
-					currentImage.currentScale +
-					') translate3d(' +
-					currentImage.currentX * ( 1 / currentImage.currentScale ) +
-					'px, ' +
-					currentImage.currentY * ( 1 / currentImage.currentScale ) +
-					'px, 0)'
+				'scale(' + currentImage.currentScale + ') translate3d(' + xPos + 'px, ' + yPos + 'px, 0)'
 			);
+
+			if ( transitionTime ) {
+				currentImage.style.setProperty( 'transition', transitionTime + 'ms' );
+				setTimeout( function () {
+					currentImage.style.setProperty( 'transition', 'none' );
+				}, transitionTime );
+			}
+		}
+
+		function resetPinchPanTransform( transitionTime ) {
+			var currentImage = carousel.currentSlide.currentImage;
+
+			currentImage.isZoomed = false;
+			currentImage.isPinching = false;
+			currentImage.initialScale = 1;
+			currentImage.currentScale = 1;
+
+			currentImage.isPanned = false;
+			currentImage.isPanning = false;
+			currentImage.initialX = 0;
+			currentImage.initialY = 0;
+			currentImage.currentX = 0;
+			currentImage.currentY = 0;
+			currentImage.xOffset = 0;
+			currentImage.yOffset = 0;
+
+			if ( transitionTime ) {
+				currentImage.style.setProperty( 'transition', transitionTime + 'ms' );
+				setTimeout( function () {
+					currentImage.style.setProperty( 'transition', 'none' );
+				}, transitionTime );
+			}
+
+			currentImage.style.setProperty( 'transform', 'none' );
 		}
 
 		// Register the event listener for starting the gallery
