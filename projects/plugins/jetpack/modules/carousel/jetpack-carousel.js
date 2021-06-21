@@ -230,71 +230,71 @@
 	/////////////////////////////////////
 	// Touch-related utility functions
 	/////////////////////////////////////
-	var touchUtil = ( function () {
-		// Wipe handler, inspired by https://www.netcu.de/jquery-touchwipe-iphone-ipad-library
-		function addWipeHandler( args ) {
-			args = args || {};
-			var config = {
-				root: document.body,
-				threshold: 150, // Required min distance traveled to be considered swipe.
-				restraint: 100, // Maximum distance allowed at the same time in perpendicular direction.
-				allowedTime: 300, // Maximum time allowed to travel that distance.
-				wipeLeft: function () {},
-				wipeRight: function () {},
-				wipeUp: function () {},
-				wipeDown: function () {},
-			};
-			for ( var arg in args ) {
-				config[ arg ] = args[ arg ];
-			}
-			var startX, startY, isMoving, startTime, elapsedTime;
-			function cancelTouch() {
-				config.root.removeEventListener( 'touchmove', onTouchMove );
-				startX = null;
-				isMoving = false;
-			}
-			function onTouchMove( e ) {
-				if ( isMoving ) {
-					var x = e.touches[ 0 ].pageX;
-					var y = e.touches[ 0 ].pageY;
-					var dx = startX - x;
-					var dy = startY - y;
-					elapsedTime = new Date().getTime() - startTime;
-					if ( elapsedTime <= config.allowedTime ) {
-						if ( Math.abs( dx ) >= config.threshold && Math.abs( dy ) <= config.restraint ) {
-							cancelTouch();
-							if ( dx > 0 ) {
-								config.wipeLeft( e );
-							} else {
-								config.wipeRight( e );
-							}
-						} else if ( Math.abs( dy ) >= config.threshold && Math.abs( dx ) <= config.restraint ) {
-							cancelTouch();
-							if ( dy > 0 ) {
-								config.wipeDown( e );
-							} else {
-								config.wipeUp( e );
-							}
-						}
-					}
-				}
-			}
-			function onTouchStart( e ) {
-				if ( e.touches.length === 1 ) {
-					startTime = new Date().getTime();
-					startX = e.touches[ 0 ].pageX;
-					startY = e.touches[ 0 ].pageY;
-					isMoving = true;
-					config.root.addEventListener( 'touchmove', onTouchMove, false );
-				}
-			}
-			if ( 'ontouchstart' in document.documentElement ) {
-				config.root.addEventListener( 'touchstart', onTouchStart, false );
-			}
-		}
+	// var touchUtil = ( function () {
+	// 	// Wipe handler, inspired by https://www.netcu.de/jquery-touchwipe-iphone-ipad-library
+	// 	function addWipeHandler( args ) {
+	// 		args = args || {};
+	// 		var config = {
+	// 			root: document.body,
+	// 			threshold: 150, // Required min distance traveled to be considered swipe.
+	// 			restraint: 100, // Maximum distance allowed at the same time in perpendicular direction.
+	// 			allowedTime: 300, // Maximum time allowed to travel that distance.
+	// 			wipeLeft: function () {},
+	// 			wipeRight: function () {},
+	// 			wipeUp: function () {},
+	// 			wipeDown: function () {},
+	// 		};
+	// 		for ( var arg in args ) {
+	// 			config[ arg ] = args[ arg ];
+	// 		}
+	// 		var startX, startY, isMoving, startTime, elapsedTime;
+	// 		function cancelTouch() {
+	// 			config.root.removeEventListener( 'touchmove', onTouchMove );
+	// 			startX = null;
+	// 			isMoving = false;
+	// 		}
+	// 		function onTouchMove( e ) {
+	// 			if ( isMoving ) {
+	// 				var x = e.touches[ 0 ].pageX;
+	// 				var y = e.touches[ 0 ].pageY;
+	// 				var dx = startX - x;
+	// 				var dy = startY - y;
+	// 				elapsedTime = new Date().getTime() - startTime;
+	// 				if ( elapsedTime <= config.allowedTime ) {
+	// 					if ( Math.abs( dx ) >= config.threshold && Math.abs( dy ) <= config.restraint ) {
+	// 						cancelTouch();
+	// 						if ( dx > 0 ) {
+	// 							config.wipeLeft( e );
+	// 						} else {
+	// 							config.wipeRight( e );
+	// 						}
+	// 					} else if ( Math.abs( dy ) >= config.threshold && Math.abs( dx ) <= config.restraint ) {
+	// 						cancelTouch();
+	// 						if ( dy > 0 ) {
+	// 							config.wipeDown( e );
+	// 						} else {
+	// 							config.wipeUp( e );
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 		function onTouchStart( e ) {
+	// 			if ( e.touches.length === 1 ) {
+	// 				startTime = new Date().getTime();
+	// 				startX = e.touches[ 0 ].pageX;
+	// 				startY = e.touches[ 0 ].pageY;
+	// 				isMoving = true;
+	// 				config.root.addEventListener( 'touchmove', onTouchMove, false );
+	// 			}
+	// 		}
+	// 		if ( 'ontouchstart' in document.documentElement ) {
+	// 			config.root.addEventListener( 'touchstart', onTouchStart, false );
+	// 		}
+	// 	}
 
-		return { addWipeHandler: addWipeHandler };
-	} )();
+	// 	return { addWipeHandler: addWipeHandler };
+	// } )();
 
 	/////////////////////////////////////
 	// Carousel implementation
@@ -494,17 +494,18 @@
 					carousel.isOpen = false;
 				} );
 
-				touchUtil.addWipeHandler( {
-					root: carousel.container,
-					wipeLeft: function ( e ) {
-						e.preventDefault();
-						moveToNextSlide();
-					},
-					wipeRight: function ( e ) {
-						e.preventDefault();
-						moveToPreviousSlide();
-					},
-				} );
+				// TODO: Remove swipe disable after this is refactored!
+				// touchUtil.addWipeHandler( {
+				// 	root: carousel.container,
+				// 	wipeLeft: function ( e ) {
+				// 		e.preventDefault();
+				// 		moveToNextSlide();
+				// 	},
+				// 	wipeRight: function ( e ) {
+				// 		e.preventDefault();
+				// 		moveToPreviousSlide();
+				// 	},
+				// } );
 
 				carousel.nextButton.addEventListener( 'click', function ( e ) {
 					e.preventDefault();
