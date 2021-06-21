@@ -200,9 +200,9 @@ jobs:
       - name: Inform Beta Download webhook
         env:
           SECRET: ${{ secrets.JPBETA_SECRET }}
-          PLUGIN_DATA: ${{ steps.perpare.outputs.plugin-data }}
+          PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
           PR: ${{ github.event.number }}
-          JPVER: ${{ steps.perpare.outputs.jetpack-version }}
+          JPVER: ${{ steps.prepare.outputs.jetpack-version }}
         run: |
           # TODO: Remove the JPVER bit when the legacy jetpack-dev artifact is removed.
           curl -v --fail -L \
