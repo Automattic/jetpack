@@ -33,7 +33,7 @@ async function addMilestone( payload, octokit ) {
 
 	const {
 		data: { milestone: pullMilestone },
-	} = await octokit.issues.get( { owner: ownerLogin, repo, issue_number: prNumber } );
+	} = await octokit.rest.issues.get( { owner: ownerLogin, repo, issue_number: prNumber } );
 
 	if ( pullMilestone ) {
 		debug( 'add-milestone: Pull request already has a milestone. Aborting' );
@@ -63,7 +63,7 @@ async function addMilestone( payload, octokit ) {
 
 	debug( `add-milestone: Adding PR #${ prNumber } to milestone #${ nextMilestone.number }` );
 
-	await octokit.issues.update( {
+	await octokit.rest.issues.update( {
 		owner: ownerLogin,
 		repo,
 		issue_number: prNumber,

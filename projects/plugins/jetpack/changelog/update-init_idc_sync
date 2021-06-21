@@ -1,0 +1,5 @@
+Significance: patch
+Type: enhancement
+Comment: Remove the IDC initialization since it's now happening in the Sync package.
+
+

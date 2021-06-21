@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-connection-manager-ui",
-	"version": "1.1.1-alpha",
+	"version": "1.2.0-alpha",
 	"description": "Jetpack Connection Manager UI",
 	"main": "_inc/admin.jsx",
 	"repository": "https://github.com/Automattic/jetpack-connection-ui",
@@ -15,7 +15,7 @@
 	},
 	"dependencies": {
 		"@automattic/calypso-build": "6.5.0",
-		"@automattic/jetpack-connection": "workspace:^0.3.0-alpha",
+		"@automattic/jetpack-connection": "workspace:^0.4.0-alpha",
 		"@babel/core": "7.12.10",
 		"@babel/helper-module-imports": "7.12.5",
 		"@babel/preset-env": "7.12.11",

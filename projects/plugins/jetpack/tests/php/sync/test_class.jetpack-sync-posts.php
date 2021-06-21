@@ -949,19 +949,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 }
 POST_CONTENT;
 
-		// create a post
-		$user_id = $this->factory->user->create();
-		$post_id    = $this->factory->post->create( array(
-			'post_author' => $user_id,
-			'post_type' => 'customize_changeset',
-			'post_content' => $post_content
-		) );
-		$post = get_post( $post_id );
-
-		//Mock registered widgets to get widget Name from
+		// Mock registered widgets to get widget Name from.
 		global $wp_registered_widgets;
 		$original_registered_widgets = $wp_registered_widgets;
-
 		$wp_registered_widgets = array(
 			'archives-2' => array(
 				'name' => 'Archives',
@@ -971,20 +961,27 @@ POST_CONTENT;
 			)
 		);
 
-		wp_update_post( $post );
+		// create a post.
+		$user_id = $this->factory->user->create();
+		$this->factory->post->create(
+			array(
+				'post_author'  => $user_id,
+				'post_type'    => 'customize_changeset',
+				'post_content' => $post_content,
+			)
+		);
+
 		$this->sender->do_sync();
 		$events = $this->server_event_storage->get_all_events( 'jetpack_widget_edited' );
 
-		// Temp override, see: https://github.com/Automattic/jetpack/pull/20050 .
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-		// $this->assertEquals( 'jetpack_widget_edited', $events[0]->action );
-		// $this->assertEquals( 'Archives', $events[0]->args[0]['name'] );
-		// $this->assertEquals( 'archives-2', $events[0]->args[0]['id'] );
-		// $this->assertEquals( 'I am an Archive widget', $events[0]->args[0]['title'] );
-		// $this->assertEquals( 'jetpack_widget_edited', $events[1]->action );
-		// $this->assertEquals( 'Search', $events[1]->args[0]['name'] );
-		// $this->assertEquals( 'search-2', $events[1]->args[0]['id'] );
-		// $this->assertEquals( 'I am a Search widget', $events[1]->args[0]['title'] );
+		$this->assertEquals( 'jetpack_widget_edited', $events[0]->action );
+		$this->assertEquals( 'Archives', $events[0]->args[0]['name'] );
+		$this->assertEquals( 'archives-2', $events[0]->args[0]['id'] );
+		$this->assertEquals( 'I am an Archive widget', $events[0]->args[0]['title'] );
+		$this->assertEquals( 'jetpack_widget_edited', $events[1]->action );
+		$this->assertEquals( 'Search', $events[1]->args[0]['name'] );
+		$this->assertEquals( 'search-2', $events[1]->args[0]['id'] );
+		$this->assertEquals( 'I am a Search widget', $events[1]->args[0]['title'] );
 
 		$wp_registered_widgets = $original_registered_widgets;
 	}
@@ -1028,11 +1025,13 @@ POST_CONTENT;
 		register_post_type( 'non_public', $args );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'non_public' ) );
-
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
 		// Clean up.
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 		unregister_post_type( 'non_public' );
 
 		$this->assertSame( '', $synced_post->post_content_filtered );
@@ -1052,7 +1051,7 @@ That was a cool video.';
 
 		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' #DIMENSIONS# src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\' sandbox=\'allow-scripts allow-same-origin allow-popups allow-presentation\'></iframe></span></p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class="youtube-player" #DIMENSIONS# src="https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en-US&#038;autohide=2&#038;wmode=transparent" allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin allow-popups allow-presentation"></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
 
 		$filtered = '<p>Check out this cool video:</p>
@@ -1064,6 +1063,9 @@ That was a cool video.';
 		wp_update_post( $this->post );
 
 		$oembeded = explode( '#DIMENSIONS#', $oembeded );
+
+		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.
+		add_filter( 'wp_lazy_loading_enabled', '__return_false' );
 
 		$this->assertContains(
 			$oembeded[0],
@@ -1096,6 +1098,8 @@ That was a cool video.';
 			apply_filters( 'the_content', $filtered ),
 			'$oembeded is NOT the same as filtered $filtered'
 		);
+
+		remove_all_filters( 'wp_lazy_loading_enabled' );
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {

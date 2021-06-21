@@ -7,6 +7,11 @@ on:
   push:
     branches:
       - master # Every time a PR is merged to master.
+concurrency:
+  # For pull_request and pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
+  # Don't cancel any for pushes, accomplished by grouping on the unique run_id.
+  group: gardening-${{ github.event_name }}-${{ github.event_name == 'push' && github.run_id || github.event.action }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # review-crew-afk:

@@ -83,7 +83,7 @@ CL="$BASE/projects/packages/changelogger/bin/changelogger"
 echo "::endgroup::"
 
 ANY=false
-for DIR in $(git diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
+for DIR in $(git -c core.quotepath=off diff --name-only "$BASE_REF"..."$HEAD_REF" | sed -nE 's!^(projects/[^/]+/[^/]+)/.*!\1!p' | sort -u); do
 	ANY=true
 	SLUG="${DIR#projects/}"
 	echo "::group::Adding change file for $SLUG"

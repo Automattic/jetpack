@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Added dev dependency on react (in addition to existing peer dep) for tests to run.

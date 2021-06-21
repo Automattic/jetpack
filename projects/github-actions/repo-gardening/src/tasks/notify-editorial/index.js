@@ -131,7 +131,7 @@ async function notifyEditorial( payload, octokit ) {
 		debug(
 			`notify-editorial: Adding a label to PR #${ number } to show that design input was requested.`
 		);
-		await octokit.issues.addLabels( {
+		await octokit.rest.issues.addLabels( {
 			owner: ownerLogin,
 			repo,
 			issue_number: number,
