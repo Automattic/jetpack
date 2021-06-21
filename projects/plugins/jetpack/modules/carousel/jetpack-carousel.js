@@ -9,17 +9,6 @@
 	var util = ( function () {
 		var noop = function () {};
 
-		function unique( array ) {
-			var newArray = [];
-			array.forEach( function ( item ) {
-				if ( item !== undefined && newArray.indexOf( item ) === -1 ) {
-					newArray.push( item );
-				}
-			} );
-
-			return newArray;
-		}
-
 		function texturize( text ) {
 			// Ensure we get a string.
 			text = text + '';
@@ -51,7 +40,6 @@
 
 		return {
 			noop: noop,
-			unique: unique,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
 		};
@@ -169,21 +157,6 @@
 			el.dispatchEvent( e );
 		}
 
-		function scrollToY( el, top ) {
-			if ( ! el ) {
-				return;
-			}
-
-			if (
-				typeof el.scrollTo === 'function' &&
-				'scrollBehavior' in document.documentElement.style
-			) {
-				el.scrollTo( { top: top, behavior: 'smooth' } );
-			} else {
-				el.scrollTop = top;
-			}
-		}
-
 		function scrollToElement( el ) {
 			if ( ! el || typeof el.scrollIntoView !== 'function' ) {
 				return;
@@ -221,7 +194,6 @@
 			show: show,
 			fadeIn: fadeIn,
 			fadeOut: fadeOut,
-			scrollToY: scrollToY,
 			scrollToElement: scrollToElement,
 			getJSONAttribute: getJSONAttribute,
 			convertToPlainText: convertToPlainText,
@@ -267,11 +239,11 @@
 				switch ( e.which ) {
 					case 38: // up
 						e.preventDefault();
-						carousel.container.scrollTop -= 100;
+						carousel.overlay.scrollTop -= 100;
 						break;
 					case 40: // down
 						e.preventDefault();
-						carousel.container.scrollTop += 100;
+						carousel.overlay.scrollTop += 100;
 						break;
 					case 39: // right
 						e.preventDefault();
@@ -351,10 +323,9 @@
 					var target = e.target;
 					var isTargetCloseHint = !! domUtil.closest( target, '.jp-carousel-close-hint' );
 					var isSmallScreen = !! window.matchMedia( '(max-device-width: 760px)' ).matches;
-
-					if ( target === carousel.gallery ) {
+					if ( target === carousel.overlay ) {
 						if ( isSmallScreen ) {
-							// handleCarouselGalleryTouch( e );
+							return;
 						} else {
 							closeCarousel();
 						}
@@ -370,9 +341,9 @@
 						handleCommentFormClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						if ( isSmallScreen ) {
-							// handleCarouselGalleryTouch( e );
+							return;
 						} else {
-							// moveToNextSlide();
+							swiper.slideNext();
 						}
 					}
 				} );
@@ -1146,14 +1117,10 @@
 					if ( useInPageThumbnails ) {
 						// Use the image already loaded in the gallery as a preview.
 						attrs.previewImage = attrs.src;
-						//slideEl.style.backgroundImage = 'url("' + attrs.src + '")';
-						//slideEl.style.backgroundSize = '100% 100%';
-						//slideEl.style.backgroundPosition = 'center center';
 					}
 
 					var slide = { el: slideEl, attrs: attrs, index: i };
 					carousel.slides.push( slide );
-					// fitSlides( [ slide ] );
 				}
 			} );
 		}
