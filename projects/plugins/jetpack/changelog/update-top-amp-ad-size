@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix top AMP ad unit being cropped on mobile devices
