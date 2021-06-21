@@ -567,8 +567,8 @@
 			var attachmentId = current.attrs.attachmentId;
 			var captionHtml;
 
+			loadFullImage( carousel.slides[ index ] );
 			domUtil.hide( carousel.caption );
-
 			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
 
 			var imageMeta = carousel.slides[ index ].attrs.imageMeta;
@@ -990,6 +990,35 @@
 			xhr.onerror = onError;
 
 			xhr.send();
+		}
+
+		function loadFullImage( slide ) {
+			var el = slide.el;
+			var attrs = slide.attrs;
+			var image = el.querySelector( 'img' );
+
+			if ( ! image.hasAttribute( 'data-loaded' ) ) {
+				// If the width of the slide is smaller than the width of the "thumbnail" we're already using,
+				// don't load the full image.
+
+				var loadListener = function () {
+					image.removeEventListener( 'load', loadListener );
+					el.style.backgroundImage = '';
+				};
+				image.addEventListener( 'load', loadListener );
+
+				var hasPreview = !! attrs.previewImage;
+				var thumbSize = attrs.thumbSize;
+
+				if ( ! hasPreview || ( thumbSize && el.offsetWidth > thumbSize.width ) ) {
+					image.src = attrs.src;
+				} else {
+					image.src = attrs.previewImage;
+				}
+
+				image.setAttribute( 'itemprop', 'image' );
+				image.setAttribute( 'data-loaded', 1 );
+			}
 		}
 
 		function clearCommentTextAreaValue() {
