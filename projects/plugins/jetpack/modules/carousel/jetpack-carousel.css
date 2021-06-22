@@ -13,14 +13,15 @@
 	bottom: 0;
 	left: 0;
 	background: #000;
+	z-index: -100;
 }
 
 .jp-carousel {
-	position: absolute;
+/*	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 20vh;
+	bottom: 20vh;*/
 }
 
 div.jp-carousel-fadeaway {
@@ -31,6 +32,9 @@ div.jp-carousel-fadeaway {
 	z-index: 2147483647;
 	width: 100%;
 	height: 15px;
+	overflow-x: hidden;
+	overflow-y: auto;
+	direction: ltr;
 }
 
 .jp-carousel-next-button span,
@@ -76,17 +80,40 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	overflow-x: hidden;
 	overflow-y: auto;
 	direction: ltr;
+	display: grid;
+	grid-template-rows: 1fr 58px; /* main carousel and info area as footer */
+	height: 100%;
+	width: 105vw;
 }
 
 .jp-carousel-info {
 	display: flex;
 	flex-direction: column;
-	position: absolute;
-	top: 81vh; /* Fallback, if calc is not supported */
-	top: calc( 80vh + 5px );
-	bottom: 0;
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
+	overflow: hidden;
+	width: 100vw;
+	position: relative;
+}
+
+.jp-carousel-info-inner {
+	background-color: #000;
+	z-index: 1000000;
+}
+
+.jp-carousel-info.jp-carousel-info-show {
+	overflow: visible;
+}
+
+.jp-carousel-footer {
+	padding: 10px;
+}
+
+.jp-carousel-info-content {
+    display: flex;
+    flex-direction: column;
+    margin: 0 137px;
+    top: 100%;
 }
 
 .jp-carousel-info-columns {
@@ -122,12 +149,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	display: none;
 }
 
-.jp-carousel-transitions .jp-carousel-photo-info {
+/*.jp-carousel-transitions .jp-carousel-photo-info {
 	-webkit-transition: 400ms ease-out;
 	-moz-transition: 400ms ease-out;
 	-o-transition: 400ms ease-out;
 	transition: 400ms ease-out;
-}
+}*/
 
 .jp-carousel-info h2 {
 	background: none !important;
@@ -368,12 +395,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 /** Title and Desc Start **/
 .jp-carousel-titleanddesc {
-	border-top: 1px solid #222;
 	color: #999;
 	font-size: 15px;
-	padding-top: 24px;
-	margin-top: 20px;
-	margin-bottom: 20px;
 	font-weight: 400;
 	width: 100%;
 }
@@ -447,9 +470,6 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
 	overflow: hidden;
 	padding: 18px 20px;
-	width: 209px !important;
-	margin-top: 20px;
-	margin-left: 40px;
 	margin-bottom: 20px;
 	flex-shrink: 0;
 }
@@ -792,7 +812,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #999;
 	text-align: left;
 	margin-bottom: 20px;
-	width: 100;
 	bottom: 10px;
 	margin-top: 20px;
 }
@@ -950,7 +969,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /** Icons Start **/
 .jp-carousel-photo-icons-container {
-	display: none;
 	text-align: right;
 }
 
@@ -967,6 +985,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-weight: 400;
 	font-style: normal;
 	margin-left: 25px;
+}
+
+.jp-carousel-icon path {
+	fill: white;
 }
 
 .jp-carousel-icon-comments {
