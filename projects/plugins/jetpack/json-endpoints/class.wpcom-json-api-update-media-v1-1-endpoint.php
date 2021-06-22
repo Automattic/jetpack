@@ -158,7 +158,7 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return false;
 		}
 
-		if ( ! Videopress_Attachment_Metadata::is_videopress_media( $item ) ) {
+		if ( ! \Videopress_Attachment_Metadata::is_videopress_media( $item ) ) {
 			return false;
 		}
 
