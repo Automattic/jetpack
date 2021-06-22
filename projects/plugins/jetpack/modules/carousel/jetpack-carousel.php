@@ -239,14 +239,6 @@ class Jetpack_Carousel {
 				true
 			);
 
-			wp_enqueue_script(
-				'jetpack-carousel-swiper',
-				'https://unpkg.com/swiper@6.7.0/swiper-bundle.js',
-				array(),
-				$this->asset_version( JETPACK__VERSION ),
-				true
-			);
-
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
 			$is_logged_in         = is_user_logged_in();
