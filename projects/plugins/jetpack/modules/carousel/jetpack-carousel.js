@@ -1118,19 +1118,15 @@
 					// The preview is shown as a background image on the slide itself.
 					var image = new Image();
 					image.src = attrs.src;
-					// image.style.width = '100%';
-					// image.style.height = '100%';
 
 					var slideEl = document.createElement( 'div' );
 					slideEl.classList.add( 'swiper-slide' );
 					slideEl.setAttribute( 'itemprop', 'associatedMedia' );
 					slideEl.setAttribute( 'itemscope', '' );
 					slideEl.setAttribute( 'itemtype', 'https://schema.org/ImageObject' );
-					// domUtil.hide( slideEl );
 					var zoomEl = document.createElement( 'div' );
 					zoomEl.classList.add( 'swiper-zoom-container' );
 
-					// slideEl.style.left = i < startIndex ? -1000 : carousel.gallery.offsetWidth;
 					carousel.gallery.appendChild( slideEl );
 
 					slideEl.appendChild( zoomEl );
@@ -1154,16 +1150,15 @@
 			if ( ! window.Swiper ) {
 				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 				domUtil.show( loader );
-				var head = document.getElementsByTagName( 'head' )[ 0 ];
 				var jsScript = document.createElement( 'script' );
 				jsScript.id = 'jetpack-carousel-swiper-js';
-				jsScript.type = 'text/javascript';
 				jsScript.src = window.jetpackSwiperLibraryPath.url;
+				jsScript.async = true;
 				jsScript.onload = function () {
 					domUtil.hide( loader );
 					openCarousel( gallery, options );
 				};
-				head.appendChild( jsScript );
+				document.head.appendChild( jsScript );
 				return;
 			}
 			openCarousel( gallery, options );
