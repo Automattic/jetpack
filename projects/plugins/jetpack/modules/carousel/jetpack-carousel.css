@@ -902,8 +902,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		flex-direction: column;
 	}
 
-	.jp-carousel-next-button,
-	.jp-carousel-previous-button {
+	.swiper-container .swiper-button-next ,
+	.swiper-container .swiper-button-prev  {
 		display: none !important;
 	}
 
