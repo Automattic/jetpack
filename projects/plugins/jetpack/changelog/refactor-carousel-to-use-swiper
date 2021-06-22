@@ -1,4 +1,4 @@
 Significance: minor
 Type: major
 
-Replaces the custom carousel js code with the swiper js library
+Replaces the image slider functionality within the carousel module with the swiper js library
