@@ -551,7 +551,7 @@
 		function openOrSelectSlide( gal, index ) {
 			if ( ! carousel.isOpen ) {
 				// The `open` method selects the correct slide during the initialization.
-				openCarousel( gal, { startIndex: index } );
+				loadSwiper( gal, { startIndex: index } );
 			} else {
 				selectSlideAtIndex( index );
 			}
@@ -1150,6 +1150,25 @@
 			} );
 		}
 
+		function loadSwiper( gallery, options ) {
+			if ( ! window.Swiper ) {
+				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
+				domUtil.show( loader );
+				var head = document.getElementsByTagName( 'head' )[ 0 ];
+				var jsScript = document.createElement( 'script' );
+				jsScript.id = 'jetpack-carousel-swiper-js';
+				jsScript.type = 'text/javascript';
+				jsScript.src = window.jetpackSwiperLibraryPath.url;
+				jsScript.onload = function () {
+					domUtil.hide( loader );
+					openCarousel( gallery, options );
+				};
+				head.appendChild( jsScript );
+				return;
+			}
+			openCarousel( gallery, options );
+		}
+
 		function openCarousel( gallery, options ) {
 			var settings = {
 				imgSelector:
@@ -1277,22 +1296,7 @@
 
 				var item = domUtil.closest( target, itemSelector );
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
-				if ( ! window.Swiper ) {
-					var loader = document.querySelector( '#jp-carousel-loading-overlay' );
-					domUtil.show( loader );
-					var head = document.getElementsByTagName( 'head' )[ 0 ];
-					var jsScript = document.createElement( 'script' );
-					jsScript.id = 'jetpack-carousel-swiper-js';
-					jsScript.type = 'text/javascript';
-					jsScript.src = window.jetpackSwiperLibraryPath.url;
-					jsScript.onload = function () {
-						domUtil.hide( loader );
-						openCarousel( gallery, { startIndex: index } );
-					};
-					head.appendChild( jsScript );
-					return;
-				}
-				openCarousel( gallery, { startIndex: index } );
+				loadSwiper( gallery, { startIndex: index } );
 			}
 		} );
 
