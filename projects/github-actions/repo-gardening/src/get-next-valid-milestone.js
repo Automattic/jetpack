@@ -17,7 +17,7 @@ const compareVersions = require( 'compare-versions' );
  * @returns {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
  */
 async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' ) {
-	const options = octokit.issues.listMilestones.endpoint.merge( {
+	const options = octokit.rest.issues.listMilestones.endpoint.merge( {
 		owner,
 		repo,
 		state: 'open',

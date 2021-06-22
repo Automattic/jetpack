@@ -22,7 +22,7 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
 
 	debug( `wpcom-commit-reminder: Looking for a comment from Matticbot on this PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.issues.listComments, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
 		owner: owner.login,
 		repo,
 		issue_number: +number,
@@ -53,7 +53,7 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
 async function hasReminderComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.issues.listComments, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
 		owner: owner.login,
 		repo,
 		issue_number: +number,
@@ -118,7 +118,7 @@ Once you've done so, come back to this PR and add a comment with your changeset 
 	if ( ! hasComment ) {
 		debug( `wpcom-commit-reminder: Posting comment to PR #${ prNumber }` );
 
-		await octokit.issues.createComment( {
+		await octokit.rest.issues.createComment( {
 			owner: owner.login,
 			repo,
 			issue_number: +prNumber,
