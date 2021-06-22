@@ -82,7 +82,8 @@ class SearchResults extends Component {
 					: {};
 			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack' );
 			return sprintf(
-				_n( 'Found %s result in %s', 'Found %s results in %s', total, 'jetpack' ),
+				/* translators: %1$s: number of results. - %2$s: site name. */
+				_n( 'Found %1$d result in %2$s', 'Found %1$d results in %2$s', total, 'jetpack' ),
 				num,
 				p2Name
 			);
