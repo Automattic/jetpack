@@ -2,7 +2,7 @@
 
 ( function () {
 	'use strict';
-
+	var swiper;
 	/////////////////////////////////////
 	// Utility functions
 	/////////////////////////////////////
@@ -93,7 +93,7 @@
 
 		function hide( el ) {
 			if ( el ) {
-				el.style.display = 'none';
+				// el.style.display = 'none';
 			}
 		}
 
@@ -230,85 +230,9 @@
 	} )();
 
 	/////////////////////////////////////
-	// Touch-related utility functions
-	/////////////////////////////////////
-	var touchUtil = ( function () {
-		// Wipe handler, inspired by https://www.netcu.de/jquery-touchwipe-iphone-ipad-library
-		function addWipeHandler( args ) {
-			args = args || {};
-			var config = {
-				root: document.body,
-				threshold: 150, // Required min distance traveled to be considered swipe.
-				restraint: 100, // Maximum distance allowed at the same time in perpendicular direction.
-				allowedTime: 300, // Maximum time allowed to travel that distance.
-				wipeLeft: function () {},
-				wipeRight: function () {},
-				wipeUp: function () {},
-				wipeDown: function () {},
-			};
-
-			for ( var arg in args ) {
-				config[ arg ] = args[ arg ];
-			}
-
-			var startX, startY, isMoving, startTime, elapsedTime;
-
-			function cancelTouch() {
-				config.root.removeEventListener( 'touchmove', onTouchMove );
-				startX = null;
-				isMoving = false;
-			}
-
-			function onTouchMove( e ) {
-				if ( isMoving ) {
-					var x = e.touches[ 0 ].pageX;
-					var y = e.touches[ 0 ].pageY;
-					var dx = startX - x;
-					var dy = startY - y;
-					elapsedTime = new Date().getTime() - startTime;
-					if ( elapsedTime <= config.allowedTime ) {
-						if ( Math.abs( dx ) >= config.threshold && Math.abs( dy ) <= config.restraint ) {
-							cancelTouch();
-							if ( dx > 0 ) {
-								config.wipeLeft( e );
-							} else {
-								config.wipeRight( e );
-							}
-						} else if ( Math.abs( dy ) >= config.threshold && Math.abs( dx ) <= config.restraint ) {
-							cancelTouch();
-							if ( dy > 0 ) {
-								config.wipeDown( e );
-							} else {
-								config.wipeUp( e );
-							}
-						}
-					}
-				}
-			}
-
-			function onTouchStart( e ) {
-				if ( e.touches.length === 1 ) {
-					startTime = new Date().getTime();
-					startX = e.touches[ 0 ].pageX;
-					startY = e.touches[ 0 ].pageY;
-					isMoving = true;
-					config.root.addEventListener( 'touchmove', onTouchMove, false );
-				}
-			}
-
-			if ( 'ontouchstart' in document.documentElement ) {
-				config.root.addEventListener( 'touchstart', onTouchStart, false );
-			}
-		}
-
-		return { addWipeHandler: addWipeHandler };
-	} )();
-
-	/////////////////////////////////////
 	// Carousel implementation
 	/////////////////////////////////////
 	function init() {
-		var resizeTimeout;
 		var commentInterval;
 		var screenPadding;
 		var originalOverflow;
@@ -351,12 +275,12 @@
 						break;
 					case 39: // right
 						e.preventDefault();
-						moveToNextSlide();
+						swiper.slideNext();
 						break;
 					case 37: // left
 					case 8: // backspace
 						e.preventDefault();
-						moveToPreviousSlide();
+						swiper.slidePrev();
 						break;
 					case 27: // escape
 						e.preventDefault();
@@ -391,16 +315,6 @@
 			}
 		}
 
-		function resizeListener() {
-			clearTimeout( resizeTimeout );
-			resizeTimeout = setTimeout( function () {
-				calculatePadding();
-				fitSlides( carousel.slides );
-				updateSlidePositions();
-				fitMeta();
-			}, 200 );
-		}
-
 		function fitMeta() {
 			carousel.info.style.left = screenPadding + 'px';
 			carousel.info.style.right = screenPadding + 'px';
@@ -411,10 +325,8 @@
 				carousel.container = document.querySelector( '.jp-carousel-wrap' );
 				carousel.overlay = carousel.container.querySelector( '.jp-carousel-overlay' );
 				carousel.gallery = carousel.container.querySelector( '.jp-carousel' );
-				carousel.info = carousel.container.querySelector( '.jp-carousel-info' );
-				carousel.caption = carousel.container.querySelector( '.jp-carousel-caption' );
-				carousel.nextButton = carousel.container.querySelector( '.jp-carousel-next-button' );
-				carousel.prevButton = carousel.container.querySelector( '.jp-carousel-previous-button' );
+				carousel.info = document.querySelector( '.jp-carousel-info' );
+				carousel.caption = carousel.info.querySelector( '.jp-carousel-caption' );
 				carousel.commentField = carousel.container.querySelector(
 					'#jp-carousel-comment-form-comment-field'
 				);
@@ -450,7 +362,7 @@
 
 					if ( target === carousel.gallery ) {
 						if ( isSmallScreen ) {
-							handleCarouselGalleryTouch( e );
+							// handleCarouselGalleryTouch( e );
 						} else {
 							closeCarousel();
 						}
@@ -466,19 +378,14 @@
 						handleCommentFormClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						if ( isSmallScreen ) {
-							handleCarouselGalleryTouch( e );
+							// handleCarouselGalleryTouch( e );
 						} else {
-							moveToNextSlide();
+							// moveToNextSlide();
 						}
 					}
 				} );
 
 				window.addEventListener( 'keydown', handleKeyboardEvent );
-
-				carousel.container.addEventListener( 'jp_carousel.beforeOpen', function () {
-					window.addEventListener( 'resize', resizeListener );
-					resizeListener();
-				} );
 
 				carousel.container.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
@@ -486,7 +393,6 @@
 
 				carousel.container.addEventListener( 'jp_carousel.beforeClose', function () {
 					disableKeyboardNavigation();
-					window.removeEventListener( 'resize', resizeListener );
 					domUtil.hide( carousel.prevButton );
 					domUtil.hide( carousel.nextButton );
 
@@ -501,44 +407,6 @@
 					lastKnownLocationHash = '';
 					carousel.isOpen = false;
 				} );
-
-				touchUtil.addWipeHandler( {
-					root: carousel.container,
-					wipeLeft: function ( e ) {
-						e.preventDefault();
-						moveToNextSlide();
-					},
-					wipeRight: function ( e ) {
-						e.preventDefault();
-						moveToPreviousSlide();
-					},
-				} );
-
-				carousel.nextButton.addEventListener( 'click', function ( e ) {
-					e.preventDefault();
-					e.stopPropagation();
-					moveToNextSlide();
-				} );
-
-				carousel.prevButton.addEventListener( 'click', function ( e ) {
-					e.preventDefault();
-					e.stopPropagation();
-					moveToPreviousSlide();
-				} );
-			}
-		}
-
-		function handleCarouselGalleryTouch( e ) {
-			if ( typeof e.pageX === 'undefined' ) {
-				return;
-			}
-
-			if ( e.pageX <= 70 ) {
-				moveToPreviousSlide();
-			}
-
-			if ( window.innerWidth - e.pageX <= 70 ) {
-				moveToNextSlide();
 			}
 		}
 
@@ -736,56 +604,13 @@
 			if ( ! index || index < 0 || index > carousel.slides.length ) {
 				index = 0;
 			}
-
-			if ( carousel.currentSlide ) {
-				carousel.lastSlide = carousel.currentSlide;
-				carousel.currentSlide.el.classList.remove( 'selected' );
-			}
-
 			carousel.currentSlide = carousel.slides[ index ];
 
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
-			var prev = getPrevSlide( carousel.currentSlide );
-			var next = getNextSlide( carousel.currentSlide );
-			var previousPrevious = getPrevSlide( prev );
-			var nextNext = getNextSlide( next );
 			var captionHtml;
 
-			carousel.slides.forEach( function ( slide ) {
-				slide.el.style.position = 'fixed';
-			} );
-			current.el.classList.add( 'selected' );
-			current.el.style.position = 'relative';
-
-			// Center the main image.
-			loadFullImage( carousel.slides[ index ] );
-
 			domUtil.hide( carousel.caption );
-
-			if ( ! next || ( next.index < current.index && carousel.slides.length <= 2 ) ) {
-				domUtil.hide( carousel.nextButton );
-			} else {
-				domUtil.show( carousel.nextButton );
-			}
-
-			if ( ! prev || ( prev.index > current.index && carousel.slides.length <= 2 ) ) {
-				domUtil.hide( carousel.prevButton );
-			} else {
-				domUtil.show( carousel.prevButton );
-			}
-
-			var inUse = util.unique( [ current, prev, previousPrevious, next, nextNext ] );
-			loadSlides( inUse );
-
-			carousel.slides.forEach( function ( slide ) {
-				if ( inUse.indexOf( slide ) === -1 ) {
-					domUtil.hide( slide.el );
-				}
-			} );
-
-			updateSlidePositions();
-			domUtil.emitEvent( carousel.container, 'jp_carousel.selectSlide', current.el );
 
 			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
 
@@ -796,21 +621,21 @@
 			if ( Number( jetpackCarouselStrings.display_comments ) === 1 ) {
 				testCommentsOpened( carousel.slides[ index ].attrs.commentsOpened );
 				fetchComments( attachmentId );
-				domUtil.hide( carousel.container.querySelector( '#jp-carousel-comment-post-results' ) );
+				domUtil.hide( carousel.info.querySelector( '#jp-carousel-comment-post-results' ) );
 			}
 
 			if ( current.attrs.caption ) {
 				captionHtml = domUtil.convertToPlainText( current.attrs.caption );
 
 				if ( domUtil.convertToPlainText( current.attrs.title ) === captionHtml ) {
-					var title = carousel.container.querySelector( '.jp-carousel-titleanddesc-title' );
+					var title = carousel.info.querySelector( '.jp-carousel-titleanddesc-title' );
 					domUtil.fadeOut( title, function () {
 						title.innerHTML = '';
 					} );
 				}
 
 				if ( domUtil.convertToPlainText( current.attrs.desc ) === captionHtml ) {
-					var desc = carousel.container.querySelector( '.jp-carousel-titleanddesc-desc' );
+					var desc = carousel.info.querySelector( '.jp-carousel-titleanddesc-desc' );
 					domUtil.fadeOut( desc, function () {
 						desc.innerHTML = '';
 					} );
@@ -838,60 +663,7 @@
 
 			pageview( attachmentId );
 
-			// Load previous and next slides, while trying to ensure that the current one is first.
-			setTimeout( function () {
-				if ( next ) {
-					loadFullImage( next );
-				}
-				if ( prev ) {
-					loadFullImage( next );
-				}
-			} );
-
 			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
-		}
-
-		function moveToNextSlide() {
-			moveToPreviousOrNextSlide( getNextSlide );
-		}
-
-		function moveToPreviousSlide() {
-			moveToPreviousOrNextSlide( getPrevSlide );
-		}
-
-		function moveToPreviousOrNextSlide( slideSelectionMethod ) {
-			if ( carousel.slides.length <= 1 ) {
-				return false;
-			}
-
-			var newIndex = slideSelectionMethod( carousel.currentSlide ).index;
-
-			if ( newIndex >= 0 ) {
-				domUtil.scrollToY( carousel.container, 0 );
-				clearCommentTextAreaValue();
-				selectSlideAtIndex( newIndex );
-				stat( [ 'previous', 'view_image' ] );
-			}
-		}
-
-		function getNextSlide( slide ) {
-			var isLast = slide && slide.index === carousel.slides.length - 1;
-
-			if ( slide === undefined || ( carousel.slides.length > 2 && isLast ) ) {
-				return carousel.slides[ 0 ];
-			}
-
-			return carousel.slides[ slide.index + 1 ];
-		}
-
-		function getPrevSlide( slide ) {
-			var isFirst = slide && slide.index === 0;
-
-			if ( slide === undefined || ( carousel.slides.length > 2 && isFirst ) ) {
-				return carousel.slides[ carousel.slides.length - 1 ];
-			}
-
-			return carousel.slides[ slide.index - 1 ];
 		}
 
 		function restoreScroll() {
@@ -909,6 +681,7 @@
 			domUtil.emitEvent( carousel.container, 'jp_carousel.beforeClose' );
 
 			restoreScroll();
+			swiper.destroy();
 
 			domUtil.fadeOut( carousel.container, function () {
 				// Clear slide data for DOM garbage collection.
@@ -917,84 +690,8 @@
 				carousel.gallery.innerHTML = '';
 
 				restoreScroll();
-
 				domUtil.emitEvent( carousel.container, 'jp_carousel.afterClose' );
 			} );
-		}
-
-		function setSlidePosition( slideEl, x ) {
-			if ( ! slideEl ) {
-				return;
-			}
-			slideEl.style.transform = 'translate3d(' + x + 'px,0,0)';
-		}
-
-		function getSlideWidth( slide ) {
-			return parseInt( getComputedStyle( slide.el ).width, 10 );
-		}
-
-		function updateSlidePositions() {
-			var current = carousel.currentSlide;
-			var last = carousel.lastSlide;
-
-			var galleryWidth = carousel.gallery.offsetWidth;
-			var currentWidth = getSlideWidth( current );
-
-			var previous = getPrevSlide( current );
-			var next = getNextSlide( current );
-			var previousPrevious = getPrevSlide( previous );
-			var nextNext = getNextSlide( next );
-
-			var left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 );
-
-			setSlidePosition( current.el, left );
-			domUtil.show( current.el );
-
-			// minimum width
-			fitInfo();
-
-			// prep the slides
-			var direction = current && last && last.index < current.index ? 1 : -1;
-
-			if ( carousel.slides.length > 1 ) {
-				// Since we preload the `previousPrevious` and `nextNext` slides, we need
-				// to make sure they technically visible in the DOM, but invisible to the
-				// user. To hide them from the user, we position them outside the edges
-				// of the window.
-				//
-				// This section of code only applies when there are more than three
-				// slides. Otherwise, the `previousPrevious` and `nextNext` slides will
-				// overlap with the `previous` and `next` slides which must be visible
-				// regardless.
-				if ( direction === 1 ) {
-					if ( nextNext !== previous ) {
-						setSlidePosition( nextNext.el, galleryWidth + getSlideWidth( next ) );
-						domUtil.show( nextNext.el );
-					}
-
-					if ( previousPrevious !== next ) {
-						setSlidePosition(
-							previousPrevious.el,
-							-getSlideWidth( previousPrevious ) - currentWidth
-						);
-						domUtil.show( previousPrevious.el );
-					}
-				} else {
-					if ( nextNext !== previous ) {
-						setSlidePosition( nextNext.el, galleryWidth + currentWidth );
-						domUtil.show( nextNext.el );
-					}
-				}
-
-				setSlidePosition(
-					previous.el,
-					Math.floor( -getSlideWidth( previous ) + screenPadding * 0.75 )
-				);
-				domUtil.show( previous.el );
-
-				setSlidePosition( next.el, Math.ceil( galleryWidth - screenPadding * 0.75 ) );
-				domUtil.show( next.el );
-			}
 		}
 
 		function calculateMaxSlideDimensions() {
@@ -1004,80 +701,6 @@
 				width: window.innerWidth - screenPadding * 2,
 				height: Math.floor( ( window.innerHeight / 100 ) * screenHeightPercent - 60 ),
 			};
-		}
-
-		function calculateBestFit( slide ) {
-			var max = calculateMaxSlideDimensions();
-			var origRatio = slide.attrs.origWidth / slide.attrs.origHeight,
-				wRatio = 1,
-				hRatio = 1,
-				width,
-				height;
-
-			if ( slide.attrs.origWidth > max.width ) {
-				wRatio = max.width / slide.attrs.origWidth;
-			}
-			if ( slide.attrs.origHeight > max.height ) {
-				hRatio = max.height / slide.attrs.origHeight;
-			}
-
-			if ( wRatio < hRatio ) {
-				width = max.width;
-				height = Math.floor( width / origRatio );
-			} else if ( hRatio < wRatio ) {
-				height = max.height;
-				width = Math.floor( height * origRatio );
-			} else {
-				width = slide.attrs.origWidth;
-				height = slide.attrs.origHeight;
-			}
-
-			return {
-				width: width,
-				height: height,
-			};
-		}
-
-		function loadSlides( slides ) {
-			for ( var i = 0; i < slides.length; i++ ) {
-				var slide = slides[ i ];
-				var img = slide.el.querySelector( 'img' );
-
-				var loadHandler = function () {
-					// set the width/height of the image if it's too big
-					fitSlides( [ slide ] );
-				};
-				img.addEventListener( 'load', loadHandler );
-			}
-		}
-
-		function fitInfo() {
-			var size = calculateBestFit( carousel.currentSlide );
-
-			var photoInfos = carousel.container.querySelectorAll( '.jp-carousel-photo-info' );
-			Array.prototype.forEach.call( photoInfos, function ( photoInfo ) {
-				photoInfo.style.left =
-					Math.floor( ( carousel.info.offsetWidth - size.width ) * 0.5 ) + 'px';
-				photoInfo.style.width = Math.floor( size.width ) + 'px';
-			} );
-		}
-
-		function fitSlides( slides ) {
-			if ( ! slides ) {
-				return;
-			}
-
-			slides.forEach( function ( slide ) {
-				var dimensions = calculateBestFit( slide );
-				var max = calculateMaxSlideDimensions();
-
-				dimensions.left = 0;
-				dimensions.top = Math.floor( ( max.height - dimensions.height ) * 0.5 ) + 40;
-
-				for ( var dimension in dimensions ) {
-					slide.el.style.setProperty( dimension, dimensions[ dimension ] + 'px' );
-				}
-			} );
 		}
 
 		function selectBestImageUrl( args ) {
@@ -1210,7 +833,7 @@
 			var markup = '';
 			var target;
 
-			target = carousel.container.querySelector( '.jp-carousel-titleanddesc' );
+			target = document.querySelector( '.jp-carousel-titleanddesc' );
 			domUtil.hide( target );
 
 			title = parseTitleOrDesc( data.title ) || '';
@@ -1322,8 +945,8 @@
 				offset = 0;
 			}
 
-			var comments = carousel.container.querySelector( '.jp-carousel-comments' );
-			var commentsLoading = carousel.container.querySelector( '#jp-carousel-comments-loading' );
+			var comments = carousel.info.querySelector( '.jp-carousel-comments' );
+			var commentsLoading = carousel.info.querySelector( '#jp-carousel-comments-loading' );
 			domUtil.show( commentsLoading );
 
 			if ( shouldClear ) {
@@ -1419,35 +1042,6 @@
 			}
 		}
 
-		function loadFullImage( slide ) {
-			var el = slide.el;
-			var attrs = slide.attrs;
-			var image = el.querySelector( 'img' );
-
-			if ( ! image.hasAttribute( 'data-loaded' ) ) {
-				// If the width of the slide is smaller than the width of the "thumbnail" we're already using,
-				// don't load the full image.
-
-				var loadListener = function () {
-					image.removeEventListener( 'load', loadListener );
-					el.style.backgroundImage = '';
-				};
-				image.addEventListener( 'load', loadListener );
-
-				var hasPreview = !! attrs.previewImage;
-				var thumbSize = attrs.thumbSize;
-
-				if ( ! hasPreview || ( thumbSize && el.offsetWidth > thumbSize.width ) ) {
-					image.src = attrs.src;
-				} else {
-					image.src = attrs.previewImage;
-				}
-
-				image.setAttribute( 'itemprop', 'image' );
-				image.setAttribute( 'data-loaded', 1 );
-			}
-		}
-
 		function getOriginalDimensions( el ) {
 			var size = el.getAttribute( 'data-orig-size' ) || '';
 
@@ -1466,14 +1060,6 @@
 
 		function initCarouselSlides( items, startIndex ) {
 			carousel.slides = [];
-
-			if ( items.length < 2 ) {
-				domUtil.hide( carousel.nextButton );
-				domUtil.hide( carousel.prevButton );
-			} else {
-				domUtil.show( carousel.nextButton );
-				domUtil.show( carousel.prevButton );
-			}
 
 			var max = calculateMaxSlideDimensions();
 
@@ -1534,7 +1120,7 @@
 						largeFile: attrs.largeFile,
 					} );
 				}
-
+				// debugger;
 				// Set the final src.
 				item.setAttribute( 'data-gallery-src', attrs.src );
 
@@ -1546,19 +1132,18 @@
 					// Initially, the image is a 1x1 transparent gif.
 					// The preview is shown as a background image on the slide itself.
 					var image = new Image();
-					image.src =
-						'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-					image.style.width = '100%';
-					image.style.height = '100%';
+					image.src = attrs.src;
+					// image.style.width = '100%';
+					// image.style.height = '100%';
 
 					var slideEl = document.createElement( 'div' );
-					slideEl.classList.add( 'jp-carousel-slide' );
+					slideEl.classList.add( 'swiper-slide' );
 					slideEl.setAttribute( 'itemprop', 'associatedMedia' );
 					slideEl.setAttribute( 'itemscope', '' );
 					slideEl.setAttribute( 'itemtype', 'https://schema.org/ImageObject' );
-					domUtil.hide( slideEl );
+					// domUtil.hide( slideEl );
 
-					slideEl.style.left = i < startIndex ? -1000 : carousel.gallery.offsetWidth;
+					// slideEl.style.left = i < startIndex ? -1000 : carousel.gallery.offsetWidth;
 					carousel.gallery.appendChild( slideEl );
 					slideEl.appendChild( image );
 
@@ -1569,14 +1154,14 @@
 					if ( useInPageThumbnails ) {
 						// Use the image already loaded in the gallery as a preview.
 						attrs.previewImage = attrs.src;
-						slideEl.style.backgroundImage = 'url("' + attrs.src + '")';
-						slideEl.style.backgroundSize = '100% 100%';
-						slideEl.style.backgroundPosition = 'center center';
+						//slideEl.style.backgroundImage = 'url("' + attrs.src + '")';
+						//slideEl.style.backgroundSize = '100% 100%';
+						//slideEl.style.backgroundPosition = 'center center';
 					}
 
 					var slide = { el: slideEl, attrs: attrs, index: i };
 					carousel.slides.push( slide );
-					fitSlides( [ slide ] );
+					// fitSlides( [ slide ] );
 				}
 			} );
 		}
@@ -1599,7 +1184,6 @@
 			if ( carousel.isOpen ) {
 				return; // don't open if already opened
 			}
-
 			carousel.isOpen = true;
 
 			// make sure to stop the page from scrolling behind the carousel overlay, so we don't trigger
@@ -1631,8 +1215,31 @@
 			} );
 
 			carousel.gallery.innerHTML = '';
+
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
-			selectSlideAtIndex( settings.startIndex );
+
+			swiper = new Swiper( '.swiper-container', {
+				centeredSlides: true,
+				pagination: {
+					el: '.swiper-pagination',
+				},
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+				initialSlide: settings.startIndex,
+				on: {
+					init: function () {
+						var overlay = document.querySelectorAll( '.jp-carousel-overlay' )[ 0 ];
+						overlay.style.display = 'block';
+						selectSlideAtIndex( settings.startIndex );
+					},
+				},
+			} );
+
+			swiper.on( 'slideChange', function () {
+				selectSlideAtIndex( swiper.activeIndex );
+			} );
 		}
 
 		// Register the event listener for starting the gallery

@@ -239,6 +239,14 @@ class Jetpack_Carousel {
 				true
 			);
 
+			wp_enqueue_script(
+				'jetpack-carousel-swiper',
+				'https://unpkg.com/swiper@6.7.0/swiper-bundle.js',
+				array(),
+				$this->asset_version( JETPACK__VERSION ),
+				true
+			);
+
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
 			$is_logged_in         = is_user_logged_in();
@@ -320,6 +328,7 @@ class Jetpack_Carousel {
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
+			wp_enqueue_style( 'jetpack-carousel-swiper', 'https://unpkg.com/swiper@6.7.0/swiper-bundle.css', array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
 			/**
@@ -356,16 +365,23 @@ class Jetpack_Carousel {
 		/* translators: %s is replaced with a field name in the form, e.g. "Email" */
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 		?>
+		<div class="jp-carousel-overlay">
 
+		<div class="jp-carousel-container"> 
 		<div
-			class="jp-carousel-wrap jp-carousel-transitions<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>"
+			class="jp-carousel-wrap swiper-container jp-carousel-transitions<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>"
 			itemscope
 			itemtype="https://schema.org/ImageGallery"
 			style="display: none;">
-			<div class="jp-carousel-overlay"></div>
-			<div class="jp-carousel"></div>
-			<div class="jp-carousel-fadeaway"></div>
-			<div class="jp-carousel-info">
+
+			<div class="jp-carousel swiper-wrapper"></div>
+			<div class="swiper-button-prev"></div>
+			<div class="swiper-button-next"></div>
+			<div class="swiper-pagination"></div>
+
+			<div class="jp-carousel-close-hint"><span>&times;</span></div>
+		</div>
+		<div class="jp-carousel-info">
 				<div class="jp-carousel-photo-info">
 					<h2 class="jp-carousel-caption" itemprop="caption description"></h2>
 				</div>
@@ -462,14 +478,7 @@ class Jetpack_Carousel {
 					</div>
 				</div>
 			</div>
-			<div class="jp-carousel-next-button" style="display: none;">
-				<span></span>
-			</div>
-			<div class="jp-carousel-previous-button" style="display: none;">
-				<span></span>
-			</div>
-			<div class="jp-carousel-close-hint"><span>&times;</span></div>
-		</div>
+	</div></div>
 
 		<?php
 	}
