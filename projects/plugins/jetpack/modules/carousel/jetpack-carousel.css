@@ -78,15 +78,30 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	overflow-y: auto;
 	direction: ltr;
 	display: grid;
-	grid-template-rows: 1fr 48px; /* main carousel and info area as footer */
+	grid-template-rows: 1fr 50px; /* main carousel and info area as footer */
+	height: 100%;
 }
 
 .jp-carousel-info {
-	background-color: #333;
 	display: flex;
 	flex-direction: column;
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
+	z-index: 100;
+}
+
+.jp-carousel-info-footer {
+	background-color: #000;
+}
+
+.jp-carousel-info-extra {
+	background-color: #000;
+	padding: 1em 6em;
+	display: none;
+}
+
+.jp-carousel-info-extra.jp-carousel-show {
+	display: block;
 }
 
 .jp-carousel-info-columns {
@@ -987,8 +1002,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 /* Small screens */
 @media only screen and (max-width: 760px) {
 
-	.jp-carousel-info {
-		margin: 0 10px !important;
+	.jp-carousel-info-extra {
+		padding: 1em 1em;
 	}
 
 	.jp-carousel-info-columns {

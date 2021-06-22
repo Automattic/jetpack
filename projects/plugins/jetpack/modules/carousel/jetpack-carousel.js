@@ -464,6 +464,8 @@
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 						handleCommentFormClick( e );
+					} else if ( domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ) {
+						handleIconClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						if ( isSmallScreen ) {
 							handleCarouselGalleryTouch( e );
@@ -668,6 +670,39 @@
 				var encodedData = params.join( '&' );
 
 				xhr.send( encodedData );
+			}
+		}
+
+		/**
+		 * Handles clicks to icons in the icon container.
+		 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
+		 */
+		function handleIconClick( e ) {
+			e.preventDefault();
+
+			var target = e.target;
+
+			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-info' ) ) {
+				var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+
+				if ( photoMetaContainer ) {
+					extraInfoContainer.classList.toggle( 'jp-carousel-show' );
+					if ( extraInfoContainer.classList.contains( 'jp-carousel-show' ) ) {
+						domUtil.scrollToElement( photoMetaContainer );
+					}
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				var commentsContainer = carousel.container.querySelector( '.jp-carousel-comments' );
+				if ( commentsContainer ) {
+					extraInfoContainer.classList.toggle( 'jp-carousel-show' );
+					if ( extraInfoContainer.classList.contains( 'jp-carousel-show' ) ) {
+						domUtil.scrollToElement( commentsContainer );
+					}
+				}
 			}
 		}
 
