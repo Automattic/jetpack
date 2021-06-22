@@ -215,11 +215,12 @@ async function main() {
 		diff = parseDiff( fs.readFileSync( argv.diff, 'utf8' ) );
 		diffBase = argv.diffBase || process.cwd();
 		files = getFilesFromDiff( diff );
+		debug( 'Determined files from diff:', files );
 		if ( program.args.length ) {
 			const cmdLineFiles = new Set( program.args );
 			files = files.filter( file => cmdLineFiles.has( file ) );
+			debug( 'Intersected files with those from the command line:', files );
 		}
-		debug( 'Determined files from diff:', files );
 		eslintOrig = JSON.parse( fs.readFileSync( argv.eslintOrig, 'utf8' ) );
 		eslintNew = JSON.parse( fs.readFileSync( argv.eslintNew, 'utf8' ) );
 	} else {
