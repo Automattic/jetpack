@@ -681,26 +681,32 @@
 			e.preventDefault();
 
 			var target = e.target;
-
 			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
 
 			if ( domUtil.closest( target, '.jp-carousel-icon-info' ) ) {
-				var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
-
+				commentsContainer.classList.remove( 'jp-carousel-show' );
 				if ( photoMetaContainer ) {
-					extraInfoContainer.classList.toggle( 'jp-carousel-show' );
-					if ( extraInfoContainer.classList.contains( 'jp-carousel-show' ) ) {
-						domUtil.scrollToElement( photoMetaContainer );
+					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
+					if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						domUtil.scrollToElement( extraInfoContainer );
+					} else {
+						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
 				}
 			}
 
 			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
-				var commentsContainer = carousel.container.querySelector( '.jp-carousel-comments' );
+				photoMetaContainer.classList.remove( 'jp-carousel-show' );
 				if ( commentsContainer ) {
-					extraInfoContainer.classList.toggle( 'jp-carousel-show' );
-					if ( extraInfoContainer.classList.contains( 'jp-carousel-show' ) ) {
-						domUtil.scrollToElement( commentsContainer );
+					commentsContainer.classList.toggle( 'jp-carousel-show' );
+					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						domUtil.scrollToElement( extraInfoContainer );
+					} else {
+						extraInfoContainer.classList.remove( 'jp-carousel-show' );
 					}
 				}
 			}
@@ -786,6 +792,13 @@
 			var previousPrevious = getPrevSlide( prev );
 			var nextNext = getNextSlide( next );
 			var captionHtml;
+			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+			// Hide comments and photo info
+			extraInfoContainer.classList.remove( 'jp-carousel-show' );
+			photoMetaContainer.classList.remove( 'jp-carousel-show' );
+			commentsContainer.classList.remove( 'jp-carousel-show' );
 
 			carousel.slides.forEach( function ( slide ) {
 				slide.el.style.position = 'fixed';
@@ -986,14 +999,10 @@
 			var next = getNextSlide( current );
 			var previousPrevious = getPrevSlide( previous );
 			var nextNext = getNextSlide( next );
-
 			var left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 );
 
 			setSlidePosition( current.el, left );
 			domUtil.show( current.el );
-
-			// minimum width
-			fitInfo();
 
 			// prep the slides
 			var direction = current && last && last.index < current.index ? 1 : -1;
@@ -1091,17 +1100,6 @@
 				};
 				img.addEventListener( 'load', loadHandler );
 			}
-		}
-
-		function fitInfo() {
-			var size = calculateBestFit( carousel.currentSlide );
-
-			var photoInfos = carousel.container.querySelectorAll( '.jp-carousel-photo-info' );
-			Array.prototype.forEach.call( photoInfos, function ( photoInfo ) {
-				photoInfo.style.left =
-					Math.floor( ( carousel.info.offsetWidth - size.width ) * 0.5 ) + 'px';
-				photoInfo.style.width = Math.floor( size.width ) + 'px';
-			} );
 		}
 
 		function fitSlides( slides ) {
@@ -1425,13 +1423,13 @@
 						'<div class="comment-gravatar">' +
 						entry.gravatar_markup +
 						'</div>' +
+						'<div class="comment-content">' +
 						'<div class="comment-author">' +
 						entry.author_markup +
 						'</div>' +
 						'<div class="comment-date">' +
 						entry.date_gmt +
 						'</div>' +
-						'<div class="comment-content">' +
 						entry.content +
 						'</div>';
 					comments.appendChild( comment );

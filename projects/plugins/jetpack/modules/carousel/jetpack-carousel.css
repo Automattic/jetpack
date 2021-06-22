@@ -88,6 +88,8 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
 	z-index: 100;
+	background-color: #000;
+	margin-left: 1vw; /* This is to even up the mysterious rhs scroll/row gap */
 }
 
 .jp-carousel-info-footer {
@@ -104,20 +106,13 @@ only screen and (min-device-pixel-ratio: 1.5) {
 }
 
 .jp-carousel-info-extra {
-	background-color: #000;
-	padding: 1em 6em;
 	display: none;
+	background: #000;
+	padding: 0 20px 20px 20px;
 }
 
 .jp-carousel-info-extra.jp-carousel-show {
 	display: block;
-}
-
-.jp-carousel-info-columns {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: flex-start;
 }
 
 .jp-carousel-info ::selection {
@@ -131,18 +126,21 @@ only screen and (min-device-pixel-ratio: 1.5) {
 }
 
 .jp-carousel-photo-info {
-	position: relative;
-	left: 25%;
-	width: 50%;
+	left: 0 !important;
+	width: 100% !important;
 }
 
-.jp-carousel-left-column-wrapper {
-	flex-grow: 1;
-	flex-shrink: 1;
-	overflow: hidden;
+.jp-carousel-comments-wrapper {
+	padding: 0;
+	width: 100% !important;
+	display: none;
 }
 
-.jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
+.jp-carousel-comments-wrapper.jp-carousel-show {
+	display: block;
+}
+
+.jp-carousel-comments-wrapper > .jp-carousel-photo-info {
 	display: none;
 }
 
@@ -316,7 +314,6 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-close-hint {
-	color: #999;
 	cursor: default;
 	letter-spacing: 0 !important;
 	padding: 0.35em 25px 0.35em 0;
@@ -336,18 +333,19 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-close-hint span {
 	cursor: pointer;
 	background-color: black;
-	background-color: rgba(0,0,0,0.8);
 	display: inline-block;
-	height: 22px;
-	font: 400 24px/1 "Helvetica Neue", sans-serif !important;
+	font: 800 36px/1 "Helvetica Neue", sans-serif !important;
 	line-height: 22px;
 	margin: 0 0 0 0.4em;
 	text-align: center;
 	vertical-align: middle;
-	width: 22px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
+	font-size: 36px !important;
+	height: 36px;
+	width: 36px;
+	color: #fff;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint span {
@@ -392,13 +390,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 /** Title and Desc Start **/
 .jp-carousel-titleanddesc {
-	border-top: 1px solid #222;
-	color: #999;
-	font-size: 15px;
-	padding-top: 24px;
-	margin-top: 20px;
-	margin-bottom: 20px;
-	font-weight: 400;
+    border-top: 1px solid #222;
+    color: #999;
+    font-size: 15px;
+    padding-top: 15px;
+    margin-bottom: 0;
+    font-weight: 4
 	width: 100%;
 }
 
@@ -411,14 +408,14 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	font: 300 1.5em/1.1 "Helvetica Neue", sans-serif !important;
 	text-transform: none !important; /* prevents uppercase from leaking through */
 	color: #fff;
-	margin: 0 0 15px;
-	padding:0;
+	margin: 0 0 7px;
+	padding: 0;
 }
 
 .jp-carousel-titleanddesc-desc p {
 	color: #999;
 	line-height:1.4;
-	margin-bottom: 0.75em;
+	margin-bottom: 0;
 }
 
 .jp-carousel-titleanddesc p a,
@@ -456,26 +453,25 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 .jp-carousel-photo-info h1:before,
 .jp-carousel-photo-info h1:after,
-.jp-carousel-left-column-wrapper h1:before,
-.jp-carousel-left-column-wrapper h1:after {
+.jp-carousel-comments-wrapper h1:before,
+.jp-carousel-comments-wrapper h1:after {
 	content:none !important;
 }
 /** Title and Desc End **/
 
 /** Meta Box Start **/
 .jp-carousel-image-meta {
-	background: #111;
-	border: 1px solid #222;
-	color: #fff;
-	font-size: 13px;
-	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
-	overflow: hidden;
-	padding: 18px 20px;
-	width: 209px !important;
-	margin-top: 20px;
-	margin-left: 40px;
-	margin-bottom: 20px;
-	flex-shrink: 0;
+    color: #fff;
+    font-size: 13px;
+    font: 12px/1.4 "Helvetica Neue", sans-serif !important;
+    width: 100%;
+    display: none;
+    padding: 10px;
+    background: #222;
+}
+
+.jp-carousel-image-meta.jp-carousel-show {
+	display: block;
 }
 
 .jp-carousel-image-meta li,
@@ -563,9 +559,9 @@ a.jp-carousel-image-download:hover {
 .jp-carousel-comment {
 	background: none transparent;
 	color: #999;
-	clear: left;
 	overflow: auto;
 	width: 100%;
+	display: flex;
 }
 
 .jp-carousel-comment + .jp-carousel-comment {
@@ -581,13 +577,13 @@ a.jp-carousel-image-download:hover {
 }
 
 .jp-carousel-comment .comment-author {
-	font-size: 13px;
-	font-weight:400;
+	font-size: 15px;
+	font-weight:500;
 	padding:0;
 	width:auto;
 	display: inline;
-	float:none;
-	border:none;
+	float: none;
+	border: none;
 	margin:0;
 }
 
@@ -596,12 +592,15 @@ a.jp-carousel-image-download:hover {
 }
 
 .jp-carousel-comment .comment-gravatar {
-	float:left;
+	float: none;
+}
+
+.jp-carousel-comment .comment-gravatar img {
+	min-width: 64px;
 }
 
 .jp-carousel-comment .comment-content {
 	border:none;
-	margin-left:85px;
 	padding: 0;
 }
 
@@ -617,16 +616,13 @@ a.jp-carousel-image-download:hover {
 
 .jp-carousel-comment .comment-date {
 	color:#999;
-	margin-top: 4px;
-	font-size:11px;
-	display: inline;
-	float: right;
-	/*clear: right;*/
+	font-size: 11px;
+	border-bottom: 1px solid #222;
+    margin-bottom: 6px;
 }
 
 #jp-carousel-comment-form {
 	margin:0 0 10px !important;
-	float: left;
 	width: 100%;
 }
 
@@ -711,7 +707,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-submit-and-info-wrapper {
 	display: none;
-	/*margin-bottom:15px;*/
 	overflow: hidden;
 	width: 100%
 }
@@ -992,15 +987,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	line-height: 1;
 	font-weight: 400;
 	font-style: normal;
-	margin-left: 16px;
-	margin-right: 16px;
-	margin-top: 8px;
-	margin-bottom: 8px;
+	margin: 8px 16px;
 }
-
-/* .jp-carousel-icon-comments {
-	display: none;
-} */
 
 .jp-carousel-icon-comments.jp-carousel-show {
 	display: inline-block;
@@ -1011,15 +999,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and (max-width: 760px) {
-
-	.jp-carousel-info-extra {
-		padding: 1em 1em;
-	}
-
-	.jp-carousel-info-columns {
-		flex-direction: column;
-	}
-
 	.jp-carousel-next-button, .jp-carousel-previous-button {
 		display: none !important;
 	}
@@ -1057,33 +1036,15 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		display: none;
 	}
 
-	#jp-carousel-comment-form-container {
-		display: none !important;
-	}
-
-	.jp-carousel-titleanddesc {
-		padding-top: 0 !important;
-		border: none !important;
-	}
 	.jp-carousel-titleanddesc-title {
-		font-size: 1em !important;
-	}
-
-	.jp-carousel-left-column-wrapper {
-		padding: 0;
-		width: 100% !important;
-	}
-
-	.jp-carousel-photo-info {
-		left: 0 !important;
-		width: 100% !important;
+		font-size: 1.25em !important;
 	}
 
 	.jp-carousel-info > .jp-carousel-photo-info {
 		display: none;
 	}
 
-	.jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
+	.jp-carousel-comments-wrapper > .jp-carousel-photo-info {
 		display: block;
 	}
 

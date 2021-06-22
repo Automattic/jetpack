@@ -366,8 +366,7 @@ class Jetpack_Carousel {
 			<div class="jp-carousel"></div>
 			<div class="jp-carousel-info">
 				<div class="jp-carousel-info-footer">
-					<div class="jp-carousel-pagination">
-					</div>
+					<div class="jp-carousel-pagination"></div>
 					<div class="jp-carousel-photo-icons-container">
 						<span class="jp-carousel-icon jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
 							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M12 3.2c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8 0-4.8-4-8.8-8.8-8.8zm0 16c-4 0-7.2-3.3-7.2-7.2C4.8 8 8 4.8 12 4.8s7.2 3.3 7.2 7.2c0 4-3.2 7.2-7.2 7.2zM11 17h2v-6h-2v6zm0-8h2V7h-2v2z"></path></svg>
@@ -378,17 +377,19 @@ class Jetpack_Carousel {
 					</div>
 				</div>
 				<div class="jp-carousel-info-extra">
-					<div class="jp-carousel-photo-info">
-						<h2 class="jp-carousel-caption" itemprop="caption description"></h2>
+					<div class="jp-carousel-title-and-caption">
+						<div class="jp-carousel-titleanddesc"></div>
+						<div class="jp-carousel-photo-info">
+							<h2 class="jp-carousel-caption" itemprop="caption description"></h2>
+						</div>
 					</div>
-					<div class="jp-carousel-info-columns">
-						<div class="jp-carousel-left-column-wrapper">
-							<div class="jp-carousel-titleanddesc"></div>
-							<!-- Intentional duplicate -->
-							<div class="jp-carousel-photo-info">
-								<h2 class="jp-carousel-caption" itemprop="caption description"></h2>
-							</div>
+					<div class="jp-carousel-info-content-wrapper">
+						<div class="jp-carousel-comments-wrapper">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
+								<div id="jp-carousel-comments-loading">
+									<span><?php echo esc_html( $localize_strings['loading_comments'] ); ?></span>
+								</div>
+								<div class="jp-carousel-comments"></div>
 								<div id="jp-carousel-comment-form-container">
 									<?php if ( $use_local_comments ) : ?>
 										<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
@@ -456,18 +457,9 @@ class Jetpack_Carousel {
 										<?php endif ?>
 									<?php endif ?>
 								</div>
-								<div class="jp-carousel-comments"></div>
-								<div id="jp-carousel-comments-loading">
-									<span><?php echo esc_html( $localize_strings['loading_comments'] ); ?></span>
-								</div>
 							<?php endif ?>
 						</div>
 						<div class="jp-carousel-image-meta">
-							<div class="jp-carousel-buttons">
-								<?php if ( $localize_strings['display_comments'] ) : ?>
-								<a class="jp-carousel-commentlink" href="#"><?php echo esc_html( $localize_strings['comment'] ); ?></a>
-								<?php endif ?>
-							</div>
 							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
 							<a class="jp-carousel-image-download" target="_blank" style="display: none;"></a>
 							<div class="jp-carousel-image-map" style="display: none;"></div>
