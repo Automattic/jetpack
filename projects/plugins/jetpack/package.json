@@ -62,7 +62,7 @@
 		"@automattic/jetpack-connection": "workspace:^0.4.0-alpha",
 		"@automattic/popup-monitor": "1.0.0",
 		"@automattic/request-external-access": "1.0.0",
-		"@automattic/social-previews": "1.1.0",
+		"@automattic/social-previews": "1.1.1",
 		"@automattic/viewport": "1.0.0",
 		"@babel/runtime": "7.12.18",
 		"@wordpress/annotations": "1.12.2",

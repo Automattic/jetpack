@@ -2,7 +2,7 @@
 /**
  * Primary class file for the Jetpack Backup plugin.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-backup-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
