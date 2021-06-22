@@ -339,6 +339,8 @@
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 						handleCommentFormClick( e );
+					} else if ( domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ) {
+						handleIconClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						return;
 					}
@@ -496,6 +498,45 @@
 			}
 		}
 
+		/**
+		 * Handles clicks to icons in the icon container.
+		 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
+		 */
+		function handleIconClick( e ) {
+			e.preventDefault();
+
+			var target = e.target;
+			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-info' ) ) {
+				commentsContainer.classList.remove( 'jp-carousel-show' );
+				if ( photoMetaContainer ) {
+					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
+					if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						domUtil.scrollToElement( extraInfoContainer );
+					} else {
+						extraInfoContainer.classList.remove( 'jp-carousel-show' );
+					}
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				photoMetaContainer.classList.remove( 'jp-carousel-show' );
+				if ( commentsContainer ) {
+					commentsContainer.classList.toggle( 'jp-carousel-show' );
+					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						domUtil.scrollToElement( extraInfoContainer );
+					} else {
+						extraInfoContainer.classList.remove( 'jp-carousel-show' );
+					}
+				}
+			}
+		}
+
 		function processSingleImageGallery() {
 			var images = document.querySelectorAll( 'a img[data-attachment-id]' );
 			Array.prototype.forEach.call( images, function ( image ) {
@@ -566,6 +607,13 @@
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
 			var captionHtml;
+			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+			// Hide comments and photo info
+			extraInfoContainer.classList.remove( 'jp-carousel-show' );
+			photoMetaContainer.classList.remove( 'jp-carousel-show' );
+			commentsContainer.classList.remove( 'jp-carousel-show' );
 
 			loadFullImage( carousel.slides[ index ] );
 			loadBackgroundImage( carousel.slides[ index ] );
@@ -605,6 +653,13 @@
 				domUtil.fadeOut( carousel.caption, function () {
 					carousel.caption.innerHTML = '';
 				} );
+			}
+
+			// Update pagination in footer.
+			var pagination = carousel.info.querySelector( '.jp-carousel-pagination' );
+			if ( pagination ) {
+				var currentPage = index + 1;
+				pagination.innerHTML = '<span>' + currentPage + ' / ' + carousel.slides.length + '</span>';
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
@@ -962,13 +1017,13 @@
 						'<div class="comment-gravatar">' +
 						entry.gravatar_markup +
 						'</div>' +
+						'<div class="comment-content">' +
 						'<div class="comment-author">' +
 						entry.author_markup +
 						'</div>' +
 						'<div class="comment-date">' +
 						entry.date_gmt +
 						'</div>' +
-						'<div class="comment-content">' +
 						entry.content +
 						'</div>';
 					comments.appendChild( comment );
@@ -1214,45 +1269,7 @@
 			carousel.overlay.style.display = 'block';
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
-
-			swiper = new window.Swiper( '.swiper-container', {
-				centeredSlides: true,
-				zoom: true,
-				loop: true,
-				pagination: {
-					el: '.swiper-pagination',
-					clickable: true,
-				},
-				navigation: {
-					nextEl: '.swiper-button-next',
-					prevEl: '.swiper-button-prev',
-				},
-				initialSlide: settings.startIndex,
-				on: {
-					init: function () {
-						selectSlideAtIndex( settings.startIndex );
-					},
-				},
-			} );
-
-			swiper.on( 'slideChange', function () {
-				var index;
-				// Swiper indexes slides from 1, plus when looping to left last slide ends up
-				// as 0 and looping to right first slide as total slides + 1. These are adjusted
-				// here to match index of carousel.slides.
-				if ( swiper.activeIndex === 0 ) {
-					index = carousel.slides.length - 1;
-				} else if ( swiper.activeIndex === carousel.slides.length + 1 ) {
-					index = 0;
-				} else {
-					index = swiper.activeIndex - 1;
-				}
-				selectSlideAtIndex( index );
-			} );
-
-			domUtil.fadeIn( carousel.overlay, function () {
-				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
-			} );
+			selectSlideAtIndex( settings.startIndex );
 		}
 
 		// Register the event listener for starting the gallery

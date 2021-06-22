@@ -36,6 +36,29 @@
 .jp-carousel-overlay .swiper-button-prev:hover:after,
 .jp-carousel-overlay .swiper-button-next:hover:after {
 	opacity: 1;
+	line-height: inherit;
+}
+
+.swiper-pagination .swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
+	background: #fff;
+	opacity: 0.5;
+}
+
+.swiper-container {
+	height: auto;
+}
+
+.jp-carousel-overlay .swiper-button-prev:after,
+.jp-carousel-overlay .swiper-button-next:after {
+	color: #cccccc;
+	opacity: 0.5;
+	font-size: 3rem;
+	transition: 0.5s opacity ease-out;
+}
+
+.jp-carousel-overlay .swiper-button-prev:hover:after,
+.jp-carousel-overlay .swiper-button-next:hover:after {
+	opacity: 1;
 }
 
 .jp-carousel-overlay {
@@ -60,7 +83,9 @@
 }
 
 .jp-carousel-container {
-	margin-top: 60px;
+	display: grid;
+	grid-template-rows: 1fr 50px; /* 1. main carousel, 2. info area as footer */
+	height: 100%;
 }
 
 .jp-carousel-msg {
@@ -85,13 +110,31 @@
 	flex-direction: column;
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
+	z-index: 100;
+	background-color: #000;
 }
 
-.jp-carousel-info-columns {
+.jp-carousel-info-footer {
+	background-color: #000;
 	display: flex;
-	flex-direction: row;
+	align-items: center;
 	justify-content: space-between;
-	align-items: flex-start;
+}
+
+.jp-carousel-pagination {
+	color: #fff;
+	padding-left: 32px;
+	font-size: 12px;
+}
+
+.jp-carousel-info-extra {
+	display: none;
+	background: #000;
+	padding: 0 20px 20px 20px;
+}
+
+.jp-carousel-info-extra.jp-carousel-show {
+	display: block;
 }
 
 .jp-carousel-info ::selection {
@@ -105,18 +148,21 @@
 }
 
 .jp-carousel-photo-info {
-	position: relative;
-	left: 25%;
-	width: 50%;
+	left: 0 !important;
+	width: 100% !important;
 }
 
-.jp-carousel-left-column-wrapper {
-	flex-grow: 1;
-	flex-shrink: 1;
-	overflow: hidden;
+.jp-carousel-comments-wrapper {
+	padding: 0;
+	width: 100% !important;
+	display: none;
 }
 
-.jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
+.jp-carousel-comments-wrapper.jp-carousel-show {
+	display: block;
+}
+
+.jp-carousel-comments-wrapper > .jp-carousel-photo-info {
 	display: none;
 }
 
@@ -195,7 +241,6 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-close-hint {
-	color: #999;
 	cursor: default;
 	letter-spacing: 0 !important;
 	padding: 0.35em 0 0;
@@ -218,18 +263,19 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-close-hint span {
 	cursor: pointer;
 	background-color: black;
-	background-color: rgba( 0, 0, 0, 0.8 );
 	display: inline-block;
-	height: 22px;
-	font: 400 24px/1 'Helvetica Neue', sans-serif !important;
+	font: 800 36px/1 "Helvetica Neue", sans-serif !important;
 	line-height: 22px;
 	margin: 0 0 0 0.4em;
 	text-align: center;
 	vertical-align: middle;
-	width: 22px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
+	font-size: 36px !important;
+	height: 36px;
+	width: 36px;
+	color: #fff;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint span {
