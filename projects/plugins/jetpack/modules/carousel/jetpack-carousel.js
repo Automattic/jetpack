@@ -1222,7 +1222,7 @@
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 			carousel.overlay.style.display = 'block';
 
-			swiper = new Swiper( '.swiper-container', {
+			swiper = new window.Swiper( '.swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: true,
