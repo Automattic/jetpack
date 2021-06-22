@@ -1014,9 +1014,6 @@
 
 		function loadBackgroundImage( slide ) {
 			slide.el.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
-			slide.el.style.backgroundSize = '200%';
-			slide.el.style.backgroundRepeat = 'no-repeat';
-			slide.el.style.backgroundPosition = 'center';
 		}
 
 		function clearCommentTextAreaValue() {
