@@ -239,6 +239,14 @@ class Jetpack_Carousel {
 				true
 			);
 
+			$swiper_library_path = array(
+				'url' => Assets::get_file_url_for_environment(
+					'_inc/build/carousel/swiper-bundle.min.js',
+					'modules/carousel/swiper-bundle.js'
+				),
+			);
+			wp_localize_script( 'jetpack-carousel', 'jetpackSwiperLibraryPath', $swiper_library_path );
+
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
 			$is_logged_in         = is_user_logged_in();
