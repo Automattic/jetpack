@@ -1282,9 +1282,9 @@
 					domUtil.show( loader );
 					var head = document.getElementsByTagName( 'head' )[ 0 ];
 					var jsScript = document.createElement( 'script' );
-					jsScript.id = 'jetpack-carousel-js';
+					jsScript.id = 'jetpack-carousel-swiper-js';
 					jsScript.type = 'text/javascript';
-					jsScript.src = '/wp-content/plugins/jetpack/modules/carousel/swiper-bundle.js';
+					jsScript.src = window.jetpackSwiperLibraryPath.url;
 					jsScript.onload = function () {
 						domUtil.hide( loader );
 						openCarousel( gallery, { startIndex: index } );
