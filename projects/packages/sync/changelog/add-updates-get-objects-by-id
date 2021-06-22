@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Enhance updates module to support get_objects_by_id

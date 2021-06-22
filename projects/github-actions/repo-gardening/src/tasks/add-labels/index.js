@@ -233,7 +233,7 @@ async function addLabels( payload, octokit ) {
 
 	debug( `add-labels: Adding labels to PR #${ number }` );
 
-	await octokit.issues.addLabels( {
+	await octokit.rest.issues.addLabels( {
 		owner: owner.login,
 		repo: name,
 		issue_number: number,

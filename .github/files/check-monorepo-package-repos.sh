@@ -3,7 +3,7 @@
 set -eo pipefail
 
 EXIT=0
-for FILE in $(git ls-files '**/composer.json'); do
+for FILE in $(git -c core.quotepath=off ls-files '**/composer.json'); do
 	if jq -e '.repositories[]? | select( .type == "path" and ( .url | startswith( "../" ) ) and ( .options?.monorepo? | not ) )' "$FILE" &>/dev/null; then
 		EXIT=1
 		LINE=$(grep --line-number --max-count=1 '^	"repositories":' "$FILE")

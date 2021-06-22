@@ -13,7 +13,6 @@ import ConnectUser from '../index';
 describe( 'ConnectUser', () => {
 	const testProps = {
 		connectUrl: 'https://jetpack.wordpress.com/jetpack.authorize/1/?response_type=code',
-		displayTOS: true,
 		from: 'example',
 		redirectUri: 'https://example.org',
 	};
