@@ -328,7 +328,15 @@ class Jetpack_Carousel {
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
-			wp_enqueue_style( 'jetpack-carousel-swiper', 'https://unpkg.com/swiper@6.7.0/swiper-bundle.css', array(), $this->asset_version( JETPACK__VERSION ) );
+			wp_enqueue_style(
+				'jetpack-carousel-swiper-css',
+				Assets::get_file_url_for_environment(
+					'_inc/build/carousel/swiper-bundle.min.css',
+					'modules/carousel/swiper-bundle.css'
+				),
+				array(),
+				$this->asset_version( JETPACK__VERSION )
+			);
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
 			/**
