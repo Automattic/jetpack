@@ -71,7 +71,7 @@ export default function SearchResultMultiSite( props ) {
 							<PhotonImage
 								alt={ highlight.title }
 								className="jetpack-instant-search__search-result-multisite__image"
-								isPhotonEnabled={ this.props.isPhotonEnabled }
+								isPhotonEnabled={ props.isPhotonEnabled }
 								src={ `//${ firstImage }` }
 							/>
 						) : null }
