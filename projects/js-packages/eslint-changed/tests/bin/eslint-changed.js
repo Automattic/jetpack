@@ -406,7 +406,7 @@ describe( 'bin/eslint-changed.js', () => {
 			);
 		} );
 
-		it( 'Fails gracefully without eslint', async () => {
+		it( 'Fails gracefully without ESLint', async () => {
 			const proc = await runEslintChanged( [ '--format=json', '--git' ], {
 				cwd: tmpdir,
 				env: { GIT: 'true', ESLINT: 'this-command-really-should-not-exist-either' },
@@ -415,7 +415,7 @@ describe( 'bin/eslint-changed.js', () => {
 			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
 			assert.strictEqual(
 				data.stderr,
-				'error: failed to execute eslint as `this-command-really-should-not-exist-either`. Use environment variable `ESLINT` to override.\n'
+				'error: failed to execute ESLint as `this-command-really-should-not-exist-either`. Use environment variable `ESLINT` to override.\n'
 			);
 		} );
 

@@ -13,7 +13,7 @@ const APP_VERSION = '1.0.1-alpha';
 const { program } = require( 'commander' );
 program
 	.usage(
-		'Run eslint on files and only report new warnings/errors compared to the previous version.'
+		'Run ESLint on files and only report new warnings/errors compared to the previous version.'
 	)
 
 	.option( '--diff <file>', 'A file containing a unified diff of the changes.' )
@@ -24,11 +24,11 @@ program
 	)
 	.option(
 		'--eslint-orig <file>',
-		'A file containing the JSON output of eslint on the unchanged files.'
+		'A file containing the JSON output of ESLint on the unchanged files.'
 	)
 	.option(
 		'--eslint-new <file>',
-		'A file containing the JSON output of eslint on the changed files.'
+		'A file containing the JSON output of ESLint on the changed files.'
 	)
 
 	.option(
@@ -52,7 +52,7 @@ program
 		'--in-diff-only',
 		'Only include messages on lines changed in the diff. This may miss things like deleting a `var` that leads to a new `no-undef` elsewhere.'
 	)
-	.option( '--format <name>', 'Eslint format to use for output.', 'stylish' )
+	.option( '--format <name>', 'ESLint format to use for output.', 'stylish' )
 	.version( APP_VERSION );
 
 program.parse();
@@ -145,11 +145,11 @@ async function main() {
 		ret = spawnSync( eslint, [ '--version' ], spawnOpt );
 		if ( ret.error ) {
 			console.error(
-				`error: failed to execute eslint as \`${ eslint }\`. Use environment variable \`ESLINT\` to override.`
+				`error: failed to execute ESLint as \`${ eslint }\`. Use environment variable \`ESLINT\` to override.`
 			);
 			process.exit( 1 );
 		}
-		debug( 'Using eslint version', ret.stdout.trim() );
+		debug( 'Using ESLint version', ret.stdout.trim() );
 
 		args = [ 'rev-parse', '--show-toplevel' ];
 		debug( 'Getting git top level:', git, args.join( ' ' ) );
@@ -191,13 +191,13 @@ async function main() {
 			args = [ 'cat-file', '-e', origRef + ':' + file ];
 			debug( 'Testing if file is new:', git, args.join( ' ' ) );
 			if ( spawnSync( git, args, { stdio: 'ignore' } ).status ) {
-				debug( "It's new, so no orig eslint data." );
+				debug( "It's new, so no orig ESLint data." );
 			} else {
 				args = [ 'show', origRef + ':' + file ];
 				debug( 'Fetching orig file contents:', git, args.join( ' ' ) );
 				content = doCmd( git, args );
 				args = eslintArgs.concat( [ '--stdin', '--stdin-filename', file, '--format=json' ] );
-				debug( 'Executing eslint for orig file:', eslint, args.join( ' ' ) );
+				debug( 'Executing ESLint for orig file:', eslint, args.join( ' ' ) );
 				ret = spawnSync( eslint, args, { ...spawnOpt, input: content } );
 				if ( ret.error ) {
 					throw ret.error;
@@ -213,7 +213,7 @@ async function main() {
 				content = doCmd( git, args );
 			}
 			args = eslintArgs.concat( [ '--stdin', '--stdin-filename', file, '--format=json' ] );
-			debug( 'Executing eslint for new file:', eslint, args.join( ' ' ) );
+			debug( 'Executing ESLint for new file:', eslint, args.join( ' ' ) );
 			ret = spawnSync( eslint, args, { ...spawnOpt, input: content } );
 			if ( ret.error ) {
 				throw ret.error;
