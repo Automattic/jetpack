@@ -1,6 +1,6 @@
-# Eslint-changed
+# ESLint Changed
 
-Run [eslint] on files and only report new warnings and errors.
+Run [ESLint] on files and only report new warnings and errors.
 
 ## Installation
 
@@ -8,14 +8,14 @@ Install via your favorite JS package manager. Note the peer dependency on eslint
 
 ## Usage
 
-To identify the changes, `eslint-changed` needs the eslint output for both the old and new versions of the file, as well as the diff between them.
+To identify the changes, `eslint-changed` needs the ESLint output for both the old and new versions of the file, as well as the diff between them.
 If you use git, it can determine this automatically. Otherwise, you can supply the necessary information manually.
 
 Options used in both modes are:
 
 * `--debug`: Enable debug output.
 * `--ext <list>`: Comma-separated list of JavaScript file extensions. Ignored if files are listed. (default: ".js")
-* `--format <name>`: Eslint format to use for output. (default: "stylish")
+* `--format <name>`: ESLint format to use for output. (default: "stylish")
 
 ### Manual diff
 
@@ -40,8 +40,8 @@ The following options are used with manual mode:
 
 ## Inspiration
 
-We had been using [phpcs-changed] for a while, and wanted the same thing for eslint.
+We had been using [phpcs-changed] for a while, and wanted the same thing for ESLint.
 
 
-[eslint]: https://www.npmjs.com/package/eslint
+[ESLint]: https://www.npmjs.com/package/eslint
 [phpcs-changed]: https://packagist.org/packages/sirbrillig/phpcs-changed
