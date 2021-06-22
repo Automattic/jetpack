@@ -278,4 +278,23 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // New version
 	}
+
+	/**
+	 * Verify that all updates are returned by get_objects_by_id.
+	 */
+	public function test_get_objects_by_id_all() {
+		$module      = Modules::get_module( 'updates' );
+		$all_updates = $module->get_objects_by_id( 'update', array( 'all' ) );
+		$this->assertEquals( $module->get_all_updates(), $all_updates );
+	}
+
+	/**
+	 * Verify that get_object_by_id returns an allowed update.
+	 */
+	public function test_get_objects_by_id_singular() {
+		$module      = Modules::get_module( 'updates' );
+		$updates     = $module->get_all_updates();
+		$get_updates = $module->get_objects_by_id( 'update', array( 'core' ) );
+		$this->assertEquals( $updates['core'], $get_updates['core'] );
+	}
 }

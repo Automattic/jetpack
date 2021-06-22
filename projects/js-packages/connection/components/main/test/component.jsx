@@ -15,11 +15,7 @@ describe( 'Main', () => {
 	const testProps = {
 		apiNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
-		hasConnectedOwner: false,
-		isRegistered: false,
-		isUserConnected: false,
 		registrationNonce: 'test2',
-		displayTOS: true,
 		redirectUri: 'https://example.org',
 	};
 
