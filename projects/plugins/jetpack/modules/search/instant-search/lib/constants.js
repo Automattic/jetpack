@@ -3,6 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 
+export const MULTISITE_NO_GROUP_VALUE = '__NO_GROUP__';
+
 export const SERVER_OBJECT_NAME = 'JetpackInstantSearchOptions';
 export const OVERLAY_CLASS_NAME = 'jetpack-instant-search__overlay';
 export const SORT_DIRECTION_ASC = 'ASC';
@@ -10,7 +12,6 @@ export const SORT_DIRECTION_DESC = 'DESC';
 export const RESULT_FORMAT_EXPANDED = 'expanded';
 export const RESULT_FORMAT_MINIMAL = 'minimal';
 export const RESULT_FORMAT_PRODUCT = 'product';
-export const RESULT_FORMAT_MULTISITE = 'multisite';
 export const MINUTE_IN_MILLISECONDS = 60 * 1000;
 export const RELEVANCE_SORT_KEY = 'relevance';
 // @todo extract this to a function that uses SORT_OPTIONS and PRODUCT_SORT_OPTIONS to avoid duplication
@@ -26,7 +27,6 @@ export const VALID_RESULT_FORMAT_KEYS = [
 	RESULT_FORMAT_EXPANDED,
 	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
-	RESULT_FORMAT_MULTISITE,
 ];
 export const SORT_OPTIONS = new Map( [
 	[ RELEVANCE_SORT_KEY, __( 'Relevance', 'jetpack' ) ],

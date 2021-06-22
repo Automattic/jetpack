@@ -38,10 +38,9 @@ class Jetpack_Search_Options {
 	 * @since 9.6.0
 	 * @var string
 	 */
-	const RESULT_FORMAT_MINIMAL   = 'minimal';
-	const RESULT_FORMAT_EXPANDED  = 'expanded';
-	const RESULT_FORMAT_PRODUCT   = 'product';
-	const RESULT_FORMAT_MULTISITE = 'multisite';
+	const RESULT_FORMAT_MINIMAL  = 'minimal';
+	const RESULT_FORMAT_EXPANDED = 'expanded';
+	const RESULT_FORMAT_PRODUCT  = 'product';
 
 	/**
 	 * Returns a boolean for whether instant search is enabled.

@@ -17,7 +17,7 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
-import { RESULT_FORMAT_MULTISITE } from '../lib/constants';
+import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
@@ -100,19 +100,11 @@ class SearchApp extends Component {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
 
-		// Override the result format if group static filter is selected, use multisite.
-		const staticFilters = this.props.staticFilters;
-		let isMultiSite = false;
-		for ( const key in staticFilters ) {
-			const value = staticFilters[ key ];
-			if ( key === 'group_id' && value !== '__NO_GROUP__' ) {
-				// Do not set filter if for no_groups, it should just use current blog.
-				isMultiSite = true;
-			}
-		}
-
+		// Override the result format if group static filter is selected, always use expanded.
+		const isMultiSite =
+			this.props.staticFilters && this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 		if ( isMultiSite ) {
-			return resultFormatQuery || RESULT_FORMAT_MULTISITE;
+			return RESULT_FORMAT_EXPANDED;
 		}
 
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
