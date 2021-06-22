@@ -859,6 +859,13 @@
 				} );
 			}
 
+			// Update pagination in footer.
+			var pagination = carousel.info.querySelector( '.jp-carousel-pagination' );
+			if ( pagination ) {
+				var currentPage = index + 1;
+				pagination.innerHTML = '<span>' + currentPage + ' / ' + carousel.slides.length + '</span>';
+			}
+
 			// Record pageview in WP Stats, for each new image loaded full-screen.
 			if ( jetpackCarouselStrings.stats ) {
 				new Image().src =
