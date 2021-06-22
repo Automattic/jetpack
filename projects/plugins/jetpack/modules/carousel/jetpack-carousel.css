@@ -13,14 +13,15 @@
 	bottom: 0;
 	left: 0;
 	background: #000;
+	z-index: -100;
 }
 
 .jp-carousel {
-	position: absolute;
+	/* position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
-	bottom: 20vh;
+	bottom: 20vh; */
 }
 
 div.jp-carousel-fadeaway {
@@ -76,15 +77,14 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	overflow-x: hidden;
 	overflow-y: auto;
 	direction: ltr;
+	display: grid;
+	grid-template-rows: 1fr 48px; /* main carousel and info area as footer */
 }
 
 .jp-carousel-info {
+	background-color: #333;
 	display: flex;
 	flex-direction: column;
-	position: absolute;
-	top: 81vh; /* Fallback, if calc is not supported */
-	top: calc( 80vh + 5px );
-	bottom: 0;
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
 }
@@ -947,6 +947,42 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: -moz-linear-gradient(bottom, rgba(255,255,255,0.75), rgba(255,255,255,0));
 	background: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
+
+/** Icons Start **/
+.jp-carousel-photo-icons-container {
+	display: block;
+	text-align: right;
+}
+
+.jp-carousel-icon {
+	color: #fff;
+	fill: #fff;
+	cursor: pointer;
+	font-family: dashicons;
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	font-size: 30px;
+	display: inline-block;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+	margin-left: 16px;
+	margin-right: 16px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+/* .jp-carousel-icon-comments {
+	display: none;
+} */
+
+.jp-carousel-icon-comments.jp-carousel-show {
+	display: inline-block;
+}
+
+/** Icons End **/
+
 
 /* Small screens */
 @media only screen and (max-width: 760px) {
