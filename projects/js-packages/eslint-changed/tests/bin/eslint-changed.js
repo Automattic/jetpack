@@ -163,6 +163,53 @@ describe( 'bin/eslint-changed.js', () => {
 			assert.deepEqual( output, expect );
 		} );
 
+		it( 'Includes new errors in unchanged lines', async () => {
+			const proc = await runEslintChanged( [
+				'--format=json',
+				'--diff',
+				path.join( __dirname, '../fixtures/new-err-not-in-diff.diff' ),
+				'--diff-base',
+				'/tmp/x/t',
+				'--eslint-orig',
+				path.join( __dirname, '../fixtures/new-err-not-in-diff.orig.json' ),
+				'--eslint-new',
+				path.join( __dirname, '../fixtures/new-err-not-in-diff.new.json' ),
+			] );
+			const data = await awaitExit( proc );
+			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+
+			const output = JSON.parse( data.stdout );
+			assert.isArray( output, 'Output is a JSON array' );
+			const expect = JSON.parse(
+				await fs.readFile( path.join( __dirname, '../fixtures/new-err-not-in-diff.expect.json' ) )
+			);
+			assert.deepEqual( output, expect );
+		} );
+
+		it( 'Does not include new errors in unchanged lines with --in-diff-only', async () => {
+			const proc = await runEslintChanged( [
+				'--format=json',
+				'--in-diff-only',
+				'--diff',
+				path.join( __dirname, '../fixtures/new-err-not-in-diff.diff' ),
+				'--diff-base',
+				'/tmp/x/t',
+				'--eslint-orig',
+				path.join( __dirname, '../fixtures/new-err-not-in-diff.orig.json' ),
+				'--eslint-new',
+				path.join( __dirname, '../fixtures/new-err-not-in-diff.new.json' ),
+			] );
+			const data = await awaitExit( proc );
+			assert.strictEqual( data.exitCode, 0, 'Exit code is 0' );
+
+			const output = JSON.parse( data.stdout );
+			assert.isArray( output, 'Output is a JSON array' );
+			const expect = JSON.parse(
+				await fs.readFile( path.join( __dirname, '../fixtures/new-err-not-in-diff.expect2.json' ) )
+			);
+			assert.deepEqual( output, expect );
+		} );
+
 		it( 'Gets diff-base from cwd', async () => {
 			await mktmpdir();
 
@@ -606,6 +653,136 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableErrorCount: 1,
 					fixableWarningCount: 0,
 					source: 'var x = \'Hello\';\nx += ", world!";\nconsole.log( x );\n',
+					usedDeprecatedRules: [],
+				},
+			];
+			assert.deepEqual( output, expect );
+		} );
+
+		it( 'Works with explicitly specified files', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'.eslintrc': eslintrc,
+							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+
+			const proc = await runEslintChanged( [ '--format=json', '--git', '1.js', '2.js' ], {
+				cwd: tmpdir,
+			} );
+			const data = await awaitExit( proc );
+			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+
+			const output = JSON.parse( data.stdout );
+			assert.isArray( output, 'Output is a JSON array' );
+			const expect = [
+				{
+					filePath: path.join( tmpdir, '1.js' ),
+					messages: [],
+					errorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					usedDeprecatedRules: [],
+				},
+				{
+					filePath: path.join( tmpdir, '2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							nodeType: 'Identifier',
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+						},
+						{
+							ruleId: 'no-undef',
+							severity: 2,
+							message: "'x' is not defined.",
+							line: 13,
+							column: 14,
+							nodeType: 'Identifier',
+							messageId: 'undef',
+							endLine: 13,
+							endColumn: 15,
+						},
+					],
+					errorCount: 2,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					usedDeprecatedRules: [],
+				},
+			];
+			assert.deepEqual( output, expect );
+		} );
+
+		it( 'Works with --in-diff-only', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'.eslintrc': eslintrc,
+							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+
+			const proc = await runEslintChanged(
+				[ '--format=json', '--git', '--in-diff-only', '1.js', '2.js' ],
+				{
+					cwd: tmpdir,
+				}
+			);
+			const data = await awaitExit( proc );
+			assert.strictEqual( data.exitCode, 1, 'Exit code is 1' );
+
+			const output = JSON.parse( data.stdout );
+			assert.isArray( output, 'Output is a JSON array' );
+			const expect = [
+				{
+					filePath: path.join( tmpdir, '2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							nodeType: 'Identifier',
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+						},
+					],
+					errorCount: 1,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					usedDeprecatedRules: [],
 				},
 			];

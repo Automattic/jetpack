@@ -48,6 +48,10 @@ program
 		'Comma-separated list of JavaScript file extensions. Ignored if files are listed.',
 		'.js'
 	)
+	.option(
+		'--in-diff-only',
+		'Only include messages on lines changed in the diff. This may miss things like deleting a `var` that leads to a new `no-undef` elsewhere.'
+	)
 	.option( '--format <name>', 'Eslint format to use for output.', 'stylish' )
 	.version( APP_VERSION );
 
@@ -171,8 +175,13 @@ async function main() {
 
 		debug( 'Running git diff command:', git, args.join( ' ' ) );
 		diff = parseDiff( doCmd( git, args ) );
-		files = getFilesFromDiff( diff );
-		debug( 'Determined files from diff:', files );
+		if ( ! argv.inDiffOnly && program.args.length ) {
+			files = program.args;
+			debug( 'Determined files from command line:', files );
+		} else {
+			files = getFilesFromDiff( diff );
+			debug( 'Determined files from diff:', files );
+		}
 
 		eslintOrig = [];
 		eslintNew = [];
@@ -214,12 +223,17 @@ async function main() {
 	} else if ( argv.diff ) {
 		diff = parseDiff( fs.readFileSync( argv.diff, 'utf8' ) );
 		diffBase = argv.diffBase || process.cwd();
-		files = getFilesFromDiff( diff );
-		debug( 'Determined files from diff:', files );
-		if ( program.args.length ) {
-			const cmdLineFiles = new Set( program.args );
-			files = files.filter( file => cmdLineFiles.has( file ) );
-			debug( 'Intersected files with those from the command line:', files );
+		if ( ! argv.inDiffOnly && program.args.length ) {
+			files = program.args;
+			debug( 'Determined files from command line:', files );
+		} else {
+			files = getFilesFromDiff( diff );
+			debug( 'Determined files from diff:', files );
+			if ( program.args.length ) {
+				const cmdLineFiles = new Set( program.args );
+				files = files.filter( file => cmdLineFiles.has( file ) );
+				debug( 'Intersected files with those from the command line:', files );
+			}
 		}
 		eslintOrig = JSON.parse( fs.readFileSync( argv.eslintOrig, 'utf8' ) );
 		eslintNew = JSON.parse( fs.readFileSync( argv.eslintNew, 'utf8' ) );
@@ -228,6 +242,8 @@ async function main() {
 		process.exit( 1 );
 	}
 
+	// oldLines maps line numbers in the old version to the new.
+	// newLines just lists lines present in the diff.
 	const oldLines = {};
 	const newLines = {};
 	diff.forEach( file => {
@@ -257,23 +273,25 @@ async function main() {
 		newLines[ fileName ] = nl;
 	} );
 
-	files = new Set( files.map( file => path.resolve( diffBase, file ) ) );
-	eslintOrig = eslintOrig.filter( x => files.has( x.filePath ) && oldLines[ x.filePath ] );
-	eslintNew = eslintNew.filter( x => files.has( x.filePath ) && newLines[ x.filePath ] );
+	if ( argv.inDiffOnly ) {
+		files = new Set( files.map( file => path.resolve( diffBase, file ) ) );
+		eslintOrig = eslintOrig.filter( x => files.has( x.filePath ) && oldLines[ x.filePath ] );
+		eslintNew = eslintNew.filter( x => files.has( x.filePath ) && newLines[ x.filePath ] );
+	}
 
 	const origMsgs = {};
 	eslintOrig.forEach( file => {
 		const lines = {};
 		const oldL = oldLines[ file.filePath ] || {};
 		file.messages.forEach( msg => {
-			if ( ! oldL[ msg.line ] ) {
-				debug(
-					`Orig ${ file.filePath }: Ignoring ${ msg.ruleId } on line ${ msg.line }, not in diff`
-				);
-				return;
+			let line = msg.line;
+			for ( let i = msg.line; i > 0; i-- ) {
+				if ( oldL[ i ] ) {
+					line = msg.line + oldL[ i ] - i;
+					break;
+				}
 			}
 
-			const line = oldL[ msg.line ];
 			debug( `Orig ${ file.filePath }: Found ${ msg.ruleId } on line ${ msg.line } => ${ line }` );
 			if ( ! lines[ line ] ) {
 				lines[ line ] = {};
@@ -295,7 +313,7 @@ async function main() {
 		file.fixableWarningCount = 0;
 
 		messages.forEach( msg => {
-			if ( ! newL[ msg.line ] ) {
+			if ( argv.inDiffOnly && ! newL[ msg.line ] ) {
 				debug(
 					`New ${ file.filePath }: Ignoring ${ msg.ruleId } on line ${ msg.line }, not in diff`
 				);

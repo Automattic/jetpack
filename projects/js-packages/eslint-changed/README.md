@@ -16,6 +16,7 @@ Options used in both modes are:
 * `--debug`: Enable debug output.
 * `--ext <list>`: Comma-separated list of JavaScript file extensions. Ignored if files are listed. (default: ".js")
 * `--format <name>`: ESLint format to use for output. (default: "stylish")
+* `--in-diff-only`: Only include messages on lines changed in the diff. This may miss things like deleting a `var` that leads to a new `no-undef` elsewhere.
 
 ### Manual diff
 
