@@ -24,6 +24,7 @@ import { transformRelativePath } from './transform-relative-paths';
  */
 const concat_list = [
 	'modules/carousel/jetpack-carousel.css',
+	'modules/carousel/swiper-bundle.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/infinite-scroll/infinity.css',
 	'modules/likes/style.css',
