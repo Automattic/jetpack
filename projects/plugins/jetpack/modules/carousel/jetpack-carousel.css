@@ -51,10 +51,6 @@
 .jp-carousel-info {
 	display: flex;
 	flex-direction: column;
-	position: absolute;
-	top: 81vh;
-	top: calc( 80vh + 5px );
-	bottom: 0;
 	text-align: left !important;
 	-webkit-font-smoothing: subpixel-antialiased !important;
 }
