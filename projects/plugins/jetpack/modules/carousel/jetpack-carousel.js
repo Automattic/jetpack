@@ -1278,12 +1278,15 @@
 				var item = domUtil.closest( target, itemSelector );
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
 				if ( ! window.Swiper ) {
+					var loader = document.querySelector( '#jp-carousel-loading-overlay' );
+					domUtil.show( loader );
 					var head = document.getElementsByTagName( 'head' )[ 0 ];
 					var jsScript = document.createElement( 'script' );
 					jsScript.id = 'jetpack-carousel-js';
 					jsScript.type = 'text/javascript';
 					jsScript.src = '/wp-content/plugins/jetpack/modules/carousel/swiper-bundle.js';
 					jsScript.onload = function () {
+						domUtil.hide( loader );
 						openCarousel( gallery, { startIndex: index } );
 					};
 					head.appendChild( jsScript );

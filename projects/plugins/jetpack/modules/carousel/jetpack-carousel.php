@@ -357,6 +357,11 @@ class Jetpack_Carousel {
 		/* translators: %s is replaced with a field name in the form, e.g. "Email" */
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 		?>
+		<div id="jp-carousel-loading-overlay">
+			<div id="jp-carousel-loading-wrapper">
+				<span id="jp-carousel-library-loading">&nbsp;</span>
+			</div>
+		</div>
 		<div class="jp-carousel-overlay">
 
 		<div class="jp-carousel-container"> 
