@@ -1,0 +1,4 @@
+Significance: minor
+Type: major
+
+Replaces the custom carousel js code with the swiper js library
