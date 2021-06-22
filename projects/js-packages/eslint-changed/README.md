@@ -6,6 +6,11 @@ Run [ESLint] on files and only report new warnings and errors.
 
 Install via your favorite JS package manager. Note the peer dependency on eslint.
 
+For example,
+```
+npm install eslint-changed eslint
+```
+
 ## Usage
 
 To identify the changes, `eslint-changed` needs the ESLint output for both the old and new versions of the file, as well as the diff between them.
@@ -38,6 +43,40 @@ The following options are used with manual mode:
 * `--git-staged`: Compare the staged version to the HEAD version (this is the default).
 * `--git-unstaged`: Compare the working copy version to the staged (or HEAD) version.
 * `--git-base <ref>`: Compare the HEAD version to the HEAD of a different base (e.g. branch).
+
+## Examples
+
+This will compare the staged changes with HEAD.
+```bash
+npx eslint-changed --git
+```
+
+This will compare HEAD with origin/master.
+```bash
+npx eslint-changed --git --git-base origin/master
+```
+
+This does much the same as the previous example, but manually. If you're using something other than git, you might do something like this.
+```bash
+# Produce a diff.
+git diff origin/master...HEAD > /tmp/diff
+
+# Check out the merge-base of origin/master and HEAD.
+git checkout origin/master...HEAD
+
+# Run ESLint.
+npx eslint --format=json . > /tmp/eslint.orig.json
+
+# Go back to HEAD.
+git checkout -
+
+# Run ESLint again.
+npx eslint --format=json . > /tmp/eslint.new.json
+
+# Run eslint-changed.
+npx eslint-changed --diff /tmp/diff --eslint-orig /tmp/eslint.orig.json --eslint=new /tmp/eslint.new.json
+```
+Note that, to be exactly the same as the above, you'd want to extract the list of files from the diff instead of linting everything. But this will work.
 
 ## Inspiration
 
