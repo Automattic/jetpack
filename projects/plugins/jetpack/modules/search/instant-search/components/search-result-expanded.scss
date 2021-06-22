@@ -5,12 +5,6 @@ $image-square-size: 128px;
 	display: flex;
 	flex-flow: column;
 
-	&:not(.is-multisite) {
-		@include break-small-up() {
-			flex-flow: row nowrap;
-		}
-	}
-
 	&:last-child {
 		margin-right: 0;
 	}
