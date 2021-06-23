@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Search: fixed search widget settings are not accessible in WordPress 5.8 Beta widget editor

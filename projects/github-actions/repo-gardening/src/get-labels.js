@@ -24,7 +24,7 @@ async function getLabels( octokit, owner, repo, number ) {
 
 	debug( `get-labels: Get list of labels on ${ cacheKey }.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.issues.listLabelsOnIssue, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listLabelsOnIssue, {
 		owner,
 		repo,
 		issue_number: +number,

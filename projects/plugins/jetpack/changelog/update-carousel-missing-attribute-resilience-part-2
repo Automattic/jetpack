@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Carousel: add yet more resilience to missing image data.

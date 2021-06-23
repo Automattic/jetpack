@@ -430,12 +430,17 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
 		add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
 
+		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 2 );
+
 		if ( $wp_admin ) {
 			return;
 		}
 
-		$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
-		$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
+		$submenus_to_update = array(
+			'options-writing.php'    => 'https://wordpress.com/settings/writing/' . $this->domain,
+			'options-discussion.php' => 'https://wordpress.com/settings/discussion/' . $this->domain,
+		);
+		$this->update_submenus( 'options-general.php', $submenus_to_update );
 	}
 
 	/**
@@ -455,8 +460,9 @@ class Admin_Menu extends Base_Admin_Menu {
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack' ), __( 'Activity Log', 'jetpack' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack' ), __( 'Backup', 'jetpack' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
 		/* translators: Jetpack sidebar menu item. */
-		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'read', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
+		add_submenu_page( 'jetpack', esc_attr__( 'Search', 'jetpack' ), __( 'Search', 'jetpack' ), 'manage_options', 'https://wordpress.com/jetpack-search/' . $this->domain, null, 4 );
 
+		$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
 		$this->hide_submenu_page( 'jetpack', 'stats' );
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
