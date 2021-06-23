@@ -98,7 +98,7 @@ class SearchResults extends Component {
 					dangerouslySetInnerHTML={ {
 						__html: `
 							.jetpack-instant-search *::selection,
-							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
+							.jetpack-instant-search .jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark {
 								color: ${ textColor };
 								background-color: ${ highlightColor };
 							}
@@ -161,6 +161,7 @@ class SearchResults extends Component {
 		return (
 			<SearchSidebar
 				filters={ this.props.filters }
+				staticFilters={ this.props.staticFilters }
 				isLoading={ this.props.isLoading }
 				locale={ this.props.locale }
 				postTypes={ this.props.postTypes }

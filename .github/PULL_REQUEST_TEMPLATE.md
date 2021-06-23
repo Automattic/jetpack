@@ -1,6 +1,6 @@
 <!--- Provide a general summary of your changes in the Title above -->
 <!-- Would you like this feature to be tested by Beta testers?
-Please add testing instructions to to-test.md in a new commit as part of your PR. -->
+Please add testing instructions to projects/plugins/jetpack/to-test.md in a new commit as part of your PR. -->
 
 Fixes #
 

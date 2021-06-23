@@ -1,3 +1,5 @@
+[![Reports status](https://img.shields.io/website?down_color=grey&down_message=Dashboard%20offline&style=for-the-badge&label=E2E%20TEST%20REPORTS&up_color=green&up_message=see%20dashboard&url=https%3A%2F%2Fautomattic.github.io%2Fjetpack-e2e-reports%2F%23%2F)](https://automattic.github.io/jetpack-e2e-reports)
+
 # Jetpack End-to-End tests
 
 Automated end-to-end acceptance tests for the Jetpack plugin.
@@ -14,6 +16,7 @@ Automated end-to-end acceptance tests for the Jetpack plugin.
 - [Writing tests](#writing-tests)
 - [Tests Architecture](#tests-architecture)
 - [CI configuration](#ci-configuration)
+- [Test reports](#test-reports)
 
 ## Pre-requisites
 
@@ -147,3 +150,7 @@ Tests rely on functionality plugins that provide some additional functionality, 
 ### e2e-plan-data-interceptor.php
 
 The purpose of this plugin is to provide a way to `mock` Jetpack plan, for cases when we test functionality that does not directly use paid services. Great example of this purpose is a paid Gutenberg blocks.
+
+## Test reports
+
+Test reports are generated for every CI run and stored in [jetpack-e2e-reports](https://github.com/Automattic/jetpack-e2e-reports) repo. A dashboard displaying information about stored reports can be accessed at this link: [https://automattic.github.io/jetpack-e2e-reports](https://automattic.github.io/jetpack-e2e-reports)
