@@ -63,7 +63,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( 'themes.php' === $slug ) {
 			$preferred_view = parent::get_preferred_view( $slug, true );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
-				return self::CLASSIC_VIEW;
+				return self::DEFAULT_VIEW;
 			}
 			return $preferred_view;
 		}

@@ -86,6 +86,7 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
 		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
+		$this->assertSame( 99997, has_action( 'admin_menu', array( $instance, 'handle_preferred_view' ) ) );
 	}
 
 	/**
@@ -110,6 +111,28 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 
 		// Restore filtered $menu.
 		$menu = $temp_menu;
+	}
+
+	/**
+	 * Tests preferred_view
+	 *
+	 * @covers ::set_preferred_view
+	 * @covers ::get_preferred_views
+	 * @covers ::get_preferred_view
+	 */
+	public function test_preferred_view() {
+		$this->assertSame( static::$admin_menu::DEFAULT_VIEW, static::$admin_menu->get_preferred_view( 'test.php' ) );
+		$this->assertSame( static::$admin_menu::UNKNOWN_VIEW, static::$admin_menu->get_preferred_view( 'test.php', true ) );
+
+		update_user_option( get_current_user_id(), 'jetpack_admin_menu_link_destination', true );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'test.php' ) );
+		delete_user_option( get_current_user_id(), 'jetpack_admin_menu_link_destination' );
+
+		static::$admin_menu->set_preferred_view( 'test.php', static::$admin_menu::CLASSIC_VIEW );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'test.php' ) );
+
+		static::$admin_menu->set_preferred_view( 'test.php', static::$admin_menu::DEFAULT_VIEW );
+		$this->assertSame( static::$admin_menu::DEFAULT_VIEW, static::$admin_menu->get_preferred_view( 'test.php', true ) );
 	}
 
 	/**

@@ -80,8 +80,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_my_home_menu() {
 		// When no preferred view has been set for "My Home", keep the previous behavior that forced the default view
 		// regardless of the global preference.
-		$preferred_view = $this->get_preferred_view( 'index.php', true );
-		if ( self::CLASSIC_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'index.php', true ) ) {
 			return;
 		}
 

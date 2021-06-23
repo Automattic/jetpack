@@ -560,11 +560,20 @@ abstract class Base_Admin_Menu {
 			$slug .= '?page=' . $_REQUEST['page'];
 		}
 
-		$preferred_views          = $this->get_preferred_views();
-		$preferred_views[ $slug ] = $_GET['preferred-view'];
-
-		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
+		$this->set_preferred_view( $slug, $_GET['preferred-view'] );
 		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Sets the given view as preferred for the givens screen.
+	 *
+	 * @param string $slug Screen slug.
+	 * @param string $view Preferred view.
+	 */
+	public function set_preferred_view( $slug, $view ) {
+		$preferred_views          = $this->get_preferred_views();
+		$preferred_views[ $slug ] = $view;
+		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
 	}
 
 	/**

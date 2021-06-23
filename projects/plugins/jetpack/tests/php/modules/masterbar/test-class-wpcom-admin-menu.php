@@ -79,8 +79,14 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		parent::setUp();
 		global $menu, $submenu;
 
+		$admin_menu = $this->getMockBuilder( WPcom_Admin_Menu::class )
+							->disableOriginalConstructor()
+							->setMethods( array( 'should_link_to_wp_admin' ) )
+							->getMock();
+		$admin_menu->method( 'should_link_to_wp_admin' )->willReturn( false );
+
 		// Initialize in setUp so it registers hooks for every test.
-		static::$admin_menu = WPcom_Admin_Menu::get_instance();
+		static::$admin_menu = $admin_menu::get_instance();
 
 		$menu    = static::$menu_data;
 		$submenu = static::$submenu_data;
@@ -89,19 +95,15 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
+	 * Tests get_preferred_view
 	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
+	 * @covers ::get_preferred_view
 	 */
-	public function test_get_instance() {
-		$instance = WPcom_Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( WPcom_Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
+	public function test_get_preferred_view() {
+		static::$admin_menu->set_preferred_view( 'plugins.php', static::$admin_menu::UNKNOWN_VIEW );
+		$this->assertSame( static::$admin_menu::DEFAULT_VIEW, static::$admin_menu->get_preferred_view( 'themes.php' ) );
+		static::$admin_menu->set_preferred_view( 'plugins.php', static::$admin_menu::CLASSIC_VIEW );
+		$this->assertSame( static::$admin_menu::DEFAULT_VIEW, static::$admin_menu->get_preferred_view( 'plugins.php' ) );
 	}
 
 	/**
@@ -271,36 +273,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_users_menu() {
 		global $submenu;
 
-		static::$admin_menu->add_users_menu( true );
-
 		// Check that menu always links to Calypso.
+		static::$admin_menu->set_preferred_view( 'users.php', static::$admin_menu::CLASSIC_VIEW );
+		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-	}
-
-	/**
-	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" off
-	 *
-	 * @covers ::add_tools_menu
-	 */
-	public function test_add_tools_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu( false, false );
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][4][2] );
-	}
-
-	/**
-	 * Tests add_tools_menu - "Show Advanced Dashboard Pages" on
-	 *
-	 * @covers ::add_tools_menu
-	 */
-	public function test_add_tools_menu_advanced() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu( true, true );
-		$this->assertSame( 'import.php', $submenu['tools.php'][3][2] );
-		$this->assertSame( 'export.php', $submenu['tools.php'][4][2] );
 	}
 
 	/**
@@ -323,23 +299,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_gutenberg_menus() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus( false );
+		static::$admin_menu->add_gutenberg_menus();
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
-	}
-
-	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu;
-
-		static::$admin_menu->add_plugins_menu( true );
-
-		// Check Plugins menu always links to Calypso.
-		$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $menu[65][2] );
 	}
 }

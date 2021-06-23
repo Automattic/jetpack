@@ -89,22 +89,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_instance.
-	 *
-	 * @covers ::get_instance
-	 * @covers ::__construct
-	 */
-	public function test_get_instance() {
-		$instance = Atomic_Admin_Menu::get_instance();
-
-		$this->assertInstanceOf( Atomic_Admin_Menu::class, $instance );
-		$this->assertSame( $instance, static::$admin_menu );
-
-		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
-		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
-	}
-
-	/**
 	 * Tests add_browse_sites_link.
 	 *
 	 * @covers ::add_browse_sites_link
@@ -263,31 +247,17 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_posts_menu
+	 * Tests get_preferred_view
 	 *
-	 * @covers ::add_posts_menu
+	 * @covers ::get_preferred_view
 	 */
-	public function test_add_posts_menu() {
-		global $submenu;
-
-		// Make sure menu items link to WP Admin.
-		static::$admin_menu->add_posts_menu( false );
-		$this->assertSame( 'edit.php', $submenu['edit.php'][5][2] );
-		$this->assertSame( 'post-new.php', $submenu['edit.php'][10][2] );
-	}
-
-	/**
-	 * Tests add_page_menu
-	 *
-	 * @covers ::add_page_menu
-	 */
-	public function test_add_page_menu() {
-		global $submenu;
-
-		// Make sure menu items link to WP Admin.
-		static::$admin_menu->add_page_menu( false );
-		$this->assertSame( 'edit.php?post_type=page', $submenu['edit.php?post_type=page'][5][2] );
-		$this->assertSame( 'post-new.php?post_type=page', $submenu['edit.php?post_type=page'][10][2] );
+	public function test_get_preferred_view() {
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'edit.php' ) );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'edit.php?post_type=page' ) );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'edit-comments.php' ) );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'plugins.php' ) );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'export.php' ) );
+		$this->assertSame( static::$admin_menu::CLASSIC_VIEW, static::$admin_menu->get_preferred_view( 'customize.php' ) );
 	}
 
 	/**
@@ -313,20 +283,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_tools_menu
-	 *
-	 * @covers ::add_tools_menu
-	 */
-	public function test_add_tools_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-
-		// Check Export menu item always links to WP Admin.
-		$this->assertSame( 'export.php', $submenu['tools.php'][5][2] );
-	}
-
-	/**
 	 * Tests add_options_menu
 	 *
 	 * @covers ::add_options_menu
@@ -341,23 +297,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		// Reset.
 		$submenu = static::$submenu_data;
 
-		static::$admin_menu->add_options_menu( true );
-		$last_submenu = array_pop( $submenu['options-general.php'] );
-		$this->assertNotSame( 'options-writing.php', $last_submenu[2] );
-	}
-
-	/**
-	 * Tests add_plugins_menu
-	 *
-	 * @covers ::add_plugins_menu
-	 */
-	public function test_add_plugins_menu() {
-		global $menu;
-
-		static::$admin_menu->add_plugins_menu( false );
-
-		// Check Plugins menu always links to WP Admin.
-		$this->assertSame( 'plugins.php', $menu[65][2] );
+		static::$admin_menu->set_preferred_view( 'options-writing.php', static::$admin_menu::CLASSIC_VIEW );
+		static::$admin_menu->add_options_menu();
+		$this->assertNotSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
 	}
 
 	/**
@@ -375,11 +317,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		// install themes.
 		if ( current_user_can( 'install_themes' ) ) {
 			$this->assertSame( 'theme-install.php', $submenu['themes.php'][1][2] );
-			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][3][2] );
-		} else {
-			// Check Customize menu always links to WP Admin.
-			$this->assertSame( 'customize.php?return', $submenu['themes.php'][2][2] );
 		}
 	}
 
@@ -393,19 +330,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'users.php', $submenu['users.php'][2][2] );
-	}
-
-	/**
-	 * Tests add_comments_menu
-	 *
-	 * @covers ::add_comments_menu
-	 */
-	public function test_add_comments_menu() {
-		global $menu;
-
-		// Make sure menu items link to WP Admin.
-		static::$admin_menu->add_comments_menu( false );
-		$this->assertSame( 'edit-comments.php', $menu[25][2] );
 	}
 
 	/**
