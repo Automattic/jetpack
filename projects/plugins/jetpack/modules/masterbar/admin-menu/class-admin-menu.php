@@ -510,4 +510,50 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function should_link_to_wp_admin() {
 		return get_user_option( 'jetpack_admin_menu_link_destination' );
 	}
+
+	/**
+	 * Returns the current slug from the URL.
+	 *
+	 * @return string
+	 */
+	public function get_current_slug() {
+		global $pagenow;
+		$slug = $pagenow;
+		if ( isset( $_REQUEST['post_type'] ) ) {
+			$slug .= '?post_type=' . $_REQUEST['post_type'];
+		}
+		if ( isset( $_REQUEST['taxonomy'] ) ) {
+			$slug .= '?taxonomy=' . $_REQUEST['taxonomy'];
+		}
+		if ( isset( $_REQUEST['page'] ) ) {
+			$slug .= '?page=' . $_REQUEST['page'];
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * Prepend a dashboard swithcer to the "Screen Options" box of the current page.
+	 * Callback for the 'screen_settings' filter (available in WP 3.0 and up).
+	 *
+	 * @param string $current
+	 * @param string $screen Screen object (undocumented).
+	 * @return string The HTML code to append to "Screen Options"
+	 */
+	public function register_dashboard_switcher( $current, $screen ) {
+		require_once __DIR__ . '/menu-mappings.php';
+		$slug     = $this->get_current_slug();
+		$contents = sprintf(
+			'<div id="dashboard-switcher"><h5>%s</h5><p>%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
+			__( 'Screen features', 'jetpack' ),
+			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
+			$menu_mappings[ $slug ] . $this->domain,
+			__( 'Use WordPress.com view', 'jetpack' )
+		);
+
+		// Prepend the Dashboard swither.
+		$current = $contents . $current;
+
+		return $current;
+	}
 }
