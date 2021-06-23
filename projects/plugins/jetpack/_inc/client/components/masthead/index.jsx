@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { JetpackLogo } from '@automattic/jetpack-components';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import {
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
-import JetpackLogo from '../jetpack-logo';
 
 export class Masthead extends React.Component {
 	trackLogoClick = () => {
