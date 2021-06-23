@@ -491,11 +491,6 @@ class Jetpack_Carousel {
 							<?php endif ?>
 						</div>
 						<div class="jp-carousel-image-meta">
-							<div class="jp-carousel-buttons">
-							<?php if ( $localize_strings['display_comments'] ) : ?>
-								<a class="jp-carousel-commentlink" href="#"><?php echo esc_html( $localize_strings['comment'] ); ?></a>
-							<?php endif ?>
-							</div>
 							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
 							<a class="jp-carousel-image-download" target="_blank" style="display: none;"></a>
 							<div class="jp-carousel-image-map" style="display: none;"></div>
