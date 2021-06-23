@@ -273,8 +273,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_users_menu() {
 		global $submenu;
 
-		// Check that menu always links to Calypso.
-		static::$admin_menu->set_preferred_view( 'users.php', 'classic' );
+		// Check that menu always links to Calypso when no preferred view has been set.
+		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
 	}
