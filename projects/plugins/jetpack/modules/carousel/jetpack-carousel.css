@@ -1,4 +1,4 @@
-[data-carousel-extra]:not(.jp-carousel-wrap) {
+[data-carousel-extra]:not( .jp-carousel-wrap ) {
 	cursor: pointer;
 }
 
@@ -570,7 +570,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
     top: 0;
     bottom: 0;
     left: 0;
-	right:0;
+	right: 0;
 }
 
 #jp-carousel-loading-wrapper {
