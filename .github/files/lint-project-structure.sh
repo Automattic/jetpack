@@ -124,6 +124,20 @@ for PROJECT in projects/*/*; do
 
 done
 
+# - Composer name fields should not be repeated.
+debug "Checking for duplicate composer.json names"
+DUPS="$(jq -rn 'reduce inputs as $i ({}; .[$i.name] |= ( . // [] ) + [ input_filename ]) | to_entries[] | .key as $key | .value | select( length > 1 ) | ( [ .[] | capture("^projects/(?<s>.*)/composer\\.json$").s ] | .[-1] |= "and " + . | join( if length > 2 then ", " else " " end ) ) as $slugs | .[] | [ ., $key, $slugs ] | @tsv' projects/*/*/composer.json)"
+if [[ -n "$DUPS" ]]; then
+	while IFS=$'\t' read -r FILE KEY SLUGS; do
+		LINE=$(grep --line-number --max-count=1 '^	"name":' "$FILE" || true)
+		if [[ -n "$LINE" ]]; then
+			LINE=",line=${LINE%%:*}"
+		fi
+		EXIT=1
+		echo "::error file=$FILE$LINE::Name $KEY is in use in composer.json by $SLUGS. They must be deduplicated."
+	done <<<"$DUPS"
+fi
+
 # - Renovate should ignore all monorepo packages.
 debug "Checking renovate ignore list"
 tools/check-renovate-ignore-list.js
