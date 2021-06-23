@@ -42,6 +42,8 @@ export default class SearchFilter extends Component {
 			return `${ this.props.configuration.interval }_${ this.props.configuration.field }`;
 		} else if ( this.props.type === 'taxonomy' ) {
 			return this.props.configuration.taxonomy;
+		} else if ( this.props.type === 'group' ) {
+			return this.props.configuration.filter_id;
 		}
 	}
 
@@ -53,6 +55,10 @@ export default class SearchFilter extends Component {
 
 	toggleFilter = () => {
 		this.props.onChange( this.getIdentifier(), getCheckedInputNames( this.filtersList.current ) );
+	};
+
+	toggleStaticFilter = event => {
+		this.props.onChange( this.getIdentifier(), event.target.value );
 	};
 
 	renderDate = ( { key_as_string: key, doc_count: count } ) => {
@@ -128,6 +134,28 @@ export default class SearchFilter extends Component {
 		);
 	};
 
+	renderGroup = group => {
+		return (
+			<div>
+				<input
+					checked={ this.isChecked( group.value ) }
+					id={ `${ this.idPrefix }-groups-${ group.value }` }
+					name={ this.props.configuration.filter_id }
+					onChange={ this.toggleStaticFilter }
+					value={ group.value }
+					type="radio"
+					className="jetpack-instant-search__search-filter-list-input"
+				/>
+				<label
+					htmlFor={ `${ this.idPrefix }-groups-${ group.value }` }
+					className="jetpack-instant-search__search-filter-list-label"
+				>
+					{ group.name }
+				</label>
+			</div>
+		);
+	};
+
 	renderDates() {
 		return (
 			[
@@ -150,19 +178,30 @@ export default class SearchFilter extends Component {
 		return this.props.aggregation.buckets.map( this.renderTaxonomy );
 	}
 
+	renderGroups() {
+		return this.props.configuration.values.map( this.renderGroup );
+	}
+
 	render() {
 		return (
 			<div>
 				<h4 className="jetpack-instant-search__search-filter-sub-heading">
 					{ this.props.configuration.name }
 				</h4>
-				{ this.props.aggregation && 'buckets' in this.props.aggregation && (
-					<div className="jetpack-instant-search__search-filter-list" ref={ this.filtersList }>
-						{ this.props.type === 'date' && this.renderDates() }
-						{ this.props.type === 'postType' && this.renderPostTypes() }
-						{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
+
+				<div ref={ this.filtersList }>
+					<div className="jetpack-instant-search__search-filter-list jetpack-instant-search__search-static-filter-list">
+						{ this.props.type === 'group' && this.renderGroups() }
 					</div>
-				) }
+
+					{ this.props.aggregation && 'buckets' in this.props.aggregation && (
+						<div className="jetpack-instant-search__search-filter-list">
+							{ this.props.type === 'date' && this.renderDates() }
+							{ this.props.type === 'postType' && this.renderPostTypes() }
+							{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
+						</div>
+					) }
+				</div>
 			</div>
 		);
 	}

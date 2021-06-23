@@ -514,6 +514,12 @@ This comment will be updated as you work on your PR and make changes. If you thi
 
 ******`;
 
+	comment += `
+
+The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e-reports/${ number }/report/). Please note that it can take a few minutes after the e2e tests checks are complete for the report to be available.
+
+******`;
+
 	comment += renderRecommendations( statusChecks );
 
 	// Display extra info for Automatticians (who can handle labels and who created the PR without a fork).

@@ -17,17 +17,20 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
 	clearQueryValues,
 	initializeQueryValues,
 	makeSearchRequest,
 	setFilter,
+	setStaticFilter,
 	setSearchQuery,
 	setSort,
 } from '../store/actions';
 import {
 	getFilters,
+	getStaticFilters,
 	getResponse,
 	getSearchQuery,
 	getSort,
@@ -73,7 +76,8 @@ class SearchApp extends Component {
 			prevProps.searchQuery !== this.props.searchQuery ||
 			prevProps.sort !== this.props.sort ||
 			// Note the special handling for filters prop, which use object values.
-			stringify( prevProps.filters ) !== stringify( this.props.filters )
+			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
+			prevProps.staticFilters !== this.props.staticFilters
 		) {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
@@ -97,6 +101,22 @@ class SearchApp extends Component {
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 
+	/**
+	 * Initialize static filters if we have none in the state.
+	 */
+	initializeStaticFilters = () => {
+		const availableStaticFilters = getAvailableStaticFilters();
+
+		if (
+			availableStaticFilters.length > 0 &&
+			Object.keys( this.props.staticFilters ).length === 0
+		) {
+			availableStaticFilters.forEach( filter =>
+				this.props.setStaticFilter( filter.filter_id, filter.selected, true )
+			);
+		}
+	};
+
 	hideResults = isHistoryNav => {
 		this.restoreBodyScroll();
 		restorePreviousHref(
@@ -116,6 +136,9 @@ class SearchApp extends Component {
 		if ( this.state.isVisible === isVisible ) {
 			return;
 		}
+
+		// If there are static filters available, but they are not part of the url/state, we will set their default value
+		isVisible && this.initializeStaticFilters();
 
 		this.setState( { isVisible }, () => {
 			if ( isVisible ) {
@@ -156,6 +179,7 @@ class SearchApp extends Component {
 			aggregations: pageHandle ? {} : this.props.aggregations,
 			excludedPostTypes: this.props.options.excludedPostTypes,
 			filter: this.props.filters,
+			staticFilters: this.props.staticFilters,
 			pageHandle,
 			query: this.props.searchQuery,
 			resultFormat: this.getResultFormat(),
@@ -213,6 +237,7 @@ class SearchApp extends Component {
 							enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 							enableSort={ this.state.overlayOptions.enableSort }
 							filters={ this.props.filters }
+							staticFilters={ this.props.staticFilters }
 							hasError={ this.props.hasError }
 							hasNextPage={ this.props.hasNextPage }
 							highlightColor={ this.state.overlayOptions.highlightColor }
@@ -246,6 +271,7 @@ class SearchApp extends Component {
 export default connect(
 	( state, props ) => ( {
 		filters: getFilters( state ),
+		staticFilters: getStaticFilters( state ),
 		hasActiveQuery: hasActiveQuery( state ),
 		hasError: hasError( state ),
 		isHistoryNavigation: isHistoryNavigation( state ),
@@ -260,6 +286,7 @@ export default connect(
 		clearQueryValues,
 		initializeQueryValues,
 		makeSearchRequest,
+		setStaticFilter,
 		setFilter,
 		setSearchQuery,
 		setSort,

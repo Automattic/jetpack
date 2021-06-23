@@ -130,6 +130,26 @@ const filterKeyToEsFilter = new Map( [
 ] );
 
 /**
+ * Build static filters object
+ *
+ * @param {object} staticFilters - list of static filter key-value.
+ * @returns {object} - list of selected static filters.
+ */
+function buildStaticFilters( staticFilters ) {
+	const selectedFilters = {};
+	Object.keys( staticFilters ).forEach( key => {
+		const value = staticFilters[ key ];
+		if ( key === 'group_id' ) {
+			if ( value !== '__NO_GROUP__' ) {
+				// Do not set filter if for no_groups, it should just use current blog.
+				selectedFilters[ key ] = value;
+			}
+		}
+	} );
+	return selectedFilters;
+}
+
+/**
  * Build an ElasticSerach filter object.
  *
  * @param {object} filterQuery - Filter query value object.
@@ -201,6 +221,7 @@ function generateApiQueryString( {
 	aggregations,
 	excludedPostTypes,
 	filter,
+	staticFilters,
 	pageHandle,
 	query,
 	resultFormat,
@@ -242,18 +263,25 @@ function generateApiQueryString( {
 		] );
 	}
 
-	return encode(
-		flatten( {
-			aggregations,
-			fields,
-			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
-			query: encodeURIComponent( query ),
-			sort: mapSortToApiValue( sort ),
-			page_handle: pageHandle,
-			size: postsPerPage,
-		} )
-	);
+	let params = {
+		aggregations,
+		fields,
+		highlight_fields: highlightFields,
+		filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
+		query: encodeURIComponent( query ),
+		sort: mapSortToApiValue( sort ),
+		page_handle: pageHandle,
+		size: postsPerPage,
+	};
+
+	if ( staticFilters && Object.keys( staticFilters ).length > 0 ) {
+		params = {
+			...params,
+			...buildStaticFilters( staticFilters ),
+		};
+	}
+
+	return encode( flatten( params ) );
 }
 /* eslint-enable jsdoc/require-param,jsdoc/check-param-names */
 
