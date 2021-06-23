@@ -375,15 +375,13 @@ class Jetpack_Carousel {
 				<span id="jp-carousel-library-loading">&nbsp;</span>
 			</div>
 		</div>
-		<div class="jp-carousel-overlay">
+		<div class="jp-carousel-overlay" style="display: none;">
 
 		<div class="jp-carousel-container"> 
 		<div
 			class="jp-carousel-wrap swiper-container jp-carousel-transitions<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>"
 			itemscope
-			itemtype="https://schema.org/ImageGallery"
-			style="display: none;">
-
+			itemtype="https://schema.org/ImageGallery">
 			<div class="jp-carousel swiper-wrapper"></div>
 			<div class="swiper-button-prev"></div>
 			<div class="swiper-button-next"></div>
