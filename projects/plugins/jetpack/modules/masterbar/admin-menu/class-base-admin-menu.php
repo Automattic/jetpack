@@ -589,7 +589,7 @@ abstract class Base_Admin_Menu {
 	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
 	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
 	 *                       screens.
-	 * @return string|bool
+	 * @return string
 	 */
 	public function get_preferred_view( $slug, $strict = false ) {
 		$preferred_views = $this->get_preferred_views();
