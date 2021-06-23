@@ -109,6 +109,24 @@ export function setFilter( name, value, propagateToWindow = true ) {
 }
 
 /**
+ * Returns an action object used to set a static search filter.
+ *
+ * @param {string} name - Filter name.
+ * @param {string[]} value - Filter values.
+ * @param {boolean} propagateToWindow - If true, will tell the effects handler to set the query string in the location bar.
+ *
+ * @returns {object} Action object.
+ */
+export function setStaticFilter( name, value, propagateToWindow = true ) {
+	return {
+		type: 'SET_STATIC_FILTER',
+		name,
+		value,
+		propagateToWindow,
+	};
+}
+
+/**
  * Returns an action object used to clear all filter values.
  *
  * @param {boolean} propagateToWindow - If true, will tell the effects handler to update the query string in the location bar.
