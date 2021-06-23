@@ -1013,6 +1013,11 @@
 		}
 
 		function loadBackgroundImage( slide ) {
+			if ( swiper && swiper.slides ) {
+				var currentSlide = swiper.slides[ swiper.activeIndex ];
+				currentSlide.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
+				return;
+			}
 			slide.el.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
 		}
 
