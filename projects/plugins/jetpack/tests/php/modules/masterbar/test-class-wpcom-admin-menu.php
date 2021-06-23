@@ -100,10 +100,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * @covers ::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
-		static::$admin_menu->set_preferred_view( 'plugins.php', static::$admin_menu::UNKNOWN_VIEW );
-		$this->assertSame( static::$admin_menu::DEFAULT_VIEW, static::$admin_menu->get_preferred_view( 'themes.php' ) );
-		static::$admin_menu->set_preferred_view( 'plugins.php', static::$admin_menu::CLASSIC_VIEW );
-		$this->assertSame( static::$admin_menu::DEFAULT_VIEW, static::$admin_menu->get_preferred_view( 'plugins.php' ) );
+		static::$admin_menu->set_preferred_view( 'plugins.php', 'unknown' );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'themes.php' ) );
+		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'plugins.php' ) );
 	}
 
 	/**
@@ -274,7 +274,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		// Check that menu always links to Calypso.
-		static::$admin_menu->set_preferred_view( 'users.php', static::$admin_menu::CLASSIC_VIEW );
+		static::$admin_menu->set_preferred_view( 'users.php', 'classic' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
 	}

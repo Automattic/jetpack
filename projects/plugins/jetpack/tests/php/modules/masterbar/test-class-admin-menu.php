@@ -327,7 +327,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$submenu = static::$submenu_data;
 
 		// Check submenu are kept when using WP Admin links.
-		static::$admin_menu->set_preferred_view( 'plugins.php', static::$admin_menu::CLASSIC_VIEW );
+		static::$admin_menu->set_preferred_view( 'plugins.php', 'classic' );
 		static::$admin_menu->add_plugins_menu();
 		$this->assertNotEmpty( $submenu['plugins.php'] );
 	}
