@@ -56,16 +56,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Whether to use wp-admin pages rather than Calypso.
-	 *
-	 * @return bool
-	 */
-	public function should_link_to_wp_admin() {
-		// Force Calypso links on Jetpack sites since Nav Unification is disabled on WP Admin.
-		return false;
-	}
-
-	/**
 	 * Adds Posts menu.
 	 */
 	public function add_posts_menu() {

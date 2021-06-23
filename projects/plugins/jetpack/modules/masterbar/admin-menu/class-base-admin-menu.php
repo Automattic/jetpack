@@ -613,7 +613,9 @@ abstract class Base_Admin_Menu {
 	 *
 	 * @return bool
 	 */
-	abstract public function should_link_to_wp_admin();
+	public function should_link_to_wp_admin() {
+		return get_user_option( 'jetpack_admin_menu_link_destination' );
+	}
 
 	/**
 	 * Create the desired menu output.

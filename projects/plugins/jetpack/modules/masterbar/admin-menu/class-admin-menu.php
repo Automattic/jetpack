@@ -475,15 +475,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Whether to use wp-admin pages rather than Calypso.
-	 *
-	 * @return bool
-	 */
-	public function should_link_to_wp_admin() {
-		return get_user_option( 'jetpack_admin_menu_link_destination' );
-	}
-
-	/**
 	 * Returns the current slug from the URL.
 	 *
 	 * @param object $screen Screen object (undocumented).
