@@ -676,12 +676,12 @@
 			restoreScroll();
 			swiper.destroy();
 			carousel.isOpen = false;
+			// Clear slide data for DOM garbage collection.
+			carousel.slides = [];
+			carousel.currentSlide = undefined;
+			carousel.gallery.innerHTML = '';
 
 			domUtil.fadeOut( carousel.overlay, function () {
-				// Clear slide data for DOM garbage collection.
-				carousel.slides = [];
-				carousel.currentSlide = undefined;
-				carousel.gallery.innerHTML = '';
 				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
 			} );
 		}
