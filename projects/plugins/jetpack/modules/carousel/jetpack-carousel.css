@@ -320,6 +320,7 @@ div.jp-carousel-buttons a:hover {
 	position: fixed;
 	text-align: right;
 	width: 100%;
+	color: #fff;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
@@ -344,7 +345,6 @@ div.jp-carousel-buttons a:hover {
 	font-size: 36px !important;
 	height: 36px;
 	width: 36px;
-	color: #fff;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint span {
@@ -815,6 +815,51 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	margin-top: 20px;
 }
 
+/** Icons Start **/
+.jp-carousel-photo-icons-container {
+	display: block;
+	text-align: right;
+	margin-right: 16px;
+}
+
+.jp-carousel-icon-btn {
+	padding: 8px 16px;
+	text-decoration: none;
+	border: none;
+	background: none;
+	display: inline-block;
+	height: 48px;
+}
+
+.jp-carousel-icon {
+	color: #fff;
+	fill: #fff;
+	background-color: #000;
+	border: none;
+	border-radius: 2px;
+	cursor: pointer;
+	font-family: dashicons;
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	font-size: 30px;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+
+}
+
+.jp-carousel-icon-btn:hover .jp-carousel-icon {
+	color: #000;
+	fill: #000;
+	background-color: #fff;
+}
+
+.jp-carousel-icon-comments.jp-carousel-show {
+	display: inline-block;
+}
+
+/** Icons End **/
 
 /* ----- Light variant ----- */
 
@@ -966,37 +1011,33 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
 
-/** Icons Start **/
-.jp-carousel-photo-icons-container {
-	display: block;
-	text-align: right;
-	margin-right: 16px;
+.jp-carousel-light .jp-carousel-info {
+	background-color: #fff;
 }
 
-.jp-carousel-icon {
+.jp-carousel-light .jp-carousel-info-footer {
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-info-extra {
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-icon {
+	color: #000;
+	fill: #000;
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-icon-btn:hover .jp-carousel-icon {
 	color: #fff;
 	fill: #fff;
-	background-color: black;
-	border: none;
-	cursor: pointer;
-	font-family: dashicons;
-	display: inline-block;
-	width: 32px;
-	height: 32px;
-	font-size: 30px;
-	display: inline-block;
-	line-height: 1;
-	font-weight: 400;
-	font-style: normal;
-	margin: 8px 16px;
+	background-color: #000;
 }
 
-.jp-carousel-icon-comments.jp-carousel-show {
-	display: inline-block;
+.jp-carousel-light .jp-carousel-pagination {
+	color: #000;
 }
-
-/** Icons End **/
-
 
 /* Small screens */
 @media only screen and (max-width: 760px) {
