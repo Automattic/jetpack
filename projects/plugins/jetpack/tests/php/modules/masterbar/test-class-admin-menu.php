@@ -404,7 +404,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_options_menu();
 
-		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, array_shift( $submenu['options-general.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
 		$this->assertSame( 'options-general.php', $submenu['options-general.php'][1][2] );
 	}
 
