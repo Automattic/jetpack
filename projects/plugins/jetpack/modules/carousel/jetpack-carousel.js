@@ -38,10 +38,43 @@
 			} );
 		}
 
+		function getAverageColor( imgEl ) {
+			var canvas = document.createElement( 'canvas' ),
+				context = canvas.getContext && canvas.getContext( '2d' ),
+				imgData,
+				width,
+				height,
+				length,
+				rgb = { r: 0, g: 0, b: 0 },
+				count = 0;
+
+			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+
+			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+
+			context.drawImage( imgEl, 0, 0 );
+			imgData = context.getImageData( 0, 0, width, height );
+			length = imgData.data.length;
+
+			for ( var i = 0; i < length; i += 4 ) {
+				rgb.r += imgData.data[ i ];
+				rgb.g += imgData.data[ i + 1 ];
+				rgb.b += imgData.data[ i + 2 ];
+				count++;
+			}
+
+			rgb.r = Math.floor( rgb.r / count );
+			rgb.g = Math.floor( rgb.g / count );
+			rgb.b = Math.floor( rgb.b / count );
+
+			return rgb;
+		}
+
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
+			getAverageColor: getAverageColor,
 		};
 	} )();
 
@@ -1013,12 +1046,14 @@
 		}
 
 		function loadBackgroundImage( slide ) {
+			var currentSlide = slide.el;
+
 			if ( swiper && swiper.slides ) {
-				var currentSlide = swiper.slides[ swiper.activeIndex ];
-				currentSlide.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
-				return;
+				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
-			slide.el.style.backgroundImage = 'url(' + slide.attrs.mediumFile + ')';
+
+			var rgb = util.getAverageColor( currentSlide.querySelector( 'img' ) );
+			currentSlide.style.backgroundColor = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
 		}
 
 		function clearCommentTextAreaValue() {
