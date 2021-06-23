@@ -59,5 +59,9 @@
 	"extra": {
 		"mirror-repo": "Automattic/vaultpress",
 		"release-branch-prefix": "vaultpress"
+		"version-constants": {
+			"VAULTPRESS__VERSION": "vaultpress.php"
+		},
+		"wp-plugin-slug": "vaultpress"
 	}
 }
