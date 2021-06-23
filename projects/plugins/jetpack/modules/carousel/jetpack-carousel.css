@@ -12,7 +12,7 @@
 }
 
 .swiper-container {
-	height: calc( 100vh - 90px );
+	height: auto;
 }
 
 .jp-carousel-overlay .swiper-zoom-container {
@@ -33,19 +33,9 @@
 	transition: 0.5s opacity ease-out;
 }
 
-.jp-carousel-overlay .swiper-button-prev:hover:after,
-.jp-carousel-overlay .swiper-button-next:hover:after {
-	opacity: 1;
-	line-height: inherit;
-}
-
 .swiper-pagination .swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
 	background: #fff;
 	opacity: 0.5;
-}
-
-.swiper-container {
-	height: auto;
 }
 
 .jp-carousel-overlay .swiper-zoom-container {
