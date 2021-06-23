@@ -5,10 +5,15 @@
  * @package automattic/jetpack-beta
  */
 
+namespace Automattic\JetpackBeta;
+
+use WP_CLI;
+use WP_CLI_Command;
+
 /**
  * Control your local Jetpack Beta Tester plugin.
  */
-class JetpackBetaCliCommand extends WP_CLI_Command {
+class CliCommand extends WP_CLI_Command {
 	/**
 	 * Activate a branch version
 	 *
@@ -42,7 +47,7 @@ class JetpackBetaCliCommand extends WP_CLI_Command {
 			return $this->install_jetpack( $args[1], $args[1] );
 		} else {
 			$branch_name = str_replace( '/', '_', $args[1] );
-			$url         = Jetpack_Beta::get_install_url( $branch_name, 'pr' );
+			$url         = Utils::get_install_url( $branch_name, 'pr' );
 			if ( null === $url ) {
 				return WP_CLI::error( __( 'Invalid branch name. Try `wp jetpack-beta branch list` for list of available branches', 'jetpack-beta' ) );
 			}
@@ -85,7 +90,7 @@ class JetpackBetaCliCommand extends WP_CLI_Command {
 
 		WP_CLI::line( 'Activating ' . $branch . ' branch...' );
 
-		$result = Jetpack_Beta::install_and_activate( $branch, $section );
+		$result = Utils::install_and_activate( $branch, $section );
 		if ( is_wp_error( $result ) ) {
 			return WP_CLI::error( __( 'Error', 'jetpack-beta' ) . $result->get_error_message() );
 		}
@@ -97,7 +102,7 @@ class JetpackBetaCliCommand extends WP_CLI_Command {
 	 * Display list of branches.
 	 */
 	private function branches_list() {
-		$manifest            = Jetpack_Beta::get_beta_manifest();
+		$manifest            = Utils::get_beta_manifest();
 		$jetpack_beta_active = get_option( 'jetpack_beta_active' );
 		$current_branch      = str_replace( '_', '/', $jetpack_beta_active[0] );
 		$branches            = array( 'stable', 'master', 'rc' );
