@@ -7,11 +7,6 @@ import { Component } from 'react';
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
 
-/**
- * Internal dependencies
- */
-import { OVERLAY_CLASS_NAME } from '../lib/constants';
-
 // This component is used primarily to bind DOM event handlers to elements outside of the Jetpack Search overlay.
 export default class DomEventHandler extends Component {
 	constructor() {
@@ -64,13 +59,6 @@ export default class DomEventHandler extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
-
-		// NOTE: Summoned overlay will not automatically be scrolled to the top
-		//       when used in conjuction with slideInUp animation.
-		// TODO: Figure out why this is happening, remove scrollOverlayToTop fn if possible.
-		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
-			element.addEventListener( 'transitionend', this.scrollOverlayToTop );
-		} );
 	}
 
 	removeEventListeners() {
@@ -91,24 +79,6 @@ export default class DomEventHandler extends Component {
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.removeEventListener( 'click', this.handleFilterInputClick );
 		} );
-
-		document.querySelectorAll( `.${ OVERLAY_CLASS_NAME }` ).forEach( element => {
-			element.removeEventListener( 'transitionend', this.scrollOverlayToTop );
-		} );
-	}
-
-	scrollOverlayToTop( event ) {
-		if ( event?.propertyName !== 'transform' ) {
-			return;
-		}
-		const overlay = event.target;
-		// NOTE: IE11 doesn't support scrollTo. Manually set overlay element's scrollTop.
-		if ( overlay.scrollTo ) {
-			// @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollTo
-			overlay.scrollTo( 0, 0 );
-		} else {
-			overlay.scrollTop = 0;
-		}
 	}
 
 	handleCompositionStart = () => this.setState( { isComposing: true } );

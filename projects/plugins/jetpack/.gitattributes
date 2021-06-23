@@ -57,6 +57,7 @@
 /readme.md                                               production-exclude
 /scss/**                                                 production-exclude
 /tests/**                                                production-exclude
+/to-test.md                                              production-exclude
 /tools/**                                                production-exclude
 /vendor/automattic/**/README.md                          production-exclude
 /vendor/automattic/**/src/css/*.scss                     production-exclude

@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+E2E tests: add test report in Slack notification

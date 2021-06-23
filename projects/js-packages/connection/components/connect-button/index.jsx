@@ -24,7 +24,7 @@ import ConnectUser from '../connect-user';
  *
  * @returns {React.Component} The RNA connection component.
  */
-const Main = props => {
+const ConnectButton = props => {
 	const [ isRegistering, setIsRegistering ] = useState( false );
 	const [ isUserConnecting, setIsUserConnecting ] = useState( false );
 
@@ -147,7 +147,7 @@ const Main = props => {
 	);
 };
 
-Main.propTypes = {
+ConnectButton.propTypes = {
 	connectLabel: PropTypes.string,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
@@ -156,8 +156,8 @@ Main.propTypes = {
 	redirectUri: PropTypes.string.isRequired,
 };
 
-Main.defaultProps = {
+ConnectButton.defaultProps = {
 	connectLabel: __( 'Connect', 'jetpack' ),
 };
 
-export default Main;
+export default ConnectButton;
