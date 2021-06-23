@@ -9,9 +9,9 @@ import ShallowRenderer from 'react-test-renderer/shallow';
 /**
  * Internal dependencies
  */
-import Main from '../index';
+import ConnectButton from '../index';
 
-describe( 'Main', () => {
+describe( 'ConnectButton', () => {
 	const testProps = {
 		apiNonce: 'test',
 		apiRoot: 'https://example.org/wp-json/',
@@ -19,14 +19,14 @@ describe( 'Main', () => {
 		redirectUri: 'https://example.org',
 	};
 
-	describe( 'Render the Main component', () => {
+	describe( 'Render the ConnectButton component', () => {
 		const renderer = new ShallowRenderer();
-		renderer.render( <Main { ...testProps } /> );
+		renderer.render( <ConnectButton { ...testProps } /> );
 
 		const wrapper = shallow( renderer.getRenderOutput() );
 
 		it( 'component exists', () => {
-			expect( wrapper.find( 'Main' ) ).to.exist;
+			expect( wrapper.find( 'ConnectButton' ) ).to.exist;
 		} );
 
 		const button = wrapper.find( 'ForwardRef(Button)' );

@@ -8,10 +8,12 @@ const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
 
+const APP_VERSION = '1.0.1-alpha';
+
 const { program } = require( 'commander' );
 program
 	.usage(
-		'Run eslint on files and only report new warnings/errors compared to the previous version.'
+		'Run ESLint on files and only report new warnings/errors compared to the previous version.'
 	)
 
 	.option( '--diff <file>', 'A file containing a unified diff of the changes.' )
@@ -22,11 +24,11 @@ program
 	)
 	.option(
 		'--eslint-orig <file>',
-		'A file containing the JSON output of eslint on the unchanged files.'
+		'A file containing the JSON output of ESLint on the unchanged files.'
 	)
 	.option(
 		'--eslint-new <file>',
-		'A file containing the JSON output of eslint on the changed files.'
+		'A file containing the JSON output of ESLint on the changed files.'
 	)
 
 	.option(
@@ -46,8 +48,12 @@ program
 		'Comma-separated list of JavaScript file extensions. Ignored if files are listed.',
 		'.js'
 	)
-	.option( '--format <name>', 'Eslint format to use for output.', 'stylish' )
-	.version( '1.0.0' );
+	.option(
+		'--in-diff-only',
+		'Only include messages on lines changed in the diff. This may miss things like deleting a `var` that leads to a new `no-undef` elsewhere.'
+	)
+	.option( '--format <name>', 'ESLint format to use for output.', 'stylish' )
+	.version( APP_VERSION );
 
 program.parse();
 const argv = program.opts();
@@ -139,11 +145,11 @@ async function main() {
 		ret = spawnSync( eslint, [ '--version' ], spawnOpt );
 		if ( ret.error ) {
 			console.error(
-				`error: failed to execute eslint as \`${ eslint }\`. Use environment variable \`ESLINT\` to override.`
+				`error: failed to execute ESLint as \`${ eslint }\`. Use environment variable \`ESLINT\` to override.`
 			);
 			process.exit( 1 );
 		}
-		debug( 'Using eslint version', ret.stdout.trim() );
+		debug( 'Using ESLint version', ret.stdout.trim() );
 
 		args = [ 'rev-parse', '--show-toplevel' ];
 		debug( 'Getting git top level:', git, args.join( ' ' ) );
@@ -169,8 +175,13 @@ async function main() {
 
 		debug( 'Running git diff command:', git, args.join( ' ' ) );
 		diff = parseDiff( doCmd( git, args ) );
-		files = getFilesFromDiff( diff );
-		debug( 'Determined files from diff:', files );
+		if ( ! argv.inDiffOnly && program.args.length ) {
+			files = program.args;
+			debug( 'Determined files from command line:', files );
+		} else {
+			files = getFilesFromDiff( diff );
+			debug( 'Determined files from diff:', files );
+		}
 
 		eslintOrig = [];
 		eslintNew = [];
@@ -180,13 +191,13 @@ async function main() {
 			args = [ 'cat-file', '-e', origRef + ':' + file ];
 			debug( 'Testing if file is new:', git, args.join( ' ' ) );
 			if ( spawnSync( git, args, { stdio: 'ignore' } ).status ) {
-				debug( "It's new, so no orig eslint data." );
+				debug( "It's new, so no orig ESLint data." );
 			} else {
 				args = [ 'show', origRef + ':' + file ];
 				debug( 'Fetching orig file contents:', git, args.join( ' ' ) );
 				content = doCmd( git, args );
 				args = eslintArgs.concat( [ '--stdin', '--stdin-filename', file, '--format=json' ] );
-				debug( 'Executing eslint for orig file:', eslint, args.join( ' ' ) );
+				debug( 'Executing ESLint for orig file:', eslint, args.join( ' ' ) );
 				ret = spawnSync( eslint, args, { ...spawnOpt, input: content } );
 				if ( ret.error ) {
 					throw ret.error;
@@ -202,7 +213,7 @@ async function main() {
 				content = doCmd( git, args );
 			}
 			args = eslintArgs.concat( [ '--stdin', '--stdin-filename', file, '--format=json' ] );
-			debug( 'Executing eslint for new file:', eslint, args.join( ' ' ) );
+			debug( 'Executing ESLint for new file:', eslint, args.join( ' ' ) );
 			ret = spawnSync( eslint, args, { ...spawnOpt, input: content } );
 			if ( ret.error ) {
 				throw ret.error;
@@ -212,8 +223,18 @@ async function main() {
 	} else if ( argv.diff ) {
 		diff = parseDiff( fs.readFileSync( argv.diff, 'utf8' ) );
 		diffBase = argv.diffBase || process.cwd();
-		files = getFilesFromDiff( diff );
-		debug( 'Determined files from diff:', files );
+		if ( ! argv.inDiffOnly && program.args.length ) {
+			files = program.args;
+			debug( 'Determined files from command line:', files );
+		} else {
+			files = getFilesFromDiff( diff );
+			debug( 'Determined files from diff:', files );
+			if ( program.args.length ) {
+				const cmdLineFiles = new Set( program.args );
+				files = files.filter( file => cmdLineFiles.has( file ) );
+				debug( 'Intersected files with those from the command line:', files );
+			}
+		}
 		eslintOrig = JSON.parse( fs.readFileSync( argv.eslintOrig, 'utf8' ) );
 		eslintNew = JSON.parse( fs.readFileSync( argv.eslintNew, 'utf8' ) );
 	} else {
@@ -221,6 +242,8 @@ async function main() {
 		process.exit( 1 );
 	}
 
+	// oldLines maps line numbers in the old version to the new.
+	// newLines just lists lines present in the diff.
 	const oldLines = {};
 	const newLines = {};
 	diff.forEach( file => {
@@ -250,22 +273,25 @@ async function main() {
 		newLines[ fileName ] = nl;
 	} );
 
-	eslintOrig = eslintOrig.filter( x => oldLines[ x.filePath ] );
-	eslintNew = eslintNew.filter( x => newLines[ x.filePath ] );
+	if ( argv.inDiffOnly ) {
+		files = new Set( files.map( file => path.resolve( diffBase, file ) ) );
+		eslintOrig = eslintOrig.filter( x => files.has( x.filePath ) && oldLines[ x.filePath ] );
+		eslintNew = eslintNew.filter( x => files.has( x.filePath ) && newLines[ x.filePath ] );
+	}
 
 	const origMsgs = {};
 	eslintOrig.forEach( file => {
 		const lines = {};
 		const oldL = oldLines[ file.filePath ] || {};
 		file.messages.forEach( msg => {
-			if ( ! oldL[ msg.line ] ) {
-				debug(
-					`Orig ${ file.filePath }: Ignoring ${ msg.ruleId } on line ${ msg.line }, not in diff`
-				);
-				return;
+			let line = msg.line;
+			for ( let i = msg.line; i > 0; i-- ) {
+				if ( oldL[ i ] ) {
+					line = msg.line + oldL[ i ] - i;
+					break;
+				}
 			}
 
-			const line = oldL[ msg.line ];
 			debug( `Orig ${ file.filePath }: Found ${ msg.ruleId } on line ${ msg.line } => ${ line }` );
 			if ( ! lines[ line ] ) {
 				lines[ line ] = {};
@@ -287,7 +313,7 @@ async function main() {
 		file.fixableWarningCount = 0;
 
 		messages.forEach( msg => {
-			if ( ! newL[ msg.line ] ) {
+			if ( argv.inDiffOnly && ! newL[ msg.line ] ) {
 				debug(
 					`New ${ file.filePath }: Ignoring ${ msg.ruleId } on line ${ msg.line }, not in diff`
 				);

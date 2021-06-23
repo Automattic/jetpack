@@ -1518,8 +1518,8 @@
 
 				var origDimensions = getOriginalDimensions( item );
 
-				attrs.origWidth = origDimensions.width;
-				attrs.origHeight = origDimensions.height;
+				attrs.origWidth = origDimensions.width || attrs.thumbSize.width;
+				attrs.origHeight = origDimensions.height || attrs.thumbSize.height;
 
 				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
 					attrs.src = wpcom.carousel.generateImgSrc( item, max );

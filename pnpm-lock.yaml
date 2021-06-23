@@ -12,10 +12,10 @@ importers:
 
   .:
     specifiers:
+      '@automattic/eslint-changed': workspace:1.0.1-alpha
       '@wordpress/eslint-plugin': 7.4.0
       babel-eslint: 10.1.0
       chalk: 4.1.1
-      commander: 7.2.0
       eslint: 7.25.0
       eslint-config-prettier: 8.3.0
       eslint-config-wpcalypso: 6.1.0
@@ -39,9 +39,9 @@ importers:
     dependencies:
       chalk: 4.1.1
     devDependencies:
+      '@automattic/eslint-changed': link:projects/js-packages/eslint-changed
       '@wordpress/eslint-plugin': 7.4.0_eslint@7.25.0
       babel-eslint: 10.1.0_eslint@7.25.0
-      commander: 7.2.0
       eslint: 7.25.0
       eslint-config-prettier: 8.3.0_eslint@7.25.0
       eslint-config-wpcalypso: 6.1.0_6d3db79ccf2b505de9219d0afc266b20
@@ -123,6 +123,23 @@ importers:
       react: 16.14.0
       react-dom: 16.14.0_react@16.14.0
       react-test-renderer: 16.14.0_react@16.14.0
+
+  projects/js-packages/eslint-changed:
+    specifiers:
+      chalk: 4.1.1
+      commander: 7.2.0
+      eslint: 7.25.0
+      jetpack-js-test-runner: workspace:*
+      nyc: 15.1.0
+      parse-diff: 0.8.1
+    dependencies:
+      chalk: 4.1.1
+      commander: 7.2.0
+      parse-diff: 0.8.1
+    devDependencies:
+      eslint: 7.25.0
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
 
   projects/packages/connection-ui:
     specifiers:
@@ -13381,7 +13398,6 @@ packages:
 
   /parse-diff/0.8.1:
     resolution: {integrity: sha512-0QG0HqwXCC/zMohOlaxkQmV1igZq1LQ6xsv/ziex6TDbY0GFxr3TDJN+/aHjWH3s2WTysSW3Bhs9Yfh6DOelFA==}
-    dev: true
 
   /parse-filepath/1.0.2:
     resolution: {integrity: sha1-pjISf1Oq89FYdvWHLz/6x2PWyJE=}

@@ -9,7 +9,7 @@ import child_process from 'child_process';
  * @param {string} cmd - the shell command to run.
  * @param {Array} options - the command options passed.
  */
- export async function runCommand( cmd, options ) {
+export async function runCommand( cmd, options ) {
 	const data = child_process.spawnSync( cmd, [ ...options ], {
 		shell: true,
 		stdio: 'inherit',
