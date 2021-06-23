@@ -48,8 +48,11 @@
 				rgb = { r: 0, g: 0, b: 0 },
 				count = 0;
 
-			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+			if ( ! imgEl ) {
+				return rgb;
+			}
 
+			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
 			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
 
 			context.drawImage( imgEl, 0, 0 );
