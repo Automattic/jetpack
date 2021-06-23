@@ -995,7 +995,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* Small screens */
 @media only screen and (max-width: 760px) {
-	.jp-carousel-next-button, .jp-carousel-previous-button {
+	.swiper-container .swiper-button-next ,
+	.swiper-container .swiper-button-prev  {
 		display: none !important;
 	}
 
