@@ -19,8 +19,6 @@
 	background-size: 200%;
 	background-repeat: no-repeat;
 	background-position: center;
-	backdrop-filter: blur( 75px ) saturate( 50% );
-	-webkit-backdrop-filter: blur( 75px ) saturate( 50% );
 	transform: translateZ( 0 );
 	will-change: transform;
 }
@@ -42,8 +40,6 @@
 	background-size: 200%;
 	background-repeat: no-repeat;
 	background-position: center;
-	backdrop-filter: blur( 75px ) saturate( 50% );
-	-webkit-backdrop-filter: blur( 75px ) saturate( 50% );
 	transform: translateZ( 0 );
 	will-change: transform;
 }
@@ -307,7 +303,7 @@ div.jp-carousel-buttons a:hover {
 
 .jp-carousel-close-hint span {
 	cursor: pointer;
-	background-color: black;
+	background-color: transparent;
 	display: inline-block;
 	font: 800 36px/1 "Helvetica Neue", sans-serif !important;
 	line-height: 22px;
@@ -1016,6 +1012,52 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light .jp-carousel-pagination {
 	color: #000;
 }
+
+/** Icons Start **/
+.jp-carousel-photo-icons-container {
+	display: block;
+	text-align: right;
+	margin-right: 16px;
+}
+
+.jp-carousel-icon-btn {
+	padding: 8px 16px;
+	text-decoration: none;
+	border: none;
+	background: none;
+	display: inline-block;
+	height: 48px;
+}
+
+.jp-carousel-icon {
+	color: #fff;
+	fill: #fff;
+	background-color: #000;
+	border: none;
+	border-radius: 2px;
+	cursor: pointer;
+	font-family: dashicons;
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+	font-size: 30px;
+	line-height: 1;
+	font-weight: 400;
+	font-style: normal;
+
+}
+
+.jp-carousel-icon-btn:hover .jp-carousel-icon {
+	color: #000;
+	fill: #000;
+	background-color: #fff;
+}
+
+.jp-carousel-icon-comments.jp-carousel-show {
+	display: inline-block;
+}
+
+/** Icons End **/
 
 /* Small screens */
 @media only screen and (max-width: 760px) {
