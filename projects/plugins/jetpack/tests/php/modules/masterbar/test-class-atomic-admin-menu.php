@@ -335,7 +335,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
 		$this->assertSame( 'options-writing.php', array_pop( $submenu['options-general.php'] )[2] );
 
 		// Reset.
