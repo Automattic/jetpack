@@ -21,6 +21,8 @@ import ConnectUser from '../connect-user';
  * @param {string} props.apiNonce -- API Nonce, required.
  * @param {string} props.registrationNonce -- Separate registration nonce, required.
  * @param {Function} props.onRegistered -- The callback to be called upon registration success.
+ * @param {string} props.redirectUri -- The redirect admin URI.
+ * @param {string} props.from -- Where the connection request is coming from.
  *
  * @returns {React.Component} The RNA connection component.
  */
