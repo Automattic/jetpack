@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Status;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -25,20 +24,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
-	}
-
-	/**
-	 * Sets up class properties for REST API requests.
-	 *
-	 * @param WP_REST_Response $response Response from the endpoint.
-	 */
-	public function rest_api_init( $response ) {
-		parent::rest_api_init( $response );
-
-		// Get domain for requested site.
-		$this->domain = ( new Status() )->get_site_suffix();
-
-		return $response;
 	}
 
 	/**
@@ -255,15 +240,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Appearance menu.
-	 *
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
-		// $wp_admin_themes can have a `true` value here if the user has activated the "Show advanced dashboard pages" account setting.
-		// We force $wp_admin_themes to `false` anyways, since Simple sites should always see the Calypso Theme showcase.
-		$wp_admin_themes = false;
-		$customize_url   = parent::add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
+	public function add_appearance_menu() {
+		$customize_url = parent::add_appearance_menu();
 
 		$this->hide_submenu_page( 'themes.php', 'theme-editor.php' );
 
@@ -277,47 +256,58 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Users menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( current_user_can( 'list_users' ) ) {
-			$submenus_to_update = array(
-				'users.php'              => 'https://wordpress.com/people/team/' . $this->domain,
-				'grofiles-editor'        => 'https://wordpress.com/me',
-				'grofiles-user-settings' => 'https://wordpress.com/me/account',
-			);
-			$this->update_submenus( 'users.php', $submenus_to_update );
-		} else {
-			$submenus_to_update = array(
-				'grofiles-editor'        => 'https://wordpress.com/me',
-				'grofiles-user-settings' => 'https://wordpress.com/me/account',
-			);
-			$this->update_submenus( 'profile.php', $submenus_to_update );
-		}
+	public function add_users_menu() { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$submenus_to_update = array(
+			'users.php'              => 'https://wordpress.com/people/team/' . $this->domain,
+			'grofiles-editor'        => 'https://wordpress.com/me',
+			'grofiles-user-settings' => 'https://wordpress.com/me/account',
+		);
+
+		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
+		$this->update_submenus( $slug, $submenus_to_update );
 		add_submenu_page( 'users.php', esc_attr__( 'Add New', 'jetpack' ), __( 'Add New', 'jetpack' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
 	}
 
 	/**
 	 * Adds Settings menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $wp_admin = false ) {
-		parent::add_options_menu( $wp_admin );
+	public function add_options_menu() {
+		parent::add_options_menu();
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
 	}
 
 	/**
 	 * Also remove the Gutenberg plugin menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_gutenberg_menus( $wp_admin = false ) {
+	public function add_gutenberg_menus() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus( $wp_admin );
+		parent::add_gutenberg_menus();
+	}
+
+	/**
+	 * Get the preferred view for the given screen.
+	 *
+	 * @param string $slug Screen slug.
+	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
+	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
+	 *                       screens.
+	 * @return string
+	 */
+	public function get_preferred_view( $slug, $strict = false ) {
+		// Force the default view on Themes, since Simple sites should always see the Calypso Theme showcase.
+		if ( 'themes.php' === $slug ) {
+			return self::DEFAULT_VIEW;
+		}
+
+		// Plugins on Simple sites are always managed on Calypso.
+		if ( 'plugins.php' === $slug ) {
+			return self::DEFAULT_VIEW;
+		}
+
+		return parent::get_preferred_view( $slug, $strict );
 	}
 
 	/**
@@ -338,10 +328,8 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Plugins menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_plugins_menu() {
 		// TODO: Remove wpcom_menu (/wp-content/admin-plugins/wpcom-misc.php).
 		$count = '';
 		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
@@ -355,8 +343,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		/* translators: %s: Number of pending plugin updates. */
 		add_menu_page( esc_attr__( 'Plugins', 'jetpack' ), sprintf( __( 'Plugins %s', 'jetpack' ), $count ), 'activate_plugins', 'plugins.php', null, 'dashicons-admin-plugins', 65 );
 
-		// Plugins on Simple sites are always managed on Calypso.
-		parent::add_plugins_menu( false );
+		parent::add_plugins_menu();
 	}
 
 	/**
