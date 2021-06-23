@@ -446,6 +446,10 @@ function addMirrorRepo( composerJson, name, org, autotagger ) {
 	composerJson.extra.changelogger[
 		'link-template'
 	] = `https://github.com/${ org }/${ name }/compare/v\${old}...v\${new}`;
+	// Handle cases where we need more autotagger info for github action project types.
+	if ( autotagger && name.match( /^action-/ ) ) {
+		autotagger = { major: true };
+	}
 	// Add autotagger option
 	composerJson.extra.autotagger = autotagger;
 }
