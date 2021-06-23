@@ -79,8 +79,6 @@
 }
 
 .jp-carousel-info {
-	padding-left: 80px;
-	padding-right: 80px;
 	display: flex;
 	flex-direction: column;
 	text-align: left !important;
