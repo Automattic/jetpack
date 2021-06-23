@@ -52,7 +52,7 @@ class Videopress_Attachment_Metadata {
 		$meta = wp_get_attachment_metadata( $post_id );
 
 		if ( isset( $values['display_embed'] ) ) {
-			$meta['videopress']['display_embed'] = $values['display_embed'];
+			$meta['videopress']['display_embed'] = (bool) $values['display_embed']; // convert it to bool since that's how we store it on wp-admin side.
 		}
 
 		if ( isset( $values['rating'] ) ) {
@@ -83,7 +83,7 @@ class Videopress_Attachment_Metadata {
 	/**
 	 * Check if display_embed has valid values.
 	 *
-	 * @param null|int $display_embed The input display embed.
+	 * @param mixed $display_embed The input display embed.
 	 *
 	 * @return bool
 	 */
@@ -151,7 +151,7 @@ class Videopress_Attachment_Metadata {
 		}
 
 		if ( self::is_display_embed_valid( $display_embed ) ) {
-			$values['display_embed'] = (string) $display_embed;
+			$values['display_embed'] = (int) $display_embed;
 		}
 
 		return $values;

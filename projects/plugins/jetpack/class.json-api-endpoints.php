@@ -1451,10 +1451,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 
 				if ( isset( $info->display_embed ) ) {
-					$response['display_embed'] = $info->display_embed;
+					$response['display_embed'] = (string) (int) $info->display_embed;
 					// If not, default to metadata (for WPCOM).
 				} elseif ( isset( $metadata['videopress']['display_embed'] ) ) {
-					$response['display_embed'] = $metadata['videopress']['display_embed'];
+					// We convert it to int then to string so that (bool) false to become "0".
+					$response['display_embed'] = (string) (int) $metadata['videopress']['display_embed'];
 				}
 
 				// Thumbnails
