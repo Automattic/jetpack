@@ -636,18 +636,17 @@
 			disableKeyboardNavigation();
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
-
 			restoreScroll();
 			swiper.destroy();
 			carousel.isOpen = false;
 
-			// Clear slide data for DOM garbage collection.
-			carousel.slides = [];
-			carousel.currentSlide = undefined;
-			carousel.gallery.innerHTML = '';
-			domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
-			carousel.overlay.style.opacity = '0';
-			carousel.overlay.style.display = 'none';
+			domUtil.fadeOut( carousel.overlay, function () {
+				// Clear slide data for DOM garbage collection.
+				carousel.slides = [];
+				carousel.currentSlide = undefined;
+				carousel.gallery.innerHTML = '';
+				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterClose' );
+			} );
 		}
 
 		function calculateMaxSlideDimensions() {
@@ -1206,16 +1205,10 @@
 				settings.startIndex = 0; // -1 returned if can't find index, so start from beginning
 			}
 
-			domUtil.emitEvent( carousel.container, 'jp_carousel.beforeOpen' );
-
-			domUtil.fadeIn( carousel.container, function () {
-				domUtil.emitEvent( carousel.container, 'jp_carousel.afterOpen' );
-			} );
-
+			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeOpen' );
 			carousel.gallery.innerHTML = '';
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
-			carousel.overlay.style.display = 'block';
 
 			swiper = new window.Swiper( '.swiper-container', {
 				centeredSlides: true,
@@ -1240,7 +1233,10 @@
 			swiper.on( 'slideChange', function () {
 				selectSlideAtIndex( swiper.activeIndex );
 			} );
-			carousel.overlay.style.opacity = '1';
+
+			domUtil.fadeIn( carousel.overlay, function () {
+				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+			} );
 		}
 
 		// Register the event listener for starting the gallery
