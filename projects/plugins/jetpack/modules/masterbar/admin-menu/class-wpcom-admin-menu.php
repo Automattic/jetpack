@@ -49,6 +49,29 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Get the preferred view for the given screen.
+	 *
+	 * @param string $slug Screen slug.
+	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
+	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
+	 *                       screens.
+	 * @return string
+	 */
+	public function get_preferred_view( $slug, $strict = false ) {
+		// Force the default view on Themes, since Simple sites should always see the Calypso Theme showcase.
+		if ( 'themes.php' === $slug ) {
+			return self::DEFAULT_VIEW;
+		}
+
+		// Plugins on Simple sites are always managed on Calypso.
+		if ( 'plugins.php' === $slug ) {
+			return self::DEFAULT_VIEW;
+		}
+
+		return parent::get_preferred_view( $slug, $strict );
+	}
+
+	/**
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
@@ -285,29 +308,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
 		parent::add_gutenberg_menus();
-	}
-
-	/**
-	 * Get the preferred view for the given screen.
-	 *
-	 * @param string $slug Screen slug.
-	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
-	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
-	 *                       screens.
-	 * @return string
-	 */
-	public function get_preferred_view( $slug, $strict = false ) {
-		// Force the default view on Themes, since Simple sites should always see the Calypso Theme showcase.
-		if ( 'themes.php' === $slug ) {
-			return self::DEFAULT_VIEW;
-		}
-
-		// Plugins on Simple sites are always managed on Calypso.
-		if ( 'plugins.php' === $slug ) {
-			return self::DEFAULT_VIEW;
-		}
-
-		return parent::get_preferred_view( $slug, $strict );
 	}
 
 	/**
