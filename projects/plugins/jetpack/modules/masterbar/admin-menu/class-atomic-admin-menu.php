@@ -91,7 +91,19 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function get_preferred_view( $slug, $strict = false ) {
 		// When no preferred view has been set for Posts, Pages, and Comments, keep the previous behavior that forced
 		// the classic view regardless of the global preference.
-		if ( in_array( $slug, array( 'edit.php', 'edit.php?post_type=page', 'edit-comments.php' ), true ) ) {
+		if (
+			in_array(
+				$slug,
+				array(
+					'edit.php',
+					'edit-tags.php?taxonomy=category',
+					'edit-tags.php?taxonomy=post_tag',
+					'edit.php?post_type=page',
+					'edit-comments.php',
+				),
+				true
+			)
+		) {
 			$preferred_view = parent::get_preferred_view( $slug, true );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::CLASSIC_VIEW;
@@ -286,7 +298,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
 
-		// When no preferred view has been set for "Settings > Writing", keep the previous behavior that created a
+		// When no preferred view has been set for "Settings > Writing", keep the previous behavior that registered a
 		// duplicate menu linking to WP Admin when the global preference is set for default views.
 		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-writing.php', true ) && self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
@@ -299,7 +311,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_appearance_menu() {
 		parent::add_appearance_menu();
 
-		// When no preferred view has been set for "Themes", keep the previous behavior that created a duplicate menu
+		// When no preferred view has been set for "Themes", keep the previous behavior that registered a duplicate menu
 		// linking to WP Admin regardless of the global preference.
 		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'themes.php', true ) ) {
 			add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
@@ -327,7 +339,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function add_users_menu() {
 		parent::add_users_menu();
 
-		// When no preferred view has been set for "Users", keep the previous behavior that created a duplicate menu
+		// When no preferred view has been set for "Users", keep the previous behavior that registered a duplicate menu
 		// linking to WP Admin regardless of the global preference.
 		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'users.php', true ) ) {
 			add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );

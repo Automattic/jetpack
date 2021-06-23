@@ -287,10 +287,16 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_users_menu() {
 		$submenus_to_update = array(
-			'users.php'              => 'https://wordpress.com/people/team/' . $this->domain,
 			'grofiles-editor'        => 'https://wordpress.com/me',
 			'grofiles-user-settings' => 'https://wordpress.com/me/account',
 		);
+
+		// When no preferred view has been set for "Users > All Users", keep the previous behavior that forced the
+		// default view on regardless of the global preference.
+		$preferred_view = $this->get_preferred_view( 'users.php', true );
+		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
+			$submenus_to_update['users.php'] = 'https://wordpress.com/people/team/' . $this->domain;
+		}
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );

@@ -345,18 +345,16 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Users menu.
 	 */
 	public function add_users_menu() {
-		$submenus_to_update = array();
+		$submenus_to_update = array(
+			'profile.php' => 'https://wordpress.com/me',
+		);
 
 		// When no preferred view has been set for "Users", keep the previous behavior that forced the default view on
 		// "Users > All users" and "Users > Add New" regardless of the global preference.
 		$preferred_view = $this->get_preferred_view( 'users.php', true );
 		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
-			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
 			$submenus_to_update['users.php']    = 'https://wordpress.com/people/team/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'profile.php' ) ) {
-			$submenus_to_update['profile.php'] = 'https://wordpress.com/me';
+			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
 		}
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
@@ -392,24 +390,26 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 
-		// When no preferred view has been set for "Settings > General", keep the previous behavior that created a
-		// duplicate menu linking to WP Admin regardless of the global preference.
+		// When no preferred view has been set for "Settings > General", keep the previous behavior that forced the
+		// default view regardless of the global preference.
 		$preferred_view = $this->get_preferred_view( 'options-general.php', true );
 		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
-			$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
 			$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
 		}
 
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
+			$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
+		}
+
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
+		// When no preferred view has been set for "Settings > General", keep the previous behavior that created a
+		// duplicate menu linking to WP Admin regardless of the global preference.
+		if ( self::UNKNOWN_VIEW === $preferred_view ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
 		}
 	}
