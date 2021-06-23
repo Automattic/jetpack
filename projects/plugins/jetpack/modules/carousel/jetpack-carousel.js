@@ -1208,6 +1208,10 @@
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeOpen' );
 			carousel.gallery.innerHTML = '';
 
+			// Need to set the overlay manually to block or swiper does't initialise properly.
+			carousel.overlay.style.opacity = 0;
+			carousel.overlay.style.display = 'block';
+
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
 
 			swiper = new window.Swiper( '.swiper-container', {
