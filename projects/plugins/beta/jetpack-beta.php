@@ -59,17 +59,18 @@ define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-gro
 
 defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
 
-require_once 'class-jetpack-beta-autoupdate-self.php';
-require_once 'class-jetpackbetaclicommand.php';
-add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
+require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
 
-// The main plugin class file.
-require_once __DIR__ . '/class-jetpack-beta.php';
+add_action( 'init', array( Jetpack_Beta_Autoupdate_Self::class, 'instance' ) );
 
-set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+set_error_handler( array( Jetpack_Beta::class, 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 
-register_activation_hook( __FILE__, array( 'Jetpack_Beta', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
+register_activation_hook( __FILE__, array( Jetpack_Beta::class, 'activate' ) );
+register_deactivation_hook( __FILE__, array( Jetpack_Beta::class, 'deactivate' ) );
 
-add_action( 'init', array( 'Jetpack_Beta', 'instance' ) );
-add_action( 'muplugins_loaded', array( 'Jetpack_Beta', 'is_network_enabled' ) );
+add_action( 'init', array( Jetpack_Beta::class, 'instance' ) );
+add_action( 'muplugins_loaded', array( Jetpack_Beta::class, 'is_network_enabled' ) );
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	WP_CLI::add_command( 'jetpack-beta', JetpackBetaCliCommand::class );
+}

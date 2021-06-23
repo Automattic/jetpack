@@ -5,11 +5,6 @@
  * @package automattic/jetpack-beta
  */
 
-// Check that the file is not accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 /**
  * Class Jetpack_Beta
  */
@@ -90,12 +85,11 @@ class Jetpack_Beta {
 
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
-		add_action( 'jetpack_beta_autoupdate_hourly_cron', array( 'Jetpack_Beta', 'run_autoupdate' ) );
+		add_action( 'jetpack_beta_autoupdate_hourly_cron', array( self::class, 'run_autoupdate' ) );
 
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_to_options_whitelist' ) );
 
 		if ( is_admin() ) {
-			require JPBETA__PLUGIN_DIR . 'class-jetpack-beta-admin.php';
 			self::maybe_schedule_autoupdate();
 			Jetpack_Beta_Admin::init();
 		}
@@ -128,7 +122,7 @@ class Jetpack_Beta {
 	 */
 	public static function is_network_enabled() {
 		if ( self::is_network_active() ) {
-			add_filter( 'option_active_plugins', array( 'Jetpack_Beta', 'override_active_plugins' ) );
+			add_filter( 'option_active_plugins', array( self::class, 'override_active_plugins' ) );
 		}
 	}
 
@@ -297,8 +291,8 @@ class Jetpack_Beta {
 
 		self::clear_autoupdate_cron();
 		self::delete_all_transiants();
-		add_action( 'shutdown', array( __CLASS__, 'switch_active' ), 5 );
-		add_action( 'shutdown', array( __CLASS__, 'remove_dev_plugin' ), 20 );
+		add_action( 'shutdown', array( self::class, 'switch_active' ), 5 );
+		add_action( 'shutdown', array( self::class, 'remove_dev_plugin' ), 20 );
 		delete_option( self::$option );
 	}
 
@@ -1047,7 +1041,7 @@ class Jetpack_Beta {
 	 */
 	public static function replace_active_plugin( $current_plugin, $replace_with_plugin = null, $force_activate = false ) {
 		// The autoloader sets the cache in a shutdown hook. Clear it after the autoloader sets it.
-		add_action( 'shutdown', array( __CLASS__, 'clear_autoloader_plugin_cache' ), 99 );
+		add_action( 'shutdown', array( self::class, 'clear_autoloader_plugin_cache' ), 99 );
 
 		if ( self::is_network_active() ) {
 			$new_active_plugins     = array();
@@ -1272,7 +1266,7 @@ class Jetpack_Beta {
 		! self::is_on_stable() &&
 		( self::should_update_dev_to_master() || self::should_update_dev_version() )
 		) {
-			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_files' ), 10, 2 );
+			add_filter( 'upgrader_source_selection', array( self::class, 'check_for_main_files' ), 10, 2 );
 
 			// If response is false, don't alter the transient.
 			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
@@ -1322,9 +1316,6 @@ class Jetpack_Beta {
 		if ( empty( $admin_email ) ) {
 			return;
 		}
-
-		// In case the code is called in a scope different from wp-admin.
-		require_once JPBETA__PLUGIN_DIR . 'class-jetpack-beta-admin.php';
 
 		// Calling empty() on a function return value crashes in PHP < 5.5.
 		// Thus we assign the return value explicitly and then check with empty().
@@ -1458,7 +1449,7 @@ class Jetpack_Beta {
 	 */
 	public static function custom_error_handler( $errno, $errstr, $errfile, $errline ) {
 
-		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'log' ) ) {
+		if ( class_exists( Jetpack::class ) && method_exists( Jetpack::class, 'log' ) ) {
 			$error_string = sprintf( '%s, %s:%d', $errstr, $errfile, $errline );
 
 			// Only adding to log if the message is related to Jetpack.

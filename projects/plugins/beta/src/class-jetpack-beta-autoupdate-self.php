@@ -5,11 +5,6 @@
  * @package automattic/jetpack-beta
  */
 
-// Check that the file is not accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
 /**
  * Allow the Jetpack Beta to autoupdate itself.
  */

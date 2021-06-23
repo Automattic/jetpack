@@ -10,18 +10,18 @@ class Jetpack_Beta_Admin {
 
 	/** Initialize admin hooks. */
 	public static function init() {
-		add_action( 'admin_menu', array( __CLASS__, 'add_actions' ), 998 );
-		add_action( 'network_admin_menu', array( __CLASS__, 'add_actions' ), 998 );
-		add_action( 'admin_notices', array( __CLASS__, 'render_banner' ) );
+		add_action( 'admin_menu', array( self::class, 'add_actions' ), 998 );
+		add_action( 'network_admin_menu', array( self::class, 'add_actions' ), 998 );
+		add_action( 'admin_notices', array( self::class, 'render_banner' ) );
 	}
 
 	/** Attach hooks common to all Jetpack admin pages. */
 	public static function add_actions() {
 		$hook = self::get_page_hook();
-		add_action( "load-$hook", array( __CLASS__, 'admin_page_load' ) );
-		add_action( "admin_print_styles-$hook", array( __CLASS__, 'admin_styles' ) );
-		add_action( "admin_print_scripts-$hook", array( __CLASS__, 'admin_scripts' ) );
-		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( __CLASS__, 'admin_plugin_settings_link' ) );
+		add_action( "load-$hook", array( self::class, 'admin_page_load' ) );
+		add_action( "admin_print_styles-$hook", array( self::class, 'admin_styles' ) );
+		add_action( "admin_print_scripts-$hook", array( self::class, 'admin_scripts' ) );
+		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( self::class, 'admin_plugin_settings_link' ) );
 	}
 
 	/** Get page hook */
@@ -29,14 +29,14 @@ class Jetpack_Beta_Admin {
 		if ( Jetpack_Beta::is_network_active() && ! is_network_admin() ) {
 			return;
 		}
-		if ( class_exists( 'Jetpack' ) ) {
+		if ( class_exists( Jetpack::class ) ) {
 			return add_submenu_page(
 				'jetpack',
 				'Jetpack Beta',
 				'Jetpack Beta',
 				'update_plugins',
 				'jetpack-beta',
-				array( __CLASS__, 'render' )
+				array( self::class, 'render' )
 			);
 		}
 
@@ -45,14 +45,14 @@ class Jetpack_Beta_Admin {
 			'Jetpack Beta',
 			'update_plugins',
 			'jetpack-beta',
-			array( __CLASS__, 'render' )
+			array( self::class, 'render' )
 		);
 	}
 
 	/** Always grab and render the latest version. */
 	public static function render() {
 		Jetpack_Beta::get_beta_manifest( true );
-		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
+		require_once JPBETA__PLUGIN_DIR . 'src/admin/main.php';
 	}
 
 	/** Return the beta plugin's settings link. */
@@ -143,12 +143,12 @@ class Jetpack_Beta_Admin {
 
 	/** Enqueue admin styling from admin.css */
 	public static function admin_styles() {
-		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION );
+		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( 'admin/admin.css', __FILE__ ), array(), JPBETA_VERSION );
 	}
 
 	/** Enqueue scripts from admin.js */
 	public static function admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION, true );
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', __FILE__ ), array(), JPBETA_VERSION, true );
 		wp_localize_script(
 			'jetpack-admin-js',
 			'JetpackBeta',
