@@ -78,8 +78,8 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
-		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
-		// "My Home" page, we perform a strict check.
+		// When no preferred view has been set for "My Home", keep the previous behavior that forced the default view
+		// regardless of the global preference.
 		$preferred_view = $this->get_preferred_view( 'index.php', true );
 		if ( self::CLASSIC_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			return;
@@ -348,8 +348,8 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_users_menu() {
 		$submenus_to_update = array();
 
-		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
-		// "Users > All users" and "Users > Add New" pages, we perform a strict check.
+		// When no preferred view has been set for "Users", keep the previous behavior that forced the default view on
+		// "Users > All users" and "Users > Add New" regardless of the global preference.
 		$preferred_view = $this->get_preferred_view( 'users.php', true );
 		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
@@ -393,8 +393,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 
-		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
-		// "Settings > General" and "Settings > Advanced General" pages, we perform a strict check.
+		// When no preferred view has been set for "Settings > General", keep the previous behavior that created a
+		// duplicate menu linking to WP Admin regardless of the global preference.
 		$preferred_view = $this->get_preferred_view( 'options-general.php', true );
 		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;

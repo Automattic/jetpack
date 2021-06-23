@@ -58,9 +58,14 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $slug, $strict = false ) {
-		// Force the default view on Themes, since Simple sites should always see the Calypso Theme showcase.
+		// When no preferred view has been set for Themes, keep the previous behavior that forced the default view
+		// regardless of the global preference.
 		if ( 'themes.php' === $slug ) {
-			return self::DEFAULT_VIEW;
+			$preferred_view = parent::get_preferred_view( $slug, true );
+			if ( self::UNKNOWN_VIEW === $preferred_view ) {
+				return self::CLASSIC_VIEW;
+			}
+			return $preferred_view;
 		}
 
 		// Plugins on Simple sites are always managed on Calypso.

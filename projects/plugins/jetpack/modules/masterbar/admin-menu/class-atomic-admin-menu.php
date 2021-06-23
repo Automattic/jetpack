@@ -80,33 +80,31 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Forces Posts menu to WPAdmin for Atomic sites only.
-	 * Overloads `add_posts_menu` in parent class.
+	 * Get the preferred view for the given screen.
 	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
+	 * @param string $slug Screen slug.
+	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
+	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
+	 *                       screens.
+	 * @return string
 	 */
-	public function add_posts_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return false; // return explicit `false` to force WPAdmin links.
-	}
+	public function get_preferred_view( $slug, $strict = false ) {
+		// When no preferred view has been set for Posts, Pages, and Comments, keep the previous behavior that forced
+		// the classic view regardless of the global preference.
+		if ( in_array( $slug, array( 'edit.php', 'edit.php?post_type=page', 'edit-comments.php' ), true ) ) {
+			$preferred_view = parent::get_preferred_view( $slug, true );
+			if ( self::UNKNOWN_VIEW === $preferred_view ) {
+				return self::CLASSIC_VIEW;
+			}
+			return $preferred_view;
+		}
 
-	/**
-	 * Forces Pages menu to WPAdmin for Atomic sites only.
-	 * Overloads `add_page_menu` in parent class.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_page_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return false; // return explicit `false` to force WPAdmin links.
-	}
+		// Plugins, Export, and Customize on Atomic sites are always managed on WP Admin.
+		if ( in_array( $slug, array( 'plugins.php', 'export.php', 'customize.php' ), true ) ) {
+			return self::CLASSIC_VIEW;
+		}
 
-	/**
-	 * Adds Plugins menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_plugins_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Plugins on Atomic sites are always managed on WP Admin.
-		parent::add_plugins_menu( true );
+		return parent::get_preferred_view( $slug, $strict );
 	}
 
 	/**
@@ -274,23 +272,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {  // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Export on Atomic sites is always handled on WP Admin.
-		parent::add_tools_menu( $wp_admin_import, true );
-	}
-
-	/**
 	 * Adds Settings menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $wp_admin = false ) {
-		parent::add_options_menu( $wp_admin );
+	public function add_options_menu() {
+		parent::add_options_menu();
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain, null, 2 );
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
@@ -301,23 +286,24 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
 
-		// No need to add a menu linking to WP Admin if there is already one.
-		if ( ! $wp_admin ) {
+		// When no preferred view has been set for "Settings > Writing", keep the previous behavior that created a
+		// duplicate menu linking to WP Admin when the global preference is set for default views.
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-writing.php', true ) && self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 		}
 	}
 
 	/**
 	 * Adds Appearance menu.
-	 *
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Customize on Atomic sites is always done on WP Admin.
-		parent::add_appearance_menu( $wp_admin_themes, true );
+	public function add_appearance_menu() {
+		parent::add_appearance_menu();
 
-		add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
+		// When no preferred view has been set for "Themes", keep the previous behavior that created a duplicate menu
+		// linking to WP Admin regardless of the global preference.
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'themes.php', true ) ) {
+			add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
+		}
 	}
 
 	/**
@@ -337,33 +323,24 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 	/**
 	 * Adds Users menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $wp_admin = false ) {
-		parent::add_users_menu( $wp_admin );
+	public function add_users_menu() {
+		parent::add_users_menu();
 
-		add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
+		// When no preferred view has been set for "Users", keep the previous behavior that created a duplicate menu
+		// linking to WP Admin regardless of the global preference.
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'users.php', true ) ) {
+			add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
+		}
 	}
 
 	/**
 	 * Also remove the Gutenberg plugin menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_gutenberg_menus( $wp_admin = false ) {
+	public function add_gutenberg_menus() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus( $wp_admin );
-	}
-
-	/**
-	 * Always use WP Admin for comments.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
-	 */
-	public function add_comments_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		parent::add_comments_menu( true );
+		parent::add_gutenberg_menus();
 	}
 
 	/**
