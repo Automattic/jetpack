@@ -62,7 +62,7 @@
 		"docker:wp": "printf '\\e[30;43m`pnpm run docker:wp` is deprected. Use the Jetpack CLI instead.\\e[0m\\n'; jetpack docker wp",
 		"install-if-deps-outdated": "pnpm install --no-prod --frozen-lockfile",
 		"lint": "pnpm run lint-file -- .",
-		"lint-changed": "tools/eslint-changed.js --ext .js,.jsx --git",
+		"lint-changed": "eslint-changed --ext .js,.jsx --git",
 		"lint-file": "eslint --ext .js,.jsx",
 		"lint-required": "node -e \"const fs = require('fs'); fs.copyFileSync('.eslintignore','.eslintignore-required'); const w=fs.createWriteStream('.eslintignore-required',{flags:'a'}); w.write('\\n# tools/eslint-excludelist.json\\n'); w.end(JSON.parse(fs.readFileSync('tools/eslint-excludelist.json','utf8')).join('\\n')+'\\n')\" && pnpm run lint -- --max-warnings=0 --ignore-path .eslintignore-required",
 		"php:autofix": "composer phpcs:fix",
@@ -84,9 +84,9 @@
 		"chalk": "4.1.1"
 	},
 	"devDependencies": {
+		"@automattic/eslint-changed": "workspace:1.0.1-alpha",
 		"@wordpress/eslint-plugin": "7.4.0",
 		"babel-eslint": "10.1.0",
-		"commander": "7.2.0",
 		"eslint": "7.25.0",
 		"eslint-config-prettier": "8.3.0",
 		"eslint-config-wpcalypso": "6.1.0",

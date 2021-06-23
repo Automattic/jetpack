@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { JetpackConnection } from '@automattic/jetpack-connection';
+import { ConnectButton } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -39,7 +39,7 @@ export default function Admin() {
 				) }
 			</div>
 
-			<JetpackConnection
+			<ConnectButton
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				registrationNonce={ registrationNonce }
@@ -50,7 +50,7 @@ export default function Admin() {
 					setConnectionStatus( status );
 					return null;
 				} }
-			</JetpackConnection>
+			</ConnectButton>
 		</React.Fragment>
 	);
 }
