@@ -1055,7 +1055,7 @@
 				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
 
-			var image = currentSlide.querySelector( 'img' );
+			var image = slide.attrs.originalElement;
 			var isLoaded = image.complete && image.naturalHeight !== 0;
 
 			if ( isLoaded ) {
@@ -1116,6 +1116,7 @@
 				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
 
 				var attrs = {
+					originalElement: item,
 					attachmentId:
 						item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0',
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
