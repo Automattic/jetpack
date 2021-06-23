@@ -1055,7 +1055,21 @@
 				currentSlide = swiper.slides[ swiper.activeIndex ];
 			}
 
-			var rgb = util.getAverageColor( currentSlide.querySelector( 'img' ) );
+			var image = currentSlide.querySelector( 'img' );
+			var isLoaded = image.complete && image.naturalHeight !== 0;
+
+			if ( isLoaded ) {
+				applyBackgroundColor( currentSlide, image );
+				return;
+			}
+
+			image.onload = function () {
+				applyBackgroundColor( currentSlide, image );
+			};
+		}
+
+		function applyBackgroundColor( currentSlide, image ) {
+			var rgb = util.getAverageColor( image );
 			currentSlide.style.backgroundColor = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
 		}
 
