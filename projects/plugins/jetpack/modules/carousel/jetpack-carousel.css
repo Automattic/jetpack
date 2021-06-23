@@ -48,6 +48,16 @@
 	height: auto;
 }
 
+.jp-carousel-overlay .swiper-zoom-container {
+	background-size: 200%;
+	background-repeat: no-repeat;
+	background-position: center;
+	backdrop-filter: blur( 75px ) saturate( 50% );
+	-webkit-backdrop-filter: blur( 75px ) saturate( 50% );
+	transform: translateZ( 0 );
+	will-change: transform;
+}
+
 .jp-carousel-overlay .swiper-button-prev:after,
 .jp-carousel-overlay .swiper-button-next:after {
 	color: #cccccc;
