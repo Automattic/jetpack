@@ -199,12 +199,57 @@
 	-webkit-font-smoothing: subpixel-antialiased;
 }
 
+.jp-carousel-next-button {
+	right: 15px;
+}
+
+.jp-carousel-previous-button {
+	left: 0;
+}
+
+.jp-carousel-next-button,
+.jp-carousel-previous-button {
+	text-indent: -9999px;
+	overflow: hidden;
+	cursor: pointer;
+	position: fixed;
+	top: 40px;
+	bottom: 15vh;
+	width: 110px;
+}
+
+.jp-carousel-next-button span,
+.jp-carousel-previous-button span {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 82px;
+	zoom: 1;
+	filter: alpha(opacity=20);
+	opacity: 0.2;
+}
+
 .jp-carousel-transitions .jp-carousel-next-button span,
 .jp-carousel-transitions .jp-carousel-previous-button span {
 	-webkit-transition: 500ms opacity ease-out;
 	-moz-transition: 500ms opacity ease-out;
 	-o-transition: 500ms opacity ease-out;
 	transition: 500ms opacity ease-out;
+}
+
+.jp-carousel-next-button:hover span,
+.jp-carousel-previous-button:hover span {
+	filter: alpha(opacity=60);
+	opacity: 0.6;
+}
+.jp-carousel-next-button span {
+	background-position: -110px center;
+	right: 0;
+}
+
+.jp-carousel-previous-button span {
+	background-position: -10px center;
+	left:0;
 }
 
 .jp-carousel-buttons {
@@ -331,9 +376,8 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	border-top: 1px solid #222;
 	color: #999;
 	font-size: 15px;
-	padding-top: 24px;
-	margin-top: 20px;
-	margin-bottom: 20px;
+	padding-top: 15px;
+	margin-bottom: 0;
 	font-weight: 400;
 	width: 100%;
 }
@@ -347,14 +391,14 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	font: 300 1.5em/1.1 'Helvetica Neue', sans-serif !important;
 	text-transform: none !important; /* prevents uppercase from leaking through */
 	color: #fff;
-	margin: 0 0 15px;
+	margin: 0 0 7px;
 	padding: 0;
 }
 
 .jp-carousel-titleanddesc-desc p {
 	color: #999;
-	line-height: 1.4;
-	margin-bottom: 0.75em;
+	line-height:1.4;
+	margin-bottom: 0;
 }
 
 .jp-carousel-titleanddesc p a,
@@ -391,9 +435,9 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 
 .jp-carousel-photo-info h1:before,
 .jp-carousel-photo-info h1:after,
-.jp-carousel-left-column-wrapper h1:before,
-.jp-carousel-left-column-wrapper h1:after {
-	content: none !important;
+.jp-carousel-comments-wrapper h1:before,
+.jp-carousel-comments-wrapper h1:after {
+	content:none !important;
 }
 /** Title and Desc End **/
 
@@ -403,14 +447,15 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	border: 1px solid #222;
 	color: #fff;
 	font-size: 13px;
-	font: 12px/1.4 'Helvetica Neue', sans-serif !important;
-	overflow: hidden;
-	padding: 18px 20px;
-	width: 209px !important;
-	margin-top: 20px;
-	margin-left: 40px;
-	margin-bottom: 20px;
-	flex-shrink: 0;
+	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
+	width: 100%;
+	display: none;
+	padding: 10px;
+	background: #222;
+}
+
+.jp-carousel-image-meta.jp-carousel-show {
+	display: block;
 }
 
 .jp-carousel-image-meta li,
@@ -500,9 +545,9 @@ a.jp-carousel-image-download:hover {
 .jp-carousel-comment {
 	background: none transparent;
 	color: #999;
-	clear: left;
 	overflow: auto;
 	width: 100%;
+	display: flex;
 }
 
 .jp-carousel-comment + .jp-carousel-comment {
@@ -518,14 +563,14 @@ a.jp-carousel-image-download:hover {
 }
 
 .jp-carousel-comment .comment-author {
-	font-size: 13px;
-	font-weight: 400;
-	padding: 0;
-	width: auto;
+	font-size: 15px;
+	font-weight:500;
+	padding:0;
+	width:auto;
 	display: inline;
 	float: none;
 	border: none;
-	margin: 0;
+	margin:0;
 }
 
 .jp-carousel-comment .comment-author a {
@@ -533,12 +578,15 @@ a.jp-carousel-image-download:hover {
 }
 
 .jp-carousel-comment .comment-gravatar {
-	float: left;
+	float: none;
+}
+
+.jp-carousel-comment .comment-gravatar img {
+	min-width: 64px;
 }
 
 .jp-carousel-comment .comment-content {
-	border: none;
-	margin-left: 85px;
+	border:none;
 	padding: 0;
 }
 
@@ -553,17 +601,14 @@ a.jp-carousel-image-download:hover {
 }
 
 .jp-carousel-comment .comment-date {
-	color: #999;
-	margin-top: 4px;
+	color:#999;
 	font-size: 11px;
-	display: inline;
-	float: right;
-	/*clear: right;*/
+	border-bottom: 1px solid #222;
+	margin-bottom: 6px;
 }
 
 #jp-carousel-comment-form {
 	margin: 0 0 10px !important;
-	float: left;
 	width: 100%;
 }
 
@@ -689,7 +734,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-submit-and-info-wrapper {
 	display: none;
-	/*margin-bottom:15px;*/
 	overflow: hidden;
 	width: 100%;
 }
@@ -794,7 +838,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	color: #999;
 	text-align: left;
 	margin-bottom: 20px;
-	width: 100;
+	width: 100%;
 	bottom: 10px;
 	margin-top: 20px;
 }
@@ -955,18 +999,37 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	);
 }
 
+.jp-carousel-light .jp-carousel-info {
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-info-footer {
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-info-extra {
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-icon {
+	color: #000;
+	fill: #000;
+	background-color: #fff;
+}
+
+.jp-carousel-light .jp-carousel-icon-btn:hover .jp-carousel-icon {
+	color: #fff;
+	fill: #fff;
+	background-color: #000;
+}
+
+.jp-carousel-light .jp-carousel-pagination {
+	color: #000;
+}
+
 /* Small screens */
-@media only screen and ( max-width: 760px ) {
-	.jp-carousel-info {
-		margin: 0 10px !important;
-	}
-
-	.jp-carousel-info-columns {
-		flex-direction: column;
-	}
-
-	.swiper-container .swiper-button-next ,
-	.swiper-container .swiper-button-prev  {
+@media only screen and (max-width: 760px) {
+	.jp-carousel-next-button, .jp-carousel-previous-button {
 		display: none !important;
 	}
 
@@ -1003,33 +1066,15 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		display: none;
 	}
 
-	#jp-carousel-comment-form-container {
-		display: none !important;
-	}
-
-	.jp-carousel-titleanddesc {
-		padding-top: 0 !important;
-		border: none !important;
-	}
 	.jp-carousel-titleanddesc-title {
-		font-size: 1em !important;
-	}
-
-	.jp-carousel-left-column-wrapper {
-		padding: 0;
-		width: 100% !important;
-	}
-
-	.jp-carousel-photo-info {
-		left: 0 !important;
-		width: 100% !important;
+		font-size: 1.25em !important;
 	}
 
 	.jp-carousel-info > .jp-carousel-photo-info {
 		display: none;
 	}
 
-	.jp-carousel-left-column-wrapper > .jp-carousel-photo-info {
+	.jp-carousel-comments-wrapper > .jp-carousel-photo-info {
 		display: block;
 	}
 
