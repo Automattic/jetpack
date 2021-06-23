@@ -604,7 +604,7 @@
 			var captionHtml;
 
 			loadFullImage( carousel.slides[ index ] );
-			loadBackgroundImage( carousel.slides[ index ] );
+			loadBackgroundColor( carousel.slides[ index ] );
 			domUtil.hide( carousel.caption );
 			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
 
@@ -1048,7 +1048,7 @@
 			}
 		}
 
-		function loadBackgroundImage( slide ) {
+		function loadBackgroundColor( slide ) {
 			var currentSlide = slide.el;
 
 			if ( swiper && swiper.slides ) {
