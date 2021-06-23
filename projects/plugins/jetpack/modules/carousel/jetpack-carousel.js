@@ -54,7 +54,7 @@
 
 			height = canvas.height = imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
 			width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
-
+			imgEl.crossOrigin = 'Anonymous';
 			context.drawImage( imgEl, 0, 0 );
 			imgData = context.getImageData( 0, 0, width, height );
 			length = imgData.data.length;
@@ -1125,7 +1125,9 @@
 
 		function applyBackgroundColor( currentSlide, image ) {
 			var rgb = util.getAverageColor( image );
-			currentSlide.style.backgroundColor = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
+			if ( currentSlide ) {
+				currentSlide.style.backgroundColor = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
+			}
 		}
 
 		function clearCommentTextAreaValue() {
@@ -1318,7 +1320,7 @@
 			carousel.gallery.innerHTML = '';
 
 			// Need to set the overlay manually to block or swiper does't initialise properly.
-			carousel.overlay.style.opacity = 0;
+			carousel.overlay.style.opacity = 1;
 			carousel.overlay.style.display = 'block';
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
