@@ -10,6 +10,7 @@ import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/a
 import { getPlanDuration } from 'state/plans/reducer';
 import { getSiteProducts } from 'state/site-products';
 import { isCurrentUserLinked } from 'state/connection';
+import getRedirectUrl from 'lib/jp-redirect';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -395,16 +396,30 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		source += '-monthly';
 	}
 
-	return (
-		'https://jetpack.com/redirect/?' +
-		`source=${ source }&site=${ getSiteRawUrl( state ) }` +
-		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( uid ? `&u=${ uid }` : '' ) +
-		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' ) +
-		( isCurrentUserLinked( state ) ? '' : '&unlinked=1' ) +
-		( purchaseToken ? `&purchasetoken=${ purchaseToken }` : '' ) +
-		( calypsoEnv ? `&calypso_env=${ calypsoEnv }` : '' )
-	);
+	const redirectArgs = {
+		site: getSiteRawUrl( state ),
+	};
+
+	if ( affiliateCode ) {
+		redirectArgs.aff = affiliateCode;
+	}
+	if ( uid ) {
+		redirectArgs.u = uid;
+	}
+	if ( subsidiaryId ) {
+		redirectArgs.subsidiaryId = subsidiaryId;
+	}
+	if ( ! isCurrentUserLinked( state ) ) {
+		redirectArgs.query = 'unlinked=1';
+	}
+	if ( purchaseToken ) {
+		redirectArgs.purchasetoken = purchaseToken;
+	}
+	if ( calypsoEnv ) {
+		redirectArgs.calypso_env = calypsoEnv;
+	}
+
+	return getRedirectUrl( source, redirectArgs );
 };
 
 /**
