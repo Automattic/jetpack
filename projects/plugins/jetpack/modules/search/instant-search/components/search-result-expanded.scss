@@ -86,12 +86,18 @@ $image-square-size: 128px;
 
 .jetpack-instant-search__search-result-expanded__content-container {
 	display: flex;
+	flex-flow: column;
+
+	@include break-small-up() {
+		flex-flow: row nowrap;
+	}
 }
 
 .jetpack-instant-search__search-result-expanded__footer {
 	list-style-type: none;
 	margin-top: 10px;
 	margin-left: 0;
+	padding-left: 0;
 	display: flex;
 
 	li {

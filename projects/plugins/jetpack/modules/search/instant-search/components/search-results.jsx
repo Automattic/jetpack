@@ -57,7 +57,9 @@ class SearchResults extends Component {
 		const hasCorrectedQuery = corrected_query !== false;
 		const num = new Intl.NumberFormat().format( total );
 		const isMultiSite =
-			this.props.staticFilters && this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
+			this.props.staticFilters &&
+			this.props.staticFilters.group_id &&
+			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 
 		if ( this.props.isLoading ) {
 			if ( ! hasQuery ) {

@@ -102,7 +102,9 @@ class SearchApp extends Component {
 
 		// Override the result format if group static filter is selected, always use expanded.
 		const isMultiSite =
-			this.props.staticFilters && this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
+			this.props.staticFilters &&
+			this.props.staticFilters.group_id &&
+			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 		if ( isMultiSite ) {
 			return RESULT_FORMAT_EXPANDED;
 		}
