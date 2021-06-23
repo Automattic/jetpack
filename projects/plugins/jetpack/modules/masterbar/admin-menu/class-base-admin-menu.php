@@ -60,7 +60,7 @@ abstract class Base_Admin_Menu {
 	 *
 	 * @var string
 	 */
-	const UNKNOWN_VIEW = 'classic';
+	const UNKNOWN_VIEW = 'unknown';
 
 	/**
 	 * Base_Admin_Menu constructor.
