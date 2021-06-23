@@ -42,6 +42,20 @@ abstract class Base_Admin_Menu {
 	const HIDE_CSS_CLASS = 'hide-if-js';
 
 	/**
+	 * Identifier denoting that the default WordPress.com view should be used for a certain screen.
+	 *
+	 * @var string
+	 */
+	const DEFAULT_VIEW = 'default';
+
+	/**
+	 * Identifier denoting that the classic WP Admin view should be used for a certain screen.
+	 *
+	 * @var string
+	 */
+	const CLASSIC_VIEW = 'classic';
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -56,6 +70,7 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999, 2 );
+			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 		}
 	}
 
@@ -512,6 +527,74 @@ abstract class Base_Admin_Menu {
 	 */
 	public function is_item_visible( $item ) {
 		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
+	}
+
+	/**
+	 * Stores the preferred view for the current screen.
+	 */
+	public function handle_preferred_view() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		if (
+			! isset( $_GET['preferred-view'] ) ||
+			! in_array( $_GET['preferred-view'], array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true )
+		) {
+			return;
+		}
+
+		global $pagenow;
+		$slug = $pagenow;
+		if ( isset( $_REQUEST['post_type'] ) ) {
+			$slug .= '?post_type=' . $_REQUEST['post_type'];
+		}
+		if ( isset( $_REQUEST['taxonomy'] ) ) {
+			$slug .= '?taxonomy=' . $_REQUEST['taxonomy'];
+		}
+		if ( isset( $_REQUEST['page'] ) ) {
+			$slug .= '?page=' . $_REQUEST['page'];
+		}
+
+		$preferred_views          = $this->get_preferred_views();
+		$preferred_views[ $slug ] = $_GET['preferred-view'];
+
+		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
+		// phpcs:enable WordPress.Security.NonceVerification
+	}
+
+	/**
+	 * Get the preferred views for all screens.
+	 *
+	 * @return array
+	 */
+	public function get_preferred_views() {
+		$preferred_views = get_user_option( 'jetpack_admin_menu_preferred_views' );
+
+		if ( ! $preferred_views ) {
+			return array();
+		}
+
+		return $preferred_views;
+	}
+
+	/**
+	 * Get the preferred view for the given screen.
+	 *
+	 * @param string $slug Screen slug.
+	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
+	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
+	 *                       screens.
+	 * @return string
+	 */
+	public function get_preferred_view( $slug, $strict = false ) {
+		$preferred_views = $this->get_preferred_views();
+
+		if ( ! isset( $preferred_views[ $slug ] ) ) {
+			if ( $strict ) {
+				return self::DEFAULT_VIEW;
+			}
+			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
+		}
+
+		return $preferred_views[ $slug ];
 	}
 
 	/**

@@ -20,42 +20,24 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		/*
-		 * Whether links should point to Calypso or wp-admin.
-		 *
-		 * Options:
-		 * false - Calypso (Default).
-		 * true  - wp-admin.
-		 */
-		$wp_admin = $this->should_link_to_wp_admin();
-
 		// Remove separators.
 		remove_menu_page( 'separator1' );
 
 		$this->add_stats_menu();
 		$this->add_upgrades_menu();
-		$this->add_posts_menu( $wp_admin );
-		$this->add_media_menu( $wp_admin );
-		$this->add_page_menu( $wp_admin );
-		$this->add_testimonials_menu( $wp_admin );
-		$this->add_portfolio_menu( $wp_admin );
-		$this->add_comments_menu( $wp_admin );
-
-		// Whether Themes/Customize links should point to Calypso (false) or wp-admin (true).
-		$wp_admin_themes    = $wp_admin;
-		$wp_admin_customize = $wp_admin;
-		$this->add_appearance_menu( $wp_admin_themes, $wp_admin_customize );
-		$this->add_plugins_menu( $wp_admin );
-		$this->add_users_menu( $wp_admin );
-
-		// Whether Import/Export links should point to Calypso (false) or wp-admin (true).
-		$wp_admin_import = $wp_admin;
-		$wp_admin_export = $wp_admin;
-		$this->add_tools_menu( $wp_admin_import, $wp_admin_export );
-
-		$this->add_options_menu( $wp_admin );
+		$this->add_posts_menu();
+		$this->add_media_menu();
+		$this->add_page_menu();
+		$this->add_testimonials_menu();
+		$this->add_portfolio_menu();
+		$this->add_comments_menu();
+		$this->add_appearance_menu();
+		$this->add_plugins_menu();
+		$this->add_users_menu();
+		$this->add_tools_menu();
+		$this->add_options_menu();
 		$this->add_jetpack_menu();
-		$this->add_gutenberg_menus( $wp_admin );
+		$this->add_gutenberg_menus();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -96,6 +78,12 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
+		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
+		// "My Home" page, we perform a strict check.
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'index.php', true ) ) {
+			return;
+		}
+
 		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack' ), 'manage_options', 'dashicons-admin-home' );
 	}
 
@@ -199,30 +187,31 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Posts menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_posts_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
-			return;
+	public function add_posts_menu() {
+		$submenus_to_update = array();
+
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
+			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
+			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
 		}
 
-		$submenus_to_update = array(
-			'edit.php'                        => 'https://wordpress.com/posts/' . $this->domain,
-			'post-new.php'                    => 'https://wordpress.com/post/' . $this->domain,
-			'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain,
-			'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain,
-		);
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=category' ) ) {
+			$submenus_to_update['edit-tags.php?taxonomy=category'] = 'https://wordpress.com/settings/taxonomies/category/' . $this->domain;
+		}
+
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=post_tag' ) ) {
+			$submenus_to_update['edit-tags.php?taxonomy=post_tag'] = 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain;
+		}
+
 		$this->update_submenus( 'edit.php', $submenus_to_update );
 	}
 
 	/**
 	 * Adds Media menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_media_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+	public function add_media_menu() {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'upload.php' ) ) {
 			return;
 		}
 
@@ -233,11 +222,9 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Page menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_page_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+	public function add_page_menu() {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit.php?post_type=page' ) ) {
 			return;
 		}
 
@@ -250,30 +237,25 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Testimonials menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_testimonials_menu( $wp_admin = false ) {
-		$this->add_custom_post_type_menu( 'jetpack-testimonial', $wp_admin );
+	public function add_testimonials_menu() {
+		$this->add_custom_post_type_menu( 'jetpack-testimonial' );
 	}
 
 	/**
 	 * Adds Portfolio menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_portfolio_menu( $wp_admin = false ) {
-		$this->add_custom_post_type_menu( 'jetpack-portfolio', $wp_admin );
+	public function add_portfolio_menu() {
+		$this->add_custom_post_type_menu( 'jetpack-portfolio' );
 	}
 
 	/**
 	 * Adds a custom post type menu.
 	 *
 	 * @param string $post_type Custom post type.
-	 * @param bool   $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_custom_post_type_menu( $post_type, $wp_admin = false ) {
-		if ( $wp_admin ) {
+	public function add_custom_post_type_menu( $post_type ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit.php?post_type=' . $post_type ) ) {
 			return;
 		}
 
@@ -286,11 +268,9 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Comments menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_comments_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+	public function add_comments_menu() {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit-comments.php' ) ) {
 			return;
 		}
 
@@ -300,11 +280,9 @@ class Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * Adds Appearance menu.
 	 *
-	 * @param bool $wp_admin_themes Optional. Whether Themes link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_customize Optional. Whether Customize link should point to Calypso or wp-admin. Default false (Calypso).
 	 * @return string The Customizer URL.
 	 */
-	public function add_appearance_menu( $wp_admin_themes = false, $wp_admin_customize = false ) {
+	public function add_appearance_menu() {
 		$request_uri                     = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$default_customize_slug          = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), $request_uri ) ), 'customize.php' );
 		$default_customize_header_slug_1 = add_query_arg( array( 'autofocus' => array( 'control' => 'header_image' ) ), $default_customize_slug );
@@ -314,7 +292,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		// TODO: Remove Colors_Manager::modify_header_menu_links() and Colors_Manager_Common::modify_header_menu_links().
 		$default_customize_background_slug_2 = add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), admin_url( 'customize.php' ) );
 
-		if ( ! $wp_admin_customize ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'customize.php' ) ) {
 			$customize_url = 'https://wordpress.com/customize/' . $this->domain;
 		} elseif ( $this->is_api_request ) {
 			// In case this is an api request we will have to add the 'return' querystring via JS.
@@ -331,11 +309,11 @@ class Admin_Menu extends Base_Admin_Menu {
 			$default_customize_background_slug_2 => add_query_arg( array( 'autofocus' => array( 'section' => 'colors_manager_tool' ) ), $customize_url ),
 		);
 
-		if ( ! $wp_admin_themes ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'themes.php' ) ) {
 			$submenus_to_update['themes.php'] = 'https://wordpress.com/themes/' . $this->domain;
 		}
 
-		if ( ! $wp_admin_customize ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'customize.php' ) ) {
 			$submenus_to_update['widgets.php']       = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url );
 			$submenus_to_update['gutenberg-widgets'] = add_query_arg( array( 'autofocus' => array( 'panel' => 'widgets' ) ), $customize_url );
 			$submenus_to_update['nav-menus.php']     = add_query_arg( array( 'autofocus' => array( 'panel' => 'nav_menus' ) ), $customize_url );
@@ -351,11 +329,9 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Plugins menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_plugins_menu( $wp_admin = false ) {
-		if ( $wp_admin ) {
+	public function add_plugins_menu() {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'plugins.php' ) ) {
 			return;
 		}
 
@@ -367,46 +343,35 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Users menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_users_menu( $wp_admin = false ) {
-		if ( current_user_can( 'list_users' ) ) {
-			// We shall add the Calypso user management & add new user screens at all cases ( Calypso & Atomic ).
-			$submenus_to_update = array(
-				'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
-				'users.php'    => 'https://wordpress.com/people/team/' . $this->domain,
-			);
-			if ( ! $wp_admin ) {
-				$submenus_to_update['profile.php'] = 'https://wordpress.com/me';
-			}
-			$this->update_submenus( 'users.php', $submenus_to_update );
-			add_submenu_page( 'users.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
-		} else {
-			if ( ! $wp_admin ) {
-				$submenus_to_update = array(
-					'user-new.php' => 'https://wordpress.com/people/new/' . $this->domain,
-					'profile.php'  => 'https://wordpress.com/me',
-				);
-				$this->update_submenus( 'profile.php', $submenus_to_update );
-			}
+	public function add_users_menu() {
+		$submenus_to_update = array();
 
-			add_submenu_page( 'profile.php', esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
+		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
+		// "Users > All users" and "Users > Add New" pages, we perform a strict check.
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php', true ) ) {
+			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
+			$submenus_to_update['users.php']    = 'https://wordpress.com/people/team/' . $this->domain;
 		}
+
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'profile.php' ) ) {
+			$submenus_to_update['profile.php'] = 'https://wordpress.com/me';
+		}
+
+		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
+		$this->update_submenus( $slug, $submenus_to_update );
+		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 	}
 
 	/**
 	 * Adds Tools menu.
-	 *
-	 * @param bool $wp_admin_import Optional. Whether Import link should point to Calypso or wp-admin. Default false (Calypso).
-	 * @param bool $wp_admin_export Optional. Whether Export link should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_tools_menu( $wp_admin_import = false, $wp_admin_export = false ) {
+	public function add_tools_menu() {
 		$submenus_to_update = array();
-		if ( ! $wp_admin_import ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'import.php' ) ) {
 			$submenus_to_update['import.php'] = 'https://wordpress.com/import/' . $this->domain;
 		}
-		if ( ! $wp_admin_export ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'export.php' ) ) {
 			$submenus_to_update['export.php'] = 'https://wordpress.com/export/' . $this->domain;
 		}
 		$this->update_submenus( 'tools.php', $submenus_to_update );
@@ -420,27 +385,33 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Adds Settings menu.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_options_menu( $wp_admin = false ) {
+	public function add_options_menu() {
+		$submenus_to_update = array();
+
 		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 
-		// There is not complete feature parity between WP Admin and Calypso settings https://github.com/Automattic/wp-calypso/issues/51189.
-		$this->update_submenus( 'options-general.php', array( 'options-general.php' => 'https://wordpress.com/settings/general/' . $this->domain ) );
-		add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
-
-		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 2 );
-
-		if ( $wp_admin ) {
-			return;
+		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
+		// "Settings > General" page, we perform a strict check.
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php', true ) ) {
+			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
 		}
 
-		$submenus_to_update = array(
-			'options-writing.php'    => 'https://wordpress.com/settings/writing/' . $this->domain,
-			'options-discussion.php' => 'https://wordpress.com/settings/discussion/' . $this->domain,
-		);
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
+			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
+		}
+
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
+			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
+		}
+
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
+
+		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
+		// "Settings > Advanced General" page, we perform a strict check.
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php', true ) ) {
+			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
+		}
 	}
 
 	/**
@@ -475,10 +446,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 	/**
 	 * Re-adds the Site Editor menu without the (beta) tag, and where we want it.
-	 *
-	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
-	public function add_gutenberg_menus( $wp_admin = false ) {
+	public function add_gutenberg_menus() {
 		// We can bail if we don't meet the conditions of the Site Editor.
 		if ( ! ( function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme() ) ) {
 			return;
@@ -488,6 +457,8 @@ class Admin_Menu extends Base_Admin_Menu {
 		remove_menu_page( 'gutenberg-edit-site' );
 		// Core Gutenberg tries to manage its position, foiling our best laid plans. Unfoil.
 		remove_filter( 'menu_order', 'gutenberg_menu_order' );
+
+		$wp_admin = self::CLASSIC_VIEW === $this->get_preferred_view( 'admin.php?page=gutenberg-edit-site' );
 
 		$link = $wp_admin ? 'gutenberg-edit-site' : 'https://wordpress.com/site-editor/' . $this->domain;
 
