@@ -1269,7 +1269,45 @@
 			carousel.overlay.style.display = 'block';
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
-			selectSlideAtIndex( settings.startIndex );
+
+			swiper = new window.Swiper( '.swiper-container', {
+				centeredSlides: true,
+				zoom: true,
+				loop: true,
+				pagination: {
+					el: '.swiper-pagination',
+					clickable: true,
+				},
+				navigation: {
+					nextEl: '.swiper-button-next',
+					prevEl: '.swiper-button-prev',
+				},
+				initialSlide: settings.startIndex,
+				on: {
+					init: function () {
+						selectSlideAtIndex( settings.startIndex );
+					},
+				},
+			} );
+
+			swiper.on( 'slideChange', function () {
+				var index;
+				// Swiper indexes slides from 1, plus when looping to left last slide ends up
+				// as 0 and looping to right first slide as total slides + 1. These are adjusted
+				// here to match index of carousel.slides.
+				if ( swiper.activeIndex === 0 ) {
+					index = carousel.slides.length - 1;
+				} else if ( swiper.activeIndex === carousel.slides.length + 1 ) {
+					index = 0;
+				} else {
+					index = swiper.activeIndex - 1;
+				}
+				selectSlideAtIndex( index );
+			} );
+
+			domUtil.fadeIn( carousel.overlay, function () {
+				domUtil.emitEvent( carousel.overlay, 'jp_carousel.afterOpen' );
+			} );
 		}
 
 		// Register the event listener for starting the gallery
