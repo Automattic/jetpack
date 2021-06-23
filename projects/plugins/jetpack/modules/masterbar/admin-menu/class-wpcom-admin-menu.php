@@ -257,7 +257,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Adds Users menu.
 	 */
-	public function add_users_menu() { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function add_users_menu() {
 		$submenus_to_update = array(
 			'users.php'              => 'https://wordpress.com/people/team/' . $this->domain,
 			'grofiles-editor'        => 'https://wordpress.com/me',
