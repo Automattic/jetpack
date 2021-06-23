@@ -1,4 +1,4 @@
-[data-carousel-extra]:not(.jp-carousel-wrap) {
+[data-carousel-extra]:not( .jp-carousel-wrap ) {
 	cursor: pointer;
 }
 
@@ -19,10 +19,6 @@
 	background-size: 200%;
 	background-repeat: no-repeat;
 	background-position: center;
-	backdrop-filter: blur( 75px ) saturate( 50% );
-	-webkit-backdrop-filter: blur( 75px ) saturate( 50% );
-	transform: translateZ( 0 );
-	will-change: transform;
 }
 
 .jp-carousel-overlay .swiper-button-prev:after,
@@ -201,7 +197,7 @@ div.jp-carousel-buttons a:hover {
 	padding: 0.35em 0 0;
 	position: fixed;
 	top: 18px;
-    right: 50px;
+	right: 50px;
 	text-align: right;
 	width: 45px;
 	height: 45px;
@@ -547,16 +543,16 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 #jp-carousel-loading-overlay {
 	display: none;
 	position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-	right:0;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }
 
 #jp-carousel-loading-wrapper {
 	display: flex;
-    align-items: center;
-    justify-content: center;
+	align-items: center;
+	justify-content: center;
 	height: 100vh;
 	width: 100vw;
 }
@@ -908,8 +904,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		flex-direction: column;
 	}
 
-	.swiper-container .swiper-button-next ,
-	.swiper-container .swiper-button-prev  {
+	.swiper-container .swiper-button-next,
+	.swiper-container .swiper-button-prev {
 		display: none !important;
 	}
 
