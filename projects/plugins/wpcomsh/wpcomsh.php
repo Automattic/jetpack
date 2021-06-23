@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.7.64
+ * Version: 2.7.65
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.7.64' );
+define( 'WPCOMSH_VERSION', '2.7.65' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1407,3 +1407,10 @@ function wpcomsh_jetpack_override_custom_logo_theme_mod( $custom_logo ) {
 	return $custom_logo;
 }
 add_filter( 'theme_mod_custom_logo', 'wpcomsh_jetpack_override_custom_logo_theme_mod', 20 );
+
+if ( wpcomsh_is_managed_plugin( 'gutenberg/gutenberg.php' ) ) {
+	/*
+	* Disables a Yoast notification that displays when an outdated version of the Gutenberg plugin is installed.
+	*/
+	add_filter( 'yoast_display_gutenberg_compat_notification', '__return_false' );
+}
