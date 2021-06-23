@@ -13,12 +13,12 @@
  * @param {string}  source The URL handler registered in the server or the full destination URL (starting with https://).
  * @param {object}  args {
  *
- * 		Additional arguments to build the url
+ * 		Additional arguments to build the url.  This is not a complete list as any argument passed here will be sent to as a query parameter to the Redirect server. These parameters will not necessarily be passed over to the final destination URL. If you want to add a parameter to the final destination URL, use the `query` argument.
  *
- * 		@type {string} site URL of the current site. Will default to the value of jetpack_redirects.currentSiteRawUrl, if available.
- * 		@type {string} path Additional path to be appended to the URL
- * 		@type {string} query Query parameters to be added to the URL
- * 		@type {string} anchor Anchor to be added to the URL
+ * 		@type {string}  site URL of the current site. Will default to the value of jetpack_redirects.currentSiteRawUrl, if available.
+ * 		@type {string}  path Additional path to be appended to the URL
+ * 		@type {string}  query Query parameters to be added to the final destination URL. should be in query string format (e.g. 'key=value&foo=bar').
+ * 		@type {string}  anchor Anchor to be added to the URL
  * }
  *
  * @returns {string} The redirect URL
