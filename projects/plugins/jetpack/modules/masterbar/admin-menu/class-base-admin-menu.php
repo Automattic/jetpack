@@ -56,6 +56,13 @@ abstract class Base_Admin_Menu {
 	const CLASSIC_VIEW = 'classic';
 
 	/**
+	 * Identifier denoting no preferred view has been set for a certain screen.
+	 *
+	 * @var string
+	 */
+	const UNKNOWN_VIEW = 'classic';
+
+	/**
 	 * Base_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -582,14 +589,14 @@ abstract class Base_Admin_Menu {
 	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
 	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
 	 *                       screens.
-	 * @return string
+	 * @return string|bool
 	 */
 	public function get_preferred_view( $slug, $strict = false ) {
 		$preferred_views = $this->get_preferred_views();
 
 		if ( ! isset( $preferred_views[ $slug ] ) ) {
 			if ( $strict ) {
-				return self::DEFAULT_VIEW;
+				return self::UNKNOWN_VIEW;
 			}
 			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
 		}

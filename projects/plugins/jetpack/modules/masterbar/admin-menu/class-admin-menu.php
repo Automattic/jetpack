@@ -80,7 +80,8 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_my_home_menu() {
 		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
 		// "My Home" page, we perform a strict check.
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'index.php', true ) ) {
+		$preferred_view = $this->get_preferred_view( 'index.php', true );
+		if ( self::CLASSIC_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			return;
 		}
 
@@ -349,7 +350,8 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
 		// "Users > All users" and "Users > Add New" pages, we perform a strict check.
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php', true ) ) {
+		$preferred_view = $this->get_preferred_view( 'users.php', true );
+		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
 			$submenus_to_update['users.php']    = 'https://wordpress.com/people/team/' . $this->domain;
 		}
@@ -392,24 +394,23 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 
 		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
-		// "Settings > General" page, we perform a strict check.
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php', true ) ) {
+		// "Settings > General" and "Settings > Advanced General" pages, we perform a strict check.
+		$preferred_view = $this->get_preferred_view( 'options-general.php', true );
+		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
 		}
 
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
-			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
+			$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
 		}
 
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
-			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
+			$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
 		}
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		// In order to keep the previous behavior where the global "show wp-admin pages" setting didn't affect the
-		// "Settings > Advanced General" page, we perform a strict check.
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php', true ) ) {
+		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
 		}
 	}
