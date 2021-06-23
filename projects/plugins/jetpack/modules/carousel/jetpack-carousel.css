@@ -89,7 +89,6 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	-webkit-font-smoothing: subpixel-antialiased !important;
 	z-index: 100;
 	background-color: #000;
-	margin-left: 1vw; /* This is to even up the mysterious rhs scroll/row gap */
 }
 
 .jp-carousel-info-footer {
@@ -390,12 +389,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 /** Title and Desc Start **/
 .jp-carousel-titleanddesc {
-    border-top: 1px solid #222;
-    color: #999;
-    font-size: 15px;
-    padding-top: 15px;
-    margin-bottom: 0;
-    font-weight: 4
+	border-top: 1px solid #222;
+	color: #999;
+	font-size: 15px;
+	padding-top: 15px;
+	margin-bottom: 0;
+	font-weight: 400;
 	width: 100%;
 }
 
@@ -461,13 +460,13 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 /** Meta Box Start **/
 .jp-carousel-image-meta {
-    color: #fff;
-    font-size: 13px;
-    font: 12px/1.4 "Helvetica Neue", sans-serif !important;
-    width: 100%;
-    display: none;
-    padding: 10px;
-    background: #222;
+	color: #fff;
+	font-size: 13px;
+	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
+	width: 100%;
+	display: none;
+	padding: 10px;
+	background: #222;
 }
 
 .jp-carousel-image-meta.jp-carousel-show {
@@ -618,7 +617,7 @@ a.jp-carousel-image-download:hover {
 	color:#999;
 	font-size: 11px;
 	border-bottom: 1px solid #222;
-    margin-bottom: 6px;
+	margin-bottom: 6px;
 }
 
 #jp-carousel-comment-form {
@@ -977,6 +976,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-icon {
 	color: #fff;
 	fill: #fff;
+	background-color: black;
+	border: none;
 	cursor: pointer;
 	font-family: dashicons;
 	display: inline-block;
