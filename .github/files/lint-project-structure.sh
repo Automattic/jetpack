@@ -131,7 +131,9 @@ done
 
 # - Renovate should ignore all monorepo packages.
 debug "Checking renovate ignore list"
-tools/check-renovate-ignore-list.js
+if ! tools/check-renovate-ignore-list.js; then
+	EXIT=1
+fi
 
 # - .nvmrc should match .github/versions.sh.
 . .github/versions.sh
