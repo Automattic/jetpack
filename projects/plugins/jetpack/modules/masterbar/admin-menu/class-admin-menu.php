@@ -540,7 +540,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string The HTML code to append to "Screen Options"
 	 */
 	public function register_dashboard_switcher( $current, $screen ) {
-		l( $screen, true );
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
 		$slug          = $this->get_current_slug( $screen );
 
