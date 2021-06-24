@@ -141,7 +141,7 @@ class Videopress_Attachment_Metadata {
 		}
 
 		if ( isset( $caption ) ) {
-			$values['caption'] = $caption;
+			$values['caption'] = trim( wp_strip_all_tags( $caption ) );
 		}
 
 		if ( isset( $post_excerpt ) ) {

@@ -131,6 +131,7 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			}
 		}
 
+		// Pass the item to the handle_video_meta() that checks if it's a VideoPress item and saves it.
 		$result = $this->handle_video_meta( $media_id, $input, $item );
 
 		if ( is_wp_error( $result ) ) {
@@ -145,7 +146,7 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 	}
 
 	/**
-	 * Persist the videopress metadata.
+	 * Persist the VideoPress metadata if the given item argument is a VideoPress item.
 	 *
 	 * @param string   $media_id The ID of the video.
 	 * @param array    $input    The request input.
