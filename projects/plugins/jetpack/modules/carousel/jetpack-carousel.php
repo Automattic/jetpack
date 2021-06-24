@@ -499,6 +499,8 @@ class Jetpack_Carousel {
 				</div>
 			</div>
 		</div>
+
+		</div>
 		<?php
 	}
 

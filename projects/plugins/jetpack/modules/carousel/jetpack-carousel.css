@@ -20,8 +20,6 @@
 	background-size: 200%;
 	background-repeat: no-repeat;
 	background-position: center;
-	transform: translateZ( 0 );
-	will-change: transform;
 }
 
 .jp-carousel-overlay .swiper-button-prev:after,
