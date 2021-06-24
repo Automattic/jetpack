@@ -386,14 +386,16 @@ class Jetpack_Carousel {
 				<div class="jp-carousel swiper-wrapper"></div>
 				<div class="swiper-button-prev"></div>
 				<div class="swiper-button-next"></div>
-				<div class="swiper-pagination"></div>
 			</div>
 			<!-- The main close buton -->
 			<div class="jp-carousel-close-hint"><span>&times;</span></div>
 			<!-- Image info, comments and meta -->
 			<div class="jp-carousel-info">
 				<div class="jp-carousel-info-footer">
-					<div class="jp-carousel-pagination"></div>
+					<div class="jp-carousel-pagination-container">
+						<div class="jp-swiper-pagination swiper-pagination"></div>
+						<div class="jp-carousel-pagination"></div>
+					</div>
 					<div class="jp-carousel-photo-title-container">
 						<h2 class="jp-carousel-photo-title"></h2>
 					</div>

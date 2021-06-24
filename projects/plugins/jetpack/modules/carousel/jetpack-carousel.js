@@ -370,6 +370,12 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+					// Show dot pagination if slide count is <= 5, otherwise show n/total.
+					if ( carousel.slides.length <= 5 ) {
+						domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
+					} else {
+						domUtil.show( carousel.info.querySelector( '.jp-carousel-pagination' ) );
+					}
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.beforeClose', function () {
@@ -698,7 +704,7 @@
 
 			// Update pagination in footer.
 			var pagination = carousel.info.querySelector( '.jp-carousel-pagination' );
-			if ( pagination ) {
+			if ( pagination && carousel.slides.length > 5 ) {
 				var currentPage = index + 1;
 				pagination.innerHTML = '<span>' + currentPage + ' / ' + carousel.slides.length + '</span>';
 			}
@@ -889,7 +895,7 @@
 			titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
 			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
 
-			for ( i = 0; i < titleElements.length; ++i ) {
+			for ( i = 0; i < titleElements.length; i++ ) {
 				domUtil.hide( titleElements[ i ] );
 			}
 
@@ -904,11 +910,13 @@
 					desc = '';
 				}
 
-				descriptionElement.innerHTML = desc;
-				domUtil.show( descriptionElement );
+				if ( desc ) {
+					descriptionElement.innerHTML = desc;
+					domUtil.show( descriptionElement );
+				}
 
 				// Need maximum browser support, hence the for loop over NodeList.
-				for ( i = 0; i < titleElements.length; ++i ) {
+				for ( i = 0; i < titleElements.length; i++ ) {
 					titleElements[ i ].innerHTML = title;
 					domUtil.show( titleElements[ i ] );
 				}
