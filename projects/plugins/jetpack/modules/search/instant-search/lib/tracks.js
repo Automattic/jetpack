@@ -52,7 +52,7 @@ export function recordEvent( eventName, properties ) {
  * @param {object} properties - Event properties.
  */
 export function recordTrainTracksRender( properties ) {
-	isAnalyticsEnabled && recordEvent( 'jetpack_instant_search_traintracks_render', properties );
+	recordEvent( 'jetpack_instant_search_traintracks_render', properties );
 }
 
 /**
@@ -61,7 +61,7 @@ export function recordTrainTracksRender( properties ) {
  * @param {object} properties - Event properties.
  */
 export function recordTrainTracksInteract( properties ) {
-	isAnalyticsEnabled && recordEvent( 'jetpack_instant_search_traintracks_interact', properties );
+	recordEvent( 'jetpack_instant_search_traintracks_interact', properties );
 }
 
 /**
@@ -70,5 +70,5 @@ export function recordTrainTracksInteract( properties ) {
  * @param {object} properties - Event properties to send to Tracks.
  */
 export function recordStaticFilterSelect( properties ) {
-	isAnalyticsEnabled && recordEvent( 'jetpack_instant_search_static_filter_select', properties );
+	recordEvent( 'jetpack_instant_search_static_filter_select', properties );
 }
