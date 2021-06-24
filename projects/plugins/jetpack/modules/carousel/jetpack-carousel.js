@@ -1355,7 +1355,7 @@
 			swiper = new window.Swiper( '.swiper-container', {
 				centeredSlides: true,
 				zoom: true,
-				loop: true,
+				loop: carousel.slides.length > 1 ? true : false,
 				pagination: {
 					el: '.swiper-pagination',
 					clickable: true,
