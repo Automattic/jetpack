@@ -377,10 +377,10 @@ class Jetpack_Carousel {
 		</div>
 		<div class="jp-carousel-overlay" style="display: none;">
 
-		<div class="jp-carousel-container">
+		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
 			<!-- The Carousel Swiper -->
 			<div
-				class="jp-carousel-wrap swiper-container jp-carousel-transitions<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>"
+				class="jp-carousel-wrap swiper-container jp-carousel-transitions"
 				itemscope
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
@@ -398,16 +398,20 @@ class Jetpack_Carousel {
 						<h2 class="jp-carousel-photo-title"></h2>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
-						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
-							<span class="jp-carousel-icon">
-								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M12 3.2c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8 0-4.8-4-8.8-8.8-8.8zm0 16c-4 0-7.2-3.3-7.2-7.2C4.8 8 8 4.8 12 4.8s7.2 3.3 7.2 7.2c0 4-3.2 7.2-7.2 7.2zM11 17h2v-6h-2v6zm0-8h2V7h-2v2z"></path></svg>
-							</span>
-						</a>
+						<?php if ( $localize_strings['display_exif'] ) : ?>
+							<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
+								<span class="jp-carousel-icon">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M12 3.2c-4.8 0-8.8 3.9-8.8 8.8 0 4.8 3.9 8.8 8.8 8.8 4.8 0 8.8-3.9 8.8-8.8 0-4.8-4-8.8-8.8-8.8zm0 16c-4 0-7.2-3.3-7.2-7.2C4.8 8 8 4.8 12 4.8s7.2 3.3 7.2 7.2c0 4-3.2 7.2-7.2 7.2zM11 17h2v-6h-2v6zm0-8h2V7h-2v2z"></path></svg>
+								</span>
+							</a>
+						<?php endif; ?>
+						<?php if ( $localize_strings['display_comments'] ) : ?>
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-comments" aria-label="<?php esc_attr_e( 'Toggle photo comments visibility', 'jetpack' ); ?>">
 							<span class="jp-carousel-icon">
 								<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="32" height="32" role="img" aria-hidden="true" focusable="false"><path d="M18 4H6c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3L8.5 17H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm.5 11c0 .3-.2.5-.5.5H7.9l-2.4 2.4V6c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v9z"></path></svg>
 							</span>
 						</a>
+						<?php endif; ?>
 					</div>
 				</div>
 				<div class="jp-carousel-info-extra">
