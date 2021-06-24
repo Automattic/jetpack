@@ -386,7 +386,7 @@
 
 					// Hide pagination.
 					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
-					domUtil.show( carousel.info.querySelector( '.jp-carousel-pagination' ) );
+					domUtil.hide( carousel.info.querySelector( '.jp-carousel-pagination' ) );
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterClose', function () {
