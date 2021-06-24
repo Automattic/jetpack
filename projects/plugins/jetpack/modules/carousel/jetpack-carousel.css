@@ -216,6 +216,7 @@ div.jp-carousel-buttons a:hover {
 	width: 45px;
 	height: 45px;
 	z-index: 15;
+	color: #fff;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint {
@@ -240,7 +241,6 @@ div.jp-carousel-buttons a:hover {
 	font-size: 36px !important;
 	height: 36px;
 	width: 36px;
-	color: #fff;
 }
 
 .jp-carousel-transitions .jp-carousel-close-hint span {
@@ -767,7 +767,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /* ----- Light variant ----- */
 
-.jp-carousel-light .jp-carousel-overlay {
+.jp-carousel-light.jp-carousel-overlay {
 	background: #fff;
 }
 
