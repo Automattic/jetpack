@@ -383,6 +383,10 @@
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
+
+					// Hide pagination.
+					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
+					domUtil.show( carousel.info.querySelector( '.jp-carousel-pagination' ) );
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterClose', function () {
