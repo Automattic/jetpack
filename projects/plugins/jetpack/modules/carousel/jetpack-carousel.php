@@ -375,7 +375,7 @@ class Jetpack_Carousel {
 				<span id="jp-carousel-library-loading">&nbsp;</span>
 			</div>
 		</div>
-		<div class="jp-carousel-overlay" style="display: none;">
+		<div class="jp-carousel-overlay<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>" style="display: none;">
 
 		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
 			<!-- The Carousel Swiper -->
