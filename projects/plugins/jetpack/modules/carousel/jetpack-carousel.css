@@ -682,7 +682,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border: 1px solid #3a3a3a;
 	color: #a7aaad;
 	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
-	padding: 3px 6px;
+	padding: 10px;
 	float: left;
 	-webkit-box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.2 );
 	box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.2 );
@@ -1083,5 +1083,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-comment .avatar {
 		min-width: 48px;
+	}
+
+	#jp-carousel-comment-form-commenting-as fieldset,
+	#jp-carousel-comment-form-commenting-as input {
+		width: 100%;
 	}
 }
