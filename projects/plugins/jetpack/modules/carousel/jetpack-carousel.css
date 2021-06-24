@@ -82,17 +82,19 @@
 }
 
 .jp-carousel-info-footer {
+	position: relative;
 	background-color: #000;
-	height: 60px;
+	height: 80px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	width: 100vw;
+	top: -15px;
 }
 
 .jp-carousel-info-extra {
 	display: none;
-	background: #000;
+	background-color: #000;
 	padding: 15px 35px 35px 35px;
 	width: 100vw;
 	border-top: 1px solid #222;
@@ -276,6 +278,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 .jp-carousel-pagination-container {
 	padding-left: 35px;
 	margin-bottom: 30px;
+	margin-top: 13px;
 }
 
 .jp-swiper-pagination,
@@ -979,7 +982,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-photo-icons-container {
 	display: block;
 	text-align: right;
-	margin: 0 20px 20px 0;
+	margin: 15px 20px 20px 0;
 }
 
 .jp-carousel-icon-btn {
