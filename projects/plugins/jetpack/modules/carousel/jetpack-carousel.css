@@ -849,10 +849,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light .jp-carousel-image-meta {
-	background: #f6f7f7;
-	border: 1px solid #f0f0f1;
-	border-top-color: #f6f7f7;
-	border-left-color: #f6f7f7;
 	color: #333;
 }
 
@@ -922,10 +918,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background-color: #fff;
 }
 
-.jp-carousel-light .jp-carousel-photo-description {
-	border-top: 1px solid #f0f0f1;
-}
-
 .jp-carousel-light .jp-carousel-fadeaway {
 	background: -moz-linear-gradient( bottom, rgba( 255, 255, 255, 0.75 ), rgba( 255, 255, 255, 0 ) );
 	background: -webkit-gradient(
@@ -963,6 +955,15 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 .jp-carousel-light .jp-carousel-pagination {
 	color: #000;
+}
+
+.jp-carousel-light .jp-swiper-pagination .swiper-pagination-bullet.swiper-pagination-bullet-active {
+	background: #000;
+}
+
+.jp-carousel-light .jp-swiper-pagination .swiper-pagination-bullet:not( .swiper-pagination-bullet-active ) {
+	background: #000;
+	opacity: 0.5;
 }
 
 /** Icons Start **/
