@@ -542,15 +542,14 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string The HTML code to append to "Screen Options"
 	 */
 	public function register_dashboard_switcher( $current ) {
-		include_once __DIR__ . '/menu-mappings.php';
-		$slug = $this->get_current_slug();
+		$menu_mappings = require __DIR__ . '/menu-mappings.php';
+		$slug          = $this->get_current_slug();
 
 		// Let's show the switcher only in screens that we have a Calypso mapping to switch too.
 		if ( ! isset( $menu_mappings[ $slug ] ) ) {
 			return;
 		}
 
-		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		$contents = sprintf(
 			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 			__( 'Screen features', 'jetpack' ),

@@ -1,6 +1,11 @@
 <?php
+/**
+ * Helper mapping between WP Admin pages and WordPress.com
+ *
+ * @package automattic/jetpack
+ */
 
-$menu_mappings = array(
+return array(
 	'index.php'                              => 'https://wordpress.com/home/',
 	'upload.php'                             => 'https://wordpress.com/media/',
 	'edit.php'                               => 'https://wordpress.com/posts/',
