@@ -58,6 +58,11 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $slug, $strict = false ) {
+		// Exceptions are only needed when performing a non-strict check.
+		if ( $strict ) {
+			return parent::get_preferred_view( $slug, $strict );
+		}
+
 		// When no preferred view has been set for Themes, keep the previous behavior that forced the default view
 		// regardless of the global preference.
 		if ( 'themes.php' === $slug ) {
@@ -291,10 +296,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			'grofiles-user-settings' => 'https://wordpress.com/me/account',
 		);
 
-		// When no preferred view has been set for "Users > All Users", keep the previous behavior that forced the
-		// default view on regardless of the global preference.
-		$preferred_view = $this->get_preferred_view( 'users.php', true );
-		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php' ) ) {
 			$submenus_to_update['users.php'] = 'https://wordpress.com/people/team/' . $this->domain;
 		}
 

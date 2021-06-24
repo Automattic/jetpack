@@ -49,6 +49,36 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
+	 * Get the preferred view for the given screen.
+	 *
+	 * @param string $slug Screen slug.
+	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
+	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
+	 *                       screens.
+	 * @return string
+	 */
+	public function get_preferred_view( $slug, $strict = false ) {
+		// Exceptions are only needed when performing a non-strict check.
+		if ( $strict ) {
+			return parent::get_preferred_view( $slug, $strict );
+		}
+
+		// When no preferred view has been set for "My Home", "Users > All Users", or "Settings > General", keep the
+		// previous behavior that forced the default view regardless of the global preference.
+		if (
+			in_array( $slug, array( 'index.php', 'users.php', 'options-general.php' ), true )
+		) {
+			$preferred_view = parent::get_preferred_view( $slug, true );
+			if ( self::UNKNOWN_VIEW === $preferred_view ) {
+				return self::DEFAULT_VIEW;
+			}
+			return $preferred_view;
+		}
+
+		return parent::get_preferred_view( $slug, $strict );
+	}
+
+	/**
 	 * Check if Links Manager is being used.
 	 */
 	public function should_disable_links_manager() {
@@ -78,9 +108,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Home menu.
 	 */
 	public function add_my_home_menu() {
-		// When no preferred view has been set for "My Home", keep the previous behavior that forced the default view
-		// regardless of the global preference.
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'index.php', true ) ) {
+		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'index.php' ) ) {
 			return;
 		}
 
@@ -349,10 +377,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			'profile.php' => 'https://wordpress.com/me',
 		);
 
-		// When no preferred view has been set for "Users", keep the previous behavior that forced the default view on
-		// "Users > All users" and "Users > Add New" regardless of the global preference.
-		$preferred_view = $this->get_preferred_view( 'users.php', true );
-		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php' ) ) {
 			$submenus_to_update['users.php']    = 'https://wordpress.com/people/team/' . $this->domain;
 			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
 		}
@@ -390,10 +415,7 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->hide_submenu_page( 'options-general.php', 'sharing' );
 
-		// When no preferred view has been set for "Settings > General", keep the previous behavior that forced the
-		// default view regardless of the global preference.
-		$preferred_view = $this->get_preferred_view( 'options-general.php', true );
-		if ( self::DEFAULT_VIEW === $preferred_view || self::UNKNOWN_VIEW === $preferred_view ) {
+		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
 			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
 		}
 
@@ -409,7 +431,7 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		// When no preferred view has been set for "Settings > General", keep the previous behavior that created a
 		// duplicate menu linking to WP Admin regardless of the global preference.
-		if ( self::UNKNOWN_VIEW === $preferred_view ) {
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-general.php', true ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
 		}
 	}
