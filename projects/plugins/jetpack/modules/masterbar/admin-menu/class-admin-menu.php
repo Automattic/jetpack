@@ -517,6 +517,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string
 	 */
 	public function get_current_slug() {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		global $pagenow;
 		$slug = $pagenow;
 		if ( isset( $_REQUEST['post_type'] ) ) {
@@ -536,22 +537,29 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Prepend a dashboard swithcer to the "Screen Options" box of the current page.
 	 * Callback for the 'screen_settings' filter (available in WP 3.0 and up).
 	 *
-	 * @param string $current
-	 * @param string $screen Screen object (undocumented).
+	 * @param string $current The currently added panels in screen options.
+	 *
 	 * @return string The HTML code to append to "Screen Options"
 	 */
-	public function register_dashboard_switcher( $current, $screen ) {
-		require_once __DIR__ . '/menu-mappings.php';
-		$slug     = $this->get_current_slug();
+	public function register_dashboard_switcher( $current ) {
+		include_once __DIR__ . '/menu-mappings.php';
+		$slug = $this->get_current_slug();
+
+		// Let's show the switcher only in screens that we have a Calypso mapping to switch too.
+		if ( ! isset( $menu_mappings[ $slug ] ) ) {
+			return;
+		}
+
+		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		$contents = sprintf(
-			'<div id="dashboard-switcher"><h5>%s</h5><p>%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
+			'<div id="dashboard-switcher"><h5>%s</h5><p class="dashboard-switcher-text">%s</p><a class="button button-primary dashboard-switcher-button" href="%s">%s</a></div>',
 			__( 'Screen features', 'jetpack' ),
 			__( 'Currently you are seeing the classic WP-Admin view of this page. Would you like to see the default WordPress.com view?', 'jetpack' ),
 			$menu_mappings[ $slug ] . $this->domain,
 			__( 'Use WordPress.com view', 'jetpack' )
 		);
 
-		// Prepend the Dashboard swither.
+		// Prepend the Dashboard swither to the other custom panels.
 		$current = $contents . $current;
 
 		return $current;

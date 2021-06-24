@@ -451,7 +451,10 @@
 	order: 0;
 }
 
-/* Styles the dashboard swithcer button */
+#adv-settings .dashboard-switcher-text {
+	margin-top: 0;
+}
+
 #adv-settings .dashboard-switcher-button {
 	padding: 3px 16px;
 }
