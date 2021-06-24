@@ -40,22 +40,16 @@
 
 		function getAverageColor( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
-				context = canvas.getContext && canvas.getContext( '2d' ),
-				rgb = { r: 0, g: 0, b: 0 };
+				context = canvas.getContext && canvas.getContext( '2d' );
 
 			if ( ! imgEl ) {
-				return rgb;
+				return;
 			}
-			canvas.width = 1;
-			canvas.height = 1;
-			context.drawImage( imgEl, 0, 0, 1, 1 );
-			var i = context.getImageData( 0, 0, 1, 1 ).data;
 
-			rgb.r = i[ 0 ];
-			rgb.g = i[ 1 ];
-			rgb.b = i[ 2 ];
+			context.filter = 'blur(40px)';
+			context.drawImage( imgEl, 0, 0 );
 
-			return rgb;
+			return canvas.toDataURL( 'image/jpeg' );
 		}
 
 		return {
@@ -1054,8 +1048,10 @@
 		}
 
 		function applyBackgroundColor( currentSlide, image ) {
-			var rgb = util.getAverageColor( image );
-			currentSlide.style.backgroundColor = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
+			var url = util.getAverageColor( image );
+
+			currentSlide.style.backgroundImage = 'url(' + url + ')';
+			currentSlide.style.backgroundSize = 'cover';
 		}
 
 		function clearCommentTextAreaValue() {
