@@ -415,11 +415,11 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
-			$this->hide_submenu_page( 'options-general.php', 'options-writing.php' );
+			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
 		}
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
-			$this->hide_submenu_page( 'options-general.php', 'options-discussion.php' );
+			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
 		}
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
