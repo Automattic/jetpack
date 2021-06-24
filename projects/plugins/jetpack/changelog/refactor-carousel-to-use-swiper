@@ -1,0 +1,4 @@
+Significance: minor
+Type: major
+
+Replaces the image slider functionality within the carousel module with the swiper js library
