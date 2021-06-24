@@ -555,7 +555,7 @@ textarea#jp-carousel-comment-form-comment-field {
 	background: rgba( 34, 34, 34, 0.9 );
 	border: 1px solid #3a3a3a;
 	color: #a7aaad;
-	font: 15px/1.4 'Helvetica Neue', sans-serif !important;
+	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	width: 100%;
 	padding: 10px 10px 5px;
 	margin: 0;
@@ -681,7 +681,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: rgba( 34, 34, 34, 0.9 );
 	border: 1px solid #3a3a3a;
 	color: #a7aaad;
-	font: 13px/1.4 'Helvetica Neue', sans-serif !important;
+	font: 16px/1.4 'Helvetica Neue', sans-serif !important;
 	padding: 3px 6px;
 	float: left;
 	-webkit-box-shadow: inset 2px 2px 2px rgba( 0, 0, 0, 0.2 );

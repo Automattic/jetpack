@@ -360,7 +360,7 @@
 						domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ||
 						target.classList.contains( 'jp-carousel-photo-title' )
 					) {
-						handleIconClick( e );
+						handleFooterElementClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						return;
 					}
@@ -525,10 +525,10 @@
 		}
 
 		/**
-		 * Handles clicks to icons in the icon container.
+		 * Handles clicks to icons and other action elements in the icon container.
 		 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
 		 */
-		function handleIconClick( e ) {
+		function handleFooterElementClick( e ) {
 			e.preventDefault();
 
 			var target = e.target;
