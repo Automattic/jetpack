@@ -182,8 +182,7 @@ export function getQuestions( type ) {
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
-			message:
-				'Add a mirror repo for a build version of the project to be automatically pushed to?',
+			message: 'Will this project require a mirror repo?',
 		},
 	];
 	const packageQuestions = [];
@@ -390,40 +389,46 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
 			when: exists, // If the repo exists, confirm we want to use it.
 		},
 		{
-			type: 'confirm',
-			name: 'createNew',
-			default: false,
-			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
-			when: ! exists, // When the repo does not exist, do we want to ask to make it.
-		},
-		{
 			type: 'string',
 			name: 'newName',
 			message: 'What name do you want to use for the repo?',
 			when: newAnswers => exists && ! newAnswers.useExisting, // When there is an existing repo, but we don't want to use it.
 		},
+		// Code for auto-adding repo to be added later.
+		/* 		{
+			type: 'confirm',
+			name: 'createNew',
+			default: false,
+			message: 'There is not an ' + repo + ' repo already. Shall I create one?',
+			when: ! exists, // When the repo does not exist, do we want to ask to make it.
+		}, */
+
+		{
+			type: 'confirm',
+			name: 'autotagger',
+			default: true,
+			message: 'Configure mirror repo to create new tags automatically (based on CHANGELOG.md)?',
+		},
 	] );
 
+	/*
 	if ( answers.createNew ) {
 		// add function to create.
 		console.log(
-			chalk.yellow(
+			chalk.bgBlue(
 				'We have not quite added the automatic creation of a mirror repo, so please visit https://github.com/organizations/Automattic/repositories/new to create a new repo of ' +
 					name
 			)
 		);
-		await addMirrorRepo( composerJson, name, org );
-	} else if ( answers.useExisting ) {
-		await addMirrorRepo( composerJson, name, org );
+		await addMirrorRepo( composerJson, name, org, answers.autotagger );
+	*/
+	if ( answers.useExisting ) {
+		await addMirrorRepo( composerJson, name, org, answers.autotagger );
 	} else if ( answers.newName ) {
 		await mirrorRepo( composerJson, answers.newName, org ); // Rerun this function so we can check if the new name exists or not, etc.
+	} else {
+		await addMirrorRepo( composerJson, name, org, answers.autotagger );
 	}
-
-	// Prompt: What repo would you like to use in the "org"? Default: "name".
-
-	// Validate the name, then check for repo exists again.
-
-	// If validated, add it to composerJson. If not repeat.
 }
 
 /**
@@ -432,14 +437,17 @@ async function mirrorRepo( composerJson, name, org = 'Automattic' ) {
  * @param {object} composerJson - composer.json object.
  * @param {string} name - Repo name.
  * @param {string} org - Repo owner.
+ * @param {boolean} autotagger - if we want autotagger enabled.
  */
-function addMirrorRepo( composerJson, name, org ) {
+function addMirrorRepo( composerJson, name, org, autotagger ) {
 	composerJson.extra = composerJson.extra || {};
 	composerJson.extra[ 'mirror-repo' ] = org + '/' + name;
 	composerJson.extra.changelogger = composerJson.extra.changelogger || {};
 	composerJson.extra.changelogger[
 		'link-template'
 	] = `https://github.com/${ org }/${ name }/compare/v\${old}...v\${new}`;
+	// Add autotagger option
+	composerJson.extra.autotagger = autotagger;
 }
 
 /**

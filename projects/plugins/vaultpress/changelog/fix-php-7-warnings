@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+General: avoid PHP notices when using recent versions of PHP.
