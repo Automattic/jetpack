@@ -377,10 +377,10 @@ class Jetpack_Carousel {
 		</div>
 		<div class="jp-carousel-overlay" style="display: none;">
 
-		<div class="jp-carousel-container">
+		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
 			<!-- The Carousel Swiper -->
 			<div
-				class="jp-carousel-wrap swiper-container jp-carousel-transitions<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>"
+				class="jp-carousel-wrap swiper-container jp-carousel-transitions"
 				itemscope
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
