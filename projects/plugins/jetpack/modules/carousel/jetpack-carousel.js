@@ -539,11 +539,16 @@
 			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
 			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
 			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+			var infoIcon = carousel.info.querySelector( '.jp-carousel-icon-info' );
+			var commentsIcon = carousel.info.querySelector( '.jp-carousel-icon-comments' );
 
 			if (
 				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
 				target.classList.contains( 'jp-carousel-photo-title' )
 			) {
+				commentsIcon.classList.remove( 'jp-carousel-selected' );
+				infoIcon.classList.toggle( 'jp-carousel-selected' );
+
 				if ( commentsContainer ) {
 					commentsContainer.classList.remove( 'jp-carousel-show' );
 				}
@@ -559,6 +564,9 @@
 			}
 
 			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				infoIcon.classList.remove( 'jp-carousel-selected' );
+				commentsIcon.classList.toggle( 'jp-carousel-selected' );
+
 				if ( photoMetaContainer ) {
 					photoMetaContainer.classList.remove( 'jp-carousel-show' );
 				}
