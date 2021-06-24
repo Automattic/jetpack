@@ -1394,6 +1394,13 @@
 
 		// Register the event listener for starting the gallery
 		document.body.addEventListener( 'click', function ( e ) {
+			var isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			// IE11 support is being dropped in August 2021. The new swiper.js libray is not IE11 compat
+			// so just default to opening individual image attachment/media pages for IE.
+			if ( isIE11 ) {
+				return;
+			}
+
 			var target = e.target;
 			var gallery = domUtil.closest( target, gallerySelector );
 
