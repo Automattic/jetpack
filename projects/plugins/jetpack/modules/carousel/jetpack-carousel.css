@@ -1038,6 +1038,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		top: 0;
 	}
 
+	/* The admin bar is fixed at top: 0*/
+	.admin-bar .jp-carousel-close-hint {
+		top: 40px;
+	}
+
 	.jp-carousel-slide img {
 		filter: alpha( opacity=100 );
 		opacity: 1;
