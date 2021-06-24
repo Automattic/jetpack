@@ -553,6 +553,15 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	 * Check if the dashboard switcher is registered correctly.
 	 */
 	public function test_register_dashboard_switcher() {
+		$screen_without_switcher = (object) array(
+			'base'      => 'edit',
+			'post_type' => 'feedback',
+			'taxonomy'  => '',
+		);
+
+		$output = static::$admin_menu->register_dashboard_switcher( '', $screen_without_switcher );
+		$this->assertNull( $output );
+
 		$screens = array(
 			(object) array(
 				'base'      => 'dashboard',

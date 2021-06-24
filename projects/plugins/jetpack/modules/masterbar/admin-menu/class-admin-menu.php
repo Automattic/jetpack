@@ -520,11 +520,11 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function get_current_slug( $screen ) {
 		$slug = "{$screen->base}.php";
-		if ( in_array( $screen->post_type, array( 'page', 'jetpack-portfolio', 'jetpack-testimonial' ), true ) ) {
+		if ( '' !== $screen->post_type ) {
 			$slug .= "?post_type={$screen->post_type}";
 		}
-		if ( isset( $screen->taxonomy ) && '' !== $screen->taxonomy ) {
-			$slug .= "?taxonomy={$screen->taxonomy}";
+		if ( '' !== $screen->taxonomy ) {
+			$slug .= "&taxonomy={$screen->taxonomy}";
 		}
 
 		return $slug;
@@ -540,6 +540,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string The HTML code to append to "Screen Options"
 	 */
 	public function register_dashboard_switcher( $current, $screen ) {
+		l( $screen, true );
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
 		$slug          = $this->get_current_slug( $screen );
 
