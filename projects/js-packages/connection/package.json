@@ -5,6 +5,7 @@
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:^0.1.0-alpha",
 		"@wordpress/browserslist-config": "3.0.1",
 		"@wordpress/components": "9.2.6",
 		"@wordpress/i18n": "^3.9.0",

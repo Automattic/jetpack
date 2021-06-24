@@ -156,6 +156,7 @@ ConnectButton.propTypes = {
 	onRegistered: PropTypes.func,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
+	registrationNonce: PropTypes.string.isRequired,
 };
 
 ConnectButton.defaultProps = {

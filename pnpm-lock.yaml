@@ -126,6 +126,7 @@ importers:
 
   projects/js-packages/connection:
     specifiers:
+      '@automattic/jetpack-components': workspace:^0.1.0-alpha
       '@wordpress/browserslist-config': 3.0.1
       '@wordpress/components': 9.2.6
       '@wordpress/i18n': ^3.9.0
@@ -137,6 +138,7 @@ importers:
       react-dom: 16.14.0
       react-test-renderer: 16.14.0
     dependencies:
+      '@automattic/jetpack-components': link:../components
       '@wordpress/browserslist-config': 3.0.1
       '@wordpress/components': 9.2.6_react-dom@16.14.0+react@16.14.0
       '@wordpress/i18n': 3.20.0
@@ -169,7 +171,6 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 6.5.0
-      '@automattic/jetpack-components': workspace:^0.1.0-alpha
       '@automattic/jetpack-connection': workspace:^0.4.0-alpha
       '@babel/core': 7.12.10
       '@babel/helper-module-imports': 7.12.5
@@ -188,7 +189,6 @@ importers:
       webpack: 4.46.0
     dependencies:
       '@automattic/calypso-build': 6.5.0_c504176ad779f4702b362565f13dc47d
-      '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@babel/core': 7.12.10
       '@babel/helper-module-imports': 7.12.5

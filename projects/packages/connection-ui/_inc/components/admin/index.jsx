@@ -39,18 +39,20 @@ export default function Admin() {
 				) }
 			</div>
 
-			<ConnectScreen
-				apiRoot={ APIRoot }
-				apiNonce={ APINonce }
-				registrationNonce={ registrationNonce }
-				from="connection-ui"
-				redirectUri="tools.php?page=wpcom-connection-manager"
-			>
-				{ status => {
-					setConnectionStatus( status );
-					return null;
-				} }
-			</ConnectScreen>
+			{ ( ! connectionStatus.isRegistered || ! connectionStatus.isUserConnected ) && (
+				<ConnectScreen
+					apiRoot={ APIRoot }
+					apiNonce={ APINonce }
+					registrationNonce={ registrationNonce }
+					from="connection-ui"
+					redirectUri="tools.php?page=wpcom-connection-manager"
+				>
+					{ status => {
+						setConnectionStatus( status );
+						return null;
+					} }
+				</ConnectScreen>
+			) }
 		</React.Fragment>
 	);
 }
