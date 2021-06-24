@@ -6,7 +6,7 @@
  */
 
 return array(
-	'index.php'                              => 'https://wordpress.com/home/',
+	'dashboard.php'                          => 'https://wordpress.com/home/',
 	'upload.php'                             => 'https://wordpress.com/media/',
 	'edit.php'                               => 'https://wordpress.com/posts/',
 	'edit-comments.php'                      => 'https://wordpress.com/comments/',

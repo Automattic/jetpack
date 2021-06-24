@@ -514,20 +514,17 @@ class Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * Returns the current slug from the URL.
 	 *
+	 * @param object $screen Screen object (undocumented).
+	 *
 	 * @return string
 	 */
-	public function get_current_slug() {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		global $pagenow;
-		$slug = $pagenow;
-		if ( isset( $_REQUEST['post_type'] ) ) {
-			$slug .= '?post_type=' . $_REQUEST['post_type'];
+	public function get_current_slug( $screen ) {
+		$slug = "{$screen->base}.php";
+		if ( in_array( $screen->post_type, array( 'page', 'jetpack-portfolio', 'jetpack-testimonial' ), true ) ) {
+			$slug .= "?post_type={$screen->post_type}";
 		}
-		if ( isset( $_REQUEST['taxonomy'] ) ) {
-			$slug .= '?taxonomy=' . $_REQUEST['taxonomy'];
-		}
-		if ( isset( $_REQUEST['page'] ) ) {
-			$slug .= '?page=' . $_REQUEST['page'];
+		if ( isset( $screen->taxonomy ) && '' !== $screen->taxonomy ) {
+			$slug .= "?taxonomy={$screen->taxonomy}";
 		}
 
 		return $slug;
@@ -538,12 +535,13 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Callback for the 'screen_settings' filter (available in WP 3.0 and up).
 	 *
 	 * @param string $current The currently added panels in screen options.
+	 * @param object $screen Screen object (undocumented).
 	 *
 	 * @return string The HTML code to append to "Screen Options"
 	 */
-	public function register_dashboard_switcher( $current ) {
+	public function register_dashboard_switcher( $current, $screen ) {
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
-		$slug          = $this->get_current_slug();
+		$slug          = $this->get_current_slug( $screen );
 
 		// Let's show the switcher only in screens that we have a Calypso mapping to switch too.
 		if ( ! isset( $menu_mappings[ $slug ] ) ) {
