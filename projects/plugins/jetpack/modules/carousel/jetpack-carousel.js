@@ -396,6 +396,14 @@
 					lastKnownLocationHash = '';
 					carousel.isOpen = false;
 				} );
+
+				carousel.overlay.addEventListener( 'touchstart', function ( e ) {
+					if ( e.touches.length > 1 ) {
+						if ( ! domUtil.closest( e.target, '.jp-carousel-wrap' ) ) {
+							e.preventDefault();
+						}
+					}
+				} );
 			}
 		}
 
