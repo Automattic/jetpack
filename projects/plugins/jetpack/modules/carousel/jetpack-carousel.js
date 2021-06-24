@@ -38,7 +38,7 @@
 			} );
 		}
 
-		function getAverageColor( imgEl ) {
+		function getBackgroundImage( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
 				context = canvas.getContext && canvas.getContext( '2d' );
 
@@ -46,17 +46,19 @@
 				return;
 			}
 
-			context.filter = 'blur(40px)';
+			context.filter = 'blur(20px) ';
 			context.drawImage( imgEl, 0, 0 );
+			var url = canvas.toDataURL( 'image/png' );
+			canvas = null;
 
-			return canvas.toDataURL( 'image/jpeg' );
+			return url;
 		}
 
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
-			getAverageColor: getAverageColor,
+			getBackgroundImage: getBackgroundImage,
 		};
 	} )();
 
@@ -583,7 +585,14 @@
 			var captionHtml;
 
 			loadFullImage( carousel.slides[ index ] );
-			loadBackgroundColor( carousel.slides[ index ] );
+
+			if (
+				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+				! carousel.slides[ index ].backgroundImage
+			) {
+				loadBackgroundImage( carousel.slides[ index ] );
+			}
+
 			domUtil.hide( carousel.caption );
 			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
 
@@ -1027,7 +1036,7 @@
 			}
 		}
 
-		function loadBackgroundColor( slide ) {
+		function loadBackgroundImage( slide ) {
 			var currentSlide = slide.el;
 
 			if ( swiper && swiper.slides ) {
@@ -1038,18 +1047,18 @@
 			var isLoaded = image.complete && image.naturalHeight !== 0;
 
 			if ( isLoaded ) {
-				applyBackgroundColor( currentSlide, image );
+				applyBackgroundImage( slide, currentSlide, image );
 				return;
 			}
 
 			image.onload = function () {
-				applyBackgroundColor( currentSlide, image );
+				applyBackgroundImage( slide, currentSlide, image );
 			};
 		}
 
-		function applyBackgroundColor( currentSlide, image ) {
-			var url = util.getAverageColor( image );
-
+		function applyBackgroundImage( slide, currentSlide, image ) {
+			var url = util.getBackgroundImage( image );
+			slide.backgroundImage = url;
 			currentSlide.style.backgroundImage = 'url(' + url + ')';
 			currentSlide.style.backgroundSize = 'cover';
 		}
