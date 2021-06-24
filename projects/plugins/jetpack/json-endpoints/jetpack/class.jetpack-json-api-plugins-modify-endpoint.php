@@ -346,6 +346,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
+			// Establish per plugin lock.
+			$plugin_slug = Jetpack_Autoupdate::get_plugin_slug( $plugin );
+			if ( ! WP_Upgrader::create_lock( 'jetpack_' . $plugin_slug ) ) {
+				continue;
+			}
+
 			/**
 			 * Pre-upgrade action
 			 *
@@ -369,6 +375,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$result             = $upgrader->bulk_upgrade( array( $plugin ) );
 			$errors             = $upgrader->skin->get_errors();
 			$this->log[$plugin] = $upgrader->skin->get_upgrade_messages();
+
+			// release individual plugin lock.
+			WP_Upgrader::release_lock( 'jetpack_' . $plugin_slug );
 
 			if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 				return $errors;
