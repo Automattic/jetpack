@@ -2,12 +2,14 @@
 /**
  * Primary class file for the Jetpack Backup plugin.
  *
- * @package automattic/jetpack-backup
+ * @package automattic/jetpack-backup-plugin
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 
 /**
  * Class Jetpack_Backup
@@ -17,6 +19,9 @@ class Jetpack_Backup {
 	 * Constructor.
 	 */
 	public function __construct() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
+
 		add_action(
 			'admin_menu',
 			function () {
@@ -25,13 +30,27 @@ class Jetpack_Backup {
 			}
 		);
 
-		// Init ConnectionUI.
+		// Init Jetpack packages and ConnectionUI.
 		add_action(
 			'plugins_loaded',
 			function () {
-				Automattic\Jetpack\Connection\Manager::configure();
+				$config = new Automattic\Jetpack\Config();
+				// Connection package.
+				$config->ensure(
+					'connection',
+					array(
+						'slug'     => JETPACK_BACKUP_PLUGIN_SLUG,
+						'name'     => JETPACK_BACKUP_PLUGIN_NAME,
+						'url_info' => JETPACK_BACKUP_PLUGIN_URI,
+					)
+				);
+				// Sync package.
+				$config->ensure( 'sync' );
+
+				// Connection Manager UI.
 				Automattic\Jetpack\ConnectionUI\Admin::init();
-			}
+			},
+			1
 		);
 	}
 

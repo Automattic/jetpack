@@ -118,6 +118,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
 		'output-path': path.join( path.dirname( __dirname ), '_inc', 'blocks' ),
+		'output-jsonp-function': 'webpackJsonpJetpack',
 	}
 );
 
@@ -142,6 +143,11 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
+		resolve: {
+			...extensionsWebpackConfig.resolve,
+			// We want the compiled version, not the "calypso:src" sources.
+			mainFields: undefined,
+		},
 		plugins: [
 			...extensionsWebpackConfig.plugins,
 			new CopyWebpackPlugin( [
@@ -155,6 +161,11 @@ module.exports = [
 	},
 	{
 		...componentsWebpackConfig,
+		resolve: {
+			...componentsWebpackConfig.resolve,
+			// We want the compiled version, not the "calypso:src" sources.
+			mainFields: undefined,
+		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(

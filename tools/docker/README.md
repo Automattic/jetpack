@@ -128,7 +128,7 @@ This command will rebuild the WordPress container if you made any changes to `do
 For running the containers in the background, use:
 
 ```sh
-jetpack docker up -- -d
+jetpack docker up -d
 ```
 
 ### Stop containers
@@ -137,7 +137,7 @@ jetpack docker up -- -d
 jetpack docker stop
 ```
 
-Stops all containers. Wrapper for `docker-composer stop`.
+Stops all containers. Wrapper for `docker-compose stop`.
 
 ```sh
 jetpack docker down
@@ -156,12 +156,12 @@ jetpack docker phpunit
 This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
 
 ```sh
-jetpack docker phpunit --filter=Protect
+jetpack docker phpunit -- --filter=Protect
 ```
 
 This command runs the tests as a multi site install
 ```sh
-jetpack docker phpunit:multisite --filter=Protect
+jetpack docker phpunit:multisite -- --filter=Protect
 ```
 
 To run tests for specific packages, you can run the tests locally, from within the package's directory:
@@ -259,7 +259,29 @@ You can add your custom Jetpack constants (such as `JETPACK__SANDBOX_DOMAIN`) to
 define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 ```
 
+## Jurassic Tube Tunneling Service
+If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
+
+As it is developed internally, you can review the source code and participate in adding new features.
+
+* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
+* Break the connection: `jetpack docker jt-down`
+
+You can also set default values:
+
+```shell script
+jetpack docker jt-config username your-username
+jetpack docker jt-config subdomain your-subdomain
+```
+That will let you omit those parameters while initiating the connection:
+```shell script
+jetpack docker jt-up
+```
+
+More information: PCYsg-snO-p2.
 ## Using Ngrok with Jetpack
+
+Note: While Ngrok is technically supported for everyone, Jurassic Tube should be considered as preferred tunneling solution for Automatticians.
 
 To be able to connect Jetpack you will need a domain - you can use [Ngrok.com](https://ngrok.com/) to assign one.
 
@@ -283,45 +305,12 @@ tunnels:
     proto: http
 ```
 
-You can start your ngrok tunnel like so:
+ngrok support is integrated into a jetpack cli, so to start a docker container with mapped tunnel, simply run:
 ```bash
-./ngrok start jetpack
+jetpack docker up --ngrok
 ```
 
-These two commands are all you need to run to get Docker running when you start your computer:
-```bash
-./ngrok start jetpack
-jetpack docker up -d
-```
-### Docker Ngrok
-
-Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts ngrok inside a container and you don't have to install it or configure as a standalone software on your machine.
-
-**1. Configure environment**
-
-Add these variables to your `tools/docker/.env` file:
-
-This configures `example.us.ngrok.io` reserved domain that is available on my basic plan.
-Possible values for `NGROK_REGION` are:  (United States, default), eu (Europe), ap (Asia/Pacific) or au (Australia).
-[Read more about ngrok regions](https://ngrok.com/docs#global-locations)
-```
-NGROK_AUTH=<your auth key>
-NGROK_SUBDOMAIN=example
-NGROK_REGION=us
-```
-
-**2. Start docker with Ngrok**
-
-Start container with `jetpack docker ngrok-up -d`
-Stop container with `jetpack docker ngrok-down -d`
-
-All the other docker-compose commands can be invoked via `jetpack docker ngrok COMMAND`
-
-### Configuration file
-
-If you need more granular control over the Ngrok tunnel, you could create a configuration file. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
-
-## Ngrok SFTP Tunnel with Jetpack
+### Ngrok SFTP Tunnel with Jetpack
 A sample config for adding an sftp tunnel to your Ngrok setup would look like this:
 
 ```
@@ -341,7 +330,7 @@ See more configuration options from [Ngrok documentation](https://ngrok.com/docs
 
 You can now start both tunnels:
 ```bash
-ngrok start jetpack jetpack-sftp
+jetpack docker up --ngrok sftp
 ```
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
@@ -356,27 +345,6 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server username: `wordpress`
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
-
-## Jurassic Tube Tunneling Service
-If you are an Automattician, you can use Jurassic Tube tunneling service with functionality similar to Ngrok.
-
-As it is developed internally, you can review the source code and participate in adding new features.
-
-* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
-* Break the connection: `jetpack docker jt-down`
-
-You can also set default values:
-
-```shell script
-jetpack docker jt-config username your-username
-jetpack docker jt-config subdomain your-subdomain
-```
-That will let you omit those parameters while initiating the connection:
-```shell script
-jetpack docker jt-up
-```
-
-More information: PCYsg-snO-p2.
 
 ## Custom plugins & themes in the container
 

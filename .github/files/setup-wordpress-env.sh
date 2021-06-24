@@ -56,7 +56,7 @@ case "$WP_BRANCH" in
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.6 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		git clone --depth=1 --branch 5.7 git://develop.git.wordpress.org/ /tmp/wordpress-previous
 		;;
 esac
 echo "::endgroup::"

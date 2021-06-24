@@ -13,24 +13,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
-
-	/**
-	 * Jetpack_Admin_Menu constructor.
-	 */
-	public function __construct() {
-		parent::__construct();
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
-	}
-
-	/**
-	 * Dequeues unnecessary scripts.
-	 */
-	public function dequeue_scripts() {
-		wp_dequeue_script( 'a8c_wpcom_masterbar_overrides' ); // Initially loaded in modules/masterbar/masterbar/class-masterbar.php.
-	}
-
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
@@ -47,19 +29,16 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	public function reregister_menu_items() {
 		global $menu, $submenu;
 
-		// Change the menu only when rendered in Calypso.
-		if ( $this->is_api_request || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-			// Reset menus so there are no third-party plugin items.
-			$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		// Reset menus so there are no third-party plugin items.
+		$menu    = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-			parent::reregister_menu_items();
+		parent::reregister_menu_items();
 
-			$this->add_feedback_menu();
-			$this->add_wp_admin_menu();
+		$this->add_feedback_menu();
+		$this->add_wp_admin_menu();
 
-			ksort( $GLOBALS['menu'] );
-		}
+		ksort( $GLOBALS['menu'] );
 	}
 
 	/**
@@ -243,7 +222,20 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 * @param bool $wp_admin Optional. Whether links should point to Calypso or wp-admin. Default false (Calypso).
 	 */
 	public function add_options_menu( $wp_admin = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/general/' . $this->domain, null, 'dashicons-admin-settings', 80 );
+		$slug = 'https://wordpress.com/settings/general/' . $this->domain;
+		add_menu_page( esc_attr__( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'manage_options', $slug, null, 'dashicons-admin-settings', 80 );
+		add_submenu_page( $slug, esc_attr__( 'General', 'jetpack' ), __( 'General', 'jetpack' ), 'manage_options', $slug );
+		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
+
+		$has_scan     = \Jetpack_Plan::supports( 'scan' );
+		$rewind_state = get_transient( 'jetpack_rewind_state' );
+		$has_backup   = $rewind_state && in_array( $rewind_state->state, array( 'awaiting_credentials', 'provisioning', 'active' ), true );
+		if ( $has_scan || $has_backup ) {
+			add_submenu_page( $slug, esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain );
+		}
 	}
 
 	/**

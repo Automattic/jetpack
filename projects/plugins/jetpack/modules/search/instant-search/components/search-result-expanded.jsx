@@ -1,9 +1,7 @@
-/** @jsx h */
-
 /**
  * External dependencies
  */
-import { h } from 'preact';
+import React from 'react';
 
 /**
  * Internal dependencies
@@ -69,7 +67,7 @@ export default function SearchResultExpanded( props ) {
 						<PhotonImage
 							alt={ highlight.title }
 							className="jetpack-instant-search__search-result-expanded__image"
-							isPhotonEnabled={ this.props.isPhotonEnabled }
+							isPhotonEnabled={ props.isPhotonEnabled }
 							src={ `//${ firstImage }` }
 						/>
 					) : null }

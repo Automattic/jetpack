@@ -234,7 +234,7 @@ class Jetpack_Carousel {
 					'_inc/build/carousel/jetpack-carousel.min.js',
 					'modules/carousel/jetpack-carousel.js'
 				),
-				array( 'jquery' ),
+				array(),
 				$this->asset_version( JETPACK__VERSION ),
 				true
 			);
@@ -457,7 +457,7 @@ class Jetpack_Carousel {
 							<?php endif ?>
 						</div>
 						<ul class="jp-carousel-image-exif" style="display: none;"></ul>
-						<a class="jp-carousel-image-download" style="display: none;"></a>
+						<a class="jp-carousel-image-download" target="_blank" style="display: none;"></a>
 						<div class="jp-carousel-image-map" style="display: none;"></div>
 					</div>
 				</div>

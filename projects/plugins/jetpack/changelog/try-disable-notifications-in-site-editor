@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Disabling admin bar in Jetpack notifications to prevent keystroke hijacking in the Site Editor.
