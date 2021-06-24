@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.19
+// @version      1.20
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @require      https://code.jquery.com/jquery-3.3.1.min.js
 // @match        https://github.com/Automattic/jetpack/pull/*
@@ -143,8 +143,12 @@
 				${ getOptionsList(
 					[
 						{
-							label: 'TT1-Blocks FSE Theme',
+							label: 'TT1-Blocks (FSE)',
 							name: 'tt1-blocks',
+						},
+						{
+							label: 'Blockbase (FSE)',
+							name: 'blockbase',
 						},
 					],
 					33
