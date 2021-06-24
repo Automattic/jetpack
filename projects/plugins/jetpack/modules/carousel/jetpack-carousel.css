@@ -671,6 +671,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 }
 
+.jp-carousel-info-content-wrapper {
+	max-width: 800px;
+	margin: auto;
+}
+
 #jp-carousel-comment-form-submit-and-info-wrapper {
 	display: none;
 	overflow: hidden;
@@ -723,7 +728,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 #jp-carousel-comment-form-button-submit {
 	margin-top: 20px;
-	float: right;
+	margin-left: auto;
 	display: block;
 	border: solid 1px white;
 	background: rgba( 34, 34, 34, 0.9 );
