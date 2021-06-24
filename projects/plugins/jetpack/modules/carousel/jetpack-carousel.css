@@ -13,6 +13,7 @@
 
 .swiper-container {
 	height: auto;
+	width: 100vw;
 }
 
 .jp-carousel-overlay .swiper-zoom-container {
