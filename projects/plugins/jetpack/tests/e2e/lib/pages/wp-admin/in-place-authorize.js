@@ -35,6 +35,6 @@ export default class InPlaceAuthorizeFrame extends WpPage {
 	}
 
 	async waitToDisappear() {
-		return await this.waitForElementToBeHidden( this.selectors[ 0 ] );
+		return await this.waitForElementToBeHidden( this.selectors[ 0 ], 40000 );
 	}
 }
