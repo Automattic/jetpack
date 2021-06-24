@@ -69,6 +69,31 @@ importers:
     devDependencies:
       '@vercel/ncc': 0.28.5
 
+  projects/js-packages/components:
+    specifiers:
+      '@wordpress/browserslist-config': 3.0.1
+      '@wordpress/components': 9.2.6
+      '@wordpress/i18n': ^3.9.0
+      jetpack-js-test-runner: workspace:*
+      lodash: 4.17.21
+      nyc: 15.1.0
+      prop-types: ^15.7.2
+      react: 16.14.0
+      react-dom: 16.14.0
+      react-test-renderer: 16.14.0
+    dependencies:
+      '@wordpress/browserslist-config': 3.0.1
+      '@wordpress/components': 9.2.6_react-dom@16.14.0+react@16.14.0
+      '@wordpress/i18n': 3.20.0
+      lodash: 4.17.21
+      prop-types: 15.7.2
+    devDependencies:
+      jetpack-js-test-runner: link:../../../tools/js-test-runner
+      nyc: 15.1.0
+      react: 16.14.0
+      react-dom: 16.14.0_react@16.14.0
+      react-test-renderer: 16.14.0_react@16.14.0
+
   projects/js-packages/connection:
     specifiers:
       '@wordpress/browserslist-config': 3.0.1
@@ -114,6 +139,7 @@ importers:
   projects/packages/connection-ui:
     specifiers:
       '@automattic/calypso-build': 6.5.0
+      '@automattic/jetpack-components': workspace:^0.1.0-alpha
       '@automattic/jetpack-connection': workspace:^0.4.0-alpha
       '@babel/core': 7.12.10
       '@babel/helper-module-imports': 7.12.5
@@ -132,6 +158,7 @@ importers:
       webpack: 4.46.0
     dependencies:
       '@automattic/calypso-build': 6.5.0_c504176ad779f4702b362565f13dc47d
+      '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@babel/core': 7.12.10
       '@babel/helper-module-imports': 7.12.5
@@ -260,6 +287,7 @@ importers:
       '@automattic/color-studio': 2.5.0
       '@automattic/components': 1.0.0-alpha.3
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-components': workspace:^0.1.0-alpha
       '@automattic/jetpack-connection': workspace:^0.4.0-alpha
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
@@ -394,6 +422,7 @@ importers:
       '@automattic/calypso-color-schemes': 2.1.1
       '@automattic/components': 1.0.0-alpha.3_react-dom@16.14.0+react@16.14.0
       '@automattic/format-currency': 1.0.0-alpha.0
+      '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/popup-monitor': 1.0.0
       '@automattic/request-external-access': 1.0.0
@@ -5320,7 +5349,7 @@ packages:
     resolution: {integrity: sha512-SIoOJFB4UrrYAScS4H91CYCLW9dX3Ghv8pBKc/yHGculb1AdGr6gRMlmJxZV62Cn3CZ4Ga86c+FfR+GiBu0JPg==}
     hasBin: true
     dependencies:
-      '@babel/runtime': 7.13.10
+      '@babel/runtime': 7.14.0
       '@wordpress/hooks': 2.12.3
       gettext-parser: 1.4.0
       lodash: 4.17.21
@@ -10174,7 +10203,7 @@ packages:
     resolution: {integrity: sha512-sedZYLHlHeBop/gZ1jdg59hlUEcpcZJofLq2JFwJT1zTqAU3l2wFv6IsuwFHGqbiT9DWzMUW4/em2+hspnmMMA==}
     dependencies:
       encoding: 0.1.13
-      safe-buffer: 5.1.2
+      safe-buffer: 5.2.1
 
   /gettext-parser/3.1.1:
     resolution: {integrity: sha512-vNhWcqXEtZPs5Ft1ReA34g7ByWotpcOIeJvXVy2jF3/G2U9v6W0wG4Z4hXzcU8R//jArqkgHcVCGgGqa4vxVlQ==}

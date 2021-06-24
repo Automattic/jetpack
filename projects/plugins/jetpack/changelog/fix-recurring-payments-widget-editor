@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Make sure upgrade and connection notices in blocks work with the widget and customizer block editors.
