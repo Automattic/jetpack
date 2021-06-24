@@ -92,6 +92,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	width: 100vw;
 }
 
 .jp-carousel-pagination {
@@ -101,28 +102,16 @@
 	white-space: nowrap;
 }
 
-.jp-carousel-photo-title {
-	background: none !important;
-	border: none !important;
-	color: #fff;
-	display: inline-block;
-	font: normal 16px/1.25em 'Helvetica Neue', sans-serif !important;
-	letter-spacing: 0 !important;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	text-align: center;
-	text-shadow: none !important;
-	text-transform: none !important;
-	white-space: nowrap;
-}
-
 .jp-carousel-info-extra {
 	display: none;
 	background: #000;
 	padding: 15px 35px 35px 35px;
     width: 100vw;
     border-top: 1px solid #222;
+}
+
+.jp-carousel-title-and-caption {
+	margin-bottom: 15px;
 }
 
 .jp-carousel-info-extra.jp-carousel-show {
@@ -293,12 +282,37 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 }
 
 /** Title and Desc Start **/
-.jp-carousel-photo-description {
-	border-top: 1px solid #222;
+.jp-carousel-info-footer .jp-carousel-photo-title-container {
+	flex-basis: 50vw;
+	overflow: hidden;
+}
+
+.jp-carousel-photo-title {
+	background: none !important;
+	border: none !important;
+	display: inline-block;
+	font: normal 20px/1.3em 'Helvetica Neue', sans-serif;
+	letter-spacing: 0 !important;
+	margin: 0 0 10px 0;
+	padding: 0;
+	overflow: hidden;
+	text-shadow: none !important;
+	text-transform: none !important;
+	color: #fff;
+}
+
+.jp-carousel-info-footer .jp-carousel-photo-title {
+	text-align: center;
+	font: normal 13px/1em 'Helvetica Neue', sans-serif;
+	white-space: nowrap;
 	color: #999;
-	font-size: 15px;
+	cursor: pointer;
+}
+
+.jp-carousel-photo-description {
+	color: #999;
+	font-size: 16px;
 	margin-bottom: 0;
-	font-weight: 400;
 	width: 100%;
 }
 
@@ -355,15 +369,11 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 
 /** Meta Box Start **/
 .jp-carousel-image-meta {
-	background: #111;
-	border: 1px solid #222;
 	color: #fff;
 	font-size: 13px;
 	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
 	width: 100%;
 	display: none;
-	padding: 10px;
-	background: #222;
 }
 
 .jp-carousel-image-meta.jp-carousel-show {
@@ -790,7 +800,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light .jp-carousel-info h2,
-.jp-carousel-light .jp-carousel-titleanddesc,
 .jp-carousel-light .jp-carousel-photo-description p,
 .jp-carousel-light .jp-carousel-comment,
 .jp-carousel-light .jp-carousel-comment p,
@@ -1035,5 +1044,17 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-caption {
 		overflow: visible !important;
+	}
+
+	.jp-carousel-photo-icons-container {
+		margin-right: 8px;
+	}
+
+	.jp-carousel-icon-btn {
+		padding: 8px;
+	}
+
+	.jp-carousel-pagination {
+		padding-left: 10px;
 	}
 }

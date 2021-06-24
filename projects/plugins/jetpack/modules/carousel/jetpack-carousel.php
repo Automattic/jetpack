@@ -416,6 +416,9 @@ class Jetpack_Carousel {
 				</div>
 				<div class="jp-carousel-info-extra">
 					<div class="jp-carousel-info-content-wrapper">
+						<div class="jp-carousel-photo-title-container">
+							<h2 class="jp-carousel-photo-title"></h2>
+						</div>
 						<div class="jp-carousel-comments-wrapper">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
 								<div id="jp-carousel-comments-loading">

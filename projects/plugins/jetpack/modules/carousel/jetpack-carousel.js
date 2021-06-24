@@ -362,7 +362,10 @@
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 						handleCommentFormClick( e );
-					} else if ( domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ) {
+					} else if (
+						domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ||
+						target.classList.contains( 'jp-carousel-photo-title' )
+					) {
 						handleIconClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						return;
@@ -533,7 +536,10 @@
 			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
 			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
 
-			if ( domUtil.closest( target, '.jp-carousel-icon-info' ) ) {
+			if (
+				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
+				target.classList.contains( 'jp-carousel-photo-title' )
+			) {
 				if ( commentsContainer ) {
 					commentsContainer.classList.remove( 'jp-carousel-show' );
 				}
@@ -877,12 +883,17 @@
 		function updateTitleAndDesc( data ) {
 			var title = '';
 			var desc = '';
-			var titleElement;
+			var titleElements;
 			var descriptionElement;
+			var i;
 
-			titleElement = document.querySelector( '.jp-carousel-photo-title' );
+			titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
 			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
-			domUtil.hide( titleElement );
+
+			for ( i = 0; i < titleElements.length; ++i ) {
+				domUtil.hide( titleElements[ i ] );
+			}
+
 			domUtil.hide( descriptionElement );
 
 			title = parseTitleOrDesc( data.title ) || '';
@@ -894,11 +905,14 @@
 					desc = '';
 				}
 
-				titleElement.innerHTML = title;
 				descriptionElement.innerHTML = desc;
-
-				domUtil.show( titleElement );
 				domUtil.show( descriptionElement );
+
+				// Need maximum browser support, hence the for loop over NodeList.
+				for ( i = 0; i < titleElements.length; ++i ) {
+					titleElements[ i ].innerHTML = title;
+					domUtil.show( titleElements[ i ] );
+				}
 			}
 		}
 
