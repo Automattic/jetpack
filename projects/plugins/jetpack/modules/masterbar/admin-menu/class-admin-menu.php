@@ -58,15 +58,10 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $slug, $strict = false ) {
-		// Exceptions are only needed when performing a non-strict check.
-		if ( $strict ) {
-			return parent::get_preferred_view( $slug, $strict );
-		}
-
 		// When no preferred view has been set for "My Home", "Users > All Users", or "Settings > General", keep the
 		// previous behavior that forced the default view regardless of the global preference.
 		if (
-			in_array( $slug, array( 'index.php', 'users.php', 'options-general.php' ), true )
+			! $strict && in_array( $slug, array( 'index.php', 'users.php', 'options-general.php' ), true )
 		) {
 			$preferred_view = parent::get_preferred_view( $slug, true );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {

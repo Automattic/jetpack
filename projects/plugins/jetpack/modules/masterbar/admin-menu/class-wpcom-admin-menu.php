@@ -58,14 +58,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * @return string
 	 */
 	public function get_preferred_view( $slug, $strict = false ) {
-		// Exceptions are only needed when performing a non-strict check.
-		if ( $strict ) {
-			return parent::get_preferred_view( $slug, $strict );
-		}
-
 		// When no preferred view has been set for Themes, keep the previous behavior that forced the default view
 		// regardless of the global preference.
-		if ( 'themes.php' === $slug ) {
+		if ( ! $strict && 'themes.php' === $slug ) {
 			$preferred_view = parent::get_preferred_view( $slug, true );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;
