@@ -716,7 +716,9 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			swiper.destroy();
+			if ( swiper ) {
+				swiper.destroy();
+			}
 			carousel.isOpen = false;
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
