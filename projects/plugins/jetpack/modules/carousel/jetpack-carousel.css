@@ -88,6 +88,7 @@
 
 .jp-carousel-info-footer {
 	background-color: #000;
+	height: 50px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
