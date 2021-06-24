@@ -356,6 +356,11 @@
 						handleCommentLoginClick( e );
 					} else if ( domUtil.closest( target, '#jp-carousel-comment-form-container' ) ) {
 						handleCommentFormClick( e );
+					} else if (
+						domUtil.closest( target, '.jp-carousel-photo-icons-container' ) ||
+						target.classList.contains( 'jp-carousel-photo-title' )
+					) {
+						handleFooterElementClick( e );
 					} else if ( ! domUtil.closest( target, '.jp-carousel-info' ) ) {
 						return;
 					}
@@ -365,6 +370,12 @@
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterOpen', function () {
 					enableKeyboardNavigation();
+					// Show dot pagination if slide count is <= 5, otherwise show n/total.
+					if ( carousel.slides.length <= 5 ) {
+						domUtil.show( carousel.info.querySelector( '.jp-swiper-pagination' ) );
+					} else {
+						domUtil.show( carousel.info.querySelector( '.jp-carousel-pagination' ) );
+					}
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.beforeClose', function () {
@@ -372,6 +383,10 @@
 
 					// Fixes some themes where closing carousel brings view back to top.
 					document.documentElement.style.removeProperty( 'height' );
+
+					// Hide pagination.
+					domUtil.hide( carousel.info.querySelector( '.jp-swiper-pagination' ) );
+					domUtil.hide( carousel.info.querySelector( '.jp-carousel-pagination' ) );
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterClose', function () {
@@ -513,6 +528,52 @@
 			}
 		}
 
+		/**
+		 * Handles clicks to icons and other action elements in the icon container.
+		 * @param {MouseEvent|TouchEvent|KeyBoardEvent} Event object.
+		 */
+		function handleFooterElementClick( e ) {
+			e.preventDefault();
+
+			var target = e.target;
+			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+
+			if (
+				domUtil.closest( target, '.jp-carousel-icon-info' ) ||
+				target.classList.contains( 'jp-carousel-photo-title' )
+			) {
+				if ( commentsContainer ) {
+					commentsContainer.classList.remove( 'jp-carousel-show' );
+				}
+				if ( photoMetaContainer ) {
+					photoMetaContainer.classList.toggle( 'jp-carousel-show' );
+					if ( photoMetaContainer.classList.contains( 'jp-carousel-show' ) ) {
+						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						domUtil.scrollToElement( extraInfoContainer );
+					} else {
+						extraInfoContainer.classList.remove( 'jp-carousel-show' );
+					}
+				}
+			}
+
+			if ( domUtil.closest( target, '.jp-carousel-icon-comments' ) ) {
+				if ( photoMetaContainer ) {
+					photoMetaContainer.classList.remove( 'jp-carousel-show' );
+				}
+				if ( commentsContainer ) {
+					commentsContainer.classList.toggle( 'jp-carousel-show' );
+					if ( commentsContainer.classList.contains( 'jp-carousel-show' ) ) {
+						extraInfoContainer.classList.add( 'jp-carousel-show' );
+						domUtil.scrollToElement( extraInfoContainer );
+					} else {
+						extraInfoContainer.classList.remove( 'jp-carousel-show' );
+					}
+				}
+			}
+		}
+
 		function processSingleImageGallery() {
 			var images = document.querySelectorAll( 'a img[data-attachment-id]' );
 			Array.prototype.forEach.call( images, function ( image ) {
@@ -583,6 +644,20 @@
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
 			var captionHtml;
+			var extraInfoContainer = carousel.info.querySelector( '.jp-carousel-info-extra' );
+			var photoMetaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			var commentsContainer = carousel.info.querySelector( '.jp-carousel-comments-wrapper' );
+
+			// Hide comments and photo info
+			if ( extraInfoContainer ) {
+				extraInfoContainer.classList.remove( 'jp-carousel-show' );
+			}
+			if ( photoMetaContainer ) {
+				photoMetaContainer.classList.remove( 'jp-carousel-show' );
+			}
+			if ( commentsContainer ) {
+				commentsContainer.classList.remove( 'jp-carousel-show' );
+			}
 
 			loadFullImage( carousel.slides[ index ] );
 
@@ -629,6 +704,13 @@
 				domUtil.fadeOut( carousel.caption, function () {
 					carousel.caption.innerHTML = '';
 				} );
+			}
+
+			// Update pagination in footer.
+			var pagination = carousel.info.querySelector( '.jp-carousel-pagination' );
+			if ( pagination && carousel.slides.length > 5 ) {
+				var currentPage = index + 1;
+				pagination.innerHTML = '<span>' + currentPage + ' / ' + carousel.slides.length + '</span>';
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
@@ -810,11 +892,18 @@
 		function updateTitleAndDesc( data ) {
 			var title = '';
 			var desc = '';
-			var markup = '';
-			var target;
+			var titleElements;
+			var descriptionElement;
+			var i;
 
-			target = document.querySelector( '.jp-carousel-titleanddesc' );
-			domUtil.hide( target );
+			titleElements = document.querySelectorAll( '.jp-carousel-photo-title' );
+			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
+
+			for ( i = 0; i < titleElements.length; i++ ) {
+				domUtil.hide( titleElements[ i ] );
+			}
+
+			domUtil.hide( descriptionElement );
 
 			title = parseTitleOrDesc( data.title ) || '';
 			desc = parseTitleOrDesc( data.desc ) || '';
@@ -822,14 +911,19 @@
 			if ( title || desc ) {
 				// Convert from HTML to plain text (including HTML entities decode, etc)
 				if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
-					title = '';
+					desc = '';
 				}
 
-				markup = title ? '<div class="jp-carousel-titleanddesc-title">' + title + '</div>' : '';
-				markup += desc ? '<div class="jp-carousel-titleanddesc-desc">' + desc + '</div>' : '';
+				if ( desc ) {
+					descriptionElement.innerHTML = desc;
+					domUtil.show( descriptionElement );
+				}
 
-				target.innerHTML = markup;
-				domUtil.fadeIn( target );
+				// Need maximum browser support, hence the for loop over NodeList.
+				for ( i = 0; i < titleElements.length; i++ ) {
+					titleElements[ i ].innerHTML = title;
+					domUtil.show( titleElements[ i ] );
+				}
 			}
 		}
 
@@ -986,13 +1080,13 @@
 						'<div class="comment-gravatar">' +
 						entry.gravatar_markup +
 						'</div>' +
+						'<div class="comment-content">' +
 						'<div class="comment-author">' +
 						entry.author_markup +
 						'</div>' +
 						'<div class="comment-date">' +
 						entry.date_gmt +
 						'</div>' +
-						'<div class="comment-content">' +
 						entry.content +
 						'</div>';
 					comments.appendChild( comment );
@@ -1253,7 +1347,7 @@
 			carousel.gallery.innerHTML = '';
 
 			// Need to set the overlay manually to block or swiper does't initialise properly.
-			carousel.overlay.style.opacity = 0;
+			carousel.overlay.style.opacity = 1;
 			carousel.overlay.style.display = 'block';
 
 			initCarouselSlides( gallery.querySelectorAll( settings.imgSelector ), settings.startIndex );
