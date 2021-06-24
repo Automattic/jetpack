@@ -397,11 +397,10 @@
 					carousel.isOpen = false;
 				} );
 
+				// Prevent native browser zooming
 				carousel.overlay.addEventListener( 'touchstart', function ( e ) {
 					if ( e.touches.length > 1 ) {
-						if ( ! domUtil.closest( e.target, '.jp-carousel-wrap' ) ) {
-							e.preventDefault();
-						}
+						e.preventDefault();
 					}
 				} );
 			}
