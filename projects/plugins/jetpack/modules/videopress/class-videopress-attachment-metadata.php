@@ -33,6 +33,8 @@ class Videopress_Attachment_Metadata {
 			'headers' => array( 'content-type' => 'application/json' ),
 		);
 
+		$display_embed = (int) $display_embed;
+
 		$values         = self::build_wpcom_api_request_values( $post_title, $caption, $post_excerpt, $rating, $display_embed );
 		$endpoint       = 'videos';
 		$values['guid'] = $guid;
@@ -51,7 +53,7 @@ class Videopress_Attachment_Metadata {
 
 		$meta = wp_get_attachment_metadata( $post_id );
 
-		if ( isset( $values['display_embed'] ) ) {
+		if ( self::is_display_embed_valid( $display_embed ) ) {
 			$meta['videopress']['display_embed'] = (bool) $values['display_embed']; // convert it to bool since that's how we store it on wp-admin side.
 		}
 
@@ -88,7 +90,7 @@ class Videopress_Attachment_Metadata {
 	 * @return bool
 	 */
 	private static function is_display_embed_valid( $display_embed ) {
-		return ( '0' === $display_embed || '1' === $display_embed );
+		return ( 0 === $display_embed || 1 === $display_embed );
 	}
 
 	/**
@@ -151,7 +153,7 @@ class Videopress_Attachment_Metadata {
 		}
 
 		if ( self::is_display_embed_valid( $display_embed ) ) {
-			$values['display_embed'] = (int) $display_embed;
+			$values['display_embed'] = $display_embed;
 		}
 
 		return $values;
