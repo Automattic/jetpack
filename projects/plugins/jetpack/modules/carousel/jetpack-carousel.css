@@ -97,12 +97,31 @@
 	color: #fff;
 	padding-left: 32px;
 	font-size: 12px;
+	white-space: nowrap;
+}
+
+.jp-carousel-photo-title {
+	background: none !important;
+	border: none !important;
+	color: #fff;
+	display: inline-block;
+	font: normal 16px/1.25em 'Helvetica Neue', sans-serif !important;
+	letter-spacing: 0 !important;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	text-align: center;
+	text-shadow: none !important;
+	text-transform: none !important;
+	white-space: nowrap;
 }
 
 .jp-carousel-info-extra {
 	display: none;
 	background: #000;
-	padding: 0 20px 20px 20px;
+	padding: 0 35px 35px 35px;
+    width: 100vw;
+    border-top: 1px solid #222;
 }
 
 .jp-carousel-info-extra.jp-carousel-show {
@@ -143,22 +162,6 @@
 	-moz-transition: 400ms ease-out;
 	-o-transition: 400ms ease-out;
 	transition: 400ms ease-out;
-}
-
-.jp-carousel-info h2 {
-	background: none !important;
-	border: none !important;
-	color: #999;
-	display: block !important;
-	font: normal 13px/1.25em 'Helvetica Neue', sans-serif !important;
-	letter-spacing: 0 !important;
-	margin: 7px 0 0 0 !important;
-	padding: 10px 0 0 !important;
-	overflow: hidden;
-	text-align: left;
-	text-shadow: none !important;
-	text-transform: none !important;
-	-webkit-font-smoothing: subpixel-antialiased;
 }
 
 .jp-carousel-transitions .jp-carousel-next-button span,
@@ -289,36 +292,27 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 }
 
 /** Title and Desc Start **/
-.jp-carousel-titleanddesc {
+.jp-carousel-photo-description {
 	border-top: 1px solid #222;
 	color: #999;
 	font-size: 15px;
-	padding-top: 15px;
 	margin-bottom: 0;
 	font-weight: 400;
 	width: 100%;
 }
 
-.jp-carousel-titleanddesc-desc {
+.jp-carousel-photo-description {
 	overflow: hidden;
 	overflow-wrap: break-word;
 }
 
-.jp-carousel-titleanddesc-title {
-	font: 300 1.5em/1.1 'Helvetica Neue', sans-serif !important;
-	text-transform: none !important; /* prevents uppercase from leaking through */
-	color: #fff;
-	margin: 0 0 7px;
-	padding: 0;
-}
-
-.jp-carousel-titleanddesc-desc p {
+.jp-carousel-photo-description p {
 	color: #999;
 	line-height:1.4;
 	margin-bottom: 0;
 }
 
-.jp-carousel-titleanddesc p a,
+.jp-carousel-photo-description p a,
 .jp-carousel-comments p a,
 .jp-carousel-info h2 a {
 	color: #fff !important;
@@ -328,25 +322,25 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	font-style: normal !important;
 }
 
-.jp-carousel-titleanddesc p strong,
-.jp-carousel-titleanddesc p b {
+.jp-carousel-photo-description p strong,
+.jp-carousel-photo-description p b {
 	font-weight: bold;
 	color: #999;
 }
 
-.jp-carousel-titleanddesc p em,
-.jp-carousel-titleanddesc p i {
+.jp-carousel-photo-description p em,
+.jp-carousel-photo-description p i {
 	font-style: italic;
 	color: #999;
 }
 
-.jp-carousel-titleanddesc p a:hover,
+.jp-carousel-photo-description p a:hover,
 .jp-carousel-comments p a:hover,
 .jp-carousel-info h2 a:hover {
 	color: #68c9e8 !important;
 }
 
-.jp-carousel-titleanddesc p:empty {
+.jp-carousel-photo-description p:empty {
 	display: none;
 }
 
@@ -772,14 +766,14 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light .jp-carousel-close-hint:hover,
-.jp-carousel-light .jp-carousel-titleanddesc div {
+.jp-carousel-light .jp-carousel-photo-description div {
 	color: #000 !important;
 }
 
 .jp-carousel-light .jp-carousel-comments p a,
 .jp-carousel-light .jp-carousel-comment .comment-author a,
-.jp-carousel-light .jp-carousel-titleanddesc p a,
-.jp-carousel-light .jp-carousel-titleanddesc p a,
+.jp-carousel-light .jp-carousel-photo-description p a,
+.jp-carousel-light .jp-carousel-photo-description p a,
 .jp-carousel-light .jp-carousel-comments p a,
 .jp-carousel-light .jp-carousel-info h2 a {
 	color: #4f94d4 !important;
@@ -787,8 +781,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 .jp-carousel-light .jp-carousel-comments p a:hover,
 .jp-carousel-light .jp-carousel-comment .comment-author a:hover,
-.jp-carousel-light .jp-carousel-titleanddesc p a:hover,
-.jp-carousel-light .jp-carousel-titleanddesc p a:hover,
+.jp-carousel-light .jp-carousel-photo-description p a:hover,
+.jp-carousel-light .jp-carousel-photo-description p a:hover,
 .jp-carousel-light .jp-carousel-comments p a:hover,
 .jp-carousel-light .jp-carousel-info h2 a:hover {
 	color: #f1831e !important;
@@ -796,14 +790,14 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 .jp-carousel-light .jp-carousel-info h2,
 .jp-carousel-light .jp-carousel-titleanddesc,
-.jp-carousel-light .jp-carousel-titleanddesc p,
+.jp-carousel-light .jp-carousel-photo-description p,
 .jp-carousel-light .jp-carousel-comment,
 .jp-carousel-light .jp-carousel-comment p,
 .jp-carousel-light div.jp-carousel-buttons a,
-.jp-carousel-light .jp-carousel-titleanddesc p strong,
-.jp-carousel-light .jp-carousel-titleanddesc p b,
-.jp-carousel-light .jp-carousel-titleanddesc p em,
-.jp-carousel-light .jp-carousel-titleanddesc p i {
+.jp-carousel-light .jp-carousel-photo-description p strong,
+.jp-carousel-light .jp-carousel-photo-description p b,
+.jp-carousel-light .jp-carousel-photo-description p em,
+.jp-carousel-light .jp-carousel-photo-description p i {
 	color: #646970;
 }
 
@@ -901,7 +895,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background-color: #fff;
 }
 
-.jp-carousel-light .jp-carousel-titleanddesc {
+.jp-carousel-light .jp-carousel-photo-description {
 	border-top: 1px solid #f0f0f1;
 }
 
@@ -1028,10 +1022,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-fadeaway {
 		display: none;
-	}
-
-	.jp-carousel-titleanddesc-title {
-		font-size: 1.25em !important;
 	}
 
 	.jp-carousel-info > .jp-carousel-photo-info {

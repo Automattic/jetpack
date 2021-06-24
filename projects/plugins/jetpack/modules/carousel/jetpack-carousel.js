@@ -864,11 +864,13 @@
 		function updateTitleAndDesc( data ) {
 			var title = '';
 			var desc = '';
-			var markup = '';
-			var target;
+			var titleElement;
+			var descriptionElement;
 
-			target = document.querySelector( '.jp-carousel-titleanddesc' );
-			domUtil.hide( target );
+			titleElement = document.querySelector( '.jp-carousel-photo-title' );
+			descriptionElement = document.querySelector( '.jp-carousel-photo-description' );
+			domUtil.hide( titleElement );
+			domUtil.hide( descriptionElement );
 
 			title = parseTitleOrDesc( data.title ) || '';
 			desc = parseTitleOrDesc( data.desc ) || '';
@@ -876,14 +878,14 @@
 			if ( title || desc ) {
 				// Convert from HTML to plain text (including HTML entities decode, etc)
 				if ( domUtil.convertToPlainText( title ) === domUtil.convertToPlainText( desc ) ) {
-					title = '';
+					desc = '';
 				}
 
-				markup = title ? '<div class="jp-carousel-titleanddesc-title">' + title + '</div>' : '';
-				markup += desc ? '<div class="jp-carousel-titleanddesc-desc">' + desc + '</div>' : '';
+				titleElement.innerHTML = title;
+				descriptionElement.innerHTML = desc;
 
-				target.innerHTML = markup;
-				domUtil.fadeIn( target );
+				domUtil.show( titleElement );
+				domUtil.show( descriptionElement );
 			}
 		}
 
