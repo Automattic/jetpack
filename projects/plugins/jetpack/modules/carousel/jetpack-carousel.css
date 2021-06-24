@@ -947,7 +947,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background-color: #fff;
 }
 
-.jp-carousel-light .jp-carousel-icon-btn:hover .jp-carousel-icon {
+.jp-carousel-light .jp-carousel-icon-btn.jp-carousel-selected .jp-carousel-icon {
 	color: #fff;
 	fill: #fff;
 	background-color: #000;
@@ -1000,7 +1000,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 }
 
-.jp-carousel-icon-btn:hover .jp-carousel-icon {
+.jp-carousel-icon-btn.jp-carousel-selected .jp-carousel-icon {
 	color: #000;
 	fill: #000;
 	background-color: #fff;
