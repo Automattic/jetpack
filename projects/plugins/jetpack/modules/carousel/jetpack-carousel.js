@@ -38,33 +38,27 @@
 			} );
 		}
 
-		function getAverageColor( imgEl ) {
+		function getBackgroundImage( imgEl ) {
 			var canvas = document.createElement( 'canvas' ),
-				context = canvas.getContext && canvas.getContext( '2d' ),
-				rgb = { r: 0, g: 0, b: 0 };
+				context = canvas.getContext && canvas.getContext( '2d' );
 
 			if ( ! imgEl ) {
-				return rgb;
+				return;
 			}
 
-			imgEl.crossOrigin = 'Anonymous';
-			canvas.width = 1;
-			canvas.height = 1;
-			context.drawImage( imgEl, 0, 0, 1, 1 );
-			var i = context.getImageData( 0, 0, 1, 1 ).data;
+			context.filter = 'blur(20px) ';
+			context.drawImage( imgEl, 0, 0 );
+			var url = canvas.toDataURL( 'image/png' );
+			canvas = null;
 
-			rgb.r = i[ 0 ];
-			rgb.g = i[ 1 ];
-			rgb.b = i[ 2 ];
-
-			return rgb;
+			return url;
 		}
 
 		return {
 			noop: noop,
 			texturize: texturize,
 			applyReplacements: applyReplacements,
-			getAverageColor: getAverageColor,
+			getBackgroundImage: getBackgroundImage,
 		};
 	} )();
 
@@ -656,7 +650,14 @@
 			}
 
 			loadFullImage( carousel.slides[ index ] );
-			loadBackgroundColor( carousel.slides[ index ] );
+
+			if (
+				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+				! carousel.slides[ index ].backgroundImage
+			) {
+				loadBackgroundImage( carousel.slides[ index ] );
+			}
+
 			domUtil.hide( carousel.caption );
 			updateTitleAndDesc( { title: current.attrs.title, desc: current.attrs.desc } );
 
@@ -733,9 +734,7 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			if ( swiper ) {
-				swiper.destroy();
-			}
+			swiper.destroy();
 			carousel.isOpen = false;
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
@@ -1119,7 +1118,7 @@
 			}
 		}
 
-		function loadBackgroundColor( slide ) {
+		function loadBackgroundImage( slide ) {
 			var currentSlide = slide.el;
 
 			if ( swiper && swiper.slides ) {
@@ -1130,20 +1129,20 @@
 			var isLoaded = image.complete && image.naturalHeight !== 0;
 
 			if ( isLoaded ) {
-				applyBackgroundColor( currentSlide, image );
+				applyBackgroundImage( slide, currentSlide, image );
 				return;
 			}
 
 			image.onload = function () {
-				applyBackgroundColor( currentSlide, image );
+				applyBackgroundImage( slide, currentSlide, image );
 			};
 		}
 
-		function applyBackgroundColor( currentSlide, image ) {
-			var rgb = util.getAverageColor( image );
-			if ( currentSlide ) {
-				currentSlide.style.backgroundColor = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
-			}
+		function applyBackgroundImage( slide, currentSlide, image ) {
+			var url = util.getBackgroundImage( image );
+			slide.backgroundImage = url;
+			currentSlide.style.backgroundImage = 'url(' + url + ')';
+			currentSlide.style.backgroundSize = 'cover';
 		}
 
 		function clearCommentTextAreaValue() {
