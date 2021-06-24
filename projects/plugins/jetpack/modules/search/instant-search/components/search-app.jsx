@@ -17,7 +17,12 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
-import { initializeTracks, identifySite, resetTrackingCookies } from '../lib/tracks';
+import {
+	disableAnalytics,
+	identifySite,
+	initializeTracks,
+	resetTrackingCookies,
+} from '../lib/tracks';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
@@ -60,7 +65,7 @@ class SearchApp extends Component {
 		};
 
 		this.getResults = debounce( this.getResults, 200 );
-		this.props.enableAnalytics && this.initializeAnalytics();
+		this.props.enableAnalytics ? this.initializeAnalytics() : disableAnalytics();
 
 		if ( this.props.shouldIntegrateWithDom ) {
 			this.props.initializeQueryValues();
