@@ -9,9 +9,30 @@
 	},
 	"require": {},
 	"require-dev": {
+		"automattic/jetpack-autoloader": "2.10.x-dev",
 		"automattic/jetpack-changelogger": "1.2.x-dev"
 	},
-	"autoload": {},
+	"scripts": {
+		"build-development": [
+			"Composer\\Config::disableProcessTimeout",
+			"@clean",
+			"@composer install"
+		],
+		"build-production": [
+			"Composer\\Config::disableProcessTimeout",
+			"@clean",
+			"@putenv COMPOSER_MIRROR_PATH_REPOS=1",
+			"@composer install -o --no-dev --classmap-authoritative --prefer-dist"
+		],
+		"clean": [
+			"rm -rf vendor/"
+		]
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
 	"repositories": [
 		{
 			"type": "path",
@@ -24,7 +45,8 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"sort-packages": true
+		"sort-packages": true,
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_0_0_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-beta",

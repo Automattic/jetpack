@@ -15,6 +15,8 @@ import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './sidebar';
 import { getConstrastingColor } from '../lib/colors';
+import { getAvailableStaticFilters } from '../lib/filters';
+import { MULTISITE_NO_GROUP_VALUE } from '../lib/constants';
 
 /**
  * Style dependencies
@@ -54,6 +56,10 @@ class SearchResults extends Component {
 		const hasQuery = this.props.searchQuery !== '';
 		const hasCorrectedQuery = corrected_query !== false;
 		const num = new Intl.NumberFormat().format( total );
+		const isMultiSite =
+			this.props.staticFilters &&
+			this.props.staticFilters.group_id &&
+			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
 
 		if ( this.props.isLoading ) {
 			if ( ! hasQuery ) {
@@ -72,6 +78,19 @@ class SearchResults extends Component {
 				_n( 'Found %s result for "%s"', 'Found %s results for "%s"', total, 'jetpack' ),
 				num,
 				corrected_query
+			);
+		} else if ( isMultiSite ) {
+			const group = getAvailableStaticFilters().filter( item => item.filter_id === 'group_id' );
+			const allP2 =
+				group.length === 1 && group[ 0 ].values
+					? group[ 0 ].values.filter( item => item.value !== MULTISITE_NO_GROUP_VALUE )
+					: {};
+			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack' );
+			return sprintf(
+				/* translators: %1$s: number of results. - %2$s: site name. */
+				_n( 'Found %1$s result in %2$s', 'Found %1$s results in %2$s', total, 'jetpack' ),
+				num,
+				p2Name
 			);
 		} else if ( hasQuery ) {
 			return sprintf(
@@ -134,6 +153,7 @@ class SearchResults extends Component {
 						{ results.map( ( result, index ) => (
 							<SearchResult
 								index={ index }
+								staticFilters={ this.props.staticFilters }
 								isPhotonEnabled={ this.props.isPhotonEnabled }
 								locale={ this.props.locale }
 								railcar={ this.props.isVisible ? result.railcar : null }
