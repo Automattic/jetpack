@@ -328,7 +328,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		// Early return if unable to obtain auto_updater lock.
 		// @see https://github.com/WordPress/wordpress-develop/blob/66469efa99e7978c8824e287834135aa9842e84f/src/wp-admin/includes/class-wp-automatic-updater.php#L453.
-		if ( ! WP_Upgrader::create_lock( 'auto_updater' ) ) {
+		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) && ! WP_Upgrader::create_lock( 'auto_updater' ) ) {
 			return new WP_Error( 'update_fail', __( 'Updates are already in progress.', 'jetpack' ), 400 );
 		}
 
@@ -385,7 +385,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		// release auto_udpate lock.
-		WP_Upgrader::release_lock( 'auto_updater' );
+		if ( Constants::get_constant( 'JETPACK_PLUGIN_AUTOUPDATE' ) ) {
+			WP_Upgrader::release_lock( 'auto_updater' );
+		}
 
 		if ( ! $this->bulk && ! $result && $update_attempted ) {
 			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
