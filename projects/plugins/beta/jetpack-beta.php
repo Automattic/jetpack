@@ -41,6 +41,8 @@ define( 'JPBETA__PLUGIN_FOLDER', basename( __DIR__ ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA_VERSION', '3.0.0-alpha' );
 
+define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
+
 defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
 
 // XXX: These constants need to be deleted.
