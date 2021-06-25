@@ -521,10 +521,10 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function get_current_slug( $screen ) {
 		$slug = "{$screen->base}.php";
 		if ( '' !== $screen->post_type ) {
-			$slug .= "?post_type={$screen->post_type}";
+			$slug = add_query_arg( 'post_type', $screen->post_type, $slug );
 		}
 		if ( '' !== $screen->taxonomy ) {
-			$slug .= "&taxonomy={$screen->taxonomy}";
+			$slug = add_query_arg( 'taxonomy', $screen->taxonomy, $slug );
 		}
 
 		return $slug;
