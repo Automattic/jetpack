@@ -22,6 +22,8 @@ class Jetpack_Backup {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
 		add_action(
 			'admin_menu',
 			function () {
@@ -132,4 +134,62 @@ class Jetpack_Backup {
 		require_once JETPACK_BACKUP_PLUGIN_DIR . '/src//php/class-initial-state.php';
 		return ( new Initial_State() )->render();
 	}
+
+	/**
+	 * Register REST API
+	 */
+	public function register_rest_routes() {
+		// Install a Helper Script to assist Jetpack Backup fetch data.
+		register_rest_route(
+			'jetpack/v4',
+			'/backups',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_recent_backups',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+	}
+
+	/**
+	 * The backup calls should only occur from a signed in admin user
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function backups_permissions_callback() {
+		// TODO: Make this reasonably refuse requests not coming from an admin.
+		return true;
+	}
+
+	/**
+	 * Get information about recent backups
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array An array of recent backups
+	 */
+	public static function get_recent_backups() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			'/sites/' . $blog_id . '/rewind/backups',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
 }
