@@ -53,7 +53,7 @@
 
 .jp-carousel-container {
 	display: grid;
-	grid-template-rows: 1fr 50px; /* 1. main carousel, 2. info area as footer */
+	grid-template-rows: 1fr 64px; /* 1. main carousel, 2. info area as footer */
 	height: 100%;
 }
 
@@ -84,12 +84,11 @@
 .jp-carousel-info-footer {
 	position: relative;
 	background-color: #000;
-	height: 80px;
+	height: 64px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	width: 100vw;
-	top: -15px;
 }
 
 .jp-carousel-info-extra {
@@ -277,20 +276,23 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 /** Pagination Start **/
 .jp-carousel-pagination-container {
 	flex: 1;
-	padding-left: 35px;
-	padding-right: 15px;
-	margin-bottom: 30px;
-	margin-top: 13px;
+	margin: 0 15px 0 35px;
 }
 
 .jp-swiper-pagination,
 .jp-carousel-pagination {
 	color: #fff;
-	font-size: 15px;
+	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
 	white-space: nowrap;
 	display: none;
 	position: static !important;
 }
+
+.jp-carousel-pagination-container .swiper-pagination {
+	text-align: left;
+	line-height: 8px;
+}
+
 .jp-carousel-pagination {
 	padding-left: 5px;
 }
@@ -316,8 +318,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	flex: 1;
 	justify-content: center;
 	overflow: hidden;
-	margin-bottom: 30px;
-	margin-top: 13px;
+	margin: 0;
 }
 
 .jp-carousel-photo-title {
@@ -337,7 +338,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 
 .jp-carousel-info-footer .jp-carousel-photo-title {
 	text-align: center;
-	font: normal 15px/1em 'Helvetica Neue', sans-serif;
+	font-size: 15px; /* same as .jp-carousel-pagination */
 	white-space: nowrap;
 	color: #999;
 	cursor: pointer;
@@ -1013,16 +1014,17 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	flex: 1;
 	display: block;
 	text-align: right;
-	margin: 15px 20px 20px 0;
+	margin: 0 20px 0 30px;
+    white-space: nowrap;
 }
 
 .jp-carousel-icon-btn {
-	padding: 8px 16px;
+	padding: 16px 16px;
 	text-decoration: none;
 	border: none;
 	background: none;
 	display: inline-block;
-	height: 60px;
+	height: 64px;
 }
 
 .jp-carousel-icon {
@@ -1114,6 +1116,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	.jp-carousel-info-footer .jp-carousel-photo-title-container {
 		display: none;
 	}
+
 	.jp-carousel-photo-icons-container {
 		margin: 0 15px 0 0;
 		white-space: nowrap;
@@ -1128,7 +1131,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-pagination-container {
-		padding-left: 25px;
+		margin-left: 25px;
 	}
 
 	.jp-carousel-comment .avatar {
