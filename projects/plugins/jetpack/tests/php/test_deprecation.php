@@ -1,22 +1,6 @@
 <?php
 
 class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
-
-	/**
-	 * @dataProvider provider_deprecated_file_paths
-	 */
-	public function test_deprecated_file_paths( $file_path, $replacement_path ) {
-		$mock = $this->getMockBuilder( stdClass::class )
-			->setMethods( array( 'action' ) )
-			->getMock();
-		$mock->expects( $this->once() )->method( 'action' )->with( $file_path, $replacement_path );
-
-		add_action( 'deprecated_file_included', array( $mock, 'action' ), 10, 2 );
-		add_filter( 'deprecated_file_trigger_error', '__return_false' );
-
-		require_once JETPACK__PLUGIN_DIR . $file_path;
-	}
-
 	/**
 	 * @dataProvider provider_deprecated_method_stubs
 	 */
@@ -85,19 +69,4 @@ class WP_Test_Jetpack_Deprecation extends WP_UnitTestCase {
 	function test_jetpack_sync_action_sender_exists() {
 		$this->assertTrue( property_exists( 'Jetpack_Sync_Actions', 'sender' ) );
 	}
-
-	/**
-	 * Provides deprecated files and expected replacements.
-	 *
-	 * @return array
-	 */
-	function provider_deprecated_file_paths() {
-		return array(
-			array(
-				'class.jetpack-ixr-client.php',
-				'',
-			),
-		);
-	}
-
 }

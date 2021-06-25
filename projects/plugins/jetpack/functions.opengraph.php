@@ -20,20 +20,6 @@ add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 function jetpack_og_tags() {
 	global $post;
 	$data = $post; // so that we don't accidentally explode the global.
-	/**
-	 * Allow Jetpack to output Open Graph Meta Tags.
-	 *
-	 * @module sharedaddy, publicize
-	 *
-	 * @since 2.0.0
-	 * @deprecated 2.0.3 Duplicative filter. Use `jetpack_enable_open_graph`.
-	 *
-	 * @param bool true Should Jetpack's Open Graph Meta Tags be enabled. Default to true.
-	 */
-	if ( false === apply_filters( 'jetpack_enable_opengraph', true ) ) {
-		_deprecated_function( 'jetpack_enable_opengraph', '2.0.3', 'jetpack_enable_open_graph' );
-		return;
-	}
 
 	$is_amp_response = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
@@ -322,7 +308,7 @@ function jetpack_og_tags() {
  */
 function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null ) {
 	if ( ! empty( $deprecated ) ) {
-		_deprecated_argument( __FUNCTION__, '6.6.0' );
+		_deprecated_argument( __FUNCTION__, 'jetpack-6.6.0' );
 	}
 	$image = array();
 

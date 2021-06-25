@@ -53,16 +53,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Enqueue Twitter's widget library.
-	 *
-	 * @deprecated
-	 */
-	public function library() {
-		_deprecated_function( __METHOD__, '4.0.0' );
-		wp_print_scripts( array( 'jetpack-twitter-timeline' ) );
-	}
-
-	/**
 	 * Enqueue script to improve admin UI
 	 */
 	public function admin_scripts( $hook ) {

@@ -159,32 +159,6 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Stub for is_post_likeable, since some wpcom functions call this directly on the class
-	 * Are likes enabled for this post?
-	 *
-	 * @param int $post_id id of the post.
-	 * @return bool
-	 */
-	public static function is_post_likeable( $post_id = 0 ) {
-		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
-		$settings = new Jetpack_Likes_Settings();
-		return $settings->is_post_likeable( $post_id );
-	}
-
-	/**
-	 * Stub for is_likes_visible, since some themes were calling it directly from this class
-	 *
-	 * @deprecated 5.4
-	 * @return bool
-	 */
-	public function is_likes_visible() {
-		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_likes_visible' );
-
-		$settings = new Jetpack_Likes_Settings();
-		return $settings->is_likes_visible();
-	}
-
-	/**
 	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
 	 *
 	 * @param string $html row heading for the sharedaddy "which page" setting.

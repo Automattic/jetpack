@@ -235,7 +235,7 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @param array An array of strings where each string is a class.
 		 */
-		$blocked_classes = apply_filters_deprecated( 'jetpack_lazy_images_blacklisted_classes', array( $blocked_classes ), 'Jetpack 8.7.0', 'jetpack_lazy_images_blocked_classes' );
+		$blocked_classes = apply_filters_deprecated( 'jetpack_lazy_images_blacklisted_classes', array( $blocked_classes ), 'jetpack-8.7.0', 'jetpack_lazy_images_blocked_classes' );
 
 		/**
 		 * Allow plugins and themes to tell lazy images to skip an image with a given class.
