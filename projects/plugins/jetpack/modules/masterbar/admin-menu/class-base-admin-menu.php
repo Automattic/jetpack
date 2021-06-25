@@ -77,7 +77,6 @@ abstract class Base_Admin_Menu {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
 			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999, 2 );
-			add_action( 'admin_menu', array( $this, 'handle_preferred_view' ), 99997 );
 		}
 	}
 
@@ -534,34 +533,6 @@ abstract class Base_Admin_Menu {
 	 */
 	public function is_item_visible( $item ) {
 		return ! isset( $item[4] ) || false === strpos( $item[4], self::HIDE_CSS_CLASS );
-	}
-
-	/**
-	 * Stores the preferred view for the current screen.
-	 */
-	public function handle_preferred_view() {
-		// phpcs:disable WordPress.Security.NonceVerification
-		if (
-			! isset( $_GET['preferred-view'] ) ||
-			! in_array( $_GET['preferred-view'], array( self::DEFAULT_VIEW, self::CLASSIC_VIEW ), true )
-		) {
-			return;
-		}
-
-		global $pagenow;
-		$slug = $pagenow;
-		if ( isset( $_REQUEST['post_type'] ) ) {
-			$slug .= '?post_type=' . $_REQUEST['post_type'];
-		}
-		if ( isset( $_REQUEST['taxonomy'] ) ) {
-			$slug .= '?taxonomy=' . $_REQUEST['taxonomy'];
-		}
-		if ( isset( $_REQUEST['page'] ) ) {
-			$slug .= '?page=' . $_REQUEST['page'];
-		}
-
-		$this->set_preferred_view( $slug, $_GET['preferred-view'] );
-		// phpcs:enable WordPress.Security.NonceVerification
 	}
 
 	/**

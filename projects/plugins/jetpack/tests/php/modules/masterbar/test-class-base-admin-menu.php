@@ -86,7 +86,6 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 99998, has_action( 'admin_menu', array( $instance, 'reregister_menu_items' ) ) );
 		$this->assertSame( 11, has_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_scripts' ) ) );
-		$this->assertSame( 99997, has_action( 'admin_menu', array( $instance, 'handle_preferred_view' ) ) );
 	}
 
 	/**
