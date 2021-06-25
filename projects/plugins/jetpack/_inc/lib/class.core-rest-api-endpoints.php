@@ -587,21 +587,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		/**
-		 * Install and Activate the Akismet plugin.
-		 *
-		 * @deprecated 8.9.0 Use the /plugins route instead.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'/plugins/akismet/activate',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::activate_akismet',
-				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
-			)
-		);
-
 		// Plugins: check if the plugin is active.
 		register_rest_route(
 			'jetpack/v4',
@@ -659,37 +644,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'type'              => 'integer',
 						'validate_callback' => __CLASS__ . '::validate_posint',
 					),
-				),
-			)
-		);
-
-		// Get and set API keys.
-		// Note: permission_callback intentionally omitted from the GET method.
-		// Map block requires open access to API keys on the front end.
-		register_rest_route(
-			'jetpack/v4',
-			'/service-api-keys/(?P<service>[a-z\-_]+)',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_service_api_key',
-					'permission_callback' => '__return_true',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_service_api_key',
-					'permission_callback' => array( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys', 'edit_others_posts_check' ),
-					'args'                => array(
-						'service_api_key' => array(
-							'required' => true,
-							'type'     => 'text',
-						),
-					),
-				),
-				array(
-					'methods'             => WP_REST_Server::DELETABLE,
-					'callback'            => __CLASS__ . '::delete_service_api_key',
-					'permission_callback' => array( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys', 'edit_others_posts_check' ),
 				),
 			)
 		);
