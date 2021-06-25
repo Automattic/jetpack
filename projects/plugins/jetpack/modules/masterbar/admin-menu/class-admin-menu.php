@@ -543,7 +543,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		$menu_mappings = require __DIR__ . '/menu-mappings.php';
 		$slug          = $this->get_current_slug( $screen );
 
-		// Let's show the switcher only in screens that we have a Calypso mapping to switch too.
+		// Let's show the switcher only in screens that we have a Calypso mapping to switch to.
 		if ( ! isset( $menu_mappings[ $slug ] ) ) {
 			return;
 		}
