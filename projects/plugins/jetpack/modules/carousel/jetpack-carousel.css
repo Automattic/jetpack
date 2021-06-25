@@ -276,7 +276,9 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 
 /** Pagination Start **/
 .jp-carousel-pagination-container {
+	flex: 1;
 	padding-left: 35px;
+	padding-right: 15px;
 	margin-bottom: 30px;
 	margin-top: 13px;
 }
@@ -311,7 +313,11 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 /** Title and Desc Start **/
 .jp-carousel-info-footer .jp-carousel-photo-title-container {
 	flex-basis: 50vw;
+	flex: 1;
+	justify-content: center;
 	overflow: hidden;
+	margin-bottom: 30px;
+	margin-top: 13px;
 }
 
 .jp-carousel-photo-title {
@@ -319,6 +325,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	border: none !important;
 	display: inline-block;
 	font: normal 20px/1.3em 'Helvetica Neue', sans-serif;
+	line-height: normal;
 	letter-spacing: 0 !important;
 	margin: 0 0 10px 0;
 	padding: 0;
@@ -330,7 +337,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 
 .jp-carousel-info-footer .jp-carousel-photo-title {
 	text-align: center;
-	font: normal 13px/1em 'Helvetica Neue', sans-serif;
+	font: normal 15px/1em 'Helvetica Neue', sans-serif;
 	white-space: nowrap;
 	color: #999;
 	cursor: pointer;
@@ -1003,6 +1010,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 /** Icons Start **/
 .jp-carousel-photo-icons-container {
+	flex: 1;
 	display: block;
 	text-align: right;
 	margin: 15px 20px 20px 0;
@@ -1103,6 +1111,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		overflow: visible !important;
 	}
 
+	.jp-carousel-info-footer .jp-carousel-photo-title-container {
+		display: none;
+	}
 	.jp-carousel-photo-icons-container {
 		margin: 0 15px 0 0;
 		white-space: nowrap;
