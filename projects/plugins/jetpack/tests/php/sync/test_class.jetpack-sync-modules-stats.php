@@ -34,34 +34,6 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Tests that Jetpack stats data is sent on heartbeat. This tests the integration of the Sync and
-	 * Heartbeat packages with the Jetpack plugin.
-	 *
-	 * @expectedDeprecated Jetpack_Heartbeat::cron_exec
-	 * @return void
-	 */
-	public function test_sends_stats_data_on_heartbeat_jetpack_integration() {
-		$this->add_connection_options();
-		$heartbeat = Jetpack_Heartbeat::init();
-
-		// Add Jetpack's heartbeat stats to the heartbeat stats array.
-		add_filter( 'jetpack_heartbeat_stats_array', array( $heartbeat, 'add_stats_to_heartbeat' ) );
-
-		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
-		$heartbeat->cron_exec();
-		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
-
-		$this->sender->do_sync();
-		remove_filter( 'jetpack_heartbeat_stats_array', array( $heartbeat, 'add_stats_to_heartbeat' ) );
-
-		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
-
-		$this->delete_connection_options();
-
-		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
-	}
-
-	/**
 	 * Tests that expensive data is not sent on heartbeat.
 	 *
 	 * @return void
@@ -78,34 +50,6 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		remove_filter( 'jetpack_heartbeat_stats_array', array( $this, 'add_test_stat' ) );
-
-		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
-
-		$this->delete_connection_options();
-
-		$this->assertFalse( isset( $action->args[0]['users'] ) );
-	}
-
-	/**
-	 * Test that expensive data is not sent on heartbeat. This tests the integration of the Sync and
-	 * Heartbeat packages with the Jetpack plugin.
-	 *
-	 * @expectedDeprecated Jetpack_Heartbeat::cron_exec
-	 * @return void
-	 */
-	public function test_dont_send_expensive_data_on_heartbeat_jetpack_integration() {
-		$this->add_connection_options();
-		$heartbeat = Jetpack_Heartbeat::init();
-
-		// Add Jetpack's heartbeat stats to the heartbeat stats array.
-		add_filter( 'jetpack_heartbeat_stats_array', array( $heartbeat, 'add_stats_to_heartbeat' ) );
-
-		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
-		$heartbeat->cron_exec();
-		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
-
-		$this->sender->do_sync();
-		remove_filter( 'jetpack_heartbeat_stats_array', array( $heartbeat, 'add_stats_to_heartbeat' ) );
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
 
