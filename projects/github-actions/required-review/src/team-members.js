@@ -20,7 +20,7 @@ async function fetchTeamMembers( team ) {
 
 	let members = [];
 	try {
-		for await ( const res of octokit.paginate.iterator( octokit.teams.listMembersInOrg, {
+		for await ( const res of octokit.paginate.iterator( octokit.rest.teams.listMembersInOrg, {
 			org: org,
 			team_slug: team,
 			per_page: 100,

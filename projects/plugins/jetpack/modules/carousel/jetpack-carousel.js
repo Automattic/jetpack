@@ -147,7 +147,9 @@
 		function fadeOut( el, callback ) {
 			callback = callback || util.noop;
 			fade( el, '1', '0', function () {
-				el.style.display = 'none';
+				if ( el ) {
+					el.style.display = 'none';
+				}
 				callback();
 			} );
 		}
@@ -1488,19 +1490,22 @@
 				var galleryItem = domUtil.closest( item, '.gallery-item' );
 				var captionEl = galleryItem && galleryItem.querySelector( '.gallery-caption' );
 				var permalinkEl = domUtil.closest( item, 'a' );
+				var origFile = item.getAttribute( 'data-orig-file' ) || item.getAttribute( 'src-orig' );
 
 				var attrs = {
-					attachmentId: item.getAttribute( 'data-attachment-id' ) || '0',
+					attachmentId:
+						item.getAttribute( 'data-attachment-id' ) || item.getAttribute( 'data-id' ) || '0',
 					commentsOpened: item.getAttribute( 'data-comments-opened' ) || '0',
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
 					mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
-					origFile: item.getAttribute( 'data-orig-file' ) || '',
+					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
 					caption: ( captionEl && captionEl.innerHTML ) || '',
 					permalink: permalinkEl && permalinkEl.getAttribute( 'href' ),
+					src: origFile || item.getAttribute( 'src' ) || '',
 				};
 
 				var tiledGalleryItem = domUtil.closest( item, '.tiled-gallery-item' );
@@ -1513,14 +1518,12 @@
 
 				var origDimensions = getOriginalDimensions( item );
 
-				attrs.origWidth = origDimensions.width;
-				attrs.origHeight = origDimensions.height;
+				attrs.origWidth = origDimensions.width || attrs.thumbSize.width;
+				attrs.origHeight = origDimensions.height || attrs.thumbSize.height;
 
 				if ( typeof wpcom !== 'undefined' && wpcom.carousel && wpcom.carousel.generateImgSrc ) {
 					attrs.src = wpcom.carousel.generateImgSrc( item, max );
 				} else {
-					attrs.src = item.getAttribute( 'data-orig-file' );
-
 					attrs.src = selectBestImageUrl( {
 						origFile: attrs.src,
 						origWidth: attrs.origWidth,
@@ -1581,7 +1584,7 @@
 		function openCarousel( gallery, options ) {
 			var settings = {
 				imgSelector:
-					'.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id]',
+					'.gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id], img[data-attachment-id], img[data-id]',
 				startIndex: 0,
 			};
 
@@ -1731,7 +1734,10 @@
 
 				var images = gallery.querySelectorAll( 'img' );
 				for ( var j = 0; j < images.length; j++ ) {
-					if ( parseInt( images[ j ].getAttribute( 'data-attachment-id' ), 10 ) === attachmentId ) {
+					if (
+						parseInt( images[ j ].getAttribute( 'data-attachment-id' ), 10 ) === attachmentId ||
+						parseInt( images[ j ].getAttribute( 'data-id' ), 10 ) === attachmentId
+					) {
 						selected = j;
 						break;
 					}

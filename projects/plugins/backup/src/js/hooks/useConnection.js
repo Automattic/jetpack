@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { JetpackConnection } from '@automattic/jetpack-connection';
+import { ConnectButton } from '@automattic/jetpack-connection';
 
 /**
  * Internal dependencies
@@ -26,9 +26,9 @@ export default function useConnection() {
 	const connectionStatus = useSelect( select => select( STORE_ID ).getConnectionStatus(), [] );
 	const { setConnectionStatus } = useDispatch( STORE_ID );
 
-	const renderJetpackConnection = () => {
+	const renderConnectButton = () => {
 		return (
-			<JetpackConnection
+			<ConnectButton
 				apiRoot={ APIRoot }
 				apiNonce={ APINonce }
 				forceCalypsoFlow={ doNotUseConnectionIframe }
@@ -40,9 +40,9 @@ export default function useConnection() {
 					setConnectionStatus( status );
 					return null;
 				} }
-			</JetpackConnection>
+			</ConnectButton>
 		);
 	};
 
-	return [ connectionStatus, renderJetpackConnection ];
+	return [ connectionStatus, renderConnectButton ];
 }

@@ -24,16 +24,6 @@ $modal-max-width-lg: 95%;
 		color: $color-text;
 		background: $color-mark-background-default;
 	}
-
-	// Animations
-	animation-delay: 0s;
-	animation-duration: $search-results-slide-in-time;
-	.jetpack-instant-search__overlay.is-hidden & {
-		animation-name: jetpack-search-slide-out-down;
-	}
-	.jetpack-instant-search__overlay:not( .is-hidden ) & {
-		animation-name: jetpack-search-slide-in-up;
-	}
 }
 
 .jetpack-instant-search__search-results-controls {
@@ -217,7 +207,8 @@ $modal-max-width-lg: 95%;
 	width: 100%;
 }
 
-.jetpack-instant-search__overlay-close {
+// Applied to button. so we override any generic button styles from the theme
+button.jetpack-instant-search__overlay-close {
 	@include remove-button-styling();
 	align-items: center;
 	cursor: pointer;

@@ -392,6 +392,8 @@
 		width: 100% !important;
 		max-width: 100% !important;
 		height: 100%;
+		user-select: none;
+		-webkit-touch-callout: none;
 	}
 
 	&.wp-story-container {
