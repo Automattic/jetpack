@@ -51,26 +51,27 @@ class Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * Get the preferred view for the given screen.
 	 *
-	 * @param string $slug Screen slug.
-	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
-	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
-	 *                       screens.
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
 	 * @return string
 	 */
-	public function get_preferred_view( $slug, $strict = false ) {
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		// When no preferred view has been set for "My Home", "Users > All Users", or "Settings > General", keep the
 		// previous behavior that forced the default view regardless of the global preference.
 		if (
-			! $strict && in_array( $slug, array( 'index.php', 'users.php', 'options-general.php' ), true )
+			$fallback_global_preference &&
+			in_array( $screen, array( 'index.php', 'users.php', 'options-general.php' ), true )
 		) {
-			$preferred_view = parent::get_preferred_view( $slug, true );
+			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;
 			}
 			return $preferred_view;
 		}
 
-		return parent::get_preferred_view( $slug, $strict );
+		return parent::get_preferred_view( $screen, $fallback_global_preference );
 	}
 
 	/**
@@ -426,7 +427,7 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		// When no preferred view has been set for "Settings > General", keep the previous behavior that created a
 		// duplicate menu linking to WP Admin regardless of the global preference.
-		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-general.php', true ) ) {
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-general.php', false ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced General', 'jetpack' ), __( 'Advanced General', 'jetpack' ), 'manage_options', 'options-general.php', null, 1 );
 		}
 	}

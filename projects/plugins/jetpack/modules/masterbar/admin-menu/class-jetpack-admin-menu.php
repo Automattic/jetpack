@@ -44,13 +44,13 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	/**
 	 * Get the preferred view for the given screen.
 	 *
-	 * @param string $slug Screen slug.
-	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
-	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
-	 *                       screens.
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
 	 * @return string
 	 */
-	public function get_preferred_view( $slug, $strict = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Force default views (Calypso) on Jetpack sites since Nav Unification is disabled on WP Admin.
 		return self::DEFAULT_VIEW;
 	}

@@ -122,7 +122,7 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_preferred_view() {
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'test.php' ) );
-		$this->assertSame( 'unknown', static::$admin_menu->get_preferred_view( 'test.php', true ) );
+		$this->assertSame( 'unknown', static::$admin_menu->get_preferred_view( 'test.php', false ) );
 
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_link_destination', true );
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'test.php' ) );
@@ -132,7 +132,7 @@ class Test_Base_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'test.php' ) );
 
 		static::$admin_menu->set_preferred_view( 'test.php', 'default' );
-		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'test.php', true ) );
+		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'test.php', false ) );
 	}
 
 	/**

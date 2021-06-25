@@ -82,19 +82,19 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Get the preferred view for the given screen.
 	 *
-	 * @param string $slug Screen slug.
-	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
-	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
-	 *                       screens.
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
 	 * @return string
 	 */
-	public function get_preferred_view( $slug, $strict = false ) {
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		// When no preferred view has been set for Posts, Pages, and Comments, keep the previous behavior that forced
 		// the classic view regardless of the global preference.
 		if (
-			! $strict &&
+			$fallback_global_preference &&
 			in_array(
-				$slug,
+				$screen,
 				array(
 					'edit.php',
 					'edit-tags.php?taxonomy=category',
@@ -105,7 +105,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				true
 			)
 		) {
-			$preferred_view = parent::get_preferred_view( $slug, true );
+			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::CLASSIC_VIEW;
 			}
@@ -113,11 +113,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		}
 
 		// Plugins, Export, and Customize on Atomic sites are always managed on WP Admin.
-		if ( in_array( $slug, array( 'plugins.php', 'export.php', 'customize.php' ), true ) ) {
+		if ( in_array( $screen, array( 'plugins.php', 'export.php', 'customize.php' ), true ) ) {
 			return self::CLASSIC_VIEW;
 		}
 
-		return parent::get_preferred_view( $slug, $strict );
+		return parent::get_preferred_view( $screen, $fallback_global_preference );
 	}
 
 	/**
@@ -301,7 +301,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// When no preferred view has been set for "Settings > Writing", keep the previous behavior that registered a
 		// duplicate menu linking to WP Admin when the global preference is set for default views.
-		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-writing.php', true ) && self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'options-writing.php', false ) && self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
 			add_submenu_page( 'options-general.php', esc_attr__( 'Advanced Writing', 'jetpack' ), __( 'Advanced Writing', 'jetpack' ), 'manage_options', 'options-writing.php' );
 		}
 	}
@@ -314,7 +314,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// When no preferred view has been set for "Themes", keep the previous behavior that registered a duplicate menu
 		// linking to WP Admin regardless of the global preference.
-		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'themes.php', true ) ) {
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'themes.php', false ) ) {
 			add_submenu_page( 'themes.php', esc_attr__( 'Add New Theme', 'jetpack' ), __( 'Add New Theme', 'jetpack' ), 'install_themes', 'theme-install.php', null, 1 );
 		}
 	}
@@ -342,7 +342,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// When no preferred view has been set for "Users", keep the previous behavior that registered a duplicate menu
 		// linking to WP Admin regardless of the global preference.
-		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'users.php', true ) ) {
+		if ( self::UNKNOWN_VIEW === $this->get_preferred_view( 'users.php', false ) ) {
 			add_submenu_page( 'users.php', esc_attr__( 'Advanced Users Management', 'jetpack' ), __( 'Advanced Users Management', 'jetpack' ), 'list_users', 'users.php', null, 2 );
 		}
 	}

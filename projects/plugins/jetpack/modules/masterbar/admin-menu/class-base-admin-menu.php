@@ -594,23 +594,23 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Get the preferred view for the given screen.
 	 *
-	 * @param string $slug Screen slug.
-	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
-	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
-	 *                       screens.
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
 	 * @return string
 	 */
-	public function get_preferred_view( $slug, $strict = false ) {
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		$preferred_views = $this->get_preferred_views();
 
-		if ( ! isset( $preferred_views[ $slug ] ) ) {
-			if ( $strict ) {
+		if ( ! isset( $preferred_views[ $screen ] ) ) {
+			if ( ! $fallback_global_preference ) {
 				return self::UNKNOWN_VIEW;
 			}
 			return $this->should_link_to_wp_admin() ? self::CLASSIC_VIEW : self::DEFAULT_VIEW;
 		}
 
-		return $preferred_views[ $slug ];
+		return $preferred_views[ $screen ];
 	}
 
 	/**

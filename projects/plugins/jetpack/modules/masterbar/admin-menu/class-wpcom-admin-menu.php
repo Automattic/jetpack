@@ -51,17 +51,17 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Get the preferred view for the given screen.
 	 *
-	 * @param string $slug Screen slug.
-	 * @param bool   $strict Whether the preference should be checked strictly for the given screen. If false and if there
-	 *                       is no preference set for the given screen, it fallbacks to a global preference set for all
-	 *                       screens.
+	 * @param string $screen Screen identifier.
+	 * @param bool   $fallback_global_preference (Optional) Whether the global preference for all screens should be used
+	 *                                           as fallback if there is no specific preference for the given screen.
+	 *                                           Default: true.
 	 * @return string
 	 */
-	public function get_preferred_view( $slug, $strict = false ) {
+	public function get_preferred_view( $screen, $fallback_global_preference = true ) {
 		// When no preferred view has been set for Themes, keep the previous behavior that forced the default view
 		// regardless of the global preference.
-		if ( ! $strict && 'themes.php' === $slug ) {
-			$preferred_view = parent::get_preferred_view( $slug, true );
+		if ( ! $fallback_global_preference && 'themes.php' === $screen ) {
+			$preferred_view = parent::get_preferred_view( $screen, false );
 			if ( self::UNKNOWN_VIEW === $preferred_view ) {
 				return self::DEFAULT_VIEW;
 			}
@@ -69,11 +69,11 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		// Plugins on Simple sites are always managed on Calypso.
-		if ( 'plugins.php' === $slug ) {
+		if ( 'plugins.php' === $screen ) {
 			return self::DEFAULT_VIEW;
 		}
 
-		return parent::get_preferred_view( $slug, $strict );
+		return parent::get_preferred_view( $screen, $fallback_global_preference );
 	}
 
 	/**
