@@ -511,7 +511,7 @@ class Hooks {
 			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
 		}
 		$autupdate = AutoupdateSelf::instance();
-		if ( $autupdate->has_never_version() ) {
+		if ( $autupdate->has_newer_version() ) {
 			$plugins[] = JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php';
 		}
 
