@@ -53,7 +53,7 @@
 
 .jp-carousel-container {
 	display: grid;
-	grid-template-rows: 1fr 50px; /* 1. main carousel, 2. info area as footer */
+	grid-template-rows: 1fr 80px; /* 1. main carousel, 2. info area as footer */
 	height: 100%;
 }
 
@@ -277,19 +277,19 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 /** Pagination Start **/
 .jp-carousel-pagination-container {
 	flex: 1;
-	padding-left: 35px;
-	padding-right: 15px;
-	margin-bottom: 30px;
-	margin-top: 13px;
+	padding: 8px 15px 0 35px;
+	margin: 0;
+	height: 100%;
 }
 
 .jp-swiper-pagination,
 .jp-carousel-pagination {
 	color: #fff;
-	font-size: 15px;
+	font-size: 15px; /* same as .jp-carousel-info-footer .jp-carousel-photo-title  */
 	white-space: nowrap;
 	display: none;
 	position: static !important;
+	text-align: left !important;
 }
 .jp-carousel-pagination {
 	padding-left: 5px;
@@ -316,8 +316,9 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	flex: 1;
 	justify-content: center;
 	overflow: hidden;
-	margin-bottom: 30px;
-	margin-top: 13px;
+	margin: 0;
+	height: 100%;
+	padding-top: 8px;
 }
 
 .jp-carousel-photo-title {
@@ -337,7 +338,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 
 .jp-carousel-info-footer .jp-carousel-photo-title {
 	text-align: center;
-	font: normal 15px/1em 'Helvetica Neue', sans-serif;
+	font-size: 15px; /* same as .jp-carousel-pagination */
 	white-space: nowrap;
 	color: #999;
 	cursor: pointer;
@@ -991,6 +992,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	display: block;
 	text-align: right;
 	margin: 15px 20px 20px 0;
+	height: 100%;
+    white-space: nowrap;
 }
 
 .jp-carousel-icon-btn {
@@ -1090,10 +1093,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-info-footer .jp-carousel-photo-title-container {
 		display: none;
-	}
-	.jp-carousel-photo-icons-container {
-		margin: 0 15px 0 0;
-		white-space: nowrap;
 	}
 
 	.jp-carousel-icon-btn {
