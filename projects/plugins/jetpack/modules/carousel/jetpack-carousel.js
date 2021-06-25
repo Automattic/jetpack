@@ -660,6 +660,8 @@
 				loadSwiper( gal, { startIndex: index } );
 			} else {
 				selectSlideAtIndex( index );
+				// We have to force swiper to slide to the index onHasChange.
+				swiper.slideTo( index + 1 );
 			}
 		}
 
