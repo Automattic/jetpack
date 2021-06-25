@@ -5217,47 +5217,6 @@ endif;
 	/* Client Server API */
 
 	/**
-	 * Resets the saved authentication state in between testing requests.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Connection\Rest_Authentication::reset_saved_auth_state()
-	 */
-	public function reset_saved_auth_state() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::reset_saved_auth_state' );
-		Connection_Rest_Authentication::init()->reset_saved_auth_state();
-	}
-
-	/**
-	 * Authenticates requests from Jetpack server to WP REST API endpoints.
-	 * Uses the existing XMLRPC request signing implementation.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authenticate()
-	 *
-	 * @param int|bool $user User ID if one has been determined, false otherwise.
-	 *
-	 * @return int|null The user id or null if the request was not authenticated.
-	 */
-	function wp_rest_authenticate( $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenticate' );
-		return Connection_Rest_Authentication::init()->wp_rest_authenticate( $user );
-	}
-
-	/**
-	 * Report authentication status to the WP REST API.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\Jetpack\Connection\Rest_Authentication::wp_rest_authentication_errors()
-	 *
-	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
-	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
-	 */
-	public function wp_rest_authentication_errors( $value ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.9', 'Automattic\\Jetpack\\Connection\\Rest_Authentication::wp_rest_authenication_errors' );
-		return Connection_Rest_Authentication::init()->wp_rest_authentication_errors( $value );
-	}
-
-	/**
 	 * State is passed via cookies from one request to the next, but never to subsequent requests.
 	 * SET: state( $key, $value );
 	 * GET: $value = state( $key );
@@ -5379,57 +5338,6 @@ endif;
 		}
 
 		self::state( 'privacy_checks', $privacy_checks );
-	}
-
-	/**
-	 * Helper method for multicall XMLRPC.
-	 *
-	 * @deprecated since 8.9.0
-	 * @see Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call()
-	 *
-	 * @param ...$args Args for the async_call.
-	 */
-	public static function xmlrpc_async_call( ...$args ) {
-
-		_deprecated_function( 'Jetpack::xmlrpc_async_call', 'jetpack-8.9.0', 'Automattic\\Jetpack\\Connection\\Xmlrpc_Async_Call::add_call' );
-
-		global $blog_id;
-		static $clients = array();
-
-		$client_blog_id = is_multisite() ? $blog_id : 0;
-
-		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => true ) );
-			if ( function_exists( 'ignore_user_abort' ) ) {
-				ignore_user_abort( true );
-			}
-			add_action( 'shutdown', array( 'Jetpack', 'xmlrpc_async_call' ) );
-		}
-
-		if ( ! empty( $args[0] ) ) {
-			call_user_func_array( array( $clients[ $client_blog_id ], 'addCall' ), $args );
-		} elseif ( is_multisite() ) {
-			foreach ( $clients as $client_blog_id => $client ) {
-				if ( ! $client_blog_id || empty( $client->calls ) ) {
-					continue;
-				}
-
-				$switch_success = switch_to_blog( $client_blog_id, true );
-				if ( ! $switch_success ) {
-					continue;
-				}
-
-				flush();
-				$client->query();
-
-				restore_current_blog();
-			}
-		} else {
-			if ( isset( $clients[0] ) && ! empty( $clients[0]->calls ) ) {
-				flush();
-				$clients[0]->query();
-			}
-		}
 	}
 
 	/**
@@ -6348,14 +6256,6 @@ endif;
 		return $tag;
 	}
 
-	/**
-	 * @deprecated
-	 * @see Automattic\Jetpack\Assets\add_aync_script
-	 */
-	public function script_add_async( $tag, $handle, $src ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.6.0' );
-	}
-
 	/*
 	 * Check the heartbeat data
 	 *
@@ -6450,20 +6350,6 @@ endif;
 		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
 
 		return ( new Status() )->get_site_suffix( $url );
-	}
-
-	/**
-	 * Stores and prints out domains to prefetch for page speed optimization.
-	 *
-	 * @deprecated 8.8.0 Use Jetpack::add_resource_hints.
-	 *
-	 * @param string|array $urls URLs to hint.
-	 */
-	public static function dns_prefetch( $urls = null ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Automattic\Jetpack\Assets::add_resource_hint' );
-		if ( $urls ) {
-			Assets::add_resource_hint( $urls );
-		}
 	}
 
 	public function wp_dashboard_setup() {
@@ -6874,23 +6760,6 @@ endif;
 				delete_user_meta( $user_id, $meta_key );
 			}
 		}
-	}
-
-	/**
-	 * Checks if a Jetpack site is both active and not in offline mode.
-	 *
-	 * This is a DRY function to avoid repeating `Jetpack::is_active && ! Automattic\Jetpack\Status->is_offline_mode`.
-	 *
-	 * @deprecated 8.8.0
-	 *
-	 * @return bool True if Jetpack is active and not in offline mode.
-	 */
-	public static function is_active_and_not_development_mode() {
-		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Jetpack::is_active_and_not_offline_mode' );
-		if ( ! self::is_active() || ( new Status() )->is_offline_mode() ) {
-			return false;
-		}
-		return true;
 	}
 
 	/**

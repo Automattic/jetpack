@@ -328,18 +328,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Returns a list of Jetpack Gutenberg extensions (blocks and plugins), based on index.json
-	 *
-	 * @deprecated 8.7.0 Use get_jetpack_gutenberg_extensions_allowed_list()
-	 *
-	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
-	 */
-	public static function get_jetpack_gutenberg_extensions_whitelist() {
-		_deprecated_function( __FUNCTION__, 'jetpack-8.7.0', 'Jetpack_Gutenberg::get_jetpack_gutenberg_extensions_allowed_list' );
-		return self::get_jetpack_gutenberg_extensions_allowed_list();
-	}
-
-	/**
 	 * Returns a diff from a combined list of allowed extensions and extensions determined to be excluded
 	 *
 	 * @param  array $allowed_extensions An array of allowed extensions.

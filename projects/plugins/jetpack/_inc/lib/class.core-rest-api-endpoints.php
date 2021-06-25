@@ -1195,21 +1195,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Handles verification that a site is registered
-	 *
-	 * @since 5.4.0
-	 * @deprecated 8.8.0 The method is moved to the `REST_Connector` class.
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|wp-error
-	 */
-	public static function remote_authorize( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::remote_authorize' );
-		return REST_Connector::remote_authorize( $request );
-	}
-
-	/**
 	 * Handles dismissing of Jetpack Notices
 	 *
 	 * @since 4.3.0
@@ -1425,35 +1410,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'invalid_permission_manage_purchase_token', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-	}
-
-	/**
-	 * Deprecated - Contextual HTTP error code for authorization failure.
-	 *
-	 * @deprecated since version 8.8.0.
-	 *
-	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
-	 * @see https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return int
-	 */
-	public static function rest_authorization_required_code() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'rest_authorization_required_code' );
-		return rest_authorization_required_code();
-	}
-
-	/**
-	 * Get connection status for this Jetpack site.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @return WP_REST_Response Connection information.
-	 */
-	public static function jetpack_connection_status() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_status' );
-		return REST_Connector::connection_status();
 	}
 
 	/**
@@ -3694,25 +3650,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'not_found', esc_html__( 'Unable to list plugins.', 'jetpack' ), array( 'status' => 404 ) );
-	}
-
-	/**
-	 * Ensures that Akismet is installed and activated.
-	 *
-	 * @since 7.7
-	 *
-	 * @deprecated 8.9.0 Use install_plugin instead.
-	 *
-	 * @return WP_REST_Response A response indicating whether or not the installation was successful.
-	 */
-	public static function activate_akismet() {
-		_deprecated_function( __METHOD__, 'jetpack-8.9.0', 'install_plugin' );
-
-		$args = array(
-			'slug'   => 'akismet',
-			'status' => 'active',
-		);
-		return self::install_plugin( $args );
 	}
 
 	/**
