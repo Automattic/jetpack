@@ -538,12 +538,12 @@ abstract class Base_Admin_Menu {
 	/**
 	 * Sets the given view as preferred for the givens screen.
 	 *
-	 * @param string $slug Screen slug.
+	 * @param string $screen Screen identifier.
 	 * @param string $view Preferred view.
 	 */
-	public function set_preferred_view( $slug, $view ) {
-		$preferred_views          = $this->get_preferred_views();
-		$preferred_views[ $slug ] = $view;
+	public function set_preferred_view( $screen, $view ) {
+		$preferred_views            = $this->get_preferred_views();
+		$preferred_views[ $screen ] = $view;
 		update_user_option( get_current_user_id(), 'jetpack_admin_menu_preferred_views', $preferred_views );
 	}
 
