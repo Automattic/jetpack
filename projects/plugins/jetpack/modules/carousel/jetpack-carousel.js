@@ -390,8 +390,15 @@
 				} );
 
 				carousel.overlay.addEventListener( 'jp_carousel.afterClose', function () {
-					if ( window.location.hash && history.back ) {
-						history.back();
+					// don't force the browser back when the carousel closes.
+					if ( window.history.pushState ) {
+						history.pushState(
+							'',
+							document.title,
+							window.location.pathname + window.location.search
+						);
+					} else {
+						window.location.href = '';
 					}
 					lastKnownLocationHash = '';
 					carousel.isOpen = false;
@@ -653,6 +660,8 @@
 				loadSwiper( gal, { startIndex: index } );
 			} else {
 				selectSlideAtIndex( index );
+				// We have to force swiper to slide to the index onHasChange.
+				swiper.slideTo( index + 1 );
 			}
 		}
 
