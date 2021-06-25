@@ -428,6 +428,8 @@ class Jetpack_Carousel {
 								</div>
 								<div class="jp-carousel-comments"></div>
 								<div id="jp-carousel-comment-form-container">
+									<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
+									<div id="jp-carousel-comment-post-results"></div>
 									<?php if ( $use_local_comments ) : ?>
 										<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
 											<div id="jp-carousel-comment-form-commenting-as">
@@ -487,8 +489,6 @@ class Jetpack_Carousel {
 														class="jp-carousel-comment-form-button"
 														id="jp-carousel-comment-form-button-submit"
 														value="<?php echo esc_attr( $localize_strings['post_comment'] ); ?>" />
-													<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
-													<div id="jp-carousel-comment-post-results"></div>
 												</div>
 											</form>
 										<?php endif ?>

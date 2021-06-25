@@ -551,6 +551,11 @@ a.jp-carousel-image-download:hover {
 	width: 100%;
 }
 
+#jp-carousel-comment-form.jp-carousel-is-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 textarea#jp-carousel-comment-form-comment-field {
 	background: rgba( 34, 34, 34, 0.9 );
 	border: 1px solid #3a3a3a;
@@ -648,6 +653,12 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	transform: translateZ( 0 );
 	-webkit-animation: load8 1.1s infinite linear;
 	animation: load8 1.1s infinite linear;
+	margin: 0 auto;
+    position: absolute; /* relative to .jp-carousel-comment-form-container */
+    top: 40%;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 @-webkit-keyframes load8 {
@@ -737,12 +748,19 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	font-size: 14px;
 }
 
+#jp-carousel-comment-form-button-submit:active,
+#jp-carousel-comment-form-button-submit:focus {
+	background: white;
+    color: rgba( 34, 34, 34, 0.9 );
+}
+
 #jp-carousel-comment-form-container {
 	margin-bottom: 15px;
 	overflow: auto;
 	width: 100%;
 	margin-top: 20px;
 	color: #999;
+	position: relative;
 }
 
 #jp-carousel-comment-post-results {
@@ -1093,5 +1111,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	#jp-carousel-comment-form-commenting-as fieldset,
 	#jp-carousel-comment-form-commenting-as input {
 		width: 100%;
+		float: none;
 	}
 }
