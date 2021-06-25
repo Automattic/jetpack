@@ -325,6 +325,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	border: none !important;
 	display: inline-block;
 	font: normal 20px/1.3em 'Helvetica Neue', sans-serif;
+	line-height: normal;
 	letter-spacing: 0 !important;
 	margin: 0 0 10px 0;
 	padding: 0;
