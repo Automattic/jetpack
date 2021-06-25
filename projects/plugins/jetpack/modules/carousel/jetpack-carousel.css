@@ -53,7 +53,7 @@
 
 .jp-carousel-container {
 	display: grid;
-	grid-template-rows: 1fr 80px; /* 1. main carousel, 2. info area as footer */
+	grid-template-rows: 1fr 64px; /* 1. main carousel, 2. info area as footer */
 	height: 100%;
 }
 
@@ -84,12 +84,11 @@
 .jp-carousel-info-footer {
 	position: relative;
 	background-color: #000;
-	height: 80px;
+	height: 64px;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	width: 100vw;
-	top: -15px;
 }
 
 .jp-carousel-info-extra {
@@ -277,9 +276,7 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 /** Pagination Start **/
 .jp-carousel-pagination-container {
 	flex: 1;
-	padding: 8px 15px 0 35px;
-	margin: 0;
-	height: 100%;
+	margin: 0 15px 0 35px;
 }
 
 .jp-swiper-pagination,
@@ -289,8 +286,13 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	white-space: nowrap;
 	display: none;
 	position: static !important;
-	text-align: left !important;
 }
+
+.jp-carousel-pagination-container .swiper-pagination {
+	text-align: left;
+	line-height: 8px;
+}
+
 .jp-carousel-pagination {
 	padding-left: 5px;
 }
@@ -317,8 +319,6 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	justify-content: center;
 	overflow: hidden;
 	margin: 0;
-	height: 100%;
-	padding-top: 8px;
 }
 
 .jp-carousel-photo-title {
@@ -1014,18 +1014,17 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	flex: 1;
 	display: block;
 	text-align: right;
-	margin: 15px 20px 20px 0;
-	height: 100%;
+	margin: 0 20px 0 30px;
     white-space: nowrap;
 }
 
 .jp-carousel-icon-btn {
-	padding: 8px 16px;
+	padding: 16px 16px;
 	text-decoration: none;
 	border: none;
 	background: none;
 	display: inline-block;
-	height: 60px;
+	height: 64px;
 }
 
 .jp-carousel-icon {
@@ -1118,6 +1117,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		display: none;
 	}
 
+	.jp-carousel-photo-icons-container {
+		margin: 0 15px 0 0;
+		white-space: nowrap;
+	}
+
 	.jp-carousel-icon-btn {
 		padding-left: 20px;
 	}
@@ -1127,7 +1131,7 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 
 	.jp-carousel-pagination-container {
-		padding-left: 25px;
+		margin-left: 25px;
 	}
 
 	.jp-carousel-comment .avatar {
