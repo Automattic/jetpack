@@ -438,7 +438,7 @@
 
 		function handleCommentFormClick( e ) {
 			var target = e.target;
-			var data = domUtil.getJSONAttribute( carousel.wrapper, 'data-carousel-extra' ) || {};
+			var data = domUtil.getJSONAttribute( carousel.container, 'data-carousel-extra' ) || {};
 			var attachmentId = carousel.currentSlide.attrs.attachmentId;
 
 			var wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
