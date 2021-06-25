@@ -1087,6 +1087,9 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 		overflow: visible !important;
 	}
 
+	.jp-carousel-info-footer .jp-carousel-photo-title-container {
+		display: none;
+	}
 	.jp-carousel-photo-icons-container {
 		margin: 0 15px 0 0;
 		white-space: nowrap;
