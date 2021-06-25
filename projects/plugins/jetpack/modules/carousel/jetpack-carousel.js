@@ -430,17 +430,21 @@
 			var elClass = 'jp-carousel-comment-post-' + ( isSuccess ? 'success' : 'error' );
 			results.innerHTML = '<span class="' + elClass + '">' + msg + '</span>';
 			domUtil.hide( carousel.overlay.querySelector( '#jp-carousel-comment-form-spinner' ) );
+			carousel.overlay
+				.querySelector( '#jp-carousel-comment-form' )
+				.classList.remove( 'jp-carousel-is-disabled' );
 			domUtil.show( results );
 		}
 
 		function handleCommentFormClick( e ) {
 			var target = e.target;
-			var data = domUtil.getJSONAttribute( carousel.wrapper, 'data-carousel-extra' ) || {};
+			var data = domUtil.getJSONAttribute( carousel.container, 'data-carousel-extra' ) || {};
 			var attachmentId = carousel.currentSlide.attrs.attachmentId;
 
 			var wrapper = document.querySelector( '#jp-carousel-comment-form-submit-and-info-wrapper' );
 			var spinner = document.querySelector( '#jp-carousel-comment-form-spinner' );
 			var submit = document.querySelector( '#jp-carousel-comment-form-button-submit' );
+			var form = document.querySelector( '#jp-carousel-comment-form' );
 
 			if (
 				carousel.commentField &&
@@ -454,6 +458,7 @@
 				e.stopPropagation();
 
 				domUtil.show( spinner );
+				form.classList.add( 'jp-carousel-is-disabled' );
 
 				var ajaxData = {
 					action: 'post_attachment_comment',
@@ -514,6 +519,7 @@
 						fetchComments( attachmentId );
 						submit.value = jetpackCarouselStrings.post_comment;
 						domUtil.hide( spinner );
+						form.classList.remove( 'jp-carousel-is-disabled' );
 					} else {
 						// TODO: Add error handling and display here
 						updatePostResults( jetpackCarouselStrings.comment_post_error, false );
