@@ -25,9 +25,9 @@ function getDateOptions( interval ) {
 
 // TODO: Fix this in the API
 // TODO: Remove once format is fixed in the API
-function fixDateFormat( dateString ) {
+export const fixDateFormat = dateString => {
 	return dateString.split( ' ' ).join( 'T' );
-}
+};
 
 export default class SearchFilter extends Component {
 	filtersList = createRef();

@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.repository == 'Automattic/jetpack'
-    timeout-minutes: 15  # 2021-01-18: Successful runs seem to usually take ~2 minutes, but sometimes the upload is slow and it takes 12.
+    timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
       - uses: actions/checkout@v2
         with:
@@ -176,11 +176,6 @@ jobs:
           fi
           echo "::set-output name=plugin-data::$PLUGIN_DATA"
 
-          # Prepare legacy jetpack-dev artifact
-          mkdir to-upload
-          mv work/jetpack-dev to-upload/jetpack-dev
-          echo "::set-output name=jetpack-version::$(<to-upload/jetpack-dev/version.txt)"
-
       - name: Create plugins artifact
         uses: actions/upload-artifact@v2
         with:
@@ -189,24 +184,14 @@ jobs:
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
 
-      - name: Create legacy jetpack-dev artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: jetpack-dev
-          path: to-upload
-          # Only need to retain for a day since the beta builder slurps it up to distribute.
-          retention-days: 1
-
       - name: Inform Beta Download webhook
         env:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
           PR: ${{ github.event.number }}
-          JPVER: ${{ steps.prepare.outputs.jetpack-version }}
         run: |
-          # TODO: Remove the JPVER bit when the legacy jetpack-dev artifact is removed.
           curl -v --fail -L \
-            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA&version=$JPVER" \
+            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
             --form-string "repo=$GITHUB_REPOSITORY" \
             --form-string "branch=${GITHUB_REF#refs/heads/}" \
             --form-string "plugins=$PLUGIN_DATA" \

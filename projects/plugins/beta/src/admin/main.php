@@ -5,11 +5,14 @@
  * @package automattic/jetpack-beta
  */
 
+use Automattic\JetpackBeta\Admin;
+use Automattic\JetpackBeta\Utils;
+
 ?>
 
 <div class="jetpack-beta__master-head">
 	<div class="jetpack-beta-container">
-		<a class="jp-masthead__logo-link" href="<?php echo esc_url( Jetpack_Beta_Admin::settings_link() ); ?>">
+		<a class="jp-masthead__logo-link" href="<?php echo esc_url( Admin::settings_link() ); ?>">
 			<svg className="jetpack-beta-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">
 				<path fill="<?php echo esc_attr( JETPACK_GREEN ); ?>" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z" />
 				<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
@@ -24,8 +27,8 @@
 	</div>
 </div>
 <div class="jetpack-beta-container" >
-	<?php Jetpack_Beta_Admin::show_needed_updates(); ?>
-	<?php if ( Jetpack_Beta::get_option() ) { ?>
+	<?php Admin::show_needed_updates(); ?>
+	<?php if ( Utils::get_option() ) { ?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
@@ -34,15 +37,15 @@
 					</div>
 				</span>
 				<span class="dops-foldable-card__secondary">
-					<?php Jetpack_Beta_Admin::show_toggle_emails(); ?>
-					<?php if ( ! Jetpack_Beta::is_on_tag() ) : ?>
-						<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+					<?php Admin::show_toggle_emails(); ?>
+					<?php if ( ! Utils::is_on_tag() ) : ?>
+						<?php Admin::show_toggle_autoupdates(); ?>
 					<?php endif; ?>
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<p><?php echo wp_kses_post( Jetpack_Beta::get_jetpack_plugin_pretty_version() ); ?>
-					| <?php echo wp_kses_post( Jetpack_Beta::get_jetpack_plugin_version() ); ?></p>
+				<p><?php echo wp_kses_post( Utils::get_jetpack_plugin_pretty_version() ); ?>
+					| <?php echo wp_kses_post( Utils::get_jetpack_plugin_version() ); ?></p>
 			</div>
 		</div>
 		<div class="dops-foldable-card has-expanded-summary dops-card">
@@ -59,7 +62,7 @@
 						href="<?php echo esc_url( JETPACK_BETA_REPORT_URL ); ?>"
 						class="is-primary jp-form-button dops-button is-primary is-compact jptracks"
 						data-jptracks-name="jetpack_beta_submit_report"
-						data-jptracks-prop="<?php echo esc_attr( Jetpack_Beta::get_jetpack_plugin_version() ); ?>"
+						data-jptracks-prop="<?php echo esc_attr( Utils::get_jetpack_plugin_version() ); ?>"
 					>
 						<?php esc_html_e( 'Report it!', 'jetpack-beta' ); ?>
 					</a>
@@ -70,23 +73,23 @@
 
 		<?php
 	} else {
-		Jetpack_Beta_Admin::start_notice();
+		Admin::start_notice();
 	}
 	?>
 	<div class="jetpack-beta__wrap">
 	<?php
-		Jetpack_Beta_Admin::show_stable_branch();
-		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate', 'jetpack-beta' ), 'rc', null, 'rc' );
-		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge', 'jetpack-beta' ), 'master', null, 'master' );
-		Jetpack_Beta_Admin::show_search_prs();
-		Jetpack_Beta_Admin::show_branches( 'pr' );
-		Jetpack_Beta_Admin::show_search_org_tags();
-		Jetpack_Beta_Admin::show_tags( 'tags' );
+		Admin::show_stable_branch();
+		Admin::show_branch( __( 'Release Candidate', 'jetpack-beta' ), 'rc', null, 'rc' );
+		Admin::show_branch( __( 'Bleeding Edge', 'jetpack-beta' ), 'master', null, 'master' );
+		Admin::show_search_prs();
+		Admin::show_branches( 'pr' );
+		Admin::show_search_org_tags();
+		Admin::show_tags( 'tags' );
 	?>
 	</div>
 
 	<?php
-	$to_test = Jetpack_Beta_Admin::to_test_content();
+	$to_test = Admin::to_test_content();
 	if ( $to_test ) {
 		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
@@ -104,7 +107,7 @@
 	<?php } ?>
 
 	<?php
-	$what_changed = Jetpack_Beta::what_changed();
+	$what_changed = Utils::what_changed();
 	if ( $what_changed ) {
 		?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
@@ -116,7 +119,7 @@
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">
-				<?php echo esc_html( Jetpack_Beta_Admin::render_markdown( $what_changed ) ); ?>
+				<?php echo esc_html( Admin::render_markdown( $what_changed ) ); ?>
 			</div>
 		</div>
 	<?php } ?>

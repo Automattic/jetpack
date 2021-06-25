@@ -3,7 +3,7 @@
  */
 import { useMemo, useEffect, useCallback } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
+import { ENTER, SPACE, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -53,6 +53,10 @@ export default function StoryPlayer( { id, slides, metadata, disabled, ...settin
 	const onKeyDown = useCallback(
 		event => {
 			switch ( event.keyCode ) {
+				case ENTER:
+					if ( fullscreen ) {
+						break;
+					}
 				case SPACE:
 					setPlaying( playerId, ! playing );
 					break;

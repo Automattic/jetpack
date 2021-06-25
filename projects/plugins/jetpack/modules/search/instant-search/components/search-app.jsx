@@ -17,6 +17,7 @@ import CustomizerEventHandler from './customizer-event-handler';
 import DomEventHandler from './dom-event-handler';
 import Overlay from './overlay';
 import SearchResults from './search-results';
+import { MULTISITE_NO_GROUP_VALUE, RESULT_FORMAT_EXPANDED } from '../lib/constants';
 import { getAvailableStaticFilters } from '../lib/filters';
 import { getResultFormatQuery, restorePreviousHref } from '../lib/query-string';
 import {
@@ -77,7 +78,7 @@ class SearchApp extends Component {
 			prevProps.sort !== this.props.sort ||
 			// Note the special handling for filters prop, which use object values.
 			stringify( prevProps.filters ) !== stringify( this.props.filters ) ||
-			prevProps.staticFilters !== this.props.staticFilters
+			stringify( prevProps.staticFilters ) !== stringify( this.props.staticFilters )
 		) {
 			this.onChangeQueryString( this.props.isHistoryNavigation );
 		}
@@ -98,6 +99,16 @@ class SearchApp extends Component {
 	getResultFormat = () => {
 		// Override the result format from the query string if result_format= is specified
 		const resultFormatQuery = getResultFormatQuery();
+
+		// Override the result format if group static filter is selected, always use expanded.
+		const isMultiSite =
+			this.props.staticFilters &&
+			this.props.staticFilters.group_id &&
+			this.props.staticFilters.group_id !== MULTISITE_NO_GROUP_VALUE;
+		if ( isMultiSite ) {
+			return RESULT_FORMAT_EXPANDED;
+		}
+
 		return resultFormatQuery || this.state.overlayOptions.resultFormat;
 	};
 

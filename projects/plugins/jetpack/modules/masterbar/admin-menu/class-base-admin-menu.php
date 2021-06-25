@@ -55,6 +55,7 @@ abstract class Base_Admin_Menu {
 			add_filter( 'admin_menu', array( $this, 'override_svg_icons' ), 99999 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 11 );
 			add_action( 'admin_head', array( $this, 'set_site_icon_inline_styles' ) );
+			add_filter( 'screen_settings', array( $this, 'register_dashboard_switcher' ), 99999, 2 );
 		}
 	}
 
