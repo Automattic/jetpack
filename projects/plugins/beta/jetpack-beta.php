@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.5.0-alpha
+ * Version: 3.0.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -40,7 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 define( 'JPBETA__PLUGIN_FOLDER', basename( __DIR__ ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA__PLUGIN_FILE', __FILE__ );
-define( 'JPBETA_VERSION', '2.5.0-alpha' );
+define( 'JPBETA_VERSION', '3.0.0-alpha' );
 
 define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
 
@@ -59,17 +59,18 @@ define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-gro
 
 defined( 'JETPACK_GREEN' ) || define( 'JETPACK_GREEN', '#2fb41f' );
 
-require_once 'class-jetpack-beta-autoupdate-self.php';
-require_once 'class-jetpackbetaclicommand.php';
-add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
+require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
 
-// The main plugin class file.
-require_once __DIR__ . '/class-jetpack-beta.php';
+add_action( 'init', array( Automattic\JetpackBeta\AutoupdateSelf::class, 'instance' ) );
 
-set_error_handler( array( 'Jetpack_Beta', 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+set_error_handler( array( Automattic\JetpackBeta\Hooks::class, 'custom_error_handler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
 
-register_activation_hook( __FILE__, array( 'Jetpack_Beta', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
+register_activation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'activate' ) );
+register_deactivation_hook( __FILE__, array( Automattic\JetpackBeta\Hooks::class, 'deactivate' ) );
 
-add_action( 'init', array( 'Jetpack_Beta', 'instance' ) );
-add_action( 'muplugins_loaded', array( 'Jetpack_Beta', 'is_network_enabled' ) );
+add_action( 'init', array( Automattic\JetpackBeta\Hooks::class, 'instance' ) );
+add_action( 'muplugins_loaded', array( Automattic\JetpackBeta\Hooks::class, 'is_network_enabled' ) );
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	WP_CLI::add_command( 'jetpack-beta', Automattic\JetpackBeta\CliCommand::class );
+}

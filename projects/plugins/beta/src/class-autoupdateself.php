@@ -1,24 +1,23 @@
 <?php
 /**
- * Primary class file for the Jetpack Beta plugin.
+ * Allow the Jetpack Beta plugin to autoupdate itself.
  *
  * @package automattic/jetpack-beta
  */
 
-// Check that the file is not accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+namespace Automattic\JetpackBeta;
+
+use WP_Error;
 
 /**
- * Allow the Jetpack Beta to autoupdate itself.
+ * Allow the Jetpack Beta plugin to autoupdate itself.
  */
-class Jetpack_Beta_Autoupdate_Self {
+class AutoupdateSelf {
 
 	/**
-	 * Singleton Jetpack_Beta class instance.
+	 * Singleton class instance.
 	 *
-	 * @var Jetpack_Beta_Autoupdate_Self
+	 * @var static
 	 */
 	protected static $instance = null;
 
@@ -166,12 +165,13 @@ class Jetpack_Beta_Autoupdate_Self {
 		delete_site_transient( self::TRANSIENT_NAME );
 
 		if ( $this->has_never_version() ) {
-			$response              = new stdClass();
-			$response->plugin      = $this->config['slug'];
-			$response->new_version = $this->config['new_version'];
-			$response->slug        = $this->config['slug'];
-			$response->url         = $this->config['github_url'];
-			$response->package     = $this->config['zip_url'];
+			$response = (object) array(
+				'plugin'      => $this->config['slug'],
+				'new_version' => $this->config['new_version'],
+				'slug'        => $this->config['slug'],
+				'url'         => $this->config['github_url'],
+				'package'     => $this->config['zip_url'],
+			);
 			// If response is false, don't alter the transient.
 			if ( false !== $response ) {
 				$transient->response[ $this->config['plugin_file'] ] = $response;
