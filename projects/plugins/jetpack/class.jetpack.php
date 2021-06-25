@@ -2454,11 +2454,14 @@ class Jetpack {
 				$modules = array();
 
 				foreach ( $files as $file ) {
-					if ( ! $headers = self::get_module( $file ) ) {
+					$slug    = self::get_module_slug( $file );
+					$headers = self::get_module( $slug );
+
+					if ( ! $headers ) {
 						continue;
 					}
 
-					$modules[ self::get_module_slug( $file ) ] = $headers['introduced'];
+					$modules[ $slug ] = $headers['introduced'];
 				}
 
 				Jetpack_Options::update_option(
@@ -2664,6 +2667,8 @@ class Jetpack {
 	 * Load module data from module file. Headers differ from WordPress
 	 * plugin headers to avoid them being identified as standalone
 	 * plugins on the WordPress plugins page.
+	 *
+	 * @param string $module The module slug.
 	 */
 	public static function get_module( $module ) {
 		$headers = array(
