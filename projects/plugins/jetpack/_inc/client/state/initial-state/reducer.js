@@ -409,11 +409,14 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 	if ( subsidiaryId ) {
 		redirectArgs.subsidiaryId = subsidiaryId;
 	}
+
+	redirectArgs.query = '';
+
 	if ( ! isCurrentUserLinked( state ) ) {
-		redirectArgs.query = 'unlinked=1';
+		redirectArgs.query += 'unlinked=1&';
 	}
 	if ( purchaseToken ) {
-		redirectArgs.purchasetoken = purchaseToken;
+		redirectArgs.query += `purchasetoken=${ purchaseToken }`;
 	}
 	if ( calypsoEnv ) {
 		redirectArgs.calypso_env = calypsoEnv;
