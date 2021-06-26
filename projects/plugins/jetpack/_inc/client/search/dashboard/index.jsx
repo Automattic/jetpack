@@ -3,6 +3,7 @@
  */
 import React, { Fragment, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -47,8 +48,9 @@ function SearchDashboard( props ) {
 			<Masthead></Masthead>
 			<div className="jp-search-dashboard__top">
 				<div className="jp-search-dashboard__title">
-					<h1>Help your visitors find exactly</h1>
-					<h1>what they&#39;re looking for, fast</h1>
+					<h1>
+						{ __( "Help your visitors find exactly what they're looking for, fast", 'jetpack' ) }
+					</h1>
 				</div>
 				<div className="jp-search-dashboard__search-dialog">
 					{ isInstantSearch ? <MockedInstantSearch /> : <MockedSearch /> }

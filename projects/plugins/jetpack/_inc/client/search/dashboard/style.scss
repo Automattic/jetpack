@@ -39,6 +39,10 @@
 		.jp-search-dashboard__title {
 			width: 100%;
 			max-width: 65rem;
+			h1 {
+				width: 15em;
+				line-height: 1.2em;
+			}
 		}
 		.jp-search-dashboard__search-dialog {
 			width: 90%;
