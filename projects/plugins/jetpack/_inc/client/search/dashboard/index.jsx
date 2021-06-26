@@ -11,7 +11,7 @@ import restApi from 'rest-api';
 import Masthead from 'components/masthead';
 import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
 import ModuleControl from './module-control';
-import MockedInstantSearchDialog from './mocked-instant-search-dialog';
+import MockedInstantSearch from './mocked-instant-search';
 import './style.scss';
 
 const useComponentWillMount = func => {
@@ -49,7 +49,7 @@ function SearchDashboard( props ) {
 					<h1>what they&#39;re looking for, fast</h1>
 				</div>
 				<div className="jp-search-dashboard__search-dialog">
-					<MockedInstantSearchDialog />
+					<MockedInstantSearch />
 				</div>
 			</div>
 			<div className="jp-search-dashboard__bottom">

@@ -9,14 +9,14 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import Gridicon from '../../../../modules/search/instant-search/components/gridicon';
 import TextRowPlaceHolder from './placeholder';
-import './mocked-instant-search-dialog.scss';
+import './mocked-instant-search.scss';
 
 /**
  * Generate mocked search dialog
  *
  * @returns {React.Component}	Mocked Search dialog component.
  */
-export default function MockedInstantSearchDialog() {
+export default function MockedInstantSearch() {
 	const renderFilterOption = label => (
 		<div className="jp-search-dashboard-mocked-search__search-filter">
 			<label>
