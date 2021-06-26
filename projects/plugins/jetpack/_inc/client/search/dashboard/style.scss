@@ -1,0 +1,82 @@
+#jp-search-dashboard {
+	.hide-if-no-js {
+		text-align: center;
+		width: 100vw;
+		height: 100vh;
+		margin: 0;
+
+		.jp-search-loader {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate( -50%, -50% );
+		}
+	}
+
+	.jp-masthead__logo-link {
+		pointer-events: none;
+	}
+
+	.jetpack-search-color-inputs {
+		display: flex;
+		flex-flow: wrap;
+		margin-bottom: 1em;
+
+		label {
+			width: 100%;
+		}
+		input[type='color'] {
+			align-self: center;
+			margin-right: 0.25em;
+		}
+	}
+
+	.jp-search-dashboard__top {
+		background-color: rgb( 249, 249, 246 );
+		display: flex;
+		align-items: center;
+		flex-flow: column;
+		.jp-search-dashboard__title {
+			width: 100%;
+			max-width: 65rem;
+		}
+		.jp-search-dashboard__search-dialog {
+			width: 90%;
+			max-width: 60rem;
+		}
+	}
+
+	.jp-search-dashboard__bottom {
+		position: absolute;
+		width: 100%;
+		bottom: -60px; //todo
+		left: 0;
+		background-color: white;
+
+		.jp-form-settings-group {
+			display: flex;
+			align-items: flex-start;
+			min-height: 50vh;
+			width: 100%;
+
+			.dops-card {
+				width: 60%;
+				box-shadow: none;
+				.jp-form-setting-search-toggle {
+					margin-top: 2em;
+					font-size: 1.5em;
+					font-weight: bold;
+
+					.jp-form-setting-explanation {
+						margin-top: 1em;
+						margin-left: 2.5em;
+					}
+
+					.form-toggle:checked + .form-toggle__label .form-toggle__switch {
+						background: rgb( 71, 155, 46 );
+					}
+				}
+			}
+		}
+	}
+}
