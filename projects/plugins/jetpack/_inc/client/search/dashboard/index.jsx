@@ -12,6 +12,7 @@ import Masthead from 'components/masthead';
 import { setInitialState, getApiNonce, getApiRootUrl } from 'state/initial-state';
 import ModuleControl from './module-control';
 import MockedInstantSearch from './mocked-instant-search';
+import MockedSearch from './mocked-search';
 import './style.scss';
 
 const useComponentWillMount = func => {
@@ -33,6 +34,7 @@ function SearchDashboard( props ) {
 
 	// NOTE: API root and nonce must be set before any components are mounted!
 	const { apiRootUrl, apiNonce, setInitialState: dispatchedSetInitialState } = props;
+	const isInstantSearch = true;
 
 	useComponentWillMount( () => {
 		apiRootUrl && restApi.setApiRoot( apiRootUrl );
@@ -49,7 +51,7 @@ function SearchDashboard( props ) {
 					<h1>what they&#39;re looking for, fast</h1>
 				</div>
 				<div className="jp-search-dashboard__search-dialog">
-					<MockedInstantSearch />
+					{ isInstantSearch ? <MockedInstantSearch /> : <MockedSearch /> }
 				</div>
 			</div>
 			<div className="jp-search-dashboard__bottom">

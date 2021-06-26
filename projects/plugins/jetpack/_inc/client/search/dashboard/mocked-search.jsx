@@ -17,12 +17,14 @@ import './mocked-search.scss';
  */
 export default function MockedSearch() {
 	return (
-		<div className="jp-search-dashboard-mocked-search__legacy-dialog-container">
-			<div className="jp-search-dashboard-mocked-search__search-icon">
-				<Gridicon icon="search" size={ 24 } />
-			</div>
-			<div className="jp-search-dashboard-mocked-search__search-mock-input">
-				<TextRowPlaceHolder style={ { height: '50px', width: '80%' } } />
+		<div className="jp-search-dashboard-mocked-search__legacy-search-container">
+			<div className="jp-search-dashboard-mocked-search__search-controls">
+				<div className="jp-search-dashboard-mocked-search__search-icon">
+					<Gridicon icon="search" size={ 24 } />
+				</div>
+				<div className="jp-search-dashboard-mocked-search__search-mock-input">
+					<TextRowPlaceHolder style={ { height: '50px', width: '80%' } } />
+				</div>
 			</div>
 		</div>
 	);

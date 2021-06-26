@@ -1,0 +1,33 @@
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+
+$color-layout-borders: $studio-wordpress-blue-0;
+$color-modal-background: $studio-white;
+$search-box-size: 60px;
+
+.jp-search-dashboard-mocked-search__legacy-search-container {
+	border-radius: 3px;
+	margin: 0 auto;
+	width: 100%;
+	height: 62vh;
+	user-select: none;
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+  padding-top: 8vh;
+
+	.jp-search-dashboard-mocked-search__search-controls {
+		display: flex;
+		flex-flow: row nowrap;
+    width: 100%;
+    background: $color-modal-background;
+    box-shadow: rgba( 0, 0, 0, 0.35 ) 0px 5px 25px;
+
+		.jp-search-dashboard-mocked-search__search-icon {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: $search-box-size;
+			height: $search-box-size;
+		}
+	}
+}
