@@ -3,7 +3,7 @@
  */
 import React from 'react';
 
-const PLACEHOLDER_BACKGROUND_COLOR = '#EEE';
+const PLACEHOLDER_BACKGROUND_COLOR = 'rgb(234, 239, 242)';
 
 const TextRowPlaceHolder = props => {
 	const defaultStyles = {
